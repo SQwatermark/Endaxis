@@ -199,8 +199,11 @@ describe('生成武器的正式模拟门禁', () => {
       ...weapon,
       traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
     };
-    const active = await simulateWeapon(weapon, operator, ['battleSkill']);
-    const baseline = await simulateWeapon(disabled, operator, ['battleSkill']);
+    // 正式物理控制先破防、再次命中才形成倒地；第二次战技才会触发物理异常武器事件。
+    const skillGroups = ['battleSkill', 'battleSkill'];
+    const options = { ownerStartFrames: [1, 400] };
+    const active = await simulateWeapon(weapon, operator, skillGroups, undefined, [], options);
+    const baseline = await simulateWeapon(disabled, operator, skillGroups, undefined, [], options);
     const extra = active.receiptEntries.filter(
       entry =>
         entry.event === 'DamageApplied' &&

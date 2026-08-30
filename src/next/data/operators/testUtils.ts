@@ -30,5 +30,11 @@ export function collectSteps(sequence: ActionSequenceDefinition): CombatStepDefi
       ? step.options.flatMap(option => collectSteps(option.sequence))
       : []),
     ...(step.kind === 'conditional' && step.whenFalse ? collectSteps(step.whenFalse) : []),
+    ...(step.kind === 'once' ||
+    step.kind === 'withActionBlackboardScope' ||
+    step.kind === 'repeatEachTick' ||
+    step.kind === 'forEachContextTarget'
+      ? collectSteps(step.body)
+      : []),
   ]);
 }

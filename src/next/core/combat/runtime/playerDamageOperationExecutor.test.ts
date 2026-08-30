@@ -11,6 +11,7 @@ import { ActionBlackboard } from './actionBlackboard';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { deriveHitId } from '../timeline/deriveHitId';
+import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../../packages/game-data-contract/src/conditions';
 
 const DAMAGE_STEP: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   kind: 'dealDamage',
@@ -55,6 +56,47 @@ function createAttributeSnapshots(attack = 100, defense = 0, criticalRate = 0) {
 }
 
 describe('PlayerDamageOperationExecutor', () => {
+  it('在实际执行生命伤害后置位本次技能的原生命中状态', () => {
+    const targetVitals = new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'mifu',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt: new CombatReceiptCollector(),
+      captureAttributeSnapshots: () => createAttributeSnapshots(),
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: () => true, evaluate: () => false },
+    });
+    const blackboard = new ActionBlackboard({ [NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY]: 0 });
+
+    expect(executor.execute(DAMAGE_STEP, { blackboard })).toBe(true);
+    expect(blackboard.getNumber(NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY)).toBe(1);
+  });
+
   it('applies standard health damage before the hit poise unit', () => {
     let sourceControlled = false;
     let runtimeAttack = 100;
@@ -469,7 +511,7 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(receipt.entries.map(entry => entry.event)).toEqual(['PoiseApplied']);
   });
 
-  it('resolves dynamic stagger from the current action blackboard', () => {
+  it('resolves and scales dynamic stagger from the current action blackboard', () => {
     const targetVitals = new CombatVitals({
       health: 1000,
       maxHealth: 1000,
@@ -504,12 +546,15 @@ describe('PlayerDamageOperationExecutor', () => {
     executor.execute(
       {
         kind: 'dealStagger',
-        parameters: { value: { kind: 'blackboard', key: 'poise' } },
+        parameters: {
+          value: { kind: 'blackboard', key: 'poise' },
+          valueMultiplier: { kind: 'blackboard', key: 'poise_scale' },
+        },
       },
-      { blackboard: new ActionBlackboard({ poise: 25 }) },
+      { blackboard: new ActionBlackboard({ poise: 25, poise_scale: 0.5 }) },
     );
 
-    expect(targetVitals.poise).toBe(75);
+    expect(targetVitals.poise).toBe(87.5);
   });
 
   it('drives preparation events and both modifier stages before the formula', () => {

@@ -1,6 +1,9 @@
-import { parseReferenceAwareBuffActionGraphSource } from '../source/buffActionGraph.ts';
 import { collectNativeActionNodes } from '../source/controlFlow.ts';
-import { collectBuffActionReferences } from '../source/buffActionGraph.ts';
+import {
+  collectBuffActionReferences,
+  parseReferenceAwareBuffActionGraphSource,
+} from '../source/buffActionGraph.ts';
+import { parseBuffRuntimeSource } from '../source/buffRuntime.ts';
 import { requireArray, requireRecord, requireString } from '../source/primitives.ts';
 
 const PRESENTATION_PLUMBING_ACTIONS = new Set([
@@ -61,7 +64,18 @@ function inspectBuff(id: string, loadBuff: (id: string) => unknown): BuffPresent
   try {
     const value = loadBuff(id);
     const root = requireRecord(value, `BuffData.${id}`);
-    const graph = parseReferenceAwareBuffActionGraphSource(value, `BuffData.${id}`, {});
+    // 表现闭包也必须走完整 Buff 两阶段黑板与动作解析；只追引用的宽松图会把已经支持的
+    // Effect/ShowHide 等动作留成 untracked，既无法验证字段，也会错误阻塞纯表现闭包。
+    // 只有严格解析尚未覆盖的表现管线动作才退回引用图；例如 combat-spec 尚未恢复
+    // ConvertEntityToSlot 的变换语义，但递归闭包可以证明其输出最终只供镜头动作消费。
+    let strictlyParsed = true;
+    let graph;
+    try {
+      graph = parseBuffRuntimeSource(value, `BuffData.${id}`).graph;
+    } catch {
+      strictlyParsed = false;
+      graph = parseReferenceAwareBuffActionGraphSource(value, `BuffData.${id}`, {});
+    }
     if (graph.buffId !== id) return { locallyInvisible: false, references: [] };
     const references = collectBuffActionReferences(graph).filter(
       reference => reference.kind === 'buff' && reference.state !== 'inactive',
@@ -75,17 +89,40 @@ function inspectBuff(id: string, loadBuff: (id: string) => unknown): BuffPresent
       ...graph.abilityEvents.flatMap(event => event.actions),
       ...graph.igniteEvents.flatMap(event => event.actions),
     ];
-    const actionsArePresentationOnly = sequences
+    const enabledNodes = sequences
       .flatMap(sequence => collectNativeActionNodes(sequence))
-      .filter(node => node.metadata.enabled)
-      .every(node => {
-        if (node.body.kind !== 'leaf') return true;
-        const leaf = node.body.value;
-        if (leaf.family === 'buffApplication' || leaf.family === 'buffFinish') return true;
-        if (leaf.family === 'presentation' || leaf.family === 'presentationCalculation')
-          return true;
-        return leaf.family === 'untracked' && PRESENTATION_PLUMBING_ACTIONS.has(leaf.nativeName);
-      });
+      .filter(node => node.metadata.enabled);
+    const hasOperatorUiSink = enabledNodes.some(
+      node =>
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'presentation' &&
+        node.body.value.action.kind === 'operatorUiEvent',
+    );
+    const actionsArePresentationOnly = enabledNodes.every(node => {
+      if (node.body.kind !== 'leaf') return true;
+      const leaf = node.body.value;
+      if (leaf.family === 'buffApplication' || leaf.family === 'buffFinish') return true;
+      if (leaf.family === 'presentation')
+        return leaf.action.kind !== 'playAnimation' || leaf.action.onEnd === undefined;
+      if (leaf.family === 'presentationCalculation') return true;
+      // 私有 UI Buff 内的计数、随机数和分支只驱动已经严格解析的专属 UI 事件。
+      // 引用的子 Buff 仍由闭包不动点逐个证明为纯表现；任一战斗子 Buff 会使父节点退出集合。
+      if (
+        hasOperatorUiSink &&
+        (leaf.family === 'blackboardMutation' ||
+          leaf.family === 'blackboardCalculation' ||
+          leaf.family === 'randomBlackboard')
+      )
+        return true;
+      // 严格解析后的目标组写入与条件本身没有战斗输出；在整个递归闭包的其余叶子都只会
+      // 创建/结束纯表现 Buff 或驱动表现动作时，它们也只能充当表现数据流的中间节点。
+      if (leaf.family === 'targetGroup' || leaf.family === 'condition') return true;
+      return (
+        !strictlyParsed &&
+        leaf.family === 'untracked' &&
+        PRESENTATION_PLUMBING_ACTIONS.has(leaf.nativeName)
+      );
+    });
     return {
       locallyInvisible:
         hasNoVisibleIcon(root, id) &&

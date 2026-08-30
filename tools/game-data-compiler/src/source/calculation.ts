@@ -6,6 +6,7 @@ import {
   requireRecord,
 } from './primitives.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
+import { parseAttributeTypeName, type AttributeTypeSource } from './attributeModifiers.ts';
 
 /** HealAction、DamageAction 等原生动作共用的数值计算结构。 */
 export type NativeCalculationSource =
@@ -21,7 +22,7 @@ export type NativeCalculationSource =
   | {
       readonly kind: 'attribute';
       readonly valueSource: string;
-      readonly attributeType: string;
+      readonly attributeType: AttributeTypeSource;
       readonly multiplier: ScalarSource;
       readonly addition: ScalarSource;
     }
@@ -76,7 +77,7 @@ export function parseNativeCalculationSource(
       return {
         kind: 'attribute',
         valueSource: requireNonEmptyString(calculation.valueSource, `${path}.valueSource`),
-        attributeType: requireNonEmptyString(calculation.attributeType, `${path}.attributeType`),
+        attributeType: parseAttributeTypeName(calculation.attributeType, `${path}.attributeType`),
         multiplier: parseScalarSource(
           calculation.multiplier,
           `${path}.multiplier`,

@@ -16,6 +16,7 @@ export function renderOperatorDefinitionSource(input: {
   readonly operator: RecordValue;
   readonly commonBuffDefinitions: RecordValue;
 }): string {
+  assertFiniteNumbers(input, '$');
   const context: RenderContext = { helpers: new Set() };
   const operator = { ...input.operator };
   const skillDeclarations: string[] = [];
@@ -113,6 +114,21 @@ export default ${renderedOperator} as const satisfies OperatorDefinition;
 `;
 }
 
+function assertFiniteNumbers(value: unknown, path: string): void {
+  if (typeof value === 'number') {
+    // Unity AnimationCurve 用 ±Infinity tangent 表示阶跃切线；旧生成器也以显式
+    // Number 常量保留。NaN 没有对应的合法来源语义，仍必须带路径失败。
+    if (Number.isNaN(value)) throw new Error(`cannot render NaN at ${path}`);
+    return;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertFiniteNumbers(item, `${path}[${index}]`));
+    return;
+  }
+  if (value === null || typeof value !== 'object' || isRaw(value)) return;
+  for (const [key, item] of Object.entries(value)) assertFiniteNumbers(item, `${path}.${key}`);
+}
+
 function renderSkill(skill: RecordValue, context: RenderContext): string {
   if (!hasOwn(skill, 'blackboard')) return renderValue(skill, context);
   const { blackboard, ...definition } = skill;
@@ -125,7 +141,9 @@ function renderValue(value: unknown, context: RenderContext, property?: string):
   if (value === null || typeof value === 'boolean' || typeof value === 'string')
     return JSON.stringify(value);
   if (typeof value === 'number') {
-    if (!Number.isFinite(value)) throw new Error('cannot render non-finite number');
+    if (value === Number.POSITIVE_INFINITY) return 'Number.POSITIVE_INFINITY';
+    if (value === Number.NEGATIVE_INFINITY) return 'Number.NEGATIVE_INFINITY';
+    if (Number.isNaN(value)) throw new Error('cannot render NaN');
     if (property === 'attackScale') {
       context.helpers.add('percentage');
       return `percentage(${renderNumber(value * 100)})`;
@@ -190,11 +208,23 @@ function renderHelper(value: RecordValue, context: RenderContext): string | null
       context,
     );
   if (
+    value.kind === 'repeatByActionValue' &&
+    sameKeys(Object.keys(parameters), ['count']) &&
+    hasOwn(value, 'body')
+  )
+    return callHelper('repeatByActionValue', [parameters.count, value.body], context);
+  if (
     value.kind === 'forEachContextTarget' &&
     sameKeys(Object.keys(parameters), ['contextKey']) &&
     hasOwn(value, 'body')
   )
     return callHelper('forEachContextTarget', [parameters.contextKey, value.body], context);
+  if (
+    value.kind === 'forEachContextTarget' &&
+    sameKeys(Object.keys(parameters), ['target']) &&
+    hasOwn(value, 'body')
+  )
+    return callHelper('forEachTarget', [parameters.target, value.body], context);
   if (value.kind === 'withActionBlackboardScope' && hasOwn(value, 'body')) {
     const {
       scopeKey,
@@ -203,6 +233,7 @@ function renderHelper(value: RecordValue, context: RenderContext): string | null
       initialValues,
       inheritParent,
       entityInitialValues,
+      entityAssignments,
       ...unexpected
     } = parameters;
     if (
@@ -212,12 +243,18 @@ function renderHelper(value: RecordValue, context: RenderContext): string | null
       inheritParent !== undefined
     ) {
       const args = [scopeKey, initialValues, inheritParent, value.body];
-      if (entityInitialValues !== undefined || lifetime !== undefined || alwaysNext === true)
+      if (
+        entityInitialValues !== undefined ||
+        lifetime !== undefined ||
+        alwaysNext === true ||
+        entityAssignments !== undefined
+      )
         args.push(entityInitialValues === undefined ? raw('undefined') : entityInitialValues);
-      if (lifetime !== undefined || alwaysNext === true)
+      if (lifetime !== undefined || alwaysNext === true || entityAssignments !== undefined)
         args.push({
           ...(lifetime === undefined ? {} : { lifetime }),
           ...(alwaysNext === true ? { alwaysNext: true } : {}),
+          ...(entityAssignments === undefined ? {} : { entityAssignments }),
         });
       return callHelper('withActionBlackboardScope', args, context);
     }

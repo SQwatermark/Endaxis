@@ -190,6 +190,51 @@ describe('OwnerSpawned AbilityEntity 公共查询投影', () => {
     ]);
   });
 
+  it('把不限量且无 Buff 过滤的主角距离升序保留为木桩模型查询事实', () => {
+    const catalog = compileAbilityEntityTemplateCatalogSource({
+      abilityentity_fixture: abilityEntityFixture(),
+    });
+    const source = parseTargetReferenceSource(
+      targetFixture('InstantSearch', {
+        finderData: {
+          $type: 'Example.Selector+OwnerSpawnedEntityFinder+Data, Example',
+          spawnedObjectType: 'AbilityEntity',
+        },
+        validatorData: [],
+        postProcessorData: [priorityFilterFixture('DistanceFromMainCharAsc', false, 0)],
+      }),
+      'skill.target',
+    );
+
+    expect(
+      compileTargetReferenceAbilityEntityQuerySource(
+        source,
+        catalog,
+        new GameplayTagRegistry([]),
+        'skill.target',
+      ).postProcessors,
+    ).toEqual([{ kind: 'distanceFromMainCharacter', order: 'ascending', maxTargets: 128 }]);
+
+    expect(() =>
+      compileTargetReferenceAbilityEntityQuerySource(
+        {
+          ...source,
+          priorityFilters: [
+            priorityFilterSource('DistanceFromMainCharAsc'),
+            {
+              ...priorityFilterSource('DistanceFromMainCharAsc'),
+              limitMaxNum: true,
+              maxNum: 1,
+            },
+          ].slice(1),
+        },
+        catalog,
+        new GameplayTagRegistry([]),
+        'skill.target',
+      ),
+    ).toThrow(/unsupported PriorityFilter/);
+  });
+
   it('未证明的对象类型、验证器、后处理器和缺少查询数据都失败关闭', () => {
     const catalog = compileAbilityEntityTemplateCatalogSource({
       abilityentity_fixture: abilityEntityFixture(),

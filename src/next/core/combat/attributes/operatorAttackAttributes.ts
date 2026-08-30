@@ -38,9 +38,11 @@ export type OperatorRuntimeAttribute =
   | 'PhysicalAndSpellInflictionEnhance'
   | 'AtbCostAddition'
   | 'ComboSkillCooldownRecoveryScalar'
+  | 'SlowActionSpeedScalar'
   | 'UltimateSpGainScalar'
   | 'KnockDownTimeAddition'
   | 'criticalRate'
+  | 'weaknessDamageMultiplier'
   | 'shelterDamageMultiplier'
   | 'criticalDamageIncrease'
   | 'healOutputIncrease'
@@ -132,6 +134,8 @@ export function createOperatorAttackAttributes(
   // 完整面板必须进入同一属性公式；只保存增量会使最终乘法绕过静态暴击率/暴伤。
   result.define('criticalRate', input.criticalRate ?? 0, {});
   result.define('criticalDamageIncrease', input.criticalDamage ?? 0, {});
+  // AttributeType.WeaknessDmgScalar 是玩家伤害公式的攻击方独立乘区，原生基值为 1。
+  result.define('weaknessDamageMultiplier', 1, {});
   // AttributeMetaTable[45]: default 0, no min/max.
   result.define('AtbCostAddition', 0, {});
   // AttributeMetaTable[34]：倒地请求读取来源的时长加成，默认 0、下限 0、无上限。
@@ -140,6 +144,8 @@ export function createOperatorAttackAttributes(
   result.define('shelterDamageMultiplier', 0, {});
   // AttributeMetaTable[93]: default 1, minimum 0, no maximum.
   result.define('ComboSkillCooldownRecoveryScalar', 1, { minimum: 0 });
+  // combat-spec derived-attributes：该原生属性默认 0，只派生移动速度；固定零距离模型仍须承载 Buff。
+  result.define('SlowActionSpeedScalar', 0, {});
   // AttributeMetaTable[44]: 正向终结技能量回复在每次结算时读取该动态属性。
   result.define('UltimateSpGainScalar', input.ultimateEnergyGainEfficiency ?? 1, {
     minimum: 0,

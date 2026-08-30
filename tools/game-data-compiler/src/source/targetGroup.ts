@@ -16,7 +16,8 @@ import {
   type ShapeFinderSource,
   type TargetReferenceSource,
 } from './target.ts';
-import type { TagQuerySource } from './tagQuery.ts';
+import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
+import type { BlackboardLevelValues } from './scalar.ts';
 import type {
   DistanceValidatorSource,
   PriorityFilterSource,
@@ -40,8 +41,15 @@ export interface TargetGroupInputSource {
   readonly finderFactionTarget: string | null;
   readonly finderTargetObjectType: string | null;
   readonly finderCheckAlive: boolean | null;
+  readonly finderAutoSetTargetFaction?: boolean | null;
+  readonly finderTargetFactionType?: string | number | null;
   readonly finderShape: ShapeFinderSource | null;
   readonly finderOwnerPartsQuery: TagQuerySource | null;
+  readonly finderPointBlackboardKeys?: readonly string[];
+  readonly finderRandomPointCount?: {
+    readonly value: number;
+    readonly blackboardKey: string | null;
+  };
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
   readonly priorityFilters: readonly PriorityFilterSource[];
@@ -49,6 +57,14 @@ export interface TargetGroupInputSource {
   readonly distanceValidators: readonly DistanceValidatorSource[];
   readonly finderSpawnedObjectType: string | null;
   readonly validatorTagQueries: ReadonlyArray<readonly [string, readonly number[]]>;
+  readonly targetContainsParents?: readonly {
+    readonly targetSource: string;
+    readonly targetGroupKey: string;
+  }[];
+  readonly excludeTargets?: readonly {
+    readonly targetSource: string;
+    readonly targetGroupKey: string;
+  }[];
 }
 
 export interface TargetGroupWriteSource {
@@ -63,19 +79,36 @@ export interface TargetGroupWriteSource {
     | 'ContinuousFindTargetAction'
     | 'MergeTargetAction'
     | 'PickTargetAction'
-    | 'ConvertToTargetContext';
+    | 'ConvertToTargetContext'
+    | 'TargetPostProcessorAction';
   readonly finderType: string | null;
   readonly finderFactionTarget: string | null;
   readonly finderTargetObjectType: string | null;
   readonly finderCheckAlive: boolean | null;
+  readonly finderAutoSetTargetFaction?: boolean | null;
+  readonly finderTargetFactionType?: string | number | null;
   readonly finderShape: ShapeFinderSource | null;
   readonly finderOwnerPartsQuery: TagQuerySource | null;
+  readonly finderPointBlackboardKeys?: readonly string[];
+  readonly finderRandomPointCount?: {
+    readonly value: number;
+    readonly blackboardKey: string | null;
+  };
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
   readonly inputTargets: readonly TargetGroupInputSource[];
   readonly intervalSeconds: number | null;
   readonly finderSpawnedObjectType: string | null;
   readonly validatorTagQueries: ReadonlyArray<readonly [string, readonly number[]]>;
+  /** TargetContainsValidator 的父集合来源；缺失等同没有该验证器。 */
+  readonly targetContainsParents?: readonly {
+    readonly targetSource: string;
+    readonly targetGroupKey: string;
+  }[];
+  readonly excludeTargets?: readonly {
+    readonly targetSource: string;
+    readonly targetGroupKey: string;
+  }[];
   readonly finderFixedPointSnapToNavmesh: boolean | null;
   readonly center: string | null;
   readonly centerContextKey: string;
@@ -88,6 +121,7 @@ export interface TargetGroupWriteSource {
   readonly excludesCurrentTarget: boolean;
   readonly excludesOwner: boolean;
   readonly smartTargetFallsBackToMainTarget: boolean;
+  readonly smartTargetSelection?: SmartTargetSelectionSource | null;
   readonly distanceValidatorsPassAtZero: boolean;
   readonly priorityFilterMaxTargets: number | null;
   /** 完整 PriorityFilter 载荷；maxTargets 只是旧场景投影所需的派生快捷值。 */
@@ -103,10 +137,42 @@ export interface TargetGroupWriteSource {
   readonly pickIndexValue: number | null;
   readonly pickIndexBlackboardKey: string | null;
   readonly saveCountToBlackboardKey: string | null;
-  /** ConvertToTargetContext 的原生操作；当前仅闭环不会改写目标的 None 分支。 */
-  readonly conversionOperation?: 'None' | 'ConvertEntityToPosition';
+  /** ConvertToTargetContext 的原生操作；空间变换分支仍保持失败关闭。 */
+  readonly conversionOperation?:
+    'None' | 'ConvertEntityToPosition' | 'ConvertEntityToSlot' | 'ExcludeTarget';
   /** None 分支不消费这些字段，但来源 IR 仍完整保留，避免把原生事实吞掉。 */
   readonly conversionTransform?: TargetContextTransformSource;
+  /** TargetPostProcessorAction 不重新搜索，而是复制候选组后依次执行 validator/postprocessor。 */
+  readonly targetPostProcessor?: TargetPostProcessorSource;
+}
+
+export interface TargetPostProcessorSource {
+  readonly target: TargetReferenceSource;
+  readonly center: TargetReferenceSource;
+  readonly source: TargetReferenceSource;
+  readonly direction: {
+    readonly directionType: string;
+    /** customSourceAndTarget=false 时原生数据可不序列化这两个覆盖引用。 */
+    readonly source: TargetReferenceSource | null;
+    readonly target: TargetReferenceSource | null;
+    readonly sourceMountPoint: string;
+    readonly targetMountPoint: string;
+    readonly customSourceAndTarget: boolean;
+    readonly clampToXZ: boolean;
+    readonly invertDirection: boolean;
+  };
+}
+
+export interface SmartTargetSelectionSource {
+  readonly strategy: string;
+  readonly buffIds: readonly string[];
+  readonly tagQuery: TagQuerySource;
+  readonly buffFindCheckType: string;
+  readonly buffFindIds: readonly string[];
+  readonly buffFindTagQuery: TagQuerySource;
+  readonly useCustomRange: boolean;
+  readonly range: SerializedBlackboardNumberSource;
+  readonly limitFallbackRange: boolean;
 }
 
 export interface SerializedBlackboardNumberSource {
@@ -163,6 +229,20 @@ const PICK_FIELDS = new Set([
   'index',
   'contextKey',
 ]);
+const TARGET_POST_PROCESSOR_FIELDS = new Set([
+  '$type',
+  'isEnable',
+  'priorityLevel',
+  'priorityOffset',
+  'serverActionIndex',
+  'target',
+  'centerPos',
+  'source',
+  'direction',
+  'validatorData',
+  'postProcessorData',
+  'targetGroupKey',
+]);
 const FIND_FIELDS = new Set([
   '$type',
   'advancedSelectorDirection',
@@ -216,7 +296,8 @@ export function parseTargetGroupWriteAction(
     producerType !== 'ContinuousFindTargetAction' &&
     producerType !== 'MergeTargetAction' &&
     producerType !== 'PickTargetAction' &&
-    producerType !== 'ConvertToTargetContext'
+    producerType !== 'ConvertToTargetContext' &&
+    producerType !== 'TargetPostProcessorAction'
   ) {
     return null;
   }
@@ -238,6 +319,7 @@ export function parseTargetGroupWriteAction(
 export function parseTargetGroupActionSource(
   value: unknown,
   path: string,
+  inheritedBlackboard: BlackboardLevelValues = {},
 ): TargetGroupActionSource | null {
   const action = requireRecord(value, path);
   if (typeof action.$type !== 'string') return null;
@@ -247,13 +329,14 @@ export function parseTargetGroupActionSource(
     producerType !== 'ContinuousFindTargetAction' &&
     producerType !== 'MergeTargetAction' &&
     producerType !== 'PickTargetAction' &&
-    producerType !== 'ConvertToTargetContext'
+    producerType !== 'ConvertToTargetContext' &&
+    producerType !== 'TargetPostProcessorAction'
   ) {
     return null;
   }
   requireBoolean(action.isEnable, `${path}.isEnable`);
   if (producerType === 'FindTargetAction' || producerType === 'ContinuousFindTargetAction') {
-    return parseFindTargetAction(action, path, producerType);
+    return parseFindTargetAction(action, path, producerType, inheritedBlackboard);
   }
   if (producerType === 'MergeTargetAction') {
     return parseMergeTargetAction(action, path);
@@ -264,7 +347,127 @@ export function parseTargetGroupActionSource(
   if (producerType === 'ConvertToTargetContext') {
     return parseConvertToTargetContextAction(action, path);
   }
+  if (producerType === 'TargetPostProcessorAction') {
+    return parseTargetPostProcessorAction(action, path, inheritedBlackboard);
+  }
   return null;
+}
+
+function parseTargetPostProcessorAction(
+  action: Record<string, unknown>,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): TargetGroupActionSource {
+  requireExactFields(action, TARGET_POST_PROCESSOR_FIELDS, path);
+  const target = parseTargetReferenceSource(action.target, `${path}.target`);
+  const center = parseTargetReferenceSource(action.centerPos, `${path}.centerPos`);
+  const source = parseTargetReferenceSource(action.source, `${path}.source`);
+  const selector = {
+    validatorData: requireArray(action.validatorData, `${path}.validatorData`),
+    postProcessorData: requireArray(action.postProcessorData, `${path}.postProcessorData`),
+  };
+  const summary = parseSelectorSummarySource(
+    selector,
+    `${path}.selector`,
+    false,
+    inheritedBlackboard,
+  );
+  const directionPath = `${path}.direction`;
+  const direction = requireRecord(action.direction, directionPath);
+  const hasDirectionSource = Object.hasOwn(direction, 'source');
+  const hasDirectionTarget = Object.hasOwn(direction, 'target');
+  if (hasDirectionSource !== hasDirectionTarget) {
+    throw new Error(`${directionPath}: source and target overrides must be serialized together`);
+  }
+  requireExactFields(
+    direction,
+    new Set([
+      'directionType',
+      ...(hasDirectionSource ? ['source', 'target'] : []),
+      'sourceMountPoint',
+      'targetMountPoint',
+      'customSourceAndTarget',
+      'clampToXZ',
+      'invertDirection',
+    ]),
+    directionPath,
+  );
+  const customSourceAndTarget = requireBoolean(
+    direction.customSourceAndTarget,
+    `${directionPath}.customSourceAndTarget`,
+  );
+  const directionSource = hasDirectionSource
+    ? parseTargetReferenceSource(direction.source, `${directionPath}.source`)
+    : null;
+  const directionTarget = hasDirectionTarget
+    ? parseTargetReferenceSource(direction.target, `${directionPath}.target`)
+    : null;
+  if (customSourceAndTarget && (directionSource === null || directionTarget === null)) {
+    throw new Error(`${directionPath}: custom source and target references are required`);
+  }
+  const input: TargetGroupInputSource = {
+    targetSource: target.targetSource,
+    targetGroupKey: target.targetGroupKey,
+    finderType: target.finderType,
+    finderFactionTarget: null,
+    finderTargetObjectType: null,
+    finderCheckAlive: null,
+    finderShape: target.finderShape,
+    finderOwnerPartsQuery: target.finderOwnerPartsQuery,
+    ...(target.finderPointBlackboardKeys === undefined
+      ? {}
+      : { finderPointBlackboardKeys: target.finderPointBlackboardKeys }),
+    validatorTypes: target.validatorTypes,
+    postProcessorTypes: target.postProcessorTypes,
+    priorityFilters: target.priorityFilters,
+    shuffleTargets: target.shuffleTargets,
+    distanceValidators: target.distanceValidators,
+    finderSpawnedObjectType: target.finderSpawnedObjectType,
+    validatorTagQueries: target.validatorTagQueries,
+  };
+  return {
+    ...createBaseAction(
+      'TargetPostProcessorAction',
+      requireNonEmptyString(action.targetGroupKey, `${path}.targetGroupKey`),
+      [input],
+    ),
+    validatorTypes: summary.validatorTypes,
+    postProcessorTypes: summary.postProcessorTypes,
+    priorityFilters: summary.priorityFilters,
+    shuffleTargets: summary.shuffleTargets,
+    distanceValidators: summary.distanceValidators,
+    center: center.targetSource,
+    centerContextKey: center.targetGroupKey,
+    selectorOwner: source.targetSource,
+    selectorOwnerContextKey: source.targetGroupKey,
+    targetPostProcessor: {
+      target,
+      center,
+      source,
+      direction: {
+        directionType: requireNonEmptyString(
+          direction.directionType,
+          `${directionPath}.directionType`,
+        ),
+        source: directionSource,
+        target: directionTarget,
+        sourceMountPoint: requireNonEmptyString(
+          direction.sourceMountPoint,
+          `${directionPath}.sourceMountPoint`,
+        ),
+        targetMountPoint: requireNonEmptyString(
+          direction.targetMountPoint,
+          `${directionPath}.targetMountPoint`,
+        ),
+        customSourceAndTarget,
+        clampToXZ: requireBoolean(direction.clampToXZ, `${directionPath}.clampToXZ`),
+        invertDirection: requireBoolean(
+          direction.invertDirection,
+          `${directionPath}.invertDirection`,
+        ),
+      },
+    },
+  };
 }
 
 function parseConvertToTargetContextAction(
@@ -273,7 +476,12 @@ function parseConvertToTargetContextAction(
 ): TargetGroupActionSource {
   requireExactFields(action, CONVERT_FIELDS, path);
   const operation = requireNonEmptyString(action.operationType, `${path}.operationType`);
-  if (operation !== 'None' && operation !== 'ConvertEntityToPosition')
+  if (
+    operation !== 'None' &&
+    operation !== 'ConvertEntityToPosition' &&
+    operation !== 'ConvertEntityToSlot' &&
+    operation !== 'ExcludeTarget'
+  )
     throw new Error(`${path}.operationType: unsupported operation ${JSON.stringify(operation)}`);
   const translateOperation = requireNonEmptyString(
     action.translateOperation,
@@ -312,8 +520,16 @@ function parseConvertToTargetContextAction(
     finderFactionTarget: summary.finderFactionTarget,
     finderTargetObjectType: summary.finderTargetObjectType,
     finderCheckAlive: summary.finderCheckAlive,
+    finderAutoSetTargetFaction: summary.finderAutoSetTargetFaction,
+    finderTargetFactionType: summary.finderTargetFactionType,
     finderShape: summary.finderShape,
     finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
+    ...(summary.finderPointBlackboardKeys.length === 0
+      ? {}
+      : { finderPointBlackboardKeys: summary.finderPointBlackboardKeys }),
+    ...(summary.finderRandomPointCount === null
+      ? {}
+      : { finderRandomPointCount: summary.finderRandomPointCount }),
     validatorTypes: summary.validatorTypes,
     postProcessorTypes: summary.postProcessorTypes,
     priorityFilters: summary.priorityFilters,
@@ -321,6 +537,10 @@ function parseConvertToTargetContextAction(
     distanceValidators: summary.distanceValidators,
     finderSpawnedObjectType: source.finderSpawnedObjectType,
     validatorTagQueries: source.validatorTagQueries,
+    ...(summary.targetContainsParents.length === 0
+      ? {}
+      : { targetContainsParents: summary.targetContainsParents }),
+    ...(summary.excludeTargets.length === 0 ? {} : { excludeTargets: summary.excludeTargets }),
   };
   const vector = requireRecord(action.blackboardVector3, `${path}.blackboardVector3`);
   requireExactFields(vector, new Set(['x', 'y', 'z']), `${path}.blackboardVector3`);
@@ -351,8 +571,16 @@ function parseConvertToTargetContextAction(
     finderFactionTarget: summary.finderFactionTarget,
     finderTargetObjectType: summary.finderTargetObjectType,
     finderCheckAlive: summary.finderCheckAlive,
+    finderAutoSetTargetFaction: summary.finderAutoSetTargetFaction,
+    finderTargetFactionType: summary.finderTargetFactionType,
     finderShape: summary.finderShape,
     finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
+    ...(summary.finderPointBlackboardKeys.length === 0
+      ? {}
+      : { finderPointBlackboardKeys: summary.finderPointBlackboardKeys }),
+    ...(summary.finderRandomPointCount === null
+      ? {}
+      : { finderRandomPointCount: summary.finderRandomPointCount }),
     validatorTypes: summary.validatorTypes,
     postProcessorTypes: summary.postProcessorTypes,
     priorityFilters: summary.priorityFilters,
@@ -360,6 +588,9 @@ function parseConvertToTargetContextAction(
     distanceValidators: summary.distanceValidators,
     finderSpawnedObjectType: source.finderSpawnedObjectType,
     validatorTagQueries: source.validatorTagQueries,
+    ...(summary.targetContainsParents.length === 0
+      ? {}
+      : { targetContainsParents: summary.targetContainsParents }),
     conversionOperation: operation,
     conversionTransform: {
       translateOperation,
@@ -375,6 +606,7 @@ function parseFindTargetAction(
   action: Record<string, unknown>,
   path: string,
   producerType: 'FindTargetAction' | 'ContinuousFindTargetAction',
+  inheritedBlackboard: BlackboardLevelValues,
 ): TargetGroupActionSource {
   const expectedFields = new Set(FIND_FIELDS);
   if (producerType === 'ContinuousFindTargetAction') expectedFields.add('findInterval');
@@ -382,7 +614,7 @@ function parseFindTargetAction(
 
   const selectorPath = `${path}.selectorData`;
   const selector = requireRecord(action.selectorData, selectorPath);
-  const summary = parseSelectorSummarySource(selector, selectorPath, true);
+  const summary = parseSelectorSummarySource(selector, selectorPath, true, inheritedBlackboard);
   const identity = parseSpawnedEntitySelectorIdentitySource(selector, selectorPath);
   const circularOrder = parseCircularOrderSource(selector, selectorPath);
 
@@ -400,6 +632,7 @@ function parseFindTargetAction(
       `${selectorPath}.finderData.snapToNavmesh`,
     );
   }
+  const smartTargetSelection = parseSmartTargetSelection(selector, selectorPath);
 
   return {
     ...createBaseAction(
@@ -411,13 +644,25 @@ function parseFindTargetAction(
     finderFactionTarget: summary.finderFactionTarget,
     finderTargetObjectType: summary.finderTargetObjectType,
     finderCheckAlive: summary.finderCheckAlive,
+    finderAutoSetTargetFaction: summary.finderAutoSetTargetFaction,
+    finderTargetFactionType: summary.finderTargetFactionType,
     finderShape: summary.finderShape,
     finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
+    ...(summary.finderPointBlackboardKeys.length === 0
+      ? {}
+      : { finderPointBlackboardKeys: summary.finderPointBlackboardKeys }),
+    ...(summary.finderRandomPointCount === null
+      ? {}
+      : { finderRandomPointCount: summary.finderRandomPointCount }),
     validatorTypes: summary.validatorTypes,
     postProcessorTypes: summary.postProcessorTypes,
     intervalSeconds,
     finderSpawnedObjectType: identity.spawnedObjectType,
     validatorTagQueries: identity.tagQueries,
+    ...(summary.targetContainsParents.length === 0
+      ? {}
+      : { targetContainsParents: summary.targetContainsParents }),
+    ...(summary.excludeTargets.length === 0 ? {} : { excludeTargets: summary.excludeTargets }),
     finderFixedPointSnapToNavmesh,
     center: requireString(action.center, `${path}.center`),
     centerContextKey: requireString(action.centerContextKey, `${path}.centerContextKey`),
@@ -432,6 +677,7 @@ function parseFindTargetAction(
     excludesCurrentTarget: selectorExcludesPlainCurrentTarget(selector, selectorPath),
     excludesOwner: selectorExcludesPlainOwner(selector, selectorPath),
     smartTargetFallsBackToMainTarget: smartTargetFallsBackToMainTarget(selector, selectorPath),
+    ...(smartTargetSelection === null ? {} : { smartTargetSelection }),
     distanceValidatorsPassAtZero: distanceValidatorsPassAtZero(selector, selectorPath),
     priorityFilterMaxTargets: priorityFilterMaxTargets(selector, selectorPath),
     priorityFilters: summary.priorityFilters,
@@ -468,6 +714,8 @@ function parseMergeTargetAction(
       finderFactionTarget: summary.finderFactionTarget,
       finderTargetObjectType: summary.finderTargetObjectType,
       finderCheckAlive: summary.finderCheckAlive,
+      finderAutoSetTargetFaction: summary.finderAutoSetTargetFaction,
+      finderTargetFactionType: summary.finderTargetFactionType,
       finderShape: summary.finderShape,
       finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
       validatorTypes: summary.validatorTypes,
@@ -477,6 +725,9 @@ function parseMergeTargetAction(
       distanceValidators: summary.distanceValidators,
       finderSpawnedObjectType: target.finderSpawnedObjectType,
       validatorTagQueries: target.validatorTagQueries,
+      ...(summary.targetContainsParents.length === 0
+        ? {}
+        : { targetContainsParents: summary.targetContainsParents }),
     } satisfies TargetGroupInputSource;
   });
   return createBaseAction('MergeTargetAction', targetGroupKey, inputTargets);
@@ -569,6 +820,76 @@ function createBaseAction(
     directionContextKey: '',
     pickIndexValue: null,
     pickIndexBlackboardKey: null,
+  };
+}
+
+function parseSmartTargetSelection(
+  selectorValue: unknown,
+  path: string,
+): SmartTargetSelectionSource | null {
+  const selector = requireRecord(selectorValue, path);
+  const finderPath = `${path}.finderData`;
+  const finder = requireRecord(selector.finderData, finderPath);
+  if (!String(finder.$type ?? '').includes('SmartTargetFinder')) return null;
+  requireExactFields(
+    finder,
+    new Set(['$type', 'selectSetting', 'useCustomRange', 'range', 'limitFallbackRange']),
+    finderPath,
+  );
+  const settingPath = `${finderPath}.selectSetting`;
+  const setting = requireRecord(finder.selectSetting, settingPath);
+  requireExactFields(
+    setting,
+    new Set([
+      'smartTargetSelectStrategy',
+      'smartTargetBuffIds',
+      'smartTargetTagQuery',
+      'smartTargetBuffFindSettings',
+    ]),
+    settingPath,
+  );
+  const findPath = `${settingPath}.smartTargetBuffFindSettings`;
+  const find = requireRecord(setting.smartTargetBuffFindSettings, findPath);
+  requireExactFields(find, new Set(['checkType', 'buffIdList', 'tagQuery']), findPath);
+  const rangePath = `${finderPath}.range`;
+  const range = requireRecord(finder.range, rangePath);
+  requireExactFields(range, new Set(['useBlackboardKey', 'value', 'blackboardKey']), rangePath);
+  const useRangeKey = requireBoolean(range.useBlackboardKey, `${rangePath}.useBlackboardKey`);
+  const rangeKey = requireString(range.blackboardKey, `${rangePath}.blackboardKey`);
+  if (useRangeKey && rangeKey.length === 0)
+    throw new Error(`${rangePath}.blackboardKey: expected non-empty string`);
+  return {
+    strategy: requireNonEmptyString(
+      setting.smartTargetSelectStrategy,
+      `${settingPath}.smartTargetSelectStrategy`,
+    ),
+    buffIds: requireArray(setting.smartTargetBuffIds, `${settingPath}.smartTargetBuffIds`).map(
+      (raw, index) => {
+        const itemPath = `${settingPath}.smartTargetBuffIds[${index}]`;
+        const item = requireRecord(raw, itemPath);
+        requireExactFields(item, new Set(['buffId']), itemPath);
+        return requireNonEmptyString(item.buffId, `${itemPath}.buffId`);
+      },
+    ),
+    tagQuery: parseTagQuerySource(
+      setting.smartTargetTagQuery,
+      `${settingPath}.smartTargetTagQuery`,
+    ),
+    buffFindCheckType: requireNonEmptyString(find.checkType, `${findPath}.checkType`),
+    buffFindIds: requireArray(find.buffIdList, `${findPath}.buffIdList`).map((id, index) =>
+      requireNonEmptyString(id, `${findPath}.buffIdList[${index}]`),
+    ),
+    buffFindTagQuery: parseTagQuerySource(find.tagQuery, `${findPath}.tagQuery`),
+    useCustomRange: requireBoolean(finder.useCustomRange, `${finderPath}.useCustomRange`),
+    range: {
+      useBlackboardKey: useRangeKey,
+      value: requireNumber(range.value, `${rangePath}.value`),
+      blackboardKey: rangeKey,
+    },
+    limitFallbackRange: requireBoolean(
+      finder.limitFallbackRange,
+      `${finderPath}.limitFallbackRange`,
+    ),
   };
 }
 

@@ -7,6 +7,7 @@ import type {
   CombatBuffDefinitionDamageModifier,
   CombatBuffDefinitionDamageProcessor,
   SkillBuffAbilityEventResponse,
+  SkillBuffIgniteEventResponse,
   SkillBuffDefinition,
   SkillBuffLifecycleSequences,
 } from '../../../../packages/game-data-contract/src/buffs.ts';
@@ -37,18 +38,26 @@ type CompiledBuffDamageConditionLeaf =
   | Extract<
       DamageModifierCondition,
       {
-        readonly kind: 'sourceSkillCastMatch' | 'eventDamageTypesMatch' | 'targetPoiseCompare';
+        readonly kind:
+          | 'sourceSkillCastMatch'
+          | 'casterControlled'
+          | 'buffBlackboardCompare'
+          | 'eventDamageTypesMatch'
+          | 'targetHealthCompare'
+          | 'targetPoiseCompare';
       }
     >
   | (Extract<DamageModifierCondition, { readonly kind: 'eventDamageTagsMatch' }> & {
       readonly match: 'hasAny' | 'hasAll';
-      readonly tags: readonly ('normalSkill' | 'comboSkill' | 'ultimateSkill')[];
+      readonly tags: readonly (
+        'normalSkill' | 'comboSkill' | 'ultimateSkill' | 'normalAttackLastCombo'
+      )[];
     })
   | (Extract<
       DamageModifierCondition,
       { readonly kind: 'entityTagMatch' | 'buffIdCountCompare' }
     > & {
-      readonly target: 'enemy';
+      readonly target: 'caster' | 'enemy';
     });
 
 export interface CompiledBuffDamageModifierSource extends Pick<
@@ -70,10 +79,10 @@ export interface CompiledBuffHealModifierSource extends Pick<
   HealModifierDefinition,
   'enabledSide'
 > {
-  readonly condition?: Extract<HealModifierCondition, { readonly kind: 'healTagsMatch' }>;
+  readonly condition?: HealModifierCondition;
   readonly processors: readonly Extract<
     HealModifierDefinition['processors'][number],
-    { readonly kind: 'modifyHealingIncrease' }
+    { readonly kind: 'modifyHealingIncrease' | 'modifyCalculationResult' }
   >[];
 }
 
@@ -115,8 +124,20 @@ export type CompiledBuffDefinitionSource = Pick<
     readonly damageModifiers?: readonly CompiledBuffDamageModifierSource[];
     readonly healModifiers?: readonly CompiledBuffHealModifierSource[];
     readonly poiseModifiers?: readonly CompiledBuffPoiseModifierSource[];
+    readonly scheduledSequences?: readonly {
+      readonly startFrame: number;
+      readonly endFrame: number;
+      readonly sequence: CompiledBuffSequenceSource;
+    }[];
     readonly shields?: readonly (Omit<BuffShieldDefinition, 'value'> & {
-      readonly value: CompiledBuffNumberSource;
+      readonly value:
+        | CompiledBuffNumberSource
+        | {
+            readonly attributeSource?: 'buffOwner' | 'buffSource';
+            readonly attribute: string;
+            readonly multiplier: CompiledBuffNumberSource;
+            readonly addition: CompiledBuffNumberSource;
+          };
     })[];
     readonly lifecycleSequences?: Readonly<
       Partial<
@@ -133,7 +154,15 @@ export type CompiledBuffDefinitionSource = Pick<
       readonly event: Extract<
         SkillBuffAbilityEventResponse['event'],
         | 'beforeCastSkill'
+        | 'afterSkillApplyCost'
+        | 'skillEnd'
         | 'beforeCalculateDamage'
+        | 'beforeDamageAction'
+        | 'beforeTakeDamage'
+        | 'beforeTakePhysicalInfliction'
+        | 'takeDamage'
+        | 'takeCriticalDamage'
+        | 'beforeTakeInfliction'
         | 'outputBuff'
         | 'beforeOutputBuff'
         | 'beforeAddedBuff'
@@ -142,16 +171,29 @@ export type CompiledBuffDefinitionSource = Pick<
         | 'beforeOutputKnockDown'
         | 'afterOutputKnockDown'
         | 'afterOutputPhysicalInfliction'
+        | 'afterOutputWeaknessTriggered'
+        | 'customAbilityEvent'
         | 'outputDamage'
         | 'beforeOutputInfliction'
         | 'beforeOutputSpellBurst'
         | 'outputCriticalDamage'
         | 'outputHeal'
+        | 'receiveHeal'
+        | 'poiseZero'
         | 'skillEnd'
+        | 'finishedBuff'
+        | 'buffEndsEarly'
+        | 'afterKillEntity'
         | 'buffConsumed'
         | 'enterFight'
         | 'skillSpGained'
       >;
+      readonly sequence: CompiledBuffSequenceSource;
+    })[];
+    readonly igniteEventResponses?: readonly (Pick<
+      SkillBuffIgniteEventResponse,
+      'igniteType' | 'finishAfterIgnited'
+    > & {
       readonly sequence: CompiledBuffSequenceSource;
     })[];
   };

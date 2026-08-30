@@ -32,6 +32,44 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('唯一目标 ForEach 仍隔离内部失败并让外层后继继续', () => {
+    const seen: unknown[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (step, context) => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected test operation');
+          seen.push([step.parameters.flag, context?.currentTarget]);
+          return true;
+        },
+        evaluate: () => false,
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+
+    expect(
+      runtime
+        .createSequence(
+          sequence(
+            {
+              kind: 'forEachContextTarget',
+              parameters: { target: 'enemy' },
+              body: sequence(
+                {
+                  kind: 'conditional',
+                  parameters: { condition: { kind: 'combatActive' } },
+                  whenTrue: sequence(operation('guarded')),
+                },
+                operation('inside-after-failed-guard'),
+              ),
+            },
+            operation('outside-after-loop'),
+          ),
+        )
+        .executeInstant({}),
+    ).toBe(true);
+    expect(seen).toEqual([['outside-after-loop', undefined]]);
+  });
+
   it('逐项失败只跳过本项后继；保留目标快照与共享黑板，循环后继续', () => {
     const targetContext = new RuntimeTargetContext();
     targetContext.set('items', [
@@ -300,6 +338,70 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.executed).toEqual(['first', 'second']);
   });
 
+  it('按动作黑板整数重复，并为每次 execution 子作用域创建独立黑板', () => {
+    const parent = new ActionBlackboard({ projectile_count: 3 });
+    const boards: ActionBlackboard[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (_step, context) => {
+          boards.push(context!.blackboard);
+          return true;
+        },
+        evaluate: () => true,
+      },
+      { blackboard: parent },
+    );
+    runtime
+      .createSequence(
+        sequence({
+          kind: 'repeatByActionValue',
+          parameters: { count: { kind: 'blackboard', key: 'projectile_count' } },
+          body: sequence({
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'projectile:reach',
+              lifetime: 'execution',
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(operation('reach')),
+          }),
+        }),
+      )
+      .executeInstant({});
+
+    expect(boards).toHaveLength(3);
+    expect(new Set(boards).size).toBe(3);
+    expect(boards.every(board => board.getNumber('projectile_count') === 3)).toBe(true);
+  });
+
+  it('动态重复序列在首次执行前先准备内部操作', () => {
+    let prepared = false;
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        prepare: () => {
+          prepared = true;
+        },
+        execute: () => {
+          expect(prepared).toBe(true);
+          return true;
+        },
+        evaluate: () => true,
+      },
+      { blackboard: new ActionBlackboard({ count: 1 }) },
+    );
+
+    runtime
+      .createSequence(
+        sequence({
+          kind: 'repeatByActionValue',
+          parameters: { count: { kind: 'blackboard', key: 'count' } },
+          body: sequence(operation('prepared')),
+        }),
+      )
+      .executeInstant({});
+  });
+
   it('在命中时创建并复用隔离的子 SkillData 动作黑板', () => {
     const parent = new ActionBlackboard({ inherited: 1, childOnly: 99 });
     const snapshots: Readonly<Record<string, unknown>>[] = [];
@@ -498,6 +600,59 @@ describe('CombatActionSequenceRuntime', () => {
     action.tick(1 / 30, {});
 
     expect(fixture.executed).toEqual(['channel', 'channel', 'channel']);
+  });
+
+  it('原生 Channeling 忽略子序列的 false 返回值并继续后续扫描', () => {
+    const fixture = createFixture(false);
+    const action = fixture.runtime.createSequence(
+      sequence({
+        kind: 'repeatEachTick',
+        parameters: {
+          nativeChanneling: {
+            executeEachFrame: false,
+            triggerIntervalSeconds: 0.1,
+            maxCountPerTarget: -1,
+            targetTriggerIntervalSeconds: 0,
+          },
+        },
+        body: sequence({
+          kind: 'conditional',
+          parameters: {
+            condition: { kind: 'contextFlagEquals', flag: 'enabled', value: true },
+            alwaysNext: false,
+          },
+          whenTrue: sequence(operation('unreachable')),
+        }),
+      }),
+    );
+
+    expect(() => {
+      action.execute({});
+      action.tick(0, {});
+      action.tick(0.1, {});
+    }).not.toThrow();
+    expect(fixture.executed).toEqual([]);
+  });
+
+  it('按旧版 TickIntervalAction 首次即时、单精度周期和单次追赶执行', () => {
+    const fixture = createFixture();
+    const action = fixture.runtime.createSequence(
+      sequence({
+        kind: 'repeatEachTick',
+        parameters: {
+          nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.07 },
+        },
+        body: sequence(operation('interval')),
+      }),
+    );
+
+    action.execute({});
+    action.tick(0, {});
+    action.tick(0.5, {});
+    action.tick(0, {});
+
+    // 0.5 秒已经跨过多个周期，但原生每次宿主更新最多只追赶一次。
+    expect(fixture.executed).toEqual(['interval', 'interval', 'interval']);
   });
 
   it('对 Context 快照中的每个稳定目标同步执行 body', () => {

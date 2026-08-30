@@ -1,8 +1,9 @@
-/** 零空间模型中仍需保持身份的三类运行时目标。 */
+/** 零空间模型中仍需保持身份的运行时目标；空间点只有临时身份，没有坐标。 */
 export type RuntimeTargetRef =
   | { readonly kind: 'operator'; readonly operatorId: string }
   | { readonly kind: 'enemy' }
-  | { readonly kind: 'abilityEntity'; readonly instanceId: number };
+  | { readonly kind: 'abilityEntity'; readonly instanceId: number }
+  | { readonly kind: 'spatialPoint'; readonly pointId: number };
 
 /** Context 目标组只保存稳定句柄；距离与形状不会进入组身份。 */
 export type RuntimeTargetGroup = readonly RuntimeTargetRef[];

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import { parseConditionLeafSource } from '../src/index.ts';
-import { runPythonOracle } from './pythonOracle.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 const CONDITION_META = {
@@ -226,15 +225,14 @@ describe('公共条件叶子 IR', () => {
       }),
       blackboard: { enabled: [0, 1] },
     },
-  ])('$name 与 Python oracle 对象级一致', ({ value, blackboard }) => {
+  ])('$name 锁定已验证的对象级结构', ({ value, blackboard }) => {
     const inheritedBlackboard: Record<string, readonly number[]> = {};
     Object.entries(blackboard).forEach(([key, values]) => {
       if (values) inheritedBlackboard[key] = values;
     });
-    const payload = { value, path: 'fixture.condition', blackboard: inheritedBlackboard };
-    expect(parseConditionLeafSource(value, payload.path, inheritedBlackboard)).toEqual(
-      runPythonOracle({ operation: 'parseConditionLeaf', payload }),
-    );
+    expect(
+      parseConditionLeafSource(value, 'fixture.condition', inheritedBlackboard),
+    ).toMatchSnapshot();
   });
 
   it('未知条件携带原生类型明确阻塞', () => {

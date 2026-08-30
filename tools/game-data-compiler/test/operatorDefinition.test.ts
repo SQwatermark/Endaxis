@@ -8,7 +8,6 @@ import {
 } from '../scripts/planOperatorDefinition.ts';
 import { avywenna } from '../../../src/next/data/operators/avywenna';
 import { commonBuffDefinitions } from '../../../src/next/data/buffs/commonDefinitions';
-import { avywennaGeneratedOperator as old } from '../../../src/next/data/operators/generated/avywenna.operator.generated';
 import {
   validateAbilityEntityDefinition,
   validateSkillDefinition,
@@ -35,7 +34,7 @@ beforeAll(() => {
     fs.writeFileSync(destination, JSON.stringify(data));
   }
   args = {
-    manifest: 'scripts/generate_next_operators/operators.json',
+    manifest: 'tools/game-data-compiler/config/operators.json',
     sourceRoot,
     tableRoot: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12'),
     skillPatchTable: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12/SkillPatchTable.json'),
@@ -85,7 +84,7 @@ describe('原始整名候选：不依赖旧 Operator 补空', () => {
     expect(operator.skillGroups).toHaveLength(6);
     expect(operator.skillGroups.flatMap(group => group.skills)).toHaveLength(10);
     expect(operator.talents).toHaveLength(2);
-    expect(operator.potentials).toEqual(old.potentials);
+    expect(operator.potentials).toEqual(avywenna.potentials);
     for (const key of [
       'slug',
       'gameId',
@@ -97,16 +96,19 @@ describe('原始整名候选：不依赖旧 Operator 补空', () => {
       'secondaryAttribute',
       'attributes',
     ] as const)
-      expect(operator[key], key).toEqual(old[key]);
+      expect(operator[key], key).toEqual(avywenna[key]);
     expect(Object.keys(operator.abilityEntityDefinitions!)).toHaveLength(2);
-    expect(Object.keys(operator.buffDefinitions!)).toHaveLength(5);
+    expect(Object.keys(operator.buffDefinitions!)).toHaveLength(4);
+    expect(operator.buffDefinitions).not.toHaveProperty(
+      'buff_chr_0012_avywen_lance_becalled_ready',
+    );
     expect(
       Object.keys(operator.buffDefinitions!).every(id => id.startsWith('buff_chr_0012_avywen_')),
     ).toBe(true);
     expect(
       Object.keys(candidate.commonBuffDefinitions).every(id => !id.startsWith('buff_chr_')),
     ).toBe(true);
-    expect(candidate.audit.buffSourceCount).toBe(11);
+    expect(candidate.audit.buffSourceCount).toBe(10);
     for (const skill of operator.skillGroups.flatMap(group => group.skills))
       expect(validateSkillDefinition(skill)).toEqual([]);
     for (const entity of Object.values(operator.abilityEntityDefinitions!))

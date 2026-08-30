@@ -9,13 +9,14 @@ import {
   requireString,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
-import type { TagQueryType } from './tagQuery.ts';
+import { parseTagQuerySource, type TagQueryType } from './tagQuery.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 
 /** SaveBuffStackNumAdvanced 的完整查询事实；运行投影只开放已证明的目标和计数类型。 */
 export interface BuffStackReadActionSource {
   readonly kind: 'buffStackRead';
-  readonly sourceType: 'SaveBuffStackNumAdvanced' | 'StoreBuffCount';
+  readonly sourceType:
+    'SaveBuffStackNum' | 'SaveBuffStackNumAdvanced' | 'SaveBuffStackNumByTag' | 'StoreBuffCount';
   readonly target: TargetReferenceSource;
   readonly checkType: string;
   readonly buffIds: readonly string[];
@@ -24,6 +25,48 @@ export interface BuffStackReadActionSource {
   readonly countType: string;
   readonly limitSkillCastId: boolean;
   readonly outputKey: string;
+}
+
+/**
+ * 1.4.4 的简单 SaveBuffStackNum 是单 ID 的增强层数读取。其唯一生产样本与
+ * combat-spec 适配器都证明它复用 Advanced 的 Id + BuffCount 语义。
+ */
+export function parseSimpleBuffStackReadActionSource(
+  value: unknown,
+  path: string,
+): BuffStackReadActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'checkTarget',
+      'buffId',
+      'key',
+    ]),
+    path,
+  );
+  const sourceType = nativeActionName(requireNonEmptyString(action.$type, `${path}.$type`));
+  if (sourceType !== 'SaveBuffStackNum')
+    throw new Error(`${path}.$type: expected SaveBuffStackNum`);
+  const buffId = requireRecord(action.buffId, `${path}.buffId`);
+  requireExactFields(buffId, new Set(['buffId']), `${path}.buffId`);
+  return {
+    kind: 'buffStackRead',
+    sourceType,
+    target: parseTargetReferenceSource(action.checkTarget, `${path}.checkTarget`),
+    checkType: 'Id',
+    buffIds: [requireNonEmptyString(buffId.buffId, `${path}.buffId.buffId`)],
+    tagQueryType: 'hasAny',
+    buffTagIds: [],
+    countType: 'BuffCount',
+    limitSkillCastId: false,
+    outputKey: requireNonEmptyString(action.key, `${path}.key`),
+  };
 }
 
 /** combat-spec StoreBuffCount：当前 Buff 或目标上指定 ID 的累计 enhanceCnt。 */
@@ -198,6 +241,45 @@ export function parseBuffStackReadActionSource(
     buffTagIds: settings.buffTagIds,
     countType: requireNonEmptyString(action.buffStackNumType, `${path}.buffStackNumType`),
     limitSkillCastId: requireBoolean(action.limitSkillCastId, `${path}.limitSkillCastId`),
+    outputKey: requireNonEmptyString(action.key, `${path}.key`),
+  };
+}
+
+/** 旧式 SaveBuffStackNumByTag 专用载荷；只归一字段，不在来源层类推计数行为。 */
+export function parseTaggedBuffStackReadActionSource(
+  value: unknown,
+  path: string,
+): BuffStackReadActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'checkTarget',
+      'tagQuery',
+      'key',
+      'buffStackNumType',
+    ]),
+    path,
+  );
+  const sourceType = nativeActionName(requireNonEmptyString(action.$type, `${path}.$type`));
+  if (sourceType !== 'SaveBuffStackNumByTag')
+    throw new Error(`${path}.$type: expected SaveBuffStackNumByTag`);
+  const tagQuery = parseTagQuerySource(action.tagQuery, `${path}.tagQuery`);
+  return {
+    kind: 'buffStackRead',
+    sourceType,
+    target: parseTargetReferenceSource(action.checkTarget, `${path}.checkTarget`),
+    checkType: 'Tag',
+    buffIds: [],
+    tagQueryType: tagQuery.queryType,
+    buffTagIds: tagQuery.tagIds,
+    countType: requireNonEmptyString(action.buffStackNumType, `${path}.buffStackNumType`),
+    limitSkillCastId: false,
     outputKey: requireNonEmptyString(action.key, `${path}.key`),
   };
 }

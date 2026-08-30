@@ -128,6 +128,40 @@ describe('TimeDilationOperationExecutor', () => {
     expect(timeDilation.entityInstances).toEqual([]);
   });
 
+  it('resolves an entity effect against the current Buff owner', () => {
+    const timeDilation = runtime();
+    const executor = new TimeDilationOperationExecutor({
+      runtime: timeDilation,
+      resolveTargetIds: target => [target === 'caster' ? 'operator' : 'enemy'],
+      sourceId: 'operator',
+      sourceActionId: 'buff-lifecycle',
+      delegate,
+    });
+    const step: Extract<ResolvedCombatStep, { kind: 'startTimeDilation' }> = {
+      kind: 'startTimeDilation',
+      parameters: {
+        scope: 'entity',
+        durationSeconds: { kind: 'constant', value: 1 },
+        slot: 'Test/TimeSlot2',
+        priority: PRIORITY,
+        curve: { kind: 'named', key: 'constant-half' },
+        finishByAction: false,
+        targets: ['buffOwner'],
+      },
+    };
+
+    expect(
+      executor.execute(step, {
+        blackboard: new ActionBlackboard(),
+        buffOwnerId: 'buff-recipient',
+      }),
+    ).toBe(true);
+    expect(timeDilation.getEntityScale('buff-recipient')).toBe(0.5);
+    expect(() => executor.execute(step, { blackboard: new ActionBlackboard() })).toThrow(
+      "time-dilation entity target 'buffOwner' requires a Buff lifecycle owner",
+    );
+  });
+
   it('resolves logical AbilityEntity queries for global exclusions and entity effects', () => {
     const timeDilation = runtime();
     const executor = new TimeDilationOperationExecutor({
@@ -210,6 +244,42 @@ describe('TimeDilationOperationExecutor', () => {
 
     expect(timeDilation.getEntityScale('ability-entity:7')).toBe(1);
     expect(timeDilation.getEntityScale('enemy')).toBe(0);
+  });
+
+  it('temporarily lets a Context AbilityEntity ignore global time scale', () => {
+    const timeDilation = runtime();
+    timeDilation.startGlobal({
+      durationSeconds: 2,
+      slot: 'Test/Global',
+      priority: PRIORITY,
+      constantScale: 0.5,
+    });
+    const executor = new TimeDilationOperationExecutor({
+      runtime: timeDilation,
+      resolveTargetIds: target => [target],
+      resolveContextAbilityEntityId: instanceId => logicalAbilityEntityRuntimeId(instanceId),
+      sourceId: 'operator',
+      sourceActionId: 'skill',
+      delegate,
+    });
+    const targetContext = new RuntimeTargetContext();
+    targetContext.setSingle('soldier', { kind: 'abilityEntity', instanceId: 9 });
+    const step: Extract<ResolvedCombatStep, { kind: 'setIgnoreGlobalTimeScale' }> = {
+      kind: 'setIgnoreGlobalTimeScale',
+      parameters: {
+        abilityEntityTargets: [{ kind: 'context', contextKey: 'soldier' }],
+        ignore: true,
+        revertOnEnd: true,
+      },
+    };
+
+    expect(timeDilation.getEntityScale('ability-entity:9')).toBe(0.5);
+    expect(executor.execute(step, { blackboard: new ActionBlackboard(), targetContext })).toBe(
+      true,
+    );
+    expect(timeDilation.getEntityScale('ability-entity:9')).toBe(1);
+    executor.end(step, { blackboard: new ActionBlackboard(), targetContext });
+    expect(timeDilation.getEntityScale('ability-entity:9')).toBe(0.5);
   });
 
   it('treats an absent optional ignored AbilityEntity Context as an empty set', () => {

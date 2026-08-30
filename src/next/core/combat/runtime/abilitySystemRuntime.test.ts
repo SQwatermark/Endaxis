@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { AbilitySystemRuntime, type AbilitySkillRuntime } from './abilitySystemRuntime';
-import type { RuntimeSkillInterruptReason, RuntimeSkillState } from './skillRuntime';
+import type {
+  RuntimeSkillInterruptReason,
+  RuntimeSkillState,
+  RuntimeSkillTransition,
+} from './skillRuntime';
 
 class FixtureRuntime implements AbilitySkillRuntime {
   state: RuntimeSkillState = 'ready';
+  lastTransition: RuntimeSkillTransition | undefined;
+  readonly inheritedBuffs: unknown[] = [];
 
   constructor(
     readonly skillId: string,
@@ -23,9 +29,14 @@ class FixtureRuntime implements AbilitySkillRuntime {
     return true;
   }
 
-  interrupt(reason: RuntimeSkillInterruptReason): void {
+  interrupt(reason: RuntimeSkillInterruptReason, transition?: RuntimeSkillTransition): void {
+    this.lastTransition = transition;
     this.events.push(`interrupt:${this.skillId}:${reason}`);
     this.state = 'ended';
+  }
+
+  attachInheritedBuff(buff: never): void {
+    this.inheritedBuffs.push(buff);
   }
 
   advanceFrame(): void {
@@ -184,6 +195,23 @@ describe('AbilitySystemRuntime', () => {
     ]);
   });
 
+  it('exposes the next native skill identity and exact Buff transfer port during interruption', () => {
+    const events: string[] = [];
+    const first = new FixtureRuntime('first', events);
+    const second = Object.assign(new FixtureRuntime('second', events), {
+      transitionSkillId: 'native.second',
+    });
+    const ability = new AbilitySystemRuntime({ skills: [first, second] });
+    const buff = { finish: () => true };
+
+    ability.tryStartSkill('first');
+    ability.tryStartSkill('second');
+    first.lastTransition?.attachBuffToNextSkill(buff);
+
+    expect(first.lastTransition?.nextSkillId).toBe('native.second');
+    expect(second.inheritedBuffs).toEqual([buff]);
+  });
+
   it('does not register a positive-duration boundary for a zero-width presentation skill', () => {
     const events: string[] = [];
     const reached: unknown[] = [];
@@ -263,6 +291,30 @@ describe('AbilitySystemRuntime', () => {
 
     expect(ability.changeSkillSlot('battleSkill', 'battleSkill')).toBe('battleSkillEnd');
     expect(ability.tryStartSkill('battleSkillCombo')).toBe(true);
+    expect(ability.currentSkillId).toBe('battleSkillCombo');
+  });
+
+  it('does not redirect an explicit native CastSkill id through the active input slot', () => {
+    const events: string[] = [];
+    const base = new FixtureRuntime('battleSkill', events, 'battleSkill');
+    const combo = new FixtureRuntime('battleSkillCombo', events, 'battleSkill');
+    const end = new FixtureRuntime('battleSkillEnd', events, 'battleSkill');
+    const ability = new AbilitySystemRuntime({
+      skills: [base, combo, end],
+      skillSlotGroups: [
+        {
+          skillGroupKey: 'battleSkill',
+          baseSkillKey: 'battleSkill',
+          stableInputSkillKeys: ['battleSkill', 'battleSkillCombo'],
+          replacementSkillKeys: ['battleSkillEnd'],
+        },
+      ],
+    });
+
+    ability.changeSkillSlot('battleSkill', 'battleSkillEnd');
+    ability.requestPostSkillCast({ skillId: 'battleSkillCombo', resolveSkillSlot: false });
+    ability.advanceFrame();
+
     expect(ability.currentSkillId).toBe('battleSkillCombo');
   });
 });

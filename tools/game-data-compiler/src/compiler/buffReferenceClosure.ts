@@ -1,4 +1,7 @@
-import { collectBuffActionReferences } from '../source/buffActionGraph.ts';
+import {
+  collectBuffActionReferences,
+  parseReferenceAwareBuffActionGraphSource,
+} from '../source/buffActionGraph.ts';
 import { parseBuffRuntimeSource, type BuffRuntimeSource } from '../source/buffRuntime.ts';
 import { collectNativeActionNodes } from '../source/controlFlow.ts';
 import type { DefinitionReferenceSource } from '../source/referenceGraph.ts';
@@ -12,6 +15,7 @@ export function collectBuffRuntimeClosure(
   rootIds: readonly string[],
   buffData: Record<string, unknown> | ((id: string) => unknown),
   globalBuffCatalog?: GlobalBuffTemplateCatalogSource,
+  provenDefaultKeywordCarrierRootIds: ReadonlySet<string> = new Set(),
 ): Map<string, BuffRuntimeSource> {
   const result = new Map<string, BuffRuntimeSource>();
   const references = new Map<string, readonly DefinitionReferenceSource[]>();
@@ -26,9 +30,13 @@ export function collectBuffRuntimeClosure(
       const source = parseBuffRuntimeSource(value, `BuffData.${id}`);
       if (source.graph.buffId !== id) throw new Error(`BuffData.${id}.id: identity mismatch`);
       result.set(id, source);
-      const allRefs = collectBuffActionReferences(source.graph).filter(
-        ref => ref.state !== 'inactive',
-      );
+      const referenceGraph = parseReferenceAwareBuffActionGraphSource(value, `BuffData.${id}`, {});
+      // 可执行图能识别测试/旧切片中的公共动作，引用专用图还能穿透表现动作中
+      // 的嵌套结束子图；闭包取二者并集，不能用后者替换前者。
+      const allRefs = [
+        ...collectBuffActionReferences(source.graph),
+        ...collectBuffActionReferences(referenceGraph),
+      ].filter(ref => ref.state !== 'inactive');
       for (const ref of allRefs.filter(ref => ref.kind === 'globalBuff')) {
         if (ref.state === 'dynamic' || ref.id === null) {
           throw new Error(`${ref.sourcePath}: dynamic GlobalBuff references are unsupported`);
@@ -44,14 +52,29 @@ export function collectBuffRuntimeClosure(
       const refs = allRefs.filter(ref => ref.kind === 'buff');
       references.set(id, refs);
       for (const ref of refs) {
-        if (ref.state !== 'dynamic' && ref.id !== null) queue.push(ref.id);
+        // Finish/query/inheritance only observe an already-existing instance and do not require
+        // its definition to be hydrated into this owner. The roots are compiled applyBuff edges;
+        // recursively follow only native edges that can create or own a child definition.
+        if (
+          ['apply', 'aura', 'keywordCarrier'].includes(ref.usage) &&
+          ref.state !== 'dynamic' &&
+          ref.id !== null
+        )
+          queue.push(ref.id);
       }
     }
     // 每次新子图加入后都重验来路：后发现的普通创建/未知覆盖不能绕过原先的证明。
     for (const [id, refs] of references) {
       for (const ref of refs) {
         if (ref.state !== 'dynamic' && ref.id !== null) continue;
-        const candidates = resolveKeywordChildCandidates(id, ref, rootIds, result, references);
+        const candidates = resolveKeywordChildCandidates(
+          id,
+          ref,
+          rootIds,
+          result,
+          references,
+          provenDefaultKeywordCarrierRootIds,
+        );
         for (const candidate of candidates) if (!result.has(candidate)) queue.push(candidate);
       }
     }
@@ -74,6 +97,7 @@ function resolveKeywordChildCandidates(
   roots: readonly string[],
   sources: ReadonlyMap<string, BuffRuntimeSource>,
   references: ReadonlyMap<string, readonly DefinitionReferenceSource[]>,
+  provenDefaultKeywordCarrierRootIds: ReadonlySet<string>,
 ): readonly string[] {
   const fail = (): never => {
     throw new Error(
@@ -81,7 +105,11 @@ function resolveKeywordChildCandidates(
     );
   };
   // _DoApplyKeywordBuff 只有显式覆盖才修改此键；外部根的施加参数无法在本闭包中证明。
-  if (roots.includes(id) || ref.usage !== 'apply' || ref.blackboardKey !== 'child_buff_id')
+  if (
+    (roots.includes(id) && !provenDefaultKeywordCarrierRootIds.has(id)) ||
+    ref.usage !== 'apply' ||
+    ref.blackboardKey !== 'child_buff_id'
+  )
     return fail();
   const source = sources.get(id)!;
   const declared = source.graph.declaredBlackboard.find(item => item.key === ref.blackboardKey);
@@ -104,6 +132,7 @@ function resolveKeywordChildCandidates(
     )
   )
     return fail();
+  if (provenDefaultKeywordCarrierRootIds.has(id)) return [declared.value];
   const incoming = [...references.values()]
     .flat()
     .filter(item => item.id === id && ['apply', 'aura', 'keywordCarrier'].includes(item.usage));

@@ -30,14 +30,31 @@ export interface CompiledAbilityEntityDistanceFromOwnerSource {
   readonly maxTargets: number;
 }
 
+export interface CompiledAbilityEntityDistanceFromMainCharacterSource {
+  readonly kind: 'distanceFromMainCharacter';
+  readonly order: 'ascending';
+  /** 未显式限量的原生 PriorityFilter 使用固定硬上限 128。 */
+  readonly maxTargets: 128;
+}
+
 export interface CompiledAbilityEntityShuffleSource {
   readonly kind: 'shuffle';
   /** 原生先全量洗牌，再仅在求值结果大于零时保留前 N 项。 */
   readonly targetNumLimit: IntegerScalarSource;
 }
 
+export interface CompiledAbilityEntityCircularOrderSource {
+  readonly kind: 'circularOrder';
+  readonly indexBlackboardKey: string;
+  readonly desiredCount: number;
+  readonly reverseFlag: number;
+}
+
 export type CompiledAbilityEntityPostProcessorSource =
-  CompiledAbilityEntityDistanceFromOwnerSource | CompiledAbilityEntityShuffleSource;
+  | CompiledAbilityEntityDistanceFromOwnerSource
+  | CompiledAbilityEntityDistanceFromMainCharacterSource
+  | CompiledAbilityEntityShuffleSource
+  | CompiledAbilityEntityCircularOrderSource;
 
 /**
  * OwnerSpawnedEntityFinder 的静态查询投影。
@@ -64,6 +81,12 @@ interface AbilityEntitySelectorFactsSource {
   readonly priorityFilters: readonly PriorityFilterSource[];
   readonly shuffleTargets: readonly ShuffleTargetSource[];
   readonly distanceValidators: readonly DistanceValidatorSource[];
+  readonly circularOrderIndexKey?: string | null;
+  readonly circularOrderDesiredCount?: number | null;
+  readonly circularOrderReverseFlag?: number | null;
+  readonly circularOrderHeightOffset?: number | null;
+  readonly circularOrderRangeThreshold?: number | null;
+  readonly circularOrderRangeCheckTarget?: TargetReferenceSource | null;
   readonly selectorOwner: string | null;
   readonly selectorOwnerContextKey: string;
   readonly center: string | null;
@@ -222,6 +245,48 @@ function compilePostProcessors(
   let priorityIndex = 0;
   let shuffleIndex = 0;
   return source.postProcessorTypes.map((type, index) => {
+    if (type === 'CircularOrderSort') {
+      const rangeTarget = source.circularOrderRangeCheckTarget;
+      const circularShapeComplete =
+        source.circularOrderIndexKey !== null &&
+        source.circularOrderIndexKey !== undefined &&
+        source.circularOrderDesiredCount !== null &&
+        source.circularOrderDesiredCount !== undefined &&
+        source.circularOrderReverseFlag !== null &&
+        source.circularOrderReverseFlag !== undefined &&
+        source.circularOrderHeightOffset !== null &&
+        source.circularOrderHeightOffset !== undefined &&
+        source.circularOrderRangeThreshold !== null &&
+        source.circularOrderRangeThreshold !== undefined &&
+        rangeTarget !== null &&
+        rangeTarget !== undefined;
+      if (!circularShapeComplete) {
+        throw new Error(`${sourcePath}: incomplete CircularOrderSort source facts`);
+      }
+      if (
+        source.circularOrderDesiredCount! <= 0 ||
+        source.circularOrderRangeThreshold! < 0 ||
+        !Number.isFinite(source.circularOrderHeightOffset!) ||
+        rangeTarget!.targetSource !== 'InstantSearch' ||
+        rangeTarget!.finderType !== 'OwnerSpawnedEntityFinder' ||
+        rangeTarget!.finderSpawnedObjectType !== 'AbilityEntity' ||
+        rangeTarget!.selectorOwner !== 'ActionSource' ||
+        rangeTarget!.validatorTypes.length !== 1 ||
+        rangeTarget!.validatorTypes[0] !== 'TagValidator' ||
+        rangeTarget!.validatorTagQueries.length !== 1 ||
+        rangeTarget!.postProcessorTypes.length !== 0
+      ) {
+        throw new Error(`${sourcePath}: unsupported CircularOrderSort range anchor`);
+      }
+      // Endaxis 的所有实体共点，range anchor 只决定原生起始槽位；共点时稳定回退为 0。
+      // 实体槽位及方向仍进入运行时排序，不能把 CircularOrderSort 当成无序查询。
+      return {
+        kind: 'circularOrder',
+        indexBlackboardKey: source.circularOrderIndexKey!,
+        desiredCount: source.circularOrderDesiredCount!,
+        reverseFlag: source.circularOrderReverseFlag!,
+      };
+    }
     if (type === 'ShuffleTarget') {
       const shuffle = source.shuffleTargets[shuffleIndex];
       shuffleIndex += 1;
@@ -248,7 +313,23 @@ function compilePostProcessors(
 function compileOwnerDistancePriorityFilter(
   source: PriorityFilterSource,
   sourcePath: string,
-): CompiledAbilityEntityDistanceFromOwnerSource {
+):
+  | CompiledAbilityEntityDistanceFromOwnerSource
+  | CompiledAbilityEntityDistanceFromMainCharacterSource {
+  const commonFilterIsEmpty =
+    !source.onlyReserveMaxPriorityTargets &&
+    source.buffFilter.checkType === 'Id' &&
+    source.buffFilter.buffIds.length === 0 &&
+    source.buffFilter.tagQuery.queryType === 'hasAny' &&
+    source.buffFilter.tagQuery.tagIds.length === 0 &&
+    source.buffFilter.stackCountType === 'BuffCount';
+  if (
+    source.filterType === 'DistanceFromMainCharAsc' &&
+    !source.limitMaxNum &&
+    commonFilterIsEmpty
+  ) {
+    return { kind: 'distanceFromMainCharacter', order: 'ascending', maxTargets: 128 };
+  }
   const order =
     source.filterType === 'DistanceFromOwnerAsc'
       ? 'ascending'
@@ -263,14 +344,7 @@ function compileOwnerDistancePriorityFilter(
   if (source.onlyReserveMaxPriorityTargets) {
     throw new Error(`${sourcePath}: onlyReserveMaxPriorityTargets is unsupported`);
   }
-  const { buffFilter } = source;
-  if (
-    buffFilter.checkType !== 'Id' ||
-    buffFilter.buffIds.length !== 0 ||
-    buffFilter.tagQuery.queryType !== 'hasAny' ||
-    buffFilter.tagQuery.tagIds.length !== 0 ||
-    buffFilter.stackCountType !== 'BuffCount'
-  ) {
+  if (!commonFilterIsEmpty) {
     throw new Error(`${sourcePath}: non-empty PriorityFilter buff filtering is unsupported`);
   }
   if (source.limitMaxNum && source.maxNum < 0) {

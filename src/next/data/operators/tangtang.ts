@@ -1,2 +1,5 @@
-/** 唐棠正式定义由 AKEDB 证据生成，手写层只保留稳定导出名。 */
-export { tangtangGeneratedOperator as tangtang } from './generated/tangtang.operator.generated';
+/** 汤汤的统一 TS 整名产物；此文件提供不依赖生成文件名的稳定入口。 */
+import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import definition from './generated-definitions/tangtang/tangtang.operator.generated';
+
+export const tangtang: OperatorDefinition = definition;

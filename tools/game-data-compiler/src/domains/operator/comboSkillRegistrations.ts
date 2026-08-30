@@ -1,4 +1,6 @@
 import type { ComboSkillRegistrationDefinition } from '../../../../../packages/game-data-contract/src/skills.ts';
+import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
+import { projectGameplayTags } from '../../compiler/combatProjectionCommon.ts';
 import {
   requireArray,
   requireBoolean,
@@ -12,6 +14,7 @@ export function parseOperatorComboSkillRegistrationsSource(
   value: unknown,
   sourcePath: string,
   skillKeys: ReadonlySet<string>,
+  gameplayTagRegistry: GameplayTagRegistry,
 ): readonly ComboSkillRegistrationDefinition[] | undefined {
   if (value === undefined) return undefined;
   const rows = requireArray(value, sourcePath);
@@ -78,16 +81,17 @@ export function parseOperatorComboSkillRegistrationsSource(
               ? 'elements'
               : 'types';
         requireNonEmptyString(trigger[payloadKey], `${rulePath}.trigger.${payloadKey}`);
-        if (rule.condition !== undefined) requireRecord(rule.condition, `${rulePath}.condition`);
+        const condition =
+          rule.condition === undefined
+            ? undefined
+            : projectComboCondition(
+                requireRecord(rule.condition, `${rulePath}.condition`),
+                `${rulePath}.condition`,
+                gameplayTagRegistry,
+              );
         return {
           trigger: trigger as ComboSkillRegistrationDefinition['rules'][number]['trigger'],
-          ...(rule.condition === undefined
-            ? {}
-            : {
-                condition: rule.condition as NonNullable<
-                  ComboSkillRegistrationDefinition['rules'][number]['condition']
-                >,
-              }),
+          ...(condition === undefined ? {} : { condition }),
           ...(rule.blackboard === undefined
             ? {}
             : { blackboard: numericBlackboard(rule.blackboard, `${rulePath}.blackboard`) }),
@@ -103,6 +107,45 @@ export function parseOperatorComboSkillRegistrationsSource(
       }),
     };
   });
+}
+
+function projectComboCondition(
+  condition: Readonly<Record<string, unknown>>,
+  path: string,
+  gameplayTagRegistry: GameplayTagRegistry,
+): NonNullable<ComboSkillRegistrationDefinition['rules'][number]['condition']> {
+  if (condition.kind !== 'buffStackCompare') {
+    return condition as NonNullable<ComboSkillRegistrationDefinition['rules'][number]['condition']>;
+  }
+  requireAllowedFields(
+    condition,
+    new Set(['kind', 'target', 'tagQueryType', 'buffTagIds', 'operator', 'value']),
+    path,
+    true,
+  );
+  const target = requireNonEmptyString(condition.target, `${path}.target`);
+  const tagQueryType = requireNonEmptyString(condition.tagQueryType, `${path}.tagQueryType`);
+  const operator = requireNonEmptyString(condition.operator, `${path}.operator`);
+  if (target !== 'enemy') throw new Error(`${path}.target: unsupported combo Buff target`);
+  if (!['hasAny', 'hasAll', 'exceptAny', 'exceptAll'].includes(tagQueryType))
+    throw new Error(`${path}.tagQueryType: unsupported GameplayTag query`);
+  if (!['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'].includes(operator))
+    throw new Error(`${path}.operator: unsupported comparison`);
+  const value = requireRecord(condition.value, `${path}.value`);
+  requireAllowedFields(value, new Set(['kind', 'value']), `${path}.value`, true);
+  if (value.kind !== 'constant') throw new Error(`${path}.value.kind: expected constant`);
+  const tagIds = requireArray(condition.buffTagIds, `${path}.buffTagIds`).map((item, index) =>
+    requireNumber(item, `${path}.buffTagIds[${index}]`),
+  );
+  return {
+    kind: 'buffStackCompare',
+    target,
+    tagQueryType: tagQueryType as 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll',
+    buffTags: projectGameplayTags(tagIds, { gameplayTagRegistry }, `${path}.buffTagIds`),
+    operator: operator as
+      'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual',
+    value: { kind: 'constant', value: finiteNumber(value.value, `${path}.value.value`) },
+  };
 }
 
 function numericBlackboard(value: unknown, path: string): Readonly<Record<string, number>> {

@@ -174,6 +174,17 @@ export function parseDamageUnitSource(
     `${path}.damageAttributeType`,
   );
   const simpleCalculation = requireBoolean(unit.simpleCalculation, `${path}.simpleCalculation`);
+  if ('poiseCalculation' in unit && attributeType === 'Hp') {
+    // combat-spec: DamageAction._ProcessDamage branches on damageAttributeType at
+    // 0x0353FFE5. The Hp branch never reads the +0x68 poiseCalculation field, but
+    // real data may still serialize an inactive calculation object (Gilberta battle skill).
+    requireRecord(unit.poiseCalculation, `${path}.poiseCalculation`);
+  }
+  if ('atkCalculation' in unit && attributeType === 'Poise') {
+    // The Poise branch reads poiseCalculation directly after damageAttributeType
+    // dispatch; simpleCalculation and atkCalculation belong to the inactive Hp path.
+    requireRecord(unit.atkCalculation, `${path}.atkCalculation`);
+  }
   for (const field of [
     'playDefaultHitEffect',
     'playHitEffect',

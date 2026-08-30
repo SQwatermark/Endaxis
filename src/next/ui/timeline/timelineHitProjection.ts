@@ -6,6 +6,7 @@
  * 命中点来自调用方提供的 SkillDefinition（目录或自定义），投影层不再从存档快照读取。
  */
 import type {
+  CombatCondition,
   OperatorAbilityEntityDefinitions,
   OperatorBuffDefinitions,
   SkillBuffDefinition,
@@ -14,11 +15,14 @@ import type {
 } from '../../core/game-data/operatorDefinition';
 import type { SkillCastDocument } from '../../core/project/schema';
 import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
+import { compareCombatNumbers } from '../../core/combat/runtime/numericComparison';
 
 /** 一个可渲染的命中点。 */
 export interface TimelineHitMarker {
   readonly stepKey: string;
   readonly hitId: string;
+  /** 产生该候选命中的基础或运行时替换技能形态。 */
+  readonly skillKey?: string;
   /** 相对技能块左边缘的帧偏移。 */
   readonly frameOffset: number;
   /** 在条件分支里，跑不跑取决于当时的条件。 */
@@ -55,6 +59,17 @@ export function shouldDisplayTimelineHitMarker(
  */
 export function projectTimelineHitMarkerLeftPx(leftPx: number): number {
   return Math.max(0, leftPx);
+}
+
+function resolveStaticCondition(condition: CombatCondition): boolean | null {
+  if (
+    condition.kind !== 'actionValueCompare' ||
+    condition.left.kind !== 'constant' ||
+    condition.right.kind !== 'constant'
+  ) {
+    return null;
+  }
+  return compareCombatNumbers(condition.left.value, condition.right.value, condition.operator);
 }
 
 function collectDamageSteps(
@@ -97,11 +112,27 @@ function collectDamageSteps(
     return;
   }
   if (step.kind === 'conditional') {
-    // 条件分支里的步骤跑不跑取决于当时条件，一律标记为 conditional。
+    const staticResult = resolveStaticCondition(step.parameters.condition);
+    if (staticResult === false) {
+      for (const nested of step.whenFalse?.steps ?? []) {
+        collectDamageSteps(
+          nested,
+          conditional,
+          markers,
+          cast,
+          frameOffset,
+          abilityEntityDefinitions,
+          buffDefinitions,
+          visitedBuffIds,
+        );
+      }
+      return;
+    }
+    // 只有纯常量比较可在无模拟预览中证明；其余分支仍等待实际回执。
     for (const nested of step.whenTrue.steps)
       collectDamageSteps(
         nested,
-        true,
+        staticResult === true ? conditional : true,
         markers,
         cast,
         frameOffset,
@@ -109,6 +140,7 @@ function collectDamageSteps(
         buffDefinitions,
         visitedBuffIds,
       );
+    if (staticResult === true) return;
     for (const nested of step.whenFalse?.steps ?? []) {
       collectDamageSteps(
         nested,
@@ -293,9 +325,12 @@ export function projectCastHitMarkersWithReplacements(
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
   buffDefinitions?: OperatorBuffDefinitions,
 ): readonly TimelineHitMarker[] {
-  const markers = [
-    ...projectCastHitMarkers(cast, definition, abilityEntityDefinitions, buffDefinitions),
-  ];
+  const markers = projectCastHitMarkers(
+    cast,
+    definition,
+    abilityEntityDefinitions,
+    buffDefinitions,
+  ).map(marker => ({ ...marker, skillKey: definition.key }));
   const seen = new Set(markers.map(marker => marker.hitId));
   for (const replacement of replacements) {
     for (const marker of projectCastHitMarkers(
@@ -306,7 +341,7 @@ export function projectCastHitMarkersWithReplacements(
     )) {
       if (seen.has(marker.hitId)) continue;
       seen.add(marker.hitId);
-      markers.push({ ...marker, conditional: true });
+      markers.push({ ...marker, skillKey: replacement.key, conditional: true });
     }
   }
   return markers;

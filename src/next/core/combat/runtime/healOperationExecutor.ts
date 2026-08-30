@@ -56,13 +56,15 @@ export class HealOperationExecutor implements CombatOperationExecutor {
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind !== 'heal') return this.dependencies.delegate.execute(step, context);
     const target =
-      step.parameters.target === 'contextTarget'
-        ? this.#resolveContextTarget(step, context)
-        : this.dependencies.resolveTarget(
-            step.parameters.target,
-            context?.buffSourceId,
-            context?.buffOwnerId,
-          );
+      step.parameters.target === 'currentTarget'
+        ? this.#resolveCurrentTarget(context)
+        : step.parameters.target === 'contextTarget'
+          ? this.#resolveContextTarget(step, context)
+          : this.dependencies.resolveTarget(
+              step.parameters.target,
+              context?.buffSourceId,
+              context?.buffOwnerId,
+            );
     if (target === null) return step.parameters.alwaysNext === true;
     // Buff 生命周期运行在宿主的执行器上，但治疗者仍是创建该 Buff 的来源。
     // 直接技能没有 Buff 上下文，继续使用当前技能所属干员。
@@ -171,5 +173,14 @@ export class HealOperationExecutor implements CombatOperationExecutor {
     const resolve = this.dependencies.resolveContextTarget;
     if (resolve === undefined) throw new Error('context heal target resolver is not configured');
     return resolve(target.operatorId);
+  }
+
+  #resolveCurrentTarget(context: CombatOperationContext | undefined): ResolvedHealTarget {
+    if (context?.currentTarget?.kind !== 'operator') {
+      throw new Error("heal target 'currentTarget' requires a current operator target");
+    }
+    const resolve = this.dependencies.resolveContextTarget;
+    if (resolve === undefined) throw new Error('current heal target resolver is not configured');
+    return resolve(context.currentTarget.operatorId);
   }
 }

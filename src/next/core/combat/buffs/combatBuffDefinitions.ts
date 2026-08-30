@@ -463,7 +463,7 @@ function parseOptionalShields(
       }
       return {
         infinityValue: requireBoolean(shield.infinityValue, `${shieldPath}.infinityValue`),
-        value: parseDefinitionNumberOperand(shield.value, `${shieldPath}.value`),
+        value: parseShieldValue(shield.value, `${shieldPath}.value`),
         damageAbsorptions: shield.damageAbsorptions.map((raw, absorptionIndex) => {
           const absorptionPath = `${shieldPath}.damageAbsorptions[${absorptionIndex}]`;
           const absorption = requireObject(raw, absorptionPath);
@@ -496,6 +496,28 @@ function parseOptionalShields(
       };
     }),
   };
+}
+
+function parseShieldValue(value: unknown, path: string): BuffShieldDefinition['value'] {
+  if (typeof value === 'object' && value !== null && 'attribute' in value) {
+    const calculation = requireObject(value, path);
+    requireOnlyKeys(calculation, path, ['attributeSource', 'attribute', 'multiplier', 'addition']);
+    const attributeSource =
+      calculation.attributeSource === undefined
+        ? undefined
+        : requireEnum(
+            calculation.attributeSource,
+            ['buffOwner', 'buffSource'] as const,
+            `${path}.attributeSource`,
+          );
+    return {
+      ...(attributeSource === undefined ? {} : { attributeSource }),
+      attribute: requireNonEmptyString(calculation.attribute, `${path}.attribute`),
+      multiplier: parseDefinitionNumberOperand(calculation.multiplier, `${path}.multiplier`),
+      addition: parseDefinitionNumberOperand(calculation.addition, `${path}.addition`),
+    };
+  }
+  return parseDefinitionNumberOperand(value, path);
 }
 
 function parseOptionalSustainedProtection(

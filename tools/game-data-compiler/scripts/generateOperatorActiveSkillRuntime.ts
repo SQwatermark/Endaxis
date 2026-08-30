@@ -27,26 +27,38 @@ import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDef
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
 import { collectCombatInvisibleBuffClosureIds } from '../src/compiler/combatInvisibleBuffClosure.ts';
 import {
+  collectCompiledBuffCapturedTargetGroups,
   collectCompiledBuffIds,
   collectCompiledPhysicalInflictionBuffIds,
 } from '../src/compiler/compiledBuffReferences.ts';
-import { collectSkillActionReferences } from '../src/source/referenceGraph.ts';
+import {
+  collectSkillActionReferences,
+  collectSkillRootBuffReferences,
+} from '../src/source/referenceGraph.ts';
 import type { ProjectileLaunchActionSource } from '../src/source/referenceActions.ts';
 import type { NativeConditionSource } from '../src/source/condition.ts';
 import type {
   CombatActionProjectionContextSource,
   CombatActionProjectionExtensionsSource,
 } from '../src/compiler/combatProjectionCommon.ts';
+import { parseGlobalBuffTemplateCatalogSource } from '../src/source/globalBuffTemplate.ts';
+import { createGlobalBuffProjectionExtensions } from '../src/compiler/globalBuffProjection.ts';
+import { parseSkillSettingCatalogSource } from '../src/source/skillSettingCatalog.ts';
+import { createSkillSettingProjectionExtensions } from '../src/compiler/skillSettingProjection.ts';
 
 export interface OperatorActiveSkillRuntimeArguments {
   readonly sourceRoot: string;
   readonly sourceFile: string;
   readonly skillPatchTable: string;
   readonly skillSettingCatalog?: string;
+  /** 整名生成时提供；单技能入口未遇到 GlobalBuff 时可省略。 */
+  readonly globalBuffCatalog?: string;
   readonly buffDataRoot: string;
   readonly supplementalBuffIds: readonly string[];
   /** 整名两阶段规划中，由其他技能生成的能力实体子技能所观察的逻辑 Buff 身份。 */
   readonly preserveBuffIds?: readonly string[];
+  /** 仅供已显式审计的内部/替换技能；它们可能不在 SkillPatchTable 养成等级组中。 */
+  readonly allowMissingSkillPatch?: boolean;
   readonly abilityEntityCatalog: string;
   readonly projectileBlackboardCatalog: string;
   readonly gameplayTagCatalog: string;
@@ -57,6 +69,10 @@ export interface OperatorActiveSkillRuntimeArguments {
   readonly output: string;
   readonly auditOutput: string;
   readonly check: boolean;
+  /** 整名规划提供；单技能诊断入口没有足够信息解析原生换槽身份。 */
+  readonly compileSkillSlotReplacement?: NonNullable<
+    CombatActionProjectionExtensionsSource['compileSkillSlotReplacement']
+  >;
 }
 
 export interface PlannedOperatorActiveSkillRuntime {
@@ -74,6 +90,45 @@ export interface PlannedOperatorActiveSkillRuntime {
   readonly skillId: string;
   readonly sequences: number;
   readonly abilityEntityObservedBuffIds: readonly string[];
+}
+
+function collectProjectileLaunches(
+  graph: ReturnType<typeof parseKnownSkillActionGraphSource>,
+): ProjectileLaunchActionSource[] {
+  return graph.actionGroup.timelineActions.flatMap(timeline =>
+    collectNativeActionNodes(timeline.sequence).flatMap(node =>
+      node.metadata.enabled && node.body.kind === 'leaf' && node.body.value.family === 'projectile'
+        ? [node.body.value.action]
+        : [],
+    ),
+  );
+}
+
+/** 递归读取投射物回调 SkillData；Python 旧后端已经按同一闭包处理嵌套发射。 */
+function loadProjectileCallbackClosure(
+  initialLaunches: readonly ProjectileLaunchActionSource[],
+  sourceRoot: string,
+  patchTable: Record<string, unknown>,
+): {
+  readonly launches: readonly ProjectileLaunchActionSource[];
+  readonly callbackGraphs: ReadonlyMap<string, ReturnType<typeof parseKnownSkillActionGraphSource>>;
+} {
+  const launches = [...initialLaunches];
+  const callbackGraphs = new Map<string, ReturnType<typeof parseKnownSkillActionGraphSource>>();
+  for (let index = 0; index < launches.length; index += 1) {
+    for (const callback of launches[index]!.callbacks) {
+      if (!callback.enabled || callbackGraphs.has(callback.skillId)) continue;
+      const id = callback.skillId;
+      const value = readJson(path.resolve(sourceRoot, 'skill-data-cdn', `${id}.json`));
+      assertNoUnprojectedSkillRootEffects(value, `SkillData.${id}`);
+      const callbackPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
+      const prepared = prepareSkillDefinitionInputSource(value, id, callbackPatch);
+      const graph = parseKnownSkillActionGraphSource(value, id, prepared.blackboard.values);
+      callbackGraphs.set(id, graph);
+      launches.push(...collectProjectileLaunches(graph));
+    }
+  }
+  return { launches, callbackGraphs };
 }
 
 /** 技能本体和 Buff 闭包共用的零距离投射物目录；回调 SkillData 仍逐个严格解析。 */
@@ -94,26 +149,10 @@ export function prepareProjectileProjection(
   readonly callbackIds: readonly string[];
 } {
   const patchTable = readJson(args.skillPatchTable) as Record<string, unknown>;
-  const projectileIds = [...new Set(launches.map(launch => launch.projectileId))].sort();
-  const callbackIds = [
-    ...new Set(
-      launches.flatMap(launch =>
-        launch.callbacks.filter(callback => callback.enabled).map(callback => callback.skillId),
-      ),
-    ),
-  ].sort();
-  const callbackGraphs = new Map(
-    callbackIds.map(id => {
-      const value = readJson(path.resolve(args.sourceRoot, 'skill-data-cdn', `${id}.json`));
-      assertNoUnprojectedSkillRootEffects(value, `SkillData.${id}`);
-      const callbackPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
-      const callbackPrepared = prepareSkillDefinitionInputSource(value, id, callbackPatch);
-      return [
-        id,
-        parseKnownSkillActionGraphSource(value, id, callbackPrepared.blackboard.values),
-      ] as const;
-    }),
-  );
+  const closure = loadProjectileCallbackClosure(launches, args.sourceRoot, patchTable);
+  const projectileIds = [...new Set(closure.launches.map(launch => launch.projectileId))].sort();
+  const callbackGraphs = closure.callbackGraphs;
+  const callbackIds = [...callbackGraphs.keys()].sort();
   const runtimeCatalog = new Map(
     projectileIds.map(
       id =>
@@ -161,13 +200,21 @@ export function prepareProjectileProjection(
       throw new Error(`${actionPath}: unknown time-dilation priority ${tagId}`);
     return value;
   };
+  let compileProjectileLaunch: NonNullable<
+    CombatActionProjectionExtensionsSource['compileProjectileLaunch']
+  >;
+  compileProjectileLaunch = createZeroDistanceProjectileProjectionExtensionSource({
+    catalog: { runtimes: runtimeCatalog, templates: templateCatalog, callbackGraphs },
+    callbackContext,
+    callbackExtensions: {
+      resolveTimeDilationPriority,
+      compileProjectileLaunch: (action, actionPath, context) =>
+        compileProjectileLaunch(action, actionPath, context),
+    },
+    visualOnlyIds,
+  });
   return {
-    compileProjectileLaunch: createZeroDistanceProjectileProjectionExtensionSource({
-      catalog: { runtimes: runtimeCatalog, templates: templateCatalog, callbackGraphs },
-      callbackContext,
-      callbackExtensions: { resolveTimeDilationPriority },
-      visualOnlyIds,
-    }),
+    compileProjectileLaunch,
     callbackGraphs,
     projectileIds,
     callbackIds,
@@ -188,44 +235,38 @@ export function planOperatorActiveSkillRuntime(
   if (!skillId) throw new Error(`${sourcePath}.skillId: expected non-empty string`);
   const sourceIdentity = `SkillData.${skillId}`;
   const patchTable = readJson(args.skillPatchTable) as Record<string, unknown>;
-  if (!(skillId in patchTable)) throw new Error(`SkillPatchTable: missing ${skillId}`);
-  const patch = parseSkillPatchSource(patchTable[skillId], skillId);
+  if (!(skillId in patchTable) && args.allowMissingSkillPatch !== true)
+    throw new Error(`SkillPatchTable: missing ${skillId}`);
+  const patch = skillId in patchTable ? parseSkillPatchSource(patchTable[skillId], skillId) : null;
   const prepared = prepareSkillDefinitionInputSource(source, sourceIdentity, patch);
+  const globalBuffCatalogValue =
+    args.globalBuffCatalog === undefined ? undefined : readJson(args.globalBuffCatalog);
+  const globalBuffCatalog =
+    globalBuffCatalogValue === undefined
+      ? undefined
+      : parseGlobalBuffTemplateCatalogSource(globalBuffCatalogValue);
+  const skillSettingCatalogValue =
+    args.skillSettingCatalog === undefined ? undefined : readJson(args.skillSettingCatalog);
+  const skillSettingCatalog =
+    skillSettingCatalogValue === undefined
+      ? undefined
+      : parseSkillSettingCatalogSource(skillSettingCatalogValue);
   const graph = parseKnownSkillActionGraphSource(
     source,
     sourceIdentity,
     prepared.blackboard.values,
   );
-  const launches = graph.actionGroup.timelineActions.flatMap(timeline =>
-    collectNativeActionNodes(timeline.sequence)
-      .filter(node => node.body.kind === 'leaf' && node.body.value.family === 'projectile')
-      .map(node =>
-        node.body.kind === 'leaf' && node.body.value.family === 'projectile'
-          ? node.body.value.action
-          : null,
-      )
-      .filter(item => item !== null),
+  const rootLaunches = collectProjectileLaunches(graph);
+  const projectileClosure = loadProjectileCallbackClosure(
+    rootLaunches,
+    args.sourceRoot,
+    patchTable,
   );
-  const projectileIds = [...new Set(launches.map(launch => launch.projectileId))].sort();
-  const callbackIds = [
-    ...new Set(
-      launches.flatMap(launch =>
-        launch.callbacks.filter(callback => callback.enabled).map(callback => callback.skillId),
-      ),
-    ),
+  const callbackGraphs = projectileClosure.callbackGraphs;
+  const projectileIds = [
+    ...new Set(projectileClosure.launches.map(launch => launch.projectileId)),
   ].sort();
-  const callbackGraphs = new Map(
-    callbackIds.map(id => {
-      const value = readJson(path.resolve(args.sourceRoot, 'skill-data-cdn', `${id}.json`));
-      assertNoUnprojectedSkillRootEffects(value, `SkillData.${id}`);
-      const callbackPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
-      const callbackPrepared = prepareSkillDefinitionInputSource(value, id, callbackPatch);
-      return [
-        id,
-        parseKnownSkillActionGraphSource(value, id, callbackPrepared.blackboard.values),
-      ] as const;
-    }),
-  );
+  const callbackIds = [...callbackGraphs.keys()].sort();
   const runtimeCatalog = new Map(
     projectileIds.map(id => {
       const value = readJson(path.resolve(args.sourceRoot, 'ProjectileData', `${id}.json`));
@@ -285,7 +326,8 @@ export function planOperatorActiveSkillRuntime(
       collectNativeActionNodes(timeline.sequence).flatMap(node =>
         node.metadata.enabled &&
         node.body.kind === 'leaf' &&
-        node.body.value.family === 'abilityEntity'
+        node.body.value.family === 'abilityEntity' &&
+        node.body.value.action.skillId.length > 0
           ? [node.body.value.action.skillId]
           : [],
       ),
@@ -304,7 +346,8 @@ export function planOperatorActiveSkillRuntime(
         collectNativeActionNodes(timeline.sequence).flatMap(node =>
           node.metadata.enabled &&
           node.body.kind === 'leaf' &&
-          node.body.value.family === 'abilityEntity'
+          node.body.value.family === 'abilityEntity' &&
+          node.body.value.action.skillId.length > 0
             ? [node.body.value.action.skillId]
             : [],
         ),
@@ -314,6 +357,15 @@ export function planOperatorActiveSkillRuntime(
   const actionReferences = [graph, ...callbackGraphs.values()].flatMap(skill =>
     collectSkillActionReferences(skill),
   );
+  const switchRootBuffIds = collectSkillRootBuffReferences(source, sourceIdentity)
+    .filter(
+      reference =>
+        reference.kind === 'buff' &&
+        reference.usage === 'switch' &&
+        reference.state === 'active' &&
+        reference.id !== null,
+    )
+    .map(reference => reference.id!);
   const directlyReferencedBuffIds = actionReferences
     .filter(
       reference =>
@@ -323,40 +375,123 @@ export function planOperatorActiveSkillRuntime(
         ['apply', 'aura', 'finish', 'finishQuery', 'inherit'].includes(reference.usage),
     )
     .map(reference => reference.id!);
-  const identityObservedBuffIds = new Set(
-    [...abilityChildGraphs.values()].flatMap(skill =>
+  const referencedClosureSources = collectBuffRuntimeClosure(
+    [...new Set([...directlyReferencedBuffIds, ...switchRootBuffIds])],
+    id => readJson(path.resolve(args.buffDataRoot, `${id}.json`)),
+    globalBuffCatalog,
+  );
+  const collectObservedBuffIds = (condition: NativeConditionSource): string[] => {
+    if (condition.kind === 'buffStack') return [...condition.buffIds];
+    if (condition.kind === 'contextBuff' && condition.matcher.kind === 'id')
+      return condition.matcher.buffIds.flatMap(id =>
+        id.kind === 'constant' && id.value.length > 0 ? [id.value] : [],
+      );
+    if (condition.kind === 'any')
+      return condition.groups.flatMap(group => group.conditions.flatMap(collectObservedBuffIds));
+    return [];
+  };
+  const combatInvisibleClosureIds = collectCombatInvisibleBuffClosureIds(
+    directlyReferencedBuffIds,
+    id => readJson(path.resolve(args.buffDataRoot, `${id}.json`)),
+  );
+  const identityObservedBuffIds = new Set([
+    ...[graph, ...callbackGraphs.values(), ...abilityChildGraphs.values()].flatMap(skill =>
       skill.actionGroup.timelineActions.flatMap(timeline =>
-        collectNativeActionNodes(timeline.sequence).flatMap(jumpNode => {
-          if (!jumpNode.metadata.enabled || jumpNode.body.kind !== 'timelineJump') return [];
-          const collect = (condition: NativeConditionSource): string[] => {
-            if (condition.kind === 'buffStack') return [...condition.buffIds];
-            if (condition.kind === 'contextBuff' && condition.matcher.kind === 'id')
-              return condition.matcher.buffIds.flatMap(id =>
-                id.kind === 'constant' && id.value.length > 0 ? [id.value] : [],
-              );
-            if (condition.kind === 'any')
-              return condition.groups.flatMap(group => group.conditions.flatMap(collect));
+        collectNativeActionNodes(timeline.sequence).flatMap(node =>
+          node.metadata.enabled &&
+          node.body.kind === 'leaf' &&
+          node.body.value.family === 'condition'
+            ? collectObservedBuffIds(node.body.value.action)
+            : [],
+        ),
+      ),
+    ),
+    ...[...referencedClosureSources.values()].flatMap(buff =>
+      combatInvisibleClosureIds.has(buff.graph.buffId)
+        ? []
+        : [
+            ...buff.graph.timelineActions.map(item => item.sequence),
+            ...buff.graph.buffEvents.flatMap(item => item.actions),
+            ...buff.graph.abilityEvents.flatMap(item => item.actions),
+            ...buff.graph.igniteEvents.flatMap(item => item.actions),
+          ].flatMap(sequence =>
+            collectNativeActionNodes(sequence).flatMap(node =>
+              node.metadata.enabled &&
+              node.body.kind === 'leaf' &&
+              node.body.value.family === 'condition'
+                ? collectObservedBuffIds(node.body.value.action)
+                : [],
+            ),
+          ),
+    ),
+    ...[...referencedClosureSources.values()].flatMap(buff => {
+      if (combatInvisibleClosureIds.has(buff.graph.buffId)) return [];
+      const nodes = [
+        ...buff.graph.timelineActions.map(item => item.sequence),
+        ...buff.graph.buffEvents.flatMap(item => item.actions),
+        ...buff.graph.abilityEvents.flatMap(item => item.actions),
+        ...buff.graph.igniteEvents.flatMap(item => item.actions),
+      ].flatMap(sequence => collectNativeActionNodes(sequence));
+      const activeDurationKeys = new Set(
+        nodes.flatMap(node =>
+          node.metadata.enabled &&
+          node.body.kind === 'leaf' &&
+          node.body.value.family === 'comboQte' &&
+          node.body.value.action.activeDuration.blackboardKey !== null
+            ? [node.body.value.action.activeDuration.blackboardKey]
+            : [],
+        ),
+      );
+      return nodes.flatMap(node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'buffApplication'
+          ? node.body.value.action.buffs.flatMap(entry =>
+              entry.assignments.some(
+                assignment =>
+                  !assignment.useDirectValue && activeDurationKeys.has(assignment.inputValueKey),
+              )
+                ? [entry.buffId]
+                : [],
+            )
+          : [],
+      );
+    }),
+  ]);
+  const syntheticComboQteTriggerBlackboardKeys = new Set(
+    [...referencedClosureSources.values()].flatMap(buff =>
+      [
+        ...buff.graph.timelineActions.map(item => item.sequence),
+        ...buff.graph.buffEvents.flatMap(item => item.actions),
+        ...buff.graph.abilityEvents.flatMap(item => item.actions),
+        ...buff.graph.igniteEvents.flatMap(item => item.actions),
+      ].flatMap(sequence =>
+        collectNativeActionNodes(sequence).flatMap(node => {
+          if (
+            !node.metadata.enabled ||
+            node.body.kind !== 'leaf' ||
+            node.body.value.family !== 'comboQte'
+          )
             return [];
-          };
-          return collectNativeActionNodes(jumpNode.body.condition).flatMap(node =>
-            node.metadata.enabled &&
-            node.body.kind === 'leaf' &&
-            node.body.value.family === 'condition'
-              ? collect(node.body.value.action)
-              : [],
-          );
+          const mutation = node.body.value.action.triggerMutation;
+          return mutation.body.kind === 'leaf' &&
+            mutation.body.value.family === 'blackboardMutation'
+            ? [mutation.body.value.action.key]
+            : [];
         }),
       ),
     ),
   );
   const visualOnlyIds = new Set(
-    [
-      ...collectCombatInvisibleBuffClosureIds(directlyReferencedBuffIds, id =>
-        readJson(path.resolve(args.buffDataRoot, `${id}.json`)),
-      ),
-    ].filter(id => !identityObservedBuffIds.has(id) && !args.preserveBuffIds?.includes(id)),
+    [...combatInvisibleClosureIds].filter(
+      id =>
+        !switchRootBuffIds.includes(id) &&
+        !identityObservedBuffIds.has(id) &&
+        !args.preserveBuffIds?.includes(id),
+    ),
   );
-  const projectile = createZeroDistanceProjectileProjectionExtensionSource({
+  let projectile: NonNullable<CombatActionProjectionExtensionsSource['compileProjectileLaunch']>;
+  projectile = createZeroDistanceProjectileProjectionExtensionSource({
     catalog: { runtimes: runtimeCatalog, templates: templateCatalog, callbackGraphs },
     callbackContext: {
       gameplayTagRegistry: registry,
@@ -365,7 +500,14 @@ export function planOperatorActiveSkillRuntime(
       actionTargetTarget: 'enemy',
       fixedHittableTargetCount: 0,
     },
-    callbackExtensions: { resolveTimeDilationPriority },
+    callbackExtensions: {
+      resolveTimeDilationPriority,
+      compileProjectileLaunch: (action, actionPath, context) =>
+        projectile(action, actionPath, context),
+      ...(skillSettingCatalog === undefined
+        ? {}
+        : createSkillSettingProjectionExtensions(skillSettingCatalog)),
+    },
     visualOnlyIds,
   });
   const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
@@ -381,11 +523,24 @@ export function planOperatorActiveSkillRuntime(
       actionTargetTarget: 'enemy',
       fixedHittableTargetCount: 0,
       abilityEntityQueries: { catalog: abilityCatalog, gameplayTagRegistry: registry },
+      syntheticComboQteTriggerBlackboardKeys,
     },
-    extensions: { compileProjectileLaunch: projectile, resolveTimeDilationPriority },
+    extensions: {
+      compileProjectileLaunch: projectile,
+      resolveTimeDilationPriority,
+      ...(globalBuffCatalog === undefined
+        ? {}
+        : createGlobalBuffProjectionExtensions(globalBuffCatalog)),
+      ...(skillSettingCatalog === undefined
+        ? {}
+        : createSkillSettingProjectionExtensions(skillSettingCatalog)),
+      ...(args.compileSkillSlotReplacement === undefined
+        ? {}
+        : { compileSkillSlotReplacement: args.compileSkillSlotReplacement }),
+    },
     visualOnlyIds,
   });
-  const runtimeBuffIds = new Set(collectCompiledBuffIds(definition.scheduledSequences));
+  const runtimeBuffIds = new Set(collectCompiledBuffIds(definition));
   for (const id of args.supplementalBuffIds)
     if (!runtimeBuffIds.has(id))
       throw new Error(`supplemental Buff '${id}' is not applied by the compiled runtime`);
@@ -393,21 +548,30 @@ export function planOperatorActiveSkillRuntime(
   // 否则物理异常等隐式公共 Buff 会在最终内联阶段虚假报缺失。
   const buffClosureRoots = [
     ...new Set([
-      ...collectCompiledPhysicalInflictionBuffIds(definition.scheduledSequences),
+      ...collectCompiledPhysicalInflictionBuffIds(definition),
+      ...collectCompiledBuffIds(definition.switchToBuffCast),
       ...args.supplementalBuffIds,
     ]),
   ].sort();
-  const buffData = loadBuffClosureSources(buffClosureRoots, args.buffDataRoot);
+  const switchToBuffIds = collectCompiledBuffIds(definition.switchToBuffCast);
+  const buffData = loadBuffClosureSources(buffClosureRoots, args.buffDataRoot, globalBuffCatalog);
   const buffClosure = compileStandardStumpBuffClosure(
     buffClosureRoots,
     buffData,
-    undefined,
-    args.skillSettingCatalog === undefined ? undefined : readJson(args.skillSettingCatalog),
+    globalBuffCatalogValue,
+    skillSettingCatalogValue,
     undefined,
     () => ({ resolveTimeDilationPriority }),
-    new Map(buffClosureRoots.map(id => [id, 'enemy'] as const)),
-    undefined,
+    new Map(
+      buffClosureRoots.map(id => [id, switchToBuffIds.has(id) ? 'caster' : 'enemy'] as const),
+    ),
+    new Set([...switchRootBuffIds, ...identityObservedBuffIds, ...(args.preserveBuffIds ?? [])]),
     registry,
+    // SwitchToAddBuff 的 buffSource 已由严格投影证明为当前技能施放者；物理异常根同样由
+    // 当前主动技能命中施加。不能只种 owner 而让后继 Buff 的 Source 链退化成 unknown。
+    new Map(buffClosureRoots.map(id => [id, 'caster'] as const)),
+    new Set(),
+    collectCompiledBuffCapturedTargetGroups(definition),
   );
   const blockedBuffs = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blockedBuffs.length > 0)
@@ -470,7 +634,7 @@ export async function generateOperatorActiveSkillRuntime(
 ) {
   requireExactOwnedDirectory(
     args.output,
-    path.resolve('src/next/data/operators/generated-active-skills'),
+    path.resolve('tmp/game-data-generated/operator-active-skills'),
     args.slug,
   );
   requireExactOwnedDirectory(
@@ -521,14 +685,19 @@ function readJson(file: string): unknown {
 function loadBuffClosureSources(
   rootIds: readonly string[],
   directory: string,
+  globalBuffCatalog?: ReturnType<typeof parseGlobalBuffTemplateCatalogSource>,
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   // 读取由公共闭包要求的资源，CLI 不另维护一套只认识静态引用的遍历规则。
-  collectBuffRuntimeClosure(rootIds, id => {
-    const value = readJson(path.resolve(directory, `${id}.json`));
-    result[id] = value;
-    return value;
-  });
+  collectBuffRuntimeClosure(
+    rootIds,
+    id => {
+      const value = readJson(path.resolve(directory, `${id}.json`));
+      result[id] = value;
+      return value;
+    },
+    globalBuffCatalog,
+  );
   return result;
 }
 
@@ -577,6 +746,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '--source-root',
     '--source-file',
     '--skill-patch-table',
+    '--skill-setting-catalog',
     '--buff-data-root',
     '--ability-entity-catalog',
     '--projectile-blackboard-catalog',
@@ -621,6 +791,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       sourceRoot: required('--source-root'),
       sourceFile: required('--source-file'),
       skillPatchTable: required('--skill-patch-table'),
+      ...(values.has('--skill-setting-catalog')
+        ? { skillSettingCatalog: required('--skill-setting-catalog') }
+        : {}),
       buffDataRoot: required('--buff-data-root'),
       supplementalBuffIds: (values.get('--supplemental-buff-ids') ?? '')
         .split(',')

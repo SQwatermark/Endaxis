@@ -6,7 +6,9 @@ import type {
   ActionValueCalculationOperation,
   ActionValueOperation,
   CombatCondition,
+  DamageElement,
   OperatorAttribute,
+  OperatorRole,
 } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
@@ -33,6 +35,16 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
     readonly resolveOwnerCurrentSkillTimelineFrame?: (ownerId: string) => number | undefined,
     /** 原生 Deck 快照来自构筑完成时的静态四维，不随战斗内 Modifier 改变。 */
     readonly sourceDeckAttributes?: Readonly<Record<OperatorAttribute, number>>,
+    /** CharacterTable.charTypeId 的静态一一投影；只有身份条件实际执行时才读取。 */
+    readonly characterTypes?: {
+      readonly sourceId: string;
+      readonly resolve: (entityId: string) => DamageElement | undefined;
+    },
+    /** CharacterTable.profession 的静态投影；仅职业条件实际执行时读取。 */
+    readonly operatorRoles?: {
+      readonly sourceId: string;
+      readonly resolve: (entityId: string) => OperatorRole | undefined;
+    },
   ) {}
 
   execute(
@@ -62,7 +74,16 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       if (context?.event?.kind !== 'spGained') {
         throw new Error('storeEventSpGainAmount requires an spGained event context');
       }
-      context.blackboard.assignDynamic(step.parameters.outputKey, context.event.amount);
+      const { outputKey, realDeltaOutputKey } = step.parameters;
+      if (outputKey === undefined && realDeltaOutputKey === undefined) {
+        throw new Error('storeEventSpGainAmount requires at least one output key');
+      }
+      if (outputKey !== undefined) {
+        context.blackboard.assignDynamic(outputKey, context.event.requestedAmount);
+      }
+      if (realDeltaOutputKey !== undefined) {
+        context.blackboard.assignDynamic(realDeltaOutputKey, context.event.amount);
+      }
       return true;
     }
     if (step.kind === 'modifyActionValue') {
@@ -174,6 +195,38 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind === 'combatActive') return true;
     if (condition.kind === 'singleEnemyPresent') return true;
+    if (condition.kind === 'characterTypeIn') {
+      const entityId =
+        condition.target === 'caster' ? this.characterTypes?.sourceId : context?.buffOwnerId;
+      if (entityId === undefined) {
+        throw new Error(`characterTypeIn target '${condition.target}' requires an entity identity`);
+      }
+      const characterType = this.characterTypes?.resolve(entityId);
+      if (characterType === undefined) {
+        throw new Error(`characterTypeIn requires CharacterTable.charTypeId for '${entityId}'`);
+      }
+      return condition.characterTypes.includes(characterType);
+    }
+    if (condition.kind === 'operatorRoleIn') {
+      const entityId =
+        condition.target === 'caster'
+          ? this.operatorRoles?.sourceId
+          : condition.target === 'buffOwner'
+            ? context?.buffOwnerId
+            : context?.event !== undefined &&
+                'targetId' in context.event &&
+                typeof context.event.targetId === 'string'
+              ? context.event.targetId
+              : undefined;
+      if (entityId === undefined) {
+        throw new Error(`operatorRoleIn target '${condition.target}' requires an entity identity`);
+      }
+      const role = this.operatorRoles?.resolve(entityId);
+      if (role === undefined) {
+        throw new Error(`operatorRoleIn requires CharacterTable.profession for '${entityId}'`);
+      }
+      return condition.roles.includes(role);
+    }
     if (condition.kind === 'buffSourceMatchesOwner') {
       if (context?.buffSourceId === undefined || context.buffOwnerId === undefined) {
         throw new Error('buffSourceMatchesOwner requires Buff source and owner identities');

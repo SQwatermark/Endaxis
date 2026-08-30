@@ -33,6 +33,70 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entities.findOwnerSpawned({ ownerId: 'arclight' })).toHaveLength(1);
   });
 
+  it('resolves template duration and stacking limit from spawn entity-blackboard assignments', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const executor = new AbilityEntityOperationExecutor(
+      'zhuang-fangyi',
+      entities,
+      { execute: () => false, evaluate: () => false },
+      undefined,
+      () => ({
+        lifetime: {
+          kind: 'limited',
+          durationSeconds: { blackboardKey: 'EntityBB_duration', fallback: 45 },
+        },
+        maxStackingCount: { blackboardKey: 'EntityBB_limit', fallback: 5 },
+      }),
+    );
+    const step: ResolvedCombatOperationStep = {
+      kind: 'spawnAbilityEntity',
+      parameters: {
+        abilityEntityId: 'sword',
+        dieWhenSourceDies: false,
+        blackboardAssignments: {
+          EntityBB_duration: { kind: 'constant', value: 12 },
+          EntityBB_limit: { kind: 'constant', value: 1 },
+        },
+      },
+    };
+    const context = { blackboard: new ActionBlackboard() };
+
+    executor.execute(step, context);
+    const first = entities.findOwnerSpawned({ ownerId: 'zhuang-fangyi' })[0]!;
+    expect(entities.snapshot(first).remainingDurationSeconds).toBe(12);
+    executor.execute(step, context);
+
+    expect(entities.isActive(first)).toBe(false);
+    expect(entities.findOwnerSpawned({ ownerId: 'zhuang-fangyi' })).toHaveLength(1);
+  });
+
+  it('finishes only the entities created by a dieOnEnd spawn when that action ends', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const executor = new AbilityEntityOperationExecutor(
+      'zhuang-fangyi',
+      entities,
+      { execute: () => false, evaluate: () => false },
+      undefined,
+      () => ({ lifetime: { kind: 'limited', durationSeconds: 5 } }),
+    );
+    const step: ResolvedCombatOperationStep = {
+      kind: 'spawnAbilityEntity',
+      parameters: {
+        abilityEntityId: 'mirror',
+        dieWhenSourceDies: true,
+        finishByAction: true,
+      },
+    };
+    const context = { blackboard: new ActionBlackboard() };
+
+    executor.execute(step, context);
+    executor.execute(step, context);
+    expect(entities.activeCount).toBe(2);
+
+    executor.end(step, context);
+    expect(entities.activeCount).toBe(0);
+  });
+
   it('keeps native query truncation after zero-space distance ordering is erased', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const first = entities.spawn({
@@ -156,6 +220,9 @@ describe('AbilityEntityOperationExecutor', () => {
             blackboardAssignments: {
               EntityBB_wisd_greater_will: { kind: 'blackboard', key: 'will' },
             },
+            stringBlackboardAssignments: {
+              EntityBB_hitedMark: 'attack1UltHitMark',
+            },
           },
         },
         {
@@ -172,7 +239,10 @@ describe('AbilityEntityOperationExecutor', () => {
       ownerId: 'arcane',
       target: { kind: 'enemy' },
       remainingDurationSeconds: 40,
-      blackboard: { EntityBB_wisd_greater_will: 3 },
+      blackboard: {
+        EntityBB_wisd_greater_will: 3,
+        EntityBB_hitedMark: 'attack1UltHitMark',
+      },
     });
   });
 
@@ -459,10 +529,12 @@ describe('AbilityEntityOperationExecutor', () => {
           kind: 'abilityEntityRemainingDurationCompare',
           operator: 'less',
           value: { kind: 'constant', value: 13 },
+          outputKey: 'remaining_before_compare',
         },
         { blackboard, currentTarget: entity },
       ),
     ).toBe(true);
+    expect(blackboard.getNumber('remaining_before_compare')).toBe(12);
 
     expect(
       executor.execute(
@@ -550,6 +622,60 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(operationContext?.blackboard.getNumber('inheritedParent')).toBe(11);
   });
 
+  it('selects the named child skill bound by the spawn action', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const execute = vi.fn(() => true);
+    const rootOperations = { execute, evaluate: () => false };
+    const executor = new AbilityEntityOperationExecutor('fixture', entities, rootOperations, {
+      resolveOperations: () => rootOperations,
+    });
+    const child = (skillId: string, flag: string) => ({
+      skillId,
+      initialBlackboard: {},
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag' as const,
+                parameters: { flag, value: true, target: 'caster' as const },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    executor.execute(
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: {
+          abilityEntityId: 'multi-child-host',
+          childSkillId: 'child-b',
+          definition: {
+            lifetime: { kind: 'limited', durationSeconds: 10 },
+            childSkills: {
+              'child-a': child('child-a', 'wrong-child'),
+              'child-b': child('child-b', 'selected-child'),
+            },
+          },
+          dieWhenSourceDies: false,
+        },
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parameters: expect.objectContaining({ flag: 'selected-child' }),
+      }),
+      expect.anything(),
+    );
+    expect(entities.snapshot(entities.findAll()[0]!).childSkillId).toBe('child-b');
+  });
+
   it('applies child-skill timeline jumps on the ability entity local clock', () => {
     const entities = new LogicalAbilityEntityRuntime({
       resolveDeltaSeconds: () => 1 / 60,
@@ -626,6 +752,59 @@ describe('AbilityEntityOperationExecutor', () => {
       }),
       expect.anything(),
     );
+  });
+
+  it('lets an ability-entity child skill finish its own local timeline', () => {
+    const entities = new LogicalAbilityEntityRuntime({
+      resolveDeltaSeconds: () => 1 / 30,
+    });
+    const execute = vi.fn(
+      (_step: ResolvedCombatOperationStep, _context?: CombatOperationContext) => true,
+    );
+    const delegate = { execute, evaluate: () => true };
+    let executor!: AbilityEntityOperationExecutor;
+    executor = new AbilityEntityOperationExecutor('fixture', entities, delegate, {
+      resolveOperations: () => executor,
+    });
+
+    executor.execute(
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: {
+          abilityEntityId: 'finish-host',
+          definition: {
+            lifetime: { kind: 'limited', durationSeconds: 10 },
+            childSkill: {
+              skillId: 'finish-child',
+              initialBlackboard: {},
+              timelineActions: [
+                {
+                  startFrame: 1,
+                  sequence: { steps: [{ kind: 'finishTimeline', parameters: {} }] },
+                },
+                {
+                  startFrame: 2,
+                  sequence: {
+                    steps: [
+                      {
+                        kind: 'setContextFlag',
+                        parameters: { flag: 'must-not-run', value: true, target: 'caster' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          dieWhenSourceDies: false,
+        },
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+
+    entities.advanceFrame();
+    entities.advanceFrame();
+    expect(execute).not.toHaveBeenCalled();
   });
 
   it('allows an embedded child timeline to finish its own host entity', () => {

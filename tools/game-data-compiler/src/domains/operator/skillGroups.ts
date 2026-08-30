@@ -88,6 +88,8 @@ export interface OperatorSkillGroupValidationOptions {
   readonly simulationEquivalentNativeSkillIds?: readonly string[];
   readonly basePassiveSkillIds?: readonly string[];
   readonly routedSkillKeys?: readonly string[];
+  /** 需注册到技能系统、但不作为稳定时间轴入口的原生替换/内部技能。 */
+  readonly runtimeReplacementSkillKeys?: readonly string[];
 }
 
 /** 按 combat-spec 的相同字段边界严格读取原生技能等级组。 */
@@ -242,12 +244,23 @@ export function validateOperatorSkillGroups(
   );
   const passive = optionIds(options.basePassiveSkillIds, 'basePassiveSkillIds');
   const routedKeys = optionIds(options.routedSkillKeys, 'routedSkillKeys');
+  const runtimeReplacementKeys = optionIds(
+    options.runtimeReplacementSkillKeys,
+    'runtimeReplacementSkillKeys',
+  );
   requireKnown(routingOnly, actualIds, 'routingOnlyNativeSkillIds');
   requireKnown(equivalent, actualIds, 'simulationEquivalentNativeSkillIds');
-  requireKnown(passive, actualIds, 'basePassiveSkillIds');
+  // 基础被动来自独立 Passive SkillData；它可能同时列在 skillGroupMap，也可能完全不在
+  // 可操作技能组中。其文件身份与 castType 由被动编译入口校验，本层只负责在出现时排除。
   requireKnown(routedKeys, new Set(skillByKey.keys()), 'routedSkillKeys');
+  requireKnown(runtimeReplacementKeys, new Set(skillByKey.keys()), 'runtimeReplacementSkillKeys');
   const generatedIds = new Set(skills.map(skill => skill.skillId));
-  const missingNativeSkillIds = [...generatedIds].filter(id => !actualIds.has(id)).sort();
+  const runtimeReplacementIds = new Set(
+    runtimeReplacementKeys.map(key => skillByKey.get(key)!.skillId),
+  );
+  const missingNativeSkillIds = [...generatedIds]
+    .filter(id => !actualIds.has(id) && !runtimeReplacementIds.has(id))
+    .sort();
   if (missingNativeSkillIds.length > 0) {
     throw new Error(
       `skillGroupMap does not match generated skill sources: missing native skills ${JSON.stringify(missingNativeSkillIds)}`,
@@ -262,7 +275,9 @@ export function validateOperatorSkillGroups(
   );
   const normalizedExpected = new Map<number, string[]>();
   for (const [type, ids] of expected) {
-    const expectedSet = new Set(ids.filter(id => !routedIds.has(id)));
+    const expectedSet = new Set(
+      ids.filter(id => !routedIds.has(id) && (actualIds.has(id) || !runtimeReplacementIds.has(id))),
+    );
     normalizedExpected.set(
       type,
       (normalizedActual.get(type) ?? []).filter(id => expectedSet.has(id)),

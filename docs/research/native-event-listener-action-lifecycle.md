@@ -48,7 +48,8 @@
 
 例如萤石连携技中的潜能 Buff 位于 `OnAfterKillEntity` 监听序列内，且先检查伤害装饰标签和黑板值。它不是连携技释放时无条件获得的 Buff。
 
-完整技能、事件与动作类型清单由 `scripts/generate_next_operators/audit_all_operators.py` 生成到 `all-operator-generation-audit.md`。
+完整技能、事件与动作类型清单见 `all-operator-generation-audit.md`；生成该历史快照的旧 Python
+审计入口已随生成器退役，当前覆盖审计由 TS 游戏数据编译器负责。
 
 当前 8 个技能、10 个监听器的逐项动作树和转换缺口见
 [原生技能事件监听样本](native-skill-event-listener-samples.md)。解析层已经保留同步响应的完整有序控制流，

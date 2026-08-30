@@ -6,7 +6,16 @@
     "assetIndex": 249506,
     "recordId": 13824,
     "asset": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_combo_trigger.asset",
-    "fileDataMd5": "B65DCF3C9411F179F30EEEF2B8EEA36C"
+    "fileDataMd5": "B65DCF3C9411F179F30EEEF2B8EEA36C",
+    "additionalAssets": [
+      {
+        "manifestId": 451359,
+        "assetIndex": 237504,
+        "recordId": 206332,
+        "asset": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_liino_combo_atb_return.asset",
+        "fileDataMd5": "C2A76D867CB744F220945AC7B7E304FF"
+      }
+    ]
   },
   "templates": {
     "global_buff_combo_trigger": {
@@ -64,6 +73,75 @@
         },
         {
           "key": "imbue_scale",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_liino_combo_atb_return": {
+      "id": "global_buff_liino_combo_atb_return",
+      "lifeType": "Limited",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Stack",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 1,
+      "applyIconDurationToBuffs": true,
+      "buffInputs": [
+        {
+          "buffId": "buff_chr_0035_liino_combo_atb_return",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "atb_return",
+              "inputValueKey": "atb_return",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            },
+            {
+              "targetKey": "duration",
+              "inputValueKey": "duration",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "duration",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "atb_return",
           "valueDouble": 0,
           "valueStr": "",
           "isDynamic": false

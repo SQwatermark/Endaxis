@@ -2262,7 +2262,7 @@ export default {
         enable: sequence(
           step('applyBuff', {
             buffId: 'buff_common_affixes_vulnerable_physical',
-            target: 'buffOwner',
+            target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {

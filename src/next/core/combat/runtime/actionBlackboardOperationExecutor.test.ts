@@ -9,6 +9,39 @@ const delegate = {
 };
 
 describe('ActionBlackboardOperationExecutor', () => {
+  it('checks an exact Buff owner profession through the runtime operator registry', () => {
+    const executor = new ActionBlackboardOperationExecutor(
+      delegate,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      {
+        sourceId: 'caster',
+        resolve: entityId => (entityId === 'gilberta-target' ? 'guard' : undefined),
+      },
+    );
+    const condition = {
+      kind: 'operatorRoleIn',
+      target: 'buffOwner',
+      roles: ['guard', 'supporter', 'caster'],
+    } as const;
+
+    expect(
+      executor.evaluate(condition, {
+        blackboard: new ActionBlackboard(),
+        buffOwnerId: 'gilberta-target',
+      }),
+    ).toBe(true);
+    expect(() =>
+      executor.evaluate(condition, {
+        blackboard: new ActionBlackboard(),
+        buffOwnerId: 'enemy',
+      }),
+    ).toThrow("operatorRoleIn requires CharacterTable.profession for 'enemy'");
+  });
+
   it('stores the integer frame exposed by the current timeline host', () => {
     const blackboard = new ActionBlackboard();
     const executor = new ActionBlackboardOperationExecutor(delegate);
@@ -54,13 +87,19 @@ describe('ActionBlackboardOperationExecutor', () => {
     expect(blackboard.getNumber('frame')).toBe(45);
   });
 
-  it('stores the actual amount carried by an sp-gain event', () => {
+  it('stores native Value and RealDelta from an sp-gain event independently', () => {
     const blackboard = new ActionBlackboard();
     const executor = new ActionBlackboardOperationExecutor(delegate);
 
     expect(
       executor.execute(
-        { kind: 'storeEventSpGainAmount', parameters: { outputKey: 'atb_contain_temp' } },
+        {
+          kind: 'storeEventSpGainAmount',
+          parameters: {
+            outputKey: 'atb_contain_temp',
+            realDeltaOutputKey: 'atb_real_delta',
+          },
+        },
         {
           blackboard,
           event: {
@@ -68,12 +107,14 @@ describe('ActionBlackboardOperationExecutor', () => {
             sourceOperatorId: 'pogranichnik',
             source: 'skill',
             gainKind: 'gain',
-            amount: 37,
+            requestedAmount: 37,
+            amount: 0,
           },
         },
       ),
     ).toBe(true);
     expect(blackboard.getNumber('atb_contain_temp')).toBe(37);
+    expect(blackboard.getNumber('atb_real_delta')).toBe(0);
   });
 
   it.each(['combatActive', 'singleEnemyPresent'] as const)(

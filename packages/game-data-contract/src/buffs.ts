@@ -54,6 +54,7 @@ export interface SkillBuffAbilityEventResponse {
     | 'ownerHpZero'
     | 'beforeTakeDamage'
     | 'beforeCalculateDamage'
+    | 'beforeDamageAction'
     | 'beforeTakePhysicalInfliction'
     | 'beforeOutputPhysicalInfliction'
     | 'afterOutputPhysicalInfliction'
@@ -79,7 +80,10 @@ export interface SkillBuffAbilityEventResponse {
     | 'outputBuff'
     | 'addedBuff'
     | 'finishedBuff'
+    /** 原生 OnBuffEndsEarly：只在 Ignite/Early 的提前结束消费路径广播。 */
+    | 'buffEndsEarly'
     | 'afterOutputWeaknessTriggered'
+    | 'customAbilityEvent'
     | 'afterKillEntity'
     | 'buffConsumed'
     /** OnObtainAtb + CheckObtainAtbType(Skill, Gain) 的编译后语义事件。 */
@@ -144,6 +148,8 @@ export interface SkillGlobalBuffDefinition {
   readonly stackingType: 'unlimited' | 'stack';
   readonly maxStackCount?: number;
   readonly durationSeconds?: BuffDuration;
+  /** 原生父 GlobalBuff 的时长同时作为子 Buff 图标时长；不改变子 Buff 的战斗寿命归属。 */
+  readonly applyIconDurationToBuffs?: boolean;
   readonly blackboard: Readonly<Record<string, ActionBlackboardValue>>;
   readonly children: readonly SkillGlobalBuffChildDefinition[];
 }
@@ -191,6 +197,7 @@ export interface BuffShieldDefinition {
   readonly value:
     | BuffDuration
     | {
+        readonly attributeSource?: 'buffOwner' | 'buffSource';
         readonly attribute: string;
         readonly multiplier: BuffDuration;
         readonly addition: BuffDuration;

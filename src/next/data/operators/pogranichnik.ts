@@ -1,2 +1,2 @@
-/** 边境士兵的正式 Next 定义由原生数据生成。 */
-export { pogranichnikGeneratedOperator as pogranichnik } from './generated/pogranichnik.operator.generated';
+/** 边境士兵的统一 TS 整名产物；稳定入口不暴露生成目录。 */
+export { default as pogranichnik } from './generated-definitions/pogranichnik/pogranichnik.operator.generated';

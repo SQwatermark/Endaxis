@@ -149,7 +149,9 @@ export type StandardPlayerDamageEvent =
   | 'outputBuff'
   | 'addedBuff'
   | 'finishedBuff'
-  | 'afterOutputWeaknessTriggered';
+  | 'buffEndsEarly'
+  | 'afterOutputWeaknessTriggered'
+  | 'customAbilityEvent';
 
 export interface StandardPlayerDamageEnvironmentOptions {
   /** 暴击样本和命中特殊倍率必须由具有证据的上层策略提供。 */
@@ -372,6 +374,7 @@ export class StandardPlayerDamageEnvironment {
     const damage = new PlayerDamageOperationExecutor({
       sourceOperatorId: operatorId,
       castId: program?.castId,
+      skillId: program?.skillId,
       skillType: program?.skillType,
       ...('program' in context
         ? {}
@@ -1068,6 +1071,7 @@ export class StandardPlayerDamageEnvironment {
       enhance: operatorAttributes.get('PhysicalAndSpellInflictionEnhance'),
       criticalRate: operatorAttributes.get('criticalRate'),
       criticalDamageIncrease: operatorAttributes.get('criticalDamageIncrease'),
+      weaknessDamageMultiplier: operatorAttributes.get('weaknessDamageMultiplier'),
       criticalSample: this.options.criticalSamples.nextCriticalSample(),
       settings,
       defender: this.#requireEnemyIdentity().defenderAttributes,
@@ -1111,7 +1115,7 @@ export class StandardPlayerDamageEnvironment {
           attack,
           criticalRate: payload.canCritical ? attributes.get('criticalRate') : 0,
           criticalDamageIncrease: attributes.get('criticalDamageIncrease'),
-          weaknessDamageMultiplier: 1,
+          weaknessDamageMultiplier: attributes.get('weaknessDamageMultiplier'),
           igniteDamageMultiplier: 1,
           physicalInflictionDamageMultiplier: 1,
         },
@@ -1298,6 +1302,16 @@ export class StandardPlayerDamageEnvironment {
       buffId: buff.definition.id,
       reason,
     });
+    if (reason === 'early' || reason === 'ignite') {
+      // combat-spec/consume-buff-single：提前消费在 OnFinishedBuff 之后同步广播
+      // OnBuffEndsEarly，并携带同一 FinishBuffEventData。
+      this.#emit(ownerId, 'buffEndsEarly', {
+        sourceId: ownerId,
+        targetId: ownerId,
+        buffId: buff.definition.id,
+        reason,
+      });
+    }
   }
 
   #buffContainer(

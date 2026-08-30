@@ -16,6 +16,8 @@ export interface CombatVitalsConditionDependencies {
     >['target'],
     buffSourceId?: string,
   ) => CombatVitals;
+  /** Context 查询保存的是干员实例身份；条件不得重新运行选择器。 */
+  readonly resolveContextTarget?: (operatorId: string) => CombatVitals;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -51,7 +53,12 @@ export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
     }
     if (context === undefined)
       throw new Error(`${condition.kind} requires a combat operation context`);
-    const vitals = this.dependencies.resolveTarget(condition.target, context.buffSourceId);
+    const vitals =
+      condition.kind === 'healthCompare' && condition.target === 'contextTarget'
+        ? this.#resolveContextTarget(condition.contextKey, context)
+        : condition.kind === 'healthCompare' && condition.target === 'currentTarget'
+          ? this.#resolveCurrentTarget(context)
+          : this.dependencies.resolveTarget(condition.target, context.buffSourceId);
     if (condition.kind === 'targetStaggered') return vitals.hasPoiseBrokenTag;
     if (condition.kind === 'poiseCompare') {
       if (!vitals.hasPoise) return condition.returnValueIfMissing;
@@ -68,5 +75,31 @@ export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
       resolveActionValueOperand(condition.value, context.blackboard),
       condition.operator,
     );
+  }
+
+  #resolveContextTarget(
+    contextKey: string | undefined,
+    context: CombatOperationContext,
+  ): CombatVitals {
+    if (context.targetContext === undefined || contextKey === undefined) {
+      throw new Error("healthCompare target 'contextTarget' requires a combat target context key");
+    }
+    const targets = context.targetContext.get(contextKey);
+    const target = targets[0];
+    if (targets.length !== 1 || target?.kind !== 'operator') {
+      throw new Error(`healthCompare context target '${contextKey}' must be one operator`);
+    }
+    const resolve = this.dependencies.resolveContextTarget;
+    if (resolve === undefined) throw new Error('context health target resolver is not configured');
+    return resolve(target.operatorId);
+  }
+
+  #resolveCurrentTarget(context: CombatOperationContext): CombatVitals {
+    if (context.currentTarget?.kind !== 'operator') {
+      throw new Error("healthCompare target 'currentTarget' requires one current operator");
+    }
+    const resolve = this.dependencies.resolveContextTarget;
+    if (resolve === undefined) throw new Error('current health target resolver is not configured');
+    return resolve(context.currentTarget.operatorId);
   }
 }

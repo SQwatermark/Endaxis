@@ -8,6 +8,7 @@ import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { resolveActionValueOperand } from './actionBlackboard';
 import {
   ElementalReactionContainer,
   type ApplyElementalReactionResult,
@@ -42,7 +43,7 @@ export class ElementalReactionOperationExecutor implements CombatOperationExecut
     operationContext?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
     if (step.kind === 'applyElementalReaction') {
-      this.#apply(step);
+      this.#apply(step, operationContext);
       return true;
     }
     if (step.kind === 'consumeElementalReaction') {
@@ -77,10 +78,22 @@ export class ElementalReactionOperationExecutor implements CombatOperationExecut
       : this.dependencies.delegate.evaluate(condition, operationContext);
   }
 
-  #apply(step: Extract<ReactionStep, { kind: 'applyElementalReaction' }>): void {
+  #apply(
+    step: Extract<ReactionStep, { kind: 'applyElementalReaction' }>,
+    context?: Parameters<CombatOperationExecutor['execute']>[1],
+  ): void {
+    const baseDurationSeconds =
+      typeof step.parameters.durationSeconds === 'number'
+        ? step.parameters.durationSeconds
+        : context === undefined
+          ? (() => {
+              throw new Error('dynamic elemental reaction duration requires an action blackboard');
+            })()
+          : resolveActionValueOperand(step.parameters.durationSeconds, context.blackboard);
+    const durationSeconds = baseDurationSeconds * (step.parameters.durationMultiplier ?? 1);
     const result: ApplyElementalReactionResult = this.dependencies.container.apply({
       reaction: step.parameters.reaction,
-      durationSeconds: step.parameters.durationSeconds,
+      durationSeconds,
       sourceId: this.dependencies.sourceOperatorId,
       time: this.dependencies.clock.time,
     });

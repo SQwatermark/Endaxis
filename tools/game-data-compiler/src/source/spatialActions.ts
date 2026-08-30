@@ -11,6 +11,69 @@ import { parseTargetReferenceSource, type TargetReferenceSource } from './target
 import { parseScalarSource, type ScalarSource } from './scalar.ts';
 import { parseTimeDilationCurveKeys } from './timeDilationActions.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
+import { gameplayTagId, type GameplayTagId } from './nativeGameplayTags.ts';
+import { parseFiniteRangedShape } from './auraActions.ts';
+
+export interface AdditionalBattleShapeActionSource {
+  readonly kind: 'additionalBattleShape';
+  readonly target: TargetReferenceSource;
+  readonly spatialBlackboardKeys: readonly string[];
+  readonly releaseByAction: boolean;
+  readonly durationSeconds: number;
+  readonly followTargetPosition: boolean;
+  readonly followTargetRotation: boolean;
+}
+
+/**
+ * 原生动作向目标 AdditionalBattleShapeComponent 注册额外战斗碰撞形状。
+ * 来源层完整保留目标、动态形状键和寿命；固定木桩投影是否省略由编译层决定。
+ */
+export function parseAdditionalBattleShapeActionSource(
+  value: unknown,
+  path: string,
+): AdditionalBattleShapeActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'targetSettings',
+      'shapeData',
+      'releaseByAction',
+      'duration',
+      'followTargetPosition',
+      'followTargetRotation',
+    ]),
+    path,
+  );
+  requireBoolean(action.isEnable, `${path}.isEnable`);
+  requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
+  requireInteger(action.priorityOffset, `${path}.priorityOffset`);
+  requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
+  const durationSeconds = requireNumber(action.duration, `${path}.duration`);
+  if (!Number.isFinite(durationSeconds) || durationSeconds < 0) {
+    throw new Error(`${path}.duration: expected finite non-negative number`);
+  }
+  return {
+    kind: 'additionalBattleShape',
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    spatialBlackboardKeys: parseFiniteRangedShape(action.shapeData, `${path}.shapeData`),
+    releaseByAction: requireBoolean(action.releaseByAction, `${path}.releaseByAction`),
+    durationSeconds,
+    followTargetPosition: requireBoolean(
+      action.followTargetPosition,
+      `${path}.followTargetPosition`,
+    ),
+    followTargetRotation: requireBoolean(
+      action.followTargetRotation,
+      `${path}.followTargetRotation`,
+    ),
+  };
+}
 
 export interface SelfRotateActionSource {
   readonly kind: 'selfRotate';
@@ -80,6 +143,35 @@ export interface SaveTargetDistanceActionSource {
   readonly source: TargetReferenceSource;
   readonly target: TargetReferenceSource;
   readonly outputKey: string;
+}
+
+export interface BoneAttachActionSource {
+  readonly kind: 'boneAttach';
+  readonly target: TargetReferenceSource;
+  readonly anchorSlot: string;
+  readonly subSlot: string;
+  readonly isAddRotation: boolean;
+  readonly rotateAnchor: 'Owner' | 'Target' | 'AnchorSlot' | 'SubSlot';
+  readonly rotateAngles: readonly [number, number, number];
+  readonly isLerp: boolean;
+  readonly lerpTimeSeconds: number;
+  readonly alwaysFollowRotation: boolean;
+}
+
+export interface SkillAiMoveActionSource {
+  readonly kind: 'skillAiMove';
+  readonly moveTargetType: 'EnemyCenter' | 'SelectTarget' | 'TargetInOutRange';
+  readonly radius: number;
+  readonly target: TargetReferenceSource;
+  readonly minRange: number;
+  readonly maxRange: number;
+  readonly moveOuterDistance: number;
+  readonly moveInnerDistance: number;
+  readonly skillRadius: number;
+  readonly otherTargetMinDistance: number;
+  readonly mainCharacterLineBlockHalfAngle: number;
+  readonly targetRefreshInterval: number;
+  readonly marker: { readonly invert: boolean; readonly tagId: GameplayTagId };
 }
 
 /**
@@ -290,7 +382,7 @@ export function parseReceiveMoveInputActionSource(
   parseScalarSource(action.speed, `${path}.speed`, inheritedBlackboard);
   parseScalarSource(action.speedScale, `${path}.speedScale`, inheritedBlackboard);
   parseScalarSource(action.rotateSpeed, `${path}.rotateSpeed`, inheritedBlackboard);
-  parseTimeDilationCurveKeys(action.speedCurve, `${path}.speedCurve`);
+  parseTimeDilationCurveKeys(action.speedCurve, `${path}.speedCurve`, true);
   requireNonEmptyString(action.speedType, `${path}.speedType`);
   requireBoolean(action.faceToMoveDir, `${path}.faceToMoveDir`);
   requireBoolean(action.overrideRotateSpeed, `${path}.overrideRotateSpeed`);
@@ -316,7 +408,7 @@ export function parseReceiveMoveInputActionSource(
   requireNonEmptyString(teammate.inputDirection, `${path}.teammateParam.inputDirection`);
   requireNonEmptyString(teammate.speedType, `${path}.teammateParam.speedType`);
   parseScalarSource(teammate.speed, `${path}.teammateParam.speed`, inheritedBlackboard);
-  parseTimeDilationCurveKeys(teammate.speedCurve, `${path}.teammateParam.speedCurve`);
+  parseTimeDilationCurveKeys(teammate.speedCurve, `${path}.teammateParam.speedCurve`, true);
   parseScalarSource(teammate.speedScale, `${path}.teammateParam.speedScale`, inheritedBlackboard);
   requireBoolean(teammate.faceToMoveDir, `${path}.teammateParam.faceToMoveDir`);
   requireBoolean(teammate.overrideRotateSpeed, `${path}.teammateParam.overrideRotateSpeed`);
@@ -401,7 +493,7 @@ export function parseMoveToActionSource(
     'rootMotionScale',
   ] as const)
     parseScalarSource(action[key], `${path}.${key}`, inheritedBlackboard);
-  parseTimeDilationCurveKeys(action.speedCurve, `${path}.speedCurve`);
+  parseTimeDilationCurveKeys(action.speedCurve, `${path}.speedCurve`, true);
   parseMoveSubSpeed(action.xAxisSpeed, `${path}.xAxisSpeed`, inheritedBlackboard);
   parseMoveSubSpeed(action.yAxisSpeed, `${path}.yAxisSpeed`, inheritedBlackboard);
   for (const key of [
@@ -556,8 +648,8 @@ export function parseSnapToTargetWithRangeActionSource(
   requireBoolean(action.useFixSpeed, `${path}.useFixSpeed`);
   parseScalarSource(action.speed, `${path}.speed`, inheritedBlackboard);
   requireString(action.fixedSpeedCurveKey, `${path}.fixedSpeedCurveKey`);
-  parseTimeDilationCurveKeys(action.speedCurve, `${path}.speedCurve`);
-  parseTimeDilationCurveKeys(action.positionCurve, `${path}.positionCurve`);
+  parseTimeDilationCurveKeys(action.speedCurve, `${path}.speedCurve`, true);
+  parseTimeDilationCurveKeys(action.positionCurve, `${path}.positionCurve`, true);
   requireString(action.rootMotionAnimKey, `${path}.rootMotionAnimKey`);
   requireNumber(action.rootMotionMaxDistance, `${path}.rootMotionMaxDistance`);
   requireNonEmptyString(action.chargePriority, `${path}.chargePriority`);
@@ -602,10 +694,138 @@ export function parseSaveTargetDistanceActionSource(
   };
 }
 
+/**
+ * BoneAttachAction 会暂时接管目标移动、添加 BeCaught/Undeadable 并限制地图传送；
+ * 来源层完整保留挂点与插值载荷，固定木桩投影只能在目标身份已证明时省略。
+ */
+export function parseBoneAttachActionSource(value: unknown, path: string): BoneAttachActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'targetSettings',
+      'anchorSlot',
+      'subSlot',
+      'isAddRotation',
+      'rotateAnchor',
+      'rotateAngles',
+      'isLerp',
+      'lerpTime',
+      'alwaysFollowRotation',
+    ]),
+    path,
+  );
+  requireBoolean(action.isEnable, `${path}.isEnable`);
+  requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
+  requireInteger(action.priorityOffset, `${path}.priorityOffset`);
+  requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
+  const rotateAnchor = requireNonEmptyString(action.rotateAnchor, `${path}.rotateAnchor`);
+  if (!['Owner', 'Target', 'AnchorSlot', 'SubSlot'].includes(rotateAnchor))
+    throw new Error(`${path}.rotateAnchor: unsupported value ${rotateAnchor}`);
+  const rotateAngles = parseNumberVector3(action.rotateAngles, `${path}.rotateAngles`);
+  const lerpTimeSeconds = requireNumber(action.lerpTime, `${path}.lerpTime`);
+  if (!Number.isFinite(lerpTimeSeconds) || lerpTimeSeconds < 0)
+    throw new Error(`${path}.lerpTime: expected finite non-negative number`);
+  return {
+    kind: 'boneAttach',
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    anchorSlot: requireNonEmptyString(action.anchorSlot, `${path}.anchorSlot`),
+    subSlot: requireNonEmptyString(action.subSlot, `${path}.subSlot`),
+    isAddRotation: requireBoolean(action.isAddRotation, `${path}.isAddRotation`),
+    rotateAnchor: rotateAnchor as BoneAttachActionSource['rotateAnchor'],
+    rotateAngles: [rotateAngles.x, rotateAngles.y, rotateAngles.z],
+    isLerp: requireBoolean(action.isLerp, `${path}.isLerp`),
+    lerpTimeSeconds,
+    alwaysFollowRotation: requireBoolean(
+      action.alwaysFollowRotation,
+      `${path}.alwaysFollowRotation`,
+    ),
+  };
+}
+
+export function parseSkillAiMoveActionSource(
+  value: unknown,
+  path: string,
+): SkillAiMoveActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'skillMoveTargetType',
+      'radius',
+      'targetSettings',
+      'minRange',
+      'maxRange',
+      'moveOuterDist',
+      'moveInnerDist',
+      'skillRadius',
+      'otherTargetMinDist',
+      'mainCharLineBlockHalfAngle',
+      'targetRefreshInterval',
+      'markerInfo',
+    ]),
+    path,
+  );
+  const moveTargetType = requireNonEmptyString(
+    action.skillMoveTargetType,
+    `${path}.skillMoveTargetType`,
+  );
+  if (!['EnemyCenter', 'SelectTarget', 'TargetInOutRange'].includes(moveTargetType)) {
+    throw new Error(
+      `${path}.skillMoveTargetType: unsupported value ${JSON.stringify(moveTargetType)}`,
+    );
+  }
+  const markerInfo = requireRecord(action.markerInfo, `${path}.markerInfo`);
+  requireExactFields(markerInfo, new Set(['invert', 'marker']), `${path}.markerInfo`);
+  const marker = requireRecord(markerInfo.marker, `${path}.markerInfo.marker`);
+  requireExactFields(marker, new Set(['tagId']), `${path}.markerInfo.marker`);
+  if (typeof marker.tagId !== 'number') {
+    throw new Error(`${path}.markerInfo.marker.tagId: expected number`);
+  }
+  return {
+    kind: 'skillAiMove',
+    moveTargetType: moveTargetType as SkillAiMoveActionSource['moveTargetType'],
+    radius: requireNumber(action.radius, `${path}.radius`),
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    minRange: requireNumber(action.minRange, `${path}.minRange`),
+    maxRange: requireNumber(action.maxRange, `${path}.maxRange`),
+    moveOuterDistance: requireNumber(action.moveOuterDist, `${path}.moveOuterDist`),
+    moveInnerDistance: requireNumber(action.moveInnerDist, `${path}.moveInnerDist`),
+    skillRadius: requireNumber(action.skillRadius, `${path}.skillRadius`),
+    otherTargetMinDistance: requireNumber(action.otherTargetMinDist, `${path}.otherTargetMinDist`),
+    mainCharacterLineBlockHalfAngle: requireNumber(
+      action.mainCharLineBlockHalfAngle,
+      `${path}.mainCharLineBlockHalfAngle`,
+    ),
+    targetRefreshInterval: requireNumber(
+      action.targetRefreshInterval,
+      `${path}.targetRefreshInterval`,
+    ),
+    marker: {
+      invert: requireBoolean(markerInfo.invert, `${path}.markerInfo.invert`),
+      tagId: gameplayTagId(marker.tagId),
+    },
+  };
+}
+
 function parseNumberVector3(value: unknown, path: string) {
   const vector = requireRecord(value, path);
   requireExactFields(vector, new Set(['x', 'y', 'z']), path);
-  for (const key of ['x', 'y', 'z'] as const) requireNumber(vector[key], `${path}.${key}`);
+  return {
+    x: requireNumber(vector.x, `${path}.x`),
+    y: requireNumber(vector.y, `${path}.y`),
+    z: requireNumber(vector.z, `${path}.z`),
+  };
 }
 
 function parseScalarVector3(
@@ -632,7 +852,7 @@ function parseMoveSubSpeed(
   );
   requireNonEmptyString(speed.speedType, `${path}.speedType`);
   parseScalarSource(speed.fixedSpeed, `${path}.fixedSpeed`, inheritedBlackboard);
-  parseTimeDilationCurveKeys(speed.speedCurve, `${path}.speedCurve`);
+  parseTimeDilationCurveKeys(speed.speedCurve, `${path}.speedCurve`, true);
   requireString(speed.rootMotionAnimKey, `${path}.rootMotionAnimKey`);
   parseScalarSource(speed.rootMotionScale, `${path}.rootMotionScale`, inheritedBlackboard);
 }

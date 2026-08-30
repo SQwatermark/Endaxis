@@ -286,6 +286,7 @@ export function compileScenarioRuntimeAssembly(
       );
       return {
         ...operator,
+        definitionSkillPrograms: definitionPrograms.get(operator.operatorId)!,
         skillCooldownPrograms: definitionPrograms.get(operator.operatorId)!.map(program => ({
           operatorId: program.operatorId,
           skillGroupKey: program.skillGroupKey,
@@ -298,6 +299,7 @@ export function compileScenarioRuntimeAssembly(
           ...(program.costFrame === undefined ? {} : { costFrame: program.costFrame }),
         })),
         characterTypeId: build.operator.element,
+        operatorRole: build.operator.role,
         ...(Object.keys(equipmentBuffDefinitions).length === 0
           ? {}
           : { buffDefinitions: equipmentBuffDefinitions }),

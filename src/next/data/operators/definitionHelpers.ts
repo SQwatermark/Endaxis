@@ -4,6 +4,7 @@
  */
 import type {
   ActionSequenceDefinition,
+  ActionValueOperand,
   CombatCondition,
   CombatStepDefinition,
   CombatStepKind,
@@ -23,6 +24,7 @@ type ImmediateStepKind = Exclude<
   | 'switch'
   | 'once'
   | 'repeatEachTick'
+  | 'repeatByActionValue'
   | 'forEachContextTarget'
   | 'withActionBlackboardScope'
 >;
@@ -125,6 +127,7 @@ export function withActionBlackboardScope(
   options?: {
     readonly lifetime?: 'parent' | 'execution';
     readonly alwaysNext?: boolean;
+    readonly entityAssignments?: Readonly<Record<string, ActionValueOperand>>;
   },
 ): Extract<CombatStepDefinition, { kind: 'withActionBlackboardScope' }> {
   return {
@@ -138,6 +141,9 @@ export function withActionBlackboardScope(
         : { entityInitialValues }),
       ...(options?.lifetime === undefined ? {} : { lifetime: options.lifetime }),
       ...(options?.alwaysNext === true ? { alwaysNext: true } : {}),
+      ...(options?.entityAssignments === undefined
+        ? {}
+        : { entityAssignments: options.entityAssignments }),
     },
     body,
   };
@@ -151,12 +157,28 @@ export function repeatEachTick(
   return { kind: 'repeatEachTick', parameters, body };
 }
 
+/** 按当前动作黑板中的整数次数同步重复，常用于多目标点投射物。 */
+export function repeatByActionValue(
+  count: ActionValueOperand,
+  body: ActionSequenceDefinition,
+): Extract<CombatStepDefinition, { kind: 'repeatByActionValue' }> {
+  return { kind: 'repeatByActionValue', parameters: { count }, body };
+}
+
 /** 对施法上下文中的稳定目标句柄逐一同步执行。 */
 export function forEachContextTarget(
   contextKey: string,
   body: ActionSequenceDefinition,
 ): Extract<CombatStepDefinition, { kind: 'forEachContextTarget' }> {
   return { kind: 'forEachContextTarget', parameters: { contextKey }, body };
+}
+
+/** 对已经静态证明的唯一目标执行一次，并保留原生 ForEach 的结果隔离。 */
+export function forEachTarget(
+  target: 'enemy' | 'caster',
+  body: ActionSequenceDefinition,
+): Extract<CombatStepDefinition, { kind: 'forEachContextTarget' }> {
+  return { kind: 'forEachContextTarget', parameters: { target }, body };
 }
 
 interface ConditionalCase {

@@ -2,8 +2,10 @@ import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import carriers from './fixtures/avywenna-vulnerable-buffs.json';
 import children from './fixtures/avywenna-vulnerable-children.json';
+import { collectCombatInvisibleBuffClosureIds } from '../src/compiler/combatInvisibleBuffClosure.ts';
 import { collectBuffRuntimeClosure } from '../src/compiler/buffReferenceClosure.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
+import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 const root = 'buff_chr_0012_avywen_ultimate_skill_debuff';
 const carrier = 'buff_common_affixes_vulnerable_pulse';
@@ -43,6 +45,12 @@ describe('有证据的关键词默认 child 依赖闭包', () => {
     );
   });
 
+  it('允许调用方以编译后的关键词协议证明外部载体根的默认 child', () => {
+    expect([
+      ...collectBuffRuntimeClosure([carrier], input, undefined, new Set([carrier])).keys(),
+    ]).toContain(child);
+  });
+
   it('按需读取同一依赖闭包，动态默认 child 不要求调用方预先全量加载', () => {
     const loaded: string[] = [];
     const data: Record<string, unknown> = input;
@@ -70,5 +78,91 @@ describe('有证据的关键词默认 child 依赖闭包', () => {
 
     action.childBuffId = { useBlackboardKey: true, value: child, blackboardKey: 'child' };
     expect(() => collectBuffRuntimeClosure([root], override)).toThrow(/dynamic Buff references/);
+  });
+});
+
+describe('纯表现 Buff 闭包', () => {
+  const visualBuffId = 'buff_common_vfx_eny_def_down';
+  const modelIntervalAction = {
+    $type: 'Beyond.Gameplay.Core.IgnoreModelIntervalCheck+Data, Gameplay.Beyond',
+    isEnable: true,
+    priorityLevel: 'Default',
+    priorityOffset: 0,
+    serverActionIndex: 0,
+  };
+
+  it('使用完整严格动作解析识别已知纯表现动作', () => {
+    const changed = structuredClone(input) as Record<string, Record<string, unknown>>;
+    changed[visualBuffId].buffEventAction = [
+      {
+        buffEvent: 'OnBuffEnable',
+        actions: [
+          {
+            actionData: [modelIntervalAction],
+            onlyExecuteWhenSourceIsMainChar: false,
+            onlyExecuteWhenSourceIsGuard: false,
+          },
+        ],
+      },
+    ];
+
+    expect([...collectCombatInvisibleBuffClosureIds([visualBuffId], id => changed[id])]).toEqual([
+      visualBuffId,
+    ]);
+  });
+
+  it('已知表现动作出现额外字段时仍失败关闭', () => {
+    const changed = structuredClone(input) as Record<string, Record<string, unknown>>;
+    changed[visualBuffId].buffEventAction = [
+      {
+        buffEvent: 'OnBuffEnable',
+        actions: [
+          {
+            actionData: [{ ...modelIntervalAction, combatPayload: true }],
+            onlyExecuteWhenSourceIsMainChar: false,
+            onlyExecuteWhenSourceIsGuard: false,
+          },
+        ],
+      },
+    ];
+
+    expect(collectCombatInvisibleBuffClosureIds([visualBuffId], id => changed[id]).size).toBe(0);
+  });
+
+  it('只在严格解析尚未覆盖时保留已知表现管线动作', () => {
+    const changed = structuredClone(input) as Record<string, Record<string, unknown>>;
+    changed[visualBuffId].buffEventAction = [
+      {
+        buffEvent: 'OnBuffEnable',
+        actions: [
+          {
+            actionData: [
+              {
+                ...modelIntervalAction,
+                $type: 'Beyond.Gameplay.Core.ConvertToTargetContext+Data, Gameplay.Beyond',
+                convertFrom: targetFixture('Source'),
+                targetGroupKey: 'camera_slot',
+                operationType: 'ConvertEntityToSlot',
+                translateOperation: 'Rotate180DegAroundRef',
+                translationRef: 'ActionSource',
+                translationDeg: 0,
+                excludeTarget: 'ActionSource',
+                blackboardVector3: {
+                  x: scalarFixture(0),
+                  y: scalarFixture(0),
+                  z: scalarFixture(0),
+                },
+              },
+            ],
+            onlyExecuteWhenSourceIsMainChar: false,
+            onlyExecuteWhenSourceIsGuard: false,
+          },
+        ],
+      },
+    ];
+
+    expect([...collectCombatInvisibleBuffClosureIds([visualBuffId], id => changed[id])]).toEqual([
+      visualBuffId,
+    ]);
   });
 });

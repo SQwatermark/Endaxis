@@ -22,6 +22,13 @@ export interface OperatorProgressionDefinitionContext {
   readonly installedPassiveSkillSourcePaths?: ReadonlySet<string>;
   /** 当前整名候选已安装的被动技能身份，供潜能黑板修正绑定。 */
   readonly passiveSkillKeys?: ReadonlySet<string>;
+  /** 被动通过 OnCollectOutputBuffBbValue 投影为反应修正时，黑板补丁继续绑定同一语义。 */
+  readonly reactionPassiveInputs?: ReadonlyMap<
+    string,
+    { readonly durationKey: string; readonly effectivenessKey: string }
+  >;
+  /** 注册但不属于玩家可直接养成/放置入口的替换技能。 */
+  readonly runtimeReplacementSkillKeys?: ReadonlySet<string>;
 }
 
 type Progression = Pick<
@@ -118,24 +125,57 @@ function assembleUpgrade(
   const first = modifiersByLevel[0]!;
   if (modifiersByLevel.some(modifiers => modifiers.length !== first.length))
     throw new Error(`${key}: level-dependent effect structure is not representable`);
-  const modifiers = first.map((modifier, index) => {
-    const variants = modifiersByLevel.map(items => items[index]!);
-    if (modifier.kind === 'patchSkillBlackboard') {
-      const { value: _value, ...shape } = modifier;
-      const values = variants.map((variant, levelIndex) => {
-        if (variant.kind !== 'patchSkillBlackboard')
-          throw new Error(`${levels[levelIndex]!.sourcePath}: level-dependent modifier kind`);
-        const { value, ...otherShape } = variant;
-        if (typeof value !== 'number' || !isDeepStrictEqual(shape, otherShape))
-          throw new Error(`${levels[levelIndex]!.sourcePath}: level-dependent modifier structure`);
-        return value;
-      });
-      return { ...modifier, value: values.length === 1 ? values[0]! : values };
-    }
-    if (variants.some(variant => !isDeepStrictEqual(modifier, variant)))
-      throw new Error(`${key}: ${modifier.kind} cannot represent level-dependent values`);
-    return modifier;
-  });
+  const modifiers: UpgradeModifierDefinition[] = first.flatMap<UpgradeModifierDefinition>(
+    (modifier, index) => {
+      const variants = modifiersByLevel.map(items => items[index]!);
+      if (modifier.kind === 'patchSkillBlackboard') {
+        const { value: _value, ...shape } = modifier;
+        const values = variants.map((variant, levelIndex) => {
+          if (variant.kind !== 'patchSkillBlackboard')
+            throw new Error(`${levels[levelIndex]!.sourcePath}: level-dependent modifier kind`);
+          const { value, ...otherShape } = variant;
+          if (typeof value !== 'number')
+            throw new Error(
+              `${levels[levelIndex]!.sourcePath}: level-dependent modifier structure`,
+            );
+          return { value, shape: otherShape };
+        });
+        if (values.every(item => isDeepStrictEqual(shape, item.shape))) {
+          const levelValues = values.map(item => item.value);
+          return [{ ...modifier, value: levelValues.length === 1 ? levelValues[0]! : levelValues }];
+        }
+        const { blackboardKey: _blackboardKey, ...shapeWithoutKey } = shape;
+        const keyed = values.map(({ value, shape: variantShape }, levelIndex) => {
+          const { blackboardKey, ...variantWithoutKey } = variantShape;
+          if (
+            !isDeepStrictEqual(shapeWithoutKey, variantWithoutKey) ||
+            value !== values[0]!.value ||
+            variants.some(
+              (other, otherIndex) =>
+                otherIndex !== levelIndex &&
+                other.kind === 'patchSkillBlackboard' &&
+                other.blackboardKey === blackboardKey,
+            )
+          ) {
+            throw new Error(
+              `${levels[levelIndex]!.sourcePath}: level-dependent modifier structure`,
+            );
+          }
+          return {
+            ...modifier,
+            blackboardKey,
+            value,
+            minimumUpgradeLevel: levelIndex + 1,
+            maximumUpgradeLevel: levelIndex + 1,
+          };
+        });
+        return keyed;
+      }
+      if (variants.some(variant => !isDeepStrictEqual(modifier, variant)))
+        throw new Error(`${key}: ${modifier.kind} cannot represent level-dependent values`);
+      return [modifier];
+    },
+  );
   return {
     key,
     levels: levels.length,
@@ -216,6 +256,20 @@ function compileModifier(
     throw new Error(`${entry.sourcePath}: ${reason}`);
   };
   if (entry.kind === 'skillBlackboardModifier') {
+    const reactionInput = context.reactionPassiveInputs?.get(entry.skillId);
+    if (reactionInput !== undefined) {
+      if (entry.stringValue !== '' || entry.activeCondition !== null || entry.operation !== 'add')
+        fail('collected Buff reaction modifier only supports unconditional numeric addition');
+      if (entry.blackboardKey === reactionInput.durationKey) {
+        return [{ kind: 'addReactionDuration', reaction: 'corrosion', seconds: entry.numberValue }];
+      }
+      if (entry.blackboardKey === reactionInput.effectivenessKey) {
+        return [
+          { kind: 'addReactionEffectiveness', reaction: 'corrosion', value: entry.numberValue },
+        ];
+      }
+      fail(`unknown collected Buff reaction input ${JSON.stringify(entry.blackboardKey)}`);
+    }
     if (context.passiveSkillKeys?.has(entry.skillId)) {
       if (entry.stringValue !== '') fail('string passive blackboard modifier is not supported');
       if (entry.activeCondition !== null)
@@ -251,27 +305,46 @@ function compileModifier(
       `AddPassiveSkill '${entry.skillId}' must be assembled through the shared passive compiler`,
     );
   }
-  // 这些正式修正器还没有条件字段，不能把条件效果变成无条件效果。
-  if (entry.activeCondition !== null) fail(`${entry.kind} has an unrepresentable build condition`);
   if (entry.kind === 'skillParameterModifier') {
     const target = resolveSkill(entry.skillId, context, entry.sourcePath);
+    const condition = projectSingleBuildConditionSource(entry.activeCondition, entry.sourcePath);
+    if (entry.parameter === 'cooldown' && entry.operation === 'add') {
+      const frames = entry.value * 30;
+      if (!Number.isInteger(frames))
+        return fail(`cooldown delta ${entry.value} seconds is not frame-exact`);
+      return [
+        {
+          kind: 'addSkillCooldownFrames',
+          skillGroupKey: target.group.key,
+          ...(target.singleSkill ? {} : { skillKey: target.skill.key }),
+          frames,
+          ...(condition === null ? {} : { condition }),
+        },
+      ];
+    }
+    // combat-spec 已确认 CoolDownDisplay 只进入界面展示冷却调用链；不能把它当作第二次
+    // 运行时冷却修正。Next 当前没有单独的构筑后冷却文案协议，因此明确略过该展示项。
+    if (entry.parameter === 'cooldownDisplay' && entry.operation === 'add') return [];
+    if (condition !== null) fail('skill cost modifier has an unrepresentable build condition');
     const resource = context.costResources.get(entry.skillId);
     if (entry.parameter !== 'costValue' || entry.operation !== 'multiply' || !resource)
       return fail('only an explicitly bound multiplicative skill cost is supported');
-    if (!target.singleSkill)
-      return fail('skill cost modifier cannot target an entire multi-skill group');
     return [
       {
         kind: 'multiplySkillCost',
         skillGroupKey: target.group.key,
+        ...(target.singleSkill ? {} : { skillKey: target.skill.key }),
         resource,
         multiplier: entry.value,
       },
     ];
   }
+  // 这些正式修正器还没有条件字段，不能把条件效果变成无条件效果。
+  if (entry.activeCondition !== null) fail(`${entry.kind} has an unrepresentable build condition`);
   if (entry.kind === 'attributeModifier') {
     // 共享的原生属性/公式槽解释只在公共投影层维护；领域层只选择正式养成协议。
     const projection = projectBuildAttributeModifier(entry.modifier);
+    if (projection.status === 'scenario-omitted') return [];
     if (projection.status !== 'supported') return fail(projection.reason);
     const modifier = projection.modifier;
     if (modifier.kind === 'attribute' && modifier.operation === 'flat') {
@@ -333,9 +406,19 @@ function resolveSkill(
   );
   if (groups.length !== 1) throw new Error(`${path}: expected one group binding for '${skillId}'`);
   const group = groups[0]!;
+  const visibleSkillKeys = group.skillKeys.filter(
+    key => !context.runtimeReplacementSkillKeys?.has(key),
+  );
+  const hasRuntimeReplacements = group.skillKeys.some(key =>
+    context.runtimeReplacementSkillKeys?.has(key),
+  );
   return {
     skill,
     group,
-    singleSkill: group.skillKeys.length === 1 && group.variants.length === 0,
+    singleSkill:
+      visibleSkillKeys.length === 1 &&
+      group.variants.length === 0 &&
+      !hasRuntimeReplacements &&
+      !context.runtimeReplacementSkillKeys?.has(skill.key),
   };
 }

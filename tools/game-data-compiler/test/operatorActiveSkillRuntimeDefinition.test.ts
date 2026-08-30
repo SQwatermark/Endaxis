@@ -91,6 +91,51 @@ describe('Operator 主动技能正式运行定义', () => {
     expect(rendered.content).toContain('export const supplementalBuffDefinitions');
     expect(rendered.content).toContain('"durationSeconds": 2');
     expect(rendered.content).not.toMatch(/[A-Z]:[\\/]|tmp[\\/]/i);
+
+    const curveRendered = renderOperatorActiveSkillRuntimeDefinitionSource({
+      operatorSlug: 'fixture',
+      definition: {
+        ...definition,
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            endFrame: 1,
+            sequence: {
+              steps: [
+                {
+                  kind: 'startTimeDilation',
+                  parameters: {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 1 },
+                    slot: 'Test/TimeSlot1',
+                    priority: 1,
+                    curve: {
+                      kind: 'inline',
+                      keys: [
+                        {
+                          time: 0,
+                          value: 1,
+                          inTangent: Number.POSITIVE_INFINITY,
+                          outTangent: Number.NEGATIVE_INFINITY,
+                          weightedMode: 0,
+                          inWeight: 0,
+                          outWeight: 0,
+                        },
+                      ],
+                    },
+                    finishByAction: false,
+                    targets: ['caster'],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+    expect(curveRendered.content).toContain('Number.POSITIVE_INFINITY');
+    expect(curveRendered.content).toContain('Number.NEGATIVE_INFINITY');
+    expect(curveRendered.content).not.toContain('"inTangent": null');
   });
 
   it('不按技能 key 猜不匹配的费用类型', () => {

@@ -1,2 +1,5 @@
-/** 陈千语由解包数据生成；此文件提供不依赖生成文件名的稳定入口。 */
-export { chenQianyuGeneratedOperator as chenQianyu } from './generated/chen-qianyu.operator.generated';
+/** 陈千语已由统一 TypeScript 整名生成链生成；稳定入口不暴露产物目录。 */
+import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import generated from './generated-definitions/chen-qianyu/chen-qianyu.operator.generated';
+
+export const chenQianyu: OperatorDefinition = generated;

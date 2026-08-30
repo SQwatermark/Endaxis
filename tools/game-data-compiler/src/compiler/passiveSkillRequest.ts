@@ -1,6 +1,11 @@
 export type PassiveSkillLevelSource =
   | { readonly kind: 'nativeDefault' }
   | {
+      /** 角色基础被动跟随其所在原生技能组对应的项目等级轴。 */
+      readonly kind: 'operatorSkillGroup';
+      readonly levelSource: import('../../../../packages/game-data-contract/src/index.ts').SkillLevelSource;
+    }
+  | {
       readonly kind: 'weaponProgression';
       readonly slotIndex: number;
       readonly breakthroughTemplateId: string;

@@ -77,6 +77,9 @@ function setAbilityEntityIds(index: number, event: Event): void {
           <option value="ownerSpawned">
             {{ t('nextTimeline.skillEditing.abilityEntityQueryKinds.ownerSpawned') }}
           </option>
+          <option value="current">
+            {{ t('nextTimeline.skillEditing.abilityEntityQueryKinds.current') }}
+          </option>
           <option value="context">
             {{ t('nextTimeline.skillEditing.abilityEntityQueryKinds.context') }}
           </option>
@@ -88,7 +91,7 @@ function setAbilityEntityIds(index: number, event: Event): void {
         <input type="text" :value="query.contextKey" @input="setContextKey(index, $event)" />
       </label>
 
-      <label v-else class="ability-entity-query-editor__ids">
+      <label v-else-if="query.kind === 'ownerSpawned'" class="ability-entity-query-editor__ids">
         <span>{{ t('nextTimeline.skillEditing.abilityEntityQueryIds') }}</span>
         <textarea
           :value="query.abilityEntityIds?.join('\n') ?? ''"

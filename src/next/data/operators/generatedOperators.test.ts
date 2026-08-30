@@ -2,18 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
-import { gilbertaBattleSkill } from './generated/gilberta.operator.generated';
-import { fluoriteBattleSkill } from './generated/fluorite.operator.generated';
-import { lifengUltimate } from './generated/lifeng.operator.generated';
+import { gilbertaBattleSkill } from './generated-definitions/gilberta/gilberta.operator.generated';
+import { fluoriteBattleSkill } from './generated-definitions/fluorite/fluorite.operator.generated';
+import { lifengUltimate } from './generated-definitions/lifeng/lifeng.operator.generated';
 import {
   rossiBattleSkill,
   rossiComboSkill2,
   rossiUltimate,
-} from './generated/rossi.operator.generated';
+} from './generated-definitions/rossi/rossi.operator.generated';
 import {
   alesh,
   antal,
   akekuri,
+  arclight,
   ardelia,
   avywenna,
   catcher,
@@ -48,10 +49,11 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [ember, 9],
   [akekuri, 9],
   [fluorite, 10],
+  [arclight, 10],
   [endministrator, 10],
   [lastRite, 9],
   [chenQianyu, 10],
-  [rossi, 11],
+  [rossi, 10],
   [camille, 11],
   [tangtang, 10],
   [laevatain, 14],
@@ -128,6 +130,7 @@ describe('新增的完整技能转换干员', () => {
     expect(
       catcher.buffDefinitions?.buff_chr_0020_meurs_combo_skill_shield?.shields?.[0]?.value,
     ).toEqual({
+      attributeSource: 'buffSource',
       attribute: 'Def',
       multiplier: { blackboardKey: 'shield_def_rate' },
       addition: { blackboardKey: 'shield_base' },
@@ -212,7 +215,7 @@ describe('新增的完整技能转换干员', () => {
 
     expect(skillBehaviorGaps(chenQianyu)).toEqual([]);
     expect(skillBehaviorGaps(rossi)).toEqual([]);
-    expect(skillBehaviorGaps(camille)).toEqual(['battleSkill']);
+    expect(skillBehaviorGaps(camille)).toEqual([]);
   });
 
   it('Gilberta 战技把来源死亡监视 Buff 留在能力实体局部时间轴', () => {
@@ -224,22 +227,23 @@ describe('新增的完整技能转换干员', () => {
 
     expect(serialized).toContain('buff_chr_0013_aglina_normal_skill_monitor');
     expect(serialized).toContain('currentAbilityEntity');
-    expect(serialized).toContain('finishCurrentAbilityEntityWhenSourceDies');
+    expect(serialized).toContain('healthCompare');
+    expect(serialized).toContain('finishCurrentAbilityEntity');
   });
 
   it('Fluorite 战技把已证明的根级跳转迁入能力实体局部时间轴', () => {
     const serialized = JSON.stringify([fluoriteBattleSkill, fluorite.abilityEntityDefinitions]);
     const frames = fluoriteBattleSkill.scheduledSequences.map(sequence => sequence.startFrame);
-    const behaviorGaps = fluorite.conversionSupport?.missingCapabilities.find(
-      item => item.capability === 'skillBehavior',
-    )?.skillGroupKeys;
 
     expect(serialized).toContain('abilityentity_chr_0022_bounda_normal_skill');
     expect(serialized).toContain('jumpTimeline');
     expect(serialized).toContain('"destinationFrame":89');
     expect(serialized).toContain('"destinationFrame":149');
     expect(frames).not.toEqual(expect.arrayContaining([99, 159]));
-    expect(behaviorGaps ?? []).not.toContain('battleSkill');
+    expect(fluorite.conversionSupport).toEqual({
+      completeness: 'complete',
+      missingCapabilities: [],
+    });
   });
 
   it('Lifeng 终结技把外层 IfElse 跳转保留为一次性局部条件分支', () => {
@@ -261,13 +265,11 @@ describe('新增的完整技能转换干员', () => {
     ]);
 
     expect(serialized).toContain('buff_chr_0028_wulfa_normal_defup');
-    expect(serialized).toContain('buffInterval');
+    expect(serialized).toContain('repeatEachTick');
     expect(serialized).toContain('"enabledSide":"defender"');
     expect(serialized).toContain('"zone":"product"');
     expect(serialized).toContain('"blackboardKey":"defup"');
-    expect(serialized.split('32:buff_chr_0028_wulfa_normal_defup12:buffInterval').length - 1).toBe(
-      4,
-    );
+    expect(serialized).toContain('nativeTickInterval');
   });
 
   it('Rossi ultimate preserves its ultimate-only critical-damage modifier', () => {
@@ -294,10 +296,8 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('buff_chr_0028_wulfa_combo_2_damage');
     expect(serialized).toContain('"maxTriggerCount":{"blackboardKey":"trigger_times"}');
     expect(serialized).toContain('"target":"enemy"');
-    expect(serialized).toContain('combo_2_damage:trigger');
-    expect(
-      serialized.split('34:buff_chr_0028_wulfa_combo_2_damage12:buffInterval').length - 1,
-    ).toBe(4);
+    expect(serialized).toContain('"lifecycleSequences":{"trigger"');
+    expect(serialized).toContain('nativeTickInterval');
   });
 
   it('Rossi 二段连携只在 QTE 有效计时 Buff 内写入精准衔接状态', () => {
@@ -325,7 +325,11 @@ describe('新增的完整技能转换干员', () => {
     expect(skills).toHaveLength(count);
     expect(new Set(skills.map(skill => skill.key)).size).toBe(count);
     expect(
-      skills.filter(skill => skill.scheduledSequences.length === 0).map(skill => skill.key),
+      skills
+        .filter(
+          skill => skill.scheduledSequences.length === 0 && skill.switchToBuffCast === undefined,
+        )
+        .map(skill => skill.key),
     ).toEqual([]);
   });
 

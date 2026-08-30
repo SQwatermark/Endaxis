@@ -12,11 +12,19 @@ import {
   type HealTarget,
   type InflictionElement,
   type OperatorAttribute,
+  type OperatorRole,
   type SkillType,
   type SpGainKind,
   type SpGainSource,
   type TimedMarkerTarget,
+  type ActionStringOperand,
 } from './primitives.ts';
+
+/**
+ * 原生 CheckSkillHasHit 的技能实例内状态键。它不属于导出的游戏黑板数据，
+ * 只用于让编译器与运行时共享同一项内部状态约定。
+ */
+export const NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY = '__endaxis_native_skill_has_hit';
 
 /**
  * 技能可用性、条件步骤和事件响应共享的条件树。
@@ -29,6 +37,18 @@ export type CombatCondition =
   | { kind: 'singleEnemyPresent' }
   /** 当前技能所属干员是否为该帧的主控干员；必须由场景运行时提供主控身份。 */
   | { kind: 'casterControlled' }
+  /** 按 CharacterTable.charTypeId 的一一元素投影筛选施法者或 Buff 持有者。 */
+  | {
+      kind: 'characterTypeIn';
+      target: 'caster' | 'buffOwner';
+      characterTypes: readonly DamageElement[];
+    }
+  /** 按 CharacterTable.profession 检查已确定身份的干员；不适用于敌人或能力实体。 */
+  | {
+      kind: 'operatorRoleIn';
+      target: 'caster' | 'buffOwner' | 'eventTarget';
+      roles: readonly OperatorRole[];
+    }
   /** 当前单敌人是否属于任一原生 EnemyTemplateData.rank。 */
   | { kind: 'enemyRankIn'; ranks: readonly EnemyRank[] }
   | {
@@ -49,6 +69,8 @@ export type CombatCondition =
       /** 比较目标当前生命值或当前/最大生命比例。 */
       kind: 'healthCompare';
       target: CombatTarget | HealTarget;
+      /** target=contextTarget 时读取动作目标组中的唯一干员实例。 */
+      contextKey?: string;
       valueType: 'current' | 'ratio';
       operator: ComparisonOperator;
       value: ActionValueOperand;
@@ -103,6 +125,8 @@ export type CombatCondition =
       kind: 'abilityEntityRemainingDurationCompare';
       operator: ComparisonOperator;
       value: ActionValueOperand;
+      /** 原生 saveCurDuration/bbKey：比较时把实际剩余时长写回当前动作黑板。 */
+      outputKey?: string;
     }
   | { kind: 'statusActive'; statusKey: string; target: CombatTarget; minimumStacks?: number }
   | {
@@ -118,6 +142,15 @@ export type CombatCondition =
       tagQueryType: GameplayTagQueryType;
       buffTags: readonly GameplayTag[];
       sameSourceSkillCast?: boolean;
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
+  | {
+      /** 按原生 Buff 标签查询未结束 Buff 的不同定义 ID 数，不累计实例数或强化层数。 */
+      kind: 'buffTagIdCountCompare';
+      target: BuffSingleTarget;
+      tagQueryType: GameplayTagQueryType;
+      buffTags: readonly GameplayTag[];
       operator: ComparisonOperator;
       value: ActionValueOperand;
     }
@@ -141,12 +174,12 @@ export type CombatCondition =
       /** 检查目标能力系统中是否存在仍有效的原生定时标记。 */
       kind: 'timedMarkerPresent';
       target: TimedMarkerTarget;
-      markerId: string;
+      markerId: ActionStringOperand;
     }
   | {
       /** 检查当前能力实体或 Context 能力实体集合中仍有效的定时标记。 */
       kind: 'abilityEntityTimedMarkerPresent';
-      markerId: string;
+      markerId: ActionStringOperand;
       contextKey?: string;
     }
   | {
@@ -181,6 +214,17 @@ export type CombatCondition =
   | {
       /** 匹配触发 Buff 响应的待施放技能类型。 */
       kind: 'eventSkillTypeIn';
+      skillTypes: readonly SkillType[];
+    }
+  | {
+      /** 精确匹配当前 OnCustomAbilityEvent 的命名载荷。 */
+      kind: 'eventCustomAbilityNameMatch';
+      eventName: string;
+    }
+  | {
+      /** 查询目标 AbilitySystem 当前仍在施放的技能类型；不读取事件载荷。 */
+      kind: 'currentSkillTypeIn';
+      target: 'caster' | 'buffOwner';
       skillTypes: readonly SkillType[];
     }
   | {
@@ -271,6 +315,12 @@ export type CombatCondition =
   /** 当前 Buff 的创建来源实体是否也是其宿主。 */
   | { kind: 'buffSourceMatchesOwner' }
   | {
+      /** 当前施术者生成的活动能力实体中是否存在匹配模板（零空间不再做距离裁剪）。 */
+      kind: 'ownerSpawnedAbilityEntityPresent';
+      abilityEntityIds?: readonly string[];
+      sameSourceSkillCast?: boolean;
+    }
+  | {
       kind: 'elementalInflictionPresent';
       elements: DamageElement | readonly DamageElement[];
       minimumStacks?: number;
@@ -294,6 +344,8 @@ export const COMBAT_CONDITION_KINDS = [
   'combatActive',
   'singleEnemyPresent',
   'casterControlled',
+  'characterTypeIn',
+  'operatorRoleIn',
   'enemyRankIn',
   'enemySuperArmorCompare',
   'cameraToTargetAngleCompare',
@@ -310,6 +362,7 @@ export const COMBAT_CONDITION_KINDS = [
   'abilityEntityRemainingDurationCompare',
   'statusActive',
   'buffStackCompare',
+  'buffTagIdCountCompare',
   'currentBuffStackCompare',
   'entityTagMatch',
   'buffIdStackCompare',
@@ -321,6 +374,8 @@ export const COMBAT_CONDITION_KINDS = [
   'eventInflictionElementIn',
   'eventPhysicalInflictionTypeIn',
   'eventSkillTypeIn',
+  'eventCustomAbilityNameMatch',
+  'currentSkillTypeIn',
   'originSkillTypeIn',
   'contextTargetContains',
   'eventSkillIdIn',
@@ -337,6 +392,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventSourceMatchesBuffSourceEntitySource',
   'eventSourceControlled',
   'buffSourceMatchesOwner',
+  'ownerSpawnedAbilityEntityPresent',
   'elementalInflictionPresent',
   'elementalReactionActive',
   'not',

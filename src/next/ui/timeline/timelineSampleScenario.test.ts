@@ -27,6 +27,6 @@ describe('timelineSampleScenario', () => {
     expect(
       arclight.abilityEntityDefinitions?.[spawn.parameters.abilityEntityId]?.childSkill
         ?.scheduledSequences,
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   });
 });

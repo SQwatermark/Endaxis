@@ -276,6 +276,10 @@ function collectLeafReferences(
       return;
     }
     case 'aura': {
+      if (leaf.action.kind === 'directRangedAura') {
+        collectSequenceReferences(leaf.action.actionOnEnter, enabled, output);
+        return;
+      }
       for (let index = 0; index < leaf.action.buffs.length; index += 1) {
         output.push(
           referenceFromIdentity(
@@ -397,6 +401,9 @@ function collectLeafReferences(
           );
         }
       } else {
+        // FinishBuffAdvanced 的 buffIdList 只在 Id 判别分支表示静态定义引用。
+        // Tag/Environment 分支中的空字符串是序列化占位，不是动态 Buff ID。
+        if (action.settings.checkType !== 'Id') return;
         for (let index = 0; index < action.settings.buffIds.length; index += 1) {
           output.push(
             referenceFromIdentity(
@@ -480,6 +487,25 @@ function collectLeafReferences(
           `${sourcePath}.skillId`,
         ),
       );
+      return;
+    }
+    case 'presentation': {
+      const action = leaf.action;
+      if (action.kind !== 'playAnimation' || action.onEnd === undefined) return;
+      action.onEnd.buffApplications.forEach((application, applicationIndex) => {
+        application.buffs.forEach((buff, buffIndex) => {
+          output.push(
+            referenceFromIdentity(
+              'buff',
+              'animationEnd',
+              enabled,
+              buff.buffId,
+              buff.readIdFromBlackboard ? buff.buffIdKey : null,
+              `${sourcePath}.onEndAction.buffApplications[${applicationIndex}].buffs[${buffIndex}]`,
+            ),
+          );
+        });
+      });
       return;
     }
     default:

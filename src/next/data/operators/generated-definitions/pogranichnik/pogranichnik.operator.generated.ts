@@ -1,0 +1,4372 @@
+/** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
+import type {
+  OperatorBuffDefinitions,
+  OperatorDefinition,
+  SkillDefinition,
+} from '../../../../core/game-data/operatorDefinition';
+import {
+  branch,
+  forEachContextTarget,
+  repeatEachTick,
+  scheduled,
+  sequence,
+  step,
+  withActionBlackboardScope,
+  withSkillBlackboard,
+} from '../../definitionHelpers';
+
+export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack1',
+    sourceSkillId: 'chr_0029_pograni_attack1',
+    timelineBlockFrames: 12,
+    costFrame: 9,
+    scheduledSequences: [
+      scheduled(
+        8,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+            },
+            'chr_0029_pograni_attack1:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.06 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        9,
+      ),
+    ],
+  },
+  { atb: 0, atk_scale: [0.23, 0.25, 0.28, 0.3, 0.32, 0.35, 0.37, 0.39, 0.41, 0.44, 0.48, 0.52] },
+);
+
+export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack2',
+    sourceSkillId: 'chr_0029_pograni_attack2',
+    timelineBlockFrames: 19,
+    costFrame: 8,
+    scheduledSequences: [
+      scheduled(
+        7,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+            },
+            'chr_0029_pograni_attack2:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.02 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        13,
+      ),
+      scheduled(
+        14,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+            },
+            'chr_0029_pograni_attack2:/scheduledSequences/1/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.06 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        20,
+      ),
+    ],
+  },
+  {
+    atb: 0,
+    atk_scale: [0.14, 0.15, 0.17, 0.18, 0.2, 0.21, 0.22, 0.24, 0.25, 0.27, 0.29, 0.32],
+    display_atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
+  },
+);
+
+export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack3',
+    sourceSkillId: 'chr_0029_pograni_attack3',
+    timelineBlockFrames: 19,
+    costFrame: 12,
+    scheduledSequences: [
+      scheduled(
+        9,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            'chr_0029_pograni_attack3:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.5 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.04 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        10,
+      ),
+      scheduled(
+        15,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            'chr_0029_pograni_attack3:/scheduledSequences/1/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.5 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.15 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        16,
+      ),
+    ],
+  },
+  {
+    atb: 0,
+    atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
+    poise: 0,
+    display_atk_scale: [0.33, 0.36, 0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.59, 0.64, 0.68, 0.74],
+  },
+);
+
+export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack4',
+    sourceSkillId: 'chr_0029_pograni_attack4',
+    timelineBlockFrames: 18,
+    costFrame: 8,
+    scheduledSequences: [
+      scheduled(
+        3,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            'chr_0029_pograni_attack4:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.167 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        4,
+      ),
+      scheduled(
+        5,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            'chr_0029_pograni_attack4:/scheduledSequences/1/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.167 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        6,
+      ),
+      scheduled(
+        7,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            'chr_0029_pograni_attack4:/scheduledSequences/2/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.167 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        8,
+      ),
+      scheduled(
+        11,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            'chr_0029_pograni_attack4:/scheduledSequences/3/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.167 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        12,
+      ),
+      scheduled(
+        13,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            'chr_0029_pograni_attack4:/scheduledSequences/4/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.167 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        14,
+      ),
+      scheduled(
+        17,
+        sequence(
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                { kind: 'casterControlled' },
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'constant', value: 1 },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 1 },
+                },
+              ],
+            },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.15 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: {
+                  kind: 'inline',
+                  keys: [
+                    {
+                      time: 0,
+                      value: 0.3,
+                      inTangent: -11.12636,
+                      outTangent: -11.12636,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                    {
+                      time: 0.05082683,
+                      value: 0.06,
+                      inTangent: -0.8463666,
+                      outTangent: 0.1598016,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                    {
+                      time: 0.5199714,
+                      value: 0.2766429,
+                      inTangent: 0.9066172,
+                      outTangent: 0.9066172,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                    {
+                      time: 1,
+                      value: 1,
+                      inTangent: 2.363477,
+                      outTangent: 2.363477,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                  ],
+                },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        20,
+      ),
+      scheduled(
+        15,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            'chr_0029_pograni_attack4:/scheduledSequences/6/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.167 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        16,
+      ),
+    ],
+  },
+  {
+    atb: 0,
+    atk_scale: [0.06, 0.07, 0.08, 0.08, 0.09, 0.1, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14],
+    poise: 0,
+    display_atk_scale: [0.38, 0.42, 0.46, 0.5, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.79, 0.86],
+  },
+);
+
+export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack5',
+    sourceSkillId: 'chr_0029_pograni_attack5',
+    timelineBlockFrames: 24,
+    costFrame: 12,
+    scheduledSequences: [
+      scheduled(
+        16,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack', 'normalAttackLastCombo'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            'chr_0029_pograni_attack5:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'constant', value: 1 },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'isHitbyMain',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        17,
+      ),
+      scheduled(
+        19,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'isHitbyMain' },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.35 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        21,
+      ),
+    ],
+  },
+  {
+    atb: 20,
+    atk_scale: [0.43, 0.47, 0.52, 0.56, 0.6, 0.65, 0.69, 0.73, 0.77, 0.83, 0.89, 0.97],
+    isHitbyMain: 0,
+    poise: 18,
+  },
+);
+
+export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'finisher',
+    sourceSkillId: 'chr_0029_pograni_power_attack',
+    timelineBlockFrames: 27,
+    costFrame: 4,
+    scheduledSequences: [
+      scheduled(
+        7,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.1,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0029_pograni_power_attack:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.1 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        10,
+      ),
+      scheduled(
+        14,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.1,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0029_pograni_power_attack:/scheduledSequences/1/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.15 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        17,
+      ),
+      scheduled(
+        25,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.8,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0029_pograni_power_attack:/scheduledSequences/2/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(step('gainFinisherSp', { factor: 1, recipient: 'team' })),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        27,
+      ),
+      scheduled(
+        25,
+        sequence(
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'constant', value: 1 },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.55 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 10,
+                    curve: { kind: 'named', key: 'char_hard_stop' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
+                ),
+              ),
+            ),
+          ),
+        ),
+        28,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_damage_immune_medium',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        47,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_power_attack_disable_cast_skill',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        27,
+      ),
+    ],
+  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+);
+
+export const pogranichnikPlungingAttack: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'plungingAttack',
+    sourceSkillId: 'chr_0029_pograni_plunging_attack_end',
+    timelineBlockFrames: 21,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        3,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack', 'plungingAttack'],
+            },
+            'chr_0029_pograni_plunging_attack_end:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        8,
+      ),
+    ],
+  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+);
+
+export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'battleSkill',
+    sourceSkillId: 'chr_0029_pograni_normal_skill',
+    timelineBlockFrames: 45,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        38,
+        sequence(
+          repeatEachTick(
+            sequence(
+              step('readBuffStackCount', {
+                target: 'enemy',
+                outputKey: 'num_1',
+                query: {
+                  kind: 'tag',
+                  tagQueryType: 'hasAny',
+                  buffTags: ['Skill/Character/Common/NoGuard'],
+                },
+              }),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'num_1' },
+                  operator: 'greater',
+                  right: { kind: 'blackboard', key: 'num' },
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'num',
+                    operation: 'assign',
+                    value: { kind: 'blackboard', key: 'num_1' },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            {
+              nativeChanneling: {
+                executeEachFrame: true,
+                triggerIntervalSeconds: 0.033,
+                maxCountPerTarget: 1,
+                targetTriggerIntervalSeconds: 0.033,
+              },
+            },
+          ),
+        ),
+        39,
+      ),
+      scheduled(
+        38,
+        sequence({
+          kind: 'switch',
+          parameters: { choice: { kind: 'blackboard', key: 'num' }, alwaysNext: true },
+          options: [
+            {
+              value: { kind: 'constant', value: 1 },
+              sequence: sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb1' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 2 },
+              sequence: sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb2' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 3 },
+              sequence: sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb3' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 4 },
+              sequence: sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb4' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                }),
+              ),
+            },
+          ],
+        }),
+        39,
+      ),
+      scheduled(
+        28,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+            },
+            'chr_0029_pograni_normal_skill:/scheduledSequences/2/sequence/steps/0',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.15 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_normal_attack' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+        ),
+        29,
+      ),
+      scheduled(
+        38,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'constant', value: 1 },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 2 },
+            },
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'has_potential1' },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb_return' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'team',
+                    spGainKind: 'refund',
+                    spGainSource: 'skill',
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+          step('applyPhysicalInfliction', {
+            type: 'fracture',
+            target: 'enemy',
+            isExtra: false,
+            noGuardBuffId: 'buff_physical_no_guard',
+            noGuardDefinition: {
+              stackingType: 'enhanceAndRefresh',
+              priority: 100,
+              maxStackCount: 4,
+              durationSeconds: { blackboardKey: 'duration' },
+              presentation: {
+                visible: true,
+                iconId: 'icon_shadow_attribute_penetrate',
+                iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
+                showInHeadBarCommon: false,
+                showInHeadBarAttached: true,
+                showInSquadIcon: false,
+                onlyShowForMainCharacter: false,
+                iconStyleInSquad: 'Default',
+                abnormalColorType: 'Physical',
+                orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+              },
+              applyTags: ['Skill/Character/Common/NoGuard'],
+              extendTags: [],
+              blackboard: { atk_scale: 0, count: 0, duration: 20, skip_handle_cryst_break: 0 },
+              attributeModifiers: [],
+              lifecycleSequences: {
+                start: sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 0 },
+                    },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'buffOwner',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                  ),
+                ),
+                finish: sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_physical_no_guard_fake',
+                    target: 'buffOwner',
+                    source: 'eventSource',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+                afterEnhance: sequence(
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'buffOwner',
+                        igniteType: 'NoGuard',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
+                    sequence(
+                      branch(
+                        {
+                          kind: 'currentBuffStackCompare',
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 2 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_physical_handle_cryst_break',
+                                target: 'buffOwner',
+                                inheritSourceSkillCastInfo: true,
+                              }),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+              },
+            },
+            fractureBuffId: 'buff_physical_fracture',
+            fractureDefinition: {
+              stackingType: 'unlimited',
+              priority: 0,
+              maxStackCount: 1,
+              durationSeconds: 3,
+              triggerIntervalSeconds: 0,
+              waitFirstTriggerInterval: false,
+              maxTriggerCount: 0,
+              applyTags: [],
+              extendTags: [],
+              blackboard: { count: 0, duration: 15 },
+              attributeModifiers: [],
+              lifecycleSequences: {
+                start: sequence(
+                  step('readBuffStackCount', {
+                    target: 'buffOwner',
+                    outputKey: 'count',
+                    query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
+                  }),
+                  step('readSkillSettingData', {
+                    items: [
+                      {
+                        values: [12, 18, 24, 30],
+                        column: { kind: 'blackboard', key: 'count' },
+                        storeKey: 'duration',
+                      },
+                    ],
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_physical_do_fracture',
+                    target: 'buffOwner',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
+                  }),
+                ),
+              },
+            },
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale2' },
+              tags: ['normalSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+            },
+            'chr_0029_pograni_normal_skill:/scheduledSequences/3/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.4 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: {
+              kind: 'inline',
+              keys: [
+                {
+                  time: 0,
+                  value: 1,
+                  inTangent: 0,
+                  outTangent: 0,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.15,
+                  value: 1,
+                  inTangent: Number.POSITIVE_INFINITY,
+                  outTangent: -4.930326,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.2077375,
+                  value: 0.02,
+                  inTangent: 0,
+                  outTangent: 0,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.6975113,
+                  value: 0.02,
+                  inTangent: 0,
+                  outTangent: 0,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 1,
+                  value: 1,
+                  inTangent: 4.753838,
+                  outTangent: 4.753838,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+              ],
+            },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+        ),
+        39,
+      ),
+      scheduled(
+        38,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'constant', value: 1 },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_common_obtain_ultimate_sp',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        39,
+      ),
+    ],
+    costs: [{ resource: 'sp', value: 100 }],
+  },
+  {
+    atb_return: 15,
+    atb1: 5,
+    atb2: [10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 15, 15],
+    atb3: [20, 20, 20, 20, 20, 20, 20, 20, 20, 25, 25, 25],
+    atb4: [30, 30, 30, 30, 30, 30, 30, 30, 30, 35, 35, 35],
+    atk_scale: [0.86, 0.94, 1.03, 1.11, 1.2, 1.28, 1.37, 1.45, 1.54, 1.65, 1.77, 1.92],
+    atk_scale2: [1.06, 1.16, 1.27, 1.37, 1.48, 1.58, 1.69, 1.8, 1.9, 2.03, 2.19, 2.38],
+    cam_angle: 0,
+    cam_duration: 0,
+    has_potential1: 0,
+    input_angle: 0,
+    num: 0,
+    num_1: 0,
+    poise: 5,
+  },
+);
+
+export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'comboSkill',
+    sourceSkillId: 'chr_0029_pograni_combo_skill',
+    timelineBlockFrames: 66,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0029_pograni_combo_skill_count4'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('modifyActionValue', {
+                key: 'EntityBB_noguard_count',
+                operation: 'assign',
+                value: { kind: 'constant', value: 4 },
+              }),
+              step('finishBuffsById', {
+                target: 'enemy',
+                buffIds: [
+                  'buff_chr_0029_pograni_combo_skill_count1',
+                  'buff_chr_0029_pograni_combo_skill_count2',
+                  'buff_chr_0029_pograni_combo_skill_count3',
+                  'buff_chr_0029_pograni_combo_skill_count4',
+                ],
+                reason: 'other',
+              }),
+            ),
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0029_pograni_combo_skill_count3'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'EntityBB_noguard_count',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 3 },
+                  }),
+                  step('finishBuffsById', {
+                    target: 'enemy',
+                    buffIds: [
+                      'buff_chr_0029_pograni_combo_skill_count1',
+                      'buff_chr_0029_pograni_combo_skill_count2',
+                      'buff_chr_0029_pograni_combo_skill_count3',
+                      'buff_chr_0029_pograni_combo_skill_count4',
+                    ],
+                    reason: 'other',
+                  }),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'buffIdStackCompare',
+                      target: 'caster',
+                      buffIds: ['buff_chr_0029_pograni_combo_skill_count2'],
+                      operator: 'greaterOrEqual',
+                      value: { kind: 'constant', value: 1 },
+                    },
+                    sequence(
+                      step('modifyActionValue', {
+                        key: 'EntityBB_noguard_count',
+                        operation: 'assign',
+                        value: { kind: 'constant', value: 2 },
+                      }),
+                      step('finishBuffsById', {
+                        target: 'enemy',
+                        buffIds: [
+                          'buff_chr_0029_pograni_combo_skill_count1',
+                          'buff_chr_0029_pograni_combo_skill_count2',
+                          'buff_chr_0029_pograni_combo_skill_count3',
+                          'buff_chr_0029_pograni_combo_skill_count4',
+                        ],
+                        reason: 'other',
+                      }),
+                    ),
+                    sequence(
+                      step('modifyActionValue', {
+                        key: 'EntityBB_noguard_count',
+                        operation: 'assign',
+                        value: { kind: 'constant', value: 1 },
+                      }),
+                      step('finishBuffsById', {
+                        target: 'enemy',
+                        buffIds: [
+                          'buff_chr_0029_pograni_combo_skill_count1',
+                          'buff_chr_0029_pograni_combo_skill_count2',
+                          'buff_chr_0029_pograni_combo_skill_count3',
+                          'buff_chr_0029_pograni_combo_skill_count4',
+                        ],
+                        reason: 'other',
+                      }),
+                    ),
+                    { alwaysNext: true },
+                  ),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        3,
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'EntityBB_noguard_count' },
+              operator: 'lessOrEqual',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(step('jumpTimeline', { destinationFrame: 600 })),
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'EntityBB_noguard_count' },
+                  operator: 'lessOrEqual',
+                  right: { kind: 'constant', value: 2 },
+                },
+                sequence(step('jumpTimeline', { destinationFrame: 400 })),
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'EntityBB_noguard_count' },
+                      operator: 'lessOrEqual',
+                      right: { kind: 'constant', value: 3 },
+                    },
+                    sequence(step('jumpTimeline', { destinationFrame: 200 })),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        1,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        1,
+      ),
+      scheduled(
+        200,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        201,
+      ),
+      scheduled(
+        400,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        401,
+      ),
+      scheduled(
+        600,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        601,
+      ),
+      scheduled(191, sequence(step('finishTimeline', {})), 194),
+      scheduled(391, sequence(step('finishTimeline', {})), 394),
+      scheduled(545, sequence(step('finishTimeline', {})), 548),
+      scheduled(
+        23,
+        sequence(
+          step('calculateActionValue', {
+            key: 'calc_atb1',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'atb1' },
+            right: { kind: 'blackboard', key: 'atb_ratio' },
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'calc_atb1' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise1' },
+            },
+            'chr_0029_pograni_combo_skill:/scheduledSequences/9/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.133 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
+        ),
+        26,
+      ),
+      scheduled(
+        37,
+        sequence(
+          step('calculateActionValue', {
+            key: 'calc_atb2',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'atb2' },
+            right: { kind: 'blackboard', key: 'atb_ratio' },
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'calc_atb2' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale2' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise1' },
+            },
+            'chr_0029_pograni_combo_skill:/scheduledSequences/10/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.133 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+        ),
+        40,
+      ),
+      scheduled(
+        61,
+        sequence(
+          step('calculateActionValue', {
+            key: 'calc_atb4',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'atb4' },
+            right: { kind: 'blackboard', key: 'atb_ratio' },
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'calc_atb4' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale4' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise4' },
+            },
+            'chr_0029_pograni_combo_skill:/scheduledSequences/11/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.6 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: {
+              kind: 'inline',
+              keys: [
+                {
+                  time: 0,
+                  value: 0.45,
+                  inTangent: -7.146868,
+                  outTangent: -7.146868,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.08,
+                  value: 0.05,
+                  inTangent: 0.0647267,
+                  outTangent: 0.0647267,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.4542674,
+                  value: 0.08,
+                  inTangent: 0.09682205,
+                  outTangent: 0.857443,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 1,
+                  value: 1,
+                  inTangent: 2.77354,
+                  outTangent: 2.77354,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+              ],
+            },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+        ),
+        64,
+      ),
+      scheduled(
+        223,
+        sequence(
+          step('calculateActionValue', {
+            key: 'calc_atb1',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'atb1' },
+            right: { kind: 'blackboard', key: 'atb_ratio' },
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'calc_atb1' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise1' },
+            },
+            'chr_0029_pograni_combo_skill:/scheduledSequences/12/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.133 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
+        ),
+        226,
+      ),
+      scheduled(
+        237,
+        sequence(
+          step('calculateActionValue', {
+            key: 'calc_atb2',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'atb2' },
+            right: { kind: 'blackboard', key: 'atb_ratio' },
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'calc_atb2' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale2' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise1' },
+            },
+            'chr_0029_pograni_combo_skill:/scheduledSequences/13/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.133 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+        ),
+        240,
+      ),
+      scheduled(
+        261,
+        sequence(
+          step('calculateActionValue', {
+            key: 'calc_atb3',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'atb3' },
+            right: { kind: 'blackboard', key: 'atb_ratio' },
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'calc_atb3' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale3' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise3' },
+            },
+            'chr_0029_pograni_combo_skill:/scheduledSequences/14/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.6 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: {
+              kind: 'inline',
+              keys: [
+                {
+                  time: 0,
+                  value: 0.45,
+                  inTangent: -7.146868,
+                  outTangent: -7.146868,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.08,
+                  value: 0.05,
+                  inTangent: 0.0647267,
+                  outTangent: 0.0647267,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.4542674,
+                  value: 0.08,
+                  inTangent: 0.09682205,
+                  outTangent: 0.857443,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 1,
+                  value: 1,
+                  inTangent: 2.77354,
+                  outTangent: 2.77354,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+              ],
+            },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+        ),
+        264,
+      ),
+      scheduled(
+        423,
+        sequence(
+          step('calculateActionValue', {
+            key: 'calc_atb1',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'atb1' },
+            right: { kind: 'blackboard', key: 'atb_ratio' },
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'calc_atb1' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise1' },
+            },
+            'chr_0029_pograni_combo_skill:/scheduledSequences/15/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.133 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
+        ),
+        426,
+      ),
+      scheduled(
+        437,
+        sequence(
+          step('calculateActionValue', {
+            key: 'calc_atb2',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'atb2' },
+            right: { kind: 'blackboard', key: 'atb_ratio' },
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'calc_atb2' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale2' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise1' },
+            },
+            'chr_0029_pograni_combo_skill:/scheduledSequences/16/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.133 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+        ),
+        440,
+      ),
+      scheduled(
+        623,
+        sequence(
+          step('calculateActionValue', {
+            key: 'calc_atb1',
+            operation: 'multiply',
+            left: { kind: 'blackboard', key: 'atb1' },
+            right: { kind: 'blackboard', key: 'atb_ratio' },
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'calc_atb1' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise1' },
+            },
+            'chr_0029_pograni_combo_skill:/scheduledSequences/17/sequence/steps/2',
+          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.133 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
+        ),
+        626,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'global',
+            durationSeconds: { kind: 'constant', value: 0.8 },
+            slot: 'unassigned',
+            priority: 30,
+            curve: { kind: 'named', key: 'ComboSkill' },
+            finishByAction: false,
+            ignoredTargets: ['caster'],
+            ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+          }),
+        ),
+        21,
+      ),
+      scheduled(
+        200,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'global',
+            durationSeconds: { kind: 'constant', value: 0.8 },
+            slot: 'unassigned',
+            priority: 30,
+            curve: { kind: 'named', key: 'ComboSkill' },
+            finishByAction: false,
+            ignoredTargets: ['caster'],
+            ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+          }),
+        ),
+        221,
+      ),
+      scheduled(
+        400,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'global',
+            durationSeconds: { kind: 'constant', value: 0.700000048 },
+            slot: 'unassigned',
+            priority: 30,
+            curve: { kind: 'named', key: 'ComboSkill' },
+            finishByAction: false,
+            ignoredTargets: ['caster'],
+            ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+          }),
+        ),
+        418,
+      ),
+      scheduled(
+        600,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'global',
+            durationSeconds: { kind: 'constant', value: 0.73300004 },
+            slot: 'unassigned',
+            priority: 30,
+            curve: { kind: 'named', key: 'ComboSkill' },
+            finishByAction: false,
+            ignoredTargets: ['caster'],
+            ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+          }),
+        ),
+        619,
+      ),
+    ],
+    smartTarget: 'trigger',
+    cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
+  },
+  {
+    atb_ratio: 1,
+    atb1: 5,
+    atb2: 7,
+    atb3: 13,
+    atb4: 23,
+    atk_scale: [0.42, 0.46, 0.5, 0.55, 0.59, 0.63, 0.67, 0.71, 0.76, 0.81, 0.87, 0.95],
+    atk_scale2: [0.54, 0.59, 0.65, 0.7, 0.76, 0.81, 0.86, 0.92, 0.97, 1.04, 1.12, 1.22],
+    atk_scale3: [0.66, 0.73, 0.79, 0.86, 0.92, 0.99, 1.06, 1.12, 1.19, 1.27, 1.37, 1.49],
+    atk_scale4: [1.32, 1.45, 1.58, 1.72, 1.85, 1.98, 2.11, 2.24, 2.38, 2.54, 2.74, 2.97],
+    calc_atb1: 0,
+    calc_atb2: 0,
+    calc_atb3: 0,
+    calc_atb4: 0,
+    duration: 4,
+    owner_mainchar_alpha: 0,
+    owner_mainchar_distance: 0,
+    poise1: 3,
+    poise2: 5,
+    poise3: 4,
+    poise4: 9,
+    select_radius: 7,
+    usp: 10,
+  },
+);
+
+export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'ultimate',
+    sourceSkillId: 'chr_0029_pograni_ultimate_skill',
+    timelineBlockFrames: 91,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 1 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'RESETto1' },
+            finishByAction: false,
+            targets: ['caster'],
+          }),
+        ),
+        3,
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'constant', value: 1 },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('findCharacterTeamTargets', {
+                saveToContextKey: 'mainchar',
+                selection: { kind: 'controlledOperator' },
+              }),
+            ),
+          ),
+        ),
+        1,
+      ),
+      scheduled(
+        74,
+        sequence(
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+            childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+            target: 'enemy',
+            saveToContextKey: 'ae1',
+          }),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+            childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+            target: 'enemy',
+            saveToContextKey: 'ae2',
+          }),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+            childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+            target: 'enemy',
+            saveToContextKey: 'ae3',
+          }),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+            childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+            target: 'enemy',
+            saveToContextKey: 'ae4',
+          }),
+          step('setIgnoreGlobalTimeScale', {
+            abilityEntityTargets: [{ kind: 'context', contextKey: 'ae1' }],
+            ignore: true,
+            revertOnEnd: true,
+          }),
+          step('setIgnoreGlobalTimeScale', {
+            abilityEntityTargets: [{ kind: 'context', contextKey: 'ae2' }],
+            ignore: true,
+            revertOnEnd: true,
+          }),
+          step('setIgnoreGlobalTimeScale', {
+            abilityEntityTargets: [{ kind: 'context', contextKey: 'ae3' }],
+            ignore: true,
+            revertOnEnd: true,
+          }),
+          step('setIgnoreGlobalTimeScale', {
+            abilityEntityTargets: [{ kind: 'context', contextKey: 'ae4' }],
+            ignore: true,
+            revertOnEnd: true,
+          }),
+        ),
+        77,
+      ),
+      scheduled(
+        76,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_rush' },
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise_rush' },
+            },
+            'chr_0029_pograni_ultimate_skill:/scheduledSequences/3/sequence/steps/0',
+          ),
+        ),
+        82,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_damage_immune_ult_skill',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        90,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('startUltimateTimeDilation', {
+            priority: 100,
+            targetScale: { kind: 'constant', value: 0 },
+            ignoredTargets: [],
+          }),
+        ),
+        75,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('findOwnerSpawnedAbilityEntities', {
+            saveToContextKey: 'soldiers',
+            abilityEntityIds: ['abilityentity_chr_0029_pograni_ultimate_skill'],
+          }),
+          forEachContextTarget('soldiers', sequence(step('finishCurrentAbilityEntity', {}))),
+          step('finishBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0029_pograni_ultimate_skill'],
+            reason: 'other',
+          }),
+        ),
+        3,
+      ),
+    ],
+    cooldownFrames: 300,
+    costs: [{ resource: 'ultimateEnergy', value: 90 }],
+  },
+  {
+    angle: 120,
+    atb_final: [30, 30, 30, 30, 30, 30, 30, 30, 30, 40, 40, 40],
+    atb_trigger: [7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 10, 10, 10],
+    atk_scale_final: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
+    atk_scale_rush: [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
+    atk_scale_trigger: [0.45, 0.49, 0.53, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.92, 1],
+    center_radius: 6,
+    duration: 30,
+    height: 4,
+    poise_final: 15,
+    poise_rush: 10,
+    radius: 5,
+  },
+);
+
+export const commonBuffDefinitions = {
+  buff_common_cryst_triggered_physical_break: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 5,
+    applyTags: ['Skill/Character/Common/SpellStatusSpecial/Shatter'],
+    extendTags: [],
+    blackboard: { atk_scale: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        step(
+          'dealDamage',
+          {
+            damageType: 'physical',
+            attackScale: { kind: 'blackboard', key: 'atk_scale' },
+            tags: ['cryoAbnormal'],
+            features: ['shatter'],
+          },
+          'buff_common_cryst_triggered_physical_break:/lifecycleSequences/start/steps/0',
+        ),
+      ),
+    },
+  },
+  buff_common_damage_immune_medium: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: [
+      'Status/DodgeDamageImmune',
+      'Status/SkillDamageImmune',
+      'Immune/SpellInflictOnChar/All',
+    ],
+    extendTags: [],
+    blackboard: { duration: 9999 },
+    attributeModifiers: [],
+  },
+  buff_common_damage_immune_ult_skill: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: [
+      'Status/DodgeDamageImmune',
+      'Status/SkillDamageImmune',
+      'Immune/SpellInflictOnChar/All',
+    ],
+    extendTags: [],
+    blackboard: { duration: 9999 },
+    attributeModifiers: [],
+  },
+  buff_common_obtain_ultimate_sp: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 1,
+    applyTags: [],
+    extendTags: [],
+    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
+    },
+  },
+  buff_common_power_attack_disable_cast_skill: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    applyTags: [
+      'Status/DisableDash',
+      'Status/CantSwitchOutCenter',
+      'Status/DisableNormalSkill',
+      'Status/DisableCastComboSkill',
+      'Status/Unjumpable',
+    ],
+    extendTags: [],
+    blackboard: {},
+    attributeModifiers: [],
+  },
+  buff_physical_do_fracture: {
+    stackingType: 'stack',
+    stackingKey: 'fracture',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: false,
+    maxTriggerCount: 0,
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_fracture',
+      iconPath: '/icons/icon_battle_fracture.webp',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'SpellAbnormal',
+      abnormalColorType: 'Physical',
+      orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
+    },
+    applyTags: ['Skill/Character/Common/PhysicalStatus/FractureStatus'],
+    extendTags: [],
+    blackboard: { atk_scale: 0, count: 0, duration: 15, extra_scaling: 1, physical_res_down: 0 },
+    attributeModifiers: [],
+    damageModifiers: [
+      {
+        enabledSide: 'defender',
+        condition: { kind: 'eventDamageTypesMatch', damageTypes: ['physical'] },
+        processors: [
+          {
+            kind: 'damageScale',
+            side: 'defender',
+            zone: 'normal',
+            addition: { blackboardKey: 'physical_res_down' },
+          },
+        ],
+      },
+    ],
+    lifecycleSequences: {
+      start: sequence(
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('readBuffStackCount', {
+              target: 'buffOwner',
+              outputKey: 'count',
+              query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
+            }),
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [0.12, 0.16, 0.2, 0.24],
+                  column: { kind: 'blackboard', key: 'count' },
+                  storeKey: 'physical_res_down',
+                  enhance: {
+                    target: 'caster',
+                    formula: { kind: 'saturating', paramA: 2, paramB: 300 },
+                  },
+                },
+                {
+                  values: [1, 1.5, 2, 2.5],
+                  column: { kind: 'blackboard', key: 'count' },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+              ],
+            }),
+            step('modifyActionValue', {
+              key: 'physical_res_down',
+              operation: 'multiply',
+              value: { kind: 'blackboard', key: 'extra_scaling' },
+            }),
+            step('refreshCurrentBuffAttributeModifiers', {}),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:2',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'caster',
+              igniteType: 'PhysicalStatus',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:3',
+          {},
+          true,
+          sequence(
+            step('finishBuffsById', {
+              target: 'buffOwner',
+              buffIds: ['buff_physical_no_guard'],
+              reason: 'early',
+            }),
+            step(
+              'dealDamage',
+              {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: [],
+                features: ['physicalInfliction'],
+              },
+              'buff_physical_do_fracture:/lifecycleSequences/start/steps/3/body/steps/1',
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:4',
+          {},
+          true,
+          sequence({
+            kind: 'switch',
+            parameters: { choice: { kind: 'blackboard', key: 'count' }, alwaysNext: true },
+            options: [
+              {
+                value: { kind: 'constant', value: 0 },
+                sequence: sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 15,
+                    curve: { kind: 'named', key: 'interrupt_weakness' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
+                ),
+              },
+              {
+                value: { kind: 'constant', value: 1 },
+                sequence: sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 10,
+                    curve: { kind: 'named', key: 'interrupt_weakness' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
+                ),
+              },
+              {
+                value: { kind: 'constant', value: 2 },
+                sequence: sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.25 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 20,
+                    curve: { kind: 'named', key: 'interrupt_weakness' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
+                ),
+              },
+              {
+                value: { kind: 'constant', value: 3 },
+                sequence: sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.5 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 20,
+                    curve: { kind: 'named', key: 'interrupt_weakness' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
+                ),
+              },
+              {
+                value: { kind: 'constant', value: 4 },
+                sequence: sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.65 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 20,
+                    curve: { kind: 'named', key: 'interrupt_weakness' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
+                ),
+              },
+            ],
+          }),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+      ),
+    },
+  },
+  buff_physical_fracture: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: 3,
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: false,
+    maxTriggerCount: 0,
+    applyTags: [],
+    extendTags: [],
+    blackboard: { count: 0, duration: 15 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        step('readBuffStackCount', {
+          target: 'buffOwner',
+          outputKey: 'count',
+          query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
+        }),
+        step('readSkillSettingData', {
+          items: [
+            {
+              values: [12, 18, 24, 30],
+              column: { kind: 'blackboard', key: 'count' },
+              storeKey: 'duration',
+            },
+          ],
+        }),
+        step('applyBuff', {
+          buffId: 'buff_physical_do_fracture',
+          target: 'buffOwner',
+          inheritSourceSkillCastInfo: true,
+          blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
+        }),
+      ),
+    },
+  },
+  buff_physical_handle_cryst_break: {
+    stackingType: 'stack',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: 10,
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    applyTags: [],
+    extendTags: [],
+    blackboard: { atk_scale: 0, count: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        step('readBuffBlackboard', {
+          target: 'buffOwner',
+          query: {
+            kind: 'tag',
+            tagQueryType: 'hasAny',
+            buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+          },
+          desiredKey: 'count',
+          outputKey: 'count',
+        }),
+        step('readSkillSettingData', {
+          items: [
+            {
+              values: [2.4, 3.6, 4.8, 6],
+              column: { kind: 'blackboard', key: 'count' },
+              storeKey: 'atk_scale',
+              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+            },
+          ],
+        }),
+        step('finishBuffsByTag', {
+          target: 'buffOwner',
+          tagQueryType: 'hasAny',
+          buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+          reason: 'early',
+        }),
+        step('applyBuff', {
+          buffId: 'buff_common_cryst_triggered_physical_break',
+          target: 'buffOwner',
+          inheritSourceSkillCastInfo: true,
+          blackboardAssignments: { atk_scale: { kind: 'blackboard', key: 'atk_scale' } },
+        }),
+        {
+          kind: 'switch',
+          parameters: { choice: { kind: 'blackboard', key: 'count' }, alwaysNext: true },
+          options: [
+            {
+              value: { kind: 'constant', value: 0 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.1 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 15,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 1 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.1 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 10,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 2 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.25 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 20,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 3 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.5 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 20,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 4 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.65 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 20,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+          ],
+        },
+      ),
+    },
+  },
+  buff_physical_no_guard: {
+    stackingType: 'enhanceAndRefresh',
+    priority: 100,
+    maxStackCount: 4,
+    durationSeconds: { blackboardKey: 'duration' },
+    presentation: {
+      visible: true,
+      iconId: 'icon_shadow_attribute_penetrate',
+      iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
+      showInHeadBarCommon: false,
+      showInHeadBarAttached: true,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'Default',
+      abnormalColorType: 'Physical',
+      orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+    },
+    applyTags: ['Skill/Character/Common/NoGuard'],
+    extendTags: [],
+    blackboard: { atk_scale: 0, count: 0, duration: 20, skip_handle_cryst_break: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        branch(
+          {
+            kind: 'actionValueCompare',
+            left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+            operator: 'equal',
+            right: { kind: 'constant', value: 0 },
+          },
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+        ),
+      ),
+      finish: sequence(
+        step('applyBuff', {
+          buffId: 'buff_physical_no_guard_fake',
+          target: 'buffOwner',
+          source: 'eventSource',
+          inheritSourceSkillCastInfo: true,
+        }),
+      ),
+      afterEnhance: sequence(
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'buffOwner',
+              igniteType: 'NoGuard',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            branch(
+              {
+                kind: 'currentBuffStackCompare',
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 2 },
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_physical_handle_cryst_break',
+                      target: 'buffOwner',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+      ),
+    },
+  },
+  buff_physical_no_guard_fake: {
+    stackingType: 'refresh',
+    priority: 100,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: ['Skill/Character/Common/NoGuardFake'],
+    extendTags: [],
+    blackboard: { duration: 1 },
+    attributeModifiers: [],
+  },
+} as const satisfies OperatorBuffDefinitions;
+
+export default {
+  slug: 'pogranichnik',
+  gameId: 'POGRANICHNK',
+  rarity: 6,
+  weaponType: 'sword',
+  element: 'physical',
+  role: 'vanguard',
+  mainAttribute: 'will',
+  secondaryAttribute: 'agility',
+  attributes: {
+    strength: [12, 31, 51, 71, 91, 101],
+    agility: [13, 34, 55, 77, 99, 110],
+    intellect: [10, 28, 48, 67, 87, 97],
+    will: [20, 52, 87, 121, 156, 173],
+    baseAttack: [30, 92, 157, 223, 288, 321],
+    baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
+  },
+  skillGroups: [
+    {
+      key: 'basicAttack',
+      skillType: 'basicAttack',
+      levelSource: 'basicAttack',
+      skills: [
+        pogranichnikBasicAttack1,
+        pogranichnikBasicAttack2,
+        pogranichnikBasicAttack3,
+        pogranichnikBasicAttack4,
+        pogranichnikBasicAttack5,
+      ],
+    },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: pogranichnikFinisher,
+    },
+    {
+      key: 'plungingAttack',
+      skillType: 'plungingAttack',
+      levelSource: 'basicAttack',
+      skills: pogranichnikPlungingAttack,
+    },
+    {
+      key: 'battleSkill',
+      skillType: 'battleSkill',
+      levelSource: 'battleSkill',
+      skills: pogranichnikBattleSkill,
+    },
+    {
+      key: 'comboSkill',
+      skillType: 'comboSkill',
+      levelSource: 'comboSkill',
+      skills: pogranichnikComboSkill,
+    },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: pogranichnikUltimate,
+    },
+  ],
+  talents: [
+    {
+      key: 'talent1',
+      levels: 2,
+      passiveSkills: [
+        {
+          key: 'chr_0029_pograni_talent1',
+          blackboard: {
+            atb_gain: [80, 80],
+            atk_up: [0.04, 0.08],
+            duration: [20, 20],
+            max_stack_owner: [3, 3],
+            max_stack_team: [3, 3],
+            physpell_up: [4, 8],
+          },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0029_pograni_talent1_exist',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: {
+                atk_up: { kind: 'blackboard', key: 'atk_up' },
+                max_stack_owner: { kind: 'blackboard', key: 'max_stack_owner' },
+                physpell_up: { kind: 'blackboard', key: 'physpell_up' },
+              },
+            }),
+            step('listenForCombatEvents', {
+              responses: [
+                {
+                  key: 'native-event-1-0',
+                  event: { kind: 'spGained', source: 'skill', gainKind: 'gain' },
+                  phase: 'dataAction',
+                  priority: 0,
+                  sequence: sequence(
+                    branch(
+                      { kind: 'eventSpGainMatch', sources: ['skill'], gainKinds: ['gain'] },
+                      sequence(
+                        step('storeEventSpGainAmount', { outputKey: 'atb_contain_temp' }),
+                        step('modifyActionValue', {
+                          key: 'EntityBB_atb_contain',
+                          operation: 'add',
+                          value: { kind: 'blackboard', key: 'atb_contain_temp' },
+                        }),
+                        branch(
+                          {
+                            kind: 'actionValueCompare',
+                            left: { kind: 'blackboard', key: 'EntityBB_atb_contain' },
+                            operator: 'greaterOrEqual',
+                            right: { kind: 'blackboard', key: 'atb_gain' },
+                          },
+                          sequence(
+                            step('calculateActionValue', {
+                              key: 'atb_gain_minus',
+                              operation: 'multiply',
+                              left: { kind: 'blackboard', key: 'atb_gain' },
+                              right: { kind: 'constant', value: -1 },
+                            }),
+                            step('modifyActionValue', {
+                              key: 'EntityBB_atb_contain',
+                              operation: 'add',
+                              value: { kind: 'blackboard', key: 'atb_gain_minus' },
+                            }),
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0029_pograni_talent1',
+                              target: 'eventSource',
+                              source: 'eventSource',
+                              inheritSourceSkillCastInfo: true,
+                              asChildBuff: true,
+                              blackboardAssignments: {
+                                duration: { kind: 'blackboard', key: 'duration' },
+                                atk_up: { kind: 'blackboard', key: 'atk_up' },
+                                physpell_up: { kind: 'blackboard', key: 'physpell_up' },
+                                max_stack: { kind: 'blackboard', key: 'max_stack_owner' },
+                              },
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                },
+              ],
+            }),
+          ),
+        },
+      ],
+    },
+    {
+      key: 'talent2',
+      levels: 2,
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0029_pograni_talent2',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: { duration: [5, 10] },
+        }),
+      ),
+    },
+  ],
+  potentials: [
+    {
+      key: 'potential1',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'has_potential1',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'atb_return',
+          operation: 'assign',
+          value: 15,
+        },
+      ],
+    },
+    {
+      key: 'potential2',
+      levels: 1,
+      modifiers: [
+        { kind: 'addBuildAttribute', attributes: ['will'], value: 20 },
+        { kind: 'addStaticDamageIncrease', target: 'physical', value: 0.1 },
+      ],
+    },
+    {
+      key: 'potential3',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'chr_0029_pograni_talent1',
+          blackboardKey: 'atb_gain',
+          operation: 'assign',
+          value: 60,
+        },
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'chr_0029_pograni_talent1',
+          blackboardKey: 'max_stack_owner',
+          operation: 'assign',
+          value: 5,
+        },
+      ],
+    },
+    {
+      key: 'potential4',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'multiplySkillCost',
+          skillGroupKey: 'ultimate',
+          resource: 'ultimateEnergy',
+          multiplier: 0.85,
+        },
+      ],
+    },
+    {
+      key: 'potential5',
+      levels: 1,
+      modifiers: [
+        { kind: 'addSkillCooldownFrames', skillGroupKey: 'comboSkill', frames: -60 },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'atb_ratio',
+          operation: 'assign',
+          value: 1.2,
+        },
+      ],
+    },
+  ],
+  buffDefinitions: {
+    buff_chr_0029_pograni_talent1: {
+      stackingType: 'highPriorityWithMaxStack',
+      priority: 0,
+      maxStackCount: { blackboardKey: 'max_stack' },
+      durationSeconds: { blackboardKey: 'duration' },
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_pograni_talent_1',
+        iconPath: '/icons/icon_battle_pograni_talent_1.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'LifeTime',
+        abnormalColorType: 'Physical',
+        orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
+      },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { atk_up: 0.1, duration: 20, max_stack: 3, physpell_up: 10 },
+      attributeModifiers: [
+        { attribute: 'Atk', slot: 'baseMultiplier', value: { blackboardKey: 'atk_up' } },
+        {
+          attribute: 'PhysicalAndSpellInflictionEnhance',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'physpell_up' },
+        },
+      ],
+    },
+    buff_chr_0029_pograni_talent1_exist: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: { blackboardKey: 'max_stack' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { atk_up: 0, max_stack_owner: 5, max_stack_team: 3, physpell_up: 0 },
+      attributeModifiers: [],
+    },
+    buff_chr_0029_pograni_talent2: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: { blackboardKey: 'max_stack' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { duration: 20 },
+      attributeModifiers: [],
+    },
+    buff_chr_0029_pograni_ultimate_skill: {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: {
+        atb_final: 0,
+        atb_trigger: 0,
+        atk_scale_final: 0,
+        atk_scale_rush: 0,
+        atk_scale_trigger: 0,
+        count: 5,
+        duration: 20,
+        poise_final: 0,
+      },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        start: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0029_pograni_ultimate_skill_count',
+            target: 'caster',
+            count: { kind: 'blackboard', key: 'count' },
+            inheritSourceSkillCastInfo: true,
+            asChildBuff: true,
+            blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
+          }),
+        ),
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura',
+            target: 'enemy',
+            finishByAction: true,
+            blackboardAssignments: {
+              duration: { kind: 'blackboard', key: 'duration' },
+              atk_scale_trigger: { kind: 'blackboard', key: 'atk_scale_trigger' },
+              atk_scale_final: { kind: 'blackboard', key: 'atk_scale_final' },
+              atb_trigger: { kind: 'blackboard', key: 'atb_trigger' },
+              atb_final: { kind: 'blackboard', key: 'atb_final' },
+              poise_final: { kind: 'blackboard', key: 'poise_final' },
+            },
+          }),
+        ),
+        finish: sequence(
+          step('finishBuffsById', {
+            target: 'caster',
+            buffIds: ['buff_chr_0029_pograni_ultimate_skill_effect_layer'],
+            reason: 'other',
+          }),
+        ),
+      },
+    },
+    buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura: {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: {
+        atb_final: 0,
+        atb_trigger: 0,
+        atk_scale_final: 0,
+        atk_scale_trigger: 0,
+        atk_up_temp: 0,
+        duration: 20,
+        duration_temp: 0,
+        interval: 0.1,
+        max_stack_owner_temp: 0,
+        max_stack_team_temp: 0,
+        physpell_up_temp: 0,
+        poise_final: 0,
+        radius: 5,
+      },
+      attributeModifiers: [],
+      abilityEventResponses: [
+        {
+          event: 'beforeTakePhysicalInfliction',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              {
+                kind: 'not',
+                condition: {
+                  kind: 'timedMarkerPresent',
+                  target: 'caster',
+                  markerId: 'chr_0029_pograni_soldier_attacked',
+                },
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'buffIdStackCompare',
+                    target: 'caster',
+                    buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                    operator: 'equal',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                  sequence(
+                    step('finishBuffsById', {
+                      target: 'caster',
+                      buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                      reason: 'other',
+                      count: { kind: 'constant', value: 1 },
+                    }),
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0029_pograni_ultimate_skill_finall_rush',
+                      target: 'buffOwner',
+                      source: 'eventSource',
+                      inheritSourceSkillCastInfo: true,
+                      blackboardAssignments: {
+                        atk_scale_final: { kind: 'blackboard', key: 'atk_scale_final' },
+                        atb_final: { kind: 'blackboard', key: 'atb_final' },
+                        poise_final: { kind: 'blackboard', key: 'poise_final' },
+                      },
+                    }),
+                    step('createTimedMarker', {
+                      target: 'caster',
+                      markerId: 'chr_0029_pograni_soldier_attacked',
+                      durationSeconds: { kind: 'blackboard', key: 'interval' },
+                      autoFinishByAction: false,
+                    }),
+                    branch(
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'caster',
+                        buffIds: ['buff_chr_0029_pograni_talent2'],
+                        operator: 'greaterOrEqual',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                      sequence(
+                        branch(
+                          {
+                            kind: 'buffIdStackCompare',
+                            target: 'caster',
+                            buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                            operator: 'greaterOrEqual',
+                            value: { kind: 'constant', value: 1 },
+                          },
+                          sequence(
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent2'] },
+                              desiredKey: 'duration',
+                              outputKey: 'duration_temp',
+                            }),
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: {
+                                kind: 'id',
+                                buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                              },
+                              desiredKey: 'atk_up',
+                              outputKey: 'atk_up_temp',
+                            }),
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: {
+                                kind: 'id',
+                                buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                              },
+                              desiredKey: 'physpell_up',
+                              outputKey: 'physpell_up_temp',
+                            }),
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: {
+                                kind: 'id',
+                                buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                              },
+                              desiredKey: 'max_stack_owner',
+                              outputKey: 'max_stack_owner_temp',
+                            }),
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: {
+                                kind: 'id',
+                                buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                              },
+                              desiredKey: 'max_stack_team',
+                              outputKey: 'max_stack_team_temp',
+                            }),
+                            branch(
+                              { kind: 'eventSourceTargetMatch', operator: 'equal' },
+                              sequence(
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0029_pograni_talent1',
+                                  target: 'eventTarget',
+                                  source: 'eventSource',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    duration: { kind: 'blackboard', key: 'duration_temp' },
+                                    atk_up: { kind: 'blackboard', key: 'atk_up_temp' },
+                                    physpell_up: { kind: 'blackboard', key: 'physpell_up_temp' },
+                                    max_stack: { kind: 'blackboard', key: 'max_stack_owner_temp' },
+                                  },
+                                }),
+                              ),
+                              sequence(
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0029_pograni_talent1',
+                                  target: 'eventTarget',
+                                  source: 'eventSource',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    duration: { kind: 'blackboard', key: 'duration_temp' },
+                                    atk_up: { kind: 'blackboard', key: 'atk_up_temp' },
+                                    physpell_up: { kind: 'blackboard', key: 'physpell_up_temp' },
+                                    max_stack: { kind: 'blackboard', key: 'max_stack_team_temp' },
+                                  },
+                                }),
+                              ),
+                              { alwaysNext: true },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        },
+        {
+          event: 'beforeTakePhysicalInfliction',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              {
+                kind: 'not',
+                condition: {
+                  kind: 'timedMarkerPresent',
+                  target: 'caster',
+                  markerId: 'chr_0029_pograni_soldier_attacked',
+                },
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'buffIdStackCompare',
+                    target: 'caster',
+                    buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                    operator: 'greater',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                  sequence(
+                    step('spawnAbilityEntity', {
+                      abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+                      childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_attack2',
+                      inheritActionBlackboard: true,
+                      dieWhenSourceDies: false,
+                      target: 'enemy',
+                    }),
+                    step('finishBuffsById', {
+                      target: 'caster',
+                      buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                      reason: 'other',
+                      count: { kind: 'constant', value: 1 },
+                    }),
+                    step('createTimedMarker', {
+                      target: 'caster',
+                      markerId: 'chr_0029_pograni_soldier_attacked',
+                      durationSeconds: { kind: 'blackboard', key: 'interval' },
+                      autoFinishByAction: false,
+                    }),
+                    branch(
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'caster',
+                        buffIds: ['buff_chr_0029_pograni_talent2'],
+                        operator: 'greaterOrEqual',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                      sequence(
+                        branch(
+                          {
+                            kind: 'buffIdStackCompare',
+                            target: 'caster',
+                            buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                            operator: 'greaterOrEqual',
+                            value: { kind: 'constant', value: 1 },
+                          },
+                          sequence(
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent2'] },
+                              desiredKey: 'duration',
+                              outputKey: 'duration_temp',
+                            }),
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: {
+                                kind: 'id',
+                                buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                              },
+                              desiredKey: 'atk_up',
+                              outputKey: 'atk_up_temp',
+                            }),
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: {
+                                kind: 'id',
+                                buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                              },
+                              desiredKey: 'physpell_up',
+                              outputKey: 'physpell_up_temp',
+                            }),
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: {
+                                kind: 'id',
+                                buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                              },
+                              desiredKey: 'max_stack_owner',
+                              outputKey: 'max_stack_owner_temp',
+                            }),
+                            step('readBuffBlackboard', {
+                              target: 'caster',
+                              query: {
+                                kind: 'id',
+                                buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                              },
+                              desiredKey: 'max_stack_team',
+                              outputKey: 'max_stack_team_temp',
+                            }),
+                            branch(
+                              { kind: 'eventSourceTargetMatch', operator: 'equal' },
+                              sequence(
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0029_pograni_talent1',
+                                  target: 'eventTarget',
+                                  source: 'eventSource',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    duration: { kind: 'blackboard', key: 'duration_temp' },
+                                    atk_up: { kind: 'blackboard', key: 'atk_up_temp' },
+                                    physpell_up: { kind: 'blackboard', key: 'physpell_up_temp' },
+                                    max_stack: { kind: 'blackboard', key: 'max_stack_owner_temp' },
+                                  },
+                                }),
+                              ),
+                              sequence(
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0029_pograni_talent1',
+                                  target: 'eventTarget',
+                                  source: 'eventSource',
+                                  inheritSourceSkillCastInfo: true,
+                                  blackboardAssignments: {
+                                    duration: { kind: 'blackboard', key: 'duration_temp' },
+                                    atk_up: { kind: 'blackboard', key: 'atk_up_temp' },
+                                    physpell_up: { kind: 'blackboard', key: 'physpell_up_temp' },
+                                    max_stack: { kind: 'blackboard', key: 'max_stack_team_temp' },
+                                  },
+                                }),
+                              ),
+                              { alwaysNext: true },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        },
+        {
+          event: 'beforeTakeDamage',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              {
+                kind: 'not',
+                condition: {
+                  kind: 'timedMarkerPresent',
+                  target: 'buffSource',
+                  markerId: 'chr_0029_pograni_soldier_attacked',
+                },
+              },
+              sequence(
+                branch(
+                  { kind: 'eventSourceMatchesBuffSource' },
+                  sequence(
+                    branch(
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'buffSource',
+                        buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                        operator: 'equal',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                      sequence(
+                        branch(
+                          { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['comboSkill'] },
+                          sequence(
+                            step('finishBuffsById', {
+                              target: 'caster',
+                              buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                              reason: 'other',
+                              count: { kind: 'constant', value: 1 },
+                            }),
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0029_pograni_ultimate_skill_finall_rush',
+                              target: 'buffOwner',
+                              source: 'buffSource',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                atk_scale_final: { kind: 'blackboard', key: 'atk_scale_final' },
+                                atb_final: { kind: 'blackboard', key: 'atb_final' },
+                                poise_final: { kind: 'blackboard', key: 'poise_final' },
+                              },
+                            }),
+                            step('createTimedMarker', {
+                              target: 'buffSource',
+                              markerId: 'chr_0029_pograni_soldier_attacked',
+                              durationSeconds: { kind: 'blackboard', key: 'interval' },
+                              autoFinishByAction: false,
+                            }),
+                            branch(
+                              {
+                                kind: 'buffIdStackCompare',
+                                target: 'buffSource',
+                                buffIds: ['buff_chr_0029_pograni_talent2'],
+                                operator: 'greaterOrEqual',
+                                value: { kind: 'constant', value: 1 },
+                              },
+                              sequence(
+                                branch(
+                                  {
+                                    kind: 'buffIdStackCompare',
+                                    target: 'buffSource',
+                                    buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                                    operator: 'greaterOrEqual',
+                                    value: { kind: 'constant', value: 1 },
+                                  },
+                                  sequence(
+                                    step('readBuffBlackboard', {
+                                      target: 'buffSource',
+                                      query: {
+                                        kind: 'id',
+                                        buffIds: ['buff_chr_0029_pograni_talent2'],
+                                      },
+                                      desiredKey: 'duration',
+                                      outputKey: 'duration_temp',
+                                    }),
+                                    step('readBuffBlackboard', {
+                                      target: 'buffSource',
+                                      query: {
+                                        kind: 'id',
+                                        buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                                      },
+                                      desiredKey: 'atk_up',
+                                      outputKey: 'atk_up_temp',
+                                    }),
+                                    step('readBuffBlackboard', {
+                                      target: 'buffSource',
+                                      query: {
+                                        kind: 'id',
+                                        buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                                      },
+                                      desiredKey: 'physpell_up',
+                                      outputKey: 'physpell_up_temp',
+                                    }),
+                                    step('readBuffBlackboard', {
+                                      target: 'buffSource',
+                                      query: {
+                                        kind: 'id',
+                                        buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                                      },
+                                      desiredKey: 'max_stack_owner',
+                                      outputKey: 'max_stack_owner_temp',
+                                    }),
+                                    step('applyBuff', {
+                                      buffId: 'buff_chr_0029_pograni_talent1',
+                                      target: 'caster',
+                                      source: 'buffSource',
+                                      inheritSourceSkillCastInfo: true,
+                                      blackboardAssignments: {
+                                        duration: { kind: 'blackboard', key: 'duration_temp' },
+                                        atk_up: { kind: 'blackboard', key: 'atk_up_temp' },
+                                        physpell_up: {
+                                          kind: 'blackboard',
+                                          key: 'physpell_up_temp',
+                                        },
+                                        max_stack: {
+                                          kind: 'blackboard',
+                                          key: 'max_stack_owner_temp',
+                                        },
+                                      },
+                                    }),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        },
+        {
+          event: 'beforeTakeDamage',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              {
+                kind: 'not',
+                condition: {
+                  kind: 'timedMarkerPresent',
+                  target: 'buffSource',
+                  markerId: 'chr_0029_pograni_soldier_attacked',
+                },
+              },
+              sequence(
+                branch(
+                  { kind: 'eventSourceMatchesBuffSource' },
+                  sequence(
+                    branch(
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'buffSource',
+                        buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                        operator: 'greater',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                      sequence(
+                        branch(
+                          { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['comboSkill'] },
+                          sequence(
+                            step('spawnAbilityEntity', {
+                              abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+                              childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_attack2',
+                              inheritActionBlackboard: true,
+                              dieWhenSourceDies: false,
+                              target: 'enemy',
+                            }),
+                            step('finishBuffsById', {
+                              target: 'caster',
+                              buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                              reason: 'other',
+                              count: { kind: 'constant', value: 1 },
+                            }),
+                            step('createTimedMarker', {
+                              target: 'buffSource',
+                              markerId: 'chr_0029_pograni_soldier_attacked',
+                              durationSeconds: { kind: 'blackboard', key: 'interval' },
+                              autoFinishByAction: false,
+                            }),
+                            branch(
+                              {
+                                kind: 'buffIdStackCompare',
+                                target: 'buffSource',
+                                buffIds: ['buff_chr_0029_pograni_talent2'],
+                                operator: 'greaterOrEqual',
+                                value: { kind: 'constant', value: 1 },
+                              },
+                              sequence(
+                                branch(
+                                  {
+                                    kind: 'buffIdStackCompare',
+                                    target: 'buffSource',
+                                    buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                                    operator: 'greaterOrEqual',
+                                    value: { kind: 'constant', value: 1 },
+                                  },
+                                  sequence(
+                                    step('readBuffBlackboard', {
+                                      target: 'buffSource',
+                                      query: {
+                                        kind: 'id',
+                                        buffIds: ['buff_chr_0029_pograni_talent2'],
+                                      },
+                                      desiredKey: 'duration',
+                                      outputKey: 'duration_temp',
+                                    }),
+                                    step('readBuffBlackboard', {
+                                      target: 'buffSource',
+                                      query: {
+                                        kind: 'id',
+                                        buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                                      },
+                                      desiredKey: 'atk_up',
+                                      outputKey: 'atk_up_temp',
+                                    }),
+                                    step('readBuffBlackboard', {
+                                      target: 'buffSource',
+                                      query: {
+                                        kind: 'id',
+                                        buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                                      },
+                                      desiredKey: 'physpell_up',
+                                      outputKey: 'physpell_up_temp',
+                                    }),
+                                    step('readBuffBlackboard', {
+                                      target: 'buffSource',
+                                      query: {
+                                        kind: 'id',
+                                        buffIds: ['buff_chr_0029_pograni_talent1_exist'],
+                                      },
+                                      desiredKey: 'max_stack_owner',
+                                      outputKey: 'max_stack_owner_temp',
+                                    }),
+                                    step('applyBuff', {
+                                      buffId: 'buff_chr_0029_pograni_talent1',
+                                      target: 'caster',
+                                      source: 'buffSource',
+                                      inheritSourceSkillCastInfo: true,
+                                      blackboardAssignments: {
+                                        duration: { kind: 'blackboard', key: 'duration_temp' },
+                                        atk_up: { kind: 'blackboard', key: 'atk_up_temp' },
+                                        physpell_up: {
+                                          kind: 'blackboard',
+                                          key: 'physpell_up_temp',
+                                        },
+                                        max_stack: {
+                                          kind: 'blackboard',
+                                          key: 'max_stack_owner_temp',
+                                        },
+                                      },
+                                    }),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        },
+      ],
+    },
+    buff_chr_0029_pograni_ultimate_skill_count: {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 99,
+      durationSeconds: { blackboardKey: 'duration' },
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_pograni_buff',
+        iconPath: '/icons/icon_battle_pograni_buff.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: true,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'LifeTime',
+        abnormalColorType: 'Physical',
+        orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
+      },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { count: 4, duration: 30 },
+      attributeModifiers: [],
+    },
+    buff_chr_0029_pograni_ultimate_skill_finall_rush: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 1.2,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { atb_final: 0, atk_scale_final: 0, count: 4, duration: 20, poise_final: 0 },
+      attributeModifiers: [],
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            step('spawnAbilityEntity', {
+              abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+              childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_finish4',
+              inheritActionBlackboard: true,
+              dieWhenSourceDies: false,
+              target: 'enemy',
+            }),
+          ),
+          3,
+        ),
+        scheduled(
+          0,
+          sequence(
+            step('spawnAbilityEntity', {
+              abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+              childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_finish4',
+              inheritActionBlackboard: true,
+              dieWhenSourceDies: false,
+              target: 'enemy',
+            }),
+          ),
+          3,
+        ),
+        scheduled(
+          0,
+          sequence(
+            step('spawnAbilityEntity', {
+              abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+              childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_finish4',
+              inheritActionBlackboard: true,
+              dieWhenSourceDies: false,
+              target: 'enemy',
+            }),
+          ),
+          3,
+        ),
+        scheduled(
+          0,
+          sequence(
+            step('spawnAbilityEntity', {
+              abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
+              childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_finish4',
+              inheritActionBlackboard: true,
+              dieWhenSourceDies: false,
+              target: 'enemy',
+            }),
+          ),
+          3,
+        ),
+        scheduled(
+          0,
+          sequence(
+            step('startTimeDilation', {
+              scope: 'global',
+              durationSeconds: { kind: 'constant', value: 1 },
+              slot: 'unassigned',
+              priority: 100,
+              curve: { kind: 'named', key: 'ComboSkill' },
+              finishByAction: false,
+              ignoredTargets: [],
+              ignoredAbilityEntityTargets: [
+                {
+                  kind: 'ownerSpawned',
+                  abilityEntityIds: ['abilityentity_chr_0029_pograni_ultimate_skill'],
+                },
+              ],
+            }),
+          ),
+          30,
+        ),
+      ],
+    },
+  },
+  abilityEntityDefinitions: {
+    abilityentity_chr_0029_pograni_ultimate_skill: {
+      lifetime: { kind: 'limited', durationSeconds: 50 },
+      childSkills: {
+        chr_0029_pograni_ultimate_skill_abilityentity: {
+          skillId: 'chr_0029_pograni_ultimate_skill_abilityentity',
+          blackboard: {
+            atb_final: 0,
+            atb_trigger: 4,
+            atk_scale_final: 0,
+            atk_scale_rush: 1,
+            atk_scale_trigger: 0,
+            duration: 20,
+            poise_final: 0,
+            radius: 5,
+          },
+          scheduledSequences: [
+            scheduled(50, sequence(step('finishCurrentAbilityEntity', {})), 53),
+            scheduled(
+              3,
+              sequence(
+                branch(
+                  {
+                    kind: 'buffIdStackCompare',
+                    target: 'caster',
+                    buffIds: ['buff_chr_0029_pograni_ultimate_skill'],
+                    operator: 'equal',
+                    value: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0029_pograni_ultimate_skill',
+                      target: 'caster',
+                      inheritSourceSkillCastInfo: true,
+                      blackboardAssignments: {
+                        duration: { kind: 'blackboard', key: 'duration' },
+                        atk_scale_trigger: { kind: 'blackboard', key: 'atk_scale_trigger' },
+                        atk_scale_final: { kind: 'blackboard', key: 'atk_scale_final' },
+                        atb_trigger: { kind: 'blackboard', key: 'atb_trigger' },
+                        atb_final: { kind: 'blackboard', key: 'atb_final' },
+                        poise_final: { kind: 'blackboard', key: 'poise_final' },
+                      },
+                    }),
+                  ),
+                ),
+              ),
+              17,
+            ),
+          ],
+        },
+        chr_0029_pograni_ultimate_skill_abilityentity_attack2: {
+          skillId: 'chr_0029_pograni_ultimate_skill_abilityentity_attack2',
+          blackboard: {
+            atb_trigger: 10,
+            atk_scale_trigger: 1,
+            minAngle: 0,
+            number: 0,
+            owner_mainchar_alpha: 0,
+            owner_mainchar_distance: 0,
+            radius: 5,
+          },
+          scheduledSequences: [
+            scheduled(
+              0,
+              sequence(
+                branch(
+                  {
+                    kind: 'buffIdStackCompare',
+                    target: 'caster',
+                    buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                    operator: 'equal',
+                    value: { kind: 'constant', value: 5 },
+                  },
+                  sequence(),
+                  sequence(
+                    branch(
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'caster',
+                        buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                        operator: 'equal',
+                        value: { kind: 'constant', value: 4 },
+                      },
+                      sequence(step('jumpTimeline', { destinationFrame: 100 })),
+                      sequence(
+                        branch(
+                          {
+                            kind: 'buffIdStackCompare',
+                            target: 'caster',
+                            buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                            operator: 'equal',
+                            value: { kind: 'constant', value: 3 },
+                          },
+                          sequence(step('jumpTimeline', { destinationFrame: 200 })),
+                          sequence(
+                            branch(
+                              {
+                                kind: 'buffIdStackCompare',
+                                target: 'caster',
+                                buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
+                                operator: 'equal',
+                                value: { kind: 'constant', value: 2 },
+                              },
+                              sequence(step('jumpTimeline', { destinationFrame: 300 })),
+                              undefined,
+                              { alwaysNext: true },
+                            ),
+                          ),
+                          { alwaysNext: true },
+                        ),
+                      ),
+                      { alwaysNext: true },
+                    ),
+                  ),
+                  { alwaysNext: true },
+                ),
+              ),
+              3,
+            ),
+            scheduled(59, sequence(step('finishCurrentAbilityEntity', {})), 62),
+            scheduled(157, sequence(step('finishCurrentAbilityEntity', {})), 160),
+            scheduled(257, sequence(step('finishCurrentAbilityEntity', {})), 260),
+            scheduled(357, sequence(step('finishCurrentAbilityEntity', {})), 360),
+            scheduled(
+              9,
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb_trigger' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                }),
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'physical',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
+                    tags: ['ultimateSkill'],
+                  },
+                  'abilityentity_chr_0029_pograni_ultimate_skill:chr_0029_pograni_ultimate_skill_abilityentity|chr_0029_pograni_ultimate_skill_abilityentity_attack2|chr_0029_pograni_ultimate_skill_abilityentity_finish4:/childSkills/chr_0029_pograni_ultimate_skill_abilityentity_attack2/scheduledSequences/5/sequence/steps/1',
+                ),
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.2 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 10,
+                  curve: { kind: 'named', key: 'char_normal_attack' },
+                  finishByAction: false,
+                  targets: ['enemy'],
+                  abilityEntityTargets: [{ kind: 'current' }],
+                }),
+              ),
+              13,
+            ),
+            scheduled(
+              108,
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb_trigger' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                }),
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'physical',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
+                    tags: ['ultimateSkill'],
+                  },
+                  'abilityentity_chr_0029_pograni_ultimate_skill:chr_0029_pograni_ultimate_skill_abilityentity|chr_0029_pograni_ultimate_skill_abilityentity_attack2|chr_0029_pograni_ultimate_skill_abilityentity_finish4:/childSkills/chr_0029_pograni_ultimate_skill_abilityentity_attack2/scheduledSequences/6/sequence/steps/1',
+                ),
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.2 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 10,
+                  curve: { kind: 'named', key: 'char_normal_attack' },
+                  finishByAction: false,
+                  targets: ['enemy'],
+                  abilityEntityTargets: [{ kind: 'current' }],
+                }),
+              ),
+              112,
+            ),
+            scheduled(
+              209,
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb_trigger' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                }),
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'physical',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
+                    tags: ['ultimateSkill'],
+                  },
+                  'abilityentity_chr_0029_pograni_ultimate_skill:chr_0029_pograni_ultimate_skill_abilityentity|chr_0029_pograni_ultimate_skill_abilityentity_attack2|chr_0029_pograni_ultimate_skill_abilityentity_finish4:/childSkills/chr_0029_pograni_ultimate_skill_abilityentity_attack2/scheduledSequences/7/sequence/steps/1',
+                ),
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.2 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 10,
+                  curve: { kind: 'named', key: 'char_normal_attack' },
+                  finishByAction: false,
+                  targets: ['enemy'],
+                  abilityEntityTargets: [{ kind: 'current' }],
+                }),
+              ),
+              213,
+            ),
+            scheduled(
+              307,
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb_trigger' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'skill',
+                }),
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'physical',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_trigger' },
+                    tags: ['ultimateSkill'],
+                  },
+                  'abilityentity_chr_0029_pograni_ultimate_skill:chr_0029_pograni_ultimate_skill_abilityentity|chr_0029_pograni_ultimate_skill_abilityentity_attack2|chr_0029_pograni_ultimate_skill_abilityentity_finish4:/childSkills/chr_0029_pograni_ultimate_skill_abilityentity_attack2/scheduledSequences/8/sequence/steps/1',
+                ),
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.2 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 10,
+                  curve: { kind: 'named', key: 'char_normal_attack' },
+                  finishByAction: false,
+                  targets: ['enemy'],
+                  abilityEntityTargets: [{ kind: 'current' }],
+                }),
+              ),
+              311,
+            ),
+            scheduled(
+              0,
+              sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 30,
+                  curve: {
+                    kind: 'inline',
+                    keys: [
+                      {
+                        time: 0,
+                        value: 0.3,
+                        inTangent: -11.5167389,
+                        outTangent: -11.5167389,
+                        weightedMode: 2,
+                        inWeight: 0,
+                        outWeight: 0.318046421,
+                      },
+                      {
+                        time: 0.05494036,
+                        value: 0.04303966,
+                        inTangent: 0.115633719,
+                        outTangent: 0.115633719,
+                        weightedMode: 1,
+                        inWeight: 0.333333343,
+                        outWeight: 0.6580062,
+                      },
+                      {
+                        time: 1,
+                        value: 1,
+                        inTangent: 4.71006632,
+                        outTangent: 4.71006632,
+                        weightedMode: 1,
+                        inWeight: 0.2407477,
+                        outWeight: 0,
+                      },
+                    ],
+                  },
+                  finishByAction: false,
+                  targets: ['caster'],
+                  abilityEntityTargets: [{ kind: 'current' }],
+                }),
+              ),
+              3,
+            ),
+            scheduled(
+              100,
+              sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 30,
+                  curve: {
+                    kind: 'inline',
+                    keys: [
+                      {
+                        time: 0,
+                        value: 0.3,
+                        inTangent: -11.5167389,
+                        outTangent: -11.5167389,
+                        weightedMode: 2,
+                        inWeight: 0,
+                        outWeight: 0.318046421,
+                      },
+                      {
+                        time: 0.05494036,
+                        value: 0.04303966,
+                        inTangent: 0.115633719,
+                        outTangent: 0.115633719,
+                        weightedMode: 1,
+                        inWeight: 0.333333343,
+                        outWeight: 0.6580062,
+                      },
+                      {
+                        time: 1,
+                        value: 1,
+                        inTangent: 4.71006632,
+                        outTangent: 4.71006632,
+                        weightedMode: 1,
+                        inWeight: 0.2407477,
+                        outWeight: 0,
+                      },
+                    ],
+                  },
+                  finishByAction: false,
+                  targets: ['caster'],
+                  abilityEntityTargets: [{ kind: 'current' }],
+                }),
+              ),
+              103,
+            ),
+            scheduled(
+              200,
+              sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 30,
+                  curve: {
+                    kind: 'inline',
+                    keys: [
+                      {
+                        time: 0,
+                        value: 0.3,
+                        inTangent: -11.5167389,
+                        outTangent: -11.5167389,
+                        weightedMode: 2,
+                        inWeight: 0,
+                        outWeight: 0.318046421,
+                      },
+                      {
+                        time: 0.05494036,
+                        value: 0.04303966,
+                        inTangent: 0.115633719,
+                        outTangent: 0.115633719,
+                        weightedMode: 1,
+                        inWeight: 0.333333343,
+                        outWeight: 0.6580062,
+                      },
+                      {
+                        time: 1,
+                        value: 1,
+                        inTangent: 4.71006632,
+                        outTangent: 4.71006632,
+                        weightedMode: 1,
+                        inWeight: 0.2407477,
+                        outWeight: 0,
+                      },
+                    ],
+                  },
+                  finishByAction: false,
+                  targets: ['caster'],
+                  abilityEntityTargets: [{ kind: 'current' }],
+                }),
+              ),
+              203,
+            ),
+            scheduled(
+              300,
+              sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 30,
+                  curve: {
+                    kind: 'inline',
+                    keys: [
+                      {
+                        time: 0,
+                        value: 0.3,
+                        inTangent: -11.5167389,
+                        outTangent: -11.5167389,
+                        weightedMode: 2,
+                        inWeight: 0,
+                        outWeight: 0.318046421,
+                      },
+                      {
+                        time: 0.05494036,
+                        value: 0.04303966,
+                        inTangent: 0.115633719,
+                        outTangent: 0.115633719,
+                        weightedMode: 1,
+                        inWeight: 0.333333343,
+                        outWeight: 0.6580062,
+                      },
+                      {
+                        time: 1,
+                        value: 1,
+                        inTangent: 4.71006632,
+                        outTangent: 4.71006632,
+                        weightedMode: 1,
+                        inWeight: 0.2407477,
+                        outWeight: 0,
+                      },
+                    ],
+                  },
+                  finishByAction: false,
+                  targets: ['caster'],
+                  abilityEntityTargets: [{ kind: 'current' }],
+                }),
+              ),
+              303,
+            ),
+          ],
+        },
+        chr_0029_pograni_ultimate_skill_abilityentity_finish4: {
+          skillId: 'chr_0029_pograni_ultimate_skill_abilityentity_finish4',
+          blackboard: {
+            atb_final: 50,
+            atk_scale_final: 1,
+            minAngle: 0,
+            number: 0,
+            owner_mainchar_alpha: 0,
+            owner_mainchar_distance: 0,
+            poise_final: 0,
+            radius: 5,
+          },
+          scheduledSequences: [
+            scheduled(75, sequence(step('finishCurrentAbilityEntity', {})), 78),
+            scheduled(
+              31,
+              sequence(
+                step('finishBuffsById', {
+                  target: 'caster',
+                  buffIds: ['buff_chr_0029_pograni_ultimate_skill'],
+                  reason: 'other',
+                }),
+              ),
+              38,
+            ),
+            scheduled(
+              25,
+              sequence(
+                branch(
+                  {
+                    kind: 'not',
+                    condition: {
+                      kind: 'timedMarkerPresent',
+                      target: 'caster',
+                      markerId: 'chr_0029_pograni_ultimate_finalhit',
+                    },
+                  },
+                  sequence(
+                    step('changeResourceByActionValue', {
+                      resource: 'sp',
+                      amount: { kind: 'blackboard', key: 'atb_final' },
+                      coefficient: { kind: 'constant', value: 1 },
+                      recipient: 'team',
+                      spGainKind: 'gain',
+                      spGainSource: 'skill',
+                    }),
+                    step('createTimedMarker', {
+                      target: 'caster',
+                      markerId: 'chr_0029_pograni_ultimate_finalhit',
+                      durationSeconds: { kind: 'constant', value: 0.1 },
+                      autoFinishByAction: false,
+                    }),
+                    step(
+                      'dealDamage',
+                      {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
+                        tags: ['ultimateSkill'],
+                        features: ['canBreakWeakness'],
+                        stagger: { kind: 'blackboard', key: 'poise_final' },
+                      },
+                      'abilityentity_chr_0029_pograni_ultimate_skill:chr_0029_pograni_ultimate_skill_abilityentity|chr_0029_pograni_ultimate_skill_abilityentity_attack2|chr_0029_pograni_ultimate_skill_abilityentity_finish4:/childSkills/chr_0029_pograni_ultimate_skill_abilityentity_finish4/scheduledSequences/2/sequence/steps/0/whenTrue/steps/2',
+                    ),
+                  ),
+                  undefined,
+                  { alwaysNext: true },
+                ),
+              ),
+              52,
+            ),
+            scheduled(
+              0,
+              sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 30,
+                  curve: {
+                    kind: 'inline',
+                    keys: [
+                      {
+                        time: 0,
+                        value: 0.3,
+                        inTangent: -11.5167389,
+                        outTangent: -11.5167389,
+                        weightedMode: 2,
+                        inWeight: 0,
+                        outWeight: 0.318046421,
+                      },
+                      {
+                        time: 0.05,
+                        value: 0.01,
+                        inTangent: 0.15876019,
+                        outTangent: 0.0561449826,
+                        weightedMode: 3,
+                        inWeight: 0.333333343,
+                        outWeight: 0.73591876,
+                      },
+                      {
+                        time: 1,
+                        value: 1,
+                        inTangent: 3.72562432,
+                        outTangent: 3.72562432,
+                        weightedMode: 1,
+                        inWeight: 0.306914866,
+                        outWeight: 0,
+                      },
+                    ],
+                  },
+                  finishByAction: false,
+                  targets: ['caster'],
+                  abilityEntityTargets: [{ kind: 'current' }],
+                }),
+              ),
+              3,
+            ),
+          ],
+        },
+      },
+    },
+  },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
+} as const satisfies OperatorDefinition;

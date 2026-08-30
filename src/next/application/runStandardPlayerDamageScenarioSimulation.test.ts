@@ -1,23 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import { createEmptyScenario } from '../core/project/createProject';
-import { perlica } from '../data/operators/perlica';
-import { perlicaGeneratedOperator } from '../data/operators/generated/perlica.operator.generated';
-import { arclightGeneratedOperator } from '../data/operators/generated/arclight.operator.generated';
-import { lifengGeneratedOperator } from '../data/operators/generated/lifeng.operator.generated';
-import { endministratorGeneratedOperator } from '../data/operators/generated/endministrator.operator.generated';
-import { lastRiteGeneratedOperator } from '../data/operators/generated/last-rite.operator.generated';
-import { tangtangGeneratedOperator } from '../data/operators/generated/tangtang.operator.generated';
-import { gilbertaGeneratedOperator } from '../data/operators/generated/gilberta.operator.generated';
-import { rossiGeneratedOperator } from '../data/operators/generated/rossi.operator.generated';
-import { chenQianyuGeneratedOperator } from '../data/operators/generated/chen-qianyu.operator.generated';
-import {
-  estellaBattleSkill,
-  estellaGeneratedOperator,
-} from '../data/operators/generated/estella.operator.generated';
-import { mifuGeneratedOperator } from '../data/operators/generated/mifu.operator.generated';
+import { perlica, perlica as perlicaFormalOperator } from '../data/operators/perlica';
+import perlicaGeneratedOperator from '../data/operators/generated-definitions/perlica/perlica.operator.generated';
+import { arclight as arclightGeneratedOperator } from '../data/operators/arclight';
+import { lifeng as lifengGeneratedOperator } from '../data/operators/lifeng';
+import { endministrator as endministratorGeneratedOperator } from '../data/operators/endministrator';
+import { lastRite as lastRiteGeneratedOperator } from '../data/operators/last-rite';
+import { tangtang as tangtangGeneratedOperator } from '../data/operators/tangtang';
+import { gilberta as gilbertaGeneratedOperator } from '../data/operators/gilberta';
+import { rossi as rossiGeneratedOperator } from '../data/operators/rossi';
+import { chenQianyu as chenQianyuGeneratedOperator } from '../data/operators/chen-qianyu';
+import { estella as estellaGeneratedOperator, estellaBattleSkill } from '../data/operators/estella';
+import { mifu as mifuGeneratedOperator } from '../data/operators/mifu';
 import { akekuri } from '../data/operators/akekuri';
-import { generatedCommonBuffDefinitions } from '../data/operators/generated/commonBuffDefinitions.generated';
 import { commonBuffDefinitions } from '../data/buffs/commonDefinitions';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { scheduled, sequence, step, branch } from '../data/operators/definitionHelpers';
@@ -157,7 +153,7 @@ describe('标准入口普通倒地装配', () => {
   });
 });
 
-function placeGeneratedPerlicaFlow() {
+function placeGeneratedPerlicaFlow(operator: OperatorDefinition = perlicaGeneratedOperator) {
   const scenario = createPerlicaScenario();
   scenario.enemy.editable.stagger = {
     ...scenario.enemy.editable.stagger,
@@ -184,7 +180,7 @@ function placeGeneratedPerlicaFlow() {
       placeSkillGroup({
         scenario: current,
         trackIndex: 0,
-        operator: perlicaGeneratedOperator,
+        operator,
         ...placement,
         ids,
       }).scenario,
@@ -432,13 +428,21 @@ function createGeneratedLifengKnockDownScenario() {
     initialState: { ultimateEnergy: 0 },
     skillCasts: [],
   };
-  return placeSkillGroup({
+  const first = placeSkillGroup({
     scenario,
     trackIndex: 0,
     operator: lifengGeneratedOperator,
     skillGroupKey: 'battleSkill',
     startFrame: 451,
     ids: { allocate: kind => `${kind}:1` },
+  }).scenario;
+  return placeSkillGroup({
+    scenario: first,
+    trackIndex: 0,
+    operator: lifengGeneratedOperator,
+    skillGroupKey: 'battleSkill',
+    startFrame: 850,
+    ids: { allocate: kind => `${kind}:2` },
   }).scenario;
 }
 
@@ -614,6 +618,64 @@ function createGeneratedTangtangBattleScenario(potential: number) {
   }).scenario;
 }
 
+function createGeneratedTangtangUltimateResponseScenario(includeAllyPlungingAttack: boolean) {
+  const scenario = createEmptyScenario(
+    `scenario:generated-tangtang-ultimate-response-${includeAllyPlungingAttack}`,
+    '汤汤终结技队友下落攻击响应样本',
+  );
+  const build = (operatorSlug: string, ultimateEnergy: number) => ({
+    operator: {
+      operatorSlug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy },
+    skillCasts: [],
+  });
+  scenario.tracks[0] = {
+    id: 'track:tangtang',
+    ...build(tangtangGeneratedOperator.slug, 90),
+  };
+  scenario.tracks[1] = {
+    id: 'track:perlica',
+    ...build(perlicaGeneratedOperator.slug, 0),
+  };
+
+  let nextId = 0;
+  const ids = { allocate: (kind: string) => `${kind}:tangtang-ultimate:${++nextId}` };
+  const withUltimate = placeSkillGroup({
+    scenario,
+    trackIndex: 0,
+    operator: tangtangGeneratedOperator,
+    skillGroupKey: 'ultimate',
+    startFrame: 1,
+    ids,
+  }).scenario;
+  if (!includeAllyPlungingAttack) return withUltimate;
+
+  // 终结技水体在全局约第 198 帧向队友施加响应 Buff。佩丽卡下落攻击
+  // 在起手后第 3 帧命中，因此从 197 帧放置可让命中落在监听窗口内。
+  withUltimate.battle.controlSwitches.push({
+    id: 'switch:tangtang-ultimate:perlica',
+    frame: 190,
+    trackIndex: 1,
+  });
+  return placeSkillGroup({
+    scenario: withUltimate,
+    trackIndex: 1,
+    operator: perlicaGeneratedOperator,
+    skillGroupKey: 'plungingAttack',
+    startFrame: 197,
+    ids,
+  }).scenario;
+}
+
 function createGeneratedGilbertaBattleScenario(talentLevel: 0 | 2, potential: number) {
   const scenario = createEmptyScenario(
     `scenario:generated-gilberta-t${talentLevel}-p${potential}`,
@@ -704,11 +766,43 @@ function createGeneratedMifuProtectionScenario() {
 
 function createGeneratedMifuBattleChainScenario() {
   const scenario = createEmptyScenario('scenario:generated-mifu-chain', '弭弗三段战技样本');
-  scenario.battle.durationFrames = 140;
+  scenario.battle.durationFrames = 300;
   scenario.battle.resourceRules = {
     ...scenario.battle.resourceRules,
     initialSp: 300,
     spRecoveryPerSecond: 0,
+  };
+  const battleGroup = mifuGeneratedOperator.skillGroups.find(group => group.key === 'battleSkill')!;
+  const baseSkill = Array.isArray(battleGroup.skills) ? battleGroup.skills[0]! : battleGroup.skills;
+  // 原生第二段只在结算前读到至少三层 NoGuard 时换入第三段。测试前置只建立这项
+  // 敌方状态，不改弭弗三段技能、换槽 Buff 或伤害定义本身。
+  const battleChainOperator: OperatorDefinition = {
+    ...mifuGeneratedOperator,
+    skillGroups: mifuGeneratedOperator.skillGroups.map(group =>
+      group !== battleGroup
+        ? group
+        : {
+            ...group,
+            skills: {
+              ...baseSkill,
+              scheduledSequences: [
+                scheduled(
+                  0,
+                  sequence(
+                    ...Array.from({ length: 3 }, () =>
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard',
+                        target: 'enemy',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                  ),
+                ),
+                ...baseSkill.scheduledSequences,
+              ],
+            },
+          },
+    ),
   };
   scenario.tracks[0] = {
     id: 'track:mifu-chain',
@@ -729,11 +823,11 @@ function createGeneratedMifuBattleChainScenario() {
   let nextId = 0;
   const ids = { allocate: (kind: string) => `${kind}:mifu-chain:${++nextId}` };
   let placed = scenario;
-  for (const startFrame of [1, 20, 60]) {
+  for (const startFrame of [1, 40, 120]) {
     placed = placeSkillGroup({
       scenario: placed,
       trackIndex: 0,
-      operator: mifuGeneratedOperator,
+      operator: battleChainOperator,
       skillGroupKey: 'battleSkill',
       startFrame,
       ids,
@@ -742,7 +836,7 @@ function createGeneratedMifuBattleChainScenario() {
   placed.tracks[0]!.skillCasts.at(-1)!.simulationInputs = {
     cameraToTargetSignedAngleDegrees: 0,
   };
-  return placed;
+  return { scenario: placed, operator: battleChainOperator };
 }
 
 function runGeneratedLifengScenario(talentLevel: number) {
@@ -763,6 +857,7 @@ function runGeneratedLifengScenario(talentLevel: number) {
         getWeapon: () => null,
         getGear: () => null,
         getGearSet: () => null,
+        getCommonBuffDefinitions: () => commonBuffDefinitions,
       },
     },
   });
@@ -775,6 +870,14 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       // CharacterTemplateData key EntityBB_first_hit. Keep the exact generated talent-consume
       // sequence and feed it the native shatter Buff identity through Estella's own output event;
       // this avoids inventing an entity-blackboard initializer or changing event ownership.
+      const refundSequence = estellaBattleSkill.scheduledSequences.find(
+        scheduledSequence =>
+          scheduledSequence.startFrame === 21 &&
+          JSON.stringify(scheduledSequence.sequence).includes(
+            'buff_chr_0021_whiten_talent_0_active',
+          ),
+      );
+      if (refundSequence === undefined) throw new Error('missing Estella talent refund sequence');
       const talentTriggerAndConsumptionSkill = {
         ...estellaBattleSkill,
         scheduledSequences: [
@@ -791,7 +894,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
               }),
             ),
           ),
-          estellaBattleSkill.scheduledSequences[0]!,
+          refundSequence,
         ],
       };
       const estellaForTalentTest = {
@@ -856,7 +959,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         options: {
           ...standardOptions(),
           index: {
-            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
             getOperator: slug =>
               slug === estellaGeneratedOperator.slug ? estellaForTalentTest : null,
             getWeapon: () => null,
@@ -936,6 +1039,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
             getWeapon: () => null,
             getGear: () => null,
             getGearSet: () => null,
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
           },
         },
       });
@@ -1032,6 +1136,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         options: {
           ...standardOptions(),
           index: {
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
             getOperator: slug =>
               slug === rossiGeneratedOperator.slug
                 ? rossiGeneratedOperator
@@ -1046,12 +1151,16 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       });
     };
 
-    const bleedDamage = (talentLevel: 1 | 2) =>
-      run(talentLevel).receiptEntries.filter(
+    const bleedDamage = (talentLevel: 1 | 2) => {
+      const entries = run(talentLevel).receiptEntries;
+      return entries.filter(
         entry =>
           entry.event === 'DamageApplied' &&
-          String(entry.data?.stepKey).includes('buff_chr_0028_wulfa_normal_bleed:trigger'),
+          String(entry.data?.stepKey).includes(
+            'buff_chr_0028_wulfa_normal_bleed:/lifecycleSequences/trigger',
+          ),
       );
+    };
     const level1 = bleedDamage(1);
     const level2 = bleedDamage(2);
     expect(level1.length).toBeGreaterThan(0);
@@ -1104,6 +1213,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
           getOperator: slug =>
             slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
           getWeapon: () => null,
@@ -1197,6 +1307,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         options: {
           ...standardOptions(),
           index: {
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
             getOperator: slug =>
               slug === rossiGeneratedOperator.slug
                 ? rossiGeneratedOperator
@@ -1214,7 +1325,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           entry =>
             entry.event === 'DamageApplied' &&
             entry.sourceId === 'track:rossi' &&
-            String(entry.data?.stepKey).includes('basicAttack4'),
+            String(entry.data?.stepKey).includes('chr_0028_wulfa_attack4'),
         )
         .map(entry => entry.frame);
     };
@@ -1267,6 +1378,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
           getOperator: slug =>
             slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
           getWeapon: () => null,
@@ -1284,10 +1396,12 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(delayedDamage).toHaveLength(7);
     expect(delayedDamage.every(entry => entry.sourceId === 'track:rossi')).toBe(true);
     expect(
-      delayedDamage.filter(entry => String(entry.data?.stepKey).includes(':trigger:')),
+      delayedDamage.filter(entry =>
+        String(entry.data?.stepKey).includes('/lifecycleSequences/trigger'),
+      ),
     ).toHaveLength(3);
     expect(
-      delayedDamage.filter(entry => String(entry.data?.stepKey).includes('buffInterval')),
+      delayedDamage.filter(entry => String(entry.data?.stepKey).includes('/scheduledSequences/')),
     ).toHaveLength(4);
   });
 
@@ -1332,6 +1446,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
           getOperator: slug =>
             slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
           getWeapon: () => null,
@@ -1385,7 +1500,9 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         trackIndex: 0,
         operator: rossiGeneratedOperator,
         skillGroupKey: 'comboSkill',
-        skillKey: 'comboSkill3',
+        // 时间轴始终保存可放置的稳定入口；第一段末尾的原生
+        // ChangeSkillAction 让本次释放在运行时解析为 comboSkill3。
+        skillKey: 'comboSkill2',
         startFrame: comboSkill3StartFrame,
         ids: { allocate: kind => `${kind}:rossi-qte-second-${comboSkill3StartFrame}` },
       }).scenario;
@@ -1401,7 +1518,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         options: {
           ...standardOptions(),
           index: {
-            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
             getOperator: slug =>
               slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
             getWeapon: () => null,
@@ -1412,8 +1529,9 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       });
     };
 
-    const inside = simulate(55);
-    const outside = simulate(75);
+    // 正式产物保留命中停帧；QTE 有效 Buff 的现实时间窗口为 60..75 帧。
+    const inside = simulate(65);
+    const outside = simulate(82);
 
     expect(
       inside.receiptEntries.some(
@@ -1485,7 +1603,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         options: {
           ...standardOptions(),
           index: {
-            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
             getOperator: slug =>
               slug === rossiGeneratedOperator.slug ? rossiGeneratedOperator : null,
             getWeapon: () => null,
@@ -1512,7 +1630,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
   it('runs generated Tangtang combo damage and water entity lifecycle', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedTangtangComboScenario(),
-      endFrame: 930,
+      endFrame: 2000,
       criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
@@ -1582,11 +1700,65 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         },
       });
     const damage = (potential: number) =>
-      simulate(potential).receiptEntries.find(entry => entry.event === 'DamageApplied')?.data
-        ?.value;
+      simulate(potential)
+        .receiptEntries.filter(entry => entry.event === 'DamageApplied')
+        .reduce(
+          (sum, entry) => sum + (typeof entry.data?.value === 'number' ? entry.data.value : 0),
+          0,
+        );
 
     expect(damage(0)).toBeTypeOf('number');
     expect(damage(3)).toBeGreaterThan(damage(0) as number);
+  });
+
+  it('lets an ally plunging attack upgrade Tangtang ultimate ability-entity follow-up', () => {
+    const simulate = (includeAllyPlungingAttack: boolean) =>
+      runStandardPlayerDamageScenarioSimulation({
+        scenario: createGeneratedTangtangUltimateResponseScenario(includeAllyPlungingAttack),
+        endFrame: 240,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        elementalInflictionDocument: elementalAttachments,
+        options: {
+          ...standardOptions(),
+          index: {
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
+            getOperator: slug => {
+              if (slug === tangtangGeneratedOperator.slug) return tangtangGeneratedOperator;
+              if (slug === perlicaGeneratedOperator.slug) return perlicaGeneratedOperator;
+              return null;
+            },
+            getWeapon: () => null,
+            getGear: () => null,
+            getGearSet: () => null,
+          },
+        },
+      });
+    const baseline = simulate(false);
+    const triggered = simulate(true);
+    const tangtangDamage = (result: typeof baseline) =>
+      result.receiptEntries
+        .filter(entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:tangtang')
+        .map(entry => entry.data!);
+
+    expect(triggered.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'BuffApplied',
+        sourceId: expect.stringMatching(/^ability-entity:/),
+        targetId: 'track:perlica',
+        data: expect.objectContaining({ buffId: 'buff_chr_0027_tangtang_ultskill_buff_damage' }),
+      }),
+    );
+    expect(tangtangDamage(triggered)).toHaveLength(tangtangDamage(baseline).length);
+    expect(tangtangDamage(baseline).at(-1)?.stepKey).toContain('/scheduledSequences/1/');
+    expect(tangtangDamage(triggered).at(-1)?.stepKey).toContain('/scheduledSequences/2/');
+    expect(tangtangDamage(triggered).at(-1)?.value).toBeGreaterThan(
+      tangtangDamage(baseline).at(-1)?.value as number,
+    );
   });
 
   it('applies Gilberta talent and potential to the live ultimate-energy gain attribute', () => {
@@ -1604,6 +1776,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         options: {
           ...standardOptions(),
           index: {
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
             getOperator: slug =>
               slug === gilbertaGeneratedOperator.slug ? gilbertaGeneratedOperator : null,
             getWeapon: () => null,
@@ -1622,7 +1795,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(gained(2, 3)).toBeCloseTo(6.5 * 1.12);
   });
 
-  it('runs generated Mifu shield creation and chained battle-skill replacement', () => {
+  it('runs generated Mifu shield creation and active battle-skill replacement', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedMifuProtectionScenario(),
       endFrame: 240,
@@ -1635,7 +1808,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
-          getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
           getOperator: slug => (slug === mifuGeneratedOperator.slug ? mifuGeneratedOperator : null),
           getWeapon: () => null,
           getGear: () => null,
@@ -1659,20 +1832,18 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     );
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
-        event: 'SkillSlotChanged',
+        event: 'SkillStarted',
         sourceId: 'track:mifu',
-        data: expect.objectContaining({
-          skillGroupKey: 'battleSkill',
-          targetSkillKey: 'battleSkill3',
-        }),
+        data: expect.objectContaining({ skillId: 'battleSkill2' }),
       }),
     );
   });
 
   it('runs all three generated Mifu battle-skill forms with stable hit identities', () => {
+    const fixture = createGeneratedMifuBattleChainScenario();
     const result = runStandardPlayerDamageScenarioSimulation({
-      scenario: createGeneratedMifuBattleChainScenario(),
-      endFrame: 140,
+      scenario: fixture.scenario,
+      endFrame: 300,
       criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
@@ -1682,8 +1853,8 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
-          getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
-          getOperator: slug => (slug === mifuGeneratedOperator.slug ? mifuGeneratedOperator : null),
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
+          getOperator: slug => (slug === fixture.operator.slug ? fixture.operator : null),
           getWeapon: () => null,
           getGear: () => null,
           getGearSet: () => null,
@@ -1699,25 +1870,29 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     const damageSteps = result.receiptEntries
       .filter(entry => entry.event === 'DamageApplied')
       .map(entry => String(entry.data?.stepKey));
-    expect(damageSteps.filter(stepKey => stepKey.includes('battleSkill1'))).toHaveLength(1);
-    expect(damageSteps.filter(stepKey => stepKey.includes('battleSkill2'))).toHaveLength(3);
-    expect(damageSteps.filter(stepKey => stepKey.includes('battleSkill3'))).toHaveLength(1);
+    expect(damageSteps.filter(stepKey => stepKey.includes('normalskill_1'))).toHaveLength(1);
+    expect(damageSteps.filter(stepKey => stepKey.includes('normalskill_2'))).toHaveLength(3);
+    expect(damageSteps.filter(stepKey => stepKey.includes('normalskill_3'))).toHaveLength(1);
     const thirdFormDamage = result.receiptEntries.find(
       entry =>
-        entry.event === 'DamageApplied' && String(entry.data?.stepKey).includes('battleSkill3'),
+        entry.event === 'DamageApplied' && String(entry.data?.stepKey).includes('normalskill_3'),
     );
     expect(thirdFormDamage?.data?.value).toBeTypeOf('number');
     expect(thirdFormDamage?.data?.value as number).toBeGreaterThan(0);
     expect(
       result.receiptEntries
-        .filter(entry => entry.event === 'DamageApplied')
+        .filter(
+          entry =>
+            entry.event === 'DamageApplied' &&
+            String(entry.data?.stepKey).includes('chr_0031_mifu_normalskill_'),
+        )
         .every(
           entry => typeof entry.data?.castId === 'string' && typeof entry.data?.hitId === 'string',
         ),
     ).toBe(true);
   });
 
-  it('runs generated Last Rite party Buff events relative to the controlled owner', () => {
+  it('keeps generated Last Rite party Buff damage attributed to the Buff source', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedLastRitePartyBuffScenario(),
       endFrame: 100,
@@ -1731,6 +1906,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
           getOperator: slug =>
             slug === lastRiteGeneratedOperator.slug ? lastRiteGeneratedOperator : null,
           getWeapon: () => null,
@@ -1745,11 +1921,11 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         entry.event === 'DamageApplied' &&
         String(entry.data?.stepKey).includes('buff_chr_0026_lastrite_normal_skill_phantom'),
     );
-    expect(phantomDamage).toMatchObject({ sourceId: 'track:last-rite-ally' });
+    expect(phantomDamage).toMatchObject({ sourceId: 'track:last-rite-source' });
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'ElementalInflictionApplied',
-        sourceId: 'track:last-rite-ally',
+        sourceId: 'track:last-rite-source',
       }),
     );
   });
@@ -1767,7 +1943,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
-          getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
           getOperator: slug =>
             slug === endministratorGeneratedOperator.slug ? endministratorGeneratedOperator : null,
           getWeapon: () => null,
@@ -1799,7 +1975,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(damageEntries).toContainEqual(
       expect.objectContaining({
         data: expect.objectContaining({
-          stepKey: expect.stringContaining('buff_common_originum_frozen:ignite:EndminUlt'),
+          stepKey: expect.stringContaining('buff_common_originum_frozen:'),
         }),
       }),
     );
@@ -1820,7 +1996,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         options: {
           ...standardOptions(),
           index: {
-            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
             getOperator: slug =>
               slug === endministratorGeneratedOperator.slug
                 ? endministratorGeneratedOperator
@@ -1836,10 +2012,11 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     const level2 = run(2);
     expect(level2.receiptEntries).toContainEqual(
       expect.objectContaining({
-        event: 'PassiveSkillEnabled',
+        event: 'BuffApplied',
         sourceId: 'track:endministrator',
+        targetId: 'track:endministrator',
         data: expect.objectContaining({
-          passiveKey: 'buff_chr_0003_endminf_talent_1',
+          buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
         }),
       }),
     );
@@ -1869,7 +2046,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         options: {
           ...standardOptions(),
           index: {
-            getCommonBuffDefinitions: () => generatedCommonBuffDefinitions,
+            getCommonBuffDefinitions: () => commonBuffDefinitions,
             getOperator: slug =>
               slug === endministratorGeneratedOperator.slug
                 ? endministratorGeneratedOperator
@@ -1913,6 +2090,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           getWeapon: () => null,
           getGear: () => null,
           getGearSet: () => null,
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
         },
       },
     });
@@ -1955,6 +2133,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           getWeapon: () => null,
           getGear: () => null,
           getGearSet: () => null,
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
         },
       },
     });
@@ -1990,7 +2169,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
   it('consumes Lifeng potential 5 on the next knockdown and restarts its timer', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: createGeneratedLifengKnockDownScenario(),
-      endFrame: 960,
+      endFrame: 1400,
       criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
@@ -2006,23 +2185,29 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           getWeapon: () => null,
           getGear: () => null,
           getGearSet: () => null,
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
         },
       },
     });
-    // Generated action frame 54 is one-based, so it executes 53 runtime frames
-    // after the cast input frame.
-    const knockDownFrame = 451 + 53;
+    // 技能内动作会受已编译的实体命中停顿影响；轴上释放时刻固定，但内部第 54 帧
+    // 不能再用旧逻辑帧常量反推现实帧。以实际倒地输出验证同帧潜能响应。
+    const knockDown = result.receiptEntries.find(
+      entry => entry.event === 'PhysicalInflictionApplied' && entry.data?.type === 'knockDown',
+    );
+    expect(knockDown).toBeDefined();
+    const knockDownFrame = knockDown!.frame;
     const damageAtKnockDown = result.receiptEntries.filter(
       entry => entry.frame === knockDownFrame && entry.event === 'DamageApplied',
     );
-    expect(result.receiptEntries).toContainEqual(
+    expect(damageAtKnockDown).toHaveLength(3);
+    expect(damageAtKnockDown).toContainEqual(
       expect.objectContaining({
-        frame: knockDownFrame,
-        event: 'KnockDownOutput',
-        sourceId: 'track:lifeng-knockdown',
+        data: expect.objectContaining({
+          stepKey:
+            'buff_chr_0015_lifeng_talent_2:/abilityEventResponses/0/sequence/steps/0/whenTrue/steps/4',
+        }),
       }),
     );
-    expect(damageAtKnockDown).toHaveLength(2);
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         frame: knockDownFrame,
@@ -2106,6 +2291,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
           getOperator: slug => definitions.find(operator => operator.slug === slug) ?? null,
           getWeapon: () => null,
           getGear: () => null,
@@ -2172,7 +2358,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
 
   it('runs every generated Perlica skill type through the production simulation flow', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
-      scenario: placeGeneratedPerlicaFlow(),
+      scenario: placeGeneratedPerlicaFlow(perlicaFormalOperator),
       endFrame: 283,
       criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
       resolveNonRandomRuntimeSnapshot: () => ({
@@ -2184,11 +2370,11 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       options: {
         ...standardOptions(),
         index: {
-          getOperator: slug =>
-            slug === perlicaGeneratedOperator.slug ? perlicaGeneratedOperator : null,
+          getOperator: slug => (slug === perlicaFormalOperator.slug ? perlicaFormalOperator : null),
           getWeapon: () => null,
           getGear: () => null,
           getGearSet: () => null,
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
         },
       },
     });

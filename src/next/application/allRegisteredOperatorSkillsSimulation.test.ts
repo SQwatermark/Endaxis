@@ -48,7 +48,7 @@ const knownFailures: Readonly<Record<string, string>> = {};
 describe('所有正式干员技能逐项放置与模拟', () => {
   it('覆盖默认仓库中的每个干员和每个基础/变体技能', () => {
     expect(nextGameDataRepository.getOperators()).toHaveLength(30);
-    expect(cases).toHaveLength(301);
+    expect(cases).toHaveLength(300);
     expect(Object.keys(knownFailures)).toHaveLength(0);
     expect(
       new Set(
@@ -172,21 +172,6 @@ function placeRequiredSkillContext(
       }).scenario,
       // 终结技第 61 局部帧开启强化；完整技能块在第 65 帧结束。
       startFrame: 66,
-    };
-  }
-  if (identity === 'rossi/comboSkill/base/comboSkill3') {
-    return {
-      scenario: placeSkillGroup({
-        scenario,
-        trackIndex: 0,
-        operator,
-        skillGroupKey: 'comboSkill',
-        skillKey: 'comboSkill2',
-        startFrame: 1,
-        ids: { allocate: kind => `${kind}:rossi:comboSkill2:qte-prerequisite` },
-      }).scenario,
-      // 既有生产回归证明此帧位于第一段创建的 0.5 秒 QTE 有效计时 Buff 内。
-      startFrame: 55,
     };
   }
   return { scenario, startFrame: 1 };

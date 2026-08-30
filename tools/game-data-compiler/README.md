@@ -4,7 +4,7 @@
 生成器，把反编译及游戏导出数据转换成 Endaxis Next 可加载、可编辑、可审计的正式定义。
 
 这不是对旧生成器的逐行翻译。新版实现以原生数据结构为公共基础，只把干员、武器和
-装备的特有入口从公共编译流程中剥离。旧 Python 生成器在迁移完成前仅作为可执行对照，
+装备的特有入口从公共编译流程中剥离。旧 Python 生成器已在全干员迁移完成后退役，
 不能继续承载新功能。
 
 ## 当前纵向迁移（2026-08-28）
@@ -151,14 +151,14 @@ GodEntityFinder 解析阻塞；资源恢复细节和 provenance 边界见 `docs/
 依据 combat-spec `docs/switch-action.md` 与 `Actions/SwitchAction.cs`。原始来源层保留
 choice/options/alwaysNext 及子引用；公共投影生成独立契约中的 `switch`，不按干员或 Buff ID 写特例。
 
-| 层次 | 接入要求 |
-| --- | --- |
-| 独立契约 | 多分支选择属于 `actions.ts`，复用 `ActionValueOperand` 与 `ActionSequence`；不能在转换器、本体各造一份近似定义 |
-| 公共投影 | 分支继承入口目标组事实、相互隔离；保留 option 顺序、重复标签和空分支，不能按值排序、按索引选择或提前去重 |
-| 执行器 | choice 每次 Execute 只读取一次；各 option 按配置顺序读取，双方和减法均按 float32，绝对差不大于 `1e-5f` 时命中第一个；缺黑板键报错，NaN 不匹配 |
-| 生命周期 | 全部子序列在实例阶段建立，Reset 依序重置全部选项，Tick/End 只传给选中的分支；下一次 Execute 重新选择 |
-| 返回值 | `selectedSequenceResult || alwaysNext`；无匹配的内部结果为 false；alwaysNext 不取消子序列内部短路，不能删除被消费的尾条件 |
-| 共同消费者 | 校验、正式编译、格式输出、递归遍历、兼容性检查和编辑器同步支持；不能只让生成器类型检查通过 |
+| 层次       | 接入要求                                                                                                                                      |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 独立契约   | 多分支选择属于 `actions.ts`，复用 `ActionValueOperand` 与 `ActionSequence`；不能在转换器、本体各造一份近似定义                                |
+| 公共投影   | 分支继承入口目标组事实、相互隔离；保留 option 顺序、重复标签和空分支，不能按值排序、按索引选择或提前去重                                      |
+| 执行器     | choice 每次 Execute 只读取一次；各 option 按配置顺序读取，双方和减法均按 float32，绝对差不大于 `1e-5f` 时命中第一个；缺黑板键报错，NaN 不匹配 |
+| 生命周期   | 全部子序列在实例阶段建立，Reset 依序重置全部选项，Tick/End 只传给选中的分支；下一次 Execute 重新选择                                          |
+| 返回值     | `selectedSequenceResult                                                                                                                       |     | alwaysNext`；无匹配的内部结果为 false；alwaysNext 不取消子序列内部短路，不能删除被消费的尾条件 |
+| 共同消费者 | 校验、正式编译、格式输出、递归遍历、兼容性检查和编辑器同步支持；不能只让生成器类型检查通过                                                    |
 
 conditional 也已依据 `IfElseAction.cs` 改为持久分支实例、Reset 两支；普通 actionValueCompare
 仍使用 double 比较，不能据此将 Switch 简单拼成 IfElse 链。若未来选择有边界的降级方案，必须证明
@@ -418,7 +418,8 @@ Toggle 组和动作图。旧 `CompiledWeaponTraitLevelRuntimeDependencySource` �
    因当前手上恰好打开了某个文件便继续追逐其下一个未知动作；
 3. Operator 对象级等价和生产模拟门禁完成前，冻结武器、装备及非必要下载/审计功能扩张；只允许
    修复会直接阻塞当前完整干员的公共来源或编译能力；
-4. 旧 Python 产物是迁移覆盖与结果差分 oracle，规则语义仍只来自 combat-spec 和原生数据；
+4. 旧 Python 实现与运行时差分 oracle 已退役；迁移时验证过的对象级结果保存在 TS 测试快照中，
+   规则语义仍只来自 combat-spec 和原生数据；
 5. 新增公共代码必须同时删除替代掉的旧入口或证明不存在重复实现。若代码量增加但完整干员计数
    不增加，必须在迁移矩阵中明确显示阻塞减少，否则停止扩张并调整设计；
 6. `buffRuntimeProjection.ts` 等公共核心不得继续吸收无边界逻辑。新增行为应进入对应来源模块和
@@ -480,7 +481,7 @@ Toggle 组和动作图。旧 `CompiledWeaponTraitLevelRuntimeDependencySource` �
 
 ```powershell
 npm run generate:game-data:operator-active-skills -- --complete `
-  --manifest scripts/generate_next_operators/operators.json `
+  --manifest tools/game-data-compiler/config/operators.json `
   --source-root tmp/game-data-sources `
   --table-root tmp/game-data-sources/TableCfg-1.4.4-9433094-12 `
   --skill-patch-table tmp/game-data-sources/TableCfg-1.4.4-9433094-12/SkillPatchTable.json `
@@ -944,27 +945,11 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 膨胀链，测试提供的 hit/reach 顺序不是原生调度证据。正式技能尚未替换，
 详见 `docs/research/avywenna-return-projectile-blackboard.md`。不得修改旧 Python 或手补生成产物绕过边界。
 
-### 角色模板常驻运行定义的可重建入口
+### 已退役：角色模板常驻运行覆盖层
 
-这是完整干员迁移前的增量入口：仅编译模板实体初值、原生连携条件及连携施法元数据，
-不重编旧动作/Buff/天赋。输入为 VFS 已导出的角色前缀和真实 SkillData；来源 partial 状态保留，
-不是完整 CharacterTemplateData 解码的声明。正式安装按 slug、组 key、sourceSkillId 严格匹配。
-
-在仓库根目录运行（以下为 PowerShell；输入文件需先按诀证据文档导出到 tmp/）：
-
-```powershell
-npm run generate:game-data:operator-runtime -- `
-  --template tmp/arcane-character-conditions-complete.json `
-  --combo-skill tmp/game-data-sources/skill-data-cdn/chr_0032_lizhiyan_combo_skill.json `
-  --slug arcane --skill-group comboSkill `
-  --output src/next/data/operators/generated-runtime/arcane `
-  --audit-output tmp/generated-operator-runtime/arcane
-```
-
-附加 `--check` 只核对正式文件是否可重建（容许 Git 的 CRLF 换行），不写文件。
-正式输出和审计输出不得重叠，目录末级必须是显式 slug；只允许该角色的生成文件，拒绝替换
-手工文件或混合目录。审计必须写入仓库 tmp/，不进入 Git；正式 TS 只含运行定义。
-默认 arcane 包装器已安装产物，来源哈希/原始树/审计不混入浏览器运行库。
+早期 `operator-runtime` 入口只在旧 Python 角色产物上覆盖实体初值、连携条件及施法元数据。
+统一 TS 整名生成器现已直接生成这些字段，因此该中间产物、安装器和生成命令已删除。
+历史证据仍保留在 `docs/research/arcane-next-evidence.md`；当前正式入口是完整干员原子生成。
 
 已完成：
 
@@ -1103,7 +1088,7 @@ npm run generate:game-data:operator-runtime -- `
   等级来源与运行时黑板留在请求上，公共定义保留完整 SkillPatch，不替武器或套装提前选级；
 - 被动安装实例化：套装使用表内 `skillLv`，天赋/潜能保持原生默认等级，武器要求调用方提供已由
   突破/潜能/基质算法解析的实例等级；选级后再应用请求额外黑板，复现同名值最终覆盖顺序；
-- Python oracle JSON 差分通道及真实 SkillPatch 导出切片。
+- 由已验证迁移结果固化的 TS 对象快照及真实 SkillPatch 导出切片。
 
 当前 30 名干员、301 个技能已达到逐项模拟 301/301。武器来源和候选生成达到 **77/77**、226 条
 运行依赖；117 个唯一被动中的 64 个事件程序现已进入公共 Action/AbilityEvent 编译层。
@@ -1165,7 +1150,7 @@ npm run audit:game-data:weapons -- --tables <TableCfg目录> --skill-data <Skill
 Operator 主动技能库可用以下命令批量审计；任何干员失败都会保留逐项诊断并使进程返回非零：
 
 ```powershell
-npm run audit:game-data:operators -- --manifest scripts/generate_next_operators/operators.json `
+npm run audit:game-data:operators -- --manifest tools/game-data-compiler/config/operators.json `
   --skill-data <skill-data-cdn目录> --buff-data <BuffData目录> `
   --projectile-data <ProjectileData目录> --ability-entity-data <AbilityEntityData目录> `
   --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts `

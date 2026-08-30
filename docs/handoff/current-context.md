@@ -1,17 +1,302 @@
 # 当前任务快照
 
-> 更新时间：2026-08-28（Asia/Shanghai）
+> 更新时间：2026-08-30（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
 当前工作树为 `Endaxis-game-data-refactor` / `refactor/common-game-data`，已按用户要求合回
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器只保留为迁移 oracle，不再承载新架构。
 
+### 2026-08-30：Tangtang Aura、TargetPostProcessor 与投射物 duration finish 边界
+
+- `TargetPostProcessorAction` 已保留 target/center/source/direction 的完整来源结构；只有 Tangtang
+  已见的固定唯一敌人输入、同组 center、`DistanceFromMainCharAsc`、`limitTargetCount=true`、
+  `maxTargetCount=1`、空 Buff 过滤这一精确形状会归约为唯一木桩。其他选择器、校验器或字段变化继续
+  失败关闭。对应 combat-spec 适配器、运行测试和选择器证据已先行补齐。
+- `AuraAction.fixedWhenStart=true` 的原生语义已由 `AuraAction.curPosition` 与执行代码确认：它固定 Aura
+  中心，不改变成员筛选或生命周期。固定零空间模型在完整证明阵营/对象过滤后可消去中心移动；Tangtang
+  终结技因此已严格生成。水体的 `Bad` 敌方 Aura、`Good` 友方 Aura、进入时结束 outaura Buff、退出时
+  创建残留 Buff、空间黑板键和图标时长来源均保留在来源 IR；友方 `All` 可能覆盖非角色对象，当前只将
+  对唯一木桩伤害可见的干员部分投影为队伍 Buff，移动/表现部分不扩建运行时。
+- Tangtang 当前统一 TS 主动矩阵为 **9/10**；全局为 **274/310**。唯一剩余入口是连携中嵌套的
+  `projectile_chr_0027_tangtang_water`：其 `blockLayerDef` 导出为 `value=1,name=Nothing`，但机器码按
+  数值解释，规范含义是 `WallAndGround`；不能引用非权威 name 断言原生 block 不可达。Endaxis 固定
+  木桩场景没有墙/地碰撞几何，因此产品模型不会触发 block；finish 路由仍会执行
+  `chr_0027_tangtang_combo_skill_water_gene` 并生成水能力实体，不能同步省略。
+- 1.4.4 原生证据已先写入 combat-spec：`ProjectileComponent.Launch` 初始化正数 `finishDuration` 定时器，
+  `PreLateTick` 推进计时并以 `Duration` 原因调用 `FinishProjectile`。该投射物的 duration 为 **3 秒**；
+  `finishDistance=10` 仍可能在原生移动模型中更早结束。Endaxis 若采用“不累计移动距离、以 3 秒上界结束”
+  必须把它标为固定零空间产品投影，而不能声称原生 finishDistance 等于无效。
+- 现有 `scheduleRelativeProjectileCallback` 只适用于根时间线中唯一的顶层投射物；把嵌套投射物回调静态
+  提升会让未执行分支也产生回调。下一步需要执行时注册、脱离父技能寿命的投射物 finish 调度：分支未
+  进入时不注册，进入时冻结 launch direct/entity 黑板和施法身份，技能先结束或被切换后仍在 3 秒到点
+  执行一次。完成该运行时后再宣称 Tangtang 10/10，并跑整名定义、全技能放轴与标准场景回执。
+
+### 2026-08-30：全量审计上下文与旧 Python 产物所有权收束（最新检查点）
+
+- 全量审计不再把 320 个成长表入口当作彼此孤立的技能：每名干员会复用 manifest 的稳定技能键、
+  全部兄弟技能、技能组、Buff 定义和已证明的换槽关系，只编译当前目标入口。由缺少 sibling context
+  造成的 Liino、Rossi、Mifu、Arcane 假阻塞已经清除；正式基线为 **320/320 可解析、320/320 可编译、
+  30/30 名干员入口全通过**。某名干员缺隐藏来源工件时只回退该名的逐入口审计，不污染其他结果。
+- 旧 Python 展平产物的所有权已显式写入 `operators.json#legacyOutputOperatorSlugs`。当前只剩 Arcane、
+  Ardelia、Camille、Catcher、Gilberta、Last Rite、Rossi、Snowshine、Tangtang 这 9 名仍由旧 oracle
+  生成；其余 21 名由统一 TS 产品定义负责。全量旧生成器 `--check` 因此不再要求 Akekuri 的已删除
+  展平文件，也不会因庄方宜本机缺旧 `SkillPatchTable` 条目而误报。显式选择已迁移干员仍会报清晰错误，
+  清单的重复或未知 slug 也会失败关闭。
+- Pogranichnik 与 Zhuang Fangyi 的公共 Buff 已从各自统一定义入口汇入全局公共目录；旧 Python 的
+  `commonBuffDefinitions.generated.ts` 随 9 名遗留闭包缩减。共享模块现在与逐干员定义共用
+  GameplayTag 公开投影边界，输出 `applyTags` / `buffTags` 可读路径，不再泄漏内部数字 ID；契约没有
+  为兼容生成器而放宽。
+- 下一名统一迁移候选已选择 Tangtang。主动技能中的 `CheckEnemyRank(Target)` 现在只在动作 Target
+  已严格证明为唯一敌人时投影到公共 `enemyRankIn`；Buff owner 路径继续要求敌方宿主证明，其他目标
+  不会借此放宽。原生处决的 rank mask 为 0，条件分支按空等级集合自然不可达，处决正式产物已生成。
+  Tangtang 从 **7/10、7 个正式文件**推进到 **8/10、8 个正式文件**；全局统一 TS 主动矩阵由
+  **272/310、75 个正式文件**提升为 **273/310、76 个正式文件**。剩余连携阻塞是
+  `TargetPostProcessorAction` 的单木桩集合归约，终结技阻塞是 `fixedWhenStart=true` 的 Aura 生命周期；
+  两者均未猜测省略。
+- 完整 game-data 回归同时发现一条旧测试还要求多技能组的单技能费用修改报错，但当前正式协议与实现
+  已保留 `skillKey`，不会扩大到整组。断言已改为核对 `multiplySkillCost` 精确绑定 ultimate 形态，
+  不是放宽实现。
+- 当前门禁：Python 生成器 **492/492**；旧 Python 全量 `--check`；Next **243 文件、3368/3368**；
+  game-data 编译器 **110 文件、992/992**；`type-check:game-data`、
+  `type-check:game-data-production`、`type-check:game-data-contract`、`type-check:next` 均通过。
+  本阶段未提交、未推送。
+- 下一步先严格闭合 Tangtang 剩余两个动作，再生成整名定义并跑全技能放轴；迁移完成后从
+  `legacyOutputOperatorSlugs` 移除 Tangtang。之后继续把其余 8 名遗留干员迁入统一 TS 产品定义；
+  每迁移一名都以稳定入口、全技能放轴、养成/Buff/能力实体闭包和标准木桩模拟作为
+  完成门禁。干员清零后再推进全武器装备转换，不扩张纯己方防守或敌人主动行为模型。
+
+### 2026-08-30：洛茜连携换槽闭环与 Buff owner 时间膨胀（前序检查点）
+
+- 正式逐干员 Python oracle 门禁发现，先前全量审计的 315/320 并非 5 个新动作缺口：Liino、Arcane
+  的完整生成均通过，单技能审计缺少完整 `skillGroups` 上下文而产生假阻塞。真实生成缺口是 Rossi
+  的 `combo_2 -> combo_3 -> combo_2` 无限换槽循环。1.4.4 成长表只保留 `combo_2/3`；`combo_3`
+  配置中的还原 ID `combo_1` 已不在当前技能组。
+- 依据 `combat-spec/docs/change-skill-action.md` 已证明的同步顺序，同槽位新替换会先撤销旧句柄再安装
+  新句柄。生成器现在只对 `Infinite`、当前 owner 已显式声明为不可放置 runtime form、目标是可放置
+  form 的形状，允许把缺失的旧还原 ID 归约为撤销后的槽位快照；`SpecificTime` / `FinishByAction`
+  仍严格要求稳定还原身份。Rossi 的 `comboSkill3` 已进入 `replacementSkills`，时间轴连续两次保存的
+  都是稳定 `comboSkill2`，第二次释放由运行时解析为三段。精准衔接 QTE/时间膨胀生产回归通过。
+- 生成物横向复核同时刷新 Antal、Da Pan、Endministrator、Mifu 的 Buff 目标 `caster -> enemy`，以及
+  Yvonne/Snowshine 的生命周期目标。后两者暴露 DSL 类型缺口：实体时间膨胀现新增严格
+  `buffOwner` 目标，结构校验在 Buff 生命周期上下文中读取 `buffOwnerId`，不再错误落到施法者。
+  契约、运行时和缺上下文失败均有专项回归。
+- 全量审计现把成长表入口与编译上下文分离：仍从 `CharGrowthTable` 枚举 30 名、320 个入口，但编译
+  复用 manifest 的稳定 key、完整 sibling skills、技能组和已证明 Buff 换槽关系。Liino、Rossi、Mifu、
+  Arcane 的 5 个假阻塞已全部消失，当前严格解析 320/320、通用 DSL 编译 320/320、30/30 名入口
+  全可编译。若某名干员的隐藏工件缺失，只回退该干员到逐入口审计，不用残缺关系污染其他结果。
+- 本轮门禁：Python 生成器 490/490；Rossi/Mifu 与上述 5 名机械刷新干员的 `--check` 全通过；
+  Next 243 文件 3368/3368；`type-check:game-data-contract` 与 `type-check:next` 通过。全量 Python
+  `--check` 仍有两个迁移/数据边界：庄方宜当前本机 `SkillPatchTable` 缺
+  `chr_0030_zhuangfy_ultimate_skill_end`；Akekuri 已切统一 TS 产品产物且旧展平输出不存在，旧 oracle
+  仍把该文件视为必需。两项都不得用回退数据修补。本阶段未提交、未推送。
+- 下一步应在旧 Python oracle 中明确“已迁移统一 TS 产物”的输出策略，避免 Akekuri 这类已迁移
+  干员因旧展平文件不存在而让全量 `--check` 假失败。之后回到统一 TS 编译器的剩余干员横向
+  覆盖，并继续只处理影响木桩伤害、资源、冷却或可视 Buff 的机制。
+
+### 2026-08-30：Buff applyTags 实体生命周期与莱万汀/阿列什正式切换（前序检查点）
+
+- 莱万汀天赋 1 的附着吸收链已经定位到公共机制缺口，而不是角色数据错误：伤害事件、伤害标签、
+  主控判断、能量上限和冷却条件均可达，唯独敌方实体标签查询看不到仍启用的元素附着 Buff。
+  `vfs-index-browser/docs/research/combat/buff-lifecycle.md` 对 1.4.4 原生 `_AddModifier` /
+  `_RemoveModifier` 的分析确认，`BuffData.applyTags` 既用于 Buff 分类查询，也会通过每实例独立的
+  `m_tagHandle` 注册到 owner GameplayTag，并随 Enable / Disable / Finish 对称增删；这不是把任意
+  Buff 标签近似成伤害标签。
+- `combat-spec` 已先按该证据补齐 Buff 标签句柄生命周期与重复计数回归，并更新
+  `docs/gameplay-tags.md`。Endaxis 的 `CombatBuff` 随后以同样顺序注册/释放 `applyTags`，异常回滚、
+  暂时失活、重新启用和永久结束均不会泄漏或重复注册。两个同标签 Buff 的引用计数由专项测试锁定。
+- 莱万汀天赋回归现可逐次识别并吸收四次火附着，第四次进入减火抗效果。莱万汀 15 技能和阿列什
+  10 技能的统一生成产物均通过 `--check`；两者稳定导出及所需公共 Buff 已切到
+  `generated-definitions`。当前已有统一整名产物的 21 名干员均由稳定产品入口使用，不再由这两名
+  残留的旧展平产物混用。
+- 投射物黑板证据读取器同步支持 `rawAssetSha256` 与 `decodedArtifactSha256` 两种可审计来源，严格
+  要求每项恰有一种哈希。莱万汀吸收投射物来自严格解码组件产物，不能伪装成原始资产哈希；空黑板
+  和解码产物均有读取器回归。
+- 当前门禁：Buff/标签复刻库定向 69 项通过；Next 的 Buff 专项与莱万汀专项 104 项通过；默认仓库
+  全干员全基础/变体技能、注册干员专项、生成定义结构及动作运行时共 461 项通过；
+  完整 Python 生成器 488/488、完整 Next 243 文件 3368/3368、`type-check:next`、莱万汀/阿列什
+  `--check`、两仓 `git diff --check` 通过。combat-spec 完整测试另有 17 项因本机忽略的
+  `artifacts/skill-data-cdn` / 庄方宜真实工件缺失而失败，其余 1567 项通过；本次机制定向测试不依赖
+  这些工件并保持 69/69。本阶段未提交、未推送。
+- 完整 Next 回归同时收束四个被新正式产物暴露的公共问题：实体标签测试不再沿用“applyTags 只分类”
+  的旧断言；自定义放置定义与隐藏模板同 ID 时，动作图各自保留而冷却采用实际放置定义，同 ID 的两个
+  放置块若冷却冲突仍严格报错；命中候选显式携带基础/替换 `skillKey`，不再解析生成器内部 step key；
+  纯常量比较只用运行时同一容差函数折叠，未知条件仍等待实际回执。新增步骤的三语帮助也已补齐。
+
+下一步先跑完整 Python 生成器规则与更大范围 Next 回归，确认公共 `applyTags` 生命周期没有暴露其他
+历史近似；随后以全量审计/默认仓库门禁为准处理剩余未正式化干员和专项数值链。仍坚持只实现固定木桩
+模型中会影响对敌伤害、资源、冷却或可视 Buff 的行为；纯己方防守和敌人主动行为继续记录而不扩张。
+
 本批收束总览、跨仓库分支、复现命令与下一步见
 [2026-08-28 同步交接检查点](2026-08-28-sync-checkpoint.md)。下列阶段记录的“未提交”等状态是历史记录，
 本批成果随本检查点提交交付；实际推送结果以各仓库 Git 远端为准。
 
-### 2026-08-28：艾斯黛拉投射物、单次伤害倍率与整名迁移（最新检查点）
+### 2026-08-29：诀能力实体寿命链与模型分帧开关（最新检查点）
+
+- `IgnoreModelIntervalCheck` 已由 1.4.4 反编译闭环：动作开始/结束分别调用
+  `Beyond.Gameplay.View.ModelManager.SetIgnoreIntervalCheck(true/false)`，只改模型资源管理器的分帧
+  检查，不写战斗状态。来源层现严格要求它只含公共 Action 元数据，无渲染投影再省略；
+  这不扩展到会保存命中目标组的 `RayCastEffectAction`。
+- 诀连携的 `SetAbilityEntityDuration` 已接入现有能力实体契约：严格保留 Context 键、
+  `Assign` 操作和数值/黑板来源，投影为 `forEachContextTarget ->
+setAbilityEntityRemainingDuration`。`SpawnAbilityEntity` 同步打通了实体黑板赋值、覆盖寿命、
+  保存 Context 和空间点目标；因此四个分身的 0.5 秒初值/命中后 30 秒链已进入
+  正式 IR，没有新造第二套寿命运行时。
+- 空间移动曲线现与既有 Unity 曲线边界一致，严格接受 JSON 中的字符串
+  `Infinity/-Infinity` 切线；它们只作为已解析的空间载荷，不伪造伤害输入。全局
+  `TimeDilationAction` 另补了“只忽略 Owner 生成能力实体”的命名曲线形状。
+- 新增跨时间段的零空间 Context 证明：只有直接固定敌人、严格 `FixedPointFinder`
+  或由它们组成的无筛选 `MergeTargetAction` 才能作为能力实体出生锚点。该集合不代表
+  “一定是敌人”：诀的 `trigger` 可能是敌人也可能是空间点，而原生
+  `CheckEntityNum(excludeDeadEntity=true)` 只统计存活 AbilitySystem，因此当前仍严格阻塞，
+  不把两种目标强行常量化。后续应证明零距离下产生空间点的分支不可达，或者正式
+  保留 Context 的实体/空间种类，不可按 `trigger` 名称特判。
+- 最新全量审计为 30 名、**218/309** 主动技能可编译、**12 名**主动齐全、
+  **29 个**正式主动片段、**12 份**完整定义。四套类型检查通过，game-data
+  **108 文件 / 898 项**、Next **242 文件 / 3344 项**通过；Python oracle 需临时把桌面
+  随附 Python 加入 PATH。本轮未提交、未推送。
+- 下一步优先对诀 `trigger` 的上游零距离条件做可达性证明，然后再接
+  `SetIgnoreGlobalTimeScaleAction`；后者已由 combat-spec 证明会改 AbilitySystem 的全局时间
+  豁免，不属于表现动作。`RayCastEffectAction` 依然必须保留命中目标/位置写回语义。
+
+### 2026-08-29：零空间数据流与诀普攻横向收束（前序检查点）
+
+- 弭弗一段战技的 `pulloffset` 已建立完整消费者证明：`RandomAction` 写入后只进入
+  `PointFinder.positionOffset.z`，再作为拉拽落点；控制流容器与叶动作不再重复计数。目标组数量的
+  `excludeDeadEntity` 只在固定敌人 Target 上按“木桩不安装原生死亡标记”归约，能力实体和事件目标
+  不能借用该结论。施术者到输入敌人/已解析空间点的距离统一按零空间模型写 0，未知 Context 仍拒绝。
+  弭弗一段战技已生成 6 个调度序列，当前严格可编译并正式生成 **7/11**；其余四项仍分别阻塞于
+  已记录但尚未由 combat-spec 闭环的 `LaunchUpwardAction` / `BlowOffAction`。
+- 随机黑板审计现覆盖“PointFinder 纯空间消费者”和“无任何战斗 IR 消费者”两种窄形状。后者只可能
+  留在严格 parser 已裁掉的表现字段或本来未使用；任一伤害、条件、Buff 或未知读取都会继续阻塞。
+  Next 的显式概率样本流只承载战斗概率条件，不复刻表现随机数对 Unity 随机流的推进。
+- 固定唯一敌人模型补齐了直接 `MainTarget` 来源与输入 `Target` 的身份相等；无 DamageUnit、仅
+  `hitEnvironment=true` 且 `alwaysNext=true` 的环境命中特效按来源层既有注释省略，不扩展到可能
+  截断流程的环境动作。只包裹声音/受击表现且无写回的 `targetContains` 条件可随空分支整体裁掉，
+  不对条件真假作猜测。诀普攻 1/2/3/5 和下落攻击已生成 **5 个**正式片段，当前严格可编译 **5/12**。
+- 最新严格审计为 30 名、**217/309** 主动技能可编译、**12 名**主动齐全、**29 个**正式主动片段、
+  **12 份**完整定义。新增 6 个片段的 `--check`、四套类型检查、game-data **108 文件 / 896 项**、
+  Next **242 文件 / 3344 项**均通过；`tmp/` 仍仅保存忽略的审计产物，本轮尚未提交或推送。
+- 下一步优先继续诀的公共阻塞：先判断 `IgnoreModelIntervalCheck` / `RayCastEffectAction` 是否纯表现，
+  能力实体出生与 `ChangeSkillAction` 则必须沿已有复刻证据闭环。随后回到莱万汀 block/hit 回调；
+  `BlowOffAction`、`LaunchUpwardAction` 等跨仓机制在 combat-spec 可写前保持失败关闭。
+
+### 2026-08-29：曲线来源启用位与弭弗主动片段收束（前序检查点）
+
+- `HitStopAction.useDirectCurve` 现作为唯一曲线来源选择器：命名模式只要求非空 `curveKey`，不会再因
+  未选中的 `directCurve` 保留序列化残值而失败；内联模式同理不读取残留命名 key。对 672 份本地
+  HitStop 样本的横向扫描同时观察到 named + 非空 direct、direct + 非空 named 两类合法形状，修正
+  不是莱万汀 ID 特判。莱万汀普攻 5 已生成正式片段，当前为 **11/15**。
+- 普通 `TimeDilationAction.useCurveKey=false` 也按同一启用位语义读取内联曲线，不再要求未选中的
+  `curveKey` 为空；技能动作 `Owner` 只有在动作宿主已证明为 caster 时才可作为 Both hit-stop 攻击者。
+  受击动画、拉拽和推退在固定木桩零距离模型中不再要求把纯空间来源点伪造成战斗实体，但
+  `BlowOffEnemyAction` 仍保留物理异常来源/死亡过滤门槛。
+- 弭弗已为普攻 1～4、下落攻击和二段战技生成 **6 个**正式主动片段。二段战技的 Owner 命停、
+  1.25 倍实体时间曲线、`buff_physical_crushed` / `buff_physical_handle_cryst_break` SkillSetting
+  闭包均已贯通；单技能 CLI 补入可选 `--skill-setting-catalog`，避免审计能编译而正式生成入口缺目录。
+  弭弗当前严格可编译 **6/11**。
+- 弭弗一段战技继续推进到 `pulloffset` 随机黑板值：该值只被 PointFinder 消费并最终提供拉拽空间
+  落点，但公共编译器尚无“随机值全部消费者均为空间”的数据流证明，暂不把任意随机值无条件省略。
+  其余连携/处决/三段战技/终结技仍分别受 `LaunchUpwardAction` 或基类 `BlowOffAction` 阻塞。
+- 莱万汀普攻 4 的 block/hit 是两个不同子技能；block 子技能当前只含特效，但本地 ProjectileData
+  仍把原值 `1` 错标成 `Nothing`，而 combat-spec 已证明 `1=WallAndGround`。Endaxis 没有借错误标签
+  判定 block 不可达；只有原值/名称一致的 `0=Nothing` 形状才允许裁掉不可达 block。该技能还需补齐
+  block 与 hit 的相对可达性、目标 Tag 过滤证据后再贯通。
+- 最新严格审计为 30 名、**213/309** 主动技能可编译、**12 名**主动齐全、**23 个**正式主动片段、
+  **12 份**完整定义。game-data **108 文件 / 888 项**、Next **242 文件 / 3344 项**全通过，四套类型
+  检查通过；Python oracle 仍需将桌面随附 Python 加入 PATH。`tmp/` 无跟踪文件，本轮尚未提交或推送。
+- 下一步优先为弭弗一段战技建立“随机黑板 → 纯空间目标点”的完整消费者证明；若不能窄化则保持
+  阻塞。随后在 combat-spec 可写时闭环 `BlowOffAction` / `LaunchUpwardAction`，并补莱万汀投射物
+  block/hit 与过滤语义；不能用旧生成文件或错误枚举标签掩盖来源缺口。
+
+### 2026-08-29：唯一木桩目标语义横向收束（前序检查点）
+
+- 管理员由 **6/10** 推进到 **9/10**：连携中距离黑板只流入无副作用条件、最终只控制转向/
+  位移/选点的整棵树，现按既有纯空间分支规则整体省略；处决的无过滤 HitBox 在零距离、全范围、
+  唯一敌人模型中投影为同一个木桩，即使原生 `checkAlive=false` 也只会放宽死亡目标而不会引入第二
+  个实例；终结技 `IgniteAction.Target` 按 combat-spec 公共目标解析器复用当前 inputTarget，残留
+  `targetGroupKey` 不再误作 Context。三个正式主动片段已生成，共 15 个调度序列。
+- 管理员第五段普攻仍严格阻塞于 `ConvertToTargetContext.ExcludeTarget`。combat-spec 目前只确认
+  该枚举的跳转表，尚未复刻该分支如何构造输出目标组；不能在 Endaxis 里猜成复制、清空或排除当前
+  木桩。阿列什/拉斯莱特等 `LaunchUpwardAction`、基类 `BlowOffAction` 也仍须先补复刻库。当前桌面
+  任务只有 Endaxis 写权限，因此这些跨仓机制没有被半吊子放行。
+- 元素附着来源补齐已证明的技能 `Owner -> caster`，同时仍保持 Buff Owner 与 Source 的独立身份；
+  莱万汀强化普攻 3 因而可编译并生成正式片段。莱万汀当前 **10/15**，连携的反应 Tag 过滤查询、
+  投射物 block/hit 回调、命停曲线来源和两个未闭环物理控制动作仍分别保留阻塞。
+- 黎风由 **5/9** 推进到 **7/9**：当前输入 Target 与无过滤 MainTargetFinder 在唯一敌人模型下恒指向
+  同一木桩，但实现仍保留为显式真条件，没有把来源枚举相等冒充原生规则；无 Buff 过滤且至少保留
+  一个目标的 PriorityFilter 不改变唯一集合；已证明的敌人 Context 或 input Target 可作为能力实体
+  零空间出生锚点，未知 Context、最多保留 0 个或带 Buff 过滤的查询继续拒绝。普攻 4、终结技两个
+  正式片段已生成；剩余处决 `BlowOffAction` 和连携 `ComboAction` 都不是本轮可猜测机制。
+- 最新严格审计为 30 名、**209/309** 主动技能可编译、**12 名**主动齐全、**16 个**正式主动片段、
+  **12 份**完整定义。game-data **108 文件 / 883 项**、Next **242 文件 / 3344 项**全通过；contract、
+  production、game-data 类型检查通过。重启后 Python oracle 需把桌面随附 Python 目录加入 PATH，
+  恢复后全套已重跑为绿色。审计仍只写忽略的 `tmp/`；本轮尚未提交或推送。
+- 下一步优先在可写边界内继续处理会改变木桩伤害的公共机制：先审计莱万汀 block/hit 投射物回调和
+  命停曲线来源；若需要新原生语义则转 combat-spec，不在 Endaxis 兜底。获得 combat-spec 写权限后，
+  依次闭环 `ConvertToTargetContext.ExcludeTarget`、`LaunchUpwardAction`、基类 `BlowOffAction`，再把
+  管理员、阿列什、黎风等接近完成的干员推进整名定义与产品模拟。
+
+### 2026-08-29：弧光、陈千语整名迁移与物理异常施法寿命闭环（前序检查点）
+
+- 弧光已由统一 TypeScript 链完整生成并切入稳定产品导出：10 个主动技能、2 个天赋、5 档潜能、
+  1 个能力实体、5 个私有 Buff 和 8 个公共 Buff。能力实体死亡释放严格保留 `0.1s` 延迟，且只接受
+  已证明的 `[0, 300)` 帧范围；实体 `ForEach` 内对直接 Target 的 Buff 计数只在目标身份闭合时归约。
+  子实体命中 key 现在由技能/实体/结构路径稳定生成，显式外部 `operatorHit` 仍严格守卫唯一敌人来源。
+  施法者承受元素附着的监听在无敌人主动行为模型下按精确事件省略，没有伪造玩家受击或敌方施术。
+- 陈千语成为第 12 份完整定义并切入稳定产品导出：10 个主动技能、2 个天赋、5 档潜能、0 个能力
+  实体、4 个私有 Buff 和 9 个公共 Buff。直接敌方 `RangedAura` 只接受 Owner 根、唯一存活敌人、
+  单次进入、空退出/空附着 Buff 的窄形状；在零距离、全范围、唯一木桩模型中只执行一次完整进入树，
+  不能推广为任意空间 Aura。连携里的 `OnBeforeOutputAirborne` 监听依据 1.4.4 复刻证据确认为当前
+  Airborne 路径不会发布的死事件，故没有假造减冷却结果。
+- `InheritCCSAction` 依据本地 1.4.4 `Gameplay.Beyond.dll` 类型、RVA 和运行镜像确认只创建/保存/
+  释放 CameraControlState，已按精确字段投影为纯表现裁剪；对象类型、霸体条件包裹的整棵树也只有在
+  所有叶子均为镜头/根运动等纯表现时才整体省略。镜头、空间条件本身未被推断为恒真或恒假。
+- 通用养成支持技能冷却的加法修改，陈千语潜能 5 的 `-3s` 精确生成 `-90` 帧并保留目标技能身份；
+  Buff 事件补入已有运行时支持的 `afterOutputWeaknessTriggered`，敌方当前生命比例条件严格投影为
+  `targetHealthCompare`。这些能力均进入公共编译层，没有陈千语 ID 特判。
+- 武器全交叉门禁进一步发现：物理异常成功事件虽保留施法信息，却曾丢失原生 CastSkillContext
+  附着端口，导致陈千语触发 `wpn_sword_0015` 时随当前技能寿命的 Buff 无法绑定。现已把端口沿
+  `beforeOutputPhysicalInfliction` 和 `physicalInflictionApplied` 同步链传递；只绑定实际产生事件的
+  当前施法，不从 sourceId、skillCastInfo 或事件名称反推技能实例。武器 966 交叉场重新全绿。
+- 最新严格审计为 30 名、**202/309** 主动技能可编译、**12 名**主动齐全、10 个正式主动片段、
+  **12 份**完整定义。陈千语及其余 11 份完整定义的 `--complete --check` 均通过；四套类型检查通过，
+  game-data **108 文件 / 877 项**、Next **242 文件 / 3344 项**全通过。审计仍只写入忽略的 `tmp/`，
+  `.pnpm-store/` 仍忽略，旧版代码未修改，本轮尚未提交或推送。
+- 下一项优先推进阿列什（当前 7/10）。其三个阻塞集中在 `LaunchUpwardAction` / `BlowOffAction`：
+  先在 combat-spec/反编译证据中判断它们是否会发布物理异常、改变后续伤害或触发武器/Buff 事件；
+  纯位移、朝向和动画在固定木桩模型中省略，但可见事件、状态和伤害链必须保留。若证据表明只有空间
+  表现，才建立严格形状的公共裁剪，随后再尝试整名天赋、潜能与 Buff 闭包，禁止按动作名称猜规则。
+  现有 combat-spec 已闭合 `BlowOffEnemyAction`，但尚未闭合这里实际出现的基类 `BlowOffAction` 和
+  `LaunchUpwardAction`；已定位 1.4.4 RVA 与真实阿列什载荷，下一轮必须先把两者的原生流程和测试补入
+  复刻库，再改 Endaxis。本桌面任务当前仅有 Endaxis 写权限，故本轮没有越过该跨仓证据边界。
+
+### 2026-08-28：萤石整名迁移与关键词 Buff 闭包（前序检查点）
+
+- 萤石已由统一 TypeScript 生成链完整生成并切入稳定产品导出：10 个主动技能、2 个天赋、
+  5 档潜能、1 个能力实体、7 个私有 Buff 和 6 个公共 Buff；逐技能产品模拟覆盖终结技四段伤害、
+  天赋 2 / 潜能 2 的概率伤害变化，以及潜能 5 在自然附着下缩短连携冷却。完整定义增至 **10 名**。
+- 关键词 Buff 不再靠宿主名称猜目标。`SlowAction(Source -> Context tar)` 通过已证明的唯一敌人目标组
+  投影；能力实体子技能的直接 Target 生命/Buff 层数检查同样只在目标身份已证明时归约。编译器生成的
+  默认关键词载体可作为闭包根，但任意外部动态载体仍失败关闭。`SlowActionSpeedScalar` 进入双方运行时
+  属性存储，只保留 Buff/可视化状态；零距离木桩模型不新增移动速度或空间模拟。
+- 敌方 Buff 的 `OnEnemyBeforeTakeSpellInfliction`、显式外部 `operatorHit` 标记可达的干员
+  `OnBeforeTakeDamage` / `OnTakeDamage`、直接伤害类型条件及绝对/按比例技能冷却修改已经贯通。
+  玩家死亡事件仍省略；没有假造敌人主动攻击。连携注册中的原始 GameplayTag 数字 ID 现在必须经
+  固定目录解析为可读标签，缺失 ID 不再以不完整条件进入运行时。
+- 表现黑板裁剪已收紧：只有整个分支已证明纯表现时才能删除写入；顶层或跨时间线仍被战斗读取的值
+  必须保留。投射物首命中的多段回调、能力实体 Owner/Target、`OnlyAttacker` 命停等横向能力也已补齐。
+  艾维文娜正式文件通过生成器同步了敌方减益闭包证明，其子易伤载体目标由 `buffOwner` 明确为
+  `enemy`；没有把任意 Buff 宿主统一视为敌人。
+- 门禁：四套类型检查通过；game-data **107 文件 / 868 项**、Next **242 文件 / 3339 项**全通过。
+  萤石 `--complete --check` 及注册干员门禁通过；严格主动矩阵为 30 名、**199/309**、
+  **11 名**主动齐全、10 个正式主动片段、**10 份**完整定义。Python oracle 需把桌面随附 Python
+  加入测试进程 PATH；这属于本机环境，不是代码失败。`tmp/` 与 `.pnpm-store/` 均忽略且不提交。
+- 下一项优先把已达 **10/10** 主动技能的弧光推进为第 11 份整名定义：先运行完整规划，逐项审计
+  天赋、潜能、Buff 与实体闭包；如遇新机制，仍只处理会改变木桩伤害、冷却、资源或可视 Buff 的部分，
+  纯空间/敌人主动行为不得扩张建模。
+
+### 2026-08-28：艾斯黛拉投射物、单次伤害倍率与整名迁移（前序检查点）
 
 - 艾斯黛拉正式整名产物已生成并注册：9 个主动技能、2 个天赋、5 档潜能、0 个能力实体、
   6 个私有 Buff 和 10 个公共 Buff。全部注册干员的逐技能放轴模拟通过；整名正式定义由 8 增至
@@ -4173,3 +4458,46 @@ Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚�
   game-data **107 文件 / 857 项**、Next **242 文件 / 3338 项**全部通过，四套类型检查及安塔尔整名
   `--check` 通过。下一步从审计选择下一名最接近完整、且阻塞会影响唯一木桩伤害结果的干员；继续
   优先公共机制，不处理纯护盾、霸体、移动或敌人主动行为。
+
+### 2026-08-29：梨诺结束技能的 SwitchToAddBuff 施放前旁路
+
+- `chr_0035_liino_normal_skill_end` 已按 `combat-spec/docs/skill-cast-start.md` 的反编译结论接入：
+  `SwitchToAddBuff` 在候选技能正常启动前检查当前技能，命中后同步施加结束信号 Buff 并返回成功；
+  它不会启动结束技能时间轴，也不会中断仍在施放的战技或终结技。不能把这条路径摊成第零帧
+  `applyBuff`，否则 AbilitySystem 已先完成技能切换，信号 Buff 将看不到原当前技能身份。
+- contract、编译程序与 `SkillRuntime` 新增独立 `switchToBuffCast` 路由。当前正式子集严格限定为零费用、
+  零冷却、Owner 当前技能条件、Owner→Owner、`asSkillCast=false` 和字面 Buff ID；执行时固定快照当前
+  技能的 cast identity。原生 `ExtraActiveSkill` 没有 Next 稳定类型，明确不冒充 `finisher`；梨诺已知
+  `NormalSkill/UltimateSkill` 分支照常保留。
+- `CheckSkillType(checkTargetCurSkill=true)` 现投影为不依赖事件载荷的 `currentSkillTypeIn`。Buff
+  `OnBuffEnable` 也进入正式生命周期序列，因此 `buff_chr_0035_liino_skill_end` 能根据仍在施放的技能
+  类型分别添加战技结束或终结技结束信号；这些仅作身份/控制信号的 Buff 会被闭包保留，不再被
+  “无数值效果”裁剪。
+- 梨诺 `battleSkillEnd` 已生成到正式技能目录且单技能 `--check` 幂等通过；横向审计由 252/74 提升为
+  **253/75**（309 个声明技能、13 名完整干员）。梨诺当前下一阻塞仍是 `comboSkill` 的
+  `TriggerCustomAbilityEvent`，不应为了完成数量绕过其真实事件语义。
+- 编辑器为 `currentSkillTypeIn` 补齐合法默认结构、宿主/施法者目标与技能类型选择，并补齐相关三语
+  文案。门禁：game-data **108 文件 / 947 项**、Next **242 文件 / 3354 项**全部通过；
+  `type-check:game-data`、`type-check:next`、梨诺结束技能生成检查与 `git diff --check` 通过。本检查点
+  尚未提交；工作树还包含此前连续阶段的大量既有修改，提交时必须作为整体复核，不得只按本段文件
+  猜测归属。
+
+### 2026-08-30：全干员 TS 主链闭环并退役旧 Python 生成器
+
+- TS 整名审计现覆盖 **30/30 干员、310/310 个声明主动技能、30/30 个完整正式定义**；所有已注册
+  技能的真实放轴/模拟门禁通过。旧 `generated/`、`generated-active-skills/` 与 `generated-runtime/`
+  已清空，正式产物只保留在 `src/next/data/operators/generated-definitions/`。
+- 旧 Python 生成器不再拥有产品输出，TS 编译器测试也不再运行 Python oracle。迁移期刚通过对象级
+  差分的结果已固化为 TS 快照；删除 oracle 后 game-data 全量仍为 **110 文件 / 1061 项通过**。
+- 30 干员 manifest 已迁至 `tools/game-data-compiler/config/operators.json`，并移除
+  `legacyOutputOperatorSlugs` 过渡字段。旧目录下 58 个 Python 实现/测试及重复 SkillSetting 已删除，
+  只保留退役说明；好感属性研究文档迁入 `docs/research/trust-attribute-bonus-audit.md`。
+- 公共编译器同步修正 heal 的 Source 目标优先级、能力实体 born anchor 的严格宿主证据、
+  `passTargetGroupsToBuff` 的编译期闭包传播，以及 action owner 能力实体结束语义。编译期 Buff 目标组
+  provenance 使用独立 Symbol 元数据模块，不再把运行时值泄漏进正式输出类型。
+- 当前验证：game-data **1061/1061**、干员关键门禁 **456/456**；普通与 production game-data
+  typecheck、Next typecheck、全干员 310 技能审计和 `git diff --check` 均通过。`git diff --check` 仅有
+  Windows 行尾提示，没有空白错误。工作树仍包含此前多个连续阶段的大量未提交修改，本阶段未提交。
+- 下一阶段回到正式横向主线：先对全武器/装备执行与干员相同的“定义生成 → 每实例装配 → 关键状态
+  分支 → 实际模拟”门禁，再按唯一木桩伤害可见性处理剩余 Buff 闭包；护盾、霸体、己方承伤与敌人
+  主动行为继续后置，不为覆盖数字扩模。

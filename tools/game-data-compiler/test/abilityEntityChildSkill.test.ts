@@ -57,7 +57,7 @@ describe('原始能力实体子技能共用时间轴编译', () => {
                 right: { kind: 'constant', value: 1 },
               },
             },
-            whenTrue: { steps: [{ kind: 'finishCurrentAbilityEntity' }] },
+            whenTrue: { steps: [{ kind: 'finishActionOwnerAbilityEntity' }] },
           },
         ],
       },

@@ -19,9 +19,19 @@ import { createGlobalBuffProjectionExtensions } from './globalBuffProjection.ts'
 import { parseSkillSettingCatalogSource } from '../source/skillSettingCatalog.ts';
 import { createSkillSettingProjectionExtensions } from './skillSettingProjection.ts';
 import type { CombatActionProjectionContextSource } from './combatProjectionCommon.ts';
-import { isStaticSingleEnemyTargetGroup } from './combatProjectionCommon.ts';
+import {
+  isControlledOperatorInstantSearch,
+  isPartyExceptOwnerInstantSearch,
+  isPartyInstantSearch,
+  isStaticExplicitBadFactionEnemyTargetGroup,
+  isStaticSingleEnemyOwnerAllyTargetGroup,
+  isStaticSingleEnemyTargetGroup,
+  isUniqueEnemyMainTargetInstantSearch,
+  isZeroSpaceSingleEnemySmartTargetGroup,
+} from './combatProjectionCommon.ts';
 import { collectNativeActionNodes } from '../source/controlFlow.ts';
 import { collectCombatInvisibleBuffClosureIds } from './combatInvisibleBuffClosure.ts';
+import type { CompiledBuffCapturedTargetGroupsSource } from './compiledBuffMetadata.ts';
 
 export interface StandardStumpBuffClosureDiagnostic {
   readonly status: 'blocked' | 'scenario-omitted';
@@ -57,6 +67,11 @@ export function compileStandardStumpBuffClosure(
     string,
     'caster' | 'enemy' | 'currentAbilityEntity'
   > = new Map(),
+  provenDefaultKeywordCarrierRootIds: ReadonlySet<string> = new Set(),
+  rootBuffCapturedTargetGroups: ReadonlyMap<
+    string,
+    CompiledBuffCapturedTargetGroupsSource
+  > = new Map(),
 ): CompiledStandardStumpBuffClosure {
   const buffData =
     typeof buffDataValue === 'function'
@@ -66,12 +81,23 @@ export function compileStandardStumpBuffClosure(
     globalBuffCatalogValue === undefined
       ? undefined
       : parseGlobalBuffTemplateCatalogSource(globalBuffCatalogValue);
-  const sources = collectBuffRuntimeClosure(rootBuffIds, buffData, globalBuffCatalog);
+  const sources = collectBuffRuntimeClosure(
+    rootBuffIds,
+    buffData,
+    globalBuffCatalog,
+    provenDefaultKeywordCarrierRootIds,
+  );
   const rootBuffIdSet = new Set(rootBuffIds);
-  const { owners: buffOwnerTargets, sources: buffSourceTargets } = propagateBuffTargets(
+  const {
+    owners: buffOwnerTargets,
+    sources: buffSourceTargets,
+    capturedTargetGroups: buffCapturedTargetGroups,
+  } = propagateBuffTargets(
     sources,
     rootBuffOwnerTargets,
     rootBuffSourceTargets,
+    globalBuffCatalog,
+    rootBuffCapturedTargetGroups,
   );
   const keywordOverrideChildIds = new Set(
     [...sources.values()].flatMap(source =>
@@ -98,6 +124,44 @@ export function compileStandardStumpBuffClosure(
       ),
     ),
   );
+  const conditionObservedBuffIds = new Set(
+    [...sources.values()].flatMap(source =>
+      buffActionNodes(source).flatMap(node =>
+        node.metadata.enabled && node.body.kind === 'leaf' && node.body.value.family === 'condition'
+          ? collectConditionBuffIds(node.body.value.action)
+          : [],
+      ),
+    ),
+  );
+  const comboQteTimerIds = new Set(
+    [...sources.values()].flatMap(source => {
+      const nodes = buffActionNodes(source);
+      const activeDurationKeys = new Set(
+        nodes.flatMap(node =>
+          node.metadata.enabled &&
+          node.body.kind === 'leaf' &&
+          node.body.value.family === 'comboQte' &&
+          node.body.value.action.activeDuration.blackboardKey !== null
+            ? [node.body.value.action.activeDuration.blackboardKey]
+            : [],
+        ),
+      );
+      return nodes.flatMap(node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'buffApplication'
+          ? node.body.value.action.buffs.flatMap(buff =>
+              buff.assignments.some(
+                assignment =>
+                  !assignment.useDirectValue && activeDurationKeys.has(assignment.inputValueKey),
+              )
+                ? [buff.buffId]
+                : [],
+            )
+          : [],
+      );
+    }),
+  );
   const skillSettingCatalog =
     skillSettingCatalogValue === undefined
       ? undefined
@@ -112,6 +176,8 @@ export function compileStandardStumpBuffClosure(
     ].filter(
       id =>
         !preserveBuffIds.has(id) &&
+        !conditionObservedBuffIds.has(id) &&
+        !comboQteTimerIds.has(id) &&
         !keywordOverrideChildIds.has(id) &&
         !keywordEnhancementTriggerIds.has(id) &&
         (!rootBuffIdSet.has(id) || isPresentationOnlyBuffStackEffect(sources.get(id)!)),
@@ -200,6 +266,20 @@ export function compileStandardStumpBuffClosure(
           ...(buffSourceTargets.has(buffId)
             ? { fixedBuffSourceTarget: buffSourceTargets.get(buffId)! }
             : {}),
+          ...(buffCapturedTargetGroups.get(buffId)?.enemyKeys.length
+            ? {
+                staticEnemyTargetGroupKeys: new Set(
+                  buffCapturedTargetGroups.get(buffId)!.enemyKeys,
+                ),
+              }
+            : {}),
+          ...(buffCapturedTargetGroups.get(buffId)?.zeroSpaceKeys.length
+            ? {
+                staticZeroSpaceTargetGroupKeys: new Set(
+                  buffCapturedTargetGroups.get(buffId)!.zeroSpaceKeys,
+                ),
+              }
+            : {}),
         },
       );
     } catch (error) {
@@ -208,7 +288,7 @@ export function compileStandardStumpBuffClosure(
         sourcePath: `BuffData.${buffId}`,
         reason:
           `${error instanceof Error ? error.message : String(error)}` +
-          ` [fixedBuffOwner=${buffOwnerTargets.get(buffId) ?? 'unknown'}]`,
+          ` [fixedBuffOwner=${buffOwnerTargets.get(buffId) ?? 'unknown'}, fixedBuffSource=${buffSourceTargets.get(buffId) ?? 'unknown'}]`,
       });
     }
   }
@@ -220,6 +300,26 @@ export function compileStandardStumpBuffClosure(
     omittedBuffIds,
     diagnostics,
   };
+}
+
+function collectConditionBuffIds(value: unknown): string[] {
+  if (Array.isArray(value)) return value.flatMap(collectConditionBuffIds);
+  if (value === null || typeof value !== 'object') return [];
+  const record = value as Readonly<Record<string, unknown>>;
+  if (
+    record.kind === 'constant' &&
+    typeof record.value === 'string' &&
+    record.value.startsWith('buff_')
+  ) {
+    return [record.value];
+  }
+  return Object.entries(record).flatMap(([key, child]) =>
+    (key === 'buffId' && typeof child === 'string') || (key === 'buffIds' && Array.isArray(child))
+      ? typeof child === 'string'
+        ? [child]
+        : child.flatMap(item => (typeof item === 'string' ? [item] : collectConditionBuffIds(item)))
+      : collectConditionBuffIds(child),
+  );
 }
 
 function buffActionNodes(source: BuffRuntimeSource) {
@@ -235,12 +335,28 @@ function propagateBuffTargets(
   sources: ReadonlyMap<string, BuffRuntimeSource>,
   ownerSeeds: ReadonlyMap<string, 'caster' | 'enemy' | 'currentAbilityEntity'>,
   sourceSeeds: ReadonlyMap<string, 'caster' | 'enemy' | 'currentAbilityEntity'>,
+  globalBuffCatalog?: GlobalBuffTemplateCatalogSource,
+  capturedTargetGroupSeeds: ReadonlyMap<string, CompiledBuffCapturedTargetGroupsSource> = new Map(),
 ) {
   type Target = 'caster' | 'enemy' | 'currentAbilityEntity';
   const owners = new Map(ownerSeeds);
   const sourceTargets = new Map(sourceSeeds);
   const ownerConflicts = new Set<string>();
   const sourceConflicts = new Set<string>();
+  const capturedTargetGroups = new Map(
+    [...capturedTargetGroupSeeds].map(
+      ([id, groups]) =>
+        [
+          id,
+          {
+            enemyKeys: [...new Set(groups.enemyKeys)].sort(),
+            zeroSpaceKeys: [...new Set(groups.zeroSpaceKeys)]
+              .filter(key => !groups.enemyKeys.includes(key))
+              .sort(),
+          },
+        ] as const,
+    ),
+  );
   const register = (
     map: Map<string, Target>,
     conflicts: Set<string>,
@@ -260,25 +376,79 @@ function propagateBuffTargets(
     }
     return false;
   };
+  const registerCapturedTargetGroups = (
+    id: string,
+    value: CompiledBuffCapturedTargetGroupsSource,
+  ) => {
+    const normalized = {
+      enemyKeys: [...new Set(value.enemyKeys)].sort(),
+      zeroSpaceKeys: [...new Set(value.zeroSpaceKeys)]
+        .filter(key => !value.enemyKeys.includes(key))
+        .sort(),
+    };
+    const previous = capturedTargetGroups.get(id);
+    if (previous === undefined) {
+      capturedTargetGroups.set(id, normalized);
+      return true;
+    }
+    // A shared Buff definition may have several producers. Retain only keys
+    // whose identity is proven on every producer path.
+    const next = {
+      enemyKeys: previous.enemyKeys.filter(key => normalized.enemyKeys.includes(key)),
+      zeroSpaceKeys: previous.zeroSpaceKeys.filter(key => normalized.zeroSpaceKeys.includes(key)),
+    };
+    if (
+      next.enemyKeys.length === previous.enemyKeys.length &&
+      next.zeroSpaceKeys.length === previous.zeroSpaceKeys.length
+    )
+      return false;
+    capturedTargetGroups.set(id, next);
+    return true;
+  };
   let changed = true;
   while (changed) {
     changed = false;
+    for (const [globalBuffId, template] of globalBuffCatalog?.byId ?? []) {
+      const owner = owners.get(globalBuffId);
+      const source = sourceTargets.get(globalBuffId) ?? owner;
+      if (owner === undefined) continue;
+      for (const child of template.children) {
+        // GlobalBuff 把同一子定义投影到固定队伍成员；在单个干员运行闭包中该成员就是 caster。
+        changed = register(owners, ownerConflicts, child.buffId, 'caster') || changed;
+        changed = register(sourceTargets, sourceConflicts, child.buffId, source) || changed;
+      }
+    }
     for (const [id, source] of sources) {
       const owner = owners.get(id);
       const sourceTarget = sourceTargets.get(id);
       if (owner === undefined && sourceTarget === undefined) continue;
       const nodes = buffActionNodes(source);
-      const staticEnemyTargetGroupKeys = new Set(
-        nodes.flatMap(node =>
+      const lifecycleNodes = new Set(
+        [
+          ...source.graph.timelineActions.map(item => item.sequence),
+          ...source.graph.buffEvents.flatMap(item => item.actions),
+        ].flatMap(sequence => collectNativeActionNodes(sequence)),
+      );
+      const staticEnemyTargetGroupKeys = new Set([
+        ...(capturedTargetGroups.get(id)?.enemyKeys ?? []),
+        ...nodes.flatMap(node =>
           node.metadata.enabled &&
           node.body.kind === 'leaf' &&
           node.body.value.family === 'targetGroup' &&
-          isStaticSingleEnemyTargetGroup(node.body.value.action) &&
+          (isStaticSingleEnemyTargetGroup(node.body.value.action) ||
+            isStaticExplicitBadFactionEnemyTargetGroup(node.body.value.action) ||
+            (owner === 'enemy' &&
+              isStaticSingleEnemyOwnerAllyTargetGroup(node.body.value.action)) ||
+            isZeroSpaceSingleEnemySmartTargetGroup(node.body.value.action)) &&
           (owner === 'caster' || owner === 'currentAbilityEntity')
             ? [node.body.value.action.targetGroupKey]
             : [],
         ),
-      );
+      ]);
+      const staticZeroSpaceTargetGroupKeys = new Set([
+        ...staticEnemyTargetGroupKeys,
+        ...(capturedTargetGroups.get(id)?.zeroSpaceKeys ?? []),
+      ]);
       const abilityEntityTargetGroupKeys = new Set(
         nodes.flatMap(node =>
           node.metadata.enabled &&
@@ -291,6 +461,30 @@ function propagateBuffTargets(
             : [],
         ),
       );
+      // PickTarget 不改变目标身份；把 OwnerSpawned AbilityEntity 查询的别名继续传播，
+      // 后续施加到单个 Context 实例的 Buff 才能获得 currentAbilityEntity owner 证据。
+      let targetGroupChanged = true;
+      while (targetGroupChanged) {
+        targetGroupChanged = false;
+        for (const node of nodes) {
+          if (
+            !node.metadata.enabled ||
+            node.body.kind !== 'leaf' ||
+            node.body.value.family !== 'targetGroup' ||
+            node.body.value.action.producerType !== 'PickTargetAction' ||
+            !node.body.value.action.inputTargets.some(
+              target =>
+                target.targetSource === 'Context' &&
+                abilityEntityTargetGroupKeys.has(target.targetGroupKey),
+            ) ||
+            abilityEntityTargetGroupKeys.has(node.body.value.action.targetGroupKey)
+          ) {
+            continue;
+          }
+          abilityEntityTargetGroupKeys.add(node.body.value.action.targetGroupKey);
+          targetGroupChanged = true;
+        }
+      }
       for (const node of nodes) {
         if (!node.metadata.enabled || node.body.kind !== 'leaf') continue;
         if (
@@ -298,12 +492,36 @@ function propagateBuffTargets(
           node.body.value.action.kind === 'globalPartyAura'
         ) {
           const action = node.body.value.action;
-          const childOwner: Target = action.target === 'party' ? 'caster' : 'enemy';
+          const childOwner: Target = action.target === 'enemy' ? 'enemy' : 'caster';
           const childSource = action.buffSource === 'ActionOwner' ? owner : sourceTarget;
-          for (const entry of action.buffs) {
+          for (const entry of [...action.buffs, ...action.exitBuffs]) {
             changed = register(owners, ownerConflicts, entry.buffId, childOwner) || changed;
             changed =
               register(sourceTargets, sourceConflicts, entry.buffId, childSource) || changed;
+          }
+          continue;
+        }
+        if (
+          node.body.value.family === 'globalBuff' &&
+          node.body.value.action.kind === 'createGlobalBuff'
+        ) {
+          const action = node.body.value.action;
+          const globalSource =
+            action.source.targetSource === 'Owner'
+              ? owner
+              : action.source.targetSource === 'Source'
+                ? sourceTarget
+                : undefined;
+          for (const entry of action.globalBuffs) {
+            changed = register(owners, ownerConflicts, entry.globalBuffId, 'caster') || changed;
+            changed =
+              register(sourceTargets, sourceConflicts, entry.globalBuffId, globalSource) || changed;
+            const template = globalBuffCatalog?.byId.get(entry.globalBuffId);
+            for (const child of template?.children ?? []) {
+              changed = register(owners, ownerConflicts, child.buffId, 'caster') || changed;
+              changed =
+                register(sourceTargets, sourceConflicts, child.buffId, globalSource) || changed;
+            }
           }
           continue;
         }
@@ -330,18 +548,28 @@ function propagateBuffTargets(
         if (node.body.value.family !== 'buffApplication') continue;
         const action = node.body.value.action;
         const childOwner =
-          action.target.targetSource === 'Owner' && action.target.targetGroupKey === ''
+          // 原生 Owner/Source 分支直接解析实体；序列化残留的 targetGroupKey 不参与寻址。
+          action.target.targetSource === 'Owner'
             ? owner
-            : action.target.targetSource === 'Source' && action.target.targetGroupKey === ''
+            : action.target.targetSource === 'Source'
               ? sourceTarget
-              : (action.target.targetSource === 'Context' ||
-                    action.target.targetSource === 'Target') &&
-                  staticEnemyTargetGroupKeys.has(action.target.targetGroupKey)
-                ? ('enemy' as const)
-                : action.target.targetSource === 'Context' &&
-                    abilityEntityTargetGroupKeys.has(action.target.targetGroupKey)
-                  ? ('currentAbilityEntity' as const)
-                  : undefined;
+              : action.target.targetSource === 'Target' && lifecycleNodes.has(node)
+                ? owner
+                : sourceTarget === 'caster' &&
+                    (isControlledOperatorInstantSearch(action.target) ||
+                      isPartyExceptOwnerInstantSearch(action.target) ||
+                      isPartyInstantSearch(action.target))
+                  ? ('caster' as const)
+                  : isUniqueEnemyMainTargetInstantSearch(action.target)
+                    ? ('enemy' as const)
+                    : (action.target.targetSource === 'Context' ||
+                          action.target.targetSource === 'Target') &&
+                        staticEnemyTargetGroupKeys.has(action.target.targetGroupKey)
+                      ? ('enemy' as const)
+                      : action.target.targetSource === 'Context' &&
+                          abilityEntityTargetGroupKeys.has(action.target.targetGroupKey)
+                        ? ('currentAbilityEntity' as const)
+                        : undefined;
         if (childOwner === undefined) continue;
         const childSource =
           action.buffSource === 'ActionOwner'
@@ -355,9 +583,18 @@ function propagateBuffTargets(
           if (entry.readIdFromBlackboard || entry.buffId === '') continue;
           changed = register(owners, ownerConflicts, entry.buffId, childOwner) || changed;
           changed = register(sourceTargets, sourceConflicts, entry.buffId, childSource) || changed;
+          if (action.passTargetGroupsToBuff) {
+            changed =
+              registerCapturedTargetGroups(entry.buffId, {
+                enemyKeys: [...staticEnemyTargetGroupKeys],
+                zeroSpaceKeys: [...staticZeroSpaceTargetGroupKeys].filter(
+                  key => !staticEnemyTargetGroupKeys.has(key),
+                ),
+              }) || changed;
+          }
         }
       }
     }
   }
-  return { owners, sources: sourceTargets };
+  return { owners, sources: sourceTargets, capturedTargetGroups };
 }

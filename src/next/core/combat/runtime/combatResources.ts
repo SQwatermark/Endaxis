@@ -437,12 +437,17 @@ export class CombatResources {
     return handle;
   }
 
-  revertUltimateEnergyRecoveryRestriction(handle: number, clearUltimateEnergyOnEnd: boolean): void {
+  revertUltimateEnergyRecoveryRestriction(
+    handle: number,
+    clearUltimateEnergyOnEnd: boolean,
+  ): UltimateEnergyChange | null {
     const entry = this.#ultimateRecoveryRestrictionHandles.get(handle);
-    if (entry === undefined) return;
+    if (entry === undefined) return null;
     this.#ultimateRecoveryRestrictionHandles.delete(handle);
     this.#refreshUltimateEnergyRecoveryRestriction(entry.operatorId);
-    if (clearUltimateEnergyOnEnd) this.#requireOperator(entry.operatorId).ultimateEnergy = 0;
+    if (!clearUltimateEnergyOnEnd) return null;
+    const current = this.getUltimateEnergy(entry.operatorId);
+    return this.changeUltimateEnergy(entry.operatorId, -current);
   }
 
   #refreshUltimateEnergyRecoveryRestriction(operatorId: string): void {

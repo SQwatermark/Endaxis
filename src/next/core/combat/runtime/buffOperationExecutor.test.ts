@@ -281,8 +281,10 @@ describe('BuffOperationExecutor', () => {
         fractureDefinition: { stackingType: 'refresh' as const },
       },
     };
+    const attachBuffToCurrentSkill = vi.fn();
     const context = {
       blackboard: new ActionBlackboard(),
+      attachBuffToCurrentSkill,
       skillCastInfo: {
         skillCastId: 1,
         originSkillId: 'comboSkill',
@@ -293,7 +295,14 @@ describe('BuffOperationExecutor', () => {
 
     expect(executor.execute(step, context)).toBe(true);
     expect(executor.execute(step, context)).toBe(true);
-    expect(beforeOutput).toEqual([{ sourceId: 'antal', targetId: 'enemy', type: 'fracture' }]);
+    expect(beforeOutput).toEqual([
+      {
+        sourceId: 'antal',
+        targetId: 'enemy',
+        type: 'fracture',
+        attachBuffToCurrentSkill,
+      },
+    ]);
     expect(applied).toEqual(['buff_physical_no_guard', 'buff_physical_fracture']);
     expect(consumed).toEqual([
       {
@@ -479,45 +488,191 @@ describe('BuffOperationExecutor', () => {
     expect(finished).toEqual(['other']);
   });
 
-  it.each(['buff', 'ability', 'castSkill', 'rejectedCastSkill', 'missingCastSkill'] as const)(
-    'attaches scoped Buff handles to the current %s owner',
-    owner => {
-      const child = { finish: vi.fn(() => true) };
-      const addCurrentBuffChild = vi.fn();
-      const isCastSkill = owner !== 'buff' && owner !== 'ability';
-      const target = {
-        ownerId: 'operator',
-        applyScoped: () => (owner === 'rejectedCastSkill' ? null : child),
-        getCountByIds: () => 0,
-        finishByIds: () => 0,
-        holdByIds: () => ({ release: () => undefined }),
-        getCountByTags: () => 0,
-        matchesEntityTags: () => false,
-        findFirstByIds: () => undefined,
-        findFirstByTags: () => undefined,
-        finishByTags: () => 0,
-      };
-      const executor = new BuffOperationExecutor({
-        sourceId: 'operator',
-        resolveTarget: () => target,
-        delegate,
-      });
+  it('transfers the same action-duration Buff handle only to an allowed next native skill', () => {
+    const finish = vi.fn(() => true);
+    const handle = { finish };
+    const target = {
+      ownerId: 'ability-entity',
+      applyScoped: () => handle,
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const step = {
+      kind: 'applyBuff' as const,
+      parameters: {
+        buffId: 'cancel-entity',
+        target: 'caster' as const,
+        finishByAction: true,
+        inheritToNextSkillIds: ['native.attack1'],
+      },
+    };
+    const detachBuffFromCurrentSkill = vi.fn();
+    const attachBuffToNextSkill = vi.fn();
 
-      const execute = () =>
-        executor.execute(
-          {
-            kind: 'applyBuff',
-            parameters: {
-              buffId: 'child',
-              target: 'caster',
-              ...(isCastSkill
-                ? { lifetimeOwner: 'currentCastSkill' as const }
-                : { asChildBuff: true }),
-            },
+    executor.execute(step, { blackboard: new ActionBlackboard() });
+    executor.end(step, {
+      blackboard: new ActionBlackboard(),
+      pendingNextSkillId: 'native.attack1',
+      detachBuffFromCurrentSkill,
+      attachBuffToNextSkill,
+    });
+
+    expect(detachBuffFromCurrentSkill).toHaveBeenCalledExactlyOnceWith(handle);
+    expect(attachBuffToNextSkill).toHaveBeenCalledExactlyOnceWith(handle);
+    expect(finish).not.toHaveBeenCalled();
+  });
+
+  it('detaches and transfers the same existing Buff instance during an allowed skill transition', () => {
+    const finish = vi.fn(() => true);
+    const handle = { finish };
+    const target = {
+      ownerId: 'operator',
+      findFirstHandleByIds: () => handle,
+      getCountByIds: () => 1,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const step = {
+      kind: 'inheritBuffById' as const,
+      parameters: {
+        target: 'caster' as const,
+        buffId: 'music-vfx',
+        inheritToNextSkillIds: ['native.followup'],
+        finishByAction: true,
+        finishWithNextSkillIfNotInherited: true,
+      },
+    };
+    const detachBuffFromCurrentSkill = vi.fn();
+    const attachBuffToNextSkill = vi.fn();
+
+    executor.execute(step, {
+      blackboard: new ActionBlackboard(),
+      detachBuffFromCurrentSkill,
+    });
+    executor.end(step, {
+      blackboard: new ActionBlackboard(),
+      pendingNextSkillId: 'native.followup',
+      attachBuffToNextSkill,
+    });
+
+    expect(detachBuffFromCurrentSkill).toHaveBeenCalledExactlyOnceWith(handle);
+    expect(attachBuffToNextSkill).toHaveBeenCalledExactlyOnceWith(handle);
+    expect(finish).not.toHaveBeenCalled();
+  });
+
+  it('ends an inherited existing Buff when no next skill is available', () => {
+    const finish = vi.fn(() => true);
+    const handle = { finish };
+    const target = {
+      ownerId: 'operator',
+      findFirstHandleByIds: () => handle,
+      getCountByIds: () => 1,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const step = {
+      kind: 'inheritBuffById' as const,
+      parameters: {
+        target: 'caster' as const,
+        buffId: 'music-vfx',
+        inheritToNextSkillIds: ['native.followup'],
+        finishByAction: true,
+        finishWithNextSkillIfNotInherited: true,
+      },
+    };
+
+    executor.execute(step, {
+      blackboard: new ActionBlackboard(),
+      detachBuffFromCurrentSkill: () => undefined,
+    });
+    executor.end(step, { blackboard: new ActionBlackboard() });
+
+    expect(finish).toHaveBeenCalledExactlyOnceWith('other');
+  });
+
+  it.each([
+    'buff',
+    'ability',
+    'skillActionChild',
+    'castSkill',
+    'physicalCastSkill',
+    'rejectedCastSkill',
+    'missingCastSkill',
+  ] as const)('attaches scoped Buff handles to the current %s owner', owner => {
+    const child = { finish: vi.fn(() => true) };
+    const addCurrentBuffChild = vi.fn();
+    const usesAttachingSkillLifetime = [
+      'castSkill',
+      'physicalCastSkill',
+      'rejectedCastSkill',
+      'missingCastSkill',
+    ].includes(owner);
+    const target = {
+      ownerId: 'operator',
+      applyScoped: () => (owner === 'rejectedCastSkill' ? null : child),
+      getCountByIds: () => 0,
+      finishByIds: () => 0,
+      holdByIds: () => ({ release: () => undefined }),
+      getCountByTags: () => 0,
+      matchesEntityTags: () => false,
+      findFirstByIds: () => undefined,
+      findFirstByTags: () => undefined,
+      finishByTags: () => 0,
+    };
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate,
+    });
+
+    const execute = () =>
+      executor.execute(
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'child',
+            target: 'caster',
+            ...(usesAttachingSkillLifetime
+              ? { lifetimeOwner: 'currentCastSkill' as const }
+              : { asChildBuff: true }),
           },
-          {
-            blackboard: new ActionBlackboard(),
-            ...(owner === 'castSkill'
+        },
+        {
+          blackboard: new ActionBlackboard(),
+          ...(owner === 'skillActionChild'
+            ? { attachBuffToCurrentSkill: addCurrentBuffChild }
+            : owner === 'castSkill'
               ? {
                   event: {
                     kind: 'abilitySkill' as const,
@@ -530,26 +685,36 @@ describe('BuffOperationExecutor', () => {
                     attachBuffToCurrentSkill: addCurrentBuffChild,
                   },
                 }
-              : owner === 'buff'
-                ? { addCurrentBuffChild }
-                : { addAbilityChildBuff: addCurrentBuffChild }),
-          },
-        );
-      if (owner === 'missingCastSkill') {
-        expect(execute).toThrow(
-          'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
-        );
-      } else {
-        expect(execute()).toBe(true);
-      }
-      if (owner === 'rejectedCastSkill' || owner === 'missingCastSkill') {
-        expect(addCurrentBuffChild).not.toHaveBeenCalled();
-      } else {
-        expect(addCurrentBuffChild).toHaveBeenCalledWith(child);
-      }
-      expect(child.finish).not.toHaveBeenCalled();
-    },
-  );
+              : owner === 'physicalCastSkill'
+                ? {
+                    event: {
+                      kind: 'abilityPhysicalInfliction' as const,
+                      event: 'beforeOutputPhysicalInfliction' as const,
+                      sourceId: 'operator',
+                      targetId: 'enemy',
+                      type: 'airborne' as const,
+                      attachBuffToCurrentSkill: addCurrentBuffChild,
+                    },
+                  }
+                : owner === 'buff'
+                  ? { addCurrentBuffChild }
+                  : { addAbilityChildBuff: addCurrentBuffChild }),
+        },
+      );
+    if (owner === 'missingCastSkill') {
+      expect(execute).toThrow(
+        'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
+      );
+    } else {
+      expect(execute()).toBe(true);
+    }
+    if (owner === 'rejectedCastSkill' || owner === 'missingCastSkill') {
+      expect(addCurrentBuffChild).not.toHaveBeenCalled();
+    } else {
+      expect(addCurrentBuffChild).toHaveBeenCalledWith(child);
+    }
+    expect(child.finish).not.toHaveBeenCalled();
+  });
 
   it('finishes the Buff instance supplied by its lifecycle event context', () => {
     const blackboard = new ActionBlackboard();
@@ -1602,7 +1767,57 @@ describe('BuffOperationExecutor', () => {
     ).toBe(false);
   });
 
-  it('queries the entity tag container instead of buff classification tags', () => {
+  it('counts distinct matching Buff definition IDs instead of instances or enhance stacks', () => {
+    const path = 'buff/status/corrosion';
+    const target = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([path]),
+    );
+    const enhanced = {
+      id: 'corrosion-a',
+      stackingType: 'enhance' as const,
+      maxStackCount: 4,
+      applyTags: [path],
+    };
+    const duplicate = {
+      id: 'corrosion-b',
+      stackingType: 'unlimited' as const,
+      applyTags: [path],
+    };
+    target.add(enhanced, 'operator');
+    target.add(enhanced, 'operator');
+    target.add(duplicate, 'operator');
+    target.add(duplicate, 'operator');
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      resolveEventTarget: () => target,
+      delegate,
+    });
+    const context = {
+      blackboard: new ActionBlackboard(),
+      buffOwnerId: 'enemy',
+    };
+
+    expect(target.getCountByTags([path])).toBe(4);
+    expect(target.getInstanceCountByTags([path])).toBe(3);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'buffTagIdCountCompare',
+          target: 'buffOwner',
+          tagQueryType: 'hasAny',
+          buffTags: [path],
+          operator: 'equal',
+          value: { kind: 'constant', value: 2 },
+        },
+        context,
+      ),
+    ).toBe(true);
+  });
+
+  it('queries entity tags, including applyTags registered by enabled Buffs', () => {
     const parentPath = 'combat/state/special';
     const childPath = 'combat/state/special/enhanced';
     const classificationPath = 'buff/classification/enhancement';
@@ -1638,7 +1853,7 @@ describe('BuffOperationExecutor', () => {
         ...condition,
         tags: [classificationPath],
       }),
-    ).toBe(false);
+    ).toBe(true);
     target.removeEntityTags([childPath]);
     expect(executor.evaluate(condition)).toBe(false);
   });

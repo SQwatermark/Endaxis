@@ -389,7 +389,7 @@
 >
 > Operator 新 TypeScript 适配器已经以 combat-spec 为语义依据恢复两条链：CharacterTable 的
 > 身份/默认武器/精确 `(level, breakStage)` 关键帧，以及 CharGrowthTable 的 `Attr(3)` 天赋属性节点。
-> 固定六档面板和默认好感属性省略被明确标为 Endaxis 产品投影，两者均与旧 Python oracle 做对象级
+> 固定六档面板和默认好感属性省略被明确标为 Endaxis 产品投影，两者在迁移期曾与旧 Python oracle 做对象级
 > 差分。当前 40 个编译器测试文件、191 项通过；下一步接技能组严格校验与首个完整佩丽卡定义装配。
 
 > 2026-08-25：游戏数据生成主线已切到独立 `refactor/common-game-data` 工作树中的

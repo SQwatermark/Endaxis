@@ -89,7 +89,6 @@ function compileGlobalBuffTemplate(
     template.priorityKey !== '' ||
     template.negatePriority ||
     template.priority !== 0 ||
-    template.applyIconDurationToBuffs ||
     template.globalModifierCount !== 0 ||
     template.globalEventCount !== 0 ||
     template.triggerInterval.blackboardKey !== null ||
@@ -118,6 +117,7 @@ function compileGlobalBuffTemplate(
     ...(template.lifeType === 'Limited'
       ? { durationSeconds: scalarOperand(template.duration) }
       : {}),
+    ...(template.applyIconDurationToBuffs ? { applyIconDurationToBuffs: true } : {}),
     blackboard: Object.fromEntries(template.blackboard.map(item => [item.key, item.value])),
     children: template.children.map((child, index) => ({
       buffId: child.buffId,

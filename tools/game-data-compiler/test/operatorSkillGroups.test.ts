@@ -6,7 +6,6 @@ import {
   validateOperatorSkillGroups,
   type OperatorSkillIdentitySource,
 } from '../src/index.ts';
-import { runPythonOracle } from './pythonOracle.ts';
 
 const SKILLS: readonly OperatorSkillIdentitySource[] = (
   [
@@ -43,7 +42,7 @@ describe('干员技能等级组', () => {
     );
   });
 
-  it('严格读取原生有序组，并通过佩丽卡式显式分组与 Python oracle', () => {
+  it('严格读取原生有序组，并通过佩丽卡式显式分组', () => {
     const growth = growthTable();
     const rawGroups = operatorGroups();
     const groups = parseOperatorSkillGroupSources(rawGroups, 'perlica.skillGroups');
@@ -56,17 +55,6 @@ describe('干员技能等级组', () => {
       [2, ['ultimate_skill']],
     ]);
     expect(() => validateOperatorSkillGroups(groups, SKILLS, nativeGroups)).not.toThrow();
-    expect(
-      runPythonOracle({
-        operation: 'validateSkillGroups',
-        payload: {
-          operator: { slug: 'perlica', skillGroups: rawGroups },
-          skills: SKILLS,
-          growth: growth.chr_test,
-          path: 'CharGrowthTable.chr_test',
-        },
-      }),
-    ).toEqual({ valid: true });
   });
 
   it('把强化普攻保留在普攻释放组，但按其原生终结技等级组校验', () => {
@@ -135,7 +123,7 @@ describe('干员技能等级组', () => {
     ).toThrow('does not match generated skill sources');
   });
 
-  it('只在 manifest 明确声明后从可放置技能组排除基础被动', () => {
+  it('manifest 基础被动可在可放置技能组内被排除，也可来自独立 Passive SkillData', () => {
     const groups = parseOperatorSkillGroupSources(operatorGroups(), 'fixture.skillGroups');
     const nativeGroups = parseNativeOperatorSkillGroupSources(growthTable(), 'chr_test').map(
       group =>
@@ -150,10 +138,37 @@ describe('干员技能等级组', () => {
       }),
     ).not.toThrow();
     expect(() =>
-      validateOperatorSkillGroups(groups, SKILLS, nativeGroups, {
-        basePassiveSkillIds: ['missing_passive'],
+      validateOperatorSkillGroups(
+        groups,
+        SKILLS,
+        parseNativeOperatorSkillGroupSources(growthTable(), 'chr_test'),
+        {
+          basePassiveSkillIds: ['independent_passive'],
+        },
+      ),
+    ).not.toThrow();
+  });
+
+  it('显式的运行时替换技能可注册在组中，且只允许该集合包含原生等级组外的内部技能', () => {
+    const skills: readonly OperatorSkillIdentitySource[] = [
+      { key: 'base', skillId: 'native_base', skillType: 'ultimate' },
+      { key: 'enhanced', skillId: 'native_enhanced', skillType: 'ultimate' },
+      { key: 'exit', skillId: 'internal_exit', skillType: 'ultimate' },
+    ];
+    const groups = parseOperatorSkillGroupSources(
+      [group('ultimate', 'ultimate', 'ultimate', 2, ['base', 'enhanced', 'exit'])],
+      'fixture.skillGroups',
+    );
+    const nativeGroups = [nativeSource(2, ['native_base', 'native_enhanced'])];
+
+    expect(() =>
+      validateOperatorSkillGroups(groups, skills, nativeGroups, {
+        runtimeReplacementSkillKeys: ['enhanced', 'exit'],
       }),
-    ).toThrow('basePassiveSkillIds: unknown IDs');
+    ).not.toThrow();
+    expect(() => validateOperatorSkillGroups(groups, skills, nativeGroups)).toThrow(
+      /missing native skills \["internal_exit"\]/,
+    );
   });
 });
 

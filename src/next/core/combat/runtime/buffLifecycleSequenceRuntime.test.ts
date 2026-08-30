@@ -4,6 +4,7 @@ import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
 import {
   attachBuffLifecycleSequences,
+  normalizeAbilityEventPayload,
   readEventSkillCastInfo,
 } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -11,6 +12,24 @@ import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 
 describe('attachBuffLifecycleSequences', () => {
+  it('normalizes a custom AbilitySystem event without inventing skill provenance', () => {
+    expect(
+      normalizeAbilityEventPayload('customAbilityEvent', {
+        sourceId: 'liino',
+        targetId: 'liino',
+        eventName: 'liino_comboskill_end',
+        eventParam: 0,
+      }),
+    ).toEqual({
+      kind: 'abilityCustom',
+      event: 'customAbilityEvent',
+      sourceId: 'liino',
+      targetId: 'liino',
+      eventName: 'liino_comboskill_end',
+      eventParam: 0,
+    });
+  });
+
   it('区分空来源与遗漏来源，接受处决类型且不从其他字段覆盖显式空来源', () => {
     const cast = { skillCastId: 3, skillId: 'finisher', skillType: 'finisher' };
     expect(readEventSkillCastInfo(cast)).toEqual({
@@ -520,6 +539,7 @@ describe('attachBuffLifecycleSequences', () => {
           readonly sourceOperatorId: string;
           readonly source: 'skill';
           readonly gainKind: 'gain';
+          readonly requestedAmount: number;
           readonly amount: number;
         }) => void)
       | undefined;
@@ -565,6 +585,7 @@ describe('attachBuffLifecycleSequences', () => {
       sourceOperatorId: 'operator',
       source: 'skill',
       gainKind: 'gain',
+      requestedAmount: 20,
       amount: 20,
     });
     expect(reached).toEqual(['spGained']);

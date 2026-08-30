@@ -27,6 +27,7 @@ export interface SkillResourceOperationDependencies {
     readonly sourceOperatorId: string;
     readonly source: SpGainSource;
     readonly gainKind: SpGainKind;
+    readonly requestedAmount: number;
     readonly amount: number;
   }) => void;
   readonly delegate: CombatOperationExecutor;
@@ -137,10 +138,11 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'restrictUltimateEnergyRecovery') {
       const handle = this.#ultimateRecoveryRestrictionHandles.get(step);
       if (handle !== undefined) {
-        this.dependencies.resources.revertUltimateEnergyRecoveryRestriction(
+        const clearChange = this.dependencies.resources.revertUltimateEnergyRecoveryRestriction(
           handle,
           step.parameters.clearUltimateEnergyOnEnd,
         );
+        if (clearChange !== null) this.#recordUltimateEnergyChange(clearChange);
         this.#ultimateRecoveryRestrictionHandles.delete(step);
       }
       return;
@@ -175,11 +177,14 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         spGainSource: source,
       },
     });
-    if (change.actualValue > 0) {
+    // 原生 OnObtainAtb 以 Value（效率结算后的请求量）决定是否发布；即使技力已满、
+    // RealDelta 为 0，Pogranichnik 等监听器仍需观察这次技能产出。
+    if (change.requestedValue > 0) {
       this.dependencies.onSpGained?.({
         sourceOperatorId: this.dependencies.sourceOperatorId,
         source,
         gainKind: change.gainKind,
+        requestedAmount: change.requestedValue,
         amount: change.actualValue,
       });
     }

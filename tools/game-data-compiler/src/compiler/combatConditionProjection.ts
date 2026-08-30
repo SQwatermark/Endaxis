@@ -1,4 +1,5 @@
 import { projectGameplayTags } from './combatProjectionCommon.ts';
+import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../packages/game-data-contract/src/conditions.ts';
 import type { NativeActionNodeSource } from '../source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import { parseObjectTypeMask } from '../source/objectType.ts';
@@ -11,6 +12,7 @@ import {
   DAMAGE_TYPES,
   COMPARISON_OPERATORS,
 } from './combatProjectionCommon.ts';
+import { compileTargetReferenceAbilityEntityQuerySource } from './abilityEntityQuery.ts';
 
 /** 原生条件到公共条件子集的投影，并明确条件写黑板的副作用。
  * 不编排分支或执行动作；未知宿主和条件仍在原来的边界阻断。 */
@@ -37,6 +39,10 @@ export function canOmitUnusedNativeCondition(
     'distance',
     'floatCompare',
     'comboCameraAlphaSetting',
+    'skillCameraMotionFree',
+    'moveInput',
+    'targetContains',
+    'targetInScreen',
   ].includes(condition.kind);
 }
 
@@ -84,20 +90,60 @@ function compileConditionLeaf(
       'distance',
       'health',
       'timedMarker',
+      'customAbilityEvent',
       'superArmor',
+      // CheckEnemyRank 自身仍须明确读取 plain Target；唯一木桩 Target 足以证明其敌人宿主。
+      'enemyRank',
       'entityTag',
+      'targetIdentity',
+      'targetContains',
+      'objectTypeMatch',
+      // 条件自身仍严格解析 Owner/Source；动作的敌人 Target 不会改变其宿主。
+      'globalCooldown',
+      // 只在下方确认属于主动技能时间轴后，读取本次技能实例的命中状态。
+      'skillHasHit',
+      // OnOutputDamage 的装饰标签来自事件伤害包，不会把固定 enemy Target 当作普通动作输入。
+      'damageDecorateMask',
+      'originSkillType',
+      'profession',
     ].includes(condition.kind)
   )
     throw new Error(`${sourcePath}: unaudited single-enemy action condition ${condition.kind}`);
   if (
     context.actionTargetTarget === 'currentAbilityEntity' &&
-    !['floatCompare', 'buffStack', 'distance', 'entityCount', 'any', 'entityTag'].includes(
-      condition.kind,
-    )
+    ![
+      'floatCompare',
+      'buffStack',
+      'distance',
+      'entityCount',
+      'any',
+      'entityTag',
+      'abilityEntityDuration',
+      'health',
+    ].includes(condition.kind)
   )
     throw new Error(`${sourcePath}: unaudited AbilityEntity condition ${condition.kind}`);
   if (condition.kind === 'probability') {
     return { kind: 'probability', probability: actionValueOperand(condition.value) };
+  }
+  if (condition.kind === 'abilityEntityDuration') {
+    const targetsCurrentEntity =
+      condition.target.targetSource === 'Target' &&
+      condition.target.targetGroupKey === '' &&
+      context.actionTargetTarget === 'currentAbilityEntity';
+    const operator = COMPARISON_OPERATORS[condition.comparison];
+    if (!targetsCurrentEntity || operator === undefined) {
+      throw new Error(`${sourcePath}: unsupported AbilityEntity duration target or comparison`);
+    }
+    if (condition.saveCurrentDuration !== condition.outputKey.length > 0) {
+      throw new Error(`${sourcePath}: inconsistent AbilityEntity duration output configuration`);
+    }
+    return {
+      kind: 'abilityEntityRemainingDurationCompare',
+      operator,
+      value: actionValueOperand(condition.value),
+      ...(condition.saveCurrentDuration ? { outputKey: condition.outputKey } : {}),
+    };
   }
   if (condition.kind === 'superArmor') {
     const targetsEnemy =
@@ -106,6 +152,9 @@ function compileConditionLeaf(
         (context.actionTargetTarget === 'enemy' ||
           (context.actionTargetTarget === 'buffOwner' &&
             context.fixedBuffOwnerTarget === 'enemy'))) ||
+      (condition.target.targetSource === 'Context' &&
+        condition.target.targetGroupKey !== '' &&
+        context.staticEnemyTargetGroupKeys?.has(condition.target.targetGroupKey) === true) ||
       (condition.target.targetSource === 'Owner' &&
         condition.target.targetGroupKey === '' &&
         context.fixedBuffOwnerTarget === 'enemy');
@@ -119,6 +168,21 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'distance') {
+    if (
+      !condition.lessThan &&
+      condition.distance >= 0 &&
+      !condition.includeTargetRadius &&
+      !condition.containsHittableObject
+    ) {
+      // 项目模型把任意已解析实体间距离统一为 0；原生目标缺失时条件同样失败。
+      // 因而 `distance > 非负阈值` 无论命名 Context 是否为空都恒假，不需要伪造其身份。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 0 },
+        operator: 'greater',
+        right: { kind: 'constant', value: condition.distance },
+      };
+    }
     const sourceIsSpatialPoint =
       condition.source.targetSource === 'Context' &&
       targetGroups.get(condition.source.targetGroupKey ?? '') === 'spatialPoint';
@@ -129,6 +193,39 @@ function compileConditionLeaf(
       condition.source.targetSource === 'Owner' && context.actionOwnerTarget === 'caster';
     const targetIsCaster =
       condition.target.targetSource === 'Owner' && context.actionOwnerTarget === 'caster';
+    const sourceIsKnownOwner =
+      condition.source.targetSource === 'Owner' && condition.source.targetGroupKey === '';
+    const sourceIsKnownCaster =
+      ((condition.source.targetSource === 'Owner' && context.actionOwnerTarget === 'caster') ||
+        (condition.source.targetSource === 'Source' && context.actionSourceTarget === 'caster')) &&
+      condition.source.targetGroupKey === '';
+    const sourceIsFixedCasterBuffSource =
+      condition.source.targetSource === 'Source' &&
+      condition.source.targetGroupKey === '' &&
+      context.fixedBuffSourceTarget === 'caster';
+    const targetIsStaticEnemyContext =
+      condition.target.targetSource === 'Context' &&
+      condition.target.targetGroupKey !== '' &&
+      context.staticEnemyTargetGroupKeys?.has(condition.target.targetGroupKey) === true;
+    const targetIsAbilityEntityContext =
+      condition.target.targetSource === 'Context' &&
+      condition.target.targetGroupKey !== '' &&
+      targetGroups.get(condition.target.targetGroupKey) === 'abilityEntity';
+    if (
+      (sourceIsKnownOwner || sourceIsKnownCaster || sourceIsFixedCasterBuffSource) &&
+      targetIsStaticEnemyContext &&
+      !condition.containsHittableObject
+    ) {
+      // 主动技能入口已把 smart_target 一类 Context 证明为唯一木桩；项目模型规定任意实例间
+      // 距离为零。includeTargetRadius 只会在这个零距离上纳入非负目标半径，不改变正阈值
+      // less-or-equal 的投影方式，仍不得借此放开未知 Context 或可破坏物查询。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 0 },
+        operator: condition.lessThan ? 'lessOrEqual' : 'greater',
+        right: { kind: 'constant', value: condition.distance },
+      };
+    }
     if (
       ((sourceIsSpatialPoint && targetIsCaster) || (targetIsSpatialPoint && sourceIsCaster)) &&
       !condition.includeTargetRadius &&
@@ -142,14 +239,42 @@ function compileConditionLeaf(
       };
     }
     if (
-      context.actionTargetTarget === 'enemy' &&
-      condition.source.targetSource === 'Owner' &&
-      condition.target.targetSource === 'Target' &&
+      condition.source.targetSource === 'MainCharacter' &&
+      condition.source.targetGroupKey === '' &&
+      targetIsAbilityEntityContext &&
       !condition.includeTargetRadius &&
       !condition.containsHittableObject
     ) {
+      const contextKey = condition.target.targetGroupKey!;
+      return {
+        // GetFirstTarget 缺少 Context 成员时原生条件失败；零距离归约不能把空组变成 true。
+        kind: 'all',
+        conditions: [
+          {
+            kind: 'contextTargetCountCompare',
+            contextKey,
+            operator: 'greater',
+            value: 0,
+          },
+          {
+            kind: 'actionValueCompare',
+            left: { kind: 'constant', value: 0 },
+            operator: condition.lessThan ? 'lessOrEqual' : 'greater',
+            right: { kind: 'constant', value: condition.distance },
+          },
+        ],
+      };
+    }
+    if (
+      context.actionTargetTarget === 'enemy' &&
+      condition.source.targetSource === 'Owner' &&
+      condition.target.targetSource === 'Target'
+    ) {
       // Owner 可以是施术干员、Buff 宿主、投射物或能力实体；这里不借用其身份。
-      // 动作已在具体宿主上执行，项目模型又规定任意实例间距离为零，因此只折叠距离值。
+      // 动作已在具体宿主和唯一木桩上执行，项目模型又规定任意实例间距离为零，因此只折叠距离值。
+      // includeTargetRadius 只会在零距离上纳入非负目标半径，不改变正阈值 less-or-equal 的结果。
+      // containsHittableObject 只扩展原生目标位置的回退来源；这里已有具体 Target 敌人，
+      // 且 Endaxis 明确把所有实例间距离统一为 0，因此不再让该空间选项阻塞数值分支。
       return {
         kind: 'actionValueCompare',
         left: { kind: 'constant', value: 0 },
@@ -158,10 +283,111 @@ function compileConditionLeaf(
       };
     }
     if (
+      context.actionTargetTarget === 'eventSource' &&
+      condition.source.targetSource === 'Owner' &&
+      condition.source.targetGroupKey === '' &&
+      condition.target.targetSource === 'Target' &&
+      condition.target.targetGroupKey === '' &&
+      !condition.includeTargetRadius &&
+      !condition.containsHittableObject
+    ) {
+      // Added/Output Buff 响应只会在带实际来源身份的同步事件中执行；Target 是该事件来源。
+      // 不推断来源阵营或角色，只按项目统一的实例间零距离折叠数值。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 0 },
+        operator: condition.lessThan ? 'lessOrEqual' : 'greater',
+        right: { kind: 'constant', value: condition.distance },
+      };
+    }
+    if (
+      condition.source.targetSource === 'Owner' &&
+      condition.source.targetGroupKey === '' &&
+      context.actionOwnerTarget === 'buffOwner' &&
+      context.fixedBuffOwnerTarget === 'enemy' &&
+      condition.target.targetSource === 'InstantSearch' &&
+      condition.target.finderType === 'OwnerSpawnedEntityFinder' &&
+      !condition.includeTargetRadius &&
+      !condition.containsHittableObject &&
+      context.abilityEntityQueries !== undefined
+    ) {
+      const query = compileTargetReferenceAbilityEntityQuerySource(
+        condition.target,
+        context.abilityEntityQueries.catalog,
+        context.abilityEntityQueries.gameplayTagRegistry,
+        `${sourcePath}.target`,
+      );
+      if (
+        query.objectFilter !== 'abilityEntity' ||
+        query.owner.kind !== 'actionSource' ||
+        query.center.kind !== 'actionSource' ||
+        query.postProcessors.length !== 0 ||
+        query.validators.some(
+          validator => validator.kind !== 'tag' && validator.kind !== 'sameSkillCast',
+        )
+      ) {
+        throw new Error(`${sourcePath}: unsupported zero-distance AbilityEntity endpoint query`);
+      }
+      return {
+        kind: 'all',
+        conditions: [
+          {
+            kind: 'ownerSpawnedAbilityEntityPresent',
+            abilityEntityIds: query.candidateTemplateIds,
+            ...(query.validators.some(validator => validator.kind === 'sameSkillCast')
+              ? { sameSourceSkillCast: true }
+              : {}),
+          },
+          {
+            kind: 'actionValueCompare',
+            left: { kind: 'constant', value: 0 },
+            operator: condition.lessThan ? 'lessOrEqual' : 'greater',
+            right: { kind: 'constant', value: condition.distance },
+          },
+        ],
+      };
+    }
+    if (
+      condition.source.targetSource === 'Owner' &&
+      condition.target.targetSource === 'Context' &&
+      condition.target.targetGroupKey !== '' &&
+      context.singleEnemyTargetGroupKeys?.has(condition.target.targetGroupKey) === true &&
+      (context.actionOwnerTarget === 'caster' ||
+        context.actionOwnerTarget === 'currentAbilityEntity' ||
+        context.fixedBuffOwnerTarget === 'caster') &&
+      !condition.containsHittableObject
+    ) {
+      // 跨时间段的动态单敌查询可以为空。原生 Context 距离检查在空组上失败；
+      // 非空时项目零距离模型再折叠数值。includeTargetRadius 只会继续减小
+      // 有效距离，不改变这个零距离结果。
+      return {
+        kind: 'all',
+        conditions: [
+          {
+            kind: 'contextTargetCountCompare',
+            contextKey: condition.target.targetGroupKey,
+            operator: 'greater',
+            value: 0,
+          },
+          {
+            kind: 'actionValueCompare',
+            left: { kind: 'constant', value: 0 },
+            operator: condition.lessThan ? 'lessOrEqual' : 'greater',
+            right: { kind: 'constant', value: condition.distance },
+          },
+        ],
+      };
+    }
+    const targetIsCurrentAbilityEntity =
+      condition.target.targetSource === 'Target' ||
+      (condition.target.targetSource === 'Context' &&
+        condition.target.targetGroupKey !== '' &&
+        targetGroups.get(condition.target.targetGroupKey) === 'abilityEntity');
+    if (
       context.actionTargetTarget !== 'currentAbilityEntity' ||
-      context.actionOwnerTarget !== 'caster' ||
+      (context.actionOwnerTarget !== 'caster' && context.fixedBuffOwnerTarget !== 'caster') ||
       condition.source.targetSource !== 'Owner' ||
-      condition.target.targetSource !== 'Target' ||
+      !targetIsCurrentAbilityEntity ||
       condition.includeTargetRadius ||
       condition.containsHittableObject
     )
@@ -188,15 +414,34 @@ function compileConditionLeaf(
     context.actionTargetTarget === 'eventSource' &&
     ![
       'contextBuff',
+      'buffStack',
       'targetIdentity',
       'floatCompare',
       'originSkillType',
       'skillCastId',
       'timedMarker',
+      'damageDecorateMask',
+      // 受击响应读取本次伤害元素；Owner 标签仍由下方固定 Buff 宿主解析，
+      // 概率只推进本响应自己的随机流，三者都不借用事件来源身份。
+      'damageType',
+      'entityTag',
+      'probability',
     ].includes(condition.kind)
   )
     throw new Error(`${sourcePath}: unaudited receiving Buff event condition ${condition.kind}`);
   if (condition.kind === 'mainOperator') {
+    if (
+      condition.targetSource === 'Owner' &&
+      context.actionOwnerTarget === 'currentAbilityEntity'
+    ) {
+      // 投射物/能力实体自己的 AbilitySystem 不可能是玩家主控角色。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 0 },
+        operator: 'equal',
+        right: { kind: 'constant', value: 1 },
+      };
+    }
     if (
       condition.targetSource === 'Target' &&
       condition.targetGroupKey === '' &&
@@ -219,6 +464,29 @@ function compileConditionLeaf(
       throw new Error(`${sourcePath}: unsupported main-character condition target`);
     }
     return { kind: 'casterControlled' };
+  }
+  if (condition.kind === 'profession') {
+    if (condition.target.targetGroupKey !== '') {
+      throw new Error(`${sourcePath}: named profession targets are unsupported`);
+    }
+    let target: 'caster' | 'buffOwner' | 'eventTarget' | undefined;
+    if (condition.target.targetSource === 'Owner') {
+      const owner = requireActionOwnerProjection(context, sourcePath);
+      if (owner === 'caster' || owner === 'buffOwner') target = owner;
+    } else if (condition.target.targetSource === 'Target') {
+      const actionTarget = context.actionTargetTarget;
+      if (
+        actionTarget === 'caster' ||
+        actionTarget === 'buffOwner' ||
+        actionTarget === 'eventTarget'
+      ) {
+        target = actionTarget;
+      }
+    }
+    if (target === undefined) {
+      throw new Error(`${sourcePath}: profession target is not a proven operator identity`);
+    }
+    return { kind: 'operatorRoleIn', target, roles: condition.roles };
   }
   if (condition.kind === 'deckAttributeCompare') {
     const attributes = {
@@ -261,21 +529,38 @@ function compileConditionLeaf(
       condition.targetSource === 'InstantSearch' &&
       condition.characterTeamSelection?.kind === 'controlledOperator'
         ? ('controlledOperator' as const)
-        : condition.targetSource === 'Owner' &&
-            condition.targetGroupKey === '' &&
-            context.fixedBuffOwnerTarget === 'caster'
-          ? ('caster' as const)
-          : condition.targetSource === 'Context' &&
-              (targetGroups.get(condition.targetGroupKey) === 'enemy' ||
-                context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true)
-            ? ('enemy' as const)
-            : null;
+        : condition.targetSource === 'Target' && context.actionTargetTarget === 'enemy'
+          ? ('enemy' as const)
+          : condition.targetSource === 'Target' && context.actionTargetTarget === 'currentOperator'
+            ? ('currentTarget' as const)
+            : condition.targetSource === 'Owner' &&
+                condition.targetGroupKey === '' &&
+                context.fixedBuffOwnerTarget === 'caster'
+              ? ('caster' as const)
+              : condition.targetSource === 'Source' &&
+                  condition.targetGroupKey === '' &&
+                  context.fixedBuffSourceTarget === 'caster'
+                ? ('caster' as const)
+                : condition.targetSource === 'Source' &&
+                    condition.targetGroupKey === '' &&
+                    context.fixedBuffSourceTarget === 'enemy'
+                  ? ('enemy' as const)
+                  : condition.targetSource === 'Context' &&
+                      targetGroups.get(condition.targetGroupKey) === 'contextOperator'
+                    ? ('contextTarget' as const)
+                    : condition.targetSource === 'Context' &&
+                        (targetGroups.get(condition.targetGroupKey) === 'enemy' ||
+                          context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) ===
+                            true)
+                      ? ('enemy' as const)
+                      : null;
     if (target === null || operator === undefined) {
       throw new Error(`${sourcePath}: unsupported health condition target`);
     }
     return {
       kind: 'healthCompare',
       target,
+      ...(target === 'contextTarget' ? { contextKey: condition.targetGroupKey } : {}),
       valueType: condition.isRatio ? 'ratio' : 'current',
       operator,
       value: actionValueOperand(condition.value),
@@ -297,14 +582,41 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'skillType') {
+    const skillTypes = mapNativeSkillTypes(condition.skillTypes, condition.attackTypeMask);
+    if (condition.checkTargetCurrentSkill) {
+      const skillOwner = condition.skillOwner;
+      const target =
+        skillOwner?.targetSource === 'Owner'
+          ? ('buffOwner' as const)
+          : skillOwner?.targetSource === 'Source' && context.actionSourceTarget === 'caster'
+            ? ('caster' as const)
+            : null;
+      if (
+        skillOwner === undefined ||
+        target === null ||
+        skillOwner.targetGroupKey !== '' ||
+        condition.mustBeforeExclusiveTime
+      ) {
+        throw new Error(`${sourcePath}: unsupported current skill type condition`);
+      }
+      return { kind: 'currentSkillTypeIn', target, skillTypes };
+    }
     return {
       kind: 'eventSkillTypeIn',
-      skillTypes: condition.skillTypes.map(skillType => {
-        const mapped = SKILL_TYPES[skillType];
-        if (mapped === undefined)
-          throw new Error(`unsupported native skill type ${JSON.stringify(skillType)}`);
-        return mapped;
-      }),
+      skillTypes,
+    };
+  }
+  if (condition.kind === 'customAbilityEvent') {
+    if (
+      condition.eventName.blackboardKey !== null ||
+      condition.eventName.value.length === 0 ||
+      condition.savedParamKey !== ''
+    ) {
+      throw new Error(`${sourcePath}: unsupported dynamic custom ability event check`);
+    }
+    return {
+      kind: 'eventCustomAbilityNameMatch',
+      eventName: condition.eventName.value,
     };
   }
   if (condition.kind === 'skillId') {
@@ -319,20 +631,9 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'originSkillType') {
-    if (condition.attackTypeMask !== 'All') {
-      throw new Error(
-        `${sourcePath}: unsupported origin skill attack type mask ${JSON.stringify(condition.attackTypeMask)}`,
-      );
-    }
     return {
       kind: 'originSkillTypeIn',
-      skillTypes: condition.skillTypes.flatMap(skillType => {
-        if (skillType === 'Attack') return ['basicAttack', 'plungingAttack'] as const;
-        const mapped = SKILL_TYPES[skillType];
-        if (mapped === undefined)
-          throw new Error(`unsupported native origin skill type ${JSON.stringify(skillType)}`);
-        return [mapped];
-      }),
+      skillTypes: mapNativeSkillTypes(condition.skillTypes, condition.attackTypeMask),
     };
   }
   if (condition.kind === 'skillCastId') {
@@ -349,6 +650,21 @@ function compileConditionLeaf(
     const operator = COMPARISON_OPERATORS[condition.comparison];
     const projectedGroup = targetGroups.get(condition.targetGroupKey);
     const knownStaticEnemy = context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey);
+    if (
+      condition.targetSource === 'Context' &&
+      projectedGroup === 'empty' &&
+      !condition.containsHittableTarget &&
+      !condition.excludeDeadEntity &&
+      condition.storeKey === '' &&
+      operator !== undefined
+    ) {
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 0 },
+        operator,
+        right: { kind: 'constant', value: condition.minimumCount },
+      };
+    }
     if (
       condition.targetSource === 'InstantSearch' &&
       condition.target?.finderType === 'MainTargetFinder' &&
@@ -371,10 +687,13 @@ function compileConditionLeaf(
       condition.targetSource === 'Context' &&
       (projectedGroup === 'controlledOperator' || knownStaticEnemy) &&
       !condition.containsHittableTarget &&
-      !condition.excludeDeadEntity &&
+      (!condition.excludeDeadEntity || knownStaticEnemy) &&
       condition.storeKey === '' &&
       operator !== undefined
     ) {
+      // staticEnemyTargetGroupKeys 已证明该 Context 只含标准唯一木桩；木桩 HP 归零不会安装
+      // 原生 markDie，故 excludeDeadEntity 与直接 Target 分支一样仍保留这一实体。普通动态
+      // Context 和 controlledOperator 不借用此结论。
       return {
         kind: 'actionValueCompare',
         left: { kind: 'constant', value: 1 },
@@ -384,7 +703,7 @@ function compileConditionLeaf(
     }
     if (
       condition.targetSource === 'Target' &&
-      !condition.excludeDeadEntity &&
+      (!condition.excludeDeadEntity || context.actionTargetTarget === 'enemy') &&
       condition.storeKey === '' &&
       (!condition.containsHittableTarget || context.fixedHittableTargetCount !== undefined) &&
       operator !== undefined &&
@@ -395,6 +714,8 @@ function compileConditionLeaf(
       // GetTargetsView 的 Target 分支直接读取输入目标；序列化残留 group key 不参与解析。
       // 已绑定单一 ActionTarget 的回调不会以空集合调用；保留为显式常量比较，
       // 不把一般 Context 集合查询错误简化为唯一木桩。
+      // 标准唯一木桩不安装原生死亡标记，HP 归零也不是 markDie；因此敌人输入经过
+      // excludeDeadEntity 仍为同一目标。能力实体/事件来源则不能借用这条证明。
       return {
         kind: 'actionValueCompare',
         left: {
@@ -424,12 +745,43 @@ function compileConditionLeaf(
   }
   if (condition.kind === 'targetContains') {
     if (
+      condition.parent.targetSource === 'Target' &&
+      condition.child.targetSource === 'Context' &&
+      condition.child.targetGroupKey !== '' &&
+      context.actionTargetTarget === 'enemy' &&
+      (targetGroups.get(condition.child.targetGroupKey) === 'enemy' ||
+        context.staticEnemyTargetGroupKeys?.has(condition.child.targetGroupKey) === true)
+    ) {
+      // parent Target 是 Channeling 当前迭代的唯一木桩；child Context 由同一 tick 的
+      // MainTargetFinder 写回同一唯一木桩。直接 Target 分支不读取残留 group key。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 1 },
+        operator: 'equal',
+        right: { kind: 'constant', value: 1 },
+      };
+    }
+    if (
       condition.parent.targetSource !== 'Context' ||
       condition.parent.targetGroupKey === '' ||
       condition.child.targetSource !== 'Target' ||
       condition.child.targetGroupKey !== ''
     ) {
       throw new Error(`${sourcePath}: unsupported target containment sources`);
+    }
+    if (
+      context.actionTargetTarget === 'enemy' &&
+      (targetGroups.get(condition.parent.targetGroupKey) === 'enemy' ||
+        context.staticEnemyTargetGroupKeys?.has(condition.parent.targetGroupKey) === true)
+    ) {
+      // 父 Context 已由完整 finder + TargetContainsValidator 数据流证明为当前唯一木桩，
+      // child Target 又是同一主动技能输入，因此 contains 在固定模型下恒真。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 1 },
+        operator: 'equal',
+        right: { kind: 'constant', value: 1 },
+      };
     }
     return {
       kind: 'contextTargetContains',
@@ -451,24 +803,64 @@ function compileConditionLeaf(
       }),
     };
   }
+  if (condition.kind === 'damageType') {
+    return { kind: 'eventDamageTypeIn', damageTypes: [condition.damageType] };
+  }
   if (condition.kind === 'damageDecorateMask') {
-    const match =
-      condition.checkType === 'HasAny'
-        ? ('hasAny' as const)
-        : condition.checkType === 'HasAll'
-          ? ('hasAll' as const)
-          : null;
+    const match = {
+      HasAny: 'hasAny',
+      HasAll: 'hasAll',
+      ExceptAny: 'exceptAny',
+      ExceptAll: 'exceptAll',
+    }[condition.checkType] as 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll' | undefined;
+    const has = (bit: number) => Math.floor(condition.mask / bit) % 2 === 1;
     const tags = [
-      ...(condition.mask & 256 ? (['normalSkill'] as const) : []),
-      ...(condition.mask & 512 ? (['ultimateSkill'] as const) : []),
-      ...(condition.mask & 8192 ? (['comboSkill'] as const) : []),
-      ...(condition.mask & 2097152 ? (['normalAttackLastCombo'] as const) : []),
+      ...(has(4) ? (['powerAttack'] as const) : []),
+      ...(has(128) ? (['normalAttack'] as const) : []),
+      ...(has(256) ? (['normalSkill'] as const) : []),
+      ...(has(512) ? (['ultimateSkill'] as const) : []),
+      ...(has(1024) ? (['plungingAttack'] as const) : []),
+      ...(has(8192) ? (['comboSkill'] as const) : []),
+      ...(has(131072) ? (['dashAttack'] as const) : []),
+      ...(has(2097152) ? (['normalAttackLastCombo'] as const) : []),
     ];
-    const knownMask = 256 | 512 | 8192 | 2097152;
-    if (match === null || tags.length === 0 || (condition.mask & ~knownMask) !== 0) {
+    const features = [
+      ...(has(4096) ? (['canBreakWeakness'] as const) : []),
+      ...(has(16384) ? (['crush'] as const) : []),
+      ...(has(32768) ? (['airborne'] as const) : []),
+      ...(has(65536) ? (['knockDown'] as const) : []),
+      ...(has(134217728) ? (['shatter'] as const) : []),
+      ...(has(268435456) ? (['dot'] as const) : []),
+      ...(has(536870912) ? (['remainArea'] as const) : []),
+      ...(has(1073741824) ? (['physicalInfliction'] as const) : []),
+      ...(has(2147483648) ? (['talentDamage'] as const) : []),
+    ];
+    const knownBits = [
+      4, 128, 256, 512, 1024, 4096, 8192, 16384, 32768, 65536, 131072, 2097152, 134217728,
+      268435456, 536870912, 1073741824, 2147483648,
+    ];
+    if (
+      match === undefined ||
+      tags.length + features.length === 0 ||
+      !Number.isSafeInteger(condition.mask) ||
+      condition.mask < 0 ||
+      condition.mask - knownBits.reduce((sum, bit) => sum + (has(bit) ? bit : 0), 0) !== 0
+    ) {
       throw new Error(`${sourcePath}: unsupported damage decorate mask ${condition.mask}`);
     }
-    return { kind: 'eventDamageTagsMatch', match, tags };
+    const projected = [
+      ...(tags.length === 0 ? [] : [{ kind: 'eventDamageTagsMatch' as const, match, tags }]),
+      ...(features.length === 0
+        ? []
+        : [{ kind: 'eventDamageFeaturesMatch' as const, match, features }]),
+    ];
+    if (projected.length === 1) return projected[0]!;
+    // 位掩码跨 Tag/Feature 两个公共域时还原同一个原生位判断：HasAny/ExceptAll
+    // 是域间“或”，HasAll/ExceptAny 是域间“且”。
+    return {
+      kind: condition.checkType === 'HasAny' || condition.checkType === 'ExceptAll' ? 'any' : 'all',
+      conditions: projected,
+    };
   }
   if (condition.kind === 'healTag') {
     return {
@@ -534,6 +926,40 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'objectTypeMatch') {
+    if (
+      context.fixedBuffOwnerTarget === 'caster' &&
+      condition.target.targetSource === 'Owner' &&
+      condition.target.targetGroupKey === ''
+    ) {
+      const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
+      // 闭包来源已证明 Buff owner 是队伍干员；原生 Character 位为 0x08。
+      return (mask & 0x08) === 0x08
+        ? { kind: 'all', conditions: [] }
+        : { kind: 'any', conditions: [] };
+    }
+    if (
+      context.actionTargetTarget === 'currentOperator' &&
+      condition.target.targetSource === 'Target' &&
+      condition.target.targetGroupKey === ''
+    ) {
+      const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
+      return (mask & 0x08) === 0x08
+        ? { kind: 'all', conditions: [] }
+        : { kind: 'any', conditions: [] };
+    }
+    if (
+      context.actionTargetTarget === 'enemy' &&
+      condition.target.targetSource === 'Target' &&
+      condition.target.targetGroupKey === ''
+    ) {
+      const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
+      // Endaxis 的唯一木桩是原生 ObjectType.Enemy (0x10)。原生查询在 mask
+      // 含 Enemy 时额外加入 EnemyPart，但这不会改变对 Enemy 本体的完整包含判断。
+      // all([])/any([]) 分别是公共条件协议中的显式真/假，不借用事件上下文。
+      return (mask & 0x10) === 0x10
+        ? { kind: 'all', conditions: [] }
+        : { kind: 'any', conditions: [] };
+    }
     if (condition.target.targetSource !== 'Context' || condition.target.targetGroupKey === '') {
       throw new Error(
         `${sourcePath}: unsupported object type target; expected named Context group`,
@@ -548,6 +974,66 @@ function compileConditionLeaf(
   if (condition.kind === 'targetIdentity') {
     const first = condition.first;
     const second = condition.second;
+    const isPlainReference = (target: typeof first) =>
+      target.finderType === null &&
+      target.validatorTypes.length === 0 &&
+      target.postProcessorTypes.length === 0 &&
+      target.priorityFilters.length === 0 &&
+      target.shuffleTargets.length === 0 &&
+      target.distanceValidators.length === 0;
+    const isStaticEnemyReference = (target: typeof first) =>
+      (target.targetSource === 'Target' &&
+        context.actionTargetTarget === 'enemy' &&
+        isPlainReference(target)) ||
+      (target.targetSource === 'MainTarget' && isPlainReference(target)) ||
+      (target.targetSource === 'Context' &&
+        target.targetGroupKey !== '' &&
+        (context.staticEnemyTargetGroupKeys?.has(target.targetGroupKey) === true ||
+          targetGroups.get(target.targetGroupKey) === 'enemy') &&
+        isPlainReference(target)) ||
+      (target.targetSource === 'InstantSearch' &&
+        target.finderType === 'MainTargetFinder' &&
+        target.validatorTypes.length === 0 &&
+        target.postProcessorTypes.length === 0 &&
+        target.priorityFilters.length === 0 &&
+        target.shuffleTargets.length === 0 &&
+        target.distanceValidators.length === 0);
+    if (isStaticEnemyReference(first) && isStaticEnemyReference(second)) {
+      // 固定唯一木桩模型下，当前 Target、MainTarget 与已证明的敌人 Context 是同一身份。
+      // Target/MainTarget 分支不读取序列化残留的 group key；Context 仍严格要求命名组证明。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 1 },
+        operator: 'equal',
+        right: { kind: 'constant', value: 1 },
+      };
+    }
+    const targetMatchesStaticMainTarget = (target: typeof first, mainTarget: typeof first) =>
+      context.actionTargetTarget === 'enemy' &&
+      target.targetSource === 'Target' &&
+      ((mainTarget.targetSource === 'MainTarget' &&
+        mainTarget.targetGroupKey === '' &&
+        mainTarget.finderType === null) ||
+        (mainTarget.targetSource === 'InstantSearch' &&
+          mainTarget.finderType === 'MainTargetFinder')) &&
+      mainTarget.validatorTypes.length === 0 &&
+      mainTarget.postProcessorTypes.length === 0 &&
+      mainTarget.priorityFilters.length === 0 &&
+      mainTarget.shuffleTargets.length === 0 &&
+      mainTarget.distanceValidators.length === 0;
+    if (
+      targetMatchesStaticMainTarget(first, second) ||
+      targetMatchesStaticMainTarget(second, first)
+    ) {
+      // Target 是当前动作输入，MainTarget / MainTargetFinder 是全局主目标；固定唯一敌人模型已把二者
+      // 证明为同一个木桩。保留显式真条件，避免把来源枚举相等误当成原生比较规则。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 1 },
+        operator: 'equal',
+        right: { kind: 'constant', value: 1 },
+      };
+    }
     const matchesBuffSourceAndOwner =
       first.targetGroupKey === '' &&
       second.targetGroupKey === '' &&
@@ -561,8 +1047,31 @@ function compileConditionLeaf(
       second.targetGroupKey === '' &&
       ((first.targetSource === 'Target' && second.targetSource === 'Source') ||
         (first.targetSource === 'Source' && second.targetSource === 'Target'));
+    const isSourceFinderOfActionSource = (target: typeof first) =>
+      target.targetSource === 'InstantSearch' &&
+      target.finderType === 'SourceFinder' &&
+      target.selectorOwner === 'ActionSource' &&
+      target.validatorTypes.length === 0 &&
+      target.postProcessorTypes.length === 0 &&
+      target.priorityFilters.length === 0 &&
+      target.shuffleTargets.length === 0 &&
+      target.distanceValidators.length === 0;
+    const matchesResolvedBuffSourceAndEventSource =
+      ((isSourceFinderOfActionSource(first) && second.targetSource === 'Target') ||
+        (isSourceFinderOfActionSource(second) && first.targetSource === 'Target')) &&
+      first.targetGroupKey === '' &&
+      second.targetGroupKey === '';
     if (context.actionTargetTarget === 'eventSource') {
-      if (matchesEventSourceAndTarget && context.actionSourceTarget === 'buffSource')
+      const matchesEventSourceAndControlledOperator =
+        first.targetGroupKey === '' &&
+        second.targetGroupKey === '' &&
+        ((first.targetSource === 'Target' && second.targetSource === 'MainCharacter') ||
+          (first.targetSource === 'MainCharacter' && second.targetSource === 'Target'));
+      if (matchesEventSourceAndControlledOperator) return { kind: 'eventSourceControlled' };
+      if (
+        (matchesEventSourceAndTarget || matchesResolvedBuffSourceAndEventSource) &&
+        context.actionSourceTarget === 'buffSource'
+      )
         return { kind: 'eventSourceMatchesBuffSource' };
       throw new Error(`${sourcePath}: unsupported receiving Buff event target identity sources`);
     }
@@ -600,6 +1109,43 @@ function compileConditionLeaf(
         value: actionValueOperand(condition.value),
       };
     }
+    if (
+      condition.targetSource === 'Context' &&
+      condition.targetGroupKey !== '' &&
+      context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true &&
+      condition.buffCheckType === 'Tag' &&
+      condition.buffIds.length === 0 &&
+      condition.countType === 'BuffCount' &&
+      !condition.limitSkillCastId
+    ) {
+      const operator = COMPARISON_OPERATORS[condition.comparison];
+      if (operator === undefined)
+        throw new Error(`${sourcePath}: unsupported Buff stack comparison`);
+      const buffTags = projectGameplayTags(condition.buffTagIds, context, sourcePath);
+      const value = actionValueOperand(condition.value);
+      if (
+        condition.tagQueryType === 'hasAny' &&
+        buffTags.length === 1 &&
+        buffTags[0] === 'Skill/Character/Common/NoGuard' &&
+        operator === 'greaterOrEqual' &&
+        value.kind === 'constant' &&
+        value.value === 1
+      ) {
+        // NoGuard Buff 是原生物理异常状态的实现载体；Next 已由独立的
+        // 木桩破防状态保留该事实。精确的 >=1 存在性检查不应反过来要求
+        // 同时复制原生 Buff 实例，否则不同技能造成的同一破防事实会分裂。
+        return { kind: 'targetStaggered', target: 'enemy' };
+      }
+      return {
+        // 主动技能入口已证明该 Context 恒为唯一木桩，不能再把它当作动态事件目标。
+        kind: 'buffStackCompare',
+        target: 'enemy',
+        tagQueryType: condition.tagQueryType,
+        buffTags,
+        operator,
+        value,
+      };
+    }
     // ByTag 无目标返回 false；不能沿用 Advanced 的零层路径或实例计数。
     if (
       condition.targetSource === 'Context' &&
@@ -624,10 +1170,10 @@ function compileConditionLeaf(
     if (
       (condition.targetSource !== 'Target' &&
         condition.targetSource !== 'Owner' &&
-        condition.targetSource !== 'Source') ||
-      condition.targetGroupKey !== '' ||
-      condition.countType !== 'BuffCount' ||
-      condition.limitSkillCastId
+        condition.targetSource !== 'Source' &&
+        condition.targetSource !== 'MainCharacter') ||
+      (condition.countType !== 'BuffCount' && condition.countType !== 'BuffIdCount') ||
+      (condition.limitSkillCastId && context.actionEnvironmentSkillCastInfoIsSourceCast !== true)
     ) {
       throw new Error(`${sourcePath}: unsupported event target Buff count condition`);
     }
@@ -635,23 +1181,74 @@ function compileConditionLeaf(
     if (operator === undefined) {
       throw new Error(`${sourcePath}: unsupported event target Buff count comparison`);
     }
-    if (condition.buffCheckType === 'Tag' && condition.buffIds.length === 0) {
+    if (
+      condition.countType === 'BuffIdCount' &&
+      condition.buffCheckType === 'Tag' &&
+      condition.buffIds.length === 0 &&
+      !condition.limitSkillCastId
+    ) {
       return {
-        // 原生 BuffCount 累加增强层数；Source/Owner 不能冒充物理事件目标。
-        kind: 'buffStackCompare',
+        kind: 'buffTagIdCountCompare',
         target:
           condition.targetSource === 'Owner'
             ? buffConditionOwner(context, sourcePath)
             : condition.targetSource === 'Source'
               ? context.actionSourceTarget
-              : singleBuffConditionTarget(context, sourcePath),
+              : condition.targetSource === 'MainCharacter'
+                ? 'controlledOperator'
+                : singleBuffConditionTarget(context, sourcePath),
         tagQueryType: condition.tagQueryType,
         buffTags: projectGameplayTags(condition.buffTagIds, context, sourcePath),
         operator,
         value: actionValueOperand(condition.value),
       };
     }
-    if (condition.buffCheckType === 'Id' && condition.buffIds.every(id => id.length > 0)) {
+    if (
+      condition.countType === 'BuffCount' &&
+      condition.buffCheckType === 'Tag' &&
+      condition.buffIds.length === 0
+    ) {
+      const target =
+        condition.targetSource === 'Owner'
+          ? buffConditionOwner(context, sourcePath)
+          : condition.targetSource === 'Source'
+            ? context.actionSourceTarget
+            : condition.targetSource === 'MainCharacter'
+              ? 'controlledOperator'
+              : singleBuffConditionTarget(context, sourcePath);
+      const buffTags = projectGameplayTags(condition.buffTagIds, context, sourcePath);
+      const value = actionValueOperand(condition.value);
+      if (
+        target === 'enemy' &&
+        condition.tagQueryType === 'hasAny' &&
+        buffTags.length === 1 &&
+        buffTags[0] === 'Skill/Character/Common/NoGuard' &&
+        operator === 'greaterOrEqual' &&
+        value.kind === 'constant' &&
+        value.value === 1 &&
+        !condition.limitSkillCastId
+      ) {
+        return { kind: 'targetStaggered', target: 'enemy' };
+      }
+      return {
+        // 原生 BuffCount 累加增强层数；Source/Owner 不能冒充物理事件目标。
+        kind: 'buffStackCompare',
+        target,
+        tagQueryType: condition.tagQueryType,
+        buffTags,
+        operator,
+        value,
+        ...(condition.limitSkillCastId ? { sameSourceSkillCast: true } : {}),
+      };
+    }
+    if (
+      condition.countType === 'BuffCount' &&
+      condition.buffCheckType === 'Id' &&
+      condition.buffIds.every(id => id.length > 0)
+    ) {
+      // combat-spec/check-main-character-condition-inventory.md：公共目标解析器只在
+      // targetSource=Context 时读取 targetGroupKey。Liino 的监听响应保留了 Owner+"tar"
+      // 这一陈旧组名，仍必须读取 ActionOwner，不能据此改读 Context 或拒绝来源数据。
       return {
         kind: 'buffIdStackCompare',
         target:
@@ -659,10 +1256,13 @@ function compileConditionLeaf(
             ? buffConditionOwner(context, sourcePath)
             : condition.targetSource === 'Source'
               ? context.actionSourceTarget
-              : singleBuffConditionTarget(context, sourcePath),
+              : condition.targetSource === 'MainCharacter'
+                ? 'controlledOperator'
+                : singleBuffConditionTarget(context, sourcePath),
         buffIds: condition.buffIds,
         operator,
         value: actionValueOperand(condition.value),
+        ...(condition.limitSkillCastId ? { sameSourceSkillCast: true } : {}),
       };
     }
     throw new Error(`${sourcePath}: unsupported event target Buff identity condition`);
@@ -726,12 +1326,89 @@ function compileConditionLeaf(
       condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: condition.buffId },
     };
   }
+  if (condition.kind === 'skillHasHit') {
+    if (context.timelineRange === undefined) {
+      throw new Error(`${sourcePath}: CheckSkillHasHit requires an active skill timeline context`);
+    }
+    return {
+      kind: 'actionValueCompare',
+      left: { kind: 'blackboard', key: NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY },
+      operator: 'greater',
+      right: { kind: 'constant', value: 0 },
+    };
+  }
+  if (condition.kind === 'enemyRank') {
+    const target = condition.target;
+    const targetsActiveSkillEnemy =
+      target.targetSource === 'Target' &&
+      target.targetGroupKey === '' &&
+      context.actionTargetTarget === 'enemy';
+    const targetsEnemyBuffOwner =
+      target.targetSource === 'Owner' &&
+      target.targetGroupKey === '' &&
+      context.actionOwnerTarget === 'buffOwner' &&
+      context.fixedBuffOwnerTarget === 'enemy';
+    const targetsProvenEnemyContext =
+      target.targetSource === 'Context' &&
+      target.targetGroupKey.length > 0 &&
+      context.staticEnemyTargetGroupKeys?.has(target.targetGroupKey) === true;
+    if (!targetsActiveSkillEnemy && !targetsEnemyBuffOwner && !targetsProvenEnemyContext) {
+      throw new Error(`${sourcePath}: enemy rank condition requires a proven enemy target`);
+    }
+    const ranks = [
+      ...(condition.rankMask & 1 ? (['mob'] as const) : []),
+      ...(condition.rankMask & 2 ? (['elite'] as const) : []),
+      ...(condition.rankMask & 4 ? (['boss'] as const) : []),
+    ];
+    return { kind: 'enemyRankIn', ranks };
+  }
   if (condition.kind === 'timedMarker') {
     if (context.actionTargetTarget === 'eventSource' && condition.targetSource === 'Target')
       throw new Error(`${sourcePath}: unaudited receiving Buff event marker target`);
+    if (
+      condition.targetSource === 'Context' &&
+      condition.targetGroupKey.length > 0 &&
+      targetGroups.get(condition.targetGroupKey) === 'abilityEntity'
+    ) {
+      if (
+        condition.useBlackboardKey
+          ? condition.blackboardKey.length === 0
+          : condition.markerId.length === 0
+      )
+        throw new Error(`${sourcePath}: timed marker condition has no marker id`);
+      const present = {
+        kind: 'abilityEntityTimedMarkerPresent' as const,
+        contextKey: condition.targetGroupKey,
+        markerId: condition.useBlackboardKey
+          ? { blackboardKey: condition.blackboardKey }
+          : condition.markerId,
+      };
+      return condition.returnTrueIfNotExists ? { kind: 'not', condition: present } : present;
+    }
+    if (
+      condition.targetSource === 'Owner' &&
+      condition.targetGroupKey === '' &&
+      context.actionOwnerTarget === 'currentAbilityEntity'
+    ) {
+      if (
+        condition.useBlackboardKey
+          ? condition.blackboardKey.length === 0
+          : condition.markerId.length === 0
+      )
+        throw new Error(`${sourcePath}: timed marker condition has no marker id`);
+      const present = {
+        kind: 'abilityEntityTimedMarkerPresent' as const,
+        markerId: condition.useBlackboardKey
+          ? { blackboardKey: condition.blackboardKey }
+          : condition.markerId,
+      };
+      return condition.returnTrueIfNotExists ? { kind: 'not', condition: present } : present;
+    }
     const target =
       condition.targetSource === 'Target'
-        ? ('eventTarget' as const)
+        ? context.actionTargetTarget === 'enemy'
+          ? ('enemy' as const)
+          : ('eventTarget' as const)
         : condition.targetSource === 'Owner'
           ? requireActionOwnerProjection(context, sourcePath)
           : condition.targetSource === 'Source'
@@ -739,20 +1416,34 @@ function compileConditionLeaf(
             : null;
     if (
       (target !== 'caster' &&
+        target !== 'enemy' &&
         target !== 'eventTarget' &&
         target !== 'buffOwner' &&
         target !== 'buffSource') ||
-      condition.targetGroupKey !== '' ||
-      condition.useBlackboardKey ||
-      condition.blackboardKey !== '' ||
-      condition.markerId.length === 0
+      (condition.targetSource !== 'Target' && condition.targetGroupKey !== '') ||
+      (condition.useBlackboardKey
+        ? condition.blackboardKey.length === 0
+        : condition.markerId.length === 0)
     ) {
-      throw new Error(`${sourcePath}: unsupported timed marker condition`);
+      throw new Error(
+        `${sourcePath}: unsupported timed marker condition ` +
+          JSON.stringify({
+            target,
+            actionTargetTarget: context.actionTargetTarget,
+            targetSource: condition.targetSource,
+            targetGroupKey: condition.targetGroupKey,
+            useBlackboardKey: condition.useBlackboardKey,
+            blackboardKey: condition.blackboardKey,
+            markerId: condition.markerId,
+          }),
+      );
     }
     const present = {
       kind: 'timedMarkerPresent' as const,
       target,
-      markerId: condition.markerId,
+      markerId: condition.useBlackboardKey
+        ? { blackboardKey: condition.blackboardKey }
+        : condition.markerId,
     };
     return condition.returnTrueIfNotExists ? { kind: 'not', condition: present } : present;
   }
@@ -762,7 +1453,8 @@ function compileConditionLeaf(
 function singleBuffConditionTarget(
   context: CombatActionProjectionContextSource,
   sourcePath: string,
-): 'enemy' | 'buffOwner' | 'currentAbilityEntity' | 'eventTarget' {
+): 'enemy' | 'buffOwner' | 'currentAbilityEntity' | 'eventTarget' | 'currentTarget' {
+  if (context.actionTargetTarget === 'currentOperator') return 'currentTarget';
   if (
     context.actionTargetTarget === 'enemy' ||
     context.actionTargetTarget === 'buffOwner' ||
@@ -785,6 +1477,45 @@ const SKILL_TYPES: Readonly<Record<string, 'battleSkill' | 'comboSkill' | 'ultim
   ComboSkill: 'comboSkill',
   UltimateSkill: 'ultimate',
 };
+
+function mapNativeSkillTypes(
+  nativeSkillTypes: readonly string[],
+  attackTypeMask: string | number | undefined,
+): readonly ('basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate')[] {
+  const output = new Set<
+    'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'
+  >();
+  for (const skillType of nativeSkillTypes) {
+    // Next 不把原生 ExtraActiveSkill 猜成处决技；没有该原生类型的运行时实例可命中。
+    if (skillType === 'ExtraActiveSkill') continue;
+    if (skillType === 'Attack') {
+      const bits = decodeAttackTypeMask(attackTypeMask);
+      if ((bits & 1) !== 0) output.add('basicAttack');
+      // 时间轴上的下落攻击技能是原生 PlungingAttackEnd；Start 只负责起跳且不单独落轴。
+      if ((bits & 4) !== 0) output.add('plungingAttack');
+      continue;
+    }
+    const mapped = SKILL_TYPES[skillType];
+    if (mapped === undefined)
+      throw new Error(`unsupported native skill type ${JSON.stringify(skillType)}`);
+    output.add(mapped);
+  }
+  return [...output];
+}
+
+function decodeAttackTypeMask(value: string | number | undefined): number {
+  if (value === undefined || value === 'All') return 7;
+  if (typeof value === 'number') return value & 7;
+  let result = 0;
+  for (const item of value.split(',').map(part => part.trim())) {
+    if (item === 'None' || item === '') continue;
+    if (item === 'NormalAttack') result |= 1;
+    else if (item === 'PlungingAttackStart') result |= 2;
+    else if (item === 'PlungingAttackEnd') result |= 4;
+    else throw new Error(`unsupported native attack type mask ${JSON.stringify(value)}`);
+  }
+  return result;
+}
 
 const TAG_QUERY_TYPES: Readonly<Record<string, 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll'>> = {
   HasAny: 'hasAny',

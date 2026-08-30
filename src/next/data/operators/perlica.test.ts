@@ -6,7 +6,13 @@ const getSkill = (key: string) => findSkill(perlica, key);
 
 describe('next Perlica definition', () => {
   it('keeps infliction, damage, and energy gain in source order', () => {
-    const steps = getSkill('battleSkill').scheduledSequences[0]!.sequence.steps;
+    const steps = getSkill('battleSkill')
+      .scheduledSequences.flatMap(item => collectSteps(item.sequence))
+      .filter(step =>
+        ['applyElementalInfliction', 'dealDamage', 'gainSquadUltimateEnergyFromSkillCost'].includes(
+          step.kind,
+        ),
+      );
 
     expect(steps.map(step => step.kind)).toEqual([
       'applyElementalInfliction',
@@ -17,15 +23,30 @@ describe('next Perlica definition', () => {
 
   it('models combo impact as supported semantic operations', () => {
     const skill = getSkill('comboSkill');
-    const steps = skill.scheduledSequences.find(item => item.startFrame === 24)!.sequence.steps;
+    const steps = collectSteps(
+      skill.scheduledSequences.find(item => item.startFrame === 24)!.sequence,
+    ).filter(step =>
+      ['applyBuff', 'dealDamage', 'changeResourceByActionValue'].includes(step.kind),
+    );
 
-    expect(skill.scheduledSequences[0]!.sequence.steps[0]?.kind).toBe('startTimeDilation');
+    expect(
+      skill.scheduledSequences.some(item =>
+        collectSteps(item.sequence).some(step => step.kind === 'startTimeDilation'),
+      ),
+    ).toBe(true);
 
     expect(steps.map(step => step.kind)).toEqual([
-      'applyElementalReaction',
+      'applyBuff',
       'dealDamage',
       'changeResourceByActionValue',
     ]);
+    expect(steps[0]).toMatchObject({
+      kind: 'applyBuff',
+      parameters: {
+        buffId: 'buff_common_pulse_pulse_conduct_triggered',
+        target: 'enemy',
+      },
+    });
     expect(steps[2]).toMatchObject({
       kind: 'changeResourceByActionValue',
       parameters: {
@@ -72,11 +93,14 @@ describe('next Perlica definition', () => {
       .filter(step => step.kind === 'dealDamage');
 
     expect(damageHits).toHaveLength(3);
-    expect(damageHits[0]?.parameters.attackScale).toEqual([
+    expect(getSkill('basicAttack3').blackboard?.atk_scale).toEqual([
       0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28,
     ]);
-    expect(damageHits[1]?.parameters.attackScale).toBe(damageHits[0]?.parameters.attackScale);
-    expect(damageHits[2]?.parameters.attackScale).toBe(damageHits[0]?.parameters.attackScale);
+    expect(damageHits.map(hit => hit.parameters.attackScale)).toEqual([
+      { kind: 'blackboard', key: 'atk_scale' },
+      { kind: 'blackboard', key: 'atk_scale' },
+      { kind: 'blackboard', key: 'atk_scale' },
+    ]);
   });
 
   it('opens the combo window from the final normal-attack damage tag', () => {
@@ -128,47 +152,52 @@ describe('next Perlica definition', () => {
       kind: 'dealDamage',
       parameters: { tags: ['normalAttack', 'plungingAttack'] },
     });
-    expect(finisherSteps[1]).toEqual({
+    expect(finisherSteps).toContainEqual({
       kind: 'gainFinisherSp',
       parameters: { factor: 1, recipient: 'team' },
     });
   });
 
-  it('preserves both talents even while the second effect is unsupported', () => {
+  it('preserves both talents and connects the ricochet switch through native blackboard data', () => {
     expect(perlica.talents.map(talent => talent.key)).toEqual([
       'staggerDamageBonus',
       'comboRicochetAgainstBrokenEnemy',
     ]);
-    expect(perlica.talents[1]?.modifiers).toEqual([]);
+    expect(perlica.talents[1]?.modifiers).toEqual([
+      {
+        kind: 'patchSkillBlackboard',
+        skillGroupKey: 'comboSkill',
+        blackboardKey: 'talent2',
+        operation: 'assign',
+        value: 1,
+      },
+    ]);
   });
 
-  it('models the third potential as an event handler instead of a static modifier', () => {
+  it('models the third potential through its native event-listening Buff', () => {
     const potential = perlica.potentials[2];
 
     expect(potential).toMatchObject({
       key: 'attackAfterElectrification',
-      eventHandlers: [
-        {
-          event: { kind: 'reactionApplied', reaction: 'electrification' },
-          sequence: {
-            steps: [
-              {
-                kind: 'applyBuff',
-                parameters: {
-                  buffId: 'buff_chr_0004_pelica_potential_3_atkup',
-                  target: 'caster',
-                },
-              },
-            ],
+      initializationSequence: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: { buffId: 'buff_chr_0004_pelica_potential_3', target: 'caster' },
           },
-        },
-      ],
+        ],
+      },
     });
     expect(perlica.buffDefinitions?.buff_chr_0004_pelica_potential_3_atkup).toMatchObject({
       stackingType: 'enhanceAndRefresh',
       maxStackCount: 2,
-      durationSeconds: 5,
-      attributeModifiers: [{ attribute: 'Atk', slot: 'baseMultiplier', value: 0.2 }],
+      durationSeconds: { blackboardKey: 'atk_duration' },
+      attributeModifiers: [
+        { attribute: 'Atk', slot: 'baseMultiplier', value: { blackboardKey: 'atk_up' } },
+      ],
+    });
+    expect(perlica.buffDefinitions?.buff_chr_0004_pelica_potential_3).toMatchObject({
+      abilityEventResponses: [{ event: 'outputBuff' }],
     });
     expect(potential?.modifiers).toBeUndefined();
   });
@@ -180,7 +209,6 @@ describe('next Perlica definition', () => {
     expect(serialized).not.toContain('afterDamage');
     expect(serialized).not.toContain('evidence');
     expect(serialized).not.toContain('sourceOrder');
-    expect(serialized).not.toContain('buff_common_');
     expect(serialized).not.toContain('projectileId');
     expect(serialized).not.toContain('impactSkillId');
     expect(serialized).not.toContain('onReactionApplied');

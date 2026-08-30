@@ -15,6 +15,10 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind };
     case 'casterControlled':
       return { kind };
+    case 'characterTypeIn':
+      return { kind, target: 'caster', characterTypes: ['physical'] };
+    case 'operatorRoleIn':
+      return { kind, target: 'caster', roles: ['guard'] };
     case 'enemyRankIn':
       return { kind, ranks: ['mob'] };
     case 'enemySuperArmorCompare':
@@ -84,6 +88,7 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
     case 'currentBuffStackCompare':
       return { kind, operator: 'greaterOrEqual', value: { kind: 'constant', value: 1 } };
     case 'buffStackCompare':
+    case 'buffTagIdCountCompare':
       return {
         kind,
         target: 'caster',
@@ -118,6 +123,10 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, types: ['fracture'] };
     case 'eventSkillTypeIn':
       return { kind, skillTypes: ['battleSkill'] };
+    case 'eventCustomAbilityNameMatch':
+      return { kind, eventName: 'custom-event' };
+    case 'currentSkillTypeIn':
+      return { kind, target: 'buffOwner', skillTypes: ['battleSkill'] };
     case 'originSkillTypeIn':
       return { kind, skillTypes: ['battleSkill'] };
     case 'contextTargetContains':
@@ -151,6 +160,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
     case 'eventSkillCastMatchesBuffSource':
     case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':
+      return { kind };
+    case 'ownerSpawnedAbilityEntityPresent':
       return { kind };
     case 'elementalInflictionPresent':
       return { kind, elements: 'heat' };

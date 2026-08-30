@@ -4,6 +4,8 @@ import {
   parseKnownNativeActionLeafSource,
   parseKnownNativeActionSequenceSource,
 } from '../src/index.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { isStaticExplicitBadFactionEnemyTargetGroup } from '../src/compiler/combatProjectionCommon.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 const META = {
@@ -13,7 +15,762 @@ const META = {
   serverActionIndex: 1,
 } as const;
 
+function rayCastEffectFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    ...META,
+    $type: 'Beyond.Gameplay.Core.RayCastEffectAction+RayCastEffectActionData, Gameplay.Beyond',
+    targetGroupKey: 'ray_targets',
+    saveAllHitTargets: true,
+    hitPosGroupKey: 'ray_hit_positions',
+    moveType: 'PointToPoint',
+    targetSettings: targetFixture('Owner', {
+      finderData: {
+        $type: 'Beyond.Gameplay.Core.Selector+FixedPointFinder+Data, Gameplay.Beyond',
+        positionOffset: { x: 0, y: 0, z: 6 },
+        rotationOffset: { x: 0, y: 0, z: 0, w: 1 },
+        snapToNavmesh: false,
+        sampleRadius: scalarFixture(0),
+      },
+      validatorData: [],
+      postProcessorData: [],
+    }),
+    sourceSettings: targetFixture('Owner'),
+    rayEffect: {},
+    rayHitEffect: {},
+    hitEffectDirectionType: 'LookAtNextEndPos',
+    hitEffectLayers: {},
+    hitLoopSoundEvent: { _id: 0 },
+    hitEndSoundEvent: { _id: 0 },
+    sourcePosType: 'Follow',
+    startPosMountPoint: 'None',
+    startPosOffset: { x: 0, y: 0, z: 0 },
+    raycastDataList: [],
+    mountPointRayData: {},
+    curveRayData: {},
+    pointToPointRayData: {},
+    useFaction: false,
+    autoSetTargetFaction: true,
+    containsUnMarkable: false,
+    factionTarget: 'Anti',
+    targetFactionType: 0,
+    touchingLayers: {},
+    rayMaxLength: 16,
+    rayRadius: 2,
+    useRealHitLength: false,
+    useLastHitForEffect: false,
+    ...overrides,
+  };
+}
+
 describe('公共 Action 叶子分派', () => {
+  it('保留 RayCastEffectAction 写出的命中目标组与位置组', () => {
+    expect(
+      parseKnownNativeActionLeafSource(rayCastEffectFixture(), 'fixture.ray', {}),
+    ).toMatchObject({
+      family: 'rayCastTargetGroup',
+      action: {
+        kind: 'rayCastTargetGroup',
+        targetGroupKey: 'ray_targets',
+        hitPosGroupKey: 'ray_hit_positions',
+        saveAllHitTargets: true,
+        moveType: 'PointToPoint',
+        raycastSegmentCount: 0,
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        rayCastEffectFixture({ unexpected: true }),
+        'fixture.ray.changed',
+        {},
+      ),
+    ).toThrow('unexpected fields');
+  });
+
+  it('零空间唯一木桩把受支持的光线查询写成敌人和空间 Context', () => {
+    const sequence = parseKnownNativeActionSequenceSource(
+      {
+        actionData: [rayCastEffectFixture()],
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      'fixture.ray.sequence',
+      {},
+    );
+    expect(
+      compileCombatActionSequenceSource(sequence, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toEqual({ steps: [] });
+    expect(() =>
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(
+          {
+            actionData: [rayCastEffectFixture({ useFaction: true })],
+            onlyExecuteWhenSourceIsMainChar: false,
+            onlyExecuteWhenSourceIsGuard: false,
+          },
+          'fixture.ray.unsupported',
+          {},
+        ),
+        {
+          actionOwnerTarget: 'caster',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      ),
+    ).toThrow('unsupported RayCastEffectAction stump projection');
+  });
+
+  it('能力实体 Context 可作为零空间光线的严格空间锚点', () => {
+    const sourceSettings = targetFixture('Context', undefined, 'laser_root');
+    const targetSettings = targetFixture(
+      'Context',
+      {
+        finderData: {
+          $type: 'Beyond.Gameplay.Core.Selector+FixedPointFinder+Data, Gameplay.Beyond',
+          positionOffset: { x: 0, y: 0, z: 6 },
+          rotationOffset: { x: 0, y: 0, z: 0, w: 1 },
+          snapToNavmesh: false,
+          sampleRadius: scalarFixture(0),
+        },
+        validatorData: [],
+        postProcessorData: [],
+      },
+      'laser_root',
+    );
+    const sequence = parseKnownNativeActionSequenceSource(
+      {
+        actionData: [rayCastEffectFixture({ sourceSettings, targetSettings })],
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      'fixture.contextRay.sequence',
+      {},
+    );
+    expect(
+      compileCombatActionSequenceSource(sequence, {
+        actionOwnerTarget: 'buffOwner',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+        fixedBuffOwnerTarget: 'currentAbilityEntity',
+        staticAbilityEntityTargetGroupKeys: new Set(['laser_root']),
+      }),
+    ).toEqual({ steps: [] });
+  });
+
+  it('保留显式 Bad 阵营并将该 HitBox 查询证明为唯一敌人', () => {
+    const parsed = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.FindTargetAction+FindTargetActionData, Gameplay.Beyond',
+        targetGroupKey: 'enemy',
+        center: 'ActionOwner',
+        centerContextKey: '',
+        useCenterEntityMountPoint: false,
+        centerMountPoint: 'None',
+        centerToGround: false,
+        selectorOwner: 'ActionOwner',
+        selectorOwnerContextKey: '',
+        selectorData: {
+          finderData: {
+            $type: 'Beyond.Gameplay.Core.Selector+HitBoxFinder+Data, Gameplay.Beyond',
+            checkAlive: true,
+            autoSetTargetFaction: false,
+            containsUnMarkable: false,
+            factionTarget: 'Ally',
+            targetFactionType: 'Bad',
+            targetObjectType: 'Normal',
+            checkIntUnSelectableTag: true,
+            shapeList: [],
+          },
+          validatorData: [],
+          postProcessorData: [],
+        },
+        selectorDirection: 'SourceForward',
+        target: 'ActionSource',
+        contextKey: '',
+        useAdvancedDirectionSetting: false,
+        advancedSelectorDirection: {},
+      },
+      'fixture.explicitBad',
+      {},
+    );
+    expect(parsed.family).toBe('targetGroup');
+    if (parsed.family !== 'targetGroup') throw new Error('expected target-group action');
+    expect(parsed.action).toMatchObject({
+      finderAutoSetTargetFaction: false,
+      finderTargetFactionType: 'Bad',
+    });
+    expect(isStaticExplicitBadFactionEnemyTargetGroup(parsed.action)).toBe(true);
+  });
+
+  it('只省略不会进入固定木桩结算的瞄准层、队伍传送与冲刺输入窗口', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type:
+            'Beyond.Gameplay.Core.AnimatorAimOffsetAction+AnimatorAimOffsetActionData, Gameplay.Beyond',
+          aimOffsetType: 'StrafeMovement',
+          aimXParam: -403618285,
+          aimYParam: -1862895995,
+          layerName: 'AimOffset0',
+          maxHorizontalAngle: 180,
+          maxVerticalAngle: 0,
+          smoothSpeed: 5,
+          inheritAimParameters: false,
+          resetOnEnd: true,
+          blendIn: 0.1,
+          blendOut: 0.25,
+          duration: 4,
+        },
+        'fixture.aimOffset',
+        {},
+      ),
+    ).toEqual({ family: 'presentation', action: { kind: 'animatorAimOffset' } });
+
+    for (const [$type, kind] of [
+      [
+        'Beyond.Gameplay.Core.TryToTeleportSquadAction+Data, Gameplay.Beyond',
+        'squadTeleportOmitted',
+      ],
+      ['Beyond.Gameplay.Core.MarkCanDash+Data, Gameplay.Beyond', 'dashWindowOmitted'],
+    ] as const) {
+      expect(parseKnownNativeActionLeafSource({ ...META, $type }, `fixture.${kind}`, {})).toEqual({
+        family: 'presentation',
+        action: { kind },
+      });
+      expect(() =>
+        parseKnownNativeActionLeafSource(
+          { ...META, $type, unexpected: true },
+          `fixture.${kind}.unsafe`,
+          {},
+        ),
+      ).toThrow('unexpected fields');
+    }
+  });
+
+  it('严格解析原生职业位集并映射到公共干员定位', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.Conditions.CheckProfession+Data, Gameplay.Beyond',
+          checkTarget: targetFixture('Owner'),
+          professionCategories: 'Guard, Supporter, Caster',
+        },
+        'fixture.profession',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'condition',
+      action: {
+        kind: 'profession',
+        target: { targetSource: 'Owner', targetGroupKey: '' },
+        roles: ['guard', 'supporter', 'caster'],
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.Conditions.CheckProfession+Data, Gameplay.Beyond',
+          checkTarget: targetFixture('Owner'),
+          professionCategories: 'Medic',
+        },
+        'fixture.profession',
+        {},
+      ),
+    ).toThrow("unknown ProfessionCategory 'Medic'");
+  });
+
+  it('区分 OnObtainAtb 的效率结算值与容量截断后的实际入账值', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.SaveAtbObtainValue+Data, Gameplay.Beyond',
+      valueKey: 'atb_contain_temp',
+      realDeltaKey: 'atb_real_delta',
+    };
+
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.saveAtb', {})).toEqual({
+      family: 'eventPayload',
+      action: {
+        kind: 'saveAtbObtainValue',
+        valueKey: 'atb_contain_temp',
+        realDeltaKey: 'atb_real_delta',
+      },
+    });
+    expect(
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(sequence([action]), 'fixture.saveAtb', {}),
+        {
+          actionOwnerTarget: 'unavailable',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      ),
+    ).toEqual({
+      steps: [
+        {
+          kind: 'storeEventSpGainAmount',
+          parameters: {
+            outputKey: 'atb_contain_temp',
+            realDeltaOutputKey: 'atb_real_delta',
+          },
+        },
+      ],
+    });
+  });
+
+  it('把 ComboAction 严格识别为只读黑板的连击计数表现动作', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ComboAction+Data, Gameplay.Beyond',
+          source: targetFixture('Owner'),
+          duration: { useBlackboardKey: true, value: 0, blackboardKey: 'duration' },
+          count: scalarFixture(1),
+        },
+        'fixture.comboCounter',
+        { duration: [3] },
+      ),
+    ).toEqual({
+      family: 'presentation',
+      action: { kind: 'comboCounter', readBlackboardKeys: ['duration'] },
+    });
+  });
+
+  it('严格保留语音打断参数，但不把纯音频状态投射进战斗 IR', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.VoiceInterruptAction+VoiceInterruptActionData, Gameplay.Beyond',
+      _interruptImmediately: false,
+      _canInterruptTimeMs: 0,
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.voiceInterrupt', {})).toEqual({
+      family: 'presentation',
+      action: { kind: 'voiceInterrupt' },
+    });
+    expect(
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(sequence([action]), 'fixture.voiceInterrupt', {}),
+        {
+          actionOwnerTarget: 'unavailable',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      ),
+    ).toEqual({ steps: [] });
+  });
+
+  it('保留 AI marker 的所有权、标签和动作寿命，供木桩投影显式消去', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.AddAIMarkerAction+Data, Gameplay.Beyond',
+          markerOwner: targetFixture('Source'),
+          marker: { tagId: 2108198621 },
+          removeByAction: true,
+          duration: scalarFixture(0),
+        },
+        'fixture.aiMarker',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'aiMarker',
+      action: {
+        kind: 'addAiMarker',
+        owner: { targetSource: 'Source', targetGroupKey: '' },
+        markerTagId: 2108198621,
+        removeByAction: true,
+        duration: { value: 0, blackboardKey: null },
+      },
+    });
+  });
+
+  it('严格保留命名自定义事件的发布者、目标和载荷', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.TriggerCustomAbilityEvent+Data, Gameplay.Beyond',
+          eventSource: targetFixture('Source'),
+          targets: targetFixture('Source'),
+          eventName: { useBlackboardKey: false, value: 'liino_comboskill_end', blackboardKey: '' },
+          eventParam: scalarFixture(0),
+        },
+        'fixture.customEvent',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'customAbilityEvent',
+      action: {
+        kind: 'triggerCustomAbilityEvent',
+        eventSource: { targetSource: 'Source', targetGroupKey: '' },
+        targets: { targetSource: 'Source', targetGroupKey: '' },
+        eventName: { value: 'liino_comboskill_end', blackboardKey: null },
+        eventParam: { value: 0, blackboardKey: null },
+      },
+    });
+  });
+
+  it('严格解析自定义事件检查，不把非空参数保存键静默丢弃', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.Conditions.CheckCustomAbilityEvent+Data, Gameplay.Beyond',
+          eventName: { useBlackboardKey: false, value: 'liino_comboskill_end', blackboardKey: '' },
+          savedParamKey: 'event_param',
+        },
+        'fixture.customEventCheck',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'condition',
+      action: {
+        kind: 'customAbilityEvent',
+        eventName: { value: 'liino_comboskill_end', blackboardKey: null },
+        savedParamKey: 'event_param',
+      },
+    });
+  });
+
+  it('ComboCache 保留空技能 ID 占位，不把客户端输入映射误判成非法技能', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ComboCacheAction+Data, Gameplay.Beyond',
+          mappingDataList: [
+            {
+              cmdType: 'ComboSkill',
+              skillId: '',
+              cacheEndByAction: false,
+              clearOffsetTargetSkillIdOnEnd: false,
+              overrideCacheTime: true,
+              cacheTime: scalarFixture(0.2),
+            },
+          ],
+        },
+        'fixture.comboCache',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'inputControl',
+      action: {
+        kind: 'comboCache',
+        mappings: [{ commandType: 'ComboSkill', skillId: '', cacheTime: { value: 0.2 } }],
+      },
+    });
+  });
+
+  it('严格识别动作寿命内的移动打断屏蔽，并交给输入控制投影消去', () => {
+    const source = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.BlockMoveInterruptSkill+Data, Gameplay.Beyond',
+      },
+      'fixture.blockMoveInterruptSkill',
+      {},
+    );
+
+    expect(source).toEqual({
+      family: 'inputControl',
+      action: { kind: 'blockMoveInterruptSkill' },
+    });
+    expect(
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(
+          sequence([
+            {
+              ...META,
+              $type: 'Beyond.Gameplay.Core.BlockMoveInterruptSkill+Data, Gameplay.Beyond',
+            },
+          ]),
+          'fixture.blockMoveInterruptSkill',
+          {},
+        ),
+        {
+          actionOwnerTarget: 'unavailable',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      ),
+    ).toEqual({ steps: [] });
+  });
+
+  it('严格保留 InterruptCurSkillAction 的完整 Owner 来源', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type:
+            'Beyond.Gameplay.Core.AbilityActions.InterruptCurSkillAction+Data, Gameplay.Beyond',
+          skillOwner: targetFixture('Owner'),
+        },
+        'fixture.interruptCurrentSkill',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'timelineControl',
+      action: {
+        kind: 'interruptCurrentSkill',
+        owner: { targetSource: 'Owner', targetGroupKey: '' },
+      },
+    });
+  });
+
+  it('严格保留 AddTagAction 的区间控制标签，不把它伪装成永久实体属性', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.AddTagAction+Data, Gameplay.Beyond',
+          tagOwner: targetFixture('Owner'),
+          useBlackboard: false,
+          tags: [{ tagId: -1601691447 }, { tagId: 1263537306 }, { tagId: -1895802021 }],
+          tag: { useBlackboardKey: false, value: '', blackboardKey: '' },
+        },
+        'fixture.addTags',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'inputControl',
+      action: {
+        kind: 'addEntityControlTags',
+        owner: { targetSource: 'Owner', targetGroupKey: '' },
+        useBlackboard: false,
+        tagIds: [-1601691447, 1263537306, -1895802021],
+        tag: { value: '', blackboardKey: null },
+      },
+    });
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.AddTagToEntities+Data, Gameplay.Beyond',
+          tagOwner: targetFixture('Source'),
+          useBlackboard: false,
+          tags: [{ tagId: -1486085048 }],
+          tag: { useBlackboardKey: false, value: '', blackboardKey: '' },
+        },
+        'fixture.addTagsToEntities',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'inputControl',
+      action: {
+        kind: 'addEntityControlTags',
+        owner: { targetSource: 'Source', targetGroupKey: '' },
+        tagIds: [-1486085048],
+      },
+    });
+  });
+
+  it('只把两个空 LayerMask 的 ChangeSpecificLayerAction 识别为原生无操作分支', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.ChangeSpecificLayerAction+Data, Gameplay.Beyond',
+      targetSettings: targetFixture('Context', undefined, 'mirror'),
+      originLayerMask: {},
+      targetLayerMask: {},
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.changeLayer', {})).toEqual({
+      family: 'presentation',
+      action: { kind: 'specificLayerChangeNoop' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...source, targetLayerMask: { value: 1 } },
+        'fixture.changeLayer',
+        {},
+      ),
+    ).toThrow('targetLayerMask: unexpected fields ["value"]');
+  });
+
+  it('只在唯一木桩模型中接纳 Source 攻击者到 Buff Owner 的强制交战动作', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.ForceTargetInFightAction+Data, Gameplay.Beyond',
+      attacker: targetFixture('Source'),
+      target: targetFixture('Owner'),
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.forceFight', {})).toEqual({
+      family: 'presentation',
+      action: { kind: 'forceTargetInFightOmitted' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...source, target: targetFixture('Target') },
+        'fixture.forceFight',
+        {},
+      ),
+    ).toThrow('unsupported ForceTargetInFight attacker/target projection');
+  });
+
+  it('严格保留 SkillAIMoveAction 的寻位参数，在固定零距离投影前不删除空间证据', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SkillAIMoveAction+Data, Gameplay.Beyond',
+          skillMoveTargetType: 'TargetInOutRange',
+          radius: 5.5,
+          targetSettings: targetFixture('InstantSearch', {
+            finderData: { $type: 'Example.Selector+MainTargetFinder+Data, Example' },
+            validatorData: [],
+            postProcessorData: [],
+          }),
+          minRange: 2.5,
+          maxRange: 5,
+          moveOuterDist: 3.5,
+          moveInnerDist: 3.5,
+          skillRadius: 5.5,
+          otherTargetMinDist: 2,
+          mainCharLineBlockHalfAngle: 35,
+          targetRefreshInterval: 1.5,
+          markerInfo: { invert: false, marker: { tagId: 2108198621 } },
+        },
+        'fixture.skillAiMove',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'spatial',
+      action: {
+        kind: 'skillAiMove',
+        moveTargetType: 'TargetInOutRange',
+        radius: 5.5,
+        target: { targetSource: 'InstantSearch' },
+        minRange: 2.5,
+        maxRange: 5,
+        marker: { invert: false, tagId: 2108198621 },
+      },
+    });
+  });
+
+  it('严格保留 ChangeSkillAction 的槽位、寿命、还原和冷却继承语义', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ChangeSkillAction+Data, Gameplay.Beyond',
+          skillSource: targetFixture('Source'),
+          skillSlot: 'NormalSkill',
+          targetSkillId: 'chr_0035_liino_normal_skill_end',
+          overrideCacheTime: false,
+          cacheTime: scalarFixture(0.1),
+          lifeTimeType: 'FinishByAction',
+          duration: scalarFixture(10),
+          inheritOriginSkillCdProgress: true,
+          specificRevertedSkillId: true,
+          revertedSkillId: 'chr_0035_liino_normal_skill',
+        },
+        'fixture.changeSkill',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'skillSlotReplacement',
+      action: {
+        kind: 'skillSlotReplacement',
+        skillSlot: 'NormalSkill',
+        targetSkillId: 'chr_0035_liino_normal_skill_end',
+        overrideCacheTime: false,
+        lifetime: 'FinishByAction',
+        inheritOriginSkillCooldownProgress: true,
+        specificRevertedSkillId: true,
+        revertedSkillId: 'chr_0035_liino_normal_skill',
+      },
+    });
+  });
+
+  it('严格保留 SaveCameraAngle 的真实输出键，不在来源层猜测角度值', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SaveCameraAngle+Data, Gameplay.Beyond',
+          target: targetFixture('Source'),
+          mountPoint: 'VBHit',
+          yawKey: '',
+          pitchKey: '',
+          eulerPitchKey: 'vertical',
+          distanceKey: '',
+        },
+        'fixture.saveCameraAngle',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'presentationCalculation',
+      action: {
+        kind: 'saveCameraAngle',
+        mountPoint: 'VBHit',
+        outputKeys: ['vertical'],
+      },
+    });
+  });
+
+  it('ExtendBuffAction 严格保留 Buff 所有者和 ID 查询', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ExtendBuffAction+Data, Gameplay.Beyond',
+          buffOwner: targetFixture('Source'),
+          buffSettings: {
+            checkType: 'Id',
+            buffIdList: ['buff_chr_0030_zhuangfy_ult_base'],
+            tagQuery: { queryType: 'HasAny', tags: [] },
+          },
+        },
+        'fixture.extendBuff',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'buffHold',
+      action: {
+        kind: 'buffHold',
+        owner: { targetSource: 'Source', targetGroupKey: '' },
+        settings: {
+          checkType: 'Id',
+          buffIds: ['buff_chr_0030_zhuangfy_ult_base'],
+          tagQuery: { queryType: 'hasAny', tagIds: [] },
+        },
+      },
+    });
+  });
+
+  it('CheckHasMoveInput 严格解析为无黑板副作用的输入条件', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.CheckHasMoveInput+Data, Gameplay.Beyond',
+        },
+        'fixture.moveInput',
+        {},
+      ),
+    ).toEqual({
+      family: 'condition',
+      action: { kind: 'moveInput', sourceType: 'CheckHasMoveInput' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.CheckHasMoveInput+Data, Gameplay.Beyond',
+          guessedInput: true,
+        },
+        'fixture.moveInput',
+        {},
+      ),
+    ).toThrow('unexpected fields');
+  });
+
   it('ConvertToTargetContext 完整保留 None 复制与未启用的空间字段', () => {
     const convertFrom = targetFixture(
       'InstantSearch',
@@ -65,7 +822,7 @@ describe('公共 Action 叶子分派', () => {
     });
   });
 
-  it('ConvertToTargetContext 接受已闭环的实体转位置分支并拒绝未知空间操作', () => {
+  it('ConvertToTargetContext 接受已闭环的实体转位置与排除目标分支并拒绝未知空间操作', () => {
     const action = {
       ...META,
       $type: 'Beyond.Gameplay.Core.ConvertToTargetContext+Data, Gameplay.Beyond',
@@ -88,6 +845,39 @@ describe('公共 Action 叶子分派', () => {
         producerType: 'ConvertToTargetContext',
         conversionOperation: 'ConvertEntityToPosition',
         inputTargets: [{ targetSource: 'Target' }],
+      },
+    });
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...action,
+          convertFrom: targetFixture('Context', undefined, 'tar'),
+          operationType: 'ExcludeTarget',
+          excludeTarget: 'InputTarget',
+        },
+        'fixture.exclude',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'targetGroup',
+      action: {
+        producerType: 'ConvertToTargetContext',
+        conversionOperation: 'ExcludeTarget',
+        inputTargets: [{ targetSource: 'Context', targetGroupKey: 'tar' }],
+        conversionTransform: { excludeTarget: 'InputTarget' },
+      },
+    });
+    expect(
+      parseKnownNativeActionLeafSource(
+        { ...action, operationType: 'ConvertEntityToSlot' },
+        'fixture.camera-slot',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'targetGroup',
+      action: {
+        producerType: 'ConvertToTargetContext',
+        conversionOperation: 'ConvertEntityToSlot',
       },
     });
     expect(() =>
@@ -143,6 +933,115 @@ describe('公共 Action 叶子分派', () => {
         kind: 'buffApplication',
         lifetimeOwner: 'currentCastSkill',
         buffs: [{ buffId: 'buff.weapon.during-skill' }],
+      },
+    });
+  });
+
+  it('InheritCCSAction 只在完整相机状态载荷下作为表现动作省略', () => {
+    const action = {
+      ...META,
+      $type: 'Example.InheritCCSAction+Data, Example',
+      ccsOwner: targetFixture('Owner'),
+      ccsKey: 'CCS_chen_attack_4',
+      overrideBlendOut: true,
+      blendOutTime: 0.1,
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.inheritCcs', {})).toEqual({
+      family: 'presentation',
+      action: { kind: 'inheritedCameraControlState' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...action, ccsOwner: targetFixture('Target') },
+        'fixture.inheritCcs',
+        {},
+      ),
+    ).toThrow('expected plain Owner');
+  });
+
+  it('IgnoreModelIntervalCheck 只接受纯 ModelManager 分帧开关形状', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.IgnoreModelIntervalCheck+Data, Gameplay.Beyond',
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.modelIntervalCheck', {})).toEqual({
+      family: 'presentation',
+      action: { kind: 'modelIntervalCheck' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...action, combatPayload: true },
+        'fixture.modelIntervalCheck',
+        {},
+      ),
+    ).toThrow('unexpected fields');
+  });
+
+  it('SetAbilityEntityDuration 保留 Context 实体、运算和数值来源', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SetAbilityEntityDuration+Data, Gameplay.Beyond',
+          setMultipleTarget: false,
+          targetSettings: targetFixture('Target'),
+          actionTargetType: 'ContextTarget',
+          targetContextKey: 'bunshin1',
+          operation: 'Assign',
+          value: scalarFixture(0.5),
+        },
+        'fixture.abilityEntityDuration',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'abilityEntityDuration',
+      action: {
+        kind: 'abilityEntityDurationMutation',
+        targetContextKey: 'bunshin1',
+        operation: 'Assign',
+        value: { value: 0.5, blackboardKey: null },
+      },
+    });
+  });
+
+  it('SetAbilityEntityDuration 接受 InputTarget 样本的固定紧凑 TargetSettings 外壳', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SetAbilityEntityDuration+Data, Gameplay.Beyond',
+          setMultipleTarget: false,
+          targetSettings: {
+            targetSource: 'Target',
+            selectorOwner: 'ActionOwner',
+            centerType: 'ActionSource',
+            centerToGround: false,
+            enableAdvancedDirection: false,
+            advancedDirection: {
+              directionType: 'SourceForward',
+              sourceMountPoint: 'None',
+              targetMountPoint: 'None',
+              customSourceAndTarget: false,
+              clampToXZ: true,
+              invertDirection: false,
+            },
+            selectorDirection: 'SourceForward',
+            target: 'ActionSource',
+          },
+          actionTargetType: 'InputTarget',
+          targetContextKey: '',
+          operation: 'Assign',
+          value: scalarFixture(3),
+        },
+        'fixture.abilityEntityDuration.inputTarget',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'abilityEntityDuration',
+      action: {
+        actionTargetType: 'InputTarget',
+        targetContextKey: '',
+        target: { targetSource: 'Target', targetGroupKey: '', finderType: null },
       },
     });
   });
@@ -230,6 +1129,75 @@ describe('公共 Action 叶子分派', () => {
     });
   });
 
+  it('只把固定施法者、静态木桩目标和字面量技能投影为原生延迟施法槽', () => {
+    const makeCast = (overrides: Record<string, unknown> = {}) => ({
+      ...META,
+      $type: 'Example.CastSkill+Data, Example',
+      caster: targetFixture('Source'),
+      target: targetFixture('Context', undefined, 'tar'),
+      skillId: { value: 'fixture_child', useBlackboardKey: false, blackboardKey: '' },
+      skipApplyCost: true,
+      inheritSourceSkillCastId: true,
+      ...overrides,
+    });
+    const compile = (action: Record<string, unknown>) =>
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(sequence([action]), 'fixture.castSkill', {}),
+        {
+          actionOwnerTarget: 'unavailable',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+          staticEnemyTargetGroupKeys: new Set(['tar']),
+        },
+      );
+
+    expect(compile(makeCast())).toEqual({
+      steps: [
+        {
+          kind: 'castSkillDuringAction',
+          parameters: {
+            skillId: 'fixture_child',
+            target: 'enemy',
+            skipApplyCost: true,
+            inheritSourceSkillCastInfo: true,
+          },
+        },
+      ],
+    });
+    expect(() =>
+      compile(
+        makeCast({
+          skillId: { value: '', useBlackboardKey: true, blackboardKey: 'child_skill' },
+        }),
+      ),
+    ).toThrow('unsupported deferred skill cast source/target/id');
+    expect(() => compile(makeCast({ target: targetFixture('Target') }))).toThrow(
+      'unsupported deferred skill cast source/target/id',
+    );
+
+    expect(
+      compile(
+        makeCast({
+          target: targetFixture('MainTarget'),
+          skipApplyCost: false,
+          inheritSourceSkillCastId: false,
+        }),
+      ),
+    ).toEqual({
+      steps: [
+        {
+          kind: 'castSkillDuringAction',
+          parameters: {
+            skillId: 'fixture_child',
+            target: 'enemy',
+            skipApplyCost: false,
+            inheritSourceSkillCastInfo: false,
+          },
+        },
+      ],
+    });
+  });
+
   it('未迁移动作携带路径明确阻塞', () => {
     expect(() =>
       parseKnownNativeActionLeafSource(
@@ -272,6 +1240,366 @@ describe('公共 Action 叶子分派', () => {
         {},
       ),
     ).toThrow('combo Pending blackboard assignments are unsupported');
+
+    const fixedCasterPending = {
+      ...action,
+      owner: targetFixture('Owner'),
+      target: targetFixture('Context', undefined, 'smart_target'),
+    };
+    expect(
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(
+          sequence([fixedCasterPending]),
+          'fixture.fixedCasterComboPending',
+          {},
+        ),
+        {
+          actionOwnerTarget: 'caster',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+          staticEnemyTargetGroupKeys: new Set(['smart_target']),
+        },
+      ),
+    ).toEqual({ steps: [] });
+  });
+
+  it('PauseComboSkillTime 严格保留自动连携候选暂停范围', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.PauseComboSkillTime+Data, Gameplay.Beyond',
+      isAll: false,
+      characterSettings: targetFixture('Owner'),
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.pauseCombo', {})).toMatchObject({
+      family: 'inputControl',
+      action: {
+        kind: 'pauseComboSkillTime',
+        allCharacters: false,
+        character: { targetSource: 'Owner', targetGroupKey: '' },
+      },
+    });
+  });
+
+  it('ClearProjectileAction 只在同步投射物模型的无结束回调切片中省略', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.ClearProjectileAction+Data, Gameplay.Beyond',
+      clearSource: targetFixture('Owner'),
+      filterClearRange: false,
+      rangeCenter: targetFixture('Owner'),
+      clearRange: scalarFixture(0),
+      filterProjectileId: true,
+      projectileIdList: ['projectile_fixture_absorb'],
+      playFinishEffect: false,
+      finishAction: 'NotCastSkill',
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.clearProjectile', {})).toMatchObject({
+      family: 'projectileControl',
+      action: {
+        kind: 'clearProjectile',
+        clearSource: { targetSource: 'Owner', targetGroupKey: '' },
+        filterProjectileId: true,
+        projectileIds: ['projectile_fixture_absorb'],
+        playFinishEffect: false,
+        finishAction: 'NotCastSkill',
+      },
+    });
+    expect(
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(
+          sequence([action]),
+          'fixture.clearProjectileSequence',
+          {},
+        ),
+        {
+          actionOwnerTarget: 'caster',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      ),
+    ).toEqual({ steps: [] });
+    expect(() =>
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(
+          sequence([{ ...action, finishAction: 'CastSkill' }]),
+          'fixture.clearProjectileFinishCallback',
+          {},
+        ),
+        {
+          actionOwnerTarget: 'caster',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      ),
+    ).toThrow('unsupported clear projectile projection');
+  });
+
+  it('AnimEventReceiver 保留事件参数和完整回调，但禁用节点不进入运行时', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.AnimEventReceiver+Data, Gameplay.Beyond',
+      isEnable: false,
+      eventId: 'attack',
+      blackboardKey: 'AnimEventReciver',
+      actionOnEvent: sequence([]),
+    };
+    const parsed = parseKnownNativeActionSequenceSource(
+      sequence([action]),
+      'fixture.disabledAnimEvent',
+      {},
+    );
+    expect(parsed.actions[0]).toMatchObject({
+      metadata: { nativeName: 'AnimEventReceiver', enabled: false },
+      body: {
+        kind: 'leaf',
+        value: {
+          family: 'animationEventListener',
+          action: {
+            kind: 'animationEventListener',
+            eventId: 'attack',
+            eventParameterBlackboardKey: 'AnimEventReciver',
+          },
+        },
+      },
+    });
+    expect(
+      compileCombatActionSequenceSource(parsed, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toEqual({ steps: [] });
+  });
+
+  it('启用的 AnimEventReceiver 只允许省略纯表现回调', () => {
+    const presentation = parseKnownNativeActionSequenceSource(
+      sequence([
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.AnimEventReceiver+Data, Gameplay.Beyond',
+          eventId: 'shoot',
+          blackboardKey: 'AnimEventReciver',
+          actionOnEvent: sequence([
+            {
+              ...META,
+              $type: 'Beyond.Gameplay.Core.DebugPrintAction+Data, Gameplay.Beyond',
+              logType: 'String',
+              target: targetFixture('Owner'),
+              color: { r: 1, g: 0, b: 0, a: 1 },
+              bbKey: '',
+              identifier: 'Shoot!',
+            },
+          ]),
+        },
+      ]),
+      'fixture.presentationAnimEvent',
+      {},
+    );
+    expect(
+      compileCombatActionSequenceSource(presentation, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toEqual({ steps: [] });
+
+    const combat = structuredClone(presentation);
+    const listener = combat.actions[0]!;
+    if (listener.body.kind !== 'leaf' || listener.body.value.family !== 'animationEventListener')
+      throw new Error('invalid fixture');
+    const combatListener = {
+      ...listener,
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          ...listener.body.value,
+          action: {
+            ...listener.body.value.action,
+            actionOnEvent: parseKnownNativeActionSequenceSource(
+              sequence([
+                {
+                  ...META,
+                  $type: 'Beyond.Gameplay.Core.Conditions.CheckEntityNum+Data, Gameplay.Beyond',
+                  checkTarget: targetFixture('Context', undefined, 'enemy'),
+                  minNum: 1,
+                  containsHittableTarget: false,
+                  compareType: 'GE',
+                  excludeDeadEntity: false,
+                  storeKey: '',
+                },
+              ]),
+              'fixture.combatAnimEvent.callback',
+              {},
+            ),
+          },
+        },
+      },
+    };
+    expect(() =>
+      compileCombatActionSequenceSource(
+        { ...combat, actions: [combatListener] },
+        {
+          actionOwnerTarget: 'caster',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+        },
+      ),
+    ).toThrow('unsupported combat animation-event listener');
+  });
+
+  it('ContinuousSetAnimTimeScale 严格保留动态倍率来源', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ContinuousSetAnimTimeScale+Data, Gameplay.Beyond',
+          serverActionIndex: 1497,
+          timeScale: {
+            useBlackboardKey: true,
+            value: 0,
+            blackboardKey: 'AnimScale',
+          },
+        },
+        'fixture.continuousAnimationTimeScale',
+        { AnimScale: [1] },
+      ),
+    ).toEqual({
+      family: 'animationTiming',
+      action: {
+        kind: 'continuousAnimationTimeScale',
+        timeScale: { value: 0, blackboardKey: 'AnimScale', levelValues: [1] },
+      },
+    });
+  });
+
+  it('ContinuousSetAnimTimeScale 仅在完整技能证明无启用动画事件监听器时省略', () => {
+    const parsed = parseKnownNativeActionSequenceSource(
+      sequence([
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ContinuousSetAnimTimeScale+Data, Gameplay.Beyond',
+          serverActionIndex: 1497,
+          timeScale: {
+            useBlackboardKey: true,
+            value: 0,
+            blackboardKey: 'AnimScale',
+          },
+        },
+      ]),
+      'fixture.continuousAnimationTimeScaleSequence',
+      { AnimScale: [1] },
+    );
+    expect(
+      compileCombatActionSequenceSource(parsed, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+        enabledAnimationEventListenerPresent: false,
+      }),
+    ).toEqual({ steps: [] });
+    expect(() =>
+      compileCombatActionSequenceSource(parsed, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+        enabledAnimationEventListenerPresent: true,
+      }),
+    ).toThrow('animation time scale may affect enabled animation-event combat callbacks');
+  });
+
+  it('SendBattleSignalToLevel 保留关卡信号载荷但不建立木桩战斗消费者', () => {
+    const parsed = parseKnownNativeActionSequenceSource(
+      sequence([
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SendBattleSignalToLevel+Data, Gameplay.Beyond',
+          signalId: {
+            useBlackboardKey: false,
+            value: 'tut_level_wulfa_ultimateskill_success',
+            blackboardKey: '',
+          },
+          doubleValue: {
+            useBlackboardKey: false,
+            value: 0,
+            blackboardKey: '',
+          },
+        },
+      ]),
+      'fixture.battleLevelSignal',
+      {},
+    );
+    expect(parsed.actions[0]).toMatchObject({
+      body: {
+        kind: 'leaf',
+        value: {
+          family: 'levelEvent',
+          action: {
+            kind: 'battleLevelSignal',
+            signalId: { value: 'tut_level_wulfa_ultimateskill_success', blackboardKey: null },
+            value: { value: 0, blackboardKey: null },
+          },
+        },
+      },
+    });
+    expect(
+      compileCombatActionSequenceSource(parsed, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toEqual({ steps: [] });
+  });
+
+  it('随机值只选择战斗等价分支时省略随机与条件', () => {
+    const presentationBranch = (identifier: string) =>
+      sequence([
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.DebugPrintAction+Data, Gameplay.Beyond',
+          logType: 'String',
+          target: targetFixture('Owner'),
+          color: { r: 1, g: 0, b: 0, a: 1 },
+          bbKey: '',
+          identifier,
+        },
+      ]);
+    const parsed = parseKnownNativeActionSequenceSource(
+      sequence([
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.RandomAction+Data, Gameplay.Beyond',
+          randomType: 'Int',
+          minValue: scalarFixture(0),
+          maxValue: scalarFixture(100),
+          targetBlackboardKey: 'random_hurtanimation',
+        },
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.IfElseAction+IfElseActionData, Gameplay.Beyond',
+          conditionAction: sequence([
+            {
+              ...META,
+              $type: 'Beyond.Gameplay.Core.CompareFloat+Data, Gameplay.Beyond',
+              valueA: scalarFixture(0, 'random_hurtanimation'),
+              compare: 'LT',
+              valueB: scalarFixture(75),
+            },
+          ]),
+          succeedActions: presentationBranch('left'),
+          failActions: presentationBranch('right'),
+          alwaysNext: true,
+        },
+      ]),
+      'fixture.randomPresentationVariant',
+      {},
+    );
+    expect(
+      compileCombatActionSequenceSource(parsed, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toEqual({ steps: [] });
   });
 
   it('CustomRootMotionAction 严格保留目标、动画与移动区间载荷', () => {
@@ -326,6 +1654,53 @@ describe('公共 Action 叶子分派', () => {
         {},
       ),
     ).toThrow('fixture.rootMotion: unexpected fields');
+  });
+
+  it('BoneAttachAction 保留控制生命周期载荷并仅对已证明木桩省略', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.BoneAttachAction+Data, Gameplay.Beyond',
+      targetSettings: targetFixture('Target', undefined, 'tar'),
+      anchorSlot: 'IKWepL',
+      subSlot: 'VBHit',
+      isAddRotation: false,
+      rotateAnchor: 'Owner',
+      rotateAngles: { x: 0, y: 0, z: 0 },
+      isLerp: true,
+      lerpTime: 0.5,
+      alwaysFollowRotation: false,
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.boneAttach', {})).toMatchObject({
+      family: 'spatial',
+      action: {
+        kind: 'boneAttach',
+        target: { targetSource: 'Target', targetGroupKey: 'tar' },
+        anchorSlot: 'IKWepL',
+        subSlot: 'VBHit',
+        isLerp: true,
+        lerpTimeSeconds: 0.5,
+      },
+    });
+    const parsed = parseKnownNativeActionSequenceSource(
+      sequence([source]),
+      'fixture.boneAttach.sequence',
+      {},
+    );
+    expect(
+      compileCombatActionSequenceSource(parsed, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+        staticEnemyTargetGroupKeys: new Set(['tar']),
+      }),
+    ).toEqual({ steps: [] });
+    expect(() =>
+      compileCombatActionSequenceSource(parsed, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toThrow('unsupported BoneAttach target projection');
   });
 
   it('DisableRootMotionAction 只接受无额外载荷的原生形状', () => {
@@ -544,6 +1919,52 @@ describe('公共 Action 叶子分派', () => {
     });
   });
 
+  it('LaunchUpwardAction 严格保留独立控制参数与返回策略', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.LaunchUpwardAction+Data, Gameplay.Beyond',
+      source: targetFixture('Owner'),
+      target: targetFixture('Context', undefined, 'combo_tar'),
+      teammateBigStagger: false,
+      floatingDuration: scalarFixture(0.8),
+      floatingHeight: scalarFixture(1.6),
+      speedFactorMultiplier: 5,
+      faceDirection: {
+        directionType: 'TargetToSource',
+        source: targetFixture('Context', undefined, 'pos'),
+        target: targetFixture('Context', undefined, 'combo_tar'),
+        sourceMountPoint: 'None',
+        targetMountPoint: 'None',
+        customSourceAndTarget: true,
+        clampToXZ: true,
+        invertDirection: false,
+      },
+      airborneEffect: { moveType: 'Stationary', effectName: '' },
+      immobilizedTime: 0,
+      deadOption: 'AllValid',
+      returnTrueWhen: 'Always',
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.launchUpward', {})).toMatchObject({
+      family: 'stumpControl',
+      action: {
+        kind: 'launchUpward',
+        teammateBigStagger: false,
+        floatingDuration: { value: 0.8 },
+        floatingHeight: { value: 1.6 },
+        speedFactorMultiplier: 5,
+        deadOption: 'AllValid',
+        returnTrueWhen: 'Always',
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...action, undocumentedFlag: true },
+        'fixture.launchUpward',
+        {},
+      ),
+    ).toThrow('undocumentedFlag');
+  });
+
   it('BlowOffEnemyAction 严格保留死亡过滤，ChannelingCastingAction 保留输入限制区间', () => {
     const blowOff = {
       ...META,
@@ -577,6 +1998,30 @@ describe('公共 Action 叶子分派', () => {
         {},
       ),
     ).toThrow('undocumentedFlag');
+
+    const characterBlowOff = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.BlowOffAction+Data, Gameplay.Beyond',
+      attackerTargetSettings: targetFixture('Owner'),
+      targetSettings: targetFixture('Target'),
+      teammateBigStagger: true,
+      blowOffDistance: scalarFixture(3.2),
+      distanceRandomRange: scalarFixture(0.2),
+      overwriteHeight: false,
+      blowOffHeight: scalarFixture(0),
+      directionSettings: blowOff.directionSettings,
+      directionAngleOffset: scalarFixture(0),
+      totalTime: scalarFixture(1),
+      deadOption: 'AllValid',
+      forceMoveColliderToGround: false,
+      modelHeightRecoverTime: scalarFixture(0),
+    };
+    expect(
+      parseKnownNativeActionLeafSource(characterBlowOff, 'fixture.characterBlowOff', {}),
+    ).toMatchObject({
+      family: 'stumpControl',
+      action: { kind: 'blowOff', deadOption: 'AllValid' },
+    });
 
     const channeling = {
       ...META,
@@ -653,6 +2098,16 @@ describe('公共 Action 叶子分派', () => {
         {},
       ),
     ).toThrow('fixture.snap: unexpected fields');
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        {
+          ...source,
+          speedCurve: [{ ...curve[0], inTangent: 'Infinity' }],
+        },
+        'fixture.snap.serializedInfinity',
+        {},
+      ),
+    ).not.toThrow();
   });
 
   it('SaveBuffStackNumAdvanced 进入公共 Buff 查询 IR', () => {
@@ -682,6 +2137,36 @@ describe('公共 Action 叶子分派', () => {
         buffTagIds: [1075718177],
         countType: 'BuffCount',
         outputKey: 'physical_layers',
+      },
+    });
+  });
+
+  it('简单 SaveBuffStackNum 严格归一为单 ID 增强层数读取', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SaveBuffStackNum+Data, Gameplay.Beyond',
+          checkTarget: targetFixture('Owner'),
+          buffId: { buffId: 'buff_chr_0016_laevat_energy' },
+          key: 'count',
+        },
+        'fixture.simpleBuffStackRead',
+        {},
+      ),
+    ).toEqual({
+      family: 'buffQuery',
+      action: {
+        kind: 'buffStackRead',
+        sourceType: 'SaveBuffStackNum',
+        target: expect.objectContaining({ targetSource: 'Owner' }),
+        checkType: 'Id',
+        buffIds: ['buff_chr_0016_laevat_energy'],
+        tagQueryType: 'hasAny',
+        buffTagIds: [],
+        countType: 'BuffCount',
+        limitSkillCastId: false,
+        outputKey: 'count',
       },
     });
   });
@@ -833,6 +2318,65 @@ describe('公共 Action 叶子分派', () => {
         {},
       ),
     ).toEqual({ family: 'presentation', action: { kind: 'immuneText' } });
+  });
+
+  it('只省略庄方宜结束技能的 AttachSkill 类型改写', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ChangeSkillType+Data, Gameplay.Beyond',
+          target: targetFixture('Owner'),
+          skillId: {
+            useBlackboardKey: false,
+            value: 'chr_0030_zhuangfy_ultimate_skill_end',
+            blackboardKey: '',
+          },
+          skillType: 'AttachSkill',
+        },
+        'fixture.changeSkillType',
+        {},
+      ),
+    ).toEqual({
+      family: 'presentation',
+      action: { kind: 'skillTypeMutationOmitted' },
+    });
+
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.ChangeSkillType+Data, Gameplay.Beyond',
+          target: targetFixture('Owner'),
+          skillId: {
+            useBlackboardKey: false,
+            value: 'some_other_skill',
+            blackboardKey: '',
+          },
+          skillType: 'AttachSkill',
+        },
+        'fixture.changeSkillType',
+        {},
+      ),
+    ).toThrow('unsupported ChangeSkillType projection');
+  });
+
+  it('NotifyCharPassiveUIAction 只保留被动 UI 的黑板读取', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.NotifyCharPassiveUIAction+Data, Gameplay.Beyond',
+          target: targetFixture('Owner'),
+          value: scalarFixture(0, 'swordsNum'),
+        },
+        'fixture.passiveUi',
+        { swordsNum: [0, 3] },
+      ),
+    ).toEqual({
+      family: 'presentation',
+      action: { kind: 'passiveUiValue', readBlackboardKeys: ['swordsNum'] },
+    });
   });
 });
 

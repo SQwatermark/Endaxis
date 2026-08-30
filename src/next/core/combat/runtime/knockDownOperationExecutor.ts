@@ -7,6 +7,7 @@ import type { BuffDefinitionOperationTarget } from './buffDefinitionOperationTar
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import type { BuffApplicationHandle } from './buffOperationExecutor';
 import type { KnockDownComponentEvent, OrdinaryKnockDownRuntime } from './ordinaryKnockDownRuntime';
 
 export type KnockDownAbilityEvent =
@@ -25,6 +26,7 @@ export interface KnockDownEventPayload {
   readonly isExtra: boolean;
   readonly fromAirborne: false;
   readonly skillCastInfo: CombatSkillCastInfo;
+  readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
 }
 
 export interface KnockDownOperationDependencies {
@@ -72,6 +74,9 @@ export class KnockDownOperationExecutor implements CombatOperationExecutor {
       isExtra: step.parameters.isExtra,
       fromAirborne: false,
       skillCastInfo: context.skillCastInfo,
+      ...(context.attachBuffToCurrentSkill === undefined
+        ? {}
+        : { attachBuffToCurrentSkill: context.attachBuffToCurrentSkill }),
     };
     let success = false;
     let interrupted = false;

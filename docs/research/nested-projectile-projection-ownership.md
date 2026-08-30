@@ -184,7 +184,7 @@ compile_conditional_action(marked.outer) = sequence()
 
 ### 1. 必须先加的安全回归
 
-在 `test_generate_next_operators.py` 中构造上述最小树，断言一个投射物出现不能同时满足：
+旧 Python 迁移测试曾构造上述最小树；该实现已退役，当前应在 TS 编译器投射物测试中断言一个投射物出现不能同时满足：
 
 - 被任意深度条件标记为 `projectedProjectileLaunches`；
 - 未进入任何带 guard 或根级的发出集合；

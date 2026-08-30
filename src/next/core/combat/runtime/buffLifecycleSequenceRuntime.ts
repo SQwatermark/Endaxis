@@ -34,6 +34,7 @@ import type {
   CombatAbilityLifecycleEvent,
   CombatAbilitySkillEvent,
   CombatAbilityWeaknessTriggeredEvent,
+  CombatAbilityCustomEvent,
   CombatAbilitySpellBurstEvent,
 } from './skillRuntime';
 import type { CombatSemanticEvent } from './combatSemanticEventRuntime';
@@ -698,7 +699,8 @@ export function normalizeAbilityEventPayload(
   | CombatAbilityHealEvent
   | CombatAbilitySkillEvent
   | CombatAbilityLifecycleEvent
-  | CombatAbilityWeaknessTriggeredEvent {
+  | CombatAbilityWeaknessTriggeredEvent
+  | CombatAbilityCustomEvent {
   if (typeof payload !== 'object' || payload === null) {
     throw new TypeError(`Buff ability event '${event}' payload must be an object`);
   }
@@ -712,6 +714,19 @@ export function normalizeAbilityEventPayload(
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,
+    };
+  }
+  if (event === 'customAbilityEvent') {
+    if (typeof source.eventName !== 'string' || typeof source.eventParam !== 'number') {
+      throw new TypeError(`Buff ability event '${event}' payload has invalid custom event values`);
+    }
+    return {
+      kind: 'abilityCustom',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+      eventName: source.eventName,
+      eventParam: source.eventParam,
     };
   }
   if (event === 'afterOutputWeaknessTriggered') {
@@ -743,9 +758,16 @@ export function normalizeAbilityEventPayload(
       ...(source.type === undefined
         ? {}
         : { type: source.type as CombatAbilityPhysicalInflictionEvent['type'] }),
+      ...(typeof source.attachBuffToCurrentSkill === 'function'
+        ? {
+            attachBuffToCurrentSkill: source.attachBuffToCurrentSkill as NonNullable<
+              CombatAbilityPhysicalInflictionEvent['attachBuffToCurrentSkill']
+            >,
+          }
+        : {}),
     };
   }
-  if (event === 'beforeCalculateDamage') {
+  if (event === 'beforeDamageAction' || event === 'beforeCalculateDamage') {
     if (
       !Array.isArray(source.tags) ||
       !source.tags.every(value => typeof value === 'string') ||
@@ -821,7 +843,7 @@ export function normalizeAbilityEventPayload(
       buffTags: source.buffTags as string[],
     };
   }
-  if (event === 'finishedBuff') {
+  if (event === 'finishedBuff' || event === 'buffEndsEarly') {
     if (
       typeof source.buffId !== 'string' ||
       (source.reason !== 'lifetime' &&

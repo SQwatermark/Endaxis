@@ -1622,7 +1622,7 @@ export default {
           }),
           step('applyBuff', {
             buffId: 'buff_common_affixes_enhance_crystal',
-            target: 'buffOwner',
+            target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {
@@ -1633,7 +1633,7 @@ export default {
           }),
           step('applyBuff', {
             buffId: 'buff_common_affixes_enhance_natural',
-            target: 'buffOwner',
+            target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {
@@ -1914,7 +1914,7 @@ export default {
         enable: sequence(
           step('applyBuff', {
             buffId: 'buff_common_affixes_enhance_spell',
-            target: 'buffOwner',
+            target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {

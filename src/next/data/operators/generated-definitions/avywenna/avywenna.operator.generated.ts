@@ -7,6 +7,7 @@ import type {
 import {
   branch,
   forEachContextTarget,
+  forEachTarget,
   scheduled,
   sequence,
   step,
@@ -19,6 +20,7 @@ export const avywennaBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0012_avywen_attack1',
     timelineBlockFrames: 8,
+    exclusiveFrame: 20,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -75,6 +77,7 @@ export const avywennaBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0012_avywen_attack2',
     timelineBlockFrames: 14,
+    exclusiveFrame: 17,
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -131,6 +134,7 @@ export const avywennaBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0012_avywen_attack3',
     timelineBlockFrames: 10,
+    exclusiveFrame: 17,
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -178,6 +182,7 @@ export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0012_avywen_attack4',
     timelineBlockFrames: 22,
+    exclusiveFrame: 30,
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -283,6 +288,7 @@ export const avywennaBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0012_avywen_attack5',
     timelineBlockFrames: 45,
+    exclusiveFrame: 45,
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -311,26 +317,14 @@ export const avywennaBasicAttack5: SkillDefinition = withSkillBlackboard(
                 finishByAction: false,
                 targets: ['enemy', 'caster'],
               }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -352,6 +346,7 @@ export const avywennaFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0012_avywen_power_attack',
     timelineBlockFrames: 29,
+    exclusiveFrame: 44,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -493,6 +488,7 @@ export const avywennaPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0012_avywen_plunging_attack_end',
     timelineBlockFrames: 11,
+    exclusiveFrame: 15,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -540,6 +536,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0012_avywen_normal_skill',
     timelineBlockFrames: 34,
+    exclusiveFrame: 38,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -600,29 +597,17 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
             'chr_0012_avywen_normal_skill:/scheduledSequences/2/sequence/steps/0',
           ),
           branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+            { kind: 'casterControlled' },
             sequence(
-              branch(
-                { kind: 'casterControlled' },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.15 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.15 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -653,26 +638,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                 operation: 'assign',
                 value: { kind: 'constant', value: 1 },
               }),
-              forEachContextTarget(
-                'lances',
-                sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 0 },
-                      operator: 'lessOrEqual',
-                      right: { kind: 'constant', value: 50 },
-                    },
-                    sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0012_avywen_lance_becalled_ready',
-                        target: 'currentAbilityEntity',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
-                ),
-              ),
+              forEachContextTarget('lances', sequence()),
             ),
           ),
         ),
@@ -815,99 +781,46 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                             { atk_scale: 3, radius: 4 },
                             true,
                             sequence(
-                              branch(
-                                {
-                                  kind: 'actionValueCompare',
-                                  left: { kind: 'constant', value: 0 },
-                                  operator: 'equal',
-                                  right: { kind: 'constant', value: 1 },
+                              step('startTimeDilation', {
+                                scope: 'global',
+                                durationSeconds: { kind: 'constant', value: 0.2 },
+                                slot: 'TimeDilation/Layer/Entity/HitStop',
+                                priority: 10,
+                                curve: {
+                                  kind: 'inline',
+                                  keys: [
+                                    {
+                                      time: 0,
+                                      value: 0.2,
+                                      inTangent: 0.04379496,
+                                      outTangent: 0.04379496,
+                                      weightedMode: 0,
+                                      inWeight: 0,
+                                      outWeight: 0,
+                                    },
+                                    {
+                                      time: 0.8847446,
+                                      value: 0.2387474,
+                                      inTangent: 0.04379496,
+                                      outTangent: 6.604918,
+                                      weightedMode: 0,
+                                      inWeight: 0,
+                                      outWeight: 0,
+                                    },
+                                    {
+                                      time: 1,
+                                      value: 1,
+                                      inTangent: 6.604918,
+                                      outTangent: 6.604918,
+                                      weightedMode: 0,
+                                      inWeight: 0,
+                                      outWeight: 0,
+                                    },
+                                  ],
                                 },
-                                sequence(
-                                  step('startTimeDilation', {
-                                    scope: 'global',
-                                    durationSeconds: { kind: 'constant', value: 0.2 },
-                                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                                    priority: 10,
-                                    curve: {
-                                      kind: 'inline',
-                                      keys: [
-                                        {
-                                          time: 0,
-                                          value: 0.2,
-                                          inTangent: 0.04379496,
-                                          outTangent: 0.04379496,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                        {
-                                          time: 0.8847446,
-                                          value: 0.2387474,
-                                          inTangent: 0.04379496,
-                                          outTangent: 6.604918,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                        {
-                                          time: 1,
-                                          value: 1,
-                                          inTangent: 6.604918,
-                                          outTangent: 6.604918,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                      ],
-                                    },
-                                    finishByAction: false,
-                                    ignoredTargets: ['controlled'],
-                                  }),
-                                ),
-                                sequence(
-                                  step('startTimeDilation', {
-                                    scope: 'global',
-                                    durationSeconds: { kind: 'constant', value: 0.2 },
-                                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                                    priority: 10,
-                                    curve: {
-                                      kind: 'inline',
-                                      keys: [
-                                        {
-                                          time: 0,
-                                          value: 0.2,
-                                          inTangent: 0.04379496,
-                                          outTangent: 0.04379496,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                        {
-                                          time: 0.8847446,
-                                          value: 0.2387474,
-                                          inTangent: 0.04379496,
-                                          outTangent: 6.604918,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                        {
-                                          time: 1,
-                                          value: 1,
-                                          inTangent: 6.604918,
-                                          outTangent: 6.604918,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                      ],
-                                    },
-                                    finishByAction: false,
-                                    ignoredTargets: ['controlled'],
-                                  }),
-                                ),
-                                { alwaysNext: true },
-                              ),
+                                finishByAction: false,
+                                ignoredTargets: ['controlled'],
+                              }),
                               branch(
                                 {
                                   kind: 'actionValueCompare',
@@ -1113,99 +1026,46 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                             { atk_scale: 3, radius: 4 },
                             true,
                             sequence(
-                              branch(
-                                {
-                                  kind: 'actionValueCompare',
-                                  left: { kind: 'constant', value: 0 },
-                                  operator: 'equal',
-                                  right: { kind: 'constant', value: 1 },
+                              step('startTimeDilation', {
+                                scope: 'global',
+                                durationSeconds: { kind: 'constant', value: 0.2 },
+                                slot: 'TimeDilation/Layer/Entity/HitStop',
+                                priority: 10,
+                                curve: {
+                                  kind: 'inline',
+                                  keys: [
+                                    {
+                                      time: 0,
+                                      value: 0.2,
+                                      inTangent: 0.04379496,
+                                      outTangent: 0.04379496,
+                                      weightedMode: 0,
+                                      inWeight: 0,
+                                      outWeight: 0,
+                                    },
+                                    {
+                                      time: 0.8847446,
+                                      value: 0.2387474,
+                                      inTangent: 0.04379496,
+                                      outTangent: 6.604918,
+                                      weightedMode: 0,
+                                      inWeight: 0,
+                                      outWeight: 0,
+                                    },
+                                    {
+                                      time: 1,
+                                      value: 1,
+                                      inTangent: 6.604918,
+                                      outTangent: 6.604918,
+                                      weightedMode: 0,
+                                      inWeight: 0,
+                                      outWeight: 0,
+                                    },
+                                  ],
                                 },
-                                sequence(
-                                  step('startTimeDilation', {
-                                    scope: 'global',
-                                    durationSeconds: { kind: 'constant', value: 0.2 },
-                                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                                    priority: 10,
-                                    curve: {
-                                      kind: 'inline',
-                                      keys: [
-                                        {
-                                          time: 0,
-                                          value: 0.2,
-                                          inTangent: 0.04379496,
-                                          outTangent: 0.04379496,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                        {
-                                          time: 0.8847446,
-                                          value: 0.2387474,
-                                          inTangent: 0.04379496,
-                                          outTangent: 6.604918,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                        {
-                                          time: 1,
-                                          value: 1,
-                                          inTangent: 6.604918,
-                                          outTangent: 6.604918,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                      ],
-                                    },
-                                    finishByAction: false,
-                                    ignoredTargets: ['controlled'],
-                                  }),
-                                ),
-                                sequence(
-                                  step('startTimeDilation', {
-                                    scope: 'global',
-                                    durationSeconds: { kind: 'constant', value: 0.2 },
-                                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                                    priority: 10,
-                                    curve: {
-                                      kind: 'inline',
-                                      keys: [
-                                        {
-                                          time: 0,
-                                          value: 0.2,
-                                          inTangent: 0.04379496,
-                                          outTangent: 0.04379496,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                        {
-                                          time: 0.8847446,
-                                          value: 0.2387474,
-                                          inTangent: 0.04379496,
-                                          outTangent: 6.604918,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                        {
-                                          time: 1,
-                                          value: 1,
-                                          inTangent: 6.604918,
-                                          outTangent: 6.604918,
-                                          weightedMode: 0,
-                                          inWeight: 0,
-                                          outWeight: 0,
-                                        },
-                                      ],
-                                    },
-                                    finishByAction: false,
-                                    ignoredTargets: ['controlled'],
-                                  }),
-                                ),
-                                { alwaysNext: true },
-                              ),
+                                finishByAction: false,
+                                ignoredTargets: ['controlled'],
+                              }),
                               branch(
                                 {
                                   kind: 'actionValueCompare',
@@ -1274,6 +1134,7 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0012_avywen_combo_skill',
     timelineBlockFrames: 21,
+    exclusiveFrame: 40,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1291,6 +1152,7 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('spawnAbilityEntity', {
                     abilityEntityId: 'abilityentity_chr_0012_avywen_combo_skill_lance',
+                    childSkillId: 'chr_0012_avywen_combo_skill_lance',
                     inheritActionBlackboard: true,
                     dieWhenSourceDies: false,
                   }),
@@ -1328,12 +1190,17 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
               value: { kind: 'constant', value: 1 },
             },
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'talent0_usp' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'caster',
-              }),
+              forEachTarget(
+                'enemy',
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'ultimateEnergy',
+                    amount: { kind: 'blackboard', key: 'talent0_usp' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'caster',
+                  }),
+                ),
+              ),
             ),
           ),
         ),
@@ -1381,6 +1248,7 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0012_avywen_ultimate_skill',
     timelineBlockFrames: 57,
+    exclusiveFrame: 65,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1449,6 +1317,7 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('spawnAbilityEntity', {
                     abilityEntityId: 'abilityentity_chr_0012_avywen_ultimate_skill',
+                    childSkillId: 'chr_0012_avywen_ultimate_skill_lance',
                     inheritActionBlackboard: true,
                     dieWhenSourceDies: false,
                   }),
@@ -1507,12 +1376,17 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
               value: { kind: 'constant', value: 1 },
             },
             sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'talent0_usp' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'caster',
-              }),
+              forEachTarget(
+                'enemy',
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'ultimateEnergy',
+                    amount: { kind: 'blackboard', key: 'talent0_usp' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'caster',
+                  }),
+                ),
+              ),
             ),
           ),
         ),
@@ -1870,16 +1744,6 @@ export default {
       blackboard: {},
       attributeModifiers: [],
     },
-    buff_chr_0012_avywen_lance_becalled_ready: {
-      stackingType: 'unique',
-      priority: 0,
-      maxStackCount: 1,
-      durationSeconds: 2,
-      applyTags: [],
-      extendTags: [],
-      blackboard: {},
-      attributeModifiers: [],
-    },
     buff_chr_0012_avywen_lance_pulse_check: {
       stackingType: 'unique',
       priority: 1,
@@ -1932,7 +1796,7 @@ export default {
         enable: sequence(
           step('applyBuff', {
             buffId: 'buff_common_affixes_vulnerable_pulse',
-            target: 'buffOwner',
+            target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {
@@ -1967,7 +1831,7 @@ export default {
             ),
             1500,
           ),
-          scheduled(1500, sequence(step('finishCurrentAbilityEntity', {})), 1501),
+          scheduled(1500, sequence(step('finishActionOwnerAbilityEntity', {})), 1501),
           scheduled(
             900,
             sequence(
@@ -1978,12 +1842,12 @@ export default {
                   operator: 'less',
                   right: { kind: 'constant', value: 1 },
                 },
-                sequence(step('finishCurrentAbilityEntity', {})),
+                sequence(step('finishActionOwnerAbilityEntity', {})),
               ),
             ),
             901,
           ),
-          scheduled(1500, sequence(step('finishCurrentAbilityEntity', {})), 1501),
+          scheduled(1500, sequence(step('finishActionOwnerAbilityEntity', {})), 1501),
         ],
       },
     },
@@ -2014,7 +1878,7 @@ export default {
             ),
             1500,
           ),
-          scheduled(1500, sequence(step('finishCurrentAbilityEntity', {})), 1501),
+          scheduled(1500, sequence(step('finishActionOwnerAbilityEntity', {})), 1501),
           scheduled(
             900,
             sequence(
@@ -2025,12 +1889,12 @@ export default {
                   operator: 'less',
                   right: { kind: 'constant', value: 1 },
                 },
-                sequence(step('finishCurrentAbilityEntity', {})),
+                sequence(step('finishActionOwnerAbilityEntity', {})),
               ),
             ),
             901,
           ),
-          scheduled(1500, sequence(step('finishCurrentAbilityEntity', {})), 1501),
+          scheduled(1500, sequence(step('finishActionOwnerAbilityEntity', {})), 1501),
         ],
       },
     },

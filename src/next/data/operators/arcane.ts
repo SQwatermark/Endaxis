@@ -1,6 +1,5 @@
-import { applyOperatorRuntimeDefinition } from '../../core/game-data/operatorRuntimeDefinition';
-import { arcaneGeneratedOperator } from './generated/arcane.operator.generated';
-import runtime from './generated-runtime/arcane/arcane.runtime.generated';
+/** Arcane 的统一 TS 整名产物；此文件提供不依赖生成文件名的稳定入口。 */
+import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import definition from './generated-definitions/arcane/arcane.operator.generated';
 
-/** 迁移期动作保留旧产物，角色常驻运行定义由统一 TS 编译器接管。 */
-export const arcane = applyOperatorRuntimeDefinition(arcaneGeneratedOperator, runtime);
+export const arcane: OperatorDefinition = definition;

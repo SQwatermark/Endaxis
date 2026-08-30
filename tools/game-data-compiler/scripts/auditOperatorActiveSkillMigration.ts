@@ -11,13 +11,12 @@ interface Arguments {
   readonly sourceRoot: string;
   readonly skillPatchTable: string;
   readonly skillSettingCatalog: string;
+  readonly globalBuffCatalog: string;
   readonly buffDataRoot: string;
   readonly abilityEntityCatalog: string;
   readonly projectileBlackboardCatalog: string;
   readonly gameplayTagCatalog: string;
   readonly timeDilationCatalog: string;
-  readonly legacyGeneratedRoot: string;
-  readonly formalActiveSkillRoot: string;
   readonly auditOutput: string;
 }
 
@@ -44,6 +43,16 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
     const slug = requireNonEmptyString(operator.slug, `${operatorPath}.slug`);
     const characterId = requireNonEmptyString(operator.charId, `${operatorPath}.charId`);
     const skills = parseOperatorActiveSkillEntries(operator.skills, `${operatorPath}.skills`);
+    const runtimeReplacementSkillKeys = new Set(
+      operator.runtimeReplacementSkillKeys === undefined
+        ? []
+        : requireArray(
+            operator.runtimeReplacementSkillKeys,
+            `${operatorPath}.runtimeReplacementSkillKeys`,
+          ).map((value, index) =>
+            requireNonEmptyString(value, `${operatorPath}.runtimeReplacementSkillKeys[${index}]`),
+          ),
+    );
     const skillEntries: SkillAuditEntry[] = skills.map(skill => {
       try {
         const plan = planOperatorActiveSkillRuntime({
@@ -51,6 +60,7 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
           sourceFile: skill.sourceFile,
           skillPatchTable: args.skillPatchTable,
           skillSettingCatalog: args.skillSettingCatalog,
+          globalBuffCatalog: args.globalBuffCatalog,
           buffDataRoot: args.buffDataRoot,
           supplementalBuffIds: [],
           abilityEntityCatalog: args.abilityEntityCatalog,
@@ -60,7 +70,8 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
           slug,
           key: skill.key,
           skillType: skill.skillType,
-          output: path.resolve(args.formalActiveSkillRoot, slug),
+          allowMissingSkillPatch: runtimeReplacementSkillKeys.has(skill.key),
+          output: path.resolve(args.auditOutput, 'planned-output', slug),
           auditOutput: path.resolve(args.auditOutput, 'planned', slug),
         });
         return {
@@ -82,21 +93,12 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
       }
     });
     const compiledSkillCount = skillEntries.filter(skill => skill.status === 'compiled').length;
-    const formalDirectory = path.resolve(args.formalActiveSkillRoot, slug);
-    const formalSkillCount = fs.existsSync(formalDirectory)
-      ? fs.readdirSync(formalDirectory).filter(name => name.endsWith('.runtime.generated.ts'))
-          .length
-      : 0;
     return {
       slug,
       characterId,
       status: compiledSkillCount === skillEntries.length ? 'active-skills-compiled' : 'blocked',
-      legacyGeneratedDefinitionPresent: fs.existsSync(
-        path.resolve(args.legacyGeneratedRoot, `${slug}.operator.generated.ts`),
-      ),
       declaredSkillCount: skillEntries.length,
       compiledSkillCount,
-      formalSkillCount,
       // 这里只计新版完整产物是否存在；注册、对象校验和实际模拟由整名回归门禁证明。
       completeDefinitionPresent: fs.existsSync(
         path.resolve(
@@ -117,7 +119,6 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
     ).length,
     declaredSkillCount: entries.reduce((sum, entry) => sum + entry.declaredSkillCount, 0),
     compiledSkillCount: entries.reduce((sum, entry) => sum + entry.compiledSkillCount, 0),
-    formalSkillCount: entries.reduce((sum, entry) => sum + entry.formalSkillCount, 0),
     completeDefinitionCount: entries.filter(entry => entry.completeDefinitionPresent).length,
     entries,
   };
@@ -133,7 +134,6 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
     activeSkillCompleteOperatorCount: report.activeSkillCompleteOperatorCount,
     declaredSkillCount: report.declaredSkillCount,
     compiledSkillCount: report.compiledSkillCount,
-    formalSkillCount: report.formalSkillCount,
     completeDefinitionCount: report.completeDefinitionCount,
   };
 }
@@ -149,13 +149,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '--source-root',
     '--skill-patch-table',
     '--skill-setting-catalog',
+    '--global-buff-catalog',
     '--buff-data-root',
     '--ability-entity-catalog',
     '--projectile-blackboard-catalog',
     '--gameplay-tag-catalog',
     '--time-dilation-catalog',
-    '--legacy-generated-root',
-    '--formal-active-skill-root',
     '--audit-output',
   ]);
   for (let index = 2; index < process.argv.length; index++) {
@@ -177,13 +176,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       sourceRoot: required('--source-root'),
       skillPatchTable: required('--skill-patch-table'),
       skillSettingCatalog: required('--skill-setting-catalog'),
+      globalBuffCatalog: required('--global-buff-catalog'),
       buffDataRoot: required('--buff-data-root'),
       abilityEntityCatalog: required('--ability-entity-catalog'),
       projectileBlackboardCatalog: required('--projectile-blackboard-catalog'),
       gameplayTagCatalog: required('--gameplay-tag-catalog'),
       timeDilationCatalog: required('--time-dilation-catalog'),
-      legacyGeneratedRoot: required('--legacy-generated-root'),
-      formalActiveSkillRoot: required('--formal-active-skill-root'),
       auditOutput: required('--audit-output'),
     }),
   );

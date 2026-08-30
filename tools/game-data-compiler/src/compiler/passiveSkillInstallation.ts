@@ -66,7 +66,10 @@ export function resolvePassiveSkillDefinitionBlackboard(
   compiled: CompiledPassiveSkillDefinitionSource,
 ): Readonly<Record<string, LevelValues>> {
   requireMatchingSkill(request, compiled);
-  if (request.levelSource.kind !== 'weaponProgression') {
+  if (
+    request.levelSource.kind !== 'weaponProgression' &&
+    request.levelSource.kind !== 'operatorSkillGroup'
+  ) {
     return materializePassiveSkillInstallation(request, compiled).blackboard;
   }
   return { ...compiled.definition.blackboard.values, ...request.inputBlackboard };
@@ -123,6 +126,10 @@ function resolveRequestedLevel(
   switch (request.levelSource.kind) {
     case 'nativeDefault':
       return null;
+    case 'operatorSkillGroup':
+      throw new Error(
+        `${request.sourcePath}: operator skill-group passive must preserve its level column`,
+      );
     case 'equipmentSuitThreshold':
       return request.levelSource.level;
     case 'weaponProgression':

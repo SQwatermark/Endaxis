@@ -23,6 +23,69 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it('validates operator profession conditions as a closed role list', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'operatorRoleIn',
+                  target: 'buffOwner',
+                  roles: ['guard', 'supporter'],
+                },
+              },
+              whenTrue: { steps: [] },
+            },
+          ],
+        },
+      },
+    ];
+    expect(validateSkillDefinition(skill)).toEqual([]);
+    (skill.scheduledSequences as any)[0].sequence.steps[0].parameters.condition.roles = ['medic'];
+    expect(validateSkillDefinition(skill)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '$.scheduledSequences[0].sequence.steps[0].parameters.condition.roles[0]',
+        }),
+      ]),
+    );
+  });
+
+  it('校验原生 TickInterval 参数并禁止与 Channeling 混用', () => {
+    const skill = baseSkill();
+    const parameters: Record<string, unknown> = {
+      nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.07 },
+    };
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [{ kind: 'repeatEachTick', parameters, body: { steps: [damageStep('tick')] } }],
+        },
+      },
+    ];
+    expect(validateSkillDefinition(skill)).toEqual([]);
+
+    parameters.nativeChanneling = {
+      executeEachFrame: false,
+      triggerIntervalSeconds: 0.1,
+      maxCountPerTarget: 1,
+      targetTriggerIntervalSeconds: -1,
+    };
+    expect(validateSkillDefinition(skill)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '$.scheduledSequences[0].sequence.steps[0].parameters',
+        }),
+      ]),
+    );
+  });
+
   it.each([undefined, 'parent', 'execution'])('接受黑板作用域生命周期 %s', lifetime => {
     const skill = {
       ...baseSkill(),
@@ -382,6 +445,22 @@ describe('validateSkillDefinition', () => {
         sequence: { steps: Array<{ parameters: Record<string, unknown> }> };
       }>
     )[0]!.sequence.steps[0]!.parameters;
+    parameters.curve = {
+      kind: 'inline',
+      keys: [
+        {
+          time: 0,
+          value: 1,
+          inTangent: Number.POSITIVE_INFINITY,
+          outTangent: Number.NEGATIVE_INFINITY,
+          weightedMode: 0,
+          inWeight: 0,
+          outWeight: 0,
+        },
+      ],
+    };
+    expect(validateSkillDefinition(skill)).toEqual([]);
+
     parameters.curve = {
       kind: 'inline',
       keys: [

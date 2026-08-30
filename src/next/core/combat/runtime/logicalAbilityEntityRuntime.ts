@@ -20,6 +20,7 @@ export type LogicalAbilityEntityFinishReason =
 export interface LogicalAbilityEntityDefinition {
   readonly lifetime:
     { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
+  readonly deathReleaseDelaySeconds?: number;
   readonly maxStackingCount?: number;
   readonly childSkill?: { readonly skillId: string };
 }
@@ -85,8 +86,10 @@ interface LogicalAbilityEntityInstance {
   elapsedDurationSeconds: number;
   isAlive: boolean;
   pendingRelease: boolean;
+  pendingReleaseElapsedSeconds: number;
   pendingReleaseReason?: LogicalAbilityEntityFinishReason;
   readonly childRuntimes: LogicalAbilityEntityChildRuntime[];
+  readonly childBuffs: { finish(reason: 'other'): boolean }[];
 }
 
 function requireDuration(value: number, name: string): number {
@@ -131,6 +134,13 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     }
     if (request.definition.lifetime.kind === 'limited') {
       requireDuration(request.definition.lifetime.durationSeconds, 'AbilityEntity duration');
+    }
+    const deathReleaseDelaySeconds = requireDuration(
+      request.definition.deathReleaseDelaySeconds ?? 0,
+      'AbilityEntity death release delay',
+    );
+    if (deathReleaseDelaySeconds >= 300) {
+      throw new RangeError('AbilityEntity death release delay must be less than 300 seconds');
     }
     const maxStackingCount = request.definition.maxStackingCount;
     if (
@@ -180,7 +190,9 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       elapsedDurationSeconds: 0,
       isAlive: true,
       pendingRelease: false,
+      pendingReleaseElapsedSeconds: 0,
       childRuntimes: [],
+      childBuffs: [],
     };
     this.#instances.set(instance.instanceId, instance);
     const snapshot = this.#snapshot(instance);
@@ -213,6 +225,11 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     const runtime = createRuntime(entity, instance.blackboard);
     instance.childRuntimes.push(runtime);
     runtime.start();
+  }
+
+  /** 原生 asChildBuff：子 Buff 的寿命归当前能力实体所有。 */
+  addChildBuff(entity: RuntimeTargetRef, child: { finish(reason: 'other'): boolean }): void {
+    this.#requireInstance(entity).childBuffs.push(child);
   }
 
   /** 零空间范围查找：返回全部活动实例，不应用距离、半径或形状裁剪。 */
@@ -282,6 +299,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     const instance = this.#requireInstance(entity);
     this.#instances.delete(instance.instanceId);
     for (const runtime of instance.childRuntimes) runtime.finish();
+    for (const child of instance.childBuffs) child.finish('other');
     this.#hooks.finished?.(this.#snapshot(instance), reason);
   }
 
@@ -294,6 +312,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     if (!instance.isAlive) return;
     instance.isAlive = false;
     instance.pendingRelease = true;
+    instance.pendingReleaseElapsedSeconds = 0;
     instance.pendingReleaseReason = reason;
     this.#hooks.killed?.(this.#snapshot(instance), reason);
   }
@@ -323,10 +342,19 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   advanceFrame(): void {
     for (const instance of [...this.#instances.values()]) {
       if (instance.pendingRelease) {
-        this.finish(
-          { kind: 'abilityEntity', instanceId: instance.instanceId },
-          instance.pendingReleaseReason ?? 'explicit',
+        instance.pendingReleaseElapsedSeconds += requireDuration(
+          this.#resolveDeltaSeconds(this.#snapshot(instance)),
+          'AbilityEntity release delta',
         );
+        if (
+          instance.pendingReleaseElapsedSeconds >=
+          (instance.definition.deathReleaseDelaySeconds ?? 0) - 0.00001
+        ) {
+          this.finish(
+            { kind: 'abilityEntity', instanceId: instance.instanceId },
+            instance.pendingReleaseReason ?? 'explicit',
+          );
+        }
         continue;
       }
       const delta = requireDuration(

@@ -114,6 +114,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'findCharacterTeamTargets':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'createSpatialPointTargets':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'findOwnerSpawnedAbilityEntities':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'pickContextTarget':
@@ -123,6 +125,7 @@ function resolveStep(
     case 'setAbilityEntityRemainingDuration':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'finishCurrentAbilityEntity':
+    case 'finishActionOwnerAbilityEntity':
     case 'finishCurrentAbilityEntityWhenSourceDies':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'startCurrentAbilityEntityChildSkill':
@@ -138,6 +141,8 @@ function resolveStep(
           ),
         },
       };
+    case 'startCurrentAbilityEntityChildSkillById':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'jumpTimeline':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'finishTimeline':
@@ -150,6 +155,23 @@ function resolveStep(
         body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
       };
     case 'repeatEachTick':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: step.parameters,
+        body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
+      };
+    case 'repeatByActionValue':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: step.parameters,
+        body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
+      };
+    case 'scheduleProjectileFinishCallback':
+      if (!Number.isFinite(step.parameters.delaySeconds) || step.parameters.delaySeconds <= 0) {
+        throw new RangeError(`${path}.parameters.delaySeconds must be a positive finite number`);
+      }
       return {
         ...keyed,
         kind: step.kind,
@@ -239,6 +261,15 @@ function resolveStep(
                   `${path}.parameters.stagger`,
                 ),
               }),
+          ...(step.parameters.staggerMultiplier === undefined
+            ? {}
+            : {
+                staggerMultiplier: resolveLevelValueOrActionOperand(
+                  step.parameters.staggerMultiplier,
+                  skillLevel,
+                  `${path}.parameters.staggerMultiplier`,
+                ),
+              }),
           ...(step.parameters.staggerOnlyWhenCasterControlled
             ? { staggerOnlyWhenCasterControlled: true }
             : {}),
@@ -278,6 +309,15 @@ function resolveStep(
                   `${path}.parameters.stagger`,
                 ),
               }),
+          ...(step.parameters.staggerMultiplier === undefined
+            ? {}
+            : {
+                staggerMultiplier: resolveLevelValueOrActionOperand(
+                  step.parameters.staggerMultiplier,
+                  skillLevel,
+                  `${path}.parameters.staggerMultiplier`,
+                ),
+              }),
           ...(step.parameters.staggerOnlyWhenCasterControlled
             ? { staggerOnlyWhenCasterControlled: true }
             : {}),
@@ -293,6 +333,16 @@ function resolveStep(
             skillLevel,
             `${path}.parameters.value`,
           ),
+          ...(step.parameters.valueMultiplier === undefined
+            ? {}
+            : {
+                valueMultiplier: resolveLevelValueOrActionOperand(
+                  step.parameters.valueMultiplier,
+                  skillLevel,
+                  `${path}.parameters.valueMultiplier`,
+                ),
+              }),
+          ...(step.parameters.features === undefined ? {} : { features: step.parameters.features }),
         },
       };
     case 'heal': {
@@ -500,6 +550,9 @@ function resolveStep(
                   ]),
                 ),
               }),
+          ...(step.parameters.entityAssignments === undefined
+            ? {}
+            : { entityAssignments: step.parameters.entityAssignments }),
         },
         body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
       };
@@ -521,6 +574,8 @@ function resolveStep(
     case 'readEventBuffBlackboard':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'readCurrentBuffRemainingDuration':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'readBuffRemainingDuration':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'setCurrentBuffRemainingDuration':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
@@ -560,6 +615,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'holdBuffsById':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'inheritBuffById':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'createTimedMarker':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'createAbilityEntityTimedMarker':
@@ -567,6 +624,8 @@ function resolveStep(
     case 'startTimeDilation':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'startUltimateTimeDilation':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'setIgnoreGlobalTimeScale':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'storeCurrentTimelineFrame':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
@@ -718,7 +777,8 @@ function resolveStep(
     case 'applyElementalInfliction':
     case 'applyKnockDown':
     case 'triggerSpellBurst':
-    case 'applyElementalReaction':
+    case 'triggerCustomAbilityEvent':
+    case 'castSkillDuringAction':
     case 'consumeElementalReaction':
     case 'outputAirborne':
     case 'outputKnockDown':
@@ -729,6 +789,19 @@ function resolveStep(
     case 'changeSkillSlot':
     case 'adjustSkillCooldown':
       return { ...keyed, kind: step.kind, parameters: step.parameters } as ResolvedCombatStep;
+    case 'applyElementalReaction':
+      return {
+        ...keyed,
+        kind: step.kind,
+        parameters: {
+          ...step.parameters,
+          durationSeconds: resolveLevelValueOrActionOperand(
+            step.parameters.durationSeconds,
+            skillLevel,
+            `${path}.parameters.durationSeconds`,
+          ),
+        },
+      };
     case 'listenForCombatEvents':
       return {
         ...keyed,
@@ -910,6 +983,9 @@ function compileAbilityEntityDefinition(
 ): ResolvedAbilityEntityDefinition {
   return {
     lifetime: definition.lifetime,
+    ...(definition.deathReleaseDelaySeconds === undefined
+      ? {}
+      : { deathReleaseDelaySeconds: definition.deathReleaseDelaySeconds }),
     ...(definition.maxStackingCount === undefined
       ? {}
       : { maxStackingCount: definition.maxStackingCount }),
@@ -921,6 +997,21 @@ function compileAbilityEntityDefinition(
             skillLevel,
             `${path}.childSkill`,
             abilityEntities,
+          ),
+        }),
+    ...(definition.childSkills === undefined
+      ? {}
+      : {
+          childSkills: Object.fromEntries(
+            Object.entries(definition.childSkills).map(([skillId, childSkill]) => [
+              skillId,
+              compileAbilityEntityChildSkill(
+                childSkill,
+                skillLevel,
+                `${path}.childSkills.${JSON.stringify(skillId)}`,
+                abilityEntities,
+              ),
+            ]),
           ),
         }),
   };
@@ -1019,6 +1110,15 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
       `skill '${input.skill.key}' has multiple costs, but native CastData has one cost`,
     );
   }
+  if (
+    input.skill.switchToBuffCast !== undefined &&
+    input.skill.switchToBuffCast.asSkillCast !== true &&
+    (costs.some(cost => cost.value !== 0) || cooldownFrames !== undefined)
+  ) {
+    throw new Error(
+      `skill '${input.skill.key}' uses the strict zero-cost SwitchToAddBuff runtime subset`,
+    );
+  }
   if (costs.some(cost => cost.value < 0)) {
     throw new RangeError(`skill '${input.skill.key}' cost must not be negative`);
   }
@@ -1054,9 +1154,37 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     initialBlackboard,
     ...(input.skill.smartTarget === undefined ? {} : { smartTarget: input.skill.smartTarget }),
     timelineBlockFrames: input.skill.timelineBlockFrames,
+    ...(input.skill.exclusiveFrame === undefined
+      ? {}
+      : { exclusiveFrame: input.skill.exclusiveFrame }),
     ...(cooldownFrames === undefined ? {} : { cooldownFrames }),
     ...(input.skill.costFrame === undefined ? {} : { costFrame: input.skill.costFrame }),
     costs,
+    ...(input.skill.switchToBuffCast === undefined
+      ? {}
+      : {
+          switchToBuffCast: {
+            ...(input.skill.switchToBuffCast.currentSkillTypes === undefined
+              ? {}
+              : { currentSkillTypes: input.skill.switchToBuffCast.currentSkillTypes }),
+            ...(input.skill.switchToBuffCast.requiresCurrentSkillNotInterruptible === undefined
+              ? {}
+              : {
+                  requiresCurrentSkillNotInterruptible:
+                    input.skill.switchToBuffCast.requiresCurrentSkillNotInterruptible,
+                }),
+            ...(input.skill.switchToBuffCast.condition === undefined
+              ? {}
+              : { condition: input.skill.switchToBuffCast.condition }),
+            asSkillCast: input.skill.switchToBuffCast.asSkillCast === true,
+            sequence: compileActionSequence(
+              input.skill.switchToBuffCast.sequence,
+              input.skillLevel,
+              'switchToBuffCast.sequence',
+              abilityEntities,
+            ),
+          },
+        }),
     timelineActions: input.skill.scheduledSequences.map((scheduled, index) => ({
       startFrame: scheduled.startFrame,
       ...(scheduled.endFrame === undefined ? {} : { endFrame: scheduled.endFrame }),

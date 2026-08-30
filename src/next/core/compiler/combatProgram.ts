@@ -88,29 +88,37 @@ export interface CompiledAbilityEntityChildSkillProgram {
 /** 已按引用技能等级展开、可供逻辑能力实体运行时创建实例的蓝图。 */
 export interface ResolvedAbilityEntityDefinition {
   readonly lifetime: AbilityEntityDefinition['lifetime'];
-  readonly maxStackingCount?: number;
+  readonly deathReleaseDelaySeconds?: number;
+  readonly maxStackingCount?: AbilityEntityDefinition['maxStackingCount'];
   readonly childSkill?: CompiledAbilityEntityChildSkillProgram;
+  /** 同一实体模板由不同 Spawn 动作选择的具名子技能。 */
+  readonly childSkills?: Readonly<Record<string, CompiledAbilityEntityChildSkillProgram>>;
 }
 
 export interface ResolvedCombatStepParameters {
   mergeContextTargets: CombatStepParameters['mergeContextTargets'];
   findCharacterTeamTargets: CombatStepParameters['findCharacterTeamTargets'];
+  createSpatialPointTargets: CombatStepParameters['createSpatialPointTargets'];
   findOwnerSpawnedAbilityEntities: CombatStepParameters['findOwnerSpawnedAbilityEntities'];
   pickContextTarget: CombatStepParameters['pickContextTarget'];
   forEachContextTarget: CombatStepParameters['forEachContextTarget'];
+  repeatByActionValue: CombatStepParameters['repeatByActionValue'];
   readAbilityEntityRemainingDuration: CombatStepParameters['readAbilityEntityRemainingDuration'];
   setAbilityEntityRemainingDuration: CombatStepParameters['setAbilityEntityRemainingDuration'];
   finishCurrentAbilityEntity: CombatStepParameters['finishCurrentAbilityEntity'];
+  finishActionOwnerAbilityEntity: CombatStepParameters['finishActionOwnerAbilityEntity'];
   finishCurrentAbilityEntityWhenSourceDies: CombatStepParameters['finishCurrentAbilityEntityWhenSourceDies'];
   startCurrentAbilityEntityChildSkill: {
     readonly childSkill: CompiledAbilityEntityChildSkillProgram;
   };
+  startCurrentAbilityEntityChildSkillById: CombatStepParameters['startCurrentAbilityEntityChildSkillById'];
   spawnAbilityEntity: Omit<CombatStepParameters['spawnAbilityEntity'], 'definition'> & {
     readonly definition?: ResolvedAbilityEntityDefinition;
   };
   applyElementalInfliction: CombatStepParameters['applyElementalInfliction'];
   applyKnockDown: CombatStepParameters['applyKnockDown'];
   triggerSpellBurst: CombatStepParameters['triggerSpellBurst'];
+  triggerCustomAbilityEvent: CombatStepParameters['triggerCustomAbilityEvent'];
   applyPhysicalInfliction:
     | (Omit<
         Extract<CombatStepParameters['applyPhysicalInfliction'], { type: 'fracture' }>,
@@ -148,6 +156,7 @@ export interface ResolvedCombatStepParameters {
     tags: readonly DamageTag[];
     features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;
+    staggerMultiplier?: number | ActionValueOperand;
     staggerOnlyWhenCasterControlled?: boolean;
     attackScalePerStatusStack?: {
       statusKey: string;
@@ -163,9 +172,14 @@ export interface ResolvedCombatStepParameters {
     tags: readonly DamageTag[];
     features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;
+    staggerMultiplier?: number | ActionValueOperand;
     staggerOnlyWhenCasterControlled?: boolean;
   };
-  dealStagger: { value: number | ActionValueOperand };
+  dealStagger: {
+    value: number | ActionValueOperand;
+    valueMultiplier?: number | ActionValueOperand;
+    features?: readonly DamageFeature[];
+  };
   heal: (
     | {
         target: 'contextTarget';
@@ -204,6 +218,7 @@ export interface ResolvedCombatStepParameters {
   readBuffBlackboard: CombatStepParameters['readBuffBlackboard'];
   readEventBuffBlackboard: CombatStepParameters['readEventBuffBlackboard'];
   readCurrentBuffRemainingDuration: CombatStepParameters['readCurrentBuffRemainingDuration'];
+  readBuffRemainingDuration: CombatStepParameters['readBuffRemainingDuration'];
   setCurrentBuffRemainingDuration: CombatStepParameters['setCurrentBuffRemainingDuration'];
   refreshCurrentBuffAttributeModifiers: CombatStepParameters['refreshCurrentBuffAttributeModifiers'];
   readBuffStackCount: CombatStepParameters['readBuffStackCount'];
@@ -214,10 +229,12 @@ export interface ResolvedCombatStepParameters {
   igniteBuffs: CombatStepParameters['igniteBuffs'];
   adjustSkillCooldown: CombatStepParameters['adjustSkillCooldown'];
   holdBuffsById: CombatStepParameters['holdBuffsById'];
+  inheritBuffById: CombatStepParameters['inheritBuffById'];
   createTimedMarker: CombatStepParameters['createTimedMarker'];
   createAbilityEntityTimedMarker: CombatStepParameters['createAbilityEntityTimedMarker'];
   startTimeDilation: CombatStepParameters['startTimeDilation'];
   startUltimateTimeDilation: CombatStepParameters['startUltimateTimeDilation'];
+  setIgnoreGlobalTimeScale: CombatStepParameters['setIgnoreGlobalTimeScale'];
   storeCurrentTimelineFrame: CombatStepParameters['storeCurrentTimelineFrame'];
   storeEventSpGainAmount: CombatStepParameters['storeEventSpGainAmount'];
   modifyActionValue: CombatStepParameters['modifyActionValue'];
@@ -262,9 +279,11 @@ export interface ResolvedCombatStepParameters {
   switch: CombatStepParameters['switch'];
   once: CombatStepParameters['once'];
   repeatEachTick: CombatStepParameters['repeatEachTick'];
+  scheduleProjectileFinishCallback: CombatStepParameters['scheduleProjectileFinishCallback'];
   setContextFlag: CombatStepParameters['setContextFlag'];
   openComboWindow: CombatStepParameters['openComboWindow'];
   changeSkillSlot: CombatStepParameters['changeSkillSlot'];
+  castSkillDuringAction: CombatStepParameters['castSkillDuringAction'];
   withActionBlackboardScope: {
     scopeKey: string;
     lifetime?: 'parent' | 'execution';
@@ -272,6 +291,7 @@ export interface ResolvedCombatStepParameters {
     initialValues: Readonly<Record<string, number>>;
     inheritParent: boolean;
     entityInitialValues?: Readonly<Record<string, number>>;
+    entityAssignments?: Readonly<Record<string, ActionValueOperand>>;
   };
   listenForCombatEvents: {
     responses: readonly {
@@ -308,9 +328,13 @@ type ResolvedCombatStepForKind<K extends CombatStepKind> = {
         ? { readonly body: ResolvedActionSequence }
         : K extends 'repeatEachTick'
           ? { readonly body: ResolvedActionSequence }
-          : K extends 'forEachContextTarget'
+          : K extends 'repeatByActionValue'
             ? { readonly body: ResolvedActionSequence }
-            : {});
+            : K extends 'scheduleProjectileFinishCallback'
+              ? { readonly body: ResolvedActionSequence }
+              : K extends 'forEachContextTarget'
+                ? { readonly body: ResolvedActionSequence }
+                : {});
 
 /** 运行时可直接执行、按 kind 区分类型的单个步骤。 */
 export type ResolvedCombatStep = {
@@ -327,6 +351,8 @@ export type ResolvedCombatOperationStep = Exclude<
       | 'once'
       | 'withActionBlackboardScope'
       | 'repeatEachTick'
+      | 'repeatByActionValue'
+      | 'scheduleProjectileFinishCallback'
       | 'forEachContextTarget'
       | 'jumpTimeline'
       | 'finishTimeline';
@@ -403,9 +429,17 @@ export interface CompiledSkillProgram {
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
   readonly timelineBlockFrames: number;
+  readonly exclusiveFrame?: number;
   readonly cooldownFrames?: number;
   readonly costFrame?: number;
   readonly costs: readonly CompiledSkillCost[];
+  readonly switchToBuffCast?: {
+    readonly currentSkillTypes?: readonly SkillType[];
+    readonly requiresCurrentSkillNotInterruptible?: boolean;
+    readonly condition?: CombatCondition;
+    readonly asSkillCast: boolean;
+    readonly sequence: ResolvedActionSequence;
+  };
   readonly statModifiers?: CompiledSkillStatModifiers;
   readonly timelineActions: readonly CompiledTimelineAction[];
   /** 当前技能等级下实际引用到的能力实体闭包；支持子技能递归生成同一蓝图。 */

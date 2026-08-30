@@ -169,6 +169,47 @@ describe('公共 Action 序列控制流投影', () => {
     ).toBe('conditional');
   });
 
+  it('纯读取条件的两分支投影等价时不要求建立条件模型', () => {
+    const value = branch([leaf('same')]);
+    if (value.body.kind !== 'ifElse') throw new Error('invalid fixture');
+    const source = sequence([
+      { ...value, body: { ...value.body, whenFalse: sequence([leaf('same')]) } },
+      leaf('after'),
+    ]);
+    expect(
+      compileActionSequenceProgram(source, {
+        ...bottomUpOptions(),
+        areEquivalentIfElseBranches: (whenTrue, whenFalse) =>
+          JSON.stringify(whenTrue.steps) === JSON.stringify(whenFalse.steps),
+      }),
+    ).toEqual({
+      steps: [
+        { kind: 'leaf', value: 'same[]' },
+        { kind: 'leaf', value: 'after[]' },
+      ],
+    });
+  });
+
+  it('固定模型证明 IfElse 真值时只编译可达分支并继续后续兄弟', () => {
+    expect(
+      compileActionSequenceProgram(sequence([branch([leaf('reachable')]), leaf('after')]), {
+        ...options(),
+        selectIfElseBranch: () => true,
+      }),
+    ).toEqual({
+      steps: [
+        { kind: 'leaf', value: 'reachable[]' },
+        { kind: 'leaf', value: 'after[]' },
+      ],
+    });
+    expect(() =>
+      compileActionSequenceProgram(sequence([branch([leaf('reachable')], false)]), {
+        ...options(),
+        selectIfElseBranch: () => true,
+      }),
+    ).toThrow('statically selected stopping IfElse');
+  });
+
   it('条件叶子守卫全部剩余兄弟步骤', () => {
     expect(
       compileActionSequenceProgram(sequence([leaf('?ready'), leaf('a'), leaf('b')]), options()),

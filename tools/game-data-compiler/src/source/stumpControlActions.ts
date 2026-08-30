@@ -8,12 +8,12 @@ import {
   requireString,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
-import { parseScalarSource, type BlackboardLevelValues } from './scalar.ts';
+import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import {
   parseTimeDilationCurveKeys,
   type TimeDilationCurveKeySource,
 } from './timeDilationActions.ts';
-import { parseAdvancedDirectionSource } from './spatial.ts';
+import { parseAdvancedDirectionSource, type AdvancedDirectionSource } from './spatial.ts';
 
 export interface StaticEnemyControlActionSource {
   readonly kind: 'enemyHurtAnimation' | 'pull' | 'pushBack';
@@ -39,10 +39,136 @@ export interface BlowOffEnemyActionSource {
   readonly deadOption: string;
 }
 
+export interface BlowOffActionSource {
+  readonly kind: 'blowOff';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly deadOption: string;
+}
+
+export interface TakeDownActionSource {
+  readonly kind: 'takeDown';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly deadOption: string;
+  readonly returnTrueWhen: string;
+}
+
+export interface LaunchUpwardActionSource {
+  readonly kind: 'launchUpward';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly teammateBigStagger: boolean;
+  readonly floatingDuration: ScalarSource;
+  readonly floatingHeight: ScalarSource;
+  readonly speedFactorMultiplier: number;
+  readonly faceDirection: AdvancedDirectionSource;
+  /** 原生特效配置只保留为来源证据，不进入木桩数值投影。 */
+  readonly airborneEffect: Readonly<Record<string, unknown>>;
+  readonly immobilizedTime: number;
+  readonly deadOption: string;
+  readonly returnTrueWhen: string;
+}
+
 export type StumpControlActionSource =
-  StaticEnemyControlActionSource | TargetHitStopActionSource | BlowOffEnemyActionSource;
+  | StaticEnemyControlActionSource
+  | TargetHitStopActionSource
+  | BlowOffEnemyActionSource
+  | BlowOffActionSource
+  | TakeDownActionSource
+  | LaunchUpwardActionSource;
 
 const META = ['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex'];
+
+/** 严格保留受控状态动作；固定木桩投影只可在证明目标为敌人后消去。 */
+export function parseTakeDownActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): TakeDownActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...META,
+      'source',
+      'targetSettings',
+      'teammateBigStagger',
+      'duration',
+      'faceDirection',
+      'immobilizedTime',
+      'deadOption',
+      'returnTrueWhen',
+    ]),
+    path,
+  );
+  requireBoolean(action.teammateBigStagger, `${path}.teammateBigStagger`);
+  parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard);
+  parseAdvancedDirectionSource(action.faceDirection, `${path}.faceDirection`);
+  requireNumber(action.immobilizedTime, `${path}.immobilizedTime`);
+  return {
+    kind: 'takeDown',
+    source: parseTargetReferenceSource(action.source, `${path}.source`),
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    deadOption: requireString(action.deadOption, `${path}.deadOption`),
+    returnTrueWhen: requireString(action.returnTrueWhen, `${path}.returnTrueWhen`),
+  };
+}
+
+/**
+ * 严格保留 LaunchUpwardAction；它直接进入控制组件，不等同于带破防/Buff 链的
+ * AirborneAction。固定木桩投影只能消去已证明目标且 Always 返回的实例。
+ */
+export function parseLaunchUpwardActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): LaunchUpwardActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...META,
+      'source',
+      'target',
+      'teammateBigStagger',
+      'floatingDuration',
+      'floatingHeight',
+      'speedFactorMultiplier',
+      'faceDirection',
+      'airborneEffect',
+      'immobilizedTime',
+      'deadOption',
+      'returnTrueWhen',
+    ]),
+    path,
+  );
+  return {
+    kind: 'launchUpward',
+    source: parseTargetReferenceSource(action.source, `${path}.source`),
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    teammateBigStagger: requireBoolean(action.teammateBigStagger, `${path}.teammateBigStagger`),
+    floatingDuration: parseScalarSource(
+      action.floatingDuration,
+      `${path}.floatingDuration`,
+      inheritedBlackboard,
+    ),
+    floatingHeight: parseScalarSource(
+      action.floatingHeight,
+      `${path}.floatingHeight`,
+      inheritedBlackboard,
+    ),
+    speedFactorMultiplier: requireNumber(
+      action.speedFactorMultiplier,
+      `${path}.speedFactorMultiplier`,
+    ),
+    faceDirection: parseAdvancedDirectionSource(action.faceDirection, `${path}.faceDirection`),
+    airborneEffect: requireRecord(action.airborneEffect, `${path}.airborneEffect`),
+    immobilizedTime: requireNumber(action.immobilizedTime, `${path}.immobilizedTime`),
+    deadOption: requireString(action.deadOption, `${path}.deadOption`),
+    returnTrueWhen: requireString(action.returnTrueWhen, `${path}.returnTrueWhen`),
+  };
+}
 
 export function parseEnemyHurtAnimationActionSource(
   value: unknown,
@@ -220,6 +346,56 @@ export function parseBlowOffEnemyActionSource(
   };
 }
 
+/** BlowOffAction 只修改角色受控位移/模型高度；严格保留其身份与死亡过滤供木桩投影审计。 */
+export function parseBlowOffActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): BlowOffActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...META,
+      'attackerTargetSettings',
+      'targetSettings',
+      'teammateBigStagger',
+      'blowOffDistance',
+      'distanceRandomRange',
+      'overwriteHeight',
+      'blowOffHeight',
+      'directionSettings',
+      'directionAngleOffset',
+      'totalTime',
+      'deadOption',
+      'forceMoveColliderToGround',
+      'modelHeightRecoverTime',
+    ]),
+    path,
+  );
+  for (const key of [
+    'blowOffDistance',
+    'distanceRandomRange',
+    'blowOffHeight',
+    'directionAngleOffset',
+    'totalTime',
+    'modelHeightRecoverTime',
+  ] as const)
+    parseScalarSource(action[key], `${path}.${key}`, inheritedBlackboard);
+  for (const key of ['teammateBigStagger', 'overwriteHeight', 'forceMoveColliderToGround'] as const)
+    requireBoolean(action[key], `${path}.${key}`);
+  parseAdvancedDirectionSource(action.directionSettings, `${path}.directionSettings`);
+  return {
+    kind: 'blowOff',
+    source: parseTargetReferenceSource(
+      action.attackerTargetSettings,
+      `${path}.attackerTargetSettings`,
+    ),
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    deadOption: requireString(action.deadOption, `${path}.deadOption`),
+  };
+}
+
 export function parseTargetHitStopActionSource(
   value: unknown,
   path: string,
@@ -246,10 +422,10 @@ export function parseTargetHitStopActionSource(
   const useDirectCurve = requireBoolean(action.useDirectCurve, `${path}.useDirectCurve`);
   const directCurve = requireArray(action.directCurve, `${path}.directCurve`);
   const curveKey = requireString(action.curveKey, `${path}.curveKey`);
-  if (
-    (useDirectCurve && directCurve.length === 0) ||
-    (!useDirectCurve && (directCurve.length > 0 || curveKey.length === 0))
-  )
+  // useDirectCurve 是真正的来源选择器；未选中的槽位允许保留序列化残值。
+  // 全量 SkillData 同时存在 named+非空 direct 与 direct+非空 named 两类形状，
+  // 不能用未选槽位是否为空反推运行时来源。
+  if ((useDirectCurve && directCurve.length === 0) || (!useDirectCurve && curveKey.length === 0))
     throw new Error(`${path}: inconsistent hit-stop curve source`);
   const duration = requireNumber(action.duration, `${path}.duration`);
   if (!Number.isFinite(duration) || duration < 0)
@@ -263,7 +439,7 @@ export function parseTargetHitStopActionSource(
     affectType,
     curveKey,
     directCurveKeys: useDirectCurve
-      ? parseTimeDilationCurveKeys(directCurve, `${path}.directCurve`)
+      ? parseTimeDilationCurveKeys(directCurve, `${path}.directCurve`, true)
       : [],
     durationSeconds: duration,
     priorityTagId: requireInteger(priority.tagId, `${path}.timeDilationPriority.tagId`),

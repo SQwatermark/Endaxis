@@ -1657,7 +1657,7 @@ export default {
               sequence(
                 step('applyBuff', {
                   buffId: 'buff_chr_0006_wolfgd_talent_0_effectbuff',
-                  target: 'eventSource',
+                  target: 'caster',
                   source: 'eventSource',
                   inheritSourceSkillCastInfo: true,
                   blackboardAssignments: {
@@ -1717,13 +1717,17 @@ export default {
             0,
             sequence(
               step('applyElementalInfliction', { element: 'heat', isExtra: false }),
-              step('dealDamage', {
-                damageType: 'heat',
-                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                tags: ['comboSkill'],
-                features: ['canBreakWeakness'],
-                stagger: { kind: 'blackboard', key: 'poise' },
-              }),
+              step(
+                'dealDamage',
+                {
+                  damageType: 'heat',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                  tags: ['comboSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: { kind: 'blackboard', key: 'poise' },
+                },
+                'abilityentity_chr_0006_wolfgd_combo_skill:chr_0006_wolfgd_combo_skill_abilityrange:/childSkill/scheduledSequences/0/sequence/steps/1',
+              ),
               step('changeResourceByActionValue', {
                 resource: 'ultimateEnergy',
                 amount: { kind: 'blackboard', key: 'usp' },

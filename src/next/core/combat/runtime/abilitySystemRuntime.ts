@@ -10,6 +10,7 @@ import type {
   RuntimeSkillState,
 } from './skillRuntime';
 import type { BuffApplicationHandle } from './buffOperationExecutor';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 import { uniformAbilityTickDeltas, type AbilityTickDeltas } from './timeDilationRuntime';
 import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import {
@@ -20,6 +21,8 @@ import {
 /** AbilitySystem 编排技能所需的最小生命周期端口。 */
 export interface AbilitySkillRuntime extends FrameRuntime {
   readonly skillId: string;
+  /** 原生动作继承白名单使用的表内 Skill ID；缺省时与 skillId 相同。 */
+  readonly transitionSkillId?: string;
   /** 文档中的技能释放身份；同技能多次放置时用于唯一寻址。 */
   readonly castId?: string;
   readonly skillType: SkillType;
@@ -28,15 +31,31 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly state: RuntimeSkillState;
   /** 当前技能局部整数执行帧；仅 casting 实例提供。 */
   readonly currentTimelineFrame?: number;
+  /** 原生当前技能可打断状态；只有读取 mustBeforeExclusiveTime 的切换路径才要求提供。 */
+  readonly canInterrupt?: boolean;
+  readonly skillCastInfo?: CombatSkillCastInfo;
   canStart(): boolean;
   /** 本次启动前合并进动作黑板的运行时参数，例如连携候选携带的黑板。 */
   prepareStartBlackboard?(values: Readonly<Record<string, number>>): void;
   prepareAfterCastStart?(callback: AfterSkillCastStart): void;
   /** 装配层在施放前事件之前预分配的原生技能释放序号。 */
   prepareSkillCastId?(skillCastId: number): void;
+  prepareDeferredCast?(input: {
+    readonly skipApplyCost: boolean;
+    readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+  }): void;
   attachBuffToCast?(skillCastId: number, buff: BuffApplicationHandle): void;
+  attachInheritedBuff?(buff: BuffApplicationHandle): void;
+  trySwitchToBuffCast?(currentSkill?: {
+    readonly skillType: SkillType;
+    readonly skillCastInfo: CombatSkillCastInfo;
+    readonly canInterrupt: boolean;
+  }): boolean;
   tryStart(): boolean;
-  interrupt(reason: RuntimeSkillInterruptReason): void;
+  interrupt(
+    reason: RuntimeSkillInterruptReason,
+    transition?: import('./skillRuntime').RuntimeSkillTransition,
+  ): void;
   /** 时间膨胀启用后分别推进技能时间线和冷却。 */
   advance?(timelineDeltaSeconds: number, cooldownDeltaSeconds: number): void;
 }
@@ -60,6 +79,10 @@ export interface AbilitySkillStarter {
 export interface PostSkillCastRequest {
   readonly skillId: string;
   readonly castId?: string;
+  readonly skipApplyCost?: boolean;
+  readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+  /** 玩家技能槽输入解析当前替换形态；原生 CastSkill 的显式 Skill ID 必须关闭该解析。 */
+  readonly resolveSkillSlot?: boolean;
 }
 
 export interface AbilitySystemRuntimeOptions {
@@ -192,6 +215,10 @@ export class AbilitySystemRuntime implements FrameRuntime {
     return this.#currentSkill?.skillId ?? null;
   }
 
+  get currentSkillType(): SkillType | undefined {
+    return this.#currentSkill?.state === 'casting' ? this.#currentSkill.skillType : undefined;
+  }
+
   get currentSkillTimelineFrame(): number | undefined {
     return this.#currentSkill?.state === 'casting'
       ? this.#currentSkill.currentTimelineFrame
@@ -254,6 +281,21 @@ export class AbilitySystemRuntime implements FrameRuntime {
     skill.prepareSkillCastId(skillCastId);
   }
 
+  prepareDeferredCast(
+    skillId: string,
+    castId: string | undefined,
+    input: {
+      readonly skipApplyCost: boolean;
+      readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+    },
+  ): void {
+    const skill = this.#requireSkill(skillId, castId);
+    if (skill.prepareDeferredCast === undefined) {
+      throw new Error(`skill '${skillId}' cannot receive a deferred cast request`);
+    }
+    skill.prepareDeferredCast(input);
+  }
+
   prepareAfterSkillCastStart(
     skillId: string,
     castId: string | undefined,
@@ -283,8 +325,30 @@ export class AbilitySystemRuntime implements FrameRuntime {
     if (!skill.canStart()) return false;
     const previousSkill = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
 
+    if (
+      skill.trySwitchToBuffCast?.(
+        previousSkill?.skillCastInfo === undefined
+          ? undefined
+          : {
+              skillType: previousSkill.skillType,
+              skillCastInfo: previousSkill.skillCastInfo,
+              get canInterrupt() {
+                const value = previousSkill.canInterrupt;
+                if (value === undefined) {
+                  throw new Error(
+                    `current skill '${previousSkill.skillId}' does not expose canInterrupt`,
+                  );
+                }
+                return value;
+              },
+            },
+      ) === true
+    ) {
+      return true;
+    }
+
     this.#currentSkill = skill;
-    previousSkill?.interrupt('castNextSkill');
+    if (previousSkill !== null) this.#interruptForNextSkill(previousSkill, skill);
     if (!skill.tryStart()) {
       throw new Error(`skill '${skillId}' became unavailable during synchronous cast start`);
     }
@@ -294,7 +358,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
 
   /** 同一帧多次写入会覆盖旧值；消费前先清槽，使消费期间的新请求留到下一帧。 */
   requestPostSkillCast(request: PostSkillCastRequest): void {
-    this.#requireSkill(request.skillId, request.castId);
+    this.#requireSkill(request.skillId, request.castId, request.resolveSkillSlot !== false);
     this.#postSkillCastRequest = { ...request };
   }
 
@@ -342,14 +406,31 @@ export class AbilitySystemRuntime implements FrameRuntime {
     if (request === null) return;
     this.#postSkillCastRequest = null;
 
-    this.#currentSkill?.interrupt('castNextSkill');
+    const previousSkill = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
     this.#currentSkill = null;
-    const nextSkill = this.#requireSkill(request.skillId, request.castId);
+    const nextSkill = this.#requireSkill(
+      request.skillId,
+      request.castId,
+      request.resolveSkillSlot !== false,
+    );
+    if (previousSkill !== null) this.#interruptForNextSkill(previousSkill, nextSkill);
     this.#beforePostSkillCastStart?.(request);
     if (nextSkill.tryStart()) {
       this.#currentSkill = nextSkill;
       this.#beginSkillOperableBoundary(nextSkill);
     }
+  }
+
+  #interruptForNextSkill(previousSkill: AbilitySkillRuntime, nextSkill: AbilitySkillRuntime): void {
+    previousSkill.interrupt('castNextSkill', {
+      nextSkillId: nextSkill.transitionSkillId ?? nextSkill.skillId,
+      attachBuffToNextSkill: buff => {
+        if (nextSkill.attachInheritedBuff === undefined) {
+          throw new Error(`skill '${nextSkill.skillId}' cannot inherit Buff instances`);
+        }
+        nextSkill.attachInheritedBuff(buff);
+      },
+    });
   }
 
   #beginSkillOperableBoundary(skill: AbilitySkillRuntime): void {
@@ -371,8 +452,10 @@ export class AbilitySystemRuntime implements FrameRuntime {
     );
   }
 
-  #requireSkill(skillId: string, castId?: string): AbilitySkillRuntime {
-    const slotGroupKey = this.#slotGroupByStableInputSkill.get(skillId);
+  #requireSkill(skillId: string, castId?: string, resolveSkillSlot = true): AbilitySkillRuntime {
+    const slotGroupKey = resolveSkillSlot
+      ? this.#slotGroupByStableInputSkill.get(skillId)
+      : undefined;
     const slotGroup =
       slotGroupKey === undefined ? undefined : this.#skillSlotGroups.get(slotGroupKey)!;
     const resolvedSkillId =

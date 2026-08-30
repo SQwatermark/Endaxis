@@ -104,6 +104,9 @@ import {
 } from './externalCombatEventRuntime';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRuntime';
+import { CustomAbilityEventOperationExecutor } from './customAbilityEventOperationExecutor';
+import { SkillCastOperationExecutor } from './skillCastOperationExecutor';
+import { ProjectileFinishCallbackRuntime } from './projectileFinishCallbackRuntime';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -115,9 +118,13 @@ export type OperatorBuffRuntime = FrameRuntime &
 /** 一个干员按原生技能定义顺序进入运行时的完整程序。 */
 export interface CombatOperatorProgram {
   readonly operatorId: string;
+  /** CharacterTable.profession 的一一映射；仅职业筛选实际出现时要求提供。 */
+  readonly operatorRole?: import('../../game-data/operatorDefinition').OperatorRole;
   /** CharacterTable.charTypeId 的一一映射；仅角色类型筛选实际出现时要求提供。 */
   readonly characterTypeId?: DamageElement;
   readonly skills: readonly CompiledSkillProgram[];
+  /** 完整定义中的未放置技能；只供原生 CastSkill/换槽等内部路由启动。 */
+  readonly definitionSkillPrograms?: readonly CompiledSkillProgram[];
   /** 完整定义的静态冷却目录，独立于时间轴放置；缺省仅供底层程序兼容。 */
   readonly skillCooldownPrograms?: readonly CompiledSkillCooldownProgram[];
   /** 与技能等级解耦的干员附属 Buff 蓝图；不含任何单次模拟实例状态。 */
@@ -307,7 +314,8 @@ export interface CombatRuntimeAssemblyOptions {
       | 'skillEnd'
       | 'ownerHpZero'
       | 'beforeOutputPhysicalInfliction'
-      | 'afterOutputPhysicalInfliction',
+      | 'afterOutputPhysicalInfliction'
+      | 'customAbilityEvent',
     payload:
       | {
           readonly sourceId: string;
@@ -317,6 +325,12 @@ export interface CombatRuntimeAssemblyOptions {
           readonly skillCastId: number;
           readonly skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo;
           readonly attachBuffToCurrentSkill?: CombatAbilitySkillEvent['attachBuffToCurrentSkill'];
+        }
+      | {
+          readonly sourceId: string;
+          readonly targetId: string;
+          readonly eventName: string;
+          readonly eventParam: number;
         }
       | {
           readonly sourceId: string;
@@ -404,6 +418,8 @@ export class CombatRuntimeAssembly {
   readonly simulation = new CombatSimulation(this.clock);
   /** 全场唯一的零空间能力实体实例目录。 */
   readonly abilityEntities: LogicalAbilityEntityRuntime;
+  /** syncTimeScale=false 的投射物 duration-finish 使用全局战斗时间，且不归技能寿命所有。 */
+  readonly projectileFinishCallbacks = new ProjectileFinishCallbackRuntime();
   /** 战斗级父实例与队员子 Buff 镜像的唯一目录。 */
   readonly globalBuffs: GlobalBuffRuntime;
   /** 实际运行时干员；Buff 生命周期按宿主切换执行身份时复用其构筑与面板。 */
@@ -420,6 +436,8 @@ export class CombatRuntimeAssembly {
   readonly #enemyTimedMarkers = new TimedMarkerContainer('enemy', this.clock);
   readonly #operatorTimedMarkers = new Map<string, TimedMarkerContainer>();
   readonly #skillCastIds = new SkillCastIdAllocator();
+  /** 原生 ChangeSkillAction 每槽只允许一个有效句柄；新句柄会先结束旧句柄。 */
+  readonly #activeSkillSlotReplacementHandles = new Map<string, { readonly finish: () => void }>();
   /** 同一干员同一技能的所有放置块共用一份冷却事实。 */
   readonly #skillCooldowns = new Map<
     string,
@@ -431,12 +449,16 @@ export class CombatRuntimeAssembly {
       readonly commitFrame?: number;
     }
   >();
+  readonly #nativeSkillKeys = new Map<string, string>();
+  readonly #ambiguousNativeSkillKeys = new Set<string>();
   readonly #equipmentEventRuntimes = new Map<string, EquipmentEventRuntime>();
   readonly #operatorUpgradeEventRuntimes: OperatorUpgradeEventRuntime[] = [];
   readonly #comboSkillRegistrationRuntimes: ComboSkillRegistrationRuntime[] = [];
   readonly #comboConditionRegistrations: AbilityEventRegistration[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
   readonly #passiveSequences: ActionSequence[] = [];
+  /** 原生被动 Ability 持有的 asChildBuff；被动在整场固定战斗中常驻。 */
+  readonly #passiveAbilityChildBuffs: BuffApplicationHandle[] = [];
   /** 不依赖施法实例的 Buff 生命周期按动作身份回到原解释链。 */
   readonly #reactiveOperationBindings = new Map<string, CombatOperationExecutor>();
   readonly #castOperationBindings = new Map<
@@ -584,6 +606,19 @@ export class CombatRuntimeAssembly {
           throw new Error(`duplicate combat skill program '${programKey}'`);
         }
         this.#skillPrograms.set(programKey, program);
+        if (program.sourceSkillId !== undefined) {
+          const nativeKey = `${operator.operatorId}\u0000${program.sourceSkillId}`;
+          if (this.#ambiguousNativeSkillKeys.has(nativeKey)) continue;
+          const previous = this.#nativeSkillKeys.get(nativeKey);
+          if (previous !== undefined && previous !== program.skillId) {
+            // 一个原生技能可以被多个可编辑逻辑入口复用（例如基础槽位与强化期槽位）。
+            // 时间轴按逻辑 skillId 精确执行；只有原生 CastSkill 真正尝试按该 ID 路由时才要求唯一。
+            this.#nativeSkillKeys.delete(nativeKey);
+            this.#ambiguousNativeSkillKeys.add(nativeKey);
+            continue;
+          }
+          this.#nativeSkillKeys.set(nativeKey, program.skillId);
+        }
         if (program.castId === undefined) continue;
         const bindings = this.#castOperationBindings.get(program.castId) ?? [];
         if (bindings.some(binding => binding.program.skillId === program.skillId)) {
@@ -600,6 +635,33 @@ export class CombatRuntimeAssembly {
           },
         ]);
       }
+      // 带 castId 的时间轴实例只服务该技能块；Buff/技能内部按原生 ID 延迟
+      // Cast 仍需要无 castId 的静态定义。两者的 AbilitySkillKey 不同，可以并存。
+      const placedUnboundSkillIds = new Set(
+        runtimeOperator.skills
+          .filter(program => program.castId === undefined)
+          .map(program => program.skillId),
+      );
+      const hiddenSkillPrograms = (runtimeOperator.definitionSkillPrograms ?? []).filter(
+        program => !placedUnboundSkillIds.has(program.skillId),
+      );
+      for (const program of hiddenSkillPrograms) {
+        const programKey = `${operator.operatorId}\u0000${program.skillId}\u0000`;
+        if (this.#skillPrograms.has(programKey)) {
+          throw new Error(`duplicate hidden combat skill program '${programKey}'`);
+        }
+        this.#skillPrograms.set(programKey, program);
+        if (program.sourceSkillId === undefined) continue;
+        const nativeKey = `${operator.operatorId}\u0000${program.sourceSkillId}`;
+        if (this.#ambiguousNativeSkillKeys.has(nativeKey)) continue;
+        const previous = this.#nativeSkillKeys.get(nativeKey);
+        if (previous !== undefined && previous !== program.skillId) {
+          this.#nativeSkillKeys.delete(nativeKey);
+          this.#ambiguousNativeSkillKeys.add(nativeKey);
+          continue;
+        }
+        this.#nativeSkillKeys.set(nativeKey, program.skillId);
+      }
       // 放置块自定义定义仍是实际执行体；同 ID 的其他块必须保持冷却一致。
       // 原目录保留推进顺序，额外自定义身份追加；不执行静态目录中的任何技能动作。
       const cooldownPrograms = new Map<string, CompiledSkillCooldownProgram>();
@@ -610,18 +672,37 @@ export class CombatRuntimeAssembly {
           throw new Error(`duplicate static cooldown '${program.skillId}'`);
         cooldownPrograms.set(program.skillId, program);
       }
-      const placedIds = new Set<string>();
+      const placedCooldownPrograms = new Map<string, CompiledSkillProgram>();
       for (const program of runtimeOperator.skills) {
-        if (placedIds.has(program.skillId)) continue;
-        placedIds.add(program.skillId);
+        const previous = placedCooldownPrograms.get(program.skillId);
+        if (previous !== undefined) {
+          if (
+            previous.cooldownFrames !== program.cooldownFrames ||
+            previous.skillType !== program.skillType ||
+            previous.skillGroupKey !== program.skillGroupKey ||
+            (program.cooldownFrames !== undefined && previous.costFrame !== program.costFrame)
+          ) {
+            throw new Error(
+              `skill '${program.skillId}' of '${operator.operatorId}' has inconsistent cooldown configuration`,
+            );
+          }
+          continue;
+        }
+        placedCooldownPrograms.set(program.skillId, program);
         cooldownPrograms.set(program.skillId, program);
       }
       for (const program of cooldownPrograms.values())
         this.#resolveSkillCooldown(runtimeOperator, program);
-      const skills = runtimeOperator.skills.map(program =>
+      const skills = [...runtimeOperator.skills, ...hiddenSkillPrograms].map(program =>
         this.#createSkillRuntime(
           runtimeOperator,
           program,
+          {
+            ...cooldownPrograms.get(program.skillId)!,
+            ...(program.sourceSkillId === undefined
+              ? {}
+              : { sourceSkillId: program.sourceSkillId }),
+          },
           options.enemy,
           entityBlackboard,
           statusRuntime,
@@ -655,8 +736,24 @@ export class CombatRuntimeAssembly {
           })),
           skillSlotGroups: runtimeOperator.skillSlotGroups,
           actionRuntime: operator.actionRuntime,
-          beforePostSkillCastStart: request =>
-            this.#prepareSkillStart(operator.operatorId, request.skillId, request.castId),
+          beforePostSkillCastStart: request => {
+            this.#prepareSkillStart(
+              operator.operatorId,
+              request.skillId,
+              request.castId,
+              request.inheritedSkillCastInfo,
+            );
+            this.#requireAbilitySystem(operator.operatorId).prepareDeferredCast(
+              request.skillId,
+              request.castId,
+              {
+                skipApplyCost: request.skipApplyCost ?? false,
+                ...(request.inheritedSkillCastInfo === undefined
+                  ? {}
+                  : { inheritedSkillCastInfo: request.inheritedSkillCastInfo }),
+              },
+            );
+          },
           resolveActualFrame: () => this.clock.frame,
           onSkillOperableBoundaryReached: fact =>
             this.receipt.record({
@@ -758,9 +855,10 @@ export class CombatRuntimeAssembly {
       target.configureLifecycleOperations?.(source =>
         this.#createBuffLifecycleOperationChain(source, options),
       );
-      target.configureBuffAppliedObserver?.(event =>
-        this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
-      );
+      target.configureBuffAppliedObserver?.(event => {
+        this.semanticEvents.emit({ kind: 'buffApplied', ...event });
+        this.semanticEvents.emit({ kind: 'buffOutput', ...event });
+      });
       target.configureBuffConsumedObserver?.(event =>
         this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
       );
@@ -874,7 +972,10 @@ export class CombatRuntimeAssembly {
           );
           const runtime = new CombatActionSequenceRuntime(
             operations,
-            { blackboard },
+            {
+              blackboard,
+              addAbilityChildBuff: child => this.#passiveAbilityChildBuffs.push(child),
+            },
             {},
             this.semanticEvents,
             operator.operatorId,
@@ -981,6 +1082,7 @@ export class CombatRuntimeAssembly {
       }
       // 先扣减未暂停候选的剩余时间，再处理本帧输入；归零的候选不能被本帧输入消费。
       this.simulation.add(this.comboWindows);
+      this.simulation.add(this.projectileFinishCallbacks);
       const inputRuntime = new CombatInputRuntime({
         clock: this.clock,
         inputs: options.inputs ?? [],
@@ -1017,9 +1119,14 @@ export class CombatRuntimeAssembly {
     return ability.tryStartSkill(skillId, castId);
   }
 
-  #prepareSkillStart(operatorId: string, skillId: string, castId?: string): void {
+  #prepareSkillStart(
+    operatorId: string,
+    skillId: string,
+    castId?: string,
+    inheritedSkillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo,
+  ): void {
     const ability = this.#requireAbilitySystem(operatorId);
-    const skillCastId = this.#skillCastIds.allocate();
+    const skillCastId = inheritedSkillCastInfo?.skillCastId ?? this.#skillCastIds.allocate();
     ability.prepareSkillCastId(skillId, castId, skillCastId);
     const resolvedSkillId = ability.resolveSkillId(skillId, castId);
     const program = this.#skillPrograms.get(
@@ -1075,7 +1182,7 @@ export class CombatRuntimeAssembly {
         skillType: program.skillType,
         skillId: program.sourceSkillId ?? program.skillId,
         skillCastId,
-        skillCastInfo: {
+        skillCastInfo: inheritedSkillCastInfo ?? {
           skillCastId,
           originSkillId: program.skillId,
           originSkillType: program.skillType,
@@ -1092,6 +1199,22 @@ export class CombatRuntimeAssembly {
     this.#requireAbilitySystem(operatorId).requestPostSkillCast(request);
   }
 
+  requestPostNativeSkillCast(
+    operatorId: string,
+    request: Omit<PostSkillCastRequest, 'skillId'> & { readonly nativeSkillId: string },
+  ): void {
+    const skillId = this.#nativeSkillKeys.get(`${operatorId}\u0000${request.nativeSkillId}`);
+    if (skillId === undefined) {
+      if (this.#ambiguousNativeSkillKeys.has(`${operatorId}\u0000${request.nativeSkillId}`)) {
+        throw new Error(`native skill '${request.nativeSkillId}' is ambiguous for '${operatorId}'`);
+      }
+      throw new Error(
+        `native skill '${request.nativeSkillId}' is not registered for '${operatorId}'`,
+      );
+    }
+    this.requestPostSkillCast(operatorId, { ...request, skillId, resolveSkillSlot: false });
+  }
+
   advanceFrame(): void {
     this.simulation.advanceFrame();
   }
@@ -1103,6 +1226,7 @@ export class CombatRuntimeAssembly {
   #createSkillRuntime(
     operator: CombatOperatorProgram,
     program: CompiledSkillProgram,
+    cooldownProgram: CompiledSkillCooldownProgram,
     enemy: CombatEnemyProgram,
     entityBlackboard: ActionBlackboard,
     statusRuntime: CombatStatusRuntime | undefined,
@@ -1130,7 +1254,7 @@ export class CombatRuntimeAssembly {
       resolveOperatorVitals,
       getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
     });
-    const cooldownBinding = this.#resolveSkillCooldown(operator, program);
+    const cooldownBinding = this.#resolveSkillCooldown(operator, cooldownProgram);
     runtime = new SkillRuntime(program, {
       clock: this.clock,
       resources: this.resources,
@@ -1157,6 +1281,13 @@ export class CombatRuntimeAssembly {
       emitSkillEnd: payload => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
       emitAfterSkillApplyCost: payload =>
         this.#options.emitAbilityEvent?.(operatorId, 'afterSkillApplyCost', payload),
+      scheduleProjectileFinishCallback: (delaySeconds, execute) =>
+        this.projectileFinishCallbacks.schedule({
+          delaySeconds,
+          resolveDeltaSeconds: () =>
+            COMBAT_FRAME_INTERVAL * (this.timeDilation?.currentGlobalScale ?? 1),
+          execute,
+        }),
       ...cooldownBinding,
     });
     return runtime;
@@ -1389,6 +1520,45 @@ export class CombatRuntimeAssembly {
     });
   }
 
+  #replaceSkillSlot(
+    operatorId: string,
+    parameters: {
+      readonly skillGroupKey: string;
+      readonly targetSkillKey: string;
+      readonly revertedSkillKey?: string;
+      readonly inheritOriginSkillCooldownProgress: boolean;
+    },
+  ): { finish(): void } {
+    const handleKey = `${operatorId}\u0000${parameters.skillGroupKey}`;
+    this.#activeSkillSlotReplacementHandles.get(handleKey)?.finish();
+    const abilitySystem = this.#requireAbilitySystem(operatorId);
+    const snapshotSkillKey = abilitySystem.currentSkillKeyForSlot(parameters.skillGroupKey);
+    const revertedSkillKey = parameters.revertedSkillKey ?? snapshotSkillKey;
+    this.#changeSkillSlot(
+      operatorId,
+      parameters.skillGroupKey,
+      parameters.targetSkillKey,
+      parameters.inheritOriginSkillCooldownProgress,
+    );
+    let active = true;
+    const handle = {
+      finish: () => {
+        if (!active) return;
+        active = false;
+        if (this.#activeSkillSlotReplacementHandles.get(handleKey) !== handle) return;
+        this.#activeSkillSlotReplacementHandles.delete(handleKey);
+        this.#changeSkillSlot(
+          operatorId,
+          parameters.skillGroupKey,
+          revertedSkillKey,
+          parameters.inheritOriginSkillCooldownProgress,
+        );
+      },
+    };
+    this.#activeSkillSlotReplacementHandles.set(handleKey, handle);
+    return handle;
+  }
+
   #reduceSkillCooldownsByBaseDurationRatio(
     operatorId: string,
     skill: import('../../game-data/operatorDefinition').CombatStepParameters['adjustSkillCooldown']['skill'],
@@ -1581,12 +1751,27 @@ export class CombatRuntimeAssembly {
     const baseDelegate = new SkillSlotOperationExecutor({
       changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
         this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
+      replaceSkillSlot: parameters => this.#replaceSkillSlot(operatorId, parameters),
       delegate: cooldownDelegate,
+    });
+    const deferredSkillCasts = new SkillCastOperationExecutor({
+      request: request => this.requestPostNativeSkillCast(operatorId, request),
+      delegate: baseDelegate,
+    });
+    const customAbilityEvents = new CustomAbilityEventOperationExecutor({
+      sourceId: operatorId,
+      emit: (entityId, payload) => {
+        if (this.#options.emitAbilityEvent === undefined) {
+          throw new Error('custom ability event requires an AbilitySystem event emitter');
+        }
+        this.#options.emitAbilityEvent(entityId, 'customAbilityEvent', payload);
+      },
+      delegate: deferredSkillCasts,
     });
     let rootOperations: CombatOperationExecutor | undefined;
     const targetContextOperations = new TargetContextOperationExecutor(
       operatorId,
-      baseDelegate,
+      customAbilityEvents,
       id => this.#resolveAbilitySystemSourceId(id),
       {
         listOperatorIds: () => this.#operatorOrder,
@@ -1683,6 +1868,7 @@ export class CombatRuntimeAssembly {
       resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
       resolveEventTarget: targetId => this.#requireTimedMarkerContainer(targetId),
       globalClock: this.clock,
+      globalScaledClock: this.timeDilation ?? this.clock,
       delegate: statusOperations,
     });
     const angleConditions = new CameraTargetAngleConditionExecutor(
@@ -1700,6 +1886,12 @@ export class CombatRuntimeAssembly {
           throw new Error(`skill '${program.skillId}' requires a combat vitals resolver`);
         }
         return resolveVitals(target, operatorId, buffSourceId);
+      },
+      resolveContextTarget: candidate => {
+        if (resolveOperatorVitals === undefined) {
+          throw new Error(`skill '${program.skillId}' requires operator vitals`);
+        }
+        return resolveOperatorVitals(candidate);
       },
       delegate: rankConditions,
     });
@@ -1725,6 +1917,12 @@ export class CombatRuntimeAssembly {
       sourceId => this.#resolveAbilitySystemSourceId(sourceId),
       (targetId, ownedTags, requiredTags, match) =>
         this.#resolveBuffTargetById(targetId).matchesTags!(ownedTags, requiredTags, match),
+      (target, context) => {
+        const targetId = target === 'caster' ? operatorId : context?.buffOwnerId;
+        return targetId === undefined
+          ? undefined
+          : this.#abilitySystems.get(targetId)?.currentSkillType;
+      },
     );
     const delegate = new ActionBlackboardOperationExecutor(
       eventConditions,
@@ -1737,6 +1935,14 @@ export class CombatRuntimeAssembly {
           },
       ownerId => this.#abilitySystems.get(ownerId)?.currentSkillTimelineFrame,
       operator.panel?.attributes,
+      {
+        sourceId: operatorId,
+        resolve: entityId => this.#operators.get(entityId)?.characterTypeId,
+      },
+      {
+        sourceId: operatorId,
+        resolve: entityId => this.#operators.get(entityId)?.operatorRole,
+      },
     );
     const operationChain = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
@@ -1805,12 +2011,27 @@ export class CombatRuntimeAssembly {
     const slotOperations = new SkillSlotOperationExecutor({
       changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
         this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
+      replaceSkillSlot: parameters => this.#replaceSkillSlot(operatorId, parameters),
       delegate: cooldownOperations,
+    });
+    const deferredSkillCasts = new SkillCastOperationExecutor({
+      request: request => this.requestPostNativeSkillCast(operatorId, request),
+      delegate: slotOperations,
+    });
+    const customAbilityEvents = new CustomAbilityEventOperationExecutor({
+      sourceId: operatorId,
+      emit: (entityId, payload) => {
+        if (options.emitAbilityEvent === undefined) {
+          throw new Error('custom ability event requires an AbilitySystem event emitter');
+        }
+        options.emitAbilityEvent(entityId, 'customAbilityEvent', payload);
+      },
+      delegate: deferredSkillCasts,
     });
     let reactiveOperations: CombatOperationExecutor | undefined;
     const targetContextOperations = new TargetContextOperationExecutor(
       operatorId,
-      slotOperations,
+      customAbilityEvents,
       id => this.#resolveAbilitySystemSourceId(id),
       {
         listOperatorIds: () => this.#operatorOrder,
@@ -1904,6 +2125,7 @@ export class CombatRuntimeAssembly {
       resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
       resolveEventTarget: targetId => this.#requireTimedMarkerContainer(targetId),
       globalClock: this.clock,
+      globalScaledClock: this.timeDilation ?? this.clock,
       delegate: statusOperations,
     });
     const angleConditions = new CameraTargetAngleConditionExecutor(undefined, markerOperations);
@@ -1918,6 +2140,12 @@ export class CombatRuntimeAssembly {
           throw new Error(`reactive event '${sourceActionId}' requires a vitals resolver`);
         }
         return options.resolveVitals(target, operatorId, buffSourceId);
+      },
+      resolveContextTarget: candidate => {
+        if (options.resolveOperatorVitals === undefined) {
+          throw new Error(`reactive event '${sourceActionId}' requires operator vitals`);
+        }
+        return options.resolveOperatorVitals(candidate);
       },
       delegate: rankConditions,
     });
@@ -1938,10 +2166,16 @@ export class CombatRuntimeAssembly {
       sourceId => this.#resolveAbilitySystemSourceId(sourceId),
       (targetId, ownedTags, requiredTags, match) =>
         this.#resolveBuffTargetById(targetId).matchesTags!(ownedTags, requiredTags, match),
+      (target, context) => {
+        const targetId = target === 'caster' ? operatorId : context?.buffOwnerId;
+        return targetId === undefined
+          ? undefined
+          : this.#abilitySystems.get(targetId)?.currentSkillType;
+      },
     );
     const blackboardOperations = new ActionBlackboardOperationExecutor(
       eventConditions,
-      options.probabilitySamples,
+      this.#options.probabilitySamples,
       options.readSourceAttributeValue === undefined
         ? undefined
         : {
@@ -1950,6 +2184,14 @@ export class CombatRuntimeAssembly {
           },
       undefined,
       operator.panel?.attributes,
+      {
+        sourceId: operatorId,
+        resolve: entityId => this.#operators.get(entityId)?.characterTypeId,
+      },
+      {
+        sourceId: operatorId,
+        resolve: entityId => this.#operators.get(entityId)?.operatorRole,
+      },
     );
     const operationChain = new SkillResourceOperationExecutor({
       sourceOperatorId: operatorId,
@@ -2176,7 +2418,8 @@ export class CombatRuntimeAssembly {
     }).source;
     if (source.kind === 'operator') return source.operatorId;
     if (source.kind === 'enemy') return 'enemy';
-    return logicalAbilityEntityRuntimeId(source.instanceId);
+    if (source.kind === 'abilityEntity') return logicalAbilityEntityRuntimeId(source.instanceId);
+    throw new Error('spatial points cannot be AbilitySystem sources');
   }
 
   #resolveAbilityEntityBuffTarget(
@@ -2205,9 +2448,10 @@ export class CombatRuntimeAssembly {
     runtime.configureLifecycleOperations?.(source =>
       this.#createBuffLifecycleOperationChain(source, options),
     );
-    runtime.configureBuffAppliedObserver?.(event =>
-      this.semanticEvents.emit({ kind: 'buffApplied', ...event }),
-    );
+    runtime.configureBuffAppliedObserver?.(event => {
+      this.semanticEvents.emit({ kind: 'buffApplied', ...event });
+      this.semanticEvents.emit({ kind: 'buffOutput', ...event });
+    });
     runtime.configureBuffConsumedObserver?.(event =>
       this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
     );
@@ -2281,6 +2525,9 @@ export class CombatRuntimeAssembly {
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
     resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'],
   ): readonly BuffOperationTarget[] {
+    if (target === 'currentTarget') {
+      throw new Error('currentTarget must be resolved from the active operation context');
+    }
     if (
       target === 'eventTarget' ||
       target === 'eventSource' ||

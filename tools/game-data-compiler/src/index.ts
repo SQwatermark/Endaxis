@@ -694,10 +694,6 @@ export {
   type ProjectileRuntimeSource,
 } from './source/projectileRuntime.ts';
 export {
-  compileOperatorRuntimeDefinitionSource,
-  renderOperatorRuntimeDefinitionSource,
-} from './domains/operator/runtimeDefinition.ts';
-export {
   compileOperatorActiveSkillRuntimeDefinitionSource,
   renderOperatorActiveSkillRuntimeDefinitionSource,
   type CompiledOperatorActiveSkillRuntimeDefinitionSource,

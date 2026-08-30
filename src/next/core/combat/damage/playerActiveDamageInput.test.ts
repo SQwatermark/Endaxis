@@ -39,9 +39,9 @@ function findDamageStep(): Extract<ResolvedCombatStep, { kind: 'dealDamage' }> {
     skillLevel: 12,
     skill: findPerlicaBattleSkill(),
   });
-  const step = program.timelineActions[0]?.sequence.steps.find(
-    candidate => candidate.kind === 'dealDamage',
-  );
+  const step = program.timelineActions
+    .flatMap(action => action.sequence.steps)
+    .find(candidate => candidate.kind === 'dealDamage');
   if (step?.kind !== 'dealDamage') throw new Error('Perlica damage step is missing');
   return step;
 }

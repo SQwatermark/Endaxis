@@ -3185,7 +3185,7 @@ export default {
         start: sequence(
           step('applyBuff', {
             buffId: 'buff_common_affixes_vulnerable_pulse',
-            target: 'buffOwner',
+            target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {
@@ -3203,7 +3203,7 @@ export default {
           }),
           step('applyBuff', {
             buffId: 'buff_common_affixes_vulnerable_fire',
-            target: 'buffOwner',
+            target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {
@@ -3350,6 +3350,53 @@ export default {
       extendTags: [],
       blackboard: { heal_scale: 0.1, healvalue: 300, probability: 0.3 },
       attributeModifiers: [],
+      abilityEventResponses: [
+        {
+          event: 'beforeTakeDamage',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              {
+                kind: 'buffIdStackCompare',
+                target: 'buffOwner',
+                buffIds: ['buff_common_dash'],
+                operator: 'lessOrEqual',
+                value: { kind: 'constant', value: 0 },
+              },
+              sequence(
+                branch(
+                  { kind: 'eventDamageTypeIn', damageTypes: ['physical'] },
+                  sequence(
+                    branch(
+                      {
+                        kind: 'probability',
+                        probability: { kind: 'blackboard', key: 'probability' },
+                      },
+                      sequence(
+                        step('applyBuff', {
+                          buffId: 'buff_common_damage_immune_talent',
+                          target: 'caster',
+                          source: 'eventSource',
+                          inheritSourceSkillCastInfo: true,
+                          blackboardAssignments: { duration: { kind: 'constant', value: 0.01 } },
+                        }),
+                        step('heal', {
+                          target: 'caster',
+                          alwaysNext: true,
+                          tags: [],
+                          attribute: 'strength',
+                          multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                          addition: { kind: 'blackboard', key: 'healvalue' },
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        },
+      ],
     },
     buff_chr_0023_antal_ultimate_icon: {
       stackingType: 'unlimited',
@@ -3408,7 +3455,7 @@ export default {
         start: sequence(
           step('applyBuff', {
             buffId: 'buff_common_affixes_enhance_pulse',
-            target: 'buffOwner',
+            target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {
@@ -3419,7 +3466,7 @@ export default {
           }),
           step('applyBuff', {
             buffId: 'buff_common_affixes_enhance_fire',
-            target: 'buffOwner',
+            target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {

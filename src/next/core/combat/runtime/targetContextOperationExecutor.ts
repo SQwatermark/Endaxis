@@ -2,6 +2,7 @@ import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatVitals } from './combatVitals';
+import { resolveActionValueOperand } from './actionBlackboard';
 
 export interface CharacterTeamTargetQueryDependencies {
   readonly listOperatorIds: () => readonly string[];
@@ -11,6 +12,7 @@ export interface CharacterTeamTargetQueryDependencies {
 
 /** 执行不依赖空间的通用 Context 目标组集合操作。 */
 export class TargetContextOperationExecutor implements CombatOperationExecutor {
+  #nextSpatialPointId = 1;
   constructor(
     readonly operatorId: string,
     readonly delegate: CombatOperationExecutor,
@@ -21,6 +23,23 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind === 'findCharacterTeamTargets') {
       this.#findCharacterTeamTargets(step, context);
+      return true;
+    }
+    if (step.kind === 'createSpatialPointTargets') {
+      if (context?.targetContext === undefined) {
+        throw new Error('createSpatialPointTargets requires a combat target context');
+      }
+      const count = resolveActionValueOperand(step.parameters.count, context.blackboard);
+      if (!Number.isInteger(count) || count < 0) {
+        throw new RangeError('spatial point count must be a non-negative integer');
+      }
+      context.targetContext.set(
+        step.parameters.saveToContextKey,
+        Array.from({ length: count }, () => ({
+          kind: 'spatialPoint' as const,
+          pointId: this.#nextSpatialPointId++,
+        })),
+      );
       return true;
     }
     if (step.kind !== 'mergeContextTargets') {
@@ -58,9 +77,21 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     }
     const selection = step.parameters.selection;
     let operatorIds = [...new Set(query.listOperatorIds())];
-    if (selection.kind === 'controlledOperator') {
+    if (selection.kind === 'allOperators') {
+      // Keep the stable party order supplied by the scenario runtime.
+    } else if (selection.kind === 'controlledOperator') {
       operatorIds = operatorIds.filter(query.isOperatorControlled);
     } else {
+      if (selection.excludeCaster === true) {
+        operatorIds = operatorIds.filter(operatorId => operatorId !== this.operatorId);
+      }
+      if (selection.excludeCurrentTarget === true) {
+        const current = context.currentTarget;
+        if (current?.kind !== 'operator') {
+          throw new Error('excludeCurrentTarget requires a current operator target');
+        }
+        operatorIds = operatorIds.filter(operatorId => operatorId !== current.operatorId);
+      }
       if (selection.excludedContextKey !== undefined) {
         const excludedIds = new Set(
           context.targetContext
@@ -135,7 +166,7 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
   }
 
   #resolveTarget(
-    target: 'caster' | 'enemy' | 'eventTarget' | 'buffSource',
+    target: 'caster' | 'enemy' | 'eventTarget' | 'buffSource' | 'currentTarget',
     context: CombatOperationContext,
   ): RuntimeTargetRef {
     if (target === 'caster') return { kind: 'operator', operatorId: this.operatorId };
@@ -146,6 +177,12 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
       }
       const sourceId = this.resolveAbilitySystemSourceId(context.buffSourceId);
       return sourceId === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: sourceId };
+    }
+    if (target === 'currentTarget') {
+      if (context.currentTarget === undefined) {
+        throw new Error('currentTarget requires a forEach combat target');
+      }
+      return context.currentTarget;
     }
     const targetId = eventTargetId(context);
     return targetId === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: targetId };
@@ -165,6 +202,9 @@ function sameTarget(left: RuntimeTargetRef, right: RuntimeTargetRef): boolean {
   if (left.kind === 'enemy') return true;
   if (left.kind === 'operator' && right.kind === 'operator') {
     return left.operatorId === right.operatorId;
+  }
+  if (left.kind === 'spatialPoint' && right.kind === 'spatialPoint') {
+    return left.pointId === right.pointId;
   }
   return (
     left.kind === 'abilityEntity' &&

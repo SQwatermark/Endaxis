@@ -773,6 +773,7 @@ describe('compileSkill', () => {
                   attackScale: 1,
                   tags: ['comboSkill'],
                   stagger: { kind: 'blackboard', key: 'poise' },
+                  staggerMultiplier: { kind: 'blackboard', key: 'poise_scale' },
                 },
               },
             ],
@@ -790,7 +791,10 @@ describe('compileSkill', () => {
     });
 
     expect(program.timelineActions[0]?.sequence.steps[0]).toMatchObject({
-      parameters: { stagger: { kind: 'blackboard', key: 'poise' } },
+      parameters: {
+        stagger: { kind: 'blackboard', key: 'poise' },
+        staggerMultiplier: { kind: 'blackboard', key: 'poise_scale' },
+      },
     });
   });
 
@@ -885,8 +889,8 @@ describe('compileSkill', () => {
       costFrame: 0,
       costs: [{ resource: 'sp', value: 100 }],
     });
-    expect(program.timelineActions[0]?.startFrame).toBe(13);
-    expect(program.timelineActions[0]?.sequence.steps).toEqual([
+    const impact = program.timelineActions.find(action => action.startFrame === 13);
+    expect(impact?.sequence.steps).toEqual([
       {
         kind: 'applyElementalInfliction',
         parameters: { element: 'electric', isExtra: false },
@@ -896,9 +900,10 @@ describe('compileSkill', () => {
         kind: 'dealDamage',
         parameters: {
           damageType: 'electric',
-          attackScale: 4,
+          attackScale: { kind: 'blackboard', key: 'atk_scale' },
           tags: ['normalSkill'],
-          stagger: 10,
+          features: ['canBreakWeakness'],
+          stagger: { kind: 'blackboard', key: 'poise' },
         },
       },
       {
@@ -906,7 +911,7 @@ describe('compileSkill', () => {
         parameters: { coefficient: 1 },
       },
     ]);
-    expect(program.timelineActions[0]?.sequence.steps[1]?.key).not.toBe('');
+    expect(impact?.sequence.steps[1]?.key).not.toBe('');
   });
 
   it('resolves nested level values without retaining level arrays', () => {

@@ -41,6 +41,7 @@ import type { CombatVitals } from './combatVitals';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { deriveHitId } from '../timeline/deriveHitId';
+import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../../packages/game-data-contract/src/conditions';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' | 'dealFixedDamage' }>;
@@ -67,6 +68,7 @@ export interface PlayerDamageOperationDependencies {
   readonly sourceOperatorId: string;
   /** 存档中的技能释放身份；伤害回执凭它与具体施放对应。单元测试程序可能缺失。 */
   readonly castId?: string;
+  readonly skillId?: string;
   /** 非主动技能的可审计来源，不用于生成轴上技能 castId。 */
   readonly sourceActionId?: string;
   /** 只用于把本次公式已经确定的技能分类写入伤害详情回执。 */
@@ -146,10 +148,22 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
 
   execute(step: RuntimeOperation, operationContext?: OperationContext): boolean {
     if (step.kind === 'dealStagger') {
-      this.#executePoise(
-        step,
-        this.#resolveActionValue(step.parameters.value, operationContext, 'dynamic stagger value'),
+      const value = this.#resolveActionValue(
+        step.parameters.value,
+        operationContext,
+        'dynamic stagger value',
       );
+      const multiplier =
+        step.parameters.valueMultiplier === undefined
+          ? 1
+          : Math.fround(
+              this.#resolveActionValue(
+                step.parameters.valueMultiplier,
+                operationContext,
+                'dynamic stagger multiplier',
+              ),
+            );
+      this.#executePoise(step, value * multiplier);
       return true;
     }
     if (step.kind !== 'dealDamage' && step.kind !== 'dealFixedDamage') {
@@ -174,6 +188,10 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       ...(operationContext?.skillCastInfo === undefined
         ? {}
         : { skillCastId: operationContext.skillCastInfo.skillCastId }),
+      ...(this.dependencies.skillId === undefined ? {} : { skillId: this.dependencies.skillId }),
+      ...(this.dependencies.skillType === undefined
+        ? {}
+        : { skillType: this.dependencies.skillType }),
       ports: {
         captureAttributeSnapshots: () => this.dependencies.captureAttributeSnapshots(step),
         applyModifiers: (timing, side, damageContext) =>
@@ -344,6 +362,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           ? {}
           : { absorbDamage: this.dependencies.absorbHealthDamage }),
       });
+      operationContext?.blackboard.assignDynamic(NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY, 1);
       this.dependencies.emitSemanticHit?.(step);
 
       if (
@@ -351,14 +370,22 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         (!step.parameters.staggerOnlyWhenCasterControlled ||
           (this.dependencies.isSourceControlled?.() ?? false))
       ) {
-        this.#executePoise(
-          step,
-          this.#resolveActionValue(
-            step.parameters.stagger,
-            operationContext,
-            'dynamic stagger value',
-          ),
+        const stagger = this.#resolveActionValue(
+          step.parameters.stagger,
+          operationContext,
+          'dynamic stagger value',
         );
+        const staggerMultiplier =
+          step.parameters.staggerMultiplier === undefined
+            ? 1
+            : Math.fround(
+                this.#resolveActionValue(
+                  step.parameters.staggerMultiplier,
+                  operationContext,
+                  'dynamic stagger multiplier',
+                ),
+              );
+        this.#executePoise(step, stagger * staggerMultiplier);
       }
       return true;
     } finally {

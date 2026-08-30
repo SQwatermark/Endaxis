@@ -1,0 +1,2669 @@
+/** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
+import type {
+  OperatorBuffDefinitions,
+  OperatorDefinition,
+  SkillDefinition,
+} from '../../../../core/game-data/operatorDefinition';
+import {
+  branch,
+  repeatEachTick,
+  scheduled,
+  sequence,
+  step,
+  withActionBlackboardScope,
+  withSkillBlackboard,
+} from '../../definitionHelpers';
+
+export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack1',
+    sourceSkillId: 'chr_0013_aglina_attack1',
+    timelineBlockFrames: 18,
+    costFrame: 9,
+    scheduledSequences: [
+      scheduled(
+        7,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0013_aglina_attack1.actionGroupData.timelineActions[1]._sequenceActionData.actionData[1]:projectile_chr_0013_aglina_normal_attack1',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0013_aglina_attack1.actionGroupData.timelineActions[1]._sequenceActionData.actionData[1]:chr_0013_aglina_attack1_projhit',
+                { atb: 0, atk_scale: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'nature',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0013_aglina_attack1:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    {
+                      kind: 'all',
+                      conditions: [
+                        { kind: 'casterControlled' },
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 1 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                      ],
+                    },
+                    sequence(
+                      branch(
+                        { kind: 'casterControlled' },
+                        sequence(
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 1 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'normalAttack',
+                          }),
+                        ),
+                      ),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
+        ),
+        7,
+      ),
+    ],
+  },
+  {
+    atb: 0,
+    atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+  },
+);
+
+export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack2',
+    sourceSkillId: 'chr_0013_aglina_attack2',
+    timelineBlockFrames: 22,
+    costFrame: 11,
+    scheduledSequences: [
+      scheduled(
+        4,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0013_aglina_attack2.actionGroupData.timelineActions[1]._sequenceActionData.actionData[1]:projectile_chr_0013_aglina_normal_attack2',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0013_aglina_attack2.actionGroupData.timelineActions[1]._sequenceActionData.actionData[1]:chr_0013_aglina_attack2_projhit',
+                { atb: 0, atk_scale: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'nature',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0013_aglina_attack2:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 0.5 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
+        ),
+        4,
+      ),
+      scheduled(
+        8,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0013_aglina_attack2.actionGroupData.timelineActions[2]._sequenceActionData.actionData[0]:projectile_chr_0013_aglina_normal_attack2',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0013_aglina_attack2.actionGroupData.timelineActions[2]._sequenceActionData.actionData[0]:chr_0013_aglina_attack2_projhit',
+                { atb: 0, atk_scale: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'nature',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0013_aglina_attack2:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 0.5 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
+        ),
+        8,
+      ),
+    ],
+  },
+  {
+    atb: 0,
+    atk_scale: [0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.29, 0.31, 0.32, 0.35, 0.37, 0.41],
+    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
+  },
+);
+
+export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack3',
+    sourceSkillId: 'chr_0013_aglina_attack3',
+    timelineBlockFrames: 23,
+    costFrame: 13,
+    scheduledSequences: [
+      scheduled(
+        7,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0013_aglina_attack3.actionGroupData.timelineActions[1]._sequenceActionData.actionData[0]:projectile_chr_0013_aglina_normal_attack3',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0013_aglina_attack3.actionGroupData.timelineActions[1]._sequenceActionData.actionData[0]:chr_0013_aglina_attack3_projhit',
+                {},
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'nature',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0013_aglina_attack3:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    {
+                      kind: 'all',
+                      conditions: [
+                        { kind: 'casterControlled' },
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 1 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                      ],
+                    },
+                    sequence(
+                      branch(
+                        { kind: 'casterControlled' },
+                        sequence(
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 0.3333333 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'normalAttack',
+                          }),
+                        ),
+                      ),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
+        ),
+        8,
+      ),
+      scheduled(
+        10,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0013_aglina_attack3.actionGroupData.timelineActions[2]._sequenceActionData.actionData[0]:projectile_chr_0013_aglina_normal_attack3',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0013_aglina_attack3.actionGroupData.timelineActions[2]._sequenceActionData.actionData[0]:chr_0013_aglina_attack3_projhit',
+                {},
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'nature',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0013_aglina_attack3:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    {
+                      kind: 'all',
+                      conditions: [
+                        { kind: 'casterControlled' },
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 1 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                      ],
+                    },
+                    sequence(
+                      branch(
+                        { kind: 'casterControlled' },
+                        sequence(
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 0.3333333 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'normalAttack',
+                          }),
+                        ),
+                      ),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
+        ),
+        11,
+      ),
+      scheduled(
+        14,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0013_aglina_attack3.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:projectile_chr_0013_aglina_normal_attack3',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0013_aglina_attack3.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:chr_0013_aglina_attack3_projhit',
+                {},
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'nature',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0013_aglina_attack3:/scheduledSequences/2/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    {
+                      kind: 'all',
+                      conditions: [
+                        { kind: 'casterControlled' },
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 1 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                      ],
+                    },
+                    sequence(
+                      branch(
+                        { kind: 'casterControlled' },
+                        sequence(
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 0.3333333 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'normalAttack',
+                          }),
+                        ),
+                      ),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
+        ),
+        15,
+      ),
+    ],
+  },
+  {
+    atb: 0,
+    atk_scale: [0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.22, 0.23, 0.24, 0.26, 0.28, 0.3],
+    display_atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91],
+  },
+);
+
+export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack4',
+    sourceSkillId: 'chr_0013_aglina_attack4',
+    timelineBlockFrames: 40,
+    costFrame: 13,
+    scheduledSequences: [
+      scheduled(
+        23,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0013_aglina_attack4.actionGroupData.timelineActions[1]._sequenceActionData.actionData[1]:projectile_chr_0013_aglina_normal_attack4',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0013_aglina_attack4.actionGroupData.timelineActions[1]._sequenceActionData.actionData[1]:chr_0013_aglina_attack4_projhit',
+                { atb: 0, atk_scale: 0, poise: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'nature',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack', 'normalAttackLastCombo'],
+                      stagger: { kind: 'blackboard', key: 'poise' },
+                      staggerMultiplier: { kind: 'constant', value: 0.34 },
+                      staggerOnlyWhenCasterControlled: true,
+                    },
+                    'chr_0013_aglina_attack4:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    {
+                      kind: 'all',
+                      conditions: [
+                        { kind: 'casterControlled' },
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 1 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                      ],
+                    },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 0.3334 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
+        ),
+        23,
+      ),
+      scheduled(
+        25,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0013_aglina_attack4.actionGroupData.timelineActions[2]._sequenceActionData.actionData[1]:projectile_chr_0013_aglina_normal_attack4_2',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0013_aglina_attack4.actionGroupData.timelineActions[2]._sequenceActionData.actionData[1]:chr_0013_aglina_attack4_projhit_2',
+                { atb: 0, atk_scale: 0, poise: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'nature',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                      stagger: { kind: 'blackboard', key: 'poise' },
+                      staggerMultiplier: { kind: 'constant', value: 0.33 },
+                      staggerOnlyWhenCasterControlled: true,
+                    },
+                    'chr_0013_aglina_attack4:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    {
+                      kind: 'all',
+                      conditions: [
+                        { kind: 'casterControlled' },
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 1 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                      ],
+                    },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 0.3334 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
+        ),
+        25,
+      ),
+      scheduled(
+        27,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0013_aglina_attack4.actionGroupData.timelineActions[3]._sequenceActionData.actionData[1]:projectile_chr_0013_aglina_normal_attack4_1',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0013_aglina_attack4.actionGroupData.timelineActions[3]._sequenceActionData.actionData[1]:chr_0013_aglina_attack4_projhit_2',
+                { atb: 0, atk_scale: 0, poise: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'nature',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                      stagger: { kind: 'blackboard', key: 'poise' },
+                      staggerMultiplier: { kind: 'constant', value: 0.33 },
+                      staggerOnlyWhenCasterControlled: true,
+                    },
+                    'chr_0013_aglina_attack4:/scheduledSequences/2/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    {
+                      kind: 'all',
+                      conditions: [
+                        { kind: 'casterControlled' },
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 1 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                      ],
+                    },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 0.3334 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
+        ),
+        27,
+      ),
+    ],
+  },
+  {
+    atb: 16,
+    atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.37],
+    display_atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.12],
+    poise: 16,
+  },
+);
+
+export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'finisher',
+    sourceSkillId: 'chr_0013_aglina_power_attack',
+    timelineBlockFrames: 43,
+    costFrame: 4,
+    scheduledSequences: [
+      scheduled(
+        12,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.05,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0013_aglina_power_attack:/scheduledSequences/0/sequence/steps/0',
+          ),
+        ),
+        12,
+      ),
+      scheduled(
+        15,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.05,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0013_aglina_power_attack:/scheduledSequences/1/sequence/steps/0',
+          ),
+        ),
+        15,
+      ),
+      scheduled(
+        18,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.05,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0013_aglina_power_attack:/scheduledSequences/2/sequence/steps/0',
+          ),
+        ),
+        18,
+      ),
+      scheduled(
+        21,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.05,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0013_aglina_power_attack:/scheduledSequences/3/sequence/steps/0',
+          ),
+        ),
+        21,
+      ),
+      scheduled(
+        24,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.05,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0013_aglina_power_attack:/scheduledSequences/4/sequence/steps/0',
+          ),
+        ),
+        24,
+      ),
+      scheduled(
+        29,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.05,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0013_aglina_power_attack:/scheduledSequences/5/sequence/steps/0',
+          ),
+        ),
+        29,
+      ),
+      scheduled(
+        43,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.7,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0013_aglina_power_attack:/scheduledSequences/6/sequence/steps/0',
+          ),
+          step('gainFinisherSp', { factor: 1, recipient: 'team' }),
+        ),
+        52,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_full_immune_medium',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        50,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_power_attack_disable_cast_skill',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        43,
+      ),
+    ],
+  },
+  {
+    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+    cam_angle: 0,
+    cam_duration: 0,
+    input_angle: 0,
+    display_atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+  },
+);
+
+export const gilbertaPlungingAttack: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'plungingAttack',
+    sourceSkillId: 'chr_0013_aglina_plunging_attack_end',
+    timelineBlockFrames: 21,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack', 'plungingAttack'],
+            },
+            'chr_0013_aglina_plunging_attack_end:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        5,
+      ),
+    ],
+  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+);
+
+export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'battleSkill',
+    sourceSkillId: 'chr_0013_aglina_normal_skill',
+    timelineBlockFrames: 123,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        21,
+        sequence(
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0013_aglina_normal_skill',
+            childSkillId: 'chr_0013_aglina_normal_skill_abilityrange',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+          }),
+        ),
+        21,
+      ),
+      scheduled(
+        29,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_pull' },
+              tags: ['normalSkill'],
+            },
+            'chr_0013_aglina_normal_skill:/scheduledSequences/1/sequence/steps/0',
+          ),
+          step('applyBuff', {
+            buffId: 'buff_common_obtain_ultimate_sp',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
+        ),
+        30,
+      ),
+      scheduled(
+        46,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_pull' },
+              tags: ['normalSkill'],
+            },
+            'chr_0013_aglina_normal_skill:/scheduledSequences/2/sequence/steps/0',
+          ),
+        ),
+        46,
+      ),
+      scheduled(
+        62,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_pull' },
+              tags: ['normalSkill'],
+            },
+            'chr_0013_aglina_normal_skill:/scheduledSequences/3/sequence/steps/0',
+          ),
+        ),
+        62,
+      ),
+      scheduled(
+        78,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_pull' },
+              tags: ['normalSkill'],
+            },
+            'chr_0013_aglina_normal_skill:/scheduledSequences/4/sequence/steps/0',
+          ),
+        ),
+        78,
+      ),
+      scheduled(
+        108,
+        sequence(
+          step('applyElementalInfliction', { element: 'nature', isExtra: false }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_explosion' },
+              tags: ['normalSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+            },
+            'chr_0013_aglina_normal_skill:/scheduledSequences/5/sequence/steps/1',
+          ),
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'heal_const' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'constant', value: 1 },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 2 },
+                },
+              ],
+            },
+            sequence(
+              branch(
+                {
+                  kind: 'healthCompare',
+                  target: 'controlledOperator',
+                  valueType: 'ratio',
+                  operator: 'less',
+                  value: { kind: 'constant', value: 0.99 },
+                },
+                sequence(
+                  step('heal', {
+                    target: 'controlledOperator',
+                    alwaysNext: true,
+                    tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+                    attribute: 'intellect',
+                    multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                    addition: { kind: 'blackboard', key: 'heal_const' },
+                  }),
+                ),
+                sequence(
+                  step('findCharacterTeamTargets', {
+                    saveToContextKey: 'CureTarget',
+                    selection: { kind: 'lowestHealthRatioOperator' },
+                  }),
+                  branch(
+                    {
+                      kind: 'healthCompare',
+                      target: 'contextTarget',
+                      contextKey: 'CureTarget',
+                      valueType: 'ratio',
+                      operator: 'less',
+                      value: { kind: 'constant', value: 0.99 },
+                    },
+                    sequence(
+                      step('heal', {
+                        target: 'contextTarget',
+                        contextKey: 'CureTarget',
+                        alwaysNext: true,
+                        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+                        attribute: 'intellect',
+                        multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                        addition: { kind: 'blackboard', key: 'heal_const' },
+                      }),
+                    ),
+                    sequence(
+                      step('heal', {
+                        target: 'controlledOperator',
+                        alwaysNext: true,
+                        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+                        attribute: 'intellect',
+                        multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                        addition: { kind: 'blackboard', key: 'heal_const' },
+                      }),
+                    ),
+                    { alwaysNext: true },
+                  ),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        109,
+      ),
+    ],
+    costs: [{ resource: 'sp', value: 100 }],
+  },
+  {
+    atk_scale_explosion: [0.58, 0.63, 0.69, 0.75, 0.81, 0.86, 0.92, 0.98, 1.04, 1.11, 1.2, 1.3],
+    atk_scale_pull: [0.24, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.55],
+    cam_angle: 0,
+    cam_duration: 0,
+    heal_const: 0,
+    heal_scale: 0,
+    input_angle: 0,
+    maxChargeTime: 0,
+    poise: 10,
+    potential: 0,
+    radius: 5.2,
+    radiusadd_display: 0,
+    recovercost: 0,
+    display_atk_scale_pull: [
+      0.97, 1.07, 1.17, 1.26, 1.36, 1.46, 1.56, 1.65, 1.75, 1.87, 2.02, 2.19,
+    ],
+  },
+);
+
+export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'ultimate',
+    sourceSkillId: 'chr_0013_aglina_ultimate_skill',
+    timelineBlockFrames: 64,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 1 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'RESETto1' },
+            finishByAction: false,
+            targets: ['caster'],
+          }),
+        ),
+        3,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('startUltimateTimeDilation', {
+            priority: 100,
+            targetScale: { kind: 'constant', value: 0 },
+            ignoredTargets: [],
+          }),
+        ),
+        52,
+      ),
+      scheduled(
+        60,
+        sequence(
+          step('applyElementalInfliction', { element: 'nature', isExtra: false }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+            },
+            'chr_0013_aglina_ultimate_skill:/scheduledSequences/2/sequence/steps/1',
+          ),
+        ),
+        60,
+      ),
+      scheduled(
+        60,
+        sequence(
+          step('storeSourceAttributeValue', {
+            attribute: { kind: 'specific', key: 'intellect' },
+            stage: 'finalNonConverted',
+            useFloor: false,
+            divisor: { kind: 'constant', value: 1 },
+            multiplier: { kind: 'blackboard', key: 'wisd_increase' },
+            base: { kind: 'blackboard', key: 'resistance_scalar' },
+            targetKey: 'final_resistance_scalar',
+          }),
+          step('storeSourceAttributeValue', {
+            attribute: { kind: 'specific', key: 'intellect' },
+            stage: 'finalNonConverted',
+            useFloor: false,
+            divisor: { kind: 'constant', value: 1 },
+            multiplier: { kind: 'blackboard', key: 'wisd_increase_inair' },
+            base: { kind: 'blackboard', key: 'resistance_scalar_inair' },
+            targetKey: 'final_resistance_scalar_inair',
+          }),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0013_aglina_ultimate_skill',
+            childSkillId: 'chr_0013_aglina_ultimate_skill_abilityrange',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+            overrideDurationSeconds: { kind: 'blackboard', key: 'duration' },
+          }),
+        ),
+        65,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_damage_immune_ult_skill',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        85,
+      ),
+    ],
+    cooldownFrames: 600,
+    costs: [{ resource: 'ultimateEnergy', value: 90 }],
+  },
+  {
+    atk_scale: [3.33, 3.67, 4, 4.33, 4.67, 5, 5.34, 5.67, 6, 6.42, 6.92, 7.5],
+    damage_scale: 0.5,
+    duration: 5,
+    final_resistance_scalar: 0,
+    final_resistance_scalar_inair: 0,
+    move_speed_scalar: 0.8,
+    poise: 20,
+    potential_lv: 0,
+    potential2: 0,
+    potential2_onceadd: 0,
+    radius: 5,
+    resistance_scalar: 0,
+    resistance_scalar_inair: 0,
+    select_radius: 10,
+    spell_vulnerable_perstack: 0.1,
+    spell_vulnerable_rate: [0.18, 0.18, 0.18, 0.22, 0.22, 0.22, 0.26, 0.26, 0.26, 0.3, 0.3, 0.3],
+    wisd_increase: 0,
+    wisd_increase_inair: 0,
+    spell_vulnerable_4stack: [
+      0.252, 0.252, 0.252, 0.308, 0.308, 0.308, 0.364, 0.364, 0.364, 0.42, 0.42, 0.42,
+    ],
+  },
+);
+
+export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'comboSkill',
+    sourceSkillId: 'chr_0013_aglina_combo_skill',
+    timelineBlockFrames: 53,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        3,
+      ),
+      scheduled(
+        48,
+        sequence(
+          step('applyPhysicalInfliction', {
+            type: 'airborne',
+            target: 'enemy',
+            isExtra: false,
+            noGuardBuffId: 'buff_physical_no_guard',
+            noGuardDefinition: {
+              stackingType: 'enhanceAndRefresh',
+              priority: 100,
+              maxStackCount: 4,
+              durationSeconds: { blackboardKey: 'duration' },
+              presentation: {
+                visible: true,
+                iconId: 'icon_shadow_attribute_penetrate',
+                iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
+                showInHeadBarCommon: false,
+                showInHeadBarAttached: true,
+                showInSquadIcon: false,
+                onlyShowForMainCharacter: false,
+                iconStyleInSquad: 'Default',
+                abnormalColorType: 'Physical',
+                orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+              },
+              applyTags: ['Skill/Character/Common/NoGuard'],
+              extendTags: [],
+              blackboard: { atk_scale: 0, count: 0, duration: 20, skip_handle_cryst_break: 0 },
+              attributeModifiers: [],
+              lifecycleSequences: {
+                start: sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 0 },
+                    },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                  ),
+                ),
+                finish: sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_physical_no_guard_fake',
+                    target: 'buffOwner',
+                    source: 'buffSource',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+                afterEnhance: sequence(
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'buffOwner',
+                        igniteType: 'NoGuard',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
+                    sequence(
+                      branch(
+                        {
+                          kind: 'currentBuffStackCompare',
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 2 },
+                        },
+                        sequence(
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_physical_handle_cryst_break',
+                                target: 'buffOwner',
+                                source: 'buffSource',
+                                inheritSourceSkillCastInfo: true,
+                              }),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+              },
+            },
+            airborneBuffId: 'buff_physical_airborne',
+            airborneDefinition: {
+              stackingType: 'stack',
+              stackingKey: 'physical',
+              priority: 0,
+              maxStackCount: 1,
+              durationSeconds: { blackboardKey: 'duration' },
+              triggerIntervalSeconds: 0.1,
+              waitFirstTriggerInterval: true,
+              maxTriggerCount: 1,
+              presentation: {
+                visible: true,
+                iconId: 'airborne',
+                iconPath: '/icons/airborne.webp',
+                showInHeadBarCommon: false,
+                showInHeadBarAttached: false,
+                showInSquadIcon: false,
+                onlyShowForMainCharacter: false,
+                iconStyleInSquad: 'Default',
+                abnormalColorType: 'Physical',
+                orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+              },
+              applyTags: ['Skill/Character/Common/PhysicalStatus/AirborneStatus'],
+              extendTags: [],
+              blackboard: { atk_scale: 0, duration: 3, poise: 10 },
+              attributeModifiers: [],
+              lifecycleSequences: {
+                start: sequence(
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                        blackboardAssignments: {
+                          skip_handle_cryst_break: { kind: 'constant', value: 1 },
+                        },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
+                    sequence(
+                      step('readSkillSettingData', {
+                        items: [
+                          {
+                            values: [1.2, 1.2, 1.2, 1.2],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'atk_scale',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.01 },
+                            },
+                          },
+                          {
+                            values: [10, 10, 10, 10],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'poise',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.005 },
+                            },
+                          },
+                        ],
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['physicalInfliction'],
+                        stagger: { kind: 'blackboard', key: 'poise' },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:2',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:3',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+              },
+            },
+            duration: { kind: 'constant', value: 2.5 },
+            height: { kind: 'constant', value: 2 },
+            speedFactorMultiplier: 3,
+            force: true,
+            targetFilter: 'aliveOnly',
+            returnWhen: 'always',
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+            },
+            'chr_0013_aglina_combo_skill:/scheduledSequences/1/sequence/steps/1',
+          ),
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'heal_const' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'constant', value: 1 },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 2 },
+                },
+              ],
+            },
+            sequence(
+              branch(
+                {
+                  kind: 'healthCompare',
+                  target: 'controlledOperator',
+                  valueType: 'ratio',
+                  operator: 'less',
+                  value: { kind: 'constant', value: 0.99 },
+                },
+                sequence(
+                  step('heal', {
+                    target: 'controlledOperator',
+                    alwaysNext: true,
+                    tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+                    attribute: 'intellect',
+                    multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                    addition: { kind: 'blackboard', key: 'heal_const' },
+                  }),
+                ),
+                sequence(
+                  step('findCharacterTeamTargets', {
+                    saveToContextKey: 'CureTarget',
+                    selection: { kind: 'lowestHealthRatioOperator' },
+                  }),
+                  branch(
+                    {
+                      kind: 'healthCompare',
+                      target: 'contextTarget',
+                      contextKey: 'CureTarget',
+                      valueType: 'ratio',
+                      operator: 'less',
+                      value: { kind: 'constant', value: 0.99 },
+                    },
+                    sequence(
+                      step('heal', {
+                        target: 'contextTarget',
+                        contextKey: 'CureTarget',
+                        alwaysNext: true,
+                        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+                        attribute: 'intellect',
+                        multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                        addition: { kind: 'blackboard', key: 'heal_const' },
+                      }),
+                    ),
+                    sequence(
+                      step('heal', {
+                        target: 'controlledOperator',
+                        alwaysNext: true,
+                        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+                        attribute: 'intellect',
+                        multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                        addition: { kind: 'blackboard', key: 'heal_const' },
+                      }),
+                    ),
+                    { alwaysNext: true },
+                  ),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
+        ),
+        50,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'global',
+            durationSeconds: { kind: 'constant', value: 0.6 },
+            slot: 'unassigned',
+            priority: 30,
+            curve: { kind: 'named', key: 'ComboSkill' },
+            finishByAction: false,
+            ignoredTargets: ['caster'],
+            ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+          }),
+        ),
+        15,
+      ),
+    ],
+    cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
+  },
+  {
+    atk_scale: [1.4, 1.54, 1.68, 1.82, 1.96, 2.1, 2.24, 2.38, 2.52, 2.7, 2.91, 3.15],
+    cam_angle: 0,
+    cam_duration: 0,
+    damage_taken_scale: 0,
+    heal_const: 0,
+    heal_scale: 0,
+    input_angle: 0,
+    owner_mainchar_alpha: 0,
+    owner_mainchar_distance: 0,
+    poise: 5,
+    potential_lv: 0,
+    radius: 3,
+    usp: 10,
+  },
+);
+
+export const commonBuffDefinitions = {
+  buff_common_affixes_slow: {
+    stackingType: 'highPriority',
+    priority: { blackboardKey: 'rate' },
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    applyTags: ['Skill/Character/Common/Affixes/Slow'],
+    extendTags: [],
+    blackboard: { child_buff_id: 'buff_common_affixes_slow_default_child', duration: 0, rate: 0 },
+    attributeModifiers: [
+      { attribute: 'SlowActionSpeedScalar', slot: 'addition', value: { blackboardKey: 'rate' } },
+    ],
+    lifecycleSequences: {
+      enable: sequence(
+        step('applyBuff', {
+          buffId: { blackboardKey: 'child_buff_id' },
+          target: 'buffOwner',
+          source: 'buffOwner',
+          inheritSourceSkillCastInfo: true,
+          finishByAction: true,
+          asChildBuff: true,
+          blackboardAssignments: {
+            rate: { kind: 'blackboard', key: 'rate' },
+            duration: { kind: 'blackboard', key: 'duration' },
+          },
+        }),
+      ),
+    },
+  },
+  buff_common_affixes_slow_default_child: {
+    stackingType: 'highPriority',
+    priority: { blackboardKey: 'rate' },
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_affix_slow',
+      iconPath: '/icons/icon_battle_affix_slow.webp',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: true,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'LifeTime',
+      abnormalColorType: 'Physical',
+      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
+    },
+    applyTags: [],
+    extendTags: [],
+    blackboard: { duration: 0, rate: 0 },
+    attributeModifiers: [],
+  },
+  buff_common_affixes_vulnerable_spell: {
+    stackingType: 'unlimited',
+    priority: { blackboardKey: 'rate' },
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: [
+      'Skill/Character/Common/Affixes/Vulnerable',
+      'Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell',
+      'Skill/Character/Common/Affixes/Vulnerable/VulnerableFire',
+      'Skill/Character/Common/Affixes/Vulnerable/VulnerableCryst',
+      'Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse',
+      'Skill/Character/Common/Affixes/Vulnerable/VulnerableNatural',
+    ],
+    extendTags: [],
+    blackboard: {
+      child_buff_id: 'buff_common_affixes_vulnerable_spell_default_child',
+      duration: 0.8,
+      rate: 0.2,
+    },
+    attributeModifiers: [
+      {
+        attribute: 'heatVulnerabilityIncrease',
+        slot: 'baseAddition',
+        value: { blackboardKey: 'rate' },
+      },
+      {
+        attribute: 'electricVulnerabilityIncrease',
+        slot: 'baseAddition',
+        value: { blackboardKey: 'rate' },
+      },
+      {
+        attribute: 'cryoVulnerabilityIncrease',
+        slot: 'baseAddition',
+        value: { blackboardKey: 'rate' },
+      },
+      {
+        attribute: 'natureVulnerabilityIncrease',
+        slot: 'baseAddition',
+        value: { blackboardKey: 'rate' },
+      },
+    ],
+    lifecycleSequences: {
+      enable: sequence(
+        step('applyBuff', {
+          buffId: { blackboardKey: 'child_buff_id' },
+          target: 'buffOwner',
+          source: 'buffOwner',
+          inheritSourceSkillCastInfo: true,
+          finishByAction: true,
+          asChildBuff: true,
+          blackboardAssignments: {
+            rate: { kind: 'blackboard', key: 'rate' },
+            duration: { kind: 'blackboard', key: 'duration' },
+          },
+        }),
+      ),
+    },
+  },
+  buff_common_affixes_vulnerable_spell_default_child: {
+    stackingType: 'unlimited',
+    priority: { blackboardKey: 'rate' },
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_affix_spell_vulnerable',
+      iconPath: '/icons/icon_battle_affix_spell_vulnerable.webp',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: true,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'LifeTime',
+      abnormalColorType: 'Physical',
+      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
+    },
+    applyTags: [],
+    extendTags: [],
+    blackboard: { duration: 0, rate: 0.2 },
+    attributeModifiers: [],
+  },
+  buff_common_cryst_triggered_physical_break: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 5,
+    applyTags: ['Skill/Character/Common/SpellStatusSpecial/Shatter'],
+    extendTags: [],
+    blackboard: { atk_scale: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        step(
+          'dealDamage',
+          {
+            damageType: 'physical',
+            attackScale: { kind: 'blackboard', key: 'atk_scale' },
+            tags: ['cryoAbnormal'],
+            features: ['shatter'],
+          },
+          'buff_common_cryst_triggered_physical_break:/lifecycleSequences/start/steps/0',
+        ),
+      ),
+    },
+  },
+  buff_common_damage_immune_ult_skill: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: [
+      'Status/DodgeDamageImmune',
+      'Status/SkillDamageImmune',
+      'Immune/SpellInflictOnChar/All',
+    ],
+    extendTags: [],
+    blackboard: { duration: 9999 },
+    attributeModifiers: [],
+  },
+  buff_common_full_immune_medium: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: [
+      'Immune/Stunned',
+      'Immune/Frozen',
+      'Immune/Airborne',
+      'Immune/KnockDown',
+      'Immune/KnockBack',
+      'Immune/Pull',
+      'Immune/Poise',
+      'Status/DodgeDamageImmune',
+      'Status/SkillDamageImmune',
+      'Immune/SpellInflictOnChar/All',
+    ],
+    extendTags: [],
+    blackboard: { duration: 9999 },
+    attributeModifiers: [],
+  },
+  buff_common_obtain_ultimate_sp: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 1,
+    applyTags: [],
+    extendTags: [],
+    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
+    },
+  },
+  buff_common_power_attack_disable_cast_skill: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    applyTags: [
+      'Status/DisableDash',
+      'Status/CantSwitchOutCenter',
+      'Status/DisableNormalSkill',
+      'Status/DisableCastComboSkill',
+      'Status/Unjumpable',
+    ],
+    extendTags: [],
+    blackboard: {},
+    attributeModifiers: [],
+  },
+  buff_physical_airborne: {
+    stackingType: 'stack',
+    stackingKey: 'physical',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    triggerIntervalSeconds: 0.1,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    presentation: {
+      visible: true,
+      iconId: 'airborne',
+      iconPath: '/icons/airborne.webp',
+      showInHeadBarCommon: false,
+      showInHeadBarAttached: false,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'Default',
+      abnormalColorType: 'Physical',
+      orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+    },
+    applyTags: ['Skill/Character/Common/PhysicalStatus/AirborneStatus'],
+    extendTags: [],
+    blackboard: { atk_scale: 0, duration: 3, poise: 10 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_no_guard',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+              blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [1.2, 1.2, 1.2, 1.2],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+                {
+                  values: [10, 10, 10, 10],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'poise',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
+                },
+              ],
+            }),
+            step(
+              'dealDamage',
+              {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: [],
+                features: ['physicalInfliction'],
+                stagger: { kind: 'blackboard', key: 'poise' },
+              },
+              'buff_physical_airborne:/lifecycleSequences/start/steps/1/body/steps/1',
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:2',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:3',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'caster',
+              igniteType: 'PhysicalStatus',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+      ),
+    },
+  },
+  buff_physical_handle_cryst_break: {
+    stackingType: 'stack',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: 10,
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    applyTags: [],
+    extendTags: [],
+    blackboard: { atk_scale: 0, count: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        step('readBuffBlackboard', {
+          target: 'buffOwner',
+          query: {
+            kind: 'tag',
+            tagQueryType: 'hasAny',
+            buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+          },
+          desiredKey: 'count',
+          outputKey: 'count',
+        }),
+        step('readSkillSettingData', {
+          items: [
+            {
+              values: [2.4, 3.6, 4.8, 6],
+              column: { kind: 'blackboard', key: 'count' },
+              storeKey: 'atk_scale',
+              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+            },
+          ],
+        }),
+        step('finishBuffsByTag', {
+          target: 'buffOwner',
+          tagQueryType: 'hasAny',
+          buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+          reason: 'early',
+        }),
+        step('applyBuff', {
+          buffId: 'buff_common_cryst_triggered_physical_break',
+          target: 'buffOwner',
+          source: 'buffSource',
+          inheritSourceSkillCastInfo: true,
+          blackboardAssignments: { atk_scale: { kind: 'blackboard', key: 'atk_scale' } },
+        }),
+        {
+          kind: 'switch',
+          parameters: { choice: { kind: 'blackboard', key: 'count' }, alwaysNext: true },
+          options: [
+            {
+              value: { kind: 'constant', value: 0 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.1 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 15,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 1 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.1 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 10,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 2 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.25 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 20,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 3 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.5 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 20,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+            {
+              value: { kind: 'constant', value: 4 },
+              sequence: sequence(
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.65 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 20,
+                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+              ),
+            },
+          ],
+        },
+      ),
+    },
+  },
+  buff_physical_no_guard: {
+    stackingType: 'enhanceAndRefresh',
+    priority: 100,
+    maxStackCount: 4,
+    durationSeconds: { blackboardKey: 'duration' },
+    presentation: {
+      visible: true,
+      iconId: 'icon_shadow_attribute_penetrate',
+      iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
+      showInHeadBarCommon: false,
+      showInHeadBarAttached: true,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'Default',
+      abnormalColorType: 'Physical',
+      orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+    },
+    applyTags: ['Skill/Character/Common/NoGuard'],
+    extendTags: [],
+    blackboard: { atk_scale: 0, count: 0, duration: 20, skip_handle_cryst_break: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        branch(
+          {
+            kind: 'actionValueCompare',
+            left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+            operator: 'equal',
+            right: { kind: 'constant', value: 0 },
+          },
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+        ),
+      ),
+      finish: sequence(
+        step('applyBuff', {
+          buffId: 'buff_physical_no_guard_fake',
+          target: 'buffOwner',
+          source: 'buffSource',
+          inheritSourceSkillCastInfo: true,
+        }),
+      ),
+      afterEnhance: sequence(
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'buffOwner',
+              igniteType: 'NoGuard',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            branch(
+              {
+                kind: 'currentBuffStackCompare',
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 2 },
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_physical_handle_cryst_break',
+                      target: 'buffOwner',
+                      source: 'buffSource',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+      ),
+    },
+  },
+  buff_physical_no_guard_fake: {
+    stackingType: 'refresh',
+    priority: 100,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: ['Skill/Character/Common/NoGuardFake'],
+    extendTags: [],
+    blackboard: { duration: 1 },
+    attributeModifiers: [],
+  },
+} as const satisfies OperatorBuffDefinitions;
+
+export default {
+  slug: 'gilberta',
+  gameId: 'GILBERTA',
+  rarity: 6,
+  weaponType: 'arts-unit',
+  element: 'nature',
+  role: 'supporter',
+  mainAttribute: 'will',
+  secondaryAttribute: 'intellect',
+  attributes: {
+    strength: [9, 26, 44, 62, 80, 89],
+    agility: [9, 27, 45, 64, 83, 92],
+    intellect: [16, 39, 64, 89, 114, 127],
+    will: [20, 52, 86, 120, 154, 171],
+    baseAttack: [30, 94, 161, 228, 296, 329],
+    baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
+  },
+  skillGroups: [
+    {
+      key: 'basicAttack',
+      skillType: 'basicAttack',
+      levelSource: 'basicAttack',
+      skills: [
+        gilbertaBasicAttack1,
+        gilbertaBasicAttack2,
+        gilbertaBasicAttack3,
+        gilbertaBasicAttack4,
+      ],
+    },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: gilbertaFinisher,
+    },
+    {
+      key: 'plungingAttack',
+      skillType: 'plungingAttack',
+      levelSource: 'basicAttack',
+      skills: gilbertaPlungingAttack,
+    },
+    {
+      key: 'battleSkill',
+      skillType: 'battleSkill',
+      levelSource: 'battleSkill',
+      skills: gilbertaBattleSkill,
+    },
+    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: gilbertaUltimate },
+    {
+      key: 'comboSkill',
+      skillType: 'comboSkill',
+      levelSource: 'comboSkill',
+      skills: gilbertaComboSkill,
+    },
+  ],
+  talents: [
+    {
+      key: 'talent1',
+      levels: 2,
+      passiveSkills: [
+        {
+          key: 'chr_0013_aglina_talent_0',
+          blackboard: { add: [0.04, 0.07] },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0013_aglina_talent_0',
+              target: 'caster',
+              inheritSourceSkillCastInfo: false,
+              blackboardAssignments: { add: { kind: 'blackboard', key: 'add' } },
+            }),
+          ),
+        },
+      ],
+    },
+    {
+      key: 'talent2',
+      levels: 2,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'heal_scale',
+          operation: 'assign',
+          value: [0.6, 0.9],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'heal_const',
+          operation: 'assign',
+          value: [72, 108],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'heal_scale',
+          operation: 'assign',
+          value: [0.6, 0.9],
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'heal_const',
+          operation: 'assign',
+          value: [72, 108],
+        },
+      ],
+    },
+  ],
+  potentials: [
+    {
+      key: 'potential1',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'potential',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'radiusadd_display',
+          operation: 'assign',
+          value: 0.2,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'radius',
+          operation: 'assign',
+          value: 6.3,
+        },
+      ],
+    },
+    {
+      key: 'potential2',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential2',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential2_onceadd',
+          operation: 'assign',
+          value: 0.1,
+        },
+      ],
+    },
+    {
+      key: 'potential3',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchPassiveBlackboard',
+          passiveSkillKey: 'chr_0013_aglina_talent_0',
+          blackboardKey: 'add',
+          operation: 'add',
+          value: 0.05,
+        },
+      ],
+    },
+    {
+      key: 'potential4',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'multiplySkillCost',
+          skillGroupKey: 'ultimate',
+          resource: 'ultimateEnergy',
+          multiplier: 0.85,
+        },
+      ],
+    },
+    {
+      key: 'potential5',
+      levels: 1,
+      modifiers: [
+        { kind: 'addSkillCooldownFrames', skillGroupKey: 'comboSkill', frames: -60 },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'comboSkill',
+          blackboardKey: 'atk_scale',
+          operation: 'multiply',
+          value: 1.3,
+        },
+      ],
+    },
+  ],
+  buffDefinitions: {
+    buff_chr_0013_aglina_normal_skill_monitor: {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      triggerIntervalSeconds: 0.15,
+      waitFirstTriggerInterval: false,
+      maxTriggerCount: -1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+      lifecycleSequences: {
+        trigger: sequence(
+          branch(
+            {
+              kind: 'healthCompare',
+              target: 'caster',
+              valueType: 'ratio',
+              operator: 'lessOrEqual',
+              value: { kind: 'constant', value: 0 },
+            },
+            sequence(step('finishCurrentAbilityEntity', {})),
+          ),
+        ),
+      },
+    },
+    buff_chr_0013_aglina_talent_0: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { add: 0 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0013_aglina_talent_0_effectbuff',
+            target: 'party',
+            finishByAction: true,
+            blackboardAssignments: { add: { kind: 'blackboard', key: 'add' } },
+          }),
+        ),
+      },
+    },
+    buff_chr_0013_aglina_talent_0_effectbuff: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      applyTags: ['Skill/Character/chr_0013_aglina/AglinaTalent0'],
+      extendTags: [],
+      blackboard: { add: 0 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        start: sequence(
+          branch(
+            {
+              kind: 'operatorRoleIn',
+              target: 'buffOwner',
+              roles: ['guard', 'supporter', 'caster'],
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0013_aglina_talent_0_effectbuff_Add',
+                target: 'buffOwner',
+                source: 'buffSource',
+                inheritSourceSkillCastInfo: true,
+                asChildBuff: true,
+                blackboardAssignments: { add: { kind: 'blackboard', key: 'add' } },
+              }),
+            ),
+          ),
+        ),
+      },
+    },
+    buff_chr_0013_aglina_talent_0_effectbuff_Add: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      applyTags: ['Skill/Character/chr_0013_aglina/AglinaTalent0'],
+      extendTags: [],
+      blackboard: { add: 0 },
+      attributeModifiers: [
+        {
+          attribute: 'UltimateSpGainScalar',
+          slot: 'baseAddition',
+          value: { blackboardKey: 'add' },
+        },
+      ],
+    },
+    buff_chr_0013_aglina_ultimate_skill: {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      presentation: {
+        visible: true,
+        iconId: 'icon_battle_buff_def_down',
+        iconPath: '/icons/icon_battle_buff_def_down.webp',
+        showInHeadBarCommon: false,
+        showInHeadBarAttached: false,
+        showInSquadIcon: false,
+        onlyShowForMainCharacter: false,
+        iconStyleInSquad: 'Default',
+        abnormalColorType: 'Physical',
+        orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+      },
+      applyTags: ['Status/PauseAirborne'],
+      extendTags: [],
+      blackboard: {
+        BuffStack: 0,
+        final_resistance_scalar: 0,
+        final_resistance_scalar_inair: 0,
+        FinalRate: 0,
+        move_speed_scalar: 0,
+        potential2: 0,
+        spell_vulnerable_perstack: 0,
+        spell_vulnerable_rate: 0,
+      },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        enable: sequence(
+          withActionBlackboardScope(
+            'native-buff-callback:0',
+            {},
+            true,
+            sequence(
+              step('modifyActionValue', {
+                key: 'FinalRate',
+                operation: 'assign',
+                value: { kind: 'blackboard', key: 'spell_vulnerable_rate' },
+              }),
+              step('modifyActionValue', {
+                key: 'BuffStack',
+                operation: 'assign',
+                value: { kind: 'constant', value: 0 },
+              }),
+              branch(
+                {
+                  kind: 'buffStackCompare',
+                  target: 'buffOwner',
+                  tagQueryType: 'hasAny',
+                  buffTags: ['Skill/Character/Common/NoGuard'],
+                  operator: 'greater',
+                  value: { kind: 'constant', value: 0 },
+                },
+                sequence(
+                  step('readBuffStackCount', {
+                    target: 'buffOwner',
+                    outputKey: 'BuffStack',
+                    query: {
+                      kind: 'tag',
+                      tagQueryType: 'hasAny',
+                      buffTags: ['Skill/Character/Common/NoGuard'],
+                    },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'potential2' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+                sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'BuffStack' },
+                      operator: 'lessOrEqual',
+                      right: { kind: 'constant', value: 3 },
+                    },
+                    sequence(
+                      step('modifyActionValue', {
+                        key: 'BuffStack',
+                        operation: 'add',
+                        value: { kind: 'constant', value: 1 },
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                  step('modifyActionValue', {
+                    key: 'BuffStack',
+                    operation: 'multiply',
+                    value: { kind: 'constant', value: 2 },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+              step('modifyActionValue', {
+                key: 'BuffStack',
+                operation: 'multiply',
+                value: { kind: 'blackboard', key: 'spell_vulnerable_perstack' },
+              }),
+              step('modifyActionValue', {
+                key: 'BuffStack',
+                operation: 'add',
+                value: { kind: 'constant', value: 1 },
+              }),
+              step('modifyActionValue', {
+                key: 'FinalRate',
+                operation: 'multiply',
+                value: { kind: 'blackboard', key: 'BuffStack' },
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0013_aglina_ultimate_spell_vulnerable',
+                target: 'buffOwner',
+                source: 'buffSource',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+                blackboardAssignments: { rate: { kind: 'blackboard', key: 'FinalRate' } },
+              }),
+            ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
+          ),
+          withActionBlackboardScope(
+            'native-buff-callback:1',
+            {},
+            true,
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_common_affixes_slow',
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+                blackboardAssignments: {
+                  duration: { kind: 'constant', value: -1 },
+                  rate: { kind: 'blackboard', key: 'move_speed_scalar' },
+                },
+              }),
+            ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
+          ),
+        ),
+      },
+    },
+    buff_chr_0013_aglina_ultimate_spell_vulnerable: {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { rate: 0 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_affixes_vulnerable_spell',
+            target: 'buffOwner',
+            inheritSourceSkillCastInfo: true,
+            asChildBuff: true,
+            blackboardAssignments: {
+              duration: { kind: 'constant', value: -1 },
+              rate: { kind: 'blackboard', key: 'rate' },
+            },
+          }),
+        ),
+      },
+    },
+  },
+  abilityEntityDefinitions: {
+    abilityentity_chr_0013_aglina_normal_skill: {
+      lifetime: { kind: 'limited', durationSeconds: 6 },
+      childSkill: {
+        skillId: 'chr_0013_aglina_normal_skill_abilityrange',
+        blackboard: {
+          duration: 0,
+          hasrecovered: 0,
+          move_speed_scalar: 1,
+          potential_lv: 0,
+          radius: 0,
+          recovercost: 5,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              repeatEachTick(sequence(), {
+                nativeChanneling: {
+                  executeEachFrame: true,
+                  triggerIntervalSeconds: 0.033,
+                  maxCountPerTarget: -1,
+                  targetTriggerIntervalSeconds: 0,
+                },
+              }),
+            ),
+            93,
+          ),
+          scheduled(
+            0,
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0013_aglina_normal_skill_monitor',
+                target: 'currentAbilityEntity',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+              }),
+            ),
+            93,
+          ),
+        ],
+      },
+    },
+    abilityentity_chr_0013_aglina_ultimate_skill: {
+      lifetime: { kind: 'limited', durationSeconds: 6 },
+      childSkill: {
+        skillId: 'chr_0013_aglina_ultimate_skill_abilityrange',
+        blackboard: {
+          BuffStack: 0,
+          duration: 0,
+          final_resistance_scalar: 0,
+          final_resistance_scalar_inair: 0,
+          FinalRate: 0,
+          move_speed_scalar: 1,
+          potential2: 0,
+          potential2_onceadd: 0,
+          radius: 5,
+          resistance_scalar: 0.3,
+          resistance_scalar_inair: 0.6,
+          spell_vulnerable_perstack: 0,
+          spell_vulnerable_rate: 0,
+          wisd_increase: 0,
+          wisd_increase_inair: 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0013_aglina_ultimate_skill',
+                target: 'enemy',
+                finishByAction: true,
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  FinalRate: { kind: 'blackboard', key: 'FinalRate' },
+                  spell_vulnerable_rate: { kind: 'blackboard', key: 'spell_vulnerable_rate' },
+                  potential2: { kind: 'blackboard', key: 'potential2' },
+                  BuffStack: { kind: 'blackboard', key: 'BuffStack' },
+                  spell_vulnerable_perstack: {
+                    kind: 'blackboard',
+                    key: 'spell_vulnerable_perstack',
+                  },
+                  move_speed_scalar: { kind: 'blackboard', key: 'move_speed_scalar' },
+                },
+              }),
+            ),
+            180,
+          ),
+        ],
+      },
+    },
+  },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
+} as const satisfies OperatorDefinition;

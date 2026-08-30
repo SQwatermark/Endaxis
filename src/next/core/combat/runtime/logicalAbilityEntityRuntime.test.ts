@@ -140,4 +140,24 @@ describe('LogicalAbilityEntityRuntime', () => {
     expect(runtime.isActive(entity)).toBe(false);
     expect(runtime.activeCount).toBe(0);
   });
+
+  it('keeps a killed entity discoverable until its native controller recycle delay elapses', () => {
+    const runtime = createRuntime();
+    const entity = runtime.spawn({
+      abilityEntityId: 'delayed-release',
+      definition: {
+        lifetime: { kind: 'infinite' },
+        deathReleaseDelaySeconds: 0.5,
+      },
+      ownerId: 'a',
+      source: { kind: 'operator', operatorId: 'a' },
+    });
+
+    runtime.kill(entity);
+    runtime.advanceFrame();
+    expect(runtime.findOwnerSpawned({ ownerId: 'a' })).toEqual([entity]);
+    expect(runtime.snapshot(entity).isAlive).toBe(false);
+    runtime.advanceFrame();
+    expect(runtime.findOwnerSpawned({ ownerId: 'a' })).toEqual([]);
+  });
 });

@@ -86,6 +86,7 @@ describe('SkillResourceOperationExecutor', () => {
         sourceOperatorId: 'perlica',
         source: 'powerAttack',
         gainKind: 'gain',
+        requestedAmount: 60,
         amount: 60,
       },
     ]);
@@ -420,7 +421,11 @@ describe('SkillResourceOperationExecutor', () => {
     simulation.advanceFrames(13);
 
     expect(runtime.nonReturnedSpCost).toBe(90);
-    expect(delegatedKinds).toEqual(['applyElementalInfliction', 'dealDamage']);
+    expect(delegatedKinds).toEqual([
+      'findCharacterTeamTargets',
+      'applyElementalInfliction',
+      'dealDamage',
+    ]);
     expect(resources.getUltimateEnergy('perlica')).toBe(13.5);
     expect(resources.getUltimateEnergy('ally')).toBe(9);
     expect(

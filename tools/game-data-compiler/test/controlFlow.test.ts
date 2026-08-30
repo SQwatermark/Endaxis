@@ -126,6 +126,35 @@ describe('原生控制流来源树', () => {
     });
   });
 
+  it('ChannelingActionV2 按 1.4.4 的同构 Data 保留同一控制流', () => {
+    const parsed = parseNativeSequenceSource(
+      sequence([
+        {
+          ...META,
+          $type: 'Example.ChannelingActionV2+Data, Example',
+          targetSettings: { ...targetFixture('Target'), targetContextKey: 'tar' },
+          executeEachFrame: true,
+          triggerInterval: 0.033,
+          maxCountPerTarget: 3,
+          targetTriggerInterval: 0.1,
+          actionOnTick: sequence([leaf('DamageAction')]),
+        },
+      ]),
+      'fixture.sequence',
+      {},
+      parseLeafName,
+    );
+    expect(parsed.actions[0]?.body).toMatchObject({
+      kind: 'channeling',
+      target: { targetSource: 'Target', targetContextKey: 'tar' },
+      executeEachFrame: true,
+      triggerIntervalSeconds: 0.033,
+      maxCountPerTarget: 3,
+      targetTriggerIntervalSeconds: 0.1,
+      actionOnTick: { actions: [{ body: { value: 'DamageAction' } }] },
+    });
+  });
+
   it('JumpTo 保留局部条件序列和目标帧，不在来源层限制跳转方向', () => {
     const parsed = parseNativeSequenceSource(
       sequence([

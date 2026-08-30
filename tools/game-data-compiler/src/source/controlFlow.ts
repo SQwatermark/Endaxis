@@ -229,7 +229,9 @@ function parseNativeActionNodeSource<TLeaf>(
     body = parseSwitchBody(action, path, inheritedBlackboard, parseLeaf);
   } else if (nativeName === 'ForEachAction') {
     body = parseForEachBody(action, path, inheritedBlackboard, parseLeaf);
-  } else if (nativeName === 'ChannelingAction') {
+  } else if (nativeName === 'ChannelingAction' || nativeName === 'ChannelingActionV2') {
+    // 1.4.4 metadata declares the same serialized Data fields for both revisions.
+    // V2 changes runtime caching/tick implementation, not the source control-flow shape.
     body = parseChannelingBody(action, path, inheritedBlackboard, parseLeaf);
   } else if (nativeName === 'JumpToAction') {
     body = parseTimelineJumpBody(action, path, inheritedBlackboard, parseLeaf);

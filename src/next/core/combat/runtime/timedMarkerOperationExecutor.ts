@@ -16,6 +16,7 @@ export interface TimedMarkerOperationDependencies {
   readonly resolveEventTarget?: (targetId: string) => TimedMarkerContainer;
   readonly resolveAbilityEntityTarget?: (target: RuntimeTargetRef) => TimedMarkerContainer;
   readonly globalClock?: TimedMarkerClock;
+  readonly globalScaledClock?: TimedMarkerClock;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -44,8 +45,14 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
     const markerClock =
       step.kind === 'createAbilityEntityTimedMarker' && step.parameters.timeDomain === 'global'
         ? this.#requireGlobalClock()
-        : undefined;
-    const handle = target.add(step.parameters.markerId, duration, markerClock);
+        : step.kind === 'createTimedMarker' && step.parameters.timeDomain === 'globalScaled'
+          ? this.#requireGlobalScaledClock()
+          : undefined;
+    const handle = target.add(
+      resolveMarkerId(step.parameters.markerId, context),
+      duration,
+      markerClock,
+    );
     if (step.parameters.autoFinishByAction) {
       this.#handles.set(step, [...(this.#handles.get(step) ?? []), handle]);
     }
@@ -69,7 +76,9 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
     context?: Parameters<CombatOperationExecutor['evaluate']>[1],
   ): boolean {
     if (condition.kind === 'timedMarkerPresent') {
-      return this.#resolveTarget(condition.target, context).has(condition.markerId);
+      return this.#resolveTarget(condition.target, context).has(
+        resolveMarkerId(condition.markerId, context),
+      );
     }
     if (condition.kind === 'abilityEntityTimedMarkerPresent') {
       if (context === undefined) {
@@ -81,9 +90,15 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
         }
         return context.targetContext
           .get(condition.contextKey)
-          .some(target => this.#resolveCurrentAbilityEntity(target).has(condition.markerId));
+          .some(target =>
+            this.#resolveCurrentAbilityEntity(target).has(
+              resolveMarkerId(condition.markerId, context),
+            ),
+          );
       }
-      return this.#resolveCurrentAbilityEntity(context.currentTarget).has(condition.markerId);
+      return this.#resolveCurrentAbilityEntity(context.currentTarget).has(
+        resolveMarkerId(condition.markerId, context),
+      );
     }
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)
@@ -139,4 +154,23 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
     }
     return this.dependencies.globalClock;
   }
+
+  #requireGlobalScaledClock(): TimedMarkerClock {
+    if (this.dependencies.globalScaledClock === undefined) {
+      throw new Error('global-scaled timed marker clock is not configured');
+    }
+    return this.dependencies.globalScaledClock;
+  }
+}
+
+function resolveMarkerId(
+  operand: string | { readonly blackboardKey: string },
+  context: Parameters<CombatOperationExecutor['execute']>[1] | undefined,
+): string {
+  if (typeof operand === 'string') return operand;
+  const value = context?.blackboard.getString(operand.blackboardKey);
+  if (value === undefined || value.length === 0) {
+    throw new Error(`marker id blackboard '${operand.blackboardKey}' is missing`);
+  }
+  return value;
 }

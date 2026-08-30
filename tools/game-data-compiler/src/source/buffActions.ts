@@ -153,6 +153,23 @@ export interface BuffFindSettingsSource {
   readonly tagQuery: TagQuerySource;
 }
 
+/** ExtendBuffAction：在动作区间内阻止首次解析出的既有 Buff 结束。 */
+export interface BuffHoldActionSource {
+  readonly kind: 'buffHold';
+  readonly owner: TargetReferenceSource;
+  readonly settings: BuffFindSettingsSource;
+}
+
+export function parseBuffHoldActionSource(value: unknown, path: string): BuffHoldActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, new Set([...ACTION_META_FIELDS, 'buffOwner', 'buffSettings']), path);
+  return {
+    kind: 'buffHold',
+    owner: parseTargetReferenceSource(action.buffOwner, `${path}.buffOwner`),
+    settings: parseBuffFindSettingsSource(action.buffSettings, `${path}.buffSettings`),
+  };
+}
+
 interface BuffFinishCommonSource {
   readonly owner: TargetReferenceSource;
   readonly finishAll: boolean;

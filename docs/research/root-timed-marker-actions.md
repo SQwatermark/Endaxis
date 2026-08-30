@@ -11,7 +11,7 @@
 - `vfs-index-browser/combat-spec/artifacts/SkillData`
 - `vfs-index-browser/combat-spec/artifacts/BuffData`
 - `tmp/all-operator-recursive-mechanism-audit.json`（本地可重建审计，不进入 Git）
-- `scripts/generate_next_operators/generate_next_operators.py`
+- Git 历史中的旧 `scripts/generate_next_operators/generate_next_operators.py`（已退役）
 - `combat-runtime-dumps/1.4.4` 与现有 `native-timed-marker-runtime.md`
 
 共找到 **36 个 occurrence**：SkillData 13 个、BuffData 23 个。其中 35 个启用，1 个原生 `isEnable=false`。另有武器技能 `sk_wpn_funnel_0015` 1 个，单列但不计入干员覆盖。

@@ -121,7 +121,9 @@ export class TimeDilationRuntime implements FrameRuntime {
   readonly #globalInstances: GlobalTimeDilationInstance[] = [];
   readonly #entityInstances: EntityTimeDilationInstance[] = [];
   readonly #observer: TimeDilationRuntimeObserver;
+  readonly #ignoreGlobalTimeScaleEntityIds = new Set<string>();
   #nextInstanceId = 0;
+  #globalScaledTime = 0;
 
   constructor(config: TimeDilationRuntimeConfig, observer: TimeDilationRuntimeObserver = {}) {
     this.#entityLifetimeUsesGlobalScaleBySlot =
@@ -132,6 +134,11 @@ export class TimeDilationRuntime implements FrameRuntime {
 
   get currentGlobalScale(): number {
     return this.#selectActiveGlobal()?.currentScale ?? 1;
+  }
+
+  /** TimedMarker useTimeDilationDt 对应的 allScaledDeltaTime 累计时钟。 */
+  get time(): number {
+    return this.#globalScaledTime;
   }
 
   get activeGlobalInfluencesSkillCooldown(): boolean {
@@ -253,10 +260,18 @@ export class TimeDilationRuntime implements FrameRuntime {
     const localScale = this.#entityInstances
       .filter(instance => instance.entityId === entityId)
       .reduce((scale, instance) => scale * instance.currentScale, 1);
-    const ignoresGlobal = this.#globalInstances.some(
-      instance => instance.active && instance.ignoredOperatorIds.has(entityId),
-    );
+    const ignoresGlobal =
+      this.#ignoreGlobalTimeScaleEntityIds.has(entityId) ||
+      this.#globalInstances.some(
+        instance => instance.active && instance.ignoredOperatorIds.has(entityId),
+      );
     return Math.max(0, localScale * (ignoresGlobal ? 1 : this.currentGlobalScale));
+  }
+
+  setIgnoreGlobalTimeScale(entityId: string, ignore: boolean): void {
+    if (entityId.length === 0) throw new Error('entity id must not be empty');
+    if (ignore) this.#ignoreGlobalTimeScaleEntityIds.add(entityId);
+    else this.#ignoreGlobalTimeScaleEntityIds.delete(entityId);
   }
 
   /** AbilitySystem 的兼容入口；干员也是具有稳定运行时身份的实体。 */
@@ -309,6 +324,8 @@ export class TimeDilationRuntime implements FrameRuntime {
         this.#observer.ended?.('global', snapshotInstance(removed!), 'natural');
       }
     }
+    // 本运行时先于 AbilitySystem 推进；使用更新后的当前倍率，与本帧其余 Ability tick 一致。
+    this.#globalScaledTime += COMBAT_FRAME_INTERVAL * this.currentGlobalScale;
   }
 
   #tryAddGlobal(candidate: GlobalTimeDilationInstance): boolean {

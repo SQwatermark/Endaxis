@@ -3,6 +3,91 @@ export function collectCompiledBuffIds(value: unknown): ReadonlySet<string> {
   return new Set(collectCompiledBuffApplications(value).map(item => item.buffId));
 }
 
+export interface CompiledAbilityEntitySpawnReference {
+  readonly abilityEntityId: string;
+  readonly skillId: string;
+  readonly sourcePath: string;
+}
+
+/**
+ * 从已编译动作树收集实体生成边。实体子技能仍可生成其他实体，
+ * 因此整名装配必须对这份结果做不动点闭包，不能只收集主动技能的第一层。
+ */
+export function collectCompiledAbilityEntitySpawns(
+  value: unknown,
+): readonly CompiledAbilityEntitySpawnReference[] {
+  const spawns: CompiledAbilityEntitySpawnReference[] = [];
+  const visit = (item: unknown): void => {
+    if (Array.isArray(item)) {
+      item.forEach(visit);
+      return;
+    }
+    if (item === null || typeof item !== 'object') return;
+    const record = item as Record<string, unknown>;
+    if (record.kind === 'spawnAbilityEntity') {
+      const parameters = record.parameters;
+      if (parameters === null || typeof parameters !== 'object')
+        throw new Error('compiled spawnAbilityEntity step is missing parameters');
+      const parameterRecord = parameters as Record<string, unknown>;
+      const abilityEntityId = parameterRecord.abilityEntityId;
+      const skillId = parameterRecord.childSkillId;
+      if (typeof abilityEntityId !== 'string' || abilityEntityId.length === 0)
+        throw new Error('compiled spawnAbilityEntity step has an invalid abilityEntityId');
+      if (typeof skillId !== 'string' || skillId.length === 0)
+        throw new Error('compiled spawnAbilityEntity step has an invalid childSkillId');
+      spawns.push({
+        abilityEntityId,
+        skillId,
+        sourcePath: `compiled.spawnAbilityEntity.${abilityEntityId}.${skillId}`,
+      });
+    }
+    Object.values(record).forEach(visit);
+  };
+  visit(value);
+  return spawns;
+}
+
+/**
+ * 识别公共 Keyword 投影留下的固定调用协议，供闭包区分“已证明的关键词根”和任意外部 Buff 根。
+ * 带 child 覆盖的调用仍由静态引用闭包单独证明，不能借此回退到载体默认 child。
+ */
+export function collectCompiledDefaultKeywordCarrierIds(value: unknown): ReadonlySet<string> {
+  const ids = new Set<string>();
+  const visit = (item: unknown): void => {
+    if (Array.isArray(item)) {
+      item.forEach(visit);
+      return;
+    }
+    if (item === null || typeof item !== 'object') return;
+    const record = item as Record<string, unknown>;
+    if (record.kind === 'applyBuff') {
+      const parameters = record.parameters;
+      if (parameters !== null && typeof parameters === 'object') {
+        const parameterRecord = parameters as Record<string, unknown>;
+        const buffId = parameterRecord.buffId;
+        const assignments = parameterRecord.blackboardAssignments;
+        const assignmentKeys =
+          assignments !== null && typeof assignments === 'object'
+            ? Object.keys(assignments as Record<string, unknown>).sort()
+            : [];
+        if (
+          typeof buffId === 'string' &&
+          isRecoveredKeywordCarrierBuffId(buffId) &&
+          parameterRecord.inheritSourceSkillCastInfo === true &&
+          assignmentKeys.length === 2 &&
+          assignmentKeys[0] === 'duration' &&
+          assignmentKeys[1] === 'rate' &&
+          parameterRecord.stringBlackboardAssignments === undefined
+        )
+          ids.add(buffId);
+      }
+    }
+    Object.values(record).forEach(visit);
+  };
+  visit(value);
+  return ids;
+}
+
 /** 只收集仍需最终内联水合的物理异常公共 Buff；普通 applyBuff 已携带自己的定义。 */
 export function collectCompiledPhysicalInflictionBuffIds(value: unknown): ReadonlySet<string> {
   const ids = new Set<string>();
@@ -30,6 +115,7 @@ export interface CompiledBuffApplicationReference {
   readonly buffId: string;
   readonly target: string;
   readonly source?: string;
+  readonly capturedTargetGroups?: CompiledBuffCapturedTargetGroupsSource;
 }
 
 export function collectCompiledBuffApplications(
@@ -78,12 +164,68 @@ export function collectCompiledBuffApplications(
       if (typeof target !== 'string' || target.length === 0)
         throw new Error('compiled applyBuff step has an invalid target');
       const source = (parameters as Record<string, unknown>).source;
-      applications.push({ buffId, target, ...(typeof source === 'string' ? { source } : {}) });
+      const capturedTargetGroups = (
+        parameters as {
+          readonly [COMPILED_BUFF_CAPTURED_TARGET_GROUPS]?: CompiledBuffCapturedTargetGroupsSource;
+        }
+      )[COMPILED_BUFF_CAPTURED_TARGET_GROUPS];
+      applications.push({
+        buffId,
+        target,
+        ...(typeof source === 'string' ? { source } : {}),
+        ...(capturedTargetGroups === undefined ? {} : { capturedTargetGroups }),
+      });
+      const onActionEndBuffs = (parameters as Record<string, unknown>).onActionEndBuffs;
+      if (Array.isArray(onActionEndBuffs)) {
+        for (const [index, raw] of onActionEndBuffs.entries()) {
+          if (raw === null || typeof raw !== 'object')
+            throw new Error(`compiled action-end Buff ${index} is invalid`);
+          const exit = raw as Record<string, unknown>;
+          if (typeof exit.buffId !== 'string' || exit.buffId.length === 0)
+            throw new Error(`compiled action-end Buff ${index} has an invalid buffId`);
+          if (typeof exit.target !== 'string' || exit.target.length === 0)
+            throw new Error(`compiled action-end Buff ${index} has an invalid target`);
+          applications.push({
+            buffId: exit.buffId,
+            target: exit.target,
+            ...(typeof exit.source === 'string' ? { source: exit.source } : {}),
+          });
+        }
+      }
     }
     Object.values(record).forEach(visit);
   };
   visit(value);
   return applications;
+}
+
+/**
+ * Collapse per-application passTargetGroupsToBuff provenance for shared Buff
+ * definitions. Only identities present with the same kind on every captured
+ * producer remain compile-time facts.
+ */
+export function collectCompiledBuffCapturedTargetGroups(
+  value: unknown,
+): ReadonlyMap<string, CompiledBuffCapturedTargetGroupsSource> {
+  const grouped = Map.groupBy(
+    collectCompiledBuffApplications(value).filter(
+      application => application.capturedTargetGroups !== undefined,
+    ),
+    application => application.buffId,
+  );
+  return new Map(
+    [...grouped].map(([buffId, applications]) => {
+      const [first, ...rest] = applications.map(application => application.capturedTargetGroups!);
+      const captured = rest.reduce<CompiledBuffCapturedTargetGroupsSource>(
+        (current, next) => ({
+          enemyKeys: current.enemyKeys.filter(key => next.enemyKeys.includes(key)),
+          zeroSpaceKeys: current.zeroSpaceKeys.filter(key => next.zeroSpaceKeys.includes(key)),
+        }),
+        first!,
+      );
+      return [buffId, captured] as const;
+    }),
+  );
 }
 
 /** 收集已编译树中会观察 Buff 身份的静态条件；这种空 Buff 是逻辑标记，不能按纯表现裁剪。 */
@@ -125,3 +267,8 @@ export function collectCompiledBuffIdentityReadIds(value: unknown): ReadonlySet<
   visit(value);
   return ids;
 }
+import { isRecoveredKeywordCarrierBuffId } from '../source/keywordActions.ts';
+import {
+  COMPILED_BUFF_CAPTURED_TARGET_GROUPS,
+  type CompiledBuffCapturedTargetGroupsSource,
+} from './compiledBuffMetadata.ts';

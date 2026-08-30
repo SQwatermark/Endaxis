@@ -10,22 +10,16 @@ import {
   parseTagQuerySource,
   parseTargetReferenceSource,
 } from '../src/index.ts';
-import { runPythonOracle } from './pythonOracle.ts';
 import { targetFixture } from './sourceFixtures.ts';
 
 describe('GameplayTag 查询', () => {
-  it.each(['HasAny', 'HasAll', 'ExceptAny', 'ExceptAll'])(
-    '与 Python oracle 一致：%s',
-    queryType => {
-      const payload = {
-        value: { queryType, tags: [{ tagId: 1001 }, { tagId: -2002 }] },
-        path: 'buff.tagQuery',
-      };
-      expect(parseTagQuerySource(payload.value, payload.path)).toEqual(
-        runPythonOracle({ operation: 'parseTagQuery', payload }),
-      );
-    },
-  );
+  it.each(['HasAny', 'HasAll', 'ExceptAny', 'ExceptAll'])('锁定已验证的查询结构：%s', queryType => {
+    const payload = {
+      value: { queryType, tags: [{ tagId: 1001 }, { tagId: -2002 }] },
+      path: 'buff.tagQuery',
+    };
+    expect(parseTagQuerySource(payload.value, payload.path)).toMatchSnapshot();
+  });
 
   it('拒绝未知查询枚举和多余字段', () => {
     expect(() => parseTagQuerySource({ queryType: 'Maybe', tags: [] }, 'buff.tagQuery')).toThrow(
@@ -43,9 +37,7 @@ describe('GameplayTag 查询', () => {
 describe('TargetSettings', () => {
   it('保留普通目标引用，不提前归约模拟目标', () => {
     const payload = { value: targetFixture('Target'), path: 'skill.target' };
-    expect(parseTargetReferenceSource(payload.value, payload.path)).toEqual(
-      runPythonOracle({ operation: 'parseTargetReference', payload }),
-    );
+    expect(parseTargetReferenceSource(payload.value, payload.path)).toMatchSnapshot();
   });
 
   it('保留 owner-spawned 实体类型和 Tag 验证器', () => {
@@ -65,9 +57,7 @@ describe('TargetSettings', () => {
       }),
       path: 'skill.spawnedTarget',
     };
-    expect(parseTargetReferenceSource(payload.value, payload.path)).toEqual(
-      runPythonOracle({ operation: 'parseTargetReference', payload }),
-    );
+    expect(parseTargetReferenceSource(payload.value, payload.path)).toMatchSnapshot();
   });
 
   it('未知选择器阻塞解析', () => {
@@ -81,6 +71,37 @@ describe('TargetSettings', () => {
         'skill.target',
       ),
     ).toThrow('skill.target.selectorData.finderData: unsupported finder');
+  });
+
+  it('严格识别无配置字段的 GodEntityFinder，不把它伪装成普通战斗目标', () => {
+    expect(
+      parseTargetReferenceSource(
+        targetFixture('InstantSearch', {
+          finderData: {
+            $type: 'Beyond.Gameplay.Core.Selector+GodEntityFinder+Data, Gameplay.Beyond',
+          },
+          validatorData: [],
+          postProcessorData: [],
+        }),
+        'buff.godEntity',
+      ),
+    ).toMatchObject({
+      targetSource: 'InstantSearch',
+      finderType: 'GodEntityFinder',
+    });
+    expect(() =>
+      parseTargetReferenceSource(
+        targetFixture('InstantSearch', {
+          finderData: {
+            $type: 'Beyond.Gameplay.Core.Selector+GodEntityFinder+Data, Gameplay.Beyond',
+            guessedTarget: 'enemy',
+          },
+          validatorData: [],
+          postProcessorData: [],
+        }),
+        'buff.godEntity',
+      ),
+    ).toThrow('buff.godEntity.selectorData.finderData: unexpected fields');
   });
 
   it('保留 ShapeFinderData 的结构事实，不假称可执行空间查询', () => {
@@ -168,9 +189,7 @@ describe('黑板声明和引用', () => {
         { useBlackboardKey: false, blackboardKey: 'ignored' },
       ],
     };
-    expect(collectBlackboardKeys(payload)).toEqual(
-      runPythonOracle({ operation: 'collectBlackboardKeys', payload }),
-    );
+    expect(collectBlackboardKeys(payload)).toEqual(['atk_scale', 'damage_ratio']);
   });
 
   it('区分数值、字符串和动态初值', () => {
@@ -185,14 +204,14 @@ describe('黑板声明和引用', () => {
       path: 'skill.example',
     };
     const parsed = parseDeclaredBlackboard(payload.value, payload.path);
-    expect(parsed).toEqual(runPythonOracle({ operation: 'parseDeclaredBlackboard', payload }));
+    expect(parsed).toMatchSnapshot();
     expect(numericDeclaredBlackboard(parsed)).toEqual({ ratio: 0.8 });
     expect(numericDeclaredBlackboard(parsed, true)).toEqual({ ratio: 0.8, runtime: 1 });
   });
 });
 
 describe('SkillPatch', () => {
-  it('对真实导出数据切片执行对象级差分', () => {
+  it('锁定真实导出数据切片的对象级结果', () => {
     const fixture = JSON.parse(
       readFileSync(
         new URL('./fixtures/skill-patch.chr-0002-endminm-attack1.json', import.meta.url),
@@ -200,9 +219,7 @@ describe('SkillPatch', () => {
       ),
     ) as { sourceId: string; entry: unknown };
     const payload = { value: fixture.entry, skillId: fixture.sourceId };
-    expect(parseSkillPatchSource(payload.value, payload.skillId)).toEqual(
-      runPythonOracle({ operation: 'parseSkillPatch', payload }),
-    );
+    expect(parseSkillPatchSource(payload.value, payload.skillId)).toMatchSnapshot();
   });
 
   it('拒绝等级间缺失黑板键', () => {

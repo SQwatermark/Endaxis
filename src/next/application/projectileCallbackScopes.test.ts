@@ -199,14 +199,51 @@ describe('投射物同步回调黑板投影（有界切片）', () => {
       }),
     ).toThrow('identity mismatch');
   });
-  it('未知实体赋值、重复技能与关闭回调不能伪装为支持', () => {
+  it('实体赋值从父 direct 板求值，重复技能与关闭回调仍不能伪装为支持', () => {
     const input = makeInput();
-    expect(() =>
-      compileSynchronousProjectileCallbackScopesSource({
+    const assigned = compileSynchronousProjectileCallbackScopesSource({
+      ...input,
+      launch: {
+        ...input.launch,
+        assignEntityBlackboard: true,
+        assignments: [
+          {
+            targetKey: 'EntityBB_talent0',
+            valueType: 'Numeric',
+            numericValue: 0,
+            stringValue: '',
+            useDirectValue: false,
+            inputValueKey: 'talent0_usp',
+          },
+        ],
+      },
+    });
+    expect(assigned.parameters.entityAssignments).toEqual({
+      EntityBB_talent0: { kind: 'blackboard', key: 'talent0_usp' },
+    });
+    const fixture = run(
+      {
         ...input,
-        launch: { ...input.launch, assignEntityBlackboard: true },
-      }),
-    ).toThrow('assignments are not projected');
+        launch: {
+          ...input.launch,
+          assignEntityBlackboard: true,
+          assignments: [
+            {
+              targetKey: 'EntityBB_talent0',
+              valueType: 'Numeric',
+              numericValue: 0,
+              stringValue: '',
+              useDirectValue: false,
+              inputValueKey: 'talent0_usp',
+            },
+          ],
+        },
+        invocations: [input.invocations[1]!],
+      },
+      6,
+    );
+    expect(fixture.execute()).toBe(true);
+    expect(fixture.gains).toEqual([6]);
     expect(() =>
       compileSynchronousProjectileCallbackScopesSource({
         ...input,

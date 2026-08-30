@@ -9,7 +9,6 @@ import { ScenarioSimulationService } from '../../../src/next/application/scenari
 import { createEmptyScenario } from '../../../src/next/core/project/createProject';
 import { avywenna } from '../../../src/next/data/operators/avywenna';
 import { skillSettings } from '../../../src/next/data/combat/skillSettings';
-import { avywennaGeneratedOperator } from '../../../src/next/data/operators/generated/avywenna.operator.generated';
 import { parseOperatorProgressionSource } from '../src/domains/operator/progression.ts';
 import {
   compileOperatorInitializationPrograms,
@@ -55,7 +54,7 @@ describe('干员养成正式定义组装', () => {
     const potentials = [1, 2, 3, 4, 5].map(level =>
       compileOperatorPotentialDefinition(source, { key: `potential${level}`, level }, context),
     );
-    expect(potentials).toEqual(avywennaGeneratedOperator.potentials);
+    expect(potentials).toEqual(avywenna.potentials);
     expect(source).toEqual(snapshot);
   });
 
@@ -66,27 +65,22 @@ describe('干员养成正式定义组装', () => {
       { key: 'talent2', index: 1 },
       context,
     );
-    expect(definition).toEqual(avywennaGeneratedOperator.talents[1]);
+    expect(definition).toEqual(avywenna.talents[1]);
     expect(definition.modifiers?.[1]).toMatchObject({ value: [10, 10] });
     expect(source.talentNodes.find(node => node.nodeType === 'passiveSkill')!.passiveSkill).toEqual(
       { index: 0, level: 1, breakStage: 1 },
     );
   });
 
-  it('第一天赋直接初始化 Buff，不伪造隐藏被动技能；其余内容与旧产物一致', () => {
+  it('第一天赋直接初始化 Buff，不伪造隐藏被动技能', () => {
     const definition = compileOperatorTalentDefinition(
       progression(),
       { key: 'talent1', index: 0 },
       context,
     );
-    const old = avywennaGeneratedOperator.talents[0]!;
-    expect(definition).toEqual({
-      key: old.key,
-      levels: old.levels,
-      modifiers: old.modifiers,
-      initializationSequence: old.passiveSkills![0]!.enableSequence,
-    });
+    expect(definition).toEqual(avywenna.talents[0]);
     expect(definition.passiveSkills).toBeUndefined();
+    expect(definition.initializationSequence).toBeDefined();
   });
 
   it('每档潜能的 AddBuff 生成自身初始化程序，由构筑层累计启用各档', () => {
@@ -179,7 +173,7 @@ describe('干员养成正式定义组装', () => {
       { key: 'talent1', index: 0 },
       context,
     );
-    const operator = { ...avywennaGeneratedOperator, talents: [definition] };
+    const operator = { ...avywenna, talents: [definition] };
     const step = definition.initializationSequence!.steps[0]!;
     if (step.kind !== 'applyBuff') throw new Error('expected direct Buff initialization');
     const active = resolveActiveOperatorUpgrades(
@@ -283,7 +277,7 @@ describe('干员养成正式定义组装', () => {
       expect(closure.diagnostics.filter(item => item.status === 'blocked')).toEqual([]);
       // 公共 Buff 编译结果与当前正式本体相同，只多出显式空集合；不用旧 Python 生成天赋行为。
       expect(closure.definitions[id]).toEqual({
-        ...avywennaGeneratedOperator.buffDefinitions![id],
+        ...avywenna.buffDefinitions![id],
         applyTags: [],
         extendTags: [],
         blackboard: {},
@@ -411,9 +405,45 @@ describe('干员养成正式定义组装', () => {
       multi,
     );
     expect(patch.modifiers?.[0]).toMatchObject({ skillKey: 'battleSkill' });
-    expect(() =>
-      compileOperatorPotentialDefinition(progression(), { key: 'potential4', level: 4 }, multi),
-    ).toThrow('entire multi-skill group');
+    expect(
+      compileOperatorPotentialDefinition(progression(), { key: 'potential4', level: 4 }, multi)
+        .modifiers?.[0],
+    ).toMatchObject({
+      kind: 'multiplySkillCost',
+      skillGroupKey: 'ultimate',
+      skillKey: 'ultimate',
+    });
+  });
+
+  it('原生技能冷却秒数加算转换为精确帧差', () => {
+    const source = progression();
+    const potential5EffectId = source.potential.unlocks.find(node => node.level === 5)!.effectId;
+    const modified = {
+      ...source,
+      compiledEffectBundles: source.compiledEffectBundles.map(bundle =>
+        bundle.effectId === potential5EffectId
+          ? {
+              ...bundle,
+              entries: [
+                {
+                  kind: 'skillParameterModifier' as const,
+                  sourcePath: 'PotentialTalentEffectTable.cooldown',
+                  activeCondition: null,
+                  skillId: 'chr_0012_avywen_combo_skill',
+                  parameter: 'cooldown' as const,
+                  operation: 'add' as const,
+                  value: -3,
+                },
+              ],
+            }
+          : bundle,
+      ),
+    };
+    expect(
+      compileOperatorPotentialDefinition(modified, { key: 'potential5', level: 5 }, context),
+    ).toMatchObject({
+      modifiers: [{ kind: 'addSkillCooldownFrames', skillGroupKey: 'comboSkill', frames: -90 }],
+    });
   });
 
   it('保留黑板条件，正式协议不能承载的消耗条件则明确拒绝', () => {
@@ -443,6 +473,61 @@ describe('干员养成正式定义组装', () => {
     expect(() =>
       compileOperatorPotentialDefinition(conditioned, { key: 'potential4', level: 4 }, context),
     ).toThrow('unrepresentable build condition');
+  });
+
+  it('保留运行时冷却条件，且不把展示冷却重复计入模拟', () => {
+    const source = progression();
+    const condition = {
+      kind: 'deckAttributeCompare',
+      left: 'intellect',
+      operator: 'greaterOrEqual',
+      right: 'will',
+    } as const;
+    const effectIds = source.talentNodes
+      .filter(node => node.nodeType === 'passiveSkill' && node.passiveSkill.index === 0)
+      .map(node => node.talentEffectId);
+    const modified = {
+      ...source,
+      compiledEffectBundles: source.compiledEffectBundles.map(bundle =>
+        effectIds.includes(bundle.effectId)
+          ? {
+              ...bundle,
+              entries: [
+                {
+                  kind: 'skillParameterModifier' as const,
+                  sourcePath: 'PotentialTalentEffectTable.runtimeCooldown',
+                  activeCondition: { kind: 'all' as const, conditions: [condition] },
+                  skillId: 'chr_0012_avywen_combo_skill',
+                  parameter: 'cooldown' as const,
+                  operation: 'add' as const,
+                  value: -6,
+                },
+                {
+                  kind: 'skillParameterModifier' as const,
+                  sourcePath: 'PotentialTalentEffectTable.displayCooldown',
+                  activeCondition: { kind: 'all' as const, conditions: [condition] },
+                  skillId: 'chr_0012_avywen_combo_skill',
+                  parameter: 'cooldownDisplay' as const,
+                  operation: 'add' as const,
+                  value: -6,
+                },
+              ],
+            }
+          : bundle,
+      ),
+    };
+    expect(
+      compileOperatorTalentDefinition(modified, { key: 'talent1', index: 0 }, context),
+    ).toMatchObject({
+      modifiers: [
+        {
+          kind: 'addSkillCooldownFrames',
+          skillGroupKey: 'comboSkill',
+          frames: -180,
+          condition,
+        },
+      ],
+    });
   });
 
   it('不合并等级间形状不同的效果', () => {

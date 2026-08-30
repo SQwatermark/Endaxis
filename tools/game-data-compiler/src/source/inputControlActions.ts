@@ -4,8 +4,17 @@ import {
   requireExactFields,
   requireNonEmptyString,
   requireRecord,
+  requireString,
 } from './primitives.ts';
-import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
+import {
+  parseScalarSource,
+  parseStringScalarSource,
+  type BlackboardLevelValues,
+  type ScalarSource,
+  type StringScalarSource,
+} from './scalar.ts';
+import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { gameplayTagId, type GameplayTagId } from './nativeGameplayTags.ts';
 
 export interface ComboCacheActionSource {
   readonly kind: 'comboCache';
@@ -23,6 +32,30 @@ export interface AllowNextSkillActionSource {
 
 export interface MarkCanInterruptActionSource {
   readonly kind: 'markCanInterrupt';
+}
+
+/**
+ * 动作寿命内阻止移动技能打断当前技能，OnEnd 时移除对应句柄。
+ * Endaxis 时间轴直接指定施法时刻，不模拟客户端移动输入与技能打断仲裁。
+ */
+export interface BlockMoveInterruptSkillActionSource {
+  readonly kind: 'blockMoveInterruptSkill';
+}
+
+/** 动作寿命内暂停 BattleManager 的自动连携候选计时；Endaxis 由现实时间轴显式放置连携。 */
+export interface PauseComboSkillTimeActionSource {
+  readonly kind: 'pauseComboSkillTime';
+  readonly allCharacters: boolean;
+  readonly character: TargetReferenceSource;
+}
+
+/** 动作区间内安装、OnEnd 时由 MultiTagHandle 对称移除的实体控制标签。 */
+export interface AddEntityControlTagsActionSource {
+  readonly kind: 'addEntityControlTags';
+  readonly owner: TargetReferenceSource;
+  readonly useBlackboard: boolean;
+  readonly tagIds: readonly GameplayTagId[];
+  readonly tag: StringScalarSource;
 }
 
 /** 时间轴直接指定现实施法时刻，不模拟客户端输入缓存；仍保留原生技能路由和窗口证据。 */
@@ -66,7 +99,9 @@ export function parseComboCacheActionSource(
       requireBoolean(row.overrideCacheTime, `${rowPath}.overrideCacheTime`);
       return {
         commandType: requireNonEmptyString(row.cmdType, `${rowPath}.cmdType`),
-        skillId: requireNonEmptyString(row.skillId, `${rowPath}.skillId`),
+        // 原生 ComboCache 映射允许用空串表示该命令没有直接技能路由；
+        // Endaxis 不执行客户端输入缓存，但来源层仍须保留这个占位事实。
+        skillId: requireString(row.skillId, `${rowPath}.skillId`),
         cacheTime: parseScalarSource(row.cacheTime, `${rowPath}.cacheTime`, inheritedBlackboard),
       };
     }),
@@ -110,4 +145,77 @@ export function parseMarkCanInterruptActionSource(
     path,
   );
   return { kind: 'markCanInterrupt' };
+}
+
+export function parseBlockMoveInterruptSkillActionSource(
+  value: unknown,
+  path: string,
+): BlockMoveInterruptSkillActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+    path,
+  );
+  return { kind: 'blockMoveInterruptSkill' };
+}
+
+export function parsePauseComboSkillTimeActionSource(
+  value: unknown,
+  path: string,
+): PauseComboSkillTimeActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'isAll',
+      'characterSettings',
+    ]),
+    path,
+  );
+  return {
+    kind: 'pauseComboSkillTime',
+    allCharacters: requireBoolean(action.isAll, `${path}.isAll`),
+    character: parseTargetReferenceSource(action.characterSettings, `${path}.characterSettings`),
+  };
+}
+
+export function parseAddEntityControlTagsActionSource(
+  value: unknown,
+  path: string,
+): AddEntityControlTagsActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'tagOwner',
+      'useBlackboard',
+      'tags',
+      'tag',
+    ]),
+    path,
+  );
+  return {
+    kind: 'addEntityControlTags',
+    owner: parseTargetReferenceSource(action.tagOwner, `${path}.tagOwner`),
+    useBlackboard: requireBoolean(action.useBlackboard, `${path}.useBlackboard`),
+    tagIds: requireArray(action.tags, `${path}.tags`).map((raw, index) => {
+      const tagPath = `${path}.tags[${index}]`;
+      const tag = requireRecord(raw, tagPath);
+      requireExactFields(tag, new Set(['tagId']), tagPath);
+      if (typeof tag.tagId !== 'number') throw new Error(`${tagPath}.tagId: expected number`);
+      return gameplayTagId(tag.tagId);
+    }),
+    tag: parseStringScalarSource(action.tag, `${path}.tag`),
+  };
 }

@@ -7,6 +7,7 @@ import type {
 import {
   branch,
   forEachContextTarget,
+  forEachTarget,
   repeatEachTick,
   scheduled,
   sequence,
@@ -20,6 +21,7 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0017_yvonne_attack1',
     timelineBlockFrames: 0,
+    exclusiveFrame: 20,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -96,6 +98,7 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0017_yvonne_attack2',
     timelineBlockFrames: 0,
+    exclusiveFrame: 20,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -240,6 +243,7 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0017_yvonne_attack3',
     timelineBlockFrames: 0,
+    exclusiveFrame: 21,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -448,6 +452,7 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0017_yvonne_attack4',
     timelineBlockFrames: 0,
+    exclusiveFrame: 25,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -524,6 +529,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0017_yvonne_attack5',
     timelineBlockFrames: 34,
+    exclusiveFrame: 37,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -612,8 +618,38 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack1',
     sourceSkillId: 'chr_0017_yvonne_ult_attack1_1',
     timelineBlockFrames: 0,
+    exclusiveFrame: 28,
     costFrame: 9,
     scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+                inheritToNextSkillIds: [
+                  'chr_0017_yvonne_ult_attack2_1',
+                  'chr_0017_yvonne_ult_attack_end',
+                ],
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        37,
+      ),
       scheduled(
         37,
         sequence(
@@ -690,50 +726,6 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack1_1:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/0',
-                  ),
-                  branch(
-                    { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
-                    sequence(),
-                    undefined,
-                    { alwaysNext: true },
-                  ),
-                ),
-                undefined,
-                { lifetime: 'execution', alwaysNext: true },
-              ),
-            ),
-            undefined,
-            { lifetime: 'execution' },
-          ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
-        ),
-        9,
-      ),
-      scheduled(
-        15,
-        sequence(
-          withActionBlackboardScope(
-            'SkillData.chr_0017_yvonne_ult_attack1_1.actionGroupData.timelineActions[13]._sequenceActionData.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
-            {},
-            true,
-            sequence(
-              withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack1_1.actionGroupData.timelineActions[13]._sequenceActionData.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
-                { atk_scale: 0 },
-                true,
-                sequence(
-                  step(
-                    'dealDamage',
-                    {
-                      damageType: 'cryo',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                      tags: ['normalAttack'],
-                    },
                     'chr_0017_yvonne_ult_attack1_1:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
@@ -750,24 +742,19 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
-        15,
+        9,
       ),
       scheduled(
-        21,
+        15,
         sequence(
           withActionBlackboardScope(
-            'SkillData.chr_0017_yvonne_ult_attack1_1.actionGroupData.timelineActions[14]._sequenceActionData.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
+            'SkillData.chr_0017_yvonne_ult_attack1_1.actionGroupData.timelineActions[13]._sequenceActionData.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
             {},
             true,
             sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack1_1.actionGroupData.timelineActions[14]._sequenceActionData.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
+                'SkillData.chr_0017_yvonne_ult_attack1_1.actionGroupData.timelineActions[13]._sequenceActionData.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
                 { atk_scale: 0 },
                 true,
                 sequence(
@@ -794,13 +781,60 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
+        ),
+        15,
+      ),
+      scheduled(
+        21,
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0017_yvonne_ult_attack1_1.actionGroupData.timelineActions[14]._sequenceActionData.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0017_yvonne_ult_attack1_1.actionGroupData.timelineActions[14]._sequenceActionData.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
+                { atk_scale: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'cryo',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0017_yvonne_ult_attack1_1:/scheduledSequences/7/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
+                    sequence(),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution' },
+          ),
         ),
         21,
+      ),
+      scheduled(
+        11,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice_start',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+            inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack2_1'],
+          }),
+        ),
+        23,
       ),
     ],
   },
@@ -817,8 +851,49 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack2A',
     sourceSkillId: 'chr_0017_yvonne_ult_attack2_1',
     timelineBlockFrames: 0,
+    exclusiveFrame: 31,
     costFrame: 9,
     scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('inheritBuffById', {
+                target: 'caster',
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                inheritToNextSkillIds: [
+                  'chr_0017_yvonne_ult_attack2_2',
+                  'chr_0017_yvonne_ult_attack_end',
+                ],
+                finishByAction: true,
+                finishWithNextSkillIfNotInherited: true,
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+                inheritToNextSkillIds: [
+                  'chr_0017_yvonne_ult_attack2_2',
+                  'chr_0017_yvonne_ult_attack_end',
+                ],
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        32,
+      ),
       scheduled(
         32,
         sequence(
@@ -864,121 +939,216 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
         20,
       ),
       scheduled(
+        5,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        8,
+      ),
+      scheduled(
+        8,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        11,
+      ),
+      scheduled(
         11,
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
               operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              value: { kind: 'constant', value: 1 },
             },
             sequence(
-              branch(
-                {
-                  kind: 'healthCompare',
-                  target: 'enemy',
-                  valueType: 'ratio',
-                  operator: 'greater',
-                  value: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack2',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack2_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
             ),
             sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        14,
+      ),
+      scheduled(
+        14,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        17,
+      ),
+      scheduled(
+        17,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        20,
+      ),
+      scheduled(
+        21,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.6 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.6 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        24,
+      ),
+      scheduled(
+        11,
+        sequence(
+          branch(
+            {
+              kind: 'healthCompare',
+              target: 'enemy',
+              valueType: 'ratio',
+              operator: 'greater',
+              value: { kind: 'constant', value: 0 },
+            },
+            sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].failActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
+                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
                 {},
                 true,
                 sequence(
                   withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].failActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
+                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
                     { atk_scale: 0 },
                     true,
                     sequence(
@@ -989,7 +1159,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/11/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1005,11 +1175,41 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+            ),
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack2',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack2_projhit',
+                    { atk_scale: 0 },
+                    true,
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['normalAttack'],
+                        },
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/11/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                      ),
+                      branch(
+                        { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
+                        sequence(),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
             ),
             { alwaysNext: true },
           ),
@@ -1021,117 +1221,20 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'healthCompare',
+              target: 'enemy',
+              valueType: 'ratio',
+              operator: 'greater',
+              value: { kind: 'constant', value: 0 },
             },
             sequence(
-              branch(
-                {
-                  kind: 'healthCompare',
-                  target: 'enemy',
-                  valueType: 'ratio',
-                  operator: 'greater',
-                  value: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
-            ),
-            sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].failActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
+                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
                 {},
                 true,
                 sequence(
                   withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].failActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
+                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
                     { atk_scale: 0 },
                     true,
                     sequence(
@@ -1142,7 +1245,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/5/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/12/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1158,11 +1261,41 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+            ),
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
+                    { atk_scale: 0 },
+                    true,
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['normalAttack'],
+                        },
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/12/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                      ),
+                      branch(
+                        { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
+                        sequence(),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
             ),
             { alwaysNext: true },
           ),
@@ -1174,117 +1307,20 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'healthCompare',
+              target: 'enemy',
+              valueType: 'ratio',
+              operator: 'greater',
+              value: { kind: 'constant', value: 0 },
             },
             sequence(
-              branch(
-                {
-                  kind: 'healthCompare',
-                  target: 'enemy',
-                  valueType: 'ratio',
-                  operator: 'greater',
-                  value: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack2',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack2_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
-            ),
-            sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].failActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
+                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
                 {},
                 true,
                 sequence(
                   withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].failActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
+                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
                     { atk_scale: 0 },
                     true,
                     sequence(
@@ -1295,7 +1331,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/6/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/13/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1311,11 +1347,41 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+            ),
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack2',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack2_projhit',
+                    { atk_scale: 0 },
+                    true,
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['normalAttack'],
+                        },
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/13/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                      ),
+                      branch(
+                        { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
+                        sequence(),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
             ),
             { alwaysNext: true },
           ),
@@ -1327,117 +1393,20 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'healthCompare',
+              target: 'enemy',
+              valueType: 'ratio',
+              operator: 'greater',
+              value: { kind: 'constant', value: 0 },
             },
             sequence(
-              branch(
-                {
-                  kind: 'healthCompare',
-                  target: 'enemy',
-                  valueType: 'ratio',
-                  operator: 'greater',
-                  value: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
-            ),
-            sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].failActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
+                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
                 {},
                 true,
                 sequence(
                   withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].failActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
+                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
                     { atk_scale: 0 },
                     true,
                     sequence(
@@ -1448,7 +1417,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/7/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/14/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1464,16 +1433,72 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+            ),
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
+                    { atk_scale: 0 },
+                    true,
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['normalAttack'],
+                        },
+                        'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/14/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                      ),
+                      branch(
+                        { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
+                        sequence(),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
             ),
             { alwaysNext: true },
           ),
         ),
         21,
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_start'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('inheritBuffById', {
+                target: 'caster',
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice_start',
+                inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack2_2'],
+                finishByAction: true,
+                finishWithNextSkillIfNotInherited: true,
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        24,
       ),
     ],
   },
@@ -1485,6 +1510,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack2B',
     sourceSkillId: 'chr_0017_yvonne_ult_attack2_2',
     timelineBlockFrames: 0,
+    exclusiveFrame: 22,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -1525,117 +1551,148 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
               operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              value: { kind: 'constant', value: 1 },
             },
             sequence(
-              branch(
-                {
-                  kind: 'healthCompare',
-                  target: 'enemy',
-                  valueType: 'ratio',
-                  operator: 'greater',
-                  value: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
             ),
             sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        4,
+      ),
+      scheduled(
+        4,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        7,
+      ),
+      scheduled(
+        7,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        10,
+      ),
+      scheduled(
+        11,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.6 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.6 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        14,
+      ),
+      scheduled(
+        1,
+        sequence(
+          branch(
+            {
+              kind: 'healthCompare',
+              target: 'enemy',
+              valueType: 'ratio',
+              operator: 'greater',
+              value: { kind: 'constant', value: 0 },
+            },
+            sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].failActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
+                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
                 {},
                 true,
                 sequence(
                   withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].failActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
+                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
                     { atk_scale: 0 },
                     true,
                     sequence(
@@ -1646,7 +1703,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/3/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1662,11 +1719,41 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+            ),
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
+                    { atk_scale: 0 },
+                    true,
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['normalAttack'],
+                        },
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/7/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                      ),
+                      branch(
+                        { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
+                        sequence(),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
             ),
             { alwaysNext: true },
           ),
@@ -1678,117 +1765,20 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'healthCompare',
+              target: 'enemy',
+              valueType: 'ratio',
+              operator: 'greater',
+              value: { kind: 'constant', value: 0 },
             },
             sequence(
-              branch(
-                {
-                  kind: 'healthCompare',
-                  target: 'enemy',
-                  valueType: 'ratio',
-                  operator: 'greater',
-                  value: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
-            ),
-            sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].failActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
+                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
                 {},
                 true,
                 sequence(
                   withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].failActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
+                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
                     { atk_scale: 0 },
                     true,
                     sequence(
@@ -1799,7 +1789,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/8/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1815,11 +1805,41 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+            ),
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
+                    { atk_scale: 0 },
+                    true,
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['normalAttack'],
+                        },
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/8/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                      ),
+                      branch(
+                        { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
+                        sequence(),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
             ),
             { alwaysNext: true },
           ),
@@ -1831,117 +1851,20 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'healthCompare',
+              target: 'enemy',
+              valueType: 'ratio',
+              operator: 'greater',
+              value: { kind: 'constant', value: 0 },
             },
             sequence(
-              branch(
-                {
-                  kind: 'healthCompare',
-                  target: 'enemy',
-                  valueType: 'ratio',
-                  operator: 'greater',
-                  value: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
-            ),
-            sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].failActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
+                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
                 {},
                 true,
                 sequence(
                   withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].failActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
+                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
                     { atk_scale: 0 },
                     true,
                     sequence(
@@ -1952,7 +1875,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/5/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/9/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -1968,11 +1891,41 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+            ),
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
+                    { atk_scale: 0 },
+                    true,
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['normalAttack'],
+                        },
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/9/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                      ),
+                      branch(
+                        { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
+                        sequence(),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
             ),
             { alwaysNext: true },
           ),
@@ -1984,117 +1937,20 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'healthCompare',
+              target: 'enemy',
+              valueType: 'ratio',
+              operator: 'greater',
+              value: { kind: 'constant', value: 0 },
             },
             sequence(
-              branch(
-                {
-                  kind: 'healthCompare',
-                  target: 'enemy',
-                  valueType: 'ratio',
-                  operator: 'greater',
-                  value: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                sequence(
-                  withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
-                    {},
-                    true,
-                    sequence(
-                      withActionBlackboardScope(
-                        'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
-                        { atk_scale: 0 },
-                        true,
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack'],
-                            },
-                            'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'probability',
-                              probability: { kind: 'constant', value: 0.125 },
-                            },
-                            sequence(),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        undefined,
-                        { lifetime: 'execution', alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
-                    { lifetime: 'execution' },
-                  ),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
-            ),
-            sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].failActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
+                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
                 {},
                 true,
                 sequence(
                   withActionBlackboardScope(
-                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].failActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
+                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
                     { atk_scale: 0 },
                     true,
                     sequence(
@@ -2105,7 +1961,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                           attackScale: { kind: 'blackboard', key: 'atk_scale' },
                           tags: ['normalAttack'],
                         },
-                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/6/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/10/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
                       ),
                       branch(
                         { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2121,16 +1977,86 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+            ),
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:projectile_chr_0017_yvonne_ult_attack1',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].failActions.actionData[1]:chr_0017_yvonne_ult_attack1_projhit',
+                    { atk_scale: 0 },
+                    true,
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['normalAttack'],
+                        },
+                        'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/10/sequence/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0',
+                      ),
+                      branch(
+                        { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
+                        sequence(),
+                        undefined,
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
             ),
             { alwaysNext: true },
           ),
         ),
         11,
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('inheritBuffById', {
+                target: 'caster',
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                inheritToNextSkillIds: [
+                  'chr_0017_yvonne_ult_attack3_1',
+                  'chr_0017_yvonne_ult_attack_end',
+                ],
+                finishByAction: true,
+                finishWithNextSkillIfNotInherited: true,
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+                inheritToNextSkillIds: [
+                  'chr_0017_yvonne_ult_attack3_1',
+                  'chr_0017_yvonne_ult_attack_end',
+                ],
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        21,
       ),
       scheduled(
         21,
@@ -2143,6 +2069,32 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         ),
         24,
       ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_start'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('inheritBuffById', {
+                target: 'caster',
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice_start',
+                inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_1'],
+                finishByAction: true,
+                finishWithNextSkillIfNotInherited: true,
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        13,
+      ),
     ],
   },
   { atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2] },
@@ -2153,6 +2105,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack3A',
     sourceSkillId: 'chr_0017_yvonne_ult_attack3_1',
     timelineBlockFrames: 0,
+    exclusiveFrame: 45,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -2246,6 +2199,262 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
       scheduled(
         13,
         sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        15,
+      ),
+      scheduled(
+        15,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        17,
+      ),
+      scheduled(
+        17,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        19,
+      ),
+      scheduled(
+        19,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        21,
+      ),
+      scheduled(
+        21,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        23,
+      ),
+      scheduled(
+        23,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        25,
+      ),
+      scheduled(
+        25,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        27,
+      ),
+      scheduled(
+        27,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.5 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.5 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        29,
+      ),
+      scheduled(
+        13,
+        sequence(
           withActionBlackboardScope(
             'SkillData.chr_0017_yvonne_ult_attack3_1.actionGroupData.timelineActions[39]._sequenceActionData.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
             {},
@@ -2263,7 +2472,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/8/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/16/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2279,11 +2488,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         13,
       ),
@@ -2307,7 +2511,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/9/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/17/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2323,11 +2527,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         15,
       ),
@@ -2351,7 +2550,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/10/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/18/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2367,11 +2566,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         17,
       ),
@@ -2395,7 +2589,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/11/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/19/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2411,11 +2605,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         19,
       ),
@@ -2439,7 +2628,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/12/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/20/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2455,11 +2644,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         21,
       ),
@@ -2483,7 +2667,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/13/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/21/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2499,11 +2683,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         23,
       ),
@@ -2527,7 +2706,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/14/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/22/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2543,11 +2722,6 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         25,
       ),
@@ -2571,7 +2745,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/15/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0017_yvonne_ult_attack3_1:/scheduledSequences/23/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
                     { kind: 'probability', probability: { kind: 'constant', value: 0.125 } },
@@ -2587,13 +2761,48 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         27,
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('inheritBuffById', {
+                target: 'caster',
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                inheritToNextSkillIds: [
+                  'chr_0017_yvonne_ult_attack3_2',
+                  'chr_0017_yvonne_ult_attack_end',
+                ],
+                finishByAction: true,
+                finishWithNextSkillIfNotInherited: true,
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+                inheritToNextSkillIds: [
+                  'chr_0017_yvonne_ult_attack3_2',
+                  'chr_0017_yvonne_ult_attack_end',
+                ],
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        50,
       ),
       scheduled(
         50,
@@ -2605,6 +2814,32 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
           }),
         ),
         53,
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_start'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('inheritBuffById', {
+                target: 'caster',
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice_start',
+                inheritToNextSkillIds: [],
+                finishByAction: true,
+                finishWithNextSkillIfNotInherited: true,
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        12,
       ),
       scheduled(
         12,
@@ -2644,8 +2879,65 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
                 durationSeconds: { kind: 'constant', value: 5 },
                 autoFinishByAction: false,
               }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+                inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_2'],
+              }),
             ),
-            undefined,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('inheritBuffById', {
+                    target: 'caster',
+                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice',
+                    inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_2'],
+                    finishByAction: true,
+                    finishWithNextSkillIfNotInherited: true,
+                  }),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'buffIdStackCompare',
+                      target: 'caster',
+                      buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_short'],
+                      operator: 'equal',
+                      value: { kind: 'constant', value: 0 },
+                    },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice_short',
+                        target: 'caster',
+                        inheritSourceSkillCastInfo: true,
+                        finishByAction: true,
+                        inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_2'],
+                      }),
+                    ),
+                    sequence(
+                      step('inheritBuffById', {
+                        target: 'caster',
+                        buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice_short',
+                        inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_2'],
+                        finishByAction: true,
+                        finishWithNextSkillIfNotInherited: true,
+                      }),
+                    ),
+                    { alwaysNext: true },
+                  ),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
             { alwaysNext: true },
           ),
         ),
@@ -2661,6 +2953,7 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack3B',
     sourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
     timelineBlockFrames: 0,
+    exclusiveFrame: 28,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -2787,11 +3080,6 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         1,
       ),
@@ -2831,11 +3119,6 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         3,
       ),
@@ -2875,11 +3158,6 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         5,
       ),
@@ -2919,11 +3197,6 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         7,
       ),
@@ -2963,11 +3236,6 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         9,
       ),
@@ -3007,11 +3275,6 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         11,
       ),
@@ -3051,11 +3314,6 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepr',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         13,
       ),
@@ -3095,13 +3353,304 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
             undefined,
             { lifetime: 'execution' },
           ),
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_wepl',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
         ),
         15,
+      ),
+      scheduled(
+        1,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        3,
+      ),
+      scheduled(
+        3,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        5,
+      ),
+      scheduled(
+        5,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        7,
+      ),
+      scheduled(
+        7,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        9,
+      ),
+      scheduled(
+        9,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        11,
+      ),
+      scheduled(
+        11,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        13,
+      ),
+      scheduled(
+        13,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.2 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        15,
+      ),
+      scheduled(
+        15,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.5 } },
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_shield',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { effect_duration: { kind: 'constant', value: 0.5 } },
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        17,
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('inheritBuffById', {
+                target: 'caster',
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                inheritToNextSkillIds: [
+                  'chr_0017_yvonne_ult_attack3_2',
+                  'chr_0017_yvonne_ult_attack_end',
+                ],
+                finishByAction: true,
+                finishWithNextSkillIfNotInherited: true,
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+                inheritToNextSkillIds: [
+                  'chr_0017_yvonne_ult_attack3_2',
+                  'chr_0017_yvonne_ult_attack_end',
+                ],
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        37,
       ),
       scheduled(
         37,
@@ -3152,8 +3701,65 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
                 durationSeconds: { kind: 'constant', value: 5 },
                 autoFinishByAction: false,
               }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+                inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_2'],
+              }),
             ),
-            undefined,
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('inheritBuffById', {
+                    target: 'caster',
+                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice',
+                    inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_2'],
+                    finishByAction: true,
+                    finishWithNextSkillIfNotInherited: true,
+                  }),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'buffIdStackCompare',
+                      target: 'caster',
+                      buffIds: ['buff_chr_0017_yvonne_ultimate_skill_voice_short'],
+                      operator: 'equal',
+                      value: { kind: 'constant', value: 0 },
+                    },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice_short',
+                        target: 'caster',
+                        inheritSourceSkillCastInfo: true,
+                        finishByAction: true,
+                        inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_2'],
+                      }),
+                    ),
+                    sequence(
+                      step('inheritBuffById', {
+                        target: 'caster',
+                        buffId: 'buff_chr_0017_yvonne_ultimate_skill_voice_short',
+                        inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_2'],
+                        finishByAction: true,
+                        finishWithNextSkillIfNotInherited: true,
+                      }),
+                    ),
+                    { alwaysNext: true },
+                  ),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
             { alwaysNext: true },
           ),
         ),
@@ -3169,6 +3775,7 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttackEnd',
     sourceSkillId: 'chr_0017_yvonne_ult_attack_end',
     timelineBlockFrames: 61,
+    exclusiveFrame: 60,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -3195,34 +3802,39 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
                 },
                 'chr_0017_yvonne_ult_attack_end:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/0',
               ),
-              branch(
-                {
-                  kind: 'buffStackCompare',
-                  target: 'enemy',
-                  tagQueryType: 'hasAny',
-                  buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
-                  operator: 'greaterOrEqual',
-                  value: { kind: 'constant', value: 1 },
-                },
+              forEachTarget(
+                'enemy',
                 sequence(
-                  step(
-                    'dealDamage',
+                  branch(
                     {
-                      damageType: 'cryo',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale_extra' },
-                      tags: ['normalAttack'],
+                      kind: 'buffStackCompare',
+                      target: 'enemy',
+                      tagQueryType: 'hasAny',
+                      buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+                      operator: 'greaterOrEqual',
+                      value: { kind: 'constant', value: 1 },
                     },
-                    'chr_0017_yvonne_ult_attack_end:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/1/whenTrue/steps/0',
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale_extra' },
+                          tags: ['normalAttack'],
+                        },
+                        'chr_0017_yvonne_ult_attack_end:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/1/body/steps/0/whenTrue/steps/0',
+                      ),
+                      step('finishBuffsByTag', {
+                        target: 'enemy',
+                        tagQueryType: 'hasAny',
+                        buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+                        reason: 'early',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
                   ),
-                  step('finishBuffsByTag', {
-                    target: 'enemy',
-                    tagQueryType: 'hasAny',
-                    buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
-                    reason: 'early',
-                  }),
                 ),
-                undefined,
-                { alwaysNext: true },
               ),
             ),
             sequence(
@@ -3268,64 +3880,69 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
                 },
                 'chr_0017_yvonne_ult_attack_end:/scheduledSequences/0/sequence/steps/0/whenFalse/steps/0',
               ),
-              branch(
-                {
-                  kind: 'buffStackCompare',
-                  target: 'enemy',
-                  tagQueryType: 'hasAny',
-                  buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
-                  operator: 'greaterOrEqual',
-                  value: { kind: 'constant', value: 1 },
-                },
+              forEachTarget(
+                'enemy',
                 sequence(
-                  step(
-                    'dealDamage',
+                  branch(
                     {
-                      damageType: 'cryo',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale_extra' },
-                      tags: ['normalAttack'],
-                      instantAttributeModifiers: [
-                        {
-                          targetSide: 'attacker',
-                          attribute: 'criticalRate',
-                          slot: 'baseAddition',
-                          value: { kind: 'blackboard', key: 'normal_dmg_up' },
-                          attributeTiming: 'runtime',
-                        },
-                        {
-                          targetSide: 'attacker',
-                          attribute: 'criticalDamageIncrease',
-                          slot: 'baseAddition',
-                          value: { kind: 'blackboard', key: 'crit_rate_up' },
-                          attributeTiming: 'runtime',
-                        },
-                        {
-                          targetSide: 'attacker',
-                          attribute: 'Atk',
-                          slot: 'baseMultiplier',
-                          value: { kind: 'blackboard', key: 'atk_up_true' },
-                          attributeTiming: 'runtime',
-                        },
-                        {
-                          targetSide: 'attacker',
-                          attribute: 'criticalDamageIncrease',
-                          slot: 'baseAddition',
-                          value: { kind: 'blackboard', key: 'crit_dmg_up_true' },
-                          attributeTiming: 'runtime',
-                        },
-                      ],
+                      kind: 'buffStackCompare',
+                      target: 'enemy',
+                      tagQueryType: 'hasAny',
+                      buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+                      operator: 'greaterOrEqual',
+                      value: { kind: 'constant', value: 1 },
                     },
-                    'chr_0017_yvonne_ult_attack_end:/scheduledSequences/0/sequence/steps/0/whenFalse/steps/1/whenTrue/steps/0',
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale_extra' },
+                          tags: ['normalAttack'],
+                          instantAttributeModifiers: [
+                            {
+                              targetSide: 'attacker',
+                              attribute: 'criticalRate',
+                              slot: 'baseAddition',
+                              value: { kind: 'blackboard', key: 'normal_dmg_up' },
+                              attributeTiming: 'runtime',
+                            },
+                            {
+                              targetSide: 'attacker',
+                              attribute: 'criticalDamageIncrease',
+                              slot: 'baseAddition',
+                              value: { kind: 'blackboard', key: 'crit_rate_up' },
+                              attributeTiming: 'runtime',
+                            },
+                            {
+                              targetSide: 'attacker',
+                              attribute: 'Atk',
+                              slot: 'baseMultiplier',
+                              value: { kind: 'blackboard', key: 'atk_up_true' },
+                              attributeTiming: 'runtime',
+                            },
+                            {
+                              targetSide: 'attacker',
+                              attribute: 'criticalDamageIncrease',
+                              slot: 'baseAddition',
+                              value: { kind: 'blackboard', key: 'crit_dmg_up_true' },
+                              attributeTiming: 'runtime',
+                            },
+                          ],
+                        },
+                        'chr_0017_yvonne_ult_attack_end:/scheduledSequences/0/sequence/steps/0/whenFalse/steps/1/body/steps/0/whenTrue/steps/0',
+                      ),
+                      step('finishBuffsByTag', {
+                        target: 'enemy',
+                        tagQueryType: 'hasAny',
+                        buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+                        reason: 'early',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
                   ),
-                  step('finishBuffsByTag', {
-                    target: 'enemy',
-                    tagQueryType: 'hasAny',
-                    buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
-                    reason: 'early',
-                  }),
                 ),
-                undefined,
-                { alwaysNext: true },
               ),
             ),
             { alwaysNext: true },
@@ -3518,6 +4135,39 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
         18,
       ),
       scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('inheritBuffById', {
+                target: 'caster',
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                inheritToNextSkillIds: [],
+                finishByAction: true,
+                finishWithNextSkillIfNotInherited: true,
+              }),
+            ),
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0017_yvonne_ultimate_skill_camera',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                finishByAction: true,
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        67,
+      ),
+      scheduled(
         67,
         sequence(
           step('finishBuffsById', {
@@ -3549,6 +4199,7 @@ export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0017_yvonne_power_attack',
     timelineBlockFrames: 29,
+    exclusiveFrame: 45,
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -3720,6 +4371,7 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0017_yvonne_plunging_attack_end',
     timelineBlockFrames: 2,
+    exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -3746,98 +4398,39 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
                       value: { kind: 'constant', value: 0 },
                     },
                     sequence(
-                      branch(
+                      step('modifyActionValue', {
+                        key: 'atk_scale',
+                        operation: 'multiply',
+                        value: { kind: 'blackboard', key: 'dmg_scale' },
+                      }),
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0017_yvonne_potential_5_cd',
+                        target: 'caster',
+                        inheritSourceSkillCastInfo: true,
+                        blackboardAssignments: { cd: { kind: 'blackboard', key: 'cd' } },
+                      }),
+                      step(
+                        'dealDamage',
                         {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                          tags: ['normalAttack', 'plungingAttack'],
+                          stagger: { kind: 'blackboard', key: 'poise' },
                         },
+                        'chr_0017_yvonne_plunging_attack_end:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/2',
+                      ),
+                      branch(
+                        { kind: 'casterControlled' },
                         sequence(
-                          step('modifyActionValue', {
-                            key: 'atk_scale',
-                            operation: 'multiply',
-                            value: { kind: 'blackboard', key: 'dmg_scale' },
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 1 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'default',
                           }),
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0017_yvonne_potential_5_cd',
-                            target: 'caster',
-                            inheritSourceSkillCastInfo: true,
-                            blackboardAssignments: { cd: { kind: 'blackboard', key: 'cd' } },
-                          }),
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack', 'plungingAttack'],
-                              stagger: { kind: 'blackboard', key: 'poise' },
-                            },
-                            'chr_0017_yvonne_plunging_attack_end:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/2',
-                          ),
-                          branch(
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'constant', value: 1 },
-                              operator: 'greaterOrEqual',
-                              right: { kind: 'constant', value: 1 },
-                            },
-                            sequence(
-                              branch(
-                                { kind: 'casterControlled' },
-                                sequence(
-                                  step('changeResourceByActionValue', {
-                                    resource: 'sp',
-                                    amount: { kind: 'blackboard', key: 'atb' },
-                                    coefficient: { kind: 'constant', value: 1 },
-                                    recipient: 'team',
-                                    spGainKind: 'gain',
-                                    spGainSource: 'default',
-                                  }),
-                                ),
-                              ),
-                            ),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
                         ),
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'cryo',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                              tags: ['normalAttack', 'plungingAttack'],
-                            },
-                            'chr_0017_yvonne_plunging_attack_end:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0',
-                          ),
-                          branch(
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'constant', value: 1 },
-                              operator: 'greaterOrEqual',
-                              right: { kind: 'constant', value: 1 },
-                            },
-                            sequence(
-                              branch(
-                                { kind: 'casterControlled' },
-                                sequence(
-                                  step('changeResourceByActionValue', {
-                                    resource: 'sp',
-                                    amount: { kind: 'blackboard', key: 'atb' },
-                                    coefficient: { kind: 'constant', value: 1 },
-                                    recipient: 'team',
-                                    spGainKind: 'gain',
-                                    spGainSource: 'default',
-                                  }),
-                                ),
-                              ),
-                            ),
-                            undefined,
-                            { alwaysNext: true },
-                          ),
-                        ),
-                        { alwaysNext: true },
                       ),
                     ),
                     sequence(
@@ -3851,29 +4444,17 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
                         'chr_0017_yvonne_plunging_attack_end:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0',
                       ),
                       branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
+                        { kind: 'casterControlled' },
                         sequence(
-                          branch(
-                            { kind: 'casterControlled' },
-                            sequence(
-                              step('changeResourceByActionValue', {
-                                resource: 'sp',
-                                amount: { kind: 'blackboard', key: 'atb' },
-                                coefficient: { kind: 'constant', value: 1 },
-                                recipient: 'team',
-                                spGainKind: 'gain',
-                                spGainSource: 'default',
-                              }),
-                            ),
-                          ),
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 1 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'default',
+                          }),
                         ),
-                        undefined,
-                        { alwaysNext: true },
                       ),
                     ),
                     { alwaysNext: true },
@@ -3890,29 +4471,17 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
                     'chr_0017_yvonne_plunging_attack_end:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/0/whenFalse/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
-                      branch(
-                        { kind: 'casterControlled' },
-                        sequence(
-                          step('changeResourceByActionValue', {
-                            resource: 'sp',
-                            amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'team',
-                            spGainKind: 'gain',
-                            spGainSource: 'default',
-                          }),
-                        ),
-                      ),
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'default',
+                      }),
                     ),
-                    undefined,
-                    { alwaysNext: true },
                   ),
                 ),
                 { alwaysNext: true },
@@ -3929,29 +4498,17 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
                 'chr_0017_yvonne_plunging_attack_end:/scheduledSequences/0/sequence/steps/0/whenFalse/steps/0',
               ),
               branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
+                { kind: 'casterControlled' },
                 sequence(
-                  branch(
-                    { kind: 'casterControlled' },
-                    sequence(
-                      step('changeResourceByActionValue', {
-                        resource: 'sp',
-                        amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 1 },
-                        recipient: 'team',
-                        spGainKind: 'gain',
-                        spGainSource: 'default',
-                      }),
-                    ),
-                  ),
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'default',
+                  }),
                 ),
-                undefined,
-                { alwaysNext: true },
               ),
             ),
             { alwaysNext: true },
@@ -3976,6 +4533,7 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0017_yvonne_normal_skill',
     timelineBlockFrames: 34,
+    exclusiveFrame: 34,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -3991,91 +4549,26 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         5,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+          step('applyBuff', {
+            buffId: 'buff_chr_0017_yvonne_normal_skill_projectile',
+            target: 'caster',
+            source: 'enemy',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+            blackboardAssignments: {
+              atk_scale: { kind: 'blackboard', key: 'atk_scale' },
+              poise: { kind: 'blackboard', key: 'poise' },
+              consume_cnt: { kind: 'blackboard', key: 'consume_cnt' },
+              gained_atb: { kind: 'blackboard', key: 'gained_atb' },
+              has_potential2: { kind: 'blackboard', key: 'has_potential2' },
+              atb_return: { kind: 'blackboard', key: 'atb_return' },
+              count: { kind: 'blackboard', key: 'count' },
+              atk_scale_layer: { kind: 'blackboard', key: 'atk_scale_layer' },
+              usp_base: { kind: 'blackboard', key: 'usp_base' },
+              usp_layer: { kind: 'blackboard', key: 'usp_layer' },
+              atk_scale2: { kind: 'blackboard', key: 'atk_scale2' },
             },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_normal_skill_projectile',
-                target: 'caster',
-                source: 'enemy',
-                inheritSourceSkillCastInfo: true,
-                finishByAction: true,
-                blackboardAssignments: {
-                  atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-                  poise: { kind: 'blackboard', key: 'poise' },
-                  consume_cnt: { kind: 'blackboard', key: 'consume_cnt' },
-                  gained_atb: { kind: 'blackboard', key: 'gained_atb' },
-                  has_potential2: { kind: 'blackboard', key: 'has_potential2' },
-                  atb_return: { kind: 'blackboard', key: 'atb_return' },
-                  count: { kind: 'blackboard', key: 'count' },
-                  atk_scale_layer: { kind: 'blackboard', key: 'atk_scale_layer' },
-                  usp_base: { kind: 'blackboard', key: 'usp_base' },
-                  usp_layer: { kind: 'blackboard', key: 'usp_layer' },
-                  atk_scale2: { kind: 'blackboard', key: 'atk_scale2' },
-                },
-              }),
-            ),
-            sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_normal_skill_projectile',
-                    target: 'caster',
-                    source: 'enemy',
-                    inheritSourceSkillCastInfo: true,
-                    finishByAction: true,
-                    blackboardAssignments: {
-                      atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-                      poise: { kind: 'blackboard', key: 'poise' },
-                      consume_cnt: { kind: 'blackboard', key: 'consume_cnt' },
-                      gained_atb: { kind: 'blackboard', key: 'gained_atb' },
-                      has_potential2: { kind: 'blackboard', key: 'has_potential2' },
-                      atb_return: { kind: 'blackboard', key: 'atb_return' },
-                      count: { kind: 'blackboard', key: 'count' },
-                      atk_scale_layer: { kind: 'blackboard', key: 'atk_scale_layer' },
-                      usp_base: { kind: 'blackboard', key: 'usp_base' },
-                      usp_layer: { kind: 'blackboard', key: 'usp_layer' },
-                      atk_scale2: { kind: 'blackboard', key: 'atk_scale2' },
-                    },
-                  }),
-                ),
-                sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0017_yvonne_normal_skill_projectile',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                    finishByAction: true,
-                    blackboardAssignments: {
-                      atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-                      poise: { kind: 'blackboard', key: 'poise' },
-                      consume_cnt: { kind: 'blackboard', key: 'consume_cnt' },
-                      gained_atb: { kind: 'blackboard', key: 'gained_atb' },
-                      has_potential2: { kind: 'blackboard', key: 'has_potential2' },
-                      atb_return: { kind: 'blackboard', key: 'atb_return' },
-                      count: { kind: 'blackboard', key: 'count' },
-                      atk_scale_layer: { kind: 'blackboard', key: 'atk_scale_layer' },
-                      usp_base: { kind: 'blackboard', key: 'usp_base' },
-                      usp_layer: { kind: 'blackboard', key: 'usp_layer' },
-                      atk_scale2: { kind: 'blackboard', key: 'atk_scale2' },
-                    },
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
-            ),
-            { alwaysNext: true },
-          ),
+          }),
         ),
         17,
       ),
@@ -4123,6 +4616,7 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0017_yvonne_ultimate_skill',
     timelineBlockFrames: 65,
+    exclusiveFrame: 64,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -4236,16 +4730,19 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0017_yvonne_ultimate_skill',
+            childSkillId: 'chr_0017_yvonne_ultimate_skill_abilityentity',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
           }),
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0017_yvonne_ultimate_skill2',
+            childSkillId: 'chr_0017_yvonne_ultimate_skill_abilityentity',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
           }),
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0017_yvonne_ultimate_skill3',
+            childSkillId: 'chr_0017_yvonne_ultimate_skill_abilityentity',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
           }),
@@ -4298,6 +4795,7 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0017_yvonne_combo_skill',
     timelineBlockFrames: 19,
+    exclusiveFrame: 24,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -4313,29 +4811,12 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
-          branch(
-            {
-              kind: 'contextTargetCountCompare',
-              contextKey: 'smart_target',
-              operator: 'greaterOrEqual',
-              value: 1,
-            },
-            sequence(
-              step('spawnAbilityEntity', {
-                abilityEntityId: 'abilityentity_chr_0017_yvonne_combo_skill',
-                inheritActionBlackboard: true,
-                dieWhenSourceDies: false,
-              }),
-            ),
-            sequence(
-              step('spawnAbilityEntity', {
-                abilityEntityId: 'abilityentity_chr_0017_yvonne_combo_skill',
-                inheritActionBlackboard: true,
-                dieWhenSourceDies: false,
-              }),
-            ),
-            { alwaysNext: true },
-          ),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0017_yvonne_combo_skill',
+            childSkillId: 'chr_0017_yvonne_combo_skill_abilityrange',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+          }),
         ),
         3,
       ),
@@ -4427,6 +4908,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_cryst_frozen_triggered_do',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: {
             count: { kind: 'blackboard', key: 'count' },
@@ -4465,12 +4947,6 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('applyBuff', {
-          buffId: 'buff_common_cryst_triggered_start',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-        }),
         step('storeSourceAttributeValue', {
           attribute: { kind: 'specific', key: 'cryoAbnormalDamageIncrease' },
           stage: 'finalNonConverted',
@@ -4483,6 +4959,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_fx',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
         }),
       ),
@@ -4497,6 +4974,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_common_frozen',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
               finishByAction: true,
               blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
@@ -4513,19 +4991,6 @@ export const commonBuffDefinitions = {
     durationSeconds: 5,
     triggerIntervalSeconds: 0,
     waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-  buff_common_cryst_triggered_start: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: 3,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: false,
     maxTriggerCount: 1,
     applyTags: [],
     extendTags: [],
@@ -4619,6 +5084,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_do_frozen',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           finishByAction: true,
           blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
@@ -4911,93 +5377,128 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         trigger: sequence(
-          branch(
-            {
-              kind: 'entityTagMatch',
-              target: 'enemy',
-              tagQueryType: 'hasAny',
-              tags: ['Skill/Character/Common/SpellStatus/Frozen'],
-            },
+          withActionBlackboardScope(
+            'native-buff-callback:0',
+            {},
+            true,
             sequence(
-              step('dealDamage', {
-                damageType: 'cryo',
-                attackScale: { kind: 'blackboard', key: 'atk_scale_tick' },
-                tags: ['comboSkill'],
-              }),
-            ),
-            sequence(
+              forEachTarget(
+                'enemy',
+                sequence(
+                  branch(
+                    {
+                      kind: 'entityTagMatch',
+                      target: 'enemy',
+                      tagQueryType: 'hasAny',
+                      tags: ['Skill/Character/Common/SpellStatus/Frozen'],
+                    },
+                    sequence(
+                      step(
+                        'dealDamage',
+                        {
+                          damageType: 'cryo',
+                          attackScale: { kind: 'blackboard', key: 'atk_scale_tick' },
+                          tags: ['comboSkill'],
+                        },
+                        'buff_chr_0017_yvonne_combo_skill:/lifecycleSequences/trigger/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0',
+                      ),
+                    ),
+                    sequence(
+                      branch(
+                        {
+                          kind: 'buffIdStackCompare',
+                          target: 'enemy',
+                          buffIds: ['buff_common_energy_shard_attached_cryst'],
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 1 },
+                        },
+                        sequence(
+                          step(
+                            'dealDamage',
+                            {
+                              damageType: 'cryo',
+                              attackScale: { kind: 'blackboard', key: 'atk_scale_tick' },
+                              tags: ['comboSkill'],
+                            },
+                            'buff_chr_0017_yvonne_combo_skill:/lifecycleSequences/trigger/steps/0/body/steps/0/body/steps/0/whenFalse/steps/0/whenTrue/steps/0',
+                          ),
+                        ),
+                        sequence(
+                          step(
+                            'dealDamage',
+                            {
+                              damageType: 'cryo',
+                              attackScale: { kind: 'blackboard', key: 'atk_scale_tick' },
+                              tags: ['comboSkill'],
+                            },
+                            'buff_chr_0017_yvonne_combo_skill:/lifecycleSequences/trigger/steps/0/body/steps/0/body/steps/0/whenFalse/steps/0/whenFalse/steps/0',
+                          ),
+                        ),
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    { alwaysNext: true },
+                  ),
+                ),
+              ),
               branch(
                 {
-                  kind: 'buffIdStackCompare',
-                  target: 'enemy',
-                  buffIds: ['buff_common_energy_shard_attached_cryst'],
-                  operator: 'greaterOrEqual',
-                  value: { kind: 'constant', value: 1 },
+                  kind: 'all',
+                  conditions: [
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'constant', value: 1 },
+                      operator: 'greaterOrEqual',
+                      right: { kind: 'constant', value: 1 },
+                    },
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'has_added_usp' },
+                      operator: 'less',
+                      right: { kind: 'constant', value: 1 },
+                    },
+                  ],
                 },
                 sequence(
-                  step('dealDamage', {
-                    damageType: 'cryo',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale_tick' },
-                    tags: ['comboSkill'],
+                  step('modifyActionValue', {
+                    key: 'has_added_usp',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('changeResourceByActionValue', {
+                    resource: 'ultimateEnergy',
+                    amount: { kind: 'blackboard', key: 'usp' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'caster',
                   }),
                 ),
-                sequence(
-                  step('dealDamage', {
-                    damageType: 'cryo',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale_tick' },
-                    tags: ['comboSkill'],
-                  }),
-                ),
+                undefined,
                 { alwaysNext: true },
               ),
             ),
-            { alwaysNext: true },
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
           ),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'has_added_usp' },
-                  operator: 'less',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+          withActionBlackboardScope(
+            'native-buff-callback:1',
+            {},
+            true,
             sequence(
               step('modifyActionValue', {
-                key: 'has_added_usp',
-                operation: 'assign',
+                key: 'count',
+                operation: 'add',
                 value: { kind: 'constant', value: 1 },
-              }),
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'caster',
               }),
             ),
             undefined,
-            { alwaysNext: true },
+            { lifetime: 'execution', alwaysNext: true },
           ),
-          step('modifyActionValue', {
-            key: 'count',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         finish: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0017_yvonne_combo_skill_finish',
             target: 'buffOwner',
-            source: 'eventSource',
+            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               atk_scale_boom: { kind: 'blackboard', key: 'atk_scale_boom' },
@@ -5038,20 +5539,24 @@ export default {
           step('applyBuff', {
             buffId: 'buff_common_cryst_cryst_frozen_triggered',
             target: 'enemy',
-            source: 'eventSource',
+            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               count: { kind: 'constant', value: 1 },
               extra_duration: { kind: 'constant', value: 2 },
             },
           }),
-          step('dealDamage', {
-            damageType: 'cryo',
-            attackScale: { kind: 'blackboard', key: 'atk_scale_boom' },
-            tags: ['comboSkill'],
-            features: ['canBreakWeakness'],
-            stagger: { kind: 'blackboard', key: 'poise' },
-          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'cryo',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_boom' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+            },
+            'buff_chr_0017_yvonne_combo_skill_finish:/lifecycleSequences/trigger/steps/1',
+          ),
           branch(
             {
               kind: 'all',
@@ -5088,6 +5593,19 @@ export default {
         finish: sequence(step('finishCurrentAbilityEntity', {})),
       },
     },
+    buff_chr_0017_yvonne_normal_skill_frozen: {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 1,
+      triggerIntervalSeconds: 0.5,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { atk_scale2: 1, crit_up: 0.7 },
+      attributeModifiers: [],
+    },
     buff_chr_0017_yvonne_normal_skill_listener: {
       stackingType: 'unlimited',
       priority: 0,
@@ -5100,6 +5618,36 @@ export default {
       blackboard: { atk_scale2: 0, crit_up: 0 },
       attributeModifiers: [],
       abilityEventResponses: [
+        {
+          event: 'beforeOutputBuff',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              {
+                kind: 'eventBuffTagsMatch',
+                match: 'hasAny',
+                buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+              },
+              sequence(
+                branch(
+                  { kind: 'eventSkillCastMatchesBuffSource' },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0017_yvonne_normal_skill_frozen',
+                      target: 'eventTarget',
+                      source: 'buffSource',
+                      inheritSourceSkillCastInfo: true,
+                      blackboardAssignments: {
+                        crit_up: { kind: 'blackboard', key: 'crit_up' },
+                        atk_scale2: { kind: 'blackboard', key: 'atk_scale2' },
+                      },
+                    }),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        },
         {
           event: 'skillEnd',
           priority: 0,
@@ -5194,40 +5742,22 @@ export default {
                           ],
                         },
                         sequence(
-                          branch(
-                            {
-                              kind: 'buffStackCompare',
-                              target: 'enemy',
-                              tagQueryType: 'hasAny',
-                              buffTags: [
-                                'Skill/Character/Common/SpellInflict/CrystInflict',
-                                'Skill/Character/Common/SpellInflict/NaturalInflict',
-                              ],
-                              operator: 'greaterOrEqual',
-                              value: { kind: 'constant', value: 1 },
-                            },
+                          forEachTarget(
+                            'enemy',
                             sequence(
                               branch(
                                 {
                                   kind: 'buffStackCompare',
                                   target: 'enemy',
                                   tagQueryType: 'hasAny',
-                                  buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
+                                  buffTags: [
+                                    'Skill/Character/Common/SpellInflict/CrystInflict',
+                                    'Skill/Character/Common/SpellInflict/NaturalInflict',
+                                  ],
                                   operator: 'greaterOrEqual',
                                   value: { kind: 'constant', value: 1 },
                                 },
                                 sequence(
-                                  step('readBuffStackCount', {
-                                    target: 'eventTarget',
-                                    outputKey: 'count',
-                                    query: {
-                                      kind: 'tag',
-                                      tagQueryType: 'hasAny',
-                                      buffTags: [
-                                        'Skill/Character/Common/SpellInflict/CrystInflict',
-                                      ],
-                                    },
-                                  }),
                                   branch(
                                     {
                                       kind: 'buffStackCompare',
@@ -5237,137 +5767,214 @@ export default {
                                         'Skill/Character/Common/SpellInflict/CrystInflict',
                                       ],
                                       operator: 'greaterOrEqual',
-                                      value: { kind: 'blackboard', key: 'count' },
+                                      value: { kind: 'constant', value: 1 },
                                     },
                                     sequence(
-                                      step('finishBuffsByTag', {
+                                      step('readBuffStackCount', {
                                         target: 'enemy',
-                                        tagQueryType: 'hasAny',
-                                        buffTags: [
-                                          'Skill/Character/Common/SpellInflict/CrystInflict',
-                                        ],
-                                        reason: 'early',
-                                        count: { kind: 'blackboard', key: 'count' },
-                                      }),
-                                      step('applyBuff', {
-                                        buffId: 'buff_common_cryst_cryst_frozen_triggered',
-                                        target: 'enemy',
-                                        inheritSourceSkillCastInfo: true,
-                                        blackboardAssignments: {
-                                          consumed_type: { kind: 'constant', value: 2 },
-                                          consumed_layer: { kind: 'blackboard', key: 'count' },
-                                          count: { kind: 'blackboard', key: 'count' },
+                                        outputKey: 'count',
+                                        query: {
+                                          kind: 'tag',
+                                          tagQueryType: 'hasAny',
+                                          buffTags: [
+                                            'Skill/Character/Common/SpellInflict/CrystInflict',
+                                          ],
                                         },
                                       }),
-                                    ),
-                                  ),
-                                  step('calculateActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'multiply',
-                                    left: { kind: 'blackboard', key: 'atk_scale_layer' },
-                                    right: { kind: 'blackboard', key: 'count' },
-                                  }),
-                                  step('modifyActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'add',
-                                    value: { kind: 'blackboard', key: 'atk_scale' },
-                                  }),
-                                  step('modifyActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'add',
-                                    value: { kind: 'blackboard', key: 'atk_scale2' },
-                                  }),
-                                  step('changeResourceByActionValue', {
-                                    resource: 'sp',
-                                    amount: { kind: 'blackboard', key: 'atb_return' },
-                                    coefficient: { kind: 'constant', value: 1 },
-                                    recipient: 'team',
-                                    spGainKind: 'refund',
-                                    spGainSource: 'skill',
-                                  }),
-                                  step('dealDamage', {
-                                    damageType: 'cryo',
-                                    attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
-                                    tags: ['normalSkill'],
-                                    features: ['canBreakWeakness'],
-                                    stagger: { kind: 'blackboard', key: 'poise' },
-                                  }),
-                                  branch(
-                                    {
-                                      kind: 'actionValueCompare',
-                                      left: { kind: 'blackboard', key: 'count' },
-                                      operator: 'greater',
-                                      right: { kind: 'blackboard', key: 'max_count' },
-                                    },
-                                    sequence(
-                                      step('modifyActionValue', {
-                                        key: 'max_count',
-                                        operation: 'assign',
-                                        value: { kind: 'blackboard', key: 'count' },
+                                      branch(
+                                        {
+                                          kind: 'buffStackCompare',
+                                          target: 'enemy',
+                                          tagQueryType: 'hasAny',
+                                          buffTags: [
+                                            'Skill/Character/Common/SpellInflict/CrystInflict',
+                                          ],
+                                          operator: 'greaterOrEqual',
+                                          value: { kind: 'blackboard', key: 'count' },
+                                        },
+                                        sequence(
+                                          step('finishBuffsByTag', {
+                                            target: 'enemy',
+                                            tagQueryType: 'hasAny',
+                                            buffTags: [
+                                              'Skill/Character/Common/SpellInflict/CrystInflict',
+                                            ],
+                                            reason: 'early',
+                                            count: { kind: 'blackboard', key: 'count' },
+                                          }),
+                                          step('applyBuff', {
+                                            buffId: 'buff_common_cryst_cryst_frozen_triggered',
+                                            target: 'enemy',
+                                            inheritSourceSkillCastInfo: true,
+                                            blackboardAssignments: {
+                                              consumed_type: { kind: 'constant', value: 2 },
+                                              consumed_layer: { kind: 'blackboard', key: 'count' },
+                                              count: { kind: 'blackboard', key: 'count' },
+                                            },
+                                          }),
+                                        ),
+                                      ),
+                                      step('calculateActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'multiply',
+                                        left: { kind: 'blackboard', key: 'atk_scale_layer' },
+                                        right: { kind: 'blackboard', key: 'count' },
                                       }),
+                                      step('modifyActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'add',
+                                        value: { kind: 'blackboard', key: 'atk_scale' },
+                                      }),
+                                      step('modifyActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'add',
+                                        value: { kind: 'blackboard', key: 'atk_scale2' },
+                                      }),
+                                      step('changeResourceByActionValue', {
+                                        resource: 'sp',
+                                        amount: { kind: 'blackboard', key: 'atb_return' },
+                                        coefficient: { kind: 'constant', value: 1 },
+                                        recipient: 'team',
+                                        spGainKind: 'refund',
+                                        spGainSource: 'skill',
+                                      }),
+                                      step(
+                                        'dealDamage',
+                                        {
+                                          damageType: 'cryo',
+                                          attackScale: {
+                                            kind: 'blackboard',
+                                            key: 'atk_scale_final',
+                                          },
+                                          tags: ['normalSkill'],
+                                          features: ['canBreakWeakness'],
+                                          stagger: { kind: 'blackboard', key: 'poise' },
+                                        },
+                                        'buff_chr_0017_yvonne_normal_skill_projectile:/lifecycleSequences/finish/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/whenTrue/steps/6',
+                                      ),
+                                      branch(
+                                        {
+                                          kind: 'actionValueCompare',
+                                          left: { kind: 'blackboard', key: 'count' },
+                                          operator: 'greater',
+                                          right: { kind: 'blackboard', key: 'max_count' },
+                                        },
+                                        sequence(
+                                          step('modifyActionValue', {
+                                            key: 'max_count',
+                                            operation: 'assign',
+                                            value: { kind: 'blackboard', key: 'count' },
+                                          }),
+                                        ),
+                                      ),
                                     ),
+                                    sequence(
+                                      step('readBuffStackCount', {
+                                        target: 'enemy',
+                                        outputKey: 'count',
+                                        query: {
+                                          kind: 'tag',
+                                          tagQueryType: 'hasAny',
+                                          buffTags: [
+                                            'Skill/Character/Common/SpellInflict/NaturalInflict',
+                                          ],
+                                        },
+                                      }),
+                                      branch(
+                                        {
+                                          kind: 'buffStackCompare',
+                                          target: 'enemy',
+                                          tagQueryType: 'hasAny',
+                                          buffTags: [
+                                            'Skill/Character/Common/SpellInflict/NaturalInflict',
+                                          ],
+                                          operator: 'greaterOrEqual',
+                                          value: { kind: 'blackboard', key: 'count' },
+                                        },
+                                        sequence(
+                                          step('finishBuffsByTag', {
+                                            target: 'enemy',
+                                            tagQueryType: 'hasAny',
+                                            buffTags: [
+                                              'Skill/Character/Common/SpellInflict/NaturalInflict',
+                                            ],
+                                            reason: 'early',
+                                            count: { kind: 'blackboard', key: 'count' },
+                                          }),
+                                          step('applyBuff', {
+                                            buffId: 'buff_common_cryst_cryst_frozen_triggered',
+                                            target: 'enemy',
+                                            inheritSourceSkillCastInfo: true,
+                                            blackboardAssignments: {
+                                              consumed_type: { kind: 'constant', value: 3 },
+                                              consumed_layer: { kind: 'blackboard', key: 'count' },
+                                              count: { kind: 'blackboard', key: 'count' },
+                                            },
+                                          }),
+                                        ),
+                                      ),
+                                      step('calculateActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'multiply',
+                                        left: { kind: 'blackboard', key: 'atk_scale_layer' },
+                                        right: { kind: 'blackboard', key: 'count' },
+                                      }),
+                                      step('modifyActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'add',
+                                        value: { kind: 'blackboard', key: 'atk_scale' },
+                                      }),
+                                      step('modifyActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'add',
+                                        value: { kind: 'blackboard', key: 'atk_scale2' },
+                                      }),
+                                      step('changeResourceByActionValue', {
+                                        resource: 'sp',
+                                        amount: { kind: 'blackboard', key: 'atb_return' },
+                                        coefficient: { kind: 'constant', value: 1 },
+                                        recipient: 'team',
+                                        spGainKind: 'refund',
+                                        spGainSource: 'skill',
+                                      }),
+                                      step(
+                                        'dealDamage',
+                                        {
+                                          damageType: 'cryo',
+                                          attackScale: {
+                                            kind: 'blackboard',
+                                            key: 'atk_scale_final',
+                                          },
+                                          tags: ['normalSkill'],
+                                          features: ['canBreakWeakness'],
+                                          stagger: { kind: 'blackboard', key: 'poise' },
+                                        },
+                                        'buff_chr_0017_yvonne_normal_skill_projectile:/lifecycleSequences/finish/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/whenFalse/steps/6',
+                                      ),
+                                      branch(
+                                        {
+                                          kind: 'actionValueCompare',
+                                          left: { kind: 'blackboard', key: 'count' },
+                                          operator: 'greater',
+                                          right: { kind: 'blackboard', key: 'max_count' },
+                                        },
+                                        sequence(
+                                          step('modifyActionValue', {
+                                            key: 'max_count',
+                                            operation: 'assign',
+                                            value: { kind: 'blackboard', key: 'count' },
+                                          }),
+                                        ),
+                                      ),
+                                    ),
+                                    { alwaysNext: true },
                                   ),
                                 ),
                                 sequence(
-                                  step('readBuffStackCount', {
-                                    target: 'eventTarget',
-                                    outputKey: 'count',
-                                    query: {
-                                      kind: 'tag',
-                                      tagQueryType: 'hasAny',
-                                      buffTags: [
-                                        'Skill/Character/Common/SpellInflict/NaturalInflict',
-                                      ],
-                                    },
-                                  }),
-                                  branch(
-                                    {
-                                      kind: 'buffStackCompare',
-                                      target: 'enemy',
-                                      tagQueryType: 'hasAny',
-                                      buffTags: [
-                                        'Skill/Character/Common/SpellInflict/NaturalInflict',
-                                      ],
-                                      operator: 'greaterOrEqual',
-                                      value: { kind: 'blackboard', key: 'count' },
-                                    },
-                                    sequence(
-                                      step('finishBuffsByTag', {
-                                        target: 'enemy',
-                                        tagQueryType: 'hasAny',
-                                        buffTags: [
-                                          'Skill/Character/Common/SpellInflict/NaturalInflict',
-                                        ],
-                                        reason: 'early',
-                                        count: { kind: 'blackboard', key: 'count' },
-                                      }),
-                                      step('applyBuff', {
-                                        buffId: 'buff_common_cryst_cryst_frozen_triggered',
-                                        target: 'enemy',
-                                        inheritSourceSkillCastInfo: true,
-                                        blackboardAssignments: {
-                                          consumed_type: { kind: 'constant', value: 3 },
-                                          consumed_layer: { kind: 'blackboard', key: 'count' },
-                                          count: { kind: 'blackboard', key: 'count' },
-                                        },
-                                      }),
-                                    ),
-                                  ),
-                                  step('calculateActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'multiply',
-                                    left: { kind: 'blackboard', key: 'atk_scale_layer' },
-                                    right: { kind: 'blackboard', key: 'count' },
-                                  }),
                                   step('modifyActionValue', {
                                     key: 'atk_scale_final',
-                                    operation: 'add',
+                                    operation: 'assign',
                                     value: { kind: 'blackboard', key: 'atk_scale' },
-                                  }),
-                                  step('modifyActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'add',
-                                    value: { kind: 'blackboard', key: 'atk_scale2' },
                                   }),
                                   step('changeResourceByActionValue', {
                                     resource: 'sp',
@@ -5377,13 +5984,17 @@ export default {
                                     spGainKind: 'refund',
                                     spGainSource: 'skill',
                                   }),
-                                  step('dealDamage', {
-                                    damageType: 'cryo',
-                                    attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
-                                    tags: ['normalSkill'],
-                                    features: ['canBreakWeakness'],
-                                    stagger: { kind: 'blackboard', key: 'poise' },
-                                  }),
+                                  step(
+                                    'dealDamage',
+                                    {
+                                      damageType: 'cryo',
+                                      attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
+                                      tags: ['normalSkill'],
+                                      features: ['canBreakWeakness'],
+                                      stagger: { kind: 'blackboard', key: 'poise' },
+                                    },
+                                    'buff_chr_0017_yvonne_normal_skill_projectile:/lifecycleSequences/finish/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/whenFalse/steps/2',
+                                  ),
                                   branch(
                                     {
                                       kind: 'actionValueCompare',
@@ -5403,44 +6014,6 @@ export default {
                                 { alwaysNext: true },
                               ),
                             ),
-                            sequence(
-                              step('modifyActionValue', {
-                                key: 'atk_scale_final',
-                                operation: 'assign',
-                                value: { kind: 'blackboard', key: 'atk_scale' },
-                              }),
-                              step('changeResourceByActionValue', {
-                                resource: 'sp',
-                                amount: { kind: 'blackboard', key: 'atb_return' },
-                                coefficient: { kind: 'constant', value: 1 },
-                                recipient: 'team',
-                                spGainKind: 'refund',
-                                spGainSource: 'skill',
-                              }),
-                              step('dealDamage', {
-                                damageType: 'cryo',
-                                attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
-                                tags: ['normalSkill'],
-                                features: ['canBreakWeakness'],
-                                stagger: { kind: 'blackboard', key: 'poise' },
-                              }),
-                              branch(
-                                {
-                                  kind: 'actionValueCompare',
-                                  left: { kind: 'blackboard', key: 'count' },
-                                  operator: 'greater',
-                                  right: { kind: 'blackboard', key: 'max_count' },
-                                },
-                                sequence(
-                                  step('modifyActionValue', {
-                                    key: 'max_count',
-                                    operation: 'assign',
-                                    value: { kind: 'blackboard', key: 'count' },
-                                  }),
-                                ),
-                              ),
-                            ),
-                            { alwaysNext: true },
                           ),
                           step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                           branch(
@@ -5474,40 +6047,22 @@ export default {
                           ),
                         ),
                         sequence(
-                          branch(
-                            {
-                              kind: 'buffStackCompare',
-                              target: 'enemy',
-                              tagQueryType: 'hasAny',
-                              buffTags: [
-                                'Skill/Character/Common/SpellInflict/CrystInflict',
-                                'Skill/Character/Common/SpellInflict/NaturalInflict',
-                              ],
-                              operator: 'greaterOrEqual',
-                              value: { kind: 'constant', value: 1 },
-                            },
+                          forEachTarget(
+                            'enemy',
                             sequence(
                               branch(
                                 {
                                   kind: 'buffStackCompare',
                                   target: 'enemy',
                                   tagQueryType: 'hasAny',
-                                  buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
+                                  buffTags: [
+                                    'Skill/Character/Common/SpellInflict/CrystInflict',
+                                    'Skill/Character/Common/SpellInflict/NaturalInflict',
+                                  ],
                                   operator: 'greaterOrEqual',
                                   value: { kind: 'constant', value: 1 },
                                 },
                                 sequence(
-                                  step('readBuffStackCount', {
-                                    target: 'eventTarget',
-                                    outputKey: 'count',
-                                    query: {
-                                      kind: 'tag',
-                                      tagQueryType: 'hasAny',
-                                      buffTags: [
-                                        'Skill/Character/Common/SpellInflict/CrystInflict',
-                                      ],
-                                    },
-                                  }),
                                   branch(
                                     {
                                       kind: 'buffStackCompare',
@@ -5517,137 +6072,210 @@ export default {
                                         'Skill/Character/Common/SpellInflict/CrystInflict',
                                       ],
                                       operator: 'greaterOrEqual',
-                                      value: { kind: 'blackboard', key: 'count' },
+                                      value: { kind: 'constant', value: 1 },
                                     },
                                     sequence(
-                                      step('finishBuffsByTag', {
+                                      step('readBuffStackCount', {
                                         target: 'enemy',
-                                        tagQueryType: 'hasAny',
-                                        buffTags: [
-                                          'Skill/Character/Common/SpellInflict/CrystInflict',
-                                        ],
-                                        reason: 'early',
-                                        count: { kind: 'blackboard', key: 'count' },
-                                      }),
-                                      step('applyBuff', {
-                                        buffId: 'buff_common_cryst_cryst_frozen_triggered',
-                                        target: 'enemy',
-                                        inheritSourceSkillCastInfo: true,
-                                        blackboardAssignments: {
-                                          consumed_type: { kind: 'constant', value: 2 },
-                                          consumed_layer: { kind: 'blackboard', key: 'count' },
-                                          count: { kind: 'blackboard', key: 'count' },
+                                        outputKey: 'count',
+                                        query: {
+                                          kind: 'tag',
+                                          tagQueryType: 'hasAny',
+                                          buffTags: [
+                                            'Skill/Character/Common/SpellInflict/CrystInflict',
+                                          ],
                                         },
                                       }),
-                                    ),
-                                  ),
-                                  step('calculateActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'multiply',
-                                    left: { kind: 'blackboard', key: 'atk_scale_layer' },
-                                    right: { kind: 'blackboard', key: 'count' },
-                                  }),
-                                  step('modifyActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'add',
-                                    value: { kind: 'blackboard', key: 'atk_scale' },
-                                  }),
-                                  step('modifyActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'add',
-                                    value: { kind: 'blackboard', key: 'atk_scale2' },
-                                  }),
-                                  step('dealDamage', {
-                                    damageType: 'cryo',
-                                    attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
-                                    tags: ['normalSkill'],
-                                    features: ['canBreakWeakness'],
-                                    stagger: { kind: 'blackboard', key: 'poise' },
-                                  }),
-                                  branch(
-                                    {
-                                      kind: 'actionValueCompare',
-                                      left: { kind: 'blackboard', key: 'count' },
-                                      operator: 'greater',
-                                      right: { kind: 'blackboard', key: 'max_count' },
-                                    },
-                                    sequence(
-                                      step('modifyActionValue', {
-                                        key: 'max_count',
-                                        operation: 'assign',
-                                        value: { kind: 'blackboard', key: 'count' },
+                                      branch(
+                                        {
+                                          kind: 'buffStackCompare',
+                                          target: 'enemy',
+                                          tagQueryType: 'hasAny',
+                                          buffTags: [
+                                            'Skill/Character/Common/SpellInflict/CrystInflict',
+                                          ],
+                                          operator: 'greaterOrEqual',
+                                          value: { kind: 'blackboard', key: 'count' },
+                                        },
+                                        sequence(
+                                          step('finishBuffsByTag', {
+                                            target: 'enemy',
+                                            tagQueryType: 'hasAny',
+                                            buffTags: [
+                                              'Skill/Character/Common/SpellInflict/CrystInflict',
+                                            ],
+                                            reason: 'early',
+                                            count: { kind: 'blackboard', key: 'count' },
+                                          }),
+                                          step('applyBuff', {
+                                            buffId: 'buff_common_cryst_cryst_frozen_triggered',
+                                            target: 'enemy',
+                                            inheritSourceSkillCastInfo: true,
+                                            blackboardAssignments: {
+                                              consumed_type: { kind: 'constant', value: 2 },
+                                              consumed_layer: { kind: 'blackboard', key: 'count' },
+                                              count: { kind: 'blackboard', key: 'count' },
+                                            },
+                                          }),
+                                        ),
+                                      ),
+                                      step('calculateActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'multiply',
+                                        left: { kind: 'blackboard', key: 'atk_scale_layer' },
+                                        right: { kind: 'blackboard', key: 'count' },
                                       }),
+                                      step('modifyActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'add',
+                                        value: { kind: 'blackboard', key: 'atk_scale' },
+                                      }),
+                                      step('modifyActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'add',
+                                        value: { kind: 'blackboard', key: 'atk_scale2' },
+                                      }),
+                                      step(
+                                        'dealDamage',
+                                        {
+                                          damageType: 'cryo',
+                                          attackScale: {
+                                            kind: 'blackboard',
+                                            key: 'atk_scale_final',
+                                          },
+                                          tags: ['normalSkill'],
+                                          features: ['canBreakWeakness'],
+                                          stagger: { kind: 'blackboard', key: 'poise' },
+                                        },
+                                        'buff_chr_0017_yvonne_normal_skill_projectile:/lifecycleSequences/finish/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/whenTrue/steps/0/whenTrue/steps/5',
+                                      ),
+                                      branch(
+                                        {
+                                          kind: 'actionValueCompare',
+                                          left: { kind: 'blackboard', key: 'count' },
+                                          operator: 'greater',
+                                          right: { kind: 'blackboard', key: 'max_count' },
+                                        },
+                                        sequence(
+                                          step('modifyActionValue', {
+                                            key: 'max_count',
+                                            operation: 'assign',
+                                            value: { kind: 'blackboard', key: 'count' },
+                                          }),
+                                        ),
+                                      ),
                                     ),
+                                    sequence(
+                                      step('readBuffStackCount', {
+                                        target: 'enemy',
+                                        outputKey: 'count',
+                                        query: {
+                                          kind: 'tag',
+                                          tagQueryType: 'hasAny',
+                                          buffTags: [
+                                            'Skill/Character/Common/SpellInflict/NaturalInflict',
+                                          ],
+                                        },
+                                      }),
+                                      branch(
+                                        {
+                                          kind: 'buffStackCompare',
+                                          target: 'enemy',
+                                          tagQueryType: 'hasAny',
+                                          buffTags: [
+                                            'Skill/Character/Common/SpellInflict/NaturalInflict',
+                                          ],
+                                          operator: 'greaterOrEqual',
+                                          value: { kind: 'blackboard', key: 'count' },
+                                        },
+                                        sequence(
+                                          step('finishBuffsByTag', {
+                                            target: 'enemy',
+                                            tagQueryType: 'hasAny',
+                                            buffTags: [
+                                              'Skill/Character/Common/SpellInflict/NaturalInflict',
+                                            ],
+                                            reason: 'early',
+                                            count: { kind: 'blackboard', key: 'count' },
+                                          }),
+                                          step('applyBuff', {
+                                            buffId: 'buff_common_cryst_cryst_frozen_triggered',
+                                            target: 'enemy',
+                                            inheritSourceSkillCastInfo: true,
+                                            blackboardAssignments: {
+                                              consumed_type: { kind: 'constant', value: 3 },
+                                              consumed_layer: { kind: 'blackboard', key: 'count' },
+                                              count: { kind: 'blackboard', key: 'count' },
+                                            },
+                                          }),
+                                        ),
+                                      ),
+                                      step('calculateActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'multiply',
+                                        left: { kind: 'blackboard', key: 'atk_scale_layer' },
+                                        right: { kind: 'blackboard', key: 'count' },
+                                      }),
+                                      step('modifyActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'add',
+                                        value: { kind: 'blackboard', key: 'atk_scale' },
+                                      }),
+                                      step('modifyActionValue', {
+                                        key: 'atk_scale_final',
+                                        operation: 'add',
+                                        value: { kind: 'blackboard', key: 'atk_scale2' },
+                                      }),
+                                      step(
+                                        'dealDamage',
+                                        {
+                                          damageType: 'cryo',
+                                          attackScale: {
+                                            kind: 'blackboard',
+                                            key: 'atk_scale_final',
+                                          },
+                                          tags: ['normalSkill'],
+                                          features: ['canBreakWeakness'],
+                                          stagger: { kind: 'blackboard', key: 'poise' },
+                                        },
+                                        'buff_chr_0017_yvonne_normal_skill_projectile:/lifecycleSequences/finish/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/whenTrue/steps/0/whenFalse/steps/5',
+                                      ),
+                                      branch(
+                                        {
+                                          kind: 'actionValueCompare',
+                                          left: { kind: 'blackboard', key: 'count' },
+                                          operator: 'greater',
+                                          right: { kind: 'blackboard', key: 'max_count' },
+                                        },
+                                        sequence(
+                                          step('modifyActionValue', {
+                                            key: 'max_count',
+                                            operation: 'assign',
+                                            value: { kind: 'blackboard', key: 'count' },
+                                          }),
+                                        ),
+                                      ),
+                                    ),
+                                    { alwaysNext: true },
                                   ),
                                 ),
                                 sequence(
-                                  step('readBuffStackCount', {
-                                    target: 'eventTarget',
-                                    outputKey: 'count',
-                                    query: {
-                                      kind: 'tag',
-                                      tagQueryType: 'hasAny',
-                                      buffTags: [
-                                        'Skill/Character/Common/SpellInflict/NaturalInflict',
-                                      ],
-                                    },
-                                  }),
-                                  branch(
-                                    {
-                                      kind: 'buffStackCompare',
-                                      target: 'enemy',
-                                      tagQueryType: 'hasAny',
-                                      buffTags: [
-                                        'Skill/Character/Common/SpellInflict/NaturalInflict',
-                                      ],
-                                      operator: 'greaterOrEqual',
-                                      value: { kind: 'blackboard', key: 'count' },
-                                    },
-                                    sequence(
-                                      step('finishBuffsByTag', {
-                                        target: 'enemy',
-                                        tagQueryType: 'hasAny',
-                                        buffTags: [
-                                          'Skill/Character/Common/SpellInflict/NaturalInflict',
-                                        ],
-                                        reason: 'early',
-                                        count: { kind: 'blackboard', key: 'count' },
-                                      }),
-                                      step('applyBuff', {
-                                        buffId: 'buff_common_cryst_cryst_frozen_triggered',
-                                        target: 'enemy',
-                                        inheritSourceSkillCastInfo: true,
-                                        blackboardAssignments: {
-                                          consumed_type: { kind: 'constant', value: 3 },
-                                          consumed_layer: { kind: 'blackboard', key: 'count' },
-                                          count: { kind: 'blackboard', key: 'count' },
-                                        },
-                                      }),
-                                    ),
-                                  ),
-                                  step('calculateActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'multiply',
-                                    left: { kind: 'blackboard', key: 'atk_scale_layer' },
-                                    right: { kind: 'blackboard', key: 'count' },
-                                  }),
                                   step('modifyActionValue', {
                                     key: 'atk_scale_final',
-                                    operation: 'add',
+                                    operation: 'assign',
                                     value: { kind: 'blackboard', key: 'atk_scale' },
                                   }),
-                                  step('modifyActionValue', {
-                                    key: 'atk_scale_final',
-                                    operation: 'add',
-                                    value: { kind: 'blackboard', key: 'atk_scale2' },
-                                  }),
-                                  step('dealDamage', {
-                                    damageType: 'cryo',
-                                    attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
-                                    tags: ['normalSkill'],
-                                    features: ['canBreakWeakness'],
-                                    stagger: { kind: 'blackboard', key: 'poise' },
-                                  }),
+                                  step(
+                                    'dealDamage',
+                                    {
+                                      damageType: 'cryo',
+                                      attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
+                                      tags: ['normalSkill'],
+                                      features: ['canBreakWeakness'],
+                                      stagger: { kind: 'blackboard', key: 'poise' },
+                                    },
+                                    'buff_chr_0017_yvonne_normal_skill_projectile:/lifecycleSequences/finish/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/whenFalse/steps/1',
+                                  ),
                                   branch(
                                     {
                                       kind: 'actionValueCompare',
@@ -5667,36 +6295,6 @@ export default {
                                 { alwaysNext: true },
                               ),
                             ),
-                            sequence(
-                              step('modifyActionValue', {
-                                key: 'atk_scale_final',
-                                operation: 'assign',
-                                value: { kind: 'blackboard', key: 'atk_scale' },
-                              }),
-                              step('dealDamage', {
-                                damageType: 'cryo',
-                                attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
-                                tags: ['normalSkill'],
-                                features: ['canBreakWeakness'],
-                                stagger: { kind: 'blackboard', key: 'poise' },
-                              }),
-                              branch(
-                                {
-                                  kind: 'actionValueCompare',
-                                  left: { kind: 'blackboard', key: 'count' },
-                                  operator: 'greater',
-                                  right: { kind: 'blackboard', key: 'max_count' },
-                                },
-                                sequence(
-                                  step('modifyActionValue', {
-                                    key: 'max_count',
-                                    operation: 'assign',
-                                    value: { kind: 'blackboard', key: 'count' },
-                                  }),
-                                ),
-                              ),
-                            ),
-                            { alwaysNext: true },
                           ),
                           step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                           branch(
@@ -5765,7 +6363,7 @@ export default {
           step('applyBuff', {
             buffId: 'buff_chr_0017_yvonne_potential_5_effect',
             target: 'buffOwner',
-            source: 'eventSource',
+            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
           }),
         ),
@@ -5924,8 +6522,8 @@ export default {
                   sequence(
                     step('applyBuff', {
                       buffId: 'buff_chr_0017_yvonne_talent_1_valid',
-                      target: 'eventSource',
-                      source: 'eventSource',
+                      target: 'buffSource',
+                      source: 'buffSource',
                       inheritSourceSkillCastInfo: true,
                       blackboardAssignments: { dmg_up: { kind: 'blackboard', key: 'dmg_up' } },
                     }),
@@ -5963,7 +6561,7 @@ export default {
                 step('applyBuff', {
                   buffId: 'buff_chr_0017_yvonne_talent_1_valid_up',
                   target: 'eventTarget',
-                  source: 'eventSource',
+                  source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                   lifetimeOwner: 'currentCastSkill',
@@ -6027,46 +6625,61 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         start: sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0017_yvonne_ultimate_skill_environment',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'has_potential4' },
-              operator: 'equal',
-              right: { kind: 'constant', value: 1 },
-            },
+          withActionBlackboardScope(
+            'native-buff-callback:0',
+            {},
+            true,
             sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_potential4_valid',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: { ex_usp_up: { kind: 'blackboard', key: 'ex_usp_up' } },
-              }),
-            ),
-          ),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'has_potential5' },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_potential_5_new',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                asChildBuff: true,
-                blackboardAssignments: {
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  crit_dmg_up: { kind: 'blackboard', key: 'crit_dmg_up' },
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'has_potential4' },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 1 },
                 },
-              }),
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_potential4_valid',
+                    target: 'buffSource',
+                    source: 'buffSource',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: { ex_usp_up: { kind: 'blackboard', key: 'ex_usp_up' } },
+                  }),
+                ),
+              ),
             ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
+          ),
+          withActionBlackboardScope(
+            'native-buff-callback:1',
+            {},
+            true,
+            sequence(
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'has_potential5' },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0017_yvonne_potential_5_new',
+                    target: 'buffSource',
+                    source: 'buffSource',
+                    inheritSourceSkillCastInfo: true,
+                    asChildBuff: true,
+                    blackboardAssignments: {
+                      atk_up: { kind: 'blackboard', key: 'atk_up' },
+                      crit_dmg_up: { kind: 'blackboard', key: 'crit_dmg_up' },
+                    },
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
           ),
         ),
         enable: sequence(
@@ -6080,7 +6693,7 @@ export default {
           step('applyBuff', {
             buffId: 'buff_chr_0017_yvonne_ultimate_skill_end',
             target: 'buffOwner',
-            source: 'eventSource',
+            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               atk_up: { kind: 'blackboard', key: 'atk_up' },
@@ -6088,6 +6701,40 @@ export default {
               has_potential5: { kind: 'blackboard', key: 'has_potential5' },
             },
           }),
+        ),
+      },
+    },
+    buff_chr_0017_yvonne_ultimate_skill_camera: {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      triggerIntervalSeconds: 0.033,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: -1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+      lifecycleSequences: {
+        trigger: sequence(
+          branch(
+            {
+              kind: 'not',
+              condition: {
+                kind: 'actionValueCompare',
+                left: { kind: 'constant', value: 1 },
+                operator: 'equal',
+                right: { kind: 'constant', value: 1 },
+              },
+            },
+            sequence(
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0017_yvonne_ultimate_skill_camera_child'],
+                reason: 'other',
+              }),
+            ),
+          ),
         ),
       },
     },
@@ -6114,31 +6761,50 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         start: sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'has_potential5' },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+          withActionBlackboardScope(
+            'native-buff-callback:0',
+            {},
+            true,
             sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_potential_5_new',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                asChildBuff: true,
-                blackboardAssignments: {
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  crit_dmg_up: { kind: 'blackboard', key: 'crit_dmg_up' },
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'has_potential5' },
+                  operator: 'greaterOrEqual',
+                  right: { kind: 'constant', value: 1 },
                 },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0017_yvonne_potential_5_new',
+                    target: 'buffSource',
+                    source: 'buffSource',
+                    inheritSourceSkillCastInfo: true,
+                    asChildBuff: true,
+                    blackboardAssignments: {
+                      atk_up: { kind: 'blackboard', key: 'atk_up' },
+                      crit_dmg_up: { kind: 'blackboard', key: 'crit_dmg_up' },
+                    },
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
+          ),
+          withActionBlackboardScope(
+            'native-buff-callback:1',
+            {},
+            true,
+            sequence(
+              step('finishBuffsById', {
+                target: 'buffOwner',
+                buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer_effect'],
+                reason: 'other',
               }),
             ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
           ),
-          step('finishBuffsById', {
-            target: 'buffOwner',
-            buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer_effect'],
-            reason: 'other',
-          }),
         ),
         enable: sequence(
           step('restrictUltimateEnergyRecovery', {
@@ -6148,72 +6814,91 @@ export default {
           }),
         ),
         finish: sequence(
-          step('findOwnerSpawnedAbilityEntities', {
-            saveToContextKey: 'robots',
-            abilityEntityIds: [
-              'abilityentity_chr_0017_yvonne_ultimate_skill',
-              'abilityentity_chr_0017_yvonne_ultimate_skill2',
-              'abilityentity_chr_0017_yvonne_ultimate_skill3',
-            ],
-          }),
-          forEachContextTarget(
-            'robots',
+          withActionBlackboardScope(
+            'native-buff-callback:0',
+            {},
+            true,
             sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0017_yvonne_ultimate_skill_robot_end',
-                target: 'currentAbilityEntity',
-                inheritSourceSkillCastInfo: true,
+              step('findOwnerSpawnedAbilityEntities', {
+                saveToContextKey: 'robots',
+                abilityEntityIds: [
+                  'abilityentity_chr_0017_yvonne_ultimate_skill',
+                  'abilityentity_chr_0017_yvonne_ultimate_skill2',
+                  'abilityentity_chr_0017_yvonne_ultimate_skill3',
+                ],
+              }),
+              forEachContextTarget(
+                'robots',
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0017_yvonne_ultimate_skill_robot_end',
+                    target: 'currentAbilityEntity',
+                    source: 'buffOwner',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
+          ),
+          withActionBlackboardScope(
+            'native-buff-callback:1',
+            {},
+            true,
+            sequence(
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
+                reason: 'other',
+              }),
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0017_yvonne_ultimate_skill_environment'],
+                reason: 'other',
+              }),
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0017_yvonne_ultimate_skill_potential4_valid'],
+                reason: 'other',
+              }),
+              step('finishBuffsById', {
+                target: 'caster',
+                buffIds: ['buff_chr_0017_yvonne_ultimate_skill_full_effect'],
+                reason: 'other',
+              }),
+              step('finishBuffsById', {
+                target: 'buffOwner',
+                buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer'],
+                reason: 'other',
+              }),
+              step('finishBuffsById', {
+                target: 'buffOwner',
+                buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer_effect'],
+                reason: 'other',
               }),
             ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
           ),
-          step('finishBuffsById', {
-            target: 'caster',
-            buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
-            reason: 'other',
-          }),
-          step('finishBuffsById', {
-            target: 'caster',
-            buffIds: ['buff_chr_0017_yvonne_ultimate_skill_environment'],
-            reason: 'other',
-          }),
-          step('finishBuffsById', {
-            target: 'caster',
-            buffIds: ['buff_chr_0017_yvonne_ultimate_skill_potential4_valid'],
-            reason: 'other',
-          }),
-          step('finishBuffsById', {
-            target: 'caster',
-            buffIds: ['buff_chr_0017_yvonne_ultimate_skill_full_effect'],
-            reason: 'other',
-          }),
-          step('finishBuffsById', {
-            target: 'buffOwner',
-            buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer'],
-            reason: 'other',
-          }),
-          step('finishBuffsById', {
-            target: 'buffOwner',
-            buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer_effect'],
-            reason: 'other',
-          }),
-          step('adjustSkillCooldown', {
-            target: 'caster',
-            skill: { kind: 'type', skillType: 'ultimate' },
-            operation: 'set',
-            basis: 'absoluteSeconds',
-            value: { kind: 'constant', value: 10 },
-          }),
+          withActionBlackboardScope(
+            'native-buff-callback:2',
+            {},
+            true,
+            sequence(
+              step('adjustSkillCooldown', {
+                target: 'caster',
+                skill: { kind: 'type', skillType: 'ultimate' },
+                operation: 'set',
+                basis: 'absoluteSeconds',
+                value: { kind: 'constant', value: 10 },
+              }),
+            ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
+          ),
         ),
       },
-    },
-    buff_chr_0017_yvonne_ultimate_skill_environment: {
-      stackingType: 'unlimited',
-      priority: 0,
-      maxStackCount: 1,
-      applyTags: [],
-      extendTags: [],
-      blackboard: {},
-      attributeModifiers: [],
     },
     buff_chr_0017_yvonne_ultimate_skill_layer: {
       stackingType: 'enhanceAndRefresh',
@@ -6315,24 +7000,44 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: { start: sequence(step('finishCurrentAbilityEntity', {})) },
     },
-    buff_chr_0017_yvonne_ultimate_skill_wepl: {
+    buff_chr_0017_yvonne_ultimate_skill_shield: {
       stackingType: 'refresh',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 1,
+      durationSeconds: { blackboardKey: 'effect_duration' },
       applyTags: [],
       extendTags: [],
-      blackboard: {},
+      blackboard: { effect_duration: 0 },
       attributeModifiers: [],
     },
-    buff_chr_0017_yvonne_ultimate_skill_wepr: {
+    buff_chr_0017_yvonne_ultimate_skill_voice: {
       stackingType: 'refresh',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 1,
+      durationSeconds: { blackboardKey: 'duration' },
       applyTags: [],
       extendTags: [],
-      blackboard: {},
+      blackboard: { duration: 9 },
+      attributeModifiers: [],
+    },
+    buff_chr_0017_yvonne_ultimate_skill_voice_short: {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { duration: 3.5 },
+      attributeModifiers: [],
+    },
+    buff_chr_0017_yvonne_ultimate_skill_voice_start: {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { duration: 9 },
       attributeModifiers: [],
     },
   },
@@ -6357,24 +7062,12 @@ export default {
           scheduled(
             19,
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'ultimateEnergy',
-                    amount: { kind: 'blackboard', key: 'usp' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'caster',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('changeResourceByActionValue', {
+                resource: 'ultimateEnergy',
+                amount: { kind: 'blackboard', key: 'usp' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'caster',
+              }),
               step('applyBuff', {
                 buffId: 'buff_chr_0017_yvonne_combo_skill',
                 target: 'currentAbilityEntity',

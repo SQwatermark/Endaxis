@@ -3,13 +3,23 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
+  requireNonEmptyString,
   requireNumber,
   requireRecord,
   requireString,
+  nativeActionName,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseScalarSource, type BlackboardLevelValues } from './scalar.ts';
 import { parseTimeDilationCurveKeys } from './timeDilationActions.ts';
+import {
+  parseBuffApplicationActionSource,
+  parseAdvancedBuffFinishActionSource,
+  type BuffApplicationActionSource,
+} from './buffActions.ts';
+import { parseConditionLeafSource, type NativeConditionSource } from './condition.ts';
+import { parseTargetGroupActionSource } from './targetGroup.ts';
+import { parseFinishOwnerActionSource } from './lifecycleActions.ts';
 
 export interface PlaySoundActionSource {
   readonly kind: 'playSound';
@@ -54,10 +64,30 @@ export interface EffectActionSource {
   readonly effectName: string;
 }
 
+function isPlainTargetReference(reference: TargetReferenceSource, targetSource: string): boolean {
+  return (
+    reference.targetSource === targetSource &&
+    reference.targetGroupKey === '' &&
+    reference.selectorOwner === 'ActionOwner' &&
+    reference.ownerContextKey === '' &&
+    reference.centerType === 'ActionSource' &&
+    reference.centerContextKey === '' &&
+    !reference.centerToGround &&
+    reference.target === 'ActionSource' &&
+    reference.targetContextKey === '' &&
+    !reference.enableAdvancedDirection &&
+    reference.selectorDirection === 'SourceForward' &&
+    reference.finderType === null &&
+    reference.validatorTypes.length === 0 &&
+    reference.postProcessorTypes.length === 0
+  );
+}
+
 export interface CameraPresentationActionSource {
   readonly kind:
     | 'cameraImpulse'
     | 'cameraControlState'
+    | 'inheritedCameraControlState'
     | 'dynamicCameraControlState'
     | 'cameraRotate'
     | 'animatedCamera'
@@ -70,11 +100,565 @@ export interface CameraPresentationActionSource {
     | 'immuneText'
     | 'weaponMountPoint'
     | 'voiceTrigger'
+    | 'voiceInterrupt'
     | 'overrideCameraFollow'
     | 'temporaryUnlock'
     | 'lockCameraAim'
-    | 'actorVisibility';
+    | 'actorVisibility'
+    | 'modelIntervalCheck'
+    | 'operatorUiEvent'
+    | 'comboCounter'
+    | 'specificLayerChangeNoop'
+    | 'forceTargetInFightOmitted'
+    | 'interruptHenshinListenerOmitted'
+    | 'cutsceneCleanupListenerOmitted'
+    | 'strafeMode'
+    | 'dashLimit'
+    | 'bombClear'
+    | 'skillTypeMutationOmitted'
+    | 'passiveUiValue'
+    | 'animatorAimOffset'
+    | 'squadTeleportOmitted'
+    | 'dashWindowOmitted';
   readonly readBlackboardKeys?: readonly string[];
+}
+
+/** 只驱动 Animator 的瞄准偏移层；完整校验字段后在无表现模拟中省略。 */
+export function parseAnimatorAimOffsetActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'aimOffsetType',
+      'aimXParam',
+      'aimYParam',
+      'layerName',
+      'maxHorizontalAngle',
+      'maxVerticalAngle',
+      'smoothSpeed',
+      'inheritAimParameters',
+      'resetOnEnd',
+      'blendIn',
+      'blendOut',
+      'duration',
+    ]),
+    path,
+  );
+  requireNonEmptyString(action.aimOffsetType, `${path}.aimOffsetType`);
+  requireInteger(action.aimXParam, `${path}.aimXParam`);
+  requireInteger(action.aimYParam, `${path}.aimYParam`);
+  requireNonEmptyString(action.layerName, `${path}.layerName`);
+  for (const key of [
+    'maxHorizontalAngle',
+    'maxVerticalAngle',
+    'smoothSpeed',
+    'blendIn',
+    'blendOut',
+    'duration',
+  ] as const) {
+    requireNumber(action[key], `${path}.${key}`);
+  }
+  requireBoolean(action.inheritAimParameters, `${path}.inheritAimParameters`);
+  requireBoolean(action.resetOnEnd, `${path}.resetOnEnd`);
+  return { kind: 'animatorAimOffset' };
+}
+
+/** 队伍传送只修正空间位置；零距离模型中不改变伤害、资源、冷却或 Buff。 */
+export function parseTryToTeleportSquadActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  requireExactFields(
+    requireRecord(value, path),
+    new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+    path,
+  );
+  return { kind: 'squadTeleportOmitted' };
+}
+
+/** 只开放玩家位移输入窗口；固定木桩伤害模型不模拟玩家移动。 */
+export function parseMarkCanDashActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  requireExactFields(
+    requireRecord(value, path),
+    new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+    path,
+  );
+  return { kind: 'dashWindowOmitted' };
+}
+
+/**
+ * 1.4.4 ChangeSpecificLayerAction 的两个空 LayerMask 都会被 _GetLayer 解析为 -1，
+ * ExecuteInternal 随即成功返回，不写入目标 GameObject.layer。
+ */
+export function parseNoopSpecificLayerChangeActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'targetSettings',
+      'originLayerMask',
+      'targetLayerMask',
+    ]),
+    path,
+  );
+  parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  const originLayerMask = requireRecord(action.originLayerMask, `${path}.originLayerMask`);
+  const targetLayerMask = requireRecord(action.targetLayerMask, `${path}.targetLayerMask`);
+  requireExactFields(originLayerMask, new Set(), `${path}.originLayerMask`);
+  requireExactFields(targetLayerMask, new Set(), `${path}.targetLayerMask`);
+  return { kind: 'specificLayerChangeNoop' };
+}
+
+/**
+ * ForceTargetInFightAction 只改变敌方 AI/交战状态。Endaxis 的场景在技能执行前已经绑定战斗，
+ * 且唯一木桩没有主动 AI；这里只接纳庄方宜已审计的施法者 Source -> Buff Owner 目标形状。
+ */
+export function parseForceTargetInFightActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'attacker',
+      'target',
+    ]),
+    path,
+  );
+  const attacker = parseTargetReferenceSource(action.attacker, `${path}.attacker`);
+  const target = parseTargetReferenceSource(action.target, `${path}.target`);
+  if (!isPlainTargetReference(attacker, 'Source') || !isPlainTargetReference(target, 'Owner')) {
+    throw new Error(`${path}: unsupported ForceTargetInFight attacker/target projection`);
+  }
+  return { kind: 'forceTargetInFightOmitted' };
+}
+
+/** 当前模拟没有产生 InterruptHenshin 预定义标签；严格保留其唯一“结束自身形态 Buff”形状。 */
+export function parseInterruptHenshinTagListenerActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'listenerType',
+      'predefinedQuery',
+      'customQuery',
+      'executeOnMatch',
+      'executeAction',
+    ]),
+    path,
+  );
+  if (
+    action.listenerType === 'CustomQuery' &&
+    action.predefinedQuery === 'None' &&
+    requireBoolean(action.executeOnMatch, `${path}.executeOnMatch`)
+  ) {
+    return parseCutsceneCleanupTagListener(action, path, inheritedBlackboard);
+  }
+  if (
+    requireString(action.listenerType, `${path}.listenerType`) !== 'PredefinedQuery' ||
+    requireString(action.predefinedQuery, `${path}.predefinedQuery`) !== 'InterruptHenshin' ||
+    !requireBoolean(action.executeOnMatch, `${path}.executeOnMatch`)
+  ) {
+    throw new Error(`${path}: unsupported TagQueryListener projection`);
+  }
+  const customQuery = requireRecord(action.customQuery, `${path}.customQuery`);
+  requireExactFields(customQuery, new Set(['queryType', 'tags']), `${path}.customQuery`);
+  if (
+    requireString(customQuery.queryType, `${path}.customQuery.queryType`) !== 'HasAny' ||
+    requireArray(customQuery.tags, `${path}.customQuery.tags`).length !== 0
+  ) {
+    throw new Error(`${path}: InterruptHenshin listener must have an empty custom query`);
+  }
+  const sequence = requireRecord(action.executeAction, `${path}.executeAction`);
+  requireExactFields(
+    sequence,
+    new Set(['actionData', 'onlyExecuteWhenSourceIsMainChar', 'onlyExecuteWhenSourceIsGuard']),
+    `${path}.executeAction`,
+  );
+  if (
+    requireBoolean(
+      sequence.onlyExecuteWhenSourceIsMainChar,
+      `${path}.executeAction.onlyExecuteWhenSourceIsMainChar`,
+    ) ||
+    requireBoolean(
+      sequence.onlyExecuteWhenSourceIsGuard,
+      `${path}.executeAction.onlyExecuteWhenSourceIsGuard`,
+    )
+  ) {
+    throw new Error(`${path}: guarded InterruptHenshin listener is unsupported`);
+  }
+  const children = requireArray(sequence.actionData, `${path}.executeAction.actionData`);
+  if (children.length !== 1) throw new Error(`${path}: expected one InterruptHenshin action`);
+  const finish = parseAdvancedBuffFinishActionSource(
+    children[0],
+    `${path}.executeAction.actionData[0]`,
+    inheritedBlackboard,
+  );
+  if (
+    finish.kind !== 'buffFinishByQuery' ||
+    finish.settings.checkType !== 'Id' ||
+    finish.settings.buffIds.length !== 1 ||
+    finish.settings.buffIds[0] === '' ||
+    finish.settings.tagQuery.tagIds.length !== 0 ||
+    !finish.finishAll ||
+    finish.finishLayerCount.blackboardKey !== null ||
+    finish.finishLayerCount.value !== 1 ||
+    finish.limitSource ||
+    finish.isFinishedEarly ||
+    finish.isAbsorbed ||
+    !isPlainTargetReference(finish.owner, 'Owner') ||
+    !isPlainTargetReference(finish.buffSource, 'Source') ||
+    !isPlainTargetReference(finish.finishSource, 'Source')
+  ) {
+    throw new Error(`${path}: unsupported InterruptHenshin finish action`);
+  }
+  return { kind: 'interruptHenshinListenerOmitted' };
+}
+
+/**
+ * Arcane 的常驻被动在过场/过场切换标签出现时清理连携封印与分身。固定木桩模拟不产生
+ * GlobalState/Performance/Cutscene 标签；完整验证清理目标后省略该不可达外部表现生命周期。
+ */
+function parseCutsceneCleanupTagListener(
+  action: Record<string, unknown>,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): CameraPresentationActionSource {
+  const query = requireRecord(action.customQuery, `${path}.customQuery`);
+  requireExactFields(query, new Set(['queryType', 'tags']), `${path}.customQuery`);
+  const tags = requireArray(query.tags, `${path}.customQuery.tags`).map((item, index) => {
+    const tag = requireRecord(item, `${path}.customQuery.tags[${index}]`);
+    requireExactFields(tag, new Set(['tagId']), `${path}.customQuery.tags[${index}]`);
+    return requireInteger(tag.tagId, `${path}.customQuery.tags[${index}].tagId`);
+  });
+  if (
+    query.queryType !== 'HasAny' ||
+    tags.length !== 2 ||
+    !tags.includes(1105446346) ||
+    !tags.includes(507365453)
+  )
+    throw new Error(`${path}: unsupported custom TagQueryListener query`);
+  const sequence = requireRecord(action.executeAction, `${path}.executeAction`);
+  requireExactFields(
+    sequence,
+    new Set(['actionData', 'onlyExecuteWhenSourceIsMainChar', 'onlyExecuteWhenSourceIsGuard']),
+    `${path}.executeAction`,
+  );
+  if (
+    requireBoolean(
+      sequence.onlyExecuteWhenSourceIsMainChar,
+      `${path}.executeAction.onlyExecuteWhenSourceIsMainChar`,
+    ) ||
+    requireBoolean(
+      sequence.onlyExecuteWhenSourceIsGuard,
+      `${path}.executeAction.onlyExecuteWhenSourceIsGuard`,
+    )
+  )
+    throw new Error(`${path}: guarded cutscene cleanup listener is unsupported`);
+  const children = requireArray(sequence.actionData, `${path}.executeAction.actionData`);
+  if (children.length !== 3) throw new Error(`${path}: expected three cutscene cleanup actions`);
+  const find = parseTargetGroupActionSource(
+    children[0],
+    `${path}.executeAction.actionData[0]`,
+    inheritedBlackboard,
+  );
+  if (
+    find?.producerType !== 'FindTargetAction' ||
+    find.targetGroupKey !== 'tar' ||
+    find.finderType !== 'InFightEnemyFinder' ||
+    find.validatorTypes.length !== 0 ||
+    find.postProcessorTypes.length !== 0
+  )
+    throw new Error(`${path}: unsupported cutscene cleanup target search`);
+  const finish = parseAdvancedBuffFinishActionSource(
+    children[1],
+    `${path}.executeAction.actionData[1]`,
+    inheritedBlackboard,
+  );
+  if (
+    finish.kind !== 'buffFinishByQuery' ||
+    finish.settings.checkType !== 'Id' ||
+    finish.settings.buffIds.length === 0 ||
+    finish.settings.buffIds.some(id => !id.startsWith('buff_chr_0032_lizhiyan_combo_skill_seal')) ||
+    !finish.finishAll ||
+    finish.owner.targetSource !== 'Context' ||
+    finish.owner.targetGroupKey !== 'tar' ||
+    finish.limitSource ||
+    finish.isFinishedEarly ||
+    finish.isAbsorbed
+  )
+    throw new Error(`${path}: unsupported cutscene Buff cleanup`);
+  const owner = parseFinishOwnerActionSource(children[2], `${path}.executeAction.actionData[2]`);
+  if (
+    owner.skipDieDisplay ||
+    owner.owner.targetSource !== 'InstantSearch' ||
+    owner.owner.finderType !== 'OwnerSpawnedEntityFinder' ||
+    owner.owner.finderSpawnedObjectType !== 'AbilityEntity' ||
+    owner.owner.validatorTagQueries.length !== 1 ||
+    owner.owner.validatorTagQueries[0]![0] !== 'HasAny' ||
+    owner.owner.validatorTagQueries[0]![1].length !== 1 ||
+    owner.owner.validatorTagQueries[0]![1][0] !== -1480463572
+  )
+    throw new Error(`${path}: unsupported cutscene spawned-entity cleanup`);
+  return { kind: 'cutsceneCleanupListenerOmitted' };
+}
+
+/** 角色横移/步态/镜头锁定只改变移动表现；字段仍需完整读取。 */
+export function parseSetStrafeModeActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'strafeTarget',
+      'limitGait',
+      'minGait',
+      'maxGait',
+      'lockToCamera',
+    ]),
+    path,
+  );
+  parseTargetReferenceSource(action.strafeTarget, `${path}.strafeTarget`);
+  requireBoolean(action.limitGait, `${path}.limitGait`);
+  requireString(action.minGait, `${path}.minGait`);
+  requireString(action.maxGait, `${path}.maxGait`);
+  requireBoolean(action.lockToCamera, `${path}.lockToCamera`);
+  return { kind: 'strafeMode' };
+}
+
+/** 多段闪避输入上限不参与时间轴技能伤害结算；当前只接纳形态 Buff 的 Owner/-1 载荷。 */
+export function parseOverrideMultiDashLimitActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'targetSetting',
+      'dashCount',
+    ]),
+    path,
+  );
+  const target = parseTargetReferenceSource(action.targetSetting, `${path}.targetSetting`);
+  const dashCount = requireRecord(action.dashCount, `${path}.dashCount`);
+  requireExactFields(
+    dashCount,
+    new Set(['useBlackboardKey', 'value', 'blackboardKey']),
+    `${path}.dashCount`,
+  );
+  if (
+    !isPlainTargetReference(target, 'Owner') ||
+    requireBoolean(dashCount.useBlackboardKey, `${path}.dashCount.useBlackboardKey`) ||
+    requireNumber(dashCount.value, `${path}.dashCount.value`) !== -1 ||
+    requireString(dashCount.blackboardKey, `${path}.dashCount.blackboardKey`) !== ''
+  ) {
+    throw new Error(`${path}: unsupported multi-dash limit projection`);
+  }
+  return { kind: 'dashLimit' };
+}
+
+/** BombClearAction 清理角色手持炸弹状态；Next 时间轴没有炸弹交互对象。 */
+export function parseBombClearActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  requireExactFields(
+    requireRecord(value, path),
+    new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+    path,
+  );
+  return { kind: 'bombClear' };
+}
+
+/**
+ * ChangeSkillType 只修改既有技能实例的分类。Next 的内部 CastSkill 按 ID 直接解析技能定义，
+ * 不依赖原生 AbilitySystem 的技能分类注册；当前仅省略庄方宜退场技能的 AttachSkill 改写。
+ */
+export function parseZhuangFangyiEndSkillTypeMutationSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'target',
+      'skillId',
+      'skillType',
+    ]),
+    path,
+  );
+  const target = parseTargetReferenceSource(action.target, `${path}.target`);
+  const skillId = requireRecord(action.skillId, `${path}.skillId`);
+  requireExactFields(
+    skillId,
+    new Set(['useBlackboardKey', 'value', 'blackboardKey']),
+    `${path}.skillId`,
+  );
+  if (
+    !isPlainTargetReference(target, 'Owner') ||
+    requireBoolean(skillId.useBlackboardKey, `${path}.skillId.useBlackboardKey`) ||
+    requireString(skillId.value, `${path}.skillId.value`) !==
+      'chr_0030_zhuangfy_ultimate_skill_end' ||
+    requireString(skillId.blackboardKey, `${path}.skillId.blackboardKey`) !== '' ||
+    requireString(action.skillType, `${path}.skillType`) !== 'AttachSkill'
+  ) {
+    throw new Error(`${path}: unsupported ChangeSkillType projection`);
+  }
+  return { kind: 'skillTypeMutationOmitted' };
+}
+
+/** NotifyCharPassiveUIAction 只把数值送入角色被动 UI；保留黑板读取用于数据流审计。 */
+export function parseNotifyCharacterPassiveUiActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'target',
+      'value',
+    ]),
+    path,
+  );
+  parseTargetReferenceSource(action.target, `${path}.target`);
+  const scalar = parseScalarSource(action.value, `${path}.value`, inheritedBlackboard);
+  return {
+    kind: 'passiveUiValue',
+    ...(scalar.blackboardKey === null ? {} : { readBlackboardKeys: [scalar.blackboardKey] }),
+  };
+}
+
+/**
+ * 1.4.4 ComboAction.ExecuteInternal（RVA 0x06CE89B8）只按 count 添加
+ * COMMON_COMBO_GLOBAL_BUFF_ID，并把 duration 写入该 GlobalBuff。正式目录中的
+ * global_buff_combo_trigger 只投射无图标、无数值修正的 VFX child Buff；在 Endaxis
+ * 木桩伤害模型中属于连击计数 UI/表现，但仍严格保留其黑板读取依赖。
+ */
+export function parseComboCounterActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, new Set([...ACTION_META_FIELDS, 'source', 'duration', 'count']), path);
+  parseTargetReferenceSource(action.source, `${path}.source`);
+  const duration = parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard);
+  const count = parseScalarSource(action.count, `${path}.count`, inheritedBlackboard);
+  return {
+    kind: 'comboCounter',
+    readBlackboardKeys: [duration.blackboardKey, count.blackboardKey].filter(
+      (key): key is string => key !== null,
+    ),
+  };
+}
+
+/** 梨诺专属 UI 动画事件；两个标量只控制界面动画速度和缩放。 */
+export function parseLiinoUiEventActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([...ACTION_META_FIELDS, 'liinoEvent', 'speed', 'scale']),
+    path,
+  );
+  requireNonEmptyString(action.liinoEvent, `${path}.liinoEvent`);
+  const speed = parseScalarSource(action.speed, `${path}.speed`, inheritedBlackboard);
+  const scale = parseScalarSource(action.scale, `${path}.scale`, inheritedBlackboard);
+  return {
+    kind: 'operatorUiEvent',
+    readBlackboardKeys: [speed.blackboardKey, scale.blackboardKey].filter(
+      (key): key is string => key !== null,
+    ),
+  };
+}
+
+/**
+ * 1.4.4 InheritCCSAction.ExecuteInternal (RVA 0x06D00E0C) 只创建并保存
+ * CameraControlState，overrideBlendOut 只写该相机状态；OnEnd (0x06D00FC0)
+ * 释放它。无渲染模拟严格校验载荷后省略，不据名称推断战斗行为。
+ */
+export function parseInheritedCameraControlStateActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([...ACTION_META_FIELDS, 'ccsOwner', 'ccsKey', 'overrideBlendOut', 'blendOutTime']),
+    path,
+  );
+  const owner = parseTargetReferenceSource(action.ccsOwner, `${path}.ccsOwner`);
+  if (owner.targetSource !== 'Owner' || owner.targetGroupKey !== '') {
+    throw new Error(`${path}.ccsOwner: expected plain Owner`);
+  }
+  requireNonEmptyString(action.ccsKey, `${path}.ccsKey`);
+  requireBoolean(action.overrideBlendOut, `${path}.overrideBlendOut`);
+  const blendOutTime = requireNumber(action.blendOutTime, `${path}.blendOutTime`);
+  if (blendOutTime < 0) throw new Error(`${path}.blendOutTime: expected non-negative number`);
+  return { kind: 'inheritedCameraControlState' };
 }
 
 export function parseIgniteBuffTextActionSource(
@@ -271,6 +855,22 @@ export function parseUltimateShowActionSource(
   return { kind: 'ultimateShow' };
 }
 
+/**
+ * 1.4.4 IgnoreModelIntervalCheck.ExecuteInternal (RVA 0x06CFFC80) calls
+ * Beyond.Gameplay.View.ModelManager.SetIgnoreIntervalCheck(true), while OnEnd
+ * (0x06CFFD20) restores it with false. The action has no payload beyond the
+ * common metadata and only changes the model loader's per-frame work budget;
+ * a headless combat projection may therefore omit it after strict validation.
+ */
+export function parseIgnoreModelIntervalCheckActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, new Set(ACTION_META_FIELDS), path);
+  return { kind: 'modelIntervalCheck' };
+}
+
 export function parseAnimatedCameraActionSource(
   value: unknown,
   path: string,
@@ -408,6 +1008,21 @@ export function parseVoiceTriggerActionSource(
   return { kind: 'voiceTrigger' };
 }
 
+export function parseVoiceInterruptActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([...ACTION_META_FIELDS, '_interruptImmediately', '_canInterruptTimeMs']),
+    path,
+  );
+  requireBoolean(action._interruptImmediately, `${path}._interruptImmediately`);
+  requireInteger(action._canInterruptTimeMs, `${path}._canInterruptTimeMs`);
+  return { kind: 'voiceInterrupt' };
+}
+
 export function parseCameraRotateActionSource(
   value: unknown,
   path: string,
@@ -449,7 +1064,14 @@ export interface PlayAnimationActionSource {
   readonly kind: 'playAnimation';
   readonly animationName: string;
   readonly durationSeconds: number;
+  readonly blendOutSeconds: number;
   readonly playbackSpeed: number;
+  readonly executeOnNormalEndOnly: boolean;
+  /** 只保留当前已严格解析的“条件守卫后创建 Buff”结束子图；是否可省略由投影层判定。 */
+  readonly onEnd?: {
+    readonly conditions: readonly NativeConditionSource[];
+    readonly buffApplications: readonly BuffApplicationActionSource[];
+  };
 }
 
 const ACTION_META_FIELDS = [
@@ -674,6 +1296,7 @@ export function parseLockCameraAimActionSource(
 export function parsePlayAnimationActionSource(
   value: unknown,
   path: string,
+  inheritedBlackboard: BlackboardLevelValues = {},
 ): PlayAnimationActionSource {
   const action = requireRecord(value, path);
   requireExactFields(
@@ -701,8 +1324,8 @@ export function parsePlayAnimationActionSource(
     new Set(['actionData', 'onlyExecuteWhenSourceIsMainChar', 'onlyExecuteWhenSourceIsGuard']),
     `${path}.onEndAction`,
   );
+  const onEndActions = requireArray(onEnd.actionData, `${path}.onEndAction.actionData`);
   if (
-    requireArray(onEnd.actionData, `${path}.onEndAction.actionData`).length > 0 ||
     requireBoolean(
       onEnd.onlyExecuteWhenSourceIsMainChar,
       `${path}.onEndAction.onlyExecuteWhenSourceIsMainChar`,
@@ -714,11 +1337,43 @@ export function parsePlayAnimationActionSource(
   ) {
     throw new Error(`${path}.onEndAction: animation end combat actions are unsupported`);
   }
+  const conditions: NativeConditionSource[] = [];
+  const buffApplications: BuffApplicationActionSource[] = [];
+  const enabledOnEndActions = onEndActions.filter((raw, index) =>
+    requireBoolean(
+      requireRecord(raw, `${path}.onEndAction.actionData[${index}]`).isEnable,
+      `${path}.onEndAction.actionData[${index}].isEnable`,
+    ),
+  );
+  enabledOnEndActions.forEach((raw, index) => {
+    const actionPath = `${path}.onEndAction.actionData[${index}]`;
+    const child = requireRecord(raw, actionPath);
+    const name = nativeActionName(requireNonEmptyString(child.$type, `${actionPath}.$type`));
+    if (name === 'CreateBuffAction' || name === 'CreateBuffAttachingSkill') {
+      buffApplications.push(
+        parseBuffApplicationActionSource(child, actionPath, inheritedBlackboard),
+      );
+      return;
+    }
+    if (name.startsWith('Check')) {
+      conditions.push(parseConditionLeafSource(child, actionPath, inheritedBlackboard));
+      return;
+    }
+    throw new Error(
+      `${path}.onEndAction: animation end combat actions are unsupported (${actionPath}: ${JSON.stringify(name)})`,
+    );
+  });
   return {
     kind: 'playAnimation',
     animationName: requireString(action.animName, `${path}.animName`),
     durationSeconds: requireNumber(action.duration, `${path}.duration`),
+    blendOutSeconds: requireNumber(action.blendOut, `${path}.blendOut`),
     playbackSpeed: requireNumber(action.playbackSpeed, `${path}.playbackSpeed`),
+    executeOnNormalEndOnly: requireBoolean(
+      action.executeOnNormalEndOnly,
+      `${path}.executeOnNormalEndOnly`,
+    ),
+    ...(enabledOnEndActions.length === 0 ? {} : { onEnd: { conditions, buffApplications } }),
   };
 }
 
@@ -815,7 +1470,12 @@ export function parsePlayAnimationWithStepActionSource(
     kind: 'playAnimation',
     animationName: requireString(action.animName, `${path}.animName`),
     durationSeconds: requireNumber(action.duration, `${path}.duration`),
+    blendOutSeconds: requireNumber(action.blendOut, `${path}.blendOut`),
     playbackSpeed: requireNumber(action.playbackSpeed, `${path}.playbackSpeed`),
+    executeOnNormalEndOnly: requireBoolean(
+      action.executeOnNormalEndOnly,
+      `${path}.executeOnNormalEndOnly`,
+    ),
   };
 }
 

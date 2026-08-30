@@ -62,6 +62,7 @@ describe('Perlica standard damage slice', () => {
     });
     const unresolvedOperations: CombatOperationExecutor = {
       execute: step => {
+        if (step.kind === 'findCharacterTeamTargets') return true;
         throw new Error(`unexpected unresolved operation '${step.kind}'`);
       },
       evaluate: () => false,

@@ -59,20 +59,24 @@ export function compileEventTargetSimpleDamageOperationSource(
   } else {
     requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
   }
+  // combat-spec 的 DamageAction 适配边界已闭环：effectSource 只决定表现归属，
+  // 不参与 attacker、倍率或目标结算。投射物回调的 Owner 因而无需冒充施术干员；
+  // Context 分支只读取前序保存的表现锚点，同样不执行残留 selectorData。
   if (
-    action.effectSource.targetSource !== 'Owner' &&
-    action.effectSource.targetSource !== 'Source'
+    action.effectSource.targetSource === 'Owner' ||
+    action.effectSource.targetSource === 'Source'
+  ) {
+    requireFixedTarget(
+      action.effectSource,
+      action.effectSource.targetSource,
+      `${sourcePath}.effectSource`,
+    );
+  } else if (
+    action.effectSource.targetSource !== 'Context' ||
+    action.effectSource.targetGroupKey === ''
   ) {
     throw new Error(`${sourcePath}.effectSource: unsupported simple event damage source`);
   }
-  // combat-spec 的 DamageAction 适配边界已闭环：effectSource 只决定表现归属，
-  // 不参与 attacker、倍率或目标结算。投射物回调的 Owner 因而无需冒充施术干员；
-  // 仍完整校验它是无选择器副作用的固定 Owner/Source 引用。
-  requireFixedTarget(
-    action.effectSource,
-    action.effectSource.targetSource,
-    `${sourcePath}.effectSource`,
-  );
   if (action.units.length < 1 || action.units.length > 2) {
     throw new Error(
       `${sourcePath}: simple event damage requires an Hp unit and optional Poise unit`,
@@ -84,24 +88,38 @@ export function compileEventTargetSimpleDamageOperationSource(
     unit.damageType,
     `${sourcePath}.units[0].damageType`,
   );
+  // 1.4.4 DamageAction._ProcessDamage (RVA 0x03540901..0x035409fb) 只在目标能力系统
+  // 等于 BattleManager 当前 Guard 列表成员时乘 reduceDamageForGuardRatio。此入口的目标已由
+  // 上方证明为唯一敌方木桩，不可能是玩家 Guard；保留字段校验，但不把玩家受击分支带入模拟。
   if (
     unit.attributeType !== 'Hp' ||
-    unit.serializedPoiseCalculationPresent ||
     unit.poiseCalculation !== null ||
     unit.onlyEnableForMainOperator ||
     unit.ignoreDamageImmuneLevel !== 'None' ||
     unit.ignorePoiseImmune ||
-    unit.reduceDamageForGuard ||
     unit.gainCost
   ) {
     throw new Error(`${sourcePath}: unsupported simple event DamageUnit behavior`);
   }
+  // combat-spec / 1.4.4 DamageAction._ProcessDamage: damageAttributeType (+0x14)
+  // branches at RVA 0x0353FFE5. Only the Poise branch at 0x035415A3 reads the
+  // +0x68 poiseCalculation field. A serialized object on an Hp unit is inactive
+  // payload and must not synthesize an additional poise operation.
   const breakingCalculation =
     !unit.simpleCalculation &&
     unit.serializedAttackCalculationPresent &&
     unit.attackCalculation?.kind === 'breakingAttack'
       ? unit.attackCalculation
       : null;
+  const attributeCalculation =
+    !unit.simpleCalculation &&
+    unit.serializedAttackCalculationPresent &&
+    unit.attackCalculation?.kind === 'attribute'
+      ? unit.attackCalculation
+      : null;
+  if (attributeCalculation !== null && attributeCalculation.valueSource !== 'AttackerOrHealer') {
+    throw new Error(`${sourcePath}: unsupported event attack calculation source`);
+  }
   if (
     breakingCalculation !== null &&
     (unit.takeAttackSnapshot ||
@@ -116,7 +134,9 @@ export function compileEventTargetSimpleDamageOperationSource(
         (unit.attackCalculation?.kind === 'attackScale' ||
           unit.attackCalculation?.kind === 'breakingAttack')
       ? unit.attackCalculation.attackScale
-      : null;
+      : attributeCalculation !== null
+        ? attributeCalculation.multiplier
+        : null;
   if (attackScale === null) {
     throw new Error(`${sourcePath}: unsupported event attack calculation`);
   }
@@ -125,16 +145,26 @@ export function compileEventTargetSimpleDamageOperationSource(
     if (processor.kind === 'damageScale') return [];
     if (
       processor.kind !== 'instantAttributeModifier' ||
-      processor.targetSide !== 'Attacker' ||
       processor.modifyAttributeType !== 'Specific'
     ) {
       throw new Error(`${sourcePath}.units[0].processors[${index}]: unsupported processor`);
     }
+    const targetSide =
+      processor.targetSide === 'Attacker'
+        ? ('attacker' as const)
+        : processor.targetSide === 'Defender'
+          ? ('defender' as const)
+          : null;
+    if (targetSide === null) throw new Error(`${processorPath}: unsupported instant target side`);
     // 保持已验证的能力边界；属性身份和公式槽解释复用 Buff 的公共编译入口。
-    if (
-      !['Atk', 'CriticalRate', 'CriticalDamageIncrease'].includes(processor.attributeType) ||
-      !['BaseAddition', 'BaseMultiplier', 'FinalMultiplier'].includes(processor.formulaItem)
-    ) {
+    const supportedMapping =
+      (targetSide === 'attacker' &&
+        ['Atk', 'CriticalRate', 'CriticalDamageIncrease'].includes(processor.attributeType) &&
+        ['BaseAddition', 'BaseMultiplier', 'FinalMultiplier'].includes(processor.formulaItem)) ||
+      (targetSide === 'defender' &&
+        processor.attributeType === 'CrystVulnerableDmgIncrease' &&
+        processor.formulaItem === 'BaseFinalMultiplier');
+    if (!supportedMapping) {
       throw new Error(`${processorPath}: unsupported instant attribute mapping`);
     }
     const compiled = compileResolvedAttributeModifierSource({
@@ -146,7 +176,7 @@ export function compileEventTargetSimpleDamageOperationSource(
     });
     return [
       {
-        targetSide: 'attacker' as const,
+        targetSide,
         attribute: projectCombatRuntimeAttributeKey(processor.attributeType),
         slot: compiled.slot,
         value: scalarOperand(processor.parameter),
@@ -203,7 +233,9 @@ export function compileEventTargetSimpleDamageOperationSource(
   const burning = Math.floor(mask / 67108864) % 2 === 1;
   const shatter = Math.floor(mask / 134217728) % 2 === 1;
   const dot = Math.floor(mask / 268435456) % 2 === 1;
+  const remainArea = Math.floor(mask / 536870912) % 2 === 1;
   const fracture = Math.floor(mask / 1073741824) % 2 === 1;
+  const talentDamage = Math.floor(mask / 2147483648) % 2 === 1;
   const physicalInfliction = crush || airborne || knockDown || fracture;
   if (
     !Number.isSafeInteger(mask) ||
@@ -224,11 +256,13 @@ export function compileEventTargetSimpleDamageOperationSource(
       (burning ? 67108864 : 0) +
         (shatter ? 134217728 : 0) +
         (dot ? 268435456 : 0) +
-        (fracture ? 1073741824 : 0)
+        (remainArea ? 536870912 : 0) +
+        (fracture ? 1073741824 : 0) +
+        (talentDamage ? 2147483648 : 0)
   ) {
     throw new Error(`${sourcePath}: unsupported event damage decorate mask ${mask}`);
   }
-  const stagger =
+  const staggerCalculation =
     poiseUnit === undefined ? undefined : compileSimplePoiseOperand(poiseUnit, sourcePath, 1);
   return {
     kind: 'dealDamage',
@@ -242,6 +276,15 @@ export function compileEventTargetSimpleDamageOperationSource(
             calculation: 'breakingAttack' as const,
             calculationMultiplier: breakingCalculation.multiplier.value,
           }),
+      ...(attributeCalculation === null
+        ? {}
+        : {
+            calculation: 'attribute' as const,
+            calculationAttribute: projectCombatRuntimeAttributeKey(
+              attributeCalculation.attributeType,
+            ),
+            calculationAddition: scalarOperand(attributeCalculation.addition),
+          }),
       tags: [
         ...(normalAttack ? (['normalAttack'] as const) : []),
         ...(normalAttackLastCombo ? (['normalAttackLastCombo'] as const) : []),
@@ -254,20 +297,25 @@ export function compileEventTargetSimpleDamageOperationSource(
         ...(burning ? (['fireAbnormal'] as const) : []),
         ...(shatter ? (['cryoAbnormal'] as const) : []),
       ],
-      ...(canBreakWeakness || dot || physicalInfliction || shatter
+      ...(canBreakWeakness || dot || remainArea || physicalInfliction || shatter || talentDamage
         ? {
             features: [
               ...(canBreakWeakness ? (['canBreakWeakness'] as const) : []),
               ...(dot ? (['dot'] as const) : []),
+              ...(remainArea ? (['remainArea'] as const) : []),
               ...(knockDown ? (['knockDown'] as const) : []),
               ...(physicalInfliction ? (['physicalInfliction'] as const) : []),
               ...(shatter ? (['shatter'] as const) : []),
+              ...(talentDamage ? (['talentDamage'] as const) : []),
             ],
           }
         : {}),
       ...(instantAttributeModifiers.length === 0 ? {} : { instantAttributeModifiers }),
       ...(instantDamageScaleModifiers.length === 0 ? {} : { instantDamageScaleModifiers }),
-      ...(stagger === undefined ? {} : { stagger }),
+      ...(staggerCalculation === undefined ? {} : { stagger: staggerCalculation.value }),
+      ...(staggerCalculation?.multiplier === undefined
+        ? {}
+        : { staggerMultiplier: staggerCalculation.multiplier }),
       ...(poiseUnit?.onlyEnableForMainOperator ? { staggerOnlyWhenCasterControlled: true } : {}),
     },
   };
@@ -310,9 +358,26 @@ export function compileEventTargetSimplePoiseOperationSource(
     action.effectSource.targetSource,
     `${sourcePath}.effectSource`,
   );
+  const unit = action.units[0]!;
+  const features =
+    unit.damageDecorateMask === 0
+      ? []
+      : unit.damageDecorateMask === 4096
+        ? (['canBreakWeakness'] as const)
+        : null;
+  if (features === null) {
+    throw new Error(
+      `${sourcePath}: unsupported event Poise decorate mask ${unit.damageDecorateMask}`,
+    );
+  }
+  const calculation = compileSimplePoiseOperand(unit, sourcePath, 0, unit.damageDecorateMask);
   return {
     kind: 'dealStagger',
-    parameters: { value: compileSimplePoiseOperand(action.units[0]!, sourcePath, 0) },
+    parameters: {
+      value: calculation.value,
+      ...(calculation.multiplier === undefined ? {} : { valueMultiplier: calculation.multiplier }),
+      ...(features.length === 0 ? {} : { features }),
+    },
   };
 }
 
@@ -338,19 +403,20 @@ function compileSimplePoiseOperand(
   unit: DamageActionSource['units'][number],
   sourcePath: string,
   unitIndex: number,
-): CompiledActionValueOperandSource {
+  acceptedDecorateMask = 0,
+): Readonly<{
+  value: CompiledActionValueOperandSource;
+  multiplier?: CompiledActionValueOperandSource;
+}> {
   const calculation = unit.poiseCalculation;
   if (
     unit.attributeType !== 'Poise' ||
-    !unit.simpleCalculation ||
     unit.takeAttackSnapshot ||
-    unit.serializedAttackCalculationPresent ||
     unit.attackCalculation !== null ||
     !unit.serializedPoiseCalculationPresent ||
     calculation?.kind !== 'definite' ||
-    calculation.applyScale ||
     unit.processors.length > 0 ||
-    unit.damageDecorateMask !== 0 ||
+    unit.damageDecorateMask !== acceptedDecorateMask ||
     unit.ignoreDamageImmuneLevel !== 'None' ||
     unit.ignorePoiseImmune ||
     unit.reduceDamageForGuard ||
@@ -362,9 +428,12 @@ function compileSimplePoiseOperand(
   // 仍会被反序列化，但不会进入 PoisePack 或失衡公式，因此其字面值/黑板键都是序列化残留。
   // PoisePack 原生规格不保存元素字段，修正器只读取 decorate mask；仍验证来源元素是已知枚举。
   projectNativeDamageElement(unit.damageType, `${sourcePath}.units[${unitIndex}].damageType`);
-  // combat-spec definite-value-calculation：applyScale=false 不求值 valueScale，
-  // 因而其残留数值或黑板引用不能阻断未缩放的失衡值；启用缩放仍保持上面的显式拒绝。
-  return scalarOperand(calculation.value);
+  // combat-spec definite-value-calculation：applyScale=false 不求值 valueScale；启用时
+  // valueScale 以单精度解析后乘到基础值，运行时由 stagger multiplier 保留这一步。
+  return {
+    value: scalarOperand(calculation.value),
+    ...(calculation.applyScale ? { multiplier: scalarOperand(calculation.valueScale) } : {}),
+  };
 }
 
 function requireFixedTarget(

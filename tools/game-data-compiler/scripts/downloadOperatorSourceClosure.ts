@@ -59,9 +59,7 @@ for (let round = 0; round < 8; round += 1) {
     const logicalPath = `${collection}/${filename}`;
     try {
       const resource = await loadJsonResource(
-        sharedFiles.has(logicalPath)
-          ? new URL(`public/Json/${logicalPath}`, `${cdn}/`).href
-          : null,
+        sharedFiles.has(logicalPath) ? new URL(`public/Json/${logicalPath}`, `${cdn}/`).href : null,
         args.vfsFallback,
         logicalPath,
       );
@@ -94,13 +92,14 @@ for (const [kind, entries] of [
     const logicalPath = `${configuration.collection}/${filename}`;
     try {
       const resource = await loadJsonResource(
-        sharedFiles.has(logicalPath)
-          ? new URL(`public/Json/${logicalPath}`, `${cdn}/`).href
-          : null,
+        sharedFiles.has(logicalPath) ? new URL(`public/Json/${logicalPath}`, `${cdn}/`).href : null,
         args.vfsFallback,
         logicalPath,
       );
-      await writeAtomicBytes(path.join(args.output, configuration.output, filename), resource.content);
+      await writeAtomicBytes(
+        path.join(args.output, configuration.output, filename),
+        resource.content,
+      );
       provenance.push(resource.provenance);
       completed += 1;
       if (completed % 25 === 0 || completed === entries.length) {
@@ -176,22 +175,28 @@ function parseArguments(values: readonly string[]): Arguments {
   for (let index = 0; index < values.length; index += 2) {
     const name = values[index];
     const value = values[index + 1];
-    if (!name?.startsWith('--') || value === undefined) throw new Error(`missing value for ${name}`);
+    if (!name?.startsWith('--') || value === undefined)
+      throw new Error(`missing value for ${name}`);
     result.set(name, value);
   }
   const projectRoot = path.resolve(import.meta.dirname, '../../..');
-  const output = path.resolve(result.get('--output') ?? path.join(projectRoot, 'tmp/game-data-sources'));
+  const output = path.resolve(
+    result.get('--output') ?? path.join(projectRoot, 'tmp/game-data-sources'),
+  );
   const tableDirectory = path.join(output, 'TableCfg-1.4.4-9433094-12');
   const workers = Number(result.get('--workers') ?? 12);
-  if (!Number.isInteger(workers) || workers <= 0) throw new Error('--workers: expected positive integer');
+  if (!Number.isInteger(workers) || workers <= 0)
+    throw new Error('--workers: expected positive integer');
   return {
     cdn: result.get('--cdn') ?? DEFAULT_CDN,
     sourceCatalog: path.resolve(
-      result.get('--source-catalog') ?? path.join(projectRoot, 'tools/game-data-compiler/akedb-sources.json'),
+      result.get('--source-catalog') ??
+        path.join(projectRoot, 'tools/game-data-compiler/akedb-sources.json'),
     ),
     output,
     manifest: path.resolve(
-      result.get('--manifest') ?? path.join(projectRoot, 'scripts/generate_next_operators/operators.json'),
+      result.get('--manifest') ??
+        path.join(projectRoot, 'tools/game-data-compiler/config/operators.json'),
     ),
     skillData: path.resolve(result.get('--skill-data') ?? path.join(output, 'skill-data-cdn')),
     buffData: path.resolve(result.get('--buff-data') ?? path.join(output, 'BuffData')),

@@ -19,10 +19,11 @@ import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/physi
 
 /** 已编译的正式技能子集；来源身份、黑板与消耗帧必填，不接受尚未接入的事件字段。 */
 export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
-  Pick<SkillDefinition, 'key' | 'timelineBlockFrames' | 'cooldownFrames'> &
+  Pick<SkillDefinition, 'key' | 'timelineBlockFrames' | 'exclusiveFrame' | 'cooldownFrames'> &
     Required<Pick<SkillDefinition, 'sourceSkillId' | 'blackboard' | 'costFrame'>>
 > & {
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
+  readonly switchToBuffCast?: NonNullable<SkillDefinition['switchToBuffCast']>;
   readonly costs?: readonly Readonly<SkillCostDefinition>[];
   readonly scheduledSequences: readonly CompiledActiveSkillTimelineSequenceSource[];
 };
@@ -51,6 +52,7 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
       Object.entries(runtime.blackboard).map(([key, values]) => [key, collapse(values)]),
     ),
     timelineBlockFrames: runtime.timelineBlockFrames,
+    exclusiveFrame: runtime.exclusiveFrame,
     costFrame,
     scheduledSequences: runtime.scheduledSequences.map(item => ({
       startFrame: item.startFrame,
@@ -58,6 +60,9 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
       sequence: item.sequence,
     })),
     ...(runtime.smartTarget === undefined ? {} : { smartTarget: runtime.smartTarget }),
+    ...(runtime.switchToBuffCast === undefined
+      ? {}
+      : { switchToBuffCast: runtime.switchToBuffCast }),
   };
   const patch = input.patch;
   if (!patch) return definition;
@@ -99,10 +104,28 @@ export function renderOperatorActiveSkillRuntimeDefinitionSource(input: {
   const hydrate = createPhysicalInflictionDefinitionHydrator(supplementalBuffDefinitions);
   const definition = hydrate(input.definition);
   const hydratedSupplementalBuffDefinitions = hydrate(supplementalBuffDefinitions);
+  const renderedBuffs = renderTypeScriptData(hydratedSupplementalBuffDefinitions);
+  const renderedDefinition = renderTypeScriptData(definition);
   return {
     relativePath: `${input.operatorSlug}.${input.definition.key}.runtime.generated.ts`,
-    content: `/** 由 tools/game-data-compiler 从完整主动 SkillData 动作图生成；不要手工编辑。 */\nimport type {\n  OperatorBuffDefinitions,\n  SkillDefinition,\n} from '../../../../core/game-data/operatorDefinition';\n\n// prettier-ignore\nexport const supplementalBuffDefinitions = ${JSON.stringify(hydratedSupplementalBuffDefinitions, null, 2)} as const satisfies OperatorBuffDefinitions;\n\n// prettier-ignore\nexport default ${JSON.stringify(definition, null, 2)} as const satisfies SkillDefinition;\n`,
+    content: `/** 由 tools/game-data-compiler 从完整主动 SkillData 动作图生成；不要手工编辑。 */\nimport type {\n  OperatorBuffDefinitions,\n  SkillDefinition,\n} from '../../../../core/game-data/operatorDefinition';\n\n// prettier-ignore\nexport const supplementalBuffDefinitions = ${renderedBuffs} as const satisfies OperatorBuffDefinitions;\n\n// prettier-ignore\nexport default ${renderedDefinition} as const satisfies SkillDefinition;\n`,
   };
+}
+
+/** JSON 数据形状的 TypeScript 字面量；Unity 阶梯曲线允许无穷切线，不能被序列化成 null。 */
+function renderTypeScriptData(value: unknown): string {
+  return JSON.stringify(
+    value,
+    (_key, item) =>
+      item === Number.POSITIVE_INFINITY
+        ? '__ENDAXIS_POSITIVE_INFINITY__'
+        : item === Number.NEGATIVE_INFINITY
+          ? '__ENDAXIS_NEGATIVE_INFINITY__'
+          : item,
+    2,
+  )
+    .replaceAll('"__ENDAXIS_POSITIVE_INFINITY__"', 'Number.POSITIVE_INFINITY')
+    .replaceAll('"__ENDAXIS_NEGATIVE_INFINITY__"', 'Number.NEGATIVE_INFINITY');
 }
 
 function collapse(values: LevelValues): LevelValues {

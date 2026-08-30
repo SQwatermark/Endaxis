@@ -34,7 +34,7 @@ describe('游戏数据编译器架构边界', () => {
       violations.map(diagnostic => `${diagnostic.file!.fileName}: ${diagnostic.messageText}`),
     ).toEqual([]);
     // 此项包含整棵跨端 TypeScript 图的语义检查，本机单独执行也可能超过 20 秒。
-  }, 60_000);
+  }, 120_000);
 
   it('禁止公共层反向依赖领域适配器', () => {
     const violations = commonRoots.flatMap(root =>

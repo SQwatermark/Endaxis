@@ -47,6 +47,9 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
       targetId,
       type: isAirborne ? 'airborne' : 'knockDown',
       ...(context?.skillCastInfo === undefined ? {} : { skillCastInfo: context.skillCastInfo }),
+      ...(context?.attachBuffToCurrentSkill === undefined
+        ? {}
+        : { attachBuffToCurrentSkill: context.attachBuffToCurrentSkill }),
     });
     return true;
   }

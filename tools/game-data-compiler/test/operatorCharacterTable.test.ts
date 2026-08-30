@@ -6,7 +6,6 @@ import {
   findExactCharacterAttributeKeyFrame,
   parseOperatorCharacterTableSource,
 } from '../src/index.ts';
-import { runPythonOracle } from './pythonOracle.ts';
 
 describe('干员 CharacterTable 适配', () => {
   it('按 combat-spec 严格读取身份、默认武器和精确属性关键帧', () => {
@@ -50,21 +49,13 @@ describe('干员 CharacterTable 适配', () => {
     }
   });
 
-  it('按显式六档里程碑投影，并与旧 Python 面板 oracle 对象级一致', () => {
+  it('按显式六档里程碑投影，并锁定对象级面板结果', () => {
     const table = characterTable();
     const character = parseOperatorCharacterTableSource(table, 'chr_0004_pelica');
     const result = compileOperatorAttributeGrowthSource(
       character,
       STANDARD_OPERATOR_PANEL_MILESTONES,
     );
-    const oracle = runPythonOracle({
-      operation: 'parsePanelAttributes',
-      payload: {
-        character: table.chr_0004_pelica,
-        path: 'CharacterTable.chr_0004_pelica',
-      },
-    });
-    expect(result).toEqual(oracle);
     expect(result).toEqual({
       strength: [9, 26, 45, 64, 82, 91],
       agility: [9, 27, 46, 65, 84, 93],

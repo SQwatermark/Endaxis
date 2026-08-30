@@ -20,6 +20,7 @@ import {
   ELEMENTAL_REACTIONS,
   INFLICTION_ELEMENTS,
   OPERATOR_ATTRIBUTES,
+  SKILL_TYPES,
   type ActionValueOperand,
   type CombatCondition,
   type CombatConditionKind,
@@ -32,6 +33,7 @@ import {
   type ElementalReaction,
   type InflictionElement,
   type OperatorAttribute,
+  type SkillType,
 } from '../../../core/game-data/operatorDefinition';
 import { ENEMY_RANKS, type EnemyRank } from '../../../core/game-data/enemyRank';
 import { createCombatCondition, parseConditionStringList } from '../combatConditionEditorViewModel';
@@ -83,6 +85,7 @@ function setTarget(event: Event): void {
       emit('update', { ...condition, target });
       break;
     case 'buffStackCompare':
+    case 'buffTagIdCountCompare':
       emit('update', { ...condition, target });
       break;
     case 'entityTagMatch':
@@ -95,6 +98,24 @@ function setTarget(event: Event): void {
       emit('update', { ...condition, target });
       break;
   }
+}
+
+function setCurrentSkillTarget(event: Event): void {
+  if (props.condition.kind !== 'currentSkillTypeIn') return;
+  const target = (event.target as HTMLSelectElement).value;
+  if (target === 'caster' || target === 'buffOwner') {
+    emit('update', { ...props.condition, target });
+  }
+}
+
+function toggleCurrentSkillType(skillType: SkillType, event: Event): void {
+  if (props.condition.kind !== 'currentSkillTypeIn') return;
+  const checked = (event.target as HTMLInputElement).checked;
+  const skillTypes = checked
+    ? [...new Set([...props.condition.skillTypes, skillType])]
+    : props.condition.skillTypes.filter(value => value !== skillType);
+  // 严格定义不接受空集合；至少保留用户最后一个已选类型。
+  if (skillTypes.length > 0) emit('update', { ...props.condition, skillTypes });
 }
 
 function setText(field: 'branchKey' | 'flag' | 'statusKey' | 'markerId', event: Event): void {
@@ -135,6 +156,7 @@ function setComparison(event: Event): void {
       emit('update', { ...condition, operator });
       break;
     case 'buffStackCompare':
+    case 'buffTagIdCountCompare':
       emit('update', { ...condition, operator });
       break;
     case 'eventTargetBuffCountCompare':
@@ -166,6 +188,8 @@ function setOperand(
   else if (condition.kind === 'cameraToTargetAngleCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'buffStackCompare' && field === 'value')
+    emit('update', { ...condition, value });
+  else if (condition.kind === 'buffTagIdCountCompare' && field === 'value')
     emit('update', { ...condition, value });
   else if (condition.kind === 'contextTargetBuffStackCompare' && field === 'value')
     emit('update', { ...condition, value });
@@ -207,6 +231,7 @@ function setContextValueKind(event: Event): void {
 function setGameplayTags(values: readonly GameplayTag[]): void {
   if (
     props.condition.kind === 'buffStackCompare' ||
+    props.condition.kind === 'buffTagIdCountCompare' ||
     props.condition.kind === 'contextTargetBuffStackCompare'
   )
     emit('update', { ...props.condition, buffTags: values });
@@ -252,6 +277,7 @@ function setTagQueryType(event: Event): void {
   if (!TAG_QUERY_TYPES.includes(tagQueryType)) return;
   if (
     props.condition.kind === 'buffStackCompare' ||
+    props.condition.kind === 'buffTagIdCountCompare' ||
     props.condition.kind === 'contextTargetBuffStackCompare'
   )
     emit('update', { ...props.condition, tagQueryType });
@@ -443,6 +469,30 @@ function removeChild(index: number): void {
     <p v-if="isLeafWithoutParameters" class="condition-editor__note">
       {{ t('nextTimeline.skillEditing.conditionNoParameters') }}
     </p>
+    <template v-if="condition.kind === 'currentSkillTypeIn'">
+      <label class="condition-editor__field">
+        <EditorFieldLabel :label="t('nextTimeline.skillEditing.target')" />
+        <select :value="condition.target" @change="setCurrentSkillTarget">
+          <option value="caster">
+            {{ t('nextTimeline.skillEditing.currentSkillTargets.caster') }}
+          </option>
+          <option value="buffOwner">
+            {{ t('nextTimeline.skillEditing.currentSkillTargets.buffOwner') }}
+          </option>
+        </select>
+      </label>
+      <fieldset class="condition-editor__checks">
+        <legend>{{ t('nextTimeline.skillEditing.cooldownSkillType') }}</legend>
+        <label v-for="skillType in SKILL_TYPES" :key="skillType">
+          <input
+            type="checkbox"
+            :checked="condition.skillTypes.includes(skillType)"
+            @change="toggleCurrentSkillType(skillType, $event)"
+          />
+          {{ t(`hitEditor.skillTypes.${skillType}`) }}
+        </label>
+      </fieldset>
+    </template>
     <label
       v-if="
         condition.kind === 'contextTargetObjectTypeMatch' ||
@@ -482,6 +532,7 @@ function removeChild(index: number): void {
           'poiseCompare',
           'statusActive',
           'buffStackCompare',
+          'buffTagIdCountCompare',
           'entityTagMatch',
           'buffIdStackCompare',
           'timedMarkerPresent',
@@ -777,6 +828,7 @@ function removeChild(index: number): void {
     <template
       v-if="
         condition.kind === 'buffStackCompare' ||
+        condition.kind === 'buffTagIdCountCompare' ||
         condition.kind === 'contextTargetBuffStackCompare' ||
         condition.kind === 'eventTargetBuffCountCompare' ||
         condition.kind === 'entityTagMatch'
@@ -804,6 +856,7 @@ function removeChild(index: number): void {
       <template
         v-if="
           condition.kind === 'buffStackCompare' ||
+          condition.kind === 'buffTagIdCountCompare' ||
           condition.kind === 'eventTargetBuffCountCompare' ||
           condition.kind === 'contextTargetBuffStackCompare'
         "

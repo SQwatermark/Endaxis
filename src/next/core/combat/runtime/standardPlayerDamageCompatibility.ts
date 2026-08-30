@@ -90,10 +90,13 @@ function inspectCondition(
     case 'contextTargetObjectTypeMatch':
     case 'contextTargetBuffStackCompare':
     case 'abilityEntityRemainingDurationCompare':
+    case 'ownerSpawnedAbilityEntityPresent':
     case 'timedMarkerPresent':
     case 'abilityEntityTimedMarkerPresent':
     case 'elementalReactionActive':
     case 'casterControlled':
+    case 'characterTypeIn':
+    case 'operatorRoleIn':
     case 'enemyRankIn':
     case 'enemySuperArmorCompare':
     case 'cameraToTargetAngleCompare':
@@ -110,6 +113,7 @@ function inspectCondition(
     case 'eventSourceTargetMatch':
     case 'eventInflictionElementIn':
     case 'eventPhysicalInflictionTypeIn':
+    case 'eventCustomAbilityNameMatch':
     case 'eventSkillTypeIn':
     case 'originSkillTypeIn':
     case 'contextTargetContains':
@@ -124,6 +128,7 @@ function inspectCondition(
     case 'eventOverheal':
     case 'eventBuffEndedEarly':
     case 'buffStackCompare':
+    case 'buffTagIdCountCompare':
     case 'currentBuffStackCompare':
     case 'buffIdStackCompare':
     case 'entityTagMatch':
@@ -164,12 +169,14 @@ function inspectSequence(
     switch (step.kind) {
       case 'mergeContextTargets':
       case 'findCharacterTeamTargets':
+      case 'createSpatialPointTargets':
       case 'findOwnerSpawnedAbilityEntities':
       case 'readAbilityEntityRemainingDuration':
       case 'setAbilityEntityRemainingDuration':
       case 'finishCurrentAbilityEntity':
       case 'finishCurrentAbilityEntityWhenSourceDies':
       case 'startCurrentAbilityEntityChildSkill':
+      case 'startCurrentAbilityEntityChildSkillById':
         return;
       case 'dealDamage': {
         const parameters = step.parameters;
@@ -239,6 +246,9 @@ function inspectSequence(
             'spell burst requires elemental Buff definitions and SkillSetting data',
           );
         }
+        return;
+      case 'triggerCustomAbilityEvent':
+      case 'castSkillDuringAction':
         return;
       case 'applyPhysicalInfliction':
         if (source === 'equipment') {
@@ -351,6 +361,8 @@ function inspectSequence(
           );
         }
         return;
+      case 'createGlobalBuff':
+      case 'inheritBuffById':
       case 'readBuffBlackboard':
       case 'readEventBuffBlackboard':
       case 'readCurrentBuffRemainingDuration':
@@ -378,6 +390,7 @@ function inspectSequence(
       case 'adjustSkillCooldown':
       case 'startTimeDilation':
       case 'startUltimateTimeDilation':
+      case 'setIgnoreGlobalTimeScale':
         return;
       case 'listenForCombatEvents':
         step.parameters.responses.forEach((response, index) => {
@@ -434,6 +447,9 @@ function inspectSequence(
         return;
       case 'finishTimeline':
         return;
+      case 'scheduleProjectileFinishCallback':
+        inspectSequence(step.body, `${stepPath}.body`, collect, flags, source);
+        return;
       case 'changeResource':
       case 'changeResourceByActionValue': {
         const { resource, recipient } = step.parameters;
@@ -476,10 +492,14 @@ function inspectSequence(
       case 'once':
       case 'withActionBlackboardScope':
       case 'repeatEachTick':
+      case 'repeatByActionValue':
         inspectSequence(step.body, `${stepPath}.body`, collect, flags, source);
         return;
       case 'forEachContextTarget':
         inspectSequence(step.body, `${stepPath}.body`, collect, flags, source);
+        return;
+      case 'pickContextTarget':
+        // 只在已编译的命名目标组中取一个运行时引用；本身不改变伤害计算协议。
         return;
       default:
         report(collect, 'unsupported-step', stepPath, `step '${step.kind}'`);

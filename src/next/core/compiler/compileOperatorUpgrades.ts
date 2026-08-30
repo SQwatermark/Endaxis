@@ -270,7 +270,12 @@ function multiplySkillCost(
   path: string,
 ): readonly CompiledSkillProgram[] {
   requireMultiplier(modifier.multiplier, `${path}.multiplier`);
-  const targets = programs.filter(program => program.skillGroupKey === modifier.skillGroupKey);
+  const targets = programs.filter(
+    program =>
+      program.skillGroupKey === modifier.skillGroupKey &&
+      (modifier.skillKey === undefined ||
+        (program.executionSkillId ?? program.skillId) === modifier.skillKey),
+  );
   if (targets.length === 0) {
     throw new Error(`${path} references missing skill group '${modifier.skillGroupKey}'`);
   }
@@ -280,7 +285,12 @@ function multiplySkillCost(
     }
   }
   return programs.map(program => {
-    if (program.skillGroupKey !== modifier.skillGroupKey) return program;
+    if (
+      program.skillGroupKey !== modifier.skillGroupKey ||
+      (modifier.skillKey !== undefined &&
+        (program.executionSkillId ?? program.skillId) !== modifier.skillKey)
+    )
+      return program;
     return {
       ...program,
       costs: program.costs.map(cost =>
@@ -385,7 +395,7 @@ function multiplyEffectDuration(
     ...step,
     parameters: {
       ...step.parameters,
-      durationSeconds: step.parameters.durationSeconds * modifier.multiplier,
+      durationMultiplier: (step.parameters.durationMultiplier ?? 1) * modifier.multiplier,
     },
   }));
 }
@@ -500,6 +510,14 @@ export function applyOperatorUpgradeSkillPatches(
         continue;
       }
       if (modifier.kind === 'patchSkillBlackboard') {
+        if (
+          (modifier.minimumUpgradeLevel !== undefined &&
+            upgrade.level < modifier.minimumUpgradeLevel) ||
+          (modifier.maximumUpgradeLevel !== undefined &&
+            upgrade.level > modifier.maximumUpgradeLevel)
+        ) {
+          continue;
+        }
         patched = patchSkillBlackboard(
           patched,
           modifier,

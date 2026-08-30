@@ -209,6 +209,8 @@ export interface CombatBuffAddOptions {
   readonly skillCastInfo?: CombatSkillCastInfo;
   /** GlobalBuff 子投影专用：精确结束创建当前子 Buff 的父实例。 */
   readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;
+  /** 原生护盾 Calculation 的 attacker 端；跨实体 Buff 不得退化为 owner 属性。 */
+  readonly getSourceAttributeValue?: (attribute: string) => number;
 }
 
 /** 一个实体上某项 Buff 的独立运行时实例。 */
@@ -222,6 +224,7 @@ export class CombatBuff<Key extends string> {
   /** 来源施法在创建瞬间的快照，不随后续技能扣费变化。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
   readonly finishParentGlobalBuff: ((reason: 'early' | 'other') => boolean) | null;
+  readonly getSourceAttributeValue: ((attribute: string) => number) | null;
   #attributeModifiers: readonly CombatAttributeModifier<Key>[];
   readonly #sharedSpGainModifiers: readonly SharedSpGainModifier[];
   #passedTime = 0;
@@ -232,6 +235,7 @@ export class CombatBuff<Key extends string> {
   #finishing = false;
   #timePaused = false;
   #finishable = true;
+  #appliedTags = false;
   #appliedExtendTags = false;
   #finishReason: BuffFinishReason | null = null;
   #enhanceCount = 1;
@@ -251,6 +255,7 @@ export class CombatBuff<Key extends string> {
   ) {
     this.blackboard = new ActionBlackboard(definition.blackboard, owner.entityBlackboard);
     this.blackboard.assign(options?.blackboardValues);
+    this.getSourceAttributeValue = options?.getSourceAttributeValue ?? null;
     const initializedKeywordRates = new Set<string>();
     for (const enhancement of definition.keywordEnhancements ?? []) {
       if (initializedKeywordRates.has(enhancement.targetKey)) continue;
@@ -448,6 +453,7 @@ export class CombatBuff<Key extends string> {
       this.owner.registerPoiseModifiers(this.poiseModifiers);
       this.owner.registerShields(this.shields);
       this.owner.registerSustainedProtection(this);
+      this.addApplyTags();
       for (const modifier of this.attributeModifiers) {
         this.owner.attributes.addModifier(modifier);
       }
@@ -460,6 +466,7 @@ export class CombatBuff<Key extends string> {
       this.owner.unregisterPoiseModifiers(this.poiseModifiers);
       this.owner.unregisterShields(this.shields);
       this.owner.unregisterSustainedProtection(this);
+      this.removeApplyTags();
       this.#enabled = false;
       throw error;
     }
@@ -476,6 +483,7 @@ export class CombatBuff<Key extends string> {
     this.owner.unregisterPoiseModifiers(this.poiseModifiers);
     this.owner.unregisterShields(this.shields);
     this.owner.unregisterSustainedProtection(this);
+    this.removeApplyTags();
     this.removeAttributeModifiers();
     this.unregisterSharedSpGainModifiers();
     this.#enabled = false;
@@ -501,6 +509,7 @@ export class CombatBuff<Key extends string> {
       this.owner.unregisterPoiseModifiers(this.poiseModifiers);
       this.owner.unregisterShields(this.shields);
       this.owner.unregisterSustainedProtection(this);
+      this.removeApplyTags();
       this.removeAttributeModifiers();
       this.unregisterSharedSpGainModifiers();
     }
@@ -708,6 +717,18 @@ export class CombatBuff<Key extends string> {
     if (this.#appliedExtendTags) return;
     this.owner.addEntityTags(this.definition.extendTags ?? []);
     this.#appliedExtendTags = true;
+  }
+
+  private addApplyTags(): void {
+    if (this.#appliedTags) return;
+    this.owner.addEntityTags(this.definition.applyTags ?? []);
+    this.#appliedTags = true;
+  }
+
+  private removeApplyTags(): void {
+    if (!this.#appliedTags) return;
+    this.owner.removeEntityTags(this.definition.applyTags ?? []);
+    this.#appliedTags = false;
   }
 
   private removeExtendTags(): void {
@@ -1054,6 +1075,25 @@ export class CombatBuffContainer<Key extends string> {
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
 
+  /** 对应原生 BuffContainer.GetBuffIdCountByTag：统计匹配活动 Buff 的不同定义 ID。 */
+  getDistinctIdCountByTags(
+    tags: readonly GameplayTag[],
+    type: GameplayTagQueryType = 'hasAny',
+    exact = false,
+    skillCastId?: number,
+  ): number {
+    return new Set(
+      this.#buffs
+        .filter(
+          buff =>
+            !buff.isFinished &&
+            (skillCastId === undefined || buff.skillCastInfo?.skillCastId === skillCastId) &&
+            this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact),
+        )
+        .map(buff => buff.definition.id),
+    ).size;
+  }
+
   /** 统计所有未结束且分类标签满足查询的 Buff 实例数，不把 Enhance 层数计入结果。 */
   getInstanceCountByTags(
     tags: readonly GameplayTag[],
@@ -1250,6 +1290,19 @@ function resolveShieldAttributeValue<Key extends string>(
   buff: CombatBuff<Key>,
   calculation: Extract<BuffShieldDefinition['value'], { readonly attribute: string }>,
 ): number {
+  const useSource = calculation.attributeSource === 'buffSource';
+  if (useSource && buff.sourceId !== buff.owner.ownerId) {
+    const resolve = buff.getSourceAttributeValue;
+    if (resolve === null) {
+      throw new Error(
+        `buff '${buff.definition.id}' shield source attribute '${calculation.attribute}' is unavailable`,
+      );
+    }
+    const value = resolve(calculation.attribute);
+    const multiplier = resolveBuffNumber(buff, calculation.multiplier, 'shield multiplier');
+    const addition = resolveBuffNumber(buff, calculation.addition, 'shield addition');
+    return value * multiplier + addition;
+  }
   if (!buff.owner.attributes.has(calculation.attribute)) {
     throw new Error(
       `buff '${buff.definition.id}' shield attribute '${calculation.attribute}' is missing`,

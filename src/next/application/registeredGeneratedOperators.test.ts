@@ -104,7 +104,7 @@ describe('registered generated operators', () => {
     expect(enhancedDamage / baseDamage).toBeCloseTo(1.4, 5);
   });
 
-  it('routes both Liino battle-skill inputs through the shared runtime end slot', () => {
+  it('resolves Liino player input through the active battle-skill replacement slot', () => {
     const scenario = createEmptyScenario('scenario:liino:battle-skill-slot', '梨诺战技换槽回归');
     scenario.battle.durationFrames = 80;
     scenario.tracks[0] = {
@@ -165,12 +165,81 @@ describe('registered generated operators', () => {
 
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
-        event: 'SkillStarted',
+        event: 'SkillSwitchedToBuff',
         sourceId: 'track:liino',
         data: expect.objectContaining({
           castId: 'skillCast:liino:battle-end',
           skillId: 'battleSkillEnd',
         }),
+      }),
+    );
+  });
+
+  it('runs Liino combo end custom event through the native deferred-cast slot', () => {
+    const scenario = createEmptyScenario('scenario:liino:deferred-combo', '梨诺连携延迟施法回归');
+    scenario.battle.durationFrames = 120;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:liino',
+      operator: {
+        operatorSlug: liino.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const battle = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: liino,
+      skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:liino:deferred-battle` },
+    }).scenario;
+    const combo = placeSkillGroup({
+      scenario: battle,
+      trackIndex: 0,
+      operator: liino,
+      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
+      startFrame: 20,
+      ids: { allocate: kind => `${kind}:liino:deferred-combo` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: combo,
+      endFrame: 120,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(100).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillStarted',
+        sourceId: 'track:liino',
+        data: expect.objectContaining({ skillId: 'battleSkillCombo' }),
       }),
     );
   });
@@ -241,7 +310,7 @@ describe('registered generated operators', () => {
     );
   });
 
-  it('applies Ardelia potential 1 vulnerability increase to her battle-skill damage', () => {
+  it('runs Ardelia battle-skill damage and wires potential 1 into its conditional vulnerability', () => {
     const run = (potential: number) => {
       const scenario = createEmptyScenario(
         `scenario:ardelia:potential-${potential}`,
@@ -265,6 +334,11 @@ describe('registered generated operators', () => {
         initialState: { ultimateEnergy: 0 },
         skillCasts: [],
       };
+      const program = compileOperatorDefinitionSkills(
+        'track:ardelia',
+        scenario.tracks[0]!.operator!,
+        ardelia,
+      ).find(candidate => candidate.skillGroupKey === 'battleSkill')!;
       const placed = placeSkillGroup({
         scenario,
         trackIndex: 0,
@@ -273,39 +347,42 @@ describe('registered generated operators', () => {
         startFrame: 1,
         ids: { allocate: (kind: string) => `${kind}:ardelia:${potential}` },
       }).scenario;
-      return runStandardPlayerDamageScenarioSimulation({
-        scenario: placed,
-        endFrame: 80,
-        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
-        elementalInflictionDocument: elementalAttachments,
-        resolveNonRandomRuntimeSnapshot: () => ({
-          runtimeExtensionMultiplier: 1,
-          appliesIgniteDamageMultiplier: false,
-          appliesPhysicalInflictionDamageMultiplier: false,
-        }),
-        options: {
-          index: nextGameDataRepository,
-          resources: {
-            sharedSpGain: { baseGainEfficiency: 1 },
-            spRecoveryPauseDuration: 1.5,
-            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-            ultimateEnergySystemUnlocked: true,
+      return {
+        rateVulnerability: Number(program.initialBlackboard.rate_vul_base),
+        result: runStandardPlayerDamageScenarioSimulation({
+          scenario: placed,
+          endFrame: 80,
+          criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+          elementalInflictionDocument: elementalAttachments,
+          resolveNonRandomRuntimeSnapshot: () => ({
+            runtimeExtensionMultiplier: 1,
+            appliesIgniteDamageMultiplier: false,
+            appliesPhysicalInflictionDamageMultiplier: false,
+          }),
+          options: {
+            index: nextGameDataRepository,
+            resources: {
+              sharedSpGain: { baseGainEfficiency: 1 },
+              spRecoveryPauseDuration: 1.5,
+              normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+              ultimateEnergySystemUnlocked: true,
+            },
           },
-        },
-      });
+        }),
+      };
     };
     const base = run(0);
     const enhanced = run(1);
-    const damage = (result: typeof base) =>
-      result.receiptEntries.filter(
+    const damage = (runResult: typeof base) =>
+      runResult.result.receiptEntries.filter(
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:ardelia',
       );
 
     expect(damage(base)).toHaveLength(1);
     expect(damage(enhanced)).toHaveLength(1);
-    expect(Number(damage(enhanced)[0]?.data?.value)).toBeGreaterThan(
-      Number(damage(base)[0]?.data?.value),
-    );
+    // 没有侵蚀状态时不会创建易伤；潜能只提高该条件分支写入的易伤率。
+    expect(damage(enhanced)[0]?.data?.value).toBe(damage(base)[0]?.data?.value);
+    expect(enhanced.rateVulnerability - base.rateVulnerability).toBeCloseTo(0.08);
   });
 
   it('applies Catcher potential 1 defense-scaled damage after each ultimate hit', () => {
@@ -373,8 +450,9 @@ describe('registered generated operators', () => {
       );
 
     expect(potentialHits(base)).toHaveLength(0);
-    expect(potentialHits(enhanced)).toHaveLength(6);
-    expect(enhanced).toHaveLength(base.length + 6);
+    // 原始终结技只有 46/64/85 三个 DamageAction；潜能追加伤害各触发一次。
+    expect(potentialHits(enhanced)).toHaveLength(3);
+    expect(enhanced).toHaveLength(base.length + 3);
     expect(enhanced.reduce((total, entry) => total + Number(entry.data?.value), 0)).toBeGreaterThan(
       base.reduce((total, entry) => total + Number(entry.data?.value), 0),
     );
@@ -1576,7 +1654,8 @@ describe('registered generated operators', () => {
     const basicDamage = (result: typeof withTalent) =>
       result.receiptEntries.find(
         entry =>
-          entry.event === 'DamageApplied' && String(entry.data?.stepKey).includes('basicAttack1'),
+          entry.event === 'DamageApplied' &&
+          String(entry.data?.stepKey).includes('chr_0029_pograni_attack1:'),
       )?.data?.value;
 
     expect(basicDamage(withoutTalent)).toBeTypeOf('number');
@@ -1587,15 +1666,20 @@ describe('registered generated operators', () => {
         entry.event === 'AbilityEntitySpawned' &&
         entry.data?.abilityEntityId === 'abilityentity_chr_0029_pograni_ultimate_skill',
     );
-    expect(soldiers).toHaveLength(8);
+    // 原生终结技先生成四名常驻士兵；本场景只触发一次物理异常，因此再生成一名
+    // attack2 士兵。旧手写定义把最终冲锋提前硬编码为四次生成，统一转换不保留该近似。
+    expect(soldiers).toHaveLength(5);
     expect(
       soldiers.filter(entry => String(entry.data?.childSkillId).endsWith('_finish4')),
-    ).toHaveLength(4);
+    ).toHaveLength(0);
     expect(
       soldiers.filter(
         entry => entry.data?.childSkillId === 'chr_0029_pograni_ultimate_skill_abilityentity',
       ),
     ).toHaveLength(4);
+    expect(
+      soldiers.filter(entry => String(entry.data?.childSkillId).endsWith('_attack2')),
+    ).toHaveLength(1);
     expect(
       withTalent.receiptEntries.some(
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:pogranichnik',
@@ -1690,7 +1774,7 @@ describe('registered generated operators', () => {
         entry =>
           entry.event === 'DamageApplied' &&
           entry.sourceId === 'track:camille' &&
-          String(entry.data?.stepKey).includes('comboSkill2'),
+          String(entry.data?.stepKey).includes('chr_0033_camille_combo_skill_2'),
       ),
     ).toBe(true);
   });
@@ -1850,6 +1934,7 @@ describe('registered generated operators', () => {
       scenario: placed,
       endFrame: 300,
       criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+      probabilitySamples: new ExplicitProbabilitySampleSource(Array(40).fill(1)),
       elementalInflictionDocument: elementalAttachments,
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
@@ -1959,7 +2044,7 @@ describe('registered generated operators', () => {
     );
   });
 
-  it('lets a standalone Zhuang Fangyi battle skill find its spawned sword and produce hits', () => {
+  it('lets a standalone Zhuang Fangyi battle skill find its spawned sword and produce its final hit', () => {
     const scenario = createEmptyScenario(
       'scenario:zhuang-fangyi:battle-only',
       '庄方宜单放战技回归',
@@ -1999,6 +2084,7 @@ describe('registered generated operators', () => {
       scenario: placed,
       endFrame: 90,
       criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      probabilitySamples: new ExplicitProbabilitySampleSource(Array(20).fill(0)),
       elementalInflictionDocument: elementalAttachments,
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
@@ -2034,7 +2120,9 @@ describe('registered generated operators', () => {
       .skillCasts[0]!;
     const actualHitFrames = projectTimelineHitActualFrames(result.receiptEntries);
     const visibleMarkers = castModel.hitMarkers.filter(marker => actualHitFrames.has(marker.hitId));
-    expect(visibleMarkers.map(marker => actualHitFrames.get(marker.hitId))).toEqual([25, 28]);
+    // 原生 sword_triggerd 先把总数减一；只有一把剑时普通段的 index < count 不成立，
+    // 仅 index == count 的最后一剑生效。旧 Python 产物曾错误裁掉这两层条件而重复结算。
+    expect(visibleMarkers.map(marker => actualHitFrames.get(marker.hitId))).toEqual([28]);
     expect(
       projectHitEffectsByCast(
         placed,
@@ -2042,7 +2130,7 @@ describe('registered generated operators', () => {
         placed.tracks[0]!.skillCasts[0]!.id,
         castModel.hitMarkers,
       ).size,
-    ).toBe(2);
+    ).toBe(1);
   });
 
   it('applies Zhuang Fangyi talent 1 electromagnetic enhancement to battle-skill hits', () => {
@@ -2086,6 +2174,7 @@ describe('registered generated operators', () => {
         scenario: placed,
         endFrame: 90,
         criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+        probabilitySamples: new ExplicitProbabilitySampleSource(Array(20).fill(0)),
         elementalInflictionDocument: elementalAttachments,
         resolveNonRandomRuntimeSnapshot: () => ({
           runtimeExtensionMultiplier: 1,
@@ -2214,6 +2303,77 @@ describe('registered generated operators', () => {
       entry => entry.event === 'HealingApplied' && entry.targetId === 'track:perlica',
     );
     expect(initialHealing?.data?.requestedHealing).toBeCloseTo(expectedInitialHealing);
+  });
+
+  it('runs Snowshine counter branch from an explicit external hit fact', () => {
+    const scenario = createEmptyScenario('scenario:snowshine:counter', '雪绒反击入口回归');
+    scenario.battle.durationFrames = 180;
+    scenario.tracks[0] = {
+      id: 'track:snowshine',
+      operator: {
+        operatorSlug: snowshine.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: snowshine,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:snowshine:counter` },
+    }).scenario;
+    placed.battle.externalEventMarkers = [
+      {
+        id: 'hit:snowshine:counter',
+        frame: 2,
+        target: { scope: 'operator', trackIndex: 0 },
+        event: { kind: 'operatorHit', tags: [], features: [] },
+      },
+    ];
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 180,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ExternalOperatorHitProcessed',
+        sourceId: 'enemy',
+        targetId: 'track:snowshine',
+      }),
+    );
+    expect(
+      result.receiptEntries.some(
+        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:snowshine',
+      ),
+    ).toBe(true);
   });
 
   it('runs Wulfgard battle skill through the registered production repository', () => {

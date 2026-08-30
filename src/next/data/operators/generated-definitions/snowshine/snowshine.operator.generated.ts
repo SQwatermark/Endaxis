@@ -1,0 +1,1801 @@
+/** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
+import type {
+  OperatorBuffDefinitions,
+  OperatorDefinition,
+  SkillDefinition,
+} from '../../../../core/game-data/operatorDefinition';
+import {
+  branch,
+  once,
+  repeatEachTick,
+  scheduled,
+  sequence,
+  step,
+  withActionBlackboardScope,
+  withSkillBlackboard,
+} from '../../definitionHelpers';
+
+export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack1',
+    sourceSkillId: 'chr_0014_aurora_attack1',
+    timelineBlockFrames: 32,
+    exclusiveFrame: 35,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        19,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+            },
+            'chr_0014_aurora_attack1:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.2 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        20,
+      ),
+    ],
+  },
+  {
+    atb: 0,
+    atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
+    env_dmg: 20,
+  },
+);
+
+export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack2',
+    sourceSkillId: 'chr_0014_aurora_attack2',
+    timelineBlockFrames: 28,
+    exclusiveFrame: 30,
+    costFrame: 9,
+    scheduledSequences: [
+      scheduled(
+        19,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+            },
+            'chr_0014_aurora_attack2:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.2 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        20,
+      ),
+    ],
+  },
+  {
+    atb: 0,
+    atk_scale: [0.59, 0.64, 0.7, 0.76, 0.82, 0.88, 0.94, 0.99, 1.05, 1.13, 1.21, 1.32],
+    env_dmg: 25,
+  },
+);
+
+export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'basicAttack3',
+    sourceSkillId: 'chr_0014_aurora_attack3',
+    timelineBlockFrames: 61,
+    exclusiveFrame: 65,
+    costFrame: 9,
+    scheduledSequences: [
+      scheduled(
+        21,
+        sequence(
+          repeatEachTick(
+            sequence(
+              step('calculateActionValue', {
+                key: 'atk_scale1',
+                operation: 'multiply',
+                left: { kind: 'blackboard', key: 'atk_scale' },
+                right: { kind: 'constant', value: 0.4 },
+              }),
+              step(
+                'dealDamage',
+                {
+                  damageType: 'physical',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale1' },
+                  tags: ['normalAttack'],
+                },
+                'chr_0014_aurora_attack3:/scheduledSequences/0/sequence/steps/0/body/steps/1',
+              ),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.15 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 10,
+                    curve: { kind: 'named', key: 'char_hard_stop' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            {
+              nativeChanneling: {
+                executeEachFrame: true,
+                triggerIntervalSeconds: 0.033,
+                maxCountPerTarget: 1,
+                targetTriggerIntervalSeconds: 0.033,
+              },
+            },
+          ),
+        ),
+        27,
+      ),
+      scheduled(
+        39,
+        sequence(
+          repeatEachTick(
+            sequence(
+              step('calculateActionValue', {
+                key: 'atk_scale2',
+                operation: 'multiply',
+                left: { kind: 'blackboard', key: 'atk_scale' },
+                right: { kind: 'constant', value: 0.6 },
+              }),
+              step(
+                'dealDamage',
+                {
+                  damageType: 'physical',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale2' },
+                  tags: ['normalAttack', 'normalAttackLastCombo'],
+                  stagger: { kind: 'blackboard', key: 'poise' },
+                  staggerOnlyWhenCasterControlled: true,
+                },
+                'chr_0014_aurora_attack3:/scheduledSequences/1/sequence/steps/0/body/steps/1',
+              ),
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.35 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 10,
+                    curve: { kind: 'named', key: 'char_normal_attack' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
+                  once(
+                    'SkillData.chr_0014_aurora_attack3.actionGroupData.timelineActions[15]._sequenceActionData.actionData[0].actionOnTick.actionData[3].succeedActions.actionData[0].succeedActions.actionData[2]',
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                  ),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            {
+              nativeChanneling: {
+                executeEachFrame: true,
+                triggerIntervalSeconds: 0.033,
+                maxCountPerTarget: 1,
+                targetTriggerIntervalSeconds: 0.033,
+              },
+            },
+          ),
+        ),
+        43,
+      ),
+    ],
+  },
+  {
+    atb: 25,
+    atk_scale: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
+    atk_scale1: 0,
+    atk_scale2: 0.8,
+    env_dmg: 25,
+    env_dmg2: 30,
+    poise: 23,
+  },
+);
+
+export const snowshineFinisher: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'finisher',
+    sourceSkillId: 'chr_0014_aurora_power_attack',
+    timelineBlockFrames: 41,
+    exclusiveFrame: 75,
+    costFrame: 9,
+    scheduledSequences: [
+      scheduled(
+        41,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 1,
+              tags: ['normalAttack', 'powerAttack'],
+            },
+            'chr_0014_aurora_power_attack:/scheduledSequences/0/sequence/steps/0',
+          ),
+          step('gainFinisherSp', { factor: 1, recipient: 'team' }),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.6 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'auro_power_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        43,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_full_immune_medium',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        75,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_power_attack_disable_cast_skill',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        41,
+      ),
+    ],
+  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+);
+
+export const snowshinePlungingAttack: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'plungingAttack',
+    sourceSkillId: 'chr_0014_aurora_plunging_attack_end',
+    timelineBlockFrames: 21,
+    exclusiveFrame: 20,
+    costFrame: 9,
+    scheduledSequences: [
+      scheduled(
+        1,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack', 'plungingAttack'],
+            },
+            'chr_0014_aurora_plunging_attack_end:/scheduledSequences/0/sequence/steps/0',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+          ),
+        ),
+        2,
+      ),
+    ],
+  },
+  {
+    atb: 0,
+    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+    env_dmg: 20,
+  },
+);
+
+export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'battleSkill',
+    sourceSkillId: 'chr_0014_aurora_normal_skill',
+    timelineBlockFrames: 135,
+    exclusiveFrame: 145,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'MainChar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        3,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'atb_return_base' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'refund',
+            spGainSource: 'default',
+          }),
+        ),
+        3,
+      ),
+      scheduled(
+        0,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'constant', value: 1 },
+              operator: 'equal',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_common_obtain_ultimate_sp',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { ratio: { kind: 'constant', value: 0.5 } },
+              }),
+            ),
+          ),
+        ),
+        5,
+      ),
+      scheduled(
+        107,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'constant', value: 1 },
+              operator: 'equal',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_common_obtain_ultimate_sp',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: { ratio: { kind: 'constant', value: 0.5 } },
+              }),
+              branch(
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'talent_2_sup' },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
+                },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'ultimateEnergy',
+                    amount: { kind: 'blackboard', key: 'talent_2_sup' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'caster',
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+          ),
+        ),
+        109,
+      ),
+      scheduled(106, sequence(step('finishTimeline', {})), 107),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0014_aurora_reduce_damage',
+            target: 'party',
+            finishByAction: true,
+            blackboardAssignments: {
+              taken_dmg: { kind: 'blackboard', key: 'taken_dmg' },
+              potential_1: { kind: 'blackboard', key: 'potential_1' },
+            },
+          }),
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'potential_1' },
+              operator: 'greaterOrEqual',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0014_aurora_potential_1_listener',
+                target: 'party',
+                finishByAction: true,
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        51,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('listenForCombatEvents', {
+            responses: [
+              {
+                key: 'SkillData.chr_0014_aurora_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
+                event: { kind: 'operatorHit' },
+                sequence: sequence(
+                  branch(
+                    {
+                      kind: 'eventDamageFeaturesMatch',
+                      match: 'exceptAny',
+                      features: ['dot', 'remainArea'],
+                    },
+                    sequence(step('jumpTimeline', { destinationFrame: 107 })),
+                  ),
+                ),
+              },
+              {
+                key: 'SkillData.chr_0014_aurora_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[0].abilityActionMap[1].actions[0]',
+                event: { kind: 'buffApplied' },
+                sequence: sequence(
+                  branch(
+                    { kind: 'eventBuffIdMatch', buffIds: ['buff_eny_0018_lbtough_pre_catch'] },
+                    sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 0 },
+                          operator: 'lessOrEqual',
+                          right: { kind: 'constant', value: 3 },
+                        },
+                        sequence(step('jumpTimeline', { destinationFrame: 107 })),
+                      ),
+                    ),
+                  ),
+                ),
+              },
+            ],
+          }),
+        ),
+        51,
+      ),
+      scheduled(
+        107,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0014_aurora_reduce_damage',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              duration: { kind: 'constant', value: 1 },
+              taken_dmg: { kind: 'blackboard', key: 'taken_dmg' },
+            },
+          }),
+        ),
+        108,
+      ),
+      scheduled(
+        125,
+        sequence(
+          repeatEachTick(
+            sequence(
+              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+              once(
+                'SkillData.chr_0014_aurora_normal_skill.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].actionOnTick.actionData[1]',
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'potential_5_atb' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'team',
+                    spGainKind: 'refund',
+                    spGainSource: 'skill',
+                  }),
+                ),
+              ),
+              step(
+                'dealDamage',
+                {
+                  damageType: 'cryo',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                  tags: ['normalSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: { kind: 'blackboard', key: 'poise' },
+                },
+                'chr_0014_aurora_normal_skill:/scheduledSequences/8/sequence/steps/0/body/steps/2',
+              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.4 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            {
+              nativeChanneling: {
+                executeEachFrame: true,
+                triggerIntervalSeconds: 0.033,
+                maxCountPerTarget: 1,
+                targetTriggerIntervalSeconds: 0,
+              },
+            },
+          ),
+        ),
+        127,
+      ),
+      scheduled(
+        107,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.7 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: {
+              kind: 'inline',
+              keys: [
+                {
+                  time: 0,
+                  value: 0.3,
+                  inTangent: 0,
+                  outTangent: 0,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0.333333343,
+                },
+                {
+                  time: 0.5,
+                  value: 0.3,
+                  inTangent: 0,
+                  outTangent: 0,
+                  weightedMode: 0,
+                  inWeight: 0.333333343,
+                  outWeight: 0.333333343,
+                },
+                {
+                  time: 1,
+                  value: 1,
+                  inTangent: 4.596606,
+                  outTangent: 4.596606,
+                  weightedMode: 0,
+                  inWeight: 0.0243593454,
+                  outWeight: 0,
+                },
+              ],
+            },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+        ),
+        110,
+      ),
+      scheduled(
+        107,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0014_aurora_reduce_damage',
+            target: 'party',
+            finishByAction: true,
+            blackboardAssignments: { taken_dmg: { kind: 'blackboard', key: 'taken_dmg' } },
+          }),
+        ),
+        125,
+      ),
+    ],
+    costs: [{ resource: 'sp', value: 100 }],
+  },
+  {
+    atb_return_base: 30,
+    atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
+    is_cam: 1,
+    poise: 20,
+    potential_1: 0,
+    potential_5_atb: 0,
+    taken_dmg: 0.9,
+    talent_2_sup: 0,
+    dmg_reduce: 0.9,
+  },
+);
+
+export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'comboSkill',
+    sourceSkillId: 'chr_0014_aurora_combo_skill',
+    timelineBlockFrames: 15,
+    exclusiveFrame: 45,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'MainChar',
+            selection: { kind: 'controlledOperator' },
+          }),
+        ),
+        3,
+      ),
+      scheduled(
+        12,
+        sequence(
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0014_aurora_combo_skill.actionGroupData.timelineActions[4]._sequenceActionData.actionData[2].succeedActions.actionData[1]:projectile_chr_0014_aurora_combo_skill_bear_out',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0014_aurora_combo_skill.actionGroupData.timelineActions[4]._sequenceActionData.actionData[2].succeedActions.actionData[1]:chr_0014_aurora_combo_skill_bear_gene',
+                    {
+                      atk_scale: 0.42,
+                      duration: 0,
+                      heal_scale: 0,
+                      heal_scale_loop: 0,
+                      heal_static_value: 0,
+                      heal_static_value_loop: 0,
+                      interval: 0,
+                    },
+                    true,
+                    sequence(
+                      step('spawnAbilityEntity', {
+                        abilityEntityId: 'abilityentity_chr_0014_aurora_combo_skill',
+                        childSkillId: 'chr_0014_aurora_combo_skill_abilityrange',
+                        inheritActionBlackboard: true,
+                        dieWhenSourceDies: false,
+                        target: 'enemy',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
+            ),
+            sequence(
+              step('findCharacterTeamTargets', {
+                saveToContextKey: 'BearPos',
+                selection: { kind: 'controlledOperator' },
+              }),
+              withActionBlackboardScope(
+                'SkillData.chr_0014_aurora_combo_skill.actionGroupData.timelineActions[4]._sequenceActionData.actionData[2].failActions.actionData[2]:projectile_chr_0014_aurora_combo_skill_bear_out',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0014_aurora_combo_skill.actionGroupData.timelineActions[4]._sequenceActionData.actionData[2].failActions.actionData[2]:chr_0014_aurora_combo_skill_bear_gene',
+                    {
+                      atk_scale: 0.42,
+                      duration: 0,
+                      heal_scale: 0,
+                      heal_scale_loop: 0,
+                      heal_static_value: 0,
+                      heal_static_value_loop: 0,
+                      interval: 0,
+                    },
+                    true,
+                    sequence(
+                      step('spawnAbilityEntity', {
+                        abilityEntityId: 'abilityentity_chr_0014_aurora_combo_skill',
+                        childSkillId: 'chr_0014_aurora_combo_skill_abilityrange',
+                        inheritActionBlackboard: true,
+                        dieWhenSourceDies: false,
+                        target: 'enemy',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution' },
+              ),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        15,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'global',
+            durationSeconds: { kind: 'constant', value: 0.533 },
+            slot: 'unassigned',
+            priority: 30,
+            curve: { kind: 'named', key: 'ComboSkill' },
+            finishByAction: false,
+            ignoredTargets: ['caster'],
+            ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
+          }),
+        ),
+        13,
+      ),
+    ],
+    cooldownFrames: [750, 750, 750, 750, 750, 750, 750, 750, 720, 720, 720, 690],
+  },
+  {
+    atk_scale: 0.42,
+    cam_angle: 0,
+    cam_duration: 0,
+    duration: 3,
+    heal_scale: [0.22, 0.27, 0.31, 0.36, 0.38, 0.4, 0.43, 0.45, 0.47, 0.48, 0.49, 0.5],
+    heal_scale_loop: [0.06, 0.07, 0.08, 0.09, 0.1, 0.1, 0.11, 0.11, 0.12, 0.12, 0.12, 0.13],
+    heal_static_value: [
+      96, 115.2, 134.4, 153.6, 163.2, 172.8, 182.4, 192, 201.6, 206.4, 211.2, 216,
+    ],
+    heal_static_value_loop: [24, 28.8, 33.6, 38.4, 40.8, 43.2, 45.6, 48, 50.4, 51.6, 52.8, 54],
+    input_angle: 0,
+    interval: 0.5,
+    owner_mainchar_alpha: 0,
+    owner_mainchar_distance: 0,
+    usp: 10,
+    trigger_hp_ratio: 0.6,
+  },
+);
+
+export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'ultimate',
+    sourceSkillId: 'chr_0014_aurora_ultimate_skill',
+    timelineBlockFrames: 71,
+    exclusiveFrame: 90,
+    costFrame: 0,
+    scheduledSequences: [
+      scheduled(
+        0,
+        sequence(
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 1 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'RESETto1' },
+            finishByAction: false,
+            targets: ['caster'],
+          }),
+        ),
+        3,
+      ),
+      scheduled(
+        62,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'cryo',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['ultimateSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+            },
+            'chr_0014_aurora_ultimate_skill:/scheduledSequences/1/sequence/steps/0',
+          ),
+        ),
+        65,
+      ),
+      scheduled(
+        62,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'potential_2' },
+              operator: 'equal',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('spawnAbilityEntity', {
+                abilityEntityId: 'abilityentity_chr_0014_aurora_ultimate_skill',
+                childSkillId: 'chr_0014_aurora_ultimate_skill_abilityrange_potential2',
+                inheritActionBlackboard: true,
+                dieWhenSourceDies: false,
+              }),
+            ),
+            sequence(
+              step('spawnAbilityEntity', {
+                abilityEntityId: 'abilityentity_chr_0014_aurora_ultimate_skill',
+                childSkillId: 'chr_0014_aurora_ultimate_skill_abilityrange',
+                inheritActionBlackboard: true,
+                dieWhenSourceDies: false,
+              }),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        65,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('startUltimateTimeDilation', {
+            priority: 100,
+            targetScale: { kind: 'constant', value: 0 },
+            ignoredTargets: [],
+          }),
+        ),
+        60,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_damage_immune_ult_skill',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        90,
+      ),
+    ],
+    cooldownFrames: 600,
+    costs: [{ resource: 'ultimateEnergy', value: 80 }],
+  },
+  {
+    atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
+    extra_duration: 0,
+    frozen_level: 1,
+    poise: [15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20],
+    potential_2: 0,
+    potential_2_range: 0,
+    atk_scale_loop: [0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.46, 0.49, 0.52, 0.55, 0.6, 0.65],
+    duration: 5,
+    forst_allow_count: 2,
+    interval: 0.5,
+  },
+);
+
+export const commonBuffDefinitions = {
+  buff_common_affixes_shelter: {
+    stackingType: 'highPriority',
+    priority: { blackboardKey: 'rate' },
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: ['Skill/Character/Common/Affixes/Shelter'],
+    extendTags: [],
+    blackboard: {
+      child_buff_id: 'buff_common_affixes_shelter_default_child',
+      duration: 0.8,
+      rate: 0.2,
+    },
+    attributeModifiers: [
+      {
+        attribute: 'shelterDamageMultiplier',
+        slot: 'baseAddition',
+        value: { blackboardKey: 'rate' },
+      },
+    ],
+    lifecycleSequences: {
+      enable: sequence(
+        step('applyBuff', {
+          buffId: { blackboardKey: 'child_buff_id' },
+          target: 'buffOwner',
+          source: 'buffOwner',
+          inheritSourceSkillCastInfo: true,
+          finishByAction: true,
+          asChildBuff: true,
+          blackboardAssignments: {
+            rate: { kind: 'blackboard', key: 'rate' },
+            duration: { kind: 'blackboard', key: 'duration' },
+          },
+        }),
+      ),
+    },
+  },
+  buff_common_affixes_shelter_default_child: {
+    stackingType: 'highPriority',
+    priority: { blackboardKey: 'rate' },
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_affix_shelter',
+      iconPath: '/icons/icon_battle_affix_shelter.webp',
+      showInHeadBarCommon: false,
+      showInHeadBarAttached: false,
+      showInSquadIcon: true,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'LifeTime',
+      abnormalColorType: 'Physical',
+      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
+    },
+    applyTags: [],
+    extendTags: [],
+    blackboard: { duration: 0, rate: -0.2 },
+    attributeModifiers: [],
+  },
+  buff_common_cryst_cryst_frozen_triggered: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: 3,
+    applyTags: [],
+    extendTags: [],
+    blackboard: { consumed_layer: 0, consumed_type: 2, count: 1, duration: 0, extra_duration: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        step('readSkillSettingData', {
+          items: [
+            {
+              values: [6, 7, 8, 9],
+              column: { kind: 'blackboard', key: 'count' },
+              storeKey: 'duration',
+            },
+          ],
+        }),
+        step('modifyActionValue', {
+          key: 'duration',
+          operation: 'add',
+          value: { kind: 'blackboard', key: 'extra_duration' },
+        }),
+        step('applyBuff', {
+          buffId: 'buff_common_cryst_cryst_frozen_triggered_do',
+          target: 'buffOwner',
+          source: 'buffSource',
+          inheritSourceSkillCastInfo: true,
+          blackboardAssignments: {
+            count: { kind: 'blackboard', key: 'count' },
+            duration: { kind: 'blackboard', key: 'duration' },
+            consumed_type: { kind: 'blackboard', key: 'consumed_type' },
+            consumed_layer: { kind: 'blackboard', key: 'consumed_layer' },
+          },
+        }),
+      ),
+    },
+  },
+  buff_common_cryst_cryst_frozen_triggered_do: {
+    stackingType: 'stack',
+    stackingKey: 'cryst_triggered',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    triggerIntervalSeconds: 1,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    presentation: {
+      visible: true,
+      iconId: 'icon_battle_frozen',
+      iconPath: '/icons/icon_battle_frozen.webp',
+      showInHeadBarCommon: true,
+      showInHeadBarAttached: false,
+      showInSquadIcon: false,
+      onlyShowForMainCharacter: false,
+      iconStyleInSquad: 'SpellAbnormal',
+      abnormalColorType: 'Cryst',
+      orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
+    },
+    applyTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+    extendTags: [],
+    blackboard: { count: 1, duration: 5, final_phy_dmg_up: 0, phy_dmg_up: 0.2 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(
+        step('storeSourceAttributeValue', {
+          attribute: { kind: 'specific', key: 'cryoAbnormalDamageIncrease' },
+          stage: 'finalNonConverted',
+          useFloor: false,
+          divisor: { kind: 'constant', value: 1 },
+          multiplier: { kind: 'blackboard', key: 'phy_dmg_up' },
+          base: { kind: 'blackboard', key: 'phy_dmg_up' },
+          targetKey: 'final_phy_dmg_up',
+        }),
+        step('applyBuff', {
+          buffId: 'buff_common_cryst_triggered_fx',
+          target: 'buffOwner',
+          source: 'buffSource',
+          inheritSourceSkillCastInfo: true,
+        }),
+      ),
+      enable: sequence(
+        branch(
+          {
+            kind: 'enemySuperArmorCompare',
+            operator: 'lessOrEqual',
+            value: { kind: 'constant', value: 20 },
+          },
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_common_frozen',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+              finishByAction: true,
+              blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
+            }),
+          ),
+        ),
+      ),
+    },
+  },
+  buff_common_cryst_triggered_fx: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 5,
+    triggerIntervalSeconds: 0,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    applyTags: [],
+    extendTags: [],
+    blackboard: {},
+    attributeModifiers: [],
+  },
+  buff_common_damage_immune_ult_skill: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: [
+      'Status/DodgeDamageImmune',
+      'Status/SkillDamageImmune',
+      'Immune/SpellInflictOnChar/All',
+    ],
+    extendTags: [],
+    blackboard: { duration: 9999 },
+    attributeModifiers: [],
+  },
+  buff_common_do_frozen: {
+    stackingType: 'stack',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: ['Status/Immobilized/Frozen', 'Status/DisableFaceToAttacker'],
+    extendTags: [],
+    blackboard: { duration: 9999 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      enable: sequence(
+        step('startTimeDilation', {
+          scope: 'entity',
+          durationSeconds: { kind: 'blackboard', key: 'duration' },
+          slot: 'TimeDilation/Layer/Entity/Frozen',
+          priority: 50,
+          curve: {
+            kind: 'inline',
+            keys: [
+              {
+                time: 0,
+                value: 0,
+                inTangent: 0,
+                outTangent: 0,
+                weightedMode: 0,
+                inWeight: 0,
+                outWeight: 0.333333343,
+              },
+              {
+                time: 1,
+                value: 0,
+                inTangent: 0,
+                outTangent: 0,
+                weightedMode: 0,
+                inWeight: 0.333333343,
+                outWeight: 0,
+              },
+            ],
+          },
+          finishByAction: true,
+          targets: ['enemy'],
+        }),
+      ),
+    },
+  },
+  buff_common_frozen: {
+    stackingType: 'stack',
+    priority: 0,
+    maxStackCount: 1,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: [],
+    extendTags: [],
+    blackboard: { duration: 9999 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      enable: sequence(
+        step('applyBuff', {
+          buffId: 'buff_common_do_frozen',
+          target: 'buffOwner',
+          source: 'buffSource',
+          inheritSourceSkillCastInfo: true,
+          finishByAction: true,
+          blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
+        }),
+      ),
+    },
+  },
+  buff_common_full_immune_medium: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: [
+      'Immune/Stunned',
+      'Immune/Frozen',
+      'Immune/Airborne',
+      'Immune/KnockDown',
+      'Immune/KnockBack',
+      'Immune/Pull',
+      'Immune/Poise',
+      'Status/DodgeDamageImmune',
+      'Status/SkillDamageImmune',
+      'Immune/SpellInflictOnChar/All',
+    ],
+    extendTags: [],
+    blackboard: { duration: 9999 },
+    attributeModifiers: [],
+  },
+  buff_common_obtain_ultimate_sp: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 1,
+    applyTags: [],
+    extendTags: [],
+    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
+    },
+  },
+  buff_common_power_attack_disable_cast_skill: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    applyTags: [
+      'Status/DisableDash',
+      'Status/CantSwitchOutCenter',
+      'Status/DisableNormalSkill',
+      'Status/DisableCastComboSkill',
+      'Status/Unjumpable',
+    ],
+    extendTags: [],
+    blackboard: {},
+    attributeModifiers: [],
+  },
+} as const satisfies OperatorBuffDefinitions;
+
+export default {
+  slug: 'snowshine',
+  gameId: 'SNOWSHINE',
+  rarity: 5,
+  weaponType: 'greatsword',
+  element: 'cryo',
+  role: 'defender',
+  mainAttribute: 'strength',
+  secondaryAttribute: 'will',
+  attributes: {
+    strength: [18, 47, 78, 108, 139, 154],
+    agility: [12, 32, 52, 73, 94, 104],
+    intellect: [9, 27, 46, 65, 84, 93],
+    will: [10, 31, 53, 75, 97, 108],
+    baseAttack: [30, 87, 147, 207, 267, 297],
+    baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
+  },
+  skillGroups: [
+    {
+      key: 'basicAttack',
+      skillType: 'basicAttack',
+      levelSource: 'basicAttack',
+      skills: [snowshineBasicAttack1, snowshineBasicAttack2, snowshineBasicAttack3],
+    },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: snowshineFinisher,
+    },
+    {
+      key: 'plungingAttack',
+      skillType: 'plungingAttack',
+      levelSource: 'basicAttack',
+      skills: snowshinePlungingAttack,
+    },
+    {
+      key: 'battleSkill',
+      skillType: 'battleSkill',
+      levelSource: 'battleSkill',
+      skills: snowshineBattleSkill,
+    },
+    {
+      key: 'comboSkill',
+      skillType: 'comboSkill',
+      levelSource: 'comboSkill',
+      skills: snowshineComboSkill,
+    },
+    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: snowshineUltimate },
+  ],
+  talents: [
+    {
+      key: 'talent1',
+      levels: 2,
+      initializationSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0014_aurora_talent_0',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          blackboardAssignments: { heal_up: [0.15, 0.25], rate: [0.45, 0.55] },
+        }),
+      ),
+    },
+    {
+      key: 'talent2',
+      levels: 2,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'talent_2_sup',
+          operation: 'assign',
+          value: [6, 10],
+        },
+      ],
+    },
+  ],
+  potentials: [
+    {
+      key: 'potential1',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'potential_1',
+          operation: 'assign',
+          value: 1,
+        },
+      ],
+    },
+    {
+      key: 'potential2',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential_2',
+          operation: 'assign',
+          value: 1,
+        },
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'potential_2_range',
+          operation: 'assign',
+          value: 0.2,
+        },
+      ],
+    },
+    {
+      key: 'potential3',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'ultimate',
+          blackboardKey: 'extra_duration',
+          operation: 'add',
+          value: 2,
+        },
+      ],
+    },
+    {
+      key: 'potential4',
+      levels: 1,
+      modifiers: [
+        { kind: 'modifyBasePanelStat', stat: 'defense', operation: 'flat', value: 20 },
+        { kind: 'addBuildAttribute', attributes: ['will'], value: 20 },
+      ],
+    },
+    {
+      key: 'potential5',
+      levels: 1,
+      modifiers: [
+        {
+          kind: 'patchSkillBlackboard',
+          skillGroupKey: 'battleSkill',
+          blackboardKey: 'potential_5_atb',
+          operation: 'assign',
+          value: 10,
+        },
+      ],
+    },
+  ],
+  buffDefinitions: {
+    buff_chr_0014_aurora_combo_skill_heal: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 0,
+      durationSeconds: 0.1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { heal_scale: 1, heal_static_value: 0 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        start: sequence(
+          branch(
+            { kind: 'all', conditions: [] },
+            sequence(
+              step('heal', {
+                target: 'caster',
+                alwaysNext: true,
+                tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
+                attribute: 'will',
+                multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                addition: { kind: 'blackboard', key: 'heal_static_value' },
+              }),
+            ),
+          ),
+        ),
+      },
+    },
+    buff_chr_0014_aurora_combo_skill_heal_loop: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 0,
+      durationSeconds: { blackboardKey: 'duration' },
+      triggerIntervalSeconds: { blackboardKey: 'interval' },
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 999,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { duration: 0, heal_scale_loop: 0, heal_static_value_loop: 0, interval: 0 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        trigger: sequence(
+          branch(
+            { kind: 'all', conditions: [] },
+            sequence(
+              step('heal', {
+                target: 'caster',
+                alwaysNext: true,
+                tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
+                attribute: 'will',
+                multiplier: { kind: 'blackboard', key: 'heal_scale_loop' },
+                addition: { kind: 'blackboard', key: 'heal_static_value_loop' },
+              }),
+            ),
+          ),
+        ),
+      },
+    },
+    buff_chr_0014_aurora_potential_1: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { duration: 0.05 },
+      attributeModifiers: [],
+    },
+    buff_chr_0014_aurora_potential_1_listener: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { duration: 9999 },
+      attributeModifiers: [],
+    },
+    buff_chr_0014_aurora_reduce_damage: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: ['Skill/Character/Common/Shielded'],
+      extendTags: [],
+      blackboard: { duration: 9999, potential_1: 0, taken_dmg: 0.1 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_affixes_shelter',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            asChildBuff: true,
+            blackboardAssignments: {
+              duration: { kind: 'constant', value: 9999999 },
+              rate: { kind: 'blackboard', key: 'taken_dmg' },
+            },
+          }),
+        ),
+        finish: sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0014_aurora_reduce_damage_remain',
+            target: 'buffOwner',
+            source: 'buffSource',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              duration: { kind: 'constant', value: 0.5 },
+              potential_1: { kind: 'blackboard', key: 'potential_1' },
+              taken_dmg: { kind: 'blackboard', key: 'taken_dmg' },
+            },
+          }),
+        ),
+      },
+    },
+    buff_chr_0014_aurora_reduce_damage_remain: {
+      stackingType: 'refresh',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { duration: 0.5, potential_1: 0, taken_dmg: 0.1 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        enable: sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_affixes_shelter',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            asChildBuff: true,
+            blackboardAssignments: {
+              duration: { kind: 'constant', value: 9999999 },
+              rate: { kind: 'blackboard', key: 'taken_dmg' },
+            },
+          }),
+        ),
+      },
+    },
+    buff_chr_0014_aurora_talent_0: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { heal_up: 0.1, rate: 0.5 },
+      attributeModifiers: [],
+      healModifiers: [
+        {
+          enabledSide: 'healer',
+          condition: {
+            kind: 'targetHealthCompare',
+            valueType: 'ratio',
+            operator: 'lessOrEqual',
+            value: { blackboardKey: 'rate' },
+          },
+          processors: [
+            {
+              kind: 'modifyCalculationResult',
+              timing: 'afterCalculation',
+              baseMultiplier: { blackboardKey: 'heal_up' },
+              multiplierCount: 1,
+            },
+          ],
+        },
+      ],
+    },
+    buff_chr_0014_aurora_ultimate_skill_dmg: {
+      stackingType: 'highPriority',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 5,
+      triggerIntervalSeconds: 0.5,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: -1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { atk_scale_loop: 0.1 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        trigger: sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'cryo',
+              attackScale: { kind: 'blackboard', key: 'atk_scale_loop' },
+              tags: ['ultimateSkill'],
+            },
+            'buff_chr_0014_aurora_ultimate_skill_dmg:/lifecycleSequences/trigger/steps/0',
+          ),
+        ),
+      },
+    },
+    buff_chr_0014_aurora_ultimate_skill_frost: {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: { blackboardKey: 'duration' },
+      triggerIntervalSeconds: 2,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { duration: 5, extra_duration: 0, frozen_level: 1 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        enable: sequence(
+          branch(
+            {
+              kind: 'enemySuperArmorCompare',
+              operator: 'less',
+              value: { kind: 'constant', value: 30 },
+            },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 2 },
+                slot: 'TimeDilation/Layer/Entity/Frozen',
+                priority: 50,
+                curve: {
+                  kind: 'inline',
+                  keys: [
+                    {
+                      time: 0,
+                      value: 1,
+                      inTangent: -1,
+                      outTangent: -1,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0.333333343,
+                    },
+                    {
+                      time: 1,
+                      value: 0,
+                      inTangent: -1,
+                      outTangent: -1,
+                      weightedMode: 0,
+                      inWeight: 0.333333343,
+                      outWeight: 0,
+                    },
+                  ],
+                },
+                finishByAction: true,
+                targets: ['enemy'],
+              }),
+            ),
+          ),
+        ),
+        trigger: sequence(
+          step('applyBuff', {
+            buffId: 'buff_common_cryst_cryst_frozen_triggered',
+            target: 'buffOwner',
+            source: 'buffSource',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: {
+              extra_duration: { kind: 'blackboard', key: 'extra_duration' },
+            },
+          }),
+        ),
+      },
+    },
+  },
+  abilityEntityDefinitions: {
+    abilityentity_chr_0014_aurora_combo_skill: {
+      lifetime: { kind: 'limited', durationSeconds: 3 },
+      deathReleaseDelaySeconds: 0.100000001490116,
+      childSkill: {
+        skillId: 'chr_0014_aurora_combo_skill_abilityrange',
+        blackboard: {
+          duration: 0,
+          heal_scale: 1,
+          heal_scale_loop: 1,
+          heal_static_value: 0,
+          heal_static_value_loop: 0,
+          interval: 0,
+        },
+        scheduledSequences: [
+          scheduled(
+            0,
+            sequence(
+              step('findCharacterTeamTargets', {
+                saveToContextKey: 'MainChar',
+                selection: { kind: 'controlledOperator' },
+              }),
+            ),
+            3,
+          ),
+          scheduled(
+            0,
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0014_aurora_combo_skill_heal',
+                target: 'partyExceptCaster',
+                finishByAction: true,
+                blackboardAssignments: {
+                  heal_scale: { kind: 'blackboard', key: 'heal_scale' },
+                  heal_static_value: { kind: 'blackboard', key: 'heal_static_value' },
+                },
+              }),
+            ),
+            3,
+          ),
+          scheduled(
+            0,
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0014_aurora_combo_skill_heal_loop',
+                target: 'partyExceptCaster',
+                finishByAction: true,
+                blackboardAssignments: {
+                  heal_scale_loop: { kind: 'blackboard', key: 'heal_scale_loop' },
+                  heal_static_value_loop: { kind: 'blackboard', key: 'heal_static_value_loop' },
+                  duration: { kind: 'blackboard', key: 'duration' },
+                  interval: { kind: 'blackboard', key: 'interval' },
+                },
+              }),
+            ),
+            900,
+          ),
+          scheduled(90, sequence(step('finishCurrentAbilityEntity', {})), 93),
+        ],
+      },
+    },
+    abilityentity_chr_0014_aurora_ultimate_skill: {
+      lifetime: { kind: 'limited', durationSeconds: 8 },
+      deathReleaseDelaySeconds: 0.100000001490116,
+      childSkills: {
+        chr_0014_aurora_ultimate_skill_abilityrange_potential2: {
+          skillId: 'chr_0014_aurora_ultimate_skill_abilityrange_potential2',
+          blackboard: { atk_scale: 4, atk_scale_loop: 1, extra_duration: 0, frozen_level: 1 },
+          scheduledSequences: [
+            scheduled(
+              4,
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0014_aurora_ultimate_skill_frost',
+                  target: 'enemy',
+                  finishByAction: true,
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    extra_duration: { kind: 'blackboard', key: 'extra_duration' },
+                  },
+                }),
+                step('applyBuff', {
+                  buffId: 'buff_chr_0014_aurora_ultimate_skill_dmg',
+                  target: 'enemy',
+                  finishByAction: true,
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    atk_scale_loop: { kind: 'blackboard', key: 'atk_scale_loop' },
+                  },
+                }),
+              ),
+              156,
+            ),
+          ],
+        },
+        chr_0014_aurora_ultimate_skill_abilityrange: {
+          skillId: 'chr_0014_aurora_ultimate_skill_abilityrange',
+          blackboard: { atk_scale: 4, atk_scale_loop: 1, extra_duration: 0, frozen_level: 1 },
+          scheduledSequences: [
+            scheduled(
+              4,
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0014_aurora_ultimate_skill_frost',
+                  target: 'enemy',
+                  finishByAction: true,
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    extra_duration: { kind: 'blackboard', key: 'extra_duration' },
+                  },
+                }),
+                step('applyBuff', {
+                  buffId: 'buff_chr_0014_aurora_ultimate_skill_dmg',
+                  target: 'enemy',
+                  finishByAction: true,
+                  inheritSourceSkillCastInfo: true,
+                  blackboardAssignments: {
+                    atk_scale_loop: { kind: 'blackboard', key: 'atk_scale_loop' },
+                  },
+                }),
+              ),
+              157,
+            ),
+          ],
+        },
+      },
+    },
+  },
+  conversionSupport: { completeness: 'complete', missingCapabilities: [] },
+} as const satisfies OperatorDefinition;

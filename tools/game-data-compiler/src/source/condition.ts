@@ -21,17 +21,42 @@ import {
 import { parseCharacterTeamSelection, type CharacterTeamSelectionSource } from './selectorFacts.ts';
 import { parseTagQuerySource, type TagQueryType } from './tagQuery.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import type { DamageElement } from '../../../../packages/game-data-contract/src/primitives.ts';
+import type { OperatorRole } from '../../../../packages/game-data-contract/src/primitives.ts';
+import {
+  parseCheckCustomAbilityEventSource,
+  type CheckCustomAbilityEventSource,
+} from './customAbilityEventActions.ts';
 
 interface ConditionIdentity {
   readonly sourceType: string;
 }
 
+export type AttackTypeMaskSource = string | number;
+
+function parseAttackTypeMaskSource(value: unknown, path: string): AttackTypeMaskSource {
+  return typeof value === 'number'
+    ? requireInteger(value, path)
+    : requireNonEmptyString(value, path);
+}
+
 export type NativeConditionSource =
+  | (ConditionIdentity & CheckCustomAbilityEventSource)
   | (ConditionIdentity & { readonly kind: 'squadInFight' })
+  | (ConditionIdentity & {
+      /** 只表示玩家当前是否有移动输入；来源动作无额外字段或写黑板副作用。 */
+      readonly kind: 'moveInput';
+    })
   | (ConditionIdentity & {
       /** 仅选择连携镜头跟随强度；不属于战斗条件。 */
       readonly kind: 'comboCameraAlphaSetting';
       readonly desiredSetting: string;
+    })
+  | (ConditionIdentity & {
+      /** 查询指定技能镜头是否空闲；来源字段只标识编辑器预制体和镜头动画。 */
+      readonly kind: 'skillCameraMotionFree';
+      readonly editPrefabName: string;
+      readonly cameraAnimationKey: string;
     })
   | (ConditionIdentity & {
       /** AbilitySystem 被动条件；这里只保留比较结构，不在来源层读取或计算生命比例。 */
@@ -54,6 +79,11 @@ export type NativeConditionSource =
       readonly kind: 'mainOperator';
       readonly targetSource: string;
       readonly targetGroupKey: string;
+    })
+  | (ConditionIdentity & {
+      readonly kind: 'profession';
+      readonly target: TargetReferenceSource;
+      readonly roles: readonly OperatorRole[];
     })
   | (ConditionIdentity & {
       readonly kind: 'distance';
@@ -102,7 +132,14 @@ export type NativeConditionSource =
       readonly characterTeamSelection: CharacterTeamSelectionSource | null;
     })
   | (ConditionIdentity & { readonly kind: 'probability'; readonly value: ScalarSource })
-  | (ConditionIdentity & { readonly kind: 'skillType'; readonly skillTypes: readonly string[] })
+  | (ConditionIdentity & {
+      readonly kind: 'skillType';
+      readonly checkTargetCurrentSkill?: boolean;
+      readonly skillOwner?: TargetReferenceSource;
+      readonly mustBeforeExclusiveTime?: boolean;
+      readonly skillTypes: readonly string[];
+      readonly attackTypeMask?: AttackTypeMaskSource;
+    })
   | (ConditionIdentity & {
       readonly kind: 'skillId';
       readonly skillIds: readonly StringScalarSource[];
@@ -111,7 +148,7 @@ export type NativeConditionSource =
       /** 当前事件载荷携带的来源技能类型；普通攻击还受原生三位攻击类型掩码约束。 */
       readonly kind: 'originSkillType';
       readonly skillTypes: readonly string[];
-      readonly attackTypeMask: string;
+      readonly attackTypeMask: AttackTypeMaskSource;
     })
   | (ConditionIdentity & {
       /** OnObtainAtb 事件携带的原始获取类型与方式筛选。 */
@@ -133,11 +170,16 @@ export type NativeConditionSource =
       readonly child: TargetReferenceSource;
     })
   | (ConditionIdentity & {
+      /** 只查询客户端相机视口；没有黑板写回或其他业务载荷。 */
+      readonly kind: 'targetInScreen';
+      readonly target: TargetReferenceSource;
+    })
+  | (ConditionIdentity & {
       readonly kind: 'objectTypeMatch';
       readonly target: TargetReferenceSource;
       readonly objectTypeMask: string | number;
     })
-  | (ConditionIdentity & { readonly kind: 'damageType'; readonly damageType: string })
+  | (ConditionIdentity & { readonly kind: 'damageType'; readonly damageType: DamageElement })
   | (ConditionIdentity & {
       readonly kind: 'damageTypeMask';
       readonly damageTypes: readonly string[];
@@ -292,6 +334,35 @@ export function parseConditionLeafSource(
   const sourceType = typeof condition.$type === 'string' ? nativeActionName(condition.$type) : '';
 
   switch (sourceType) {
+    case 'CheckCustomAbilityEvent':
+      return { sourceType, ...parseCheckCustomAbilityEventSource(value, path) };
+    case 'CheckHasMoveInput':
+      requireExactFields(
+        condition,
+        new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+        path,
+      );
+      return { kind: 'moveInput', sourceType };
+    case 'CheckSkillCameraMotionFree':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'editPrefabName',
+          'cameraAnimKey',
+        ]),
+        path,
+      );
+      return {
+        kind: 'skillCameraMotionFree',
+        sourceType,
+        editPrefabName: requireString(condition.editPrefabName, `${path}.editPrefabName`),
+        cameraAnimationKey: requireNonEmptyString(condition.cameraAnimKey, `${path}.cameraAnimKey`),
+      };
     case 'CheckComboSkillCameraAlphaSetting':
       requireExactFields(
         condition,
@@ -369,6 +440,36 @@ export function parseConditionLeafSource(
       };
     case 'CheckMainCharacterCondition':
       return parseMainOperator(condition, path, sourceType);
+    case 'CheckProfession': {
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'checkTarget',
+          'professionCategories',
+        ]),
+        path,
+      );
+      const roles = requireNonEmptyString(
+        condition.professionCategories,
+        `${path}.professionCategories`,
+      )
+        .split(',')
+        .map(value => projectProfessionRole(value.trim(), `${path}.professionCategories`));
+      if (new Set(roles).size !== roles.length) {
+        throw new Error(`${path}.professionCategories: duplicate profession category`);
+      }
+      return {
+        kind: 'profession',
+        sourceType,
+        target: parseTargetReferenceSource(condition.checkTarget, `${path}.checkTarget`),
+        roles,
+      };
+    }
     case 'CheckDistanceCondition':
       return {
         kind: 'distance',
@@ -407,11 +508,40 @@ export function parseConditionLeafSource(
         value: parseScalarSource(condition.prob, `${path}.prob`, inheritedBlackboard),
       };
     case 'CheckSkillType':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'checkTargetCurSkill',
+          'skillOwner',
+          'mustBeforeExclusiveTime',
+          'skillTypeList',
+          'attackTypeMask',
+        ]),
+        path,
+      );
       return {
         kind: 'skillType',
         sourceType,
+        checkTargetCurrentSkill: requireBoolean(
+          condition.checkTargetCurSkill,
+          `${path}.checkTargetCurSkill`,
+        ),
+        skillOwner: parseTargetReferenceSource(condition.skillOwner, `${path}.skillOwner`),
+        mustBeforeExclusiveTime: requireBoolean(
+          condition.mustBeforeExclusiveTime,
+          `${path}.mustBeforeExclusiveTime`,
+        ),
         skillTypes: requireArray(condition.skillTypeList, `${path}.skillTypeList`).map(
           (item, index) => requireString(item, `${path}.skillTypeList[${index}]`),
+        ),
+        attackTypeMask: parseAttackTypeMaskSource(
+          condition.attackTypeMask,
+          `${path}.attackTypeMask`,
         ),
       };
     case 'CheckSkillId':
@@ -454,7 +584,10 @@ export function parseConditionLeafSource(
         skillTypes: requireArray(condition.skillTypeList, `${path}.skillTypeList`).map(
           (item, index) => requireString(item, `${path}.skillTypeList[${index}]`),
         ),
-        attackTypeMask: requireNonEmptyString(condition.attackTypeMask, `${path}.attackTypeMask`),
+        attackTypeMask: parseAttackTypeMaskSource(
+          condition.attackTypeMask,
+          `${path}.attackTypeMask`,
+        ),
       };
     case 'CheckObtainAtbType':
       requireExactFields(
@@ -522,6 +655,24 @@ export function parseConditionLeafSource(
           condition.childTargetSettings,
           `${path}.childTargetSettings`,
         ),
+      };
+    case 'CheckTargetInScreen':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'targetSettings',
+        ]),
+        path,
+      );
+      return {
+        kind: 'targetInScreen',
+        sourceType,
+        target: parseTargetReferenceSource(condition.targetSettings, `${path}.targetSettings`),
       };
     case 'CheckObjectTypeMatch': {
       const mask = condition.objectTypeMask;
@@ -685,6 +836,20 @@ export function parseConditionLeafSource(
     default:
       throw new Error(`${path}: condition parser has not migrated ${JSON.stringify(sourceType)}`);
   }
+}
+
+function projectProfessionRole(value: string, path: string): OperatorRole {
+  const roles: Readonly<Record<string, OperatorRole>> = {
+    Guard: 'guard',
+    Caster: 'caster',
+    Defender: 'defender',
+    Vanguard: 'vanguard',
+    Supporter: 'supporter',
+    Assault: 'striker',
+  };
+  const role = roles[value];
+  if (role === undefined) throw new Error(`${path}: unknown ProfessionCategory '${value}'`);
+  return role;
 }
 
 function parsePhysicalInflictionMask(

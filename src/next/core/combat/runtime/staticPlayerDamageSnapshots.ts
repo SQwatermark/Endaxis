@@ -48,6 +48,10 @@ export function initializeEnemyCombatAttributes(
   for (const attribute of DAMAGE_SCALE_ATTRIBUTE_KEYS) attributes.define(attribute, 0, {});
   // 1.4.4 AttributeMetaTable[63] 无上下限；敌方庇护进入既有公式的独立区间。
   attributes.define('shelterDamageMultiplier', defender.shelterDamageMultiplier, {});
+  // WeakAction 可以把同一关键词载体挂到任意实体；敌人虽不主动攻击，仍须承载并显示该 Buff。
+  attributes.define('weaknessDamageMultiplier', 1, {});
+  // combat-spec derived-attributes：Slow 载体只派生移动速度；零距离木桩仍需保存该原生属性。
+  attributes.define('SlowActionSpeedScalar', 0, {});
 }
 
 const DAMAGE_INCREASE_ATTRIBUTE: Partial<Record<DamageType, DamageScaleAttributeKey>> = {
@@ -158,7 +162,7 @@ export function resolveStaticPlayerDamageSnapshots(
           : [],
       ),
       criticalDamageIncrease: operatorAttributes.get('criticalDamageIncrease'),
-      weaknessDamageMultiplier: 1,
+      weaknessDamageMultiplier: operatorAttributes.get('weaknessDamageMultiplier'),
       igniteDamageMultiplier: 1,
       physicalInflictionDamageMultiplier: 1,
     },

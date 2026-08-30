@@ -111,6 +111,67 @@ describe('原生关键词 Buff 来源与引用边界', () => {
     });
   });
 
+  it('SlowAction 使用原生无子类型载体并保留动态倍率', () => {
+    const action = {
+      ...rawAction,
+      $type: 'Beyond.Gameplay.Core.SlowAction+Data, Gameplay.Beyond',
+      rate: scalarFixture(0, 'move_speed_scalar'),
+    };
+    delete (action as Record<string, unknown>).subType;
+    expect(parseKnownNativeActionLeafSource(action, 'action', {})).toMatchObject({
+      family: 'keywordBuff',
+      action: {
+        keyword: 'Slow',
+        subType: null,
+        carrierBuffId: 'buff_common_affixes_slow',
+        rate: { blackboardKey: 'move_speed_scalar' },
+      },
+    });
+  });
+
+  it('WeakAction 使用已取证的固定弱点倍率载体', () => {
+    const action = {
+      ...rawAction,
+      $type: 'Beyond.Gameplay.Core.WeakAction+Data, Gameplay.Beyond',
+      rate: scalarFixture(0, 'weak_scale'),
+    };
+    delete (action as Record<string, unknown>).subType;
+    expect(parseKnownNativeActionLeafSource(action, 'action', {})).toMatchObject({
+      family: 'keywordBuff',
+      action: {
+        keyword: 'Weak',
+        subType: null,
+        carrierBuffId: 'buff_common_affixes_weak',
+        rate: { blackboardKey: 'weak_scale' },
+      },
+    });
+  });
+
+  it('SpeedupAction 使用固定载体并保留表现 child 覆盖', () => {
+    const action = {
+      ...rawAction,
+      $type: 'Beyond.Gameplay.Core.SpeedupAction+Data, Gameplay.Beyond',
+      rate: scalarFixture(0, 'ratio_speed'),
+      overrideChildBuffId: true,
+      childBuffId: {
+        useBlackboardKey: false,
+        value: 'buff_chr_0027_tangtang_water_icon',
+        blackboardKey: '',
+      },
+    };
+    delete (action as Record<string, unknown>).subType;
+    expect(parseKnownNativeActionLeafSource(action, 'action', {})).toMatchObject({
+      family: 'keywordBuff',
+      action: {
+        keyword: 'Speedup',
+        subType: null,
+        carrierBuffId: 'buff_common_affixes_speedup',
+        rate: { blackboardKey: 'ratio_speed' },
+        childBuffId: { value: 'buff_chr_0027_tangtang_water_icon' },
+      },
+    });
+  });
+
   it('覆盖关闭时不追踪残留 child 字段，开启后保留动态引用', () => {
     const changed = structuredClone(fixture[rootId]);
     const action = changed.buffEventAction[0]!.actions[0]!.actionData[0]!;
@@ -250,5 +311,36 @@ describe('原生关键词 Buff 来源与引用边界', () => {
       },
     });
     expect(collectCompiledBuffIdentityReadIds(definition)).toContain('trigger');
+  });
+
+  it('用已证明的 Buff 来源身份解析 Source 到干员自身', () => {
+    const changed = structuredClone(fixture[rootId]);
+    const action = changed.buffEventAction[0]!.actions[0]!.actionData[0]!;
+    action.target = structuredClone(action.source);
+    expect(
+      compileBuffRuntimeDefinitionSource(
+        parseBuffRuntimeSource(changed, 'buff'),
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        {
+          gameplayTagRegistry: fixtureGameplayTagRegistry,
+          fixedBuffOwnerTarget: 'caster',
+          fixedBuffSourceTarget: 'caster',
+        },
+      ),
+    ).toMatchObject({
+      lifecycleSequences: {
+        enable: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: { target: 'caster' },
+            },
+          ],
+        },
+      },
+    });
   });
 });

@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { EnemyBuffRuntime } from '../core/combat/runtime/combatRuntimeAssembly';
+import type {
+  EnemyBuffRuntime,
+  OperatorBuffRuntime,
+} from '../core/combat/runtime/combatRuntimeAssembly';
 import type { CombatOperationExecutor } from '../core/combat/runtime/skillRuntime';
 import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
 import { createEmptyScenario } from '../core/project/createProject';
@@ -34,6 +37,23 @@ function enemyBuffRuntime(): EnemyBuffRuntime {
   };
 }
 
+function operatorBuffRuntime(ownerId: string): OperatorBuffRuntime {
+  return {
+    ownerId,
+    advanceFrame: () => undefined,
+    apply: () => true,
+    applyScoped: () => ({ finish: () => true }),
+    getCountByIds: () => 0,
+    findFirstByIds: () => undefined,
+    finishByIds: () => 0,
+    holdByIds: () => ({ release() {} }),
+    getCountByTags: () => 0,
+    matchesEntityTags: () => false,
+    findFirstByTags: () => undefined,
+    finishByTags: () => 0,
+  };
+}
+
 function operationExecutor(): CombatOperationExecutor {
   return {
     execute: () => true,
@@ -57,6 +77,7 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
     },
     environment: {
       enemyBuffRuntime: enemyBuffRuntime(),
+      createOperatorBuffRuntime: operatorBuffRuntime,
       createOperationExecutor: () => operationExecutor(),
     },
   };

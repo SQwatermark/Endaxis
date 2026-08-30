@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
-import { zhuangFangyiGeneratedOperator } from './generated/zhuang-fangyi.operator.generated';
+import definition from './generated-definitions/zhuang-fangyi/zhuang-fangyi.operator.generated';
 import { zhuangFangyi } from './zhuang-fangyi';
 
 function buildAtLevel(skillLevel: number): OperatorInstanceDocument {
@@ -23,14 +23,14 @@ function buildAtLevel(skillLevel: number): OperatorInstanceDocument {
 
 describe('next Zhuang Fangyi definition', () => {
   it('uses the complete generated definition through the stable operator entry', () => {
-    expect(zhuangFangyi).toBe(zhuangFangyiGeneratedOperator);
+    expect(zhuangFangyi).toBe(definition);
     expect(zhuangFangyi.conversionSupport).toEqual({
       completeness: 'complete',
       missingCapabilities: [],
     });
   });
 
-  it('keeps all fifteen native skills and both runtime-only replacements', () => {
+  it('keeps all fifteen player skills plus the runtime-only ultimate exit', () => {
     expect(zhuangFangyi.skillGroups.map(group => group.key)).toEqual([
       'basicAttack',
       'finisher',
@@ -49,8 +49,8 @@ describe('next Zhuang Fangyi definition', () => {
       ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
       ...(group.replacementSkills ?? []),
     ]);
-    expect(skills).toHaveLength(15);
-    expect(new Set(skills.map(skill => skill.key)).size).toBe(15);
+    expect(skills).toHaveLength(16);
+    expect(new Set(skills.map(skill => skill.key)).size).toBe(16);
     expect(skills.every(skill => skill.scheduledSequences.length > 0)).toBe(true);
   });
 

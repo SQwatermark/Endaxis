@@ -184,18 +184,18 @@ describe('projectTimelineEditor', () => {
       getOperator: slug => (slug === mifu.slug ? mifu : null),
     }).tracks[0]!.skillCasts;
     const markersByForm = cast!.hitMarkers.reduce<Record<string, number>>((result, marker) => {
-      const form = marker.stepKey.match(/battleSkill[123]/)?.[0] ?? 'unknown';
+      const form = marker.skillKey ?? 'unknown';
       result[form] = (result[form] ?? 0) + 1;
       return result;
     }, {});
 
     expect(markersByForm).toEqual({ battleSkill1: 1, battleSkill2: 3, battleSkill3: 1 });
-    expect(cast!.hitMarkers.filter(marker => marker.stepKey.includes('battleSkill1'))).toEqual([
+    expect(cast!.hitMarkers.filter(marker => marker.skillKey === 'battleSkill1')).toEqual([
       expect.objectContaining({ conditional: false }),
     ]);
     expect(
       cast!.hitMarkers
-        .filter(marker => !marker.stepKey.includes('battleSkill1'))
+        .filter(marker => marker.skillKey !== 'battleSkill1')
         .every(marker => marker.conditional),
     ).toBe(true);
   });

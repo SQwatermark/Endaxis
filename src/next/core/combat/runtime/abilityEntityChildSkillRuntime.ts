@@ -5,7 +5,10 @@
  */
 import type { CombatExecutionContext } from '../actions/combatStep';
 import type { CompiledAbilityEntityChildSkillProgram } from '../../compiler/combatProgram';
-import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import {
+  logicalAbilityEntityRuntimeId,
+  type RuntimeTargetRef,
+} from '../../game-data/logicalAbilityEntity';
 import { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import { ActionBlackboard } from './actionBlackboard';
@@ -28,12 +31,13 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
   constructor(
     program: CompiledAbilityEntityChildSkillProgram,
     dependencies: {
-      readonly entity: RuntimeTargetRef;
+      readonly entity: Extract<RuntimeTargetRef, { readonly kind: 'abilityEntity' }>;
       readonly entityBlackboard: ActionBlackboard;
       readonly operations: CombatOperationExecutor;
       readonly ownerOperatorId: string;
       readonly semanticEvents?: CombatSemanticEventRuntime;
       readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+      readonly addAbilityChildBuff?: (child: { finish(reason: 'other'): boolean }) => void;
     },
   ) {
     // 原生实体技能先有自身 SkillData 默认值，再由 SpawnAbilityEntity.assignBlackboard
@@ -45,10 +49,16 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
     const runtime = this;
     this.#operationContext = {
       blackboard,
+      damageCalculationSnapshots: new Map(),
       targetContext: new RuntimeTargetContext(),
       currentTarget: dependencies.entity,
+      actionOwnerAbilityEntity: dependencies.entity,
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
+      requestTimelineFinish: () => this.#requestTimelineFinish(),
       getCurrentTimelineFrame: () => roundToEven(runtime.#passedFrames),
+      ...(dependencies.addAbilityChildBuff === undefined
+        ? {}
+        : { addAbilityChildBuff: dependencies.addAbilityChildBuff }),
       ...(dependencies.inheritedSkillCastInfo === undefined
         ? {}
         : { skillCastInfo: dependencies.inheritedSkillCastInfo }),
@@ -58,7 +68,7 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       this.#operationContext,
       {},
       dependencies.semanticEvents,
-      dependencies.ownerOperatorId,
+      logicalAbilityEntityRuntimeId(dependencies.entity.instanceId),
     );
     this.#timeline = new TimelineActionProcessor(
       program.timelineActions.map(action => ({
@@ -72,8 +82,9 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
   start(): void {
     if (this.#started) throw new Error('AbilityEntity child skill has already started');
     this.#started = true;
-    this.#timeline.reset(this.#context);
     this.#sequenceRuntime.reset();
+    this.#operationContext.damageCalculationSnapshots!.clear();
+    this.#timeline.reset(this.#context);
     // 与普通技能一致，生成当帧立即执行一次零增量 Tick。
     this.#timeline.tick(0, 0, this.#context);
   }
@@ -99,6 +110,13 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
     }
     this.#timeline.jumpTo(destinationFrame, this.#passedFrames, this.#context);
     this.#passedFrames = destinationFrame;
+  }
+
+  #requestTimelineFinish(): void {
+    if (!this.#started || this.#finished) {
+      throw new Error('AbilityEntity child skill cannot finish outside an active timeline');
+    }
+    this.#timeline.finish(this.#passedFrames, this.#context);
   }
 }
 

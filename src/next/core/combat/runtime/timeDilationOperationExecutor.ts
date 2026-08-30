@@ -5,7 +5,7 @@
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type {
   AbilityEntityTargetQuery,
-  CombatTarget,
+  TimeDilationEntityTarget,
   TimeDilationIgnoreTarget,
 } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
@@ -27,6 +27,7 @@ export interface TimeDilationOperationDependencies {
 
 export class TimeDilationOperationExecutor implements CombatOperationExecutor {
   readonly #instanceIds = new WeakMap<RuntimeOperation, readonly number[]>();
+  readonly #ignoredEntityIds = new WeakMap<RuntimeOperation, readonly string[]>();
 
   constructor(readonly dependencies: TimeDilationOperationDependencies) {}
 
@@ -34,12 +35,27 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
     step: RuntimeOperation,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
-    if (step.kind !== 'startTimeDilation' && step.kind !== 'startUltimateTimeDilation') {
+    if (
+      step.kind !== 'startTimeDilation' &&
+      step.kind !== 'startUltimateTimeDilation' &&
+      step.kind !== 'setIgnoreGlobalTimeScale'
+    ) {
       return context === undefined
         ? this.dependencies.delegate.execute(step)
         : this.dependencies.delegate.execute(step, context);
     }
     if (context === undefined) throw new Error(`${step.kind} requires an operation context`);
+    if (step.kind === 'setIgnoreGlobalTimeScale') {
+      const entityIds = this.#resolveAbilityEntityTargetIds(
+        step.parameters.abilityEntityTargets,
+        context,
+      );
+      for (const entityId of entityIds) {
+        this.dependencies.runtime.setIgnoreGlobalTimeScale(entityId, step.parameters.ignore);
+      }
+      if (step.parameters.revertOnEnd) this.#ignoredEntityIds.set(step, entityIds);
+      return true;
+    }
     const source = {
       sourceId: this.dependencies.sourceId,
       sourceActionId: this.dependencies.sourceActionId,
@@ -100,7 +116,9 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
             }),
           ]
         : [
-            ...parameters.targets.map(target => resolveSingleTargetId(this.dependencies, target)),
+            ...parameters.targets.map(target =>
+              resolveSingleTargetId(this.dependencies, target, context),
+            ),
             ...this.#resolveAbilityEntityTargetIds(parameters.abilityEntityTargets ?? [], context),
           ].map(entityId =>
             this.dependencies.runtime.startEntity({
@@ -129,6 +147,18 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
     if (queries.length === 0) return [];
     const result: string[] = [];
     for (const query of queries) {
+      if (query.kind === 'current') {
+        if (context.currentTarget?.kind !== 'abilityEntity') {
+          throw new Error('current ability-entity query requires an AbilityEntity target');
+        }
+        const resolve = this.dependencies.resolveContextAbilityEntityId;
+        if (resolve === undefined) {
+          throw new Error('current ability-entity target requires a stable entity resolver');
+        }
+        const entityId = resolve(context.currentTarget.instanceId);
+        if (entityId !== null) result.push(entityId);
+        continue;
+      }
       if (query.kind === 'context') {
         if (context.targetContext === undefined) {
           throw new Error('ability-entity Context query requires a combat target context');
@@ -164,6 +194,13 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
     step: RuntimeOperation,
     context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
   ): void {
+    if (step.kind === 'setIgnoreGlobalTimeScale') {
+      for (const entityId of this.#ignoredEntityIds.get(step) ?? []) {
+        this.dependencies.runtime.setIgnoreGlobalTimeScale(entityId, !step.parameters.ignore);
+      }
+      this.#ignoredEntityIds.delete(step);
+      return;
+    }
     if (step.kind === 'startTimeDilation' || step.kind === 'startUltimateTimeDilation') {
       for (const id of this.#instanceIds.get(step) ?? []) this.dependencies.runtime.stop(id);
       this.#instanceIds.delete(step);
@@ -184,8 +221,15 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
 
 function resolveSingleTargetId(
   dependencies: TimeDilationOperationDependencies,
-  target: CombatTarget,
+  target: TimeDilationEntityTarget,
+  context: CombatOperationContext,
 ): string {
+  if (target === 'buffOwner') {
+    if (context.buffOwnerId === undefined) {
+      throw new Error("time-dilation entity target 'buffOwner' requires a Buff lifecycle owner");
+    }
+    return context.buffOwnerId;
+  }
   const ids = dependencies.resolveTargetIds(target);
   if (ids.length !== 1) {
     throw new Error(`time-dilation entity target '${target}' must resolve to exactly one entity`);

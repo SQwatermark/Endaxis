@@ -266,7 +266,7 @@ Action 同时统计配置数量和 `isEnable != false` 的启用数量；正文�
 ## 使用方式
 
 ```powershell
-python scripts/generate_next_operators/audit_recursive_mechanisms.py
+# 历史命令：旧 Python 审计器已退役；当前使用 TS 游戏数据编译器审计
 ```
 
 JSON 保留完整分布、逐干员明细和所有缺失引用；Markdown 只截取高频 Action，便于人工阅读。

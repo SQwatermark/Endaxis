@@ -6,6 +6,7 @@ import type {
 import type {
   CompiledBuffSequenceSource,
   CompiledBuffStepSource,
+  CompiledActionValueOperandSource,
 } from './combatActionProjectionTypes.ts';
 
 export interface CompiledActionBlackboardScopeSource {
@@ -17,6 +18,7 @@ export interface CompiledActionBlackboardScopeSource {
     readonly initialValues: Readonly<Record<string, number>>;
     readonly inheritParent: boolean;
     readonly entityInitialValues?: Readonly<Record<string, number>>;
+    readonly entityAssignments?: Readonly<Record<string, CompiledActionValueOperandSource>>;
   };
   readonly body: {
     readonly steps: readonly CompiledBuffStepSource[];
@@ -57,14 +59,13 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
   if (
     template === null &&
     (!input.allowMissingEntityBlackboardEvidence ||
-      launch.assignEntityBlackboard ||
+      (launch.assignEntityBlackboard && launch.assignments.length !== 0) ||
       callbackReadsEntityBlackboard)
   )
     throw new Error(`${sourcePath}: projectile entity blackboard evidence is missing`);
   if (template !== null && template.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: projectile template identity mismatch`);
-  if (launch.assignEntityBlackboard)
-    throw new Error(`${sourcePath}: projectile entity blackboard assignments are not projected`);
+  const entityAssignments = projectEntityAssignments(launch, sourcePath);
   const routes = new Map<ProjectileSkillCallbackSource['event'], string>();
   for (const callback of launch.callbacks) {
     if (!callback.enabled) continue;
@@ -106,10 +107,39 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
         ? {}
         : {
             entityInitialValues: numericInitialValues(template.entityBlackboard, sourcePath, true),
+            ...(Object.keys(entityAssignments).length === 0 ? {} : { entityAssignments }),
           }),
     },
     body: { steps },
   };
+}
+
+function projectEntityAssignments(
+  launch: ProjectileLaunchActionSource,
+  sourcePath: string,
+): Readonly<Record<string, CompiledActionValueOperandSource>> {
+  if (!launch.assignEntityBlackboard || launch.assignments.length === 0) return {};
+  return Object.fromEntries(
+    launch.assignments.map((assignment, index) => {
+      if (!assignment.targetKey.startsWith('EntityBB_')) {
+        throw new Error(
+          `${sourcePath}.assignPairs[${index}]: projectile entity assignment requires an EntityBB_ target`,
+        );
+      }
+      if (!assignment.useDirectValue) {
+        return [
+          assignment.targetKey,
+          { kind: 'blackboard', key: assignment.inputValueKey },
+        ] as const;
+      }
+      if (assignment.valueType !== 'Numeric') {
+        throw new Error(
+          `${sourcePath}.assignPairs[${index}]: projectile entity assignment requires a numeric value`,
+        );
+      }
+      return [assignment.targetKey, { kind: 'constant', value: assignment.numericValue }] as const;
+    }),
+  );
 }
 
 function numericInitialValues(

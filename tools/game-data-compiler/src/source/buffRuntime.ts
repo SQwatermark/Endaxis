@@ -1,6 +1,7 @@
 import {
   parseGameplayAttributeModifierEntrySource,
   parseGameplayAttributeModifierSource,
+  parseAttributeTypeName,
   type GameplayAttributeModifierEntrySource,
   type GameplayAttributeModifierSource,
 } from './attributeModifiers.ts';
@@ -93,11 +94,18 @@ export interface BuffDamageModifierSource {
 export interface BuffHealModifierSource {
   readonly enabledSide: string;
   readonly condition: NativeSequenceSource<KnownNativeActionLeafSource>;
-  readonly processors: readonly {
-    readonly kind: 'instantAttribute';
-    readonly modifyTargetSide: string;
-    readonly modifier: GameplayAttributeModifierEntrySource;
-  }[];
+  readonly processors: readonly (
+    | {
+        readonly kind: 'instantAttribute';
+        readonly modifyTargetSide: string;
+        readonly modifier: GameplayAttributeModifierEntrySource;
+      }
+    | {
+        readonly kind: 'modifyCalculationResult';
+        readonly baseMultiplier: ScalarSource;
+        readonly multiplierCount: ScalarSource;
+      }
+  )[];
 }
 
 export interface BuffPoiseModifierSource {
@@ -112,9 +120,20 @@ export interface BuffPoiseModifierSource {
 
 export interface BuffShieldSource {
   readonly infinityValue: boolean;
-  readonly value: ScalarSource;
-  readonly applyScale: boolean;
-  readonly valueScale: ScalarSource;
+  readonly value:
+    | {
+        readonly kind: 'definite';
+        readonly value: ScalarSource;
+        readonly applyScale: boolean;
+        readonly valueScale: ScalarSource;
+      }
+    | {
+        readonly kind: 'attribute';
+        readonly valueSource: string;
+        readonly attributeType: import('./attributeModifiers.ts').AttributeTypeSource;
+        readonly multiplier: ScalarSource;
+        readonly addition: ScalarSource;
+      };
   readonly damageAbsorptions: readonly {
     readonly damageType: string;
     readonly ratio: ScalarSource;
@@ -305,13 +324,58 @@ function parseBuffShields(
     );
     const calculationPath = `${itemPath}.valueCalculation`;
     const calculation = requireRecord(item.valueCalculation, calculationPath);
-    requireExactFields(
-      calculation,
-      new Set(['$type', 'value', 'applyScale', 'valueScale']),
-      calculationPath,
-    );
     const calculationType = requireNonEmptyString(calculation.$type, `${calculationPath}.$type`);
-    if (calculationType !== 'Beyond.Gameplay.Core.DefiniteValueCalculation, Gameplay.Beyond') {
+    let shieldValue: BuffShieldSource['value'];
+    if (calculationType === 'Beyond.Gameplay.Core.DefiniteValueCalculation, Gameplay.Beyond') {
+      requireExactFields(
+        calculation,
+        new Set(['$type', 'value', 'applyScale', 'valueScale']),
+        calculationPath,
+      );
+      shieldValue = {
+        kind: 'definite',
+        value: parseScalarSource(
+          calculation.value,
+          `${calculationPath}.value`,
+          inheritedBlackboard,
+        ),
+        applyScale: requireBoolean(calculation.applyScale, `${calculationPath}.applyScale`),
+        valueScale: parseScalarSource(
+          calculation.valueScale,
+          `${calculationPath}.valueScale`,
+          inheritedBlackboard,
+        ),
+      };
+    } else if (
+      calculationType === 'Beyond.Gameplay.Core.MultiplyAttributeCalculation, Gameplay.Beyond'
+    ) {
+      requireExactFields(
+        calculation,
+        new Set(['$type', 'valueSource', 'attributeType', 'multiplier', 'addition']),
+        calculationPath,
+      );
+      shieldValue = {
+        kind: 'attribute',
+        valueSource: requireNonEmptyString(
+          calculation.valueSource,
+          `${calculationPath}.valueSource`,
+        ),
+        attributeType: parseAttributeTypeName(
+          calculation.attributeType,
+          `${calculationPath}.attributeType`,
+        ),
+        multiplier: parseScalarSource(
+          calculation.multiplier,
+          `${calculationPath}.multiplier`,
+          inheritedBlackboard,
+        ),
+        addition: parseScalarSource(
+          calculation.addition,
+          `${calculationPath}.addition`,
+          inheritedBlackboard,
+        ),
+      };
+    } else {
       throw new Error(
         `${calculationPath}.$type: unsupported shield calculation ${JSON.stringify(calculationType)}`,
       );
@@ -319,13 +383,7 @@ function parseBuffShields(
     requireRecord(item.hitEffect, `${itemPath}.hitEffect`);
     return {
       infinityValue: requireBoolean(item.infinityValue, `${itemPath}.infinityValue`),
-      value: parseScalarSource(calculation.value, `${calculationPath}.value`, inheritedBlackboard),
-      applyScale: requireBoolean(calculation.applyScale, `${calculationPath}.applyScale`),
-      valueScale: parseScalarSource(
-        calculation.valueScale,
-        `${calculationPath}.valueScale`,
-        inheritedBlackboard,
-      ),
+      value: shieldValue,
       damageAbsorptions: requireArray(item.damageAbsorptions, `${itemPath}.damageAbsorptions`).map(
         (rawAbsorption, absorptionIndex) => {
           const absorptionPath = `${itemPath}.damageAbsorptions[${absorptionIndex}]`;
@@ -432,17 +490,41 @@ function parseBuffHealModifiers(
       (rawProcessor, processorIndex) => {
         const processorPath = `${itemPath}.healProcessors[${processorIndex}]`;
         const processor = requireRecord(rawProcessor, processorPath);
+        const type = requireNonEmptyString(processor.$type, `${processorPath}.$type`);
+        if (type === 'Beyond.Gameplay.Core.ModifyHealCalcResult, Gameplay.Beyond') {
+          requireExactFields(
+            processor,
+            new Set(['$type', 'modifyType', 'baseMultiplier', 'multiplierCnt']),
+            processorPath,
+          );
+          if (
+            requireNonEmptyString(processor.modifyType, `${processorPath}.modifyType`) !==
+            'Multiply'
+          )
+            throw new Error(`${processorPath}.modifyType: expected "Multiply"`);
+          return {
+            kind: 'modifyCalculationResult' as const,
+            baseMultiplier: parseScalarSource(
+              processor.baseMultiplier,
+              `${processorPath}.baseMultiplier`,
+              inheritedBlackboard,
+            ),
+            multiplierCount: parseScalarSource(
+              processor.multiplierCnt,
+              `${processorPath}.multiplierCnt`,
+              inheritedBlackboard,
+            ),
+          };
+        }
         requireExactFields(
           processor,
           new Set(['$type', 'modifyTargetSide', 'modifier']),
           processorPath,
         );
-        const type = requireNonEmptyString(processor.$type, `${processorPath}.$type`);
-        if (type !== 'Beyond.Gameplay.Core.InstantModifyAttributeForHeal, Gameplay.Beyond') {
+        if (type !== 'Beyond.Gameplay.Core.InstantModifyAttributeForHeal, Gameplay.Beyond')
           throw new Error(
             `${processorPath}.$type: unsupported heal processor ${JSON.stringify(type)}`,
           );
-        }
         return {
           kind: 'instantAttribute' as const,
           modifyTargetSide: requireNonEmptyString(
@@ -595,15 +677,29 @@ function validatePassiveFlags(
   sourcePath: string,
   inheritedBlackboard: BlackboardLevelValues,
 ): void {
-  for (const field of [
-    'ignoreTagImmune',
-    'finishOnRepatriate',
-    'hasAddingCooldown',
-    'ignoreCooldownWhenAdding',
-  ]) {
+  for (const field of ['ignoreTagImmune', 'finishOnRepatriate', 'ignoreCooldownWhenAdding']) {
     requireBoolean(root[field], `${sourcePath}.${field}`);
   }
-  parseScalarSource(root.addingCooldown, `${sourcePath}.addingCooldown`, inheritedBlackboard);
+  const hasAddingCooldown = requireBoolean(
+    root.hasAddingCooldown,
+    `${sourcePath}.hasAddingCooldown`,
+  );
+  if (hasAddingCooldown) {
+    // combat-spec 目前同样只开放 false；不能验证完字段后再静默丢掉真实加 Buff 冷却。
+    parseScalarSource(root.addingCooldown, `${sourcePath}.addingCooldown`, inheritedBlackboard);
+    throw new Error(`${sourcePath}.hasAddingCooldown: enabled Buff adding cooldown is unsupported`);
+  }
+  // 关闭槽在 1.4.4 中存在 useBlackboardKey=true + 空 key 的序列化脏值；
+  // 结构仍须严格，禁用值则不应被提升成运行时黑板依赖。
+  const addingCooldown = requireRecord(root.addingCooldown, `${sourcePath}.addingCooldown`);
+  requireExactFields(
+    addingCooldown,
+    new Set(['useBlackboardKey', 'value', 'blackboardKey']),
+    `${sourcePath}.addingCooldown`,
+  );
+  requireBoolean(addingCooldown.useBlackboardKey, `${sourcePath}.addingCooldown.useBlackboardKey`);
+  requireNumber(addingCooldown.value, `${sourcePath}.addingCooldown.value`);
+  requireString(addingCooldown.blackboardKey, `${sourcePath}.addingCooldown.blackboardKey`);
   const dispel = requireRecord(root.dispelConfig, `${sourcePath}.dispelConfig`);
   requireExactFields(
     dispel,

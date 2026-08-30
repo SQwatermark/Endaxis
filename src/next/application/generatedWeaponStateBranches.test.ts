@@ -10,7 +10,7 @@ import { createEmptyScenario } from '../core/project/createProject';
 import { generatedWeaponDefinitions } from '../data/equipment/generated-weapons/index.generated';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { skillSettings } from '../data/combat/skillSettings';
-import { daPanComboSkill } from '../data/operators/generated/da-pan.operator.generated';
+import { daPanComboSkill } from '../data/operators/generated-definitions/da-pan/da-pan.operator.generated';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { ScenarioSimulationService } from './scenarioSimulationService';
 
@@ -118,15 +118,24 @@ describe('生成武器的目标状态与层数伤害分支', () => {
 });
 
 function createCrushProbe() {
-  const step = daPanComboSkill.scheduledSequences
-    .flatMap(sequence => sequence.sequence.steps)
-    .find(
-      (step): step is Extract<CombatStepDefinition, { kind: 'applyPhysicalInfliction' }> =>
-        step.kind === 'applyPhysicalInfliction',
-    );
+  const step = findPhysicalInfliction(daPanComboSkill.scheduledSequences);
   if (!step || step.parameters.type !== 'crush')
     throw new Error('fixture requires a production Crush step');
   return structuredClone(step);
+}
+
+function findPhysicalInfliction(
+  value: unknown,
+): Extract<CombatStepDefinition, { kind: 'applyPhysicalInfliction' }> | null {
+  if (value === null || typeof value !== 'object') return null;
+  if ('kind' in value && value.kind === 'applyPhysicalInfliction' && 'parameters' in value) {
+    return value as Extract<CombatStepDefinition, { kind: 'applyPhysicalInfliction' }>;
+  }
+  for (const child of Array.isArray(value) ? value : Object.values(value)) {
+    const result = findPhysicalInfliction(child);
+    if (result !== null) return result;
+  }
+  return null;
 }
 
 function hit(

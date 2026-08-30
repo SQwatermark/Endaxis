@@ -24,7 +24,6 @@
     "audit:game-data:tag-references": "node --experimental-strip-types tools/game-data-compiler/scripts/auditGameplayTagReferences.ts",
     "audit:game-data:weapons": "node --experimental-strip-types tools/game-data-compiler/scripts/auditWeaponStaticDefinitions.ts",
     "generate:game-data:weapons": "node --experimental-strip-types tools/game-data-compiler/scripts/generateWeaponDefinitions.ts",
-    "generate:game-data:operator-runtime": "node --experimental-strip-types tools/game-data-compiler/scripts/generateOperatorRuntimeDefinition.ts",
     "generate:game-data:operator-active-skill": "node --experimental-strip-types tools/game-data-compiler/scripts/generateOperatorActiveSkillRuntime.ts",
     "generate:game-data:operator-active-skills": "node --experimental-strip-types tools/game-data-compiler/scripts/generateOperatorActiveSkillRuntimeBatch.ts",
     "plan:game-data:operator-unity-templates": "node --experimental-strip-types tools/game-data-compiler/scripts/planOperatorUnityTemplates.ts",

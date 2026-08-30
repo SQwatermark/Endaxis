@@ -97,14 +97,27 @@ function bindStepHitIds(step: ResolvedCombatStep, castId: string): ResolvedComba
       const definition = step.parameters.definition;
       if (definition === undefined) return step;
       const childSkill = definition.childSkill;
-      if (childSkill === undefined) return step;
+      const childSkills = definition.childSkills;
+      if (childSkill === undefined && childSkills === undefined) return step;
       return {
         ...step,
         parameters: {
           ...step.parameters,
           definition: {
             ...definition,
-            childSkill: bindChildSkillHitIds(childSkill, castId),
+            ...(childSkill === undefined
+              ? {}
+              : { childSkill: bindChildSkillHitIds(childSkill, castId) }),
+            ...(childSkills === undefined
+              ? {}
+              : {
+                  childSkills: Object.fromEntries(
+                    Object.entries(childSkills).map(([skillId, program]) => [
+                      skillId,
+                      bindChildSkillHitIds(program, castId),
+                    ]),
+                  ),
+                }),
           },
         },
       };
@@ -152,12 +165,22 @@ function bindProgramHitIds(program: CompiledSkillProgram, castId: string): Compi
           abilityEntityDefinitions: Object.fromEntries(
             Object.entries(program.abilityEntityDefinitions).map(([id, definition]) => [
               id,
-              definition.childSkill === undefined
-                ? definition
-                : {
-                    ...definition,
-                    childSkill: bindChildSkillHitIds(definition.childSkill, castId),
-                  },
+              {
+                ...definition,
+                ...(definition.childSkill === undefined
+                  ? {}
+                  : { childSkill: bindChildSkillHitIds(definition.childSkill, castId) }),
+                ...(definition.childSkills === undefined
+                  ? {}
+                  : {
+                      childSkills: Object.fromEntries(
+                        Object.entries(definition.childSkills).map(([skillId, childSkill]) => [
+                          skillId,
+                          bindChildSkillHitIds(childSkill, castId),
+                        ]),
+                      ),
+                    }),
+              },
             ]),
           ),
         }),
@@ -510,6 +533,7 @@ function compileResolvedTimelineTracks(
     };
     operators.push({
       operatorId: track.id,
+      operatorRole: operator.role,
       ...(Object.keys(buffDefinitions).length === 0 ? {} : { buffDefinitions }),
       ...(Object.keys(buffAbilityEntityDefinitions).length === 0
         ? {}

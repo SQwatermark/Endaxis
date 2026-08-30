@@ -30,17 +30,18 @@ flowchart LR
 
 ## 3. 干员生成器
 
-入口位于 `scripts/generate_next_operators`：
+正式入口位于 `tools/game-data-compiler`：
 
-- `generate_next_operators.py`：CLI 和总体编排。
-- `source_schema.py`、`source_models.py`：来源结构和中间模型。
-- `action_kinds.py`、`action_payload_parser.py`：动作类型与负载解析。
-- `conditional_parser.py`、`target_parser.py`：条件和目标语义。
-- `progression_renderer.py`：天赋、潜能和面板成长输出。
-- `audit_all_operators.py`：全干员覆盖审计。
-- `audit_recursive_mechanisms.py`：嵌套机制审计。
+- `src/source`：严格解析原生来源结构；
+- `src/compiler`：把来源动作、Buff、能力实体和条件投影为 Next 契约；
+- `src/domains/operator`：整名干员、技能组、天赋与潜能的领域装配；
+- `scripts/planOperatorDefinition.ts`：整名规划；
+- `scripts/generateOperatorDefinition.ts`：正式定义生成与 `--check`；
+- `scripts/auditOperatorActiveSkillMigration.ts`：全干员主动技能覆盖审计。
 
-生成结果放在 `src/next/data/operators/generated`，审计结果放在 `docs/research`。人工整理后的正式定义位于 `src/next/data/operators`。
+干员 manifest 位于 `tools/game-data-compiler/config/operators.json`，正式定义位于
+`src/next/data/operators/generated-definitions`。来源和机器审计写入被 Git 忽略的 `tmp/`；旧
+`scripts/generate_next_operators` 仅保留退役说明，不再包含可执行 Python 生成器。
 
 ## 4. 严格模式与宽松模式
 

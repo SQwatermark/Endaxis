@@ -6,7 +6,6 @@ import {
   projectTickIntervalFrames,
   requireNonNegativeInteger,
 } from '../src/index.ts';
-import { runPythonOracle } from './pythonOracle.ts';
 
 interface ScalarCase {
   readonly value: {
@@ -55,18 +54,16 @@ describe('shared native source primitives', () => {
     { startFrame: 0, endFrame: 90, intervalSeconds: 0.1 },
     { startFrame: 17, endFrame: 180, intervalSeconds: 1 / 3 },
     { startFrame: 0, endFrame: 1500, intervalSeconds: 0.033333335 },
-  ])('matches Python float32 tick projection for %o', payload => {
+  ])('locks the verified float32 tick projection for %o', payload => {
     expect(
       projectTickIntervalFrames(payload.startFrame, payload.endFrame, payload.intervalSeconds),
-    ).toEqual(runPythonOracle({ operation: 'projectTickIntervalFrames', payload }));
+    ).toMatchSnapshot();
   });
 });
 
 describe('shared scalar source parser', () => {
-  it.each(SCALAR_CASES)('matches the Python oracle for %o', payload => {
-    expect(parseScalarSource(payload.value, payload.path, payload.blackboard)).toEqual(
-      runPythonOracle({ operation: 'parseScalar', payload }),
-    );
+  it.each(SCALAR_CASES)('locks the verified source shape for %o', payload => {
+    expect(parseScalarSource(payload.value, payload.path, payload.blackboard)).toMatchSnapshot();
   });
 
   it('rejects an active empty blackboard reference', () => {

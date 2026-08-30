@@ -35,9 +35,14 @@ export function gameplayTagIdFromPath(path: string): GameplayTagId {
 export class GameplayTagRegistry {
   readonly #paths = new Map<GameplayTagId, string>();
 
+  /** 仅供来源投影判定一个原生身份是否属于已核验目录；不把数字身份带入运行时。 */
+  find(id: number): string | undefined {
+    return this.#paths.get(gameplayTagId(id));
+  }
+
   /** 只在来源侧解析原生身份；未知标签必须阻断输出。 */
   resolve(id: number, sourcePath = 'GameplayTag'): string {
-    const path = this.#paths.get(gameplayTagId(id));
+    const path = this.find(id);
     if (path === undefined)
       throw new Error(`${sourcePath}: 无法解析 GameplayTag ID ${id}，请补齐同版本标签目录`);
     return path;

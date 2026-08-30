@@ -98,6 +98,67 @@ describe('TargetContextOperationExecutor', () => {
     expect(targetContext.get('Saved')).toEqual([]);
   });
 
+  it('excludes the current skill caster before choosing the lowest-health teammate', () => {
+    const ledgers = new Map([
+      ['operator:catcher', vitals(100)],
+      ['operator:ally', vitals(500)],
+    ]);
+    const targetContext = new RuntimeTargetContext();
+    const executor = new TargetContextOperationExecutor('operator:catcher', terminal, id => id, {
+      listOperatorIds: () => [...ledgers.keys()],
+      isOperatorControlled: () => false,
+      resolveVitals: operatorId => ledgers.get(operatorId)!,
+    });
+
+    executor.execute(
+      {
+        kind: 'findCharacterTeamTargets',
+        parameters: {
+          saveToContextKey: 'Ally',
+          selection: { kind: 'lowestHealthRatioOperator', excludeCaster: true },
+        },
+      },
+      { blackboard: new ActionBlackboard(), targetContext },
+    );
+
+    expect(targetContext.get('Ally')).toEqual([{ kind: 'operator', operatorId: 'operator:ally' }]);
+  });
+
+  it('excludes the current forEach operator target before choosing the lowest-health teammate', () => {
+    const ledgers = new Map([
+      ['operator:main', vitals(100)],
+      ['operator:ally', vitals(500)],
+    ]);
+    const targetContext = new RuntimeTargetContext();
+    const executor = new TargetContextOperationExecutor(
+      'operator:aura-source',
+      terminal,
+      id => id,
+      {
+        listOperatorIds: () => [...ledgers.keys()],
+        isOperatorControlled: operatorId => operatorId === 'operator:main',
+        resolveVitals: operatorId => ledgers.get(operatorId)!,
+      },
+    );
+    executor.execute(
+      {
+        kind: 'findCharacterTeamTargets',
+        parameters: {
+          saveToContextKey: 'CureTarget',
+          selection: { kind: 'lowestHealthRatioOperator', excludeCurrentTarget: true },
+        },
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        targetContext,
+        currentTarget: { kind: 'operator', operatorId: 'operator:main' },
+      },
+    );
+    expect(targetContext.get('CureTarget')).toEqual([
+      { kind: 'operator', operatorId: 'operator:ally' },
+    ]);
+  });
+
   it('resolves a Buff SourceFinder group through the AbilitySystem source chain', () => {
     const executor = new TargetContextOperationExecutor('operator:holder', terminal, id =>
       id === 'ability-entity:7' ? 'operator:xaihi' : id,
@@ -119,6 +180,28 @@ describe('TargetContextOperationExecutor', () => {
     );
     expect(targetContext.get('seraph')).toEqual([
       { kind: 'operator', operatorId: 'operator:xaihi' },
+    ]);
+  });
+
+  it('merges the current forEach target without re-resolving its identity', () => {
+    const executor = new TargetContextOperationExecutor('operator:holder', terminal);
+    const targetContext = new RuntimeTargetContext();
+    executor.execute(
+      {
+        kind: 'mergeContextTargets',
+        parameters: {
+          saveToContextKey: 'healTarget',
+          sources: [{ kind: 'target', target: 'currentTarget' }],
+        },
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        targetContext,
+        currentTarget: { kind: 'operator', operatorId: 'operator:controlled' },
+      },
+    );
+    expect(targetContext.get('healTarget')).toEqual([
+      { kind: 'operator', operatorId: 'operator:controlled' },
     ]);
   });
 

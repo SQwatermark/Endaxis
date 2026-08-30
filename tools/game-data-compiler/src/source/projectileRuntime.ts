@@ -5,11 +5,17 @@ import {
   requireNonEmptyString,
   requireNumber,
   requireRecord,
+  requireString,
 } from './primitives.ts';
+import type { TagQuerySource, TagQueryType } from './tagQuery.ts';
+import { parseScalarSource, type ScalarSource } from './scalar.ts';
 
 export interface ProjectileRuntimeSource {
   readonly projectileId: string;
   readonly decodeStatus: 'partial' | 'complete';
+  readonly finishDuration: number;
+  /** 保留 BlackboardDouble 身份；零空间投影可以忽略距离阈值，但审计不能丢掉来源键。 */
+  readonly finishDistance: ScalarSource;
   readonly finishOnReach: boolean;
   readonly hitOnReach: boolean;
   readonly allowHitSameTarget: boolean;
@@ -23,21 +29,36 @@ export interface ProjectileRuntimeSource {
     readonly shapeType: number;
     readonly radius: number;
     readonly extent: readonly [number, number, number];
+    readonly ring?: {
+      readonly initialOuterRadius: number;
+      readonly initialInnerRadius: number;
+      readonly outerRadiusIncreaseSpeed: number;
+      readonly innerRadiusIncreaseSpeed: number;
+      readonly height: number;
+      readonly isSector: boolean;
+      readonly sectorDirection: number;
+      readonly sectorAngle: number;
+    } | null;
   } | null;
   readonly blockLayerDef: {
-    readonly value: number;
-    readonly name: string;
+    readonly value: -1 | 0 | 1;
+    readonly name: 'Custom' | 'Nothing' | 'WallAndGround';
   } | null;
   readonly targetFilter: {
     readonly checkAlive: boolean;
     readonly autoSetTargetFaction: boolean;
     readonly factionTarget: number;
+    readonly targetFactionType: number;
     readonly filterObjectType: boolean;
+    readonly objectType: number;
     readonly filterSlot: boolean;
     readonly filterGameplayTag: boolean;
+    readonly gameplayTagQuery: TagQuerySource | null;
   };
   readonly presetPointKeys: readonly string[];
   readonly useSegmentMove: boolean;
+  /** move mode id -> ProjectileMoveType numeric value; missing partial tail entries stay absent. */
+  readonly moveModeTypes: ReadonlyMap<string, number>;
   readonly moveSegments: readonly {
     readonly startPointKey: string;
     readonly moveModeId: string;
@@ -75,6 +96,15 @@ export function parseProjectileRuntimeSource(
     targetFilter.factionTarget,
     `${path}.targetFilter.factionTarget`,
   );
+  const targetFactionType = requireRecord(
+    targetFilter.targetFactionType,
+    `${path}.targetFilter.targetFactionType`,
+  );
+  const objectType = requireRecord(targetFilter.objectType, `${path}.targetFilter.objectType`);
+  const filterGameplayTag = requireBoolean(
+    targetFilter.filterGameplayTag,
+    `${path}.targetFilter.filterGameplayTag`,
+  );
   const segments = requireArray(root.moveSegments, `${path}.moveSegments`).map((entry, index) => {
     const segmentPath = `${path}.moveSegments[${index}]`;
     const segment = requireRecord(entry, segmentPath);
@@ -96,9 +126,12 @@ export function parseProjectileRuntimeSource(
       ),
     };
   });
+  const moveModeTypes = parseProjectileMoveModeTypes(root.tail, `${path}.tail`);
   return {
     projectileId: requireNonEmptyString(root.id, `${path}.id`),
     decodeStatus: root.decodeStatus,
+    finishDuration: parseDirectBlackboardDouble(root.finishDuration, `${path}.finishDuration`),
+    finishDistance: parseScalarSource(root.finishDistance, `${path}.finishDistance`, {}),
     finishOnReach: requireBoolean(root.finishOnReach, `${path}.finishOnReach`),
     hitOnReach: requireBoolean(root.hitOnReach, `${path}.hitOnReach`),
     allowHitSameTarget: requireBoolean(root.allowHitSameTarget, `${path}.allowHitSameTarget`),
@@ -136,14 +169,48 @@ export function parseProjectileRuntimeSource(
               colliderShape.extent,
               `${path}.colliderShapeData.extent`,
             ),
+            ring:
+              shapeType.value === 3
+                ? {
+                    initialOuterRadius: parseDirectBlackboardDouble(
+                      colliderShape.initOuterRadius,
+                      `${path}.colliderShapeData.initOuterRadius`,
+                    ),
+                    initialInnerRadius: parseDirectBlackboardDouble(
+                      colliderShape.initInnerRadius,
+                      `${path}.colliderShapeData.initInnerRadius`,
+                    ),
+                    outerRadiusIncreaseSpeed: parseDirectBlackboardDouble(
+                      colliderShape.outerRadiusIncreaseSpeed,
+                      `${path}.colliderShapeData.outerRadiusIncreaseSpeed`,
+                    ),
+                    innerRadiusIncreaseSpeed: parseDirectBlackboardDouble(
+                      colliderShape.innerRadiusIncreaseSpeed,
+                      `${path}.colliderShapeData.innerRadiusIncreaseSpeed`,
+                    ),
+                    height: parseDirectBlackboardDouble(
+                      colliderShape.height,
+                      `${path}.colliderShapeData.height`,
+                    ),
+                    isSector: requireBoolean(
+                      colliderShape.isSector,
+                      `${path}.colliderShapeData.isSector`,
+                    ),
+                    sectorDirection: requireInteger(
+                      requireRecord(
+                        colliderShape.sectorDirection,
+                        `${path}.colliderShapeData.sectorDirection`,
+                      ).value,
+                      `${path}.colliderShapeData.sectorDirection.value`,
+                    ),
+                    sectorAngle: parseDirectBlackboardDouble(
+                      colliderShape.sectorAngle,
+                      `${path}.colliderShapeData.sectorAngle`,
+                    ),
+                  }
+                : null,
           },
-    blockLayerDef:
-      blockLayerDef === null
-        ? null
-        : {
-            value: requireInteger(blockLayerDef.value, `${path}.blockLayerDef.value`),
-            name: requireNonEmptyString(blockLayerDef.name, `${path}.blockLayerDef.name`),
-          },
+    blockLayerDef: parseProjectileBlockLayer(blockLayerDef, `${path}.blockLayerDef`),
     targetFilter: {
       checkAlive: requireBoolean(targetFilter.checkAlive, `${path}.targetFilter.checkAlive`),
       autoSetTargetFaction: requireBoolean(
@@ -154,28 +221,107 @@ export function parseProjectileRuntimeSource(
         factionTarget.value,
         `${path}.targetFilter.factionTarget.value`,
       ),
+      targetFactionType: requireInteger(
+        targetFactionType.value,
+        `${path}.targetFilter.targetFactionType.value`,
+      ),
       filterObjectType: requireBoolean(
         targetFilter.filterObjectType,
         `${path}.targetFilter.filterObjectType`,
       ),
+      objectType: requireInteger(objectType.value, `${path}.targetFilter.objectType.value`),
       filterSlot: requireBoolean(targetFilter.filterSlot, `${path}.targetFilter.filterSlot`),
-      filterGameplayTag: requireBoolean(
-        targetFilter.filterGameplayTag,
-        `${path}.targetFilter.filterGameplayTag`,
-      ),
+      filterGameplayTag,
+      gameplayTagQuery: filterGameplayTag
+        ? parseDecodedProjectileTagQuery(targetFilter.tagQuery, `${path}.targetFilter.tagQuery`)
+        : null,
     },
     presetPointKeys: requireArray(root.presetPointKeys, `${path}.presetPointKeys`).map(
       (entry, index) => requireNonEmptyString(entry, `${path}.presetPointKeys[${index}]`),
     ),
     useSegmentMove: requireBoolean(root.useSegmentMove, `${path}.useSegmentMove`),
+    moveModeTypes,
     moveSegments: segments,
   };
 }
 
+function parseProjectileMoveModeTypes(value: unknown, path: string): ReadonlyMap<string, number> {
+  if (value === undefined) return new Map();
+  const tail = requireRecord(value, path);
+  if (tail.moveModeDict === undefined) return new Map();
+  const dictionary = requireRecord(tail.moveModeDict, `${path}.moveModeDict`);
+  const values = requireArray(dictionary.values, `${path}.moveModeDict.values`);
+  const result = new Map<string, number>();
+  values.forEach((entry, index) => {
+    const entryPath = `${path}.moveModeDict.values[${index}]`;
+    const mode = requireRecord(entry, entryPath);
+    const id = requireNonEmptyString(mode.key, `${entryPath}.key`);
+    const moveType = requireInteger(
+      requireRecord(mode.moveType, `${entryPath}.moveType`).value,
+      `${entryPath}.moveType.value`,
+    );
+    if (result.has(id))
+      throw new Error(`${entryPath}.key: duplicate move mode ${JSON.stringify(id)}`);
+    result.set(id, moveType);
+  });
+  return result;
+}
+
+/** ProjectileData 的二进制解码器保留枚举数值和标签哈希包装，形状不同于动作 JSON。 */
+function parseDecodedProjectileTagQuery(value: unknown, path: string): TagQuerySource {
+  const query = requireRecord(value, path);
+  const rawType = requireRecord(query.queryType, `${path}.queryType`);
+  const numeric = requireInteger(rawType.value, `${path}.queryType.value`);
+  const names = ['HasAny', 'HasAll', 'ExceptAny', 'ExceptAll'] as const;
+  const types: readonly TagQueryType[] = ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'];
+  const expectedName = names[numeric];
+  const queryType = types[numeric];
+  if (expectedName === undefined || queryType === undefined)
+    throw new Error(`${path}.queryType.value: unsupported value ${numeric}`);
+  if (requireString(rawType.name, `${path}.queryType.name`) !== expectedName)
+    throw new Error(`${path}.queryType: value/name mismatch`);
+  const tagIds = requireArray(query.tags, `${path}.tags`).map((entry, index) => {
+    const tag = requireRecord(entry, `${path}.tags[${index}]`);
+    const wrappedId = requireRecord(tag.tagId, `${path}.tags[${index}].tagId`);
+    const id = requireInteger(wrappedId.value, `${path}.tags[${index}].tagId.value`);
+    if (id < -0x80000000 || id > 0x7fffffff)
+      throw new Error(`${path}.tags[${index}].tagId.value: expected signed 32-bit integer`);
+    return id;
+  });
+  return { queryType, tagIds };
+}
+
+function parseProjectileBlockLayer(
+  value: Record<string, unknown> | null,
+  path: string,
+): ProjectileRuntimeSource['blockLayerDef'] {
+  if (value === null) return null;
+  const numeric = requireInteger(value.value, `${path}.value`);
+  const names = {
+    [-1]: 'Custom',
+    0: 'Nothing',
+    1: 'WallAndGround',
+  } as const;
+  const name = names[numeric as keyof typeof names];
+  if (name === undefined) throw new Error(`${path}.value: unsupported value ${numeric}`);
+  // 1.4.4 机器码按 value 分支；VFS 的 name 是非权威导出标签。当前全量样本中绝大多数
+  // name 仍沿用旧的偏移枚举（例如 value=1/name=Nothing），因此只校验它是已知标签，
+  // 正式 IR 始终写入由数值恢复的规范名称。
+  if (value.name !== undefined) {
+    const exportedName = requireString(value.name, `${path}.name`);
+    if (!['', 'Custom', 'Nothing', 'WallAndGround'].includes(exportedName))
+      throw new Error(`${path}.name: unsupported value ${JSON.stringify(exportedName)}`);
+  }
+  return { value: numeric as -1 | 0 | 1, name };
+}
+
 function parseDirectBlackboardDouble(value: unknown, path: string): number {
   const wrapper = requireRecord(value, path);
-  if (wrapper.useBlackboardKey !== false || wrapper.blackboardKey !== '')
+  if (wrapper.useBlackboardKey !== false)
     throw new Error(`${path}: blackboard-driven scalar is unsupported`);
+  // BlackboardDouble 的开关为 false 时读取常量 value；导出数据仍可能保留一个不会被读取的
+  // blackboardKey。不能仅凭这个残留字符串把常量误判成动态参数。
+  requireString(wrapper.blackboardKey, `${path}.blackboardKey`);
   const result = requireNumber(wrapper.value, `${path}.value`);
   if (!Number.isFinite(result)) throw new Error(`${path}.value: expected finite number`);
   return result;

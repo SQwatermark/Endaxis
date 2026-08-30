@@ -114,6 +114,99 @@ export interface AbilityEntitySpawnActionSource {
   readonly dieOnEnd: boolean;
 }
 
+export interface AbilityEntityDurationMutationActionSource {
+  readonly kind: 'abilityEntityDurationMutation';
+  readonly setMultipleTargets: boolean;
+  readonly target: TargetReferenceSource;
+  readonly actionTargetType: string;
+  readonly targetContextKey: string;
+  readonly operation: string;
+  readonly value: ScalarSource;
+}
+
+export interface AbilityEntityTargetMutationActionSource {
+  readonly kind: 'abilityEntityTargetMutation';
+  readonly target: TargetReferenceSource;
+}
+
+export function parseAbilityEntityTargetMutationActionSource(
+  value: unknown,
+  path: string,
+): AbilityEntityTargetMutationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, new Set([...ACTION_META_FIELDS, 'targetSettings']), path);
+  return {
+    kind: 'abilityEntityTargetMutation',
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+  };
+}
+
+function parseAbilityEntityDurationTargetSource(
+  value: unknown,
+  path: string,
+): TargetReferenceSource {
+  const target = requireRecord(value, path);
+  const compactFields = new Set([
+    'advancedDirection',
+    'centerToGround',
+    'centerType',
+    'enableAdvancedDirection',
+    'selectorDirection',
+    'selectorOwner',
+    'target',
+    'targetSource',
+  ]);
+  if (
+    Object.keys(target).length === compactFields.size &&
+    Object.keys(target).every(field => compactFields.has(field))
+  ) {
+    // setMultipleTarget=false 的 InputTarget 样本只序列化 TargetSettings 的固定外壳；补回
+    // TargetReference 的空选择器默认值后仍交给同一个严格解析器校验全部实存字段。
+    return parseTargetReferenceSource(
+      {
+        ...target,
+        targetGroupKey: '',
+        ownerContextKey: '',
+        centerContextKey: '',
+        selectorData: { validatorData: [], postProcessorData: [] },
+        targetContextKey: '',
+      },
+      path,
+    );
+  }
+  return parseTargetReferenceSource(target, path);
+}
+
+export function parseAbilityEntityDurationMutationActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): AbilityEntityDurationMutationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'setMultipleTarget',
+      'targetSettings',
+      'actionTargetType',
+      'targetContextKey',
+      'operation',
+      'value',
+    ]),
+    path,
+  );
+  return {
+    kind: 'abilityEntityDurationMutation',
+    setMultipleTargets: requireBoolean(action.setMultipleTarget, `${path}.setMultipleTarget`),
+    target: parseAbilityEntityDurationTargetSource(action.targetSettings, `${path}.targetSettings`),
+    actionTargetType: requireNonEmptyString(action.actionTargetType, `${path}.actionTargetType`),
+    targetContextKey: requireString(action.targetContextKey, `${path}.targetContextKey`),
+    operation: requireNonEmptyString(action.operation, `${path}.operation`),
+    value: parseScalarSource(action.value, `${path}.value`, inheritedBlackboard),
+  };
+}
+
 export interface SkillCastActionSource {
   readonly kind: 'skillCast';
   readonly caster: TargetReferenceSource;

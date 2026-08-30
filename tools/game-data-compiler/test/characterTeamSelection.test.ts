@@ -15,7 +15,7 @@ function queries(): { selectorData: { postProcessorData: Record<string, unknown>
   );
 }
 
-function compileQueries(raw = queries()) {
+function compileQueries(raw: unknown[] = queries()) {
   const source = parseNativeSequenceSource(
     {
       actionData: raw,
@@ -55,6 +55,35 @@ describe('CharacterTeamFinder 来源事实', () => {
           },
         },
       ],
+    });
+  });
+
+  it('能力实体 ActionOwner 不改变 CharacterTeamFinder 的全局队伍候选', () => {
+    const source = parseNativeSequenceSource(
+      {
+        actionData: queries(),
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      'abilityEntity.teamQueries',
+      {},
+      (value, path) => parseKnownNativeActionLeafSource(value, path, {}),
+    );
+    const result = compileCombatActionSequenceSource(source, {
+      actionOwnerTarget: 'currentAbilityEntity',
+      actionSourceTarget: 'caster',
+      actionTargetTarget: 'currentOperator',
+    });
+
+    expect(result.steps[1]).toEqual({
+      kind: 'findCharacterTeamTargets',
+      parameters: {
+        saveToContextKey: 'CureTarget',
+        selection: {
+          kind: 'lowestHealthRatioOperator',
+          excludedContextKey: 'Main',
+        },
+      },
     });
   });
 
@@ -101,6 +130,76 @@ describe('CharacterTeamFinder 来源事实', () => {
       kind: 'lowestHealthRatioOperator',
       excludedTarget: { targetSource: 'Owner', targetGroupKey: '' },
     });
+  });
+
+  it('仅在动作 Owner 已证明为施术者时，排除 Owner 后选择最低血量队友', () => {
+    const raw = queries();
+    raw[1]!.selectorData.postProcessorData[0]!.excludedTargetSettings = targetFixture('Owner');
+    expect(compileQueries(raw).steps[1]).toEqual({
+      kind: 'findCharacterTeamTargets',
+      parameters: {
+        saveToContextKey: 'CureTarget',
+        selection: { kind: 'lowestHealthRatioOperator', excludeCaster: true },
+      },
+    });
+
+    const source = parseNativeSequenceSource(
+      {
+        actionData: raw,
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      'ember.combo',
+      {},
+      (value, path) => parseKnownNativeActionLeafSource(value, path, {}),
+    );
+    expect(() =>
+      compileCombatActionSequenceSource(source, {
+        actionOwnerTarget: 'unavailable',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toThrow('unaudited single-enemy action target group');
+  });
+
+  it('把最低血量队友与已证明的施术者合并为稳定双目标组', () => {
+    const raw = queries();
+    raw[1]!.selectorData.postProcessorData[0]!.excludedTargetSettings = targetFixture('Owner');
+    const actions: unknown[] = [
+      ...raw,
+      {
+        $type: 'Beyond.Gameplay.Core.MergeTargetAction+Data, Gameplay.Beyond',
+        isEnable: true,
+        priorityLevel: 'Default',
+        priorityOffset: 0,
+        serverActionIndex: 35,
+        targets: [
+          { ...targetFixture('Context'), targetGroupKey: 'CureTarget' },
+          targetFixture('Owner'),
+        ],
+        targetGroupKey: 'ShieldTargets',
+      },
+    ];
+
+    expect(compileQueries(actions).steps.slice(-2)).toEqual([
+      {
+        kind: 'findCharacterTeamTargets',
+        parameters: {
+          saveToContextKey: 'CureTarget',
+          selection: { kind: 'lowestHealthRatioOperator', excludeCaster: true },
+        },
+      },
+      {
+        kind: 'mergeContextTargets',
+        parameters: {
+          saveToContextKey: 'ShieldTargets',
+          sources: [
+            { kind: 'context', contextKey: 'CureTarget' },
+            { kind: 'target', target: 'caster' },
+          ],
+        },
+      },
+    ]);
   });
 
   it('没有排除处理器时显式保留 null，不隐含排除主控或自己', () => {

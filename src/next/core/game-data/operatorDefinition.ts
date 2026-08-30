@@ -36,6 +36,8 @@ export {
   type TimedMarkerTarget,
   TIME_DILATION_IGNORE_TARGETS,
   type TimeDilationIgnoreTarget,
+  TIME_DILATION_ENTITY_TARGETS,
+  type TimeDilationEntityTarget,
   BUFF_SINGLE_TARGETS,
   type BuffSingleTarget,
   BUFF_APPLICATION_TARGETS,

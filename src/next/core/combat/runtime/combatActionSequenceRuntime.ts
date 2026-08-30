@@ -16,6 +16,7 @@ import type {
   CombatSemanticEventRuntime,
 } from './combatSemanticEventRuntime';
 import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 export interface CombatActionSequenceRuntimeHooks {
   readonly stepReached?: (step: ResolvedCombatStep) => void;
@@ -124,6 +125,9 @@ class ActionBlackboardScopeStep extends CombatStep {
       ...this.operationContext,
       blackboard,
     });
+    // 该层级按执行惰性创建，外层 reset 时它尚不存在；创建后必须立即准备内部
+    // OperationStep，否则 takeAttackSnapshot 等原生 Reset 阶段状态会在首次命中时缺失。
+    this.#body.reset({});
     return this.#body;
   }
 }
@@ -157,6 +161,20 @@ class RepeatEachTickStep extends CombatStep {
       this.#skipInitialTick = false;
       return;
     }
+    const tickInterval = this.step.parameters.nativeTickInterval;
+    if (tickInterval !== undefined) {
+      this.#timerSeconds = Math.fround(this.#timerSeconds + Math.fround(deltaTime));
+      const executeEachFrame =
+        tickInterval.executeEachFrame ||
+        Math.fround(tickInterval.intervalSeconds) < Math.fround(0.0329900011);
+      if (
+        executeEachFrame ||
+        this.#timerSeconds >= Math.fround(this.#scanCount * tickInterval.intervalSeconds)
+      ) {
+        this.#scan(context);
+      }
+      return;
+    }
     const channeling = this.step.parameters.nativeChanneling;
     if (channeling === undefined) {
       this.#executeBody(context);
@@ -180,6 +198,11 @@ class RepeatEachTickStep extends CombatStep {
   }
 
   #scan(context: CombatExecutionContext): void {
+    if (this.step.parameters.nativeTickInterval !== undefined) {
+      this.#scanCount += 1;
+      this.#executeBody(context);
+      return;
+    }
     const channeling = this.step.parameters.nativeChanneling;
     if (channeling === undefined) {
       this.#executeBody(context);
@@ -205,10 +228,14 @@ class RepeatEachTickStep extends CombatStep {
   }
 
   #executeBody(context: CombatExecutionContext): void {
-    const result = this.runtime
-      .createSequence(this.step.body, this.operationContext)
-      .executeInstant(context);
-    if (!result) {
+    const sequence = this.runtime.createSequence(this.step.body, this.operationContext);
+    sequence.reset(context);
+    const result = sequence.executeInstant(context);
+    if (
+      !result &&
+      this.step.parameters.nativeTickInterval === undefined &&
+      this.step.parameters.nativeChanneling === undefined
+    ) {
       throw new Error('repeatEachTick body returned false; repeated short-circuit is not modeled');
     }
   }
@@ -228,18 +255,120 @@ class ForEachContextTargetStep extends CombatStep {
   }
 
   override tryExecute(context: CombatExecutionContext): boolean {
+    const parameters = this.step.parameters;
+    const targets =
+      parameters.target === 'enemy'
+        ? ([{ kind: 'enemy' }] as const)
+        : parameters.target === 'caster'
+          ? ([{ kind: 'operator', operatorId: this.#ownerOperatorId() }] as const)
+          : this.#contextTargets(parameters.contextKey!);
+    for (const currentTarget of targets) {
+      // Native ForEachAction ignores ExecuteInstant's result for each item.
+      // A failed guard stops only this item's sequence, never the following targets.
+      const sequence = this.runtime.createSequence(this.step.body, {
+        ...this.operationContext,
+        currentTarget,
+      });
+      sequence.reset(context);
+      sequence.executeInstant(context);
+    }
+    return true;
+  }
+
+  #contextTargets(contextKey: string) {
     const targetContext = this.operationContext.targetContext;
     if (targetContext === undefined) {
       throw new Error('forEachContextTarget requires a combat target context');
     }
-    const targets = targetContext.get(this.step.parameters.contextKey);
-    for (const currentTarget of targets) {
-      // Native ForEachAction ignores ExecuteInstant's result for each item.
-      // A failed guard stops only this item's sequence, never the following targets.
-      this.runtime
-        .createSequence(this.step.body, { ...this.operationContext, currentTarget })
-        .executeInstant(context);
+    return targetContext.get(contextKey);
+  }
+
+  #ownerOperatorId(): string {
+    const operatorId = this.runtime.ownerOperatorId;
+    if (operatorId === undefined) {
+      throw new Error('caster forEach target requires an owner operator');
     }
+    return operatorId;
+  }
+}
+
+class RepeatByActionValueStep extends CombatStep {
+  constructor(
+    readonly step: Extract<ResolvedCombatStep, { kind: 'repeatByActionValue' }>,
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+  }
+
+  execute(context: CombatExecutionContext): void {
+    this.tryExecute(context);
+  }
+
+  override tryExecute(context: CombatExecutionContext): boolean {
+    const count = resolveActionValueOperand(
+      this.step.parameters.count,
+      this.operationContext.blackboard,
+    );
+    if (!Number.isInteger(count) || count < 0) {
+      throw new RangeError('repeatByActionValue count must be a non-negative integer');
+    }
+    for (let index = 0; index < count; index += 1) {
+      // 每次重新构建步骤实例，确保 execution-lifetime 子黑板不在不同投射物间共享。
+      const sequence = this.runtime.createSequence(this.step.body, this.operationContext);
+      sequence.reset(context);
+      sequence.executeInstant(context);
+    }
+    return true;
+  }
+}
+
+class ProjectileFinishCallbackStep extends CombatStep {
+  constructor(
+    readonly step: Extract<ResolvedCombatStep, { kind: 'scheduleProjectileFinishCallback' }>,
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+  }
+
+  execute(): void {
+    this.tryExecute();
+  }
+
+  override tryExecute(): boolean {
+    const schedule = this.operationContext.scheduleProjectileFinishCallback;
+    if (schedule === undefined) {
+      throw new Error('projectile finish callback requires a detached runtime scheduler');
+    }
+    const parent = this.operationContext;
+    const detachedContext: CombatOperationContext = {
+      blackboard: parent.blackboard.detachedSnapshot(),
+      damageCalculationSnapshots: new Map(),
+      targetContext: new RuntimeTargetContext(),
+      ...(parent.skillCastInfo === undefined
+        ? {}
+        : { skillCastInfo: Object.freeze({ ...parent.skillCastInfo }) }),
+      ...(parent.actionOwnerId === undefined ? {} : { actionOwnerId: parent.actionOwnerId }),
+      ...(parent.actionSourceId === undefined ? {} : { actionSourceId: parent.actionSourceId }),
+      scheduleProjectileFinishCallback: schedule,
+    };
+    const body = this.step.body;
+    const operations = this.runtime.operations;
+    const semanticEvents = this.runtime.semanticEvents;
+    const ownerOperatorId = this.runtime.ownerOperatorId;
+    schedule(this.step.parameters.delaySeconds, () => {
+      const detached = new CombatActionSequenceRuntime(
+        operations,
+        detachedContext,
+        this.runtime.hooks,
+        semanticEvents,
+        ownerOperatorId,
+      );
+      const sequence = detached.createSequence(body);
+      sequence.reset({});
+      sequence.executeInstant({});
+    });
     return true;
   }
 }
@@ -432,12 +561,12 @@ class CombatEventListenerStep extends CombatStep {
           event: eventContext.event,
         }),
         handle: (eventContext: CombatSemanticEventContext) => {
-          this.runtime
-            .createSequence(response.sequence, {
-              ...this.runtime.context,
-              event: eventContext.event,
-            })
-            .executeInstant({});
+          const sequence = this.runtime.createSequence(response.sequence, {
+            ...this.runtime.context,
+            event: eventContext.event,
+          });
+          sequence.reset({});
+          sequence.executeInstant({});
         },
       };
       this.#registrations.push(
@@ -499,6 +628,12 @@ export class CombatActionSequenceRuntime {
         if (step.kind === 'repeatEachTick') {
           return new RepeatEachTickStep(step, this, operationContext);
         }
+        if (step.kind === 'repeatByActionValue') {
+          return new RepeatByActionValueStep(step, this, operationContext);
+        }
+        if (step.kind === 'scheduleProjectileFinishCallback') {
+          return new ProjectileFinishCallbackStep(step, this, operationContext);
+        }
         if (step.kind === 'forEachContextTarget') {
           return new ForEachContextTargetStep(step, this, operationContext);
         }
@@ -526,6 +661,7 @@ export class CombatActionSequenceRuntime {
         step.parameters.initialValues,
         step.parameters.inheritParent,
         step.parameters.entityInitialValues,
+        step.parameters.entityAssignments,
       );
     }
     if (existing !== undefined) return existing;
@@ -533,6 +669,7 @@ export class CombatActionSequenceRuntime {
       step.parameters.initialValues,
       step.parameters.inheritParent,
       step.parameters.entityInitialValues,
+      step.parameters.entityAssignments,
     );
     if (scopes === undefined) {
       scopes = new Map();
@@ -549,7 +686,9 @@ export class CombatActionSequenceRuntime {
     operationContext: CombatOperationContext = this.context,
   ): boolean {
     if (this.#executedOnceScopes.has(scopeKey)) return true;
-    this.createSequence(body, operationContext).executeInstant(context);
+    const sequence = this.createSequence(body, operationContext);
+    sequence.reset(context);
+    sequence.executeInstant(context);
     this.#executedOnceScopes.add(scopeKey);
     return true;
   }

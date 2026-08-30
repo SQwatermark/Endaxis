@@ -12,6 +12,9 @@ export function projectElementalInflictionAction(
   readonly kind: 'applyElementalInfliction';
   readonly parameters: CombatStepParameters['applyElementalInfliction'];
 } {
+  const sourceIsCaster =
+    (action.source.targetSource === 'Source' && context.actionSourceTarget === 'caster') ||
+    (action.source.targetSource === 'Owner' && context.actionOwnerTarget === 'caster');
   const targetsFixedEnemy =
     (action.target.targetSource === 'Target' && context.actionTargetTarget === 'enemy') ||
     (action.target.targetSource === 'Context' &&
@@ -21,8 +24,7 @@ export function projectElementalInflictionAction(
     action.target.targetGroupKey === '' &&
     context.actionOwnerTarget === 'buffOwner';
   if (
-    context.actionSourceTarget !== 'caster' ||
-    action.source.targetSource !== 'Source' ||
+    !sourceIsCaster ||
     action.source.targetGroupKey !== '' ||
     (!targetsFixedEnemy && !targetsBuffOwner)
   )

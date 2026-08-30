@@ -36,6 +36,20 @@ const ENHANCED_CARRIERS = {
   Pulse: 'buff_common_affixes_enhance_pulse',
 } as const;
 
+const RECOVERED_KEYWORD_CARRIER_IDS = new Set<string>([
+  ...Object.values(VULNERABLE_CARRIERS),
+  ...Object.values(ENHANCED_CARRIERS),
+  'buff_common_affixes_shelter',
+  'buff_common_affixes_slow',
+  'buff_common_affixes_speedup',
+  'buff_common_affixes_weak',
+]);
+
+/** 仅用于识别由本模块已取证映射生成的关键词载体，不按 Buff ID 命名模式猜测。 */
+export function isRecoveredKeywordCarrierBuffId(id: string): boolean {
+  return RECOVERED_KEYWORD_CARRIER_IDS.has(id);
+}
+
 type KeywordSubType = keyof typeof VULNERABLE_CARRIERS;
 
 interface KeywordBuffActionFields {
@@ -59,7 +73,7 @@ interface KeywordBuffActionFields {
 /** KeywordActionData 没有 subType；仅其派生 WithSubTypeData 承载该字段。 */
 export type KeywordBuffActionSource = KeywordBuffActionFields &
   (
-    | { readonly keyword: 'Shelter'; readonly subType: null }
+    | { readonly keyword: 'Shelter' | 'Slow' | 'Speedup' | 'Weak'; readonly subType: null }
     | { readonly keyword: 'Vulnerable' | 'Enhanced'; readonly subType: KeywordSubType }
   );
 
@@ -69,6 +83,30 @@ export function parseShelterActionSource(
   inheritedBlackboard: BlackboardLevelValues,
 ): KeywordBuffActionSource {
   return parseKeywordBuffActionSource(value, path, inheritedBlackboard, 'Shelter');
+}
+
+export function parseWeakActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): KeywordBuffActionSource {
+  return parseKeywordBuffActionSource(value, path, inheritedBlackboard, 'Weak');
+}
+
+export function parseSlowActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): KeywordBuffActionSource {
+  return parseKeywordBuffActionSource(value, path, inheritedBlackboard, 'Slow');
+}
+
+export function parseSpeedupActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): KeywordBuffActionSource {
+  return parseKeywordBuffActionSource(value, path, inheritedBlackboard, 'Speedup');
 }
 
 /** 公共关键词来源切片：保留动态覆盖与增强触发条件，不提前简化成一个属性修正。 */
@@ -125,23 +163,36 @@ function parseKeywordBuffActionSource(
       'asChildBuff',
       'enhancingList',
       'autoFinishByAction',
-      ...(keyword === 'Shelter' ? [] : ['subType']),
+      ...(keyword === 'Shelter' || keyword === 'Slow' || keyword === 'Speedup' || keyword === 'Weak'
+        ? []
+        : ['subType']),
     ]),
     path,
   );
   const subType =
-    keyword === 'Shelter' ? null : requireNonEmptyString(action.subType, `${path}.subType`);
+    keyword === 'Shelter' || keyword === 'Slow' || keyword === 'Speedup' || keyword === 'Weak'
+      ? null
+      : requireNonEmptyString(action.subType, `${path}.subType`);
   if (subType !== null && !Object.hasOwn(VULNERABLE_CARRIERS, subType))
     throw new Error(`${path}.subType: unsupported keyword subtype ${JSON.stringify(subType)}`);
   const identity =
     keyword === 'Shelter'
       ? // 1.4.4 KeywordActionType=4 → slot 0x0F0AB3C8；见 combat-spec/keyword-actions.md。
         ({ keyword, subType: null, carrierBuffId: 'buff_common_affixes_shelter' } as const)
-      : {
-          keyword,
-          subType: subType as KeywordSubType,
-          carrierBuffId: carriers![subType as KeywordSubType],
-        };
+      : keyword === 'Weak'
+        ? // 1.4.4 KeywordActionType=0 与固定载体；见 combat-spec/keyword-actions.md。
+          ({ keyword, subType: null, carrierBuffId: 'buff_common_affixes_weak' } as const)
+        : keyword === 'Slow'
+          ? // 1.4.4 KeywordActionType=2 → slot 0x0F0AB3E8；见 combat-spec/keyword-actions.md。
+            ({ keyword, subType: null, carrierBuffId: 'buff_common_affixes_slow' } as const)
+          : keyword === 'Speedup'
+            ? // 1.4.4 KeywordActionType=5 → slot 0x0F0AB3D8；见 combat-spec/keyword-actions.md。
+              ({ keyword, subType: null, carrierBuffId: 'buff_common_affixes_speedup' } as const)
+            : {
+                keyword,
+                subType: subType as KeywordSubType,
+                carrierBuffId: carriers![subType as KeywordSubType],
+              };
   return {
     kind: 'keywordBuff',
     ...identity,

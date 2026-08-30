@@ -1,8 +1,11 @@
 import type {
   ComboSkillRegistrationDefinition,
   OperatorDefinition,
+  SkillBuffSlotReplacement,
   SkillDefinition,
   SkillGroupDefinition,
+  SkillLevelSource,
+  SkillType,
 } from '../../../../../packages/game-data-contract/src/index.ts';
 import type { compileOperatorFoundationSource } from './sourceClosure.ts';
 import { compileOperatorDefinitionHeaderSource } from './definitionHeader.ts';
@@ -18,12 +21,16 @@ import { compileStandardStumpBuffClosure } from '../../compiler/standardStumpBuf
 import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
 import { assignGeneratedDamageStepKeys } from '../../compiler/definitionStepKeys.ts';
 import type { PassiveSkillCompilationBatchSource } from '../../compiler/passiveSkillBatch.ts';
+import type { PassiveSkillCompileRequestSource } from '../../compiler/passiveSkillRequest.ts';
 import { compileOperatorUpgradePassiveSkills } from './passiveSkillDefinition.ts';
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import type { BuffRuntimeSource } from '../../source/buffRuntime.ts';
 import type { CombatActionProjectionExtensionsSource } from '../../compiler/combatProjectionCommon.ts';
 import {
+  collectCompiledAbilityEntitySpawns,
   collectCompiledBuffApplications,
+  collectCompiledBuffCapturedTargetGroups,
+  collectCompiledDefaultKeywordCarrierIds,
   collectCompiledBuffIds,
   collectCompiledBuffIdentityReadIds,
 } from '../../compiler/compiledBuffReferences.ts';
@@ -32,6 +39,10 @@ import { collectBuffRuntimeClosure } from '../../compiler/buffReferenceClosure.t
 import { collectNativeActionNodes } from '../../source/controlFlow.ts';
 import { parseGlobalBuffTemplateCatalogSource } from '../../source/globalBuffTemplate.ts';
 import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/physicalInflictionHydration.ts';
+import {
+  compileTargetGroupAbilityEntityQuerySource,
+  compileTargetReferenceAbilityEntityQuerySource,
+} from '../../compiler/abilityEntityQuery.ts';
 
 export interface OperatorDefinitionAssemblyInput {
   readonly foundation: ReturnType<typeof compileOperatorFoundationSource>;
@@ -55,9 +66,33 @@ export interface OperatorDefinitionAssemblyInput {
   readonly globalBuffCatalog: unknown;
   readonly skillSettingCatalog: unknown;
   readonly passiveSkills: PassiveSkillCompilationBatchSource;
+  /** 角色自身始终安装的隐藏被动请求；与养成解锁的请求分开。 */
+  readonly basePassiveSkillRequests?: readonly PassiveSkillCompileRequestSource[];
   readonly comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
+  /** 隐藏注册技能：保留定义与冷却/内部 Cast 路由，不暴露为可直接放置的组技能。 */
+  readonly runtimeReplacementSkillKeys?: readonly string[];
+  /** 输入包装器同步 Cast 另一技能组执行体的严格跨组换槽定义。 */
+  readonly routedSkills?: readonly {
+    readonly key: string;
+    readonly targetSkillKey: string;
+    readonly skillType: SkillType;
+    readonly levelSource: SkillLevelSource;
+    readonly executionSkillGroupKey: string;
+    readonly costs: NonNullable<SkillDefinition['costs']>;
+    readonly costFrame: number;
+    readonly cooldownFrames: number;
+  }[];
+  /** 原生 BlackboardDouble.GetValue 已取证的精确缺键 0 回退；不允许广泛默认。 */
+  readonly nativeMissingBlackboardZeroKeys?: ReadonlyMap<string, ReadonlySet<string>>;
+  /** 角色实体板上的原生缺键 0 回退；仅接受已审计的 EntityBB_ 键。 */
+  readonly nativeMissingEntityBlackboardZeroKeys?: ReadonlySet<string>;
   readonly createBuffProjectionExtensions?: (
     sources: ReadonlyMap<string, BuffRuntimeSource>,
+    visualOnlyIds: ReadonlySet<string>,
+  ) => CombatActionProjectionExtensionsSource;
+  readonly createAbilityEntityProjectionExtensions?: (
+    skillId: string,
+    value: unknown,
     visualOnlyIds: ReadonlySet<string>,
   ) => CombatActionProjectionExtensionsSource;
 }
@@ -114,6 +149,8 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       effectIds,
       progression.talentPassiveSkillRequests,
       input.passiveSkills.definitions,
+      input.gameplayTagRegistry,
+      input.loadBuff,
     );
   });
   const potentialPassivePlans = input.potentialBindings.map(binding => {
@@ -124,19 +161,45 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       effectIds,
       progression.potentialPassiveSkillRequests,
       input.passiveSkills.definitions,
+      input.gameplayTagRegistry,
+      input.loadBuff,
     );
   });
+  const basePassivePlans = (input.basePassiveSkillRequests ?? []).map(request =>
+    compileOperatorUpgradePassiveSkills(
+      [request.originId],
+      [request],
+      input.passiveSkills.definitions,
+      input.gameplayTagRegistry,
+      input.loadBuff,
+    ),
+  );
   const installedPassiveSkillSourcePaths = new Set([
+    ...basePassivePlans.flatMap(plan => plan.handledSourcePaths),
     ...talentPassivePlans.flatMap(plan => plan.handledSourcePaths),
     ...potentialPassivePlans.flatMap(plan => plan.handledSourcePaths),
   ]);
   const passiveSkillKeys = new Set([
+    ...basePassivePlans.flatMap(plan => plan.definitions.map(definition => definition.key)),
     ...talentPassivePlans.flatMap(plan => plan.definitions.map(definition => definition.key)),
     ...potentialPassivePlans.flatMap(plan => plan.definitions.map(definition => definition.key)),
+    ...talentPassivePlans.flatMap(plan => plan.semanticPassiveKeys),
+    ...potentialPassivePlans.flatMap(plan => plan.semanticPassiveKeys),
   ]);
+  const reactionPassiveInputs = new Map(
+    [...talentPassivePlans, ...potentialPassivePlans, ...basePassivePlans].flatMap(plan => [
+      ...plan.reactionPassiveInputs,
+    ]),
+  );
+  const runtimeReplacementSkillKeys = new Set(input.runtimeReplacementSkillKeys ?? []);
+  const knownSkillKeys = new Set(skillLibrary.activeSkills.entries.map(skill => skill.key));
+  for (const key of runtimeReplacementSkillKeys) {
+    if (!knownSkillKeys.has(key)) throw new Error(`unknown runtime replacement skill '${key}'`);
+  }
   const context = {
     skills: skillLibrary.activeSkills.entries,
     skillGroups: skillLibrary.skillGroups,
+    runtimeReplacementSkillKeys,
     costResources: new Map(
       input.activeSkills.flatMap(item =>
         item.definition.costs?.length === 1
@@ -146,30 +209,40 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     ),
     installedPassiveSkillSourcePaths,
     passiveSkillKeys,
+    reactionPassiveInputs,
   };
   const talents = input.talentBindings.map((binding, index) => {
     const definition = compileOperatorTalentDefinition(progression, binding, context);
-    const passiveSkills = talentPassivePlans[index]!.definitions;
-    return passiveSkills.length ? { ...definition, passiveSkills } : definition;
+    const plan = talentPassivePlans[index]!;
+    const passiveSkills = plan.definitions;
+    const modifiers = [...(definition.modifiers ?? []), ...plan.modifiers];
+    return {
+      ...definition,
+      ...(modifiers.length ? { modifiers } : {}),
+      ...(passiveSkills.length ? { passiveSkills } : {}),
+    };
   });
   const potentials = input.potentialBindings.map((binding, index) => {
     const definition = compileOperatorPotentialDefinition(progression, binding, context);
-    const passiveSkills = potentialPassivePlans[index]!.definitions;
-    return passiveSkills.length ? { ...definition, passiveSkills } : definition;
+    const plan = potentialPassivePlans[index]!;
+    const passiveSkills = plan.definitions;
+    const modifiers = [...(definition.modifiers ?? []), ...plan.modifiers];
+    return {
+      ...definition,
+      ...(modifiers.length ? { modifiers } : {}),
+      ...(passiveSkills.length ? { passiveSkills } : {}),
+    };
   });
-  const bindings = new Map<string, string>();
+  const bindings = new Map<string, Set<string>>();
   const addEntityBinding = (spawn: {
     readonly abilityEntityId: string;
     readonly skillId: string;
     readonly sourcePath: string;
   }) => {
-    if (
-      bindings.has(spawn.abilityEntityId) &&
-      bindings.get(spawn.abilityEntityId) !== spawn.skillId
-    )
-      throw new Error(`${spawn.sourcePath}: one template is spawned with different child skills`);
-    const added = !bindings.has(spawn.abilityEntityId);
-    bindings.set(spawn.abilityEntityId, spawn.skillId);
+    const skillIds = bindings.get(spawn.abilityEntityId) ?? new Set<string>();
+    const added = !skillIds.has(spawn.skillId);
+    skillIds.add(spawn.skillId);
+    bindings.set(spawn.abilityEntityId, skillIds);
     return added;
   };
   for (const spawn of input.activeSkills.flatMap(item => item.abilityEntitySpawns)) {
@@ -183,6 +256,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       ),
       ...talentPassivePlans.flatMap(plan => plan.buffIds),
       ...potentialPassivePlans.flatMap(plan => plan.buffIds),
+      ...basePassivePlans.flatMap(plan => plan.buffIds),
     ]),
   ];
   const globalBuffCatalog = parseGlobalBuffTemplateCatalogSource(input.globalBuffCatalog);
@@ -193,32 +267,51 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   let roots = baseRoots;
   let changed = true;
   while (changed) {
+    changed = false;
     if (input.loadAbilityEntity !== undefined) {
       entityCatalog = compileAbilityEntityTemplateCatalogSource(
         Object.fromEntries([...bindings.keys()].map(id => [id, input.loadAbilityEntity!(id)])),
       );
     }
     preliminaryAbilityEntityDefinitions = Object.fromEntries(
-      [...bindings].map(([id, skillId]) => {
+      [...bindings].map(([id, skillIds]) => {
         const template = entityCatalog.byId.get(id);
         if (!template) throw new Error(`missing AbilityEntity ${id}`);
         return [
           id,
           compileAbilityEntityDefinitionSource(
             template,
-            skillId,
+            [...skillIds],
             input.loadSkill,
             new Set(),
             input.gameplayTagRegistry,
+            skillId =>
+              input.createAbilityEntityProjectionExtensions?.(
+                skillId,
+                input.loadSkill(skillId),
+                new Set(),
+              ) ?? {},
+            { catalog: entityCatalog, gameplayTagRegistry: input.gameplayTagRegistry },
+            skillId => input.nativeMissingBlackboardZeroKeys?.get(skillId) ?? new Set(),
           ),
         ];
       }),
     );
+    for (const spawn of collectCompiledAbilityEntitySpawns(preliminaryAbilityEntityDefinitions)) {
+      changed = addEntityBinding(spawn) || changed;
+    }
     roots = [
       ...new Set([...baseRoots, ...collectCompiledBuffIds(preliminaryAbilityEntityDefinitions)]),
     ];
-    const sources = collectBuffRuntimeClosure(roots, input.loadBuff, globalBuffCatalog);
-    changed = false;
+    const sources = collectBuffRuntimeClosure(
+      roots,
+      input.loadBuff,
+      globalBuffCatalog,
+      collectCompiledDefaultKeywordCarrierIds([
+        ...input.activeSkills.map(item => item.definition),
+        preliminaryAbilityEntityDefinitions,
+      ]),
+    );
     for (const source of sources.values()) {
       const sequences = [
         ...source.graph.timelineActions.map(item => item.sequence),
@@ -226,20 +319,125 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
         ...source.graph.abilityEvents.flatMap(item => item.actions),
         ...source.graph.igniteEvents.flatMap(item => item.actions),
       ];
-      for (const node of sequences.flatMap(sequence => collectNativeActionNodes(sequence))) {
-        if (
-          !node.metadata.enabled ||
-          node.body.kind !== 'leaf' ||
-          node.body.value.family !== 'abilityEntity' ||
-          node.body.value.action.kind !== 'abilityEntitySpawn'
-        )
-          continue;
-        changed =
-          addEntityBinding({
-            abilityEntityId: node.body.value.action.abilityEntityId,
-            skillId: node.body.value.action.skillId,
-            sourcePath: node.sourcePath,
-          }) || changed;
+      for (const sequence of sequences) {
+        const nodes = collectNativeActionNodes(sequence);
+        const queriesByContextKey = Map.groupBy(
+          nodes.flatMap(node => {
+            if (
+              !node.metadata.enabled ||
+              node.body.kind !== 'leaf' ||
+              node.body.value.family !== 'targetGroup' ||
+              node.body.value.action.finderType !== 'OwnerSpawnedEntityFinder' ||
+              node.body.value.action.finderSpawnedObjectType !== 'AbilityEntity'
+            ) {
+              return [];
+            }
+            return [
+              {
+                contextKey: node.body.value.action.targetGroupKey,
+                query: compileTargetGroupAbilityEntityQuerySource(
+                  node.body.value.action,
+                  entityCatalog,
+                  input.gameplayTagRegistry,
+                  node.sourcePath,
+                ),
+              },
+            ];
+          }),
+          item => item.contextKey,
+        );
+        for (const node of nodes) {
+          if (
+            node.metadata.enabled &&
+            node.body.kind === 'forEach' &&
+            node.body.target.targetSource === 'Context'
+          ) {
+            const queries = queriesByContextKey.get(node.body.target.targetGroupKey) ?? [];
+            const childSkillIds = collectNativeActionNodes(node.body.action).flatMap(child =>
+              child.metadata.enabled &&
+              child.body.kind === 'leaf' &&
+              child.body.value.family === 'skillCast' &&
+              child.body.value.action.caster.targetSource === 'Target' &&
+              child.body.value.action.skillId.blackboardKey === null &&
+              child.body.value.action.skillId.value.length > 0
+                ? [child.body.value.action.skillId.value]
+                : [],
+            );
+            for (const { query } of queries) {
+              if (
+                query.objectFilter !== 'abilityEntity' ||
+                query.owner.kind !== 'actionSource' ||
+                query.postProcessors.length > 0 ||
+                query.validators.some(
+                  validator => validator.kind !== 'tag' && validator.kind !== 'sameSkillCast',
+                )
+              ) {
+                continue;
+              }
+              for (const abilityEntityId of query.candidateTemplateIds) {
+                for (const skillId of childSkillIds) {
+                  changed =
+                    addEntityBinding({ abilityEntityId, skillId, sourcePath: node.sourcePath }) ||
+                    changed;
+                }
+              }
+            }
+          }
+          if (
+            node.metadata.enabled &&
+            node.body.kind === 'forEach' &&
+            node.body.target.targetSource === 'InstantSearch' &&
+            node.body.target.finderType === 'OwnerSpawnedEntityFinder' &&
+            node.body.target.finderSpawnedObjectType === 'AbilityEntity' &&
+            node.body.target.postProcessorTypes.length === 0
+          ) {
+            const query = compileTargetReferenceAbilityEntityQuerySource(
+              node.body.target,
+              entityCatalog,
+              input.gameplayTagRegistry,
+              `${node.sourcePath}.target`,
+            );
+            if (
+              query.objectFilter === 'abilityEntity' &&
+              query.owner.kind === 'actionSource' &&
+              query.postProcessors.length === 0 &&
+              query.validators.every(
+                validator => validator.kind === 'tag' || validator.kind === 'sameSkillCast',
+              )
+            ) {
+              const childSkillIds = collectNativeActionNodes(node.body.action).flatMap(child =>
+                child.metadata.enabled &&
+                child.body.kind === 'leaf' &&
+                child.body.value.family === 'skillCast' &&
+                child.body.value.action.caster.targetSource === 'Target' &&
+                child.body.value.action.skillId.blackboardKey === null &&
+                child.body.value.action.skillId.value.length > 0
+                  ? [child.body.value.action.skillId.value]
+                  : [],
+              );
+              for (const abilityEntityId of query.candidateTemplateIds) {
+                for (const skillId of childSkillIds) {
+                  changed =
+                    addEntityBinding({ abilityEntityId, skillId, sourcePath: node.sourcePath }) ||
+                    changed;
+                }
+              }
+            }
+          }
+          if (
+            !node.metadata.enabled ||
+            node.body.kind !== 'leaf' ||
+            node.body.value.family !== 'abilityEntity' ||
+            node.body.value.action.kind !== 'abilityEntitySpawn'
+          )
+            continue;
+          changed =
+            addEntityBinding({
+              abilityEntityId: node.body.value.action.abilityEntityId,
+              skillId: node.body.value.action.skillId,
+              sourcePath: node.sourcePath,
+            }) || changed;
+        }
       }
     }
   }
@@ -253,22 +451,37 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     ),
   );
   const compiledAbilityEntityDefinitions = Object.fromEntries(
-    [...bindings].map(([id, skillId]) => {
+    [...bindings].map(([id, skillIds]) => {
       const template = entityCatalog.byId.get(id);
       if (!template) throw new Error(`missing AbilityEntity ${id}`);
       return [
         id,
-        compileAbilityEntityDefinitionSource(
-          template,
-          skillId,
-          input.loadSkill,
-          entityVisualOnlyBuffIds,
-          input.gameplayTagRegistry,
+        assignGeneratedDamageStepKeys(
+          compileAbilityEntityDefinitionSource(
+            template,
+            [...skillIds],
+            input.loadSkill,
+            entityVisualOnlyBuffIds,
+            input.gameplayTagRegistry,
+            skillId =>
+              input.createAbilityEntityProjectionExtensions?.(
+                skillId,
+                input.loadSkill(skillId),
+                entityVisualOnlyBuffIds,
+              ) ?? {},
+            { catalog: entityCatalog, gameplayTagRegistry: input.gameplayTagRegistry },
+            skillId => input.nativeMissingBlackboardZeroKeys?.get(skillId) ?? new Set(),
+          ),
+          `${id}:${[...skillIds].join('|')}`,
         ),
       ];
     }),
   );
   roots = [...new Set([...baseRoots, ...collectCompiledBuffIds(compiledAbilityEntityDefinitions)])];
+  const provenDefaultKeywordCarrierRootIds = collectCompiledDefaultKeywordCarrierIds([
+    ...input.activeSkills.map(item => item.definition),
+    compiledAbilityEntityDefinitions,
+  ]);
   type FixedBuffTarget = 'caster' | 'enemy' | 'currentAbilityEntity';
   const rootBuffOwnerTargets = new Map<string, 'caster' | 'enemy' | 'currentAbilityEntity'>();
   const rootBuffOwnerTargetConflicts = new Set<string>();
@@ -299,6 +512,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     ),
     ...talentPassivePlans.flatMap(plan => plan.buffIds),
     ...potentialPassivePlans.flatMap(plan => plan.buffIds),
+    ...basePassivePlans.flatMap(plan => plan.buffIds),
   ]) {
     registerRootBuffOwner(buffId, 'caster');
     registerRootBuffSource(buffId, 'caster');
@@ -353,6 +567,11 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     ]),
     input.gameplayTagRegistry,
     rootBuffSourceTargets,
+    provenDefaultKeywordCarrierRootIds,
+    collectCompiledBuffCapturedTargetGroups([
+      ...input.activeSkills.map(item => item.definition),
+      compiledAbilityEntityDefinitions,
+    ]),
   );
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);
@@ -360,16 +579,59 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   const definitions = new Map<string, SkillDefinition>(
     [...compiledDefinitions].map(([key, definition]) => [key, hydrate(definition)]),
   );
+  const routedSkills = new Map((input.routedSkills ?? []).map(item => [item.key, item] as const));
+  for (const routed of routedSkills.values()) {
+    const wrapper = definitions.get(routed.key);
+    const target = definitions.get(routed.targetSkillKey);
+    if (wrapper === undefined || target === undefined) {
+      throw new Error(`routed skill '${routed.key}' has an unknown wrapper or target`);
+    }
+    definitions.set(routed.key, {
+      ...target,
+      key: routed.key,
+      costs: routed.costs,
+      costFrame: routed.costFrame,
+      cooldownFrames: routed.cooldownFrames,
+    });
+  }
   const abilityEntityDefinitions = hydrate(compiledAbilityEntityDefinitions);
+  const assignedRuntimeReplacementSkillKeys = new Set<string>();
   const skillGroups = skillLibrary.skillGroups.map(group => {
+    const visibleSkillKeys = group.skillKeys.filter(key => !runtimeReplacementSkillKeys.has(key));
+    const replacementSkillKeys = group.skillKeys.filter(
+      key => runtimeReplacementSkillKeys.has(key) && !routedSkills.has(key),
+    );
+    const routedSkillEntries = group.skillKeys.flatMap(key => {
+      const routed = routedSkills.get(key);
+      return routed === undefined ? [] : [routed];
+    });
+    if (visibleSkillKeys.length === 0) {
+      throw new Error(`skill group '${group.key}' has no visible skill after runtime replacements`);
+    }
+    replacementSkillKeys.forEach(key => assignedRuntimeReplacementSkillKeys.add(key));
+    routedSkillEntries.forEach(item => assignedRuntimeReplacementSkillKeys.add(item.key));
     return {
       key: group.key,
       skillType: group.skillType,
       levelSource: group.levelSource,
       skills:
-        group.skillKeys.length === 1
-          ? definitions.get(group.skillKeys[0]!)!
-          : group.skillKeys.map(key => definitions.get(key)!),
+        visibleSkillKeys.length === 1
+          ? definitions.get(visibleSkillKeys[0]!)!
+          : visibleSkillKeys.map(key => definitions.get(key)!),
+      ...(replacementSkillKeys.length === 0
+        ? {}
+        : { replacementSkills: replacementSkillKeys.map(key => definitions.get(key)!) }),
+      ...(routedSkillEntries.length === 0
+        ? {}
+        : {
+            routedReplacementSkills: routedSkillEntries.map(routed => ({
+              skill: definitions.get(routed.key)!,
+              skillType: routed.skillType,
+              levelSource: routed.levelSource,
+              executionSkillGroupKey: routed.executionSkillGroupKey,
+              executionSkillKey: routed.targetSkillKey,
+            })),
+          }),
       ...(group.variants.length === 0
         ? {}
         : {
@@ -384,11 +646,41 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
           }),
     } satisfies SkillGroupDefinition;
   });
+  const unassignedRuntimeReplacementSkillKeys = [...runtimeReplacementSkillKeys].filter(
+    key => !assignedRuntimeReplacementSkillKeys.has(key),
+  );
+  if (unassignedRuntimeReplacementSkillKeys.length > 0) {
+    throw new Error(
+      `runtime replacement skills are not assigned to a group: ${JSON.stringify(unassignedRuntimeReplacementSkillKeys)}`,
+    );
+  }
   const privateBuffs: Record<string, CompiledBuffDefinitionSource> = {},
     commonBuffs: Record<string, CompiledBuffDefinitionSource> = {};
+  const skillSlotReplacements = compileOperatorBuffSkillSlotReplacements(
+    buffClosure.sources,
+    skillLibrary.skillGroups,
+    input.activeSkills.map(item => item.definition),
+    runtimeReplacementSkillKeys,
+  );
+  const { sourceCharacterId, ...header } = compileOperatorDefinitionHeaderSource(foundation);
+  // 产品身份可与实际复用的角色资源身份不同（管理员统一使用女管理员动作数据）。
+  // 只从本次完整主动技能库的原生 skillId 建立额外归属，不按 Buff 名称反猜角色。
+  const privateBuffCharacterIds = new Set([sourceCharacterId]);
+  for (const { definition } of input.activeSkills) {
+    const match = /^(chr_\d+_[^_]+)_/.exec(definition.sourceSkillId);
+    if (match !== null) privateBuffCharacterIds.add(match[1]!);
+  }
   for (const [id, definition] of Object.entries(buffClosure.definitions)) {
-    const hydratedDefinition = hydrate(definition);
-    if (id.startsWith(`buff_${foundation.identity.characterId}_`))
+    const replacements = skillSlotReplacements.get(id);
+    const hydratedDefinition = assignGeneratedDamageStepKeys(
+      hydrate(
+        replacements === undefined
+          ? definition
+          : { ...definition, skillSlotReplacements: replacements },
+      ),
+      id,
+    );
+    if ([...privateBuffCharacterIds].some(characterId => id.startsWith(`buff_${characterId}_`)))
       privateBuffs[id] = hydratedDefinition;
     else if (id.startsWith('buff_chr_')) {
       throw new Error(`foreign operator Buff ownership is not established: ${id}`);
@@ -398,8 +690,6 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       commonBuffs[id] = hydratedDefinition;
     }
   }
-  const { sourceCharacterId: _sourceCharacterId, ...header } =
-    compileOperatorDefinitionHeaderSource(foundation);
   const operator: OperatorDefinition = {
     ...header,
     skillGroups,
@@ -408,6 +698,23 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       : { comboSkillRegistrations: input.comboSkillRegistrations }),
     talents,
     potentials,
+    ...(input.nativeMissingEntityBlackboardZeroKeys?.size
+      ? {
+          entityBlackboard: Object.fromEntries(
+            [...input.nativeMissingEntityBlackboardZeroKeys].map(key => [key, 0] as const),
+          ),
+        }
+      : {}),
+    ...(basePassivePlans.length === 0
+      ? {}
+      : { passiveSkills: basePassivePlans.flatMap(plan => plan.definitions) }),
+    ...(basePassivePlans.flatMap(plan => plan.entityBlackboardInitializers).length === 0
+      ? {}
+      : {
+          entityBlackboardInitializers: basePassivePlans.flatMap(
+            plan => plan.entityBlackboardInitializers,
+          ),
+        }),
     buffDefinitions: privateBuffs,
     abilityEntityDefinitions,
   };
@@ -419,11 +726,150 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       rootBuffIds: roots,
       buffSourceCount: buffClosure.sources.size,
       omittedBuffIds: [...buffClosure.omittedBuffIds],
-      entityBindings: [...bindings],
+      entityBindings: [...bindings].flatMap(([id, skillIds]) =>
+        [...skillIds].map(skillId => [id, skillId] as const),
+      ),
       diagnostics: buffClosure.diagnostics,
       omittedEntityVisualOnlyBuffIds: [...entityVisualOnlyBuffIds],
     },
   };
+}
+
+function compileOperatorBuffSkillSlotReplacements(
+  sources: ReadonlyMap<string, BuffRuntimeSource>,
+  groups: readonly OperatorDefinitionAssemblyInput['foundation']['skillLibrary']['skillGroups'][number][],
+  skills: readonly CompiledOperatorActiveSkillRuntimeDefinitionSource[],
+  runtimeReplacementSkillKeys: ReadonlySet<string>,
+): ReadonlyMap<string, readonly SkillBuffSlotReplacement[]> {
+  const skillKeyByNativeId = new Map(skills.map(skill => [skill.sourceSkillId, skill.key]));
+  const result = new Map<string, readonly SkillBuffSlotReplacement[]>();
+  for (const [buffId, source] of sources) {
+    const replacements: SkillBuffSlotReplacement[] = [];
+    for (const event of source.graph.buffEvents) {
+      for (const sequence of event.actions) {
+        const directNodes = new Set(sequence.actions);
+        for (const node of collectNativeActionNodes(sequence)) {
+          if (node.body.kind !== 'leaf' || node.body.value.family !== 'skillSlotReplacement') {
+            continue;
+          }
+          const action = node.body.value.action;
+          const restoredSkillKey = skillKeyByNativeId.get(action.targetSkillId);
+          const isDirectComboRestore =
+            event.event === 'OnBuffFinish' &&
+            directNodes.has(node) &&
+            node.metadata.enabled &&
+            isPlainBuffSkillSlotTarget(action.skillSource) &&
+            action.skillSlot === 'ComboSkill' &&
+            action.lifetime === 'Infinite' &&
+            !action.overrideCacheTime &&
+            !action.inheritOriginSkillCooldownProgress &&
+            !action.specificRevertedSkillId &&
+            action.revertedSkillId === '' &&
+            restoredSkillKey !== undefined &&
+            groups.some(
+              group =>
+                group.skillType === 'comboSkill' && group.skillKeys.includes(restoredSkillKey),
+            );
+          if (isDirectComboRestore) {
+            // 原生在窗口 Buff 结束时把后续连携写回槽位；Endaxis 的现实时间轴由用户
+            // 直接放置后续技能，因此只保留技能身份/冷却逻辑，不驱动自动替换或摆放。
+            continue;
+          }
+          if (event.event !== 'DuringBuffEnable' || !directNodes.has(node)) {
+            throw new Error(
+              `${node.sourcePath}: skill-slot replacement must be a direct DuringBuffEnable action`,
+            );
+          }
+          if (
+            !node.metadata.enabled ||
+            !isPlainBuffSkillSlotTarget(action.skillSource) ||
+            action.lifetime !== 'FinishByAction'
+          ) {
+            throw new Error(`${node.sourcePath}: unsupported skill-slot replacement lifecycle`);
+          }
+          if (
+            action.overrideCacheTime &&
+            (action.cacheTime.blackboardKey !== null || action.cacheTime.value < 0)
+          ) {
+            throw new Error(
+              `${node.sourcePath}: skill-slot input cache override must be a non-negative literal`,
+            );
+          }
+          const targetSkillKey = skillKeyByNativeId.get(action.targetSkillId);
+          if (targetSkillKey === undefined || !runtimeReplacementSkillKeys.has(targetSkillKey)) {
+            throw new Error(
+              `${node.sourcePath}: target skill is not an audited runtime replacement`,
+            );
+          }
+          const expectedSkillType =
+            action.skillSlot === 'NormalSkill'
+              ? 'battleSkill'
+              : action.skillSlot === 'ComboSkill'
+                ? 'comboSkill'
+                : 'ultimate';
+          const matchingGroups = groups.filter(
+            group =>
+              group.skillType === expectedSkillType && group.skillKeys.includes(targetSkillKey),
+          );
+          if (matchingGroups.length !== 1) {
+            throw new Error(`${node.sourcePath}: expected one stable skill group for replacement`);
+          }
+          const group = matchingGroups[0]!;
+          const visibleSkillKeys = group.skillKeys.filter(
+            key => !runtimeReplacementSkillKeys.has(key),
+          );
+          let revertedSkillKey: string;
+          if (action.specificRevertedSkillId) {
+            const specific = skillKeyByNativeId.get(action.revertedSkillId);
+            if (specific === undefined || !group.skillKeys.includes(specific)) {
+              throw new Error(`${node.sourcePath}: unknown specific reverted skill`);
+            }
+            revertedSkillKey = specific;
+          } else {
+            if (action.revertedSkillId !== '') {
+              throw new Error(`${node.sourcePath}: unexpected reverted skill ID`);
+            }
+            if (visibleSkillKeys.length !== 1) {
+              throw new Error(
+                `${node.sourcePath}: replacement group must have one stable base skill`,
+              );
+            }
+            revertedSkillKey = visibleSkillKeys[0]!;
+          }
+          replacements.push({
+            skillGroupKey: group.key,
+            targetSkillKey,
+            revertedSkillKey,
+            inheritOriginSkillCooldownProgress: action.inheritOriginSkillCooldownProgress,
+          });
+        }
+      }
+    }
+    if (replacements.length > 0) result.set(buffId, replacements);
+  }
+  return result;
+}
+
+function isPlainBuffSkillSlotTarget(
+  target: import('../../source/target.ts').TargetReferenceSource,
+): boolean {
+  return (
+    // ChangeSkillAction resolves its first target.  Buff-owned replacements execute against the
+    // Buff carrier in Endaxis; native data uses Owner for that carrier, while older self-applied
+    // samples use Source.  Do not admit selectors or context/group indirection here.
+    (target.targetSource === 'Owner' || target.targetSource === 'Source') &&
+    target.targetGroupKey === '' &&
+    target.selectorOwner === 'ActionOwner' &&
+    target.ownerContextKey === '' &&
+    target.centerType === 'ActionSource' &&
+    target.centerContextKey === '' &&
+    !target.centerToGround &&
+    target.target === 'ActionSource' &&
+    target.targetContextKey === '' &&
+    target.finderType === null &&
+    target.validatorTypes.length === 0 &&
+    target.postProcessorTypes.length === 0
+  );
 }
 
 function requireExactIdentities(

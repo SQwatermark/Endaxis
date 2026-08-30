@@ -2258,7 +2258,7 @@ export default {
                   sequence(
                     step('applyBuff', {
                       buffId: 'buff_chr_0018_dapan_talent_0_dmg_up',
-                      target: 'eventSource',
+                      target: 'caster',
                       source: 'eventSource',
                       count: { kind: 'blackboard', key: 'consumedLayer' },
                       inheritSourceSkillCastInfo: true,

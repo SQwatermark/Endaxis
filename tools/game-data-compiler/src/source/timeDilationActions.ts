@@ -52,6 +52,68 @@ export interface UltimateTimeActionSource {
   readonly ignoreTargets: readonly TargetReferenceSource[];
 }
 
+export interface SetIgnoreGlobalTimeScaleActionSource {
+  readonly kind: 'setIgnoreGlobalTimeScale';
+  readonly target: TargetReferenceSource;
+  readonly ignoreGlobalTimeScale: boolean;
+  readonly revertOnEnd: boolean;
+}
+
+/** combat-spec: SealAction 是固定 Seal 槽位/优先级的敌方实体局部时间膨胀。 */
+export interface SealTimeDilationActionSource {
+  readonly kind: 'sealTimeDilation';
+  readonly attacker: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly curveKey: string;
+  readonly useDirectCurve: boolean;
+  readonly inlineCurveKeys: readonly TimeDilationCurveKeySource[];
+  readonly duration: ScalarSource;
+  readonly finishByAction: boolean;
+}
+
+export function parseSealTimeDilationActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): SealTimeDilationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'attacker',
+      'target',
+      'curveKey',
+      'useDirectCurve',
+      'directCurve',
+      'duration',
+      'finishByAction',
+    ]),
+    path,
+  );
+  const useDirectCurve = requireBoolean(action.useDirectCurve, `${path}.useDirectCurve`);
+  const curveKey = requireString(action.curveKey, `${path}.curveKey`);
+  if (useDirectCurve === curveKey.length > 0)
+    throw new Error(`${path}: exactly one Seal curve source must be selected`);
+  const inlineCurveKeys = parseTimeDilationCurveKeys(
+    action.directCurve,
+    `${path}.directCurve`,
+    true,
+  );
+  if (useDirectCurve && inlineCurveKeys.length === 0)
+    throw new Error(`${path}.directCurve: expected keys`);
+  return {
+    kind: 'sealTimeDilation',
+    attacker: parseTargetReferenceSource(action.attacker, `${path}.attacker`),
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    curveKey,
+    useDirectCurve,
+    inlineCurveKeys,
+    duration: parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard),
+    finishByAction: requireBoolean(action.finishByAction, `${path}.finishByAction`),
+  };
+}
+
 export function parseTimeDilationActionSource(
   value: unknown,
   path: string,
@@ -119,6 +181,27 @@ export function parseUltimateTimeActionSource(
     timeScale: requireNumber(action.timeScale, `${path}.timeScale`),
     priorityTagId: parseTagId(action.timeDilationPriority, `${path}.timeDilationPriority`),
     ignoreTargets: parseTargets(action.ignoreTargets, `${path}.ignoreTargets`),
+  };
+}
+
+export function parseSetIgnoreGlobalTimeScaleActionSource(
+  value: unknown,
+  path: string,
+): SetIgnoreGlobalTimeScaleActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([...ACTION_META_FIELDS, 'targetSettings', 'ignoreGlobalTimeScale', 'revertOnEnd']),
+    path,
+  );
+  return {
+    kind: 'setIgnoreGlobalTimeScale',
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    ignoreGlobalTimeScale: requireBoolean(
+      action.ignoreGlobalTimeScale,
+      `${path}.ignoreGlobalTimeScale`,
+    ),
+    revertOnEnd: requireBoolean(action.revertOnEnd, `${path}.revertOnEnd`),
   };
 }
 

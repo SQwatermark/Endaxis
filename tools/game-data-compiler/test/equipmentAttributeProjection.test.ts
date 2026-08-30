@@ -138,6 +138,14 @@ describe('单件装备属性投影', () => {
     });
     expect(
       projectEquipmentAttributeModifier(
+        fixture('specific', 'EtherDamageTakenScalar', 'baseAddition'),
+      ),
+    ).toMatchObject({
+      status: 'scenario-omitted',
+      reason: 'playerDamageTakenRequiresEnemyActiveDamage',
+    });
+    expect(
+      projectEquipmentAttributeModifier(
         fixture('specific', 'ShieldOutputIncrease', 'baseAddition'),
       ),
     ).toMatchObject({

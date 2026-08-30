@@ -82,7 +82,12 @@ export function projectBuildAttributeModifier<Value extends LevelValues>(
   source: CompiledAttributeModifierSource<Value>,
 ): BuildAttributeModifierProjectionSource<Value> {
   if (PLAYER_DAMAGE_TAKEN_ATTRIBUTES.has(source.declaredAttributeType)) {
-    if (source.target === 'specific' && source.slot === 'baseFinalMultiplier') {
+    if (
+      source.target === 'specific' &&
+      (source.slot === 'baseFinalMultiplier' ||
+        (source.declaredAttributeType === 'EtherDamageTakenScalar' &&
+          source.slot === 'baseAddition'))
+    ) {
       return {
         status: 'scenario-omitted',
         source,

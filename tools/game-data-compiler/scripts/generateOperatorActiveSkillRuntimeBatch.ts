@@ -50,7 +50,7 @@ export async function generateOperatorActiveSkillRuntimeBatch(args: Arguments) {
   }
   requireOwnedOperatorDirectory(
     args.output,
-    path.resolve('src/next/data/operators/generated-active-skills'),
+    path.resolve('tmp/game-data-generated/operator-active-skills'),
     args.slug,
   );
   requireOwnedOperatorDirectory(

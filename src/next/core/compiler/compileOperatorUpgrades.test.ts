@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { perlica } from '../../data/operators/perlica';
-import { arclightGeneratedOperator } from '../../data/operators/generated/arclight.operator.generated';
-import { camilleGeneratedOperator } from '../../data/operators/generated/camille.operator.generated';
-import { chenQianyuGeneratedOperator } from '../../data/operators/generated/chen-qianyu.operator.generated';
-import { daPanGeneratedOperator } from '../../data/operators/generated/da-pan.operator.generated';
-import { endministratorGeneratedOperator } from '../../data/operators/generated/endministrator.operator.generated';
-import { lifengGeneratedOperator } from '../../data/operators/generated/lifeng.operator.generated';
-import { fluoriteGeneratedOperator } from '../../data/operators/generated/fluorite.operator.generated';
-import { gilbertaGeneratedOperator } from '../../data/operators/generated/gilberta.operator.generated';
-import { lastRiteGeneratedOperator } from '../../data/operators/generated/last-rite.operator.generated';
-import { estellaGeneratedOperator } from '../../data/operators/generated/estella.operator.generated';
-import { tangtangGeneratedOperator } from '../../data/operators/generated/tangtang.operator.generated';
+import { arclight as arclightGeneratedOperator } from '../../data/operators/arclight';
+import { camille as camilleGeneratedOperator } from '../../data/operators/camille';
+import { chenQianyu as chenQianyuGeneratedOperator } from '../../data/operators/chen-qianyu';
+import { daPan as daPanGeneratedOperator } from '../../data/operators/da-pan';
+import { endministrator as endministratorGeneratedOperator } from '../../data/operators/endministrator';
+import { lifeng as lifengGeneratedOperator } from '../../data/operators/lifeng';
+import fluoriteGeneratedOperator from '../../data/operators/generated-definitions/fluorite/fluorite.operator.generated';
+import { gilberta as gilbertaGeneratedOperator } from '../../data/operators/gilberta';
+import { lastRite as lastRiteGeneratedOperator } from '../../data/operators/last-rite';
+import { estella as estellaGeneratedOperator } from '../../data/operators/estella';
+import { tangtang as tangtangGeneratedOperator } from '../../data/operators/tangtang';
 import type { CompiledSkillProgram } from './combatProgram';
 import type { OperatorInstanceDocument } from '../project/schema';
 import type {
@@ -449,6 +449,35 @@ describe('operator upgrade compilation', () => {
     expect(source.map(skill => skill.costs[0]!.value)).toEqual([100, 120, 100]);
   });
 
+  it('can target one player-facing skill without modifying a runtime-only replacement in the same group', () => {
+    const source = [
+      program('ultimate', 'ultimate', 'ultimateEnergy', 100),
+      { ...program('ultimateEnd', 'ultimate', 'ultimateEnergy', 0), costs: [] },
+    ];
+    const patched = applyOperatorUpgradeSkillPatches(source, [
+      {
+        source: 'potential',
+        level: 1,
+        definition: {
+          key: 'ultimate-cost',
+          levels: 1,
+          modifiers: [
+            {
+              kind: 'multiplySkillCost',
+              skillGroupKey: 'ultimate',
+              skillKey: 'ultimate',
+              resource: 'ultimateEnergy',
+              multiplier: 0.8,
+            },
+          ],
+        },
+      },
+    ]);
+
+    expect(patched[0]!.costs[0]!.value).toBe(80);
+    expect(patched[1]!.costs).toEqual([]);
+  });
+
   it('patches initial skill blackboards with add, multiply and assign operations', () => {
     const source = [
       {
@@ -483,6 +512,23 @@ describe('operator upgrade compilation', () => {
               operation: 'multiply',
               value: [1, 1.3],
             },
+            {
+              kind: 'patchSkillBlackboard',
+              skillGroupKey: 'battleSkill',
+              blackboardKey: 'level_two_flag',
+              operation: 'assign',
+              value: 1,
+              minimumUpgradeLevel: 2,
+              maximumUpgradeLevel: 2,
+            },
+            {
+              kind: 'patchSkillBlackboard',
+              skillGroupKey: 'battleSkill',
+              blackboardKey: 'level_one_flag',
+              operation: 'assign',
+              value: 1,
+              maximumUpgradeLevel: 1,
+            },
           ],
         },
       },
@@ -492,15 +538,18 @@ describe('operator upgrade compilation', () => {
       talent_1: 1,
       atb: 40,
       pulse_up: Math.fround(0.0005 * 1.3),
+      level_two_flag: 1,
       count: 3,
     });
     expect(patched[1]!.initialBlackboard).toMatchObject({
       talent_1: 1,
       atb: 35,
       pulse_up: Math.fround(0.0008 * 1.3),
+      level_two_flag: 1,
       count: 3,
     });
     expect(patched[2]!.initialBlackboard).toEqual({});
+    expect(patched[0]!.initialBlackboard).not.toHaveProperty('level_one_flag');
     expect(source[0]!.initialBlackboard).not.toHaveProperty('talent_1');
   });
 
@@ -647,14 +696,14 @@ describe('operator upgrade compilation', () => {
 
     expect(patched[0]!.timelineActions[0]!.sequence.steps[0]).toMatchObject({
       kind: 'applyElementalReaction',
-      parameters: { durationSeconds: 8.75, effectiveness: 1.33 },
+      parameters: { durationSeconds: 5, durationMultiplier: 1.75, effectiveness: 1.33 },
     });
     expect(source[0]!.timelineActions[0]!.sequence.steps[0]).toMatchObject({
       parameters: { durationSeconds: 5, effectiveness: 1 },
     });
   });
 
-  it('connects Perlica reaction duration and effectiveness potentials to her generated step', () => {
+  it('connects Perlica conduct duration and effectiveness potentials to native skill blackboard', () => {
     const durationPatched = compileOperatorDefinitionSkills(
       'track:perlica',
       build({ potential: 1 }),
@@ -665,43 +714,33 @@ describe('operator upgrade compilation', () => {
     const effectivenessPatched = applyOperatorUpgradeSkillPatches(base, [
       { source: 'potential', level: 1, definition: effectivenessDefinition },
     ]);
-    const reaction = (programs: readonly CompiledSkillProgram[]) =>
-      programs
-        .find(program => program.skillGroupKey === 'comboSkill')!
-        .timelineActions.flatMap(action => action.sequence.steps)
-        .find(step => step.key === 'comboSkill.electrification');
-
-    expect(reaction(durationPatched)).toMatchObject({
-      kind: 'applyElementalReaction',
-      parameters: { durationSeconds: 8.75, effectiveness: 1 },
-    });
-    expect(reaction(effectivenessPatched)).toMatchObject({
-      kind: 'applyElementalReaction',
-      parameters: { durationSeconds: 5, effectiveness: 1.33 },
-    });
+    expect(
+      durationPatched.find(program => program.skillGroupKey === 'comboSkill')?.initialBlackboard,
+    ).toMatchObject({ duration: 8.75, extra_scaling: 1 });
+    const effectiveness = effectivenessPatched.find(
+      program => program.skillGroupKey === 'comboSkill',
+    )?.initialBlackboard;
+    expect(effectiveness?.duration).toBe(5);
+    expect(effectiveness?.extra_scaling).toBeCloseTo(1.33);
   });
 
-  it('compiles Perlica reaction attack potential into an independent event program', () => {
-    const programs = compileOperatorUpgradeEventPrograms([
+  it('compiles Perlica reaction attack potential into its native listening Buff initialization', () => {
+    const programs = compileOperatorInitializationPrograms([
       { source: 'potential', level: 1, definition: perlica.potentials[2]! },
     ]);
 
     expect(hydrateOperatorBuffReferences(programs, perlica)).toMatchObject([
       {
-        key: 'potential:attackAfterElectrification:0',
-        event: { kind: 'reactionApplied', reaction: 'electrification' },
+        key: 'potential:attackAfterElectrification',
         sequence: {
           steps: [
             {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'buff_chr_0004_pelica_potential_3_atkup',
+                buffId: 'buff_chr_0004_pelica_potential_3',
                 target: 'caster',
                 definition: {
-                  stackingType: 'enhanceAndRefresh',
-                  maxStackCount: 2,
-                  durationSeconds: 5,
-                  attributeModifiers: [{ attribute: 'Atk', slot: 'baseMultiplier', value: 0.2 }],
+                  abilityEventResponses: [{ event: 'outputBuff' }],
                 },
               },
             },
@@ -760,32 +799,45 @@ describe('operator upgrade compilation', () => {
     ]);
   });
 
-  it('adds Perlica ultimate critical rate only to the targeted compiled skill group', () => {
+  it('adds Perlica ultimate critical rate to the native ultimate blackboard input', () => {
     const base = compileOperatorDefinitionSkills('track:perlica', build(), perlica);
     const patched = applyOperatorUpgradeSkillPatches(base, [
       { source: 'potential', level: 1, definition: perlica.potentials[4]! },
     ]);
 
-    expect(patched.find(program => program.skillGroupKey === 'ultimate')?.statModifiers).toEqual({
-      criticalRate: 0.3,
-    });
     expect(
-      patched.find(program => program.skillGroupKey === 'comboSkill')?.statModifiers,
+      patched.find(program => program.skillGroupKey === 'ultimate')?.initialBlackboard.crit,
+    ).toBeCloseTo(0.3);
+    expect(
+      patched.find(program => program.skillGroupKey === 'comboSkill')?.initialBlackboard.crit,
     ).toBeUndefined();
-    expect(base.every(program => program.statModifiers === undefined)).toBe(true);
+    expect(base.find(program => program.skillGroupKey === 'ultimate')?.initialBlackboard.crit).toBe(
+      0,
+    );
   });
 
-  it('resolves Perlica staggered-target talent level into every compiled skill program', () => {
-    const patched = compileOperatorDefinitionSkills(
-      'track:perlica',
-      build({ talentStates: { 0: 2 } }),
-      perlica,
-    );
+  it('resolves Perlica staggered-target talent level into its native Buff initialization', () => {
+    const active = resolveActiveOperatorUpgrades(build({ talentStates: { 0: 2 } }), perlica);
+    const initialization = compileOperatorInitializationPrograms(active);
 
-    expect(patched).not.toHaveLength(0);
-    expect(
-      patched.every(program => program.statModifiers?.damageToStaggeredEnemyIncrease === 0.3),
-    ).toBe(true);
+    expect(hydrateOperatorBuffReferences(initialization, perlica)).toMatchObject([
+      {
+        key: 'talent:staggerDamageBonus',
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'buff_chr_0004_pelica_talent_0',
+                target: 'caster',
+                blackboardAssignments: { dmg: { kind: 'constant', value: 0.3 } },
+                definition: { damageModifiers: [{ enabledSide: 'attacker' }] },
+              },
+            },
+          ],
+        },
+      },
+    ]);
   });
 
   it('connects all pure Da Pan potential blackboard patches to their generated skills', () => {

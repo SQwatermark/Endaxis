@@ -244,6 +244,31 @@ describe('standardPlayerDamageCompatibility', () => {
     expect(issues[0]!.path).toContain('.options[1].sequence.steps[0]');
   });
 
+  it('递归检查 repeatByActionValue 的动作体，不把运行时已支持的容器误报为未支持', () => {
+    const issues = inspectStandardPlayerDamageCompatibility(
+      compatibilityInput(
+        operator({
+          steps: [
+            {
+              kind: 'repeatByActionValue',
+              parameters: { count: { kind: 'constant', value: 2 } },
+              body: {
+                steps: [
+                  {
+                    kind: 'dealDamage',
+                    parameters: { damageType: 'electric', attackScale: 1, tags: [] },
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+      ),
+    );
+
+    expect(issues).toEqual([]);
+  });
+
   it('accepts current-cast Buff lifetime with context binding checked at execution', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(
@@ -738,6 +763,36 @@ describe('standardPlayerDamageCompatibility', () => {
 
     expect(issues.map(issue => issue.code)).toEqual(['unsupported-step']);
     expect(issues[0]?.detail).toContain('infliction document');
+  });
+
+  it('accepts detached projectile finish callbacks when their body is compatible', () => {
+    const issues = inspectStandardPlayerDamageCompatibility(
+      compatibilityInput(
+        operator({
+          steps: [
+            {
+              kind: 'scheduleProjectileFinishCallback',
+              parameters: { delaySeconds: 0.1 },
+              body: {
+                steps: [
+                  {
+                    kind: 'changeResource',
+                    parameters: {
+                      resource: 'sp',
+                      amount: 1,
+                      recipient: 'team',
+                      spGainKind: 'gain',
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+      ),
+    );
+
+    expect(issues).toEqual([]);
   });
 
   it('throws one aggregate error containing all issues', () => {

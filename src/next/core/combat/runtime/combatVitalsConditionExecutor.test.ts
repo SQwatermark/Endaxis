@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatVitals } from './combatVitals';
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 describe('CombatVitalsConditionExecutor', () => {
   it('compares current health and health ratio against action values', () => {
@@ -77,6 +78,78 @@ describe('CombatVitalsConditionExecutor', () => {
       ),
     ).toBe(true);
     expect(resolveTarget).toHaveBeenCalledWith('buffSource', 'operator:source');
+  });
+
+  it('resolves a saved character-team target without rerunning selection', () => {
+    const vitals = new CombatVitals({
+      health: 400,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const resolveContextTarget = vi.fn(() => vitals);
+    const executor = new CombatVitalsConditionExecutor({
+      resolveTarget: vi.fn(),
+      resolveContextTarget,
+      delegate: { execute: vi.fn(() => false), evaluate: vi.fn(() => false) },
+    });
+    const targetContext = new RuntimeTargetContext();
+    targetContext.setSingle('CureTarget', { kind: 'operator', operatorId: 'ally' });
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'healthCompare',
+          target: 'contextTarget',
+          contextKey: 'CureTarget',
+          valueType: 'ratio',
+          operator: 'less',
+          value: { kind: 'constant', value: 0.99 },
+        },
+        { blackboard: new ActionBlackboard(), targetContext },
+      ),
+    ).toBe(true);
+    expect(resolveContextTarget).toHaveBeenCalledWith('ally');
+  });
+
+  it('resolves the current forEach operator for a health condition', () => {
+    const vitals = new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const resolveContextTarget = vi.fn(() => vitals);
+    const executor = new CombatVitalsConditionExecutor({
+      resolveTarget: vi.fn(),
+      resolveContextTarget,
+      delegate: { execute: vi.fn(() => false), evaluate: vi.fn(() => false) },
+    });
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'healthCompare',
+          target: 'currentTarget',
+          valueType: 'ratio',
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 0.99 },
+        },
+        {
+          blackboard: new ActionBlackboard(),
+          currentTarget: { kind: 'operator', operatorId: 'controlled' },
+        },
+      ),
+    ).toBe(true);
+    expect(resolveContextTarget).toHaveBeenCalledWith('controlled');
   });
 
   it('compares current poise and preserves the native missing-poise fallback', () => {

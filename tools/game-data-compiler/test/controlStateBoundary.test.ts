@@ -26,11 +26,23 @@ describe('无敌人主动行为的控制状态边界', () => {
     expect(standardStumpBuffAbilityEventOmissionReason(event)).toBeNull();
   });
 
-  it('干员受击和死亡事件在无敌人主动行为的木桩场景省略', () => {
-    for (const event of ['OnBeforeTakeDamage', 'OnTakeDamage', 'OnOwnerHpZero', 'OnOwnerDead']) {
+  it('干员受击监听由外部标记保留，只有死亡事件仍按木桩边界省略', () => {
+    for (const event of ['OnBeforeTakeDamage', 'OnTakeDamage']) {
+      expect(standardStumpBuffAbilityEventOmissionReason(event, 'caster')).toBeNull();
+    }
+    for (const event of ['OnOwnerHpZero', 'OnOwnerDead']) {
       expect(standardStumpBuffAbilityEventOmissionReason(event, 'caster')).not.toBeNull();
       expect(standardStumpBuffAbilityEventOmissionReason(event)).toBeNull();
     }
+  });
+
+  it('外部受击标记不伪造角色承受元素附着事件', () => {
+    expect(
+      standardStumpBuffAbilityEventOmissionReason('OnCharBeforeTakeSpellInfliction', 'caster'),
+    ).not.toBeNull();
+    expect(
+      standardStumpBuffAbilityEventOmissionReason('OnCharBeforeTakeSpellInfliction', 'enemy'),
+    ).toBeNull();
   });
 
   it('敌方受击事件保留，但唯一木桩死亡后的事件省略', () => {

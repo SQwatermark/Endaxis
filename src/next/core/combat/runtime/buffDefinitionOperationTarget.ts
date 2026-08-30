@@ -106,6 +106,9 @@ export class BuffDefinitionOperationTarget<Key extends string>
         ...(request.finishParentGlobalBuff === undefined
           ? {}
           : { finishParentGlobalBuff: request.finishParentGlobalBuff }),
+        ...(request.getSourceAttributeValue === undefined
+          ? {}
+          : { getSourceAttributeValue: request.getSourceAttributeValue }),
       },
       () => {
         // 接收侧 Added → 来源侧 Output → 容器执行已有关键词增强。
@@ -269,6 +272,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.findFirstByIds(ids);
   }
 
+  findFirstHandleByIds(ids: readonly string[]): BuffApplicationHandle | undefined {
+    return this.container.findFirstByIds(ids);
+  }
+
   finishByIds(ids: readonly string[], reason: BuffFinishReason): number {
     return this.container.finishByIds(ids, reason);
   }
@@ -291,6 +298,14 @@ export class BuffDefinitionOperationTarget<Key extends string>
     exact?: boolean,
   ): number {
     return this.container.getCountByTags(tags, type, exact);
+  }
+
+  getDistinctIdCountByTags(
+    tags: readonly GameplayTag[],
+    type: GameplayTagQueryType,
+    exact?: boolean,
+  ): number {
+    return this.container.getDistinctIdCountByTags(tags, type, exact);
   }
 
   getInstanceCountByTags(

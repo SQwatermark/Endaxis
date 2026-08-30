@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../core/project/createProject';
 import type { ScenarioDocument } from '../core/project/schema';
-import { projectEnemyEffectViz } from '../core/projection/enemyEffectViz';
 import { perlica } from '../data/operators/perlica';
+import { commonBuffDefinitions } from '../data/buffs/commonDefinitions';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import {
   createDefaultCriticalSampleSource,
@@ -86,6 +86,7 @@ function createService(
 const testIndex = {
   revision: 'test-definitions',
   getOperator: (slug: string) => (slug === perlica.slug ? perlica : null),
+  getCommonBuffDefinitions: () => commonBuffDefinitions,
   getWeapon: () => null,
   getGear: () => null,
   getGearSet: () => null,
@@ -136,7 +137,7 @@ describe('ScenarioSimulationService', () => {
     expect(run.receiptEntries.some(entry => entry.event === 'DamageApplied')).toBe(true);
   });
 
-  it('连携技在反应状态接入后可以完整执行', async () => {
+  it('连携技按原生公共 Buff 链施加导电并保留完整持续时间', async () => {
     const scenario = createPerlicaScenario();
     const placed = placeSkillGroup({
       scenario,
@@ -149,18 +150,20 @@ describe('ScenarioSimulationService', () => {
 
     const run = await createService().simulate(placed, 240);
 
-    const reaction = run.receiptEntries.find(entry => entry.event === 'ElementalReactionApplied');
-    expect(reaction?.data?.reaction).toBe('electrification');
-    expect(reaction?.data?.level).toBe(1);
-    expect(reaction?.data?.durationSeconds).toBe(5);
-    if (reaction === undefined) throw new Error('expected Perlica combo reaction receipt');
-    expect(projectEnemyEffectViz(run.receiptEntries, run.frame).segments).toContainEqual({
-      kind: 'reaction',
-      reaction: 'electrification',
-      level: 1,
-      startFrame: reaction.frame,
-      endFrame: reaction.frame + 150,
-    });
+    const conduct = run.receiptEntries.find(
+      entry =>
+        entry.event === 'BuffApplied' &&
+        entry.data?.buffId === 'buff_common_pulse_pulse_conduct_triggered_do',
+    );
+    expect(conduct).toMatchObject({ targetId: 'enemy', data: { layers: 1 } });
+    if (conduct === undefined) throw new Error('expected Perlica conduct Buff receipt');
+    const finished = run.receiptEntries.find(
+      entry =>
+        entry.event === 'BuffFinished' &&
+        entry.data?.buffId === 'buff_common_pulse_pulse_conduct_triggered_do',
+    );
+    expect((finished?.frame ?? 0) - conduct.frame).toBeGreaterThanOrEqual(150);
+    expect((finished?.frame ?? 0) - conduct.frame).toBeLessThanOrEqual(152);
     expect(run.receiptEntries.some(entry => entry.event === 'DamageApplied')).toBe(true);
     expect(run.receiptEntries.some(entry => entry.event === 'PoiseApplied')).toBe(true);
     expect(run.comboWindowDiagnostics[0]?.reasons).toEqual(['windowMissing']);
@@ -194,6 +197,7 @@ describe('ScenarioSimulationService', () => {
         getWeapon: () => null,
         getGear: () => null,
         getGearSet: () => null,
+        getCommonBuffDefinitions: () => commonBuffDefinitions,
       },
       resources: {
         sharedSpGain: { baseGainEfficiency: 1 },

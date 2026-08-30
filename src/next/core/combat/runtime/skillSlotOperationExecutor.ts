@@ -8,10 +8,18 @@ export interface SkillSlotOperationExecutorOptions {
     targetSkillKey: string,
     inheritOriginSkillCooldownProgress: boolean,
   ) => void;
+  readonly replaceSkillSlot?: (parameters: {
+    readonly skillGroupKey: string;
+    readonly targetSkillKey: string;
+    readonly revertedSkillKey?: string;
+    readonly inheritOriginSkillCooldownProgress: boolean;
+  }) => { finish(): void };
   readonly delegate: CombatOperationExecutor;
 }
 
 export class SkillSlotOperationExecutor implements CombatOperationExecutor {
+  readonly #replacementHandles = new WeakMap<ResolvedCombatOperationStep, { finish(): void }>();
+
   constructor(readonly options: SkillSlotOperationExecutorOptions) {}
 
   execute(
@@ -23,11 +31,30 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
         ? this.options.delegate.execute(step)
         : this.options.delegate.execute(step, context);
     }
-    this.options.changeSkillSlot(
-      step.parameters.skillGroupKey,
-      step.parameters.targetSkillKey,
-      step.parameters.inheritOriginSkillCooldownProgress ?? false,
-    );
+    if (step.parameters.lifetime !== undefined) {
+      const replace = this.options.replaceSkillSlot;
+      if (replace === undefined) throw new Error('native skill-slot replacement requires a handle');
+      const previous = this.#replacementHandles.get(step);
+      previous?.finish();
+      this.#replacementHandles.set(
+        step,
+        replace({
+          skillGroupKey: step.parameters.skillGroupKey,
+          targetSkillKey: step.parameters.targetSkillKey,
+          ...(step.parameters.revertedSkillKey === undefined
+            ? {}
+            : { revertedSkillKey: step.parameters.revertedSkillKey }),
+          inheritOriginSkillCooldownProgress:
+            step.parameters.inheritOriginSkillCooldownProgress ?? false,
+        }),
+      );
+    } else {
+      this.options.changeSkillSlot(
+        step.parameters.skillGroupKey,
+        step.parameters.targetSkillKey,
+        step.parameters.inheritOriginSkillCooldownProgress ?? false,
+      );
+    }
     return true;
   }
 
@@ -35,7 +62,13 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
     step: ResolvedCombatOperationStep,
     context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
   ): void {
-    if (step.kind === 'changeSkillSlot') return;
+    if (step.kind === 'changeSkillSlot') {
+      if (step.parameters.lifetime === 'finishByAction') {
+        this.#replacementHandles.get(step)?.finish();
+        this.#replacementHandles.delete(step);
+      }
+      return;
+    }
     this.options.delegate.end?.(step, context);
   }
 

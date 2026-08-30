@@ -12,8 +12,10 @@ import {
   parseAdvancedBuffFinishActionSource,
   parseBuffApplicationActionSource,
   parseBuffIgniteActionSource,
+  parseBuffHoldActionSource,
   parsePhysicalNoGuardStartedEventSource,
   type BuffIgniteActionSource,
+  type BuffHoldActionSource,
   parseBuffInheritanceActionSource,
   parseLegacyBuffFinishActionSource,
   parseTaggedBuffFinishActionSource,
@@ -25,19 +27,30 @@ import {
   parseBuffBlackboardReadActionSource,
   parseBuffLifeTimeReadActionSource,
   parseBuffDurationMutationActionSource,
+  parseSimpleBuffStackReadActionSource,
   parseBuffStackReadActionSource,
+  parseTaggedBuffStackReadActionSource,
   parseStoreBuffCountActionSource,
   type BuffBlackboardReadActionSource,
   type BuffLifeTimeReadActionSource,
   type BuffDurationMutationActionSource,
   type BuffStackReadActionSource,
 } from './buffQueryActions.ts';
+import {
+  parseBuffTimePauseActionSource,
+  type BuffTimePauseActionSource,
+} from './buffTimeActions.ts';
 import { parseConditionLeafSource, type NativeConditionSource } from './condition.ts';
 import {
   parseCharacterTypeIdReadActionSource,
   type CharacterTypeIdReadActionSource,
 } from './characterIdentityActions.ts';
-import { parseNativeSequenceSource, type NativeSequenceSource } from './controlFlow.ts';
+import {
+  collectNativeActionNodes,
+  parseNativeSequenceSource,
+  type NativeActionNodeSource,
+  type NativeSequenceSource,
+} from './controlFlow.ts';
 import {
   parseChannelingCastingActionSource,
   type ChannelingCastingActionSource,
@@ -83,6 +96,7 @@ import { parseFinishOwnerActionSource, type FinishOwnerActionSource } from './li
 import {
   nativeActionName,
   requireArray,
+  requireBoolean,
   requireExactFields,
   requireInteger,
   requireNonEmptyString,
@@ -91,6 +105,7 @@ import {
 import {
   parseDebugPrintActionSource,
   parseCameraPresentationActionSource,
+  parseInheritedCameraControlStateActionSource,
   parseCameraRotateActionSource,
   parseAnimatedCameraActionSource,
   parseHideUiActionSource,
@@ -103,13 +118,28 @@ import {
   parseImmuneTextActionSource,
   parseModifyWeaponMountPointActionSource,
   parseVoiceTriggerActionSource,
+  parseVoiceInterruptActionSource,
   parseOverrideCameraFollowActionSource,
   parseTemporaryUnlockActionSource,
+  parseIgnoreModelIntervalCheckActionSource,
   parseEffectActionSource,
   parseShowHideActorActionSource,
   parsePlayAnimationActionSource,
   parsePlayAnimationWithStepActionSource,
   parsePlaySoundActionSource,
+  parseLiinoUiEventActionSource,
+  parseComboCounterActionSource,
+  parseNoopSpecificLayerChangeActionSource,
+  parseForceTargetInFightActionSource,
+  parseInterruptHenshinTagListenerActionSource,
+  parseSetStrafeModeActionSource,
+  parseOverrideMultiDashLimitActionSource,
+  parseBombClearActionSource,
+  parseZhuangFangyiEndSkillTypeMutationSource,
+  parseNotifyCharacterPassiveUiActionSource,
+  parseAnimatorAimOffsetActionSource,
+  parseTryToTeleportSquadActionSource,
+  parseMarkCanDashActionSource,
   type DebugPrintActionSource,
   type CameraPresentationActionSource,
   type EffectActionSource,
@@ -125,22 +155,32 @@ import {
 import {
   parseEnhancedActionSource,
   parseShelterActionSource,
+  parseWeakActionSource,
+  parseSlowActionSource,
+  parseSpeedupActionSource,
   parseVulnerableActionSource,
   type KeywordBuffActionSource,
 } from './keywordActions.ts';
 import {
   parseEnemyHurtAnimationActionSource,
   parseBlowOffEnemyActionSource,
+  parseBlowOffActionSource,
   parsePullActionSource,
   parsePushBackActionSource,
   parseTargetHitStopActionSource,
+  parseTakeDownActionSource,
+  parseLaunchUpwardActionSource,
   type StumpControlActionSource,
 } from './stumpControlActions.ts';
 import {
   parseAbilityEntitySpawnActionSource,
+  parseAbilityEntityDurationMutationActionSource,
+  parseAbilityEntityTargetMutationActionSource,
   parseProjectileLaunchActionSource,
   parseSkillCastActionSource,
   type AbilityEntitySpawnActionSource,
+  type AbilityEntityDurationMutationActionSource,
+  type AbilityEntityTargetMutationActionSource,
   type ProjectileLaunchActionSource,
   type SkillCastActionSource,
 } from './referenceActions.ts';
@@ -156,27 +196,40 @@ import {
   type TimedMarkerApplicationSource,
   type SkillCooldownMutationActionSource,
 } from './resourceActions.ts';
-import type { BlackboardLevelValues } from './scalar.ts';
+import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
+import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import {
+  parseDirectRangedAuraActionSource,
   parseAuraReferenceActionSource,
   parseGlobalPartyAuraActionSource,
   type AuraReferenceActionSource,
+  type DirectRangedAuraActionSource,
   type GlobalPartyAuraActionSource,
 } from './auraActions.ts';
 import {
   parseTimeDilationActionSource,
   parseUltimateTimeActionSource,
+  parseSetIgnoreGlobalTimeScaleActionSource,
+  parseSealTimeDilationActionSource,
   type TimeDilationActionSource,
   type UltimateTimeActionSource,
+  type SetIgnoreGlobalTimeScaleActionSource,
+  type SealTimeDilationActionSource,
 } from './timeDilationActions.ts';
 import { parseTargetGroupActionSource, type TargetGroupActionSource } from './targetGroup.ts';
 import {
   parseAllowNextSkillActionSource,
+  parseAddEntityControlTagsActionSource,
+  parseBlockMoveInterruptSkillActionSource,
   parseComboCacheActionSource,
   parseMarkCanInterruptActionSource,
+  parsePauseComboSkillTimeActionSource,
   type AllowNextSkillActionSource,
+  type AddEntityControlTagsActionSource,
+  type BlockMoveInterruptSkillActionSource,
   type ComboCacheActionSource,
   type MarkCanInterruptActionSource,
+  type PauseComboSkillTimeActionSource,
 } from './inputControlActions.ts';
 import {
   parseComboPendingActionSource,
@@ -187,11 +240,31 @@ import {
   type SetSuperArmorActionSource,
 } from './selfDefenseActions.ts';
 import {
+  parseClearProjectileActionSource,
+  type ClearProjectileActionSource,
+} from './projectileControlActions.ts';
+import {
+  parseContinuousAnimationTimeScaleActionSource,
+  type ContinuousAnimationTimeScaleActionSource,
+} from './animationTimingActions.ts';
+import {
+  parseBattleLevelSignalActionSource,
+  parseTrainingLevelEventActionSource,
+  type BattleLevelSignalActionSource,
+  type TrainingLevelEventActionSource,
+} from './levelSignalActions.ts';
+import {
+  parseRayCastTargetGroupActionSource,
+  type RayCastTargetGroupActionSource,
+} from './rayCastActions.ts';
+import {
   parseCurveEvaluateFloatActionSource,
+  parseSaveCameraAngleActionSource,
   parseSaveTwoDirectionAngleActionSource,
   type PresentationCalculationActionSource,
 } from './presentationCalculationActions.ts';
 import {
+  parseAdditionalBattleShapeActionSource,
   parseSelfRotateActionSource,
   parseTeleportActionSource,
   parseDisableRootMotionActionSource,
@@ -199,13 +272,18 @@ import {
   parseReceiveMoveInputActionSource,
   parseMoveToActionSource,
   parseCustomRootMotionActionSource,
+  parseBoneAttachActionSource,
   parseSnapToTargetWithRangeActionSource,
   parseSaveTargetDistanceActionSource,
+  parseSkillAiMoveActionSource,
+  type AdditionalBattleShapeActionSource,
   type CustomRootMotionActionSource,
+  type BoneAttachActionSource,
   type DisableRootMotionActionSource,
   type SnapToTargetWithRangeActionSource,
   type TeleportPositionSelectionActionSource,
   type SaveTargetDistanceActionSource,
+  type SkillAiMoveActionSource,
   type MoveToActionSource,
   type ReceiveMoveInputActionSource,
   type SelfRotateActionSource,
@@ -217,12 +295,32 @@ import {
   type RefrainUltimateEnergyRecoveryActionSource,
   type SwitchModeActionSource,
 } from './modeAndResourcePolicyActions.ts';
+import {
+  parseSkillSlotReplacementActionSource,
+  type SkillSlotReplacementActionSource,
+} from './skillSlotActions.ts';
+import {
+  parseInterruptCurrentSkillActionSource,
+  parseStoreCurrentSkillExecuteFrameActionSource,
+  type InterruptCurrentSkillActionSource,
+  type StoreCurrentSkillExecuteFrameActionSource,
+} from './timelineControlActions.ts';
+import {
+  parseTriggerCustomAbilityEventSource,
+  type TriggerCustomAbilityEventSource,
+} from './customAbilityEventActions.ts';
+import { parseAiMarkerActionSource, type AiMarkerActionSource } from './aiMarkerActions.ts';
+import {
+  parseSaveAtbObtainValueActionSource,
+  type SaveAtbObtainValueActionSource,
+} from './eventPayloadActions.ts';
 
 const CONDITION_ACTION_NAMES = new Set([
   'OrConditionAction',
   'CompareFloat',
   'CompareString',
   'CheckMainCharacterCondition',
+  'CheckProfession',
   'CheckDistanceCondition',
   'CheckEntityNum',
   'CheckBuffStackNum',
@@ -238,6 +336,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckObtainAtbType',
   'CheckTargetsEqual',
   'CheckTargetContains',
+  'CheckTargetInScreen',
   'CheckObjectTypeMatch',
   'CheckDamageType',
   'CheckDamageTypeMask',
@@ -261,12 +360,19 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckPoiseValue',
   'CheckSquadInFight',
   'CheckComboSkillCameraAlphaSetting',
+  'CheckSkillCameraMotionFree',
+  'CheckHasMoveInput',
+  'CheckCustomAbilityEvent',
 ]);
 
 /** 引用闭包需要严格读取的动作身份；集合与分派实现同属公共来源层，调用方不再复制 switch。 */
 const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'VulnerableAction',
+  'WeakAction',
   'EnhancedAction',
+  'ShelterAction',
+  'SlowAction',
+  'SpeedupAction',
   'ObtainUspInNormalSkill',
   'CreateBuffAction',
   'CreateBuffAttachingSkill',
@@ -283,6 +389,7 @@ const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
   'ForceSpellStatusAction',
   'AirborneAction',
   'KnockDownAction',
+  'LaunchUpwardAction',
   'FractureAction',
   'CrushAction',
 ]);
@@ -298,6 +405,7 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'attributeSnapshot'; readonly action: AttributeSnapshotActionSource }
   | { readonly family: 'characterIdentity'; readonly action: CharacterTypeIdReadActionSource }
   | { readonly family: 'targetGroup'; readonly action: TargetGroupActionSource }
+  | { readonly family: 'rayCastTargetGroup'; readonly action: RayCastTargetGroupActionSource }
   | {
       readonly family: 'presentationCalculation';
       readonly action: PresentationCalculationActionSource;
@@ -305,6 +413,7 @@ export type KnownNativeActionLeafSource =
   | {
       readonly family: 'spatial';
       readonly action:
+        | AdditionalBattleShapeActionSource
         | SelfRotateActionSource
         | TeleportActionSource
         | ReceiveMoveInputActionSource
@@ -312,7 +421,9 @@ export type KnownNativeActionLeafSource =
         | DisableRootMotionActionSource
         | TeleportPositionSelectionActionSource
         | CustomRootMotionActionSource
-        | SnapToTargetWithRangeActionSource;
+        | BoneAttachActionSource
+        | SnapToTargetWithRangeActionSource
+        | SkillAiMoveActionSource;
     }
   | { readonly family: 'spatialMeasurement'; readonly action: SaveTargetDistanceActionSource }
   | { readonly family: 'resource'; readonly action: ResourceGainActionSource }
@@ -320,24 +431,51 @@ export type KnownNativeActionLeafSource =
   | {
       readonly family: 'inputControl';
       readonly action:
-        ComboCacheActionSource | AllowNextSkillActionSource | MarkCanInterruptActionSource;
+        | ComboCacheActionSource
+        | AllowNextSkillActionSource
+        | MarkCanInterruptActionSource
+        | BlockMoveInterruptSkillActionSource
+        | PauseComboSkillTimeActionSource
+        | AddEntityControlTagsActionSource;
     }
   | { readonly family: 'comboPending'; readonly action: ComboPendingActionSource }
+  | {
+      readonly family: 'comboQte';
+      readonly action: {
+        readonly kind: 'comboQte';
+        readonly earlyDuration: ScalarSource;
+        readonly activeDuration: ScalarSource;
+        readonly triggerMutation: NativeActionNodeSource<KnownNativeActionLeafSource>;
+      };
+    }
   | { readonly family: 'castingControl'; readonly action: ChannelingCastingActionSource }
+  | { readonly family: 'timelineControl'; readonly action: InterruptCurrentSkillActionSource }
+  | { readonly family: 'timelineRead'; readonly action: StoreCurrentSkillExecuteFrameActionSource }
+  | { readonly family: 'eventPayload'; readonly action: SaveAtbObtainValueActionSource }
   | { readonly family: 'globalBuff'; readonly action: GlobalBuffActionSource }
   | { readonly family: 'skillSetting'; readonly action: SkillSettingReadActionSource }
   | { readonly family: 'selfDefense'; readonly action: SetSuperArmorActionSource }
+  | { readonly family: 'projectileControl'; readonly action: ClearProjectileActionSource }
+  | {
+      readonly family: 'animationTiming';
+      readonly action: ContinuousAnimationTimeScaleActionSource;
+    }
   | { readonly family: 'timedMarker'; readonly action: TimedMarkerApplicationSource }
   | { readonly family: 'globalCooldown'; readonly action: GlobalCooldownApplicationSource }
   | { readonly family: 'skillCooldownMutation'; readonly action: SkillCooldownMutationActionSource }
+  | { readonly family: 'skillSlotReplacement'; readonly action: SkillSlotReplacementActionSource }
   | { readonly family: 'buffApplication'; readonly action: BuffApplicationActionSource }
   | { readonly family: 'buffInheritance'; readonly action: BuffInheritanceActionSource }
   | {
       readonly family: 'aura';
-      readonly action: GlobalPartyAuraActionSource | AuraReferenceActionSource;
+      readonly action:
+        | GlobalPartyAuraActionSource
+        | AuraReferenceActionSource
+        | DirectRangedAuraActionSource<KnownNativeActionLeafSource>;
     }
   | { readonly family: 'skillAffix'; readonly action: { readonly kind: 'skillAffix' } }
   | { readonly family: 'buffFinish'; readonly action: BuffFinishActionSource }
+  | { readonly family: 'buffHold'; readonly action: BuffHoldActionSource }
   | { readonly family: 'dispel'; readonly action: DispelActionSource }
   | {
       readonly family: 'normalSkillUltimateEnergy';
@@ -347,6 +485,7 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'buffBlackboardRead'; readonly action: BuffBlackboardReadActionSource }
   | { readonly family: 'buffLifeTimeRead'; readonly action: BuffLifeTimeReadActionSource }
   | { readonly family: 'buffDurationMutation'; readonly action: BuffDurationMutationActionSource }
+  | { readonly family: 'buffTimePause'; readonly action: BuffTimePauseActionSource }
   | {
       readonly family: 'buffModifierRefresh';
       readonly action: { readonly kind: 'buffModifierRefresh' };
@@ -362,19 +501,27 @@ export type KnownNativeActionLeafSource =
         AirborneActionSource | KnockDownActionSource | PhysicalInflictionActionSource;
     }
   | { readonly family: 'spellBurstEvent'; readonly action: TriggerSpellBurstEventSource }
+  | { readonly family: 'customAbilityEvent'; readonly action: TriggerCustomAbilityEventSource }
+  | { readonly family: 'aiMarker'; readonly action: AiMarkerActionSource }
   | {
       readonly family: 'levelEvent';
       readonly action:
         | SpellAbnormalLifecycleEventSource
         | ReturnType<typeof parsePhysicalNoGuardStartedEventSource>
         | SpellInflictionStartedEventSource
-        | ForceTriggerWeaknessEventSource;
+        | ForceTriggerWeaknessEventSource
+        | BattleLevelSignalActionSource
+        | TrainingLevelEventActionSource;
     }
   | { readonly family: 'keywordBuff'; readonly action: KeywordBuffActionSource }
   | { readonly family: 'lifecycle'; readonly action: FinishOwnerActionSource }
   | {
       readonly family: 'timeDilation';
-      readonly action: TimeDilationActionSource | UltimateTimeActionSource;
+      readonly action:
+        | TimeDilationActionSource
+        | UltimateTimeActionSource
+        | SetIgnoreGlobalTimeScaleActionSource
+        | SealTimeDilationActionSource;
     }
   | { readonly family: 'damage'; readonly action: DamageActionSource }
   | {
@@ -384,12 +531,25 @@ export type KnownNativeActionLeafSource =
         | DebugPrintActionSource
         | EffectActionSource
         | PlayAnimationActionSource
-        | CameraPresentationActionSource;
+        | CameraPresentationActionSource
+        | {
+            readonly kind: 'presentationInputListener';
+            readonly onlyWhenOwnerIsMainCharacter: boolean;
+            readonly actionOnClick: NativeSequenceSource<KnownNativeActionLeafSource>;
+          };
     }
   | { readonly family: 'interrupt'; readonly action: InterruptActionSource }
   | { readonly family: 'stumpControl'; readonly action: StumpControlActionSource }
   | { readonly family: 'projectile'; readonly action: ProjectileLaunchActionSource }
   | { readonly family: 'abilityEntity'; readonly action: AbilityEntitySpawnActionSource }
+  | {
+      readonly family: 'abilityEntityDuration';
+      readonly action: AbilityEntityDurationMutationActionSource;
+    }
+  | {
+      readonly family: 'abilityEntityTarget';
+      readonly action: AbilityEntityTargetMutationActionSource;
+    }
   | { readonly family: 'skillCast'; readonly action: SkillCastActionSource }
   | {
       readonly family: 'modeAndResourcePolicy';
@@ -403,6 +563,15 @@ export type KnownNativeActionLeafSource =
           readonly abilityEvent: string | number;
           readonly actions: readonly NativeSequenceSource<KnownNativeActionLeafSource>[];
         }[];
+      };
+    }
+  | {
+      readonly family: 'animationEventListener';
+      readonly action: {
+        readonly kind: 'animationEventListener';
+        readonly eventId: string;
+        readonly eventParameterBlackboardKey: string;
+        readonly actionOnEvent: NativeSequenceSource<KnownNativeActionLeafSource>;
       };
     };
 
@@ -442,20 +611,108 @@ export function tryParseKnownNativeActionLeafSource(
     };
   }
   switch (name) {
+    case 'TriggerCustomAbilityEvent':
+      return {
+        family: 'customAbilityEvent',
+        action: parseTriggerCustomAbilityEventSource(value, path, inheritedBlackboard),
+      };
+    case 'AddAIMarkerAction':
+      return {
+        family: 'aiMarker',
+        action: parseAiMarkerActionSource(value, path, inheritedBlackboard),
+      };
     case 'TriggerComboSkillAction':
       return {
         family: 'comboPending',
         action: parseComboPendingActionSource(value, path),
       };
+    case 'ShowComboRingQte': {
+      requireExactFields(
+        action,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'owner',
+          'earlyDuration',
+          'activeDuration',
+          'triggeredAction',
+        ]),
+        path,
+      );
+      const owner = parseTargetReferenceSource(action.owner, `${path}.owner`);
+      if (!isPlainTargetReference(owner, 'Source')) {
+        throw new Error(`${path}.owner: expected plain Source target`);
+      }
+      const triggeredAction = parseNativeSequenceSource(
+        action.triggeredAction,
+        `${path}.triggeredAction`,
+        inheritedBlackboard,
+        (leaf, leafPath) => parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
+      );
+      const triggerMutations = collectNativeActionNodes(triggeredAction).filter(
+        node =>
+          node.metadata.enabled &&
+          node.body.kind === 'leaf' &&
+          node.body.value.family === 'blackboardMutation',
+      ) as NativeActionNodeSource<KnownNativeActionLeafSource>[];
+      if (triggerMutations.length !== 1) {
+        throw new Error(
+          `${path}.triggeredAction: expected exactly one enabled ModifyDynamicBlackboard`,
+        );
+      }
+      const triggerMutation = triggerMutations[0]!;
+      if (
+        triggerMutation.body.kind !== 'leaf' ||
+        triggerMutation.body.value.family !== 'blackboardMutation' ||
+        !isPlainTargetReference(triggerMutation.body.value.action.calculationTarget, 'Owner')
+      ) {
+        throw new Error(`${path}.triggeredAction: expected a plain Owner blackboard mutation`);
+      }
+      return {
+        family: 'comboQte',
+        action: {
+          kind: 'comboQte',
+          earlyDuration: parseScalarSource(
+            action.earlyDuration,
+            `${path}.earlyDuration`,
+            inheritedBlackboard,
+          ),
+          activeDuration: parseScalarSource(
+            action.activeDuration,
+            `${path}.activeDuration`,
+            inheritedBlackboard,
+          ),
+          triggerMutation,
+        },
+      };
+    }
     case 'VulnerableAction':
       return {
         family: 'keywordBuff',
         action: parseVulnerableActionSource(value, path, inheritedBlackboard),
       };
+    case 'WeakAction':
+      return {
+        family: 'keywordBuff',
+        action: parseWeakActionSource(value, path, inheritedBlackboard),
+      };
     case 'ShelterAction':
       return {
         family: 'keywordBuff',
         action: parseShelterActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SlowAction':
+      return {
+        family: 'keywordBuff',
+        action: parseSlowActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SpeedupAction':
+      return {
+        family: 'keywordBuff',
+        action: parseSpeedupActionSource(value, path, inheritedBlackboard),
       };
     case 'EnhancedAction':
       return {
@@ -465,7 +722,7 @@ export function tryParseKnownNativeActionLeafSource(
     case 'PlayAnimationAction':
       return {
         family: 'presentation',
-        action: parsePlayAnimationActionSource(value, path),
+        action: parsePlayAnimationActionSource(value, path, inheritedBlackboard),
       };
     case 'ShowHideActorAction':
       return {
@@ -486,6 +743,16 @@ export function tryParseKnownNativeActionLeafSource(
       return { family: 'buffIgnite', action: parseBuffIgniteActionSource(value, path) };
     case 'OnPhysicalNoGuardStart':
       return { family: 'levelEvent', action: parsePhysicalNoGuardStartedEventSource(value, path) };
+    case 'SendBattleSignalToLevel':
+      return {
+        family: 'levelEvent',
+        action: parseBattleLevelSignalActionSource(value, path, inheritedBlackboard),
+      };
+    case 'RaiseTrainLevelEvent':
+      return {
+        family: 'levelEvent',
+        action: parseTrainingLevelEventActionSource(value, path, inheritedBlackboard),
+      };
     case 'ForceSpellStatusAction':
       return {
         family: 'forcedElementalStatus',
@@ -521,6 +788,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'spatial',
         action: parseSelfRotateActionSource(value, path),
       };
+    case 'CreateAdditionalBattleShape':
+      return {
+        family: 'spatial',
+        action: parseAdditionalBattleShapeActionSource(value, path),
+      };
     case 'TeleportAction':
       return {
         family: 'spatial',
@@ -551,6 +823,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'spatial',
         action: parseCustomRootMotionActionSource(value, path, inheritedBlackboard),
       };
+    case 'BoneAttachAction':
+      return {
+        family: 'spatial',
+        action: parseBoneAttachActionSource(value, path),
+      };
     case 'SnapToTargetWithRangeAction':
       return {
         family: 'spatial',
@@ -561,10 +838,20 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'spatialMeasurement',
         action: parseSaveTargetDistanceActionSource(value, path),
       };
+    case 'SkillAIMoveAction':
+      return {
+        family: 'spatial',
+        action: parseSkillAiMoveActionSource(value, path),
+      };
     case 'SetSuperArmorAction':
       return {
         family: 'selfDefense',
         action: parseSetSuperArmorActionSource(value, path),
+      };
+    case 'ClearProjectileAction':
+      return {
+        family: 'projectileControl',
+        action: parseClearProjectileActionSource(value, path),
       };
     case 'ComboCacheAction':
       return {
@@ -581,6 +868,22 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'inputControl',
         action: parseMarkCanInterruptActionSource(value, path),
       };
+    case 'BlockMoveInterruptSkill':
+      return {
+        family: 'inputControl',
+        action: parseBlockMoveInterruptSkillActionSource(value, path),
+      };
+    case 'PauseComboSkillTime':
+      return {
+        family: 'inputControl',
+        action: parsePauseComboSkillTimeActionSource(value, path),
+      };
+    case 'AddTagAction':
+    case 'AddTagToEntities':
+      return {
+        family: 'inputControl',
+        action: parseAddEntityControlTagsActionSource(value, path),
+      };
     case 'CharWeaponVisibleAction':
       return {
         family: 'presentation',
@@ -595,6 +898,61 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'presentation',
         action: parseSetAnimatorParameterActionSource(value, path),
+      };
+    case 'ChangeSpecificLayerAction':
+      return {
+        family: 'presentation',
+        action: parseNoopSpecificLayerChangeActionSource(value, path),
+      };
+    case 'ForceTargetInFightAction':
+      return {
+        family: 'presentation',
+        action: parseForceTargetInFightActionSource(value, path),
+      };
+    case 'TagQueryListenerAction':
+      return {
+        family: 'presentation',
+        action: parseInterruptHenshinTagListenerActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SetStrafeModeAction':
+      return {
+        family: 'presentation',
+        action: parseSetStrafeModeActionSource(value, path),
+      };
+    case 'OverrideMultiDashLimit':
+      return {
+        family: 'presentation',
+        action: parseOverrideMultiDashLimitActionSource(value, path),
+      };
+    case 'BombClearAction':
+      return {
+        family: 'presentation',
+        action: parseBombClearActionSource(value, path),
+      };
+    case 'ChangeSkillType':
+      return {
+        family: 'presentation',
+        action: parseZhuangFangyiEndSkillTypeMutationSource(value, path),
+      };
+    case 'NotifyCharPassiveUIAction':
+      return {
+        family: 'presentation',
+        action: parseNotifyCharacterPassiveUiActionSource(value, path, inheritedBlackboard),
+      };
+    case 'AnimatorAimOffsetAction':
+      return {
+        family: 'presentation',
+        action: parseAnimatorAimOffsetActionSource(value, path),
+      };
+    case 'TryToTeleportSquadAction':
+      return {
+        family: 'presentation',
+        action: parseTryToTeleportSquadActionSource(value, path),
+      };
+    case 'MarkCanDash':
+      return {
+        family: 'presentation',
+        action: parseMarkCanDashActionSource(value, path),
       };
     case 'IgniteBuffTextAction':
       return {
@@ -616,10 +974,20 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'presentation',
         action: parseVoiceTriggerActionSource(value, path),
       };
+    case 'VoiceInterruptAction':
+      return {
+        family: 'presentation',
+        action: parseVoiceInterruptActionSource(value, path),
+      };
     case 'SaveTwoDirectionAngle':
       return {
         family: 'presentationCalculation',
         action: parseSaveTwoDirectionAngleActionSource(value, path),
+      };
+    case 'SaveCameraAngle':
+      return {
+        family: 'presentationCalculation',
+        action: parseSaveCameraAngleActionSource(value, path),
       };
     case 'CurveEvaluateFloat':
       return {
@@ -646,6 +1014,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'presentation',
         action: parseUltimateShowActionSource(value, path),
       };
+    case 'IgnoreModelIntervalCheck':
+      return {
+        family: 'presentation',
+        action: parseIgnoreModelIntervalCheckActionSource(value, path),
+      };
     case 'LockCameraAimAction':
       return {
         family: 'presentation',
@@ -660,6 +1033,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'blackboardMutation',
         action: parseBlackboardMutationActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SaveAtbObtainValue':
+      return {
+        family: 'eventPayload',
+        action: parseSaveAtbObtainValueActionSource(value, path),
       };
     case 'RandomAction':
       return {
@@ -681,10 +1059,20 @@ export function tryParseKnownNativeActionLeafSource(
     case 'MergeTargetAction':
     case 'PickTargetAction':
     case 'ConvertToTargetContext': {
-      const targetGroup = parseTargetGroupActionSource(value, path);
+      const targetGroup = parseTargetGroupActionSource(value, path, inheritedBlackboard);
       if (!targetGroup) throw new Error(`${path}: failed to parse target group action ${name}`);
       return { family: 'targetGroup', action: targetGroup };
     }
+    case 'TargetPostProcessorAction': {
+      const targetGroup = parseTargetGroupActionSource(value, path, inheritedBlackboard);
+      if (!targetGroup) throw new Error(`${path}: failed to parse target group action ${name}`);
+      return { family: 'targetGroup', action: targetGroup };
+    }
+    case 'RayCastEffectAction':
+      return {
+        family: 'rayCastTargetGroup',
+        action: parseRayCastTargetGroupActionSource(value, path),
+      };
     case 'ObtainCostAction':
       return {
         family: 'resource',
@@ -746,6 +1134,45 @@ export function tryParseKnownNativeActionLeafSource(
       );
       return { family: 'eventListener', action: { kind: 'eventListener', events } };
     }
+    case 'AnimEventReceiver': {
+      requireExactFields(
+        action,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'eventId',
+          'blackboardKey',
+          'actionOnEvent',
+        ]),
+        path,
+      );
+      return {
+        family: 'animationEventListener',
+        action: {
+          kind: 'animationEventListener',
+          eventId: requireNonEmptyString(action.eventId, `${path}.eventId`),
+          eventParameterBlackboardKey: requireNonEmptyString(
+            action.blackboardKey,
+            `${path}.blackboardKey`,
+          ),
+          actionOnEvent: parseNativeSequenceSource(
+            action.actionOnEvent,
+            `${path}.actionOnEvent`,
+            inheritedBlackboard,
+            (leaf, leafPath) =>
+              parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
+          ),
+        },
+      };
+    }
+    case 'ContinuousSetAnimTimeScale':
+      return {
+        family: 'animationTiming',
+        action: parseContinuousAnimationTimeScaleActionSource(value, path, inheritedBlackboard),
+      };
     case 'GainBreakingAttackAtb':
       return {
         family: 'finisherSpGain',
@@ -765,6 +1192,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'skillCooldownMutation',
         action: parseSkillCooldownMutationActionSource(value, path, inheritedBlackboard),
+      };
+    case 'ChangeSkillAction':
+      return {
+        family: 'skillSlotReplacement',
+        action: parseSkillSlotReplacementActionSource(value, path, inheritedBlackboard),
       };
     case 'CreateBuffAction':
       return {
@@ -792,7 +1224,11 @@ export function tryParseKnownNativeActionLeafSource(
         action:
           scope === 'referenceClosure'
             ? parseAuraReferenceActionSource(value, path)
-            : parseGlobalPartyAuraActionSource(value, path),
+            : requireRecord(value, path).auraType === 'RangedAura'
+              ? parseDirectRangedAuraActionSource(value, path, (sequence, sequencePath) =>
+                  parseKnownNativeActionSequenceSource(sequence, sequencePath, inheritedBlackboard),
+                )
+              : parseGlobalPartyAuraActionSource(value, path),
       };
     case 'SkillAffixAction':
       requireExactFields(
@@ -816,6 +1252,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'buffFinish',
         action: parseTaggedBuffFinishActionSource(value, path, inheritedBlackboard),
       };
+    case 'ExtendBuffAction':
+      return {
+        family: 'buffHold',
+        action: parseBuffHoldActionSource(value, path),
+      };
     case 'DispelAction':
       return { family: 'dispel', action: parseDispelActionSource(value, path) };
     case 'ObtainUspInNormalSkill':
@@ -827,6 +1268,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'buffQuery',
         action: parseBuffStackReadActionSource(value, path),
+      };
+    case 'SaveBuffStackNum':
+      return {
+        family: 'buffQuery',
+        action: parseSimpleBuffStackReadActionSource(value, path),
+      };
+    case 'SaveBuffStackNumByTag':
+      return {
+        family: 'buffQuery',
+        action: parseTaggedBuffStackReadActionSource(value, path),
       };
     case 'StoreBuffCount':
       return {
@@ -848,6 +1299,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'buffDurationMutation',
         action: parseBuffDurationMutationActionSource(value, path, inheritedBlackboard),
       };
+    case 'PauseBuffTime':
+      return {
+        family: 'buffTimePause',
+        action: parseBuffTimePauseActionSource(value, path),
+      };
     case 'HealAction':
       return { family: 'heal', action: parseHealActionSource(value, path, inheritedBlackboard) };
     case 'FinishOwnerAction':
@@ -859,6 +1315,16 @@ export function tryParseKnownNativeActionLeafSource(
       };
     case 'UltimateTimeAction':
       return { family: 'timeDilation', action: parseUltimateTimeActionSource(value, path) };
+    case 'SetIgnoreGlobalTimeScaleAction':
+      return {
+        family: 'timeDilation',
+        action: parseSetIgnoreGlobalTimeScaleActionSource(value, path),
+      };
+    case 'SealAction':
+      return {
+        family: 'timeDilation',
+        action: parseSealTimeDilationActionSource(value, path, inheritedBlackboard),
+      };
     case 'DamageAction':
       return {
         family: 'damage',
@@ -870,6 +1336,48 @@ export function tryParseKnownNativeActionLeafSource(
       return { family: 'presentation', action: parseDebugPrintActionSource(value, path) };
     case 'EffectAction':
       return { family: 'presentation', action: parseEffectActionSource(value, path) };
+    case 'TriggerLiinoUIEvent':
+      return {
+        family: 'presentation',
+        action: parseLiinoUiEventActionSource(value, path, inheritedBlackboard),
+      };
+    case 'ComboAction':
+      return {
+        family: 'presentation',
+        action: parseComboCounterActionSource(value, path, inheritedBlackboard),
+      };
+    case 'AttackClickListenerAction': {
+      requireExactFields(
+        action,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'onlyWhenOwnerIsMainChar',
+          'actionOnClick',
+        ]),
+        path,
+      );
+      return {
+        family: 'presentation',
+        action: {
+          kind: 'presentationInputListener',
+          onlyWhenOwnerIsMainCharacter: requireBoolean(
+            action.onlyWhenOwnerIsMainChar,
+            `${path}.onlyWhenOwnerIsMainChar`,
+          ),
+          actionOnClick: parseNativeSequenceSource(
+            action.actionOnClick,
+            `${path}.actionOnClick`,
+            inheritedBlackboard,
+            (leaf, leafPath) =>
+              parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
+          ),
+        },
+      };
+    }
     case 'InterruptAction':
       return { family: 'interrupt', action: parseInterruptActionSource(value, path) };
     case 'EnemyHurtAnimAction':
@@ -882,6 +1390,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'presentation',
         action: parseCameraPresentationActionSource(value, path, 'cameraImpulse'),
+      };
+    case 'TakeDownAction':
+      return {
+        family: 'stumpControl',
+        action: parseTakeDownActionSource(value, path, inheritedBlackboard),
+      };
+    case 'LaunchUpwardAction':
+      return {
+        family: 'stumpControl',
+        action: parseLaunchUpwardActionSource(value, path, inheritedBlackboard),
       };
     case 'PushBackAction':
       return {
@@ -913,10 +1431,25 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'stumpControl',
         action: parseBlowOffEnemyActionSource(value, path, inheritedBlackboard),
       };
+    case 'BlowOffAction':
+      return {
+        family: 'stumpControl',
+        action: parseBlowOffActionSource(value, path, inheritedBlackboard),
+      };
     case 'ChannelingCastingAction':
       return {
         family: 'castingControl',
         action: parseChannelingCastingActionSource(value, path, inheritedBlackboard),
+      };
+    case 'InterruptCurSkillAction':
+      return {
+        family: 'timelineControl',
+        action: parseInterruptCurrentSkillActionSource(value, path),
+      };
+    case 'StoreCurSkillExecuteFrame':
+      return {
+        family: 'timelineRead',
+        action: parseStoreCurrentSkillExecuteFrameActionSource(value, path),
       };
     case 'CreateGlobalBuffAction':
       return {
@@ -937,6 +1470,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'presentation',
         action: parseCameraPresentationActionSource(value, path, 'cameraControlState'),
+      };
+    case 'InheritCCSAction':
+      return {
+        family: 'presentation',
+        action: parseInheritedCameraControlStateActionSource(value, path),
       };
     case 'AddDynamicCcsAction':
       return {
@@ -960,11 +1498,39 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'abilityEntity',
         action: parseAbilityEntitySpawnActionSource(value, path, inheritedBlackboard),
       };
+    case 'SetAbilityEntityDuration':
+      return {
+        family: 'abilityEntityDuration',
+        action: parseAbilityEntityDurationMutationActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SetAbilityEntityTarget':
+      return {
+        family: 'abilityEntityTarget',
+        action: parseAbilityEntityTargetMutationActionSource(value, path),
+      };
     case 'CastSkill':
       return { family: 'skillCast', action: parseSkillCastActionSource(value, path) };
     default:
       return null;
   }
+}
+
+function isPlainTargetReference(
+  target: TargetReferenceSource,
+  source: 'Owner' | 'Source',
+): boolean {
+  return (
+    target.targetSource === source &&
+    target.targetGroupKey === '' &&
+    target.finderType === null &&
+    target.validatorTypes.length === 0 &&
+    target.postProcessorTypes.length === 0 &&
+    target.priorityFilters.length === 0 &&
+    target.shuffleTargets.length === 0 &&
+    target.distanceValidators.length === 0 &&
+    target.finderSpawnedObjectType === null &&
+    target.validatorTagQueries.length === 0
+  );
 }
 
 export function parseKnownNativeActionSequenceSource(

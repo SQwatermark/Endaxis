@@ -437,6 +437,7 @@ describe('CombatSemanticEventRuntime', () => {
       sourceOperatorId: 'operator:b',
       source: 'normalAttack',
       gainKind: 'gain',
+      requestedAmount: 10,
       amount: 10,
     });
     runtime.emit({
@@ -444,6 +445,7 @@ describe('CombatSemanticEventRuntime', () => {
       sourceOperatorId: 'operator:b',
       source: 'skill',
       gainKind: 'refund',
+      requestedAmount: 10,
       amount: 10,
     });
     runtime.emit({
@@ -451,6 +453,7 @@ describe('CombatSemanticEventRuntime', () => {
       sourceOperatorId: 'operator:b',
       source: 'skill',
       gainKind: 'gain',
+      requestedAmount: 10,
       amount: 10,
     });
 

@@ -22,7 +22,55 @@ export type PresentationCalculationActionSource =
       readonly input: ScalarSource;
       readonly outputKey: string;
       readonly curve: readonly TimeDilationCurveKeySource[];
+    }
+  | {
+      readonly kind: 'saveCameraAngle';
+      readonly target: TargetReferenceSource;
+      readonly mountPoint: string;
+      readonly outputKeys: readonly string[];
     };
+
+/**
+ * 严格保留 SaveCameraAngle 的目标与实际写入键。角度值本身不在导入阶段求值；
+ * 只有完整技能数据流证明这些键仅被表现动作消费时，调用方才会省略该动作。
+ */
+export function parseSaveCameraAngleActionSource(
+  value: unknown,
+  path: string,
+): PresentationCalculationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'target',
+      'mountPoint',
+      'yawKey',
+      'pitchKey',
+      'eulerPitchKey',
+      'distanceKey',
+    ]),
+    path,
+  );
+  const outputKeys = ['yawKey', 'pitchKey', 'eulerPitchKey', 'distanceKey']
+    .map(key => {
+      const output = action[key];
+      if (typeof output !== 'string') throw new Error(`${path}.${key}: expected string`);
+      return output;
+    })
+    .filter(key => key.length > 0);
+  if (outputKeys.length === 0) throw new Error(`${path}: expected at least one output key`);
+  return {
+    kind: 'saveCameraAngle',
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    mountPoint: requireNonEmptyString(action.mountPoint, `${path}.mountPoint`),
+    outputKeys,
+  };
+}
 
 export function parseSaveTwoDirectionAngleActionSource(
   value: unknown,

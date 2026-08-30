@@ -15,7 +15,12 @@ export class RuntimeTargetContext {
 
   get(key: string): RuntimeTargetGroup {
     const targets = this.#groups.get(key);
-    if (targets === undefined) throw new Error(`target context group '${key}' is missing`);
+    if (targets === undefined) {
+      const available = [...this.#groups.keys()];
+      throw new Error(
+        `target context group '${key}' is missing (available: ${available.length === 0 ? 'none' : available.join(', ')})`,
+      );
+    }
     return targets;
   }
 

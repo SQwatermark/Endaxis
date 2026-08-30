@@ -13,6 +13,7 @@ import { type BuildCondition, type CombatCondition } from './conditions.ts';
 
 /** 生成期已从原生 born-tag 证据解析出的可执行能力实体查询。 */
 export type AbilityEntityTargetQuery =
+  | { readonly kind: 'current' }
   | {
       readonly kind: 'ownerSpawned';
       readonly abilityEntityIds?: readonly string[];
@@ -26,13 +27,25 @@ export interface AbilityEntityChildSkillDefinition {
   readonly scheduledSequences: readonly ScheduledSequenceDefinition[];
 }
 
+/** 能力实体模板数值；原生可在生成时用实体黑板覆盖模板默认值。 */
+export type AbilityEntityDefinitionNumber =
+  number | { readonly blackboardKey: string; readonly fallback: number };
+
 /** 可由干员级定义表复用的完整逻辑能力实体蓝图。 */
 export interface AbilityEntityDefinition {
   readonly lifetime:
-    { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
+    | {
+        readonly kind: 'limited';
+        readonly durationSeconds: AbilityEntityDefinitionNumber;
+      }
+    | { readonly kind: 'infinite' };
+  /** 实体死亡后仍留在 owner children / finder 目录中的控制器回收延迟。 */
+  readonly deathReleaseDelaySeconds?: number;
   /** 正数时，同模板新实例会按原生 Group.Add 语义同步释放最早实例。 */
-  readonly maxStackingCount?: number;
+  readonly maxStackingCount?: AbilityEntityDefinitionNumber;
   readonly childSkill?: AbilityEntityChildSkillDefinition;
+  /** 同一原生实体模板可由不同 Spawn 动作绑定不同子技能；键为原生技能 ID。 */
+  readonly childSkills?: Readonly<Record<string, AbilityEntityChildSkillDefinition>>;
 }
 
 /** 干员级能力实体蓝图；技能只引用身份并提供本次生成参数。 */
@@ -97,6 +110,8 @@ export interface SkillDefinition {
   smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴技能块的显示宽度；由可操作边界推导，不对应原生 `durationFrame`。 */
   timelineBlockFrames: number;
+  /** 原生 SkillData.exclusiveFrame；只在需要读取当前技能可中断状态时参与运行时判断。 */
+  exclusiveFrame?: number;
   /**
    * 技能释放条件只生成合法性诊断；不成立也不会阻止技能进入模拟。
    * 模拟层将用户排入时间轴的动作视为已经成功释放，不得改写或跳过。
@@ -106,6 +121,18 @@ export interface SkillDefinition {
   costs?: readonly SkillCostDefinition[];
   /** 原生 `CastData.startCdFrame`；配置消耗时编译器要求此字段存在。 */
   costFrame?: number;
+  /**
+   * 原生 SwitchToAddBuff 的施放前旁路；命中时不启动或中断普通技能时间轴。
+   * `currentSkillTypes` 表达依赖上一技能身份的结束技路径；`condition` 表达候选技能自身的
+   * 普通条件路径。两者同时存在时均须成立。`asSkillCast` 保留原生是否发布完整施法事件。
+   */
+  switchToBuffCast?: {
+    readonly currentSkillTypes?: readonly SkillType[];
+    readonly requiresCurrentSkillNotInterruptible?: boolean;
+    readonly condition?: import('./conditions.ts').CombatCondition;
+    readonly asSkillCast?: boolean;
+    readonly sequence: import('./actions.ts').ActionSequenceDefinition;
+  };
   scheduledSequences: readonly ScheduledSequenceDefinition[];
   eventHandlers?: readonly CombatEventHandlerDefinition[];
 }

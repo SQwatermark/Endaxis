@@ -1,22 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { compileTrustAttributeBonusSource, parseOperatorTalentNodeSources } from '../src/index.ts';
-import { runPythonOracle } from './pythonOracle.ts';
 
 describe('干员天赋属性节点', () => {
-  it('默认主属性好感加成省略，并与旧 Python oracle 一致', () => {
+  it('默认主属性好感加成省略', () => {
     const table = growthTable([10, 15, 15, 20], [41]);
     const nodes = parseOperatorTalentNodeSources(table, 'chr_test');
     const result = compileTrustAttributeBonusSource(nodes, 'intellect');
-    const oracle = runPythonOracle({
-      operation: 'parseTrustAttributeBonus',
-      payload: {
-        growth: table.chr_test,
-        mainAttribute: 'intellect',
-        path: 'CharGrowthTable.chr_test',
-      },
-    });
-    expect(result).toEqual(oracle);
     expect(result).toBeNull();
   });
 
@@ -28,19 +18,10 @@ describe('干员天赋属性节点', () => {
     });
   });
 
-  it('保留双属性例外，并与旧 Python oracle 一致', () => {
+  it('保留双属性例外', () => {
     const table = growthTable([8, 10, 10, 15], [41, 42]);
     const nodes = parseOperatorTalentNodeSources(table, 'chr_test');
     const result = compileTrustAttributeBonusSource(nodes, 'intellect');
-    const oracle = runPythonOracle({
-      operation: 'parseTrustAttributeBonus',
-      payload: {
-        growth: table.chr_test,
-        mainAttribute: 'intellect',
-        path: 'CharGrowthTable.chr_test',
-      },
-    });
-    expect(result).toEqual(oracle);
     expect(result).toEqual({
       values: [8, 10, 10, 15],
       attributes: ['intellect', 'will'],

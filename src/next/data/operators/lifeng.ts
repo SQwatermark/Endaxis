@@ -1,2 +1,2 @@
-/** 黎风由解包数据生成；此文件提供不依赖生成文件名的稳定入口。 */
-export { lifengGeneratedOperator as lifeng } from './generated/lifeng.operator.generated';
+/** 黎风的统一 TS 整名产物；稳定入口不暴露生成目录。 */
+export { default as lifeng } from './generated-definitions/lifeng/lifeng.operator.generated';

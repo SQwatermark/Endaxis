@@ -21,6 +21,7 @@ import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import type { BuffApplicationHandle } from './buffOperationExecutor';
 
 export type CombatSemanticEvent =
   | {
@@ -41,6 +42,13 @@ export type CombatSemanticEvent =
     }
   | {
       readonly kind: 'buffApplied';
+      readonly targetId: string;
+      readonly buffId: string;
+      readonly sourceId: string;
+      readonly buffTags: readonly GameplayTag[];
+    }
+  | {
+      readonly kind: 'buffOutput';
       readonly targetId: string;
       readonly buffId: string;
       readonly sourceId: string;
@@ -80,6 +88,7 @@ export type CombatSemanticEvent =
       readonly targetId: string;
       readonly type: import('../../game-data/operatorDefinition').PhysicalInflictionType;
       readonly skillCastInfo?: CombatSkillCastInfo;
+      readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
     }
   | {
       readonly kind: 'elementalAttachmentConsumed';
@@ -112,6 +121,9 @@ export type CombatSemanticEvent =
       readonly sourceOperatorId: string;
       readonly source: SpGainSource;
       readonly gainKind: SpGainKind;
+      /** 原生 OnObtainAtb.Value：效率结算后、容量截断前。 */
+      readonly requestedAmount: number;
+      /** 原生 OnObtainAtb.RealDelta：共享技力实际入账量。 */
       readonly amount: number;
     }
   | {
@@ -199,6 +211,8 @@ function matches(registration: Registration, event: CombatSemanticEvent): boolea
       );
     case 'buffApplied':
       return event.kind === 'buffApplied' && event.targetId === ownerOperatorId;
+    case 'buffOutput':
+      return event.kind === 'buffOutput' && event.sourceId === ownerOperatorId;
     case 'airborneOutput':
       return event.kind === 'airborneOutput' && event.sourceOperatorId === ownerOperatorId;
     case 'knockDownOutput':

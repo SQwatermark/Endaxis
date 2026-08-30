@@ -89,6 +89,8 @@ export type UpgradeModifierDefinition =
   | {
       kind: 'multiplySkillCost';
       skillGroupKey: string;
+      /** 组内存在隐藏替换技能时，明确限定原生修正指向的可养成技能。 */
+      skillKey?: string;
       resource: CombatResource;
       multiplier: number;
     }
@@ -129,6 +131,9 @@ export type UpgradeModifierDefinition =
       blackboardKey: string;
       operation: 'add' | 'multiply' | 'assign';
       value: LevelValues;
+      /** 仅该养成等级区间安装此补丁；用于原生按等级切换不同标志键的结构。 */
+      minimumUpgradeLevel?: number;
+      maximumUpgradeLevel?: number;
       /** 原生 activeCondition；按最终构筑属性选择是否应用。 */
       condition?: BuildCondition;
     }

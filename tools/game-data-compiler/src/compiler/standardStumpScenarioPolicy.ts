@@ -5,12 +5,14 @@
  * 起身动画/恢复行动不是根击倒的前置条件；标签计时是否保留须按具体读者及目标归属审计。
  */
 const OMITTED_CASTER_BUFF_ABILITY_EVENT_REASONS: Readonly<Record<string, string>> = {
-  OnBeforeTakeDamage: 'player damage taken cannot occur without enemy active behavior',
-  OnTakeDamage: 'player damage taken cannot occur without enemy active behavior',
+  OnCharBeforeTakeSpellInfliction:
+    'the fixed passive-enemy scenario has no incoming operator spell-infliction source or external marker',
   OnOwnerHpZero:
     'operator HP cannot reach zero without player damage in the fixed passive-enemy scenario',
   OnOwnerDead:
     'operator death cannot occur without player damage in the fixed passive-enemy scenario',
+  OnAfterKillEntity:
+    'the unique fixed target has no post-defeat damage window, so kill responses cannot affect the simulation result',
 };
 
 const OMITTED_ENEMY_BUFF_ABILITY_EVENT_REASONS: Readonly<Record<string, string>> = {

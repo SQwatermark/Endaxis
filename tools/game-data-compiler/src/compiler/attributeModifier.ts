@@ -39,6 +39,7 @@ const COMBAT_RUNTIME_ATTRIBUTE_KEYS: Readonly<Partial<Record<AttributeTypeSource
   ...PRIMARY_ATTRIBUTE_KEYS,
   CriticalRate: 'criticalRate',
   CriticalDamageIncrease: 'criticalDamageIncrease',
+  WeaknessDmgScalar: 'weaknessDamageMultiplier',
   ShelterDmgScalar: 'shelterDamageMultiplier',
   HealOutputIncrease: 'healOutputIncrease',
   HealTakenIncrease: 'healTakenIncrease',

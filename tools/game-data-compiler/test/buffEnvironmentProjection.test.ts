@@ -1,4 +1,6 @@
 import { gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';
+import { compileActionNode } from '../src/compiler/combatActionLeafProjection.ts';
+import type { CombatActionProjectionContextSource } from '../src/compiler/combatProjectionCommon.ts';
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it, vi } from 'vitest';
 import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
@@ -49,7 +51,10 @@ const rawRead = (target = 'Owner') => ({
   desiredKey: 'count',
   blackboardKey: 'copied',
 });
-function project(actions: unknown[], projectionContext = context) {
+function project(
+  actions: unknown[],
+  projectionContext: CombatActionProjectionContextSource = context,
+) {
   return compileCombatActionSequenceSource(
     parseNativeSequenceSource(
       {
@@ -73,6 +78,51 @@ function createTarget() {
 }
 
 describe('公共 Buff 环境读取：来源到正式执行器', () => {
+  it('从已证明为唯一敌人的命名 Context 读取 Buff 黑板', () => {
+    const parsed = parseKnownNativeActionLeafSource(
+      {
+        ...rawRead('Context'),
+        targetSettings: targetFixture('Context', undefined, 'smart_target'),
+      },
+      'Skill.readConduct',
+      {},
+    );
+    expect(
+      compileActionNode(
+        {
+          sourcePath: 'Skill.readConduct',
+          metadata: {
+            enabled: true,
+            nativeType: 'Beyond.Gameplay.Core.GetTargetBuffBBAdvanced+Data, Gameplay.Beyond',
+            nativeName: 'GetTargetBuffBBAdvanced',
+            priorityLevel: 'Default',
+            priorityOffset: 0,
+            serverActionIndex: 0,
+          },
+          body: { kind: 'leaf', value: parsed },
+        },
+        new Set(),
+        new Map(),
+        {
+          ...context,
+          actionOwnerTarget: 'caster',
+          actionTargetTarget: 'enemy',
+          staticEnemyTargetGroupKeys: new Set(['smart_target']),
+        },
+      ),
+    ).toEqual([
+      {
+        kind: 'readBuffBlackboard',
+        parameters: {
+          target: 'enemy',
+          query: { kind: 'tag', tagQueryType: 'hasAny', buffTags: [tagPath] },
+          desiredKey: 'count',
+          outputKey: 'copied',
+        },
+      },
+    ]);
+  });
+
   it('Environment 精确读取当前实例增强层数，动态阈值和条件短路不丢失', () => {
     const owner = createTarget();
     const current = owner.add(
@@ -248,5 +298,32 @@ describe('公共 Buff 环境读取：来源到正式执行器', () => {
         },
       ]),
     ).toThrow('unsupported');
+  });
+});
+
+describe('当前 Buff 时间暂停投影', () => {
+  const rawPause = (isPaused: boolean) => ({
+    ...meta,
+    $type: 'Beyond.Gameplay.Core.PauseBuffTime+Data, Gameplay.Beyond',
+    isPaused,
+  });
+
+  it('保留 PauseBuffTime 的暂停与恢复状态', () => {
+    expect(project([rawPause(true), rawPause(false)])).toEqual({
+      steps: [
+        { kind: 'setCurrentBuffTimePaused', parameters: { paused: true } },
+        { kind: 'setCurrentBuffTimePaused', parameters: { paused: false } },
+      ],
+    });
+  });
+
+  it('拒绝在没有当前 Buff 实例的主动技能上下文执行', () => {
+    expect(() =>
+      project([rawPause(true)], {
+        ...context,
+        actionOwnerTarget: 'caster',
+        actionTargetTarget: 'caster',
+      }),
+    ).toThrow('PauseBuffTime requires a current Buff action owner');
   });
 });

@@ -56,6 +56,7 @@ export function createPlayerActiveOperationExecutor(
 ): CombatOperationExecutor {
   const shared = {
     sourceOperatorId: options.context.program.operatorId,
+    skillId: options.context.program.skillId,
     skillType: options.context.program.skillType,
     isCriticalForced: (
       step: Parameters<NonNullable<PlayerDamageOperationDependencies['isCriticalForced']>>[0],

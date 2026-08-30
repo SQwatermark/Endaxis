@@ -23,10 +23,8 @@ import {
   logicalAbilityEntityRuntimeId,
   type RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
-import {
-  gilbertaBattleSkill,
-  gilbertaGeneratedOperator,
-} from '../../../data/operators/generated/gilberta.operator.generated';
+import { gilbertaBattleSkill } from '../../../data/operators/generated-definitions/gilberta/gilberta.operator.generated';
+import { gilberta as gilbertaGeneratedOperator } from '../../../data/operators/gilberta';
 
 const emptyEnemyBuffRuntime = {
   ownerId: 'enemy',
@@ -1889,7 +1887,7 @@ describe('CombatRuntimeAssembly', () => {
       if (owner !== 'equipment') {
         expect(create).toThrow(
           owner === 'upgrade'
-            ? 'requires a Buff or Ability owner context'
+            ? 'requires a Buff, Ability, or Skill owner context'
             : "equipment Ability '99' is not active",
         );
         return;

@@ -1,2 +1,5 @@
-/** 莱万汀由解包数据生成；此文件提供不依赖生成文件名的稳定入口。 */
-export { laevatainGeneratedOperator as laevatain } from './generated/laevatain.operator.generated';
+/** 莱万汀由统一游戏数据编译器整名生成；此文件提供稳定入口。 */
+import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import definition from './generated-definitions/laevatain/laevatain.operator.generated';
+
+export const laevatain: OperatorDefinition = definition;

@@ -31,10 +31,17 @@ export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
 /** 当前已闭环、会改变技能结束事实的中断来源。 */
 export type RuntimeSkillInterruptReason = 'castNextSkill';
 
+/** CastEnd 在结束时间轴动作期间暴露的唯一技能转场输入。 */
+export interface RuntimeSkillTransition {
+  readonly nextSkillId: string;
+  readonly attachBuffToNextSkill: (buff: BuffApplicationHandle) => void;
+}
+
 /** Ability 承伤事件进入通用条件执行器前的只读归一化负载。 */
 export interface CombatAbilityDamageEvent {
   readonly kind: 'abilityDamage';
   readonly event:
+    | 'beforeDamageAction'
     | 'beforeCalculateDamage'
     | 'beforeOutputDamage'
     | 'beforeTakeDamage'
@@ -59,6 +66,8 @@ export interface CombatAbilityPhysicalInflictionEvent {
   readonly sourceId: string;
   readonly targetId: string;
   readonly type?: 'airborne' | 'knockDown' | 'fracture' | 'crush';
+  /** 物理异常由当前技能动作同步输出时保留其原生 CastSkillContext 附着端口。 */
+  readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
 }
 
 /** 控制组件在来源 AbilitySystem 上发布的专属事件；保留浮空转入标识，不与通用物理异常混用。 */
@@ -140,6 +149,16 @@ export interface CombatAbilityWeaknessTriggeredEvent {
   readonly targetId: string;
 }
 
+/** TriggerCustomAbilityEvent 在发布者 AbilitySystem 上同步派发的命名载荷。 */
+export interface CombatAbilityCustomEvent {
+  readonly kind: 'abilityCustom';
+  readonly event: 'customAbilityEvent';
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly eventName: string;
+  readonly eventParam: number;
+}
+
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
 export interface CombatOperationContext {
   /** 当前动作环境独占的 direct 黑板；生命周期由技能、Buff 或连携条件宿主管理。 */
@@ -152,8 +171,18 @@ export interface CombatOperationContext {
   readonly actionInputTarget?: RuntimeTargetRef;
   /** 只在 forEachContextTarget 的 body 内存在。 */
   readonly currentTarget?: RuntimeTargetRef;
+  /** 能力实体子技能的稳定 ActionOwner；内层 forEach 不得覆盖。 */
+  readonly actionOwnerAbilityEntity?: Extract<RuntimeTargetRef, { kind: 'abilityEntity' }>;
   /** 执行到当前步骤时的施法信息；扣费前后的未返还技力可能不同。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
+  /** 当前技能时间轴动作可把原生 AttachingSkill Buff 绑定到本次施法。 */
+  readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
+  /** InheritBuffAction 把已找到的同一实例从当前技能结束清理集合解除附着。 */
+  readonly detachBuffFromCurrentSkill?: (buff: BuffApplicationHandle) => void;
+  /** 只在由下一技能打断的 CastEnd 期间存在；值是下一技能的原生 sourceSkillId。 */
+  readonly pendingNextSkillId?: string;
+  /** 把已脱离当前动作寿命的同一 Buff 实例转交给下一技能。 */
+  readonly attachBuffToNextSkill?: (buff: BuffApplicationHandle) => void;
   /**
    * 当前同步事件的来源施法；与拥有该响应的 Buff 自身来源施法严格分离。
    * null 明确表示原生事件载荷没有来源；undefined 表示生产端未提供该端口。
@@ -171,7 +200,8 @@ export interface CombatOperationContext {
     | CombatAbilityHealEvent
     | CombatAbilitySkillEvent
     | CombatAbilityLifecycleEvent
-    | CombatAbilityWeaknessTriggeredEvent;
+    | CombatAbilityWeaknessTriggeredEvent
+    | CombatAbilityCustomEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */
   readonly buffSourceId?: string;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionOwner 身份。 */
@@ -204,6 +234,8 @@ export interface CombatOperationContext {
   readonly requestTimelineFinish?: () => void;
   /** 仅由技能时间轴宿主提供；返回原生 StoreCurSkillExecuteFrame 使用的整数局部帧。 */
   readonly getCurrentTimelineFrame?: () => number;
+  /** 已发射投射物的 duration-finish 注册端口；注册项不归当前技能寿命所有。 */
+  readonly scheduleProjectileFinishCallback?: (delaySeconds: number, execute: () => void) => void;
 }
 
 export interface CombatOperationExecutor {
@@ -240,6 +272,7 @@ interface SkillRuntimeDependencies {
   readonly emitSkillEnd?: (payload: CombatAbilitySkillEvent) => void;
   /** 原生费用实际应用成功后、同帧时间轴动作前同步发布 OnAfterSkillApplyCost。 */
   readonly emitAfterSkillApplyCost?: (payload: CombatAbilitySkillEvent) => void;
+  readonly scheduleProjectileFinishCallback?: (delaySeconds: number, execute: () => void) => void;
 }
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
@@ -261,7 +294,11 @@ export class SkillRuntime {
   #nonReturnedSpCost = 0;
   #skillCastId = 0;
   #preparedSkillCastId = 0;
+  #preparedSkillCastInfo: CombatSkillCastInfo | undefined;
+  #inheritedSkillCastInfo: CombatSkillCastInfo | undefined;
+  #preparedSkipApplyCost = false;
   readonly #attachedBuffs = new Set<BuffApplicationHandle>();
+  #pendingTransition: RuntimeSkillTransition | null = null;
   #preparedStartBlackboard: Readonly<Record<string, number>> = {};
   #afterCastStart: AfterSkillCastStart | undefined;
 
@@ -280,8 +317,21 @@ export class SkillRuntime {
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
       requestTimelineFinish: () => this.#requestTimelineFinish(),
       getCurrentTimelineFrame: () => roundToEven(this.#passedFrames),
+      ...(dependencies.scheduleProjectileFinishCallback === undefined
+        ? {}
+        : { scheduleProjectileFinishCallback: dependencies.scheduleProjectileFinishCallback }),
       get skillCastInfo() {
         return runtime.skillCastInfo;
+      },
+      attachBuffToCurrentSkill: buff => runtime.attachBuffToCast(runtime.#skillCastId, buff),
+      detachBuffFromCurrentSkill: buff => runtime.#attachedBuffs.delete(buff),
+      get pendingNextSkillId() {
+        return runtime.#pendingTransition?.nextSkillId;
+      },
+      attachBuffToNextSkill: buff => {
+        const transition = runtime.#pendingTransition;
+        if (transition === null) throw new Error('no pending next skill during CastEnd');
+        transition.attachBuffToNextSkill(buff);
       },
     };
     this.#sequenceRuntime = new CombatActionSequenceRuntime(
@@ -305,6 +355,11 @@ export class SkillRuntime {
     return this.#program.skillId;
   }
 
+  /** 原生动作的技能继承白名单使用表内 Skill ID，而不是编辑器稳定 key。 */
+  get transitionSkillId(): string {
+    return this.#program.sourceSkillId ?? this.#program.skillId;
+  }
+
   /** 文档中的技能释放身份；单元测试程序可能缺失。 */
   get castId(): string | undefined {
     return this.#program.castId;
@@ -320,6 +375,15 @@ export class SkillRuntime {
 
   get passedFrames(): number {
     return this.#passedFrames;
+  }
+
+  /** 原生 canInterrupt 的时间分支；当前全量 SkillData 未出现 MarkCanInterruptAction。 */
+  get canInterrupt(): boolean {
+    if (this.#program.exclusiveFrame === undefined) {
+      throw new Error(`skill '${this.#program.skillId}' requires native exclusiveFrame data`);
+    }
+    // 原生按秒比较 passedTime > exclusiveFrame / 30 + 0.00001。
+    return this.#passedFrames > this.#program.exclusiveFrame + 0.0003;
   }
 
   get currentTimelineFrame(): number {
@@ -341,11 +405,16 @@ export class SkillRuntime {
   get skillCastInfo(): CombatSkillCastInfo {
     if (this.#skillCastId === 0)
       throw new Error(`skill '${this.#program.skillId}' has not started`);
+    const origin = this.#inheritedSkillCastInfo;
     return {
       skillCastId: this.#skillCastId,
-      originSkillId: this.#program.skillId,
-      originSkillType: this.#program.skillType,
-      ...(this.#program.castId === undefined ? {} : { originCastId: this.#program.castId }),
+      originSkillId: origin?.originSkillId ?? this.#program.skillId,
+      originSkillType: origin?.originSkillType ?? this.#program.skillType,
+      ...(origin?.originCastId !== undefined
+        ? { originCastId: origin.originCastId }
+        : this.#program.castId === undefined
+          ? {}
+          : { originCastId: this.#program.castId }),
       nonReturnedSpCost: this.#nonReturnedSpCost,
     };
   }
@@ -384,6 +453,24 @@ export class SkillRuntime {
     this.#preparedSkillCastId = skillCastId;
   }
 
+  prepareDeferredCast(input: {
+    readonly skipApplyCost: boolean;
+    readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+  }): void {
+    if (this.#state === 'casting') {
+      throw new Error(`skill '${this.#program.skillId}' is already casting`);
+    }
+    const inherited = input.inheritedSkillCastInfo;
+    if (inherited !== undefined) {
+      if (!Number.isSafeInteger(inherited.skillCastId) || inherited.skillCastId <= 0) {
+        throw new RangeError('inherited skill cast id must be a positive safe integer');
+      }
+      this.#preparedSkillCastInfo = { ...inherited };
+      this.#preparedSkillCastId = inherited.skillCastId;
+    }
+    this.#preparedSkipApplyCost = input.skipApplyCost;
+  }
+
   attachBuffToCast(skillCastId: number, buff: BuffApplicationHandle): void {
     const currentCastId = this.#preparedSkillCastId || this.#skillCastId;
     if (skillCastId <= 0 || skillCastId !== currentCastId) {
@@ -391,6 +478,73 @@ export class SkillRuntime {
     }
     // 原生 Skill.AttachBuff 按实例去重，并保留首次附着顺序。
     this.#attachedBuffs.add(buff);
+  }
+
+  attachInheritedBuff(buff: BuffApplicationHandle): void {
+    this.#attachedBuffs.add(buff);
+  }
+
+  trySwitchToBuffCast(currentSkill?: {
+    readonly skillType: CompiledSkillProgram['skillType'];
+    readonly skillCastInfo: CombatSkillCastInfo;
+    readonly canInterrupt: boolean;
+  }): boolean {
+    const route = this.#program.switchToBuffCast;
+    if (
+      route === undefined ||
+      (route.currentSkillTypes !== undefined &&
+        (currentSkill === undefined ||
+          !route.currentSkillTypes.includes(currentSkill.skillType))) ||
+      (route.requiresCurrentSkillNotInterruptible === true &&
+        (currentSkill === undefined || currentSkill.canInterrupt))
+    ) {
+      return false;
+    }
+    this.#blackboard.restore(this.#program.initialBlackboard);
+    this.#blackboard.assign(this.#preparedStartBlackboard);
+    this.#targetContext.clear();
+    this.#sequenceRuntime.reset();
+    this.#operationContext.damageCalculationSnapshots!.clear();
+    if (route.asSkillCast) {
+      this.#skillCastId =
+        this.#preparedSkillCastId === 0
+          ? this.#dependencies.allocateSkillCastId()
+          : this.#preparedSkillCastId;
+      if (!Number.isSafeInteger(this.#skillCastId) || this.#skillCastId <= 0)
+        throw new RangeError('allocated skill cast id must be a positive safe integer');
+      this.#nonReturnedSpCost = 0;
+    }
+    const skillCastInfo = route.asSkillCast ? this.skillCastInfo : currentSkill?.skillCastInfo;
+    if (skillCastInfo === undefined) return false;
+    // 旁路不启动候选技能；为这次同步执行固定快照施法身份，不能把一个事后会
+    // 回落到候选技能的 getter 泄漏给操作执行器。
+    const routeContext: CombatOperationContext = {
+      blackboard: this.#blackboard,
+      damageCalculationSnapshots: this.#operationContext.damageCalculationSnapshots,
+      targetContext: this.#targetContext,
+      skillCastInfo,
+    };
+    if (route.condition !== undefined) {
+      const passed = this.#dependencies.operations.evaluate(route.condition, routeContext);
+      this.record('CombatConditionEvaluated', { kind: route.condition.kind, passed });
+      if (!passed) return false;
+    }
+    const cooldownReserved = this.#cooldown.tryReserve();
+    if (this.#cooldown.snapshot.configured) {
+      this.record(cooldownReserved ? 'SkillCooldownReserved' : 'SkillCooldownUnavailableAtStart', {
+        remainingFrames: this.#cooldown.snapshot.remainingFrames,
+      });
+    }
+    if (route.asSkillCast) this.#applyCost(true);
+    this.#sequenceRuntime
+      .createSequence(route.sequence, routeContext)
+      .executeInstant(this.#context);
+    this.record('SkillSwitchedToBuff', { asSkillCast: route.asSkillCast });
+    if (route.asSkillCast) this.#emitSkillEnd();
+    this.#preparedStartBlackboard = {};
+    this.#preparedSkillCastId = 0;
+    this.#afterCastStart = undefined;
+    return true;
   }
 
   tryStart(): boolean {
@@ -401,7 +555,10 @@ export class SkillRuntime {
         remainingFrames: this.#cooldown.snapshot.remainingFrames,
       });
     }
-    if (!this.#dependencies.resources.canPay(this.#program.operatorId, this.#resolvedCosts())) {
+    if (
+      !this.#preparedSkipApplyCost &&
+      !this.#dependencies.resources.canPay(this.#program.operatorId, this.#resolvedCosts())
+    ) {
       this.record('SkillCostUnavailableAtStart');
     }
 
@@ -430,14 +587,17 @@ export class SkillRuntime {
     this.#operationContext.damageCalculationSnapshots!.clear();
     this.#timeline.reset(this.#context);
     this.#passedFrames = 0;
-    this.#appliedCost = false;
-    this.#attemptedCost = false;
-    this.#nonReturnedSpCost = 0;
+    this.#appliedCost = this.#preparedSkipApplyCost;
+    this.#attemptedCost = this.#preparedSkipApplyCost;
+    this.#inheritedSkillCastInfo = this.#preparedSkillCastInfo;
+    this.#nonReturnedSpCost = this.#preparedSkillCastInfo?.nonReturnedSpCost ?? 0;
     this.#skillCastId =
       this.#preparedSkillCastId === 0
         ? this.#dependencies.allocateSkillCastId()
         : this.#preparedSkillCastId;
     this.#preparedSkillCastId = 0;
+    this.#preparedSkillCastInfo = undefined;
+    this.#preparedSkipApplyCost = false;
     if (!Number.isSafeInteger(this.#skillCastId) || this.#skillCastId <= 0) {
       throw new RangeError('allocated skill cast id must be a positive safe integer');
     }
@@ -488,14 +648,19 @@ export class SkillRuntime {
     this.#emitSkillEnd();
   }
 
-  interrupt(reason: RuntimeSkillInterruptReason): void {
+  interrupt(reason: RuntimeSkillInterruptReason, transition?: RuntimeSkillTransition): void {
     if (this.#state !== 'casting') return;
-    this.#timeline?.end(this.#passedFrames, this.#context);
-    this.#finishAttachedBuffs();
-    if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
-    this.#state = 'ended';
-    this.record('SkillInterrupted', { reason });
-    this.#emitSkillEnd();
+    this.#pendingTransition = transition ?? null;
+    try {
+      this.#timeline?.end(this.#passedFrames, this.#context);
+      this.#finishAttachedBuffs();
+      if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
+      this.#state = 'ended';
+      this.record('SkillInterrupted', { reason });
+      this.#emitSkillEnd();
+    } finally {
+      this.#pendingTransition = null;
+    }
   }
 
   createSequence(sequence: ResolvedActionSequence): ActionSequence {
@@ -540,58 +705,62 @@ export class SkillRuntime {
       this.#passedFrames >= this.#program.costFrame
     ) {
       this.#attemptedCost = true;
-      const payment = this.#dependencies.resources.pay(
-        this.#program.operatorId,
-        this.#resolvedCosts(),
-      );
-      if (payment.paid) {
-        this.#appliedCost = true;
-        this.#nonReturnedSpCost = payment.nonReturnedSpCost;
-        for (const change of payment.changes) {
-          if (change.resource === 'sp') {
-            this.record('SpChanged', {
-              recipient: 'team',
-              baseValue: change.baseValue,
-              requestedValue: change.requestedValue,
-              actualValue: change.actualValue,
-              previousValue: change.previousValue,
-              currentValue: change.currentValue,
-            });
-          } else {
-            this.record(
-              'UltimateEnergyChanged',
-              {
-                recipient: 'operator',
-                baseValue: change.baseValue,
-                requestedValue: change.requestedValue,
-                applied: change.applied,
-                actualValue: change.actualValue,
-                previousValue: change.previousValue,
-                currentValue: change.currentValue,
-              },
-              change.operatorId,
-            );
-          }
-        }
-        this.record('SkillCostApplied', {
-          nonReturnedSpCost: payment.nonReturnedSpCost,
-          remainingSp: this.#dependencies.resources.sp,
-          remainingUltimateEnergy: this.#dependencies.resources.getUltimateEnergy(
-            this.#program.operatorId,
-          ),
-        });
-        this.#dependencies.emitAfterSkillApplyCost?.(
-          this.#skillEventPayload('afterSkillApplyCost'),
-        );
-      } else {
-        this.record('SkillCostRejected');
-      }
+      this.#applyCost(true);
     }
     this.#timeline?.tick(this.#passedFrames, deltaTime, this.#context);
   }
 
   #resolvedCosts(): readonly CompiledSkillProgram['costs'][number][] {
     return this.#dependencies.resolveCosts?.(this.#program.costs) ?? this.#program.costs;
+  }
+
+  #applyCost(emitSkillEvent: boolean): boolean {
+    const payment = this.#dependencies.resources.pay(
+      this.#program.operatorId,
+      this.#resolvedCosts(),
+    );
+    if (!payment.paid) {
+      this.record('SkillCostRejected');
+      return false;
+    }
+    this.#appliedCost = true;
+    this.#nonReturnedSpCost = payment.nonReturnedSpCost;
+    for (const change of payment.changes) {
+      if (change.resource === 'sp') {
+        this.record('SpChanged', {
+          recipient: 'team',
+          baseValue: change.baseValue,
+          requestedValue: change.requestedValue,
+          actualValue: change.actualValue,
+          previousValue: change.previousValue,
+          currentValue: change.currentValue,
+        });
+      } else {
+        this.record(
+          'UltimateEnergyChanged',
+          {
+            recipient: 'operator',
+            baseValue: change.baseValue,
+            requestedValue: change.requestedValue,
+            applied: change.applied,
+            actualValue: change.actualValue,
+            previousValue: change.previousValue,
+            currentValue: change.currentValue,
+          },
+          change.operatorId,
+        );
+      }
+    }
+    this.record('SkillCostApplied', {
+      nonReturnedSpCost: payment.nonReturnedSpCost,
+      remainingSp: this.#dependencies.resources.sp,
+      remainingUltimateEnergy: this.#dependencies.resources.getUltimateEnergy(
+        this.#program.operatorId,
+      ),
+    });
+    if (emitSkillEvent)
+      this.#dependencies.emitAfterSkillApplyCost?.(this.#skillEventPayload('afterSkillApplyCost'));
+    return true;
   }
 
   #requestTimelineJump(destinationFrame: number): void {

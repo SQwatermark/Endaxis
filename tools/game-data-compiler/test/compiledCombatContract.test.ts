@@ -242,13 +242,15 @@ it('契约派生仍保留条件种类、目标和递归子树的支持边界', (
   }>().not.toExtend<CompiledBuffConditionSource>();
   expectTypeOf<
     Extract<CompiledBuffConditionSource, { kind: 'healthCompare' }>['target']
-  >().toEqualTypeOf<'caster' | 'controlledOperator' | 'enemy'>();
+  >().toEqualTypeOf<
+    'caster' | 'contextTarget' | 'controlledOperator' | 'currentTarget' | 'enemy'
+  >();
   expectTypeOf<
-    Extract<
-      keyof Extract<CompiledBuffConditionSource, { kind: 'buffStackCompare' }>,
-      'sameSourceSkillCast'
-    >
-  >().toBeNever();
+    Extract<CompiledBuffConditionSource, { kind: 'buffStackCompare' }>['sameSourceSkillCast']
+  >().toEqualTypeOf<boolean | undefined>();
+  expectTypeOf<
+    Extract<CompiledBuffConditionSource, { kind: 'buffIdStackCompare' }>['sameSourceSkillCast']
+  >().toEqualTypeOf<boolean | undefined>();
 });
 
 it('动作窄子集只纳入已证明的实体曲线，不扩张等级列或未知运算', () => {
@@ -277,6 +279,6 @@ it('Buff 根定义保留必需字段与生命周期范围，不自动接入整�
     'start' | 'enable' | 'trigger' | 'enhanceChanged' | 'afterEnhance' | 'finish'
   >();
   expectTypeOf<
-    Extract<keyof CompiledBuffDefinitionSource, 'scheduledSequences' | 'igniteEventResponses'>
-  >().toBeNever();
+    NonNullable<CompiledBuffDefinitionSource['igniteEventResponses']>[number]['sequence']
+  >().toEqualTypeOf<CompiledBuffSequenceSource>();
 });

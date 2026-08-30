@@ -94,9 +94,13 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
 }
 
 describe('compileScenarioRuntimeAssembly', () => {
-  it('空轴也编译静态连携槽位和冷却，但不安装定义动作或虚构施法', () => {
+  it('空轴也编译静态连携槽位、冷却和内部技能，但不执行定义动作或虚构施法', () => {
     const settings = options();
-    const createOperationExecutor = vi.fn(() => operationExecutor());
+    const execute = vi.fn(() => true);
+    const createOperationExecutor = vi.fn((): CombatOperationExecutor => ({
+      execute,
+      evaluate: () => true,
+    }));
     const compiled = compileScenarioRuntimeAssembly(createScenario(), {
       ...settings,
       environment: { ...settings.environment, createOperationExecutor },
@@ -121,7 +125,9 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(combo).not.toHaveProperty('initialBlackboard');
     const assembly = new CombatRuntimeAssembly(compiled);
     assembly.simulation.advanceFrames(10);
-    expect(createOperationExecutor).not.toHaveBeenCalled();
+    // 完整定义中的未放置技能会装配成内部路由目标，但静态目录本身不能触发动作。
+    expect(createOperationExecutor).toHaveBeenCalled();
+    expect(execute).not.toHaveBeenCalled();
     expect(assembly.receipt.entries.some(entry => entry.event === 'SkillStarted')).toBe(false);
   });
 

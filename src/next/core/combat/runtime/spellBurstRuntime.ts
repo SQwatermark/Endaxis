@@ -35,6 +35,7 @@ export interface ExecuteSpellBurstInput {
   readonly enhance: number | null;
   readonly criticalRate: number;
   readonly criticalDamageIncrease: number;
+  readonly weaknessDamageMultiplier: number;
   readonly criticalSample: number;
   readonly settings: CompoundStatusSkillSettingSource;
   readonly defender: PlayerDamageDefenderSnapshot;
@@ -117,7 +118,7 @@ export function executeSpellBurst(input: ExecuteSpellBurstInput): SpellBurstResu
       attack: input.attack,
       criticalRate: input.criticalRate,
       criticalDamageIncrease: input.criticalDamageIncrease,
-      weaknessDamageMultiplier: 1,
+      weaknessDamageMultiplier: input.weaknessDamageMultiplier,
       igniteDamageMultiplier: 1,
       physicalInflictionDamageMultiplier: 1,
     },

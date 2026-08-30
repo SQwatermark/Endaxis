@@ -225,6 +225,10 @@ export function parseAttributeTypeValue(value: unknown, path: string): Attribute
   return requireEnumValue(value, ATTRIBUTE_TYPES, path);
 }
 
+export function parseAttributeTypeName(value: unknown, path: string): AttributeTypeSource {
+  return requireEnumName(value, ATTRIBUTE_TYPES, path);
+}
+
 /** ModifierType 的原生数值 2 未使用，因此不能直接用数组索引。 */
 export function parseModifierTypeValue(value: unknown, path: string): ModifierTypeSource {
   if (typeof value !== 'number' || !Number.isInteger(value)) {

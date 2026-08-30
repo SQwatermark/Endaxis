@@ -26,6 +26,10 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       requiredTags: readonly GameplayTag[],
       match: GameplayTagQueryType,
     ) => boolean,
+    readonly resolveCurrentSkillType?: (
+      target: 'caster' | 'buffOwner',
+      context?: CombatOperationContext,
+    ) => import('../../game-data/operatorDefinition').SkillType | undefined,
   ) {}
 
   execute(
@@ -51,6 +55,8 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventDamageTypeIn' &&
       condition.kind !== 'eventInflictionElementIn' &&
       condition.kind !== 'eventPhysicalInflictionTypeIn' &&
+      condition.kind !== 'eventCustomAbilityNameMatch' &&
+      condition.kind !== 'currentSkillTypeIn' &&
       condition.kind !== 'eventSkillTypeIn' &&
       condition.kind !== 'originSkillTypeIn' &&
       condition.kind !== 'eventSkillIdIn' &&
@@ -72,6 +78,13 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         ? this.delegate.evaluate(condition)
         : this.delegate.evaluate(condition, context);
     }
+    if (condition.kind === 'currentSkillTypeIn') {
+      if (this.resolveCurrentSkillType === undefined) {
+        throw new Error('currentSkillTypeIn requires an AbilitySystem resolver');
+      }
+      const skillType = this.resolveCurrentSkillType(condition.target, context);
+      return skillType !== undefined && condition.skillTypes.includes(skillType);
+    }
     if (condition.kind === 'originSkillTypeIn') {
       const event = context?.event;
       // combat-spec/origin-skill-event-context.md：按当前事件类型取来源；不回退到条件宿主。
@@ -86,7 +99,8 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
           (event.kind === 'abilitySpellInfliction' &&
             event.event !== 'beforeTakeSpellInfliction') ||
           (event.kind === 'abilityDamage' &&
-            (event.event === 'beforeOutputDamage' ||
+            (event.event === 'beforeDamageAction' ||
+              event.event === 'beforeOutputDamage' ||
               event.event === 'outputDamage' ||
               event.event === 'outputCriticalDamage')));
       if (!carriesOrigin) return false;
@@ -136,6 +150,11 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       return (
         context.event.kind === 'abilitySkill' &&
         condition.skillTypes.includes(context.event.skillType)
+      );
+    }
+    if (condition.kind === 'eventCustomAbilityNameMatch') {
+      return (
+        context.event.kind === 'abilityCustom' && context.event.eventName === condition.eventName
       );
     }
     if (condition.kind === 'eventInflictionElementIn') {

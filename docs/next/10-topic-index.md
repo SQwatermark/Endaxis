@@ -53,7 +53,7 @@
 - [全干员递归机制审计](../research/all-operator-recursive-mechanism-audit.md)
 - [潜能静态属性转换审计](../research/operator-static-attribute-potential-audit.md)
 - `docs/research/*.json`：机器可读覆盖结果
-- `scripts/generate_next_operators/README.md`：生成器使用方式
+- `tools/game-data-compiler/README.md`：正式生成器使用方式
 
 ## 6. UI、i18n 与交互
 

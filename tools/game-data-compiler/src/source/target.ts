@@ -9,6 +9,7 @@ import {
   requireString,
 } from './primitives.ts';
 import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
+import type { BlackboardLevelValues } from './scalar.ts';
 import {
   parsePriorityFilterSources,
   parseDistanceValidatorSources,
@@ -34,9 +35,19 @@ export interface TargetReferenceSource {
   readonly enableAdvancedDirection: boolean;
   readonly selectorDirection: string;
   readonly finderType: string | null;
+  /** HitBoxFinder 阵营/对象/存活过滤；目标引用也必须保留，供固定模型严格归约。 */
+  readonly finderFactionTarget?: string | null;
+  readonly finderTargetObjectType?: string | null;
+  readonly finderCheckAlive?: boolean | null;
+  readonly finderAutoSetTargetFaction?: boolean | null;
+  readonly finderTargetFactionType?: string | number | null;
   readonly finderShape: ShapeFinderSource | null;
   /** OwnerPartsFinder 对 owner 的部件 Tag 做查询；来源层不解释部件选择结果。 */
   readonly finderOwnerPartsQuery: TagQuerySource | null;
+  /** PointFinder 中实际启用的坐标/旋转黑板输入；只保存空间数据流，不解释坐标。 */
+  readonly finderPointBlackboardKeys?: readonly string[];
+  /** FixedPointFinder 的固定偏移证据；零空间投影可归约坐标，但不能在来源层丢掉。 */
+  readonly finderFixedPoint?: FixedPointFinderSource;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
   readonly priorityFilters: readonly PriorityFilterSource[];
@@ -51,13 +62,42 @@ export interface SelectorSummarySource {
   readonly finderFactionTarget: string | null;
   readonly finderTargetObjectType: string | null;
   readonly finderCheckAlive: boolean | null;
+  readonly finderAutoSetTargetFaction: boolean | null;
+  readonly finderTargetFactionType: string | number | null;
   readonly finderShape: ShapeFinderSource | null;
   readonly finderOwnerPartsQuery: TagQuerySource | null;
+  readonly finderPointBlackboardKeys: readonly string[];
+  /** RandomPointFinder 生成的目标点数量；几何在来源层验证，数量留给零空间投影。 */
+  readonly finderRandomPointCount: {
+    readonly value: number;
+    readonly blackboardKey: string | null;
+  } | null;
+  readonly finderFixedPoint: FixedPointFinderSource | null;
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
   readonly priorityFilters: readonly PriorityFilterSource[];
   readonly shuffleTargets: readonly ShuffleTargetSource[];
   readonly distanceValidators: readonly DistanceValidatorSource[];
+  /** TargetContainsValidator 解析的父集合来源；顺序与 validatorData 一致。 */
+  readonly targetContainsParents: readonly {
+    readonly targetSource: string;
+    readonly targetGroupKey: string;
+  }[];
+  /** ExcludeTarget 后处理器引用的排除集合；顺序与 postProcessorData 一致。 */
+  readonly excludeTargets: readonly {
+    readonly targetSource: string;
+    readonly targetGroupKey: string;
+  }[];
+}
+
+export interface FixedPointFinderSource {
+  readonly positionOffset: readonly [number, number, number];
+  readonly rotationOffset: readonly [number, number, number, number];
+  readonly snapToNavmesh: boolean;
+  readonly sampleRadius: {
+    readonly value: number;
+    readonly blackboardKey: string | null;
+  };
 }
 
 export interface SpawnedEntitySelectorIdentitySource {
@@ -107,8 +147,10 @@ const TARGET_FIELDS = new Set([
 ]);
 
 const KNOWN_FINDERS = new Set([
+  'AbilityEntityTargetFinder',
   'CharacterTeamFinder',
   'FixedPointFinder',
+  'GodEntityFinder',
   'HitBoxFinder',
   'InteractiveShapeFinder',
   'InFightEnemyFinder',
@@ -171,8 +213,25 @@ export function parseTargetReferenceSource(value: unknown, path: string): Target
     ),
     selectorDirection: requireNonEmptyString(target.selectorDirection, `${path}.selectorDirection`),
     finderType: summary.finderType,
+    ...(summary.finderFactionTarget === null
+      ? {}
+      : { finderFactionTarget: summary.finderFactionTarget }),
+    ...(summary.finderTargetObjectType === null
+      ? {}
+      : { finderTargetObjectType: summary.finderTargetObjectType }),
+    ...(summary.finderCheckAlive === null ? {} : { finderCheckAlive: summary.finderCheckAlive }),
+    ...(summary.finderAutoSetTargetFaction === null
+      ? {}
+      : { finderAutoSetTargetFaction: summary.finderAutoSetTargetFaction }),
+    ...(summary.finderTargetFactionType === null
+      ? {}
+      : { finderTargetFactionType: summary.finderTargetFactionType }),
     finderShape: summary.finderShape,
     finderOwnerPartsQuery: summary.finderOwnerPartsQuery,
+    ...(summary.finderPointBlackboardKeys.length === 0
+      ? {}
+      : { finderPointBlackboardKeys: summary.finderPointBlackboardKeys }),
+    ...(summary.finderFixedPoint === null ? {} : { finderFixedPoint: summary.finderFixedPoint }),
     validatorTypes: summary.validatorTypes,
     postProcessorTypes: summary.postProcessorTypes,
     priorityFilters: summary.priorityFilters,
@@ -187,6 +246,7 @@ export function parseSelectorSummarySource(
   value: unknown,
   path: string,
   finderRequired: boolean,
+  inheritedBlackboard: BlackboardLevelValues = {},
 ): SelectorSummarySource {
   const selector = requireRecord(value, path);
   const expectedFields = new Set(['validatorData', 'postProcessorData']);
@@ -197,15 +257,26 @@ export function parseSelectorSummarySource(
   let finderFactionTarget: string | null = null;
   let finderTargetObjectType: string | null = null;
   let finderCheckAlive: boolean | null = null;
+  let finderAutoSetTargetFaction: boolean | null = null;
+  let finderTargetFactionType: string | number | null = null;
   let finderShape: ShapeFinderSource | null = null;
   let finderOwnerPartsQuery: TagQuerySource | null = null;
+  let finderPointBlackboardKeys: string[] = [];
+  let finderRandomPointCount: SelectorSummarySource['finderRandomPointCount'] = null;
+  let finderFixedPoint: FixedPointFinderSource | null = null;
   if ('finderData' in selector) {
     const finder = requireRecord(selector.finderData, `${path}.finderData`);
     finderType = selectorComponentName(finder, `${path}.finderData`);
     if (!KNOWN_FINDERS.has(finderType)) {
       throw new Error(`${path}.finderData: unsupported finder ${JSON.stringify(finderType)}`);
     }
-    if (finderType === 'HitBoxFinder') {
+    if (finderType === 'GodEntityFinder' || finderType === 'AbilityEntityTargetFinder') {
+      // 两类 1.4.4 Data 都没有配置字段：前者读取 BattleManager 的全局 GodEntity，
+      // 后者复制 selector owner 所属 AbilityEntity 控制器保存的目标句柄。
+      requireExactFields(finder, new Set(['$type']), `${path}.finderData`);
+    } else if (finderType === 'FixedPointFinder') {
+      finderFixedPoint = parseFixedPointFinderSource(finder, `${path}.finderData`);
+    } else if (finderType === 'HitBoxFinder') {
       finderFactionTarget = requireNonEmptyString(
         finder.factionTarget,
         `${path}.finderData.factionTarget`,
@@ -215,6 +286,17 @@ export function parseSelectorSummarySource(
         `${path}.finderData.targetObjectType`,
       );
       finderCheckAlive = requireBoolean(finder.checkAlive, `${path}.finderData.checkAlive`);
+      finderAutoSetTargetFaction = requireBoolean(
+        finder.autoSetTargetFaction,
+        `${path}.finderData.autoSetTargetFaction`,
+      );
+      if (
+        typeof finder.targetFactionType !== 'string' &&
+        typeof finder.targetFactionType !== 'number'
+      ) {
+        throw new Error(`${path}.finderData.targetFactionType: expected enum name or number`);
+      }
+      finderTargetFactionType = finder.targetFactionType;
     } else if (finderType === 'ShapeFinder' || finderType === 'InteractiveShapeFinder') {
       finderShape = parseShapeFinderSource(finder, `${path}.finderData`);
     } else if (finderType === 'OwnerPartsFinder') {
@@ -226,8 +308,69 @@ export function parseSelectorSummarySource(
         new Set(['$type', 'positionOffset', 'rotationOffset']),
         `${path}.finderData`,
       );
-      parsePointFinderVector(finder.positionOffset, `${path}.finderData.positionOffset`);
-      parsePointFinderVector(finder.rotationOffset, `${path}.finderData.rotationOffset`);
+      finderPointBlackboardKeys = [
+        ...parsePointFinderVector(finder.positionOffset, `${path}.finderData.positionOffset`),
+        ...parsePointFinderVector(finder.rotationOffset, `${path}.finderData.rotationOffset`),
+      ];
+    } else if (finderType === 'RandomPointFinder') {
+      requireExactFields(
+        finder,
+        new Set([
+          '$type',
+          'pointNum',
+          'shape',
+          'localPlaneRotationEulers',
+          'radius',
+          'minRadius',
+          'angle',
+          'useExtraJitter',
+          'snapToNavMesh',
+        ]),
+        `${path}.finderData`,
+      );
+      const parseNumber = (raw: unknown, valuePath: string) => {
+        const number = requireRecord(raw, valuePath);
+        requireExactFields(
+          number,
+          new Set(['useBlackboardKey', 'value', 'blackboardKey']),
+          valuePath,
+        );
+        const useBlackboardKey = requireBoolean(
+          number.useBlackboardKey,
+          `${valuePath}.useBlackboardKey`,
+        );
+        const blackboardKey = requireString(number.blackboardKey, `${valuePath}.blackboardKey`);
+        if (useBlackboardKey && blackboardKey.length === 0)
+          throw new Error(`${valuePath}.blackboardKey: expected non-empty selected key`);
+        return {
+          value: requireNumber(number.value, `${valuePath}.value`),
+          blackboardKey: useBlackboardKey ? blackboardKey : null,
+        };
+      };
+      finderRandomPointCount = parseNumber(finder.pointNum, `${path}.finderData.pointNum`);
+      const eulers = requireRecord(
+        finder.localPlaneRotationEulers,
+        `${path}.finderData.localPlaneRotationEulers`,
+      );
+      requireExactFields(
+        eulers,
+        new Set(['x', 'y', 'z']),
+        `${path}.finderData.localPlaneRotationEulers`,
+      );
+      const geometryNumbers = [
+        parseNumber(eulers.x, `${path}.finderData.localPlaneRotationEulers.x`),
+        parseNumber(eulers.y, `${path}.finderData.localPlaneRotationEulers.y`),
+        parseNumber(eulers.z, `${path}.finderData.localPlaneRotationEulers.z`),
+        parseNumber(finder.radius, `${path}.finderData.radius`),
+        parseNumber(finder.minRadius, `${path}.finderData.minRadius`),
+        parseNumber(finder.angle, `${path}.finderData.angle`),
+      ];
+      finderPointBlackboardKeys = [finderRandomPointCount, ...geometryNumbers].flatMap(number =>
+        number.blackboardKey === null ? [] : [number.blackboardKey],
+      );
+      requireNonEmptyString(finder.shape, `${path}.finderData.shape`);
+      requireBoolean(finder.useExtraJitter, `${path}.finderData.useExtraJitter`);
+      requireBoolean(finder.snapToNavMesh, `${path}.finderData.snapToNavMesh`);
     }
   } else if (finderRequired) {
     throw new Error(`${path}.finderData: expected object`);
@@ -247,25 +390,108 @@ export function parseSelectorSummarySource(
   );
   const priorityFilters = parsePriorityFilterSources(selector, path);
   const shuffleTargets = parseShuffleTargetSources(selector, path);
-  const distanceValidators = parseDistanceValidatorSources(selector, path);
+  const distanceValidators = parseDistanceValidatorSources(selector, path, inheritedBlackboard);
+  const targetContainsParents = requireArray(
+    selector.validatorData,
+    `${path}.validatorData`,
+  ).flatMap((rawValidator, index) => {
+    const validatorPath = `${path}.validatorData[${index}]`;
+    const validator = requireRecord(rawValidator, validatorPath);
+    if (selectorComponentName(validator, validatorPath) !== 'TargetContainsValidator') return [];
+    requireExactFields(validator, new Set(['$type', 'parentTargetSettings']), validatorPath);
+    const parent = parseTargetReferenceSource(
+      validator.parentTargetSettings,
+      `${validatorPath}.parentTargetSettings`,
+    );
+    return [{ targetSource: parent.targetSource, targetGroupKey: parent.targetGroupKey }];
+  });
+  const excludeTargets = requireArray(
+    selector.postProcessorData,
+    `${path}.postProcessorData`,
+  ).flatMap((rawProcessor, index) => {
+    const processorPath = `${path}.postProcessorData[${index}]`;
+    const processor = requireRecord(rawProcessor, processorPath);
+    if (selectorComponentName(processor, processorPath) !== 'ExcludeTarget') return [];
+    requireExactFields(processor, new Set(['$type', 'excludedTargetSettings']), processorPath);
+    const excluded = parseTargetReferenceSource(
+      processor.excludedTargetSettings,
+      `${processorPath}.excludedTargetSettings`,
+    );
+    return [{ targetSource: excluded.targetSource, targetGroupKey: excluded.targetGroupKey }];
+  });
   return {
     finderType,
     finderFactionTarget,
     finderTargetObjectType,
     finderCheckAlive,
+    finderAutoSetTargetFaction,
+    finderTargetFactionType,
     finderShape,
     finderOwnerPartsQuery,
+    finderPointBlackboardKeys,
+    finderRandomPointCount,
+    finderFixedPoint,
     validatorTypes,
     postProcessorTypes,
     priorityFilters,
     shuffleTargets,
     distanceValidators,
+    targetContainsParents,
+    excludeTargets,
   };
 }
 
-function parsePointFinderVector(value: unknown, path: string): void {
+function parseFixedPointFinderSource(
+  finder: Record<string, unknown>,
+  path: string,
+): FixedPointFinderSource {
+  requireExactFields(
+    finder,
+    new Set(['$type', 'positionOffset', 'rotationOffset', 'snapToNavmesh', 'sampleRadius']),
+    path,
+  );
+  const position = requireRecord(finder.positionOffset, `${path}.positionOffset`);
+  requireExactFields(position, new Set(['x', 'y', 'z']), `${path}.positionOffset`);
+  const rotation = requireRecord(finder.rotationOffset, `${path}.rotationOffset`);
+  requireExactFields(rotation, new Set(['x', 'y', 'z', 'w']), `${path}.rotationOffset`);
+  const radius = requireRecord(finder.sampleRadius, `${path}.sampleRadius`);
+  requireExactFields(
+    radius,
+    new Set(['useBlackboardKey', 'value', 'blackboardKey']),
+    `${path}.sampleRadius`,
+  );
+  const useRadiusBlackboard = requireBoolean(
+    radius.useBlackboardKey,
+    `${path}.sampleRadius.useBlackboardKey`,
+  );
+  const radiusKey = requireString(radius.blackboardKey, `${path}.sampleRadius.blackboardKey`);
+  if (useRadiusBlackboard && radiusKey.length === 0) {
+    throw new Error(`${path}.sampleRadius.blackboardKey: expected non-empty string`);
+  }
+  return {
+    positionOffset: [
+      requireNumber(position.x, `${path}.positionOffset.x`),
+      requireNumber(position.y, `${path}.positionOffset.y`),
+      requireNumber(position.z, `${path}.positionOffset.z`),
+    ],
+    rotationOffset: [
+      requireNumber(rotation.x, `${path}.rotationOffset.x`),
+      requireNumber(rotation.y, `${path}.rotationOffset.y`),
+      requireNumber(rotation.z, `${path}.rotationOffset.z`),
+      requireNumber(rotation.w, `${path}.rotationOffset.w`),
+    ],
+    snapToNavmesh: requireBoolean(finder.snapToNavmesh, `${path}.snapToNavmesh`),
+    sampleRadius: {
+      value: requireNumber(radius.value, `${path}.sampleRadius.value`),
+      blackboardKey: useRadiusBlackboard ? radiusKey : null,
+    },
+  };
+}
+
+function parsePointFinderVector(value: unknown, path: string): string[] {
   const vector = requireRecord(value, path);
   requireExactFields(vector, new Set(['x', 'y', 'z']), path);
+  const blackboardKeys: string[] = [];
   for (const axis of ['x', 'y', 'z'] as const) {
     const componentPath = `${path}.${axis}`;
     const component = requireRecord(vector[axis], componentPath);
@@ -282,7 +508,9 @@ function parsePointFinderVector(value: unknown, path: string): void {
     const blackboardKey = requireString(component.blackboardKey, `${componentPath}.blackboardKey`);
     if (useBlackboardKey && blackboardKey.length === 0)
       throw new Error(`${componentPath}.blackboardKey: expected non-empty string`);
+    if (useBlackboardKey) blackboardKeys.push(blackboardKey);
   }
+  return blackboardKeys;
 }
 
 function parseShapeFinderSource(finder: Record<string, unknown>, path: string): ShapeFinderSource {

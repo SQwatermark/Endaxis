@@ -2,6 +2,33 @@
   "version": "1.4.4",
   "projectiles": [
     {
+      "projectileId": "projectile_chr_0016_laevat_absorb",
+      "entityBlackboard": [
+        { "key": "EntityBB_curve_rate", "value": 1, "isDynamic": true },
+        { "key": "EntityBB_speed", "value": 5, "isDynamic": true }
+      ],
+      "decodedArtifactSha256": "1817cd3cd5310e83ffc03a0947bfe8151eb1df716acbb85e3db93c3143610986",
+      "evidence": "ProjectileTemplateData componentList -> AbilitySystemData.entityBlackboard；1.4.4 VFS assetIndex 205176，由严格 AbilitySystemData 前缀解码恢复两个动态数值键"
+    },
+    {
+      "projectileId": "projectile_chr_0030_zhuangfy_attack1",
+      "entityBlackboard": [],
+      "rawAssetSha256": "4d710d9bc9cd534467b1b9022106d5c3ff17b5d32bc54416a45f50dc3a514e5f",
+      "evidence": "ProjectileTemplateData componentList -> AbilitySystemData.entityBlackboard；1.4.4 VFS 原始 MonoBehaviour 按字段顺序解码为空。LaunchProjectile 的 assignEntityBlackboard=true 但 assignPairs=[]，不产生写入"
+    },
+    {
+      "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_1",
+      "entityBlackboard": [{ "key": "EntityBB_max_dist", "value": 0, "isDynamic": true }],
+      "rawAssetSha256": "2c73c17d3a35991c88a0872e3bfbc862a658bea2ecbf3fd389af94d9dbad0b65",
+      "evidence": "ProjectileTemplateData componentList -> AbilitySystemData.entityBlackboard；首 Tick 与单段飞剑归约见 combat-spec docs/launch-projectile-skill-routing.md"
+    },
+    {
+      "projectileId": "projectile_chr_0030_zhuangfy_attack_sword_2",
+      "entityBlackboard": [{ "key": "EntityBB_max_dist", "value": 0, "isDynamic": true }],
+      "rawAssetSha256": "56095f9353ccd7da50d9c9797cddfd84e7f418a0b8a497241d31deda7ab9192a",
+      "evidence": "ProjectileTemplateData componentList -> AbilitySystemData.entityBlackboard；首 Tick 与单段飞剑归约见 combat-spec docs/launch-projectile-skill-routing.md"
+    },
+    {
       "projectileId": "projectile_chr_0021_whiten_normal_skill",
       "entityBlackboard": [{ "key": "EntityBB_first_hit", "value": 0, "isDynamic": true }],
       "rawAssetSha256": "92b817a8316fed26869f4587419ed1fa2754eeac540471114b58f99fd3709c87",

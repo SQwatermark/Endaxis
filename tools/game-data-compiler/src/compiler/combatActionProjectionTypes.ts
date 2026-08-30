@@ -3,12 +3,14 @@ import type {
   CombatStepKind,
   CombatStepParameters,
   ActionSwitchOptionDefinition,
+  CombatEventResponseDefinition,
 } from '../../../../packages/game-data-contract/src/actions.ts';
 import type {
   ActionValueOperand,
   CombatCondition,
   TimeScaleCurveDefinition,
 } from '../../../../packages/game-data-contract/src/conditions.ts';
+import type { AbilityEntityTargetQuery } from '../../../../packages/game-data-contract/src/skills.ts';
 
 /**
  * 公共动作投影的输出子集，不是第二套游戏 schema。
@@ -28,18 +30,30 @@ type Step<
 
 // 下列目标限制分别对应当前已审计的查询、标记和技能事件，不互相替代。
 type BuffQueryTarget =
-  'caster' | 'enemy' | 'currentAbilityEntity' | 'eventTarget' | 'buffOwner' | 'buffSource';
-type MarkerTarget = 'caster' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'currentAbilityEntity';
+  | 'caster'
+  | 'enemy'
+  | 'controlledOperator'
+  | 'currentAbilityEntity'
+  | 'eventTarget'
+  | 'buffOwner'
+  | 'buffSource'
+  | 'currentTarget';
+type MarkerTarget =
+  'caster' | 'enemy' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'currentAbilityEntity';
 
 export type CompiledBuffConditionSource =
   | Condition<
       | 'casterControlled'
+      | 'characterTypeIn'
+      | 'operatorRoleIn'
       | 'currentBuffStackCompare'
       | 'deckAttributeCompare'
       | 'eventInflictionElementIn'
+      | 'eventCustomAbilityNameMatch'
       | 'contextTargetCountCompare'
       | 'contextTargetObjectTypeMatch'
       | 'contextTargetBuffStackCompare'
+      | 'abilityEntityRemainingDurationCompare'
       | 'actionValueCompare'
       | 'eventOverheal'
       | 'eventSkillCastMatchesBuffSource'
@@ -47,7 +61,9 @@ export type CompiledBuffConditionSource =
       | 'eventBuffIdMatch'
       | 'eventSourceTargetMatch'
       | 'eventSourceMatchesBuffSource'
+      | 'eventSourceControlled'
       | 'buffSourceMatchesOwner'
+      | 'ownerSpawnedAbilityEntityPresent'
       | 'eventActionOwnerTargetMatch'
       | 'eventPhysicalInflictionTypeIn'
       | 'eventDamageTypeIn'
@@ -57,23 +73,30 @@ export type CompiledBuffConditionSource =
       | 'eventBuffTagsMatch'
       | 'eventTargetBuffCountCompare'
       | 'enemySuperArmorCompare'
+      | 'enemyRankIn'
+      | 'targetStaggered'
       | 'probability'
+      | 'abilityEntityTimedMarkerPresent'
     >
   | (Condition<'healthCompare'> & {
-      readonly target: 'caster' | 'controlledOperator' | 'enemy';
+      readonly target:
+        'caster' | 'controlledOperator' | 'contextTarget' | 'currentTarget' | 'enemy';
     })
-  | (Condition<'eventDamageTagsMatch'> & {
-      readonly match: 'hasAny' | 'hasAll';
-      readonly tags: readonly (
-        'normalSkill' | 'comboSkill' | 'ultimateSkill' | 'normalAttackLastCombo'
-      )[];
-    })
+  | Condition<'eventDamageTagsMatch' | 'eventDamageFeaturesMatch'>
   | (Condition<'eventSpGainMatch'> & {
       readonly sources?: readonly ['skill'];
       readonly gainKinds?: readonly ['gain'];
     })
   | (Condition<'eventSkillTypeIn'> & {
-      readonly skillTypes: readonly ('battleSkill' | 'comboSkill' | 'ultimate')[];
+      readonly skillTypes: readonly (
+        'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'
+      )[];
+    })
+  | (Condition<'currentSkillTypeIn'> & {
+      readonly target: 'caster' | 'buffOwner';
+      readonly skillTypes: readonly (
+        'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'
+      )[];
     })
   | (Condition<'originSkillTypeIn'> & {
       readonly skillTypes: readonly (
@@ -81,10 +104,13 @@ export type CompiledBuffConditionSource =
       )[];
     })
   | (Condition<'timedMarkerPresent'> & { readonly target: MarkerTarget })
-  | (Omit<Condition<'buffStackCompare'>, 'sameSourceSkillCast'> & {
+  | (Omit<Condition<'buffStackCompare'>, 'target'> & {
       readonly target: BuffQueryTarget;
     })
-  | (Omit<Condition<'buffIdStackCompare'>, 'sameSourceSkillCast' | 'value'> & {
+  | (Omit<Condition<'buffTagIdCountCompare'>, 'target'> & {
+      readonly target: BuffQueryTarget;
+    })
+  | (Omit<Condition<'buffIdStackCompare'>, 'target' | 'value'> & {
       readonly target: BuffQueryTarget;
       readonly value: CompiledActionValueOperandSource;
     })
@@ -110,8 +136,8 @@ type EntityTimeDilation = Omit<
   'abilityEntityTargets' | 'ignoreSlotCheck' | 'curve' | 'targets'
 > & {
   readonly curve: Extract<TimeScaleCurveDefinition, { kind: 'inline' | 'named' }>;
-  readonly targets: readonly ('enemy' | 'caster')[];
-  readonly abilityEntityTargets?: readonly [{ readonly kind: 'ownerSpawned' }];
+  readonly targets: readonly ('enemy' | 'caster' | 'controlled')[];
+  readonly abilityEntityTargets?: readonly AbilityEntityTargetQuery[];
 };
 
 type ContextTargetSource = Parameters<'mergeContextTargets'>['sources'][number];
@@ -130,7 +156,10 @@ type BuffApplicationParameters = Omit<
     | 'controlledOperator'
     | 'party'
     | 'partyExceptCaster'
-    | 'partyExceptCasterAndSameCharacterType';
+    | 'partyExceptCasterAndSameCharacterType'
+    | 'casterAndControlledOperator'
+    | 'casterAndLowestHealthRatioOperatorExceptCaster'
+    | 'currentTarget';
   readonly source?: 'enemy' | 'eventSource' | 'buffSource' | 'buffOwner' | 'currentAbilityEntity';
 };
 
@@ -141,9 +170,12 @@ type DamageParameters = Pick<
   | 'takeAttackSnapshot'
   | 'calculation'
   | 'calculationMultiplier'
+  | 'calculationAttribute'
+  | 'calculationAddition'
   | 'tags'
   | 'features'
   | 'stagger'
+  | 'staggerMultiplier'
   | 'staggerOnlyWhenCasterControlled'
   | 'instantAttributeModifiers'
   | 'instantDamageScaleModifiers'
@@ -154,8 +186,10 @@ type DamageParameters = Pick<
     'physical' | 'heat' | 'electric' | 'cryo' | 'nature'
   >;
   readonly attackScale: CompiledActionValueOperandSource;
-  readonly calculation?: 'breakingAttack';
+  readonly calculation?: 'breakingAttack' | 'attribute';
   readonly calculationMultiplier?: number;
+  readonly calculationAttribute?: string;
+  readonly calculationAddition?: CompiledActionValueOperandSource;
   readonly tags: readonly (
     | 'normalAttack'
     | 'normalAttackLastCombo'
@@ -169,9 +203,16 @@ type DamageParameters = Pick<
     | 'cryoAbnormal'
   )[];
   readonly features?: readonly (
-    'canBreakWeakness' | 'dot' | 'knockDown' | 'physicalInfliction' | 'shatter'
+    | 'canBreakWeakness'
+    | 'dot'
+    | 'remainArea'
+    | 'talentDamage'
+    | 'knockDown'
+    | 'physicalInfliction'
+    | 'shatter'
   )[];
   readonly stagger?: CompiledActionValueOperandSource;
+  readonly staggerMultiplier?: CompiledActionValueOperandSource;
 };
 export type CompiledSimpleDamageOperationSource = Step<'dealDamage', DamageParameters>;
 export type CompiledSimplePoiseOperationSource = Step<'dealStagger'>;
@@ -182,7 +223,7 @@ type HealParameters = (
       readonly contextKey: string;
     }
   | {
-      readonly target: 'caster' | 'controlledOperator';
+      readonly target: 'caster' | 'controlledOperator' | 'currentTarget';
       readonly contextKey?: never;
     }
 ) & {
@@ -207,9 +248,16 @@ export type CompiledBuffStepSource =
   | Step<'applyKnockDown'>
   | Step<'applyPhysicalInfliction'>
   | Step<'findCharacterTeamTargets'>
+  | Step<'createSpatialPointTargets'>
+  | Step<'pickContextTarget'>
   | Step<'igniteBuffs'>
   | Step<'triggerSpellBurst'>
+  | Step<'triggerCustomAbilityEvent'>
+  | Step<'castSkillDuringAction'>
+  | Step<'changeSkillSlot'>
+  | Step<'startCurrentAbilityEntityChildSkillById'>
   | Step<'startTimeDilation', GlobalTimeDilation | EntityTimeDilation>
+  | Step<'setIgnoreGlobalTimeScale'>
   | Step<
       'startUltimateTimeDilation',
       Pick<Parameters<'startUltimateTimeDilation'>, 'priority' | 'targetScale'> & {
@@ -222,34 +270,60 @@ export type CompiledBuffStepSource =
         readonly lifetime: 'execution';
         readonly initialValues: Readonly<Record<string, number>>;
         readonly entityInitialValues?: Readonly<Record<string, number>>;
+        readonly entityAssignments?: Readonly<Record<string, CompiledActionValueOperandSource>>;
       }
     > & { readonly body: CompiledBuffSequenceSource })
   | Step<
       'findOwnerSpawnedAbilityEntities',
       Pick<
         Parameters<'findOwnerSpawnedAbilityEntities'>,
-        'saveToContextKey' | 'sameSourceSkillCast' | 'maxTargets'
-      > &
-        Required<Pick<Parameters<'findOwnerSpawnedAbilityEntities'>, 'abilityEntityIds'>>
+        'saveToContextKey' | 'sameSourceSkillCast' | 'maxTargets' | 'abilityEntityIds'
+      >
     >
   | Step<
       'spawnAbilityEntity',
-      Required<
+      Required<Pick<Parameters<'spawnAbilityEntity'>, 'abilityEntityId' | 'dieWhenSourceDies'>> &
         Pick<
           Parameters<'spawnAbilityEntity'>,
-          'abilityEntityId' | 'inheritActionBlackboard' | 'dieWhenSourceDies'
+          | 'childSkillId'
+          | 'inheritActionBlackboard'
+          | 'target'
+          | 'overrideDurationSeconds'
+          | 'saveToContextKey'
+          | 'blackboardAssignments'
+          | 'stringBlackboardAssignments'
         >
-      >
     >
+  | Step<'setAbilityEntityRemainingDuration'>
   | Step<'finishCurrentAbilityEntity'>
+  | Step<'finishActionOwnerAbilityEntity'>
   | Step<
       'jumpTimeline',
       Pick<Parameters<'jumpTimeline'>, 'destinationFrame'> & {
         readonly condition?: CompiledBuffConditionSource;
       }
     >
+  | Step<'finishTimeline'>
+  | Step<'storeCurrentTimelineFrame'>
+  | Step<'storeEventSpGainAmount'>
+  | Step<
+      'listenForCombatEvents',
+      {
+        readonly responses: readonly (Omit<
+          CombatEventResponseDefinition,
+          'sequence' | 'condition'
+        > & {
+          readonly condition?: CompiledBuffConditionSource;
+          readonly sequence: CompiledBuffSequenceSource;
+        })[];
+      }
+    >
   | (Step<'forEachContextTarget'> & { readonly body: CompiledBuffSequenceSource })
   | (Step<'repeatEachTick'> & { readonly body: CompiledBuffSequenceSource })
+  | (Step<'repeatByActionValue'> & { readonly body: CompiledBuffSequenceSource })
+  | (Step<'scheduleProjectileFinishCallback'> & {
+      readonly body: CompiledBuffSequenceSource;
+    })
   | (Step<'once'> & { readonly body: CompiledBuffSequenceSource })
   | (Step<'switch'> & {
       readonly options: readonly (Omit<ActionSwitchOptionDefinition, 'sequence'> & {
@@ -259,12 +333,7 @@ export type CompiledBuffStepSource =
   | Step<
       'mergeContextTargets',
       Pick<Parameters<'mergeContextTargets'>, 'saveToContextKey'> & {
-        readonly sources: readonly (
-          | Extract<ContextTargetSource, { kind: 'context' }>
-          | (Extract<ContextTargetSource, { kind: 'target' }> & {
-              readonly target: 'eventTarget' | 'buffSource';
-            })
-        )[];
+        readonly sources: readonly ContextTargetSource[];
       }
     >
   | Step<'applyBuff', BuffApplicationParameters>
@@ -272,6 +341,12 @@ export type CompiledBuffStepSource =
   | Step<'finishParentGlobalBuff'>
   | Step<'readSkillSettingData'>
   | Step<'applyElementalInfliction'>
+  | Step<
+      'applyElementalReaction',
+      Omit<Parameters<'applyElementalReaction'>, 'durationSeconds'> & {
+        readonly durationSeconds: CompiledActionValueOperandSource;
+      }
+    >
   | (Step<
       'conditional',
       Pick<Parameters<'conditional'>, 'alwaysNext'> & {
@@ -284,7 +359,7 @@ export type CompiledBuffStepSource =
   | Step<
       'readBuffStackCount',
       Pick<Parameters<'readBuffStackCount'>, 'outputKey'> & {
-        readonly target: MarkerTarget;
+        readonly target: MarkerTarget | 'enemy';
         readonly countType?: 'instance';
         readonly query: Parameters<'readBuffStackCount'>['query'];
       }
@@ -307,6 +382,7 @@ export type CompiledBuffStepSource =
     >
   | Step<'calculateActionValue'>
   | Step<'readCurrentBuffRemainingDuration'>
+  | Step<'readBuffRemainingDuration'>
   | Step<'setCurrentBuffRemainingDuration'>
   | Step<'refreshCurrentBuffAttributeModifiers'>
   | Step<
@@ -324,6 +400,8 @@ export type CompiledBuffStepSource =
   | Step<'gainFinisherSp'>
   | Step<'restrictUltimateEnergyRecovery'>
   | Step<'adjustSkillCooldown'>
+  | Step<'holdBuffsById'>
+  | Step<'inheritBuffById'>
   | CompiledSimpleDamageOperationSource
   | CompiledSimplePoiseOperationSource
   | Step<'heal', HealParameters>
@@ -331,13 +409,21 @@ export type CompiledBuffStepSource =
       'finishBuffsById',
       Parameters<'finishBuffsById'> & {
         readonly target:
-          'buffOwner' | 'buffSource' | 'caster' | 'enemy' | 'currentAbilityEntity' | 'party';
-        readonly reason: 'early' | 'other';
+          | 'buffOwner'
+          | 'buffSource'
+          | 'caster'
+          | 'enemy'
+          | 'currentAbilityEntity'
+          | 'party'
+          | 'partyExceptCaster';
+        readonly reason: 'early' | 'absorbed' | 'other';
       }
     >
   | Step<'finishBuffsByTag'>
   | Step<'createTimedMarker', Parameters<'createTimedMarker'> & { readonly target: MarkerTarget }>
-  | Step<'finishCurrentBuff', Parameters<'finishCurrentBuff'> & { readonly reason: 'other' }>;
+  | Step<'createAbilityEntityTimedMarker'>
+  | Step<'finishCurrentBuff'>
+  | Step<'setCurrentBuffTimePaused'>;
 
 export interface CompiledBuffSequenceSource {
   readonly steps: readonly CompiledBuffStepSource[];

@@ -78,6 +78,27 @@ describe('Buff 运行时公共来源', () => {
     expect(parsed.unsupportedPayloads).toEqual([]);
   });
 
+  it('保留序列化为负整数的攻击类型位掩码', () => {
+    const raw = buffFixture({
+      abilityEventAction: [
+        {
+          abilityEvent: 'OnBeforeDamageAction',
+          actions: [sequence([{ ...checkOriginSkillType('Attack'), attackTypeMask: -4 }])],
+        },
+      ],
+    });
+    expect(
+      parseBuffRuntimeSource(raw, 'BuffData.buff_negative_attack_mask').graph.abilityEvents[0]
+        ?.actions[0]?.actions[0]?.body,
+    ).toMatchObject({
+      kind: 'leaf',
+      value: {
+        family: 'condition',
+        action: { kind: 'originSkillType', skillTypes: ['Attack'], attackTypeMask: -4 },
+      },
+    });
+  });
+
   it('动态默认值保持单值，但生命周期编译仍保留按黑板键求值', () => {
     const source = parseBuffRuntimeSource(
       buffFixture({
@@ -215,7 +236,12 @@ describe('Buff 运行时公共来源', () => {
     expect(parsed.shields).toMatchObject([
       {
         infinityValue: false,
-        value: { blackboardKey: 'shield_valid', levelValues: 500 },
+        value: {
+          kind: 'definite',
+          value: { value: 0, blackboardKey: 'shield_valid', levelValues: 500 },
+          applyScale: false,
+          valueScale: { value: 0, blackboardKey: null, levelValues: null },
+        },
         damageAbsorptions: [],
         absorbCount: { value: -1 },
         removeBuffWhenConsumed: true,

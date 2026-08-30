@@ -46,6 +46,6 @@ Next 不是对旧模拟器的局部重构，而是在 `src/next` 中并行建设
 
 - Next 代码：`src/next`
 - Next 页面：`/next/timeline`
-- 游戏数据生成器：`scripts/generate_next_operators`
+- 游戏数据编译器：`tools/game-data-compiler`
 - 研究证据：`docs/research`
 - 旧版与专项架构材料：`docs/architecture`

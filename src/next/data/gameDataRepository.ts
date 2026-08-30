@@ -58,7 +58,6 @@ import {
 } from './equipment';
 import { legacyEnemyDefinitions } from './adapters/legacyEnemyDefinitionAdapter';
 import { commonBuffDefinitions } from './buffs/commonDefinitions';
-import { generatedCommonAbilityEntityDefinitions } from './operators/generated/commonAbilityEntityDefinitions.generated';
 import { nextWeaponDefinitions } from './equipment/nextWeaponDefinitions';
 import { legacyWeaponDefinitions, LEGACY_WEAPON_REVISION } from './revisions/weapons-v1';
 import { restoreWeaponV2R1Definitions, WEAPON_V2_R1_REVISION } from './revisions/weapons-v2-r1';
@@ -166,7 +165,6 @@ export function createGameDataRepository(
 export const nextGameDataRepository = createGameDataRepository({
   revision: NEXT_GAME_DATA_REVISION,
   commonBuffDefinitions,
-  commonAbilityEntityDefinitions: generatedCommonAbilityEntityDefinitions,
   operators: [
     perlica,
     arcane,

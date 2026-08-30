@@ -26,7 +26,10 @@ const context = {
   actionSourceTarget: 'caster',
   actionTargetTarget: 'buffOwner',
 } as const;
-function project(actions: unknown[]) {
+function project(
+  actions: unknown[],
+  projectionContext: Parameters<typeof compileCombatActionSequenceSource>[1] = context,
+) {
   const source = parseNativeSequenceSource(
     {
       actionData: actions,
@@ -37,7 +40,7 @@ function project(actions: unknown[]) {
     {},
     (value, path) => parseKnownNativeActionLeafSource(value, path, {}),
   );
-  return compileCombatActionSequenceSource(source, context);
+  return compileCombatActionSequenceSource(source, projectionContext);
 }
 
 describe('公共 Buff 点燃投影', () => {
@@ -101,6 +104,24 @@ describe('公共 Buff 点燃投影', () => {
       runtime.createSequence(compileActionSequence(project([rawIgnite()]), 1)).executeInstant({}),
     ).toBe(true);
     expect(calls).toEqual([{ type: 'PhysicalStatus', sourceId: 'caster', skillCastInfo: cast }]);
+  });
+
+  it('Target 复用当前动作输入目标，忽略不参与原生解析的序列化组名', () => {
+    const result = project(
+      [
+        {
+          ...rawIgnite(),
+          targetSettings: targetFixture('Target', undefined, 'stale_targets'),
+        },
+      ],
+      { ...context, actionTargetTarget: 'enemy' },
+    );
+    expect(result.steps).toEqual([
+      {
+        kind: 'igniteBuffs',
+        parameters: { target: 'enemy', source: 'caster', igniteType: 'PhysicalStatus' },
+      },
+    ]);
   });
 
   it('未知字段和未支持的成功目标回写继续阻断', () => {

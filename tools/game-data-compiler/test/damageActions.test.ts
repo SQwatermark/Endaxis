@@ -64,6 +64,60 @@ describe('伤害动作公共载荷', () => {
     });
   });
 
+  it('HP 单元保留但不解释原生未启用的失衡计算载荷', () => {
+    const source = parseDamageUnitSource(
+      {
+        ...BASE_UNIT,
+        poiseCalculation: {
+          $type: 'Example.DefiniteValueCalculation, Example',
+          value: scalarFixture(1),
+          applyScale: false,
+          valueScale: scalarFixture(0),
+        },
+      },
+      'fixture.damageUnit',
+      { atk_scale: [0.9] },
+    );
+
+    expect(source).toMatchObject({
+      attributeType: 'Hp',
+      serializedPoiseCalculationPresent: true,
+      poiseCalculation: null,
+    });
+  });
+
+  it('Poise 单元保留但不解释原生未启用的 HP 计算载荷', () => {
+    const source = parseDamageUnitSource(
+      {
+        ...BASE_UNIT,
+        damageAttributeType: 'Poise',
+        simpleCalculation: false,
+        atkCalculation: {
+          $type: 'Example.DefiniteValueCalculation, Example',
+          value: scalarFixture(1),
+          applyScale: false,
+          valueScale: scalarFixture(0),
+        },
+        poiseCalculation: {
+          $type: 'Example.DefiniteValueCalculation, Example',
+          value: scalarFixture(0, 'poise'),
+          applyScale: false,
+          valueScale: scalarFixture(0),
+        },
+      },
+      'fixture.damageUnit',
+      { poise: [20] },
+    );
+
+    expect(source).toMatchObject({
+      attributeType: 'Poise',
+      simpleCalculation: false,
+      serializedAttackCalculationPresent: true,
+      attackCalculation: null,
+      poiseCalculation: { kind: 'definite' },
+    });
+  });
+
   it('非简单计算复用公共公式并保留处理器与资源载荷', () => {
     const source = parseDamageUnitSource(
       {

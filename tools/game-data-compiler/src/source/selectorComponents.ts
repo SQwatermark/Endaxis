@@ -13,6 +13,7 @@ import {
   parseScalarSource,
   type IntegerScalarSource,
   type ScalarSource,
+  type BlackboardLevelValues,
 } from './scalar.ts';
 
 export interface PriorityBuffFilterSource {
@@ -150,6 +151,7 @@ export function parseShuffleTargetSources(value: unknown, path: string): Shuffle
 export function parseDistanceValidatorSources(
   value: unknown,
   path: string,
+  inheritedBlackboard: BlackboardLevelValues = {},
 ): DistanceValidatorSource[] {
   const selector = requireRecord(value, path);
   return requireArray(selector.validatorData, `${path}.validatorData`).flatMap(
@@ -162,11 +164,17 @@ export function parseDistanceValidatorSources(
         new Set(['$type', 'value', 'compareType', 'clampToXZ']),
         validatorPath,
       );
-      return [{
-        threshold: parseScalarSource(validator.value, `${validatorPath}.value`, {}),
-        compareType: requireNonEmptyString(validator.compareType, `${validatorPath}.compareType`),
-        clampToXZ: requireBoolean(validator.clampToXZ, `${validatorPath}.clampToXZ`),
-      }];
+      return [
+        {
+          threshold: parseScalarSource(
+            validator.value,
+            `${validatorPath}.value`,
+            inheritedBlackboard,
+          ),
+          compareType: requireNonEmptyString(validator.compareType, `${validatorPath}.compareType`),
+          clampToXZ: requireBoolean(validator.clampToXZ, `${validatorPath}.clampToXZ`),
+        },
+      ];
     },
   );
 }

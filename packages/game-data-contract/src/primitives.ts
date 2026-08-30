@@ -7,6 +7,9 @@ export const OPERATOR_ATTRIBUTES = ['strength', 'agility', 'intellect', 'will'] 
 /** 干员养成、面板和条件判断共同使用的四维属性身份。 */
 export type OperatorAttribute = (typeof OPERATOR_ATTRIBUTES)[number];
 
+/** 直接字符串或从当前动作黑板读取的字符串操作数。 */
+export type ActionStringOperand = string | { readonly blackboardKey: string };
+
 /** HealAction 的 MultiplyAttributeCalculation 可读取的已支持来源属性。 */
 export type HealCalculationAttribute = OperatorAttribute | 'maxHealth';
 
@@ -177,13 +180,21 @@ export const TIME_DILATION_IGNORE_TARGETS = [...COMBAT_TARGETS, 'controlled'] as
 /** 全局时间膨胀还可在动作执行帧排除当前主控干员。 */
 export type TimeDilationIgnoreTarget = (typeof TIME_DILATION_IGNORE_TARGETS)[number];
 
+export const TIME_DILATION_ENTITY_TARGETS = [...COMBAT_TARGETS, 'controlled', 'buffOwner'] as const;
+
+/** 实体时间膨胀可作用于普通技能目标、当前主控，或 Buff 生命周期中的实际接收者。 */
+export type TimeDilationEntityTarget = (typeof TIME_DILATION_ENTITY_TARGETS)[number];
+
 export const BUFF_SINGLE_TARGETS = [
   ...COMBAT_TARGETS,
+  'controlledOperator',
   'currentAbilityEntity',
   'eventTarget',
   'eventSource',
   'buffOwner',
   'buffSource',
+  /** forEachContextTarget 正在迭代的动态实体；只允许在该作用域内求值。 */
+  'currentTarget',
 ] as const;
 
 /** 需要解析到单个 Buff 容器的实例级目标。 */
@@ -191,7 +202,6 @@ export type BuffSingleTarget = (typeof BUFF_SINGLE_TARGETS)[number];
 
 export const BUFF_APPLICATION_TARGETS = [
   ...BUFF_SINGLE_TARGETS,
-  'controlledOperator',
   'party',
   'partyExceptCaster',
   'partyExceptCasterAndSameCharacterType',
@@ -246,6 +256,7 @@ export const HEAL_TARGETS = [
   'lowestHealthRatioOperator',
   'lowestHealthRatioOperatorExceptControlled',
   'contextTarget',
+  'currentTarget',
 ] as const;
 
 /** 当前原生治疗样本能够严格归约的队伍目标身份。 */

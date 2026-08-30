@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
+import type { CombatOperationExecutor } from './skillRuntime';
 
 const terminal = {
   execute: () => true,
@@ -9,6 +10,59 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('matches a custom ability event name exactly', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      event: {
+        kind: 'abilityCustom' as const,
+        event: 'customAbilityEvent' as const,
+        sourceId: 'liino',
+        targetId: 'liino',
+        eventName: 'liino_comboskill_end',
+        eventParam: 0,
+      },
+    };
+    expect(
+      executor.evaluate(
+        { kind: 'eventCustomAbilityNameMatch', eventName: 'liino_comboskill_end' },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        { kind: 'eventCustomAbilityNameMatch', eventName: 'Liino_ComboSkill_End' },
+        context,
+      ),
+    ).toBe(false);
+  });
+
+  it('queries the current AbilitySystem skill without requiring an event payload', () => {
+    const terminal: CombatOperationExecutor = {
+      execute: () => false,
+      evaluate: () => false,
+    };
+    const executor = new EventContextConditionExecutor(
+      terminal,
+      undefined,
+      undefined,
+      undefined,
+      (target, context) =>
+        target === 'buffOwner' && context?.buffOwnerId === 'liino' ? 'battleSkill' : undefined,
+    );
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'currentSkillTypeIn',
+          target: 'buffOwner',
+          skillTypes: ['battleSkill'],
+        },
+        { blackboard: new ActionBlackboard(), buffOwnerId: 'liino' },
+      ),
+    ).toBe(true);
+  });
+
   it('比较新 Buff 施加者与监听 Buff 来源，不比较接收敌人与施加者', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const context = {
@@ -494,6 +548,7 @@ describe('EventContextConditionExecutor', () => {
         sourceOperatorId: 'operator',
         source: 'skill' as const,
         gainKind: 'gain' as const,
+        requestedAmount: 10,
         amount: 10,
       },
     };

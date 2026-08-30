@@ -57,6 +57,21 @@ describe('被动技能安装实例化', () => {
     expect(compiled.definition.blackboard.values.damage_up).toEqual([0.3]);
   });
 
+  it('角色基础被动保留所属项目技能组的补丁列，等待构筑等级解析', () => {
+    const request = fixtureRequest({
+      kind: 'operatorSkillGroup',
+      levelSource: 'battleSkill',
+    });
+    const compiled = fixtureDefinition();
+    const blackboard = resolvePassiveSkillDefinitionBlackboard(request, compiled);
+
+    expect(blackboard).toEqual({ damage_up: 0.8, patch_only: [4] });
+    expect(blackboard.patch_only).toBe(compiled.definition.blackboard.values.patch_only);
+    expect(() => materializePassiveSkillInstallation(request, compiled)).toThrow(
+      'operator skill-group passive must preserve its level column',
+    );
+  });
+
   it.each([
     { kind: 'nativeDefault' } as const,
     { kind: 'equipmentSuitThreshold', level: 3, requiredCount: 3 } as const,

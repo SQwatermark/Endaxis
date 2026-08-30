@@ -1667,7 +1667,7 @@ export default {
         start: sequence(
           step('applyBuff', {
             buffId: 'buff_common_affixes_shelter',
-            target: 'buffOwner',
+            target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {
@@ -1686,6 +1686,24 @@ export default {
       extendTags: [],
       blackboard: { attack: 0, duration: 0 },
       attributeModifiers: [],
+      abilityEventResponses: [
+        {
+          event: 'takeDamage',
+          priority: 0,
+          sequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0009_azrila_talent_2_buff',
+              target: 'buffOwner',
+              inheritSourceSkillCastInfo: true,
+              asChildBuff: true,
+              blackboardAssignments: {
+                attack: { kind: 'blackboard', key: 'attack' },
+                duration: { kind: 'blackboard', key: 'duration' },
+              },
+            }),
+          ),
+        },
+      ],
     },
     buff_chr_0009_azrila_talent_2_buff: {
       stackingType: 'enhanceAndOverwriteDuration',

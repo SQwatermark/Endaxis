@@ -6,6 +6,7 @@ import { CombatClock } from './combatClock';
 import { ElementalReactionContainer } from '../infliction/elementalReactionState';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
+import { ActionBlackboard } from './actionBlackboard';
 
 function createExecutor(emitReactionApplied?: (reaction: ElementalReaction) => void) {
   const clock = new CombatClock();
@@ -56,6 +57,30 @@ describe('ElementalReactionOperationExecutor', () => {
       sourceId: 'perlica',
       targetId: 'enemy',
       data: { reaction: 'electrification', level: 1, previousLevel: 0 },
+    });
+  });
+
+  it('从动作黑板读取反应寿命并在运行时应用倍率', () => {
+    const { receipt, executor, container } = createExecutor();
+    const step: Extract<ResolvedCombatStep, { kind: 'applyElementalReaction' }> = {
+      kind: 'applyElementalReaction',
+      parameters: {
+        reaction: 'electrification',
+        target: 'enemy',
+        durationSeconds: { kind: 'blackboard', key: 'duration' },
+        durationMultiplier: 1.5,
+        effectiveness: 1,
+      },
+    };
+
+    expect(executor.execute(step, { blackboard: new ActionBlackboard({ duration: 4 }) })).toBe(
+      true,
+    );
+    expect(container.isActive('electrification', 1, 5.99)).toBe(true);
+    expect(container.isActive('electrification', 1, 6.01)).toBe(false);
+    expect(receipt.entries.at(-1)).toMatchObject({
+      event: 'ElementalReactionApplied',
+      data: { durationSeconds: 6 },
     });
   });
 

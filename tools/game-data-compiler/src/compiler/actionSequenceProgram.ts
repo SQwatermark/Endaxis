@@ -57,6 +57,13 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
+  /** 领域可在宿主调度区间内保留旧版 TickIntervalAction 的原生周期语义。 */
+  readonly compileTickInterval?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'tickInterval' }>;
+    },
+    state: TState,
+  ) => CompiledActionNodeProgram<TStep, TState> | null;
   /** 多分支保留有序标签、独立实例和返回值；由公共领域投影决定正式表示。 */
   readonly compileSwitch?: (
     node: NativeActionNodeSource<TLeaf> & {
@@ -69,6 +76,18 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
     node: NativeActionNodeSource<TLeaf> & {
       readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
     },
+  ) => boolean;
+  /** 固定场景已证明分支真值时，只编译可达分支；未证明必须返回 undefined。 */
+  readonly selectIfElseBranch?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
+    },
+    state: TState,
+  ) => boolean | undefined;
+  /** 两分支投影完全等价且条件纯读取时，可直接保留任一分支，不必为不可见输入建立运行模型。 */
+  readonly areEquivalentIfElseBranches?: (
+    whenTrue: CompiledActionSequenceProgram<TStep>,
+    whenFalse: CompiledActionSequenceProgram<TStep>,
   ) => boolean;
   /** 领域证明条件与子动作均不进入其可见模型时，允许省略整个原生动态开关。 */
   readonly canOmitTogglable?: (
@@ -189,22 +208,37 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     if (options.canOmitIfElse?.(branchNode) === true) {
       return compileActionNodePrograms(rest, options, state);
     }
+    const selectedBranch = options.selectIfElseBranch?.(branchNode, state);
+    if (selectedBranch !== undefined) {
+      if (!first!.body.alwaysNext) {
+        throw new Error(`${first!.sourcePath}: statically selected stopping IfElse is unsupported`);
+      }
+      const selected = compileActionSequenceProgramFromState(
+        selectedBranch ? first!.body.whenTrue : first!.body.whenFalse,
+        options,
+        state,
+      );
+      return [...selected.steps, ...compileActionNodePrograms(rest, options, state)];
+    }
     if (!first!.body.alwaysNext) {
       throw new Error(`${first!.sourcePath}: stopping IfElse is unsupported`);
     }
     const whenTrue = compileActionSequenceProgramFromState(first!.body.whenTrue, options, state);
     const whenFalse = compileActionSequenceProgramFromState(first!.body.whenFalse, options, state);
     const conditionNodes = first!.body.condition.actions.filter(node => node.metadata.enabled);
+    const conditionsArePureReads = conditionNodes.every((child, index) =>
+      child.body.kind === 'negateNextResult'
+        ? conditionNodes[index + 1] !== undefined &&
+          options.canOmitUnusedCondition?.(conditionNodes[index + 1]!) === true
+        : options.canOmitUnusedCondition?.(child) === true,
+    );
     if (
-      whenTrue.steps.length === 0 &&
-      whenFalse.steps.length === 0 &&
-      conditionNodes.every((child, index) =>
-        child.body.kind === 'negateNextResult'
-          ? conditionNodes[index + 1] !== undefined &&
-            options.canOmitUnusedCondition?.(conditionNodes[index + 1]!) === true
-          : options.canOmitUnusedCondition?.(child) === true,
-      )
+      conditionsArePureReads &&
+      options.areEquivalentIfElseBranches?.(whenTrue, whenFalse) === true
     ) {
+      return [...whenTrue.steps, ...compileActionNodePrograms(rest, options, state)];
+    }
+    if (whenTrue.steps.length === 0 && whenFalse.steps.length === 0 && conditionsArePureReads) {
       return compileActionNodePrograms(rest, options, state);
     }
     const branchConditions: TCondition[] = [];
@@ -273,6 +307,17 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     const compiled = options.compileOnce(
       first as NativeActionNodeSource<TLeaf> & {
         readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'once' }>;
+      },
+      state,
+    );
+    if (compiled !== null) {
+      return [...compiled.steps, ...compileActionNodePrograms(rest, options, compiled.state)];
+    }
+  }
+  if (first!.body.kind === 'tickInterval' && options.compileTickInterval !== undefined) {
+    const compiled = options.compileTickInterval(
+      first as NativeActionNodeSource<TLeaf> & {
+        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'tickInterval' }>;
       },
       state,
     );

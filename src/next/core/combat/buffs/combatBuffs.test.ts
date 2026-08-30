@@ -294,6 +294,31 @@ describe('CombatBuffContainer', () => {
     expect(container.getCountByTags(['Combat/Buff/Pulse'], 'hasAny', true)).toBe(0);
   });
 
+  it('按原生 m_tagHandle 生命周期将启用 Buff 的 applyTags 注册到实体', () => {
+    const tag = 'Skill/Character/Common/SpellInflict/FireInflict';
+    const container = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([tag]),
+    );
+    const definition = { id: 'heat', applyTags: [tag], stackingType: 'unlimited' as const };
+
+    const first = requireAddedBuff(container.add(definition, 'operator'));
+    const second = requireAddedBuff(container.add(definition, 'operator'));
+    expect(container.matchesEntityTags([tag], 'hasAll')).toBe(true);
+
+    first.disable();
+    expect(container.matchesEntityTags([tag], 'hasAll')).toBe(true);
+
+    first.enable();
+    first.enable();
+    first.finish();
+    expect(container.matchesEntityTags([tag], 'hasAll')).toBe(true);
+
+    second.finish();
+    expect(container.matchesEntityTags([tag], 'hasAll')).toBe(false);
+  });
+
   it('separates matching Buff instance count from accumulated enhance layers', () => {
     const path = 'Combat/Buff/Poise';
     const container = new CombatBuffContainer(
@@ -2154,6 +2179,42 @@ describe('CombatBuffContainer', () => {
     expect(buff.shields[0]?.maxValue).toBe(200);
     attributes.setRawValue('attack', 500);
     expect(buff.shields[0]?.maxValue).toBe(200);
+  });
+
+  it('freezes a cross-entity attribute shield from the Buff source rather than its owner', () => {
+    const ownerAttributes = new CombatAttributeSet<Attribute>();
+    ownerAttributes.define('attack', 200, { minimum: 0, maximum: 1000 });
+    const container = new CombatBuffContainer('protected-ally', ownerAttributes);
+    const buff = requireAddedBuff(
+      container.add(
+        {
+          id: 'source-attribute-shield',
+          stackingType: 'unlimited',
+          blackboard: { multiplier: 0.5, addition: 100 },
+          shields: [
+            {
+              infinityValue: false,
+              value: {
+                attributeSource: 'buffSource',
+                attribute: 'attack',
+                multiplier: { blackboardKey: 'multiplier' },
+                addition: { blackboardKey: 'addition' },
+              },
+              absorbCount: -1,
+              absorbAllDamageWhenConsumed: false,
+              removeBuffWhenConsumed: true,
+              priority: 'normal',
+              replaceHitEffect: false,
+              damageAbsorptions: [],
+            },
+          ],
+        },
+        'catcher',
+        { getSourceAttributeValue: attribute => (attribute === 'attack' ? 400 : 0) },
+      ),
+    );
+
+    expect(buff.shields[0]?.maxValue).toBe(300);
   });
 
   it('registers sustained protection only while the owning Buff is enabled', () => {

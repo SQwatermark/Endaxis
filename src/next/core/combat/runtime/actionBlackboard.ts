@@ -64,6 +64,11 @@ export class ActionBlackboard {
     return Object.fromEntries(this.#values);
   }
 
+  /** 冻结脱离当前动作寿命的 direct 层；角色 EntityBB 仍归原实体共享。 */
+  detachedSnapshot(): ActionBlackboard {
+    return new ActionBlackboard(this.snapshot(), this.#entityBlackboard);
+  }
+
   restore(values: Readonly<Record<string, ActionBlackboardValue>>): void {
     this.#values.clear();
     this.assign(values);
@@ -74,12 +79,22 @@ export class ActionBlackboard {
     initialValues: Readonly<Record<string, ActionBlackboardValue>>,
     inheritDirect: boolean,
     entityInitialValues?: Readonly<Record<string, ActionBlackboardValue>>,
+    entityAssignments?: Readonly<Record<string, ActionValueOperand>>,
   ): ActionBlackboard {
+    const assignedEntityValues =
+      entityAssignments === undefined
+        ? undefined
+        : Object.fromEntries(
+            Object.entries(entityAssignments).map(([key, operand]) => [
+              key,
+              resolveActionValueOperand(operand, this),
+            ]),
+          );
     return new ActionBlackboard(
       inheritDirect ? { ...initialValues, ...this.snapshot() } : initialValues,
-      entityInitialValues === undefined
+      entityInitialValues === undefined && assignedEntityValues === undefined
         ? this.#entityBlackboard
-        : new ActionBlackboard(entityInitialValues),
+        : new ActionBlackboard({ ...entityInitialValues, ...assignedEntityValues }),
     );
   }
 
