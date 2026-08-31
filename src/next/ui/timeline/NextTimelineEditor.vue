@@ -1816,6 +1816,10 @@ const combatHudInitialSkillSlots = computed(() =>
   }),
 );
 
+const operatorControlTimeline = computed(() =>
+  resolveControlTimeline(scenario.value.tracks, scenario.value.battle.controlSwitches),
+);
+
 /** 状态栏和光标辅助线共用一份只读快照，避免各组件分别解释回执。 */
 const combatHudSnapshot = computed(() => {
   const current = simulationRun.value;
@@ -1828,15 +1832,13 @@ const combatHudSnapshot = computed(() => {
     resourceCurves: current.resourceCurves,
     receiptEntries: current.receiptEntries,
     operatorSkillSlots: combatHudInitialSkillSlots.value,
-    skillButtonProgressCurves: current.skillButtonProgressCurves,
+    buffProgressCurves: current.buffProgressCurves,
+    controlTimeline: operatorControlTimeline.value,
   });
 });
 
 const controlledOperatorIdAtCursor = computed(() =>
-  resolveControlledOperator(
-    resolveControlTimeline(scenario.value.tracks, scenario.value.battle.controlSwitches),
-    cursorFrame.value,
-  ),
+  resolveControlledOperator(operatorControlTimeline.value, cursorFrame.value),
 );
 
 function statusIndicatorsForTarget(targetId: string | null) {
@@ -4490,6 +4492,11 @@ function setPanelDialogVisible(visible: boolean): void {
                 "
                 :cursor-frame="cursorFrame"
                 :hud-snapshot="operatorHudSnapshotFor(track.operatorInstanceId)"
+                :hp-bar-progress="
+                  controlledOperatorIdAtCursor === track.operatorInstanceId
+                    ? (combatHudSnapshot?.mainCharacterHpProgress ?? null)
+                    : null
+                "
                 :active-skill-label="activeSkillLabelFor(track.trackIndex)"
                 :skill-buttons="skillHudButtonsFor(track.trackIndex)"
                 :labels="{

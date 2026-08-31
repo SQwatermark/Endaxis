@@ -33,7 +33,7 @@ import { GAMEPLAY_TAG_PREDEFINE } from '../data/combat/gameplayTagPredefine.gene
 import { GameplayTagPredefine } from '../core/combat/tags/gameplayTagPredefine';
 import { resolveControlTimeline } from '../core/project/resolveControlTimeline';
 import { isOperatorControlledAt } from '../core/combat/runtime/operatorControlTimeline';
-import type { SkillButtonProgressCurve } from '../core/combat/runtime/skillButtonProgressRecorder';
+import type { BuffProgressCurve } from '../core/combat/runtime/buffProgressRecorder';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 
@@ -68,7 +68,7 @@ export interface EnemyVitalsSimulationResult {
 export interface StandardPlayerDamageScenarioResult extends ScenarioSimulationResult {
   readonly finalEnemyHealth: number;
   readonly enemyVitals: EnemyVitalsSimulationResult;
-  readonly skillButtonProgressCurves: readonly SkillButtonProgressCurve[];
+  readonly buffProgressCurves: readonly BuffProgressCurve[];
 }
 
 /** 执行一次不会跨场景复用状态的标准玩家生命伤害模拟。 */
@@ -143,7 +143,7 @@ export function runStandardPlayerDamageScenarioSimulation(
   const result = executeCompiledScenarioSimulation({ compiled, endFrame: input.endFrame });
   return Object.freeze({
     ...result,
-    skillButtonProgressCurves: environment.skillButtonProgressCurves,
+    buffProgressCurves: environment.buffProgressCurves,
     finalEnemyHealth: enemyVitals.health,
     enemyVitals: Object.freeze({
       initialHealth: initialVitals.health,

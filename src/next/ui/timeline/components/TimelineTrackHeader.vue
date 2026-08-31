@@ -12,6 +12,7 @@ import type {
   CombatStatusIndicator,
 } from '../../../core/projection/combatStatusIndicators';
 import type { OperatorCombatHudSnapshot } from '../../../core/projection/combatHudSnapshot';
+import type { CombatHudHpProgressSnapshot } from '../../../core/projection/combatHudSnapshot';
 
 const props = defineProps<{
   track: TimelineTrackViewModel;
@@ -31,6 +32,7 @@ const props = defineProps<{
   statusSlot: CombatStatusDisplaySlot;
   cursorFrame: number;
   hudSnapshot: OperatorCombatHudSnapshot | null;
+  hpBarProgress: CombatHudHpProgressSnapshot | null;
   activeSkillLabel: string | null;
   skillButtons: readonly {
     action: 'battleSkill' | 'ultimate';
@@ -286,6 +288,12 @@ function cooldownMask(ratio: number | null): string | undefined {
         :slot="statusSlot"
         :frame="cursorFrame"
       />
+      <span v-if="hpBarProgress !== null" class="main-hp-progress" :title="hpBarProgress.buffId">
+        <span
+          class="main-hp-progress__fill"
+          :style="{ width: `${(hpBarProgress.ratio ?? 0) * 100}%` }"
+        ></span>
+      </span>
     </span>
   </div>
 </template>
@@ -667,6 +675,24 @@ function cooldownMask(ratio: number | null): string | undefined {
   left: 58px;
   right: 4px;
   overflow: visible;
+}
+
+.main-hp-progress {
+  position: absolute;
+  top: calc(50% - 5px);
+  left: 58px;
+  right: 6px;
+  height: 3px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 10%);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 40%);
+}
+
+.main-hp-progress__fill {
+  display: block;
+  height: 100%;
+  background: var(--ea-gold);
+  transition: width 80ms linear;
 }
 
 .set-bonus-hint {

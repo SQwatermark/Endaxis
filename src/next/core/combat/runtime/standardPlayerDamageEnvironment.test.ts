@@ -1880,6 +1880,7 @@ describe('StandardPlayerDamageEnvironment', () => {
             iconId: 'icon_battle_buff_atk_up',
             iconPath: '/icons/icon_battle_buff_atk_up.webp',
             showInSquadIcon: true,
+            showProgressInHpBar: true,
             showProgressInNormalSkillButton: true,
             useWeakProgressInNormalSkillButton: true,
             showWarningBackground: true,
@@ -1916,6 +1917,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         iconId: 'icon_battle_buff_atk_up',
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInSquadIcon: true,
+        showProgressInHpBar: true,
         showProgressInNormalSkillButton: true,
         useWeakProgressInNormalSkillButton: true,
         showWarningBackground: true,
@@ -1940,18 +1942,17 @@ describe('StandardPlayerDamageEnvironment', () => {
       context.clock.advanceFrame();
       runtime.advanceFrame!();
     }
-    expect(environment.skillButtonProgressCurves).toHaveLength(1);
-    expect(environment.skillButtonProgressCurves[0]).toMatchObject({
+    expect(environment.buffProgressCurves).toHaveLength(1);
+    expect(environment.buffProgressCurves[0]).toMatchObject({
       targetId: 'operator',
       buffId: 'buff:operator-visible',
       instanceId: 1,
       showInBattleSkillButton: true,
+      showInHpBar: true,
       weakBattleSkillStyle: true,
     });
-    expect(environment.skillButtonProgressCurves[0]?.points.map(point => point.frame)).toEqual([
-      0, 3,
-    ]);
-    expect(environment.skillButtonProgressCurves[0]?.points[1]?.ratio).toBeCloseTo(0.98);
+    expect(environment.buffProgressCurves[0]?.points.map(point => point.frame)).toEqual([0, 3]);
+    expect(environment.buffProgressCurves[0]?.points[1]?.ratio).toBeCloseTo(0.98);
   });
 
   it('applies reactions with levels and evaluates reaction conditions', () => {

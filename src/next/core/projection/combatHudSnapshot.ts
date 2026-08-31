@@ -17,7 +17,8 @@ import {
   projectSkillCooldownTimelineViz,
   type SkillCooldownTimelineSegment,
 } from './skillCooldownTimelineViz';
-import type { SkillButtonProgressCurve } from '../combat/runtime/skillButtonProgressRecorder';
+import type { BuffProgressCurve } from '../combat/runtime/buffProgressRecorder';
+import type { OperatorControlTimeline } from '../combat/runtime/operatorControlTimeline';
 
 export interface CombatHudGaugeSnapshot {
   readonly current: number | null;
@@ -44,6 +45,13 @@ export interface OperatorCombatHudSnapshot {
   readonly ultimateProgress: CombatHudSkillProgressSnapshot | null;
 }
 
+export interface CombatHudHpProgressSnapshot {
+  readonly targetId: string;
+  readonly buffId: string;
+  readonly instanceId: number;
+  readonly ratio: number | null;
+}
+
 export interface CombatHudSkillProgressSnapshot {
   readonly buffId: string;
   readonly instanceId: number;
@@ -66,6 +74,8 @@ export interface CombatHudSnapshot {
   readonly sp: CombatHudGaugeSnapshot;
   readonly enemy: EnemyCombatHudSnapshot;
   readonly operators: readonly OperatorCombatHudSnapshot[];
+  /** 原生 MainCharHpBar 跨全队选择的终结状态进度。 */
+  readonly mainCharacterHpProgress: CombatHudHpProgressSnapshot | null;
 }
 
 export interface CombatHudSnapshotInput {
@@ -76,7 +86,8 @@ export interface CombatHudSnapshotInput {
   readonly resourceCurves: CombatResourceCurves;
   readonly receiptEntries: readonly CombatReceiptEntry[];
   readonly operatorSkillSlots?: readonly CombatHudOperatorSkillSlotsInitial[];
-  readonly skillButtonProgressCurves?: readonly SkillButtonProgressCurve[];
+  readonly buffProgressCurves?: readonly BuffProgressCurve[];
+  readonly controlTimeline?: OperatorControlTimeline;
 }
 
 function gauge(
@@ -121,12 +132,18 @@ interface SkillProgressPointers {
   readonly ultimate: CombatHudSkillProgressSnapshot | null;
 }
 
-function sampleSkillProgressCurve(
-  curves: readonly SkillButtonProgressCurve[],
-  pointer: CombatHudSkillProgressSnapshot | null,
+function sampleBuffProgressCurve<
+  Snapshot extends {
+    readonly buffId: string;
+    readonly instanceId: number;
+    readonly ratio: number | null;
+  },
+>(
+  curves: readonly BuffProgressCurve[],
+  pointer: Snapshot | null,
   targetId: string,
   frame: number,
-): CombatHudSkillProgressSnapshot | null {
+): Snapshot | null {
   if (pointer === null) return null;
   const curve = curves.find(
     candidate =>
@@ -146,6 +163,101 @@ function sampleSkillProgressCurve(
     ratio:
       left.ratio + ((right.ratio - left.ratio) * (frame - left.frame)) / (right.frame - left.frame),
   };
+}
+
+interface ActiveHpProgressPointer extends CombatHudHpProgressSnapshot {
+  readonly key: string;
+}
+
+function hpProgressKey(targetId: string, buffId: string, instanceId: number): string {
+  return `${targetId}\u0000${buffId}\u0000${instanceId}`;
+}
+
+/**
+ * 复刻 MainCharHpBar._SelectUltimateBuff：优先当前主控的最后一个有效候选；没有时保持仍有效的
+ * 当前指针；再没有时取全队活动列表末项。主控切换先于同帧技能/Buff 事实生效。
+ */
+function mainCharacterHpProgressAtFrame(
+  entries: readonly CombatReceiptEntry[],
+  frame: number,
+  controlTimeline: OperatorControlTimeline,
+  curves: readonly BuffProgressCurve[],
+): CombatHudHpProgressSnapshot | null {
+  const active: ActiveHpProgressPointer[] = [];
+  let controlledOperatorId: string | null = null;
+  let selected: ActiveHpProgressPointer | null = null;
+
+  const select = (): void => {
+    const controlled =
+      controlledOperatorId === null
+        ? undefined
+        : active.findLast(candidate => candidate.targetId === controlledOperatorId);
+    if (controlled !== undefined) {
+      selected = controlled;
+      return;
+    }
+    if (selected !== null && active.some(candidate => candidate.key === selected?.key)) return;
+    selected = active.at(-1) ?? null;
+  };
+
+  let controlIndex = 0;
+  let receiptIndex = 0;
+  while (true) {
+    const control = controlTimeline.segments[controlIndex];
+    const entry = entries[receiptIndex];
+    const controlAvailable = control !== undefined && control.startFrame <= frame;
+    const receiptAvailable = entry !== undefined && entry.frame <= frame;
+    if (!controlAvailable && !receiptAvailable) break;
+    // 场景的主控段从帧开始即生效；因此同帧先切主控，再重放该帧的 Buff 回执。
+    if (
+      control !== undefined &&
+      controlAvailable &&
+      (!receiptAvailable || control.startFrame <= entry!.frame)
+    ) {
+      controlledOperatorId = control.operatorId;
+      controlIndex += 1;
+      select();
+      continue;
+    }
+    const currentEntry = entry!;
+    receiptIndex += 1;
+    if (currentEntry.targetId === undefined) continue;
+    const applied =
+      currentEntry.event === 'BuffApplied' || currentEntry.event === 'BuffPresentationStarted';
+    const finished =
+      currentEntry.event === 'BuffFinished' || currentEntry.event === 'BuffPresentationFinished';
+    if (!applied && !finished) continue;
+    const buffId = stringData(currentEntry.data, 'buffId');
+    const instanceId = numberData(currentEntry.data, 'instanceId');
+    if (buffId === undefined || instanceId === undefined) continue;
+    const key = hpProgressKey(currentEntry.targetId, buffId, instanceId);
+    if (applied) {
+      if (booleanData(currentEntry.data, 'showProgressInHpBar') !== true) continue;
+      const duplicate = active.findIndex(candidate => candidate.key === key);
+      if (duplicate >= 0) active.splice(duplicate, 1);
+      active.push({
+        key,
+        targetId: currentEntry.targetId,
+        buffId,
+        instanceId,
+        ratio: null,
+      });
+    } else {
+      const index = active.findIndex(candidate => candidate.key === key);
+      if (index >= 0) active.splice(index, 1);
+    }
+    select();
+  }
+
+  if (selected === null) return null;
+  const selectedPointer = selected as ActiveHpProgressPointer;
+  const pointer: CombatHudHpProgressSnapshot = {
+    targetId: selectedPointer.targetId,
+    buffId: selectedPointer.buffId,
+    instanceId: selectedPointer.instanceId,
+    ratio: selectedPointer.ratio,
+  };
+  return sampleBuffProgressCurve(curves, pointer, pointer.targetId, frame);
 }
 
 /**
@@ -315,7 +427,7 @@ function operatorSnapshot(
   cooldowns: readonly SkillCooldownTimelineSegment[],
   comboWindows: readonly ComboWindowTimelineSegment[],
   skillProgress: ReadonlyMap<string, SkillProgressPointers>,
-  progressCurves: readonly SkillButtonProgressCurve[],
+  progressCurves: readonly BuffProgressCurve[],
 ): OperatorCombatHudSnapshot {
   const active = activeSkills.get(curve.operatorId);
   const progress = skillProgress.get(curve.operatorId);
@@ -336,13 +448,13 @@ function operatorSnapshot(
         frame >= item.startFrame &&
         (frame < item.endFrame || (item.outcome === 'pending' && frame === item.endFrame)),
     ),
-    battleSkillProgress: sampleSkillProgressCurve(
+    battleSkillProgress: sampleBuffProgressCurve(
       progressCurves,
       progress?.battleSkill ?? null,
       curve.operatorId,
       frame,
     ),
-    ultimateProgress: sampleSkillProgressCurve(
+    ultimateProgress: sampleBuffProgressCurve(
       progressCurves,
       progress?.ultimate ?? null,
       curve.operatorId,
@@ -368,6 +480,7 @@ export function projectCombatHudSnapshot(input: CombatHudSnapshotInput): CombatH
   const cooldowns = projectSkillCooldownTimelineViz(input.receiptEntries, input.endFrame);
   const comboWindows = projectComboWindowTimelineViz(input.receiptEntries, input.endFrame);
   const skillProgress = skillProgressPointersAtFrame(input.receiptEntries, input.frame);
+  const buffProgressCurves = input.buffProgressCurves ?? [];
   return {
     frame: input.frame,
     sp: gauge(input.resourceCurves.sp.points, input.resourceCurves.sp.maxValue, input.frame),
@@ -390,8 +503,14 @@ export function projectCombatHudSnapshot(input: CombatHudSnapshotInput): CombatH
         cooldowns,
         comboWindows,
         skillProgress,
-        input.skillButtonProgressCurves ?? [],
+        buffProgressCurves,
       ),
+    ),
+    mainCharacterHpProgress: mainCharacterHpProgressAtFrame(
+      input.receiptEntries,
+      input.frame,
+      input.controlTimeline ?? { segments: [] },
+      buffProgressCurves,
     ),
   };
 }

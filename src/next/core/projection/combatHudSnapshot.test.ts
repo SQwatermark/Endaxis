@@ -37,9 +37,10 @@ const curves = {
 function project(
   frame: number,
   entries: readonly CombatReceiptEntry[],
-  skillButtonProgressCurves: Parameters<
-    typeof projectCombatHudSnapshot
-  >[0]['skillButtonProgressCurves'] = [],
+  buffProgressCurves: Parameters<typeof projectCombatHudSnapshot>[0]['buffProgressCurves'] = [],
+  controlTimeline: Parameters<typeof projectCombatHudSnapshot>[0]['controlTimeline'] = {
+    segments: [{ startFrame: 0, operatorId: 'track:1' }],
+  },
 ) {
   return projectCombatHudSnapshot({
     frame,
@@ -63,7 +64,8 @@ function project(
       ],
     },
     receiptEntries: entries,
-    skillButtonProgressCurves,
+    buffProgressCurves,
+    controlTimeline,
     operatorSkillSlots: [
       {
         operatorId: 'track:1',
@@ -182,6 +184,7 @@ describe('projectCombatHudSnapshot', () => {
           instanceId: 2,
           showInBattleSkillButton: true,
           showInUltimateButton: true,
+          showInHpBar: false,
           weakBattleSkillStyle: true,
           points: [
             { frame: 4, ratio: 1 },
@@ -192,6 +195,87 @@ describe('projectCombatHudSnapshot', () => {
     ).toMatchObject({
       battleSkillProgress: { ratio: 0.75 },
       ultimateProgress: { ratio: 0.75 },
+    });
+  });
+
+  it('replays native main-character HP progress selection across the whole squad', () => {
+    const hpProgress = (
+      sequence: number,
+      frame: number,
+      event: 'BuffApplied' | 'BuffFinished',
+      targetId: string,
+      buffId: string,
+      instanceId: number,
+    ): CombatReceiptEntry => ({
+      sequence,
+      frame,
+      time: frame / 30,
+      event,
+      targetId,
+      data: {
+        buffId,
+        instanceId,
+        layers: 1,
+        ...(event === 'BuffApplied' ? { showProgressInHpBar: true } : {}),
+      },
+    });
+    const entries = [
+      hpProgress(0, 2, 'BuffApplied', 'track:1', 'main', 1),
+      hpProgress(1, 3, 'BuffApplied', 'track:2', 'ally', 2),
+      hpProgress(2, 8, 'BuffFinished', 'track:1', 'main', 1),
+    ];
+    const progressCurves = [
+      {
+        targetId: 'track:1',
+        buffId: 'main',
+        instanceId: 1,
+        showInBattleSkillButton: false,
+        showInUltimateButton: false,
+        showInHpBar: true,
+        weakBattleSkillStyle: false,
+        points: [
+          { frame: 2, ratio: 1 },
+          { frame: 12, ratio: 0 },
+        ],
+      },
+      {
+        targetId: 'track:2',
+        buffId: 'ally',
+        instanceId: 2,
+        showInBattleSkillButton: false,
+        showInUltimateButton: false,
+        showInHpBar: true,
+        weakBattleSkillStyle: false,
+        points: [
+          { frame: 3, ratio: 1 },
+          { frame: 13, ratio: 0 },
+        ],
+      },
+    ];
+    const timeline = {
+      segments: [
+        { startFrame: 0, operatorId: 'track:1' },
+        { startFrame: 5, operatorId: 'track:2' },
+        { startFrame: 6, operatorId: null },
+      ],
+    } as const;
+
+    // 新队友 Buff 不覆盖主控自己的候选；切到队友后立即选择队友候选。
+    expect(project(4, entries, progressCurves, timeline).mainCharacterHpProgress).toMatchObject({
+      targetId: 'track:1',
+      buffId: 'main',
+      ratio: 0.8,
+    });
+    expect(project(5, entries, progressCurves, timeline).mainCharacterHpProgress).toMatchObject({
+      targetId: 'track:2',
+      buffId: 'ally',
+      ratio: 0.8,
+    });
+    // 无主控时保持仍有效的当前指针；结束非当前 Buff 不影响它。
+    expect(project(8, entries, progressCurves, timeline).mainCharacterHpProgress).toMatchObject({
+      targetId: 'track:2',
+      buffId: 'ally',
+      ratio: 0.5,
     });
   });
 

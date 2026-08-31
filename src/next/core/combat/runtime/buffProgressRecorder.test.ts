@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatBuff } from '../buffs/combatBuffs';
-import { SkillButtonProgressRecorder } from './skillButtonProgressRecorder';
+import { BuffProgressRecorder } from './buffProgressRecorder';
 
-describe('SkillButtonProgressRecorder', () => {
+describe('BuffProgressRecorder', () => {
   it('compresses linear samples while preserving a paused interval', () => {
-    const recorder = new SkillButtonProgressRecorder();
+    const recorder = new BuffProgressRecorder();
     const state = { instanceId: 7, remainingDuration: 1, isFinished: false };
     const buff = state as CombatBuff<string>;
     recorder.register(
@@ -39,6 +39,7 @@ describe('SkillButtonProgressRecorder', () => {
         instanceId: 7,
         showInBattleSkillButton: true,
         showInUltimateButton: false,
+        showInHpBar: false,
         weakBattleSkillStyle: true,
         points: [
           { frame: 0, ratio: 1 },
@@ -51,7 +52,7 @@ describe('SkillButtonProgressRecorder', () => {
   });
 
   it('records a zero endpoint when the runtime Buff finishes', () => {
-    const recorder = new SkillButtonProgressRecorder();
+    const recorder = new BuffProgressRecorder();
     const buff = {
       instanceId: 3,
       remainingDuration: 2,
@@ -69,5 +70,24 @@ describe('SkillButtonProgressRecorder', () => {
       { frame: 5, ratio: 1 },
       { frame: 65, ratio: 0 },
     ]);
+  });
+
+  it('records Buffs used only by the main-character HP bar progress', () => {
+    const recorder = new BuffProgressRecorder();
+    const buff = {
+      instanceId: 9,
+      remainingDuration: 3,
+      isFinished: false,
+    } as CombatBuff<string>;
+    recorder.register('operator:2', buff, 'buff:hp-progress', { showProgressInHpBar: true }, 4);
+
+    expect(recorder.snapshot()[0]).toMatchObject({
+      targetId: 'operator:2',
+      buffId: 'buff:hp-progress',
+      showInBattleSkillButton: false,
+      showInUltimateButton: false,
+      showInHpBar: true,
+      points: [{ frame: 4, ratio: 1 }],
+    });
   });
 });

@@ -1,18 +1,19 @@
 import type { CombatBuff } from '../buffs/combatBuffs';
 
-export interface SkillButtonProgressPoint {
+export interface BuffProgressPoint {
   readonly frame: number;
   readonly ratio: number | null;
 }
 
-export interface SkillButtonProgressCurve {
+export interface BuffProgressCurve {
   readonly targetId: string;
   readonly buffId: string;
   readonly instanceId: number;
   readonly showInBattleSkillButton: boolean;
   readonly showInUltimateButton: boolean;
+  readonly showInHpBar: boolean;
   readonly weakBattleSkillStyle: boolean;
-  readonly points: readonly SkillButtonProgressPoint[];
+  readonly points: readonly BuffProgressPoint[];
 }
 
 interface MutableCurve {
@@ -21,9 +22,10 @@ interface MutableCurve {
   readonly instanceId: number;
   readonly showInBattleSkillButton: boolean;
   readonly showInUltimateButton: boolean;
+  readonly showInHpBar: boolean;
   readonly weakBattleSkillStyle: boolean;
   durationSeconds: number | null;
-  readonly points: SkillButtonProgressPoint[];
+  readonly points: BuffProgressPoint[];
 }
 
 function curveKey(targetId: string, buffId: string, instanceId: number): string {
@@ -39,8 +41,8 @@ function ratio(remaining: number | null, duration: number | null): number | null
   return Math.min(1, Math.max(0, remaining / duration));
 }
 
-function compact(points: readonly SkillButtonProgressPoint[]): readonly SkillButtonProgressPoint[] {
-  const result: SkillButtonProgressPoint[] = [];
+function compact(points: readonly BuffProgressPoint[]): readonly BuffProgressPoint[] {
+  const result: BuffProgressPoint[] = [];
   for (const point of points) {
     const previous = result.at(-1);
     if (previous?.frame === point.frame) {
@@ -63,8 +65,8 @@ function compact(points: readonly SkillButtonProgressPoint[]): readonly SkillBut
   return result;
 }
 
-/** 只记录原生技能按钮明确消费的 Buff；逐帧采样后压缩共线点，保留暂停与时钟斜率变化。 */
-export class SkillButtonProgressRecorder {
+/** 只记录原生 HUD 进度控件明确消费的 Buff；逐帧采样后压缩共线点。 */
+export class BuffProgressRecorder {
   readonly #curves = new Map<string, MutableCurve>();
   readonly #runtimeCurveKeys = new Map<string, Set<string>>();
 
@@ -77,7 +79,8 @@ export class SkillButtonProgressRecorder {
   ): void {
     const showInBattleSkillButton = presentation.showProgressInNormalSkillButton === true;
     const showInUltimateButton = presentation.showProgressInUltimateSkillButton === true;
-    if (!showInBattleSkillButton && !showInUltimateButton) return;
+    const showInHpBar = presentation.showProgressInHpBar === true;
+    if (!showInBattleSkillButton && !showInUltimateButton && !showInHpBar) return;
     const key = curveKey(targetId, buffId, buff.instanceId);
     let curve = this.#curves.get(key);
     if (curve === undefined) {
@@ -87,6 +90,7 @@ export class SkillButtonProgressRecorder {
         instanceId: buff.instanceId,
         showInBattleSkillButton,
         showInUltimateButton,
+        showInHpBar,
         weakBattleSkillStyle: presentation.useWeakProgressInNormalSkillButton === true,
         durationSeconds: buff.remainingDuration,
         points: [],
@@ -131,7 +135,7 @@ export class SkillButtonProgressRecorder {
     this.#runtimeCurveKeys.delete(runtimeKey(targetId, buff.instanceId));
   }
 
-  snapshot(): readonly SkillButtonProgressCurve[] {
+  snapshot(): readonly BuffProgressCurve[] {
     return Object.freeze(
       [...this.#curves.values()].map(curve =>
         Object.freeze({
@@ -140,6 +144,7 @@ export class SkillButtonProgressRecorder {
           instanceId: curve.instanceId,
           showInBattleSkillButton: curve.showInBattleSkillButton,
           showInUltimateButton: curve.showInUltimateButton,
+          showInHpBar: curve.showInHpBar,
           weakBattleSkillStyle: curve.weakBattleSkillStyle,
           points: Object.freeze(compact(curve.points).map(point => Object.freeze({ ...point }))),
         }),

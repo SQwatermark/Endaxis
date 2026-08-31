@@ -4873,3 +4873,14 @@ Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚�
   敌人属性或元素附着猜造。
 - 证据已补入 combat-spec `docs/combat-hud-vitals-and-skill-state.md`。定向结构测试与
   `type-check:next` 通过；提交前仍需执行 Next 全量门禁。
+
+### 2026-09-01：主控生命栏 Buff 进度
+
+- 原生 `MainCharHpBar` 的 `showProgressInHpBar` 选择规则已恢复：当前主控的最新有效候选优先；没有时
+  保持仍有效的当前指针；再没有时回退到全队活动列表末项。主控切换会重新选择，普通新 Buff 不会
+  无条件覆盖当前指针。
+- 原技能按钮专用记录器已泛化为 `BuffProgressRecorder`；同一稀疏曲线同时服务战技按钮、终结技按钮
+  和主控生命栏进度，继续采样实际 Buff 时钟并压缩共线点。
+- `CombatHudSnapshot.mainCharacterHpProgress` 按主控时间线与 Buff 回执重放选择状态机；轨道头只在当前
+  主控行显示独立进度条。木桩模型仍不伪造干员生命变化。
+- 当前定向门禁为 **5 文件 / 90 项**，Next 全量为 **286 文件 / 3892 项**；四套类型检查均通过。

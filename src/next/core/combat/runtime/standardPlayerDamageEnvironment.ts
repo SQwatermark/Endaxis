@@ -78,10 +78,7 @@ import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationE
 import { compareCombatNumbers } from './numericComparison';
 import type { RegisterBuffAbilityEventAction } from './buffLifecycleSequenceRuntime';
 import type { CombatResources } from './combatResources';
-import {
-  SkillButtonProgressRecorder,
-  type SkillButtonProgressCurve,
-} from './skillButtonProgressRecorder';
+import { BuffProgressRecorder, type BuffProgressCurve } from './buffProgressRecorder';
 import type { HealModifierSide } from '../heal/healModifiers';
 import type { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
 import { OrdinaryKnockDownRuntime } from './ordinaryKnockDownRuntime';
@@ -220,7 +217,7 @@ export class StandardPlayerDamageEnvironment {
   readonly #reactions = new ElementalReactionContainer();
   readonly #operatorPanels = new Map<string, ResolvedOperatorPanel>();
   readonly #operatorVitals = new Map<string, CombatVitals>();
-  readonly #skillButtonProgress = new SkillButtonProgressRecorder();
+  readonly #buffProgress = new BuffProgressRecorder();
   #clock: CombatClock | null = null;
   #receipt: CombatReceiptSink | null = null;
   #elementalDefinitions: CompiledCombatBuffDefinitions<string> | null = null;
@@ -355,8 +352,8 @@ export class StandardPlayerDamageEnvironment {
     };
   }
 
-  get skillButtonProgressCurves(): readonly SkillButtonProgressCurve[] {
-    return this.#skillButtonProgress.snapshot();
+  get buffProgressCurves(): readonly BuffProgressCurve[] {
+    return this.#buffProgress.snapshot();
   }
 
   get enemyVitals(): CombatVitals {
@@ -897,7 +894,7 @@ export class StandardPlayerDamageEnvironment {
         event => this.#emit(operatorId, 'beforeAddedBuff', event),
       );
       runtime.configureAdvancedObserver(() =>
-        this.#skillButtonProgress.sample(operatorId, container.buffs, this.#requireClock().frame),
+        this.#buffProgress.sample(operatorId, container.buffs, this.#requireClock().frame),
       );
       this.#operatorBuffRuntimes.set(operatorId, runtime);
     }
@@ -1368,13 +1365,7 @@ export class StandardPlayerDamageEnvironment {
       });
     recordPresentation('BuffApplied', buff.definition.id, presentation);
     if (ownerId !== 'enemy' && presentation !== undefined) {
-      this.#skillButtonProgress.register(
-        ownerId,
-        buff,
-        buff.definition.id,
-        presentation,
-        clock.frame,
-      );
+      this.#buffProgress.register(ownerId, buff, buff.definition.id, presentation, clock.frame);
     }
     for (const child of buff.definition.childPresentations ?? []) {
       recordPresentation(
@@ -1384,13 +1375,7 @@ export class StandardPlayerDamageEnvironment {
         buff.definition.id,
       );
       if (ownerId !== 'enemy') {
-        this.#skillButtonProgress.register(
-          ownerId,
-          buff,
-          child.buffId,
-          child.presentation,
-          clock.frame,
-        );
+        this.#buffProgress.register(ownerId, buff, child.buffId, child.presentation, clock.frame);
       }
     }
   }
@@ -1404,7 +1389,7 @@ export class StandardPlayerDamageEnvironment {
       throw new Error(`Buff on '${ownerId}' finished before the environment was bound to a battle`);
     }
     if (ownerId !== 'enemy') {
-      this.#skillButtonProgress.finish(ownerId, buff, this.#clock.frame);
+      this.#buffProgress.finish(ownerId, buff, this.#clock.frame);
     }
     this.#receipt.record({
       frame: this.#clock.frame,
