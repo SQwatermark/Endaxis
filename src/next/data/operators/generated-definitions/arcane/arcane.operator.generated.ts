@@ -2843,6 +2843,7 @@ export default {
       levelSource: 'ultimate',
       skills: arcaneUltimate,
       replacementSkills: [arcaneArcana],
+      replacementSkillPlacements: { arcana: 'standard' },
     },
   ],
   comboSkillConditions: [

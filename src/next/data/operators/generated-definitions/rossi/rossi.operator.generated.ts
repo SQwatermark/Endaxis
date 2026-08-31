@@ -7605,6 +7605,7 @@ export default {
       levelSource: 'comboSkill',
       skills: rossiComboSkill2,
       replacementSkills: [rossiComboSkill3],
+      replacementSkillPlacements: { comboSkill3: 'standard' },
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: rossiUltimate },
   ],

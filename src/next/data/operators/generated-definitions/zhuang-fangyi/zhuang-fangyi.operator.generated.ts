@@ -3479,6 +3479,7 @@ export default {
       levelSource: 'battleSkill',
       skills: zhuangFangyiBattleSkill,
       replacementSkills: [zhuangFangyiEnhancedBattleSkill],
+      replacementSkillPlacements: { enhancedBattleSkill: 'enhanced' },
     },
     {
       key: 'comboSkill',
@@ -3486,6 +3487,7 @@ export default {
       levelSource: 'comboSkill',
       skills: zhuangFangyiComboSkill,
       replacementSkills: [zhuangFangyiEnhancedComboSkill],
+      replacementSkillPlacements: { enhancedComboSkill: 'enhanced' },
     },
     {
       key: 'ultimate',
@@ -3493,11 +3495,13 @@ export default {
       levelSource: 'ultimate',
       skills: zhuangFangyiUltimate,
       replacementSkills: [zhuangFangyiUltimateEnd],
+      replacementSkillPlacements: { ultimateEnd: 'internal' },
     },
     {
       key: 'enhancedBasicAttack',
       skillType: 'basicAttack',
       levelSource: 'ultimate',
+      libraryPresentation: 'enhanced',
       skills: [
         zhuangFangyiEnhancedBasicAttack1,
         zhuangFangyiEnhancedBasicAttack2,

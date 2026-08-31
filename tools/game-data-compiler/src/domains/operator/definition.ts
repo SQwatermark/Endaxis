@@ -614,16 +614,30 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       const routed = routedSkills.get(key);
       return routed === undefined ? [] : [routed];
     });
+    const runtimeReplacementKeysInGroup = [
+      ...replacementSkillKeys,
+      ...routedSkillEntries.map(item => item.key),
+    ];
+    const declaredReplacementKeys = Object.keys(group.replacementPlacements);
+    const missingReplacementPlacements = runtimeReplacementKeysInGroup.filter(
+      key => group.replacementPlacements[key] === undefined,
+    );
+    const unknownReplacementPlacements = declaredReplacementKeys.filter(
+      key => !runtimeReplacementKeysInGroup.includes(key),
+    );
+    if (missingReplacementPlacements.length > 0 || unknownReplacementPlacements.length > 0) {
+      throw new Error(
+        `skill group '${group.key}' replacement placement mismatch: missing ${JSON.stringify(missingReplacementPlacements)}, unknown ${JSON.stringify(unknownReplacementPlacements)}`,
+      );
+    }
+    const sequenceReplacementKeys = new Set(
+      runtimeReplacementKeysInGroup.filter(key => group.replacementPlacements[key] === 'sequence'),
+    );
+    const placementSequenceSkillKeys = group.skillKeys.filter(
+      key => visibleSkillKeys.includes(key) || sequenceReplacementKeys.has(key),
+    );
     if (visibleSkillKeys.length === 0) {
       throw new Error(`skill group '${group.key}' has no visible skill after runtime replacements`);
-    }
-    if (
-      group.replacementPlacement === 'sequence' &&
-      replacementSkillKeys.length + routedSkillEntries.length === 0
-    ) {
-      throw new Error(
-        `skill group '${group.key}' declares sequential replacements but has no runtime replacements`,
-      );
     }
     replacementSkillKeys.forEach(key => assignedRuntimeReplacementSkillKeys.add(key));
     routedSkillEntries.forEach(item => assignedRuntimeReplacementSkillKeys.add(item.key));
@@ -631,16 +645,31 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       key: group.key,
       skillType: group.skillType,
       levelSource: group.levelSource,
+      ...(group.libraryPresentation === undefined
+        ? {}
+        : { libraryPresentation: group.libraryPresentation }),
       skills:
         visibleSkillKeys.length === 1
           ? definitions.get(visibleSkillKeys[0]!)!
           : visibleSkillKeys.map(key => definitions.get(key)!),
-      ...(group.replacementPlacement === 'sequence' && group.skillKeys.length > 1
-        ? { placementSequenceSkillKeys: group.skillKeys }
+      ...(sequenceReplacementKeys.size > 0 && placementSequenceSkillKeys.length > 1
+        ? { placementSequenceSkillKeys }
         : {}),
       ...(replacementSkillKeys.length === 0
         ? {}
         : { replacementSkills: replacementSkillKeys.map(key => definitions.get(key)!) }),
+      ...(runtimeReplacementKeysInGroup.every(
+        key => group.replacementPlacements[key] === 'sequence',
+      )
+        ? {}
+        : {
+            replacementSkillPlacements: Object.fromEntries(
+              runtimeReplacementKeysInGroup.flatMap(key => {
+                const placement = group.replacementPlacements[key]!;
+                return placement === 'sequence' ? [] : [[key, placement] as const];
+              }),
+            ),
+          }),
       ...(routedSkillEntries.length === 0
         ? {}
         : {
@@ -658,6 +687,9 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
             variants: group.variants.map(variant => ({
               key: variant.key,
               levelSource: variant.levelSource,
+              ...(variant.libraryPresentation === undefined
+                ? {}
+                : { libraryPresentation: variant.libraryPresentation }),
               skills:
                 variant.skillKeys.length === 1
                   ? definitions.get(variant.skillKeys[0]!)!

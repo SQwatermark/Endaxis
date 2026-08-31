@@ -35,24 +35,40 @@ describe('干员技能等级组', () => {
   it('变体同样校验等级来源，不借用技能类型枚举', () => {
     const groups = operatorGroups();
     groups[0]!.variants = [
-      { key: 'bad', levelSource: 'finisher', nativeGroupType: 2, skillKeys: ['basicAttack1'] },
+      {
+        key: 'bad',
+        levelSource: 'finisher',
+        nativeGroupType: 2,
+        skillKeys: ['basicAttack1'],
+        libraryPresentation: 'enhanced',
+      },
     ];
     expect(() => parseOperatorSkillGroupSources(groups, 'fixture.skillGroups')).toThrow(
       'fixture.skillGroups[0].variants[0].levelSource: unsupported identity "finisher"',
     );
   });
 
-  it('仅由 manifest 显式声明运行时替换技能按顺序放置', () => {
+  it('逐技能读取运行时替换的放置语义，不把 replacement 统一等同于强化', () => {
     const groups = operatorGroups();
-    groups[3]!.replacementPlacement = 'sequence';
+    groups[3]!.replacementPlacements = {
+      next: 'sequence',
+      enhanced: 'enhanced',
+      alternate: 'standard',
+      exit: 'internal',
+    };
     expect(parseOperatorSkillGroupSources(groups, 'fixture.skillGroups')[3]).toMatchObject({
       key: 'battleSkill',
-      replacementPlacement: 'sequence',
+      replacementPlacements: {
+        next: 'sequence',
+        enhanced: 'enhanced',
+        alternate: 'standard',
+        exit: 'internal',
+      },
     });
 
-    groups[3]!.replacementPlacement = 'enhanced';
+    groups[3]!.replacementPlacements = { bad: 'guessed' };
     expect(() => parseOperatorSkillGroupSources(groups, 'fixture.skillGroups')).toThrow(
-      'fixture.skillGroups[3].replacementPlacement: unsupported identity "enhanced"',
+      'fixture.skillGroups[3].replacementPlacements.bad: unsupported identity "guessed"',
     );
   });
 
@@ -90,6 +106,7 @@ describe('干员技能等级组', () => {
               levelSource: 'ultimate',
               nativeGroupType: 2,
               skillKeys: ['enhanced'],
+              libraryPresentation: 'enhanced',
             },
           ],
         },

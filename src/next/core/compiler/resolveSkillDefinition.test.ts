@@ -166,6 +166,28 @@ describe('resolveEffectiveSkillDefinition', () => {
     expect(routedSlot.levelSource).toBe('comboSkill');
   });
 
+  it('rejects an internal replacement as a player timeline input', () => {
+    const internal = { ...catalogSkill, key: 'internalEnd' };
+    const group: SkillGroupDefinition = {
+      ...skillGroup,
+      replacementSkills: [internal],
+      replacementSkillPlacements: { internalEnd: 'internal' },
+    };
+
+    expect(() =>
+      resolveEffectiveSkillDefinition(
+        createCast({
+          source: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: internal.key,
+          },
+        }),
+        { ...operator, skillGroups: [group] },
+      ),
+    ).toThrow("skill 'test/battleSkill/internalEnd' is internal");
+  });
+
   it('returns custom definition when present', () => {
     const resolved = resolveEffectiveSkillDefinition(
       createCast({ customDefinition: customSkill }),

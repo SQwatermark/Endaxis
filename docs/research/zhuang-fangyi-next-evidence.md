@@ -31,9 +31,15 @@
 | `enhancedComboSkill`  | `combo_skill_ult`              | exact  |
 | `ultimate`            | `ultimate_skill` 与强化状态    | exact  |
 
-因此新版配置把普通和强化技能建模成不同的稳定施放身份，并用 `ultimateEnhancement` 控制可用性。项目存档记录用户实际拖入的
-技能身份，不需要在加载后根据当前状态篡改 `skillKey`。这些强化技能是编辑器中可直接拖放的独立技能组，不能放进只供同槽位
-运行时形态使用的 `replacementSkills`，也不能自动生成 `changeSkillSlot`。
+因此新版配置把普通和强化技能建模成不同的稳定施放身份。项目存档记录用户实际拖入的技能身份，不需要
+在加载后根据当前状态篡改 `skillKey`。运行时真实 `ChangeSkillAction` 关系仍保存在
+`replacementSkills`，但该关系不决定技能库展示；生成清单另以 `replacementPlacements: enhanced` 明确
+声明强化战技和强化连携可独立拖放。强化普攻是独立技能组，并以 `libraryPresentation: enhanced` 声明
+展示语义。
+
+`chr_0030_zhuangfy_ultimate_skill_end` 不在上述玩家技能表中。强化 Buff 结束时先把它改为
+`AttachSkill`，随后立即由 `CastSkill` 内部施放；它只负责退场表现和形态清理，不是新的终结技伤害段，
+因此正式清单标为 `replacementPlacements: internal`，不得进入技能库或显示成“强化终结技”。
 
 ## 普攻
 

@@ -2598,6 +2598,7 @@ export default {
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
       skills: camilleBattleSkill,
+      replacementSkillPlacements: { battleSkillDuringUltimate: 'standard' },
       routedReplacementSkills: [
         {
           skill: camilleBattleSkillDuringUltimate,

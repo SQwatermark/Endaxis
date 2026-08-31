@@ -1583,6 +1583,7 @@
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
           "nativeGroupType": 3,
+          "replacementPlacements": { "comboSkill3": "standard" },
           "skillKeys": ["comboSkill2", "comboSkill3"]
         },
         {
@@ -1785,6 +1786,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
+          "replacementPlacements": { "battleSkillDuringUltimate": "standard" },
           "skillKeys": ["battleSkill", "battleSkillDuringUltimate"]
         },
         {
@@ -2129,6 +2131,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
+          "replacementPlacements": { "enhancedBattleSkill": "enhanced" },
           "skillKeys": ["battleSkill", "enhancedBattleSkill"]
         },
         {
@@ -2136,6 +2139,7 @@
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
           "nativeGroupType": 3,
+          "replacementPlacements": { "enhancedComboSkill": "enhanced" },
           "skillKeys": ["comboSkill", "enhancedComboSkill"]
         },
         {
@@ -2143,6 +2147,7 @@
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "nativeGroupType": 2,
+          "replacementPlacements": { "ultimateEnd": "internal" },
           "skillKeys": ["ultimate", "ultimateEnd"]
         },
         {
@@ -2150,6 +2155,7 @@
           "skillType": "basicAttack",
           "levelSource": "ultimate",
           "nativeGroupType": 2,
+          "libraryPresentation": "enhanced",
           "skillKeys": ["enhancedBasicAttack1", "enhancedBasicAttack2", "enhancedBasicAttack3"]
         }
       ],
@@ -2378,6 +2384,7 @@
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "nativeGroupType": 2,
+          "replacementPlacements": { "arcana": "standard" },
           "skillKeys": ["ultimate", "arcana"]
         }
       ],
@@ -4065,6 +4072,7 @@
               "key": "enhancedBasicAttack",
               "levelSource": "ultimate",
               "nativeGroupType": 2,
+              "libraryPresentation": "enhanced",
               "skillKeys": [
                 "ultimateAttack1",
                 "ultimateAttack2",
@@ -4093,6 +4101,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
+          "replacementPlacements": { "battleSkillDuringUltimate": "enhanced" },
           "skillKeys": ["battleSkill", "battleSkillDuringUltimate"]
         },
         {
@@ -4245,6 +4254,7 @@
               "key": "enhancedBasicAttack",
               "levelSource": "ultimate",
               "nativeGroupType": 2,
+              "libraryPresentation": "enhanced",
               "skillKeys": [
                 "ultimateAttack1",
                 "ultimateAttack2A",
@@ -4447,7 +4457,10 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "replacementPlacement": "sequence",
+          "replacementPlacements": {
+            "battleSkill2": "sequence",
+            "battleSkill3": "sequence"
+          },
           "skillKeys": ["battleSkill1", "battleSkill2", "battleSkill3"]
         },
         {
@@ -4716,6 +4729,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
+          "replacementPlacements": { "battleSkillEnd": "standard" },
           "skillKeys": ["battleSkill", "battleSkillEnd", "battleSkillCombo"]
         },
         {

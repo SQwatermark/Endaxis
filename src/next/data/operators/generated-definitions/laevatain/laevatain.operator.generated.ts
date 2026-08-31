@@ -2450,6 +2450,7 @@ export default {
         {
           key: 'enhancedBasicAttack',
           levelSource: 'ultimate',
+          libraryPresentation: 'enhanced',
           skills: [
             laevatainUltimateAttack1,
             laevatainUltimateAttack2,
@@ -2477,6 +2478,7 @@ export default {
       levelSource: 'battleSkill',
       skills: laevatainBattleSkill,
       replacementSkills: [laevatainBattleSkillDuringUltimate],
+      replacementSkillPlacements: { battleSkillDuringUltimate: 'enhanced' },
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: laevatainUltimate },
     {

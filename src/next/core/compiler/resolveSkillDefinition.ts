@@ -97,6 +97,11 @@ export function resolveSkillTemplateDefinition(
       `skill group '${operator.slug}/${group.key}' has no skill '${source.skillKey}'`,
     );
   }
+  if (group.replacementSkillPlacements?.[resolvedDefinition.key] === 'internal') {
+    throw new Error(
+      `skill '${operator.slug}/${group.key}/${resolvedDefinition.key}' is internal and cannot be placed on the timeline`,
+    );
+  }
   return {
     definition: resolvedDefinition,
     group,

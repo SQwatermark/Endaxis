@@ -32,6 +32,7 @@ const context: OperatorProgressionDefinitionContext = {
     levelSource: key,
     nativeGroupType: index + 1,
     skillKeys: [key],
+    replacementPlacements: {},
     variants: [],
   })),
   costResources: new Map([['chr_0012_avywen_ultimate_skill', 'ultimateEnergy']]),

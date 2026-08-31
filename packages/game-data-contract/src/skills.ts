@@ -154,6 +154,8 @@ export interface SkillGroupDefinition {
   levelSource: SkillLevelSource;
   /** 单个可放置技能，或作为一个技能库条目放置的有序技能链。 */
   skills: SkillDefinition | readonly SkillDefinition[];
+  /** 基础放置项在技能库中的语义强调；省略表示普通操作。 */
+  libraryPresentation?: 'enhanced';
   /**
    * 运行时虽以换槽形态注册、但编辑器放置时具有明确先后关系的完整技能键序列。
    * 省略表示 replacement 是状态强化形态，应作为独立卡片；不得由 UI 按名称猜测。
@@ -171,6 +173,12 @@ export interface SkillGroupDefinition {
    */
   replacementSkills?: readonly SkillDefinition[];
   /**
+   * 每个运行时替换技能在技能库中的显式放置语义。运行时替换关系本身不能推出展示语义：
+   * `standard` 是普通独立操作，`enhanced` 是强化形态，`internal` 不接受玩家输入。
+   * 有序接续技能由 `placementSequenceSkillKeys` 表达，不重复出现在这里。
+   */
+  replacementSkillPlacements?: Readonly<Record<string, 'standard' | 'enhanced' | 'internal'>>;
+  /**
    * 跨原生技能组的换槽形态。技能仍占用本组的稳定槽位，但执行时使用其原生分类与等级源。
    * 仅用于原生输入旁路（例如战技包装器实际 Cast 连携技）；普通同组换槽继续使用 replacementSkills。
    */
@@ -182,6 +190,8 @@ export interface SkillGroupDefinition {
 export interface SkillGroupVariantDefinition {
   key: string;
   levelSource: SkillLevelSource;
+  /** 具名形态在技能库中的语义强调；不能从 variant 结构或 key 名称推断。 */
+  libraryPresentation?: 'enhanced';
   skills: SkillDefinition | readonly SkillDefinition[];
 }
 

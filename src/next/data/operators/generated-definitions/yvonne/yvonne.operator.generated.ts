@@ -5143,6 +5143,7 @@ export default {
         {
           key: 'enhancedBasicAttack',
           levelSource: 'ultimate',
+          libraryPresentation: 'enhanced',
           skills: [
             yvonneUltimateAttack1,
             yvonneUltimateAttack2A,

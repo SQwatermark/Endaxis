@@ -4891,6 +4891,7 @@ export default {
       levelSource: 'battleSkill',
       skills: [liinoBattleSkill, liinoBattleSkillCombo],
       replacementSkills: [liinoBattleSkillEnd],
+      replacementSkillPlacements: { battleSkillEnd: 'standard' },
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: liinoUltimate },
   ],

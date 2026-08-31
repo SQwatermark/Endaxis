@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { laevatain, mifu, perlica } from '../../data/operators';
+import { laevatain, mifu, perlica, zhuangFangyi } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 
 function createIds(): TimelineDocumentIdAllocator {
@@ -172,6 +172,23 @@ describe('placeSkillGroup', () => {
     expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual([
       10, 21, 49,
     ]);
+  });
+
+  it('does not allow an internal runtime skill to be placed explicitly', () => {
+    const scenario = createPerlicaScenario();
+    scenario.tracks[0]!.operator!.operatorSlug = zhuangFangyi.slug;
+
+    expect(() =>
+      placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: zhuangFangyi,
+        skillGroupKey: 'ultimate',
+        skillKey: 'ultimateEnd',
+        startFrame: 10,
+        ids: createIds(),
+      }),
+    ).toThrow("skill group 'ultimate' has no skill 'ultimateEnd'");
   });
 
   it('rejects a definition that does not match the track build', () => {

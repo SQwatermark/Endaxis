@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
+import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { camille, laevatain, mifu, perlica } from '../../data/operators';
+import {
+  arcane,
+  camille,
+  laevatain,
+  liino,
+  mifu,
+  perlica,
+  rossi,
+  zhuangFangyi,
+} from '../../data/operators';
 import { placeSkillGroup } from './placeSkillGroup';
 import { projectTimelineEditor } from './timelineEditorViewModel';
 
@@ -271,9 +281,66 @@ describe('projectTimelineEditor', () => {
       placementSkillKey: 'battleSkillDuringUltimate',
       skillType: 'comboSkill',
       level: 5,
+      enhanced: false,
       groupPlacementSkillKeys: ['battleSkillDuringUltimate'],
     });
     expect(track.skillCasts[0]?.skillType).toBe('comboSkill');
+  });
+
+  it('uses explicit library semantics instead of treating every replacement as enhanced', () => {
+    const project = (operator: OperatorDefinition) => {
+      const scenario = createEmptyScenario(`scenario:${operator.slug}`, operator.slug);
+      scenario.tracks[0] = {
+        id: `track:${operator.slug}`,
+        operator: {
+          operatorSlug: operator.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: {},
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      return projectTimelineEditor(scenario, {
+        getOperator: slug => (slug === operator.slug ? operator : null),
+      }).tracks[0]!.skillLibrary;
+    };
+
+    const zhuangEntries = project(zhuangFangyi);
+    expect(zhuangEntries.some(entry => entry.placementSkillKey === 'ultimateEnd')).toBe(false);
+    expect(
+      zhuangEntries.find(entry => entry.skillGroupKey === 'enhancedBasicAttack'),
+    ).toMatchObject({ enhanced: true });
+    expect(
+      zhuangEntries.find(entry => entry.placementSkillKey === 'enhancedBattleSkill'),
+    ).toMatchObject({ enhanced: true });
+    expect(
+      zhuangEntries.find(entry => entry.placementSkillKey === 'enhancedComboSkill'),
+    ).toMatchObject({ enhanced: true });
+
+    expect(project(arcane).find(entry => entry.placementSkillKey === 'arcana')).toMatchObject({
+      enhanced: false,
+      skillType: 'ultimate',
+    });
+    expect(
+      project(liino).find(entry => entry.placementSkillKey === 'battleSkillEnd'),
+    ).toMatchObject({
+      enhanced: false,
+      skillType: 'battleSkill',
+    });
+    expect(project(rossi).filter(entry => entry.skillGroupKey === 'comboSkill')).toEqual([
+      expect.objectContaining({ enhanced: false, groupPlacementSkillKeys: ['comboSkill2'] }),
+      expect.objectContaining({
+        enhanced: false,
+        placementSkillKey: 'comboSkill3',
+        groupPlacementSkillKeys: ['comboSkill3'],
+      }),
+    ]);
   });
 
   it('keeps project template identity separate from inherited operator assets', () => {

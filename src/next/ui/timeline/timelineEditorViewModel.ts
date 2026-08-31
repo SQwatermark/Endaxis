@@ -36,7 +36,7 @@ export interface TimelineSkillLibraryEntryViewModel {
   readonly variantKey?: string;
   readonly skillType: SkillType;
   readonly level: number;
-  /** 状态强化产生的独立形态；有序接续段为 false。 */
+  /** 来源定义明确声明为强化展示；不能从 variant/replacement 结构或技能键推断。 */
   readonly enhanced: boolean;
   /** 独立强化技能卡片拖动整卡时显式放置的技能；顺序链省略。 */
   readonly placementSkillKey?: string;
@@ -194,6 +194,7 @@ function projectTrack(
           const baseSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
           const directReplacements = group.replacementSkills ?? [];
           const routedReplacements = group.routedReplacementSkills ?? [];
+          const replacementPlacements = group.replacementSkillPlacements ?? {};
           const sequenceSkillKeys = new Set(group.placementSequenceSkillKeys ?? []);
           const skillByKey = new Map([
             ...baseSkills.map(skill => [skill.key, skill] as const),
@@ -226,7 +227,7 @@ function projectTrack(
               levelSource: group.levelSource,
               skillType: group.skillType,
               skills: placementSequence.length > 0 ? placementSequence : baseSkills,
-              enhanced: false,
+              enhanced: group.libraryPresentation === 'enhanced',
             },
             ...(group.variants ?? []).map(variant => ({
               entryKey: `${group.key}:variant:${variant.key}`,
@@ -234,10 +235,14 @@ function projectTrack(
               levelSource: variant.levelSource,
               skillType: group.skillType,
               skills: Array.isArray(variant.skills) ? variant.skills : [variant.skills],
-              enhanced: true,
+              enhanced: variant.libraryPresentation === 'enhanced',
             })),
             ...directReplacements
-              .filter(skill => !sequenceSkillKeys.has(skill.key))
+              .filter(
+                skill =>
+                  !sequenceSkillKeys.has(skill.key) &&
+                  replacementPlacements[skill.key] !== 'internal',
+              )
               .map(skill => ({
                 entryKey: `${group.key}:replacement:${skill.key}`,
                 variantKey: undefined,
@@ -245,10 +250,14 @@ function projectTrack(
                 levelSource: group.levelSource,
                 skillType: group.skillType,
                 skills: [skill],
-                enhanced: true,
+                enhanced: replacementPlacements[skill.key] === 'enhanced',
               })),
             ...routedReplacements
-              .filter(replacement => !sequenceSkillKeys.has(replacement.skill.key))
+              .filter(
+                replacement =>
+                  !sequenceSkillKeys.has(replacement.skill.key) &&
+                  replacementPlacements[replacement.skill.key] !== 'internal',
+              )
               .map(replacement => ({
                 entryKey: `${group.key}:routed:${replacement.skill.key}`,
                 variantKey: undefined,
@@ -256,7 +265,7 @@ function projectTrack(
                 levelSource: replacement.levelSource,
                 skillType: replacement.skillType,
                 skills: [replacement.skill],
-                enhanced: true,
+                enhanced: replacementPlacements[replacement.skill.key] === 'enhanced',
               })),
           ];
           return entries.map(entry => ({

@@ -42,7 +42,15 @@ const GROUP_REQUIRED_FIELDS = new Set([
   'skillKeys',
   'skillType',
 ]);
-const VARIANT_FIELDS = new Set(['key', 'levelSource', 'nativeGroupType', 'skillKeys']);
+const VARIANT_FIELDS = new Set([
+  'key',
+  'levelSource',
+  'nativeGroupType',
+  'skillKeys',
+  'libraryPresentation',
+]);
+const LIBRARY_PRESENTATIONS = ['enhanced'] as const;
+const REPLACEMENT_PLACEMENTS = ['sequence', 'standard', 'enhanced', 'internal'] as const;
 
 export interface NativeOperatorSkillGroupSource {
   readonly sourcePath: string;
@@ -61,7 +69,7 @@ export type OperatorSkillIdentitySource = Readonly<
 
 /** 配置中的链接计划，装配前保留原生等级组和有序技能键，不提前内联技能定义。 */
 export type OperatorSkillGroupVariantSource = Readonly<
-  Pick<SkillGroupVariantDefinition, 'key' | 'levelSource'>
+  Pick<SkillGroupVariantDefinition, 'key' | 'levelSource' | 'libraryPresentation'>
 > & {
   readonly nativeGroupType: number;
   readonly skillKeys: readonly string[];
@@ -72,7 +80,8 @@ export type OperatorSkillGroupSource = Readonly<
 > & {
   readonly nativeGroupType: number;
   readonly skillKeys: readonly string[];
-  readonly replacementPlacement?: 'sequence';
+  readonly libraryPresentation?: 'enhanced';
+  readonly replacementPlacements: Readonly<Record<string, (typeof REPLACEMENT_PLACEMENTS)[number]>>;
   readonly variants: readonly OperatorSkillGroupVariantSource[];
 };
 
@@ -145,7 +154,8 @@ export function parseOperatorSkillGroupSources(
     const group = requireRecord(raw, groupPath);
     const expectedFields = new Set(GROUP_REQUIRED_FIELDS);
     if (group.variants !== undefined) expectedFields.add('variants');
-    if (group.replacementPlacement !== undefined) expectedFields.add('replacementPlacement');
+    if (group.libraryPresentation !== undefined) expectedFields.add('libraryPresentation');
+    if (group.replacementPlacements !== undefined) expectedFields.add('replacementPlacements');
     requireExactFields(group, expectedFields, groupPath);
     const variants =
       group.variants === undefined
@@ -166,19 +176,30 @@ export function parseOperatorSkillGroupSources(
                 `${variantPath}.nativeGroupType`,
               ),
               skillKeys: distinctStrings(variant.skillKeys, `${variantPath}.skillKeys`),
+              libraryPresentation: requireGroupIdentity(
+                variant.libraryPresentation,
+                LIBRARY_PRESENTATIONS,
+                `${variantPath}.libraryPresentation`,
+              ),
             };
           });
     if (group.variants !== undefined && variants.length === 0) {
       throw new Error(`${groupPath}.variants: expected entries`);
     }
-    const replacementPlacement =
-      group.replacementPlacement === undefined
-        ? undefined
-        : requireGroupIdentity(
-            group.replacementPlacement,
-            ['sequence'] as const,
-            `${groupPath}.replacementPlacement`,
-          );
+    const replacementPlacements = Object.fromEntries(
+      Object.entries(
+        group.replacementPlacements === undefined
+          ? {}
+          : requireRecord(group.replacementPlacements, `${groupPath}.replacementPlacements`),
+      ).map(([skillKey, placement]) => [
+        requireNonEmptyString(skillKey, `${groupPath}.replacementPlacements key`),
+        requireGroupIdentity(
+          placement,
+          REPLACEMENT_PLACEMENTS,
+          `${groupPath}.replacementPlacements.${skillKey}`,
+        ),
+      ]),
+    );
     return {
       key: requireNonEmptyString(group.key, `${groupPath}.key`),
       skillType: requireGroupIdentity(group.skillType, SKILL_TYPES, `${groupPath}.skillType`),
@@ -192,7 +213,16 @@ export function parseOperatorSkillGroupSources(
         `${groupPath}.nativeGroupType`,
       ),
       skillKeys: distinctStrings(group.skillKeys, `${groupPath}.skillKeys`),
-      ...(replacementPlacement === undefined ? {} : { replacementPlacement }),
+      ...(group.libraryPresentation === undefined
+        ? {}
+        : {
+            libraryPresentation: requireGroupIdentity(
+              group.libraryPresentation,
+              LIBRARY_PRESENTATIONS,
+              `${groupPath}.libraryPresentation`,
+            ),
+          }),
+      replacementPlacements,
       variants,
     };
   });

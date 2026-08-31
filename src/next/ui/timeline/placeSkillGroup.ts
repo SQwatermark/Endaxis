@@ -75,7 +75,7 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
   const directlyPlaceableReplacements = [
     ...(group.replacementSkills ?? []),
     ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
-  ];
+  ].filter(skill => group.replacementSkillPlacements?.[skill.key] !== 'internal');
   const selectedSkills = variant?.skills ?? group.skills;
   const defaultGroupSkills = Array.isArray(selectedSkills) ? selectedSkills : [selectedSkills];
   const allGroupSkills = [...defaultGroupSkills, ...directlyPlaceableReplacements];
