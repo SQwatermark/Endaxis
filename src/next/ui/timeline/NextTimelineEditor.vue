@@ -202,7 +202,11 @@ import {
   isKeyboardShortcutIsolationTarget,
   useKeyboardShortcutScope,
 } from '../keyboard/keyboardShortcutRouter';
-import { basicAttackSegmentLabel } from './timelineSkillLabels';
+import {
+  skillLibrarySegmentLabel,
+  timelineSkillSegmentLabel,
+  type TimelineSkillSegmentLabels,
+} from './timelineSkillLabels';
 import {
   MAX_PROJECT_SCENARIOS,
   addProjectScenario,
@@ -797,7 +801,7 @@ const placementLabel = computed(() => {
   if (entry === null || placement === null) return '';
   if (placement.skillKey !== undefined) {
     return (
-      basicAttackSegmentLabel(entry, placement.skillKey, t('skillType.heavyAttack')) ??
+      skillLibrarySegmentLabel(entry, placement.skillKey, skillSegmentLabels()) ??
       skillName(placement.skillKey, selectedTrackModel.value.operatorSlug)
     );
   }
@@ -2164,6 +2168,14 @@ function skillTypeLabel(skillType: string): string {
   return t(`skillType.${displayType}`);
 }
 
+function skillSegmentLabels(): TimelineSkillSegmentLabels {
+  return {
+    heavyAttack: t('skillType.heavyAttack'),
+    battleSkill: t('skillType.skill'),
+    comboSkill: t('skillType.link'),
+  };
+}
+
 function skillLibraryTypeLabel(entry: TimelineSkillLibraryEntryViewModel): string {
   const type = skillTypeLabel(entry.skillType);
   return entry.enhanced ? t('skillType.enhanced', { type }) : type;
@@ -2192,7 +2204,7 @@ function timelineCastLabel(
   const segmentLabel =
     entry === undefined
       ? null
-      : basicAttackSegmentLabel(entry, source.skillKey, t('skillType.heavyAttack'));
+      : timelineSkillSegmentLabel(entry, source.skillKey, skillSegmentLabels());
   return (
     segmentLabel ?? (cast.skillType === null ? source.skillKey : skillTypeLabel(cast.skillType))
   );
@@ -2417,7 +2429,7 @@ function skillSegments(entry: TimelineSkillLibraryEntryViewModel) {
   return entry.skills.map(skill => ({
     id: skill.skillKey,
     label:
-      basicAttackSegmentLabel(entry, skill.skillKey, t('skillType.heavyAttack')) ??
+      skillLibrarySegmentLabel(entry, skill.skillKey, skillSegmentLabels()) ??
       skillName(skill.skillKey, selectedTrackModel.value.operatorSlug),
     selected:
       libraryPlacement.value?.entryKey === entry.entryKey &&
@@ -3006,7 +3018,7 @@ function beginSkillDrag(
   const label =
     placedSkillKey === undefined
       ? skillLibraryEntryName(entry)
-      : (basicAttackSegmentLabel(entry, placedSkillKey, t('skillType.heavyAttack')) ??
+      : (skillLibrarySegmentLabel(entry, placedSkillKey, skillSegmentLabels()) ??
         skillName(placedSkillKey, selectedTrackModel.value.operatorSlug));
   const ghost = createLibraryDragGhost(
     { name: label, duration: durationSeconds },

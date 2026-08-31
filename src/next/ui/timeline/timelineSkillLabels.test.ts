@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import type { TimelineSkillLibraryEntryViewModel } from './timelineEditorViewModel';
-import { basicAttackSegmentLabel } from './timelineSkillLabels';
+import {
+  skillLibrarySegmentLabel,
+  timelineSkillSegmentLabel,
+  type TimelineSkillSegmentLabels,
+} from './timelineSkillLabels';
+
+const labels: TimelineSkillSegmentLabels = {
+  heavyAttack: '重击',
+  battleSkill: '战技',
+  comboSkill: '连携',
+};
 
 function skillLibraryEntry(
   skillType: TimelineSkillLibraryEntryViewModel['skillType'],
@@ -21,24 +31,55 @@ function skillLibraryEntry(
   };
 }
 
-describe('basicAttackSegmentLabel', () => {
-  it('labels normal segments from A1 and the final segment as heavy attack', () => {
+describe('skill sequence labels', () => {
+  it('uses operation notation in the skill library', () => {
     const entry = skillLibraryEntry('basicAttack', ['attack-1', 'attack-2', 'attack-3']);
 
-    expect(basicAttackSegmentLabel(entry, 'attack-1', '重击')).toBe('A1');
-    expect(basicAttackSegmentLabel(entry, 'attack-2', '重击')).toBe('A2');
-    expect(basicAttackSegmentLabel(entry, 'attack-3', '重击')).toBe('重击');
+    expect(skillLibrarySegmentLabel(entry, 'attack-1', labels)).toBe('A1');
+    expect(skillLibrarySegmentLabel(entry, 'attack-2', labels)).toBe('A2');
+    expect(skillLibrarySegmentLabel(entry, 'attack-3', labels)).toBe('重击');
+    expect(
+      skillLibrarySegmentLabel(
+        skillLibraryEntry('battleSkill', ['skill-1', 'skill-2']),
+        'skill-2',
+        labels,
+      ),
+    ).toBe('C2');
+    expect(
+      skillLibrarySegmentLabel(
+        skillLibraryEntry('comboSkill', ['combo-1', 'combo-2']),
+        'combo-1',
+        labels,
+      ),
+    ).toBe('E1');
   });
 
-  it('does not invent segment labels for other skill types or unknown skills', () => {
+  it('uses semantic numbered names on timeline blocks', () => {
     expect(
-      basicAttackSegmentLabel(skillLibraryEntry('battleSkill', ['skill']), 'skill', '重击'),
+      timelineSkillSegmentLabel(
+        skillLibraryEntry('battleSkill', ['skill-1', 'skill-2']),
+        'skill-1',
+        labels,
+      ),
+    ).toBe('战技 1');
+    expect(
+      timelineSkillSegmentLabel(
+        skillLibraryEntry('comboSkill', ['combo-1', 'combo-2']),
+        'combo-2',
+        labels,
+      ),
+    ).toBe('连携 2');
+  });
+
+  it('does not invent sequence labels for single or unknown skills', () => {
+    expect(
+      skillLibrarySegmentLabel(skillLibraryEntry('battleSkill', ['skill']), 'skill', labels),
     ).toBe(null);
     expect(
-      basicAttackSegmentLabel(
+      timelineSkillSegmentLabel(
         skillLibraryEntry('basicAttack', ['attack-1', 'attack-2']),
         'missing',
-        '重击',
+        labels,
       ),
     ).toBe(null);
   });

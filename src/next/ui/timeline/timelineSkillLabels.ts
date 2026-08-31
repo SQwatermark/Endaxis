@@ -1,16 +1,49 @@
-/**
- * 统一时间轴技能库与动作块的普攻段标签，避免不同渲染入口各自推导名称。
- * 这里只处理稳定的技能身份；本地化后的“重击”文本由调用方传入。
- */
 import type { TimelineSkillLibraryEntryViewModel } from './timelineEditorViewModel';
 
-export function basicAttackSegmentLabel(
+export interface TimelineSkillSegmentLabels {
+  readonly heavyAttack: string;
+  readonly battleSkill: string;
+  readonly comboSkill: string;
+}
+
+function sequenceIndex(entry: TimelineSkillLibraryEntryViewModel, skillKey: string): number | null {
+  if (entry.groupPlacementSkillKeys.length < 2) return null;
+  const index = entry.groupPlacementSkillKeys.indexOf(skillKey);
+  return index < 0 ? null : index;
+}
+
+/** 技能库使用操作键语言，让玩家能快速识别连续技能的第几段。 */
+export function skillLibrarySegmentLabel(
   entry: TimelineSkillLibraryEntryViewModel,
   skillKey: string,
-  heavyAttackLabel: string,
+  labels: TimelineSkillSegmentLabels,
 ): string | null {
-  if (entry.skillType !== 'basicAttack' || entry.groupPlacementSkillKeys.length < 2) return null;
-  const index = entry.groupPlacementSkillKeys.indexOf(skillKey);
-  if (index < 0) return null;
-  return index === entry.groupPlacementSkillKeys.length - 1 ? heavyAttackLabel : `A${index + 1}`;
+  const index = sequenceIndex(entry, skillKey);
+  if (index === null) return null;
+  if (entry.skillType === 'basicAttack') {
+    return index === entry.groupPlacementSkillKeys.length - 1
+      ? labels.heavyAttack
+      : `A${index + 1}`;
+  }
+  if (entry.skillType === 'battleSkill') return `C${index + 1}`;
+  if (entry.skillType === 'comboSkill') return `E${index + 1}`;
+  return null;
+}
+
+/** 时间轴块使用技能语义，不把技能库的 C/E 操作简写带入战斗结果。 */
+export function timelineSkillSegmentLabel(
+  entry: TimelineSkillLibraryEntryViewModel,
+  skillKey: string,
+  labels: TimelineSkillSegmentLabels,
+): string | null {
+  const index = sequenceIndex(entry, skillKey);
+  if (index === null) return null;
+  if (entry.skillType === 'basicAttack') {
+    return index === entry.groupPlacementSkillKeys.length - 1
+      ? labels.heavyAttack
+      : `A${index + 1}`;
+  }
+  if (entry.skillType === 'battleSkill') return `${labels.battleSkill} ${index + 1}`;
+  if (entry.skillType === 'comboSkill') return `${labels.comboSkill} ${index + 1}`;
+  return null;
 }
