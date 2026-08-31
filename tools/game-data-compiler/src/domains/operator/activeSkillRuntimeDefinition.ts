@@ -19,7 +19,10 @@ import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/physi
 
 /** 已编译的正式技能子集；来源身份、黑板与消耗帧必填，不接受尚未接入的事件字段。 */
 export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
-  Pick<SkillDefinition, 'key' | 'timelineBlockFrames' | 'exclusiveFrame' | 'cooldownFrames'> &
+  Pick<
+    SkillDefinition,
+    'key' | 'timelineBlockFrames' | 'exclusiveFrame' | 'cooldownFrames' | 'enhancementStateBuffId'
+  > &
     Required<Pick<SkillDefinition, 'sourceSkillId' | 'blackboard' | 'costFrame'>>
 > & {
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';

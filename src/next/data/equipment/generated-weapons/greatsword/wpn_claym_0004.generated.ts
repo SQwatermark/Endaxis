@@ -148,17 +148,7 @@ const definition = {
           "abilityEvent": "beforeOutputDamage",
           "priority": 0,
           "blackboard": {
-            "cd_duraton": [
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1
-            ],
+            "cd_duraton": 0.1,
             "duration": [
               30,
               30,

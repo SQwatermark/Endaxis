@@ -7,7 +7,7 @@ import {
 } from '../src/index.ts';
 
 describe('单件装备正式定义渲染', () => {
-  it('按稳定身份生成分套装单文件、索引和审计', () => {
+  it('按稳定身份生成分套装单文件和索引，不把审计中间产物写入正式目录', () => {
     const files = renderEquipmentDefinitionFiles({
       definitions: [gear('gear-b', 'set-b'), gear('gear-a', undefined)],
       diagnostics: [
@@ -21,24 +21,13 @@ describe('单件装备正式定义渲染', () => {
 
     expect(files.map(file => file.relativePath)).toEqual([
       '_standalone/gear-a.generated.ts',
-      'equipment-definitions.audit.json',
       'index.generated.ts',
       'set-b/gear-b.generated.ts',
     ]);
     expect(files.find(file => file.relativePath === 'index.generated.ts')?.content).toContain(
       "import generatedGear0 from './_standalone/gear-a.generated';",
     );
-    expect(
-      JSON.parse(
-        files.find(file => file.relativePath === 'equipment-definitions.audit.json')!.content,
-      ),
-    ).toMatchObject({
-      definitionCount: 2,
-      traitCount: 2,
-      modifierCount: 2,
-      slotCounts: { armor: 2 },
-      diagnostics: [{ status: 'scenario-omitted' }],
-    });
+    expect(files.some(file => file.relativePath.endsWith('.audit.json'))).toBe(false);
   });
 
   it('相同定义的输入顺序不影响输出', () => {

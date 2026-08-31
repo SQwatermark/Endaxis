@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { writeEquipmentDefinitionFiles } from '../src/index.ts';
+import { checkEquipmentDefinitionFiles, writeEquipmentDefinitionFiles } from '../src/index.ts';
 
 const temporaryRoots: string[] = [];
 
@@ -15,6 +15,28 @@ afterEach(async () => {
 });
 
 describe('装备正式定义原子写盘', () => {
+  it('只读核对完整目录并只归一化换行编码', async () => {
+    const root = await createTemporaryRoot();
+    const output = join(root, 'generated');
+    const files = [
+      { relativePath: 'index.generated.ts', content: 'index\n' },
+      { relativePath: 'set-a/gear.generated.ts', content: 'line 1\nline 2\n' },
+    ];
+    await writeEquipmentDefinitionFiles(output, files);
+    await writeFile(join(output, 'set-a/gear.generated.ts'), 'line 1\r\nline 2\r\n', 'utf8');
+
+    expect(() => checkEquipmentDefinitionFiles(output, files)).not.toThrow();
+    await writeFile(join(output, 'set-a/gear.generated.ts'), 'changed\n', 'utf8');
+    expect(() => checkEquipmentDefinitionFiles(output, files)).toThrow(
+      'generated definition file is stale: set-a/gear.generated.ts',
+    );
+    await writeFile(join(output, 'set-a/gear.generated.ts'), files[1]!.content, 'utf8');
+    await writeFile(join(output, 'stale.generated.ts'), 'stale\n', 'utf8');
+    expect(() => checkEquipmentDefinitionFiles(output, files)).toThrow(
+      'generated definition file set is stale',
+    );
+  });
+
   it('用完整批次替换旧目录并移除陈旧生成物', async () => {
     const root = await createTemporaryRoot();
     const output = join(root, 'generated');

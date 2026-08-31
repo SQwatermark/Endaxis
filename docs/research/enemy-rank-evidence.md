@@ -48,7 +48,7 @@ adaptation; none may fall back to a tier mapping. Custom project enemies carry
 an explicit project-owned rank and default to `mob` when created.
 
 Reproduction and parser tests are documented in
-`scripts/extract_next_enemy_ranks/README.md`.
+`tools/game-data-compiler/legacy/enemy-ranks/README.md`.
 
 ## Generator audit
 

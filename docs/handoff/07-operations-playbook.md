@@ -52,28 +52,27 @@ npm.cmd run format:check
 
 修改跨层核心逻辑时运行全量 Next 测试；局部 UI helper 可先跑相关测试，但结束前仍应至少执行类型检查。UI 修改必须在浏览器实测，尤其检查不同缩放、准备区、战斗区、弹窗和快捷键作用域。
 
-## 3. 干员生成器
+## 3. 游戏数据编译器
 
-目录：
+目录：`C:\Users\sqwat\Projects\zmd\Endaxis\tools\game-data-compiler`
 
-`C:\Users\sqwat\Projects\zmd\Endaxis\scripts\generate_next_operators`
-
-先阅读该目录 README，再运行其 unittest。典型操作以当前 README 为准，不要硬编码已过期参数。通用测试方式：
+先阅读该目录 README。正式生成与审计入口由根 `package.json` 统一暴露；通用验证方式：
 
 ```powershell
 Set-Location C:\Users\sqwat\Projects\zmd\Endaxis
-python -m unittest discover scripts\generate_next_operators -p "test_*.py"
+npm.cmd run type-check:game-data
+npm.cmd run test:game-data
 ```
 
 生成器约束：
 
-- 输出直接进入 `src/next/data/operators/generated`；
-- 审计 JSON/Markdown 不应删除，便于比较自动与手写定义；
+- 正式输出进入 `src/next/data` 下相应生成目录；
+- 审计与候选产物只写入已忽略的 `tmp/`；
 - 生成前固定 AKEDB/CDN 版本；
 - 未知数据报错；
 - 不读取旧 TS 弥补缺值；
 - 人工规则写独立配置，不藏在 renderer；
-- 修改解析规则后对所有干员跑审计，不只看庄方宜样本。
+- 修改解析规则后运行相应全量领域审计，不只看单个样本。
 
 ## 4. Combat Spec
 

@@ -1238,7 +1238,11 @@ export class StandardPlayerDamageEnvironment {
           buffId,
           instanceId: buff.instanceId,
           layers: buff.enhanceCount,
+          sourceActionId: buff.sourceActionId,
           ...(parentBuffId === undefined ? {} : { parentBuffId }),
+          ...(currentPresentation?.nameKey === undefined
+            ? {}
+            : { nameKey: currentPresentation.nameKey }),
           ...(currentPresentation?.iconId === undefined
             ? {}
             : { iconId: currentPresentation.iconId }),

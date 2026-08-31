@@ -13,7 +13,11 @@ import type {
   UpgradeStaticDamageIncreaseTarget,
 } from '../game-data/operatorDefinition';
 import { DEFAULT_TRUST_ATTRIBUTE_BONUS } from '../game-data/operatorDefinition';
-import type { OperatorInstanceDocument } from '../project/schema';
+import type {
+  GlobalConfigDocument,
+  GlobalOperatorStatModifierDocument,
+  OperatorInstanceDocument,
+} from '../project/schema';
 import type {
   CompiledEquipmentContribution,
   EquipmentContributionSource,
@@ -69,7 +73,8 @@ export type OperatorPanelContributionSource =
   | { readonly kind: 'operatorUpgrade'; readonly upgradeKey: string }
   | { readonly kind: 'weaponBase'; readonly weaponSlug: string }
   | { readonly kind: 'gearBase'; readonly gearSlug: string }
-  | { readonly kind: 'equipment'; readonly contribution: EquipmentContributionSource };
+  | { readonly kind: 'equipment'; readonly contribution: EquipmentContributionSource }
+  | { readonly kind: 'globalConfig'; readonly modifierId: string };
 
 /** 一项进入面板聚合的原始贡献；百分比使用小数。 */
 export interface OperatorPanelContributionReceipt {
@@ -121,6 +126,12 @@ export type ResolvedOperatorCombatModifier =
       readonly kind: 'staticHealingIncrease';
       readonly target: 'output' | 'taken';
       readonly value: number;
+    }
+  | {
+      readonly kind: 'skillCooldownReduction';
+      readonly skillTypes: readonly import('../game-data/operatorDefinition').SkillType[];
+      readonly value: number;
+      readonly modifierId: string;
     };
 
 interface MutablePanelValues {
@@ -278,8 +289,46 @@ function applyEquipmentContribution(
   }
 }
 
+function applyGlobalModifier(
+  modifier: GlobalOperatorStatModifierDocument,
+  values: MutablePanelValues,
+  receipt: OperatorPanelContributionReceipt[],
+  combatModifiers: ResolvedOperatorCombatModifier[],
+): void {
+  if (!Number.isFinite(modifier.value)) {
+    throw new TypeError(`global modifier '${modifier.id}' value must be finite`);
+  }
+  if (modifier.modifier === 'skillCooldownReduction') {
+    if (modifier.skillType === undefined || modifier.value >= 1) {
+      throw new RangeError(
+        `global cooldown reduction '${modifier.id}' requires a skill type and a value less than 1`,
+      );
+    }
+    combatModifiers.push({
+      kind: 'skillCooldownReduction',
+      skillTypes: [modifier.skillType],
+      value: modifier.value,
+      modifierId: modifier.id,
+    });
+    return;
+  }
+  if (modifier.skillType !== undefined) {
+    throw new Error(`global modifier '${modifier.id}' does not support a skill-type scope`);
+  }
+  values.panelStats[modifier.modifier] += modifier.value;
+  receipt.push({
+    source: { kind: 'globalConfig', modifierId: modifier.id },
+    stat: PANEL_STAT_TARGETS[modifier.modifier],
+    operation: modifier.modifier === 'attackPercent' ? 'percent' : 'flat',
+    value: modifier.value,
+  });
+}
+
 /** 计算单个已解析干员构筑的静态面板。 */
-export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOperatorPanel {
+export function resolveOperatorPanel(
+  build: ResolvedScenarioBuild,
+  globalConfig: GlobalConfigDocument = { modifiers: [] },
+): ResolvedOperatorPanel {
   if (build.operatorInstance.baseStatOverrides !== undefined) {
     throw new Error(
       `operator '${build.track.id}' has base stat overrides, but Next panel override semantics are not normalized`,
@@ -416,6 +465,9 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
   for (const contribution of equipment.contributions) {
     applyEquipmentContribution(contribution, values, receipt, combatModifiers);
   }
+  for (const modifier of globalConfig.modifiers) {
+    applyGlobalModifier(modifier, values, receipt, combatModifiers);
+  }
   for (const attribute of ATTRIBUTES) {
     values.attributes[attribute] = Math.floor(
       values.attributes[attribute] * (1 + values.attributePercent[attribute]),
@@ -479,6 +531,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
 /** 按 Build Resolver 的轨道顺序计算队伍静态面板。 */
 export function resolveScenarioOperatorPanels(
   builds: readonly ResolvedScenarioBuild[],
+  globalConfig: GlobalConfigDocument = { modifiers: [] },
 ): readonly ResolvedOperatorPanel[] {
-  return builds.map(resolveOperatorPanel);
+  return builds.map(build => resolveOperatorPanel(build, globalConfig));
 }

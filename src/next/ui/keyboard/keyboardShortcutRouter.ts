@@ -26,6 +26,20 @@ export function isTextEditingTarget(target: EventTarget | null): boolean {
   );
 }
 
+/**
+ * 传送到 document.body 的弹窗、菜单和可交互浮层不一定能由页面组件状态感知。
+ * 在统一路由边界识别它们，避免按钮上的 Delete/Ctrl+C 等继续落到时间轴。
+ */
+export function isKeyboardShortcutIsolationTarget(target: EventTarget | null): boolean {
+  if (typeof HTMLElement === 'undefined' || !(target instanceof HTMLElement)) return false;
+  return (
+    isTextEditingTarget(target) ||
+    target.closest(
+      '.el-overlay, .el-popper, [role="dialog"], [role="menu"], [data-keyboard-shortcut-scope="overlay"]',
+    ) !== null
+  );
+}
+
 export class KeyboardShortcutRouter {
   readonly #scopes = new Map<string, RegisteredKeyboardShortcutScope>();
   #nextOrder = 0;

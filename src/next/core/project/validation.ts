@@ -219,9 +219,6 @@ function validateSkillCast(
       if (value.presentation.disabled !== undefined) {
         requireBoolean(value.presentation.disabled, `${path}.presentation.disabled`, issues);
       }
-      if (value.presentation.linked !== undefined) {
-        requireBoolean(value.presentation.linked, `${path}.presentation.linked`, issues);
-      }
       if (
         value.presentation.color !== undefined &&
         value.presentation.color !== null &&

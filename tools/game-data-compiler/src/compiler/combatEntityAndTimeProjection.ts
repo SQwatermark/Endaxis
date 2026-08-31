@@ -2060,8 +2060,13 @@ export function compileBuffLeafNode(
       partyKind === 'party'
         ? write.validatorTypes.length === 0
         : partyKind === 'partyExceptCaster' &&
-          write.validatorTypes.length === 1 &&
-          write.validatorTypes[0] === 'ExcludeOwnerValidator';
+          ((write.postProcessorTypes.length === 0 &&
+            write.validatorTypes.length === 1 &&
+            write.validatorTypes[0] === 'ExcludeOwnerValidator') ||
+            (write.validatorTypes.length === 0 &&
+              write.postProcessorTypes.length === 1 &&
+              write.postProcessorTypes[0] === 'ExcludeTarget' &&
+              write.excludesOwner));
     if (
       write.producerType === 'FindTargetAction' &&
       write.finderType === 'CharacterTeamFinder' &&

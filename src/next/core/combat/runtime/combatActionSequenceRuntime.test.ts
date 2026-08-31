@@ -144,6 +144,32 @@ describe('CombatActionSequenceRuntime', () => {
     expect(() => runtime.createSequence(definition).executeInstant({})).toThrow('invalid data');
   });
 
+  it('keeps per-target body operations alive until the enclosing action ends', () => {
+    const end = vi.fn();
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: () => true,
+        end,
+        evaluate: () => true,
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+    const action = runtime.createSequence(
+      sequence({
+        kind: 'forEachContextTarget',
+        parameters: { target: 'enemy' },
+        body: sequence(operation('scoped')),
+      }),
+    );
+
+    action.execute({});
+    action.tick(1 / 30, {});
+    expect(end).not.toHaveBeenCalled();
+
+    action.end({});
+    expect(end).toHaveBeenCalledTimes(1);
+  });
+
   it('同名子作用域只在同一父黑板内复用，不跨投射物宿主串板', () => {
     const fixture = createFixture();
     const step = {

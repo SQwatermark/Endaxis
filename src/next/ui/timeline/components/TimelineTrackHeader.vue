@@ -11,9 +11,12 @@ const props = defineProps<{
   track: TimelineTrackViewModel;
   name: string;
   selected: boolean;
+  reorderSource: boolean;
+  reorderTarget: boolean;
   weaponIcon: string | null;
   gearIcons: Readonly<Record<LoadoutGearSlot, string | null>>;
-  labels: Record<'weapon' | LoadoutGearSlot, string>;
+  labels: Record<'operator' | 'weapon' | LoadoutGearSlot, string>;
+  activeGearSetLabel: string;
   canMoveUp: boolean;
   canMoveDown: boolean;
   statDetailsAvailable?: boolean;
@@ -26,6 +29,9 @@ const emit = defineEmits<{
   moveUp: [];
   moveDown: [];
   reorderDragStart: [event: DragEvent];
+  reorderDragEnd: [];
+  reorderDragEnter: [];
+  reorderDragLeave: [];
   reorderDrop: [event: DragEvent];
   stats: [];
   weapon: [];
@@ -49,14 +55,26 @@ function updateInitialUltimateEnergy(event: Event): void {
   }
   emit('updateInitialUltimateEnergy', Math.min(maximum, Math.max(0, value)));
 }
+
+function leaveReorderTarget(event: DragEvent): void {
+  const current = event.currentTarget as HTMLElement;
+  if (event.relatedTarget instanceof Node && current.contains(event.relatedTarget)) return;
+  emit('reorderDragLeave');
+}
 </script>
 
 <template>
   <div
     class="track-header"
-    :class="{ 'is-selected': selected }"
+    :class="{
+      'is-selected': selected,
+      'is-reorder-source': reorderSource,
+      'is-reorder-target': reorderTarget,
+    }"
     @click="selectHeader"
     @dragover.prevent
+    @dragenter.prevent="$emit('reorderDragEnter')"
+    @dragleave="leaveReorderTarget"
     @drop.prevent.stop="$emit('reorderDrop', $event)"
   >
     <span class="reorder-column">
@@ -65,6 +83,7 @@ function updateInitialUltimateEnergy(event: Event): void {
         class="reorder-button"
         :disabled="!canMoveUp"
         :title="$t('common.moveUp')"
+        :aria-label="$t('common.moveUp')"
         @click.stop="$emit('moveUp')"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="18 15 12 9 6 15" /></svg>
@@ -72,7 +91,9 @@ function updateInitialUltimateEnergy(event: Event): void {
       <span
         class="drag-handle"
         draggable="true"
+        aria-hidden="true"
         @dragstart.stop="$emit('reorderDragStart', $event)"
+        @dragend.stop="$emit('reorderDragEnd')"
       >
         <svg viewBox="0 0 24 24">
           <circle cx="8" cy="4" r="2" />
@@ -88,6 +109,7 @@ function updateInitialUltimateEnergy(event: Event): void {
         class="reorder-button"
         :disabled="!canMoveDown"
         :title="$t('common.moveDown')"
+        :aria-label="$t('common.moveDown')"
         @click.stop="$emit('moveDown')"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
@@ -112,6 +134,8 @@ function updateInitialUltimateEnergy(event: Event): void {
           v-if="track.operatorSlug"
           type="button"
           class="avatar-shell avatar-trigger"
+          :title="labels.operator"
+          :aria-label="labels.operator"
           @click.stop="$emit('operator')"
         >
           <img
@@ -121,9 +145,16 @@ function updateInitialUltimateEnergy(event: Event): void {
           />
           <span class="avatar-change-hint" aria-hidden="true">↻</span>
         </button>
-        <span v-else class="avatar-shell"
-          ><span class="empty-avatar" aria-hidden="true"></span
-        ></span>
+        <button
+          v-else
+          type="button"
+          class="avatar-shell avatar-trigger"
+          :title="labels.operator"
+          :aria-label="labels.operator"
+          @click.stop="$emit('operator')"
+        >
+          <span class="empty-avatar" aria-hidden="true"></span>
+        </button>
         <span class="operator-name-row">
           <span class="operator-name">{{ name }}</span>
           <OperatorSupportNotice
@@ -153,6 +184,7 @@ function updateInitialUltimateEnergy(event: Event): void {
           class="weapon-slot"
           :class="{ empty: weaponIcon === null }"
           :title="labels.weapon"
+          :aria-label="labels.weapon"
           @click.stop="$emit('weapon')"
         >
           <img v-if="weaponIcon" :src="weaponIcon" alt="" />
@@ -165,11 +197,17 @@ function updateInitialUltimateEnergy(event: Event): void {
           class="gear-slot"
           :class="{ empty: gearIcons[slot] === null }"
           :title="labels[slot]"
+          :aria-label="labels[slot]"
           @click.stop="$emit('gear', slot)"
         >
           <img v-if="gearIcons[slot]" :src="gearIcons[slot]!" alt="" />
           <span v-else aria-hidden="true">+</span>
         </button>
+      </span>
+      <span class="gear-hint-row">
+        <span class="set-bonus-hint" :class="{ 'is-hidden': activeGearSetLabel === '' }">
+          {{ activeGearSetLabel }}
+        </span>
       </span>
     </span>
   </div>
@@ -178,7 +216,8 @@ function updateInitialUltimateEnergy(event: Event): void {
 <style scoped>
 .track-header {
   width: 180px;
-  height: 160px;
+  height: 100%;
+  min-height: 160px;
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
   align-items: center;
@@ -196,6 +235,16 @@ function updateInitialUltimateEnergy(event: Event): void {
 .track-header.is-selected {
   border-right-color: var(--ea-gold);
   background: var(--ea-track-row-active);
+}
+
+.track-header.is-reorder-source {
+  opacity: 0.48;
+}
+
+.track-header.is-reorder-target {
+  outline: 2px solid var(--ea-gold);
+  outline-offset: -2px;
+  background: color-mix(in srgb, var(--ea-gold) 12%, var(--ea-workbench-panel));
 }
 
 .reorder-column {
@@ -266,7 +315,7 @@ function updateInitialUltimateEnergy(event: Event): void {
 
 .initial-energy-control {
   position: absolute;
-  top: 8px;
+  top: calc(50% - 72px);
   left: 6px;
   display: flex;
   align-items: center;
@@ -398,7 +447,7 @@ function updateInitialUltimateEnergy(event: Event): void {
 
 .stat-detail-button {
   position: absolute;
-  top: 27px;
+  top: calc(50% - 53px);
   right: 6px;
   height: 18px;
   padding: 0 7px;
@@ -419,10 +468,38 @@ function updateInitialUltimateEnergy(event: Event): void {
 .loadout-row {
   position: absolute;
   left: 6px;
-  top: calc(50% + 33px);
+  top: calc(50% + 24px);
   display: flex;
   align-items: flex-end;
   gap: 4px;
+}
+
+.gear-hint-row {
+  position: absolute;
+  left: 6px;
+  top: calc(50% + 58px);
+  width: calc(100% - 12px);
+  height: 22px;
+}
+
+.set-bonus-hint {
+  display: block;
+  height: 22px;
+  margin-left: 36px;
+  overflow: hidden;
+  color: #2dd4bf;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 22px;
+  letter-spacing: 0.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.6;
+  user-select: none;
+}
+
+.set-bonus-hint.is-hidden {
+  visibility: hidden;
 }
 
 .weapon-slot,

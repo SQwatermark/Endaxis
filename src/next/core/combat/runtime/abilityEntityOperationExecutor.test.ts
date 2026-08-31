@@ -557,6 +557,12 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entities.snapshot(entity).isAlive).toBe(false);
     entities.advanceFrame();
     expect(entities.activeCount).toBe(0);
+    expect(
+      executor.execute(
+        { kind: 'finishCurrentAbilityEntity', parameters: {} },
+        { blackboard, currentTarget: entity },
+      ),
+    ).toBe(true);
   });
 
   it('advances an embedded child timeline with the entity local clock', () => {

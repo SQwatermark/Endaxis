@@ -30,6 +30,12 @@ export interface CreateDamageHitConnectionInput {
   readonly consumption?: boolean;
 }
 
+export interface UpdateTimelineConnectionInput {
+  readonly fromPort?: TimelineConnectionPort;
+  readonly toPort?: TimelineConnectionPort;
+  readonly consumption?: boolean;
+}
+
 function containsSkillCast(scenario: ScenarioDocument, skillCastId: string): boolean {
   return scenario.tracks.some(track =>
     track?.skillCasts.some(skillCast => skillCast.id === skillCastId),
@@ -44,21 +50,30 @@ function findSkillCast(scenario: ScenarioDocument, skillCastId: string) {
   return null;
 }
 
+/** 技能块端口拖放与最终文档命令共用的合法性判断。 */
+export function canCreateSkillCastConnection(
+  scenario: ScenarioDocument,
+  fromSkillCastId: string,
+  toSkillCastId: string,
+): boolean {
+  return (
+    fromSkillCastId !== toSkillCastId &&
+    containsSkillCast(scenario, fromSkillCastId) &&
+    containsSkillCast(scenario, toSkillCastId) &&
+    !scenario.connections.some(
+      connection =>
+        connection.from.skillCastId === fromSkillCastId &&
+        connection.to.skillCastId === toSkillCastId,
+    )
+  );
+}
+
 /** 建立一条技能块到技能块的连接；非法、自连和重复连接不会产生历史记录。 */
 export function createSkillCastConnection(
   scenario: ScenarioDocument,
   input: CreateSkillCastConnectionInput,
 ): ScenarioDocument {
-  if (
-    input.fromSkillCastId === input.toSkillCastId ||
-    !containsSkillCast(scenario, input.fromSkillCastId) ||
-    !containsSkillCast(scenario, input.toSkillCastId) ||
-    scenario.connections.some(
-      connection =>
-        connection.from.skillCastId === input.fromSkillCastId &&
-        connection.to.skillCastId === input.toSkillCastId,
-    )
-  ) {
+  if (!canCreateSkillCastConnection(scenario, input.fromSkillCastId, input.toSkillCastId)) {
     return scenario;
   }
 
@@ -129,4 +144,32 @@ export function removeTimelineConnection(
     ...scenario,
     connections: scenario.connections.filter(connection => connection.id !== connectionId),
   };
+}
+
+/** 更新连线本身的实例属性；命中端点没有可拖拽端口，因此只接受来源端口。 */
+export function updateTimelineConnection(
+  scenario: ScenarioDocument,
+  connectionId: string,
+  input: UpdateTimelineConnectionInput,
+): ScenarioDocument {
+  const index = scenario.connections.findIndex(connection => connection.id === connectionId);
+  if (index < 0) return scenario;
+  const connection = scenario.connections[index]!;
+  const from =
+    input.fromPort === undefined ? connection.from : { ...connection.from, port: input.fromPort };
+  const to =
+    input.toPort === undefined || connection.to.kind === 'damageHit'
+      ? connection.to
+      : { ...connection.to, port: input.toPort };
+  const consumption = input.consumption ?? connection.consumption;
+  if (
+    from.port === connection.from.port &&
+    to.port === connection.to.port &&
+    consumption === connection.consumption
+  ) {
+    return scenario;
+  }
+  const connections = [...scenario.connections];
+  connections[index] = { ...connection, from, to, consumption };
+  return { ...scenario, connections };
 }

@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument, SkillCastDocument } from '../../core/project/schema';
 import {
+  canCreateSkillCastConnection,
   createDamageHitConnection,
   createSkillCastConnection,
   removeTimelineConnection,
+  updateTimelineConnection,
 } from './timelineConnections';
 import { projectCastHitMarkers } from './timelineHitProjection';
 
@@ -61,6 +63,23 @@ function scenarioWithCasts(): ScenarioDocument {
 }
 
 describe('timeline connections', () => {
+  it('exposes the same target validity used by the document command', () => {
+    const original = scenarioWithCasts();
+    expect(canCreateSkillCastConnection(original, 'cast:1', 'cast:2')).toBe(true);
+    expect(canCreateSkillCastConnection(original, 'cast:1', 'cast:1')).toBe(false);
+    expect(canCreateSkillCastConnection(original, 'missing', 'cast:2')).toBe(false);
+
+    const connected = createSkillCastConnection(original, {
+      id: 'connection:1',
+      fromSkillCastId: 'cast:1',
+      fromPort: 'right',
+      toSkillCastId: 'cast:2',
+      toPort: 'left',
+    });
+    expect(canCreateSkillCastConnection(connected, 'cast:1', 'cast:2')).toBe(false);
+    expect(canCreateSkillCastConnection(connected, 'cast:2', 'cast:1')).toBe(true);
+  });
+
   it('creates and removes a directed skill-cast connection', () => {
     const original = scenarioWithCasts();
     const connected = createSkillCastConnection(original, {
@@ -172,5 +191,29 @@ describe('timeline connections', () => {
         targetMarkers,
       }),
     ).toBe(connected);
+  });
+});
+
+describe('updateTimelineConnection', () => {
+  it('updates ports and consumption immutably', () => {
+    const original = createSkillCastConnection(scenarioWithCasts(), {
+      id: 'connection:1',
+      fromSkillCastId: 'cast:1',
+      fromPort: 'right',
+      toSkillCastId: 'cast:2',
+      toPort: 'left',
+    });
+    const updated = updateTimelineConnection(original, 'connection:1', {
+      fromPort: 'bottom',
+      toPort: 'top',
+      consumption: true,
+    });
+
+    expect(updated.connections[0]).toMatchObject({
+      consumption: true,
+      from: { port: 'bottom' },
+      to: { port: 'top' },
+    });
+    expect(original.connections[0]).toMatchObject({ consumption: false, from: { port: 'right' } });
   });
 });

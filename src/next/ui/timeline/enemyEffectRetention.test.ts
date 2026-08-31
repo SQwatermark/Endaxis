@@ -18,5 +18,7 @@ describe('Next timeline enemy effect retention', () => {
     expect(enemyEffectsSource).toContain('REACTION_ICONS[identity]');
     expect(enemyEffectsSource).toContain("marker.kind !== 'reactionApplied'");
     expect(enemyEffectsSource).toContain('segment.barWidthPx');
+    expect(enemyEffectsSource).toContain("t('nextTimeline.effect.layers', { stacks })");
+    expect(enemyEffectsSource).not.toContain('${stacks} 层');
   });
 });

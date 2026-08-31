@@ -195,17 +195,10 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
     const damageScaleMultiplier = finiteNumber(data.damageScaleMultiplier, 1);
     const criticalRate = finiteNumber(data.criticalRate);
     const criticalDamageIncrease = finiteNumber(data.criticalDamageIncrease);
-    const criticalExpectation = 1 + Math.min(Math.max(criticalRate, 0), 1) * criticalDamageIncrease;
-    const directMultiplier =
-      finiteNumber(data.calculationMultiplier, 1) *
-      finiteNumber(data.weaknessDamageMultiplier, 1) *
-      (1 - finiteNumber(data.shelterDamageMultiplier)) *
-      finiteNumber(data.runtimeExtensionMultiplier, 1) *
-      finiteNumber(data.igniteMultiplier, 1) *
-      finiteNumber(data.physicalInflictionMultiplier, 1);
+    const criticalExpectation = finiteNumber(data.criticalExpectationMultiplier, 1);
+    const directMultiplier = finiteNumber(data.directDamageMultiplier, 1);
     const damageTakenMultiplier = finiteNumber(data.damageTakenMultiplier, 1);
-    const resistanceMultiplier =
-      damageType === 'true' ? 1 : Math.max(0, 1 - finiteNumber(data.enemyResistancePercent) / 100);
+    const resistanceMultiplier = finiteNumber(data.resistancePercentMultiplier, 1);
     const contextRows: DetailRow[] = [];
     if (skillType !== null) {
       contextRows.push({ label: props.labels.skillType, value: props.skillTypeLabel(skillType) });

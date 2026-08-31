@@ -1,10 +1,44 @@
 import { randomUUID } from 'node:crypto';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { access, mkdir, rename, rm, writeFile } from 'node:fs/promises';
-import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 export interface RenderedDefinitionFileSource {
   readonly relativePath: string;
   readonly content: string;
+}
+
+/**
+ * 只读核对完整生成目录。除 CRLF/LF 外不忽略任何内容差异，也会报告多余或缺失文件。
+ */
+export function checkGeneratedDefinitionFiles(
+  outputDirectory: string,
+  files: readonly RenderedDefinitionFileSource[],
+): void {
+  const target = resolve(outputDirectory);
+  const expected = new Map<string, string>();
+  for (const file of files) {
+    const destination = resolveGeneratedPath(target, file.relativePath);
+    const normalized = relative(target, destination).split(sep).join('/');
+    if (expected.has(normalized)) {
+      throw new Error(`duplicate rendered definition path ${JSON.stringify(file.relativePath)}`);
+    }
+    expected.set(normalized, normalizeLineEndings(file.content));
+  }
+
+  const expectedPaths = [...expected.keys()].sort((left, right) => left.localeCompare(right));
+  const actualPaths = listGeneratedFiles(target).map(file =>
+    relative(target, file).split(sep).join('/'),
+  );
+  if (JSON.stringify(actualPaths) !== JSON.stringify(expectedPaths)) {
+    throw new Error('generated definition file set is stale');
+  }
+  for (const relativePath of expectedPaths) {
+    const actual = readFileSync(join(target, relativePath), 'utf8');
+    if (normalizeLineEndings(actual) !== expected.get(relativePath)) {
+      throw new Error(`generated definition file is stale: ${relativePath}`);
+    }
+  }
 }
 
 /** 使用同级暂存目录生成完整新数据区，完成后一次性替换目标目录。 */
@@ -72,6 +106,20 @@ function resolveGeneratedPath(root: string, relativePath: string): string {
     throw new Error(`unsafe rendered definition path ${JSON.stringify(relativePath)}`);
   }
   return destination;
+}
+
+function listGeneratedFiles(directory: string): string[] {
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory, { withFileTypes: true })
+    .flatMap(entry => {
+      const child = join(directory, entry.name);
+      return entry.isDirectory() ? listGeneratedFiles(child) : [child];
+    })
+    .sort((left, right) => left.localeCompare(right));
+}
+
+function normalizeLineEndings(value: string): string {
+  return value.replaceAll('\r\n', '\n');
 }
 
 function requireDirectChild(parent: string, child: string, kind: string): void {

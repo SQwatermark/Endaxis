@@ -59,8 +59,7 @@ const definition = {
                   "kind": "applyBuff",
                   "parameters": {
                     "buffId": "buff_wpn_claym_0006_icon",
-                    "target": "eventSource",
-                    "source": "eventSource",
+                    "target": "caster",
                     "inheritSourceSkillCastInfo": true
                   }
                 }

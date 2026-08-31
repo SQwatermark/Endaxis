@@ -26,12 +26,8 @@ describe('旧干员生成产物退役门禁', () => {
     );
   });
 
-  it('旧生成器目录不再包含 Python 实现或测试', () => {
-    expect(
-      collectFiles(path.resolve('scripts/generate_next_operators')).filter(file =>
-        file.endsWith('.py'),
-      ),
-    ).toEqual([]);
+  it('根 scripts 目录不再保存第二套游戏数据工具', () => {
+    expect(collectFiles(path.resolve('scripts'))).toEqual([]);
   });
 });
 

@@ -7,6 +7,7 @@ import { compileOperatorDefinitionSkills } from '../core/compiler/compileScenari
 import { resolveOperatorPanel } from '../core/compiler/resolveOperatorPanel';
 import { resolveScenarioBuilds } from '../core/compiler/resolveScenarioBuilds';
 import { createEmptyScenario } from '../core/project/createProject';
+import { projectSkillEnhancementTimelineViz } from '../core/projection/skillEnhancementTimelineViz';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { skillSettings } from '../data/combat/skillSettings';
@@ -1921,6 +1922,7 @@ describe('registered generated operators', () => {
       startFrame: 1,
       ids,
     }).scenario;
+    const ultimateCastId = ultimate.tracks[0]!.skillCasts[0]!.id;
     const placed = placeSkillGroup({
       scenario: ultimate,
       trackIndex: 0,
@@ -1986,6 +1988,22 @@ describe('registered generated operators', () => {
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:zhuang-fangyi',
       ),
     ).toBe(true);
+    expect(
+      projectSkillEnhancementTimelineViz(result.receiptEntries, result.frame, [
+        {
+          castId: ultimateCastId,
+          targetId: 'track:zhuang-fangyi',
+          buffId: 'buff_chr_0030_zhuangfy_ult_base',
+        },
+      ]),
+    ).toEqual([
+      expect.objectContaining({
+        castId: ultimateCastId,
+        startFrame: 78,
+        endFrame: 300,
+        completed: false,
+      }),
+    ]);
   });
 
   it('binds the standard battle before Zhuang Fangyi frame-zero Buff initialization without casts', () => {
@@ -2130,6 +2148,89 @@ describe('registered generated operators', () => {
         placed.tracks[0]!.skillCasts[0]!.id,
         castModel.hitMarkers,
       ).size,
+    ).toBe(1);
+  });
+
+  it('projects Zhuang Fangyi enhanced heavy-attack ability-entity damage back to its skill block', () => {
+    const scenario = createEmptyScenario(
+      'scenario:zhuang-fangyi:enhanced-basic-attack',
+      '庄方宜强化普攻命中回归',
+    );
+    scenario.battle.durationFrames = 90;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:zhuang-fangyi',
+      operator: {
+        operatorSlug: zhuangFangyi.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: zhuangFangyi,
+      skillGroupKey: 'enhancedBasicAttack',
+      skillKey: 'enhancedBasicAttack3',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:zhuang-fangyi:enhanced-basic-attack` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 90,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      probabilitySamples: new ExplicitProbabilitySampleSource(Array(20).fill(0)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    const cast = placed.tracks[0]!.skillCasts[0]!;
+    const castModel = projectTimelineEditor(placed, nextGameDataRepository).tracks[0]!
+      .skillCasts[0]!;
+    const actualHitFrames = projectTimelineHitActualFrames(result.receiptEntries);
+    const visibleMarkers = castModel.hitMarkers.filter(marker => actualHitFrames.has(marker.hitId));
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'AbilityEntitySpawned',
+        sourceId: 'track:zhuang-fangyi',
+        data: expect.objectContaining({
+          abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack3_ult',
+        }),
+      }),
+    );
+    expect(
+      result.receiptEntries.filter(
+        entry =>
+          entry.event === 'DamageApplied' &&
+          entry.sourceId === 'track:zhuang-fangyi' &&
+          entry.data?.castId === cast.id,
+      ),
+    ).toHaveLength(1);
+    expect(visibleMarkers).toHaveLength(1);
+    expect(
+      projectHitEffectsByCast(placed, result.receiptEntries, cast.id, castModel.hitMarkers).size,
     ).toBe(1);
   });
 

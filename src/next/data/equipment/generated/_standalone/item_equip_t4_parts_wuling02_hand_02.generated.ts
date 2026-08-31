@@ -27,6 +27,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'battleSkill',
+          slot: 'baseAddition',
           value: [0.36, 0.396, 0.432, 0.46799999999999997],
         },
       ],

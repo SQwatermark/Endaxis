@@ -39,16 +39,19 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'battleSkill',
+          slot: 'baseAddition',
           value: [0.13799999999999998, 0.1518, 0.16559999999999997, 0.17939999999999998],
         },
         {
           kind: 'damageScale',
           target: 'ultimate',
+          slot: 'baseAddition',
           value: [0.13799999999999998, 0.1518, 0.16559999999999997, 0.17939999999999998],
         },
         {
           kind: 'damageScale',
           target: 'comboSkill',
+          slot: 'baseAddition',
           value: [0.13799999999999998, 0.1518, 0.16559999999999997, 0.17939999999999998],
         },
       ],

@@ -48,12 +48,45 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function updateIdentity(field: 'displayName' | 'rarity' | 'weaponType', event: Event): void {
+function updateIdentity(
+  field: 'displayName' | 'assetSlug' | 'iconPath' | 'rarity' | 'weaponType',
+  event: Event,
+): void {
   const value = (event.target as HTMLInputElement | HTMLSelectElement).value;
   draft.value = {
     ...draft.value,
-    [field]: field === 'rarity' ? Number(value) : value,
+    [field]: field === 'rarity' ? Number(value) : value === '' ? undefined : value,
   } as WeaponDefinition;
+}
+
+function addTrait(): void {
+  const keys = new Set(draft.value.traits.map(trait => trait.key));
+  let index = 1;
+  while (keys.has(`custom-trait-${index}`)) index += 1;
+  draft.value = {
+    ...draft.value,
+    traits: [...draft.value.traits, { key: `custom-trait-${index}`, levelCount: 1 }],
+  };
+  selectedSection.value = draft.value.traits.length - 1;
+}
+
+function removeTrait(): void {
+  const index = selectedTraitIndex.value;
+  if (index === null) return;
+  draft.value = { ...draft.value, traits: draft.value.traits.filter((_, i) => i !== index) };
+  selectedSection.value =
+    draft.value.traits.length === 0 ? 'base' : Math.min(index, draft.value.traits.length - 1);
+}
+
+function moveTrait(offset: -1 | 1): void {
+  const index = selectedTraitIndex.value;
+  if (index === null) return;
+  const target = index + offset;
+  if (target < 0 || target >= draft.value.traits.length) return;
+  const traits = [...draft.value.traits];
+  [traits[index], traits[target]] = [traits[target]!, traits[index]!];
+  draft.value = { ...draft.value, traits };
+  selectedSection.value = target;
 }
 
 function updateBaseAttack(index: number, event: Event): void {
@@ -118,6 +151,7 @@ function save(): void {
           <strong>基础与成长</strong><small>6 个等级节点</small>
         </button>
         <div class="outliner-caption">词条</div>
+        <button class="add-entry" type="button" @click="addTrait">＋ 新增词条</button>
         <button
           v-for="(trait, index) in draft.traits"
           :key="`${trait.key}:${index}`"
@@ -133,11 +167,23 @@ function save(): void {
         <section v-if="selectedSection === 'base'" class="definition-card">
           <header><strong>模板身份</strong><span>物化定义</span></header>
           <div class="field-grid">
-            <label>模板 ID<input :value="draft.slug" disabled /></label>
+            <label title="项目内稳定引用身份。创建模板时确定，修改会使既有实例失去引用。"
+              >模板 ID<input :value="draft.slug" disabled
+            /></label>
             <label
               >展示名称<input
                 :value="draft.displayName ?? ''"
                 @change="updateIdentity('displayName', $event)"
+            /></label>
+            <label title="继承内置武器图标和本地化文本时使用的资源身份。"
+              >资源来源<input
+                :value="draft.assetSlug ?? ''"
+                @change="updateIdentity('assetSlug', $event)"
+            /></label>
+            <label title="由资源导出流程生成的 WebP 路径；留空时按资源来源回退。"
+              >图标路径<input
+                :value="draft.iconPath ?? ''"
+                @change="updateIdentity('iconPath', $event)"
             /></label>
             <label
               >星级<select :value="draft.rarity" @change="updateIdentity('rarity', $event)">
@@ -179,6 +225,17 @@ function save(): void {
           <header>
             <strong>当前词条</strong><span>第 {{ (selectedTraitIndex ?? 0) + 1 }} 条</span>
           </header>
+          <div class="object-actions">
+            <button :disabled="selectedTraitIndex === 0" @click="moveTrait(-1)">上移</button>
+            <button
+              :disabled="selectedTraitIndex === draft.traits.length - 1"
+              @click="moveTrait(1)"
+            >
+              下移
+            </button>
+            <span />
+            <button class="danger" @click="removeTrait">删除词条</button>
+          </div>
           <div class="field-grid">
             <label
               >稳定 key<input :value="selectedTrait.key" @change="updateTrait('key', $event)"
@@ -293,6 +350,11 @@ function save(): void {
   color: var(--ea-fg-muted);
   font-size: 10px;
 }
+.weapon-outliner .add-entry {
+  color: var(--ea-gold);
+  border: 1px dashed var(--ea-border);
+  margin-bottom: 6px;
+}
 .outliner-caption {
   margin: 18px 10px 7px;
   font-weight: 700;
@@ -357,6 +419,27 @@ select {
   gap: 8px;
   flex-wrap: wrap;
   padding: 14px;
+}
+.object-actions {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px 0;
+}
+.object-actions span {
+  flex: 1;
+}
+.object-actions button {
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-input);
+  color: var(--ea-fg-secondary);
+  cursor: pointer;
+}
+.object-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.object-actions .danger {
+  color: #e69a7a;
 }
 .contribution-summary > span {
   padding: 4px 7px;

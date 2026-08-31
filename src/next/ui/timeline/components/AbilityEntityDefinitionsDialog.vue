@@ -180,15 +180,16 @@ function save(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    width="1480px"
-    append-to-body
-    destroy-on-close
-    class="ability-entity-definitions-dialog"
-    :title="t('nextTimeline.skillEditing.abilityEntityObjects')"
-    @update:model-value="emit('update:visible', $event)"
-  >
+  <section v-if="visible" class="ability-entity-definitions-editor">
+    <header class="entity-workspace__heading">
+      <div>
+        <strong>{{ t('nextTimeline.skillEditing.abilityEntityObjects') }}</strong>
+        <span>选择定义只切换当前画布，不会打开新的面板。</span>
+      </div>
+      <button type="button" class="ea-btn ea-btn--sm" @click="emit('update:visible', false)">
+        返回能力实体概览
+      </button>
+    </header>
     <div class="entity-workspace">
       <aside class="entity-workspace__sidebar">
         <div class="entity-workspace__create">
@@ -315,29 +316,50 @@ function save(): void {
       </main>
     </div>
 
-    <template #footer>
-      <div class="entity-workspace__footer">
-        <span v-if="validationIssues.length" class="entity-workspace__error">
-          {{
-            t('nextTimeline.skillEditing.validationIssueCount', { count: validationIssues.length })
-          }}
-        </span>
-        <button type="button" class="ea-btn ea-btn--sm" @click="emit('update:visible', false)">
-          {{ t('nextTimeline.skillEditing.cancel') }}
-        </button>
-        <button type="button" class="ea-btn ea-btn--sm" @click="save">
-          {{ t('nextTimeline.skillEditing.saveAbilityEntityObjects') }}
-        </button>
-      </div>
-    </template>
-  </el-dialog>
+    <div class="entity-workspace__footer">
+      <span v-if="validationIssues.length" class="entity-workspace__error">
+        {{
+          t('nextTimeline.skillEditing.validationIssueCount', { count: validationIssues.length })
+        }}
+      </span>
+      <button type="button" class="ea-btn ea-btn--sm" @click="emit('update:visible', false)">
+        {{ t('nextTimeline.skillEditing.cancel') }}
+      </button>
+      <button type="button" class="ea-btn ea-btn--sm" @click="save">
+        {{ t('nextTimeline.skillEditing.saveAbilityEntityObjects') }}
+      </button>
+    </div>
+  </section>
 </template>
 
 <style scoped>
+.ability-entity-definitions-editor {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+}
+.entity-workspace__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.entity-workspace__heading div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+.entity-workspace__heading span {
+  color: var(--ea-fg-muted);
+  font-size: 12px;
+}
 .entity-workspace {
   display: grid;
-  height: min(78vh, 860px);
-  min-height: 560px;
+  min-height: 0;
+  flex: 1;
   grid-template-columns: 320px minmax(0, 1fr);
   gap: 0;
   overflow: hidden;

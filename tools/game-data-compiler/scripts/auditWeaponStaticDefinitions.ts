@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
+import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
+
 import {
   collectBuffRuntimeClosure,
   compileBuffRuntimeDefinitionSource,
@@ -15,6 +18,7 @@ interface Arguments {
   readonly tables: string;
   readonly skillData: string;
   readonly buffData?: string;
+  readonly gameplayTagCatalog?: string;
 }
 
 interface WeaponAuditFailure {
@@ -94,6 +98,10 @@ export function auditWeaponStaticDefinitions(args: Arguments): {
     left.localeCompare(right),
   );
   const buffData = args.buffData === undefined ? null : readDefinitionDirectory(args.buffData);
+  const gameplayTagRegistry =
+    args.gameplayTagCatalog === undefined
+      ? undefined
+      : new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog));
   const missingBuffIds =
     buffData === null ? [] : sortedReferencedBuffIds.filter(buffId => !(buffId in buffData));
   const buffFailures: WeaponAuditFailure[] = [];
@@ -125,7 +133,14 @@ export function auditWeaponStaticDefinitions(args: Arguments): {
         if (omittedReasons.length > 0) {
           scenarioOmissions.push({ weaponId: `BuffData.${buffId}`, reasons: omittedReasons });
         }
-        compileBuffRuntimeDefinitionSource(source, visualOnlyIds, omittedAbilityEvents);
+        compileBuffRuntimeDefinitionSource(
+          source,
+          visualOnlyIds,
+          omittedAbilityEvents,
+          undefined,
+          undefined,
+          { gameplayTagRegistry },
+        );
         compiledBuffCount += 1;
       } catch (error) {
         buffFailures.push({ weaponId: buffId, reasons: [formatError(error)] });
@@ -161,6 +176,9 @@ export function parseArguments(values: readonly string[]): Arguments {
     tables: requiredPath(result, '--tables'),
     skillData: requiredPath(result, '--skill-data'),
     ...(result.has('--buff-data') ? { buffData: requiredPath(result, '--buff-data') } : {}),
+    ...(result.has('--gameplay-tag-catalog')
+      ? { gameplayTagCatalog: requiredPath(result, '--gameplay-tag-catalog') }
+      : {}),
   };
 }
 

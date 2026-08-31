@@ -16,23 +16,48 @@ const CANONICAL_GEAR_SLUG = 'item_equip_t4_suit_burst01_edc_02';
 const LEGACY_GEAR_SLUG = 'turbid-cutting-torch';
 
 describe('generated gear production integration', () => {
-  it('compiles every current native gear at its highest available artificing levels', () => {
+  it('pins the published gear and gear-set library to the game-data revision', async () => {
+    const bySlug = <T extends { readonly slug: string }>(values: readonly T[]) =>
+      [...values].sort((left, right) => left.slug.localeCompare(right.slug));
+    const text = JSON.stringify({
+      gears: bySlug(nextGameDataRepository.getGears()),
+      gearSets: bySlug(nextGameDataRepository.getGearSets()),
+    });
+    const digest = new Uint8Array(
+      await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)),
+    );
+    // 发布门禁：装备或套装重生成发生行为漂移时，必须显式更新 game-data revision。
+    expect([
+      nextGameDataRepository.revision,
+      Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join(''),
+    ]).toEqual([
+      'endaxis-next-definitions-latest',
+      'd80f217d19ea369343b3c04e35cc683edbd699b9e22d35e26c4e6faef770dc49',
+    ]);
+  });
+
+  it('compiles every current native gear at its lowest and highest available artificing levels', () => {
     const current = nextGearDefinitions.filter(definition => definition.slug.startsWith('item_'));
 
     for (const definition of current) {
-      const levels = definition.traits.map(trait => trait.levelCount - 1);
-      const [compiled] = compileScenarioEquipment(
-        createScenarioWithGear(definition.slug, definition.slotType, levels),
-        nextGameDataRepository,
-      );
-      expect(compiled?.contributions, definition.slug).toHaveLength(definition.traits.length);
-      for (const contribution of compiled?.contributions ?? []) {
-        expect(contribution.source, definition.slug).toMatchObject({
-          kind: 'gearTrait',
-          slug: definition.slug,
-        });
-        for (const modifier of contribution.modifiers) {
-          expect(Number.isFinite(modifier.value), definition.slug).toBe(true);
+      for (const [tier, levels] of [
+        ['minimum', definition.traits.map(() => 0)],
+        ['maximum', definition.traits.map(trait => trait.levelCount - 1)],
+      ] as const) {
+        const identity = `${definition.slug}:${tier}`;
+        const [compiled] = compileScenarioEquipment(
+          createScenarioWithGear(definition.slug, definition.slotType, levels),
+          nextGameDataRepository,
+        );
+        expect(compiled?.contributions, identity).toHaveLength(definition.traits.length);
+        for (const contribution of compiled?.contributions ?? []) {
+          expect(contribution.source, identity).toMatchObject({
+            kind: 'gearTrait',
+            slug: definition.slug,
+          });
+          for (const modifier of contribution.modifiers) {
+            expect(Number.isFinite(modifier.value), identity).toBe(true);
+          }
         }
       }
     }
@@ -311,6 +336,7 @@ describe('generated gear production integration', () => {
         targetId: 'track:pogranichnik',
         data: expect.objectContaining({
           buffId: 'buff_equipsuit_crush_fracture_physicdamage',
+          sourceActionId: expect.stringContaining('gear-set:'),
         }),
       }),
     );

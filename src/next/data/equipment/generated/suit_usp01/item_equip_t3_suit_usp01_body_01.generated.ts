@@ -39,6 +39,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'ultimate',
+          slot: 'baseAddition',
           value: [0.18375, 0.18375, 0.18375, 0.18375],
         },
       ],

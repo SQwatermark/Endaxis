@@ -12,8 +12,12 @@ export interface TimelineKeyboardCommands {
   readonly nudgeRight: () => boolean;
   readonly toggleSnapPrecision: () => boolean;
   readonly toggleCursorGuide: () => boolean;
+  readonly toggleBoxSelect: () => boolean;
   readonly toggleConnectionTool: () => boolean;
   readonly cycleTrack: (direction: -1 | 1) => boolean;
+  readonly selectTrack: (trackIndex: 0 | 1 | 2 | 3) => boolean;
+  readonly placeSkill: (slot: 1 | 2 | 3 | 4 | 5 | 6) => boolean;
+  readonly cancelPlacement: () => boolean;
 }
 
 export function handleTimelineEditorShortcut(
@@ -21,8 +25,21 @@ export function handleTimelineEditorShortcut(
   commands: TimelineKeyboardCommands,
 ): boolean {
   const key = event.key.toLowerCase();
+  if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey && key === 'escape') {
+    return commands.cancelPlacement();
+  }
+  if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+    const functionKey = /^f([1-4])$/.exec(key);
+    if (functionKey !== null) {
+      return commands.selectTrack((Number(functionKey[1]) - 1) as 0 | 1 | 2 | 3);
+    }
+    if (/^[1-6]$/.test(key)) return commands.placeSkill(Number(key) as 1 | 2 | 3 | 4 | 5 | 6);
+  }
   if (!event.altKey && !event.metaKey && event.ctrlKey && !event.shiftKey && key === 'g') {
     return commands.toggleCursorGuide();
+  }
+  if (!event.altKey && !event.metaKey && event.ctrlKey && !event.shiftKey && key === 'b') {
+    return commands.toggleBoxSelect();
   }
   if (!event.altKey && !event.ctrlKey && !event.metaKey && key === 'tab') {
     return commands.cycleTrack(event.shiftKey ? -1 : 1);

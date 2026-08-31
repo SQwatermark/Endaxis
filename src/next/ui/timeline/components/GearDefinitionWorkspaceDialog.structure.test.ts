@@ -9,6 +9,7 @@ import eventTriggerEditorSource from './CombatEventTriggerEditor.vue?raw';
 import conditionTypePickerSource from './CombatConditionTypePicker.vue?raw';
 import conditionEditorSource from './CombatConditionEditor.vue?raw';
 import weaponWorkspaceSource from './WeaponDefinitionWorkspaceDialog.vue?raw';
+import equipmentBuffDialogSource from './EquipmentBuffDefinitionsDialog.vue?raw';
 
 describe('GearDefinitionWorkspaceDialog structure', () => {
   it('materializes and switches a selected gear slot through the project library', () => {
@@ -27,10 +28,19 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(workspaceSource).not.toContain('<textarea');
   });
 
+  it('edits presentation identity and closes the ordered trait collection workflow', () => {
+    expect(workspaceSource).toContain("updateBase('assetSlug'");
+    expect(workspaceSource).toContain("updateBase('iconPath'");
+    expect(workspaceSource).toContain('function addTrait()');
+    expect(workspaceSource).toContain('function removeTrait()');
+    expect(workspaceSource).toContain('function moveTrait(offset: -1 | 1)');
+    expect(workspaceSource).toContain('项目内稳定引用身份');
+  });
+
   it('uses materialized names and inherited assets for custom gear cards', () => {
     expect(buildDialogSource).toContain('definition.displayName');
     expect(buildDialogSource).toContain('definition.assetSlug ?? definition.slug');
-    expect(buildDialogSource).toContain('编辑装备定义');
+    expect(buildDialogSource).toContain('nextTimeline.customDefinition.editGear');
   });
 
   it('navigates explicitly from a saved gear draft into a project gear set template', () => {
@@ -61,6 +71,19 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionEditorSource).toContain(':clipboard-kind="clipboard?.kind"');
     expect(contributionEditorSource).toContain('duplicateSkillEditorDetachedStep');
     expect(contributionEditorSource).not.toContain('<textarea');
+  });
+
+  it('edits every top-level contribution field without a raw JSON escape hatch', () => {
+    expect(contributionEditorSource).toContain('initializationBlackboardEntries');
+    expect(contributionEditorSource).toContain('createInitializationSequence');
+    expect(contributionEditorSource).toContain('EquipmentBuffDefinitionsDialog');
+    expect(contributionEditorSource).toContain('不属于技能的初始黑板');
+    expect(contributionEditorSource).toContain('每场战斗一次');
+    expect(contributionEditorSource).not.toContain('<textarea');
+    expect(equipmentBuffDialogSource).toContain('BuffDefinitionGraphEditor');
+    expect(equipmentBuffDialogSource).toContain('collectReferences');
+    expect(equipmentBuffDialogSource).not.toContain('<el-dialog');
+    expect(equipmentBuffDialogSource).not.toContain('<textarea');
   });
 
   it('adds contribution structures through an explicit mouse-position type picker', () => {

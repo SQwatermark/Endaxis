@@ -7,36 +7,9 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'healthFlat',
-      value: [500],
+      value: 500,
     },
   ],
-  buffDefinitions: {
-    buff_equipsuit_will_01: {
-      stackingType: 'unlimited',
-      priority: 0,
-      maxStackCount: 0,
-      triggerIntervalSeconds: 0,
-      waitFirstTriggerInterval: true,
-      maxTriggerCount: 1,
-      applyTags: [],
-      extendTags: [],
-      blackboard: {
-        will: 200,
-      },
-      attributeModifiers: [],
-    },
-  },
-  initializationSequence: {
-    steps: [
-      {
-        kind: 'applyBuff',
-        parameters: {
-          buffId: 'buff_equipsuit_will_01',
-          target: 'caster',
-        },
-      },
-    ],
-  },
 } as const satisfies GearSetDefinition;
 
 export default definition;

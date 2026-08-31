@@ -5,8 +5,11 @@
  * 坐标与资源曲线同一体系（准备区偏移 + 每帧像素 + 轨道头宽度，跟随时间轴滚动）。
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import type { EnemyEffectViz } from '../../../core/projection/enemyEffectViz';
 import type { PositionedBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   viz: EnemyEffectViz;
@@ -85,7 +88,7 @@ const segments = computed(() => {
       return {
         key: `${segment.kind}:${identity}:${segment.startFrame}`,
         title: isAttachment
-          ? `${identity} · ${stacks} 层`
+          ? `${identity} · ${t('nextTimeline.effect.layers', { stacks })}`
           : `${props.labels.reaction} ${identity} Lv${stacks}`,
         icon: isAttachment
           ? (ELEMENT_ICONS[identity] ?? '/icons/default_icon.webp')

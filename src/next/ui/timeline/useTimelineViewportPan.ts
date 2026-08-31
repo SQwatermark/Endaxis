@@ -11,6 +11,24 @@ export interface UseTimelineViewportPanOptions {
   readonly viewport: Ref<HTMLElement | null>;
 }
 
+const INTERACTIVE_PAN_EXCLUSION_SELECTOR = [
+  '[data-timeline-action-id]',
+  '[data-timeline-interactive]',
+  'button',
+  'input',
+  'select',
+  'textarea',
+  'a[href]',
+  '[contenteditable="true"]',
+  '[role="button"]',
+  '[draggable="true"]',
+].join(',');
+
+/** Middle-button panning belongs to lane blank space, never to nested controls. */
+export function isTimelineViewportPanExcludedTarget(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest(INTERACTIVE_PAN_EXCLUSION_SELECTOR) !== null;
+}
+
 export function useTimelineViewportPan(options: UseTimelineViewportPanOptions) {
   const isPanning = ref(false);
   let stopGesture: (() => void) | null = null;
@@ -22,11 +40,7 @@ export function useTimelineViewportPan(options: UseTimelineViewportPanOptions) {
   function begin(event: PointerEvent): boolean {
     const viewport = options.viewport.value;
     const target = event.target;
-    if (
-      viewport === null ||
-      event.button !== 1 ||
-      (target instanceof Element && target.closest('[data-timeline-action-id]') !== null)
-    ) {
+    if (viewport === null || event.button !== 1 || isTimelineViewportPanExcludedTarget(target)) {
       return false;
     }
     event.preventDefault();
@@ -48,16 +62,21 @@ export function useTimelineViewportPan(options: UseTimelineViewportPanOptions) {
     const finish = (finishEvent: PointerEvent) => {
       if (finishEvent.pointerId === pointerId) stop();
     };
+    const keydown = (keyEvent: KeyboardEvent) => {
+      if (keyEvent.key === 'Escape') stop();
+    };
     stopGesture = () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', finish);
       window.removeEventListener('pointercancel', finish);
+      window.removeEventListener('keydown', keydown, true);
       isPanning.value = false;
       stopGesture = null;
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', finish);
     window.addEventListener('pointercancel', finish);
+    window.addEventListener('keydown', keydown, true);
     return true;
   }
 

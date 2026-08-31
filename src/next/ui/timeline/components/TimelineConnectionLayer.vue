@@ -41,6 +41,8 @@ const props = withDefaults(
     castActualStartFrames: ReadonlyMap<string, number>;
     castActualDurationFrames: ReadonlyMap<string, number>;
     hitActualFrames: ReadonlyMap<string, number>;
+    /** 隐藏某干员效果时，其连接线也不参与投影。 */
+    visibleTrackIndices?: readonly number[];
     rulerHeight?: number;
     trackHeight?: number;
     actionTop?: number;
@@ -53,6 +55,7 @@ const props = withDefaults(
     actionTop: 55,
     actionHeight: 50,
     preview: null,
+    visibleTrackIndices: () => [0, 1, 2, 3],
   },
 );
 
@@ -75,6 +78,7 @@ const directions: Record<TimelineConnectionPort, Point> = {
 /** 在视图模型中按技能块 id 定位轨道与技能块；找不到返回 null。 */
 function findSkillCast(skillCastId: string) {
   for (const [trackIndex, trackModel] of props.tracks.entries()) {
+    if (!props.visibleTrackIndices.includes(trackIndex)) continue;
     const skillCast = trackModel.skillCasts.find(candidate => candidate.id === skillCastId);
     if (skillCast !== undefined) return { skillCast, trackIndex };
   }

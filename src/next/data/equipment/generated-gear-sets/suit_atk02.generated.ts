@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'attackPercent',
-      value: [0.15],
+      value: 0.15,
     },
   ],
   buffDefinitions: {
@@ -34,6 +34,7 @@ const definition = {
               parameters: {
                 buffId: 'buff_equipsuit_atk_02_aruadetect',
                 target: 'party',
+                source: 'buffOwner',
                 finishByAction: true,
                 blackboardAssignments: {
                   dmg_up: {
@@ -106,7 +107,6 @@ const definition = {
                       parameters: {
                         target: 'buffOwner',
                         outputKey: 'stack',
-                        countType: 'instance',
                         query: {
                           kind: 'id',
                           buffIds: ['buff_equipsuit_atk_02_addcombodamage'],
@@ -129,6 +129,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_atk_02_addcombodamage_buff',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           dmg_up: {
@@ -262,6 +263,7 @@ const definition = {
                         target: 'eventSource',
                         source: 'eventSource',
                         inheritSourceSkillCastInfo: true,
+                        asChildBuff: true,
                         blackboardAssignments: {
                           dmg_up: {
                             kind: 'blackboard',

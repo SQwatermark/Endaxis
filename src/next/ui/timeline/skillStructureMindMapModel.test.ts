@@ -364,6 +364,15 @@ describe('skillStructureMindMapModel', () => {
           sequence: { steps: [] },
         },
       ],
+      initializationBlackboard: { initial_rate: [1, 2] },
+      initializationSequence: {
+        steps: [
+          {
+            kind: 'changeResource',
+            parameters: { resource: 'sp', amount: 2, recipient: 'caster' },
+          },
+        ],
+      },
     });
     const nodes = indexSkillStructureNodes(root);
 
@@ -389,6 +398,14 @@ describe('skillStructureMindMapModel', () => {
     expect(nodes.get('equipment:handlers')?.canAddChild).toBe('equipmentHandler');
     expect(nodes.get('equipment:handler:0:sequence:step:0')?.sourcePath).toBe(
       'eventHandlers[0].sequence.steps[0]',
+    );
+    expect(nodes.get('equipment:initialization-sequence')?.sourcePath).toBe(
+      'initializationSequence',
+    );
+    expect(nodes.get('equipment:initialization-sequence')?.relationToParent).toBe('port');
+    expect(nodes.get('equipment:initialization-sequence')?.canAddChild).toBe('step');
+    expect(nodes.get('equipment:initialization-sequence:step:0')?.sourcePath).toBe(
+      'initializationSequence.steps[0]',
     );
   });
 });

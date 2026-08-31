@@ -228,7 +228,9 @@ const activeSetBonuses = computed(() => {
             @click="emit('edit-definition', slot.slot)"
           >
             {{
-              customDefinitionSlugs.includes(slot.build.gearSlug) ? '编辑装备定义' : '自定义装备'
+              customDefinitionSlugs.includes(slot.build.gearSlug)
+                ? t('nextTimeline.customDefinition.editGear')
+                : t('nextTimeline.customDefinition.customizeGear')
             }}
           </button>
         </template>

@@ -7,17 +7,20 @@ const definition = {
     {
       kind: 'damageScale',
       target: 'battleSkill',
-      value: [0.24],
+      slot: 'baseAddition',
+      value: 0.24,
     },
     {
       kind: 'damageScale',
       target: 'comboSkill',
-      value: [0.24],
+      slot: 'baseAddition',
+      value: 0.24,
     },
     {
       kind: 'damageScale',
       target: 'ultimate',
-      value: [0.24],
+      slot: 'baseAddition',
+      value: 0.24,
     },
   ],
   buffDefinitions: {
@@ -57,6 +60,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_atk_01_normalskill',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           atk_up: {
@@ -73,6 +77,14 @@ const definition = {
                   ],
                 },
               },
+            ],
+          },
+        },
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          sequence: {
+            steps: [
               {
                 kind: 'conditional',
                 parameters: {
@@ -88,6 +100,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_atk_01_comboskill',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           atk_up: {
@@ -104,6 +117,14 @@ const definition = {
                   ],
                 },
               },
+            ],
+          },
+        },
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          sequence: {
+            steps: [
               {
                 kind: 'conditional',
                 parameters: {
@@ -119,6 +140,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_atk_01_ultimateskill',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           atk_up: {

@@ -7,7 +7,15 @@ import type { ScenarioDocument, SkillCastDocument, TrackIndex } from '../../core
 
 /** 放置命令生成稳定文档身份所需的端口。 */
 export type TimelineDocumentIdKind =
-  'track' | 'skillCast' | 'scheduledSequence' | 'hit' | 'customBar' | 'connection';
+  | 'track'
+  | 'skillCast'
+  | 'scheduledSequence'
+  | 'hit'
+  | 'customBar'
+  | 'connection'
+  | 'cycleBoundary'
+  | 'controlSwitch'
+  | 'externalEvent';
 
 export interface TimelineDocumentIdAllocator {
   allocate(kind: TimelineDocumentIdKind): string;

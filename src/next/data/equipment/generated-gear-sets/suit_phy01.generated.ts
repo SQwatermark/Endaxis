@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'staggerDamagePercent',
-      value: [0.2],
+      value: 0.2,
     },
   ],
   buffDefinitions: {
@@ -39,7 +39,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/PhysicalStatus"],
+                    buffTags: ['Skill/Character/Common/PhysicalStatus'],
                   },
                 },
                 whenTrue: {

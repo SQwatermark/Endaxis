@@ -368,6 +368,38 @@ describe('compileScenarioRuntimeAssembly', () => {
     });
   });
 
+  it('carries scenario global modifiers into every compiled operator panel and cooldown ledger', () => {
+    const scenario = createScenario();
+    scenario.globalConfig.modifiers = [
+      {
+        id: 'global:critical-rate',
+        kind: 'operatorStat',
+        modifier: 'criticalRate',
+        value: 0.2,
+      },
+      {
+        id: 'global:combo-cooldown',
+        kind: 'operatorStat',
+        modifier: 'skillCooldownReduction',
+        value: 0.25,
+        skillType: 'comboSkill',
+      },
+    ];
+
+    const compiled = compileScenarioRuntimeAssembly(scenario, options());
+    expect(compiled.operators[0]!.panel).toMatchObject({
+      criticalRate: 0.25,
+      combatModifiers: [
+        {
+          kind: 'skillCooldownReduction',
+          skillTypes: ['comboSkill'],
+          value: 0.25,
+          modifierId: 'global:combo-cooldown',
+        },
+      ],
+    });
+  });
+
   it('rejects duplicate entity blackboard initializer keys', () => {
     const panel = compileScenarioRuntimeAssembly(createScenario(), options()).operators[0]!.panel!;
     const initializer = {

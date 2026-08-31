@@ -4775,6 +4775,7 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 220 }],
+    enhancementStateBuffId: 'buff_chr_0017_yvonne_ultimate_skill',
   },
   {
     atk_scale_extra: [2.67, 2.94, 3.2, 3.47, 3.74, 4, 4.27, 4.54, 4.8, 5.14, 5.54, 6],

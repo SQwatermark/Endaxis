@@ -59,12 +59,9 @@ import {
 import { legacyEnemyDefinitions } from './adapters/legacyEnemyDefinitionAdapter';
 import { commonBuffDefinitions } from './buffs/commonDefinitions';
 import { nextWeaponDefinitions } from './equipment/nextWeaponDefinitions';
-import { legacyWeaponDefinitions, LEGACY_WEAPON_REVISION } from './revisions/weapons-v1';
-import { restoreWeaponV2R1Definitions, WEAPON_V2_R1_REVISION } from './revisions/weapons-v2-r1';
-import { restoreWeaponV2R2Definitions, WEAPON_V2_R2_REVISION } from './revisions/weapons-v2-r2';
 
-/** 游戏数据内容发生任何会影响项目解析的变化时必须显式更新。 */
-export const NEXT_GAME_DATA_REVISION = 'endaxis-next-definitions-v2-weapons-1.4.4-r3';
+/** 项目始终使用随当前 Endaxis 发布的唯一最新定义库。 */
+export const NEXT_GAME_DATA_REVISION = 'endaxis-next-definitions-latest';
 
 export interface GameDataRepositoryInput {
   readonly revision: string;
@@ -203,34 +200,4 @@ export const nextGameDataRepository = createGameDataRepository({
   gearSets: sharedGearSetDefinitions,
   gearSetAliases: nextGearSetDefinitionRegistration.aliases,
   enemies: legacyEnemyDefinitions,
-});
-
-const legacyWeaponsBySlug = new Map(
-  legacyWeaponDefinitions.map(definition => [definition.slug, definition]),
-);
-/** 仅供 v1 武器引用/词条兼容检查；其他定义沿用当前库，不承诺复现历史模拟结果。 */
-export const weaponV1MigrationSource: GameDataRepository & GameDataBrowser = Object.freeze({
-  ...nextGameDataRepository,
-  revision: LEGACY_WEAPON_REVISION,
-  getWeapons: () => legacyWeaponDefinitions,
-  getWeapon: (slug: string) => legacyWeaponsBySlug.get(slug) ?? null,
-});
-
-const weaponV2R2Definitions = restoreWeaponV2R2Definitions(nextWeaponDefinitions);
-export const weaponV2R2MigrationSource = Object.freeze({
-  ...nextGameDataRepository,
-  revision: WEAPON_V2_R2_REVISION,
-  getWeapons: () => weaponV2R2Definitions,
-  getWeapon: (slug: string) => weaponV2R2Definitions.find(weapon => weapon.slug === slug) ?? null,
-});
-
-const weaponV2R1Definitions = restoreWeaponV2R1Definitions(weaponV2R2Definitions);
-const weaponV2R1BySlug = new Map(
-  weaponV2R1Definitions.map(definition => [definition.slug, definition]),
-);
-export const weaponV2R1MigrationSource: GameDataRepository & GameDataBrowser = Object.freeze({
-  ...nextGameDataRepository,
-  revision: WEAPON_V2_R1_REVISION,
-  getWeapons: () => weaponV2R1Definitions,
-  getWeapon: (slug: string) => weaponV2R1BySlug.get(slug) ?? null,
 });

@@ -227,17 +227,7 @@ const definition = {
           },
           "priority": 0,
           "blackboard": {
-            "cd": [
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1
-            ],
+            "cd": 0.1,
             "duration": [
               20,
               20,
@@ -399,17 +389,7 @@ const definition = {
           "abilityEvent": "beforeCastSkill",
           "priority": 0,
           "blackboard": {
-            "cd": [
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1
-            ],
+            "cd": 0.1,
             "duration": [
               20,
               20,

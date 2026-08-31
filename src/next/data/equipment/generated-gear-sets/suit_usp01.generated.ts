@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'ultimateEnergyGainEfficiency',
-      value: [0.2],
+      value: 0.2,
     },
   ],
   buffDefinitions: {
@@ -27,6 +27,25 @@ const definition = {
       },
       attributeModifiers: [],
       abilityEventResponses: [
+        {
+          event: 'enterFight',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'modifyActionValue',
+                parameters: {
+                  key: 'has_gain_atb',
+                  operation: 'assign',
+                  value: {
+                    kind: 'constant',
+                    value: 0,
+                  },
+                },
+              },
+            ],
+          },
+        },
         {
           event: 'beforeCastSkill',
           priority: 0,
@@ -97,51 +116,11 @@ const definition = {
             ],
           },
         },
-        {
-          event: 'enterFight',
-          priority: 0,
-          sequence: {
-            steps: [
-              {
-                kind: 'modifyActionValue',
-                parameters: {
-                  key: 'has_gain_atb',
-                  operation: 'assign',
-                  value: {
-                    kind: 'constant',
-                    value: 0,
-                  },
-                },
-              },
-            ],
-          },
-        },
       ],
-    },
-    buff_equipsuit_will_01: {
-      stackingType: 'unlimited',
-      priority: 0,
-      maxStackCount: 0,
-      triggerIntervalSeconds: 0,
-      waitFirstTriggerInterval: true,
-      maxTriggerCount: 1,
-      applyTags: [],
-      extendTags: [],
-      blackboard: {
-        will: 200,
-      },
-      attributeModifiers: [],
     },
   },
   initializationSequence: {
     steps: [
-      {
-        kind: 'applyBuff',
-        parameters: {
-          buffId: 'buff_equipsuit_will_01',
-          target: 'caster',
-        },
-      },
       {
         kind: 'applyBuff',
         parameters: {

@@ -210,7 +210,10 @@ export function compileScenarioRuntimeAssembly(
     options.index.getCommonAbilityEntityDefinitions?.(),
   );
   const panels = new Map(
-    resolveScenarioOperatorPanels(builds).map(panel => [panel.operatorId, panel]),
+    resolveScenarioOperatorPanels(builds, scenario.globalConfig).map(panel => [
+      panel.operatorId,
+      panel,
+    ]),
   );
   const equipment = new Map(
     compileResolvedScenarioEquipment(builds).map(entry => [entry.operatorId, entry.contributions]),

@@ -9,6 +9,7 @@ function applied(
   instanceId: number,
   layers: number,
   visible = true,
+  sourceActionId = 'skill:test',
 ): CombatReceiptEntry {
   return {
     sequence,
@@ -22,6 +23,7 @@ function applied(
       instanceId,
       layers,
       visible,
+      sourceActionId,
       iconPath: '/icons/icon_battle_buff_atk_up.webp',
     },
   };
@@ -62,6 +64,7 @@ describe('projectBuffTimelineViz', () => {
         startFrame: 10,
         endFrame: 20,
         layers: 1,
+        placement: 'upper',
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
       },
       {
@@ -71,6 +74,7 @@ describe('projectBuffTimelineViz', () => {
         startFrame: 20,
         endFrame: 50,
         layers: 2,
+        placement: 'upper',
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
       },
     ]);
@@ -113,6 +117,7 @@ describe('projectBuffTimelineViz', () => {
         startFrame: 5,
         endFrame: 35,
         layers: 1,
+        placement: 'upper',
         iconPath: '/icons/child.webp',
       },
     ]);
@@ -129,5 +134,30 @@ describe('projectBuffTimelineViz', () => {
       40,
     );
     expect(layoutBuffTimelineSegments(segments).map(segment => segment.lane)).toEqual([0, 1, 0]);
+  });
+
+  it('uses frozen equipment provenance for the legacy lower band', () => {
+    const [operatorBuff, eventBuff, weaponInitialization, gearInitialization] =
+      projectBuffTimelineViz(
+        [
+          applied(0, 0, 'operator:1', 1, 1),
+          applied(1, 0, 'operator:1', 2, 1, true, 'equipment:gearSet:suit_atk01:onDamage'),
+          applied(
+            2,
+            0,
+            'operator:1',
+            3,
+            1,
+            true,
+            'upgrade-initialization:weapon-trait:wpn_pistol_0005:skill3',
+          ),
+          applied(3, 0, 'operator:1', 4, 1, true, 'upgrade-initialization:gear-set:suit_atk01'),
+        ],
+        30,
+      );
+    expect(operatorBuff?.placement).toBe('upper');
+    expect(eventBuff?.placement).toBe('lower');
+    expect(weaponInitialization?.placement).toBe('lower');
+    expect(gearInitialization?.placement).toBe('lower');
   });
 });

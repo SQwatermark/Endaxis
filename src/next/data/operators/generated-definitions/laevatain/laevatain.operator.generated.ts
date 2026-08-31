@@ -1874,6 +1874,7 @@ export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 300 }],
+    enhancementStateBuffId: 'buff_chr_0016_laevat_show_weapon',
   },
   {
     angle: 120,

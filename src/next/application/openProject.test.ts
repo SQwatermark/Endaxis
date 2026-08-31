@@ -2,11 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { GameDataRepository } from '../core/game-data/gameDataRepository';
 import { createEmptyProject } from '../core/project/createProject';
 import { serializeProjectDocument } from '../core/project/serialization';
-import {
-  openProject,
-  type GameDataRevisionMigrator,
-  type GameDataRevisionMigrationResolver,
-} from './openProject';
+import { openProject } from './openProject';
 
 function createRepository(revision = 'definitions:current'): GameDataRepository {
   return {
@@ -53,6 +49,7 @@ describe('openProject', () => {
       kind: 'opened',
       project,
       gameDataRevision: 'definitions:current',
+      gameDataRevisionUpdated: false,
     });
   });
 
@@ -86,20 +83,20 @@ describe('openProject', () => {
     });
   });
 
-  it('does not silently open a project created with another definition revision', () => {
+  it('opens a project created with an older marker against the only latest definition library', () => {
     const project = createProject('definitions:old');
 
     expect(openProject(project, { gameDataRepository: createRepository() })).toEqual({
-      ok: false,
-      kind: 'game-data-revision-mismatch',
-      project,
-      projectRevision: 'definitions:old',
-      repositoryRevision: 'definitions:current',
-      indexIssues: [],
+      ok: true,
+      kind: 'opened',
+      project: { ...project, gameDataRevision: 'definitions:current' },
+      gameDataRevision: 'definitions:current',
+      gameDataRevisionUpdated: true,
     });
+    expect(project.gameDataRevision).toBe('definitions:old');
   });
 
-  it('keeps target-definition reference issues subordinate to a revision mismatch', () => {
+  it('reports references missing from the latest library regardless of the saved marker', () => {
     const project = createProject('definitions:old');
     project.scenarios[0]!.enemy.source = {
       kind: 'prefab',
@@ -112,8 +109,8 @@ describe('openProject', () => {
     expect(result).toEqual(
       expect.objectContaining({
         ok: false,
-        kind: 'game-data-revision-mismatch',
-        indexIssues: [
+        kind: 'definition-validation-failed',
+        issues: [
           {
             path: '$.scenarios[0].enemy.source.enemyId',
             message: 'unknown enemy',
@@ -123,63 +120,7 @@ describe('openProject', () => {
     );
   });
 
-  it('reports an explicitly registered migration without executing it', () => {
-    const project = createProject('definitions:old');
-    const migrate = vi.fn(() => ({ ok: true as const, value: project, warnings: [] }));
-    const migrator: GameDataRevisionMigrator = {
-      fromRevision: 'definitions:old',
-      toRevision: 'definitions:current',
-      migrate,
-    };
-    const findMigration = vi.fn(() => migrator);
-    const resolver: GameDataRevisionMigrationResolver = { findMigration };
-
-    expect(
-      openProject(project, {
-        gameDataRepository: createRepository(),
-        gameDataMigrationResolver: resolver,
-      }),
-    ).toEqual({
-      ok: false,
-      kind: 'game-data-migration-available',
-      project,
-      projectRevision: 'definitions:old',
-      repositoryRevision: 'definitions:current',
-      indexIssues: [],
-      migrator,
-    });
-    expect(findMigration).toHaveBeenCalledWith('definitions:old', 'definitions:current');
-    expect(migrate).not.toHaveBeenCalled();
-  });
-
-  it('reports a resolver that returns a migrator for another revision pair', () => {
-    const project = createProject('definitions:old');
-    const migrator: GameDataRevisionMigrator = {
-      fromRevision: 'index:other',
-      toRevision: 'definitions:current',
-      migrate: () => ({ ok: true, value: project, warnings: [] }),
-    };
-    const resolver: GameDataRevisionMigrationResolver = {
-      findMigration: () => migrator,
-    };
-
-    expect(
-      openProject(project, {
-        gameDataRepository: createRepository(),
-        gameDataMigrationResolver: resolver,
-      }),
-    ).toEqual({
-      ok: false,
-      kind: 'game-data-migrator-invalid',
-      project,
-      projectRevision: 'definitions:old',
-      repositoryRevision: 'definitions:current',
-      indexIssues: [],
-      migrator,
-    });
-  });
-
-  it('applies revision checks after an explicitly injected legacy format migration', () => {
+  it('normalizes the data marker after an explicitly injected legacy format migration', () => {
     const migrated = createProject('definitions:old');
     const result = openProject(
       { version: '1.0.0', scenarioList: [] },
@@ -193,11 +134,11 @@ describe('openProject', () => {
 
     expect(result).toEqual(
       expect.objectContaining({
-        ok: false,
-        kind: 'game-data-revision-mismatch',
-        project: migrated,
-        projectRevision: 'definitions:old',
-        repositoryRevision: 'definitions:current',
+        ok: true,
+        kind: 'opened',
+        project: { ...migrated, gameDataRevision: 'definitions:current' },
+        gameDataRevision: 'definitions:current',
+        gameDataRevisionUpdated: true,
       }),
     );
   });

@@ -1017,6 +1017,74 @@ describe('CombatRuntimeAssembly', () => {
     ]);
   });
 
+  it('multiplies scoped global cooldown reductions without affecting other skill types', () => {
+    const panel = {
+      operatorId: 'operator',
+      level: 90,
+      attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
+      attack: 1,
+      attackBeforeAttributeScalar: 1,
+      mainAttribute: 'strength' as const,
+      secondaryAttribute: 'agility' as const,
+      health: 1,
+      defense: 0,
+      criticalRate: 0,
+      criticalDamage: 0,
+      artsIntensity: 0,
+      ultimateEnergyGainEfficiency: 1,
+      skillCooldownReduction: 0,
+      staggerDamagePercent: 0,
+      combatModifiers: [
+        {
+          kind: 'skillCooldownReduction' as const,
+          skillTypes: ['comboSkill'] as const,
+          value: 0.5,
+          modifierId: 'global:combo-cooldown',
+        },
+      ],
+      receipt: [],
+    };
+    const assembly = createAssembly(
+      [
+        skill({
+          castId: 'combo:1',
+          skillGroupKey: 'comboSkill',
+          skillType: 'comboSkill',
+          cooldownFrames: 10,
+          costs: [],
+          costFrame: 0,
+        }),
+        skill({
+          castId: 'combo:2',
+          skillGroupKey: 'comboSkill',
+          skillType: 'comboSkill',
+          cooldownFrames: 10,
+          costs: [],
+          costFrame: 0,
+        }),
+      ],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      panel,
+    );
+
+    expect(assembly.tryStartSkill('operator', 'skill', 'combo:1')).toBe(true);
+    for (let frame = 0; frame < 4; frame += 1) assembly.advanceFrame();
+    expect(assembly.tryStartSkill('operator', 'skill', 'combo:2')).toBe(true);
+    assembly.advanceFrame();
+    expect(assembly.receipt.entries.map(entry => entry.event)).toContain('SkillCooldownReady');
+  });
+
   it('inherits normalized cooldown progress when changing a skill slot', () => {
     const base = skill({
       castId: 'battle-cast',

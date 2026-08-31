@@ -154,14 +154,18 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       if (context?.currentTarget === undefined) {
         throw new Error('AbilityEntity finish requires a current Context target');
       }
-      this.#entities.kill(context.currentTarget, 'explicit');
+      if (this.#entities.isActive(context.currentTarget)) {
+        this.#entities.kill(context.currentTarget, 'explicit');
+      }
       return true;
     }
     if (step.kind === 'finishActionOwnerAbilityEntity') {
       if (context?.actionOwnerAbilityEntity === undefined) {
         throw new Error('AbilityEntity ActionOwner finish requires an entity child-skill context');
       }
-      this.#entities.kill(context.actionOwnerAbilityEntity, 'explicit');
+      if (this.#entities.isActive(context.actionOwnerAbilityEntity)) {
+        this.#entities.kill(context.actionOwnerAbilityEntity, 'explicit');
+      }
       return true;
     }
     if (step.kind === 'finishCurrentAbilityEntityWhenSourceDies') {

@@ -8,12 +8,14 @@ import { lifengUltimate } from './generated-definitions/lifeng/lifeng.operator.g
 import {
   rossiBattleSkill,
   rossiComboSkill2,
+  rossiComboSkill3,
   rossiUltimate,
 } from './generated-definitions/rossi/rossi.operator.generated';
 import {
   alesh,
   antal,
   akekuri,
+  arcane,
   arclight,
   ardelia,
   avywenna,
@@ -314,6 +316,19 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('"key":"EntityBB_Combo_QTE_Trigger"');
   });
 
+  it('Rossi 三段连携保留 timing_success 成功条件和专用成功 Buff', () => {
+    const serialized = JSON.stringify(rossiComboSkill3);
+    const successCondition =
+      '"left":{"kind":"blackboard","key":"timing_success"},"operator":"equal","right":{"kind":"constant","value":1}';
+    const successBuff = '"buffId":"buff_chr_0028_wulfa_tut_comboskill_success"';
+    const conditionIndex = serialized.indexOf(successCondition);
+    const buffIndex = serialized.indexOf(successBuff, conditionIndex);
+
+    expect(conditionIndex).toBeGreaterThanOrEqual(0);
+    expect(buffIndex).toBeGreaterThan(conditionIndex);
+    expect(rossi.buffDefinitions?.buff_chr_0028_wulfa_tut_comboskill_success).toBeDefined();
+  });
+
   it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {
     const skills = operator.skillGroups.flatMap(group => [
       ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
@@ -349,6 +364,17 @@ describe('新增的完整技能转换干员', () => {
         ? basicAttack!.variants![0]!.skills
         : [basicAttack!.variants![0]!.skills],
     ).toHaveLength(variantLength);
+  });
+
+  it.each([
+    [zhuangFangyi, 'buff_chr_0030_zhuangfy_ult_base'],
+    [arcane, 'buff_chr_0032_lizhiyan_ultimate_skill_listener_owner'],
+    [laevatain, 'buff_chr_0016_laevat_show_weapon'],
+    [yvonne, 'buff_chr_0017_yvonne_ultimate_skill'],
+  ] as const)('%s 的强化条使用显式原生 Buff 身份', (operator, buffId) => {
+    const ultimate = operator.skillGroups.find(group => group.key === 'ultimate');
+    const definition = Array.isArray(ultimate?.skills) ? ultimate.skills[0] : ultimate?.skills;
+    expect(definition?.enhancementStateBuffId).toBe(buffId);
   });
 
   it.each(generatedOperators)('尚无可执行行为的养成定义必须保留对应缺口', operator => {

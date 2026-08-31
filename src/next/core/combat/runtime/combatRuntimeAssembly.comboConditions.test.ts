@@ -517,6 +517,19 @@ describe('assembly 原生常驻连携条件', () => {
     assembly.tryStartSkill('owner', 'reset');
     f.emit();
     expect(f.pending).toHaveLength(1);
+    expect(
+      assembly.receipt.entries.find(entry => entry.event === 'SkillCooldownAdjusted'),
+    ).toMatchObject({
+      sourceId: 'owner',
+      data: {
+        skillId: 'combo',
+        operation: 'set',
+        basis: 'absoluteFrames',
+        value: 0,
+        remainingFrames: 0,
+        ready: true,
+      },
+    });
   });
 
   it('静态目录重复或属于别的角色时明确失败', () => {

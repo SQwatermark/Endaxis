@@ -27,6 +27,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'cryo',
+          slot: 'baseAddition',
           value: [
             0.11666666666666667, 0.11666666666666667, 0.11666666666666667, 0.11666666666666667,
           ],
@@ -34,6 +35,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'electric',
+          slot: 'baseAddition',
           value: [
             0.11666666666666667, 0.11666666666666667, 0.11666666666666667, 0.11666666666666667,
           ],

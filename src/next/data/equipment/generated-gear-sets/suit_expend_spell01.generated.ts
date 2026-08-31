@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'attackPercent',
-      value: [0.1],
+      value: 0.1,
     },
   ],
   buffDefinitions: {
@@ -42,7 +42,10 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/SpellStatus/Conduct", "Skill/Character/Common/SpellStatus/Corrupt"],
+                    buffTags: [
+                      'Skill/Character/Common/SpellStatus/Conduct',
+                      'Skill/Character/Common/SpellStatus/Corrupt',
+                    ],
                     buffIdOutputKey: 'buffid',
                   },
                 },
@@ -60,11 +63,13 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_expend_spelldamage',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         count: {
                           kind: 'blackboard',
                           key: 'addstack',
                         },
                         inheritSourceSkillCastInfo: true,
+                        asChildBuff: true,
                         blackboardAssignments: {
                           spell_dmg_up: {
                             kind: 'blackboard',

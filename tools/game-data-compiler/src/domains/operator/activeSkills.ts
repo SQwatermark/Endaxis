@@ -15,7 +15,7 @@ import {
 } from '../../source/primitives.ts';
 
 const ENTRY_REQUIRED_FIELDS = new Set(['key', 'skillType', 'source']);
-const ENTRY_FIELDS = new Set([...ENTRY_REQUIRED_FIELDS, 'compile']);
+const ENTRY_OPTIONAL_FIELDS = ['compile', 'enhancementStateBuffId'] as const;
 
 /** 兼容旧入口的支持列表和遍历顺序；类型身份归契约，不能把排序差异误当成新枚举。 */
 export const OPERATOR_ACTIVE_SKILL_TYPES = [
@@ -34,6 +34,7 @@ export type OperatorActiveSkillEntrySource = Readonly<
   readonly sourcePath: string;
   readonly sourceFile: string;
   readonly projectionConfig: SourceRecord | null;
+  readonly enhancementStateBuffId?: string;
 };
 
 export interface CompiledOperatorActiveSkillEntrySource extends OperatorActiveSkillEntrySource {
@@ -53,7 +54,14 @@ export function parseOperatorActiveSkillEntries(
   const entries = requireArray(value, sourcePath).map((raw, index) => {
     const path = `${sourcePath}[${index}]`;
     const row = requireRecord(raw, path);
-    requireExactFields(row, row.compile === undefined ? ENTRY_REQUIRED_FIELDS : ENTRY_FIELDS, path);
+    requireExactFields(
+      row,
+      new Set([
+        ...ENTRY_REQUIRED_FIELDS,
+        ...ENTRY_OPTIONAL_FIELDS.filter(field => row[field] !== undefined),
+      ]),
+      path,
+    );
     const sourceFile = requireNonEmptyString(row.source, `${path}.source`);
     if (!/^[A-Za-z0-9._-]+\.json$/.test(sourceFile)) {
       throw new Error(`${path}.source: expected a safe JSON file name`);
@@ -72,6 +80,14 @@ export function parseOperatorActiveSkillEntries(
       sourceFile,
       projectionConfig:
         row.compile === undefined ? null : requireRecord(row.compile, `${path}.compile`),
+      ...(row.enhancementStateBuffId === undefined
+        ? {}
+        : {
+            enhancementStateBuffId: requireNonEmptyString(
+              row.enhancementStateBuffId,
+              `${path}.enhancementStateBuffId`,
+            ),
+          }),
     };
   });
   requireUnique(entries, entry => entry.key, `${sourcePath}.key`);

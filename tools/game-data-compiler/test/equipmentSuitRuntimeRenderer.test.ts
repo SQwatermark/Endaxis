@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { renderEquipmentSuitDefinitionFiles } from '../src/index.ts';
 
 describe('装备套装运行时定义渲染', () => {
-  it('稳定生成 GearSetDefinition、索引和审计', () => {
+  it('稳定生成 GearSetDefinition 和索引，不把审计中间产物写入正式目录', () => {
     const files = renderEquipmentSuitDefinitionFiles({
       definitions: [
         {
@@ -36,18 +36,13 @@ describe('装备套装运行时定义渲染', () => {
       ],
     });
     expect(files.map(file => file.relativePath)).toEqual([
-      'gear-set-definitions.audit.json',
       'index.generated.ts',
       'suit_fixture.generated.ts',
     ]);
     expect(
       files.find(file => file.relativePath === 'suit_fixture.generated.ts')?.content,
     ).toContain('satisfies GearSetDefinition');
-    expect(JSON.parse(files[0]!.content)).toMatchObject({
-      definitionCount: 1,
-      buffDefinitionCount: 1,
-      diagnostics: [{ status: 'scenario-omitted' }],
-    });
+    expect(files.some(file => file.relativePath.endsWith('.audit.json'))).toBe(false);
   });
 
   it('fails closed on blocked diagnostics and unsafe identities', () => {

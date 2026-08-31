@@ -5,6 +5,7 @@ import {
   appendSkillEditorSequence,
   appendSkillEditorStep,
   applySkillEditorCost,
+  applySkillEditorEnhancementStateBuffId,
   applySkillEditorField,
   applySkillEditorSequenceFrames,
   createSkillEditorDraft,
@@ -373,6 +374,24 @@ describe('skillDefinitionEditorViewModel', () => {
     expect(
       applySkillEditorField(draft, { field: 'costFrame', value: undefined }),
     ).not.toHaveProperty('costFrame');
+  });
+
+  it('编辑显式强化 Buff 身份并用空值删除绑定', () => {
+    const template = templateDefinition();
+    const draft = createSkillEditorDraft(template, undefined);
+    const edited = applySkillEditorEnhancementStateBuffId(draft, ' buff:enhancement ');
+
+    expect(edited.enhancementStateBuffId).toBe('buff:enhancement');
+    expect(projectSkillEditor(template, edited, true)).toMatchObject({
+      enhancementStateBuffId: 'buff:enhancement',
+      enhancementStateBuffIdChanged: true,
+    });
+    expect(applySkillEditorEnhancementStateBuffId(edited, ' ')).not.toHaveProperty(
+      'enhancementStateBuffId',
+    );
+    expect(
+      validateSkillDefinition({ ...template, enhancementStateBuffId: '' }).map(issue => issue.path),
+    ).toContain('$.enhancementStateBuffId');
   });
 
   it('编辑调度序列 startFrame 与 endFrame，删除 endFrame 合法', () => {

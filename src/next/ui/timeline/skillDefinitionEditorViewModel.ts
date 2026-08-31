@@ -143,6 +143,8 @@ export interface SkillEditorViewModel {
   readonly diffCount: number;
   readonly timelineBlockFrames: number;
   readonly timelineBlockFramesChanged: boolean;
+  readonly enhancementStateBuffId: string | undefined;
+  readonly enhancementStateBuffIdChanged: boolean;
   readonly cooldownFrames: SkillEditorScalarField;
   readonly costFrame: number | undefined;
   readonly costFrameChanged: boolean;
@@ -203,6 +205,8 @@ export function projectSkillEditor(
     diffCount: customized ? diffSkillDefinition(template, draft).length : 0,
     timelineBlockFrames: draft.timelineBlockFrames,
     timelineBlockFramesChanged: draft.timelineBlockFrames !== template.timelineBlockFrames,
+    enhancementStateBuffId: draft.enhancementStateBuffId,
+    enhancementStateBuffIdChanged: draft.enhancementStateBuffId !== template.enhancementStateBuffId,
     cooldownFrames: projectScalarField(draft.cooldownFrames, template.cooldownFrames),
     costFrame: draft.costFrame,
     costFrameChanged: draft.costFrame !== template.costFrame,
@@ -215,6 +219,23 @@ export function projectSkillEditor(
       projectSequence(sequence, template.scheduledSequences[index], index),
     ),
   };
+}
+
+/** 空值明确表示该技能没有强化状态绑定；非空值保持稳定 Buff ID，不做名称推断。 */
+export function applySkillEditorEnhancementStateBuffId(
+  draft: SkillDefinition,
+  value: string,
+): SkillDefinition {
+  const enhancementStateBuffId = value.trim();
+  if (enhancementStateBuffId === '') {
+    if (draft.enhancementStateBuffId === undefined) return draft;
+    const next = { ...draft };
+    delete next.enhancementStateBuffId;
+    return next;
+  }
+  return draft.enhancementStateBuffId === enhancementStateBuffId
+    ? draft
+    : { ...draft, enhancementStateBuffId };
 }
 
 function projectSequence(

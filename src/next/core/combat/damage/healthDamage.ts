@@ -65,6 +65,8 @@ export interface HealthDamageReceiptDetail {
   readonly damageScaleMultiplier?: number;
   readonly criticalRate?: number;
   readonly criticalDamageIncrease?: number;
+  /** 期望伤害中的暴击期望倍率；在公式执行边界冻结，投影层不得重算。 */
+  readonly criticalExpectationMultiplier?: number;
   readonly nonCriticalDamage?: number;
   readonly criticalDamage?: number;
   readonly expectedDamage?: number;
@@ -73,6 +75,10 @@ export interface HealthDamageReceiptDetail {
   readonly damageTakenMultiplier?: number;
   readonly weaknessDamageMultiplier?: number;
   readonly shelterDamageMultiplier?: number;
+  /** 除暴击、防御、抗性与承伤外，本次伤害实际使用的合并倍率。 */
+  readonly directDamageMultiplier?: number;
+  /** 仅由伤害类型和抗性百分比得到的倍率，不含独立承伤倍率。 */
+  readonly resistancePercentMultiplier?: number;
 }
 
 /** 在正确事件边界写入一次生命伤害所需的状态和端口。 */

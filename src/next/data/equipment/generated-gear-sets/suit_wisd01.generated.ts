@@ -8,24 +8,10 @@ const definition = {
       kind: 'attribute',
       attribute: 'intellect',
       operation: 'flat',
-      value: [50],
+      value: 50,
     },
   ],
   buffDefinitions: {
-    buff_equipsuit_wisd_01: {
-      stackingType: 'unlimited',
-      priority: 0,
-      maxStackCount: 0,
-      triggerIntervalSeconds: 0,
-      waitFirstTriggerInterval: true,
-      maxTriggerCount: 1,
-      applyTags: [],
-      extendTags: [],
-      blackboard: {
-        wisd: 200,
-      },
-      attributeModifiers: [],
-    },
     buff_equipsuit_wisd_spdmg_01: {
       stackingType: 'unique',
       priority: 0,
@@ -72,13 +58,6 @@ const definition = {
   },
   initializationSequence: {
     steps: [
-      {
-        kind: 'applyBuff',
-        parameters: {
-          buffId: 'buff_equipsuit_wisd_01',
-          target: 'caster',
-        },
-      },
       {
         kind: 'applyBuff',
         parameters: {

@@ -96,6 +96,7 @@ function sourceLabel(entry: OperatorPanelContributionReceipt): string {
     }
     return source.upgradeKey;
   }
+  if (source.kind === 'globalConfig') return t('nextTimeline.globalModifiers.title');
   const contribution = source.contribution;
   if (contribution.kind === 'weaponTrait') {
     return getWeaponGameName(contribution.slug, locale.value);

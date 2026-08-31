@@ -1877,6 +1877,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         buffId: 'buff:operator-visible',
         instanceId: 1,
         layers: 1,
+        sourceActionId: 'buff:operator-visible',
         visible: true,
         iconId: 'icon_battle_buff_atk_up',
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
@@ -1888,6 +1889,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         buffId: 'buff:operator-visible:child',
         parentBuffId: 'buff:operator-visible',
         instanceId: 1,
+        sourceActionId: 'buff:operator-visible',
         iconPath: '/icons/icon_battle_buff_child.webp',
       },
     });

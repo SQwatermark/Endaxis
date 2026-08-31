@@ -348,7 +348,11 @@ function maxOut(): void {
           :disabled="weapon === null"
           @click="emit('edit-definition')"
         >
-          {{ customDefinition === undefined ? '自定义武器' : '编辑武器定义' }}
+          {{
+            customDefinition === undefined
+              ? t('nextTimeline.customDefinition.customizeWeapon')
+              : t('nextTimeline.customDefinition.editWeapon')
+          }}
         </button>
         <button
           class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"

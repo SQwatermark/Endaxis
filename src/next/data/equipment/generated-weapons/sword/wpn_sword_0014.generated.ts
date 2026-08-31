@@ -205,17 +205,7 @@ const definition = {
           "abilityEvent": "outputBuff",
           "priority": 0,
           "blackboard": {
-            "PASI_enhance": [
-              30,
-              30,
-              30,
-              30,
-              30,
-              30,
-              30,
-              30,
-              30
-            ],
+            "PASI_enhance": 30,
             "duration": [
               15,
               15,

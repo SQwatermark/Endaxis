@@ -2871,6 +2871,7 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 240 }],
+    enhancementStateBuffId: 'buff_chr_0030_zhuangfy_ult_base',
   },
   { combo_cd_rate: 4, duration: 25, duration_extra: 1 },
 );

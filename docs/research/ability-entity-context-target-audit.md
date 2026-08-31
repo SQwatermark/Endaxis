@@ -70,7 +70,7 @@ alive, or how long it persists.
 
 The desktop VFS manifest `451359` contains 54 of the 55 unique character
 AbilityEntity template IDs referenced by the paired SkillData corpus. The
-strict extractor in `scripts/extract_next_ability_entities` resolves the raw
+retired strict extractor preserved in Git history resolves the raw
 Unity assets and records their hashes, born tags, lifetime fields, stacking
 metadata and component references in
 `src/next/data/ability-entities/ability-entity-templates-1.4.4.json`. The one

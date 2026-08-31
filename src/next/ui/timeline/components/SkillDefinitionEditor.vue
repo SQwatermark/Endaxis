@@ -27,6 +27,7 @@ import {
   applySkillEditorField,
   appendSkillEditorCost,
   appendSkillEditorSequence,
+  applySkillEditorEnhancementStateBuffId,
   createSkillEditorDraft,
   createSkillEditorStep,
   createCombatEventResponseDraft,
@@ -125,6 +126,7 @@ const props = defineProps<{
   };
   showReferencePins?: boolean;
   allowInvalidSave?: boolean;
+  buffIds?: readonly string[];
 }>();
 
 const emit = defineEmits<{
@@ -276,6 +278,13 @@ function setField(
     field,
     value: value === undefined ? undefined : Math.round(value),
   });
+}
+
+function setEnhancementStateBuffId(event: Event): void {
+  draft.value = applySkillEditorEnhancementStateBuffId(
+    draft.value,
+    (event.target as HTMLInputElement).value,
+  );
 }
 
 function setCostValue(index: number, event: Event): void {
@@ -889,6 +898,27 @@ function reset(): void {
                   @input="setField('costFrame', $event)"
                 />
               </label>
+
+              <label class="skill-editor__row skill-editor__row--wide">
+                <span class="skill-editor__label">
+                  <EditorFieldLabel
+                    :label="t('nextTimeline.skillEditing.enhancementStateBuffId')"
+                    :help="t('nextTimeline.skillEditing.fieldHelp.enhancementStateBuffId')"
+                  />
+                  <b v-if="view.enhancementStateBuffIdChanged">*</b>
+                </span>
+                <input
+                  type="text"
+                  class="skill-editor__input"
+                  list="skill-enhancement-state-buff-ids"
+                  :placeholder="t('nextTimeline.skillEditing.none')"
+                  :value="view.enhancementStateBuffId ?? ''"
+                  @change="setEnhancementStateBuffId"
+                />
+                <datalist id="skill-enhancement-state-buff-ids">
+                  <option v-for="buffId in buffIds ?? []" :key="buffId" :value="buffId" />
+                </datalist>
+              </label>
             </div>
           </section>
 
@@ -1478,6 +1508,11 @@ function reset(): void {
   grid-template-columns: minmax(90px, 1fr) minmax(100px, 140px);
   align-items: center;
   gap: 12px;
+}
+
+.skill-editor__row--wide {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(180px, 1fr) minmax(300px, 2fr);
 }
 
 .skill-editor__label {

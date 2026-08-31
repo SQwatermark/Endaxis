@@ -145,7 +145,6 @@ export interface SkillCastDocument {
   presentation?: {
     locked?: boolean;
     disabled?: boolean;
-    linked?: boolean;
     color?: string | null;
     customBars?: EditableBarDocument[];
   };
@@ -343,8 +342,9 @@ export interface GlobalOperatorStatModifierDocument {
   id: string;
   kind: 'operatorStat';
   modifier: GlobalOperatorStatModifier;
+  /** 百分比类使用小数，artsIntensity 使用绝对值；允许负数表达反向修正。 */
   value: number;
-  /** 仅当修正限定于某一种技能类型时需要。 */
+  /** 当前只允许 skillCooldownReduction 指定技能类型；其他修正作用于全队静态面板。 */
   skillType?: SkillType;
 }
 
@@ -373,6 +373,11 @@ export interface ScenarioMechanicsDocument {
 export interface ScenarioEditorDocument {
   trackHeightWeights: [number, number, number, number];
   prepExpanded: boolean;
+  /** 旧版工具栏的三态初始终结技能量预设；省略时从当前轨道值推导。 */
+  initialUltimateEnergyPreset?: {
+    mode: 'empty' | 'full' | 'custom';
+    customByTrackId: Record<string, number>;
+  };
 }
 
 /** 一个可独立编辑、模拟或从其他场景边界继承的完整场景。 */

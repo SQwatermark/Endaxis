@@ -11,6 +11,9 @@ export interface BuffTimelineSegment {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly layers: number;
+  /** 旧版可视分区：干员来源位于技能块上方，配装来源位于下方。 */
+  readonly placement: 'upper' | 'lower';
+  readonly nameKey?: string;
   readonly iconId?: string;
   readonly iconPath?: string;
 }
@@ -59,6 +62,19 @@ function optionalString(
 
 function instanceKey(targetId: string, buffId: string, instanceId: number): string {
   return `${targetId}\u0000${buffId}\u0000${instanceId}`;
+}
+
+function presentationPlacement(
+  data: Readonly<Record<string, CombatReceiptValue>>,
+): BuffTimelineSegment['placement'] {
+  const sourceActionId = optionalString(data, 'sourceActionId');
+  const equipmentInitialization =
+    sourceActionId?.startsWith('upgrade-initialization:weapon-trait:') === true ||
+    sourceActionId?.startsWith('upgrade-initialization:gear-trait:') === true ||
+    sourceActionId?.startsWith('upgrade-initialization:gear-set:') === true;
+  return sourceActionId?.startsWith('equipment:') === true || equipmentInitialization
+    ? 'lower'
+    : 'upper';
 }
 
 /**
@@ -114,6 +130,10 @@ export function projectBuffTimelineViz(
       startFrame: entry.frame,
       endFrame,
       layers: requireNumber(entry, data, 'layers'),
+      placement: presentationPlacement(data),
+      ...(optionalString(data, 'nameKey') === undefined
+        ? {}
+        : { nameKey: optionalString(data, 'nameKey') }),
       ...(optionalString(data, 'iconId') === undefined
         ? {}
         : { iconId: optionalString(data, 'iconId') }),

@@ -2286,6 +2286,7 @@
           "key": "ultimate",
           "skillType": "ultimate",
           "source": "chr_0030_zhuangfy_ultimate_skill.json",
+          "enhancementStateBuffId": "buff_chr_0030_zhuangfy_ult_base",
           "compile": {
             "kind": "resolvedSequence",
             "ignoreAuxiliaryClassifications": ["incomingDamageProtection"],
@@ -2382,6 +2383,11 @@
       ],
       "basePassiveSkillIds": ["chr_0032_lizhiyan_passive"],
       "compileTimeOnlyBasePassiveSkillIds": ["chr_0032_lizhiyan_passive"],
+      "runtimeTemplate": {
+        "sourceFile": "CharacterData/chr_0032_lizhiyan.runtime-template.json",
+        "sourceSha256": "33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc",
+        "skillGroupKey": "comboSkill"
+      },
       "progressionActiveConditions": {
         "lizhiyan_wisd": {
           "kind": "deckAttributeCompare",
@@ -2468,6 +2474,7 @@
           "key": "ultimate",
           "skillType": "ultimate",
           "source": "chr_0032_lizhiyan_ultimate_skill.json",
+          "enhancementStateBuffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener_owner",
           "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
         },
         {
@@ -4171,6 +4178,7 @@
           "key": "ultimate",
           "skillType": "ultimate",
           "source": "chr_0016_laevat_ultimate_skill.json",
+          "enhancementStateBuffId": "buff_chr_0016_laevat_show_weapon",
           "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
         },
         {
@@ -4350,6 +4358,7 @@
           "key": "ultimate",
           "skillType": "ultimate",
           "source": "chr_0017_yvonne_ultimate_skill.json",
+          "enhancementStateBuffId": "buff_chr_0017_yvonne_ultimate_skill",
           "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
         },
         {

@@ -527,7 +527,10 @@ export {
   renderEquipmentDefinitionFiles,
   type RenderedEquipmentDefinitionFileSource,
 } from './domains/equipment/renderFormalDefinitions.ts';
-export { writeEquipmentDefinitionFiles } from './domains/equipment/writeFormalDefinitions.ts';
+export {
+  checkEquipmentDefinitionFiles,
+  writeEquipmentDefinitionFiles,
+} from './domains/equipment/writeFormalDefinitions.ts';
 export {
   writeGeneratedDefinitionFiles,
   type RenderedDefinitionFileSource,

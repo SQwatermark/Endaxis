@@ -11,11 +11,13 @@ import { ABILITY_ENTITY_IDS_KEY } from '../abilityEntityEditorContext';
 
 const props = defineProps<{
   visible: boolean;
+  embedded?: boolean;
   title: string;
   templateDefinition: SkillDefinition | null;
   customDefinition: SkillDefinition | undefined;
   skillLevel: number;
   abilityEntityIds?: readonly string[];
+  buffIds?: readonly string[];
   showReferencePins?: boolean;
   allowInvalidSave?: boolean;
 }>();
@@ -56,7 +58,22 @@ const labels = () => ({
 </script>
 
 <template>
+  <SkillDefinitionEditor
+    v-if="embedded && visible && templateDefinition !== null"
+    :template="templateDefinition"
+    :custom-definition="customDefinition"
+    :skill-level="skillLevel"
+    :buff-ids="buffIds"
+    :labels="labels()"
+    :show-reference-pins="showReferencePins"
+    :allow-invalid-save="allowInvalidSave"
+    @save="emit('save', $event)"
+    @cancel="emit('update:visible', false)"
+    @reset="emit('reset')"
+    @reference="emit('reference', $event)"
+  />
   <el-dialog
+    v-else
     :model-value="visible"
     :title="`${t('nextTimeline.skillEditing.section')} · ${title}`"
     width="min(1500px, 96vw)"
@@ -70,6 +87,7 @@ const labels = () => ({
       :template="templateDefinition"
       :custom-definition="customDefinition"
       :skill-level="skillLevel"
+      :buff-ids="buffIds"
       :labels="labels()"
       :show-reference-pins="showReferencePins"
       :allow-invalid-save="allowInvalidSave"

@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'attackPercent',
-      value: [0.15],
+      value: 0.15,
     },
   ],
   buffDefinitions: {
@@ -47,7 +47,9 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_attrisuitup_01',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
+                        asChildBuff: true,
                         blackboardAssignments: {
                           dmg_up: {
                             kind: 'blackboard',
@@ -122,7 +124,6 @@ const definition = {
                       parameters: {
                         target: 'buffOwner',
                         outputKey: 'stack',
-                        countType: 'instance',
                         query: {
                           kind: 'id',
                           buffIds: ['buff_equipsuit_attrisuitup_01'],
@@ -145,6 +146,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_attrisuitup_02',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           dmg_up: {

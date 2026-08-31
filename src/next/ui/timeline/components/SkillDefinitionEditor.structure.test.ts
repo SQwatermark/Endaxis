@@ -20,8 +20,13 @@ import structureMapSource from './SkillStructureMindMap.vue?raw';
 import timelineEditorSource from '../NextTimelineEditor.vue?raw';
 import abilityEntityTargetQueryEditorSource from './AbilityEntityTargetQueryEditor.vue?raw';
 import timeDilationStepEditorSource from './TimeDilationStepEditor.vue?raw';
+import spellBurstStepEditorSource from './SpellBurstStepEditor.vue?raw';
 import healStepEditorSource from './HealStepEditor.vue?raw';
-import { COMBAT_STEP_KINDS } from '../../../core/game-data/operatorDefinition';
+import {
+  COMBAT_STEP_KINDS,
+  DAMAGE_FEATURES,
+  DAMAGE_TAGS,
+} from '../../../core/game-data/operatorDefinition';
 import { EDITABLE_COMBAT_STEP_KINDS } from '../skillDefinitionEditorViewModel';
 import { STEP_TYPE_GROUPS } from '../stepTypePickerCatalog';
 import zhCN from '../../../../i18n/locales/zh-CN.json';
@@ -29,6 +34,21 @@ import en from '../../../../i18n/locales/en.json';
 import ru from '../../../../i18n/locales/ru.json';
 
 describe('SkillDefinitionEditor structure', () => {
+  it('edits the explicit enhancement Buff identity from known Buff candidates', () => {
+    expect(editorSource).toContain('view.enhancementStateBuffIdChanged');
+    expect(editorSource).toContain('skill-enhancement-state-buff-ids');
+    expect(editorSource).toContain('applySkillEditorEnhancementStateBuffId');
+  });
+  it('所有伤害标签和特征都具备本地化领域名称', () => {
+    for (const locale of [zhCN, en, ru]) {
+      const messages = locale.nextTimeline.skillEditing;
+      for (const tag of DAMAGE_TAGS) expect(messages.damageTagNames).toHaveProperty(tag);
+      for (const feature of DAMAGE_FEATURES) {
+        expect(messages.damageFeatureNames).toHaveProperty(feature);
+      }
+    }
+  });
+
   it('差异数量由 i18n 参数插值，不对已翻译文本做字符串替换', () => {
     expect(editorSource).toContain(
       "t('nextTimeline.skillEditing.diffCount', { count: view.diffCount })",
@@ -277,6 +297,21 @@ describe('SkillDefinitionEditor structure', () => {
     expect(healStepEditorSource).toContain('tags');
   });
 
+  it('术法爆发步骤使用四种原生身份的明确下拉，不留下空 Inspector', () => {
+    expect(stepEditorSource).toContain('SpellBurstStepEditor');
+    for (const burstType of ['Fire', 'Pulse', 'Cryst', 'Natural']) {
+      expect(spellBurstStepEditorSource).toContain(`'${burstType}'`);
+    }
+    expect(spellBurstStepEditorSource).toContain('step.parameters.burstType');
+    expect(spellBurstStepEditorSource).toContain('spellBurstTypes.${burstType}');
+  });
+
+  it('步骤路由遗漏时显示明确提示，不因可编辑目录身份静默渲染空白', () => {
+    expect(stepEditorSource).toContain('<p v-else class="step-editor__unsupported">');
+    expect(stepEditorSource).not.toContain('v-else-if="!editable"');
+    expect(stepEditorSource).not.toContain('const editable = computed');
+  });
+
   it('Next 属性面板只使用自身完整的翻译命名空间', () => {
     expect(inspectorSource).not.toContain("t('propertiesPanel.sections.");
     expect(inspectorSource).not.toContain("t('propertiesPanel.labels.");
@@ -314,6 +349,8 @@ describe('SkillDefinitionEditor structure', () => {
       'targets',
       'reaction',
       'reactions',
+      'spellBurstType',
+      'spellBurstTypes',
       'durationSeconds',
       'effectiveness',
       'markerId',

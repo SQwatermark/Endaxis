@@ -26,6 +26,7 @@ function conductStatus(
   return {
     id,
     presentation: {
+      nameKey: 'electrification',
       visible: true,
       iconId: 'icon_battle_conduct',
       showInHeadBarCommon: true,
@@ -48,7 +49,7 @@ function conductStatus(
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 1,
-    applyTags: ["Skill/Character/Common/SpellStatus/Conduct"],
+    applyTags: ['Skill/Character/Common/SpellStatus/Conduct'],
     blackboard: {
       atk_scale: 0,
       consumed_layer: 0,
@@ -95,9 +96,9 @@ function compoundDamage(
 }
 
 const STATUS_PRESENTATION = {
-  heat: { iconId: 'icon_battle_burning', abnormalColorType: 'Fire' },
-  cryo: { iconId: 'icon_battle_frozen', abnormalColorType: 'Cryst' },
-  nature: { iconId: 'icon_battle_corrupt', abnormalColorType: 'Natural' },
+  heat: { nameKey: 'combustion', iconId: 'icon_battle_burning', abnormalColorType: 'Fire' },
+  cryo: { nameKey: 'solidification', iconId: 'icon_battle_frozen', abnormalColorType: 'Cryst' },
+  nature: { nameKey: 'corrosion', iconId: 'icon_battle_corrupt', abnormalColorType: 'Natural' },
 } as const;
 
 function visibleCompoundPresentation(element: keyof typeof STATUS_PRESENTATION) {
@@ -129,7 +130,7 @@ function frozenStatus(
     priority: 0,
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
-    applyTags: ["Skill/Character/Common/SpellStatus/Frozen"],
+    applyTags: ['Skill/Character/Common/SpellStatus/Frozen'],
     blackboard: {
       atk_scale: 0,
       consumed_layer: 0,
@@ -168,7 +169,7 @@ function burningStatus(
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 9999,
-    applyTags: ["Skill/Character/Common/SpellStatus/Burning"],
+    applyTags: ['Skill/Character/Common/SpellStatus/Burning'],
     blackboard: {
       atk_scale: 0,
       burning_atk_scale: 0,
@@ -210,7 +211,7 @@ function corrosionStatus(
     triggerIntervalSeconds: 1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: -1,
-    applyTags: ["Skill/Character/Common/SpellStatus/Corrupt"],
+    applyTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
     blackboard: {
       additional_def_decrease: 0,
       atk_scale: 0,

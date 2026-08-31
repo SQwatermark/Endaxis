@@ -127,17 +127,7 @@ const definition = {
           "abilityEvent": "beforeOutputBuff",
           "priority": 0,
           "blackboard": {
-            "cd": [
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1
-            ],
+            "cd": 0.1,
             "def_up": [
               0.18,
               0.216,
@@ -247,17 +237,7 @@ const definition = {
           "abilityEvent": "beforeOutputPhysicalInfliction",
           "priority": 0,
           "blackboard": {
-            "cd": [
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1
-            ],
+            "cd": 0.1,
             "def_up": [
               0.18,
               0.216,

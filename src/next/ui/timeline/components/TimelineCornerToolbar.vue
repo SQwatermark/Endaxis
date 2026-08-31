@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { nextTick, ref } from 'vue';
+
 /**
  * 时间轴轨道头部上方的编辑工具区，复刻旧版控件的稳定顺序和尺寸。
  * 尚未接入 Next 命令层的工具保持禁用；接入时应由父组件传入状态与命令。
@@ -7,7 +9,10 @@ defineProps<{
   snapLabel: string;
   zoomPercent: number;
   cursorGuideEnabled: boolean;
+  boxSelectEnabled: boolean;
   connectionToolEnabled: boolean;
+  initialGaugeMode: 'empty' | 'full' | 'custom';
+  buffLayoutMode: 'compact' | 'loose';
   labels: {
     initialGauge: string;
     cursorGuide: string;
@@ -21,31 +26,99 @@ defineProps<{
 
 const emit = defineEmits<{
   toggleSnapPrecision: [];
+  cycleInitialGauge: [];
+  setUnifiedInitialGauge: [value: number];
   toggleCursorGuide: [];
+  toggleBoxSelect: [];
   toggleConnectionTool: [];
+  toggleBuffLayout: [];
   updateZoomPercent: [percent: number];
 }>();
+
+const gaugeEditorOpen = ref(false);
+const gaugeDraft = ref('100');
+const gaugeInput = ref<HTMLInputElement | null>(null);
+
+function toggleGaugeEditor(event: Event): void {
+  event.preventDefault();
+  gaugeEditorOpen.value = !gaugeEditorOpen.value;
+  if (gaugeEditorOpen.value) void nextTick(() => gaugeInput.value?.select());
+}
+
+function applyGaugeDraft(): void {
+  if (!gaugeEditorOpen.value) return;
+  const value = Number(gaugeDraft.value);
+  if (Number.isInteger(value) && value >= 0) emit('setUnifiedInitialGauge', value);
+  gaugeEditorOpen.value = false;
+}
 </script>
 
 <template>
   <div class="corner-controls">
     <div class="corner-button-row">
-      <button type="button" class="mini-tool-button" disabled :title="labels.initialGauge">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8L20 9h-7V2Z" /></svg>
-      </button>
+      <div class="initial-gauge-tool">
+        <button
+          type="button"
+          class="mini-tool-button"
+          :class="{
+            'is-active': initialGaugeMode !== 'empty',
+            'is-gauge-custom': initialGaugeMode === 'custom',
+          }"
+          :title="labels.initialGauge"
+          :aria-label="labels.initialGauge"
+          :aria-pressed="initialGaugeMode !== 'empty'"
+          :aria-expanded="gaugeEditorOpen"
+          aria-controls="timeline-initial-gauge-editor"
+          @click="emit('cycleInitialGauge')"
+          @contextmenu="toggleGaugeEditor"
+          @keydown.shift.enter.prevent.stop="toggleGaugeEditor"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M13 2 4 14h7l-1 8L20 9h-7V2Z"
+              :fill="initialGaugeMode === 'full' ? 'currentColor' : 'none'"
+            />
+          </svg>
+        </button>
+        <input
+          v-if="gaugeEditorOpen"
+          ref="gaugeInput"
+          id="timeline-initial-gauge-editor"
+          v-model="gaugeDraft"
+          class="gauge-popover"
+          type="number"
+          min="0"
+          step="1"
+          :aria-label="labels.initialGauge"
+          @keydown.enter.prevent="applyGaugeDraft"
+          @keydown.esc.prevent="gaugeEditorOpen = false"
+          @blur="applyGaugeDraft"
+        />
+      </div>
       <button
         type="button"
         class="mini-tool-button"
         :class="{ 'is-active': cursorGuideEnabled }"
         :title="labels.cursorGuide"
+        :aria-label="labels.cursorGuide"
+        :aria-pressed="cursorGuideEnabled"
         @click="emit('toggleCursorGuide')"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 6v12M6 12h12" />
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="6" x2="12" y2="18" />
+          <line x1="6" y1="12" x2="18" y2="12" />
         </svg>
       </button>
-      <button type="button" class="mini-tool-button" disabled :title="labels.boxSelect">
+      <button
+        type="button"
+        class="mini-tool-button"
+        :class="{ 'is-active': boxSelectEnabled }"
+        :title="labels.boxSelect"
+        :aria-label="labels.boxSelect"
+        :aria-pressed="boxSelectEnabled"
+        @click="emit('toggleBoxSelect')"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 3" />
           <path d="M8 12h8M12 8v8" />
@@ -55,6 +128,7 @@ const emit = defineEmits<{
         type="button"
         class="mini-tool-button mini-tool-button--text"
         :title="labels.snapPrecision"
+        :aria-label="`${labels.snapPrecision}: ${snapLabel}`"
         @click="$emit('toggleSnapPrecision')"
       >
         {{ snapLabel }}
@@ -64,6 +138,8 @@ const emit = defineEmits<{
         class="mini-tool-button"
         :class="{ 'is-active': connectionToolEnabled }"
         :title="labels.connectionTool"
+        :aria-label="labels.connectionTool"
+        :aria-pressed="connectionToolEnabled"
         @click="emit('toggleConnectionTool')"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -72,7 +148,15 @@ const emit = defineEmits<{
           <circle cx="19" cy="20" r="2" />
         </svg>
       </button>
-      <button type="button" class="mini-tool-button" disabled :title="labels.buffLayout">
+      <button
+        type="button"
+        class="mini-tool-button"
+        :class="{ 'is-active': buffLayoutMode === 'loose' }"
+        :title="labels.buffLayout"
+        :aria-label="labels.buffLayout"
+        :aria-pressed="buffLayoutMode === 'loose'"
+        @click="emit('toggleBuffLayout')"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 12h16M4 16h16" /></svg>
       </button>
     </div>
@@ -97,6 +181,7 @@ const emit = defineEmits<{
           min="50"
           max="200"
           step="1"
+          :aria-label="labels.zoom"
           @input="emit('updateZoomPercent', Number(($event.target as HTMLInputElement).value))"
         />
         <button
@@ -147,7 +232,39 @@ const emit = defineEmits<{
 
 .mini-tool-button.is-active {
   border-color: var(--ea-gold);
+  background: color-mix(in srgb, var(--ea-gold) 10%, var(--ea-fill-input));
   color: var(--ea-gold);
+}
+
+.initial-gauge-tool {
+  position: relative;
+  min-width: 0;
+}
+
+.initial-gauge-tool .mini-tool-button {
+  width: 100%;
+}
+
+.mini-tool-button.is-gauge-custom {
+  border-style: dashed;
+}
+
+.gauge-popover {
+  position: absolute;
+  z-index: 20;
+  top: 23px;
+  left: 0;
+  width: 74px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--ea-gold);
+  border-radius: 2px;
+  background: var(--ea-fill-input);
+  color: var(--ea-fg);
+  font:
+    11px 'Roboto Mono',
+    Consolas,
+    monospace;
 }
 
 .mini-tool-button svg {

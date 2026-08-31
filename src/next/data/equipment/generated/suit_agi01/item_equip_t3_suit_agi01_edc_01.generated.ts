@@ -39,6 +39,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'comboSkill',
+          slot: 'baseAddition',
           value: [0.294, 0.294, 0.294, 0.294],
         },
       ],

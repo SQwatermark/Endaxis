@@ -242,6 +242,8 @@ class RepeatEachTickStep extends CombatStep {
 }
 
 class ForEachContextTargetStep extends CombatStep {
+  readonly #activeBodies: ActionSequence[] = [];
+
   constructor(
     readonly step: Extract<ResolvedCombatStep, { kind: 'forEachContextTarget' }>,
     readonly runtime: CombatActionSequenceRuntime,
@@ -263,16 +265,31 @@ class ForEachContextTargetStep extends CombatStep {
           ? ([{ kind: 'operator', operatorId: this.#ownerOperatorId() }] as const)
           : this.#contextTargets(parameters.contextKey!);
     for (const currentTarget of targets) {
-      // Native ForEachAction ignores ExecuteInstant's result for each item.
-      // A failed guard stops only this item's sequence, never the following targets.
+      // Native ForEachAction ignores the body's result for each item. The body's End must still
+      // follow the enclosing timeline action's lifetime: action-duration Buffs inside the loop
+      // cannot be ended immediately after their synchronous Execute.
       const sequence = this.runtime.createSequence(this.step.body, {
         ...this.operationContext,
         currentTarget,
       });
       sequence.reset(context);
-      sequence.executeInstant(context);
+      sequence.tryExecute(context);
+      this.#activeBodies.push(sequence);
     }
     return true;
+  }
+
+  override tick(deltaTime: number, context: CombatExecutionContext): void {
+    for (const sequence of this.#activeBodies) sequence.tick(deltaTime, context);
+  }
+
+  override end(context: CombatExecutionContext): void {
+    for (const sequence of this.#activeBodies) sequence.end(context);
+    this.#activeBodies.length = 0;
+  }
+
+  override reset(): void {
+    this.#activeBodies.length = 0;
   }
 
   #contextTargets(contextKey: string) {

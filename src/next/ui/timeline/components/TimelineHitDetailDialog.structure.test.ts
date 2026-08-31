@@ -27,9 +27,13 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).toContain('data.skillMultiplierPercent');
     expect(source).toContain('data.baseDamage');
     expect(source).toContain('data.damageScaleMultiplier');
-    expect(source).toContain('data.calculationMultiplier');
+    expect(source).toContain('data.criticalExpectationMultiplier');
+    expect(source).toContain('data.directDamageMultiplier');
     expect(source).toContain('data.defenseMultiplier');
     expect(source).toContain('data.enemyResistancePercent');
+    expect(source).toContain('data.resistancePercentMultiplier');
+    expect(source).not.toContain('1 + Math.min(Math.max(criticalRate');
+    expect(source).not.toContain('data.calculationMultiplier');
   });
 
   it('uses the legacy dialog shell and force-critical footer interaction', () => {

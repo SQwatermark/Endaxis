@@ -31,10 +31,18 @@ describe('旧版构筑编辑行为兼容结构', () => {
   });
 
   it('装备拉满只处理可精炼装备', () => {
-    expect(gearBuildSource).toContain(
-      'isEquipmentArtificable(build.definition.levelRequirement)',
-    );
+    expect(gearBuildSource).toContain('isEquipmentArtificable(build.definition.levelRequirement)');
     expect(gearBuildSource).toContain('setUniformLevel(build, 3)');
+  });
+
+  it('自定义定义入口随当前语言显示，并区分首次自定义与继续编辑', () => {
+    expect(operatorBuildSource).toContain('nextTimeline.customDefinition.customizeOperator');
+    expect(operatorBuildSource).toContain('nextTimeline.customDefinition.editOperator');
+    expect(weaponBuildSource).toContain('nextTimeline.customDefinition.customizeWeapon');
+    expect(weaponBuildSource).toContain('nextTimeline.customDefinition.editWeapon');
+    expect(gearBuildSource).toContain('nextTimeline.customDefinition.customizeGear');
+    expect(gearBuildSource).toContain('nextTimeline.customDefinition.editGear');
+    expect(operatorBuildSource).not.toContain('>\n            自定义干员\n');
   });
 
   it('富文本 tooltip 复用旧版展示边界并保留旧版排版类名', () => {
@@ -63,11 +71,7 @@ describe('旧版构筑编辑行为兼容结构', () => {
     expect(getOperatorCombatSkillDescription('liino', 'ultimate', 'zh-CN')).toContain(
       '<@ba.key>高歌姿态</>',
     );
-    expect(getOperatorTalentDescription('liino', 0, 0, 'zh-CN')).toContain(
-      '<@ba.vup>+10%</>',
-    );
-    expect(getOperatorPotentialDescription('liino', 0, 'zh-CN')).toContain(
-      '<#ba.return>返还</>',
-    );
+    expect(getOperatorTalentDescription('liino', 0, 0, 'zh-CN')).toContain('<@ba.vup>+10%</>');
+    expect(getOperatorPotentialDescription('liino', 0, 'zh-CN')).toContain('<#ba.return>返还</>');
   });
 });

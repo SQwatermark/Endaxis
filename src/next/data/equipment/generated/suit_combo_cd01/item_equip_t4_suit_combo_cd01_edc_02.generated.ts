@@ -39,11 +39,13 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'heat',
+          slot: 'baseAddition',
           value: [0.22999999999999998, 0.253, 0.27599999999999997, 0.299],
         },
         {
           kind: 'damageScale',
           target: 'nature',
+          slot: 'baseAddition',
           value: [0.22999999999999998, 0.253, 0.27599999999999997, 0.299],
         },
       ],

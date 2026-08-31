@@ -82,6 +82,69 @@ describe('resolveOperatorPanel', () => {
     expect(panel.receipt.filter(entry => entry.source.kind === 'trust')).toHaveLength(4);
   });
 
+  it('applies global panel modifiers and preserves scoped cooldown reduction as combat semantics', () => {
+    const baseline = resolveOperatorPanel(resolvedBuild(zhuangFangyi));
+    const panel = resolveOperatorPanel(resolvedBuild(zhuangFangyi), {
+      modifiers: [
+        { id: 'global:attack', kind: 'operatorStat', modifier: 'attackPercent', value: 0.1 },
+        { id: 'global:crit', kind: 'operatorStat', modifier: 'criticalRate', value: 0.2 },
+        {
+          id: 'global:cooldown',
+          kind: 'operatorStat',
+          modifier: 'skillCooldownReduction',
+          value: 0.5,
+          skillType: 'comboSkill',
+        },
+      ],
+    });
+
+    expect(panel.attack).toBeGreaterThan(baseline.attack);
+    expect(panel.attackDetail?.attackPercent).toBeCloseTo(0.1);
+    expect(panel.criticalRate).toBeCloseTo(baseline.criticalRate + 0.2);
+    expect(panel.combatModifiers).toContainEqual({
+      kind: 'skillCooldownReduction',
+      skillTypes: ['comboSkill'],
+      value: 0.5,
+      modifierId: 'global:cooldown',
+    });
+    expect(panel.receipt).toContainEqual({
+      source: { kind: 'globalConfig', modifierId: 'global:attack' },
+      stat: 'attack',
+      operation: 'percent',
+      value: 0.1,
+    });
+  });
+
+  it('fails closed for unsupported global modifier scopes and cooldown ratios', () => {
+    const build = resolvedBuild(zhuangFangyi);
+    expect(() =>
+      resolveOperatorPanel(build, {
+        modifiers: [
+          {
+            id: 'global:bad-scope',
+            kind: 'operatorStat',
+            modifier: 'criticalRate',
+            value: 0.1,
+            skillType: 'comboSkill',
+          },
+        ],
+      }),
+    ).toThrow('does not support a skill-type scope');
+    expect(() =>
+      resolveOperatorPanel(build, {
+        modifiers: [
+          {
+            id: 'global:bad-cooldown',
+            kind: 'operatorStat',
+            modifier: 'skillCooldownReduction',
+            value: 1,
+            skillType: 'comboSkill',
+          },
+        ],
+      }),
+    ).toThrow('less than 1');
+  });
+
   it('uses the operator-specific trust targets and values for Arcane', () => {
     const panel = resolveOperatorPanel(resolvedBuild(arcane));
 

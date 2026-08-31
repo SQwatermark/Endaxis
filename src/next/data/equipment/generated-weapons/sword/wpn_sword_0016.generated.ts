@@ -66,58 +66,6 @@ const definition = {
             }
           }
         },
-        "buff_wpn_sword_0016_team": {
-          "stackingType": "stack",
-          "priority": 0,
-          "maxStackCount": {
-            "blackboardKey": "max_stack_team"
-          },
-          "durationSeconds": {
-            "blackboardKey": "duration"
-          },
-          "triggerIntervalSeconds": 0,
-          "waitFirstTriggerInterval": true,
-          "maxTriggerCount": 1,
-          "presentation": {
-            "visible": true,
-            "iconId": "icon_battle_physical_dmg_up",
-            "iconPath": "/icons/icon_battle_physical_dmg_up.webp",
-            "showInHeadBarCommon": false,
-            "showInHeadBarAttached": false,
-            "showInSquadIcon": true,
-            "onlyShowForMainCharacter": false,
-            "iconStyleInSquad": "LifeTime",
-            "abnormalColorType": "Physical",
-            "orderPriority": {
-              "useDirectoryValue": false,
-              "value": 0,
-              "category": "CommonCharBuff"
-            }
-          },
-          "applyTags": [],
-          "extendTags": [],
-          "blackboard": {
-            "duration": 0,
-            "max_stack_team": 0,
-            "pd_up_valid": 0
-          },
-          "attributeModifiers": [],
-          "damageModifiers": [
-            {
-              "enabledSide": "attacker",
-              "processors": [
-                {
-                  "kind": "damageScale",
-                  "side": "attacker",
-                  "zone": "normal",
-                  "addition": {
-                    "blackboardKey": "pd_up_valid"
-                  }
-                }
-              ]
-            }
-          ]
-        },
         "buff_wpn_sword_0016_valid": {
           "stackingType": "highPriorityWithMaxStack",
           "priority": {
@@ -217,17 +165,7 @@ const definition = {
           },
           "priority": 0,
           "blackboard": {
-            "cd": [
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1
-            ],
+            "cd": 0.1,
             "duration": [
               30,
               30,

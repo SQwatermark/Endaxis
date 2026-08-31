@@ -1,0 +1,570 @@
+import { spawn } from 'node:child_process';
+import { access, mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import sharp from 'sharp';
+
+type Candidate = {
+  readonly assetIndex: number;
+  readonly path: string;
+  readonly rawUrl: string;
+};
+
+type RichTextSourceManifest = Readonly<Record<string, readonly string[]>>;
+
+type IconReference = {
+  readonly publicPath: string;
+  readonly sourceNames: readonly string[];
+  readonly preferredPathSegments: readonly string[];
+  readonly referencedBy: readonly string[];
+  readonly localOnly?: boolean;
+};
+
+const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
+const PUBLIC_ROOT = path.join(PROJECT_ROOT, 'public');
+const SOURCE_ROOT = path.join(PROJECT_ROOT, 'src');
+const TMP_ROOT = path.join(PROJECT_ROOT, 'tmp', 'referenced-game-icons');
+const RICH_TEXT_SOURCE_MANIFEST = path.join(TMP_ROOT, 'rich-text-icon-sources.json');
+const REPORT_PATH = path.join(TMP_ROOT, 'audit.json');
+const TEXT_EXTENSIONS = new Set(['.css', '.html', '.js', '.json', '.scss', '.ts', '.tsx', '.vue']);
+const GAME_PUBLIC_PREFIXES = ['/icons/', '/operators/', '/weapons/', '/equipment/'] as const;
+const WEAPON_OUTPUT_TO_NATIVE_PREFIX = new Map([
+  ['wpn_greatsword_', 'wpn_claym_'],
+  ['wpn_polearm_', 'wpn_lance_'],
+  ['wpn_handcannon_', 'wpn_pistol_'],
+  ['wpn_artsunit_', 'wpn_funnel_'],
+]);
+const PUBLIC_ICON_SOURCE_ALIASES = new Map<
+  string,
+  { readonly sourceName: string; readonly preferredPathSegment: string }
+>([
+  [
+    '/icons/buff_wpn_sword_0019.webp',
+    { sourceName: 'icon_battle_buff_atk_up.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_battle_affix_combo.webp',
+    { sourceName: 'icon_term_ba_combo.png', preferredPathSegment: '/termicon/' },
+  ],
+  [
+    '/icons/icon_battle_debuff_burning.webp',
+    { sourceName: 'icon_battle_burning.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_battle_debuff_conduct.webp',
+    { sourceName: 'icon_battle_conduct.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_battle_debuff_corrupt.webp',
+    { sourceName: 'icon_battle_corrupt.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_battle_debuff_crystbreak.webp',
+    { sourceName: 'icon_term_ba_crystbreak.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_battle_debuff_frozen.webp',
+    { sourceName: 'icon_battle_frozen.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_battle_physical_airborne.webp',
+    { sourceName: 'airborne.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_battle_physical_crush.webp',
+    { sourceName: 'icon_term_ba_crush.png', preferredPathSegment: '/termicon/' },
+  ],
+  [
+    '/icons/icon_battle_physical_fracture.webp',
+    { sourceName: 'icon_battle_fracture.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_battle_physical_knockdown.webp',
+    { sourceName: 'knockdown.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_battle_physical_no_guard.webp',
+    { sourceName: 'icon_battle_no_guard.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_burst_fusion_cryst.webp',
+    { sourceName: 'icon_energy_fusion_cryst.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_burst_fusion_fire.webp',
+    { sourceName: 'icon_energy_fusion_fire.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_burst_fusion_nature.webp',
+    { sourceName: 'icon_infliction_nature.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_burst_fusion_pulse.webp',
+    { sourceName: 'icon_energy_fusion_pulse.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/icon_element_cryo.webp',
+    { sourceName: 'icon_charattrtype_cold.png', preferredPathSegment: '/elementicon/' },
+  ],
+  [
+    '/icons/icon_element_electric.webp',
+    { sourceName: 'icon_charattrtype_pulse.png', preferredPathSegment: '/elementicon/' },
+  ],
+  [
+    '/icons/icon_element_heat.webp',
+    { sourceName: 'icon_charattrtype_fire.png', preferredPathSegment: '/elementicon/' },
+  ],
+  [
+    '/icons/icon_element_nature.webp',
+    { sourceName: 'icon_charattrtype_nature.png', preferredPathSegment: '/elementicon/' },
+  ],
+  [
+    '/icons/icon_element_physical.webp',
+    { sourceName: 'icon_charattrtype_physical.png', preferredPathSegment: '/elementicon/' },
+  ],
+  [
+    '/icons/icon_energy_fusion_nature.webp',
+    { sourceName: 'icon_infliction_nature.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/icons/setting_tab_setting.webp',
+    { sourceName: 'setting_tab_setting.png', preferredPathSegment: '/gamesetting/' },
+  ],
+  [
+    '/operators/laevatain/magma_1.webp',
+    { sourceName: 'icon_laevat_energy_1.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/operators/laevatain/magma_2.webp',
+    { sourceName: 'icon_laevat_energy_2.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/operators/laevatain/magma_3.webp',
+    { sourceName: 'icon_laevat_energy_3.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/operators/laevatain/magma_4.webp',
+    { sourceName: 'icon_laevat_energy_4.png', preferredPathSegment: '/bufficon/' },
+  ],
+  [
+    '/operators/laevatain/ultimate_skill.webp',
+    { sourceName: 'icon_ultimate_skill_laevat_01.png', preferredPathSegment: '/skillicon/' },
+  ],
+  [
+    '/operators/tangtang/icon_battle_tangtang_droplet.webp',
+    { sourceName: 'icon_battle_tangtang_comboskillwater.png', preferredPathSegment: '/bufficon/' },
+  ],
+]);
+
+type Arguments = {
+  readonly overwrite: boolean;
+  readonly dryRun: boolean;
+  readonly refreshRichText: boolean;
+  readonly prune: boolean;
+  readonly vfsBaseUrl: string;
+  readonly gameDataSourceRoot: string;
+};
+
+function parseArguments(argv: readonly string[]): Arguments {
+  let overwrite = false;
+  let dryRun = false;
+  let refreshRichText = false;
+  let prune = false;
+  let vfsBaseUrl = 'http://127.0.0.1:8765';
+  let gameDataSourceRoot = path.join(PROJECT_ROOT, 'tmp', 'akedb-next-latest');
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index]!;
+    if (argument === '--overwrite') overwrite = true;
+    else if (argument === '--dry-run') dryRun = true;
+    else if (argument === '--refresh-rich-text') refreshRichText = true;
+    else if (argument === '--skip-rich-text-refresh') refreshRichText = false;
+    else if (argument === '--prune') prune = true;
+    else if (argument === '--vfs-base-url')
+      vfsBaseUrl = requireArgumentValue(argv, ++index, argument);
+    else if (argument === '--game-data-source-root') {
+      gameDataSourceRoot = path.resolve(requireArgumentValue(argv, ++index, argument));
+    } else throw new Error(`unknown argument: ${argument}`);
+  }
+  return { overwrite, dryRun, refreshRichText, prune, vfsBaseUrl, gameDataSourceRoot };
+}
+
+function requireArgumentValue(argv: readonly string[], index: number, option: string): string {
+  const value = argv[index];
+  if (!value) throw new Error(`${option} requires a value`);
+  return value;
+}
+
+async function exists(filePath: string): Promise<boolean> {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function listFiles(directory: string): Promise<readonly string[]> {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const children = await Promise.all(
+    entries.map(entry => {
+      const child = path.join(directory, entry.name);
+      return entry.isDirectory() ? listFiles(child) : [child];
+    }),
+  );
+  return children.flat();
+}
+
+function isRuntimeReferenceSource(filePath: string): boolean {
+  const relative = path.relative(SOURCE_ROOT, filePath).replaceAll('\\', '/');
+  return (
+    TEXT_EXTENSIONS.has(path.extname(filePath).toLowerCase()) &&
+    !relative.includes('/__snapshots__/') &&
+    !/(^|\/)[^/]+\.(?:bench|spec|test)\.[^/]+$/u.test(relative)
+  );
+}
+
+async function collectLiteralReferences(): Promise<Map<string, Set<string>>> {
+  const references = new Map<string, Set<string>>();
+  const files = (await listFiles(SOURCE_ROOT)).filter(isRuntimeReferenceSource);
+  await Promise.all(
+    files.map(async filePath => {
+      const source = await readFile(filePath, 'utf8');
+      const relative = path.relative(PROJECT_ROOT, filePath).replaceAll('\\', '/');
+      for (const prefix of GAME_PUBLIC_PREFIXES) {
+        const expression = new RegExp(
+          `(['\"])(` + `${prefix.replaceAll('/', '\\/')}[^'\"]*?\\.webp)\\1`,
+          'gu',
+        );
+        for (const match of source.matchAll(expression)) {
+          const publicPath = match[2]!;
+          if (publicPath.includes('${')) continue;
+          const owners = references.get(publicPath) ?? new Set<string>();
+          owners.add(relative);
+          references.set(publicPath, owners);
+        }
+      }
+    }),
+  );
+  return references;
+}
+
+async function runRichTextExporter(refreshRichText: boolean): Promise<void> {
+  await mkdir(TMP_ROOT, { recursive: true });
+  const script = path.join(import.meta.dirname, 'exportGameLocales.py');
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn(
+      process.platform === 'win32' ? 'python' : 'python3',
+      [
+        script,
+        '--icon-source-manifest',
+        RICH_TEXT_SOURCE_MANIFEST,
+        ...(refreshRichText ? [] : ['--icon-source-manifest-only']),
+      ],
+      { cwd: PROJECT_ROOT, stdio: 'inherit' },
+    );
+    child.once('error', reject);
+    child.once('exit', code =>
+      code === 0 ? resolve() : reject(new Error(`rich text locale exporter exited with ${code}`)),
+    );
+  });
+}
+
+async function readRichTextSourceManifest(): Promise<RichTextSourceManifest> {
+  if (!(await exists(RICH_TEXT_SOURCE_MANIFEST))) return {};
+  return JSON.parse(await readFile(RICH_TEXT_SOURCE_MANIFEST, 'utf8')) as RichTextSourceManifest;
+}
+
+async function findTableDirectory(sourceRoot: string): Promise<string> {
+  const entries = await readdir(sourceRoot, { withFileTypes: true });
+  const candidates = entries
+    .filter(entry => entry.isDirectory() && entry.name.startsWith('TableCfg-'))
+    .map(entry => path.join(sourceRoot, entry.name))
+    .sort();
+  const result = candidates.at(-1);
+  if (!result) throw new Error(`no TableCfg-* directory under ${sourceRoot}`);
+  return result;
+}
+
+async function addOperatorImpliedReferences(
+  references: Map<string, Set<string>>,
+  sourceRoot: string,
+): Promise<Map<string, { sourceNames: string[]; preferredPathSegments: string[] }>> {
+  const overrides = new Map<string, { sourceNames: string[]; preferredPathSegments: string[] }>();
+  const configPath = path.join(
+    PROJECT_ROOT,
+    'tools',
+    'game-data-compiler',
+    'config',
+    'operators.json',
+  );
+  const config = JSON.parse(await readFile(configPath, 'utf8')) as {
+    operators: Array<{
+      slug: string;
+      charId: string;
+      skills: Array<{ key: string; source: string }>;
+      skillGroups: Array<{ skillType: string }>;
+    }>;
+  };
+  const tableDirectory = await findTableDirectory(sourceRoot);
+  const growthTable = JSON.parse(
+    await readFile(path.join(tableDirectory, 'CharGrowthTable.json'), 'utf8'),
+  ) as Record<
+    string,
+    {
+      talentNodeMap?: Record<
+        string,
+        { passiveSkillNodeInfo?: { iconId?: string; index?: number; level?: number } }
+      >;
+    }
+  >;
+
+  for (const publicPath of ['/operators/default.webp', '/equipment/default.webp']) {
+    references.set(publicPath, new Set(['project fallback']));
+  }
+
+  for (const operator of config.operators) {
+    const owner = 'tools/game-data-compiler/config/operators.json';
+    const add = (fileName: string, sourceName: string, preferredPathSegment: string): void => {
+      const publicPath = `/operators/${operator.slug}/${fileName}.webp`;
+      const owners = references.get(publicPath) ?? new Set<string>();
+      owners.add(owner);
+      references.set(publicPath, owners);
+      overrides.set(publicPath, {
+        sourceNames: [`${sourceName}.png`],
+        preferredPathSegments: [preferredPathSegment],
+      });
+    };
+    const assetCharacterId =
+      operator.slug === 'endministrator' ? 'chr_0003_endminf' : operator.charId;
+    add('avatar', `icon_round_${assetCharacterId}`, '/charroundicon/');
+    add('portrait', `icon_${assetCharacterId}`, '/charicon/');
+    for (const [skillKey, outputName] of [
+      ['battleSkill', 'battle'],
+      ['comboSkill', 'combo'],
+      ['ultimate', 'ultimate'],
+    ] as const) {
+      if (!operator.skillGroups.some(group => group.skillType === skillKey)) continue;
+      const nativeCharacterName =
+        operator.slug === 'endministrator'
+          ? 'endmin'
+          : operator.charId.split('_').slice(2).join('_');
+      const conventionalIconId =
+        skillKey === 'comboSkill'
+          ? `icon_combo_skill_${nativeCharacterName}_01`
+          : skillKey === 'ultimate'
+            ? `icon_ultimate_skill_${nativeCharacterName}_01`
+            : `icon_skill_${nativeCharacterName}_01`;
+      add(outputName, conventionalIconId, '/skillicon/');
+    }
+    const talentIcons = new Map<number, string>();
+    for (const node of Object.values(growthTable[operator.charId]?.talentNodeMap ?? {})) {
+      const passive = node.passiveSkillNodeInfo;
+      if (!passive?.iconId || passive.level !== 1 || passive.index === undefined) continue;
+      talentIcons.set(passive.index, passive.iconId);
+    }
+    for (const [index, iconId] of [...talentIcons].sort(([left], [right]) => left - right)) {
+      add(`talent ${index + 1}`, iconId, '/skillicon/');
+    }
+  }
+  return overrides;
+}
+
+function reverseWeaponIdentity(outputStem: string): string {
+  for (const [outputPrefix, nativePrefix] of WEAPON_OUTPUT_TO_NATIVE_PREFIX) {
+    if (outputStem.startsWith(outputPrefix)) return outputStem.replace(outputPrefix, nativePrefix);
+  }
+  return outputStem;
+}
+
+function sourcePlanForReference(
+  publicPath: string,
+  richTextSources: RichTextSourceManifest,
+  operatorOverrides: ReadonlyMap<
+    string,
+    { sourceNames: string[]; preferredPathSegments: string[] }
+  >,
+): Pick<IconReference, 'sourceNames' | 'preferredPathSegments' | 'localOnly'> {
+  const operatorOverride = operatorOverrides.get(publicPath);
+  if (operatorOverride) return operatorOverride;
+  const alias = PUBLIC_ICON_SOURCE_ALIASES.get(publicPath);
+  if (alias) {
+    return {
+      sourceNames: [alias.sourceName],
+      preferredPathSegments: [alias.preferredPathSegment],
+    };
+  }
+  const richText = richTextSources[publicPath];
+  if (richText?.length) {
+    return {
+      sourceNames: richText.map(source => `${path.posix.basename(source)}.png`),
+      preferredPathSegments: richText.map(source => `/${source}.png`),
+    };
+  }
+  const stem = path.posix.basename(publicPath, '.webp');
+  if (stem === 'default' || stem === 'default_icon') {
+    return { sourceNames: [], preferredPathSegments: [], localOnly: true };
+  }
+  if (publicPath.startsWith('/weapons/')) {
+    return {
+      sourceNames: [`${reverseWeaponIdentity(stem)}.png`],
+      preferredPathSegments: ['/itemicon/'],
+    };
+  }
+  if (publicPath.startsWith('/equipment/')) {
+    return { sourceNames: [`${stem}.png`], preferredPathSegments: ['/itemicon/'] };
+  }
+  if (publicPath.startsWith('/operators/')) {
+    return {
+      sourceNames: [`${stem}.png`],
+      preferredPathSegments: [stem.startsWith('icon_skill_') ? '/skillicon/' : '/bufficon/'],
+    };
+  }
+  return {
+    sourceNames: [`${stem}.png`],
+    preferredPathSegments: [stem.startsWith('icon_term_') ? '/termicon/' : '/bufficon/'],
+  };
+}
+
+async function buildReferenceClosure(arguments_: Arguments): Promise<readonly IconReference[]> {
+  const references = await collectLiteralReferences();
+  const operatorOverrides = await addOperatorImpliedReferences(
+    references,
+    arguments_.gameDataSourceRoot,
+  );
+  const richTextSources = await readRichTextSourceManifest();
+  return [...references]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([publicPath, owners]) => ({
+      publicPath,
+      ...sourcePlanForReference(publicPath, richTextSources, operatorOverrides),
+      referencedBy: [...owners].sort(),
+    }));
+}
+
+async function queryCandidates(
+  baseUrl: string,
+  sourceNames: readonly string[],
+): Promise<Candidate[]> {
+  const candidates = new Map<number, Candidate>();
+  for (const sourceName of [...new Set(sourceNames)]) {
+    const url = new URL('/api/manifest-assets/by-name', baseUrl);
+    url.searchParams.set('name', sourceName);
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`${url}: ${response.status} ${await response.text()}`);
+    const document = (await response.json()) as { candidates: Candidate[] };
+    for (const candidate of document.candidates) candidates.set(candidate.assetIndex, candidate);
+  }
+  return [...candidates.values()];
+}
+
+function selectCandidate(reference: IconReference, candidates: readonly Candidate[]): Candidate {
+  if (candidates.length === 0) {
+    throw new Error(
+      `${reference.publicPath}: no Unity asset matches ${reference.sourceNames.join(', ')}`,
+    );
+  }
+  for (const segment of reference.preferredPathSegments) {
+    const matching = candidates.filter(candidate =>
+      candidate.path.toLowerCase().includes(segment.toLowerCase()),
+    );
+    if (matching.length === 1) return matching[0]!;
+  }
+  if (candidates.length === 1) return candidates[0]!;
+  throw new Error(
+    `${reference.publicPath}: ambiguous Unity assets:\n${candidates.map(candidate => `  ${candidate.path}`).join('\n')}`,
+  );
+}
+
+async function exportReference(reference: IconReference, arguments_: Arguments): Promise<object> {
+  const outputPath = path.join(
+    PUBLIC_ROOT,
+    reference.publicPath.slice(1).replaceAll('/', path.sep),
+  );
+  if (reference.localOnly) {
+    if (!(await exists(outputPath)))
+      throw new Error(`${reference.publicPath}: missing project fallback asset`);
+    return { publicPath: reference.publicPath, status: 'kept-local' };
+  }
+  if (!arguments_.overwrite && (await exists(outputPath))) {
+    return { publicPath: reference.publicPath, status: 'skipped-existing' };
+  }
+  const candidates = await queryCandidates(arguments_.vfsBaseUrl, reference.sourceNames);
+  const selected = selectCandidate(reference, candidates);
+  if (arguments_.dryRun) {
+    return { publicPath: reference.publicPath, status: 'would-export', sourcePath: selected.path };
+  }
+  const sourceUrl = new URL(selected.rawUrl, arguments_.vfsBaseUrl);
+  const response = await fetch(sourceUrl);
+  if (!response.ok) throw new Error(`${sourceUrl}: ${response.status} ${await response.text()}`);
+  const png = Buffer.from(await response.arrayBuffer());
+  const webp = await sharp(png).webp({ lossless: true, effort: 6 }).toBuffer();
+  await mkdir(path.dirname(outputPath), { recursive: true });
+  await writeFile(outputPath, webp);
+  return {
+    publicPath: reference.publicPath,
+    status: arguments_.overwrite ? 'overwritten' : 'exported-missing',
+    sourcePath: selected.path,
+    sourceBytes: png.length,
+    outputBytes: webp.length,
+  };
+}
+
+async function pruneUnreferencedAssets(
+  references: readonly IconReference[],
+  dryRun: boolean,
+): Promise<readonly string[]> {
+  const retained = new Set(references.map(reference => reference.publicPath.toLowerCase()));
+  const managedRoots = ['icons', 'operators', 'weapons', 'equipment'].map(name =>
+    path.join(PUBLIC_ROOT, name),
+  );
+  const files = (await Promise.all(managedRoots.map(listFiles))).flat();
+  const removed: string[] = [];
+  for (const filePath of files) {
+    if (path.extname(filePath).toLowerCase() !== '.webp') continue;
+    const publicPath = `/${path.relative(PUBLIC_ROOT, filePath).split(path.sep).join('/')}`;
+    if (retained.has(publicPath.toLowerCase())) continue;
+    removed.push(publicPath);
+    if (!dryRun) await unlink(filePath);
+  }
+  return removed.sort();
+}
+
+async function main(): Promise<void> {
+  const arguments_ = parseArguments(process.argv.slice(2));
+  await mkdir(TMP_ROOT, { recursive: true });
+  await runRichTextExporter(arguments_.refreshRichText);
+  const references = await buildReferenceClosure(arguments_);
+  const results: object[] = [];
+  const failures: Array<{ publicPath: string; error: string }> = [];
+  for (const [index, reference] of references.entries()) {
+    try {
+      const result = await exportReference(reference, arguments_);
+      results.push(result);
+      console.log(`[${index + 1}/${references.length}] ${reference.publicPath}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      failures.push({ publicPath: reference.publicPath, error: message });
+      console.error(`[${index + 1}/${references.length}] ${message}`);
+    }
+  }
+  const pruned =
+    arguments_.prune && failures.length === 0
+      ? await pruneUnreferencedAssets(references, arguments_.dryRun)
+      : [];
+  const report = {
+    mode: arguments_.overwrite ? 'overwrite' : 'missing-only',
+    dryRun: arguments_.dryRun,
+    referencedCount: references.length,
+    results,
+    failures,
+    pruned,
+  };
+  await writeFile(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  console.log(`Audit: ${REPORT_PATH}`);
+  if (failures.length > 0)
+    throw new Error(`${failures.length} referenced icons could not be exported`);
+}
+
+main().catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+});

@@ -75,7 +75,11 @@ describe('生成武器的正式模拟门禁', () => {
       expect(activations[0]).toMatchObject({
         sourceId: 'track:weapon-owner',
         targetId: 'track:weapon-owner',
-        data: { visible: true, iconId: 'icon_battle_buff_atk_up' },
+        data: {
+          visible: true,
+          iconId: 'icon_battle_buff_atk_up',
+          sourceActionId: expect.stringContaining('weapon-trait:'),
+        },
       });
       const end = result.receiptEntries.find(
         entry =>

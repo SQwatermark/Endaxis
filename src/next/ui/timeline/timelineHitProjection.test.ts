@@ -219,6 +219,48 @@ describe('projectCastHitMarkers', () => {
     });
   });
 
+  it('collects the named ability-entity child selected by a Spawn action', () => {
+    const cast = createCast([
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: {
+          abilityEntityId: 'ability:test',
+          childSkillId: 'child:second',
+          dieWhenSourceDies: false,
+        },
+      },
+    ]);
+
+    const markers = projectCastHitMarkers(cast, fixtureDef(cast), {
+      'ability:test': {
+        lifetime: { kind: 'infinite' },
+        childSkills: {
+          'child:first': {
+            skillId: 'child:first',
+            scheduledSequences: [
+              { startFrame: 3, sequence: { steps: [damageStep('first-hit', 'first-hit')] } },
+            ],
+          },
+          'child:second': {
+            skillId: 'child:second',
+            scheduledSequences: [
+              { startFrame: 7, sequence: { steps: [damageStep('second-hit', 'second-hit')] } },
+            ],
+          },
+        },
+      },
+    });
+
+    expect(markers).toEqual([
+      {
+        hitId: deriveHitId('cast:1', 'second-hit'),
+        frameOffset: 17,
+        stepKey: 'second-hit',
+        conditional: false,
+      },
+    ]);
+  });
+
   it('collects recursively applied Buff damage as receipt-gated cast hits', () => {
     const cast = createCast([
       {

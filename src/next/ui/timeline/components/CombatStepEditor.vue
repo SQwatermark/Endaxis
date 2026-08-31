@@ -13,6 +13,7 @@ import ActionValueStepEditor from './ActionValueStepEditor.vue';
 import DamageStepEditor from './DamageStepEditor.vue';
 import HealStepEditor from './HealStepEditor.vue';
 import ElementalReactionStepEditor from './ElementalReactionStepEditor.vue';
+import SpellBurstStepEditor from './SpellBurstStepEditor.vue';
 import BuffStepEditor from './BuffStepEditor.vue';
 import BuffManagementStepEditor from './BuffManagementStepEditor.vue';
 import MechanicStepEditor from './MechanicStepEditor.vue';
@@ -26,10 +27,7 @@ import TimeDilationStepEditor from './TimeDilationStepEditor.vue';
 import AbilityEntityStepEditor from './AbilityEntityStepEditor.vue';
 import SkillCooldownStepEditor from './SkillCooldownStepEditor.vue';
 import PhysicalInflictionStepEditor from './PhysicalInflictionStepEditor.vue';
-import {
-  EDITABLE_COMBAT_STEP_KINDS,
-  type EditableCombatStepKind,
-} from '../skillDefinitionEditorViewModel';
+import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 
 const props = defineProps<{
   step: CombatStepDefinition;
@@ -45,8 +43,6 @@ const { t } = useI18n({ useScope: 'global' });
 const collapsed = ref(false);
 
 const stepHelp = computed(() => t(`nextTimeline.skillEditing.stepHelp.${props.step.kind}`));
-
-const editable = computed(() => EDITABLE_COMBAT_STEP_KINDS.some(kind => kind === props.step.kind));
 
 function forward(step: CombatStepDefinition): void {
   emit('update', step);
@@ -113,6 +109,9 @@ function forward(step: CombatStepDefinition): void {
       </template>
       <template v-else-if="step.kind === 'applyPhysicalInfliction'">
         <PhysicalInflictionStepEditor :step="step" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'triggerSpellBurst'">
+        <SpellBurstStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="step.kind === 'modifyActionValue' || step.kind === 'calculateActionValue'"
@@ -205,7 +204,7 @@ function forward(step: CombatStepDefinition): void {
         <p v-else class="step-editor__unsupported">事件响应在左侧导图中添加和选择。</p>
       </template>
 
-      <p v-else-if="!editable" class="step-editor__unsupported">
+      <p v-else class="step-editor__unsupported">
         {{ t('nextTimeline.skillEditing.unsupportedStepEditor') }}
       </p>
     </div>

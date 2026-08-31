@@ -271,11 +271,11 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       const nonCriticalDamage = damageResult.value / damageResult.criticalMultiplier;
       const criticalDamage =
         nonCriticalDamage * (1 + context.attackerAttributes.criticalDamageIncrease);
-      const expectedDamage =
-        nonCriticalDamage *
-        (1 +
-          Math.min(Math.max(context.attackerAttributes.criticalRate, 0), 1) *
-            context.attackerAttributes.criticalDamageIncrease);
+      const criticalExpectationMultiplier =
+        1 +
+        Math.min(Math.max(context.attackerAttributes.criticalRate, 0), 1) *
+          context.attackerAttributes.criticalDamageIncrease;
+      const expectedDamage = nonCriticalDamage * criticalExpectationMultiplier;
       const standardCalculation =
         step.kind === 'dealDamage' &&
         (step.parameters.calculation === undefined || step.parameters.calculation === 'standard');
@@ -285,6 +285,16 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         Math.abs(unscaledCalculationValue) <= Number.EPSILON
           ? 1
           : finalAttackValue / unscaledCalculationValue;
+      const directDamageMultiplier =
+        calculationMultiplier *
+        damageResult.weaknessShelterMultiplier *
+        damageResult.runtimeExtensionMultiplier *
+        damageResult.igniteMultiplier *
+        damageResult.physicalInflictionMultiplier;
+      const resistancePercentMultiplier =
+        step.parameters.damageType === 'true'
+          ? 1
+          : Math.max(0, 1 - formulaInput.resistancePercent / 100);
       const attackDetail = this.dependencies.attackDetail;
       const hasExactAttackDetail =
         attackDetail !== undefined &&
@@ -341,6 +351,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           damageScaleMultiplier,
           criticalRate: context.attackerAttributes.criticalRate,
           criticalDamageIncrease: context.attackerAttributes.criticalDamageIncrease,
+          criticalExpectationMultiplier,
           nonCriticalDamage,
           criticalDamage,
           expectedDamage,
@@ -349,6 +360,8 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           damageTakenMultiplier: formulaInput.damageTakenMultiplier,
           weaknessDamageMultiplier: formulaInput.weaknessDamageMultiplier,
           shelterDamageMultiplier: formulaInput.shelterDamageMultiplier,
+          directDamageMultiplier,
+          resistancePercentMultiplier,
         },
         target: this.dependencies.targetVitals,
         clock: this.dependencies.clock,

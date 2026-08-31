@@ -300,6 +300,7 @@ describe('BuffOperationExecutor', () => {
         sourceId: 'antal',
         targetId: 'enemy',
         type: 'fracture',
+        skillCastInfo: context.skillCastInfo,
         attachBuffToCurrentSkill,
       },
     ]);

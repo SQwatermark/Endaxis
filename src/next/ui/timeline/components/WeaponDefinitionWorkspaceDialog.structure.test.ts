@@ -21,6 +21,15 @@ describe('WeaponDefinitionWorkspaceDialog structure', () => {
     expect(workspaceSource).not.toContain('<textarea');
   });
 
+  it('edits presentation identity and closes the ordered trait collection workflow', () => {
+    expect(workspaceSource).toContain("updateIdentity('assetSlug'");
+    expect(workspaceSource).toContain("updateIdentity('iconPath'");
+    expect(workspaceSource).toContain('function addTrait()');
+    expect(workspaceSource).toContain('function removeTrait()');
+    expect(workspaceSource).toContain('function moveTrait(offset: -1 | 1)');
+    expect(workspaceSource).toContain('项目内稳定引用身份');
+  });
+
   it('uses the materialized display identity and original text assets in the build dialog', () => {
     expect(buildDialogSource).toContain('definition.displayName');
     expect(buildDialogSource).toContain('definition.assetSlug');

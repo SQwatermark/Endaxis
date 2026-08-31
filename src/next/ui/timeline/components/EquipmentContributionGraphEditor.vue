@@ -48,6 +48,7 @@ import StepTypePicker from './StepTypePicker.vue';
 import EquipmentContributionTypePicker from './EquipmentContributionTypePicker.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
+import EquipmentBuffDefinitionsDialog from './EquipmentBuffDefinitionsDialog.vue';
 
 type ContributionPayloadKind =
   | 'scheduledSequence'
@@ -89,6 +90,7 @@ const modifierAttributes = [
 ] as const satisfies readonly EquipmentAttribute[];
 const undoStack = shallowRef<EquipmentContributionDefinition[]>([]);
 const redoStack = shallowRef<EquipmentContributionDefinition[]>([]);
+const showBuffDefinitions = ref(false);
 const clipboard = shallowRef<
   | { readonly kind: 'equipmentModifier'; readonly value: EquipmentModifierDefinition }
   | { readonly kind: 'equipmentHandler'; readonly value: EquipmentEventHandlerDefinition }
@@ -114,6 +116,9 @@ const selectedStep = computed(() =>
 );
 const selectedCondition = computed(() =>
   selectedPayloadKind.value === 'combatCondition' ? (selectedValue.value as CombatCondition) : null,
+);
+const initializationBlackboardEntries = computed(() =>
+  Object.entries(props.contribution.initializationBlackboard ?? {}),
 );
 
 watch(
@@ -387,6 +392,72 @@ function levelValuesText(value: LevelValues): string {
   return Array.isArray(value) ? value.join(', ') : String(value);
 }
 
+function createInitializationSequence(): void {
+  if (props.contribution.initializationSequence !== undefined) return;
+  commit({ ...props.contribution, initializationSequence: { steps: [] } });
+}
+
+async function removeInitializationSequence(): Promise<void> {
+  if (props.contribution.initializationSequence === undefined) return;
+  commit(deleteStructureValueAtPath(props.contribution, 'initializationSequence'));
+  await selectPath('');
+}
+
+function addInitializationBlackboardEntry(): void {
+  const values = { ...(props.contribution.initializationBlackboard ?? {}) };
+  let index = 1;
+  while (`custom_${index}` in values) index += 1;
+  values[`custom_${index}`] = 0;
+  commit({ ...props.contribution, initializationBlackboard: values });
+}
+
+function renameInitializationBlackboardEntry(oldKey: string, event: Event): void {
+  const key = (event.target as HTMLInputElement).value.trim();
+  if (key === '' || key === oldKey || key in (props.contribution.initializationBlackboard ?? {}))
+    return;
+  const values = Object.fromEntries(
+    initializationBlackboardEntries.value.map(([entryKey, value]) => [
+      entryKey === oldKey ? key : entryKey,
+      value,
+    ]),
+  );
+  commit({ ...props.contribution, initializationBlackboard: values });
+}
+
+function updateInitializationBlackboardValue(key: string, event: Event): void {
+  const tokens = (event.target as HTMLInputElement).value.split(',').map(value => value.trim());
+  const values = tokens.map(Number);
+  if (tokens.some(value => value === '') || values.some(value => !Number.isFinite(value))) return;
+  commit({
+    ...props.contribution,
+    initializationBlackboard: {
+      ...(props.contribution.initializationBlackboard ?? {}),
+      [key]: values.length === 1 ? values[0]! : values,
+    },
+  });
+}
+
+function removeInitializationBlackboardEntry(key: string): void {
+  const values = { ...(props.contribution.initializationBlackboard ?? {}) };
+  delete values[key];
+  const next =
+    Object.keys(values).length === 0
+      ? (({ initializationBlackboard: _removed, ...rest }) => rest)(props.contribution)
+      : { ...props.contribution, initializationBlackboard: values };
+  commit(next);
+}
+
+function saveBuffDefinitions(
+  definitions: EquipmentContributionDefinition['buffDefinitions'],
+): void {
+  const next =
+    definitions === undefined
+      ? (({ buffDefinitions: _removed, ...rest }) => rest)(props.contribution)
+      : { ...props.contribution, buffDefinitions: definitions };
+  commit(next);
+  showBuffDefinitions.value = false;
+}
+
 function setModifierAttribute(attribute: EquipmentAttribute): void {
   const modifier = selectedModifier.value;
   if (modifier?.kind === 'attribute') replaceSelected({ ...modifier, attribute });
@@ -451,7 +522,7 @@ function toggleSkillType(skillType: SkillType): void {
 </script>
 
 <template>
-  <div class="contribution-editor">
+  <div v-if="!showBuffDefinitions" class="contribution-editor">
     <SkillStructureMindMap
       class="contribution-map"
       :root="structure"
@@ -640,9 +711,68 @@ function toggleSkillType(skillType: SkillType): void {
           ><span>当前层</span>
         </header>
         <p class="hint">在画布中选择属性修正、事件响应或响应序列里的步骤进行编辑。</p>
+        <section class="root-section">
+          <header>
+            <strong>附属 Buff 定义</strong
+            ><span>{{ Object.keys(contribution.buffDefinitions ?? {}).length }} 项</span>
+          </header>
+          <p class="hint">属于当前武器词条、装备词条或套装贡献；事件和初始化步骤按 ID 引用。</p>
+          <button class="section-action" @click="showBuffDefinitions = true">
+            打开 Buff 工作区
+          </button>
+        </section>
+        <section class="root-section">
+          <header><strong>帧 0 初始化黑板</strong><span>按词条等级解析</span></header>
+          <p class="hint">这些值在构筑编译完成后写入初始化动作黑板，不属于技能的初始黑板。</p>
+          <div
+            v-for="([key, value], index) in initializationBlackboardEntries"
+            :key="`${key}:${index}`"
+            class="blackboard-row"
+          >
+            <input
+              :value="key"
+              aria-label="黑板键"
+              @change="renameInitializationBlackboardEntry(key, $event)"
+            />
+            <input
+              :value="levelValuesText(value)"
+              aria-label="黑板逐级值"
+              @change="updateInitializationBlackboardValue(key, $event)"
+            />
+            <button aria-label="删除黑板值" @click="removeInitializationBlackboardEntry(key)">
+              ×
+            </button>
+          </div>
+          <button class="section-action" @click="addInitializationBlackboardEntry">
+            ＋ 添加黑板值
+          </button>
+        </section>
+        <section class="root-section">
+          <header><strong>帧 0 初始化序列</strong><span>每场战斗一次</span></header>
+          <p class="hint">构筑满足后在战斗第 0 帧执行，典型用途是安装装备或套装的根 Buff。</p>
+          <button
+            v-if="contribution.initializationSequence === undefined"
+            class="section-action"
+            @click="createInitializationSequence"
+          >
+            ＋ 创建初始化序列
+          </button>
+          <button v-else class="section-action danger" @click="removeInitializationSequence">
+            删除初始化序列
+          </button>
+        </section>
       </template>
     </aside>
   </div>
+  <EquipmentBuffDefinitionsDialog
+    v-else
+    :visible="true"
+    :definitions="contribution.buffDefinitions"
+    :reference-root="contribution"
+    :level="level"
+    @update:visible="showBuffDefinitions = $event"
+    @save="saveBuffDefinitions"
+  />
 </template>
 
 <style scoped>
@@ -737,6 +867,36 @@ legend {
 }
 .hint {
   line-height: 1.55;
+}
+.root-section {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ea-border-soft);
+}
+.root-section header {
+  border-bottom: 0;
+  padding-bottom: 5px;
+}
+.blackboard-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) minmax(80px, 0.8fr) 28px;
+  gap: 5px;
+  margin-top: 7px;
+}
+.blackboard-row button,
+.section-action {
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-input);
+  color: var(--ea-fg-secondary);
+  cursor: pointer;
+}
+.section-action {
+  min-height: 30px;
+  margin-top: 8px;
+}
+.section-action.danger,
+.blackboard-row button {
+  color: #e69a7a;
 }
 @media (max-width: 820px) {
   .contribution-editor {

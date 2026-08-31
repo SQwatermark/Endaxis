@@ -1303,13 +1303,23 @@ export class CombatRuntimeAssembly {
         `skill '${program.skillId}' belongs to '${program.operatorId}', expected '${operatorId}'`,
       );
     const cooldownMultiplier = (operator.panel?.combatModifiers ?? []).reduce(
-      (result, modifier) =>
-        modifier.kind === 'skillCooldownMultiplier' &&
-        (Array.isArray(modifier.skillTypes)
-          ? modifier.skillTypes.includes(program.skillType)
-          : modifier.skillTypes === program.skillType)
-          ? result * modifier.value
-          : result,
+      (result, modifier) => {
+        if (
+          modifier.kind === 'skillCooldownMultiplier' &&
+          (Array.isArray(modifier.skillTypes)
+            ? modifier.skillTypes.includes(program.skillType)
+            : modifier.skillTypes === program.skillType)
+        ) {
+          return result * modifier.value;
+        }
+        if (
+          modifier.kind === 'skillCooldownReduction' &&
+          modifier.skillTypes.includes(program.skillType)
+        ) {
+          return result * (1 - modifier.value);
+        }
+        return result;
+      },
       1,
     );
     if (!Number.isFinite(cooldownMultiplier) || cooldownMultiplier <= 0) {
@@ -1578,8 +1588,17 @@ export class CombatRuntimeAssembly {
       const key = `${operatorId}\u0000${program.skillId}`;
       if (matchedKeys.has(key)) continue;
       matchedKeys.add(key);
-      if (this.#skillCooldowns.get(key)?.cooldown.reduceByBaseDurationRatio(ratio)) {
+      const ledger = this.#skillCooldowns.get(key);
+      if (ledger?.cooldown.reduceByBaseDurationRatio(ratio)) {
         changed += 1;
+        this.#recordSkillCooldownAdjusted(
+          operatorId,
+          ledger.program.skillId,
+          'reduce',
+          'baseDurationRatio',
+          ratio,
+          ledger.cooldown.snapshot,
+        );
       }
     }
     return changed;
@@ -1604,7 +1623,18 @@ export class CombatRuntimeAssembly {
       const key = `${operatorId}\u0000${program.skillId}`;
       if (matchedKeys.has(key)) continue;
       matchedKeys.add(key);
-      if (this.#skillCooldowns.get(key)?.cooldown.reduceByFrames(frames)) changed += 1;
+      const ledger = this.#skillCooldowns.get(key);
+      if (ledger?.cooldown.reduceByFrames(frames)) {
+        changed += 1;
+        this.#recordSkillCooldownAdjusted(
+          operatorId,
+          ledger.program.skillId,
+          'reduce',
+          'absoluteFrames',
+          frames,
+          ledger.cooldown.snapshot,
+        );
+      }
     }
     return changed;
   }
@@ -1629,14 +1659,49 @@ export class CombatRuntimeAssembly {
       const key = `${operatorId}\u0000${program.skillId}`;
       if (matchedKeys.has(key)) continue;
       matchedKeys.add(key);
-      const cooldown = this.#skillCooldowns.get(key)?.cooldown;
+      const ledger = this.#skillCooldowns.get(key);
+      const cooldown = ledger?.cooldown;
       const didChange =
         basis === 'baseDurationRatio'
           ? cooldown?.setByBaseDurationRatio(value)
           : cooldown?.setRemainingFrames(value);
-      if (didChange) changed += 1;
+      if (didChange && ledger !== undefined) {
+        changed += 1;
+        this.#recordSkillCooldownAdjusted(
+          operatorId,
+          ledger.program.skillId,
+          'set',
+          basis,
+          value,
+          ledger.cooldown.snapshot,
+        );
+      }
     }
     return changed;
+  }
+
+  #recordSkillCooldownAdjusted(
+    operatorId: string,
+    skillId: string,
+    operation: 'reduce' | 'set',
+    basis: 'baseDurationRatio' | 'absoluteFrames',
+    value: number,
+    snapshot: import('./skillCooldown').SkillCooldownSnapshot,
+  ): void {
+    this.receipt.record({
+      frame: this.clock.frame,
+      time: this.clock.time,
+      event: 'SkillCooldownAdjusted',
+      sourceId: operatorId,
+      data: {
+        skillId,
+        operation,
+        basis,
+        value,
+        remainingFrames: snapshot.remainingFrames,
+        ready: snapshot.ready,
+      },
+    });
   }
 
   #createBuffLifecycleOperationChain(

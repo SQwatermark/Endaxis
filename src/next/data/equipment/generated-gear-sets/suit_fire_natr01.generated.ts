@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'artsIntensity',
-      value: [30],
+      value: 30,
     },
   ],
   buffDefinitions: {
@@ -40,7 +40,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/SpellStatus/Burning"],
+                    buffTags: ['Skill/Character/Common/SpellStatus/Burning'],
                   },
                 },
                 whenTrue: {
@@ -50,6 +50,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_fninflict_01_firedamageadd',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           duration: {
@@ -66,13 +67,21 @@ const definition = {
                   ],
                 },
               },
+            ],
+          },
+        },
+        {
+          event: 'outputBuff',
+          priority: 0,
+          sequence: {
+            steps: [
               {
                 kind: 'conditional',
                 parameters: {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/SpellStatus/Corrupt"],
+                    buffTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
                   },
                 },
                 whenTrue: {
@@ -82,6 +91,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_fninflict_01_poisedamageadd',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           duration: {

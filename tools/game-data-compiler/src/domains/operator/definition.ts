@@ -1,4 +1,5 @@
 import type {
+  ComboSkillConditionDefinition,
   ComboSkillRegistrationDefinition,
   OperatorDefinition,
   SkillBuffSlotReplacement,
@@ -69,6 +70,10 @@ export interface OperatorDefinitionAssemblyInput {
   /** 角色自身始终安装的隐藏被动请求；与养成解锁的请求分开。 */
   readonly basePassiveSkillRequests?: readonly PassiveSkillCompileRequestSource[];
   readonly comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
+  /** 角色模板原生常驻连携条件；已经过 RID 展开、黑板与事件投影。 */
+  readonly comboSkillConditions?: readonly ComboSkillConditionDefinition[];
+  /** 角色 AbilitySystem 实体黑板的原生字面初值。 */
+  readonly runtimeEntityBlackboard?: Readonly<Record<string, number | string>>;
   /** 隐藏注册技能：保留定义与冷却/内部 Cast 路由，不暴露为可直接放置的组技能。 */
   readonly runtimeReplacementSkillKeys?: readonly string[];
   /** 输入包装器同步 Cast 另一技能组执行体的严格跨组换槽定义。 */
@@ -663,6 +668,16 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     runtimeReplacementSkillKeys,
   );
   const { sourceCharacterId, ...header } = compileOperatorDefinitionHeaderSource(foundation);
+  const entityBlackboard = new Map<string, number | string>(
+    [...(input.nativeMissingEntityBlackboardZeroKeys ?? [])].map(key => [key, 0]),
+  );
+  for (const [key, value] of Object.entries(input.runtimeEntityBlackboard ?? {})) {
+    const existing = entityBlackboard.get(key);
+    if (existing !== undefined && existing !== value) {
+      throw new Error(`conflicting operator entity Blackboard value for ${JSON.stringify(key)}`);
+    }
+    entityBlackboard.set(key, value);
+  }
   // 产品身份可与实际复用的角色资源身份不同（管理员统一使用女管理员动作数据）。
   // 只从本次完整主动技能库的原生 skillId 建立额外归属，不按 Buff 名称反猜角色。
   const privateBuffCharacterIds = new Set([sourceCharacterId]);
@@ -696,13 +711,14 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     ...(input.comboSkillRegistrations === undefined
       ? {}
       : { comboSkillRegistrations: input.comboSkillRegistrations }),
+    ...(input.comboSkillConditions === undefined
+      ? {}
+      : { comboSkillConditions: input.comboSkillConditions }),
     talents,
     potentials,
-    ...(input.nativeMissingEntityBlackboardZeroKeys?.size
+    ...(entityBlackboard.size
       ? {
-          entityBlackboard: Object.fromEntries(
-            [...input.nativeMissingEntityBlackboardZeroKeys].map(key => [key, 0] as const),
-          ),
+          entityBlackboard: Object.fromEntries(entityBlackboard),
         }
       : {}),
     ...(basePassivePlans.length === 0

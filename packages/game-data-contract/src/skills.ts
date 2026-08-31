@@ -104,6 +104,11 @@ export interface SkillDefinition {
   key: string;
   /** 原始游戏数据中的技能身份；事件守卫不得用编辑器 key 冒充它。 */
   sourceSkillId?: string;
+  /**
+   * 该次释放所创建的强化状态 Buff 身份。时间轴只按实际 Buff 回执投影生命周期；
+   * 省略表示没有已取证的强化状态，不能把任意自身 Buff 猜成强化条。
+   */
+  enhancementStateBuffId?: string;
   /** 技能实例创建时按当前技能等级解析、每次释放前恢复的原生动作黑板。 */
   blackboard?: Readonly<Record<string, LevelValues>>;
   /** 零距离木桩下 StoreSmartTarget 的归约结果；省略表示原技能不执行智能目标存储。 */

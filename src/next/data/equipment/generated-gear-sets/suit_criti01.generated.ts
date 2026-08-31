@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'criticalRate',
-      value: [0.05],
+      value: 0.05,
     },
   ],
   buffDefinitions: {
@@ -39,7 +39,9 @@ const definition = {
                 parameters: {
                   buffId: 'buff_equipsuit_critsuitatk_01',
                   target: 'buffOwner',
+                  source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
+                  asChildBuff: true,
                   blackboardAssignments: {
                     atk_up: {
                       kind: 'blackboard',
@@ -131,7 +133,9 @@ const definition = {
                     parameters: {
                       buffId: 'buff_equipsuit_critsuitdmg_01',
                       target: 'buffOwner',
+                      source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
+                      asChildBuff: true,
                       blackboardAssignments: {
                         crit_up2: {
                           kind: 'blackboard',

@@ -178,6 +178,7 @@ export interface BuffOperationDependencies {
     readonly sourceId: string;
     readonly targetId: string;
     readonly type: 'airborne' | 'fracture' | 'crush';
+    readonly skillCastInfo: CombatSkillCastInfo;
     readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
   }) => void;
   readonly delegate: CombatOperationExecutor;
@@ -215,6 +216,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           sourceId: this.dependencies.sourceId,
           targetId: target.ownerId,
           type: step.parameters.type,
+          skillCastInfo: context.skillCastInfo,
           ...(context.attachBuffToCurrentSkill === undefined
             ? {}
             : { attachBuffToCurrentSkill: context.attachBuffToCurrentSkill }),

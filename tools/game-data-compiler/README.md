@@ -7,6 +7,22 @@
 装备的特有入口从公共编译流程中剥离。旧 Python 生成器已在全干员迁移完成后退役，
 不能继续承载新功能。
 
+## 统一入口（2026-08-30）
+
+根 `scripts/` 已清空。当前游戏数据工具统一位于本目录：
+
+- `scripts/generateWeaponDefinitions.ts`、`generateGearDefinitions.ts`、
+  `generateGearSetDefinitions.ts`：武器、单件装备和套装正式生成及 `--check`；
+- `scripts/auditGearSetSourceClosure.ts`、`auditGearSetStaticDefinitions.ts`：套装来源闭包与静态候选审计；
+- `scripts/exportReferencedGameIcons.ts`：扫描正式运行引用，只补缺漏地导出 WebP；`--overwrite` 覆盖，
+  `--dry-run` 只审计，`--prune` 删除引用闭包外的受管游戏资源；
+- `scripts/exportGameLocales.py`：AKEDB 本地化和富文本图标来源导出；图标入口会调用它生成临时 manifest；
+- `config/gearSetIdentities.json`：已闭合并进入正式库的套装身份；
+- `legacy/enemy-ranks`：仍有证据价值、但尚未改写为 TS 的敌人 rank 原始提取器。
+
+根 `package.json` 暴露 `generate:game-data:*`、`audit:game-data:*`、`export:game-icons` 和
+`export:game-locales`。机器审计和中间 manifest 只写入已忽略的 `tmp/`。
+
 ## 当前纵向迁移（2026-08-28）
 
 本轮最新：标签已单向迁为可读路径，五名完整干员可以严格重建；没有增加完整干员数量。
@@ -504,6 +520,13 @@ npm run generate:game-data:operator-active-skills -- --complete `
   不从实体名称猜子技能。同一模板不同子技能身份目前拒绝；实体缺源、未支持寿命或 Owner 操作报错。
 - 完整模式从动作及养成请求自动建立 Buff 闭包，不接受 `--supplemental-buff`。隐藏被动 SkillData、
   技能变体、未投影技能根 Buff/面板修饰等必须阻塞，不能只因时间轴成功就标记整名完成。
+- 角色模板携带的实体黑板和原生连携条件通过 manifest 的 `runtimeTemplate` 显式接入：`sourceFile`
+  必须位于 `source-root` 内，`sourceSha256` 固定原始 Unity 对象身份，`skillGroupKey` 必须是实际连携组；
+  角色 ID、原生连携 SkillData ID、RID 类型与字段、标签路径及黑板启用状态均由公共解析器校验。
+  这类 CharacterTemplate 工件来自 VFS/解包，不属于 AKEDB 下载闭包；缺文件时生成应失败，不能回退
+  已生成 TS。Arcane 当前约定路径为
+  `CharacterData/chr_0032_lizhiyan.runtime-template.json`，源 SHA-256 为
+  `33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc`。
 - 一次原子写入一个 `<slug>.operator.generated.ts`，其中公共 Buff 为独立导出，不属于 Operator 的
   私有 `buffDefinitions`。全局只读目录采用已迁移公共定义，未迁移部分暂保留旧基线；不能按宿主
   再造独立的公共 Buff 实现。注册由明确的产品 import 完成，生成命令不改产品接线。
@@ -1116,21 +1139,21 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
 
 正式生成命令不会在第一把失败时中断审计：它逐把收集来源错误，再合并运行投影诊断，全部通过后
 才渲染并原子替换目录。正式目录只保存 78 个 TypeScript 文件；机器审计写入被忽略的
-`tmp/generated-next-weapons`，`--check` 不读取也不修改审计文件。生成目录已接入默认仓库，
-版本为 `endaxis-next-definitions-v2-weapons-1.4.4-r3`；新旧武器内容有 revision/哈希发布门禁，
-重新生成有差异时必须显式决定迁移边，不能只改哈希掩盖同版本内容变化。旧 v1 武器快照是正式
-兼容数据，不是可丢弃中间产物。浏览器确认/备份流程见 docs/next/weapon-data-migration.md。
+`tmp/generated-next-weapons`，`--check` 不读取也不修改审计文件。生成目录已接入唯一最新仓库，
+revision 标记为 `endaxis-next-definitions-latest`。Next 尚未发布首个稳定数据版本，不保存旧武器定义，
+也不为每次生成差异建立迁移边；差异必须通过来源审计、生成 `--check`、聚焦模拟和代码评审证明。
+当前策略见 docs/next/weapon-data-migration.md。
 
-r2 修正两把反应光环的接收侧事件身份。`OnBeforeAddedBuff` 在监听 Buff 中的 Source 是监听器
+此前第二轮审计修正两把反应光环的接收侧事件身份。`OnBeforeAddedBuff` 在监听 Buff 中的 Source 是监听器
 创建者，Owner 是接收敌人，Target 是当前施加者；依据 combat-spec 的 before-output-buff.md、
 check-targets-equal.md 和 Buff.BindAbilityEventEnvironment，不得混成物理事件 sourceId/targetId。
 公共投影保留 buffSource/buffOwner；当前 205 未审计动作/条件仍阻塞，不能顺手扩大其他事件。
 元素适配器已补同一前置事件，真实反应的正反分支、等级两端与伤害差分见
-docs/research/weapon-reaction-aura-branches.md。r1 原定义与旧哈希保留，不能随新产物覆盖。
+docs/research/weapon-reaction-aura-branches.md。旧哈希只作为审计记录，不对应可运行历史目录。
 
-r3 修正公共 BuffCount：按增强层数求和，Tag 条件显式保留 Source/Owner/Target，
+随后一轮审计修正公共 BuffCount：按增强层数求和，Tag 条件显式保留 Source/Owner/Target，
 Save 不再输出 instance；ID 列表按项求和而非去重。旧显式实例数 DSL 保留历史语义。
-五把武器重新生成，r2 差量快照及整库哈希保留。证据与数值回归见
+五把武器重新生成；证据与数值回归见
 docs/research/weapon-buff-count-r3.md。已有 966 交叉场景通过不等于全连续排轴通过：
 艾维文娜三连携后战技回收枪的 EntityBB_talent0 传递仍缺失，是下一阶段完整干员迁移优先项。
 
@@ -1144,7 +1167,8 @@ npm run generate:game-data:weapons -- --tables <TableCfg目录> --skill-data <Sk
 
 ```powershell
 npm run audit:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录> `
-  --buff-data <BuffData目录>
+  --buff-data <BuffData目录> `
+  --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts
 ```
 
 Operator 主动技能库可用以下命令批量审计；任何干员失败都会保留逐项诊断并使进程返回非零：

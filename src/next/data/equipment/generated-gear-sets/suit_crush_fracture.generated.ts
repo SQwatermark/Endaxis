@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'attackPercent',
-      value: [0.08],
+      value: 0.08,
     },
   ],
   buffDefinitions: {
@@ -48,9 +48,10 @@ const definition = {
                       kind: 'conditional',
                       parameters: {
                         condition: {
-                          kind: 'eventTargetBuffCountCompare',
+                          kind: 'buffStackCompare',
+                          target: 'eventTarget',
                           tagQueryType: 'hasAny',
-                          buffTags: ["Skill/Character/Common/NoGuard"],
+                          buffTags: ['Skill/Character/Common/NoGuard'],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'constant',
@@ -87,11 +88,10 @@ const definition = {
                             parameters: {
                               target: 'eventTarget',
                               outputKey: 'phy_dmg_up_final',
-                              countType: 'instance',
                               query: {
                                 kind: 'tag',
                                 tagQueryType: 'hasAny',
-                                buffTags: ["Skill/Character/Common/NoGuard"],
+                                buffTags: ['Skill/Character/Common/NoGuard'],
                               },
                             },
                           },
@@ -102,9 +102,12 @@ const definition = {
                                 kind: 'any',
                                 conditions: [
                                   {
-                                    kind: 'eventTargetBuffCountCompare',
+                                    kind: 'buffStackCompare',
+                                    target: 'eventTarget',
                                     tagQueryType: 'hasAny',
-                                    buffTags: ["Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic"],
+                                    buffTags: [
+                                      'Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic',
+                                    ],
                                     operator: 'greaterOrEqual',
                                     value: {
                                       kind: 'constant',
@@ -167,7 +170,9 @@ const definition = {
                             parameters: {
                               buffId: 'buff_equipsuit_crush_fracture_physicdamage',
                               target: 'buffOwner',
+                              source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
+                              asChildBuff: true,
                               blackboardAssignments: {
                                 priority: {
                                   kind: 'blackboard',

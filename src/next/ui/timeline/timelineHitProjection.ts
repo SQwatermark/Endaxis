@@ -221,8 +221,22 @@ function collectDamageSteps(
   }
   const childSkill =
     step.kind === 'spawnAbilityEntity'
-      ? (step.parameters.definition ?? abilityEntityDefinitions?.[step.parameters.abilityEntityId])
-          ?.childSkill
+      ? (() => {
+          const entityDefinition =
+            step.parameters.definition ??
+            abilityEntityDefinitions?.[step.parameters.abilityEntityId];
+          if (entityDefinition === undefined) return undefined;
+          const requestedSkillId = step.parameters.childSkillId;
+          if (requestedSkillId !== undefined) {
+            if (entityDefinition.childSkill?.skillId === requestedSkillId) {
+              return entityDefinition.childSkill;
+            }
+            return entityDefinition.childSkills?.[requestedSkillId];
+          }
+          if (entityDefinition.childSkill !== undefined) return entityDefinition.childSkill;
+          const namedChildren = Object.values(entityDefinition.childSkills ?? {});
+          return namedChildren.length === 1 ? namedChildren[0] : undefined;
+        })()
       : step.kind === 'startCurrentAbilityEntityChildSkill'
         ? step.parameters.childSkill
         : undefined;

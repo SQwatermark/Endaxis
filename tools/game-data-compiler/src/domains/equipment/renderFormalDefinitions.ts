@@ -53,10 +53,6 @@ export function renderEquipmentDefinitionFiles(
       .map((_, index) => `  generatedGear${index},`)
       .join('\n')}\n] as const satisfies readonly GearDefinition[];\n`,
   });
-  files.push({
-    relativePath: 'equipment-definitions.audit.json',
-    content: `${JSON.stringify(createAudit(batch), null, 2)}\n`,
-  });
   return files.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
 }
 
@@ -66,36 +62,6 @@ function renderDefinition(definition: CompiledGearDefinitionSource): string {
     null,
     2,
   )} as const satisfies GearDefinition;\n\nexport default definition;\n`;
-}
-
-function createAudit(batch: CompiledEquipmentDefinitionBatchSource) {
-  const modifiers = batch.definitions.flatMap(definition =>
-    definition.traits.flatMap(trait => trait.modifiers),
-  );
-  return {
-    format: 'EndaxisGeneratedEquipmentAudit',
-    version: 1,
-    definitionCount: batch.definitions.length,
-    traitCount: batch.definitions.reduce(
-      (total, definition) => total + definition.traits.length,
-      0,
-    ),
-    modifierCount: modifiers.length,
-    slotCounts: countBy(batch.definitions, definition => definition.slotType),
-    modifierKindCounts: countBy(modifiers, modifier => modifier.kind),
-    diagnostics: batch.diagnostics,
-  };
-}
-
-function countBy<T>(values: readonly T[], key: (value: T) => string): Record<string, number> {
-  const counts: Record<string, number> = {};
-  for (const value of values) {
-    const identity = key(value);
-    counts[identity] = (counts[identity] ?? 0) + 1;
-  }
-  return Object.fromEntries(
-    Object.entries(counts).sort(([left], [right]) => left.localeCompare(right)),
-  );
 }
 
 function requireSafeSegment(value: string, path: string): void {

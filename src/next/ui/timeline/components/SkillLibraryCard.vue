@@ -14,7 +14,7 @@ defineProps({
   segments: { type: Array, default: () => [] },
 });
 
-defineEmits(['select', 'dragstart', 'select-segment', 'dragstart-segment']);
+defineEmits(['select', 'dragstart', 'dragend', 'select-segment', 'dragstart-segment']);
 </script>
 
 <template>
@@ -22,9 +22,10 @@ defineEmits(['select', 'dragstart', 'select-segment', 'dragstart-segment']);
     <div
       class="skill-card"
       :class="{ 'is-selected': selected }"
-      :title="tooltip"
+      :title="tooltip || name"
       draggable="true"
       @dragstart="$emit('dragstart', $event)"
+      @dragend="$emit('dragend', $event)"
       @click="$emit('select')"
     >
       <div class="card-edge"></div>
@@ -50,6 +51,7 @@ defineEmits(['select', 'dragstart', 'select-segment', 'dragstart-segment']);
         :class="{ 'is-selected': segment.selected, 'is-last': index === segments.length - 1 }"
         :draggable="!segment.disabled"
         @dragstart="$emit('dragstart-segment', { event: $event, skillKey: segment.id })"
+        @dragend="$emit('dragend', $event)"
         @click.stop="$emit('select-segment', segment.id)"
       >
         {{ segment.label }}

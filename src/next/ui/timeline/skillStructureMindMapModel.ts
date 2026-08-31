@@ -648,11 +648,12 @@ export function buildEquipmentContributionMindMap(
 ): SkillStructureNode {
   const modifiers = contribution.modifiers ?? [];
   const handlers = contribution.eventHandlers ?? [];
+  const initializationSequence = contribution.initializationSequence;
   return {
     id: 'equipment:contribution',
     label,
     kind: '装备贡献',
-    summary: `${modifiers.length} 项修正 · ${handlers.length} 个事件响应`,
+    summary: `${modifiers.length} 项修正 · ${handlers.length} 个事件响应${initializationSequence === undefined ? '' : ' · 帧 0 初始化'}`,
     sourcePath: '',
     details: { 属性修正: modifiers.length, 事件响应: handlers.length },
     editorSection: 'overview',
@@ -730,6 +731,21 @@ export function buildEquipmentContributionMindMap(
         }),
         relationToParent: 'port',
       },
+      ...(initializationSequence === undefined
+        ? []
+        : [
+            {
+              ...sequenceNode(
+                initializationSequence,
+                'equipment:initialization-sequence',
+                '帧 0 初始化序列',
+                'initializationSequence',
+                `${initializationSequence.steps.length} 个直属步骤`,
+                0,
+              ),
+              relationToParent: 'port' as const,
+            },
+          ]),
     ],
   };
 }

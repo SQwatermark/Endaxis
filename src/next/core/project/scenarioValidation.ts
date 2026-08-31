@@ -349,6 +349,22 @@ export function validateGlobalConfig(
         message: 'skill cooldown reduction requires a skill type',
       });
     }
+    if (modifier.modifier !== 'skillCooldownReduction' && modifier.skillType !== undefined) {
+      issues.push({
+        path: `${modifierPath}.skillType`,
+        message: 'only skill cooldown reduction accepts a skill type',
+      });
+    }
+    if (
+      modifier.modifier === 'skillCooldownReduction' &&
+      typeof modifier.value === 'number' &&
+      modifier.value >= 1
+    ) {
+      issues.push({
+        path: `${modifierPath}.value`,
+        message: 'skill cooldown reduction must be less than 1',
+      });
+    }
   });
 }
 
@@ -414,4 +430,19 @@ export function validateEditor(value: unknown, path: string, issues: ValidationI
     );
   }
   requireBoolean(value.prepExpanded, `${path}.prepExpanded`, issues);
+  if (value.initialUltimateEnergyPreset !== undefined) {
+    const presetPath = `${path}.initialUltimateEnergyPreset`;
+    if (!isObject(value.initialUltimateEnergyPreset)) {
+      issues.push({ path: presetPath, message: 'expected an object' });
+    } else {
+      if (!['empty', 'full', 'custom'].includes(String(value.initialUltimateEnergyPreset.mode))) {
+        issues.push({ path: `${presetPath}.mode`, message: 'expected empty, full, or custom' });
+      }
+      validateFiniteNumberRecord(
+        value.initialUltimateEnergyPreset.customByTrackId,
+        `${presetPath}.customByTrackId`,
+        issues,
+      );
+    }
+  }
 }

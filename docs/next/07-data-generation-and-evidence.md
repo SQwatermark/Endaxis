@@ -40,8 +40,8 @@ flowchart LR
 - `scripts/auditOperatorActiveSkillMigration.ts`：全干员主动技能覆盖审计。
 
 干员 manifest 位于 `tools/game-data-compiler/config/operators.json`，正式定义位于
-`src/next/data/operators/generated-definitions`。来源和机器审计写入被 Git 忽略的 `tmp/`；旧
-`scripts/generate_next_operators` 仅保留退役说明，不再包含可执行 Python 生成器。
+`src/next/data/operators/generated-definitions`。来源和机器审计写入被 Git 忽略的 `tmp/`；根
+`scripts/` 已清空，旧 Python 生成器与迁移期审计仅从 Git 历史追溯。
 
 ## 4. 严格模式与宽松模式
 

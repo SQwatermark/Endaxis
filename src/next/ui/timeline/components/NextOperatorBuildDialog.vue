@@ -99,9 +99,7 @@ const canPromote = computed(() => {
 });
 const maxTrust = computed(() => {
   const operator = props.operator;
-  return operator
-    ? getOperatorTrustMax(operator.level as NextOperatorLevel, operator.promoted)
-    : 0;
+  return operator ? getOperatorTrustMax(operator.level as NextOperatorLevel, operator.promoted) : 0;
 });
 const potentialCount = computed(() =>
   (definition.value?.potentials ?? []).reduce((sum, potential) => sum + potential.levels, 0),
@@ -114,11 +112,15 @@ const trustAttributeKeys = computed(() => {
   const currentDefinition = definition.value;
   if (!currentDefinition) return [];
   const trust = currentDefinition.trustAttributeBonus ?? DEFAULT_TRUST_ATTRIBUTE_BONUS;
-  return [...new Set(trust.attributes.map(attribute => {
-    if (attribute === 'main') return currentDefinition.mainAttribute;
-    if (attribute === 'secondary') return currentDefinition.secondaryAttribute;
-    return attribute;
-  }))];
+  return [
+    ...new Set(
+      trust.attributes.map(attribute => {
+        if (attribute === 'main') return currentDefinition.mainAttribute;
+        if (attribute === 'secondary') return currentDefinition.secondaryAttribute;
+        return attribute;
+      }),
+    ),
+  ];
 });
 const trustAttributeLabel = computed(() =>
   trustAttributeKeys.value
@@ -254,7 +256,8 @@ function maxOut(): void {
   const operator = props.operator;
   const currentDefinition = definition.value;
   if (!operator || !currentDefinition) return;
-  const { operatorSlug: _operatorSlug, ...maximum } = createDefaultOperatorInstance(currentDefinition);
+  const { operatorSlug: _operatorSlug, ...maximum } =
+    createDefaultOperatorInstance(currentDefinition);
   update(maximum);
 }
 </script>
@@ -275,7 +278,11 @@ function maxOut(): void {
             class="ea-btn ea-btn--sm ea-btn--glass-rect definition-entry"
             @click="emit('edit-definition')"
           >
-            自定义干员
+            {{
+              customDefinition === undefined
+                ? t('nextTimeline.customDefinition.customizeOperator')
+                : t('nextTimeline.customDefinition.editOperator')
+            }}
           </button>
           <div
             class="portrait-frame"

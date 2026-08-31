@@ -24,8 +24,12 @@ function commands() {
     nudgeRight: command(),
     toggleSnapPrecision: command(),
     toggleCursorGuide: command(),
+    toggleBoxSelect: command(),
     toggleConnectionTool: command(),
     cycleTrack: vi.fn((_direction: -1 | 1) => true),
+    selectTrack: vi.fn((_trackIndex: 0 | 1 | 2 | 3) => true),
+    placeSkill: vi.fn((_slot: 1 | 2 | 3 | 4 | 5 | 6) => true),
+    cancelPlacement: command(),
   };
 }
 
@@ -40,9 +44,13 @@ describe('handleTimelineEditorShortcut', () => {
     ['D', keyboardEvent('d'), 'nudgeRight'],
     ['Alt+S', keyboardEvent('s', { altKey: true }), 'toggleSnapPrecision'],
     ['Ctrl+G', keyboardEvent('g', { ctrlKey: true }), 'toggleCursorGuide'],
+    ['Ctrl+B', keyboardEvent('b', { ctrlKey: true }), 'toggleBoxSelect'],
     ['Alt+L', keyboardEvent('l', { altKey: true }), 'toggleConnectionTool'],
     ['Tab', keyboardEvent('Tab'), 'cycleTrack'],
     ['Shift+Tab', keyboardEvent('Tab', { shiftKey: true }), 'cycleTrack'],
+    ['F3', keyboardEvent('F3'), 'selectTrack'],
+    ['5', keyboardEvent('5'), 'placeSkill'],
+    ['Escape', keyboardEvent('Escape'), 'cancelPlacement'],
   ])('maps %s to the expected editor command', (_name, event, commandName) => {
     const handlers = commands();
 
@@ -58,6 +66,16 @@ describe('handleTimelineEditorShortcut', () => {
 
     expect(handlers.cycleTrack).toHaveBeenNthCalledWith(1, 1);
     expect(handlers.cycleTrack).toHaveBeenNthCalledWith(2, -1);
+  });
+
+  it('passes zero-based track indices and legacy skill slots', () => {
+    const handlers = commands();
+
+    handleTimelineEditorShortcut(keyboardEvent('F4'), handlers);
+    handleTimelineEditorShortcut(keyboardEvent('6'), handlers);
+
+    expect(handlers.selectTrack).toHaveBeenCalledWith(3);
+    expect(handlers.placeSkill).toHaveBeenCalledWith(6);
   });
 
   it('does not claim unsupported modifier combinations', () => {

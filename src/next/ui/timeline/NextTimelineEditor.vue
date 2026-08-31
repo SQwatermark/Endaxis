@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onScopeDispose, ref, shallowRef } from 'vue';
+import { computed, nextTick, onMounted, onScopeDispose, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { useAppearance } from '../../../composables/useAppearance';
+import { ALL_GAME_TEXT_FAMILIES, setLocale } from '../../../i18n';
 import {
   getEnemyGameName,
   getGearPieceGameName,
@@ -11,6 +13,11 @@ import {
   getWeaponGameName,
 } from '../legacy/legacyGameText';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
+import {
+  createLibraryDragGhost,
+  getDefaultLibraryDragOffsets,
+  removeLibraryDragGhost,
+} from '../../../utils/libraryDragGhost';
 import GearSelectionDialog from './components/GearSelectionDialog.vue';
 import NextGearLoadoutBuildDialog from './components/NextGearLoadoutBuildDialog.vue';
 import GearDefinitionWorkspaceDialog from './components/GearDefinitionWorkspaceDialog.vue';
@@ -22,24 +29,17 @@ import NextWeaponBuildDialog from './components/NextWeaponBuildDialog.vue';
 import WeaponDefinitionWorkspaceDialog from './components/WeaponDefinitionWorkspaceDialog.vue';
 import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
 import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
-import WeaponMigrationDialog from './components/WeaponMigrationDialog.vue';
-import WeaponMigrationBackupsDialog from './components/WeaponMigrationBackupsDialog.vue';
-import {
-  canMigrateWeaponRevision,
-  prepareDefaultWeaponMigration,
-} from '../../application/defaultWeaponMigration';
-import type { WeaponMigrationReview } from '../../application/weaponMigrationReview';
-import type { WeaponInstanceTraitLevelSelection } from '../../application/weaponGameDataMigration';
-import {
-  createWeaponMigrationBackupStorage,
-  type StoredWeaponMigrationBackup,
-} from './weaponMigrationBackupStorage';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
 import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
 import TimelineActionInspector from './components/TimelineActionInspector.vue';
+import TimelineExternalEventInspector from './components/TimelineExternalEventInspector.vue';
+import TimelineDocumentMarkerInspector from './components/TimelineDocumentMarkerInspector.vue';
 import SkillDefinitionEditorDialog from './components/SkillDefinitionEditorDialog.vue';
 import TimelineCornerToolbar from './components/TimelineCornerToolbar.vue';
 import TimelineConnectionLayer from './components/TimelineConnectionLayer.vue';
+import TimelineCursorGuide, {
+  type TimelineCursorGaugeRow,
+} from './components/TimelineCursorGuide.vue';
 import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
@@ -49,6 +49,13 @@ import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
 import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vue';
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
 import TimelineBuffBands from './components/TimelineBuffBands.vue';
+import {
+  projectTimelineTrackEffectLayout,
+  resizeTimelineTrackPair,
+  TIMELINE_TRACK_BASE_HEIGHT,
+  TIMELINE_TRACK_MIN_HEIGHT,
+} from './timelineTrackEffectLayout';
+import TimelineComboWindowBands from './components/TimelineComboWindowBands.vue';
 import SimulationPerformanceAudit from './components/SimulationPerformanceAudit.vue';
 import NextEnemySettingsPanel from './components/NextEnemySettingsPanel.vue';
 import NextGlobalResourcePanel from './components/NextGlobalResourcePanel.vue';
@@ -59,7 +66,14 @@ import {
 import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
 import { useScenarioSimulation } from './useScenarioSimulation';
 import { sampleStepCurve } from '../../core/projection/curveSampling';
+import { resolveTimelineWheelIntent } from './timelineWheel';
+import { projectActiveGearSetLabels } from './activeGearSetHint';
+import { passedTimelineDragThreshold } from './timelineDragThreshold';
+import { projectTimelineEdgeAutoScrollDelta } from './timelineEdgeAutoScroll';
 import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
+import { projectComboWindowTimelineViz } from '../../core/projection/comboWindowTimelineViz';
+import { projectSkillCooldownTimelineViz } from '../../core/projection/skillCooldownTimelineViz';
+import { projectSkillEnhancementTimelineViz } from '../../core/projection/skillEnhancementTimelineViz';
 import {
   layoutBuffTimelineSegments,
   projectBuffTimelineViz,
@@ -70,6 +84,8 @@ import type { OperatorUltimateEnergyCurve } from '../../core/projection/resource
 import {
   PROJECT_FPS,
   type EndaxisProjectDocument,
+  type EditableBarDocument,
+  type ExternalCombatEventDocument,
   type ProjectDefinitionLibraryDocument,
   type ScenarioDocument,
   type TrackIndex,
@@ -96,7 +112,11 @@ import { nextGameDataRepository } from '../../data/gameDataRepository';
 import { skillSettings } from '../../data/combat/skillSettings';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
-import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
+import type {
+  OperatorDefinition,
+  SkillDefinition,
+  SkillType,
+} from '../../core/game-data/operatorDefinition';
 import type {
   GearDefinition,
   GearSetDefinition,
@@ -129,27 +149,68 @@ import {
   type TimelineActionSelection,
 } from './timelineActionSelection';
 import {
+  clearTimelineEditorSelection,
+  createTimelineEditorSelection,
+  selectTimelineActionsIdentity,
+  selectTimelineMarkerIdentity,
+  selectTimelineTrackIdentity,
+  type TimelineMarkerKind,
+} from './timelineEditorSelection';
+import {
   copyTimelineActions,
   pasteTimelineActions,
   type TimelineActionClipboard,
 } from './timelineClipboard';
 import {
   moveSkillCasts,
+  moveSkillCast,
   swapTimelineTracks,
   setSkillCastLocked,
   setSkillCastDisabled,
   setSkillCastColor,
+  setSkillCastCustomBars,
   setSkillCastCameraTargetAngle,
   setSkillCastForcedCritical,
   setSkillCastCustomDefinition,
   resetSkillCastToTemplate,
   updateBattleResourceRule,
+  setBattleDurationFrames,
+  setBattlePrepFrames,
+  setGlobalOperatorStatModifiers,
   type EditableBattleResourceRule,
   updateTrackInitialUltimateEnergy,
+  applyInitialUltimateEnergyPreset,
+  resolveInitialUltimateEnergyPresetMode,
+  setUnifiedInitialUltimateEnergy,
   type TrackGearSlot,
+  addCycleBoundary,
+  moveCycleBoundary,
+  removeCycleBoundary,
+  addControlSwitch,
+  moveControlSwitch,
+  setControlSwitchTrack,
+  removeControlSwitch,
+  addExternalEventMarker,
+  moveExternalEventMarker,
+  updateExternalEventMarker,
+  removeExternalEventMarker,
+  setSimulationRangeBoundary,
+  clearSimulationRangeBoundary,
 } from './timelineDocumentCommands';
-import { isTextEditingTarget, useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
+import {
+  isKeyboardShortcutIsolationTarget,
+  useKeyboardShortcutScope,
+} from '../keyboard/keyboardShortcutRouter';
 import { basicAttackSegmentLabel } from './timelineSkillLabels';
+import {
+  MAX_PROJECT_SCENARIOS,
+  addProjectScenario,
+  deleteActiveScenario,
+  duplicateActiveScenario,
+  renameActiveScenario,
+  scenariosDependingOn,
+  switchProjectScenario,
+} from './scenarioProjectCommands';
 import { useTimelineMarqueeGesture } from './useTimelineMarqueeGesture';
 import { useTimelineViewportPan } from './useTimelineViewportPan';
 import { handleTimelineEditorShortcut } from './timelineKeyboardShortcuts';
@@ -160,12 +221,21 @@ import {
 } from './timelineSnap';
 import { findAdjacentOccupiedTrack } from './timelineTrackSelection';
 import { resolveTimelineCastMoveFrame } from './timelineCastMoveGeometry';
-import { normalizeTimelineZoomPercent, timelinePxPerFrame } from './timelineZoom';
 import {
+  resolveTimelineCastAlignmentFrame,
+  type TimelineCastAlignmentMode,
+} from './timelineCastAlignment';
+import { normalizeTimelineZoomPercent, timelinePxPerFrame } from './timelineZoom';
+import type { TimelineOperationMarkerInput } from './timelineOperationMarkers';
+import { projectPerfectComboCastIds } from './timelinePerfectComboEvidence';
+import {
+  canCreateSkillCastConnection,
   createSkillCastConnection,
   createDamageHitConnection,
   removeTimelineConnection,
+  updateTimelineConnection,
   type TimelineConnectionPort,
+  type UpdateTimelineConnectionInput,
 } from './timelineConnections';
 import {
   shouldDisplayTimelineHitMarker,
@@ -178,6 +248,21 @@ import {
   type TimelineHitEffectLabel,
 } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
+import NextDamageAnalysisDialog from './components/NextDamageAnalysisDialog.vue';
+import NextBattleLogPanel from './components/NextBattleLogPanel.vue';
+import TimelineShortcutHelpDialog from './components/TimelineShortcutHelpDialog.vue';
+import TimelineMarkerContextMenu from './components/TimelineMarkerContextMenu.vue';
+import { projectTimelineDamageAnalysis } from './timelineDamageAnalysis';
+import {
+  NEXT_TIMELINE_VIEW_LAYER_IDS,
+  normalizeNextTimelineViewLayers,
+  toggleNextTimelineViewLayer,
+  type NextTimelineViewLayerId,
+} from './timelineViewLayers';
+import {
+  normalizeTimelineOperatorEffectsVisibility,
+  toggleTimelineOperatorEffectsVisibility,
+} from './timelineOperatorEffectsVisibility';
 import {
   ABILITY_ENTITY_SAMPLE_CAST_ID,
   ABILITY_ENTITY_SAMPLE_TRACK_INDEX,
@@ -185,6 +270,7 @@ import {
 } from './timelineSampleScenario';
 
 const { t, locale } = useI18n({ useScope: 'global' });
+const { appearance, setAppearance } = useAppearance();
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
 const TIMELINE_RULER_HEIGHT = 76;
 /** 拖动投影以约 30Hz 更新；技能块本身仍逐 pointermove 跟手。 */
@@ -192,11 +278,96 @@ const LIVE_SIMULATION_RATE_HZ = 30;
 const LIVE_SIMULATION_INTERVAL_MS = 1000 / LIVE_SIMULATION_RATE_HZ;
 const timelineZoomPercent = ref(100);
 const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
-const showCursorGuide = ref(true);
+const showCursorGuide = ref(false);
+const boxSelectEnabled = ref(false);
 const connectionToolEnabled = ref(false);
-const selectedTrack = ref<TrackIndex>(ABILITY_ENTITY_SAMPLE_TRACK_INDEX);
-const selectedCastId = ref<string | null>(ABILITY_ENTITY_SAMPLE_CAST_ID);
+const BUFF_LAYOUT_STORAGE_KEY = 'endaxis-next:timeline-buff-layout:v1';
+const TRACK_HEIGHTS_STORAGE_KEY = 'endaxis-next:timeline-compact-track-heights:v1';
+const buffLayoutMode = ref<'compact' | 'loose'>(
+  window.localStorage.getItem(BUFF_LAYOUT_STORAGE_KEY) === 'loose' ? 'loose' : 'compact',
+);
+watch(buffLayoutMode, mode => window.localStorage.setItem(BUFF_LAYOUT_STORAGE_KEY, mode));
+function loadCompactTrackHeights(): readonly number[] {
+  try {
+    const parsed: unknown = JSON.parse(
+      window.localStorage.getItem(TRACK_HEIGHTS_STORAGE_KEY) ?? '[]',
+    );
+    if (!Array.isArray(parsed) || parsed.length !== 4) throw new Error('invalid track heights');
+    return parsed.map(value =>
+      typeof value === 'number' && Number.isFinite(value)
+        ? Math.max(TIMELINE_TRACK_MIN_HEIGHT, Math.round(value))
+        : TIMELINE_TRACK_BASE_HEIGHT,
+    );
+  } catch {
+    return Array.from({ length: 4 }, () => TIMELINE_TRACK_BASE_HEIGHT);
+  }
+}
+const compactTrackHeights = ref(loadCompactTrackHeights());
+watch(compactTrackHeights, heights =>
+  window.localStorage.setItem(TRACK_HEIGHTS_STORAGE_KEY, JSON.stringify(heights)),
+);
+const VIEW_LAYERS_STORAGE_KEY = 'endaxis-next:timeline-view-layers:v1';
+function loadTimelineViewLayers() {
+  try {
+    const raw = window.localStorage.getItem(VIEW_LAYERS_STORAGE_KEY);
+    return normalizeNextTimelineViewLayers(raw === null ? null : JSON.parse(raw));
+  } catch {
+    return normalizeNextTimelineViewLayers(null);
+  }
+}
+const timelineViewLayers = ref(loadTimelineViewLayers());
+watch(
+  timelineViewLayers,
+  layers => window.localStorage.setItem(VIEW_LAYERS_STORAGE_KEY, JSON.stringify(layers)),
+  { deep: true },
+);
+function toggleTimelineViewLayer(layerId: NextTimelineViewLayerId): void {
+  timelineViewLayers.value = toggleNextTimelineViewLayer(timelineViewLayers.value, layerId);
+}
+const OPERATOR_EFFECTS_STORAGE_KEY = 'endaxis-next:timeline-operator-effects:v1';
+function loadTimelineOperatorEffectsVisibility() {
+  try {
+    const raw = window.localStorage.getItem(OPERATOR_EFFECTS_STORAGE_KEY);
+    return normalizeTimelineOperatorEffectsVisibility(raw === null ? null : JSON.parse(raw));
+  } catch {
+    return normalizeTimelineOperatorEffectsVisibility(null);
+  }
+}
+const operatorEffectsVisibility = ref(loadTimelineOperatorEffectsVisibility());
+watch(operatorEffectsVisibility, visibility =>
+  window.localStorage.setItem(OPERATOR_EFFECTS_STORAGE_KEY, JSON.stringify(visibility)),
+);
+function isOperatorEffectsVisible(trackIndex: TrackIndex): boolean {
+  return operatorEffectsVisibility.value[trackIndex] !== false;
+}
+function toggleOperatorEffectsVisibility(trackIndex: number): void {
+  if (!Number.isInteger(trackIndex) || trackIndex < 0 || trackIndex > 3) return;
+  operatorEffectsVisibility.value = toggleTimelineOperatorEffectsVisibility(
+    operatorEffectsVisibility.value,
+    trackIndex as TrackIndex,
+  );
+}
+async function selectTimelineLocale(next: 'zh-CN' | 'en' | 'ru'): Promise<void> {
+  if (locale.value === next) return;
+  await setLocale(next, ALL_GAME_TEXT_FAMILIES);
+}
+const timelineSelection = shallowRef(
+  createTimelineEditorSelection(ABILITY_ENTITY_SAMPLE_TRACK_INDEX, {
+    selectedIds: new Set([ABILITY_ENTITY_SAMPLE_CAST_ID]),
+    primaryId: ABILITY_ENTITY_SAMPLE_CAST_ID,
+  }),
+);
+const selectedTrack = computed<TrackIndex>({
+  get: () => timelineSelection.value.activeTrackIndex,
+  set: trackIndex => {
+    timelineSelection.value = selectTimelineTrackIdentity(timelineSelection.value, trackIndex);
+  },
+});
+const actionSelection = computed(() => timelineSelection.value.actions);
+const selectedCastId = computed(() => actionSelection.value.primaryId);
 const showSkillDefinitionEditor = ref(false);
+const showDamageAnalysis = ref(false);
+const showShortcutHelp = ref(false);
 const showOperatorDefinitionWorkspace = ref(false);
 const showWeaponDefinitionWorkspace = ref(false);
 const gearDefinitionWorkspaceSlot = ref<TrackGearSlot | null>(null);
@@ -208,7 +379,6 @@ const projectDefinitionLibrary = shallowRef<ProjectDefinitionLibraryDocument>({
   gearSets: {},
 });
 const operatorDefinitionRevision = ref(0);
-const actionSelection = shallowRef<TimelineActionSelection>(createEmptyTimelineActionSelection());
 const hoveredCastId = ref<string | null>(null);
 const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const projectFileInput = ref<HTMLInputElement | null>(null);
@@ -217,23 +387,55 @@ const cursorGuide = ref<{ leftPx: number; sampleFrame: number } | null>(null);
 const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
 const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
+const timelineHorizontalScrollbar = ref<HTMLElement | null>(null);
 const timelineScrollLeft = ref(0);
+const timelineViewportWidth = ref(1200);
+const timelineVerticalScrollbarWidth = ref(0);
+let timelineResizeObserver: ResizeObserver | null = null;
 const connectionDrag = ref<{
   skillCastId: string;
   port: TimelineConnectionPort;
   pointer: { x: number; y: number };
 } | null>(null);
 type TimelineDragPayload =
-  | { kind: 'librarySkill'; skillGroupKey: string; variantKey?: string; skillKey?: string }
+  | {
+      kind: 'librarySkill';
+      skillGroupKey: string;
+      variantKey?: string;
+      skillKey?: string;
+      dragOffsetX: number;
+    }
   | { kind: 'trackOrder'; trackIndex: TrackIndex };
 
 const dragPayload = ref<TimelineDragPayload | null>(null);
+const trackOrderDropTarget = ref<TrackIndex | null>(null);
+interface TimelineLibraryPlacement {
+  readonly skillGroupKey: string;
+  readonly skillType: SkillType;
+  readonly variantKey?: string;
+  readonly skillKey?: string;
+}
+const libraryPlacement = ref<TimelineLibraryPlacement | null>(null);
+const placementPointer = ref<{ x: number; y: number } | null>(null);
+const alignmentGuide = ref<{
+  readonly targetCastId: string;
+  readonly left: number;
+  readonly top: number;
+  readonly height: number;
+  readonly mode: TimelineCastAlignmentMode;
+  readonly label: string;
+  readonly color: string;
+} | null>(null);
 interface TimelineCastMoveGesture {
   readonly pointerId: number;
   readonly trackIndex: TrackIndex;
   readonly skillCastId: string;
   readonly skillCastIds: readonly string[];
   readonly pointerOffsetActualFrames: number;
+  readonly initialPointerX: number;
+  readonly initialPointerY: number;
+  latestPointerX: number;
+  latestPointerY: number;
   /** 按下时已发布的实际开始帧，只用于平移该技能自己的时间膨胀预览。 */
   readonly anchorActualFrame: number;
   readonly baseScenario: ScenarioDocument;
@@ -241,10 +443,12 @@ interface TimelineCastMoveGesture {
   previewActualFrame: number;
   /** 松手后保留预览，直到对应场景的新模拟快照发布。 */
   readonly committed: boolean;
+  dragStarted: boolean;
   moved: boolean;
 }
 const castMoveGesture = shallowRef<TimelineCastMoveGesture | null>(null);
 let stopCastMoveGesture: (() => void) | null = null;
+let castMoveAutoScrollFrame: number | null = null;
 let lastCastMoveSimulationAt = 0;
 let suppressedCastClickId: string | null = null;
 const contextMenuTarget = ref<{
@@ -253,6 +457,36 @@ const contextMenuTarget = ref<{
   trackIndex: TrackIndex;
   skillCastId: string;
 } | null>(null);
+const selectedMarker = computed<{ kind: TimelineMarkerKind; id: string } | null>({
+  get: () => {
+    const primary = timelineSelection.value.primary;
+    return primary.kind === 'marker' ? { kind: primary.markerKind, id: primary.id } : null;
+  },
+  set: marker => {
+    timelineSelection.value =
+      marker === null
+        ? clearTimelineEditorSelection(timelineSelection.value)
+        : selectTimelineMarkerIdentity(timelineSelection.value, marker.kind, marker.id);
+  },
+});
+const markerContextTarget = ref<{
+  x: number;
+  y: number;
+  frame: number;
+  trackIndex: TrackIndex;
+  existing?: { kind: TimelineMarkerKind; id: string; label: string };
+} | null>(null);
+const markerMoveGesture = shallowRef<{
+  pointerId: number;
+  initialPointerX: number;
+  initialPointerY: number;
+  dragStarted: boolean;
+  kind: TimelineMarkerKind;
+  id: string;
+  initialFrame: number;
+  previewFrame: number;
+} | null>(null);
+let stopMarkerMove: (() => void) | null = null;
 
 const initialScenario = createTimelineSampleScenario();
 const initialProject = createEmptyProject({
@@ -264,30 +498,49 @@ initialProject.activeScenarioId = initialScenario.id;
 initialProject.scenarios = [initialScenario];
 const projectSession = new ProjectEditorSession(initialProject);
 const scenarioSession = new ActiveScenarioEditorSession(projectSession);
+const projectRevision = ref(0);
+const projectScenarios = computed(() => {
+  projectRevision.value;
+  return projectSession.snapshot.project.scenarios;
+});
+const activeProjectScenarioId = computed(() => {
+  projectRevision.value;
+  return projectSession.snapshot.project.activeScenarioId;
+});
+const damageAnalysis = computed(() =>
+  projectTimelineDamageAnalysis(
+    simulationRun.value?.receiptEntries ?? [],
+    scenario.value,
+    trackIndex => {
+      const track = viewModel.value.tracks[trackIndex];
+      return track === undefined ? `Operator ${trackIndex + 1}` : operatorName(track.operatorSlug);
+    },
+    damageElementLabel,
+  ),
+);
 const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
 const savedProjectSnapshot = shallowRef(initialProject);
-const pendingWeaponMigration = shallowRef<{
-  project: EndaxisProjectDocument;
-  review: WeaponMigrationReview;
-  editingProject: EndaxisProjectDocument;
-} | null>(null);
-const weaponMigrationBusy = ref(false);
-const weaponMigrationError = ref('');
-const migrationBackups = shallowRef<{
-  records: readonly StoredWeaponMigrationBackup[];
-  errors: readonly string[];
-} | null>(null);
 const projectDirty = ref(false);
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
+const timelinePrepPreviewFrames = ref<number | null>(null);
+const displayedTimelinePrepFrames = computed(
+  () => timelinePrepPreviewFrames.value ?? scenario.value.battle.prepFrames,
+);
+let stopTimelinePrepResize: (() => void) | null = null;
 const canUndo = ref(scenarioSession.canUndo);
 const canRedo = ref(scenarioSession.canRedo);
 const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
   scenario.value = snapshot.scenario;
   canUndo.value = scenarioSession.canUndo;
   canRedo.value = scenarioSession.canRedo;
-  applyActionSelection(reconcileTimelineActionSelection(actionSelection.value, snapshot.scenario));
+  if (timelineSelection.value.primary.kind === 'actions') {
+    applyActionSelection(
+      reconcileTimelineActionSelection(actionSelection.value, snapshot.scenario),
+    );
+  }
 });
 const unsubscribeProjectSession = projectSession.subscribe(snapshot => {
+  projectRevision.value = snapshot.revision;
   projectDirty.value = snapshot.project !== savedProjectSnapshot.value;
   const library = getProjectDefinitionLibrary(snapshot.project);
   if (library === projectDefinitionLibrary.value) return;
@@ -298,8 +551,10 @@ onScopeDispose(() => {
   unsubscribeScenarioSession();
   unsubscribeProjectSession();
   scenarioSession.dispose();
+  finishCompactTrackResize();
   cancelConnectionDrag();
   cancelCastMove();
+  stopMarkerMove?.();
   window.removeEventListener('beforeunload', protectUnsavedProject);
 });
 
@@ -339,13 +594,7 @@ function projectOpenFailureMessage(result: Exclude<OpenProjectResult, { ok: true
       ? '项目定义引用校验失败'
       : `项目定义引用校验失败：${first.path} ${first.message}`;
   }
-  if (result.kind === 'game-data-revision-mismatch') {
-    return `游戏数据版本不匹配：项目 ${result.projectRevision}，当前 ${result.repositoryRevision}`;
-  }
-  if (result.kind === 'game-data-migration-available') {
-    return '项目需要先执行明确的游戏数据迁移，当前编辑器不会自动改写';
-  }
-  return '项目迁移器声明与项目版本不一致';
+  return '无法打开项目';
 }
 
 async function requestOpenProject(): Promise<void> {
@@ -374,24 +623,10 @@ async function handleProjectFileChange(event: Event): Promise<void> {
     if (projectSession.snapshot.project !== editingProject)
       throw new Error('读取文件期间当前项目已变化，请重新加载');
     if (!result.ok) {
-      if (
-        result.kind === 'game-data-revision-mismatch' &&
-        canMigrateWeaponRevision(result.projectRevision)
-      ) {
-        const prepared = prepareDefaultWeaponMigration(result.project);
-        if (!prepared.ok) throw new Error(prepared.errors.join('\n'));
-        weaponMigrationError.value = '';
-        pendingWeaponMigration.value = {
-          project: result.project,
-          review: prepared.review,
-          editingProject,
-        };
-        return;
-      }
       ElMessage.error(projectOpenFailureMessage(result));
       return;
     }
-    await acceptOpenedProject(result.project, false);
+    await acceptOpenedProject(result.project, result.gameDataRevisionUpdated);
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '打开项目失败');
   }
@@ -399,7 +634,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
 
 async function acceptOpenedProject(
   project: EndaxisProjectDocument,
-  migrated: boolean,
+  gameDataRevisionUpdated: boolean,
 ): Promise<void> {
   showSkillDefinitionEditor.value = false;
   showOperatorDefinitionWorkspace.value = false;
@@ -407,70 +642,19 @@ async function acceptOpenedProject(
   gearDefinitionWorkspaceSlot.value = null;
   gearSetDefinitionWorkspaceId.value = null;
   projectSession.replaceProject(project);
-  if (!migrated) savedProjectSnapshot.value = project;
-  projectDirty.value = migrated;
+  if (!gameDataRevisionUpdated) savedProjectSnapshot.value = project;
+  projectDirty.value = gameDataRevisionUpdated;
   selectedTrack.value = 0;
-  selectedCastId.value = null;
-  actionSelection.value = createEmptyTimelineActionSelection();
+  clearTimelineSelection();
   timelineClipboard.value = null;
   simulationService.clearCache();
   await nextTick();
   void simulateNow();
   ElMessage.success(
-    migrated
-      ? '已备份并迁移打开，请导出新版项目。原文件未修改。'
+    gameDataRevisionUpdated
+      ? '已按最新游戏数据打开，请重新导出项目。原文件未修改。'
       : `已打开项目：${scenarioSession.snapshot.scenario.name}`,
   );
-}
-
-async function confirmWeaponMigration(
-  choices: readonly WeaponInstanceTraitLevelSelection[],
-): Promise<void> {
-  const pending = pendingWeaponMigration.value;
-  if (!pending || weaponMigrationBusy.value) return;
-  weaponMigrationBusy.value = true;
-  weaponMigrationError.value = '';
-  try {
-    const result = await pending.review.confirm({
-      confirmed: true,
-      choices,
-      getCurrentProject: () =>
-        projectSession.snapshot.project === pending.editingProject
-          ? pending.project
-          : projectSession.snapshot.project,
-      persistBackup: backup => createWeaponMigrationBackupStorage(window.localStorage).save(backup),
-    });
-    if (!result.ok) {
-      weaponMigrationError.value = result.errors.join('\n');
-      return;
-    }
-    pendingWeaponMigration.value = null;
-    await acceptOpenedProject(result.value, true);
-  } catch (error) {
-    weaponMigrationError.value = error instanceof Error ? error.message : '迁移失败，原项目未替换';
-  } finally {
-    weaponMigrationBusy.value = false;
-  }
-}
-
-function showMigrationBackups(): void {
-  try {
-    migrationBackups.value = createWeaponMigrationBackupStorage(window.localStorage).list();
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '无法读取迁移备份');
-  }
-}
-
-function downloadMigrationBackup(record: StoredWeaponMigrationBackup, original: boolean): void {
-  try {
-    const content = original ? record.backup.projectJson : JSON.stringify(record, null, 2);
-    downloadProjectJson(
-      content,
-      `endaxis-${original ? 'original-project' : 'migration-backup'}-${record.createdAt.replace(/[^0-9]/g, '')}.json`,
-    );
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '备份导出失败，浏览器内备份仍保留');
-  }
 }
 
 function exportProject(): void {
@@ -579,7 +763,63 @@ const viewModel = computed(() => {
   void operatorDefinitionRevision.value;
   return projectTimelineEditor(scenario.value, editorGameDataRepository);
 });
+const initialUltimateEnergyPresetMode = computed(() =>
+  resolveInitialUltimateEnergyPresetMode(scenario.value),
+);
+const maximumUltimateEnergyByTrack = computed(() =>
+  viewModel.value.tracks.map(track => track.maxUltimateEnergy),
+);
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
+const placementLibraryEntry = computed(() => {
+  const placement = libraryPlacement.value;
+  if (placement === null) return null;
+  return (
+    selectedTrackModel.value.skillLibrary.find(
+      entry =>
+        entry.skillGroupKey === placement.skillGroupKey &&
+        entry.variantKey === placement.variantKey,
+    ) ?? null
+  );
+});
+const placementLabel = computed(() => {
+  const entry = placementLibraryEntry.value;
+  const placement = libraryPlacement.value;
+  if (entry === null || placement === null) return '';
+  if (placement.skillKey !== undefined) {
+    return (
+      basicAttackSegmentLabel(entry, placement.skillKey, t('skillType.heavyAttack')) ??
+      skillName(placement.skillKey, selectedTrackModel.value.operatorSlug)
+    );
+  }
+  return skillLibraryEntryName(entry);
+});
+watch(selectedTrack, () => {
+  const placement = libraryPlacement.value;
+  if (placement === null) return;
+  const replacement = selectedTrackModel.value.skillLibrary.find(
+    entry => entry.skillType === placement.skillType && entry.variantKey === undefined,
+  );
+  if (replacement === undefined) {
+    libraryPlacement.value = null;
+    placementPointer.value = null;
+    return;
+  }
+  libraryPlacement.value = {
+    skillGroupKey: replacement.skillGroupKey,
+    skillType: replacement.skillType,
+    ...(replacement.variantKey === undefined ? {} : { variantKey: replacement.variantKey }),
+  };
+});
+const battleLogCastOwners = computed(() =>
+  viewModel.value.tracks.flatMap(track =>
+    track.skillCasts.map(cast => ({
+      castId: cast.id,
+      label: timelineCastLabel(cast, track),
+      operatorLabel: operatorName(track.operatorSlug),
+      sourceId: track.operatorInstanceId,
+    })),
+  ),
+);
 const simulationService = new ScenarioSimulationService({
   index: editorGameDataRepository,
   repositoryRevision: nextGameDataRepository.revision,
@@ -661,6 +901,11 @@ const gearSetTextSlugs = computed<Readonly<Record<string, string>>>(() =>
       template.id,
       template.origin?.templateId ?? template.id,
     ]),
+  ),
+);
+const activeGearSetLabelsByTrack = computed(() =>
+  loadoutModels.value.map(loadout =>
+    projectActiveGearSetLabels(loadout, gearSetNames.value).join(' / '),
   ),
 );
 const selectedGearSetCustomDefinition = computed(() => {
@@ -1020,6 +1265,93 @@ const selectedCastModel = computed(() => {
   }
   return null;
 });
+const selectedExternalEventMarker = computed(() => {
+  if (selectedMarker.value?.kind !== 'externalEvent') return null;
+  return (
+    (scenario.value.battle.externalEventMarkers ?? []).find(
+      marker => marker.id === selectedMarker.value?.id,
+    ) ?? null
+  );
+});
+const selectedExternalEventTargetLabel = computed(() => {
+  const marker = selectedExternalEventMarker.value;
+  if (marker === null) return '';
+  if (marker.target.scope === 'team') return t('nextTimeline.markerInspector.teamTarget');
+  const track = scenario.value.tracks[marker.target.trackIndex];
+  return track === null || track.operator === null
+    ? t('nextTimeline.emptyTrack')
+    : operatorName(track.operator.operatorSlug);
+});
+const selectedDocumentMarker = computed(() => {
+  const selection = selectedMarker.value;
+  if (selection === null || selection.kind === 'externalEvent') return null;
+  if (selection.kind === 'cycleBoundary') {
+    const marker = scenario.value.battle.cycleBoundaries.find(item => item.id === selection.id);
+    return marker === undefined ? null : { ...marker, kind: selection.kind };
+  }
+  if (selection.kind === 'controlSwitch') {
+    const marker = scenario.value.battle.controlSwitches.find(item => item.id === selection.id);
+    return marker === undefined ? null : { ...marker, kind: selection.kind };
+  }
+  const frame =
+    selection.kind === 'simulationStart'
+      ? scenario.value.battle.simulationRange?.startFrame
+      : scenario.value.battle.simulationRange?.endFrame;
+  return frame === undefined ? null : { id: selection.id, kind: selection.kind, frame };
+});
+const occupiedTrackOptions = computed(() =>
+  scenario.value.tracks.flatMap((track, index) =>
+    track === null || track.operator === null
+      ? []
+      : [
+          {
+            trackIndex: index as TrackIndex,
+            label: t('nextTimeline.documentMarkerInspector.trackOption', {
+              index: index + 1,
+              name: operatorName(track.operator.operatorSlug),
+            }),
+          },
+        ],
+  ),
+);
+function connectionPort(value: string | undefined, fallback: TimelineConnectionPort) {
+  return value === 'top' || value === 'right' || value === 'bottom' || value === 'left'
+    ? value
+    : fallback;
+}
+
+function timelineCastLabelById(skillCastId: string): string {
+  for (const track of viewModel.value.tracks) {
+    const cast = track.skillCasts.find(candidate => candidate.id === skillCastId);
+    if (cast !== undefined) return timelineCastLabel(cast, track);
+  }
+  return skillCastId;
+}
+
+const selectedCastConnections = computed(() => {
+  const selected = selectedCastModel.value;
+  if (selected === null) return [];
+  return scenario.value.connections
+    .filter(
+      connection =>
+        connection.from.skillCastId === selected.cast.id ||
+        connection.to.skillCastId === selected.cast.id,
+    )
+    .map(connection => {
+      const outgoing = connection.from.skillCastId === selected.cast.id;
+      const other = outgoing ? connection.to : connection.from;
+      return {
+        id: connection.id,
+        outgoing,
+        otherLabel: timelineCastLabelById(other.skillCastId),
+        targetKind: connection.to.kind,
+        ...(connection.to.kind === 'damageHit' ? { targetStepKey: connection.to.stepKey } : {}),
+        fromPort: connectionPort(connection.from.port, 'right'),
+        toPort: connectionPort(connection.to.port, 'left'),
+        consumption: connection.consumption,
+      } as const;
+    });
+});
 const commonAbilityEntityDefinitions =
   nextGameDataRepository.getCommonAbilityEntityDefinitions?.() ?? {};
 const selectedCastAbilityEntityIds = computed(() => {
@@ -1035,6 +1367,17 @@ const selectedCastAbilityEntityIds = computed(() => {
     ...(operator?.abilityEntityDefinitions ?? {}),
   }).sort();
 });
+const selectedCastBuffIds = computed(() => {
+  const selected = selectedCastModel.value;
+  const common = editorGameDataRepository.getCommonBuffDefinitions?.() ?? {};
+  if (selected === null) return Object.keys(common).sort();
+  const track = scenario.value.tracks[selected.trackIndex];
+  const operator =
+    track?.operator === null || track?.operator === undefined
+      ? null
+      : editorGameDataRepository.getOperator(track.operator.operatorSlug);
+  return Object.keys({ ...common, ...(operator?.buffDefinitions ?? {}) }).sort();
+});
 const skillCastActualStartFrames = computed(() =>
   simulationRun.value === null
     ? new Map<string, number>()
@@ -1045,6 +1388,46 @@ const skillCastActualDurationFrames = computed(() =>
     ? new Map<string, number>()
     : projectSkillCastActualDurationFrames(simulationRun.value.receiptEntries),
 );
+const perfectComboCastIds = computed(() =>
+  simulationRun.value === null
+    ? new Set<string>()
+    : projectPerfectComboCastIds(simulationRun.value.receiptEntries),
+);
+const rulerOperations = computed<TimelineOperationMarkerInput[]>(() => {
+  const operations: TimelineOperationMarkerInput[] = [];
+  for (const track of viewModel.value.tracks) {
+    for (const cast of track.skillCasts) {
+      const kind =
+        cast.skillType === 'battleSkill'
+          ? 'skill'
+          : cast.skillType === 'comboSkill'
+            ? 'combo'
+            : cast.skillType === 'ultimate'
+              ? 'ultimate'
+              : null;
+      if (kind === null) continue;
+      operations.push({
+        id: `cast:${cast.id}`,
+        kind,
+        trackIndex: track.trackIndex,
+        frame: castActualStartFrame(cast.id, cast.startFrame),
+        ...(kind === 'combo' && perfectComboCastIds.value.has(cast.id) ? { perfect: true } : {}),
+        ...(kind === 'ultimate'
+          ? { durationFrames: castActualDurationFrame(cast.id, cast.durationFrames) }
+          : {}),
+      });
+    }
+  }
+  for (const marker of scenario.value.battle.controlSwitches) {
+    operations.push({
+      id: `switch:${marker.id}`,
+      kind: 'switch',
+      trackIndex: marker.trackIndex,
+      frame: displayedMarkerFrame('controlSwitch', marker.id, marker.frame),
+    });
+  }
+  return operations;
+});
 const timeDilationBands = computed(() => {
   if (simulationRun.value === null) return [];
   const bands = projectTimelineTimeDilationBands(
@@ -1068,17 +1451,66 @@ const timeDilationBands = computed(() => {
   );
 });
 const highlightedTimeDilationSourceIds = computed<ReadonlySet<string>>(() => {
-  const ids = new Set(actionSelection.value.selectedIds);
-  if (hoveredCastId.value !== null) ids.add(hoveredCastId.value);
+  const visibleCastIds = new Set(
+    viewModel.value.tracks.flatMap(track =>
+      isOperatorEffectsVisible(track.trackIndex) ? track.skillCasts.map(cast => cast.id) : [],
+    ),
+  );
+  const ids = new Set(
+    [...actionSelection.value.selectedIds].filter(castId => visibleCastIds.has(castId)),
+  );
+  if (hoveredCastId.value !== null && visibleCastIds.has(hoveredCastId.value)) {
+    ids.add(hoveredCastId.value);
+  }
   return ids;
 });
 const timelineWidth = computed(() =>
   timelineTotalWidth(
-    scenario.value.battle.prepFrames,
+    displayedTimelinePrepFrames.value,
     scenario.value.battle.durationFrames,
     pxPerFrame.value,
   ),
 );
+const timelineSurfaceStyle = computed<Record<string, string>>(() => ({
+  width: `${TIMELINE_TRACK_HEADER_WIDTH + timelineWidth.value}px`,
+  '--timeline-grid-step': `${PROJECT_FPS * pxPerFrame.value}px`,
+  '--timeline-grid-origin': `${
+    TIMELINE_TRACK_HEADER_WIDTH + displayedTimelinePrepFrames.value * pxPerFrame.value
+  }px`,
+}));
+
+function updateTimelineViewportMetrics(): void {
+  const viewport = timelineScroll.value;
+  if (viewport === null) return;
+  timelineScrollLeft.value = viewport.scrollLeft;
+  timelineViewportWidth.value = viewport.clientWidth;
+  timelineVerticalScrollbarWidth.value = Math.max(0, viewport.offsetWidth - viewport.clientWidth);
+  const scrollbar = timelineHorizontalScrollbar.value;
+  if (scrollbar !== null && Math.abs(scrollbar.scrollLeft - viewport.scrollLeft) > 0.5) {
+    scrollbar.scrollLeft = viewport.scrollLeft;
+  }
+}
+
+function updateTimelineHorizontalScroll(event: Event): void {
+  const viewport = timelineScroll.value;
+  const scrollbar = event.currentTarget as HTMLElement | null;
+  if (viewport === null || scrollbar === null) return;
+  if (Math.abs(viewport.scrollLeft - scrollbar.scrollLeft) > 0.5) {
+    viewport.scrollLeft = scrollbar.scrollLeft;
+  }
+}
+
+onMounted(() => {
+  updateTimelineViewportMetrics();
+  if (typeof ResizeObserver === 'undefined' || timelineScroll.value === null) return;
+  timelineResizeObserver = new ResizeObserver(updateTimelineViewportMetrics);
+  timelineResizeObserver.observe(timelineScroll.value);
+});
+
+onScopeDispose(() => {
+  timelineResizeObserver?.disconnect();
+  timelineResizeObserver = null;
+});
 
 function castTimeDilationSegments(
   castId: string,
@@ -1099,7 +1531,120 @@ function castTimeDilationSegments(
 
 function setCastHovered(castId: string, hovered: boolean): void {
   if (hovered) hoveredCastId.value = castId;
-  else if (hoveredCastId.value === castId) hoveredCastId.value = null;
+  else {
+    if (hoveredCastId.value === castId) hoveredCastId.value = null;
+    if (alignmentGuide.value?.targetCastId === castId) alignmentGuide.value = null;
+  }
+}
+
+function alignmentMode(event: PointerEvent, block: HTMLElement): TimelineCastAlignmentMode {
+  const leftHalf = event.clientX < block.getBoundingClientRect().left + block.offsetWidth / 2;
+  if (event.shiftKey) return leftHalf ? 'alignStart' : 'alignEnd';
+  return leftHalf ? 'snapBefore' : 'snapAfter';
+}
+
+function alignmentPresentation(mode: TimelineCastAlignmentMode): {
+  label: string;
+  result: string;
+  color: string;
+} {
+  if (mode === 'snapBefore') {
+    return {
+      label: t('timelineGrid.alignGuide.snapFront'),
+      result: t('timelineGrid.alignResult.snappedFront'),
+      color: '#00e5ff',
+    };
+  }
+  if (mode === 'snapAfter') {
+    return {
+      label: t('timelineGrid.alignGuide.snapBack'),
+      result: t('timelineGrid.alignResult.snappedBack'),
+      color: '#00e5ff',
+    };
+  }
+  if (mode === 'alignStart') {
+    return {
+      label: t('timelineGrid.alignGuide.alignLeft'),
+      result: t('timelineGrid.alignResult.alignedLeft'),
+      color: '#ff4fd8',
+    };
+  }
+  return {
+    label: t('timelineGrid.alignGuide.alignRight'),
+    result: t('timelineGrid.alignResult.alignedRight'),
+    color: '#ff4fd8',
+  };
+}
+
+function updateAlignmentGuide(event: PointerEvent, targetCastId: string): void {
+  const sourceCastId = actionSelection.value.primaryId;
+  const surface = timelineSurface.value;
+  const block = event.currentTarget as HTMLElement;
+  if (!event.altKey || sourceCastId === null || sourceCastId === targetCastId || surface === null) {
+    alignmentGuide.value = null;
+    return;
+  }
+  const mode = alignmentMode(event, block);
+  const presentation = alignmentPresentation(mode);
+  const blockRect = block.getBoundingClientRect();
+  const surfaceRect = surface.getBoundingClientRect();
+  const useLeftEdge = mode === 'snapBefore' || mode === 'alignStart';
+  alignmentGuide.value = {
+    targetCastId,
+    left: (useLeftEdge ? blockRect.left : blockRect.right) - surfaceRect.left,
+    top: blockRect.top - surfaceRect.top,
+    height: blockRect.height,
+    mode,
+    label: presentation.label,
+    color: presentation.color,
+  };
+}
+
+function alignSelectedCastToTarget(event: PointerEvent, targetCastId: string): boolean {
+  const sourceCastId = actionSelection.value.primaryId;
+  if (!event.altKey || sourceCastId === null || sourceCastId === targetCastId) return false;
+  event.preventDefault();
+  event.stopPropagation();
+  const block = event.currentTarget as HTMLElement;
+  const mode = alignmentMode(event, block);
+  let source:
+    | { trackIndex: TrackIndex; startFrame: number; durationFrames: number; locked: boolean }
+    | undefined;
+  let target: { startFrame: number; durationFrames: number } | undefined;
+  for (const track of viewModel.value.tracks) {
+    for (const cast of track.skillCasts) {
+      if (cast.id === sourceCastId) {
+        source = {
+          trackIndex: track.trackIndex,
+          startFrame: castActualStartFrame(cast.id, cast.startFrame),
+          durationFrames: castActualDurationFrame(cast.id, cast.durationFrames),
+          locked: cast.locked,
+        };
+      }
+      if (cast.id === targetCastId) {
+        target = {
+          startFrame: castActualStartFrame(cast.id, cast.startFrame),
+          durationFrames: castActualDurationFrame(cast.id, cast.durationFrames),
+        };
+      }
+    }
+  }
+  if (source === undefined || target === undefined || source.locked) return true;
+  const frame = resolveTimelineCastAlignmentFrame({
+    mode,
+    targetStartFrame: target.startFrame,
+    targetDurationFrames: target.durationFrames,
+    sourceDurationFrames: source.durationFrames,
+    snapFrames: snapFrames.value,
+    maximumFrame: scenario.value.battle.durationFrames,
+  });
+  const changed = commitScenario('alignSkillCast', current =>
+    moveSkillCast(current, source.trackIndex, sourceCastId, frame),
+  );
+  alignmentGuide.value = null;
+  if (changed) ElMessage.success(alignmentPresentation(mode).result);
+  else ElMessage.warning(t('timelineGrid.alignResult.unchanged'));
+  return true;
 }
 
 function castActualStartFrame(castId: string, placementFrame: number): number {
@@ -1183,6 +1728,72 @@ const buffTimelineSegments = computed(() => {
   return current === null ? [] : projectBuffTimelineViz(current.receiptEntries, current.frame);
 });
 
+const comboWindowSegments = computed(() => {
+  const current = simulationRun.value;
+  return current === null
+    ? []
+    : projectComboWindowTimelineViz(current.receiptEntries, current.frame);
+});
+
+const skillCooldownSegments = computed(() => {
+  const current = simulationRun.value;
+  return current === null
+    ? []
+    : projectSkillCooldownTimelineViz(current.receiptEntries, current.frame);
+});
+
+const skillEnhancementSegments = computed(() => {
+  const current = simulationRun.value;
+  if (current === null) return [];
+  return projectSkillEnhancementTimelineViz(
+    current.receiptEntries,
+    current.frame,
+    viewModel.value.tracks.flatMap(track =>
+      track.operatorInstanceId === null
+        ? []
+        : track.skillCasts.flatMap(cast =>
+            cast.enhancementStateBuffId === undefined
+              ? []
+              : [
+                  {
+                    castId: cast.id,
+                    targetId: track.operatorInstanceId!,
+                    buffId: cast.enhancementStateBuffId,
+                  },
+                ],
+          ),
+    ),
+  );
+});
+
+function cooldownBarsForCast(castId: string, castStartFrame: number) {
+  return skillCooldownSegments.value
+    .filter(segment => segment.castId === castId)
+    .map(segment => ({
+      offsetFrames: segment.startFrame - castStartFrame,
+      durationFrames: Math.max(0, segment.endFrame - segment.startFrame),
+      completed: segment.completed,
+    }))
+    .filter(segment => segment.durationFrames > 0);
+}
+
+function enhancementBarsForCast(castId: string, castStartFrame: number) {
+  return skillEnhancementSegments.value
+    .filter(segment => segment.castId === castId)
+    .map(segment => ({
+      offsetFrames: segment.startFrame - castStartFrame,
+      durationFrames: Math.max(0, segment.endFrame - segment.startFrame),
+      completed: segment.completed,
+    }))
+    .filter(segment => segment.durationFrames > 0);
+}
+
+function comboWindowSegmentsFor(operatorId: string | null) {
+  return operatorId === null
+    ? []
+    : comboWindowSegments.value.filter(segment => segment.operatorId === operatorId);
+}
+
 const positionedBuffsByTarget = computed(() => {
   const grouped = new Map<string, BuffTimelineSegment[]>();
   for (const segment of buffTimelineSegments.value) {
@@ -1192,13 +1803,96 @@ const positionedBuffsByTarget = computed(() => {
   }
   const positioned = new Map<string, PositionedBuffTimelineSegment[]>();
   for (const [targetId, segments] of grouped) {
-    positioned.set(targetId, [...layoutBuffTimelineSegments(segments)]);
+    positioned.set(targetId, [
+      ...layoutBuffTimelineSegments(segments.filter(segment => segment.placement === 'upper')),
+      ...layoutBuffTimelineSegments(segments.filter(segment => segment.placement === 'lower')),
+    ]);
   }
   return positioned;
 });
 
-function buffSegmentsForTarget(targetId: string | null): readonly PositionedBuffTimelineSegment[] {
-  return targetId === null ? [] : (positionedBuffsByTarget.value.get(targetId) ?? []);
+function buffSegmentsForTarget(
+  targetId: string | null,
+  placement?: BuffTimelineSegment['placement'],
+): readonly PositionedBuffTimelineSegment[] {
+  if (targetId === null) return [];
+  const segments = positionedBuffsByTarget.value.get(targetId) ?? [];
+  return placement === undefined
+    ? segments
+    : segments.filter(segment => segment.placement === placement);
+}
+
+function trackEffectLayout(trackIndex: TrackIndex, targetId: string | null) {
+  const laneCount = (placement: BuffTimelineSegment['placement']): number => {
+    if (targetId === null || !isOperatorEffectsVisible(trackIndex)) return 0;
+    return Math.max(
+      0,
+      ...buffSegmentsForTarget(targetId, placement).map(segment => segment.lane + 1),
+    );
+  };
+  return projectTimelineTrackEffectLayout({
+    mode: buffLayoutMode.value,
+    upperLaneCount: laneCount('upper'),
+    lowerLaneCount: laneCount('lower'),
+    compactHeight: compactTrackHeights.value[trackIndex],
+  });
+}
+
+interface CompactTrackResizeGesture {
+  readonly dividerIndex: TrackIndex;
+  readonly startY: number;
+  readonly initialHeights: readonly number[];
+}
+
+const compactTrackResizeGesture = ref<CompactTrackResizeGesture | null>(null);
+
+function finishCompactTrackResize(): void {
+  if (compactTrackResizeGesture.value === null) return;
+  compactTrackResizeGesture.value = null;
+  document.documentElement.classList.remove('is-next-track-resizing');
+  window.removeEventListener('pointermove', updateCompactTrackResize);
+  window.removeEventListener('pointerup', finishCompactTrackResize);
+  window.removeEventListener('pointercancel', finishCompactTrackResize);
+}
+
+function updateCompactTrackResize(event: PointerEvent): void {
+  const gesture = compactTrackResizeGesture.value;
+  if (gesture === null) return;
+  compactTrackHeights.value = resizeTimelineTrackPair(
+    gesture.initialHeights,
+    gesture.dividerIndex,
+    event.clientY - gesture.startY,
+  );
+}
+
+function beginCompactTrackResize(event: PointerEvent, dividerIndex: TrackIndex): void {
+  if (
+    buffLayoutMode.value !== 'compact' ||
+    event.button !== 0 ||
+    dividerIndex >= compactTrackHeights.value.length - 1
+  ) {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  finishCompactTrackResize();
+  compactTrackResizeGesture.value = {
+    dividerIndex,
+    startY: event.clientY,
+    initialHeights: compactTrackHeights.value,
+  };
+  document.documentElement.classList.add('is-next-track-resizing');
+  window.addEventListener('pointermove', updateCompactTrackResize);
+  window.addEventListener('pointerup', finishCompactTrackResize);
+  window.addEventListener('pointercancel', finishCompactTrackResize);
+}
+
+function resetCompactTrackPair(dividerIndex: TrackIndex): void {
+  if (dividerIndex >= compactTrackHeights.value.length - 1) return;
+  const next = [...compactTrackHeights.value];
+  next[dividerIndex] = TIMELINE_TRACK_BASE_HEIGHT;
+  next[dividerIndex + 1] = TIMELINE_TRACK_BASE_HEIGHT;
+  compactTrackHeights.value = next;
 }
 
 function damageElementLabel(element: string): string {
@@ -1224,6 +1918,26 @@ function gaugeColorFor(trackIndex: TrackIndex): string {
     ? '#00e5ff'
     : (GAUGE_ELEMENT_COLORS[element] ?? '#00e5ff');
 }
+
+const operatorEffectsOptions = computed(() =>
+  viewModel.value.tracks.flatMap(track =>
+    track.operatorInstanceId === null
+      ? []
+      : [
+          {
+            trackIndex: track.trackIndex,
+            name: operatorName(track.operatorSlug),
+            color: gaugeColorFor(track.trackIndex),
+            visible: isOperatorEffectsVisible(track.trackIndex),
+          },
+        ],
+  ),
+);
+const visibleEffectTrackIndices = computed(() =>
+  viewModel.value.tracks
+    .filter(track => isOperatorEffectsVisible(track.trackIndex))
+    .map(track => track.trackIndex),
+);
 
 function gaugeCurveFor(trackIndex: TrackIndex): OperatorUltimateEnergyCurve | null {
   const current = simulationRun.value;
@@ -1330,35 +2044,53 @@ function toggleHitDetailForceCritical(forced: boolean): void {
   );
   if (changed) void simulateNow();
 }
-const cursorGuideLines = computed(() => {
+function formatGuideFrame(frame: number): string {
+  const seconds = Math.floor(frame / PROJECT_FPS);
+  return `${seconds}s${frame % PROJECT_FPS}f`;
+}
+
+const cursorGuideMetrics = computed(() => {
   const frame = cursorGuide.value?.sampleFrame ?? 0;
-  const lines = [`TIME ${Number((frame / PROJECT_FPS).toFixed(2))}s`];
+  let sp: string | null = null;
+  let poise: string | null = null;
+  let enemyHealth: string | null = null;
+  const gauges: TimelineCursorGaugeRow[] = [];
   const current = simulationRun.value;
   if (current !== null) {
-    const sp = sampleStepCurve(current.resourceCurves.sp.points, frame);
-    lines.push(
-      `SP ${formatGuideNumber(sp.value)}/${formatGuideNumber(current.resourceCurves.sp.maxValue)}`,
-    );
+    const sampledSp = sampleStepCurve(current.resourceCurves.sp.points, frame);
+    sp = formatGuideNumber(sampledSp.value);
     const health = sampleStepCurve(current.enemyHealthCurve.points, frame);
-    lines.push(
-      `${t('nextTimeline.simGuide.enemyHp')} ${formatGuideNumber(health.value)}/${formatGuideNumber(current.enemyHealthCurve.maxValue)}`,
-    );
+    enemyHealth = `${formatGuideNumber(health.value)}/${formatGuideNumber(current.enemyHealthCurve.maxValue)}`;
     if (current.poiseCurve.maxValue > 0) {
-      const poise = sampleStepCurve(current.poiseCurve.points, frame);
-      lines.push(
-        `${t('nextTimeline.simGuide.poise')} ${formatGuideNumber(poise.value)}/${formatGuideNumber(current.poiseCurve.maxValue)}`,
-      );
+      const sampledPoise = sampleStepCurve(current.poiseCurve.points, frame);
+      poise = `${formatGuideNumber(sampledPoise.value)}/${formatGuideNumber(current.poiseCurve.maxValue)}`;
     }
     for (const curve of current.resourceCurves.ultimateEnergy) {
       const sampled = sampleStepCurve(curve.points, frame);
-      lines.push(
-        `${curve.operatorId} ${formatGuideNumber(sampled.value)}/${formatGuideNumber(curve.maxValue)}`,
+      const trackIndex = viewModel.value.tracks.findIndex(
+        track => track.operatorInstanceId === curve.operatorId,
       );
+      const track = trackIndex < 0 ? undefined : viewModel.value.tracks[trackIndex];
+      if (track === undefined) continue;
+      gauges.push({
+        id: curve.operatorId,
+        name: operatorName(track.operatorSlug),
+        current: formatGuideNumber(sampled.value),
+        max: formatGuideNumber(curve.maxValue),
+        color: gaugeColorFor(trackIndex as TrackIndex),
+        isFull: sampled.value !== null && sampled.value >= curve.maxValue,
+      });
     }
   }
-  return lines;
+  return { time: formatGuideFrame(frame), sp, poise, enemyHealth, gauges };
 });
-const cursorGuideText = computed(() => cursorGuideLines.value.join('\n'));
+
+const cursorGuideLabelAlign = computed<'left' | 'right'>(() => {
+  const guide = cursorGuide.value;
+  if (guide === null) return 'right';
+  const viewportX = TIMELINE_TRACK_HEADER_WIDTH + guide.leftPx - timelineScrollLeft.value;
+  return viewportX > timelineViewportWidth.value - 190 && viewportX > 190 ? 'left' : 'right';
+});
 
 function operatorName(slug: string | null): string {
   if (slug === null) return t('nextTimeline.emptyTrack');
@@ -1378,6 +2110,24 @@ function skillName(groupKey: string, slug: string | null): string {
   return getOperatorCombatSkillName(definition?.assetSlug ?? slug, groupKey, locale.value);
 }
 
+function skillLibraryEntryName(entry: TimelineSkillLibraryEntryViewModel): string {
+  const assetSlug = selectedTrackModel.value.operatorAssetSlug;
+  if (assetSlug === null) return entry.variantKey ?? entry.skillGroupKey;
+  const nameEntry =
+    entry.skillType === 'finisher' || entry.skillType === 'plungingAttack'
+      ? (selectedTrackModel.value.skillLibrary.find(
+          candidate => candidate.skillType === 'basicAttack' && candidate.variantKey === undefined,
+        ) ?? entry)
+      : entry;
+  return getOperatorCombatSkillName(
+    assetSlug,
+    nameEntry.skillGroupKey,
+    locale.value,
+    undefined,
+    nameEntry.variantKey,
+  );
+}
+
 function skillTypeLabel(skillType: string): string {
   const displayType =
     skillType === 'basicAttack'
@@ -1392,6 +2142,15 @@ function skillTypeLabel(skillType: string): string {
               ? 'dive'
               : skillType;
   return t(`skillType.${displayType}`);
+}
+
+function battleReceiptEventLabel(event: string): string {
+  const receiptKey = `battleLog.receiptTypes.${event}`;
+  const receiptTranslated = t(receiptKey);
+  if (receiptTranslated !== receiptKey) return receiptTranslated;
+  const key = `battleLog.types.${event}`;
+  const translated = t(key);
+  return translated === key ? event : translated;
 }
 
 function timelineCastLabel(
@@ -1450,12 +2209,52 @@ function skillDurationSeconds(entry: TimelineSkillLibraryEntryViewModel): number
 }
 
 function applyActionSelection(selection: TimelineActionSelection): void {
-  actionSelection.value = selection;
-  selectedCastId.value = selection.primaryId;
+  let activeTrackIndex = timelineSelection.value.activeTrackIndex;
+  const primaryId = selection.primaryId;
+  if (primaryId !== null) {
+    const ownerIndex = scenario.value.tracks.findIndex(track =>
+      track?.skillCasts.some(cast => cast.id === primaryId),
+    );
+    if (ownerIndex >= 0) activeTrackIndex = ownerIndex as TrackIndex;
+  }
+  timelineSelection.value = selectTimelineActionsIdentity(
+    timelineSelection.value,
+    selection,
+    activeTrackIndex,
+  );
 }
 
 function clearTimelineSelection(): void {
-  applyActionSelection(createEmptyTimelineActionSelection());
+  timelineSelection.value = clearTimelineEditorSelection(timelineSelection.value);
+}
+
+function isTrackIdentitySelected(trackIndex: TrackIndex): boolean {
+  const primary = timelineSelection.value.primary;
+  return primary.kind === 'track' && primary.trackIndex === trackIndex;
+}
+
+function locateBattleLogEntry(frame: number, castId: string | null): void {
+  const targetFrame = Math.max(0, Math.min(scenario.value.battle.durationFrames, frame));
+  cursorFrame.value = targetFrame;
+  if (castId !== null) {
+    for (const track of viewModel.value.tracks) {
+      if (!track.skillCasts.some(cast => cast.id === castId)) continue;
+      selectedTrack.value = track.trackIndex;
+      applyActionSelection(
+        selectTimelineAction(createEmptyTimelineActionSelection(), castId, false),
+      );
+      break;
+    }
+  }
+  void nextTick(() => {
+    const viewport = timelineScroll.value;
+    if (viewport === null) return;
+    const targetLeft =
+      TIMELINE_TRACK_HEADER_WIDTH +
+      frameToTimelinePx(targetFrame, scenario.value.battle.prepFrames, pxPerFrame.value) -
+      viewport.clientWidth / 2;
+    viewport.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
+  });
 }
 
 function pointerInTimelineSurface(event: PointerEvent): { x: number; y: number } | null {
@@ -1492,6 +2291,7 @@ function finishConnectionDrag(event: PointerEvent): void {
   const targetSkillCastId = target?.dataset.connectionActionId;
   const targetPortValue = target?.dataset.connectionPort;
   if (targetSkillCastId === undefined || targetPortValue === undefined) return;
+  if (targetSkillCastId === drag.skillCastId) return;
 
   if (targetPortValue.startsWith('hit:')) {
     const toStepKey = targetPortValue.slice('hit:'.length);
@@ -1536,15 +2336,41 @@ function beginConnectionDrag(
   window.addEventListener('pointercancel', cancelConnectionDrag);
 }
 
+function isConnectionTargetValid(targetSkillCastId: string): boolean {
+  const drag = connectionDrag.value;
+  return (
+    drag === null ||
+    canCreateSkillCastConnection(scenario.value, drag.skillCastId, targetSkillCastId)
+  );
+}
+
 function toggleConnectionTool(): boolean {
   connectionToolEnabled.value = !connectionToolEnabled.value;
   if (!connectionToolEnabled.value) cancelConnectionDrag();
   return true;
 }
 
+function toggleBuffLayout(): void {
+  buffLayoutMode.value = buffLayoutMode.value === 'compact' ? 'loose' : 'compact';
+}
+
 function deleteTimelineConnection(connectionId: string): void {
   commitScenario('removeTimelineConnection', current =>
     removeTimelineConnection(current, connectionId),
+  );
+}
+
+function beginSelectedCastConnection(): void {
+  if (selectedCastModel.value === null) return;
+  connectionToolEnabled.value = true;
+}
+
+function updateSelectedCastConnection(
+  connectionId: string,
+  patch: UpdateTimelineConnectionInput,
+): void {
+  commitScenario('updateTimelineConnection', current =>
+    updateTimelineConnection(current, connectionId, patch),
   );
 }
 
@@ -1563,7 +2389,10 @@ function skillSegments(entry: TimelineSkillLibraryEntryViewModel) {
     id: skill.skillKey,
     label:
       basicAttackSegmentLabel(entry, skill.skillKey, t('skillType.heavyAttack')) ?? `A${index + 1}`,
-    selected: false,
+    selected:
+      libraryPlacement.value?.skillGroupKey === entry.skillGroupKey &&
+      libraryPlacement.value?.variantKey === entry.variantKey &&
+      libraryPlacement.value?.skillKey === skill.skillKey,
     disabled: false,
   }));
 }
@@ -1589,7 +2418,14 @@ const { marqueeStyle, beginMarqueeGesture, consumeLaneClickSuppression } =
 const { isPanning, beginViewportPan } = useTimelineViewportPan({ viewport: timelineScroll });
 
 function handleTimelineLanePointerDown(event: PointerEvent): void {
-  if (!beginViewportPan(event)) beginMarqueeGesture(event);
+  const trackIndex = Number((event.currentTarget as HTMLElement).dataset.trackIndex) as TrackIndex;
+  if (placePendingLibrarySkill(event, trackIndex)) return;
+  if (beginViewportPan(event)) return;
+  if (boxSelectEnabled.value) {
+    beginMarqueeGesture(event, false);
+    return;
+  }
+  if (event.ctrlKey || event.metaKey) beginMarqueeGesture(event, true);
 }
 
 function handleTimelineLaneClick(event: MouseEvent): void {
@@ -1597,9 +2433,340 @@ function handleTimelineLaneClick(event: MouseEvent): void {
   selectTimelinePosition(event);
 }
 
+function pointerMarkerFrame(clientX: number): number {
+  const surface = timelineSurface.value;
+  if (surface === null) return cursorFrame.value;
+  const frame = timelinePointerActualFrame(
+    clientX - surface.getBoundingClientRect().left - TIMELINE_TRACK_HEADER_WIDTH,
+  );
+  return snapTimelineFrame(frame, snapFrames.value, scenario.value.battle.durationFrames);
+}
+
+function openMarkerContextMenu(event: MouseEvent, trackIndex: TrackIndex): void {
+  if (libraryPlacement.value !== null) {
+    event.preventDefault();
+    event.stopPropagation();
+    cancelLibraryPlacement();
+    return;
+  }
+  if ((event.target as HTMLElement).closest('.timeline-action-block, .timeline-marker')) return;
+  event.preventDefault();
+  markerContextTarget.value = {
+    x: event.clientX,
+    y: event.clientY,
+    frame: pointerMarkerFrame(event.clientX),
+    trackIndex,
+  };
+  contextMenuTarget.value = null;
+}
+
+function cancelPlacementFromContextMenu(event: MouseEvent): void {
+  if (libraryPlacement.value === null) return;
+  event.preventDefault();
+  event.stopPropagation();
+  cancelLibraryPlacement();
+}
+
+function openExistingMarkerContextMenu(
+  event: MouseEvent,
+  kind: TimelineMarkerKind,
+  id: string,
+  frame: number,
+  trackIndex: TrackIndex,
+  label: string,
+): void {
+  event.preventDefault();
+  event.stopPropagation();
+  markerContextTarget.value = {
+    x: event.clientX,
+    y: event.clientY,
+    frame,
+    trackIndex,
+    existing: { kind, id, label },
+  };
+}
+
+function addMarkerFromContext(
+  kind:
+    | 'cycle'
+    | 'simulationStart'
+    | 'simulationEnd'
+    | 'switch'
+    | 'operatorHit'
+    | 'operatorWeakness'
+    | 'teamHit',
+): void {
+  const target = markerContextTarget.value;
+  if (target === null || target.existing !== undefined) return;
+  if (kind === 'cycle') {
+    commitScenario('addCycleBoundary', current =>
+      addCycleBoundary(current, ids.allocate('cycleBoundary'), target.frame),
+    );
+  } else if (kind === 'simulationStart' || kind === 'simulationEnd') {
+    const boundary = kind === 'simulationStart' ? 'start' : 'end';
+    const hasBoundary = scenario.value.battle.simulationRange?.[`${boundary}Frame`] !== undefined;
+    commitScenario(
+      hasBoundary ? 'clearSimulationRangeBoundary' : 'setSimulationRangeBoundary',
+      current =>
+        hasBoundary
+          ? clearSimulationRangeBoundary(current, boundary)
+          : setSimulationRangeBoundary(current, boundary, target.frame),
+    );
+  } else if (kind === 'switch') {
+    commitScenario('addControlSwitch', current =>
+      addControlSwitch(current, ids.allocate('controlSwitch'), target.frame, target.trackIndex),
+    );
+  } else {
+    const event: ExternalCombatEventDocument =
+      kind === 'operatorWeakness'
+        ? { kind: 'operatorWeaknessTriggeredOutput' }
+        : { kind: 'operatorHit', tags: [], features: [] };
+    const eventTarget =
+      kind === 'teamHit'
+        ? ({ scope: 'team' } as const)
+        : ({ scope: 'operator', trackIndex: target.trackIndex } as const);
+    commitScenario('addExternalEventMarker', current =>
+      addExternalEventMarker(
+        current,
+        ids.allocate('externalEvent'),
+        target.frame,
+        eventTarget,
+        event,
+      ),
+    );
+  }
+  markerContextTarget.value = null;
+}
+
+function removeSelectedMarker(kind: TimelineMarkerKind, id: string): boolean {
+  const changed = commitScenario('removeTimelineMarker', current =>
+    kind === 'cycleBoundary'
+      ? removeCycleBoundary(current, id)
+      : kind === 'controlSwitch'
+        ? removeControlSwitch(current, id)
+        : kind === 'externalEvent'
+          ? removeExternalEventMarker(current, id)
+          : clearSimulationRangeBoundary(current, kind === 'simulationStart' ? 'start' : 'end'),
+  );
+  if (changed) selectedMarker.value = null;
+  return changed;
+}
+
+function removeMarkerFromContext(): void {
+  const existing = markerContextTarget.value?.existing;
+  if (existing === undefined) return;
+  removeSelectedMarker(existing.kind, existing.id);
+  markerContextTarget.value = null;
+}
+
+function setSelectedExternalEventFrame(frame: number): void {
+  const marker = selectedExternalEventMarker.value;
+  if (marker === null) return;
+  commitScenario('moveExternalEventMarker', current =>
+    moveExternalEventMarker(current, marker.id, frame),
+  );
+}
+
+function setSelectedExternalEvent(event: ExternalCombatEventDocument): void {
+  const marker = selectedExternalEventMarker.value;
+  if (marker === null) return;
+  commitScenario('updateExternalEventMarker', current =>
+    updateExternalEventMarker(current, marker.id, { event }),
+  );
+}
+
+function removeSelectedExternalEvent(): void {
+  const marker = selectedExternalEventMarker.value;
+  if (marker !== null) removeSelectedMarker('externalEvent', marker.id);
+}
+
+function setSelectedDocumentMarkerFrame(frame: number): void {
+  const marker = selectedDocumentMarker.value;
+  if (marker === null) return;
+  commitScenario('moveTimelineMarker', current =>
+    marker.kind === 'cycleBoundary'
+      ? moveCycleBoundary(current, marker.id, frame)
+      : marker.kind === 'controlSwitch'
+        ? moveControlSwitch(current, marker.id, frame)
+        : setSimulationRangeBoundary(
+            current,
+            marker.kind === 'simulationStart' ? 'start' : 'end',
+            frame,
+          ),
+  );
+}
+
+function setTimelinePrepFrames(frames: number): void {
+  commitScenario('setBattlePrepFrames', current => setBattlePrepFrames(current, frames));
+}
+
+function beginTimelinePrepResize(event: PointerEvent): void {
+  if (event.button !== 0) return;
+  const surface = timelineSurface.value;
+  if (surface === null) return;
+  event.preventDefault();
+  event.stopPropagation();
+  stopTimelinePrepResize?.();
+  const update = (moveEvent: PointerEvent) => {
+    const localPx =
+      moveEvent.clientX - surface.getBoundingClientRect().left - TIMELINE_TRACK_HEADER_WIDTH;
+    const frame = Math.max(
+      0,
+      Math.round(localPx / pxPerFrame.value / snapFrames.value) * snapFrames.value,
+    );
+    timelinePrepPreviewFrames.value = frame;
+  };
+  const teardownPrepResize = () => {
+    window.removeEventListener('pointermove', update);
+    window.removeEventListener('pointerup', finishPrepResize);
+    window.removeEventListener('pointercancel', cancelPrepResize);
+    stopTimelinePrepResize = null;
+  };
+  const finishPrepResize = () => {
+    const frames = timelinePrepPreviewFrames.value;
+    teardownPrepResize();
+    if (frames !== null && frames !== scenario.value.battle.prepFrames) {
+      setTimelinePrepFrames(frames);
+    }
+    timelinePrepPreviewFrames.value = null;
+  };
+  const cancelPrepResize = () => {
+    teardownPrepResize();
+    timelinePrepPreviewFrames.value = null;
+  };
+  stopTimelinePrepResize = cancelPrepResize;
+  timelinePrepPreviewFrames.value = scenario.value.battle.prepFrames;
+  window.addEventListener('pointermove', update);
+  window.addEventListener('pointerup', finishPrepResize);
+  window.addEventListener('pointercancel', cancelPrepResize);
+}
+
+onScopeDispose(() => stopTimelinePrepResize?.());
+
+function setTimelineDurationFrames(frames: number): void {
+  const boundedFrames = Math.max(PROJECT_FPS * 30, Math.min(PROJECT_FPS * 600, frames));
+  commitScenario('setBattleDurationFrames', current =>
+    setBattleDurationFrames(current, boundedFrames),
+  );
+}
+
+function setSelectedControlSwitchTrack(trackIndex: TrackIndex): void {
+  const marker = selectedDocumentMarker.value;
+  if (marker?.kind !== 'controlSwitch') return;
+  commitScenario('setControlSwitchTrack', current =>
+    setControlSwitchTrack(current, marker.id, trackIndex),
+  );
+}
+
+function removeSelectedDocumentMarker(): void {
+  const marker = selectedDocumentMarker.value;
+  if (marker !== null) removeSelectedMarker(marker.kind, marker.id);
+}
+
+function displayedMarkerFrame(kind: TimelineMarkerKind, id: string, frame: number): number {
+  const gesture = markerMoveGesture.value;
+  return gesture?.kind === kind && gesture.id === id ? gesture.previewFrame : frame;
+}
+
+function beginMarkerMove(
+  event: PointerEvent,
+  kind: TimelineMarkerKind,
+  id: string,
+  frame: number,
+  trackIndex: TrackIndex = selectedTrack.value,
+): void {
+  if (event.button !== 0) return;
+  event.preventDefault();
+  event.stopPropagation();
+  stopMarkerMove?.();
+  if (trackIndex !== selectedTrack.value) selectedTrack.value = trackIndex;
+  clearTimelineSelection();
+  selectedMarker.value = { kind, id };
+  markerMoveGesture.value = {
+    pointerId: event.pointerId,
+    initialPointerX: event.clientX,
+    initialPointerY: event.clientY,
+    dragStarted: false,
+    kind,
+    id,
+    initialFrame: frame,
+    previewFrame: frame,
+  };
+  const move = (moveEvent: PointerEvent) => {
+    const gesture = markerMoveGesture.value;
+    if (gesture === null || gesture.pointerId !== moveEvent.pointerId) return;
+    if (
+      !gesture.dragStarted &&
+      !passedTimelineDragThreshold(
+        gesture.initialPointerX,
+        gesture.initialPointerY,
+        moveEvent.clientX,
+        moveEvent.clientY,
+      )
+    ) {
+      return;
+    }
+    markerMoveGesture.value = {
+      ...gesture,
+      dragStarted: true,
+      previewFrame: pointerMarkerFrame(moveEvent.clientX),
+    };
+  };
+  const cleanup = () => {
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', finish);
+    window.removeEventListener('pointercancel', cancel);
+    window.removeEventListener('keydown', keydown, true);
+    stopMarkerMove = null;
+  };
+  const cancel = (cancelEvent?: PointerEvent) => {
+    const gesture = markerMoveGesture.value;
+    if (cancelEvent !== undefined && gesture?.pointerId !== cancelEvent.pointerId) return;
+    markerMoveGesture.value = null;
+    cleanup();
+  };
+  const keydown = (keyEvent: KeyboardEvent) => {
+    if (keyEvent.key !== 'Escape') return;
+    keyEvent.preventDefault();
+    cancel();
+  };
+  const finish = (finishEvent: PointerEvent) => {
+    const gesture = markerMoveGesture.value;
+    if (gesture === null || gesture.pointerId !== finishEvent.pointerId) return;
+    markerMoveGesture.value = null;
+    cleanup();
+    if (gesture.previewFrame === gesture.initialFrame) return;
+    commitScenario('moveTimelineMarker', current =>
+      gesture.kind === 'cycleBoundary'
+        ? moveCycleBoundary(current, gesture.id, gesture.previewFrame)
+        : gesture.kind === 'controlSwitch'
+          ? moveControlSwitch(current, gesture.id, gesture.previewFrame)
+          : gesture.kind === 'externalEvent'
+            ? moveExternalEventMarker(current, gesture.id, gesture.previewFrame)
+            : setSimulationRangeBoundary(
+                current,
+                gesture.kind === 'simulationStart' ? 'start' : 'end',
+                gesture.previewFrame,
+              ),
+    );
+  };
+  stopMarkerMove = cancel;
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', finish);
+  window.addEventListener('pointercancel', cancel);
+  window.addEventListener('keydown', keydown, true);
+}
+
 function updateCursorGuide(event: MouseEvent): void {
   const surface = timelineSurface.value;
-  if (surface === null || !showCursorGuide.value) {
+  if (surface === null) {
+    cursorGuide.value = null;
+    placementPointer.value = null;
+    return;
+  }
+  placementPointer.value =
+    libraryPlacement.value === null ? null : { x: event.clientX, y: event.clientY };
+  if (!showCursorGuide.value) {
     cursorGuide.value = null;
     return;
   }
@@ -1622,6 +2789,62 @@ function updateCursorGuide(event: MouseEvent): void {
 
 function hideCursorGuide(): void {
   cursorGuide.value = null;
+  placementPointer.value = null;
+}
+
+function beginLibraryPlacement(entry: TimelineSkillLibraryEntryViewModel, skillKey?: string): void {
+  libraryPlacement.value = {
+    skillGroupKey: entry.skillGroupKey,
+    skillType: entry.skillType,
+    ...(entry.variantKey === undefined ? {} : { variantKey: entry.variantKey }),
+    ...(skillKey === undefined ? {} : { skillKey }),
+  };
+  clearTimelineSelection();
+}
+
+function cancelLibraryPlacement(): boolean {
+  if (libraryPlacement.value === null) return false;
+  libraryPlacement.value = null;
+  placementPointer.value = null;
+  return true;
+}
+
+function libraryEntrySelected(entry: TimelineSkillLibraryEntryViewModel): boolean {
+  const drag = dragPayload.value;
+  if (
+    drag?.kind === 'librarySkill' &&
+    drag.skillGroupKey === entry.skillGroupKey &&
+    drag.variantKey === entry.variantKey
+  ) {
+    return true;
+  }
+  const placement = libraryPlacement.value;
+  return (
+    placement !== null &&
+    placement.skillGroupKey === entry.skillGroupKey &&
+    placement.variantKey === entry.variantKey
+  );
+}
+
+function placePendingLibrarySkill(event: PointerEvent, trackIndex: TrackIndex): boolean {
+  const placement = libraryPlacement.value;
+  if (placement === null || event.button !== 0) return false;
+  event.preventDefault();
+  event.stopPropagation();
+  if (trackIndex !== selectedTrack.value) {
+    ElMessage.warning(t('timeline.shortcut.placeActiveTrackOnly'));
+    return true;
+  }
+  const lane = event.currentTarget as HTMLElement;
+  const frame = snapTimelineFrame(
+    timelinePointerActualFrame(event.clientX - lane.getBoundingClientRect().left),
+    snapFrames.value,
+    scenario.value.battle.durationFrames,
+  );
+  cursorFrame.value = frame;
+  placeGroup(placement.skillGroupKey, placement.skillKey, frame, trackIndex, placement.variantKey);
+  cancelLibraryPlacement();
+  return true;
 }
 
 function placeGroup(
@@ -1661,6 +2884,32 @@ function placeGroup(
     cursorFrame.value = last.placement.startFrame + lastSkillDuration;
   }
 }
+
+const LEGACY_SKILL_HOTKEY_TYPES: Readonly<Record<1 | 2 | 3 | 4 | 5 | 6, SkillType>> = {
+  1: 'basicAttack',
+  2: 'battleSkill',
+  3: 'comboSkill',
+  4: 'ultimate',
+  5: 'plungingAttack',
+  6: 'finisher',
+};
+
+function selectTrackByShortcut(trackIndex: TrackIndex): boolean {
+  selectTrack(trackIndex);
+  return true;
+}
+
+function placeSkillByShortcut(slot: 1 | 2 | 3 | 4 | 5 | 6): boolean {
+  const skillType = LEGACY_SKILL_HOTKEY_TYPES[slot];
+  const entry =
+    selectedTrackModel.value.skillLibrary.find(
+      candidate => candidate.skillType === skillType && candidate.variantKey === undefined,
+    ) ?? selectedTrackModel.value.skillLibrary.find(candidate => candidate.skillType === skillType);
+  if (entry === undefined) return false;
+  beginLibraryPlacement(entry);
+  return true;
+}
+
 function resolvePlacedSkillDurationFrames(
   operator: ReturnType<typeof nextGameDataRepository.getOperator>,
   skillGroupKey: string,
@@ -1688,26 +2937,67 @@ function beginSkillDrag(
   skillKey?: string,
   variantKey?: string,
 ): void {
+  const entry = selectedTrackModel.value.skillLibrary.find(
+    candidate => candidate.skillGroupKey === skillGroupKey && candidate.variantKey === variantKey,
+  );
+  if (entry === undefined) return;
+  cancelLibraryPlacement();
+  const offsets = getDefaultLibraryDragOffsets();
   dragPayload.value = {
     kind: 'librarySkill',
     skillGroupKey,
     ...(variantKey === undefined ? {} : { variantKey }),
     ...(skillKey === undefined ? {} : { skillKey }),
+    dragOffsetX: offsets.dragOffsetX,
   };
+  const draggedSkill =
+    skillKey === undefined ? undefined : entry.skills.find(skill => skill.skillKey === skillKey);
+  const durationSeconds =
+    draggedSkill === undefined
+      ? skillDurationSeconds(entry)
+      : Math.round((draggedSkill.timelineBlockFrames / PROJECT_FPS) * 1000) / 1000;
+  const label =
+    skillKey === undefined
+      ? skillLibraryEntryName(entry)
+      : (basicAttackSegmentLabel(entry, skillKey, t('skillType.heavyAttack')) ??
+        skillName(skillKey, selectedTrackModel.value.operatorSlug));
+  const ghost = createLibraryDragGhost(
+    { name: label, duration: durationSeconds },
+    pxPerFrame.value * PROJECT_FPS,
+    () => skillAccentColor(entry.skillType),
+  );
   if (event.dataTransfer !== null) {
     event.dataTransfer.effectAllowed = 'copy';
     event.dataTransfer.setData('text/plain', skillKey ?? skillGroupKey);
+    event.dataTransfer.setDragImage(ghost, offsets.dragOffsetX, offsets.dragOffsetY);
   }
+}
+
+function finishSkillDrag(): void {
+  if (dragPayload.value?.kind === 'librarySkill') dragPayload.value = null;
+  removeLibraryDragGhost();
 }
 
 function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId: string): void {
   if (event.button !== 0) return;
+  if (alignSelectedCastToTarget(event, skillCastId)) return;
   event.preventDefault();
   event.stopPropagation();
   cancelCastMove();
   const selection = actionSelection.value.selectedIds.has(skillCastId)
     ? { ...actionSelection.value, primaryId: skillCastId }
     : selectTimelineAction(actionSelection.value, skillCastId, false);
+  const selectedCasts = scenario.value.tracks.flatMap(track =>
+    track === null
+      ? []
+      : track.skillCasts.filter(candidate => selection.selectedIds.has(candidate.id)),
+  );
+  if (selectedCasts.some(candidate => candidate.presentation?.locked ?? false)) {
+    event.preventDefault();
+    event.stopPropagation();
+    ElMessage.warning(t('timelineGrid.action.locked'));
+    return;
+  }
   const block = event.currentTarget as HTMLElement;
   const pointerOffsetActualFrames = Math.max(
     0,
@@ -1725,11 +3015,16 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
     skillCastId,
     skillCastIds: [...selection.selectedIds],
     pointerOffsetActualFrames,
+    initialPointerX: event.clientX,
+    initialPointerY: event.clientY,
+    latestPointerX: event.clientX,
+    latestPointerY: event.clientY,
     anchorActualFrame: initialActualFrame,
     baseScenario: scenario.value,
     previewFrame: cast.placement.startFrame,
     previewActualFrame: initialActualFrame,
     committed: false,
+    dragStarted: false,
     moved: false,
   };
   // 首次产生有效位移时立即模拟，不继承上一轮拖动的节流窗口。
@@ -1747,6 +3042,8 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
     window.removeEventListener('pointerup', onFinish);
     window.removeEventListener('pointercancel', onCancel);
     window.removeEventListener('keydown', onKeyDown, true);
+    if (castMoveAutoScrollFrame !== null) cancelAnimationFrame(castMoveAutoScrollFrame);
+    castMoveAutoScrollFrame = null;
     stopCastMoveGesture = null;
   };
   window.addEventListener('pointermove', onMove);
@@ -1756,17 +3053,18 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
 }
 
 function castMoveFrame(
-  event: PointerEvent,
+  clientX: number,
+  clientY: number,
   gesture: TimelineCastMoveGesture,
 ): { readonly placementFrame: number; readonly actualFrame: number } | null {
-  const pointed = document.elementFromPoint(event.clientX, event.clientY);
+  const pointed = document.elementFromPoint(clientX, clientY);
   const lane = pointed instanceof Element ? pointed.closest<HTMLElement>('.track-lane') : null;
   if (lane?.dataset.trackIndex !== String(gesture.trackIndex)) return null;
   const pointerActualFrame = Math.max(
     0,
     Math.min(
       scenario.value.battle.durationFrames,
-      (event.clientX - lane.getBoundingClientRect().left) / pxPerFrame.value -
+      (clientX - lane.getBoundingClientRect().left) / pxPerFrame.value -
         scenario.value.battle.prepFrames,
     ),
   );
@@ -1778,10 +3076,34 @@ function castMoveFrame(
   });
 }
 
-function updateCastMove(event: PointerEvent): void {
-  const gesture = castMoveGesture.value;
-  if (gesture === null || gesture.pointerId !== event.pointerId) return;
-  const frame = castMoveFrame(event, gesture);
+function updateCastMoveAt(
+  pointerId: number,
+  clientX: number,
+  clientY: number,
+  fromAutoScroll = false,
+): void {
+  let gesture = castMoveGesture.value;
+  if (gesture === null || gesture.pointerId !== pointerId) return;
+  if (!fromAutoScroll) {
+    gesture.latestPointerX = clientX;
+    gesture.latestPointerY = clientY;
+  }
+  if (!gesture.dragStarted) {
+    if (
+      !passedTimelineDragThreshold(
+        gesture.initialPointerX,
+        gesture.initialPointerY,
+        clientX,
+        clientY,
+      )
+    ) {
+      return;
+    }
+    gesture = { ...gesture, dragStarted: true };
+    castMoveGesture.value = gesture;
+  }
+  if (!fromAutoScroll) scheduleCastMoveAutoScroll();
+  const frame = castMoveFrame(clientX, clientY, gesture);
   if (frame === null) return;
   if (
     frame.placementFrame === gesture.previewFrame &&
@@ -1820,6 +3142,38 @@ function updateCastMove(event: PointerEvent): void {
   }
 }
 
+function updateCastMove(event: PointerEvent): void {
+  updateCastMoveAt(event.pointerId, event.clientX, event.clientY);
+}
+
+function scheduleCastMoveAutoScroll(): void {
+  if (castMoveAutoScrollFrame !== null) return;
+  const tick = () => {
+    castMoveAutoScrollFrame = null;
+    const gesture = castMoveGesture.value;
+    const viewport = timelineScroll.value;
+    if (gesture === null || viewport === null || gesture.committed || !gesture.dragStarted) return;
+    const rect = viewport.getBoundingClientRect();
+    const delta = projectTimelineEdgeAutoScrollDelta({
+      pointerX: gesture.latestPointerX,
+      pointerY: gesture.latestPointerY,
+      left: rect.left + TIMELINE_TRACK_HEADER_WIDTH,
+      right: rect.right,
+      top: rect.top + TIMELINE_RULER_HEIGHT,
+      bottom: rect.bottom,
+    });
+    if (delta.x === 0 && delta.y === 0) return;
+    const previousLeft = viewport.scrollLeft;
+    const previousTop = viewport.scrollTop;
+    viewport.scrollLeft += delta.x;
+    viewport.scrollTop += delta.y;
+    if (viewport.scrollLeft === previousLeft && viewport.scrollTop === previousTop) return;
+    updateCastMoveAt(gesture.pointerId, gesture.latestPointerX, gesture.latestPointerY, true);
+    castMoveAutoScrollFrame = requestAnimationFrame(tick);
+  };
+  castMoveAutoScrollFrame = requestAnimationFrame(tick);
+}
+
 async function finishCastMove(event: PointerEvent): Promise<void> {
   let gesture = castMoveGesture.value;
   if (gesture === null || gesture.pointerId !== event.pointerId) return;
@@ -1856,7 +3210,13 @@ function cancelCastMove(): void {
 
 function beginTrackOrderDrag(event: DragEvent, trackIndex: TrackIndex): void {
   dragPayload.value = { kind: 'trackOrder', trackIndex };
+  trackOrderDropTarget.value = null;
   if (event.dataTransfer !== null) event.dataTransfer.effectAllowed = 'move';
+}
+
+function finishTrackOrderDrag(): void {
+  if (dragPayload.value?.kind === 'trackOrder') dragPayload.value = null;
+  trackOrderDropTarget.value = null;
 }
 
 function swapTrackOrder(fromIndex: TrackIndex, toIndex: TrackIndex): void {
@@ -1871,24 +3231,32 @@ function dropTrackOrder(event: DragEvent, trackIndex: TrackIndex): void {
   if (payload?.kind !== 'trackOrder') return;
   event.preventDefault();
   dragPayload.value = null;
+  trackOrderDropTarget.value = null;
   swapTrackOrder(payload.trackIndex, trackIndex);
+}
+
+function allowTimelinePayloadDrop(event: DragEvent): void {
+  event.preventDefault();
+  if (event.dataTransfer !== null) {
+    event.dataTransfer.dropEffect = dragPayload.value?.kind === 'librarySkill' ? 'copy' : 'move';
+  }
 }
 
 function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
   const payload = dragPayload.value;
   dragPayload.value = null;
   if (payload === null) return;
+  event.preventDefault();
+  trackOrderDropTarget.value = null;
   if (payload.kind === 'trackOrder') {
     swapTrackOrder(payload.trackIndex, trackIndex);
     return;
   }
+  removeLibraryDragGhost();
+  if (trackIndex !== selectedTrack.value) return;
   const lane = event.currentTarget as HTMLElement;
-  const pointerFrame = Math.max(
-    0,
-    Math.min(
-      scenario.value.battle.durationFrames,
-      timelinePointerActualFrame(event.clientX - lane.getBoundingClientRect().left),
-    ),
+  const pointerFrame = timelinePointerActualFrame(
+    event.clientX - lane.getBoundingClientRect().left - payload.dragOffsetX,
   );
   const frame = snapTimelineFrame(
     pointerFrame,
@@ -1900,11 +3268,97 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
 }
 
 function resetScenario(): void {
-  commitScenario('resetScenario', () => createTimelineSampleScenario());
+  commitScenario('resetScenario', current => {
+    const reset = createTimelineSampleScenario();
+    return { ...reset, id: current.id, name: current.name, inheritance: current.inheritance };
+  });
   selectedTrack.value = 0;
   clearTimelineSelection();
   cursorFrame.value = 30;
   contextMenuTarget.value = null;
+  cancelLibraryPlacement();
+}
+
+function resetTransientScenarioUi(): void {
+  selectedTrack.value = 0;
+  clearTimelineSelection();
+  cursorFrame.value = 30;
+  contextMenuTarget.value = null;
+  cancelLibraryPlacement();
+  hitDetailTarget.value = null;
+  showSkillDefinitionEditor.value = false;
+  showOperatorDefinitionWorkspace.value = false;
+  showWeaponDefinitionWorkspace.value = false;
+  gearDefinitionWorkspaceSlot.value = null;
+  gearSetDefinitionWorkspaceId.value = null;
+}
+
+function renameScenario(name: string): void {
+  projectSession.commit('renameScenario', project => renameActiveScenario(project, name));
+}
+
+function selectScenario(scenarioId: string): void {
+  const changed = projectSession.commit('switchScenario', project =>
+    switchProjectScenario(project, scenarioId),
+  );
+  if (changed) resetTransientScenarioUi();
+}
+
+function addScenario(): void {
+  const project = projectSession.snapshot.project;
+  if (project.scenarios.length >= MAX_PROJECT_SCENARIOS) {
+    ElMessage.warning(t('timeline.scenario.limit', { max: MAX_PROJECT_SCENARIOS }));
+    return;
+  }
+  const changed = projectSession.commit('addScenario', current =>
+    addProjectScenario(
+      current,
+      t('timeline.scenario.defaultName', { index: current.scenarios.length + 1 }),
+    ),
+  );
+  if (changed) resetTransientScenarioUi();
+}
+
+function duplicateScenario(): void {
+  const project = projectSession.snapshot.project;
+  if (project.scenarios.length >= MAX_PROJECT_SCENARIOS) {
+    ElMessage.warning(t('timeline.scenario.limit', { max: MAX_PROJECT_SCENARIOS }));
+    return;
+  }
+  const changed = projectSession.commit('duplicateScenario', current =>
+    duplicateActiveScenario(current, t('timeline.scenario.copySuffix')),
+  );
+  if (!changed) return;
+  resetTransientScenarioUi();
+  ElMessage.success(t('timeline.scenario.duplicated'));
+}
+
+async function removeScenario(): Promise<void> {
+  const project = projectSession.snapshot.project;
+  const dependents = scenariosDependingOn(project, project.activeScenarioId);
+  if (dependents.length > 0) {
+    ElMessage.warning(
+      `该方案被 ${dependents.map(value => value.name).join('、')} 继承，不能删除。`,
+    );
+    return;
+  }
+  try {
+    await ElMessageBox.confirm(
+      t('timeline.scenario.deleteConfirm'),
+      t('timeline.scenario.deleteTitle'),
+      {
+        confirmButtonText: t('common.delete'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning',
+      },
+    );
+  } catch {
+    return;
+  }
+  const changed = projectSession.commit('deleteScenario', deleteActiveScenario);
+  if (!changed) return;
+  resetTransientScenarioUi();
+  ElMessage.success(t('timeline.scenario.deleted'));
 }
 
 function restoreEditorHistory(direction: 'undo' | 'redo'): boolean {
@@ -1979,6 +3433,9 @@ function copySelectedActions(): boolean {
 }
 
 function deleteSelectedActions(): boolean {
+  if (selectedMarker.value !== null) {
+    return removeSelectedMarker(selectedMarker.value.kind, selectedMarker.value.id);
+  }
   const deleted = deleteSelectedTimelineActions(scenarioSession, actionSelection.value);
   if (deleted) clearTimelineSelection();
   return deleted;
@@ -2017,6 +3474,11 @@ function toggleCursorGuide(): boolean {
   return true;
 }
 
+function toggleBoxSelect(): boolean {
+  boxSelectEnabled.value = !boxSelectEnabled.value;
+  return true;
+}
+
 async function updateTimelineZoomPercent(percent: number, anchorClientX?: number): Promise<void> {
   const nextPercent = normalizeTimelineZoomPercent(percent);
   if (nextPercent === timelineZoomPercent.value) return;
@@ -2049,11 +3511,19 @@ async function updateTimelineZoomPercent(percent: number, anchorClientX?: number
 }
 
 function handleTimelineWheel(event: WheelEvent): void {
-  if (!event.ctrlKey) return;
+  const intent = resolveTimelineWheelIntent(event);
+  if (intent.kind === 'nativeVerticalScroll') return;
   event.preventDefault();
-  const direction = event.deltaY < 0 ? 1 : -1;
+  if (intent.kind === 'horizontalPan') {
+    const viewport = timelineScroll.value;
+    if (viewport !== null) viewport.scrollLeft += intent.deltaPx;
+    return;
+  }
   const step = Math.max(1, Math.round(timelineZoomPercent.value * 0.15));
-  void updateTimelineZoomPercent(timelineZoomPercent.value + direction * step, event.clientX);
+  void updateTimelineZoomPercent(
+    timelineZoomPercent.value + intent.direction * step,
+    event.clientX,
+  );
 }
 
 function cycleOccupiedTrack(direction: -1 | 1): boolean {
@@ -2075,8 +3545,6 @@ function cycleOccupiedTrack(direction: -1 | 1): boolean {
 
 const hasModalPanel = computed(
   () =>
-    pendingWeaponMigration.value !== null ||
-    migrationBackups.value !== null ||
     operatorDialogTrack.value !== null ||
     weaponDialogTrack.value !== null ||
     gearDialogTarget.value !== null ||
@@ -2089,13 +3557,16 @@ const hasModalPanel = computed(
     showWeaponBuildDialog.value ||
     showGearBuildDialog.value ||
     panelDialogTrack.value !== null ||
-    hitDetailTarget.value !== null,
+    hitDetailTarget.value !== null ||
+    showDamageAnalysis.value ||
+    showShortcutHelp.value,
 );
 
 useKeyboardShortcutScope({
   id: 'next-timeline-overlay',
   priority: 100,
-  active: () => hasModalPanel.value || contextMenuTarget.value !== null,
+  active: () =>
+    hasModalPanel.value || contextMenuTarget.value !== null || markerContextTarget.value !== null,
   handle: () => false,
   blockLowerScopes: true,
 });
@@ -2103,9 +3574,10 @@ useKeyboardShortcutScope({
 useKeyboardShortcutScope({
   id: 'next-timeline-editor',
   priority: 10,
-  active: () => !hasModalPanel.value && contextMenuTarget.value === null,
+  active: () =>
+    !hasModalPanel.value && contextMenuTarget.value === null && markerContextTarget.value === null,
   handle: event => {
-    if (isTextEditingTarget(event.target)) return false;
+    if (isKeyboardShortcutIsolationTarget(event.target)) return false;
     return handleTimelineEditorShortcut(event, {
       undo: () => restoreEditorHistory('undo'),
       redo: () => restoreEditorHistory('redo'),
@@ -2120,8 +3592,12 @@ useKeyboardShortcutScope({
       nudgeRight: () => nudgeSelectedActions(1),
       toggleSnapPrecision,
       toggleCursorGuide,
+      toggleBoxSelect,
       toggleConnectionTool,
       cycleTrack: cycleOccupiedTrack,
+      selectTrack: selectTrackByShortcut,
+      placeSkill: placeSkillByShortcut,
+      cancelPlacement: cancelLibraryPlacement,
     });
   },
 });
@@ -2140,9 +3616,30 @@ function setTrackInitialUltimateEnergy(trackIndex: TrackIndex, value: number): v
   );
 }
 
+function cycleInitialUltimateEnergyPreset(): void {
+  const modes = ['empty', 'full', 'custom'] as const;
+  const currentIndex = modes.indexOf(initialUltimateEnergyPresetMode.value);
+  const mode = modes[(currentIndex + 1) % modes.length]!;
+  commitScenario('applyInitialUltimateEnergyPreset', current =>
+    applyInitialUltimateEnergyPreset(current, mode, maximumUltimateEnergyByTrack.value),
+  );
+}
+
+function setUnifiedTrackInitialUltimateEnergy(value: number): void {
+  commitScenario('setUnifiedInitialUltimateEnergy', current =>
+    setUnifiedInitialUltimateEnergy(current, value, maximumUltimateEnergyByTrack.value),
+  );
+}
+
 function setBattleResourceRule(field: EditableBattleResourceRule, value: number): void {
   commitScenario('updateBattleResourceRule', current =>
     updateBattleResourceRule(current, field, value),
+  );
+}
+
+function setGlobalModifiers(modifiers: Parameters<typeof setGlobalOperatorStatModifiers>[1]): void {
+  commitScenario('setGlobalOperatorStatModifiers', current =>
+    setGlobalOperatorStatModifiers(current, modifiers),
   );
 }
 
@@ -2160,6 +3657,63 @@ function setSelectedCastCameraTargetAngle(angleDegrees: number | null): void {
   if (selected === null) return;
   commitScenario('setSkillCastCameraTargetAngle', current =>
     setSkillCastCameraTargetAngle(current, selected.trackIndex, selected.cast.id, angleDegrees),
+  );
+}
+
+function setSelectedCastStartFrame(frame: number): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  commitScenario('moveSkillCast', current =>
+    moveSkillCast(current, selected.trackIndex, selected.cast.id, frame),
+  );
+}
+
+function setSelectedCastLocked(locked: boolean): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  commitScenario('setSkillCastLocked', current =>
+    setSkillCastLocked(current, selected.trackIndex, selected.cast.id, locked),
+  );
+}
+
+function setSelectedCastDisabled(disabled: boolean): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  commitScenario('setSkillCastDisabled', current =>
+    setSkillCastDisabled(current, selected.trackIndex, selected.cast.id, disabled),
+  );
+}
+
+function setSelectedCastColor(color: string | null): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  commitScenario('setSkillCastColor', current =>
+    setSkillCastColor(current, selected.trackIndex, selected.cast.id, color),
+  );
+}
+
+function addSelectedCastCustomBar(): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  const bars = selected.cast.presentation?.customBars ?? [];
+  commitScenario('addSkillCastCustomBar', current =>
+    setSkillCastCustomBars(current, selected.trackIndex, selected.cast.id, [
+      ...bars,
+      {
+        id: ids.allocate('customBar'),
+        text: '',
+        offsetFrames: 0,
+        durationFrames: PROJECT_FPS,
+      },
+    ]),
+  );
+}
+
+function setSelectedCastCustomBars(bars: readonly EditableBarDocument[]): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  commitScenario('setSkillCastCustomBars', current =>
+    setSkillCastCustomBars(current, selected.trackIndex, selected.cast.id, bars),
   );
 }
 
@@ -2191,22 +3745,6 @@ function setPanelDialogVisible(visible: boolean): void {
 </script>
 
 <template>
-  <WeaponMigrationDialog
-    v-if="pendingWeaponMigration"
-    :preview="pendingWeaponMigration.review.preview"
-    :project="pendingWeaponMigration.project"
-    :busy="weaponMigrationBusy"
-    :error="weaponMigrationError"
-    @cancel="!weaponMigrationBusy && (pendingWeaponMigration = null)"
-    @confirm="confirmWeaponMigration"
-  />
-  <WeaponMigrationBackupsDialog
-    v-if="migrationBackups"
-    :records="migrationBackups.records"
-    :errors="migrationBackups.errors"
-    @close="migrationBackups = null"
-    @download="downloadMigrationBackup"
-  />
   <input
     ref="projectFileInput"
     class="project-file-input"
@@ -2219,62 +3757,76 @@ function setPanelDialogVisible(visible: boolean): void {
       library: t('timeline.activityBar.library'),
       globalConfig: t('timeline.activityBar.globalConfig'),
       contract: t('timeline.activityBar.contract'),
+      contractUnavailable: t('timeline.activityBar.contractUnavailable'),
       resourceMonitor: t('timeline.activityBar.resourceMonitor'),
       inspector: t('timeline.activityBar.inspector'),
       battleLog: t('timeline.activityBar.battleLog'),
+      resetPanel: t('common.reset'),
+      collapsePanel: t('common.close'),
     }"
   >
     <template #left>
       <section class="skill-sidebar">
-        <button class="operator-heading" type="button" @click="openOperatorDialog()">
-          <span class="operator-heading__mark"></span>
-          <strong>{{ operatorName(selectedTrackModel.operatorSlug) }}</strong>
-        </button>
-        <div class="sidebar-tabs">
-          <button
-            class="active"
-            type="button"
-            :disabled="selectedLoadoutModel.operator === null"
-            @click="showOperatorBuildDialog = true"
-          >
-            {{ t('nextTimeline.operatorTab') }}
-          </button>
-          <button
-            type="button"
-            :disabled="selectedLoadoutModel.weapon === null"
-            @click="showWeaponBuildDialog = true"
-          >
-            {{ t('nextTimeline.weaponTab') }}
-          </button>
-          <button
-            type="button"
-            :disabled="!Object.values(selectedLoadoutModel.gears).some(Boolean)"
-            @click="showGearBuildDialog = true"
-          >
-            {{ t('nextTimeline.gearTab') }}
-          </button>
+        <div class="library-header">
+          <div class="library-header__main">
+            <button class="operator-heading" type="button" @click="openOperatorDialog()">
+              <span class="operator-heading__mark"></span>
+              <strong>{{ operatorName(selectedTrackModel.operatorSlug) }}</strong>
+            </button>
+          </div>
+          <div class="library-header__divider"></div>
+          <div class="library-section-title library-section-title--status">
+            <strong>{{ t('actionLibrary.section.operatorStatusAdjust') }}</strong>
+            <span>{{ t('actionLibrary.hints.adjustOperatorStatus') }}</span>
+          </div>
+          <div class="sidebar-tabs" role="group">
+            <button
+              type="button"
+              :disabled="selectedLoadoutModel.operator === null"
+              @click="showOperatorBuildDialog = true"
+            >
+              {{ t('nextTimeline.operatorTab') }}
+            </button>
+            <button
+              type="button"
+              :disabled="selectedLoadoutModel.weapon === null"
+              @click="showWeaponBuildDialog = true"
+            >
+              {{ t('nextTimeline.weaponTab') }}
+            </button>
+            <button
+              type="button"
+              :disabled="!Object.values(selectedLoadoutModel.gears).some(Boolean)"
+              @click="showGearBuildDialog = true"
+            >
+              {{ t('nextTimeline.gearTab') }}
+            </button>
+          </div>
         </div>
-        <div class="library-heading">
-          <strong>{{ t('nextTimeline.skillLibrary') }}</strong>
-          <span>Lv.{{ selectedTrackModel.skillLibrary[0]?.level ?? 0 }}</span>
-        </div>
-        <div class="skill-list">
-          <SkillLibraryCard
-            v-for="entry in selectedTrackModel.skillLibrary"
-            :key="`${entry.skillGroupKey}:${entry.variantKey ?? 'base'}`"
-            :name="
-              skillName(entry.variantKey ?? entry.skillGroupKey, selectedTrackModel.operatorSlug)
-            "
-            :type-label="skillTypeLabel(entry.skillType)"
-            :duration="skillDurationSeconds(entry)"
-            :icon="skillDisplayIcon(entry.skillType, selectedTrackModel.operatorSlug)"
-            :accent-color="skillAccentColor(entry.skillType)"
-            :segments="skillSegments(entry)"
-            @dragstart="beginSkillDrag($event, entry.skillGroupKey, undefined, entry.variantKey)"
-            @dragstart-segment="
-              beginSkillDrag($event.event, entry.skillGroupKey, $event.skillKey, entry.variantKey)
-            "
-          />
+        <div class="skill-section">
+          <div class="library-section-title">
+            <strong>{{ t('actionLibrary.section.operatorSkillLibrary') }}</strong>
+            <span>{{ t('actionLibrary.hints.clickOrDrag') }}</span>
+          </div>
+          <div class="skill-list">
+            <SkillLibraryCard
+              v-for="entry in selectedTrackModel.skillLibrary"
+              :key="`${entry.skillGroupKey}:${entry.variantKey ?? 'base'}`"
+              :name="skillLibraryEntryName(entry)"
+              :tooltip="skillLibraryEntryName(entry)"
+              :type-label="skillTypeLabel(entry.skillType)"
+              :duration="skillDurationSeconds(entry)"
+              :icon="skillDisplayIcon(entry.skillType, selectedTrackModel.operatorSlug)"
+              :accent-color="skillAccentColor(entry.skillType)"
+              :selected="libraryEntrySelected(entry)"
+              :segments="skillSegments(entry)"
+              @dragstart="beginSkillDrag($event, entry.skillGroupKey, undefined, entry.variantKey)"
+              @dragstart-segment="
+                beginSkillDrag($event.event, entry.skillGroupKey, $event.skillKey, entry.variantKey)
+              "
+              @dragend="finishSkillDrag"
+            />
+          </div>
         </div>
       </section>
     </template>
@@ -2336,31 +3888,65 @@ function setPanelDialogVisible(visible: boolean): void {
     <template #header>
       <TimelineHeaderToolbar
         :scenario-name="scenario.name"
-        :cursor-text="t('nextTimeline.cursorFrame', { frame: cursorFrame })"
-        :can-undo="canUndo"
-        :can-redo="canRedo"
-        :can-paste="timelineClipboard !== null"
+        :scenarios="projectScenarios"
+        :active-scenario-id="activeProjectScenarioId"
+        :max-scenarios="MAX_PROJECT_SCENARIOS"
         :project-dirty="projectDirty"
+        :view-layers="timelineViewLayers"
+        :view-layer-ids="NEXT_TIMELINE_VIEW_LAYER_IDS"
+        :operator-effects="operatorEffectsOptions"
+        :locale="locale"
+        :appearance="appearance"
         :labels="{
-          undo: t('timeline.shortcuts.items.undo'),
-          redo: t('timeline.shortcuts.items.redo'),
-          paste: t('common.paste'),
           rename: t('timeline.scenario.renameTooltip'),
           duplicate: t('timeline.scenario.duplicateTooltip'),
+          delete: t('timeline.scenario.deleteTooltip'),
           add: t('timeline.scenario.addTooltip'),
           analysis: t('timeline.analysis.button'),
           open: t('common.load'),
           export: t('common.export'),
           more: t('timeline.header.more'),
           reset: t('common.reset'),
+          view: t('timeline.header.sectionViewLayers'),
+          viewLayers: {
+            upperEffects: t('timeline.header.viewLayers.upperEffects'),
+            lowerBuffs: t('timeline.header.viewLayers.lowerBuffs'),
+            gauge: t('timeline.header.viewLayers.gauge'),
+            skillDecorations: t('timeline.header.viewLayers.skillDecorations'),
+            hitMarkers: t('timeline.header.viewLayers.hitMarkers'),
+            comboWindows: t('timeline.header.viewLayers.comboWindows'),
+            switchMarkers: t('timeline.header.viewLayers.switchMarkers'),
+            effectLinks: t('timeline.header.viewLayers.effectLinks'),
+          },
+          viewOperators: t('timeline.header.sectionViewOperators'),
+          viewOperatorsEmpty: t('timeline.header.hideEffectsEmpty'),
+          shortcuts: t('timeline.header.shortcutsLabel'),
+          preferences: t('timeline.header.sectionPrefs'),
+          appearance: t('common.appearance'),
+          appearanceLight: t('common.appearanceLight'),
+          appearanceDark: t('common.appearanceDark'),
+          projectDirty: t('timeline.header.projectDirty'),
+          locales: {
+            zhCN: t('locale.zhCNShort'),
+            en: t('locale.enShort'),
+            ru: t('locale.ruShort'),
+          },
         }"
-        @undo="restoreEditorHistory('undo')"
-        @redo="restoreEditorHistory('redo')"
-        @paste="pasteClipboardAtCursor"
+        @analysis="showDamageAnalysis = true"
+        @shortcuts="showShortcutHelp = true"
+        @rename="renameScenario"
+        @duplicate="duplicateScenario"
+        @delete="removeScenario"
+        @add="addScenario"
+        @select="selectScenario"
         @open="requestOpenProject"
-        @backups="showMigrationBackups"
         @export="exportProject"
         @reset="resetScenario"
+        @toggle-view-layer="toggleTimelineViewLayer"
+        @toggle-operator-effects="toggleOperatorEffectsVisibility"
+        @set-locale="selectTimelineLocale"
+        @set-appearance="setAppearance"
+        @clear-selection="clearTimelineSelection"
       />
     </template>
 
@@ -2370,21 +3956,26 @@ function setPanelDialogVisible(visible: boolean): void {
         class="timeline-scroll"
         :class="{ 'is-panning': isPanning }"
         @wheel="handleTimelineWheel"
-        @scroll="timelineScrollLeft = timelineScroll?.scrollLeft ?? 0"
+        @scroll="updateTimelineViewportMetrics"
       >
         <div
           ref="timelineSurface"
           class="timeline-surface"
-          :style="{ width: `${180 + timelineWidth}px` }"
+          :class="{ 'is-library-placing': libraryPlacement !== null }"
+          :style="timelineSurfaceStyle"
           @mousemove="updateCursorGuide"
           @mouseleave="hideCursorGuide"
+          @contextmenu.capture="cancelPlacementFromContextMenu"
         >
           <div class="corner-placeholder">
             <TimelineCornerToolbar
               :snap-label="snapFrames === PRECISE_TIMELINE_SNAP_FRAMES ? '1f' : '0.1s'"
               :zoom-percent="timelineZoomPercent"
               :cursor-guide-enabled="showCursorGuide"
+              :box-select-enabled="boxSelectEnabled"
               :connection-tool-enabled="connectionToolEnabled"
+              :initial-gauge-mode="initialUltimateEnergyPresetMode"
+              :buff-layout-mode="buffLayoutMode"
               :labels="{
                 initialGauge: t('timelineGrid.toolbar.initialGauge'),
                 cursorGuide: t('timelineGrid.toolbar.cursorGuide'),
@@ -2392,26 +3983,49 @@ function setPanelDialogVisible(visible: boolean): void {
                 snapPrecision: t('timelineGrid.toolbar.snapPrecision'),
                 connectionTool: t('timelineGrid.toolbar.connectionTool'),
                 buffLayout: t('timelineGrid.toolbar.buffLayoutMode', {
-                  mode: t('timelineGrid.toolbar.buffLayoutCompact'),
+                  mode: t(
+                    buffLayoutMode === 'compact'
+                      ? 'timelineGrid.toolbar.buffLayoutCompact'
+                      : 'timelineGrid.toolbar.buffLayoutLoose',
+                  ),
                 }),
                 zoom: 'SCALE',
               }"
               @toggle-snap-precision="toggleSnapPrecision"
+              @cycle-initial-gauge="cycleInitialUltimateEnergyPreset"
+              @set-unified-initial-gauge="setUnifiedTrackInitialUltimateEnergy"
               @toggle-cursor-guide="toggleCursorGuide"
+              @toggle-box-select="toggleBoxSelect"
               @toggle-connection-tool="toggleConnectionTool"
+              @toggle-buff-layout="toggleBuffLayout"
               @update-zoom-percent="updateTimelineZoomPercent"
             />
           </div>
           <TimelineRuler
             class="timeline-ruler"
             :style="{ width: `${timelineWidth}px` }"
-            :prep-frames="scenario.battle.prepFrames"
+            :prep-frames="displayedTimelinePrepFrames"
             :duration-frames="scenario.battle.durationFrames"
             :cursor-frame="cursorFrame"
             :px-per-frame="pxPerFrame"
+            :snap-frames="snapFrames"
+            :operations="rulerOperations"
+            :visible-left-px="Math.max(0, timelineScrollLeft - TIMELINE_TRACK_HEADER_WIDTH)"
+            :visible-width-px="timelineViewportWidth"
             @seek="cursorFrame = $event"
+            @set-prep-frames="setTimelinePrepFrames"
+            @set-duration-frames="setTimelineDurationFrames"
           />
+          <div
+            class="timeline-battle-start-boundary"
+            :style="{
+              left: `${TIMELINE_TRACK_HEADER_WIDTH + displayedTimelinePrepFrames * pxPerFrame}px`,
+            }"
+            :title="t('timelineGrid.prep.setDurationTitle')"
+            @pointerdown="beginTimelinePrepResize"
+          ></div>
           <TimelineConnectionLayer
+            v-if="timelineViewLayers.effectLinks || connectionDrag !== null"
             :scenario="scenario"
             :tracks="viewModel.tracks"
             :px-per-frame="pxPerFrame"
@@ -2419,6 +4033,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :cast-actual-start-frames="skillCastActualStartFrames"
             :cast-actual-duration-frames="skillCastActualDurationFrames"
             :hit-actual-frames="hitActualFrames"
+            :visible-track-indices="visibleEffectTrackIndices"
             :preview="connectionDrag"
             @remove="deleteTimelineConnection"
           />
@@ -2427,7 +4042,26 @@ function setPanelDialogVisible(visible: boolean): void {
             class="cursor-guide"
             :style="{ left: `${TIMELINE_TRACK_HEADER_WIDTH + cursorGuide.leftPx}px` }"
           >
-            <div class="cursor-guide-label">{{ cursorGuideText }}</div>
+            <TimelineCursorGuide
+              :time="cursorGuideMetrics.time"
+              :sp="cursorGuideMetrics.sp"
+              :poise="cursorGuideMetrics.poise"
+              :enemy-health="cursorGuideMetrics.enemyHealth"
+              :gauges="cursorGuideMetrics.gauges"
+              :align="cursorGuideLabelAlign"
+            />
+          </div>
+          <div
+            v-if="alignmentGuide !== null"
+            class="alignment-guide"
+            :style="{
+              left: `${alignmentGuide.left}px`,
+              top: `${alignmentGuide.top}px`,
+              height: `${alignmentGuide.height}px`,
+              color: alignmentGuide.color,
+            }"
+          >
+            <span>{{ alignmentGuide.label }}</span>
           </div>
           <TimelineTimeDilationBands
             :bands="timeDilationBands"
@@ -2436,134 +4070,493 @@ function setPanelDialogVisible(visible: boolean): void {
             :px-per-frame="pxPerFrame"
             :horizontal-offset="TIMELINE_TRACK_HEADER_WIDTH"
           />
-
           <div
-            v-for="track in viewModel.tracks"
-            :key="track.trackIndex"
-            class="track-row"
-            :class="{ selected: selectedTrack === track.trackIndex }"
+            v-if="scenario.battle.simulationRange?.startFrame !== undefined"
+            class="simulation-range-dim simulation-range-dim--start"
+            :style="{
+              left: `${TIMELINE_TRACK_HEADER_WIDTH}px`,
+              width: `${frameToTimelinePx(displayedMarkerFrame('simulationStart', 'simulationStart', scenario.battle.simulationRange.startFrame), scenario.battle.prepFrames, pxPerFrame)}px`,
+            }"
+          ></div>
+          <div
+            v-if="scenario.battle.simulationRange?.endFrame !== undefined"
+            class="simulation-range-dim simulation-range-dim--end"
+            :style="{
+              left: `${TIMELINE_TRACK_HEADER_WIDTH + frameToTimelinePx(displayedMarkerFrame('simulationEnd', 'simulationEnd', scenario.battle.simulationRange.endFrame), scenario.battle.prepFrames, pxPerFrame)}px`,
+            }"
+          ></div>
+          <div
+            v-if="scenario.battle.simulationRange?.startFrame !== undefined"
+            class="timeline-marker simulation-range-marker simulation-range-marker--start"
+            :class="{ selected: selectedMarker?.kind === 'simulationStart' }"
+            :style="{
+              left: `${TIMELINE_TRACK_HEADER_WIDTH + frameToTimelinePx(displayedMarkerFrame('simulationStart', 'simulationStart', scenario.battle.simulationRange.startFrame), scenario.battle.prepFrames, pxPerFrame)}px`,
+            }"
+            @pointerdown="
+              beginMarkerMove(
+                $event,
+                'simulationStart',
+                'simulationStart',
+                scenario.battle.simulationRange.startFrame,
+              )
+            "
+            @contextmenu="
+              openExistingMarkerContextMenu(
+                $event,
+                'simulationStart',
+                'simulationStart',
+                scenario.battle.simulationRange.startFrame,
+                selectedTrack,
+                t('nextTimeline.markerLabels.simulationStart'),
+              )
+            "
           >
-            <TimelineTrackHeader
-              class="track-identity"
-              :track="track"
-              :name="operatorName(track.operatorSlug)"
-              :selected="selectedTrack === track.trackIndex"
-              :can-move-up="track.trackIndex > 0"
-              :can-move-down="track.trackIndex < 3"
-              :stat-details-available="panelResolution.panels.has(track.trackIndex)"
-              :stat-details-error="panelResolution.error"
-              :weapon-icon="loadoutModels[track.trackIndex]?.weapon?.definition.iconPath ?? null"
-              :gear-icons="{
-                armor: loadoutModels[track.trackIndex]?.gears.armor?.definition.iconPath ?? null,
-                gloves: loadoutModels[track.trackIndex]?.gears.gloves?.definition.iconPath ?? null,
-                accessory1:
-                  loadoutModels[track.trackIndex]?.gears.accessory1?.definition.iconPath ?? null,
-                accessory2:
-                  loadoutModels[track.trackIndex]?.gears.accessory2?.definition.iconPath ?? null,
-              }"
-              :labels="{
-                weapon: t('timelineGrid.track.selectWeaponTooltip'),
-                armor: t('timelineGrid.equipmentSlot.armor'),
-                gloves: t('timelineGrid.equipmentSlot.gloves'),
-                accessory1: t('timelineGrid.equipmentSlot.accessory1'),
-                accessory2: t('timelineGrid.equipmentSlot.accessory2'),
-              }"
-              @select="selectTrack(track.trackIndex)"
-              @operator="openOperatorDialog(track.trackIndex)"
-              @move-up="moveTrack(track.trackIndex, -1)"
-              @move-down="moveTrack(track.trackIndex, 1)"
-              @reorder-drag-start="beginTrackOrderDrag($event, track.trackIndex)"
-              @reorder-drop="dropTrackOrder($event, track.trackIndex)"
-              @stats="openPanelDialog(track.trackIndex)"
-              @weapon="openWeaponDialog(track.trackIndex)"
-              @gear="openGearDialog(track.trackIndex, $event)"
-              @update-initial-ultimate-energy="
-                setTrackInitialUltimateEnergy(track.trackIndex, $event)
-              "
-            />
-            <div
-              class="track-lane"
-              :data-track-index="track.trackIndex"
-              :style="{ width: `${timelineWidth}px` }"
-              @pointerdown="handleTimelineLanePointerDown"
-              @click="handleTimelineLaneClick"
-              @dragover.prevent
-              @drop.prevent="dropTimelinePayload($event, track.trackIndex)"
+            <span
+              >{{
+                displayedMarkerFrame(
+                  'simulationStart',
+                  'simulationStart',
+                  scenario.battle.simulationRange.startFrame,
+                )
+              }}f</span
             >
-              <TimelineTrackGauge
-                :curve="gaugeCurveFor(track.trackIndex)"
-                :color="gaugeColorFor(track.trackIndex)"
-                :prep-frames="scenario.battle.prepFrames"
-                :duration-frames="scenario.battle.durationFrames"
-                :px-per-frame="pxPerFrame"
-              />
-              <TimelineBuffBands
-                :segments="buffSegmentsForTarget(track.operatorInstanceId)"
-                :prep-frames="scenario.battle.prepFrames"
-                :px-per-frame="pxPerFrame"
-                placement="lower"
-              />
-              <div
-                class="prep-zone"
-                :style="{ width: `${scenario.battle.prepFrames * pxPerFrame}px` }"
-              ></div>
-              <div
-                class="battle-start-line"
-                :style="{ left: `${scenario.battle.prepFrames * pxPerFrame}px` }"
-              ></div>
-              <TimelineActionBlock
-                v-for="cast in track.skillCasts"
-                :key="cast.id"
-                :action-id="cast.id"
-                :label="timelineCastLabel(cast, track)"
-                :skill-type="cast.skillType"
-                :left="
-                  frameToTimelinePx(
-                    castActualStartFrame(cast.id, cast.startFrame),
-                    scenario.battle.prepFrames,
-                    pxPerFrame,
+            <b>{{ t('nextTimeline.markerLabels.simulationStart') }}</b>
+          </div>
+          <div
+            v-if="scenario.battle.simulationRange?.endFrame !== undefined"
+            class="timeline-marker simulation-range-marker simulation-range-marker--end"
+            :class="{ selected: selectedMarker?.kind === 'simulationEnd' }"
+            :style="{
+              left: `${TIMELINE_TRACK_HEADER_WIDTH + frameToTimelinePx(displayedMarkerFrame('simulationEnd', 'simulationEnd', scenario.battle.simulationRange.endFrame), scenario.battle.prepFrames, pxPerFrame)}px`,
+            }"
+            @pointerdown="
+              beginMarkerMove(
+                $event,
+                'simulationEnd',
+                'simulationEnd',
+                scenario.battle.simulationRange.endFrame,
+              )
+            "
+            @contextmenu="
+              openExistingMarkerContextMenu(
+                $event,
+                'simulationEnd',
+                'simulationEnd',
+                scenario.battle.simulationRange.endFrame,
+                selectedTrack,
+                t('nextTimeline.markerLabels.simulationEnd'),
+              )
+            "
+          >
+            <span
+              >{{
+                displayedMarkerFrame(
+                  'simulationEnd',
+                  'simulationEnd',
+                  scenario.battle.simulationRange.endFrame,
+                )
+              }}f</span
+            >
+            <b>{{ t('nextTimeline.markerLabels.simulationEnd') }}</b>
+          </div>
+          <div
+            v-for="boundary in scenario.battle.cycleBoundaries"
+            :key="boundary.id"
+            class="timeline-marker cycle-boundary-marker"
+            :class="{
+              selected:
+                selectedMarker?.kind === 'cycleBoundary' && selectedMarker.id === boundary.id,
+            }"
+            :style="{
+              left: `${TIMELINE_TRACK_HEADER_WIDTH + frameToTimelinePx(displayedMarkerFrame('cycleBoundary', boundary.id, boundary.frame), scenario.battle.prepFrames, pxPerFrame)}px`,
+            }"
+            @pointerdown="beginMarkerMove($event, 'cycleBoundary', boundary.id, boundary.frame)"
+            @contextmenu="
+              openExistingMarkerContextMenu(
+                $event,
+                'cycleBoundary',
+                boundary.id,
+                boundary.frame,
+                selectedTrack,
+                t('nextTimeline.markerLabels.cycleBoundary'),
+              )
+            "
+          >
+            <span>{{ displayedMarkerFrame('cycleBoundary', boundary.id, boundary.frame) }}f</span>
+            <b>{{ t('nextTimeline.markerLabels.cycleBoundary') }}</b>
+          </div>
+          <div
+            v-for="marker in (scenario.battle.externalEventMarkers ?? []).filter(
+              item => item.target.scope === 'team',
+            )"
+            :key="marker.id"
+            class="timeline-marker team-event-marker"
+            :class="{
+              selected: selectedMarker?.kind === 'externalEvent' && selectedMarker.id === marker.id,
+            }"
+            :style="{
+              left: `${TIMELINE_TRACK_HEADER_WIDTH + frameToTimelinePx(displayedMarkerFrame('externalEvent', marker.id, marker.frame), scenario.battle.prepFrames, pxPerFrame)}px`,
+            }"
+            @pointerdown="beginMarkerMove($event, 'externalEvent', marker.id, marker.frame)"
+            @contextmenu="
+              openExistingMarkerContextMenu(
+                $event,
+                'externalEvent',
+                marker.id,
+                marker.frame,
+                selectedTrack,
+                t('nextTimeline.markerLabels.teamExternalEvent'),
+              )
+            "
+          >
+            <span>{{ displayedMarkerFrame('externalEvent', marker.id, marker.frame) }}f</span>
+            <b>{{ t('nextTimeline.markerLabels.teamHit') }}</b>
+          </div>
+
+          <div class="track-stack">
+            <div
+              v-for="track in viewModel.tracks"
+              :key="track.trackIndex"
+              class="track-row"
+              :class="{ selected: isTrackIdentitySelected(track.trackIndex) }"
+              :style="{
+                height: `${trackEffectLayout(track.trackIndex, track.operatorInstanceId).height}px`,
+              }"
+            >
+              <TimelineTrackHeader
+                class="track-identity"
+                :track="track"
+                :name="operatorName(track.operatorSlug)"
+                :selected="isTrackIdentitySelected(track.trackIndex)"
+                :reorder-source="
+                  dragPayload?.kind === 'trackOrder' && dragPayload.trackIndex === track.trackIndex
+                "
+                :reorder-target="
+                  trackOrderDropTarget === track.trackIndex &&
+                  !(
+                    dragPayload?.kind === 'trackOrder' &&
+                    dragPayload.trackIndex === track.trackIndex
                   )
                 "
-                :width="castActualDurationFrame(cast.id, cast.durationFrames) * pxPerFrame"
-                :duration-pending="castActualDurationPending(cast.id, cast.durationFrames)"
-                :selected="actionSelection.selectedIds.has(cast.id)"
-                :moving="
-                  !castMoveGesture?.committed && castMoveGesture?.skillCastIds.includes(cast.id)
+                :can-move-up="track.trackIndex > 0"
+                :can-move-down="track.trackIndex < 3"
+                :stat-details-available="panelResolution.panels.has(track.trackIndex)"
+                :stat-details-error="panelResolution.error"
+                :weapon-icon="loadoutModels[track.trackIndex]?.weapon?.definition.iconPath ?? null"
+                :gear-icons="{
+                  armor: loadoutModels[track.trackIndex]?.gears.armor?.definition.iconPath ?? null,
+                  gloves:
+                    loadoutModels[track.trackIndex]?.gears.gloves?.definition.iconPath ?? null,
+                  accessory1:
+                    loadoutModels[track.trackIndex]?.gears.accessory1?.definition.iconPath ?? null,
+                  accessory2:
+                    loadoutModels[track.trackIndex]?.gears.accessory2?.definition.iconPath ?? null,
+                }"
+                :active-gear-set-label="activeGearSetLabelsByTrack[track.trackIndex] ?? ''"
+                :labels="{
+                  operator: t('timelineGrid.track.changeOperatorTooltip'),
+                  weapon: t('timelineGrid.track.selectWeaponTooltip'),
+                  armor: t('timelineGrid.equipmentSlot.armor'),
+                  gloves: t('timelineGrid.equipmentSlot.gloves'),
+                  accessory1: t('timelineGrid.equipmentSlot.accessory1'),
+                  accessory2: t('timelineGrid.equipmentSlot.accessory2'),
+                }"
+                @select="selectTrack(track.trackIndex)"
+                @operator="openOperatorDialog(track.trackIndex)"
+                @move-up="moveTrack(track.trackIndex, -1)"
+                @move-down="moveTrack(track.trackIndex, 1)"
+                @reorder-drag-start="beginTrackOrderDrag($event, track.trackIndex)"
+                @reorder-drag-end="finishTrackOrderDrag"
+                @reorder-drag-enter="
+                  trackOrderDropTarget =
+                    dragPayload?.kind === 'trackOrder' ? track.trackIndex : null
                 "
-                :disabled="cast.disabled"
-                :locked="cast.locked"
-                :edited="cast.edited"
-                :color="cast.color"
-                :connection-tool-enabled="connectionToolEnabled"
-                :warning="diagnosticsByCastId.has(cast.id) || cast.resolutionIssue !== undefined"
-                :warning-text="cast.resolutionIssue ?? castWarningTitle(cast.id)"
-                :hits="castHitMarkers(track.trackIndex, cast.id)"
-                :time-dilation-segments="
-                  castTimeDilationSegments(
-                    cast.id,
-                    cast.startFrame,
-                    castActualDurationFrame(cast.id, cast.durationFrames),
-                  )
+                @reorder-drag-leave="
+                  trackOrderDropTarget =
+                    trackOrderDropTarget === track.trackIndex ? null : trackOrderDropTarget
                 "
-                @select="handleActionSelection($event, cast.id)"
-                @hit-click="
-                  hitDetailTarget = {
-                    trackIndex: track.trackIndex,
-                    castId: cast.id,
-                    hitId: $event,
-                  }
+                @reorder-drop="dropTrackOrder($event, track.trackIndex)"
+                @stats="openPanelDialog(track.trackIndex)"
+                @weapon="openWeaponDialog(track.trackIndex)"
+                @gear="openGearDialog(track.trackIndex, $event)"
+                @update-initial-ultimate-energy="
+                  setTrackInitialUltimateEnergy(track.trackIndex, $event)
                 "
-                @connection-pointer-down="
-                  (event, port) => beginConnectionDrag(event, cast.id, port)
-                "
-                @move-pointer-down="beginCastMove($event, track.trackIndex, cast.id)"
-                @hover-change="setCastHovered(cast.id, $event)"
-                @contextmenu="openCastContextMenu($event, track.trackIndex, cast.id)"
               />
+              <div
+                class="track-lane"
+                :data-track-index="track.trackIndex"
+                :style="{
+                  width: `${timelineWidth}px`,
+                  height: `${trackEffectLayout(track.trackIndex, track.operatorInstanceId).height}px`,
+                  '--timeline-action-top': `${trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop}px`,
+                  '--timeline-action-guide-top': `${trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop - 2}px`,
+                }"
+                @pointerdown="handleTimelineLanePointerDown"
+                @click="handleTimelineLaneClick"
+                @contextmenu="openMarkerContextMenu($event, track.trackIndex)"
+                @dragover="allowTimelinePayloadDrop"
+                @drop.prevent="dropTimelinePayload($event, track.trackIndex)"
+              >
+                <TimelineTrackGauge
+                  v-if="timelineViewLayers.gauge && isOperatorEffectsVisible(track.trackIndex)"
+                  :curve="gaugeCurveFor(track.trackIndex)"
+                  :color="gaugeColorFor(track.trackIndex)"
+                  :prep-frames="scenario.battle.prepFrames"
+                  :duration-frames="scenario.battle.durationFrames"
+                  :px-per-frame="pxPerFrame"
+                />
+                <TimelineBuffBands
+                  v-if="
+                    timelineViewLayers.upperEffects && isOperatorEffectsVisible(track.trackIndex)
+                  "
+                  :segments="buffSegmentsForTarget(track.operatorInstanceId, 'upper')"
+                  :prep-frames="scenario.battle.prepFrames"
+                  :px-per-frame="pxPerFrame"
+                  placement="upper"
+                  :action-top="
+                    trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
+                  "
+                />
+                <TimelineBuffBands
+                  v-if="timelineViewLayers.lowerBuffs && isOperatorEffectsVisible(track.trackIndex)"
+                  :segments="buffSegmentsForTarget(track.operatorInstanceId, 'lower')"
+                  :prep-frames="scenario.battle.prepFrames"
+                  :px-per-frame="pxPerFrame"
+                  placement="lower"
+                  :action-top="
+                    trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
+                  "
+                />
+                <TimelineComboWindowBands
+                  v-if="
+                    timelineViewLayers.comboWindows && isOperatorEffectsVisible(track.trackIndex)
+                  "
+                  :segments="comboWindowSegmentsFor(track.operatorInstanceId)"
+                  :prep-frames="scenario.battle.prepFrames"
+                  :px-per-frame="pxPerFrame"
+                  :color="gaugeColorFor(track.trackIndex)"
+                  :label="t('timeline.header.viewLayers.comboWindows')"
+                />
+                <div
+                  class="prep-zone"
+                  :style="{ width: `${displayedTimelinePrepFrames * pxPerFrame}px` }"
+                ></div>
+                <div
+                  class="battle-start-line"
+                  :style="{ left: `${displayedTimelinePrepFrames * pxPerFrame}px` }"
+                ></div>
+                <div
+                  v-if="
+                    timelineViewLayers.switchMarkers && isOperatorEffectsVisible(track.trackIndex)
+                  "
+                  v-for="marker in scenario.battle.controlSwitches.filter(
+                    item => item.trackIndex === track.trackIndex,
+                  )"
+                  :key="marker.id"
+                  class="timeline-marker track-switch-marker"
+                  :class="{
+                    selected:
+                      selectedMarker?.kind === 'controlSwitch' && selectedMarker.id === marker.id,
+                  }"
+                  :style="{
+                    left: `${frameToTimelinePx(displayedMarkerFrame('controlSwitch', marker.id, marker.frame), scenario.battle.prepFrames, pxPerFrame)}px`,
+                  }"
+                  @pointerdown="
+                    beginMarkerMove(
+                      $event,
+                      'controlSwitch',
+                      marker.id,
+                      marker.frame,
+                      track.trackIndex,
+                    )
+                  "
+                  @contextmenu="
+                    openExistingMarkerContextMenu(
+                      $event,
+                      'controlSwitch',
+                      marker.id,
+                      marker.frame,
+                      track.trackIndex,
+                      t('nextTimeline.markerLabels.controlSwitch'),
+                    )
+                  "
+                >
+                  <img
+                    v-if="track.operatorSlug"
+                    :src="`/operators/${track.operatorAssetSlug ?? track.operatorSlug}/avatar.webp`"
+                    alt=""
+                  />
+                  <span>{{ displayedMarkerFrame('controlSwitch', marker.id, marker.frame) }}f</span>
+                </div>
+                <div
+                  v-for="marker in (scenario.battle.externalEventMarkers ?? []).filter(
+                    item =>
+                      item.target.scope === 'operator' &&
+                      item.target.trackIndex === track.trackIndex,
+                  )"
+                  :key="marker.id"
+                  class="timeline-marker operator-event-marker"
+                  :class="{
+                    selected:
+                      selectedMarker?.kind === 'externalEvent' && selectedMarker.id === marker.id,
+                  }"
+                  :style="{
+                    left: `${frameToTimelinePx(displayedMarkerFrame('externalEvent', marker.id, marker.frame), scenario.battle.prepFrames, pxPerFrame)}px`,
+                  }"
+                  @pointerdown="
+                    beginMarkerMove(
+                      $event,
+                      'externalEvent',
+                      marker.id,
+                      marker.frame,
+                      track.trackIndex,
+                    )
+                  "
+                  @contextmenu="
+                    openExistingMarkerContextMenu(
+                      $event,
+                      'externalEvent',
+                      marker.id,
+                      marker.frame,
+                      track.trackIndex,
+                      marker.event.kind === 'operatorHit'
+                        ? t('nextTimeline.markerContext.operatorHit')
+                        : t('nextTimeline.markerLabels.operatorWeakness'),
+                    )
+                  "
+                >
+                  <span>{{
+                    marker.event.kind === 'operatorHit'
+                      ? t('nextTimeline.markerLabels.hitShort')
+                      : t('nextTimeline.markerLabels.weaknessShort')
+                  }}</span>
+                  <b>{{ displayedMarkerFrame('externalEvent', marker.id, marker.frame) }}f</b>
+                </div>
+                <TimelineActionBlock
+                  v-for="(cast, castIndex) in track.skillCasts"
+                  :key="cast.id"
+                  :action-id="cast.id"
+                  :label="timelineCastLabel(cast, track)"
+                  :skill-type="cast.skillType"
+                  :left="
+                    frameToTimelinePx(
+                      castActualStartFrame(cast.id, cast.startFrame),
+                      scenario.battle.prepFrames,
+                      pxPerFrame,
+                    )
+                  "
+                  :width="castActualDurationFrame(cast.id, cast.durationFrames) * pxPerFrame"
+                  :stack-order="castIndex"
+                  :duration-pending="castActualDurationPending(cast.id, cast.durationFrames)"
+                  :selected="actionSelection.selectedIds.has(cast.id)"
+                  :perfect="perfectComboCastIds.has(cast.id)"
+                  :moving="
+                    !castMoveGesture?.committed &&
+                    castMoveGesture?.dragStarted &&
+                    castMoveGesture?.skillCastIds.includes(cast.id)
+                  "
+                  :disabled="cast.disabled"
+                  :locked="cast.locked"
+                  :edited="cast.edited"
+                  :color="cast.color"
+                  :connection-tool-enabled="connectionToolEnabled"
+                  :connection-dragging="connectionDrag !== null"
+                  :connection-source-action-id="connectionDrag?.skillCastId ?? null"
+                  :connection-target-valid="isConnectionTargetValid(cast.id)"
+                  :warning="diagnosticsByCastId.has(cast.id) || cast.resolutionIssue !== undefined"
+                  :warning-text="cast.resolutionIssue ?? castWarningTitle(cast.id)"
+                  :warning-fallback-text="t('common.warning')"
+                  :hits="
+                    timelineViewLayers.hitMarkers && isOperatorEffectsVisible(track.trackIndex)
+                      ? castHitMarkers(track.trackIndex, cast.id)
+                      : []
+                  "
+                  :time-dilation-segments="
+                    timelineViewLayers.skillDecorations &&
+                    isOperatorEffectsVisible(track.trackIndex)
+                      ? castTimeDilationSegments(
+                          cast.id,
+                          cast.startFrame,
+                          castActualDurationFrame(cast.id, cast.durationFrames),
+                        )
+                      : []
+                  "
+                  :custom-bars="
+                    timelineViewLayers.skillDecorations &&
+                    isOperatorEffectsVisible(track.trackIndex)
+                      ? cast.customBars
+                      : []
+                  "
+                  :cooldown-bars="
+                    timelineViewLayers.skillDecorations &&
+                    isOperatorEffectsVisible(track.trackIndex)
+                      ? cooldownBarsForCast(cast.id, cast.startFrame)
+                      : []
+                  "
+                  :enhancement-bars="
+                    timelineViewLayers.skillDecorations &&
+                    isOperatorEffectsVisible(track.trackIndex)
+                      ? enhancementBarsForCast(
+                          cast.id,
+                          castActualStartFrame(cast.id, cast.startFrame),
+                        )
+                      : []
+                  "
+                  :px-per-frame="pxPerFrame"
+                  @select="handleActionSelection($event, cast.id)"
+                  @hit-click="
+                    hitDetailTarget = {
+                      trackIndex: track.trackIndex,
+                      castId: cast.id,
+                      hitId: $event,
+                    }
+                  "
+                  @connection-pointer-down="
+                    (event, port) => beginConnectionDrag(event, cast.id, port)
+                  "
+                  @move-pointer-down="beginCastMove($event, track.trackIndex, cast.id)"
+                  @pointermove="updateAlignmentGuide($event, cast.id)"
+                  @hover-change="setCastHovered(cast.id, $event)"
+                  @contextmenu="openCastContextMenu($event, track.trackIndex, cast.id)"
+                />
+              </div>
+              <div
+                v-if="
+                  buffLayoutMode === 'compact' && track.trackIndex < viewModel.tracks.length - 1
+                "
+                class="track-row-resizer"
+                :aria-label="t('timelineGrid.toolbar.resizeTrack')"
+                role="separator"
+                aria-orientation="horizontal"
+                @pointerdown="beginCompactTrackResize($event, track.trackIndex)"
+                @dblclick.stop="resetCompactTrackPair(track.trackIndex)"
+              ></div>
             </div>
           </div>
         </div>
       </div>
+      <div
+        ref="timelineHorizontalScrollbar"
+        class="timeline-horizontal-scrollbar"
+        :aria-label="t('timelineGrid.toolbar.horizontalScroll')"
+        :style="{ marginRight: `${timelineVerticalScrollbarWidth}px` }"
+        tabindex="0"
+        @scroll="updateTimelineHorizontalScroll"
+      >
+        <div
+          class="timeline-horizontal-scrollbar__spacer"
+          :style="{ width: `${timelineWidth}px` }"
+        ></div>
+      </div>
+    </div>
+    <div
+      v-if="libraryPlacement !== null && placementPointer !== null"
+      class="library-placement-ghost"
+      :style="{ left: `${placementPointer.x + 12}px`, top: `${placementPointer.y + 18}px` }"
+    >
+      <strong>{{ placementLabel }}</strong>
+      <span>{{ t('timeline.shortcut.placeCancelHint') }}</span>
     </div>
     <div v-if="marqueeStyle" class="timeline-marquee" :style="marqueeStyle"></div>
 
@@ -2571,6 +4564,7 @@ function setPanelDialogVisible(visible: boolean): void {
       <NextGlobalResourcePanel
         v-if="tool === 'global'"
         :rules="scenario.battle.resourceRules"
+        :modifiers="scenario.globalConfig.modifiers"
         :labels="{
           title: t('timeline.activityBar.globalConfig'),
           maximum: t('nextTimeline.maxSp'),
@@ -2578,6 +4572,7 @@ function setPanelDialogVisible(visible: boolean): void {
           recovery: t('resourceMonitor.labels.spPerSecond'),
         }"
         @update="setBattleResourceRule"
+        @set-modifiers="setGlobalModifiers"
       />
       <section v-else-if="tool === 'enemy'" class="simulation-panel">
         <div class="simulation-status">
@@ -2652,8 +4647,33 @@ function setPanelDialogVisible(visible: boolean): void {
       <div v-else class="empty-panel">{{ tool }}</div>
     </template>
     <template #right="{ tool }">
+      <TimelineExternalEventInspector
+        v-if="tool === 'inspector' && selectedExternalEventMarker !== null"
+        :marker="selectedExternalEventMarker"
+        :maximum-frame="scenario.battle.durationFrames"
+        :target-label="selectedExternalEventTargetLabel"
+        @set-frame="setSelectedExternalEventFrame"
+        @set-event="setSelectedExternalEvent"
+        @remove="removeSelectedExternalEvent"
+      />
+      <TimelineDocumentMarkerInspector
+        v-else-if="tool === 'inspector' && selectedDocumentMarker !== null"
+        :kind="selectedDocumentMarker.kind"
+        :id="selectedDocumentMarker.id"
+        :frame="selectedDocumentMarker.frame"
+        :maximum-frame="scenario.battle.durationFrames"
+        :track-index="
+          selectedDocumentMarker.kind === 'controlSwitch'
+            ? selectedDocumentMarker.trackIndex
+            : undefined
+        "
+        :track-options="occupiedTrackOptions"
+        @set-frame="setSelectedDocumentMarkerFrame"
+        @set-track-index="setSelectedControlSwitchTrack"
+        @remove="removeSelectedDocumentMarker"
+      />
       <TimelineActionInspector
-        v-if="tool === 'inspector'"
+        v-else-if="tool === 'inspector'"
         :cast="selectedCastModel?.cast ?? null"
         :label="selectedCastModel?.label ?? ''"
         :skill-type="selectedCastModel?.skillType ?? null"
@@ -2661,11 +4681,30 @@ function setPanelDialogVisible(visible: boolean): void {
         :diff-count="selectedCastModel?.diffCount ?? 0"
         :template-definition="selectedCastModel?.templateDefinition ?? null"
         :current-definition="selectedCastModel?.currentDefinition ?? null"
+        :maximum-frame="scenario.battle.durationFrames"
+        :connections="selectedCastConnections"
+        :connection-tool-enabled="connectionToolEnabled"
         @edit-definition="showSkillDefinitionEditor = true"
         @reset-definition="resetSelectedCastDefinition"
         @set-camera-target-angle="setSelectedCastCameraTargetAngle"
+        @set-start-frame="setSelectedCastStartFrame"
+        @set-locked="setSelectedCastLocked"
+        @set-disabled="setSelectedCastDisabled"
+        @set-color="setSelectedCastColor"
+        @add-custom-bar="addSelectedCastCustomBar"
+        @set-custom-bars="setSelectedCastCustomBars"
+        @begin-connection="beginSelectedCastConnection"
+        @remove-connection="deleteTimelineConnection"
+        @update-connection="updateSelectedCastConnection"
       />
-      <div v-else class="empty-panel">{{ tool }}</div>
+      <NextBattleLogPanel
+        v-else
+        :entries="simulationRun?.receiptEntries ?? []"
+        :event-label="battleReceiptEventLabel"
+        :damage-type-label="damageElementLabel"
+        @locate="locateBattleLogEntry"
+        :cast-owners="battleLogCastOwners"
+      />
     </template>
   </TimelineWorkbenchShell>
   <TimelineActionContextMenu
@@ -2682,6 +4721,39 @@ function setPanelDialogVisible(visible: boolean): void {
     @toggle-lock="toggleContextCastField('locked')"
     @toggle-disabled="toggleContextCastField('disabled')"
     @set-color="setContextCastColor"
+  />
+  <TimelineMarkerContextMenu
+    :visible="markerContextTarget !== null"
+    :x="markerContextTarget?.x ?? 0"
+    :y="markerContextTarget?.y ?? 0"
+    :frame="markerContextTarget?.frame ?? 0"
+    :can-target-track="scenario.tracks[markerContextTarget?.trackIndex ?? selectedTrack] !== null"
+    :has-simulation-start="scenario.battle.simulationRange?.startFrame !== undefined"
+    :has-simulation-end="scenario.battle.simulationRange?.endFrame !== undefined"
+    :existing-label="markerContextTarget?.existing?.label"
+    :labels="{
+      title: t('nextTimeline.markerContext.title'),
+      deleteMarker: t('nextTimeline.markerContext.deleteMarker'),
+      addCycle: t('nextTimeline.markerContext.addCycle'),
+      addSimulationStart: t('nextTimeline.markerContext.addSimulationStart'),
+      removeSimulationStart: t('nextTimeline.markerContext.removeSimulationStart'),
+      addSimulationEnd: t('nextTimeline.markerContext.addSimulationEnd'),
+      removeSimulationEnd: t('nextTimeline.markerContext.removeSimulationEnd'),
+      switchOperator: t('nextTimeline.markerContext.switchOperator'),
+      restrictedHint: t('nextTimeline.markerContext.restrictedHint'),
+      operatorHit: t('nextTimeline.markerContext.operatorHit'),
+      operatorWeakness: t('nextTimeline.markerContext.operatorWeakness'),
+      teamHit: t('nextTimeline.markerContext.teamHit'),
+    }"
+    @close="markerContextTarget = null"
+    @add-cycle="addMarkerFromContext('cycle')"
+    @toggle-simulation-start="addMarkerFromContext('simulationStart')"
+    @toggle-simulation-end="addMarkerFromContext('simulationEnd')"
+    @add-switch="addMarkerFromContext('switch')"
+    @add-operator-hit="addMarkerFromContext('operatorHit')"
+    @add-operator-weakness="addMarkerFromContext('operatorWeakness')"
+    @add-team-hit="addMarkerFromContext('teamHit')"
+    @delete="removeMarkerFromContext"
   />
   <OperatorSelectionDialog
     :visible="operatorDialogTrack !== null"
@@ -2813,6 +4885,7 @@ function setPanelDialogVisible(visible: boolean): void {
     :custom-definition="selectedCastModel?.cast.customDefinition"
     :skill-level="selectedCastModel?.skillLevel ?? 1"
     :ability-entity-ids="selectedCastAbilityEntityIds"
+    :buff-ids="selectedCastBuffIds"
     @update:visible="showSkillDefinitionEditor = $event"
     @save="saveSelectedCastDefinition"
     @reset="resetSelectedCastDefinition"
@@ -2860,6 +4933,29 @@ function setPanelDialogVisible(visible: boolean): void {
     @close="hitDetailTarget = null"
     @toggle-force-critical="toggleHitDetailForceCritical"
   />
+  <NextDamageAnalysisDialog
+    :visible="showDamageAnalysis"
+    :analysis="damageAnalysis"
+    :locale="locale"
+    :labels="{
+      title: t('timeline.analysis.dialogTitle'),
+      warning: t('timeline.analysis.warning'),
+      noData: t('timeline.analysis.noData'),
+      damageByOperator: t('timeline.analysis.damageByOperator'),
+      contributionByOperator: t('timeline.analysis.contributionByOperator'),
+      damageByElement: t('timeline.analysis.damageByElement'),
+      totalDamage: t('timeline.analysis.totalDamage'),
+      rotationTime: t('timeline.analysis.rotationTime'),
+      dps: t('timeline.analysis.dps'),
+      unattributedDamage: (value: string) => t('timeline.analysis.unattributedDamage', { value }),
+      contributionUnavailable: t('timeline.analysis.contributionUnavailable'),
+    }"
+    @update:visible="showDamageAnalysis = $event"
+  />
+  <TimelineShortcutHelpDialog
+    :visible="showShortcutHelp"
+    @update:visible="showShortcutHelp = $event"
+  />
 </template>
 
 <style scoped>
@@ -2893,7 +4989,28 @@ button:disabled {
   min-height: 0;
   padding: 15px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.skill-sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.library-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.library-header__main {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .operator-heading {
@@ -2902,12 +5019,18 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
   padding: 0;
   border: 0;
   background: transparent;
   font-size: 18px;
   text-align: left;
+}
+
+.library-header__divider {
+  height: 2px;
+  margin-top: 3px;
+  background: linear-gradient(90deg, var(--ea-gold) 0%, transparent 100%);
+  opacity: 0.3;
 }
 
 .operator-heading__mark {
@@ -2918,21 +5041,43 @@ button:disabled {
 
 .sidebar-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 6px;
 }
 
-.sidebar-tabs button.active {
-  color: var(--ea-gold);
-  border-color: var(--ea-gold);
-}
-
-.library-heading {
-  display: flex;
-  justify-content: space-between;
-  margin: 22px 4px 10px;
-  color: var(--ea-fg-muted);
+.sidebar-tabs button {
+  min-width: 0;
+  padding: 0 4px;
   font-size: 12px;
+  white-space: nowrap;
+}
+
+.library-section-title {
+  display: flex;
+  flex-direction: column;
+  padding-left: 10px;
+  border-left: 2px solid #444;
+}
+
+.library-section-title strong {
+  color: var(--ea-fg);
+  font-size: 14px;
+}
+
+.library-section-title span {
+  color: var(--ea-fg-secondary);
+  font-size: 10px;
+}
+
+.library-section-title--status {
+  margin-top: 12px;
+}
+
+.skill-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .skill-list {
@@ -2950,21 +5095,57 @@ button:disabled {
 .timeline-workspace {
   width: 100%;
   height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 12px;
+  overflow: hidden;
 }
 
 .timeline-marquee {
   position: fixed;
   z-index: 100;
   box-sizing: border-box;
-  border: 1px solid var(--ea-gold);
-  background: color-mix(in srgb, var(--ea-gold) 14%, transparent);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 50%);
+  --marquee-horizontal: linear-gradient(to right, rgb(255 255 255 / 90%) 60%, transparent 60%);
+  --marquee-vertical: linear-gradient(to bottom, rgb(255 255 255 / 90%) 60%, transparent 60%);
+  background-image:
+    var(--marquee-horizontal), var(--marquee-horizontal), var(--marquee-vertical),
+    var(--marquee-vertical);
+  background-position: top, bottom, left, right;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size:
+    10px 1px,
+    10px 1px,
+    1px 10px,
+    1px 10px;
   pointer-events: none;
 }
 
 .timeline-scroll {
+  grid-row: 1;
   width: 100%;
-  height: 100%;
-  overflow: auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.timeline-horizontal-scrollbar {
+  grid-row: 2;
+  min-width: 0;
+  height: 12px;
+  margin-left: 180px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  opacity: 0.7;
+  transition: opacity 200ms ease;
+}
+
+.timeline-horizontal-scrollbar:hover,
+.timeline-horizontal-scrollbar:focus-visible {
+  opacity: 1;
+}
+
+.timeline-horizontal-scrollbar__spacer {
+  height: 1px;
 }
 
 .timeline-scroll.is-panning {
@@ -2977,7 +5158,33 @@ button:disabled {
   min-width: 100%;
   min-height: 100%;
   background-image: linear-gradient(to right, var(--ea-grid-line) 1px, transparent 1px);
-  background-size: 60px 100%;
+  background-position-x: var(--timeline-grid-origin);
+  background-size: var(--timeline-grid-step) 100%;
+}
+
+.timeline-surface.is-library-placing .track-lane {
+  cursor: copy;
+}
+
+.library-placement-ghost {
+  position: fixed;
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 130px;
+  padding: 7px 9px;
+  border: 1px solid var(--ea-gold);
+  background: rgb(20 20 22 / 94%);
+  box-shadow: 0 5px 16px rgb(0 0 0 / 55%);
+  color: var(--ea-fg);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.library-placement-ghost span {
+  color: var(--ea-fg-muted);
+  font-size: 9px;
 }
 
 .corner-placeholder {
@@ -3005,6 +5212,28 @@ button:disabled {
   margin-left: 180px;
 }
 
+.timeline-battle-start-boundary {
+  position: absolute;
+  z-index: 11;
+  top: 76px;
+  bottom: 0;
+  width: 14px;
+  margin-left: -7px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.timeline-battle-start-boundary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  width: 2px;
+  background: var(--ea-mark-strong, rgba(255, 255, 255, 0.38));
+  pointer-events: none;
+}
+
 .cursor-guide {
   position: absolute;
   top: 76px;
@@ -3016,18 +5245,207 @@ button:disabled {
   pointer-events: none;
 }
 
-.cursor-guide-label {
-  width: fit-content;
-  padding: 3px 6px;
-  border: 1px solid var(--ea-border);
+.alignment-guide {
+  position: absolute;
+  z-index: 20;
+  width: 1px;
+  border-left: 2px solid currentColor;
+  box-shadow: 0 0 7px currentColor;
+  pointer-events: none;
+}
+
+.alignment-guide::after {
+  content: '';
+  position: absolute;
+  inset: 0 -6px;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+}
+
+.alignment-guide span {
+  position: absolute;
+  left: 6px;
+  top: -21px;
+  padding: 2px 5px;
+  border: 1px solid currentColor;
   background: var(--ea-tooltip-bg);
-  color: var(--ea-fg);
-  box-shadow: 0 2px 8px var(--ea-shadow);
-  white-space: pre;
-  font-family: monospace;
+  color: currentColor;
   font-size: 10px;
-  font-weight: 700;
-  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.timeline-marker {
+  position: absolute;
+  z-index: 8;
+  box-sizing: border-box;
+  user-select: none;
+  cursor: ew-resize;
+}
+
+.simulation-range-dim {
+  position: absolute;
+  z-index: 7;
+  top: 76px;
+  bottom: 0;
+  background: rgb(0 0 0 / 38%);
+  pointer-events: none;
+}
+
+.simulation-range-dim--end {
+  right: 0;
+}
+
+.simulation-range-marker {
+  top: 76px;
+  bottom: 0;
+  width: 1px;
+  border-left: 2px solid #5b9bd5;
+  box-shadow: 0 0 5px rgb(91 155 213 / 55%);
+}
+
+.simulation-range-marker--end {
+  border-left-color: #d46b5f;
+  box-shadow: 0 0 5px rgb(212 107 95 / 55%);
+}
+
+.simulation-range-marker::after {
+  content: '';
+  position: absolute;
+  inset: 0 -6px;
+}
+
+.simulation-range-marker > span,
+.simulation-range-marker > b {
+  position: absolute;
+  left: 5px;
+  padding: 2px 4px;
+  background: rgb(12 34 52 / 94%);
+  color: #b9dcff;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.simulation-range-marker--end > span,
+.simulation-range-marker--end > b {
+  background: rgb(58 24 20 / 94%);
+  color: #ffc1ba;
+}
+
+.simulation-range-marker > span {
+  top: 40px;
+}
+
+.simulation-range-marker > b {
+  top: 58px;
+}
+
+.cycle-boundary-marker,
+.team-event-marker {
+  top: 76px;
+  bottom: 0;
+  width: 1px;
+  border-left: 1px solid rgb(0 0 0 / 82%);
+  box-shadow: -1px 0 rgb(255 255 255 / 8%);
+}
+
+.team-event-marker {
+  border-left: 1px dashed #ff7875;
+  box-shadow: none;
+}
+
+.cycle-boundary-marker::after,
+.team-event-marker::after {
+  content: '';
+  position: absolute;
+  inset: 0 -5px;
+}
+
+.cycle-boundary-marker > span,
+.cycle-boundary-marker > b,
+.team-event-marker > span,
+.team-event-marker > b {
+  position: absolute;
+  left: 4px;
+  padding: 2px 4px;
+  background: rgb(0 0 0 / 82%);
+  color: #ddd;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cycle-boundary-marker > span,
+.team-event-marker > span {
+  top: 2px;
+}
+.cycle-boundary-marker > b,
+.team-event-marker > b {
+  top: 20px;
+}
+.team-event-marker > span,
+.team-event-marker > b {
+  background: rgb(80 16 20 / 92%);
+  color: #ffccc7;
+}
+
+.track-switch-marker {
+  top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 5px 2px 2px;
+  border: 1px solid var(--ea-border-strong);
+  border-radius: 14px 3px 3px 14px;
+  background: rgb(16 16 18 / 92%);
+  color: var(--ea-fg-secondary);
+  font-size: 10px;
+  transform: translateX(-12px);
+}
+
+.track-switch-marker::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 100%;
+  height: 20px;
+  border-left: 1px solid var(--ea-border-strong);
+}
+
+.track-switch-marker img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.operator-event-marker {
+  top: 116px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3px 5px;
+  border: 1px solid #a61d24;
+  border-radius: 3px;
+  background: rgb(64 12 16 / 92%);
+  color: #ffccc7;
+  font-size: 10px;
+  transform: translateX(-50%);
+}
+
+.operator-event-marker::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  height: 14px;
+  border-left: 1px dashed #ff7875;
+}
+
+.timeline-marker.selected {
+  outline: 2px solid var(--ea-gold);
+  outline-offset: 2px;
 }
 
 .simulation-panel {
@@ -3087,6 +5505,13 @@ button:disabled {
   color: var(--ea-fg-muted);
 }
 
+.track-stack {
+  width: fit-content;
+  min-width: 100%;
+  padding: 20px 0;
+  box-sizing: border-box;
+}
+
 .track-row {
   position: relative;
   display: grid;
@@ -3103,7 +5528,7 @@ button:disabled {
 
 .track-lane {
   position: relative;
-  height: 160px;
+  height: var(--timeline-track-height, 160px);
   overflow: hidden;
 }
 
@@ -3111,7 +5536,7 @@ button:disabled {
   content: '';
   position: absolute;
   z-index: 0;
-  top: 53px;
+  top: var(--timeline-action-guide-top, 53px);
   right: 0;
   left: 0;
   height: 54px;
@@ -3127,6 +5552,40 @@ button:disabled {
   border-style: dashed;
 }
 
+.track-row-resizer {
+  position: absolute;
+  z-index: 40;
+  right: 0;
+  bottom: -5px;
+  left: 0;
+  height: 10px;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.track-row-resizer::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--ea-active-fill);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.track-row-resizer:hover::after,
+.track-row-resizer:focus-visible::after {
+  opacity: 1;
+}
+
+:global(html.is-next-track-resizing),
+:global(html.is-next-track-resizing *) {
+  cursor: ns-resize !important;
+  user-select: none !important;
+}
+
 .prep-zone {
   position: absolute;
   inset: 0 auto 0 0;
@@ -3138,8 +5597,9 @@ button:disabled {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 1px;
+  width: 2px;
   background: var(--ea-mark-strong);
+  transform: translateX(-1px);
   pointer-events: none;
 }
 

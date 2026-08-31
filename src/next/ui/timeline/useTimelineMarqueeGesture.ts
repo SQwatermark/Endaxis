@@ -103,7 +103,7 @@ export function useTimelineMarqueeGesture(options: UseTimelineMarqueeGestureOpti
     stop();
   }
 
-  function begin(event: PointerEvent): void {
+  function begin(event: PointerEvent, toggleSelection = event.ctrlKey || event.metaKey): void {
     const target = event.target;
     if (
       event.button !== 0 ||
@@ -118,8 +118,8 @@ export function useTimelineMarqueeGesture(options: UseTimelineMarqueeGestureOpti
       startY: event.clientY,
       currentX: event.clientX,
       currentY: event.clientY,
-      ctrlKey: event.ctrlKey,
-      metaKey: event.metaKey,
+      ctrlKey: toggleSelection,
+      metaKey: false,
     };
     const onMove = (moveEvent: PointerEvent) => {
       const current = gesture.value;
@@ -129,16 +129,23 @@ export function useTimelineMarqueeGesture(options: UseTimelineMarqueeGestureOpti
     };
     const onFinish = (finishEvent: PointerEvent) => finish(finishEvent);
     const onCancel = () => stop();
+    const onKeydown = (keyEvent: KeyboardEvent) => {
+      if (keyEvent.key !== 'Escape') return;
+      keyEvent.preventDefault();
+      stop();
+    };
     stopGesture = () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onFinish);
       window.removeEventListener('pointercancel', onCancel);
+      window.removeEventListener('keydown', onKeydown, true);
       gesture.value = null;
       stopGesture = null;
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onFinish);
     window.addEventListener('pointercancel', onCancel);
+    window.addEventListener('keydown', onKeydown, true);
   }
 
   function consumeLaneClickSuppression(): boolean {

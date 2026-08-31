@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'staticHealingIncrease',
       target: 'output',
-      value: [0.2],
+      value: 0.2,
     },
   ],
   buffDefinitions: {
@@ -126,7 +126,9 @@ const definition = {
                       parameters: {
                         buffId: 'buff_common_dmgtk_down_equip_1',
                         target: 'eventTarget',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
+                        asChildBuff: true,
                         blackboardAssignments: {
                           value: {
                             kind: 'blackboard',
@@ -146,6 +148,14 @@ const definition = {
                   ],
                 },
               },
+            ],
+          },
+        },
+        {
+          event: 'outputHeal',
+          priority: 0,
+          sequence: {
+            steps: [
               {
                 kind: 'conditional',
                 parameters: {
@@ -163,6 +173,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_common_dmgtk_down_equip_1',
                         target: 'eventTarget',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           value: {

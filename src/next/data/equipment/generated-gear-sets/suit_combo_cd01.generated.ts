@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'skillCooldownMultiplier',
       skillTypes: 'comboSkill',
-      value: [0.85],
+      value: 0.85,
     },
   ],
   buffDefinitions: {
@@ -49,7 +49,9 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_combo_cd01_spellup',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
+                        asChildBuff: true,
                         blackboardAssignments: {
                           spell_up: {
                             kind: 'blackboard',

@@ -331,6 +331,23 @@ function buffActionNodes(source: BuffRuntimeSource) {
   ].flatMap(sequence => collectNativeActionNodes(sequence));
 }
 
+/** AbilityEntity 创建动作保存的 Context 在该序列后只可能引用刚创建的实体实例。 */
+export function collectBuffSpawnedAbilityEntityContextKeys(
+  source: BuffRuntimeSource,
+): ReadonlySet<string> {
+  return new Set(
+    buffActionNodes(source).flatMap(node =>
+      node.metadata.enabled &&
+      node.body.kind === 'leaf' &&
+      node.body.value.family === 'abilityEntity' &&
+      node.body.value.action.saveToContext &&
+      node.body.value.action.contextKey !== ''
+        ? [node.body.value.action.contextKey]
+        : [],
+    ),
+  );
+}
+
 function propagateBuffTargets(
   sources: ReadonlyMap<string, BuffRuntimeSource>,
   ownerSeeds: ReadonlyMap<string, 'caster' | 'enemy' | 'currentAbilityEntity'>,
@@ -449,8 +466,9 @@ function propagateBuffTargets(
         ...staticEnemyTargetGroupKeys,
         ...(capturedTargetGroups.get(id)?.zeroSpaceKeys ?? []),
       ]);
-      const abilityEntityTargetGroupKeys = new Set(
-        nodes.flatMap(node =>
+      const abilityEntityTargetGroupKeys = new Set([
+        ...collectBuffSpawnedAbilityEntityContextKeys(source),
+        ...nodes.flatMap(node =>
           node.metadata.enabled &&
           node.body.kind === 'leaf' &&
           node.body.value.family === 'targetGroup' &&
@@ -460,7 +478,7 @@ function propagateBuffTargets(
             ? [node.body.value.action.targetGroupKey]
             : [],
         ),
-      );
+      ]);
       // PickTarget 不改变目标身份；把 OwnerSpawned AbilityEntity 查询的别名继续传播，
       // 后续施加到单个 Context 实例的 Buff 才能获得 currentAbilityEntity owner 证据。
       let targetGroupChanged = true;

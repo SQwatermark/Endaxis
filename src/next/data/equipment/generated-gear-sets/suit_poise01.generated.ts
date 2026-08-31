@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'attackPercent',
-      value: [0.08],
+      value: 0.08,
     },
   ],
   buffDefinitions: {
@@ -39,7 +39,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/NoGuard"],
+                    buffTags: ['Skill/Character/Common/NoGuard'],
                   },
                 },
                 whenTrue: {
@@ -49,6 +49,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_poisedmg_01_damagebuff',
                         target: 'buffOwner',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           phy_dmg_up: {
@@ -66,9 +67,10 @@ const definition = {
                       kind: 'conditional',
                       parameters: {
                         condition: {
-                          kind: 'eventTargetBuffCountCompare',
+                          kind: 'buffStackCompare',
+                          target: 'eventTarget',
                           tagQueryType: 'hasAny',
-                          buffTags: ["Skill/Character/Common/NoGuard"],
+                          buffTags: ['Skill/Character/Common/NoGuard'],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -83,6 +85,7 @@ const definition = {
                             parameters: {
                               buffId: 'buff_equipsuit_poisedmg_01_attackbuff',
                               target: 'buffOwner',
+                              source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 phy_dmg_up2: {

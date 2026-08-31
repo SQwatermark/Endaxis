@@ -39,6 +39,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'cryo',
+          slot: 'baseAddition',
           value: [
             0.09210526315789473, 0.09210526315789473, 0.09210526315789473, 0.09210526315789473,
           ],
@@ -46,6 +47,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'electric',
+          slot: 'baseAddition',
           value: [
             0.09210526315789473, 0.09210526315789473, 0.09210526315789473, 0.09210526315789473,
           ],
@@ -53,6 +55,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'heat',
+          slot: 'baseAddition',
           value: [
             0.09210526315789473, 0.09210526315789473, 0.09210526315789473, 0.09210526315789473,
           ],
@@ -60,6 +63,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'nature',
+          slot: 'baseAddition',
           value: [
             0.09210526315789473, 0.09210526315789473, 0.09210526315789473, 0.09210526315789473,
           ],

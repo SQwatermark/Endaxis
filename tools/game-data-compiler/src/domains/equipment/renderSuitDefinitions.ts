@@ -41,22 +41,5 @@ export function renderEquipmentSuitDefinitionFiles(
     relativePath: 'index.generated.ts',
     content: `${imports.join('\n')}\n\nimport type { GearSetDefinition } from '../../../core/game-data/equipmentDefinition';\n\nexport const generatedGearSetDefinitions = [\n${definitions.map((_, index) => `  generatedGearSet${index},`).join('\n')}\n] as const satisfies readonly GearSetDefinition[];\n`,
   });
-  files.push({
-    relativePath: 'gear-set-definitions.audit.json',
-    content: `${JSON.stringify(
-      {
-        format: 'EndaxisGeneratedGearSetAudit',
-        version: 1,
-        definitionCount: definitions.length,
-        buffDefinitionCount: definitions.reduce(
-          (total, item) => total + Object.keys(item.buffDefinitions ?? {}).length,
-          0,
-        ),
-        diagnostics: batch.diagnostics,
-      },
-      null,
-      2,
-    )}\n`,
-  });
   return files.sort((left, right) => left.relativePath.localeCompare(right.relativePath));
 }

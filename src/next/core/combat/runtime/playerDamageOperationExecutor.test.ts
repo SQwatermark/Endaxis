@@ -186,6 +186,7 @@ describe('PlayerDamageOperationExecutor', () => {
       damageScaleMultiplier: 1,
       criticalRate: 0,
       criticalDamageIncrease: 0.5,
+      criticalExpectationMultiplier: 1,
       nonCriticalDamage: 400,
       criticalDamage: 600,
       expectedDamage: 400,
@@ -194,6 +195,8 @@ describe('PlayerDamageOperationExecutor', () => {
       damageTakenMultiplier: 1,
       weaknessDamageMultiplier: 1,
       shelterDamageMultiplier: 0,
+      directDamageMultiplier: 1,
+      resistancePercentMultiplier: 1,
     });
 
     const controlledOnlyStaggerStep = {
@@ -376,17 +379,25 @@ describe('PlayerDamageOperationExecutor', () => {
       poiseImmune: false,
     });
     const snapshots = createAttributeSnapshots(100);
+    const receipt = new CombatReceiptCollector();
     const executor = new PlayerDamageOperationExecutor({
       sourceOperatorId: 'antal',
       targetId: 'enemy',
       targetVitals,
       clock: new CombatClock(),
-      receipt: new CombatReceiptCollector(),
+      receipt,
       captureAttributeSnapshots: () => ({
         ...snapshots,
         attacker: {
           ...snapshots.attacker,
           physicalInflictionDamageMultiplier: 2,
+        },
+        defender: {
+          ...snapshots.defender,
+          resistances: {
+            ...snapshots.defender.resistances,
+            physical: { percent: 20, damageTakenMultiplier: 1.25 },
+          },
         },
       }),
       criticalSamples: { nextCriticalSample: () => 1 },
@@ -418,6 +429,14 @@ describe('PlayerDamageOperationExecutor', () => {
     });
 
     expect(targetVitals.health).toBe(800);
+    expect(receipt.entries[0]?.data).toMatchObject({
+      physicalInflictionMultiplier: 2,
+      directDamageMultiplier: 2,
+      criticalExpectationMultiplier: 1,
+      enemyResistancePercent: 20,
+      resistancePercentMultiplier: 0.8,
+      damageTakenMultiplier: 1.25,
+    });
   });
 
   it('uses fixed damage as the calculation result while preserving the damage formula', () => {

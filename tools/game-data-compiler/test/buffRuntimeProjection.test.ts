@@ -10,8 +10,58 @@ import {
   type DamageActionSource,
   type TargetReferenceSource,
 } from '../src/index.ts';
+import { collectBuffSpawnedAbilityEntityContextKeys } from '../src/compiler/standardStumpBuffClosure.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('把 Buff 动作内创建并保存的 AbilityEntity Context 保留为实体目标证据', () => {
+    const source = sourceFixture();
+    const event = source.graph.abilityEvents[0]!;
+    const action = event.actions[0]!;
+    const metadata = action.actions[0]!.metadata;
+    const changed: BuffRuntimeSource = {
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: [
+          {
+            ...event,
+            actions: [
+              {
+                ...action,
+                actions: [
+                  {
+                    sourcePath: 'BuffData.buff_root.spawn.saved',
+                    metadata,
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'abilityEntity',
+                        action: { saveToContext: true, contextKey: 'laser_target' },
+                      },
+                    },
+                  } as never,
+                  {
+                    sourcePath: 'BuffData.buff_root.spawn.disabled',
+                    metadata: { ...metadata, enabled: false },
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'abilityEntity',
+                        action: { saveToContext: true, contextKey: 'disabled_target' },
+                      },
+                    },
+                  } as never,
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    expect([...collectBuffSpawnedAbilityEntityContextKeys(changed)]).toEqual(['laser_target']);
+  });
+
   it('把点燃者作为 Source/Target、Buff 宿主作为 Owner 编译点燃响应', () => {
     const source = sourceFixture();
     const response = source.graph.abilityEvents[0]!.actions[0]!;
@@ -2104,14 +2154,27 @@ describe('公共 Buff 运行时投影', () => {
   });
 
   it.each([
-    { validatorTypes: [] as string[], expectedTarget: 'party' as const },
+    {
+      validatorTypes: [] as string[],
+      postProcessorTypes: [] as string[],
+      excludesOwner: false,
+      expectedTarget: 'party' as const,
+    },
     {
       validatorTypes: ['ExcludeOwnerValidator'],
+      postProcessorTypes: [] as string[],
+      excludesOwner: false,
+      expectedTarget: 'partyExceptCaster' as const,
+    },
+    {
+      validatorTypes: [] as string[],
+      postProcessorTypes: ['ExcludeTarget'],
+      excludesOwner: true,
       expectedTarget: 'partyExceptCaster' as const,
     },
   ])(
     '把 Skill/Gain 技力事件和队伍查询融合为 $expectedTarget Buff 响应',
-    ({ validatorTypes, expectedTarget }) => {
+    ({ validatorTypes, postProcessorTypes, excludesOwner, expectedTarget }) => {
       const source = sourceFixture();
       const sequence = source.graph.abilityEvents[0]!.actions[0]!;
       const apply = sequence.actions[1]!;
@@ -2161,8 +2224,8 @@ describe('公共 Buff 运行时投影', () => {
                               targetGroupKey: 'teammate',
                               finderType: 'CharacterTeamFinder',
                               validatorTypes,
-                              postProcessorTypes: [],
-                              excludesOwner: false,
+                              postProcessorTypes,
+                              excludesOwner,
                               center: 'ActionSource',
                               centerContextKey: '',
                               selectorOwner: 'ActionSource',

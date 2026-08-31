@@ -1842,6 +1842,7 @@ function validateCombatStep(
                 for (const key of Object.keys(presentationRecord)) {
                   if (
                     ![
+                      'nameKey',
                       'iconId',
                       'iconPath',
                       'visible',
@@ -1869,7 +1870,7 @@ function validateCombatStep(
                     out,
                   );
                 }
-                for (const key of ['iconId', 'iconStyleInSquad', 'abnormalColorType']) {
+                for (const key of ['nameKey', 'iconId', 'iconStyleInSquad', 'abnormalColorType']) {
                   if (presentationRecord[key] !== undefined) {
                     requireString(
                       presentationRecord,
@@ -3222,6 +3223,9 @@ export function validateSkillDefinition(
 
   requireString(record, 'key', path, out);
   requireNonNegativeInteger(record, 'timelineBlockFrames', path, out);
+  if (record.enhancementStateBuffId !== undefined) {
+    requireString(record, 'enhancementStateBuffId', path, out);
+  }
 
   if (record.blackboard !== undefined) {
     const blackboard = asRecord(record.blackboard, `${path}.blackboard`, out);

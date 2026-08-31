@@ -1,11 +1,12 @@
 # 项目与工具总览
 
-本文说明整个工作区里每个项目的职责、输入输出和边界。路径以当前 Windows 工作区 `C:\Users\sqwat\Projects\zmd` 为基准。
+本文说明整个工作区里每个项目的职责、输入输出和边界。当前台式机工作区以 `D:\Projects` 为基准；
+历史笔记本路径 `C:\Users\sqwat\Projects\zmd` 只用于辨认旧日志，不能直接复制进命令。
 
 ## 1. Endaxis
 
-- 主仓库：`C:\Users\sqwat\Projects\zmd\Endaxis`
-- 当前编译器工作树：`C:\Users\sqwat\Projects\zmd\Endaxis-game-data-refactor`，分支 `refactor/common-game-data`
+- 主仓库：`D:\Projects\Endaxis`
+- 当前工作树与编译器主线：`D:\Projects\Endaxis`，分支 `refactor/common-game-data`
 - 主要远端：`https://github.com/SQwatermark/Endaxis.git`
 - 上游远端：`https://github.com/Lieyuan621/Endaxis.git`
 - 当前任务：开发 `src/next` 中的新项目模型、编译器、战斗运行时、投影和并行 UI。
@@ -18,9 +19,9 @@ Endaxis 是最终面向用户的应用。它不负责直接解密游戏文件，
 - `src/next/data`：新 DSL、目录和旧数据适配；
 - `src/next/application`：打开项目、运行场景等用例；
 - `src/next/ui`：Vue 页面、组件、ViewModel、快捷键和主题；
-- `scripts/generate_next_operators`：保留为迁移 oracle 与历史配置，不再添加新转换行为；
 - `tools/game-data-compiler`：统一 TypeScript 编译器的唯一新实现入口；公共来源 IR、
-  Action/Condition/Buff/引用图和被动编译只实现一次，领域目录只负责入口、等级与安装来源；
+  Action/Condition/Buff/引用图和被动编译只实现一次，装备、图标、本地化等正式数据工具也统一收口于此；
+- `scripts`：已清空；旧生成器和迁移期审计只从 Git 历史追溯，不再保留第二套入口；
 - `docs/next`：长期架构文档；
 - `docs/research`：具体机制和生成覆盖率证据；
 - `docs/handoff`：跨项目交接总览。
@@ -50,7 +51,7 @@ AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用�
 
 ## 3. vfs-index-browser
 
-- 路径：`C:\Users\sqwat\Projects\zmd\vfs-index-browser`
+- 路径：`D:\Projects\vfs-index-browser`
 - 当前分支：`master`
 - 2026-08-28 核对提交：`21b88d1 fix(projectile): decode native block layer values`
 - 远程服务历史端口：`8765`
@@ -73,12 +74,14 @@ AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用�
 - PCK、WEM、WAV、HIRC、AudioDialog 的索引与播放；
 - IL2CPP 类型索引、RVA 反汇编和运行时探针分析；
 - 战斗系统研究文档与 C# Combat Spec。
+- `/api/manifest-assets/by-name?name=<filename>` 按大小写不敏感的精确文件名返回全部 Manifest 候选、
+  Bundle 与预览/原始下载地址；同名图标不替调用者猜唯一结果，Endaxis 图标导出必须再用来源域证据筛选。
 
 当前仓库包含大量研究修改，不能为了 Endaxis 任务随意清理或回退。生产模块、实验产物和研究证据应保持边界：正式服务不能依赖某个临时 `.blend`、截图或手工缓存才能工作。
 
 ## 4. AnimeStudio
 
-- 路径：`C:\Users\sqwat\Projects\zmd\AnimeStudio`
+- 路径：`D:\Projects\AnimeStudio`
 - 当前分支：`feature/endfield-animation-acl`
 - 当前提交：`8cdec96 feat: resolve shader resource bindings`
 
@@ -102,7 +105,7 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 
 ## 5. IL2CPP-Dumper
 
-- 路径：`C:\Users\sqwat\Projects\zmd\IL2CPP-Dumper`
+- 路径：`D:\Projects\IL2CPP-Dumper`
 - 仓库：`https://github.com/DeftSolutions-dev/IL2CPP-Dumper.git`
 - 当前分支：`feature/comprehensive-runtime-dump`
 - 当前提交：`64685c3 Add safe IFix patch probes`
@@ -121,7 +124,7 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 
 ## 6. combat-runtime-dumps
 
-- 路径：`C:\Users\sqwat\Projects\zmd\combat-runtime-dumps`
+- 笔记本历史路径：`C:\Users\sqwat\Projects\zmd\combat-runtime-dumps`；台式机若未同步该目录，不得假定存在
 - 当前主要版本目录：`1.4.4`
 
 这里保存已经从远程主机拉回本地的运行时证据，包括：
@@ -135,7 +138,7 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 
 ## 7. Endfield Combat Spec
 
-- 路径：`C:\Users\sqwat\Projects\zmd\vfs-index-browser\combat-spec`
+- 路径：`D:\Projects\combat-spec`
 - 独立仓库：`https://github.com/SQwatermark/combat-spec.git`，分支 `main`；必须单独提交和同步
 - 解决方案：`EndfieldCombatSpec.sln`
 

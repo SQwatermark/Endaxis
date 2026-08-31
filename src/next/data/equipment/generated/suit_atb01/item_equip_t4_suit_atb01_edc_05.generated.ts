@@ -27,6 +27,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'physical',
+          slot: 'baseAddition',
           value: [0.22999999999999998, 0.253, 0.27599999999999997, 0.299],
         },
       ],

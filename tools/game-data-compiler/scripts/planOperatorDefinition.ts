@@ -35,6 +35,9 @@ import { prepareSkillDefinitionInputSource } from '../src/compiler/skillDefiniti
 import { parseKnownSkillActionGraphSource } from '../src/source/skillActionGraph.ts';
 import type { NativeConditionSource } from '../src/source/condition.ts';
 import type { SkillSlotReplacementActionSource } from '../src/source/skillSlotActions.ts';
+import { parseOperatorRuntimeTemplateSource } from '../src/source/operatorRuntimeTemplate.ts';
+import { compileAbilitySystemBlackboardsSource } from '../src/compiler/abilitySystemBlackboards.ts';
+import { compileComboSkillConditionDefinitionSource } from '../src/compiler/comboSkillConditions.ts';
 
 /**
  * 整名候选规划：只读原始资源，不写正式目录、不载入旧生成 Operator。
@@ -142,8 +145,8 @@ export function planOperatorDefinition(
       ),
     ]),
   ];
-  const activeSkills = entries.map(entry =>
-    planOperatorActiveSkillRuntime({
+  const activeSkills = entries.map(entry => {
+    const planned = planOperatorActiveSkillRuntime({
       ...args,
       key: entry.key,
       skillType: entry.skillType,
@@ -152,8 +155,17 @@ export function planOperatorDefinition(
       preserveBuffIds: crossSkillObservedBuffIds,
       allowMissingSkillPatch: runtimeReplacementSkillKeys.includes(entry.key),
       compileSkillSlotReplacement,
-    }),
-  );
+    });
+    return entry.enhancementStateBuffId === undefined
+      ? planned
+      : {
+          ...planned,
+          definition: {
+            ...planned.definition,
+            enhancementStateBuffId: entry.enhancementStateBuffId,
+          },
+        };
+  });
   const routedSkills = planRoutedSkills(row, entries, activeSkills, foundation, skills, args.slug);
   const spawned = [
     ...new Set(
@@ -168,6 +180,19 @@ export function planOperatorDefinition(
   const timeDilationPriorities = readTimeDilationPriorities(args.timeDilationCatalog);
   const gameplayTagRegistry = new GameplayTagRegistry(
     readGameplayTagPaths(args.gameplayTagCatalog),
+  );
+  const runtimeTemplate = planOperatorRuntimeTemplate(
+    row.runtimeTemplate,
+    args.slug,
+    args.sourceRoot,
+    row.charId,
+    activeSkills,
+    foundation.skillLibrary.skillGroups.map(group => ({
+      key: group.key,
+      skillType: group.skillType,
+      skillKeys: group.skillKeys,
+    })),
+    gameplayTagRegistry,
   );
   const candidate = assembleOperatorDefinition({
     foundation,
@@ -209,6 +234,12 @@ export function planOperatorDefinition(
       new Set(entries.map(entry => entry.key)),
       gameplayTagRegistry,
     ),
+    ...(runtimeTemplate === undefined
+      ? {}
+      : {
+          runtimeEntityBlackboard: runtimeTemplate.entityBlackboard,
+          comboSkillConditions: runtimeTemplate.comboSkillConditions,
+        }),
     createBuffProjectionExtensions: (sources, visualOnlyIds) => {
       const resolveTimeDilationPriority = (tagId: number, sourcePath: string) => {
         const value = timeDilationPriorities.get(tagId);
@@ -282,6 +313,80 @@ export function planOperatorDefinition(
     },
   });
   return { ...candidate, activeSkills };
+}
+
+const RUNTIME_TEMPLATE_FIELDS = new Set(['sourceFile', 'sourceSha256', 'skillGroupKey']);
+
+function planOperatorRuntimeTemplate(
+  value: unknown,
+  slug: string,
+  sourceRoot: string,
+  charIdValue: unknown,
+  activeSkills: readonly PlannedOperatorActiveSkillRuntime[],
+  skillGroups: readonly {
+    readonly key: string;
+    readonly skillType: string;
+    readonly skillKeys: readonly string[];
+  }[],
+  gameplayTagRegistry: GameplayTagRegistry,
+) {
+  if (value === undefined) return undefined;
+  const sourcePath = `${slug}.runtimeTemplate`;
+  const config = requireRecord(value, sourcePath);
+  requireExactFields(config, RUNTIME_TEMPLATE_FIELDS, sourcePath);
+  const sourceFile = requireNonEmptyString(config.sourceFile, `${sourcePath}.sourceFile`);
+  if (
+    path.isAbsolute(sourceFile) ||
+    sourceFile.split(/[\\/]/u).some(segment => segment === '..' || segment.length === 0)
+  ) {
+    throw new Error(`${sourcePath}.sourceFile: expected a safe source-root relative path`);
+  }
+  const expectedSourceSha256 = requireNonEmptyString(
+    config.sourceSha256,
+    `${sourcePath}.sourceSha256`,
+  );
+  if (!/^[0-9a-f]{64}$/iu.test(expectedSourceSha256)) {
+    throw new Error(`${sourcePath}.sourceSha256: expected SHA256`);
+  }
+  const skillGroupKey = requireNonEmptyString(config.skillGroupKey, `${sourcePath}.skillGroupKey`);
+  const skillGroup = skillGroups.find(group => group.key === skillGroupKey);
+  if (skillGroup === undefined || skillGroup.skillType !== 'comboSkill')
+    throw new Error(`${sourcePath}.skillGroupKey: expected a combo skill group`);
+  const artifactPath = path.resolve(sourceRoot, sourceFile);
+  const template = parseOperatorRuntimeTemplateSource(read(artifactPath), artifactPath);
+  if (template.sourceSha256.toLowerCase() !== expectedSourceSha256.toLowerCase()) {
+    throw new Error(`${sourcePath}.sourceSha256: runtime template source identity changed`);
+  }
+  const charId = requireNonEmptyString(charIdValue, `${slug}.charId`);
+  if (template.characterId !== charId) {
+    throw new Error(`${sourcePath}: expected character ${JSON.stringify(charId)}`);
+  }
+  const comboSkills = activeSkills.filter(
+    skill =>
+      skill.definition.sourceSkillId === template.comboSkillId &&
+      skillGroup.skillKeys.includes(skill.definition.key),
+  );
+  if (comboSkills.length !== 1) {
+    throw new Error(`${sourcePath}: runtime template combo skill identity does not match manifest`);
+  }
+  const blackboards = compileAbilitySystemBlackboardsSource(template.blackboards);
+  return {
+    entityBlackboard: blackboards.entityInitialValues,
+    comboSkillConditions: template.conditions.conditions.map(
+      (condition, index) =>
+        compileComboSkillConditionDefinitionSource(
+          condition,
+          blackboards,
+          { key: `native-combo:${index}`, skillGroupKey },
+          {
+            gameplayTagRegistry,
+            actionOwnerTarget: 'caster',
+            actionSourceTarget: 'caster',
+            actionTargetTarget: 'eventTarget',
+          },
+        ).definition,
+    ),
+  };
 }
 
 function createActiveSkillSlotReplacementProjection(

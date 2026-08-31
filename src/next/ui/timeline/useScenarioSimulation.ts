@@ -83,7 +83,10 @@ export function useScenarioSimulation(
     stale.value = true;
     error.value = null;
     try {
-      const result = await options.service.simulate(scenario, scenario.battle.durationFrames);
+      const result = await options.service.simulate(
+        scenario,
+        scenario.battle.simulationRange?.endFrame ?? scenario.battle.durationFrames,
+      );
       // 跑完才发现有更新的任务或场景已经变了，这次结果就不要了。
       if (runId !== latestRunId || options.scenario.value !== scenario) return false;
       publishedState.value = Object.freeze({ scenario, run: result });

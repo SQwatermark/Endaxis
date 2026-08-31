@@ -1,20 +1,25 @@
 <script setup lang="ts">
 /** 旧版 TimelineBuffLayer 的 Next 只读版本：18px 图标、层数角标和条纹持续条。 */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import type { PositionedBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
+import { resolveBuffDisplayName } from '../buffDisplayName';
 
 const props = defineProps<{
   segments: readonly PositionedBuffTimelineSegment[];
   prepFrames: number;
   pxPerFrame: number;
   placement?: 'upper' | 'lower';
+  actionTop?: number;
 }>();
+const { t, te } = useI18n({ useScope: 'global' });
 
 const ICON_SIZE = 18;
 const BAR_GAP = 2;
 const LANE_PITCH = 22;
-const LOWER_EDGE = 110;
-const UPPER_EDGE = 31;
+const ACTION_TOP_FALLBACK = 55;
+const UPPER_OFFSET_FROM_ACTION = 24;
+const LOWER_OFFSET_FROM_ACTION = 55;
 
 const items = computed(() =>
   props.segments.map(segment => {
@@ -22,12 +27,17 @@ const items = computed(() =>
     const right = (segment.endFrame + props.prepFrames) * props.pxPerFrame;
     return {
       ...segment,
+      title: resolveBuffDisplayName(segment.nameKey, segment.buffId, { t, te }),
       key: `${segment.targetId}:${segment.buffId}:${segment.instanceId}:${segment.startFrame}`,
       left,
       top:
         props.placement === 'upper'
-          ? UPPER_EDGE - segment.lane * LANE_PITCH
-          : LOWER_EDGE + segment.lane * LANE_PITCH,
+          ? (props.actionTop ?? ACTION_TOP_FALLBACK) -
+            UPPER_OFFSET_FROM_ACTION -
+            segment.lane * LANE_PITCH
+          : (props.actionTop ?? ACTION_TOP_FALLBACK) +
+            LOWER_OFFSET_FROM_ACTION +
+            segment.lane * LANE_PITCH,
       width: Math.max(0, right - left - ICON_SIZE - BAR_GAP * 2),
       icon: segment.iconPath ?? (segment.iconId ? `/icons/${segment.iconId}.webp` : null),
     };
@@ -43,7 +53,7 @@ const items = computed(() =>
       class="timeline-buff-item"
       :style="{ left: `${item.left}px`, top: `${item.top}px` }"
     >
-      <span class="timeline-buff-icon-box" :title="item.buffId">
+      <span class="timeline-buff-icon-box" :title="item.title">
         <img v-if="item.icon" :src="item.icon" class="timeline-buff-icon" alt="" />
         <span v-else class="timeline-buff-fallback">+</span>
         <span v-if="item.layers > 1" class="timeline-buff-stacks">{{ item.layers }}</span>
@@ -52,7 +62,7 @@ const items = computed(() =>
         v-if="item.width > 0"
         class="timeline-buff-duration-bar"
         :style="{ width: `${item.width}px` }"
-        :title="item.buffId"
+        :title="item.title"
       >
         <span class="timeline-buff-striped-bg"></span>
       </span>
@@ -139,7 +149,7 @@ const items = computed(() =>
   overflow: hidden;
   box-sizing: border-box;
   border-radius: 2px;
-  background: var(--ea-mark-soft, #596a7a);
+  background: #8c8c8c;
   box-shadow: 0 1px 2px rgb(0 0 0 / 50%);
   pointer-events: auto;
 }

@@ -1,6 +1,7 @@
 # Endaxis 旧武器、装备与套装全量生成审计
 
-本报告由 `scripts/generate_next_equipment` 从旧 TypeScript 数据模块的真实运行时导出结果生成。
+本报告由现已退役、仅可从 Git 历史追溯的 `scripts/generate_next_equipment` 从旧 TypeScript 数据模块
+真实运行时导出结果生成；它不是当前正式生成入口。
 导出过程不解析 TypeScript 文本；审计遇到未知字段、类型、效果、修饰、触发器、条件或目标时会终止，因此只有 `status: complete` 的 JSON 才表示本次全量扫描闭环。
 
 ## 数据范围

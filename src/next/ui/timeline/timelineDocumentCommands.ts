@@ -11,6 +11,11 @@ import type {
   TrackIndex,
   WeaponInstanceDocument,
   GearInstanceDocument,
+  ExternalCombatEventDocument,
+  ExternalEventMarkerDocument,
+  ExternalEventTargetDocument,
+  EditableBarDocument,
+  GlobalOperatorStatModifierDocument,
 } from '../../core/project/schema';
 import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
 import { validateSkillDefinition } from '../../core/game-data/validateSkillDefinition';
@@ -19,6 +24,48 @@ export type EditableBattleResourceRule = keyof Pick<
   BattleDocument['resourceRules'],
   'maxSp' | 'initialSp' | 'spRecoveryPerSecond'
 >;
+
+/** 战前准备只改变现实时间轴的负向可视区，不平移以战斗帧保存的技能或标记。 */
+export function setBattlePrepFrames(
+  scenario: ScenarioDocument,
+  prepFrames: number,
+): ScenarioDocument {
+  if (!Number.isInteger(prepFrames) || prepFrames < 0) {
+    throw new RangeError('prepFrames must be a non-negative integer');
+  }
+  if (scenario.battle.prepFrames === prepFrames) return scenario;
+  return { ...scenario, battle: { ...scenario.battle, prepFrames } };
+}
+
+function battleDurationContentFloor(scenario: ScenarioDocument): number {
+  const timedFrames = [
+    ...scenario.tracks.flatMap(track =>
+      track === null ? [] : track.skillCasts.map(cast => cast.placement.startFrame),
+    ),
+    ...scenario.battle.cycleBoundaries.map(marker => marker.frame),
+    ...scenario.battle.controlSwitches.map(marker => marker.frame),
+    ...(scenario.battle.externalEventMarkers ?? []).map(marker => marker.frame),
+    scenario.battle.simulationRange?.startFrame ?? 0,
+    scenario.battle.simulationRange?.endFrame ?? 0,
+  ];
+  return Math.max(1, ...timedFrames);
+}
+
+/**
+ * 修改实际战斗轴长度。缩短时沿用旧版的内容下限：不删除、不裁剪、也不移动任何已放置对象。
+ * 技能的运行时结束点不是项目字段，因此这里只保护稳定的技能起点和标记帧。
+ */
+export function setBattleDurationFrames(
+  scenario: ScenarioDocument,
+  requestedDurationFrames: number,
+): ScenarioDocument {
+  if (!Number.isInteger(requestedDurationFrames) || requestedDurationFrames <= 0) {
+    throw new RangeError('durationFrames must be a positive integer');
+  }
+  const durationFrames = Math.max(battleDurationContentFloor(scenario), requestedDurationFrames);
+  if (scenario.battle.durationFrames === durationFrames) return scenario;
+  return { ...scenario, battle: { ...scenario.battle, durationFrames } };
+}
 
 /**
  * 更新项目持久化的共享技力规则。命令同时维护初始值不超过上限的不变量，避免 UI、校验器和模拟器
@@ -44,6 +91,41 @@ export function updateBattleResourceRule(
   };
   if (next[field] === current[field] && next.initialSp === current.initialSp) return scenario;
   return { ...scenario, battle: { ...scenario.battle, resourceRules: next } };
+}
+
+/**
+ * 替换场景级全局属性修正。比率字段使用核心统一的小数；技能类型范围目前只允许用于冷却缩减。
+ * 完整列表形成一个撤销命令，UI 不得直接修改场景数组。
+ */
+export function setGlobalOperatorStatModifiers(
+  scenario: ScenarioDocument,
+  modifiers: readonly GlobalOperatorStatModifierDocument[],
+): ScenarioDocument {
+  const ids = new Set<string>();
+  for (const modifier of modifiers) {
+    if (modifier.id.length === 0 || ids.has(modifier.id)) {
+      throw new TypeError('global modifier ids must be non-empty and unique');
+    }
+    ids.add(modifier.id);
+    if (!Number.isFinite(modifier.value)) {
+      throw new TypeError(`global modifier '${modifier.id}' value must be finite`);
+    }
+    if (modifier.modifier === 'skillCooldownReduction') {
+      if (modifier.skillType === undefined || modifier.value >= 1) {
+        throw new RangeError(
+          `global cooldown reduction '${modifier.id}' requires a skill type and a value less than 1`,
+        );
+      }
+    } else if (modifier.skillType !== undefined) {
+      throw new Error(`global modifier '${modifier.id}' does not support a skill-type scope`);
+    }
+  }
+  if (JSON.stringify(scenario.globalConfig.modifiers) === JSON.stringify(modifiers))
+    return scenario;
+  return {
+    ...scenario,
+    globalConfig: { modifiers: modifiers.map(modifier => ({ ...modifier })) },
+  };
 }
 
 /**
@@ -90,13 +172,121 @@ export function updateTrackInitialUltimateEnergy(
     throw new RangeError('initial ultimate energy and maximum must be finite non-negative values');
   }
   const normalized = Math.min(maximum, Math.max(0, value));
-  if (track.initialState.ultimateEnergy === normalized) return scenario;
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
   tracks[trackIndex] = {
     ...track,
     initialState: { ...track.initialState, ultimateEnergy: normalized },
   };
-  return { ...scenario, tracks };
+  const customByTrackId = Object.fromEntries(
+    tracks.flatMap(current =>
+      current === null ? [] : [[current.id, current.initialState.ultimateEnergy]],
+    ),
+  );
+  const currentPreset = scenario.editor.initialUltimateEnergyPreset;
+  if (
+    track.initialState.ultimateEnergy === normalized &&
+    currentPreset?.mode === 'custom' &&
+    JSON.stringify(currentPreset.customByTrackId) === JSON.stringify(customByTrackId)
+  ) {
+    return scenario;
+  }
+  return {
+    ...scenario,
+    tracks,
+    editor: {
+      ...scenario.editor,
+      initialUltimateEnergyPreset: { mode: 'custom', customByTrackId },
+    },
+  };
+}
+
+export type InitialUltimateEnergyPresetMode = 'empty' | 'full' | 'custom';
+
+export function resolveInitialUltimateEnergyPresetMode(
+  scenario: ScenarioDocument,
+): InitialUltimateEnergyPresetMode {
+  const saved = scenario.editor.initialUltimateEnergyPreset?.mode;
+  if (saved !== undefined) return saved;
+  return scenario.tracks.every(track => track === null || track.initialState.ultimateEnergy === 0)
+    ? 'empty'
+    : 'custom';
+}
+
+function initialUltimateEnergyCustomProfile(scenario: ScenarioDocument): Record<string, number> {
+  return (
+    scenario.editor.initialUltimateEnergyPreset?.customByTrackId ??
+    Object.fromEntries(
+      scenario.tracks.flatMap(track =>
+        track === null ? [] : [[track.id, track.initialState.ultimateEnergy]],
+      ),
+    )
+  );
+}
+
+export function applyInitialUltimateEnergyPreset(
+  scenario: ScenarioDocument,
+  mode: InitialUltimateEnergyPresetMode,
+  maximumByTrack: readonly (number | null)[],
+): ScenarioDocument {
+  const customByTrackId = initialUltimateEnergyCustomProfile(scenario);
+  const tracks = scenario.tracks.map((track, trackIndex) => {
+    if (track === null) return null;
+    const maximum = maximumByTrack[trackIndex];
+    if (maximum === null || maximum === undefined || !Number.isFinite(maximum) || maximum < 0) {
+      throw new RangeError(`track ${trackIndex} has no valid maximum ultimate energy`);
+    }
+    const requested =
+      mode === 'empty' ? 0 : mode === 'full' ? maximum : (customByTrackId[track.id] ?? 0);
+    return {
+      ...track,
+      initialState: {
+        ...track.initialState,
+        ultimateEnergy: Math.min(maximum, Math.max(0, requested)),
+      },
+    };
+  }) as ScenarioDocument['tracks'];
+  return {
+    ...scenario,
+    tracks,
+    editor: { ...scenario.editor, initialUltimateEnergyPreset: { mode, customByTrackId } },
+  };
+}
+
+export function setUnifiedInitialUltimateEnergy(
+  scenario: ScenarioDocument,
+  value: number,
+  maximumByTrack: readonly (number | null)[],
+): ScenarioDocument {
+  if (!Number.isFinite(value) || value < 0) {
+    throw new RangeError('unified initial ultimate energy must be a non-negative finite number');
+  }
+  const tracks = scenario.tracks.map((track, trackIndex) => {
+    if (track === null) return null;
+    const maximum = maximumByTrack[trackIndex];
+    if (maximum === null || maximum === undefined || !Number.isFinite(maximum) || maximum < 0) {
+      throw new RangeError(`track ${trackIndex} has no valid maximum ultimate energy`);
+    }
+    return {
+      ...track,
+      initialState: {
+        ...track.initialState,
+        ultimateEnergy: Math.min(maximum, value),
+      },
+    };
+  }) as ScenarioDocument['tracks'];
+  const customByTrackId = Object.fromEntries(
+    tracks.flatMap(track =>
+      track === null ? [] : [[track.id, track.initialState.ultimateEnergy]],
+    ),
+  );
+  return {
+    ...scenario,
+    tracks,
+    editor: {
+      ...scenario.editor,
+      initialUltimateEnergyPreset: { mode: 'custom', customByTrackId },
+    },
+  };
 }
 
 export type TrackGearSlot = keyof TrackDocument['gears'];
@@ -346,6 +536,50 @@ export function setSkillCastColor(
 }
 
 /**
+ * 替换技能块的辅助展示条。展示条使用实际战斗帧，不参与技能编译；完整列表作为一次命令提交，
+ * 使 Inspector 中的增删改与时间轴撤销/重做保持同一粒度。
+ */
+export function setSkillCastCustomBars(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  skillCastId: string,
+  customBars: readonly EditableBarDocument[],
+): ScenarioDocument {
+  const ids = new Set<string>();
+  for (const bar of customBars) {
+    if (bar.id.length === 0 || ids.has(bar.id)) {
+      throw new TypeError('custom bar ids must be non-empty and unique');
+    }
+    ids.add(bar.id);
+    if (!Number.isInteger(bar.offsetFrames) || bar.offsetFrames < 0) {
+      throw new RangeError('custom bar offsetFrames must be a non-negative integer');
+    }
+    if (!Number.isInteger(bar.durationFrames) || bar.durationFrames < 0) {
+      throw new RangeError('custom bar durationFrames must be a non-negative integer');
+    }
+    if (bar.color !== undefined && bar.color.length === 0) {
+      throw new TypeError('custom bar color must not be empty');
+    }
+  }
+
+  const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
+  const current = cast.presentation?.customBars ?? [];
+  if (JSON.stringify(current) === JSON.stringify(customBars)) return scenario;
+
+  const skillCasts = [...track.skillCasts];
+  skillCasts[castIndex] = {
+    ...cast,
+    presentation: {
+      ...cast.presentation,
+      customBars: customBars.map(bar => ({ ...bar })),
+    },
+  };
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, skillCasts };
+  return { ...scenario, tracks };
+}
+
+/**
  * 设置一次技能释放所需的显式空间输入。
  * null 表示删除输入；运行时若技能确实读取该输入，会在对应条件处原地报错。
  */
@@ -518,4 +752,216 @@ export function removeSkillCasts(
       !skillCastIds.has(connection.to.skillCastId),
   );
   return { ...scenario, tracks, connections };
+}
+
+function requireTimelineMarkerFrame(scenario: ScenarioDocument, frame: number): void {
+  if (!Number.isInteger(frame) || frame < 0 || frame > scenario.battle.durationFrames) {
+    throw new RangeError('timeline marker frame must be an integer inside the battle duration');
+  }
+}
+
+export function setSimulationRangeBoundary(
+  scenario: ScenarioDocument,
+  boundary: 'start' | 'end',
+  frame: number,
+): ScenarioDocument {
+  requireTimelineMarkerFrame(scenario, frame);
+  const current = scenario.battle.simulationRange ?? {};
+  const simulationRange =
+    boundary === 'start'
+      ? {
+          ...current,
+          startFrame: frame,
+          ...(current.endFrame !== undefined && current.endFrame < frame
+            ? { endFrame: frame }
+            : {}),
+        }
+      : {
+          ...current,
+          endFrame: frame,
+          ...(current.startFrame !== undefined && current.startFrame > frame
+            ? { startFrame: frame }
+            : {}),
+        };
+  if (
+    simulationRange.startFrame === current.startFrame &&
+    simulationRange.endFrame === current.endFrame
+  ) {
+    return scenario;
+  }
+  return { ...scenario, battle: { ...scenario.battle, simulationRange } };
+}
+
+export function clearSimulationRangeBoundary(
+  scenario: ScenarioDocument,
+  boundary: 'start' | 'end',
+): ScenarioDocument {
+  const current = scenario.battle.simulationRange;
+  if (current === undefined || current[`${boundary}Frame`] === undefined) return scenario;
+  const simulationRange = { ...current };
+  delete simulationRange[`${boundary}Frame`];
+  if (simulationRange.startFrame === undefined && simulationRange.endFrame === undefined) {
+    const { simulationRange: _removed, ...battle } = scenario.battle;
+    return { ...scenario, battle };
+  }
+  return { ...scenario, battle: { ...scenario.battle, simulationRange } };
+}
+
+export function addCycleBoundary(
+  scenario: ScenarioDocument,
+  id: string,
+  frame: number,
+): ScenarioDocument {
+  requireTimelineMarkerFrame(scenario, frame);
+  if (id.length === 0 || scenario.battle.cycleBoundaries.some(item => item.id === id)) {
+    throw new Error(`invalid or duplicate cycle boundary id '${id}'`);
+  }
+  return {
+    ...scenario,
+    battle: {
+      ...scenario.battle,
+      cycleBoundaries: [...scenario.battle.cycleBoundaries, { id, frame }],
+    },
+  };
+}
+
+export function moveCycleBoundary(
+  scenario: ScenarioDocument,
+  id: string,
+  frame: number,
+): ScenarioDocument {
+  requireTimelineMarkerFrame(scenario, frame);
+  const index = scenario.battle.cycleBoundaries.findIndex(item => item.id === id);
+  if (index < 0 || scenario.battle.cycleBoundaries[index]!.frame === frame) return scenario;
+  const cycleBoundaries = [...scenario.battle.cycleBoundaries];
+  cycleBoundaries[index] = { ...cycleBoundaries[index]!, frame };
+  return { ...scenario, battle: { ...scenario.battle, cycleBoundaries } };
+}
+
+export function removeCycleBoundary(scenario: ScenarioDocument, id: string): ScenarioDocument {
+  const cycleBoundaries = scenario.battle.cycleBoundaries.filter(item => item.id !== id);
+  if (cycleBoundaries.length === scenario.battle.cycleBoundaries.length) return scenario;
+  return { ...scenario, battle: { ...scenario.battle, cycleBoundaries } };
+}
+
+export function addControlSwitch(
+  scenario: ScenarioDocument,
+  id: string,
+  frame: number,
+  trackIndex: TrackIndex,
+): ScenarioDocument {
+  requireTimelineMarkerFrame(scenario, frame);
+  if (scenario.tracks[trackIndex] === null) throw new Error(`track ${trackIndex} is empty`);
+  if (id.length === 0 || scenario.battle.controlSwitches.some(item => item.id === id)) {
+    throw new Error(`invalid or duplicate control switch id '${id}'`);
+  }
+  return {
+    ...scenario,
+    battle: {
+      ...scenario.battle,
+      controlSwitches: [...scenario.battle.controlSwitches, { id, frame, trackIndex }],
+    },
+  };
+}
+
+export function moveControlSwitch(
+  scenario: ScenarioDocument,
+  id: string,
+  frame: number,
+): ScenarioDocument {
+  requireTimelineMarkerFrame(scenario, frame);
+  const index = scenario.battle.controlSwitches.findIndex(item => item.id === id);
+  if (index < 0 || scenario.battle.controlSwitches[index]!.frame === frame) return scenario;
+  const controlSwitches = [...scenario.battle.controlSwitches];
+  controlSwitches[index] = { ...controlSwitches[index]!, frame };
+  return { ...scenario, battle: { ...scenario.battle, controlSwitches } };
+}
+
+export function setControlSwitchTrack(
+  scenario: ScenarioDocument,
+  id: string,
+  trackIndex: TrackIndex,
+): ScenarioDocument {
+  if (scenario.tracks[trackIndex] === null) throw new Error(`track ${trackIndex} is empty`);
+  const index = scenario.battle.controlSwitches.findIndex(item => item.id === id);
+  if (index < 0 || scenario.battle.controlSwitches[index]!.trackIndex === trackIndex)
+    return scenario;
+  const controlSwitches = [...scenario.battle.controlSwitches];
+  controlSwitches[index] = { ...controlSwitches[index]!, trackIndex };
+  return { ...scenario, battle: { ...scenario.battle, controlSwitches } };
+}
+
+export function removeControlSwitch(scenario: ScenarioDocument, id: string): ScenarioDocument {
+  const controlSwitches = scenario.battle.controlSwitches.filter(item => item.id !== id);
+  if (controlSwitches.length === scenario.battle.controlSwitches.length) return scenario;
+  return { ...scenario, battle: { ...scenario.battle, controlSwitches } };
+}
+
+export function addExternalEventMarker(
+  scenario: ScenarioDocument,
+  id: string,
+  frame: number,
+  target: ExternalEventTargetDocument,
+  event: ExternalCombatEventDocument,
+): ScenarioDocument {
+  requireTimelineMarkerFrame(scenario, frame);
+  if (target.scope === 'operator' && scenario.tracks[target.trackIndex] === null) {
+    throw new Error(`track ${target.trackIndex} is empty`);
+  }
+  const current = scenario.battle.externalEventMarkers ?? [];
+  if (id.length === 0 || current.some(item => item.id === id)) {
+    throw new Error(`invalid or duplicate external event id '${id}'`);
+  }
+  return {
+    ...scenario,
+    battle: {
+      ...scenario.battle,
+      externalEventMarkers: [...current, { id, frame, target, event }],
+    },
+  };
+}
+
+export function moveExternalEventMarker(
+  scenario: ScenarioDocument,
+  id: string,
+  frame: number,
+): ScenarioDocument {
+  requireTimelineMarkerFrame(scenario, frame);
+  const current = scenario.battle.externalEventMarkers ?? [];
+  const index = current.findIndex(item => item.id === id);
+  if (index < 0 || current[index]!.frame === frame) return scenario;
+  const externalEventMarkers = [...current];
+  externalEventMarkers[index] = { ...externalEventMarkers[index]!, frame };
+  return { ...scenario, battle: { ...scenario.battle, externalEventMarkers } };
+}
+
+/** 更新外部事实本身；时间轴位置继续由专用移动命令维护。 */
+export function updateExternalEventMarker(
+  scenario: ScenarioDocument,
+  id: string,
+  patch: Partial<Pick<ExternalEventMarkerDocument, 'target' | 'event'>>,
+): ScenarioDocument {
+  const current = scenario.battle.externalEventMarkers ?? [];
+  const index = current.findIndex(item => item.id === id);
+  if (index < 0) return scenario;
+  const marker = current[index]!;
+  const target = patch.target ?? marker.target;
+  if (target.scope === 'operator' && scenario.tracks[target.trackIndex] === null) {
+    throw new Error(`track ${target.trackIndex} is empty`);
+  }
+  const updated = { ...marker, ...patch };
+  if (updated.target === marker.target && updated.event === marker.event) return scenario;
+  const externalEventMarkers = [...current];
+  externalEventMarkers[index] = updated;
+  return { ...scenario, battle: { ...scenario.battle, externalEventMarkers } };
+}
+
+export function removeExternalEventMarker(
+  scenario: ScenarioDocument,
+  id: string,
+): ScenarioDocument {
+  const current = scenario.battle.externalEventMarkers ?? [];
+  const externalEventMarkers = current.filter(item => item.id !== id);
+  if (externalEventMarkers.length === current.length) return scenario;
+  return { ...scenario, battle: { ...scenario.battle, externalEventMarkers } };
 }

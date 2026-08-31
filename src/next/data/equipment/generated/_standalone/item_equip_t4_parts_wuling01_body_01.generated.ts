@@ -27,6 +27,7 @@ const definition = {
         {
           kind: 'damageScale',
           target: 'normalAttack',
+          slot: 'baseAddition',
           value: [0.144, 0.1584, 0.17279999999999998, 0.1872],
         },
       ],

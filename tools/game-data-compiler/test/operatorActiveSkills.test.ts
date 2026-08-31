@@ -31,6 +31,7 @@ describe('Operator 主动技能入口', () => {
           key: 'battleSkill',
           skillType: 'battleSkill',
           source: 'battle.json',
+          enhancementStateBuffId: 'buff_native_battle_enhancement',
           compile: { kind: 'resolvedSequence' },
         },
       ],
@@ -47,6 +48,7 @@ describe('Operator 主动技能入口', () => {
       ['battleSkill', 'native_battle', 'battleSkill'],
     ]);
     expect(result.entries[0]!.projectionConfig).toEqual({ kind: 'resolvedSequence' });
+    expect(result.entries[1]!.enhancementStateBuffId).toBe('buff_native_battle_enhancement');
     expect(result.definitions.map(definition => definition.skillId)).toEqual([
       'native_attack_1',
       'native_battle',

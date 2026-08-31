@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'healthFlat',
-      value: [1000],
+      value: 1000,
     },
   ],
   buffDefinitions: {
@@ -38,7 +38,12 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/Affixes/Weak", "Skill/Character/Common/Affixes/Enhance", "Skill/Character/Common/Affixes/Shelter", "Skill/Character/Common/Affixes/Vulnerable"],
+                    buffTags: [
+                      'Skill/Character/Common/Affixes/Weak',
+                      'Skill/Character/Common/Affixes/Enhance',
+                      'Skill/Character/Common/Affixes/Shelter',
+                      'Skill/Character/Common/Affixes/Vulnerable',
+                    ],
                   },
                 },
                 whenTrue: {
@@ -48,6 +53,7 @@ const definition = {
                       parameters: {
                         buffId: 'buff_equipsuit_usp_02_AddAttack',
                         target: 'partyExceptCaster',
+                        source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
                           dmg_up: {

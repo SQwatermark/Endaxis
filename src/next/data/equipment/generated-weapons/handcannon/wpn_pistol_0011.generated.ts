@@ -188,17 +188,7 @@ const definition = {
           "abilityEvent": "beforeOutputInfliction",
           "priority": 0,
           "blackboard": {
-            "cd": [
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1
-            ],
+            "cd": 0.1,
             "cryst_dmg_up": [
               0.16,
               0.192,
@@ -254,17 +244,7 @@ const definition = {
               0.144,
               0.168
             ],
-            "spell_dmg_taken_up": [
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12
-            ]
+            "spell_dmg_taken_up": 0.12
           },
           "sequence": {
             "steps": [
@@ -327,17 +307,7 @@ const definition = {
           "abilityEvent": "beforeOutputBuff",
           "priority": 0,
           "blackboard": {
-            "cd": [
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1,
-              0.1
-            ],
+            "cd": 0.1,
             "cryst_dmg_up": [
               0.16,
               0.192,
@@ -393,17 +363,7 @@ const definition = {
               0.144,
               0.168
             ],
-            "spell_dmg_taken_up": [
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12,
-              0.12
-            ]
+            "spell_dmg_taken_up": 0.12
           },
           "sequence": {
             "steps": [

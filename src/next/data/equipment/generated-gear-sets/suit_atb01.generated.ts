@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'skillCooldownMultiplier',
       skillTypes: 'comboSkill',
-      value: [0.85],
+      value: 0.85,
     },
   ],
   buffDefinitions: {
@@ -34,21 +34,37 @@ const definition = {
           sequence: {
             steps: [
               {
-                kind: 'applyBuff',
+                kind: 'conditional',
                 parameters: {
-                  buffId: 'buff_equipsuit_combosuit_01_adddamage',
-                  target: 'party',
-                  inheritSourceSkillCastInfo: true,
-                  blackboardAssignments: {
-                    dmg_up: {
-                      kind: 'blackboard',
-                      key: 'dmg_up',
-                    },
-                    duration: {
-                      kind: 'blackboard',
-                      key: 'duration',
-                    },
+                  condition: {
+                    kind: 'eventSpGainMatch',
+                    sources: ['skill'],
+                    gainKinds: ['gain'],
                   },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'applyBuff',
+                      parameters: {
+                        buffId: 'buff_equipsuit_combosuit_01_adddamage',
+                        target: 'party',
+                        source: 'buffOwner',
+                        inheritSourceSkillCastInfo: true,
+                        asChildBuff: true,
+                        blackboardAssignments: {
+                          dmg_up: {
+                            kind: 'blackboard',
+                            key: 'dmg_up',
+                          },
+                          duration: {
+                            kind: 'blackboard',
+                            key: 'duration',
+                          },
+                        },
+                      },
+                    },
+                  ],
                 },
               },
             ],

@@ -39,7 +39,12 @@ describe('生成套装正式定义', () => {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/Affixes/Weak", "Skill/Character/Common/Affixes/Enhance", "Skill/Character/Common/Affixes/Shelter", "Skill/Character/Common/Affixes/Vulnerable"],
+                    buffTags: [
+                      'Skill/Character/Common/Affixes/Weak',
+                      'Skill/Character/Common/Affixes/Enhance',
+                      'Skill/Character/Common/Affixes/Shelter',
+                      'Skill/Character/Common/Affixes/Vulnerable',
+                    ],
                   },
                 },
                 whenTrue: {
@@ -98,73 +103,54 @@ describe('生成套装正式定义', () => {
     expect(compiled.modifiers).toEqual([
       { kind: 'panelStat', stat: 'ultimateEnergyGainEfficiency', value: 0.2 },
     ]);
-    expect(compiled.buffDefinitions?.buff_equipsuit_usp_01).toMatchObject({
-      blackboard: { atb_recover: 50, has_gain_atb: 0 },
-      abilityEventResponses: [
-        {
-          event: 'beforeCastSkill',
-          sequence: {
-            steps: [
-              {
-                parameters: {
-                  condition: { kind: 'eventSkillTypeIn', skillTypes: ['battleSkill'] },
-                },
-                whenTrue: {
-                  steps: [
-                    {
-                      parameters: {
-                        condition: {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'has_gain_atb' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
-                      },
-                      whenTrue: {
-                        steps: [
-                          {
-                            kind: 'modifyActionValue',
-                            parameters: {
-                              key: 'has_gain_atb',
-                              operation: 'assign',
-                              value: { kind: 'constant', value: 1 },
-                            },
-                          },
-                          {
-                            kind: 'changeResourceByActionValue',
-                            parameters: {
-                              resource: 'sp',
-                              amount: { kind: 'blackboard', key: 'atb_recover' },
-                              coefficient: { kind: 'constant', value: 1 },
-                              recipient: 'team',
-                              spGainKind: 'refund',
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
+    const uspBuff = compiled.buffDefinitions?.buff_equipsuit_usp_01;
+    expect(uspBuff?.blackboard).toMatchObject({ atb_recover: 50, has_gain_atb: 0 });
+    expect(uspBuff?.abilityEventResponses?.map(response => response.event)).toEqual([
+      'enterFight',
+      'beforeCastSkill',
+    ]);
+    expect(uspBuff?.abilityEventResponses?.[0]?.sequence.steps).toEqual([
+      {
+        kind: 'modifyActionValue',
+        parameters: {
+          key: 'has_gain_atb',
+          operation: 'assign',
+          value: { kind: 'constant', value: 0 },
         },
-        {
-          event: 'enterFight',
-          sequence: {
-            steps: [
-              {
-                kind: 'modifyActionValue',
-                parameters: {
-                  key: 'has_gain_atb',
-                  operation: 'assign',
-                  value: { kind: 'constant', value: 0 },
-                },
+      },
+    ]);
+    expect(uspBuff?.abilityEventResponses?.[1]?.sequence.steps[0]).toMatchObject({
+      kind: 'conditional',
+      parameters: { condition: { kind: 'eventSkillTypeIn', skillTypes: ['battleSkill'] } },
+      whenTrue: {
+        steps: [
+          {
+            kind: 'conditional',
+            parameters: {
+              condition: {
+                kind: 'actionValueCompare',
+                left: { kind: 'blackboard', key: 'has_gain_atb' },
+                operator: 'equal',
+                right: { kind: 'constant', value: 0 },
               },
-            ],
+            },
+            whenTrue: {
+              steps: [
+                { kind: 'modifyActionValue' },
+                {
+                  kind: 'changeResourceByActionValue',
+                  parameters: {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb_recover' },
+                    recipient: 'team',
+                    spGainKind: 'refund',
+                  },
+                },
+              ],
+            },
           },
-        },
-      ],
+        ],
+      },
     });
   });
 
@@ -189,7 +175,10 @@ describe('生成套装正式定义', () => {
                 parameters: {
                   condition: {
                     kind: 'eventBuffTagsMatch',
-                    buffTags: ["Skill/Character/Common/SpellStatus/Conduct", "Skill/Character/Common/SpellStatus/Corrupt"],
+                    buffTags: [
+                      'Skill/Character/Common/SpellStatus/Conduct',
+                      'Skill/Character/Common/SpellStatus/Corrupt',
+                    ],
                     buffIdOutputKey: 'buffid',
                   },
                 },
@@ -402,14 +391,30 @@ describe('生成套装正式定义', () => {
           sequence: {
             steps: [
               {
-                kind: 'applyBuff',
+                kind: 'conditional',
                 parameters: {
-                  buffId: 'buff_equipsuit_combosuit_01_adddamage',
-                  target: 'party',
-                  blackboardAssignments: {
-                    dmg_up: { kind: 'blackboard', key: 'dmg_up' },
-                    duration: { kind: 'blackboard', key: 'duration' },
+                  condition: {
+                    kind: 'eventSpGainMatch',
+                    sources: ['skill'],
+                    gainKinds: ['gain'],
                   },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'applyBuff',
+                      parameters: {
+                        buffId: 'buff_equipsuit_combosuit_01_adddamage',
+                        target: 'party',
+                        source: 'buffOwner',
+                        asChildBuff: true,
+                        blackboardAssignments: {
+                          dmg_up: { kind: 'blackboard', key: 'dmg_up' },
+                          duration: { kind: 'blackboard', key: 'duration' },
+                        },
+                      },
+                    },
+                  ],
                 },
               },
             ],
@@ -549,12 +554,8 @@ describe('生成套装正式定义', () => {
         secondary: perlica.secondaryAttribute,
       });
       expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'healthFlat', value: 500 }]);
-      expect(compiled.initializationSequence?.steps).toEqual([
-        {
-          kind: 'applyBuff',
-          parameters: { buffId: 'buff_equipsuit_will_01', target: 'caster' },
-        },
-      ]);
+      expect(compiled.initializationSequence).toBeUndefined();
+      expect(compiled.buffDefinitions).toEqual({});
     }
   });
 
@@ -575,13 +576,13 @@ describe('生成套装正式定义', () => {
     expect(compiledAgility.modifiers).toEqual([
       { kind: 'attribute', attribute: 'agility', operation: 'flat', value: 50 },
     ]);
-    expect(compiledAgility.initializationSequence?.steps[1]).toMatchObject({
+    expect(compiledAgility.initializationSequence?.steps[0]).toMatchObject({
       parameters: {
         buffId: 'buff_equipsuit_agi_phydmg_01',
         blackboardAssignments: { phy_dmg_up: { kind: 'constant', value: 0.2 } },
       },
     });
-    expect(compiledIntellect.initializationSequence?.steps[1]).toMatchObject({
+    expect(compiledIntellect.initializationSequence?.steps[0]).toMatchObject({
       parameters: {
         buffId: 'buff_equipsuit_wisd_spdmg_01',
         blackboardAssignments: { spell_dmg_up: { kind: 'constant', value: 0.2 } },
@@ -610,16 +611,8 @@ describe('生成套装正式定义', () => {
     expect(compiled.modifiers).toEqual([
       { kind: 'attribute', attribute: 'strength', operation: 'flat', value: 50 },
     ]);
-    expect(compiled.initializationSequence?.steps).toEqual([
-      {
-        kind: 'applyBuff',
-        parameters: { buffId: 'buff_equipsuit_str_01', target: 'caster' },
-      },
-    ]);
-    expect(compiled.buffDefinitions?.buff_equipsuit_str_reducedmg_01?.presentation).toMatchObject({
-      iconId: 'icon_battle_buff_def_up',
-      iconPath: '/icons/icon_battle_buff_def_up.webp',
-    });
+    expect(compiled.initializationSequence).toBeUndefined();
+    expect(compiled.buffDefinitions).toEqual({});
   });
 
   it('让两组元素附着输出事件安装对应的限时元素增伤 Buff', () => {
@@ -627,13 +620,13 @@ describe('生成套装正式定义', () => {
       {
         slug: 'suit_fire_natr01',
         rootBuffId: 'buff_equipsuit_fninflict_01',
-        tagId: "Skill/Character/Common/SpellStatus/Burning",
+        tagId: 'Skill/Character/Common/SpellStatus/Burning',
         childBuffId: 'buff_equipsuit_fninflict_01_firedamageadd',
       },
       {
         slug: 'suit_pulse_cryst01',
         rootBuffId: 'buff_equipsuit_cpinflict_01',
-        tagId: "Skill/Character/Common/SpellStatus/Conduct",
+        tagId: 'Skill/Character/Common/SpellStatus/Conduct',
         childBuffId: 'buff_equipsuit_cpinflict_01_elecdamageadd',
       },
     ] as const;
@@ -685,7 +678,7 @@ describe('生成套装正式定义', () => {
         condition: {
           kind: 'eventBuffTagsMatch',
           match: 'hasAny',
-          buffTags: ["Skill/Character/Common/NoGuard"],
+          buffTags: ['Skill/Character/Common/NoGuard'],
         },
       },
       whenTrue: {
@@ -694,9 +687,10 @@ describe('生成套装正式定义', () => {
           {
             parameters: {
               condition: {
-                kind: 'eventTargetBuffCountCompare',
+                kind: 'buffStackCompare',
+                target: 'eventTarget',
                 tagQueryType: 'hasAny',
-                buffTags: ["Skill/Character/Common/NoGuard"],
+                buffTags: ['Skill/Character/Common/NoGuard'],
                 operator: 'greaterOrEqual',
                 value: { kind: 'blackboard', key: 'stack_cond' },
               },
@@ -728,7 +722,7 @@ describe('生成套装正式定义', () => {
         condition: {
           kind: 'eventBuffTagsMatch',
           match: 'hasAny',
-          buffTags: ["Skill/Character/Common/PhysicalStatus"],
+          buffTags: ['Skill/Character/Common/PhysicalStatus'],
         },
       },
       whenTrue: {
@@ -799,8 +793,9 @@ describe('生成套装正式定义', () => {
                 {
                   parameters: {
                     condition: {
-                      kind: 'eventTargetBuffCountCompare',
-                      buffTags: ["Skill/Character/Common/NoGuard"],
+                      kind: 'buffStackCompare',
+                      target: 'eventTarget',
+                      buffTags: ['Skill/Character/Common/NoGuard'],
                     },
                   },
                   whenTrue: {
@@ -855,13 +850,17 @@ describe('生成套装正式定义', () => {
       sequence: {
         steps: [
           {
+            kind: 'conditional',
             parameters: { condition: { kind: 'eventOverheal' } },
             whenTrue: {
               steps: [
                 {
+                  kind: 'applyBuff',
                   parameters: {
                     buffId: 'buff_common_dmgtk_down_equip_1',
                     target: 'eventTarget',
+                    source: 'buffOwner',
+                    asChildBuff: true,
                     blackboardAssignments: {
                       value: { kind: 'blackboard', key: 'dmg_taken_down2' },
                       duration: { kind: 'blackboard', key: 'duration' },
@@ -870,11 +869,6 @@ describe('生成套装正式定义', () => {
                   },
                 },
               ],
-            },
-          },
-          {
-            parameters: {
-              condition: { kind: 'not', condition: { kind: 'eventOverheal' } },
             },
           },
         ],
@@ -984,15 +978,22 @@ describe('生成套装正式定义', () => {
       { kind: 'damageScale', target: 'battleSkill', slot: 'baseAddition', value: 0.2 },
       { kind: 'damageScale', target: 'ultimate', slot: 'baseAddition', value: 0.2 },
     ]);
-    const response = compiled.buffDefinitions?.buff_equipsuit_burst_01?.abilityEventResponses?.[0];
-    expect(response?.event).toBe('outputBuff');
-    expect(response?.sequence.steps).toHaveLength(4);
-    expect(response?.sequence.steps[0]).toMatchObject({
+    const responses =
+      compiled.buffDefinitions?.buff_equipsuit_burst_01?.abilityEventResponses ?? [];
+    expect(responses).toHaveLength(4);
+    expect(responses.map(response => response.event)).toEqual([
+      'outputBuff',
+      'outputBuff',
+      'outputBuff',
+      'outputBuff',
+    ]);
+    expect(responses[0]?.sequence.steps).toHaveLength(1);
+    expect(responses[0]?.sequence.steps[0]).toMatchObject({
       parameters: {
         condition: {
           kind: 'eventBuffTagsMatch',
           match: 'hasAny',
-          buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
+          buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
         },
       },
       whenTrue: {
@@ -1000,9 +1001,10 @@ describe('生成套装正式定义', () => {
           {
             parameters: {
               condition: {
-                kind: 'eventTargetBuffCountCompare',
+                kind: 'buffStackCompare',
+                target: 'eventTarget',
                 tagQueryType: 'hasAny',
-                buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
+                buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
                 operator: 'greaterOrEqual',
                 value: { kind: 'blackboard', key: 'stack_cond' },
               },
@@ -1035,7 +1037,7 @@ describe('生成套装正式定义', () => {
         { attribute: 'natureDamageIncrease', value: { blackboardKey: 'spell_dmg_up' } },
       ],
     });
-    expect(compiled.initializationSequence?.steps[1]).toMatchObject({
+    expect(compiled.initializationSequence?.steps[0]).toMatchObject({
       parameters: {
         buffId: 'buff_equipsuit_burst_01',
         blackboardAssignments: {

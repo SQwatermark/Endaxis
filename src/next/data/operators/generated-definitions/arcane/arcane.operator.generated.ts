@@ -1427,6 +1427,18 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        44,
+      ),
+      scheduled(
+        0,
+        sequence(
           step('startUltimateTimeDilation', {
             priority: 100,
             targetScale: { kind: 'constant', value: 0 },
@@ -1793,7 +1805,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0032_lizhiyan_ultimate_skill:/scheduledSequences/6/sequence/steps/2',
+            'chr_0032_lizhiyan_ultimate_skill:/scheduledSequences/7/sequence/steps/2',
           ),
         ),
         47,
@@ -1813,6 +1825,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
+    enhancementStateBuffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_owner',
   },
   {
     atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
@@ -2014,6 +2027,18 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        50,
+      ),
+      scheduled(
+        0,
+        sequence(
           step('finishBuffsById', {
             target: 'caster',
             buffIds: [
@@ -2038,6 +2063,18 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
           ),
         ),
         58,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('changeSkillSlot', {
+            skillGroupKey: 'ultimate',
+            targetSkillKey: 'ultimate',
+            inheritOriginSkillCooldownProgress: false,
+            lifetime: 'infinite',
+          }),
+        ),
+        3,
       ),
       scheduled(
         58,
@@ -2080,7 +2117,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise' },
                 },
-                'chr_0032_lizhiyan_ultimate_skill2:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/1',
+                'chr_0032_lizhiyan_ultimate_skill2:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/1',
               ),
             ),
             sequence(
@@ -2093,7 +2130,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise' },
                 },
-                'chr_0032_lizhiyan_ultimate_skill2:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/0',
+                'chr_0032_lizhiyan_ultimate_skill2:/scheduledSequences/6/sequence/steps/0/whenFalse/steps/0',
               ),
             ),
             { alwaysNext: true },
@@ -2808,6 +2845,133 @@ export default {
       replacementSkills: [arcaneArcana],
     },
   ],
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      initialValues: { consumed_layer: 0, consumed_type: 0 },
+      sequence: sequence(
+        branch(
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          sequence(branch({ kind: 'eventInflictionElementIn', elements: ['nature'] }, sequence())),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      initialValues: { consumed_layer: 0, consumed_type: 0 },
+      sequence: sequence(
+        branch(
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          sequence(
+            branch(
+              { kind: 'eventInflictionElementIn', elements: ['heat'] },
+              sequence(
+                branch(
+                  {
+                    kind: 'contextTargetBuffStackCompare',
+                    contextKey: 'trigger',
+                    tagQueryType: 'hasAny',
+                    buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
+                    operator: 'greaterOrEqual',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                  sequence(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:2',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      initialValues: { consumed_layer: 0, consumed_type: 0 },
+      sequence: sequence(
+        branch(
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          sequence(
+            branch(
+              { kind: 'eventInflictionElementIn', elements: ['electric'] },
+              sequence(
+                branch(
+                  {
+                    kind: 'contextTargetBuffStackCompare',
+                    contextKey: 'trigger',
+                    tagQueryType: 'hasAny',
+                    buffTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
+                    operator: 'greaterOrEqual',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                  sequence(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:3',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      initialValues: { consumed_layer: 0, consumed_type: 0 },
+      sequence: sequence(
+        branch(
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          sequence(
+            branch(
+              { kind: 'eventInflictionElementIn', elements: ['cryo'] },
+              sequence(
+                branch(
+                  {
+                    kind: 'contextTargetBuffStackCompare',
+                    contextKey: 'trigger',
+                    tagQueryType: 'hasAny',
+                    buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
+                    operator: 'greaterOrEqual',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                  sequence(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:4',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      initialValues: { consumed_layer: 0, consumed_type: 0 },
+      sequence: sequence(
+        branch(
+          {
+            kind: 'actionValueCompare',
+            left: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
+            operator: 'less',
+            right: { kind: 'constant', value: 1 },
+          },
+          sequence(
+            branch(
+              {
+                kind: 'eventInflictionElementIn',
+                elements: ['heat', 'electric', 'cryo', 'nature'],
+                outputKey: 'EntityBB_consumed_type',
+              },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
   talents: [
     {
       key: 'formationEnhancement',
@@ -2998,6 +3162,12 @@ export default {
       ],
     },
   ],
+  entityBlackboard: {
+    EntityBB_consumed_layer: 0,
+    EntityBB_consumed_type: 0,
+    EntityBB_ult_hit: 0,
+    EntityBB_wisd_greater_will: 1,
+  },
   passiveSkills: [
     {
       key: 'chr_0032_lizhiyan_passive',
@@ -5126,7 +5296,7 @@ export default {
                           step('applyBuff', {
                             buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1',
                             target: 'currentAbilityEntity',
-                            source: 'eventSource',
+                            source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               atk_scale_laser: { kind: 'blackboard', key: 'atk_scale_laser' },
@@ -5166,7 +5336,7 @@ export default {
                               step('applyBuff', {
                                 buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
                                 target: 'currentAbilityEntity',
-                                source: 'eventSource',
+                                source: 'buffSource',
                                 inheritSourceSkillCastInfo: true,
                                 blackboardAssignments: {
                                   atk_scale_laser: { kind: 'blackboard', key: 'atk_scale_laser' },
@@ -5191,8 +5361,8 @@ export default {
                   ),
                   step('applyBuff', {
                     buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer',
-                    target: 'eventSource',
-                    source: 'eventSource',
+                    target: 'buffSource',
+                    source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
@@ -5201,6 +5371,15 @@ export default {
           ),
         ),
       },
+    },
+    buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
     },
   },
   abilityEntityDefinitions: {

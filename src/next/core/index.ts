@@ -89,6 +89,7 @@ export * from './projection/hitEffectProjection';
 export * from './projection/skillAvailabilityDiagnostics';
 export * from './projection/skillExecutionDiagnostics';
 export * from './projection/comboWindowDiagnostics';
+export * from './projection/comboWindowTimelineViz';
 export * from './projection/statusChangePoints';
 export * from './project/createProject';
 export * from './project/projectDefinitionLibrary';

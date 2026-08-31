@@ -322,17 +322,17 @@
       },
       {
         "name": "Vigilant Fury",
-        "description": "Combo skill improved: Casting the combo creates a <#ba.shield>shield</> with <@ba.vup>15%</> Max HP and a duration of 10s. While the shield is active, Mi Fu becomes harder to interrupt.\nThis effect can only trigger once every 60s."
+        "description": "Combo skill improved: Casting the combo creates a <#ba.shield>shield</> with <@ba.vup>15%</> Max HP and a duration of 10.0s. While the shield is active, Mi Fu becomes harder to interrupt.\nThis effect can only trigger once every 60.0s."
       },
       {
         "name": "Vigilant Fury",
-        "description": "Combo skill improved: Casting the combo creates a <#ba.shield>shield</> with <@ba.vup>30%</> Max HP and a duration of 10s. While the shield is active, Mi Fu becomes harder to interrupt.\nThis effect can only trigger once every 60s."
+        "description": "Combo skill improved: Casting the combo creates a <#ba.shield>shield</> with <@ba.vup>30%</> Max HP and a duration of 10.0s. While the shield is active, Mi Fu becomes harder to interrupt.\nThis effect can only trigger once every 60.0s."
       }
     ],
     "potentials": [
       {
         "name": "Restless Watch",
-        "description": "Combo skill <@ba.key>Fists of No Regrets</> improved: Length of cooldown <@ba.vup>-2</>s. <#ba.physicalvul>Physical Susceptibility</> effect applied by the skill is further increased by <@ba.vup>+5%</> and has <@ba.vup>+4</>s duration."
+        "description": "Combo skill <@ba.key>Fists of No Regrets</> improved: Length of cooldown <@ba.vup>-2.0</>s. <#ba.physicalvul>Physical Susceptibility</> effect applied by the skill is further increased by <@ba.vup>+5%</> and has <@ba.vup>+4</>s duration."
       },
       {
         "name": "Kinesthesia of Harmony",
@@ -340,7 +340,7 @@
       },
       {
         "name": "Complete Warmup",
-        "description": "Talent <@ba.key>Vigilant Fury</> improved: <#ba.shield>Shield</> duration <@ba.vup>+5</>s. <#ba.shield>Shield</> trigger cooldown <@ba.vup>-15</>s. Each time the shield is triggered, Mi Fu gains ATK <@ba.vup>+6%</> for 20s."
+        "description": "Talent <@ba.key>Vigilant Fury</> improved: <#ba.shield>Shield</> duration <@ba.vup>+5.0</>s. <#ba.shield>Shield</> trigger cooldown <@ba.vup>-15.0</>s. Each time the shield is triggered, Mi Fu gains ATK <@ba.vup>+6%</> for 20.0s."
       },
       {
         "name": "Qi Thrice-Refined",
@@ -348,7 +348,7 @@
       },
       {
         "name": "Pugilist of the Stockade",
-        "description": "Battle skill improved: DMG Multipliers of the moves <@ba.key>Cloudtrapper</>, <@ba.key>Trail and Mangle</>, and <@ba.key>World Splitter</> are increased to <@ba.vup>1.1</> times the original. Ultimate <@ba.key>Pile of No Mercy</> improved: Stagger Dealt <@ba.vup>+5</>.\n<@ba.info>The Battle Skill DMG Multiplier buff can stack with the talent Stern Crackdown.</>"
+        "description": "Battle skill improved: DMG Multipliers of the moves <@ba.key>Cloudtrapper</>, <@ba.key>Trail and Mangle</>, and <@ba.key>World Splitter</> are increased to <@ba.vup>1.1</> times the original. Ultimate <@ba.key>Pile of No Mercy</> improved: Stagger Dealt <@ba.vup>+5.0</>.\n<@ba.info>The Battle Skill DMG Multiplier buff can stack with the talent Stern Crackdown.</>"
       }
     ],
     "combatSkills": {
@@ -584,7 +584,7 @@
       },
       {
         "name": "When the Banner Flutters",
-        "description": "Talent <@ba.key>The Living Banner</> improved: Amount of SP recovery needed to gain <@ba.key>Fervent Morale</> is reduced to <@ba.vup>60</>. Max <@ba.key>Fervent Morale</> stacks on self <@ba.vup>+2</>."
+        "description": "Talent <@ba.key>The Living Banner</> improved: Amount of SP recovery needed to gain <@ba.key>Fervent Morale</> is reduced to <@ba.vup>60</>. Max <@ba.key>Fervent Morale</> stacks on self <@ba.vup>+2.0</>."
       },
       {
         "name": "Shield of Talos-II",
@@ -1297,11 +1297,11 @@
     "talents": [
       {
         "name": "Hunter of Transgression",
-        "description": "Combo skill <@ba.key>Heartstake Thorn</> improved: When hitting an enemy with <@ba.key>hovering</><@ba.key> Firefang Vesperwings</>, Camille restores <@ba.heal>[30 + Intellect × 0.15]</> HP to himself and grants a <#ba.combo>Link</> buff for 15s. When casting <@ba.key>Hunter Pursuit</>, this effect can be triggered even when hitting a target with no <@ba.key>hovering</> Vesperwings."
+        "description": "Combo skill <@ba.key>Heartstake Thorn</> improved: When hitting an enemy with <@ba.key>hovering</><@ba.key> Firefang Vesperwings</>, Camille restores <@ba.heal>[30 + Intellect × 0.15]</> HP to himself and grants a <#ba.combo>Link</> buff for 15.0s. When casting <@ba.key>Hunter Pursuit</>, this effect can be triggered even when hitting a target with no <@ba.key>hovering</> Vesperwings."
       },
       {
         "name": "Hunter of Transgression",
-        "description": "Combo skill <@ba.key>Heartstake Thorn</> improved: When hitting an enemy with <@ba.key>hovering</><@ba.key> Firefang Vesperwings</>, Camille restores <@ba.heal>[60 + Intellect × 0.3]</> HP to himself and grants a <#ba.combo>Link</> buff for 15s. When casting <@ba.key>Hunter Pursuit</>, this effect can be triggered even when hitting a target with no <@ba.key>hovering</> Vesperwings."
+        "description": "Combo skill <@ba.key>Heartstake Thorn</> improved: When hitting an enemy with <@ba.key>hovering</><@ba.key> Firefang Vesperwings</>, Camille restores <@ba.heal>[60 + Intellect × 0.3]</> HP to himself and grants a <#ba.combo>Link</> buff for 15.0s. When casting <@ba.key>Hunter Pursuit</>, this effect can be triggered even when hitting a target with no <@ba.key>hovering</> Vesperwings."
       },
       {
         "name": "Bloodfount Revival",
@@ -1718,8 +1718,8 @@
   "arcane": {
     "name": "Arcane",
     "forms": {
-      "int": "Array Arcana · INT",
-      "will": "Array Arcana · WILL"
+      "int": "Array Arcana: INT",
+      "will": "Array Arcana: WILL"
     },
     "talents": [
       {
@@ -1827,7 +1827,7 @@
     "potentials": [
       {
         "name": "Flawless Stage Work",
-        "description": "After entering battle without her <@ba.key>Vocalist Stance</> active, the first casting of the battle skill <@ba.key>Dazzling Focus</> <#ba.return>returns</> <@ba.vup>25</> additional SP.\nEffects of ATK Boost granted by <@ba.key>Vocalist Stance</> and <@ba.key>Cosmovoice Stance</> are increased by <@ba.vup>+6%</>."
+        "description": "After entering battle without her <@ba.key>Vocalist Stance</> active, the first casting of the battle skill <@ba.key>Dazzling Focus</> <#ba.return>returns</> <@ba.vup>25</> additional SP. \nEffects of ATK Boost granted by <@ba.key>Vocalist Stance</> and <@ba.key>Cosmovoice Stance</> are increased by <@ba.vup>+6%</>."
       },
       {
         "name": "Committed Rehearsals",
@@ -1843,13 +1843,13 @@
       },
       {
         "name": "Heart-Whipping Q&A",
-        "description": "<#ba.enhance>Amp</> effect of <@ba.key>Dawnstar Concerto</> is increased to <@ba.vup>1.2</> times the original.\nDMG Multipliers of battle skill <@ba.key>Dazzling Focus</> and ultimate <@ba.key>Dawnstar Concerto</> are increased to <@ba.vup>1.2</> times the original."
+        "description": "<#ba.enhance>Amp</> effect of <@ba.key>Dawnstar Concerto</> is increased to <@ba.vup>1.2</> times the original. \nDMG Multipliers of battle skill <@ba.key>Dazzling Focus</> and ultimate <@ba.key>Dawnstar Concerto</> are increased to <@ba.vup>1.2</> times the original."
       }
     ],
     "combatSkills": {
       "basicAttack": {
         "name": "Starry Heart Throb",
-        "description": "BASIC ATTACK:\nAn attack with up to 5 sequences that deals <@ba.pulse>Electric DMG</>. As the controlled operator, <#ba.lastcombo>Final Strike</> also deals <@ba.poise>19</> Stagger.\n\nDIVE ATTACK:\nBasic attack performed in mid-air becomes a dive attack that deals <@ba.pulse>Electric DMG</> to nearby enemies.\n\nFINISHER:\nBasic attack performed near a Staggered enemy becomes a finisher that deals massive <@ba.pulse>Electric DMG</> and recovers some SP."
+        "description": "BASIC ATTACK: \nAn attack with up to 5 sequences that deals <@ba.pulse>Electric DMG</>. As the controlled operator, <#ba.lastcombo>Final Strike</> also deals <@ba.poise>19</> Stagger. \n\nDIVE ATTACK: \nBasic attack performed in mid-air becomes a dive attack that deals <@ba.pulse>Electric DMG</> to nearby enemies. \n\nFINISHER: \nBasic attack performed near a Staggered enemy becomes a finisher that deals massive <@ba.pulse>Electric DMG</> and recovers some SP."
       },
       "battleSkill": {
         "name": "Dazzling Focus",
@@ -1861,7 +1861,7 @@
       },
       "ultimate": {
         "name": "Dawnstar Concerto",
-        "description": "Liino grants <@ba.heal>HP Treatment</> to the entire team, enters her <@ba.key>Cosmovoice Stance</> at the same time, unleashes a continuous display of Stage Pyrotechnics that deals <@ba.pulse>Electric DMG</>, and then triggers an <@ba.key>Electrifying Extravaganza</> that deals <@ba.pulse>Electric DMG</> and forcibly applies <#ba.conduct>Electrification</> to enemies in a large area of effect (AOE).\n<@ba.key>Cosmovoice Stance</>: This stance replaces Liino's <@ba.key>Vocalist Stance</>. While active, the stance grants the entire team <#ba.pulseenhance>Electric Amp</> and <#ba.naturalenhance>Nature Amp</> (effects are further increased by the attribute of Will) as well as an ATK Boost. The beats of Liino's song also deal <@ba.pulse>Electric DMG</> to enemies in the AOE and grant continuous <@ba.heal>HP Treatment</> to allied operators in the AOE. When the stance ends, deals 3 times the DMG from a single beat to enemies in the AOE, and grants 3 times the HP treatment from a single beat to the entire team. This effect does not trigger if the stance is ended early.\nDuring the stance, her battle skill is replaced with End Stance. <@ba.info>Casting the battle skill during Cosmovoice Stance ends it early and does not consume any SP.</>"
+        "description": "Liino grants <@ba.heal>HP Treatment</> to the entire team, enters her <@ba.key>Cosmovoice Stance</> at the same time, unleashes a continuous display of Stage Pyrotechnics that deals <@ba.pulse>Electric DMG</>, and then triggers an <@ba.key>Electrifying Extravaganza</> that deals <@ba.pulse>Electric DMG</> and forcibly applies <#ba.conduct>Electrification</> to enemies in a large area of effect (AOE).\n<@ba.key>Cosmovoice Stance</>: This stance replaces Liino's <@ba.key>Vocalist Stance</>. While active, the stance grants the entire team <#ba.pulseenhance>Electric Amp</> and <#ba.naturalenhance>Nature Amp</> (effects are further increased by the attribute of Will) as well as an ATK Boost. The beats of Liino's song also deal <@ba.pulse>Electric DMG</> to enemies in the AOE and grant continuous <@ba.heal>HP Treatment</> to allied operators in the AOE. When the stance ends, deals 3 times the DMG from a single beat to enemies in the AOE, and grants 3 times the HP treatment from a single beat to the entire team. This effect does not trigger if the stance is ended early. \nDuring the stance, her battle skill is replaced with End Stance. <@ba.info>Casting the battle skill during Cosmovoice Stance ends it early and does not consume any SP.</>"
       }
     }
   }

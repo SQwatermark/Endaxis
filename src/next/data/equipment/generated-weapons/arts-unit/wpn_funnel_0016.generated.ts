@@ -87,7 +87,6 @@ const definition = {
                         "parameters": {
                           "buffId": "buff_wpn_funnel_0016_wisd",
                           "target": "buffOwner",
-                          "source": "eventSource",
                           "inheritSourceSkillCastInfo": true,
                           "asChildBuff": true,
                           "blackboardAssignments": {
@@ -129,7 +128,6 @@ const definition = {
                         "parameters": {
                           "buffId": "buff_wpn_funnel_0016_will",
                           "target": "buffOwner",
-                          "source": "eventSource",
                           "inheritSourceSkillCastInfo": true,
                           "asChildBuff": true,
                           "blackboardAssignments": {
@@ -358,7 +356,6 @@ const definition = {
                   "parameters": {
                     "buffId": "buff_wpn_funnel_0016_will_icon",
                     "target": "buffOwner",
-                    "source": "eventSource",
                     "inheritSourceSkillCastInfo": true,
                     "finishByAction": true,
                     "asChildBuff": true,
@@ -452,7 +449,6 @@ const definition = {
                   "parameters": {
                     "buffId": "buff_wpn_funnel_0016_will_icon",
                     "target": "buffOwner",
-                    "source": "eventSource",
                     "inheritSourceSkillCastInfo": true,
                     "finishByAction": true,
                     "asChildBuff": true,

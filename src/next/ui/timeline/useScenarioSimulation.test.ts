@@ -70,6 +70,34 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
+  it('uses the optional simulation end line as the execution boundary', async () => {
+    const initial = createPerlicaScenario();
+    initial.battle.simulationRange = { startFrame: 30, endFrame: 120 };
+    const requestedEndFrames: number[] = [];
+    const fakeService = {
+      simulate: async (_scenario: ScenarioDocument, endFrame: number) => {
+        requestedEndFrames.push(endFrame);
+        return {
+          availabilityDiagnostics: [],
+          executionDiagnostics: [],
+          comboWindowDiagnostics: [],
+        };
+      },
+    } as unknown as ScenarioSimulationService;
+    const scenario = shallowRef<ScenarioDocument>(initial);
+    let result!: UseScenarioSimulationResult;
+    const scope = effectScope();
+    scope.run(() => {
+      result = useScenarioSimulation({ scenario, service: fakeService, debounceMs: 10_000 });
+    });
+    try {
+      await result.simulateNow();
+      expect(requestedEndFrames).toEqual([120]);
+    } finally {
+      scope.stop();
+    }
+  });
+
   it('场景变化后立即把旧模拟标记为过期', async () => {
     const initial = createPerlicaScenario();
     const scenario = shallowRef<ScenarioDocument>(initial);

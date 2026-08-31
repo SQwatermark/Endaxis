@@ -7,17 +7,20 @@ const definition = {
     {
       kind: 'damageScale',
       target: 'comboSkill',
-      value: [0.2],
+      slot: 'baseAddition',
+      value: 0.2,
     },
     {
       kind: 'damageScale',
       target: 'battleSkill',
-      value: [0.2],
+      slot: 'baseAddition',
+      value: 0.2,
     },
     {
       kind: 'damageScale',
       target: 'ultimate',
-      value: [0.2],
+      slot: 'baseAddition',
+      value: 0.2,
     },
   ],
   buffDefinitions: {
@@ -50,7 +53,7 @@ const definition = {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
+                    buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
                   },
                 },
                 whenTrue: {
@@ -59,9 +62,10 @@ const definition = {
                       kind: 'conditional',
                       parameters: {
                         condition: {
-                          kind: 'eventTargetBuffCountCompare',
+                          kind: 'buffStackCompare',
+                          target: 'eventTarget',
                           tagQueryType: 'hasAny',
-                          buffTags: ["Skill/Character/Common/SpellInflict/FireInflict"],
+                          buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -76,7 +80,9 @@ const definition = {
                             parameters: {
                               buffId: 'buff_equipsuit_burst_01_spelldmgup',
                               target: 'buffOwner',
+                              source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
+                              asChildBuff: true,
                               blackboardAssignments: {
                                 spell_dmg_up: {
                                   kind: 'blackboard',
@@ -95,13 +101,21 @@ const definition = {
                   ],
                 },
               },
+            ],
+          },
+        },
+        {
+          event: 'outputBuff',
+          priority: 0,
+          sequence: {
+            steps: [
               {
                 kind: 'conditional',
                 parameters: {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"],
+                    buffTags: ['Skill/Character/Common/SpellInflict/NaturalInflict'],
                   },
                 },
                 whenTrue: {
@@ -110,9 +124,10 @@ const definition = {
                       kind: 'conditional',
                       parameters: {
                         condition: {
-                          kind: 'eventTargetBuffCountCompare',
+                          kind: 'buffStackCompare',
+                          target: 'eventTarget',
                           tagQueryType: 'hasAny',
-                          buffTags: ["Skill/Character/Common/SpellInflict/NaturalInflict"],
+                          buffTags: ['Skill/Character/Common/SpellInflict/NaturalInflict'],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -127,7 +142,9 @@ const definition = {
                             parameters: {
                               buffId: 'buff_equipsuit_burst_01_spelldmgup',
                               target: 'buffOwner',
+                              source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
+                              asChildBuff: true,
                               blackboardAssignments: {
                                 spell_dmg_up: {
                                   kind: 'blackboard',
@@ -146,13 +163,21 @@ const definition = {
                   ],
                 },
               },
+            ],
+          },
+        },
+        {
+          event: 'outputBuff',
+          priority: 0,
+          sequence: {
+            steps: [
               {
                 kind: 'conditional',
                 parameters: {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
+                    buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
                   },
                 },
                 whenTrue: {
@@ -161,9 +186,10 @@ const definition = {
                       kind: 'conditional',
                       parameters: {
                         condition: {
-                          kind: 'eventTargetBuffCountCompare',
+                          kind: 'buffStackCompare',
+                          target: 'eventTarget',
                           tagQueryType: 'hasAny',
-                          buffTags: ["Skill/Character/Common/SpellInflict/CrystInflict"],
+                          buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -178,7 +204,9 @@ const definition = {
                             parameters: {
                               buffId: 'buff_equipsuit_burst_01_spelldmgup',
                               target: 'buffOwner',
+                              source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
+                              asChildBuff: true,
                               blackboardAssignments: {
                                 spell_dmg_up: {
                                   kind: 'blackboard',
@@ -197,13 +225,21 @@ const definition = {
                   ],
                 },
               },
+            ],
+          },
+        },
+        {
+          event: 'outputBuff',
+          priority: 0,
+          sequence: {
+            steps: [
               {
                 kind: 'conditional',
                 parameters: {
                   condition: {
                     kind: 'eventBuffTagsMatch',
                     match: 'hasAny',
-                    buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
+                    buffTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
                   },
                 },
                 whenTrue: {
@@ -212,9 +248,10 @@ const definition = {
                       kind: 'conditional',
                       parameters: {
                         condition: {
-                          kind: 'eventTargetBuffCountCompare',
+                          kind: 'buffStackCompare',
+                          target: 'eventTarget',
                           tagQueryType: 'hasAny',
-                          buffTags: ["Skill/Character/Common/SpellInflict/PulseInflict"],
+                          buffTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
                           operator: 'greaterOrEqual',
                           value: {
                             kind: 'blackboard',
@@ -229,7 +266,9 @@ const definition = {
                             parameters: {
                               buffId: 'buff_equipsuit_burst_01_spelldmgup',
                               target: 'buffOwner',
+                              source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
+                              asChildBuff: true,
                               blackboardAssignments: {
                                 spell_dmg_up: {
                                   kind: 'blackboard',
@@ -318,30 +357,9 @@ const definition = {
         },
       ],
     },
-    buff_equipsuit_will_01: {
-      stackingType: 'unlimited',
-      priority: 0,
-      maxStackCount: 0,
-      triggerIntervalSeconds: 0,
-      waitFirstTriggerInterval: true,
-      maxTriggerCount: 1,
-      applyTags: [],
-      extendTags: [],
-      blackboard: {
-        will: 200,
-      },
-      attributeModifiers: [],
-    },
   },
   initializationSequence: {
     steps: [
-      {
-        kind: 'applyBuff',
-        parameters: {
-          buffId: 'buff_equipsuit_will_01',
-          target: 'caster',
-        },
-      },
       {
         kind: 'applyBuff',
         parameters: {
