@@ -4860,3 +4860,16 @@ Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚�
 - 当前门禁：Next **286 文件 / 3889 项**全量通过；Next、game-data contract、普通与 production
   game-data 类型检查均通过。下一步继续敌人弱点、失衡节点等已有账本状态的 HUD 复刻，不引入敌人
   主动行为或干员虚构受击。
+
+### 2026-09-01：敌人架势结点与弱点窗口分界
+
+- 原生 `UIPoiseBar` 会按控制器阈值初始化固定架势结点；Next 敌人状态头现直接显示场景敌人定义中的
+  `stagger.knotThresholds`，并将“已损失比例”转换成剩余架势条坐标 `1 - threshold`。填充仍只消费
+  实际架势曲线，不另造逐结点状态。
+- `UIPoiseBar.OnPoiseChange` 只在损失比例正向跨过阈值时调用 `UIPoiseKnot.KnotBreak` 播放动画；恢复
+  越界不走该入口。光标快照不保存这种瞬时动画为持久状态。
+- `UIWeaknessNode` 已确认是由敌人 `SetMultiTimesWeakness` / `SetWeaknessAction` 主动弱点窗口驱动、并与
+  架势条互斥显示的独立组件，不是元素弱点条。木桩模型当前没有该事件源，因此明确不显示；不得从
+  敌人属性或元素附着猜造。
+- 证据已补入 combat-spec `docs/combat-hud-vitals-and-skill-state.md`。定向结构测试与
+  `type-check:next` 通过；提交前仍需执行 Next 全量门禁。

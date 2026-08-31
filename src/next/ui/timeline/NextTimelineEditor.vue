@@ -4867,6 +4867,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :hud-snapshot="combatHudSnapshot.enemy"
             :enemy-name="enemyHudName"
             :enemy-level="scenario.enemy.source.level"
+            :poise-knot-thresholds="scenario.enemy.editable.stagger.knotThresholds"
             :hud-labels="{
               hp: t('nextTimeline.simGuide.enemyHp'),
               poise: t('nextTimeline.simGuide.poise'),

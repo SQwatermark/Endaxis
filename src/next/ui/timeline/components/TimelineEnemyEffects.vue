@@ -33,6 +33,7 @@ const props = defineProps<{
   hudSnapshot: EnemyCombatHudSnapshotModel;
   enemyName: string;
   enemyLevel: number;
+  poiseKnotThresholds: readonly number[];
   hudLabels: {
     hp: string;
     poise: string;
@@ -181,6 +182,7 @@ const height = computed(() => Math.max(90, rowCount.value * 22 + 2));
       :snapshot="hudSnapshot"
       :name="enemyName"
       :level="enemyLevel"
+      :poise-knot-thresholds="poiseKnotThresholds"
       :labels="hudLabels"
     />
     <CombatStatusIconStrip

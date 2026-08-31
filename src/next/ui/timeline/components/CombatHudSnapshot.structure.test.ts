@@ -19,6 +19,14 @@ describe('combat HUD snapshot integration', () => {
     expect(enemySource).toContain('props.snapshot.poise?.state');
     expect(enemySource).not.toContain('receiptEntries');
     expect(effectsSource).toContain('<EnemyCombatHudSnapshot');
+    expect(effectsSource).toContain(':poise-knot-thresholds="poiseKnotThresholds"');
+  });
+
+  it('renders configured poise knots without inventing weakness-window state', () => {
+    expect(enemySource).toContain('v-for="threshold in poiseKnotThresholds"');
+    expect(enemySource).toContain('class="gauge__knot"');
+    expect(enemySource).toContain('(1 - threshold) * 100');
+    expect(enemySource).not.toContain('weakness');
   });
 
   it('keeps compact operator runtime facts in the existing track header', () => {

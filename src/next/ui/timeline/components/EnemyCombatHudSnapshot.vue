@@ -7,6 +7,8 @@ const props = defineProps<{
   snapshot: EnemyCombatHudSnapshot;
   name: string;
   level: number;
+  /** 原生 UIPoiseBar 按敌人配置初始化的归一化结点阈值。 */
+  poiseKnotThresholds: readonly number[];
   labels: {
     hp: string;
     poise: string;
@@ -57,6 +59,13 @@ const poiseStateLabel = computed(() => {
           class="gauge__fill"
           :style="{ width: `${(snapshot.poise.ratio ?? 0) * 100}%` }"
         ></span>
+        <i
+          v-for="threshold in poiseKnotThresholds"
+          :key="threshold"
+          class="gauge__knot"
+          :style="{ left: `${(1 - threshold) * 100}%` }"
+          aria-hidden="true"
+        ></i>
       </span>
     </div>
   </section>
@@ -139,9 +148,9 @@ header span {
 }
 
 .gauge__track {
+  position: relative;
   grid-column: 1 / -1;
   height: 3px;
-  overflow: hidden;
   background: var(--ea-fill-soft, rgb(255 255 255 / 8%));
 }
 
@@ -154,5 +163,19 @@ header span {
 
 .gauge--poise .gauge__fill {
   background: #d46b08;
+}
+
+.gauge__knot {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  width: 2px;
+  height: 7px;
+  box-sizing: border-box;
+  border: 1px solid #f5c89a;
+  background: #4c362b;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 45%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 </style>
