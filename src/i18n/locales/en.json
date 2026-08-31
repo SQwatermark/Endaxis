@@ -738,6 +738,7 @@
     "skill": "Skill",
     "link": "Combo",
     "ultimate": "Ultimate",
+    "enhanced": "Enhanced {type}",
     "weapon": "Weapon",
     "set": "Set",
     "unknown": "Skill"

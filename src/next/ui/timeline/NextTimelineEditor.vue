@@ -401,6 +401,7 @@ const connectionDrag = ref<{
 type TimelineDragPayload =
   | {
       kind: 'librarySkill';
+      entryKey: string;
       skillGroupKey: string;
       variantKey?: string;
       skillKey?: string;
@@ -411,6 +412,7 @@ type TimelineDragPayload =
 const dragPayload = ref<TimelineDragPayload | null>(null);
 const trackOrderDropTarget = ref<TrackIndex | null>(null);
 interface TimelineLibraryPlacement {
+  readonly entryKey: string;
   readonly skillGroupKey: string;
   readonly skillType: SkillType;
   readonly variantKey?: string;
@@ -785,11 +787,8 @@ const placementLibraryEntry = computed(() => {
   const placement = libraryPlacement.value;
   if (placement === null) return null;
   return (
-    selectedTrackModel.value.skillLibrary.find(
-      entry =>
-        entry.skillGroupKey === placement.skillGroupKey &&
-        entry.variantKey === placement.variantKey,
-    ) ?? null
+    selectedTrackModel.value.skillLibrary.find(entry => entry.entryKey === placement.entryKey) ??
+    null
   );
 });
 const placementLabel = computed(() => {
@@ -808,7 +807,10 @@ watch(selectedTrack, () => {
   const placement = libraryPlacement.value;
   if (placement === null) return;
   const replacement = selectedTrackModel.value.skillLibrary.find(
-    entry => entry.skillType === placement.skillType && entry.variantKey === undefined,
+    entry =>
+      entry.skillType === placement.skillType &&
+      entry.variantKey === undefined &&
+      entry.placementSkillKey === undefined,
   );
   if (replacement === undefined) {
     libraryPlacement.value = null;
@@ -816,6 +818,7 @@ watch(selectedTrack, () => {
     return;
   }
   libraryPlacement.value = {
+    entryKey: replacement.entryKey,
     skillGroupKey: replacement.skillGroupKey,
     skillType: replacement.skillType,
     ...(replacement.variantKey === undefined ? {} : { variantKey: replacement.variantKey }),
@@ -1258,8 +1261,11 @@ const selectedCastModel = computed(() => {
       const source = cast.source;
       const skillLevel =
         source.kind === 'operatorSkill'
-          ? (trackModel.skillLibrary.find(entry => entry.skillGroupKey === source.skillGroupKey)
-              ?.level ?? 1)
+          ? (trackModel.skillLibrary.find(
+              entry =>
+                entry.skillGroupKey === source.skillGroupKey &&
+                entry.skills.some(skill => skill.skillKey === source.skillKey),
+            )?.level ?? 1)
           : 1;
       return {
         trackIndex: trackModel.trackIndex,
@@ -2123,7 +2129,10 @@ function skillName(groupKey: string, slug: string | null): string {
 
 function skillLibraryEntryName(entry: TimelineSkillLibraryEntryViewModel): string {
   const assetSlug = selectedTrackModel.value.operatorAssetSlug;
-  if (assetSlug === null) return entry.variantKey ?? entry.skillGroupKey;
+  if (assetSlug === null) return entry.placementSkillKey ?? entry.variantKey ?? entry.skillGroupKey;
+  if (entry.placementSkillKey !== undefined) {
+    return getOperatorCombatSkillName(assetSlug, entry.placementSkillKey, locale.value);
+  }
   const nameEntry =
     entry.skillType === 'finisher' || entry.skillType === 'plungingAttack'
       ? (selectedTrackModel.value.skillLibrary.find(
@@ -2155,6 +2164,11 @@ function skillTypeLabel(skillType: string): string {
   return t(`skillType.${displayType}`);
 }
 
+function skillLibraryTypeLabel(entry: TimelineSkillLibraryEntryViewModel): string {
+  const type = skillTypeLabel(entry.skillType);
+  return entry.enhanced ? t('skillType.enhanced', { type }) : type;
+}
+
 function battleReceiptEventLabel(event: string): string {
   const receiptKey = `battleLog.receiptTypes.${event}`;
   const receiptTranslated = t(receiptKey);
@@ -2171,7 +2185,9 @@ function timelineCastLabel(
   const source = cast.source;
   if (source.kind === 'custom') return source.name;
   const entry = track.skillLibrary.find(
-    candidate => candidate.skillGroupKey === source.skillGroupKey,
+    candidate =>
+      candidate.skillGroupKey === source.skillGroupKey &&
+      candidate.skills.some(skill => skill.skillKey === source.skillKey),
   );
   const segmentLabel =
     entry === undefined
@@ -2215,7 +2231,9 @@ function skillDisplayIcon(skillType: string, operatorSlug: string | null): strin
 }
 
 function skillDurationSeconds(entry: TimelineSkillLibraryEntryViewModel): number {
-  const frames = entry.skills.reduce((total, skill) => total + skill.timelineBlockFrames, 0);
+  const frames = entry.skills
+    .filter(skill => entry.groupPlacementSkillKeys.includes(skill.skillKey))
+    .reduce((total, skill) => total + skill.timelineBlockFrames, 0);
   return Math.round((frames / 30) * 1000) / 1000;
 }
 
@@ -2396,13 +2414,13 @@ function handleActionSelection(event: MouseEvent, skillCastId: string): void {
 }
 
 function skillSegments(entry: TimelineSkillLibraryEntryViewModel) {
-  return entry.skills.map((skill, index) => ({
+  return entry.skills.map(skill => ({
     id: skill.skillKey,
     label:
-      basicAttackSegmentLabel(entry, skill.skillKey, t('skillType.heavyAttack')) ?? `A${index + 1}`,
+      basicAttackSegmentLabel(entry, skill.skillKey, t('skillType.heavyAttack')) ??
+      skillName(skill.skillKey, selectedTrackModel.value.operatorSlug),
     selected:
-      libraryPlacement.value?.skillGroupKey === entry.skillGroupKey &&
-      libraryPlacement.value?.variantKey === entry.variantKey &&
+      libraryPlacement.value?.entryKey === entry.entryKey &&
       libraryPlacement.value?.skillKey === skill.skillKey,
     disabled: false,
   }));
@@ -2804,11 +2822,13 @@ function hideCursorGuide(): void {
 }
 
 function beginLibraryPlacement(entry: TimelineSkillLibraryEntryViewModel, skillKey?: string): void {
+  const placedSkillKey = skillKey ?? entry.placementSkillKey;
   libraryPlacement.value = {
+    entryKey: entry.entryKey,
     skillGroupKey: entry.skillGroupKey,
     skillType: entry.skillType,
     ...(entry.variantKey === undefined ? {} : { variantKey: entry.variantKey }),
-    ...(skillKey === undefined ? {} : { skillKey }),
+    ...(placedSkillKey === undefined ? {} : { skillKey: placedSkillKey }),
   };
   clearTimelineSelection();
 }
@@ -2822,19 +2842,11 @@ function cancelLibraryPlacement(): boolean {
 
 function libraryEntrySelected(entry: TimelineSkillLibraryEntryViewModel): boolean {
   const drag = dragPayload.value;
-  if (
-    drag?.kind === 'librarySkill' &&
-    drag.skillGroupKey === entry.skillGroupKey &&
-    drag.variantKey === entry.variantKey
-  ) {
+  if (drag?.kind === 'librarySkill' && drag.entryKey === entry.entryKey) {
     return true;
   }
   const placement = libraryPlacement.value;
-  return (
-    placement !== null &&
-    placement.skillGroupKey === entry.skillGroupKey &&
-    placement.variantKey === entry.variantKey
-  );
+  return placement !== null && placement.entryKey === entry.entryKey;
 }
 
 function placePendingLibrarySkill(event: PointerEvent, trackIndex: TrackIndex): boolean {
@@ -2914,7 +2926,10 @@ function placeSkillByShortcut(slot: 1 | 2 | 3 | 4 | 5 | 6): boolean {
   const skillType = LEGACY_SKILL_HOTKEY_TYPES[slot];
   const entry =
     selectedTrackModel.value.skillLibrary.find(
-      candidate => candidate.skillType === skillType && candidate.variantKey === undefined,
+      candidate =>
+        candidate.skillType === skillType &&
+        candidate.variantKey === undefined &&
+        candidate.placementSkillKey === undefined,
     ) ?? selectedTrackModel.value.skillLibrary.find(candidate => candidate.skillType === skillType);
   if (entry === undefined) return false;
   beginLibraryPlacement(entry);
@@ -2930,13 +2945,35 @@ function resolvePlacedSkillDurationFrames(
   if (operator === null) return 0;
   const group = operator.skillGroups.find(g => g.key === skillGroupKey);
   if (group === undefined) return 0;
+  if (skillKey !== undefined) {
+    const candidates = [
+      ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
+      ...(group.variants ?? []).flatMap(variant =>
+        Array.isArray(variant.skills) ? variant.skills : [variant.skills],
+      ),
+      ...(group.replacementSkills ?? []),
+      ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
+    ];
+    return candidates.find(skill => skill.key === skillKey)?.timelineBlockFrames ?? 0;
+  }
   const variant = group.variants?.find(candidate => candidate.key === variantKey);
   const selectedSkills = variant?.skills ?? group.skills;
-  const skills: readonly { timelineBlockFrames: number; key: string }[] = Array.isArray(
+  let skills: readonly { timelineBlockFrames: number; key: string }[] = Array.isArray(
     selectedSkills,
   )
     ? selectedSkills
     : [selectedSkills];
+  if (variant === undefined && group.placementSequenceSkillKeys !== undefined) {
+    const candidates = [
+      ...skills,
+      ...(group.replacementSkills ?? []),
+      ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
+    ];
+    skills = group.placementSequenceSkillKeys.flatMap(skillKey => {
+      const skill = candidates.find(candidate => candidate.key === skillKey);
+      return skill === undefined ? [] : [skill];
+    });
+  }
   const filtered = skillKey === undefined ? skills : skills.filter(s => s.key === skillKey);
   const lastSkill = filtered.at(-1);
   return lastSkill?.timelineBlockFrames ?? 0;
@@ -2944,34 +2981,33 @@ function resolvePlacedSkillDurationFrames(
 
 function beginSkillDrag(
   event: DragEvent,
-  skillGroupKey: string,
+  entry: TimelineSkillLibraryEntryViewModel,
   skillKey?: string,
-  variantKey?: string,
 ): void {
-  const entry = selectedTrackModel.value.skillLibrary.find(
-    candidate => candidate.skillGroupKey === skillGroupKey && candidate.variantKey === variantKey,
-  );
-  if (entry === undefined) return;
+  const placedSkillKey = skillKey ?? entry.placementSkillKey;
   cancelLibraryPlacement();
   const offsets = getDefaultLibraryDragOffsets();
   dragPayload.value = {
     kind: 'librarySkill',
-    skillGroupKey,
-    ...(variantKey === undefined ? {} : { variantKey }),
-    ...(skillKey === undefined ? {} : { skillKey }),
+    entryKey: entry.entryKey,
+    skillGroupKey: entry.skillGroupKey,
+    ...(entry.variantKey === undefined ? {} : { variantKey: entry.variantKey }),
+    ...(placedSkillKey === undefined ? {} : { skillKey: placedSkillKey }),
     dragOffsetX: offsets.dragOffsetX,
   };
   const draggedSkill =
-    skillKey === undefined ? undefined : entry.skills.find(skill => skill.skillKey === skillKey);
+    placedSkillKey === undefined
+      ? undefined
+      : entry.skills.find(skill => skill.skillKey === placedSkillKey);
   const durationSeconds =
     draggedSkill === undefined
       ? skillDurationSeconds(entry)
       : Math.round((draggedSkill.timelineBlockFrames / PROJECT_FPS) * 1000) / 1000;
   const label =
-    skillKey === undefined
+    placedSkillKey === undefined
       ? skillLibraryEntryName(entry)
-      : (basicAttackSegmentLabel(entry, skillKey, t('skillType.heavyAttack')) ??
-        skillName(skillKey, selectedTrackModel.value.operatorSlug));
+      : (basicAttackSegmentLabel(entry, placedSkillKey, t('skillType.heavyAttack')) ??
+        skillName(placedSkillKey, selectedTrackModel.value.operatorSlug));
   const ghost = createLibraryDragGhost(
     { name: label, duration: durationSeconds },
     pxPerFrame.value * PROJECT_FPS,
@@ -2979,7 +3015,7 @@ function beginSkillDrag(
   );
   if (event.dataTransfer !== null) {
     event.dataTransfer.effectAllowed = 'copy';
-    event.dataTransfer.setData('text/plain', skillKey ?? skillGroupKey);
+    event.dataTransfer.setData('text/plain', placedSkillKey ?? entry.skillGroupKey);
     event.dataTransfer.setDragImage(ghost, offsets.dragOffsetX, offsets.dragOffsetY);
   }
 }
@@ -3822,19 +3858,17 @@ function setPanelDialogVisible(visible: boolean): void {
           <div class="skill-list">
             <SkillLibraryCard
               v-for="entry in selectedTrackModel.skillLibrary"
-              :key="`${entry.skillGroupKey}:${entry.variantKey ?? 'base'}`"
+              :key="entry.entryKey"
               :name="skillLibraryEntryName(entry)"
               :tooltip="skillLibraryEntryName(entry)"
-              :type-label="skillTypeLabel(entry.skillType)"
+              :type-label="skillLibraryTypeLabel(entry)"
               :duration="skillDurationSeconds(entry)"
               :icon="skillDisplayIcon(entry.skillType, selectedTrackModel.operatorSlug)"
               :accent-color="skillAccentColor(entry.skillType)"
               :selected="libraryEntrySelected(entry)"
               :segments="skillSegments(entry)"
-              @dragstart="beginSkillDrag($event, entry.skillGroupKey, undefined, entry.variantKey)"
-              @dragstart-segment="
-                beginSkillDrag($event.event, entry.skillGroupKey, $event.skillKey, entry.variantKey)
-              "
+              @dragstart="beginSkillDrag($event, entry)"
+              @dragstart-segment="beginSkillDrag($event.event, entry, $event.skillKey)"
               @dragend="finishSkillDrag"
             />
           </div>

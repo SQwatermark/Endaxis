@@ -324,43 +324,6 @@ export function projectCastHitMarkers(
   return markers;
 }
 
-/**
- * 收集同一运行时技能槽可能执行的全部形态。
- *
- * 轨道存档只保存稳定技能组与基础模板身份；换槽 Buff 会让同一个块在运行时执行
- * replacement skill。基础定义仍提供无模拟时的预览，替换形态只能由实际回执确认，
- * 因此其命中统一标记为条件候选。相同 step key 在多个形态中表示同一稳定命中身份，
- * 只保留首次出现的标记，实际帧仍由 DamageApplied 覆盖。
- */
-export function projectCastHitMarkersWithReplacements(
-  cast: SkillCastDocument,
-  definition: SkillDefinition,
-  replacements: readonly SkillDefinition[],
-  abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
-  buffDefinitions?: OperatorBuffDefinitions,
-): readonly TimelineHitMarker[] {
-  const markers = projectCastHitMarkers(
-    cast,
-    definition,
-    abilityEntityDefinitions,
-    buffDefinitions,
-  ).map(marker => ({ ...marker, skillKey: definition.key }));
-  const seen = new Set(markers.map(marker => marker.hitId));
-  for (const replacement of replacements) {
-    for (const marker of projectCastHitMarkers(
-      cast,
-      replacement,
-      abilityEntityDefinitions,
-      buffDefinitions,
-    )) {
-      if (seen.has(marker.hitId)) continue;
-      seen.add(marker.hitId);
-      markers.push({ ...marker, skillKey: replacement.key, conditional: true });
-    }
-  }
-  return markers;
-}
-
 /** 按稳定 step key 查询一次释放中的命中标记；找不到时返回 null。 */
 export function findCastHitMarker(
   cast: SkillCastDocument,

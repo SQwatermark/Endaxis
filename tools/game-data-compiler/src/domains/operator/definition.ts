@@ -617,6 +617,14 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     if (visibleSkillKeys.length === 0) {
       throw new Error(`skill group '${group.key}' has no visible skill after runtime replacements`);
     }
+    if (
+      group.replacementPlacement === 'sequence' &&
+      replacementSkillKeys.length + routedSkillEntries.length === 0
+    ) {
+      throw new Error(
+        `skill group '${group.key}' declares sequential replacements but has no runtime replacements`,
+      );
+    }
     replacementSkillKeys.forEach(key => assignedRuntimeReplacementSkillKeys.add(key));
     routedSkillEntries.forEach(item => assignedRuntimeReplacementSkillKeys.add(item.key));
     return {
@@ -627,6 +635,9 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
         visibleSkillKeys.length === 1
           ? definitions.get(visibleSkillKeys[0]!)!
           : visibleSkillKeys.map(key => definitions.get(key)!),
+      ...(group.replacementPlacement === 'sequence' && group.skillKeys.length > 1
+        ? { placementSequenceSkillKeys: group.skillKeys }
+        : {}),
       ...(replacementSkillKeys.length === 0
         ? {}
         : { replacementSkills: replacementSkillKeys.map(key => definitions.get(key)!) }),
@@ -811,7 +822,8 @@ export function selectBasicAttackTimelineBlockFrames(
 function stripSkillGroupCompilationEvidence(
   definition: CompiledOperatorActiveSkillRuntimeDefinitionSource,
 ): SkillDefinition {
-  const { allowNextSkillTransitions: _allowNextSkillTransitions, ...runtimeDefinition } = definition;
+  const { allowNextSkillTransitions: _allowNextSkillTransitions, ...runtimeDefinition } =
+    definition;
   return runtimeDefinition;
 }
 

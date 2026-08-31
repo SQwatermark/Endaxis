@@ -296,24 +296,24 @@ function compileCastSkillPrograms(
   cast: SkillCastDocument,
   resolved: ResolvedSkillDefinition,
   level: number,
-  build: OperatorInstanceDocument,
   abilityEntityDefinitions: OperatorDefinition['abilityEntityDefinitions'],
 ): readonly CompiledSkillProgram[] {
   const definition = resolved.definition;
+  const routed = resolved.group.routedReplacementSkills?.find(
+    replacement => replacement.skill.key === definition.key,
+  );
   const definitions: SkillCompilationBinding[] = [
-    { skill: definition, skillType: resolved.group.skillType, level },
-    ...(resolved.group.replacementSkills ?? []).map(skill => ({
-      skill,
-      skillType: resolved.group.skillType,
+    {
+      skill: definition,
+      skillType: routed?.skillType ?? resolved.group.skillType,
       level,
-    })),
-    ...(resolved.group.routedReplacementSkills ?? []).map(replacement => ({
-      skill: replacement.skill,
-      skillType: replacement.skillType,
-      level: requireSkillLevel(build, replacement.levelSource),
-      executionSkillGroupKey: replacement.executionSkillGroupKey,
-      executionSkillId: replacement.executionSkillKey,
-    })),
+      ...(routed === undefined
+        ? {}
+        : {
+            executionSkillGroupKey: routed.executionSkillGroupKey,
+            executionSkillId: routed.executionSkillKey,
+          }),
+    },
   ];
   return definitions.map(
     ({ skill, skillType, level: definitionLevel, executionSkillGroupKey, executionSkillId }) =>
@@ -488,14 +488,7 @@ function compileResolvedTimelineTracks(
       const resolved = resolveEffectiveSkillDefinition(cast, operator);
       const level = requireSkillLevel(operatorInstance, resolved.levelSource);
       skills.push(
-        ...compileCastSkillPrograms(
-          track.id,
-          cast,
-          resolved,
-          level,
-          operatorInstance,
-          abilityEntityDefinitions,
-        ),
+        ...compileCastSkillPrograms(track.id, cast, resolved, level, abilityEntityDefinitions),
       );
       pendingInputs.push({
         frame: cast.placement.startFrame,

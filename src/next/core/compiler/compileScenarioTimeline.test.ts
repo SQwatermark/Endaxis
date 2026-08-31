@@ -208,8 +208,8 @@ describe('compileScenarioTimeline', () => {
     ]);
   });
 
-  it('compiles replacement variants for the same stable cast identity without extra inputs', () => {
-    const scenario = place(createScenario(), 'battleSkill', 60);
+  it('does not compile a hidden replacement until that concrete skill is placed', () => {
+    const baseScenario = place(createScenario(), 'battleSkill', 60);
     const base = requireSingleSkill('battleSkill');
     const operator = {
       ...perlica,
@@ -220,7 +220,7 @@ describe('compileScenarioTimeline', () => {
       ),
     };
 
-    const compiled = compileScenarioTimeline(scenario, {
+    const compiled = compileScenarioTimeline(baseScenario, {
       getOperator: slug => (slug === operator.slug ? operator : null),
     });
 
@@ -229,7 +229,6 @@ describe('compileScenarioTimeline', () => {
     ]);
     expect(compiled.operators[0]!.skills.map(skill => [skill.skillId, skill.castId])).toEqual([
       ['battleSkill', 'skillCast:1'],
-      ['battleSkillVariant', 'skillCast:1'],
     ]);
     expect(compiled.operators[0]!.skillSlotGroups).toEqual([
       {
@@ -239,6 +238,31 @@ describe('compileScenarioTimeline', () => {
       },
       { skillGroupKey: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
     ]);
+
+    const explicit = placeSkillGroup({
+      scenario: baseScenario,
+      trackIndex: 0,
+      operator,
+      skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkillVariant',
+      startFrame: 90,
+      ids: { allocate: kind => `${kind}:replacement` },
+    }).scenario;
+    const explicitCompiled = compileScenarioTimeline(explicit, {
+      getOperator: slug => (slug === operator.slug ? operator : null),
+    });
+    expect(explicitCompiled.inputs).toContainEqual({
+      frame: 90,
+      operatorId: 'track:0',
+      skillId: 'battleSkillVariant',
+      castId: 'skillCast:replacement',
+    });
+    expect(explicitCompiled.operators[0]!.skills).toContainEqual(
+      expect.objectContaining({
+        skillId: 'battleSkillVariant',
+        castId: 'skillCast:replacement',
+      }),
+    );
   });
 
   it('keeps multiple placed inputs stable while sharing one runtime replacement slot', () => {
@@ -318,7 +342,16 @@ describe('compileScenarioTimeline', () => {
       ),
     };
 
-    const compiled = compileScenarioTimeline(scenario, {
+    const explicit = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator,
+      skillGroupKey: 'battleSkill',
+      skillKey: routed.key,
+      startFrame: 90,
+      ids: { allocate: kind => `${kind}:routed` },
+    }).scenario;
+    const compiled = compileScenarioTimeline(explicit, {
       getOperator: slug => (slug === operator.slug ? operator : null),
     });
     const variant = compiled.operators[0]!.skills.find(

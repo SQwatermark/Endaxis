@@ -759,6 +759,7 @@ function createGeneratedMifuProtectionScenario() {
     trackIndex: 0,
     operator: mifuGeneratedOperator,
     skillGroupKey: 'battleSkill',
+    skillKey: 'battleSkill2',
     startFrame: 160,
     ids,
   }).scenario;
@@ -823,12 +824,17 @@ function createGeneratedMifuBattleChainScenario() {
   let nextId = 0;
   const ids = { allocate: (kind: string) => `${kind}:mifu-chain:${++nextId}` };
   let placed = scenario;
-  for (const startFrame of [1, 40, 120]) {
+  for (const [skillKey, startFrame] of [
+    ['battleSkill1', 1],
+    ['battleSkill2', 40],
+    ['battleSkill3', 120],
+  ] as const) {
     placed = placeSkillGroup({
       scenario: placed,
       trackIndex: 0,
       operator: battleChainOperator,
       skillGroupKey: 'battleSkill',
+      skillKey,
       startFrame,
       ids,
     }).scenario;
@@ -1500,9 +1506,9 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         trackIndex: 0,
         operator: rossiGeneratedOperator,
         skillGroupKey: 'comboSkill',
-        // 时间轴始终保存可放置的稳定入口；第一段末尾的原生
-        // ChangeSkillAction 让本次释放在运行时解析为 comboSkill3。
-        skillKey: 'comboSkill2',
+        // 时间轴保存玩家显式选择的具体技能形态。原生换槽状态只负责
+        // 校验此时输入实际会解析成什么，不再暗中改写技能块。
+        skillKey: 'comboSkill3',
         startFrame: comboSkill3StartFrame,
         ids: { allocate: kind => `${kind}:rossi-qte-second-${comboSkill3StartFrame}` },
       }).scenario;
@@ -2349,9 +2355,24 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     );
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
-        event: 'SkillCostRejected',
+        event: 'SkillCostUnavailableAtStart',
         sourceId: 'track:1',
         data: expect.objectContaining({ skillId: 'ultimate' }),
+      }),
+    );
+    expect(
+      result.receiptEntries.filter(
+        entry =>
+          entry.event === 'SkillCostApplied' &&
+          entry.sourceId === 'track:1' &&
+          entry.data?.skillId === 'ultimate',
+      ),
+    ).toHaveLength(2);
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'UltimateEnergyChanged',
+        sourceId: 'track:1',
+        data: expect.objectContaining({ requestedValue: -80, actualValue: 0, currentValue: 0 }),
       }),
     );
   });

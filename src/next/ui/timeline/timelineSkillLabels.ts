@@ -9,8 +9,8 @@ export function basicAttackSegmentLabel(
   skillKey: string,
   heavyAttackLabel: string,
 ): string | null {
-  if (entry.skillType !== 'basicAttack' || entry.skills.length < 2) return null;
-  const index = entry.skills.findIndex(skill => skill.skillKey === skillKey);
+  if (entry.skillType !== 'basicAttack' || entry.groupPlacementSkillKeys.length < 2) return null;
+  const index = entry.groupPlacementSkillKeys.indexOf(skillKey);
   if (index < 0) return null;
-  return index === entry.skills.length - 1 ? heavyAttackLabel : `A${index + 1}`;
+  return index === entry.groupPlacementSkillKeys.length - 1 ? heavyAttackLabel : `A${index + 1}`;
 }

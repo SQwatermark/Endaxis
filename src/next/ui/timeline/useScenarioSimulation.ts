@@ -15,7 +15,10 @@ import type { ComboWindowDiagnosticReason } from '../../core/projection/comboWin
 import { appendSimulationPerformanceSample } from './simulationPerformanceAudit';
 
 export type TimelineSkillDiagnosticReason =
-  SkillAvailabilityDiagnosticReason | SkillExecutionDiagnosticReason | ComboWindowDiagnosticReason;
+  | SkillAvailabilityDiagnosticReason
+  | SkillExecutionDiagnosticReason
+  | ComboWindowDiagnosticReason
+  | `skillInputMismatch: expected '${string}', actual '${string}'`;
 
 export interface UseScenarioSimulationOptions {
   readonly scenario: Ref<ScenarioDocument>;
@@ -144,7 +147,11 @@ export function useScenarioSimulation(
         frame: diagnostic.frame,
         sourceId: diagnostic.sourceId,
         skillId: diagnostic.skillId,
-        reason: diagnostic.reasons,
+        reason: diagnostic.reasons.map(reason =>
+          reason === 'skillInputMismatch' && diagnostic.actualSkillId !== undefined
+            ? (`skillInputMismatch: expected '${diagnostic.skillId}', actual '${diagnostic.actualSkillId}'` as const)
+            : reason,
+        ),
       })),
       ...current.executionDiagnostics.map(diagnostic => ({
         frame: diagnostic.frame,

@@ -8,6 +8,7 @@ import { reduceSkillDiagnostics } from './skillDiagnosticReducer';
 export const SKILL_AVAILABILITY_DIAGNOSTIC_REASONS = [
   'resourceUnavailable',
   'cooldownUnavailable',
+  'skillInputMismatch',
 ] as const;
 
 /** UI 可按稳定枚举映射本地化文本，核心投影不携带显示文案。 */
@@ -21,11 +22,14 @@ export interface SkillAvailabilityDiagnostic {
   readonly skillId: string;
   readonly reasons: readonly SkillAvailabilityDiagnosticReason[];
   readonly receiptSequences: readonly number[];
+  /** 槽位不一致时保留原生实际解析到的具体技能，供感叹号解释而不是只给枚举。 */
+  readonly actualSkillId?: string;
 }
 
 function readReason(event: string): SkillAvailabilityDiagnosticReason | undefined {
   if (event === 'SkillCostUnavailableAtStart') return 'resourceUnavailable';
   if (event === 'SkillCooldownUnavailableAtStart') return 'cooldownUnavailable';
+  if (event === 'SkillInputResolvedToDifferentSkill') return 'skillInputMismatch';
   return undefined;
 }
 
@@ -33,5 +37,16 @@ function readReason(event: string): SkillAvailabilityDiagnosticReason | undefine
 export function projectSkillAvailabilityDiagnostics(
   entries: readonly CombatReceiptEntry[],
 ): readonly SkillAvailabilityDiagnostic[] {
-  return reduceSkillDiagnostics(entries, readReason);
+  return reduceSkillDiagnostics(entries, readReason).map(diagnostic => {
+    if (!diagnostic.reasons.includes('skillInputMismatch')) return diagnostic;
+    const mismatch = entries.find(
+      entry =>
+        diagnostic.receiptSequences.includes(entry.sequence) &&
+        entry.event === 'SkillInputResolvedToDifferentSkill',
+    );
+    const actualSkillId = mismatch?.data?.actualSkillId;
+    return typeof actualSkillId === 'string' && actualSkillId.length > 0
+      ? { ...diagnostic, actualSkillId }
+      : diagnostic;
+  });
 }

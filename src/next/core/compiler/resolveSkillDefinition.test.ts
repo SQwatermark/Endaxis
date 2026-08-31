@@ -121,6 +121,51 @@ describe('resolveEffectiveSkillDefinition', () => {
     expect(resolved.levelSource).toBe('ultimate');
   });
 
+  it('resolves explicitly placed same-slot and routed replacement skills', () => {
+    const replacement = { ...catalogSkill, key: 'battleSkillDuringUltimate' };
+    const routed = { ...catalogSkill, key: 'comboWrapper' };
+    const group: SkillGroupDefinition = {
+      ...skillGroup,
+      replacementSkills: [replacement],
+      routedReplacementSkills: [
+        {
+          skill: routed,
+          skillType: 'comboSkill',
+          levelSource: 'comboSkill',
+          executionSkillGroupKey: 'comboSkill',
+          executionSkillKey: 'comboSkill',
+        },
+      ],
+    };
+    const withReplacements = { ...operator, skillGroups: [group] };
+
+    const sameSlot = resolveEffectiveSkillDefinition(
+      createCast({
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'battleSkill',
+          skillKey: replacement.key,
+        },
+      }),
+      withReplacements,
+    );
+    const routedSlot = resolveEffectiveSkillDefinition(
+      createCast({
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'battleSkill',
+          skillKey: routed.key,
+        },
+      }),
+      withReplacements,
+    );
+
+    expect(sameSlot.definition).toBe(replacement);
+    expect(sameSlot.levelSource).toBe('battleSkill');
+    expect(routedSlot.definition).toBe(routed);
+    expect(routedSlot.levelSource).toBe('comboSkill');
+  });
+
   it('returns custom definition when present', () => {
     const resolved = resolveEffectiveSkillDefinition(
       createCast({ customDefinition: customSkill }),

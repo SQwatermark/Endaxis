@@ -6,6 +6,7 @@ import type {
 } from '../../../../core/game-data/operatorDefinition';
 import {
   branch,
+  forEachTarget,
   repeatEachTick,
   scheduled,
   sequence,
@@ -19,6 +20,7 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0031_mifu_attack1',
     timelineBlockFrames: 17,
+    exclusiveFrame: 27,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -248,6 +250,7 @@ export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0031_mifu_attack2',
     timelineBlockFrames: 21,
+    exclusiveFrame: 29,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -373,6 +376,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0031_mifu_attack3',
     timelineBlockFrames: 37,
+    exclusiveFrame: 54,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -951,6 +955,7 @@ export const mifuBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0031_mifu_attack4',
     timelineBlockFrames: 38,
+    exclusiveFrame: 54,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1075,6 +1080,7 @@ export const mifuPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0031_mifu_plunging_attack_end',
     timelineBlockFrames: 12,
+    exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1122,6 +1128,7 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0031_mifu_powerattack',
     timelineBlockFrames: 38,
+    exclusiveFrame: 53,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1190,162 +1197,114 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
       scheduled(
         17,
         sequence(
-          branch(
+          step(
+            'dealDamage',
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'equal',
-              right: { kind: 'constant', value: 1 },
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.2,
+              tags: ['normalAttack', 'powerAttack'],
             },
-            sequence(
-              step(
-                'dealDamage',
-                {
-                  damageType: 'physical',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  calculation: 'breakingAttack',
-                  calculationMultiplier: 0.2,
-                  tags: ['normalAttack', 'powerAttack'],
-                },
-                'chr_0031_mifu_powerattack:/scheduledSequences/2/sequence/steps/0/whenTrue/steps/0',
-              ),
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.03 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: {
-                  kind: 'inline',
-                  keys: [
-                    {
-                      time: 0,
-                      value: 0,
-                      inTangent: 0,
-                      outTangent: 0,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 0.8024494,
-                      value: 0,
-                      inTangent: 0,
-                      outTangent: 2.530997,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 1,
-                      value: 1,
-                      inTangent: 5.061995,
-                      outTangent: 5.061995,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                  ],
-                },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-            sequence(
-              step(
-                'dealDamage',
-                {
-                  damageType: 'physical',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  calculation: 'breakingAttack',
-                  calculationMultiplier: 0.2,
-                  tags: ['normalAttack', 'powerAttack'],
-                },
-                'chr_0031_mifu_powerattack:/scheduledSequences/2/sequence/steps/0/whenFalse/steps/0',
-              ),
-            ),
-            { alwaysNext: true },
+            'chr_0031_mifu_powerattack:/scheduledSequences/2/sequence/steps/0',
           ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.03 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: {
+              kind: 'inline',
+              keys: [
+                {
+                  time: 0,
+                  value: 0,
+                  inTangent: 0,
+                  outTangent: 0,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.8024494,
+                  value: 0,
+                  inTangent: 0,
+                  outTangent: 2.530997,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 1,
+                  value: 1,
+                  inTangent: 5.061995,
+                  outTangent: 5.061995,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+              ],
+            },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
         ),
         17,
       ),
       scheduled(
         37,
         sequence(
-          branch(
+          step(
+            'dealDamage',
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'equal',
-              right: { kind: 'constant', value: 1 },
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.5,
+              tags: ['normalAttack', 'powerAttack'],
             },
-            sequence(
-              step(
-                'dealDamage',
-                {
-                  damageType: 'physical',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  calculation: 'breakingAttack',
-                  calculationMultiplier: 0.5,
-                  tags: ['normalAttack', 'powerAttack'],
-                },
-                'chr_0031_mifu_powerattack:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0',
-              ),
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.23 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: {
-                  kind: 'inline',
-                  keys: [
-                    {
-                      time: 0,
-                      value: 0,
-                      inTangent: 0,
-                      outTangent: 0,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 0.7007455,
-                      value: 0,
-                      inTangent: 0,
-                      outTangent: 1.670819,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 1,
-                      value: 1,
-                      inTangent: 3.341638,
-                      outTangent: 3.341638,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                  ],
-                },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-            sequence(
-              step(
-                'dealDamage',
-                {
-                  damageType: 'physical',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  calculation: 'breakingAttack',
-                  calculationMultiplier: 0.5,
-                  tags: ['normalAttack', 'powerAttack'],
-                },
-                'chr_0031_mifu_powerattack:/scheduledSequences/3/sequence/steps/0/whenFalse/steps/0',
-              ),
-            ),
-            { alwaysNext: true },
+            'chr_0031_mifu_powerattack:/scheduledSequences/3/sequence/steps/0',
           ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.23 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: {
+              kind: 'inline',
+              keys: [
+                {
+                  time: 0,
+                  value: 0,
+                  inTangent: 0,
+                  outTangent: 0,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.7007455,
+                  value: 0,
+                  inTangent: 0,
+                  outTangent: 1.670819,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 1,
+                  value: 1,
+                  inTangent: 3.341638,
+                  outTangent: 3.341638,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+              ],
+            },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
           step('gainFinisherSp', { factor: 1, recipient: 'team' }),
         ),
         37,
@@ -1403,6 +1362,7 @@ export const mifuBattleSkill1: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill1',
     sourceSkillId: 'chr_0031_mifu_normalskill_1',
     timelineBlockFrames: 11,
+    exclusiveFrame: 125,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1484,42 +1444,26 @@ export const mifuBattleSkill1: SkillDefinition = withSkillBlackboard(
                     },
                     'chr_0031_mifu_normalskill_1:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0',
                   ),
-                  step('applyBuff', {
-                    buffId: 'buff_common_obtain_ultimate_sp',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
+                  step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                   branch(
                     {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                    sequence(
-                      branch(
+                      kind: 'all',
+                      conditions: [
                         {
-                          kind: 'all',
-                          conditions: [
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'constant', value: 1 },
-                              operator: 'greaterOrEqual',
-                              right: { kind: 'constant', value: 1 },
-                            },
-                            {
-                              kind: 'enemySuperArmorCompare',
-                              operator: 'greaterOrEqual',
-                              value: { kind: 'constant', value: 30 },
-                            },
-                          ],
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 1 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
                         },
-                        sequence(step('jumpTimeline', { destinationFrame: 105 })),
-                        undefined,
-                        { alwaysNext: true },
-                      ),
-                    ),
-                    undefined,
+                        {
+                          kind: 'enemySuperArmorCompare',
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 30 },
+                        },
+                      ],
+                    },
+                    sequence(step('jumpTimeline', { destinationFrame: 105 })),
+                    sequence(forEachTarget('enemy', sequence())),
                     { alwaysNext: true },
                   ),
                 ),
@@ -1606,6 +1550,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill2',
     sourceSkillId: 'chr_0031_mifu_normalskill_2',
     timelineBlockFrames: 28,
+    exclusiveFrame: 34,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1821,31 +1766,36 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
               right: { kind: 'constant', value: 1 },
             },
             sequence(
-              step('readBuffStackCount', {
-                target: 'enemy',
-                outputKey: 'stack',
-                query: {
-                  kind: 'tag',
-                  tagQueryType: 'hasAny',
-                  buffTags: ['Skill/Character/Common/NoGuard'],
-                },
-              }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'stack' },
-                  operator: 'greater',
-                  right: { kind: 'blackboard', key: 'maxstack' },
-                },
+              forEachTarget(
+                'enemy',
                 sequence(
-                  step('modifyActionValue', {
-                    key: 'maxstack',
-                    operation: 'assign',
-                    value: { kind: 'blackboard', key: 'stack' },
+                  step('readBuffStackCount', {
+                    target: 'enemy',
+                    outputKey: 'stack',
+                    query: {
+                      kind: 'tag',
+                      tagQueryType: 'hasAny',
+                      buffTags: ['Skill/Character/Common/NoGuard'],
+                    },
                   }),
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'stack' },
+                      operator: 'greater',
+                      right: { kind: 'blackboard', key: 'maxstack' },
+                    },
+                    sequence(
+                      step('modifyActionValue', {
+                        key: 'maxstack',
+                        operation: 'assign',
+                        value: { kind: 'blackboard', key: 'stack' },
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
                 ),
-                undefined,
-                { alwaysNext: true },
               ),
               step('applyPhysicalInfliction', {
                 type: 'crush',
@@ -1890,6 +1840,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                           step('applyBuff', {
                             buffId: 'buff_physical_handle_cryst_break',
                             target: 'buffOwner',
+                            source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                           }),
                         ),
@@ -1899,7 +1850,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_physical_no_guard_fake',
                         target: 'buffOwner',
-                        source: 'eventSource',
+                        source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -1941,6 +1892,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                                   step('applyBuff', {
                                     buffId: 'buff_physical_handle_cryst_break',
                                     target: 'buffOwner',
+                                    source: 'buffSource',
                                     inheritSourceSkillCastInfo: true,
                                   }),
                                 ),
@@ -2043,6 +1995,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                           step('applyBuff', {
                             buffId: 'buff_physical_handle_cryst_break',
                             target: 'buffOwner',
+                            source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                           }),
                         ),
@@ -2191,7 +2144,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise' },
                 },
-                'chr_0031_mifu_normalskill_2:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/4',
+                'chr_0031_mifu_normalskill_2:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/3',
               ),
               step('startTimeDilation', {
                 scope: 'entity',
@@ -2324,6 +2277,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill3',
     sourceSkillId: 'chr_0031_mifu_normalskill_3',
     timelineBlockFrames: 46,
+    exclusiveFrame: 45,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2561,92 +2515,97 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
       scheduled(
         26,
         sequence(
-          step('modifyActionValue', {
-            key: 'atk_scale_runtime',
-            operation: 'assign',
-            value: { kind: 'blackboard', key: 'atk_scale' },
-          }),
-          step('readSkillSettingData', {
-            items: [
-              {
-                values: [1, 1, 1, 1],
-                column: { kind: 'constant', value: 1 },
-                storeKey: 'yuanshi_multi',
-                enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-              },
-            ],
-          }),
-          step('modifyActionValue', {
-            key: 'atk_scale_runtime',
-            operation: 'multiply',
-            value: { kind: 'blackboard', key: 'yuanshi_multi' },
-          }),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'talent' },
-                  operator: 'greater',
-                  right: { kind: 'constant', value: 0 },
-                },
-                {
-                  kind: 'any',
-                  conditions: [
-                    {
-                      kind: 'poiseCompare',
-                      target: 'enemy',
-                      returnValueIfMissing: false,
-                      operator: 'equal',
-                      value: { kind: 'constant', value: 0 },
-                    },
-                    {
-                      kind: 'buffStackCompare',
-                      target: 'enemy',
-                      tagQueryType: 'hasAny',
-                      buffTags: ['Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic'],
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 1 },
-                    },
-                  ],
-                },
-              ],
-            },
+          forEachTarget(
+            'enemy',
             sequence(
               step('modifyActionValue', {
-                key: 'crushmulti',
+                key: 'atk_scale_runtime',
                 operation: 'assign',
-                value: { kind: 'constant', value: 1 },
+                value: { kind: 'blackboard', key: 'atk_scale' },
               }),
-              step('modifyActionValue', {
-                key: 'crushmultiadd_talent_runtime',
-                operation: 'assign',
-                value: { kind: 'blackboard', key: 'crushmultiadd_talent' },
-              }),
-              step('modifyActionValue', {
-                key: 'crushmulti',
-                operation: 'add',
-                value: { kind: 'blackboard', key: 'crushmultiadd_talent_runtime' },
+              step('readSkillSettingData', {
+                items: [
+                  {
+                    values: [1, 1, 1, 1],
+                    column: { kind: 'constant', value: 1 },
+                    storeKey: 'yuanshi_multi',
+                    enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                  },
+                ],
               }),
               step('modifyActionValue', {
                 key: 'atk_scale_runtime',
                 operation: 'multiply',
-                value: { kind: 'blackboard', key: 'crushmulti' },
+                value: { kind: 'blackboard', key: 'yuanshi_multi' },
               }),
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent' },
+                      operator: 'greater',
+                      right: { kind: 'constant', value: 0 },
+                    },
+                    {
+                      kind: 'any',
+                      conditions: [
+                        {
+                          kind: 'poiseCompare',
+                          target: 'enemy',
+                          returnValueIfMissing: false,
+                          operator: 'equal',
+                          value: { kind: 'constant', value: 0 },
+                        },
+                        {
+                          kind: 'buffStackCompare',
+                          target: 'enemy',
+                          tagQueryType: 'hasAny',
+                          buffTags: ['Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic'],
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 1 },
+                        },
+                      ],
+                    },
+                  ],
+                },
+                sequence(
+                  step('modifyActionValue', {
+                    key: 'crushmulti',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('modifyActionValue', {
+                    key: 'crushmultiadd_talent_runtime',
+                    operation: 'assign',
+                    value: { kind: 'blackboard', key: 'crushmultiadd_talent' },
+                  }),
+                  step('modifyActionValue', {
+                    key: 'crushmulti',
+                    operation: 'add',
+                    value: { kind: 'blackboard', key: 'crushmultiadd_talent_runtime' },
+                  }),
+                  step('modifyActionValue', {
+                    key: 'atk_scale_runtime',
+                    operation: 'multiply',
+                    value: { kind: 'blackboard', key: 'crushmulti' },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+              step(
+                'dealDamage',
+                {
+                  damageType: 'physical',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale_runtime' },
+                  tags: [],
+                  features: ['canBreakWeakness', 'physicalInfliction'],
+                },
+                'chr_0031_mifu_normalskill_3:/scheduledSequences/4/sequence/steps/0/body/steps/4',
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
-          ),
-          step(
-            'dealDamage',
-            {
-              damageType: 'physical',
-              attackScale: { kind: 'blackboard', key: 'atk_scale_runtime' },
-              tags: [],
-              features: ['canBreakWeakness', 'physicalInfliction'],
-            },
-            'chr_0031_mifu_normalskill_3:/scheduledSequences/4/sequence/steps/4',
           ),
           step('applyBuff', {
             buffId: 'buff_common_obtain_ultimate_sp',
@@ -2730,6 +2689,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0031_mifu_ultimate_skill',
     timelineBlockFrames: 113,
+    exclusiveFrame: 118,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2809,6 +2769,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                           step('applyBuff', {
                             buffId: 'buff_physical_handle_cryst_break',
                             target: 'buffOwner',
+                            source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                           }),
                         ),
@@ -2818,7 +2779,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_physical_no_guard_fake',
                         target: 'buffOwner',
-                        source: 'eventSource',
+                        source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -2860,6 +2821,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                                   step('applyBuff', {
                                     buffId: 'buff_physical_handle_cryst_break',
                                     target: 'buffOwner',
+                                    source: 'buffSource',
                                     inheritSourceSkillCastInfo: true,
                                   }),
                                 ),
@@ -2913,6 +2875,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                           step('applyBuff', {
                             buffId: 'buff_physical_no_guard',
                             target: 'buffOwner',
+                            source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                             blackboardAssignments: {
                               skip_handle_cryst_break: { kind: 'constant', value: 1 },
@@ -2968,6 +2931,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                           step('applyBuff', {
                             buffId: 'buff_physical_handle_cryst_break',
                             target: 'buffOwner',
+                            source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                           }),
                         ),
@@ -3253,6 +3217,7 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0031_mifu_combo_skill',
     timelineBlockFrames: 35,
+    exclusiveFrame: 41,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -3875,6 +3840,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_no_guard',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
               blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
             }),
@@ -3926,6 +3892,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -4028,6 +3995,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -4187,6 +4155,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_physical_break',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: { atk_scale: { kind: 'blackboard', key: 'atk_scale' } },
         }),
@@ -4303,6 +4272,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -4312,7 +4282,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_physical_no_guard_fake',
           target: 'buffOwner',
-          source: 'eventSource',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
         }),
       ),
@@ -4354,6 +4324,7 @@ export const commonBuffDefinitions = {
                     step('applyBuff', {
                       buffId: 'buff_physical_handle_cryst_break',
                       target: 'buffOwner',
+                      source: 'buffSource',
                       inheritSourceSkillCastInfo: true,
                     }),
                   ),
@@ -4415,6 +4386,7 @@ export default {
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
       skills: mifuBattleSkill1,
+      placementSequenceSkillKeys: ['battleSkill1', 'battleSkill2', 'battleSkill3'],
       replacementSkills: [mifuBattleSkill2, mifuBattleSkill3],
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: mifuUltimate },

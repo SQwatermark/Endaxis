@@ -256,6 +256,24 @@ describe('CombatResources', () => {
     expect(resources.spRecoveryPauseRemaining).toBe(0);
   });
 
+  it('forces timeline SP into debt while clamping insufficient ultimate energy to zero', () => {
+    const resources = createResources();
+
+    const payment = resources.pay(
+      'source',
+      [
+        { resource: 'sp', value: 150 },
+        { resource: 'ultimateEnergy', value: 80 },
+      ],
+      { forceTimelinePayment: true },
+    );
+
+    expect(payment.paid).toBe(true);
+    expect(resources.sp).toBe(-50);
+    expect(resources.getUltimateEnergy('source')).toBe(0);
+    expect(payment.changes.map(change => change.actualValue)).toEqual([-150, 0]);
+  });
+
   it('uses squad order, self/other settings, and each target gain multiplier', () => {
     const resources = createResources();
     const payment = resources.pay('source', [{ resource: 'sp', value: 40 }]);

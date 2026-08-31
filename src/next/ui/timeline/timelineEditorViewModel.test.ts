@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { laevatain, mifu, perlica } from '../../data/operators';
+import { camille, laevatain, mifu, perlica } from '../../data/operators';
 import { placeSkillGroup } from './placeSkillGroup';
 import { projectTimelineEditor } from './timelineEditorViewModel';
 
@@ -149,11 +149,24 @@ describe('projectTimelineEditor', () => {
     expect(basicEntries).toHaveLength(2);
     expect(basicEntries[0]?.variantKey).toBeUndefined();
     expect(basicEntries[0]?.level).toBe(3);
-    expect(basicEntries[1]).toMatchObject({ variantKey: 'enhancedBasicAttack', level: 11 });
+    expect(basicEntries[1]).toMatchObject({
+      variantKey: 'enhancedBasicAttack',
+      level: 11,
+      enhanced: true,
+    });
     expect(basicEntries[1]!.skills).toHaveLength(4);
+    const battleEntries = projected.tracks[0]!.skillLibrary.filter(
+      entry => entry.skillGroupKey === 'battleSkill',
+    );
+    expect(battleEntries).toHaveLength(2);
+    expect(battleEntries[0]?.skills.map(skill => skill.skillKey)).toEqual(['battleSkill']);
+    expect(battleEntries[1]).toMatchObject({
+      placementSkillKey: 'battleSkillDuringUltimate',
+      groupPlacementSkillKeys: ['battleSkillDuringUltimate'],
+    });
   });
 
-  it('projects every runtime replacement hit for Mifu chained battle-skill blocks', () => {
+  it('projects only the explicitly placed Mifu battle-skill form hits', () => {
     const scenario = createEmptyScenario('scenario:mifu-hit-markers', '弭弗三段战技命中投影');
     scenario.tracks[0] = {
       id: 'track:mifu',
@@ -171,11 +184,23 @@ describe('projectTimelineEditor', () => {
       initialState: { ultimateEnergy: 0 },
       skillCasts: [],
     };
+    const battleEntries = projectTimelineEditor(scenario, {
+      getOperator: slug => (slug === mifu.slug ? mifu : null),
+    }).tracks[0]!.skillLibrary.filter(entry => entry.skillGroupKey === 'battleSkill');
+    expect(battleEntries).toHaveLength(1);
+    expect(battleEntries[0]?.placementSkillKey).toBeUndefined();
+    expect(battleEntries[0]?.groupPlacementSkillKeys).toEqual([
+      'battleSkill1',
+      'battleSkill2',
+      'battleSkill3',
+    ]);
+
     const placed = placeSkillGroup({
       scenario,
       trackIndex: 0,
       operator: mifu,
       skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkill1',
       startFrame: 1,
       ids: { allocate: kind => `${kind}:mifu` },
     }).scenario;
@@ -189,15 +214,66 @@ describe('projectTimelineEditor', () => {
       return result;
     }, {});
 
-    expect(markersByForm).toEqual({ battleSkill1: 1, battleSkill2: 3, battleSkill3: 1 });
-    expect(cast!.hitMarkers.filter(marker => marker.skillKey === 'battleSkill1')).toEqual([
-      expect.objectContaining({ conditional: false }),
-    ]);
-    expect(
-      cast!.hitMarkers
-        .filter(marker => marker.skillKey !== 'battleSkill1')
-        .every(marker => marker.conditional),
-    ).toBe(true);
+    expect(markersByForm).toEqual({ unknown: 1 });
+    expect(cast!.hitMarkers).toEqual([expect.objectContaining({ conditional: false })]);
+
+    const replacementPlaced = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: mifu,
+      skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkill2',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:mifu-2` },
+    }).scenario;
+    const [replacementCast] = projectTimelineEditor(replacementPlaced, {
+      getOperator: slug => (slug === mifu.slug ? mifu : null),
+    }).tracks[0]!.skillCasts;
+    expect(replacementCast!.hitMarkers).toHaveLength(3);
+    expect(replacementCast!.hitMarkers.every(marker => !marker.conditional)).toBe(true);
+  });
+
+  it('projects a routed replacement as an independent card with its execution level source', () => {
+    const scenario = createEmptyScenario('scenario:camille-routed-card', '卡米拉强化战技卡片');
+    scenario.tracks[0] = {
+      id: 'track:camille',
+      operator: {
+        operatorSlug: camille.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 3, battleSkill: 4, comboSkill: 5, ultimate: 6 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: camille,
+      skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkillDuringUltimate',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:camille-routed` },
+    }).scenario;
+
+    const track = projectTimelineEditor(placed, {
+      getOperator: slug => (slug === camille.slug ? camille : null),
+    }).tracks[0]!;
+    const battleEntries = track.skillLibrary.filter(entry => entry.skillGroupKey === 'battleSkill');
+    expect(battleEntries).toHaveLength(2);
+    expect(battleEntries[0]).toMatchObject({ skillType: 'battleSkill', level: 4 });
+    expect(battleEntries[1]).toMatchObject({
+      placementSkillKey: 'battleSkillDuringUltimate',
+      skillType: 'comboSkill',
+      level: 5,
+      groupPlacementSkillKeys: ['battleSkillDuringUltimate'],
+    });
+    expect(track.skillCasts[0]?.skillType).toBe('comboSkill');
   });
 
   it('keeps project template identity separate from inherited operator assets', () => {

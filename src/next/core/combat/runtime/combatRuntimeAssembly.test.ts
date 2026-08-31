@@ -131,6 +131,7 @@ function createAssembly(
   >[0]['operators'][number]['buffDefinitions'],
   passivePrograms?: readonly CompiledOperatorPassiveProgram[],
   panel?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['operators'][number]['panel'],
+  inputs?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['inputs'],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy,
@@ -166,6 +167,7 @@ function createAssembly(
       },
     ],
     createOperationExecutor: () => rejectingExecutor,
+    ...(inputs === undefined ? {} : { inputs }),
     ...(createOperatorBuffRuntime === undefined ? {} : { createOperatorBuffRuntime }),
     ...(createAbilityEntityBuffRuntime === undefined ? {} : { createAbilityEntityBuffRuntime }),
     ...(isOperatorControlled === undefined ? {} : { isOperatorControlled }),
@@ -175,6 +177,70 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('warns on a mismatched player slot but executes the explicitly placed skill', () => {
+    const base = skill({ skillId: 'battleSkill', castId: 'cast:base', costs: [] });
+    const replacement = skill({
+      skillId: 'battleSkillDuringUltimate',
+      castId: 'cast:replacement',
+      costs: [{ resource: 'sp', value: 150 }],
+    });
+    const assembly = createAssembly(
+      [base, replacement],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      [
+        {
+          skillGroupKey: 'battleSkill',
+          baseSkillKey: 'battleSkill',
+          replacementSkillKeys: ['battleSkillDuringUltimate'],
+        },
+      ],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      [
+        {
+          frame: 0,
+          operatorId: 'operator',
+          skillId: 'battleSkillDuringUltimate',
+          castId: 'cast:replacement',
+        },
+      ],
+    );
+
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillInputResolvedToDifferentSkill',
+        data: expect.objectContaining({
+          skillId: 'battleSkillDuringUltimate',
+          actualSkillId: 'battleSkill',
+        }),
+      }),
+    );
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillStarted',
+        data: expect.objectContaining({ skillId: 'battleSkillDuringUltimate' }),
+      }),
+    );
+
+    assembly.advanceFrame();
+    expect(assembly.resources.sp).toBe(-49);
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SpChanged',
+        data: expect.objectContaining({ actualValue: -150, currentValue: -49 }),
+      }),
+    );
+  });
+
   it('resolves descendant Buff definitions from the source skill after crossing to a teammate', () => {
     const sourceBuffs = new CombatBuffContainer('source', new CombatAttributeSet<string>());
     const allyBuffs = new CombatBuffContainer('ally', new CombatAttributeSet<string>());

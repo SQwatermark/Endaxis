@@ -42,6 +42,20 @@ describe('干员技能等级组', () => {
     );
   });
 
+  it('仅由 manifest 显式声明运行时替换技能按顺序放置', () => {
+    const groups = operatorGroups();
+    groups[3]!.replacementPlacement = 'sequence';
+    expect(parseOperatorSkillGroupSources(groups, 'fixture.skillGroups')[3]).toMatchObject({
+      key: 'battleSkill',
+      replacementPlacement: 'sequence',
+    });
+
+    groups[3]!.replacementPlacement = 'enhanced';
+    expect(() => parseOperatorSkillGroupSources(groups, 'fixture.skillGroups')).toThrow(
+      'fixture.skillGroups[3].replacementPlacement: unsupported identity "enhanced"',
+    );
+  });
+
   it('严格读取原生有序组，并通过佩丽卡式显式分组', () => {
     const growth = growthTable();
     const rawGroups = operatorGroups();

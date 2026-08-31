@@ -52,7 +52,7 @@ export interface CombatResourceSnapshot {
   readonly normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
 }
 
-/** 技能费用尝试的结果；失败时不改变资源账本。 */
+/** 技能费用尝试的结果；普通失败时不改变资源账本，时间轴强制支付可按展示模型透支。 */
 export interface SkillPaymentResult {
   readonly paid: boolean;
   readonly nonReturnedSpCost: number;
@@ -357,8 +357,12 @@ export class CombatResources {
     });
   }
 
-  pay(operatorId: string, costs: readonly CompiledSkillCost[]): SkillPaymentResult {
-    if (!this.canPay(operatorId, costs)) {
+  pay(
+    operatorId: string,
+    costs: readonly CompiledSkillCost[],
+    options: { readonly forceTimelinePayment?: boolean } = {},
+  ): SkillPaymentResult {
+    if (!options.forceTimelinePayment && !this.canPay(operatorId, costs)) {
       return { paid: false, nonReturnedSpCost: 0, changes: [] };
     }
     let nonReturnedSpCost = 0;
@@ -368,7 +372,9 @@ export class CombatResources {
         // 原生 Skill._ApplyCost 只在最终 ATB 费用大于 epsilon 时调用 CostAtb。
         if (cost.value <= RESOURCE_EPSILON) continue;
         const previousValue = this.#sp;
-        this.#sp = Math.max(0, this.#sp - cost.value);
+        this.#sp = options.forceTimelinePayment
+          ? this.#sp - cost.value
+          : Math.max(0, this.#sp - cost.value);
         const consumedReturnedSp = Math.min(this.#returnedSp, cost.value);
         this.#returnedSp -= consumedReturnedSp;
         nonReturnedSpCost = cost.value - consumedReturnedSp;

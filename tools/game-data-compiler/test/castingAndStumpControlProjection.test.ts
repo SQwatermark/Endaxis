@@ -1153,6 +1153,57 @@ describe('施法输入限制与木桩物理控制投影', () => {
     });
   });
 
+  it('Buff 生命周期中的 Owner 治疗实际 Buff 宿主', () => {
+    const action = {
+      family: 'heal' as const,
+      action: {
+        kind: 'heal' as const,
+        alwaysNext: true,
+        healType: 'Normal',
+        healer: 'ActionSource',
+        contextKey: '',
+        target: {
+          targetSource: 'Owner',
+          targetGroupKey: '',
+          finderType: null,
+          validatorTypes: [],
+          postProcessorTypes: [],
+        },
+        calculation: {
+          kind: 'attribute' as const,
+          valueSource: 'AttackerOrHealer',
+          attributeType: 'Wisd',
+          multiplier: { value: 1, blackboardKey: 'heal_sub_multi', levelValues: null },
+          addition: { value: 0, blackboardKey: 'heal_base', levelValues: null },
+        },
+        useHealTags: false,
+        healTagIds: [],
+      },
+    } as unknown as ReturnType<typeof parseKnownNativeActionLeafSource>;
+
+    expect(
+      compileBuffLeafNode(node(action), new Set(), new Map(), {
+        ...ACTIVE_SKILL_CONTEXT,
+        actionOwnerTarget: 'buffOwner',
+      }),
+    ).toEqual({
+      steps: [
+        {
+          kind: 'heal',
+          parameters: {
+            target: 'buffOwner',
+            alwaysNext: true,
+            tags: [],
+            attribute: 'intellect',
+            multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
+            addition: { kind: 'blackboard', key: 'heal_base' },
+          },
+        },
+      ],
+      state: new Map(),
+    });
+  });
+
   it('全队寒冷附着/冻结驱散在无敌方主动行为模型中省略', () => {
     const raw = {
       ...META,

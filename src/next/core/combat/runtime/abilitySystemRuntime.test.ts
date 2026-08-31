@@ -294,6 +294,45 @@ describe('AbilitySystemRuntime', () => {
     expect(ability.currentSkillId).toBe('battleSkillCombo');
   });
 
+  it('compares an explicitly placed player skill with the current slot result', () => {
+    const events: string[] = [];
+    const ability = new AbilitySystemRuntime({
+      skills: [
+        new FixtureRuntime('battleSkill', events, 'battleSkill'),
+        new FixtureRuntime('battleSkillCombo', events, 'battleSkill'),
+        new FixtureRuntime('battleSkillEnd', events, 'battleSkill'),
+      ],
+      skillSlotGroups: [
+        {
+          skillGroupKey: 'battleSkill',
+          baseSkillKey: 'battleSkill',
+          stableInputSkillKeys: ['battleSkill', 'battleSkillCombo'],
+          replacementSkillKeys: ['battleSkillEnd'],
+        },
+      ],
+    });
+
+    expect(ability.resolvePlayerInputSkill('battleSkillCombo')).toEqual({
+      accepted: true,
+      actualSkillKey: 'battleSkillCombo',
+    });
+    expect(ability.resolvePlayerInputSkill('battleSkillEnd')).toEqual({
+      accepted: false,
+      actualSkillKey: 'battleSkill',
+    });
+
+    ability.changeSkillSlot('battleSkill', 'battleSkillEnd');
+
+    expect(ability.resolvePlayerInputSkill('battleSkillCombo')).toEqual({
+      accepted: false,
+      actualSkillKey: 'battleSkillEnd',
+    });
+    expect(ability.resolvePlayerInputSkill('battleSkillEnd')).toEqual({
+      accepted: true,
+      actualSkillKey: 'battleSkillEnd',
+    });
+  });
+
   it('does not redirect an explicit native CastSkill id through the active input slot', () => {
     const events: string[] = [];
     const base = new FixtureRuntime('battleSkill', events, 'battleSkill');

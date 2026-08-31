@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { laevatain, perlica } from '../../data/operators';
+import { laevatain, mifu, perlica } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 
 function createIds(): TimelineDocumentIdAllocator {
@@ -125,6 +125,52 @@ describe('placeSkillGroup', () => {
       expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack2' }),
       expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack3' }),
       expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack4' }),
+    ]);
+  });
+
+  it('places a runtime replacement only when that concrete skill is selected', () => {
+    const scenario = createPerlicaScenario();
+    scenario.tracks[0]!.operator!.operatorSlug = laevatain.slug;
+    const result = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: laevatain,
+      skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkillDuringUltimate',
+      startFrame: 120,
+      ids: createIds(),
+    });
+
+    expect(result.scenario.tracks[0]!.skillCasts).toEqual([
+      expect.objectContaining({
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'battleSkill',
+          skillKey: 'battleSkillDuringUltimate',
+        },
+      }),
+    ]);
+  });
+
+  it('places explicitly configured replacement stages as one ordered Mifu chain', () => {
+    const scenario = createPerlicaScenario();
+    scenario.tracks[0]!.operator!.operatorSlug = mifu.slug;
+    const result = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: mifu,
+      skillGroupKey: 'battleSkill',
+      startFrame: 10,
+      ids: createIds(),
+    });
+
+    expect(
+      result.scenario.tracks[0]!.skillCasts.map(cast =>
+        cast.source.kind === 'operatorSkill' ? cast.source.skillKey : null,
+      ),
+    ).toEqual(['battleSkill1', 'battleSkill2', 'battleSkill3']);
+    expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual([
+      10, 21, 49,
     ]);
   });
 

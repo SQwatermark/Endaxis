@@ -732,6 +732,7 @@
     "skill": "Навык",
     "link": "Комбо",
     "ultimate": "Ультимейт",
+    "enhanced": "Усиленный {type}",
     "weapon": "Оружие",
     "set": "Сет",
     "unknown": "Навык"

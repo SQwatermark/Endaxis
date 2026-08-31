@@ -223,7 +223,7 @@ type HealParameters = (
       readonly contextKey: string;
     }
   | {
-      readonly target: 'caster' | 'controlledOperator' | 'currentTarget';
+      readonly target: 'caster' | 'buffOwner' | 'controlledOperator' | 'currentTarget';
       readonly contextKey?: never;
     }
 ) & {

@@ -35,14 +35,6 @@ const NATIVE_FIELDS = new Set([
   'skillGroupType',
   'skillIdList',
 ]);
-const GROUP_FIELDS = new Set([
-  'key',
-  'levelSource',
-  'nativeGroupType',
-  'skillKeys',
-  'skillType',
-  'variants',
-]);
 const GROUP_REQUIRED_FIELDS = new Set([
   'key',
   'levelSource',
@@ -80,6 +72,7 @@ export type OperatorSkillGroupSource = Readonly<
 > & {
   readonly nativeGroupType: number;
   readonly skillKeys: readonly string[];
+  readonly replacementPlacement?: 'sequence';
   readonly variants: readonly OperatorSkillGroupVariantSource[];
 };
 
@@ -150,11 +143,10 @@ export function parseOperatorSkillGroupSources(
   return requireArray(value, path).map((raw, index) => {
     const groupPath = `${path}[${index}]`;
     const group = requireRecord(raw, groupPath);
-    requireExactFields(
-      group,
-      group.variants === undefined ? GROUP_REQUIRED_FIELDS : GROUP_FIELDS,
-      groupPath,
-    );
+    const expectedFields = new Set(GROUP_REQUIRED_FIELDS);
+    if (group.variants !== undefined) expectedFields.add('variants');
+    if (group.replacementPlacement !== undefined) expectedFields.add('replacementPlacement');
+    requireExactFields(group, expectedFields, groupPath);
     const variants =
       group.variants === undefined
         ? []
@@ -179,6 +171,14 @@ export function parseOperatorSkillGroupSources(
     if (group.variants !== undefined && variants.length === 0) {
       throw new Error(`${groupPath}.variants: expected entries`);
     }
+    const replacementPlacement =
+      group.replacementPlacement === undefined
+        ? undefined
+        : requireGroupIdentity(
+            group.replacementPlacement,
+            ['sequence'] as const,
+            `${groupPath}.replacementPlacement`,
+          );
     return {
       key: requireNonEmptyString(group.key, `${groupPath}.key`),
       skillType: requireGroupIdentity(group.skillType, SKILL_TYPES, `${groupPath}.skillType`),
@@ -192,6 +192,7 @@ export function parseOperatorSkillGroupSources(
         `${groupPath}.nativeGroupType`,
       ),
       skillKeys: distinctStrings(group.skillKeys, `${groupPath}.skillKeys`),
+      ...(replacementPlacement === undefined ? {} : { replacementPlacement }),
       variants,
     };
   });

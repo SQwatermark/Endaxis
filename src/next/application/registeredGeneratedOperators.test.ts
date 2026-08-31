@@ -138,7 +138,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: liino,
       skillGroupKey: 'battleSkill',
-      skillKey: 'battleSkillCombo',
+      skillKey: 'battleSkillEnd',
       startFrame: 2,
       ids: { allocate: kind => `${kind}:liino:battle-end` },
     }).scenario;
@@ -1730,6 +1730,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: camille,
       skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkillDuringUltimate',
       startFrame: 180,
       ids,
     }).scenario;
@@ -1931,6 +1932,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: zhuangFangyi,
       skillGroupKey: 'battleSkill',
+      skillKey: 'enhancedBattleSkill',
       startFrame: 100,
       ids,
     }).scenario;

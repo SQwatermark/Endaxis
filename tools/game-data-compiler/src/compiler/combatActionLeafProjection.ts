@@ -957,8 +957,9 @@ export function compileActionNode(
         ? ('caster' as const)
         : isControlledOperatorInstantSearch(action.target)
           ? ('controlledOperator' as const)
-          : action.target.targetSource === 'Owner'
-            ? ('caster' as const)
+          : action.target.targetSource === 'Owner' &&
+              (context.actionOwnerTarget === 'caster' || context.actionOwnerTarget === 'buffOwner')
+            ? context.actionOwnerTarget
             : action.target.targetSource === 'Target' &&
                 context.actionTargetTarget === 'currentOperator'
               ? ('currentTarget' as const)

@@ -4447,6 +4447,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
+          "replacementPlacement": "sequence",
           "skillKeys": ["battleSkill1", "battleSkill2", "battleSkill3"]
         },
         {

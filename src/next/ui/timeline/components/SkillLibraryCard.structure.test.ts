@@ -9,6 +9,7 @@ describe('SkillLibraryCard legacy structure parity', () => {
     expect(source).toContain('<div class="skill-primary">{{ typeLabel || name }}</div>');
     expect(source).toMatch(/\.skill-primary \{[\s\S]*font-size: 15px/);
     expect(source).toMatch(/\.skill-secondary \{[\s\S]*font-size: 9px/);
+    expect(editorSource).toContain("entry.enhanced ? t('skillType.enhanced', { type }) : type");
   });
 
   it('keeps the old dimensions, decoration and segment strip', () => {

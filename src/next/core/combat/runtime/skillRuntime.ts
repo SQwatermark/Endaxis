@@ -297,6 +297,8 @@ export class SkillRuntime {
   #preparedSkillCastInfo: CombatSkillCastInfo | undefined;
   #inheritedSkillCastInfo: CombatSkillCastInfo | undefined;
   #preparedSkipApplyCost = false;
+  #preparedForceTimelinePayment = false;
+  #forceTimelinePayment = false;
   readonly #attachedBuffs = new Set<BuffApplicationHandle>();
   #pendingTransition: RuntimeSkillTransition | null = null;
   #preparedStartBlackboard: Readonly<Record<string, number>> = {};
@@ -471,6 +473,14 @@ export class SkillRuntime {
     this.#preparedSkipApplyCost = input.skipApplyCost;
   }
 
+  /** 时间轴声明的玩家操作即使原生门槛不满足也继续执行，并按旧版展示规则扣费。 */
+  prepareForcedTimelineCast(): void {
+    if (this.#state === 'casting') {
+      throw new Error(`skill '${this.#program.skillId}' is already casting`);
+    }
+    this.#preparedForceTimelinePayment = true;
+  }
+
   attachBuffToCast(skillCastId: number, buff: BuffApplicationHandle): void {
     const currentCastId = this.#preparedSkillCastId || this.#skillCastId;
     if (skillCastId <= 0 || skillCastId !== currentCastId) {
@@ -589,6 +599,7 @@ export class SkillRuntime {
     this.#passedFrames = 0;
     this.#appliedCost = this.#preparedSkipApplyCost;
     this.#attemptedCost = this.#preparedSkipApplyCost;
+    this.#forceTimelinePayment = this.#preparedForceTimelinePayment;
     this.#inheritedSkillCastInfo = this.#preparedSkillCastInfo;
     this.#nonReturnedSpCost = this.#preparedSkillCastInfo?.nonReturnedSpCost ?? 0;
     this.#skillCastId =
@@ -598,6 +609,7 @@ export class SkillRuntime {
     this.#preparedSkillCastId = 0;
     this.#preparedSkillCastInfo = undefined;
     this.#preparedSkipApplyCost = false;
+    this.#preparedForceTimelinePayment = false;
     if (!Number.isSafeInteger(this.#skillCastId) || this.#skillCastId <= 0) {
       throw new RangeError('allocated skill cast id must be a positive safe integer');
     }
@@ -718,6 +730,7 @@ export class SkillRuntime {
     const payment = this.#dependencies.resources.pay(
       this.#program.operatorId,
       this.#resolvedCosts(),
+      { forceTimelinePayment: this.#forceTimelinePayment },
     );
     if (!payment.paid) {
       this.record('SkillCostRejected');

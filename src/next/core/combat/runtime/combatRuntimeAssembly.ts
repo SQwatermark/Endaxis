@@ -1099,7 +1099,7 @@ export class CombatRuntimeAssembly {
         inputs: options.inputs ?? [],
         receipt: this.receipt,
         tryStartSkill: (operatorId, skillId, castId) =>
-          this.tryStartSkill(operatorId, skillId, castId),
+          this.tryStartPlayerInput(operatorId, skillId, castId),
       });
       this.simulation.add(inputRuntime);
       for (const operator of options.operators) {
@@ -1130,16 +1130,39 @@ export class CombatRuntimeAssembly {
     return ability.tryStartSkill(skillId, castId);
   }
 
+  /** 玩家时间轴输入记录原生槽位解析差异，但始终执行块中显式声明的技能。 */
+  tryStartPlayerInput(operatorId: string, expectedSkillId: string, castId?: string): boolean {
+    const ability = this.#requireAbilitySystem(operatorId);
+    const resolution = ability.resolvePlayerInputSkill(expectedSkillId);
+    if (!resolution.accepted) {
+      this.receipt.record({
+        frame: this.clock.frame,
+        time: this.clock.time,
+        event: 'SkillInputResolvedToDifferentSkill',
+        sourceId: operatorId,
+        data: {
+          skillId: expectedSkillId,
+          actualSkillId: resolution.actualSkillKey,
+          ...(castId === undefined ? {} : { castId }),
+        },
+      });
+    }
+    if (!ability.canStartSkill(expectedSkillId, castId, false)) return false;
+    this.#prepareSkillStart(operatorId, expectedSkillId, castId, undefined, false);
+    return ability.tryStartTimelineSkill(expectedSkillId, castId);
+  }
+
   #prepareSkillStart(
     operatorId: string,
     skillId: string,
     castId?: string,
     inheritedSkillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo,
+    resolveSkillSlot = true,
   ): void {
     const ability = this.#requireAbilitySystem(operatorId);
     const skillCastId = inheritedSkillCastInfo?.skillCastId ?? this.#skillCastIds.allocate();
-    ability.prepareSkillCastId(skillId, castId, skillCastId);
-    const resolvedSkillId = ability.resolveSkillId(skillId, castId);
+    ability.prepareSkillCastId(skillId, castId, skillCastId, resolveSkillSlot);
+    const resolvedSkillId = ability.resolveSkillId(skillId, castId, resolveSkillSlot);
     const program = this.#skillPrograms.get(
       `${operatorId}\u0000${resolvedSkillId}\u0000${castId ?? ''}`,
     );
@@ -1151,9 +1174,15 @@ export class CombatRuntimeAssembly {
             skillId,
             castId,
             prepareComboCast(program, result.window.nativeCondition),
+            resolveSkillSlot,
           );
         } else {
-          ability.prepareSkillStartBlackboard(skillId, castId, result.window.blackboard);
+          ability.prepareSkillStartBlackboard(
+            skillId,
+            castId,
+            result.window.blackboard,
+            resolveSkillSlot,
+          );
         }
       } else {
         const invalidCastBlackboard = this.#operators
@@ -1162,7 +1191,12 @@ export class CombatRuntimeAssembly {
             registration => registration.skillKey === skillId,
           )?.invalidCastBlackboard;
         if (invalidCastBlackboard !== undefined && Object.keys(invalidCastBlackboard).length > 0) {
-          ability.prepareSkillStartBlackboard(skillId, castId, invalidCastBlackboard);
+          ability.prepareSkillStartBlackboard(
+            skillId,
+            castId,
+            invalidCastBlackboard,
+            resolveSkillSlot,
+          );
         }
         this.receipt.record({
           frame: this.clock.frame,
@@ -1182,10 +1216,20 @@ export class CombatRuntimeAssembly {
         (!result.consumed || result.window.nativeCondition === undefined) &&
         program.smartTarget !== undefined
       )
-        ability.prepareAfterSkillCastStart(skillId, castId, prepareComboCast(program));
+        ability.prepareAfterSkillCastStart(
+          skillId,
+          castId,
+          prepareComboCast(program),
+          resolveSkillSlot,
+        );
     }
     if (program?.skillType !== 'comboSkill' && program?.smartTarget !== undefined)
-      ability.prepareAfterSkillCastStart(skillId, castId, prepareComboCast(program));
+      ability.prepareAfterSkillCastStart(
+        skillId,
+        castId,
+        prepareComboCast(program),
+        resolveSkillSlot,
+      );
     if (program !== undefined) {
       this.#options.emitAbilityEvent?.(operatorId, 'beforeCastSkill', {
         sourceId: operatorId,
@@ -1201,7 +1245,7 @@ export class CombatRuntimeAssembly {
           nonReturnedSpCost: 0,
         },
         attachBuffToCurrentSkill: (buff: BuffApplicationHandle) =>
-          ability.attachBuffToSkillCast(skillId, castId, skillCastId, buff),
+          ability.attachBuffToSkillCast(skillId, castId, skillCastId, buff, resolveSkillSlot),
       });
     }
   }

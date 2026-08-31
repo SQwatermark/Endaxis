@@ -2,7 +2,12 @@
  * 将新版存档和只读干员定义投影为时间轴 UI 的稳定读取模型。
  * 这里不保存编辑状态、不翻译文本，也不调用战斗模拟；组件只能把身份交给 i18n 和命令层处理。
  */
-import type { OperatorDefinition, SkillType } from '../../core/game-data/operatorDefinition';
+import type {
+  OperatorDefinition,
+  SkillDefinition,
+  SkillLevelSource,
+  SkillType,
+} from '../../core/game-data/operatorDefinition';
 import type {
   DefinitionActionSource,
   EditableBarDocument,
@@ -15,10 +20,7 @@ import {
   type ResolvedSkillDefinition,
 } from '../../core/compiler/resolveSkillDefinition';
 import { projectOperatorSupport, type OperatorSupportViewModel } from './operatorSupportViewModel';
-import {
-  projectCastHitMarkersWithReplacements,
-  type TimelineHitMarker,
-} from './timelineHitProjection';
+import { projectCastHitMarkers, type TimelineHitMarker } from './timelineHitProjection';
 
 /** UI 投影读取干员定义的最小端口。 */
 export interface TimelineOperatorIndex {
@@ -27,11 +29,19 @@ export interface TimelineOperatorIndex {
 
 /** 技能库中一次拖放所代表的单个技能或有序技能链。 */
 export interface TimelineSkillLibraryEntryViewModel {
+  /** UI 内唯一身份；同组的基础链、变体和强化技能必须能彼此区分。 */
+  readonly entryKey: string;
   readonly skillGroupKey: string;
   /** 省略表示基础链；存在时表示同一组下的具名形态链。 */
   readonly variantKey?: string;
   readonly skillType: SkillType;
   readonly level: number;
+  /** 状态强化产生的独立形态；有序接续段为 false。 */
+  readonly enhanced: boolean;
+  /** 独立强化技能卡片拖动整卡时显式放置的技能；顺序链省略。 */
+  readonly placementSkillKey?: string;
+  /** 拖动整张卡片时按顺序放置的技能。 */
+  readonly groupPlacementSkillKeys: readonly string[];
   readonly skills: readonly {
     readonly skillKey: string;
     readonly timelineBlockFrames: number;
@@ -112,7 +122,12 @@ function projectSkillCast(
   abilityEntityDefinitions?: OperatorDefinition['abilityEntityDefinitions'],
   buffDefinitions?: OperatorDefinition['buffDefinitions'],
 ): TimelineSkillCastViewModel {
-  const skillType = resolved?.group.skillType ?? null;
+  const skillType =
+    resolved?.group.routedReplacementSkills?.find(
+      replacement => replacement.skill.key === resolved.definition.key,
+    )?.skillType ??
+    resolved?.group.skillType ??
+    null;
   return {
     id: skillCast.id,
     startFrame: skillCast.placement.startFrame,
@@ -124,13 +139,9 @@ function projectSkillCast(
       : { enhancementStateBuffId: resolved.definition.enhancementStateBuffId }),
     hitMarkers:
       resolved !== null
-        ? projectCastHitMarkersWithReplacements(
+        ? projectCastHitMarkers(
             skillCast,
             resolved.definition,
-            [
-              ...(resolved.group.replacementSkills ?? []),
-              ...(resolved.group.routedReplacementSkills ?? []).map(item => item.skill),
-            ],
             abilityEntityDefinitions,
             buffDefinitions,
           )
@@ -180,23 +191,85 @@ function projectTrack(
     operator === null || operatorInstance === null
       ? []
       : operator.skillGroups.flatMap(group => {
-          const entries = [
+          const baseSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
+          const directReplacements = group.replacementSkills ?? [];
+          const routedReplacements = group.routedReplacementSkills ?? [];
+          const sequenceSkillKeys = new Set(group.placementSequenceSkillKeys ?? []);
+          const skillByKey = new Map([
+            ...baseSkills.map(skill => [skill.key, skill] as const),
+            ...directReplacements.map(skill => [skill.key, skill] as const),
+            ...routedReplacements.map(
+              replacement => [replacement.skill.key, replacement.skill] as const,
+            ),
+          ]);
+          const placementSequence = (group.placementSequenceSkillKeys ?? []).map(skillKey => {
+            const skill = skillByKey.get(skillKey);
+            if (skill === undefined) {
+              throw new Error(
+                `skill group '${operator.slug}/${group.key}' placement sequence has no skill '${skillKey}'`,
+              );
+            }
+            return skill;
+          });
+          const entries: Array<{
+            readonly entryKey: string;
+            readonly variantKey?: string;
+            readonly placementSkillKey?: string;
+            readonly levelSource: SkillLevelSource;
+            readonly skillType: SkillType;
+            readonly skills: readonly SkillDefinition[];
+            readonly enhanced: boolean;
+          }> = [
             {
+              entryKey: `${group.key}:base`,
               variantKey: undefined,
               levelSource: group.levelSource,
-              skills: Array.isArray(group.skills) ? group.skills : [group.skills],
+              skillType: group.skillType,
+              skills: placementSequence.length > 0 ? placementSequence : baseSkills,
+              enhanced: false,
             },
             ...(group.variants ?? []).map(variant => ({
+              entryKey: `${group.key}:variant:${variant.key}`,
               variantKey: variant.key,
               levelSource: variant.levelSource,
+              skillType: group.skillType,
               skills: Array.isArray(variant.skills) ? variant.skills : [variant.skills],
+              enhanced: true,
             })),
+            ...directReplacements
+              .filter(skill => !sequenceSkillKeys.has(skill.key))
+              .map(skill => ({
+                entryKey: `${group.key}:replacement:${skill.key}`,
+                variantKey: undefined,
+                placementSkillKey: skill.key,
+                levelSource: group.levelSource,
+                skillType: group.skillType,
+                skills: [skill],
+                enhanced: true,
+              })),
+            ...routedReplacements
+              .filter(replacement => !sequenceSkillKeys.has(replacement.skill.key))
+              .map(replacement => ({
+                entryKey: `${group.key}:routed:${replacement.skill.key}`,
+                variantKey: undefined,
+                placementSkillKey: replacement.skill.key,
+                levelSource: replacement.levelSource,
+                skillType: replacement.skillType,
+                skills: [replacement.skill],
+                enhanced: true,
+              })),
           ];
           return entries.map(entry => ({
+            entryKey: entry.entryKey,
             skillGroupKey: group.key,
             ...(entry.variantKey === undefined ? {} : { variantKey: entry.variantKey }),
-            skillType: group.skillType,
+            skillType: entry.skillType,
             level: operatorInstance.skillLevels[entry.levelSource] ?? 1,
+            enhanced: entry.enhanced,
+            ...(entry.placementSkillKey === undefined
+              ? {}
+              : { placementSkillKey: entry.placementSkillKey }),
+            groupPlacementSkillKeys: entry.skills.map(skill => skill.key),
             skills: entry.skills.map(skill => ({
               skillKey: skill.key,
               timelineBlockFrames: skill.timelineBlockFrames,

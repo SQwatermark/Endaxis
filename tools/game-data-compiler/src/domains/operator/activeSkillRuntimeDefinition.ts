@@ -8,6 +8,7 @@ import type { SkillPatchSource } from '../../source/skillPatch.ts';
 import { requireNonNegativeInteger, requireRecord } from '../../source/primitives.ts';
 import {
   compileActiveSkillRuntimeProjectionSource,
+  type CompiledActiveSkillRuntimeProjectionSource,
   type CompiledActiveSkillTimelineSequenceSource,
 } from '../../compiler/activeSkillRuntimeProjection.ts';
 import type {
@@ -21,16 +22,12 @@ import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/physi
 export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
   Pick<
     SkillDefinition,
-    'key' | 'timelineBlockFrames' | 'exclusiveFrame' | 'cooldownFrames' | 'enhancementStateBuffId'
+    'key' | 'timelineBlockFrames' | 'cooldownFrames' | 'enhancementStateBuffId'
   > &
-    Required<Pick<SkillDefinition, 'sourceSkillId' | 'blackboard' | 'costFrame'>>
+    Required<Pick<SkillDefinition, 'sourceSkillId' | 'blackboard' | 'costFrame' | 'exclusiveFrame'>>
 > & {
   /** 仅供整名技能组装配；生成最终 OperatorDefinition 前必须移除。 */
-  readonly allowNextSkillTransitions: readonly {
-    readonly startFrame: number;
-    readonly skillIds: readonly string[];
-    readonly direct: boolean;
-  }[];
+  readonly allowNextSkillTransitions: CompiledActiveSkillRuntimeProjectionSource['allowNextSkillTransitions'];
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   readonly switchToBuffCast?: NonNullable<SkillDefinition['switchToBuffCast']>;
   readonly costs?: readonly Readonly<SkillCostDefinition>[];

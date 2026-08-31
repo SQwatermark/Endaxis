@@ -72,12 +72,29 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
   if (input.variantKey !== undefined && variant === undefined) {
     throw new Error(`skill group '${input.skillGroupKey}' has no variant '${input.variantKey}'`);
   }
+  const directlyPlaceableReplacements = [
+    ...(group.replacementSkills ?? []),
+    ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
+  ];
   const selectedSkills = variant?.skills ?? group.skills;
-  const groupSkills = Array.isArray(selectedSkills) ? selectedSkills : [selectedSkills];
+  const defaultGroupSkills = Array.isArray(selectedSkills) ? selectedSkills : [selectedSkills];
+  const allGroupSkills = [...defaultGroupSkills, ...directlyPlaceableReplacements];
+  const groupSkills =
+    variant !== undefined || group.placementSequenceSkillKeys === undefined
+      ? defaultGroupSkills
+      : group.placementSequenceSkillKeys.map(skillKey => {
+          const skill = allGroupSkills.find(candidate => candidate.key === skillKey);
+          if (skill === undefined) {
+            throw new Error(
+              `skill group '${input.skillGroupKey}' placement sequence has no skill '${skillKey}'`,
+            );
+          }
+          return skill;
+        });
   const skills =
     input.skillKey === undefined
       ? groupSkills
-      : groupSkills.filter(skill => skill.key === input.skillKey);
+      : allGroupSkills.filter(skill => skill.key === input.skillKey);
   if (skills.length === 0) {
     throw new Error(`skill group '${input.skillGroupKey}' has no skill '${input.skillKey ?? ''}'`);
   }

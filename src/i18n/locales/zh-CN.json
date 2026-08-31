@@ -738,6 +738,7 @@
     "skill": "战技",
     "link": "连携",
     "ultimate": "终结技",
+    "enhanced": "强化{type}",
     "weapon": "武器",
     "set": "套装",
     "unknown": "技能"

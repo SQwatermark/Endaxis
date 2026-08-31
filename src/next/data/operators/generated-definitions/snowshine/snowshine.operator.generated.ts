@@ -1423,7 +1423,7 @@ export default {
             { kind: 'all', conditions: [] },
             sequence(
               step('heal', {
-                target: 'caster',
+                target: 'buffOwner',
                 alwaysNext: true,
                 tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
                 attribute: 'will',
@@ -1453,7 +1453,7 @@ export default {
             { kind: 'all', conditions: [] },
             sequence(
               step('heal', {
-                target: 'caster',
+                target: 'buffOwner',
                 alwaysNext: true,
                 tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
                 attribute: 'will',
@@ -1726,7 +1726,7 @@ export default {
             ),
             900,
           ),
-          scheduled(90, sequence(step('finishCurrentAbilityEntity', {})), 93),
+          scheduled(90, sequence(step('finishActionOwnerAbilityEntity', {})), 93),
         ],
       },
     },

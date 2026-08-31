@@ -44,6 +44,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
     readonly skipApplyCost: boolean;
     readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
   }): void;
+  prepareForcedTimelineCast?(): void;
   attachBuffToCast?(skillCastId: number, buff: BuffApplicationHandle): void;
   attachInheritedBuff?(buff: BuffApplicationHandle): void;
   trySwitchToBuffCast?(currentSkill?: {
@@ -123,11 +124,13 @@ export class AbilitySystemRuntime implements FrameRuntime {
     string,
     {
       readonly baseSkillKey: string;
+      readonly stableInputSkillKeys: ReadonlySet<string>;
       readonly allowedSkillKeys: ReadonlySet<string>;
       currentSkillKey: string;
     }
   >();
   readonly #slotGroupByStableInputSkill = new Map<string, string>();
+  readonly #slotGroupByAllowedSkill = new Map<string, string>();
   readonly #actionRuntime?: FrameRuntime;
   readonly #resolveTickDeltas: () => AbilityTickDeltas;
   readonly #beforePostSkillCastStart?: (request: PostSkillCastRequest) => void;
@@ -203,8 +206,15 @@ export class AbilitySystemRuntime implements FrameRuntime {
         }
         this.#slotGroupByStableInputSkill.set(skillKey, group.skillGroupKey);
       }
+      for (const skillKey of allowedSkillKeys) {
+        if (this.#slotGroupByAllowedSkill.has(skillKey)) {
+          throw new Error(`ability skill '${skillKey}' owns multiple slot groups`);
+        }
+        this.#slotGroupByAllowedSkill.set(skillKey, group.skillGroupKey);
+      }
       this.#skillSlotGroups.set(group.skillGroupKey, {
         baseSkillKey: group.baseSkillKey,
+        stableInputSkillKeys: new Set(stableInputSkillKeys),
         allowedSkillKeys,
         currentSkillKey: group.baseSkillKey,
       });
@@ -250,20 +260,45 @@ export class AbilitySystemRuntime implements FrameRuntime {
     return previousSkillKey;
   }
 
-  canStartSkill(skillId: string, castId?: string): boolean {
-    return this.#requireSkill(skillId, castId).canStart();
+  /**
+   * 按玩家操作解析当前槽位，并与时间轴块显式声明的具体技能核对。
+   * 基础状态下，多段稳定输入各自保持身份；换槽后，同组玩家操作只会解析到当前替换技能。
+   */
+  resolvePlayerInputSkill(expectedSkillKey: string): {
+    readonly accepted: boolean;
+    readonly actualSkillKey: string;
+  } {
+    const groupKey = this.#slotGroupByAllowedSkill.get(expectedSkillKey);
+    if (groupKey === undefined) {
+      return { accepted: true, actualSkillKey: expectedSkillKey };
+    }
+    const group = this.#skillSlotGroups.get(groupKey)!;
+    const actualSkillKey =
+      group.currentSkillKey === group.baseSkillKey &&
+      group.stableInputSkillKeys.has(expectedSkillKey)
+        ? expectedSkillKey
+        : group.currentSkillKey;
+    return {
+      accepted: actualSkillKey === expectedSkillKey,
+      actualSkillKey,
+    };
   }
 
-  resolveSkillId(skillId: string, castId?: string): string {
-    return this.#requireSkill(skillId, castId).skillId;
+  canStartSkill(skillId: string, castId?: string, resolveSkillSlot = true): boolean {
+    return this.#requireSkill(skillId, castId, resolveSkillSlot).canStart();
+  }
+
+  resolveSkillId(skillId: string, castId?: string, resolveSkillSlot = true): string {
+    return this.#requireSkill(skillId, castId, resolveSkillSlot).skillId;
   }
 
   prepareSkillStartBlackboard(
     skillId: string,
     castId: string | undefined,
     values: Readonly<Record<string, number>>,
+    resolveSkillSlot = true,
   ): void {
-    const skill = this.#requireSkill(skillId, castId);
+    const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
     if (skill.prepareStartBlackboard === undefined) {
       if (Object.keys(values).length > 0) {
         throw new Error(`skill '${skillId}' cannot receive start blackboard values`);
@@ -273,8 +308,13 @@ export class AbilitySystemRuntime implements FrameRuntime {
     skill.prepareStartBlackboard(values);
   }
 
-  prepareSkillCastId(skillId: string, castId: string | undefined, skillCastId: number): void {
-    const skill = this.#requireSkill(skillId, castId);
+  prepareSkillCastId(
+    skillId: string,
+    castId: string | undefined,
+    skillCastId: number,
+    resolveSkillSlot = true,
+  ): void {
+    const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
     if (skill.prepareSkillCastId === undefined) {
       throw new Error(`skill '${skillId}' cannot receive a prepared skill cast id`);
     }
@@ -300,8 +340,9 @@ export class AbilitySystemRuntime implements FrameRuntime {
     skillId: string,
     castId: string | undefined,
     callback: AfterSkillCastStart,
+    resolveSkillSlot = true,
   ): void {
-    const skill = this.#requireSkill(skillId, castId);
+    const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
     if (skill.prepareAfterCastStart === undefined)
       throw new Error(`skill '${skillId}' cannot receive afterCastStart preparation`);
     skill.prepareAfterCastStart(callback);
@@ -312,8 +353,9 @@ export class AbilitySystemRuntime implements FrameRuntime {
     castId: string | undefined,
     skillCastId: number,
     buff: BuffApplicationHandle,
+    resolveSkillSlot = true,
   ): void {
-    const skill = this.#requireSkill(skillId, castId);
+    const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
     if (skill.attachBuffToCast === undefined) {
       throw new Error(`skill '${skillId}' cannot attach Buff instances`);
     }
@@ -321,8 +363,28 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   tryStartSkill(skillId: string, castId?: string): boolean {
-    const skill = this.#requireSkill(skillId, castId);
+    return this.#tryStartSkill(skillId, castId, true, false);
+  }
+
+  /** 时间轴玩家输入执行显式技能，不允许槽位解析静默替换其身份。 */
+  tryStartTimelineSkill(skillId: string, castId?: string): boolean {
+    return this.#tryStartSkill(skillId, castId, false, true);
+  }
+
+  #tryStartSkill(
+    skillId: string,
+    castId: string | undefined,
+    resolveSkillSlot: boolean,
+    forceTimelinePayment: boolean,
+  ): boolean {
+    const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
     if (!skill.canStart()) return false;
+    if (forceTimelinePayment) {
+      if (skill.prepareForcedTimelineCast === undefined) {
+        throw new Error(`skill '${skillId}' cannot receive a forced timeline cast`);
+      }
+      skill.prepareForcedTimelineCast();
+    }
     const previousSkill = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
 
     if (

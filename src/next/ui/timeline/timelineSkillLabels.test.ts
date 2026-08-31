@@ -7,9 +7,12 @@ function skillLibraryEntry(
   skillKeys: readonly string[],
 ): TimelineSkillLibraryEntryViewModel {
   return {
+    entryKey: 'test:fixture',
     skillGroupKey: 'test',
     skillType,
     level: 1,
+    enhanced: false,
+    groupPlacementSkillKeys: skillKeys,
     skills: skillKeys.map(skillKey => ({
       skillKey,
       timelineBlockFrames: 30,

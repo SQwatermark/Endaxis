@@ -46,8 +46,17 @@ export function resolveSkillTemplateDefinition(
       candidate => candidate.key === source.skillKey,
     ),
   );
+  const directReplacement = directGroup?.replacementSkills?.find(
+    candidate => candidate.key === source.skillKey,
+  );
+  const directRoutedReplacement = directGroup?.routedReplacementSkills?.find(
+    candidate => candidate.skill.key === source.skillKey,
+  );
   const alias =
-    directDefinition === undefined && directVariant === undefined
+    directDefinition === undefined &&
+    directVariant === undefined &&
+    directReplacement === undefined &&
+    directRoutedReplacement === undefined
       ? operator.skillAliases?.find(
           candidate =>
             candidate.from[0] === source.skillGroupKey && candidate.from[1] === source.skillKey,
@@ -75,7 +84,14 @@ export function resolveSkillTemplateDefinition(
       : (Array.isArray(variant.skills) ? variant.skills : [variant.skills]).find(
           candidate => candidate.key === skillKey,
         );
-  const resolvedDefinition = definition ?? variantDefinition;
+  const replacementDefinition = group.replacementSkills?.find(
+    candidate => candidate.key === skillKey,
+  );
+  const routedReplacement = group.routedReplacementSkills?.find(
+    candidate => candidate.skill.key === skillKey,
+  );
+  const resolvedDefinition =
+    definition ?? variantDefinition ?? replacementDefinition ?? routedReplacement?.skill;
   if (resolvedDefinition === undefined) {
     throw new Error(
       `skill group '${operator.slug}/${group.key}' has no skill '${source.skillKey}'`,
@@ -84,7 +100,7 @@ export function resolveSkillTemplateDefinition(
   return {
     definition: resolvedDefinition,
     group,
-    levelSource: variant?.levelSource ?? group.levelSource,
+    levelSource: variant?.levelSource ?? routedReplacement?.levelSource ?? group.levelSource,
     ...(variant === undefined ? {} : { variantKey: variant.key }),
   };
 }

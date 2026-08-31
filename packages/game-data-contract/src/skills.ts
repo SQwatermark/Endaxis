@@ -155,13 +155,19 @@ export interface SkillGroupDefinition {
   /** 单个可放置技能，或作为一个技能库条目放置的有序技能链。 */
   skills: SkillDefinition | readonly SkillDefinition[];
   /**
+   * 运行时虽以换槽形态注册、但编辑器放置时具有明确先后关系的完整技能键序列。
+   * 省略表示 replacement 是状态强化形态，应作为独立卡片；不得由 UI 按名称猜测。
+   */
+  placementSequenceSkillKeys?: readonly string[];
+  /**
    * 同一稳定输入类型下的具名形态链。形态不是新的技能类型；它可以使用不同的养成等级来源，
    * 例如终结技状态下的强化普攻仍属于普攻，但倍率取终结技等级。
    */
   variants?: readonly SkillGroupVariantDefinition[];
   /**
    * 与 `skills` 共用一个稳定放置身份、仅由运行时换槽动作选中的技能形态。
-   * 它们不会被技能库展开为额外技能块，也不能由项目存档直接指定。
+   * 编辑器必须把它们作为可显式放置的具体技能展示；运行时槽位状态只负责校验该操作
+   * 当前是否确实会解析到该技能，不能静默把基础块替换为这里的执行体。
    */
   replacementSkills?: readonly SkillDefinition[];
   /**

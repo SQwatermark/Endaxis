@@ -1089,6 +1089,7 @@ describe('BuffOperationExecutor', () => {
     expect(applied).toEqual([
       {
         buffId: 'ultimate-base',
+        definitionOwnerId: 'operator',
         sourceId: 'operator',
         blackboardValues: { duration: 25, comboRate: 4, child_buff_id: 'buff:icon' },
       },
@@ -1109,6 +1110,7 @@ describe('BuffOperationExecutor', () => {
     ).toBe(true);
     expect(applied[1]).toEqual({
       buffId: 'external-event-buff',
+      definitionOwnerId: 'operator',
       sourceId: 'operator',
       blackboardValues: {},
     });
@@ -1153,6 +1155,7 @@ describe('BuffOperationExecutor', () => {
       {
         buffId: 'operator-mark',
         definition,
+        definitionOwnerId: 'operator',
         sourceId: 'operator',
         blackboardValues: {},
       },
@@ -1542,6 +1545,7 @@ describe('BuffOperationExecutor', () => {
     expect(applied).toEqual([
       {
         buffId: 'mark',
+        definitionOwnerId: 'operator',
         sourceId: 'enemy-1',
         blackboardValues: {},
       },
@@ -1676,6 +1680,7 @@ describe('BuffOperationExecutor', () => {
     expect(applied).toEqual([
       {
         buffId: 'ultimate-base',
+        definitionOwnerId: 'operator',
         sourceId: 'operator',
         blackboardValues: {},
         skillCastInfo,

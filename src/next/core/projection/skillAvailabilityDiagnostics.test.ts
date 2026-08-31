@@ -78,18 +78,37 @@ describe('projectSkillAvailabilityDiagnostics', () => {
     });
   });
 
+  it('把玩家操作解析成其他技能记为当前技能块不可用', () => {
+    expect(
+      projectSkillAvailabilityDiagnostics([
+        receipt(9, 'SkillInputResolvedToDifferentSkill', {
+          data: { skillId: 'battleSkill', actualSkillId: 'battleSkillDuringUltimate' },
+        }),
+      ]),
+    ).toEqual([
+      {
+        frame: 12,
+        sourceId: 'perlica',
+        skillId: 'battleSkill',
+        reasons: ['skillInputMismatch'],
+        receiptSequences: [9],
+        actualSkillId: 'battleSkillDuringUltimate',
+      },
+    ]);
+  });
+
   it('拒绝无法定位到动作的可用性事实', () => {
     expect(() =>
       projectSkillAvailabilityDiagnostics([
-        receipt(9, 'SkillCostUnavailableAtStart', { sourceId: undefined }),
+        receipt(10, 'SkillCostUnavailableAtStart', { sourceId: undefined }),
       ]),
-    ).toThrow("receipt 9 'SkillCostUnavailableAtStart' has no sourceId");
+    ).toThrow("receipt 10 'SkillCostUnavailableAtStart' has no sourceId");
 
     expect(() =>
       projectSkillAvailabilityDiagnostics([
-        receipt(10, 'SkillCooldownUnavailableAtStart', { data: undefined }),
+        receipt(11, 'SkillCooldownUnavailableAtStart', { data: undefined }),
       ]),
-    ).toThrow("receipt 10 'SkillCooldownUnavailableAtStart' has no skillId");
+    ).toThrow("receipt 11 'SkillCooldownUnavailableAtStart' has no skillId");
   });
 
   it('忽略与技能开始可用性无关的回执', () => {
