@@ -281,7 +281,8 @@ export class StandardPlayerDamageEnvironment {
         return vitalsRuntimeOf();
       },
       createOperatorBuffRuntime: (operatorId, panel, reactionModifiers) => {
-        if (reactionModifiers !== undefined) this.#reactionModifiers.set(operatorId, reactionModifiers);
+        if (reactionModifiers !== undefined)
+          this.#reactionModifiers.set(operatorId, reactionModifiers);
         if (panel !== undefined) {
           this.#operatorPanels.set(operatorId, panel);
           this.#ensureOperatorVitals(operatorId, panel);
@@ -371,7 +372,9 @@ export class StandardPlayerDamageEnvironment {
   #createOperationExecutor(context: CombatDamageExecutorContext): CombatOperationExecutor {
     const program = 'program' in context ? context.program : undefined;
     const operatorId =
-      'program' in context ? (context.sourceOperatorId ?? context.program.operatorId) : context.operatorId;
+      'program' in context
+        ? (context.sourceOperatorId ?? context.program.operatorId)
+        : context.operatorId;
     if ('program' in context && context.resolveAbilitySystemSourceId !== undefined) {
       this.#resolveAbilitySystemSourceId = context.resolveAbilitySystemSourceId;
     }
@@ -982,7 +985,11 @@ export class StandardPlayerDamageEnvironment {
                     );
                   }
                   const multiplier = 1 + modifier.effectivenessAddition;
-                  for (const key of ['def_decrease_tick', 'max_def_decrease', 'start_def_decrease']) {
+                  for (const key of [
+                    'def_decrease_tick',
+                    'max_def_decrease',
+                    'start_def_decrease',
+                  ]) {
                     if (typeof blackboard[key] !== 'number') {
                       throw new Error(`corrosion factory has no numeric '${key}' output`);
                     }
@@ -1295,6 +1302,55 @@ export class StandardPlayerDamageEnvironment {
           ...(currentPresentation?.visible === undefined
             ? {}
             : { visible: currentPresentation.visible }),
+          ...(currentPresentation?.showInHeadBarCommon === undefined
+            ? {}
+            : { showInHeadBarCommon: currentPresentation.showInHeadBarCommon }),
+          ...(currentPresentation?.showInHeadBarAttached === undefined
+            ? {}
+            : { showInHeadBarAttached: currentPresentation.showInHeadBarAttached }),
+          ...(currentPresentation?.showInSquadIcon === undefined
+            ? {}
+            : { showInSquadIcon: currentPresentation.showInSquadIcon }),
+          ...(currentPresentation?.onlyShowForMainCharacter === undefined
+            ? {}
+            : { onlyShowForMainCharacter: currentPresentation.onlyShowForMainCharacter }),
+          ...(currentPresentation?.showProgressInHpBar === undefined
+            ? {}
+            : { showProgressInHpBar: currentPresentation.showProgressInHpBar }),
+          ...(currentPresentation?.showProgressInNormalSkillButton === undefined
+            ? {}
+            : {
+                showProgressInNormalSkillButton:
+                  currentPresentation.showProgressInNormalSkillButton,
+              }),
+          ...(currentPresentation?.useWeakProgressInNormalSkillButton === undefined
+            ? {}
+            : {
+                useWeakProgressInNormalSkillButton:
+                  currentPresentation.useWeakProgressInNormalSkillButton,
+              }),
+          ...(currentPresentation?.showProgressInUltimateSkillButton === undefined
+            ? {}
+            : {
+                showProgressInUltimateSkillButton:
+                  currentPresentation.showProgressInUltimateSkillButton,
+              }),
+          ...(currentPresentation?.showWarningBackground === undefined
+            ? {}
+            : { showWarningBackground: currentPresentation.showWarningBackground }),
+          ...(currentPresentation?.iconStyleInSquad === undefined
+            ? {}
+            : { iconStyleInSquad: currentPresentation.iconStyleInSquad }),
+          ...(currentPresentation?.abnormalColorType === undefined
+            ? {}
+            : { abnormalColorType: currentPresentation.abnormalColorType }),
+          ...(currentPresentation?.orderPriority === undefined
+            ? {}
+            : {
+                orderUseDirectoryValue: currentPresentation.orderPriority.useDirectoryValue,
+                orderPriorityValue: currentPresentation.orderPriority.value,
+                orderPriorityCategory: currentPresentation.orderPriority.category,
+              }),
         },
       });
     recordPresentation('BuffApplied', buff.definition.id, presentation);

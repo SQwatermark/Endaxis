@@ -18,7 +18,10 @@ export type TimelineSkillDiagnosticReason =
   | SkillAvailabilityDiagnosticReason
   | SkillExecutionDiagnosticReason
   | ComboWindowDiagnosticReason
-  | `skillInputMismatch: expected '${string}', actual '${string}'`;
+  | `skillInputMismatch: expected '${string}', actual '${string}'`
+  | `skillInputUnknown: ${string}`
+  | `skillInterruptUnavailable: current '${string}'`
+  | `skillInterruptUnknown: ${string}`;
 
 export interface UseScenarioSimulationOptions {
   readonly scenario: Ref<ScenarioDocument>;
@@ -147,11 +150,17 @@ export function useScenarioSimulation(
         frame: diagnostic.frame,
         sourceId: diagnostic.sourceId,
         skillId: diagnostic.skillId,
-        reason: diagnostic.reasons.map(reason =>
-          reason === 'skillInputMismatch' && diagnostic.actualSkillId !== undefined
-            ? (`skillInputMismatch: expected '${diagnostic.skillId}', actual '${diagnostic.actualSkillId}'` as const)
-            : reason,
-        ),
+        reason: diagnostic.reasons.map(reason => {
+          if (reason === 'skillInputMismatch' && diagnostic.actualSkillId !== undefined)
+            return `skillInputMismatch: expected '${diagnostic.skillId}', actual '${diagnostic.actualSkillId}'` as const;
+          if (reason === 'skillInputUnknown' && diagnostic.inputResolutionDetail !== undefined)
+            return `skillInputUnknown: ${diagnostic.inputResolutionDetail}` as const;
+          if (reason === 'skillInterruptUnavailable' && diagnostic.currentSkillId !== undefined)
+            return `skillInterruptUnavailable: current '${diagnostic.currentSkillId}'` as const;
+          if (reason === 'skillInterruptUnknown' && diagnostic.interruptionDetail !== undefined)
+            return `skillInterruptUnknown: ${diagnostic.interruptionDetail}` as const;
+          return reason;
+        }),
       })),
       ...current.executionDiagnostics.map(diagnostic => ({
         frame: diagnostic.frame,

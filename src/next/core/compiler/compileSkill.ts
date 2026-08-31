@@ -1157,6 +1157,7 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     ...(input.skill.exclusiveFrame === undefined
       ? {}
       : { exclusiveFrame: input.skill.exclusiveFrame }),
+    ...(input.skill.inputWindows === undefined ? {} : { inputWindows: input.skill.inputWindows }),
     ...(cooldownFrames === undefined ? {} : { cooldownFrames }),
     ...(input.skill.costFrame === undefined ? {} : { costFrame: input.skill.costFrame }),
     costs,

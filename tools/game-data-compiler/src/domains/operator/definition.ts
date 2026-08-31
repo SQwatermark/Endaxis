@@ -7,6 +7,8 @@ import type {
   SkillGroupDefinition,
   SkillLevelSource,
   SkillType,
+  OperatorSkillSlotDefinition,
+  OperatorPlayerActionRoutes,
 } from '../../../../../packages/game-data-contract/src/index.ts';
 import type { compileOperatorFoundationSource } from './sourceClosure.ts';
 import { compileOperatorDefinitionHeaderSource } from './definitionHeader.ts';
@@ -76,6 +78,9 @@ export interface OperatorDefinitionAssemblyInput {
   readonly runtimeEntityBlackboard?: Readonly<Record<string, number | string>>;
   /** 隐藏注册技能：保留定义与冷却/内部 Cast 路由，不暴露为可直接放置的组技能。 */
   readonly runtimeReplacementSkillKeys?: readonly string[];
+  /** 经原生 CharacterData/槽位动作取证后写入的独立战斗路由；不得从技能库分组推导。 */
+  readonly skillSlots?: readonly OperatorSkillSlotDefinition[];
+  readonly playerActionRoutes?: OperatorPlayerActionRoutes;
   /** 输入包装器同步 Cast 另一技能组执行体的严格跨组换槽定义。 */
   readonly routedSkills?: readonly {
     readonly key: string;
@@ -603,6 +608,47 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       cooldownFrames: routed.cooldownFrames,
     });
   }
+  const activeSkillTypeByKey = new Map(
+    skillLibrary.activeSkills.entries.map(entry => [entry.key, entry.skillType] as const),
+  );
+  const skillIdentityByKey = new Map<
+    string,
+    { readonly skillType: SkillType; readonly levelSource: SkillLevelSource }
+  >();
+  const registerSkillIdentity = (
+    key: string,
+    skillType: SkillType,
+    levelSource: SkillLevelSource,
+  ): void => {
+    const previous = skillIdentityByKey.get(key);
+    if (
+      previous !== undefined &&
+      (previous.skillType !== skillType || previous.levelSource !== levelSource)
+    ) {
+      throw new Error(`skill '${key}' has conflicting runtime identity`);
+    }
+    skillIdentityByKey.set(key, { skillType, levelSource });
+  };
+  for (const group of skillLibrary.skillGroups) {
+    for (const key of group.skillKeys) {
+      const routed = routedSkills.get(key);
+      registerSkillIdentity(
+        key,
+        routed?.skillType ?? activeSkillTypeByKey.get(key)!,
+        routed?.levelSource ?? group.levelSource,
+      );
+    }
+    for (const variant of group.variants) {
+      for (const key of variant.skillKeys) {
+        registerSkillIdentity(key, activeSkillTypeByKey.get(key)!, variant.levelSource);
+      }
+    }
+  }
+  for (const [key, definition] of definitions) {
+    const identity = skillIdentityByKey.get(key);
+    if (identity === undefined) throw new Error(`skill '${key}' has no runtime identity`);
+    definitions.set(key, { ...definition, ...identity });
+  }
   const abilityEntityDefinitions = hydrate(compiledAbilityEntityDefinitions);
   const assignedRuntimeReplacementSkillKeys = new Set<string>();
   const skillGroups = skillLibrary.skillGroups.map(group => {
@@ -755,6 +801,10 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   const operator: OperatorDefinition = {
     ...header,
     skillGroups,
+    ...(input.skillSlots === undefined ? {} : { skillSlots: input.skillSlots }),
+    ...(input.playerActionRoutes === undefined
+      ? {}
+      : { playerActionRoutes: input.playerActionRoutes }),
     ...(input.comboSkillRegistrations === undefined
       ? {}
       : { comboSkillRegistrations: input.comboSkillRegistrations }),

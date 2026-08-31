@@ -57,6 +57,59 @@ export interface SkillCostDefinition {
   value: LevelValues;
 }
 
+/** Endaxis 可编辑的四种玩家战斗操作语义；键鼠/手柄绑定不进入战斗数据。 */
+export type PlayerSkillInput = 'basicAttack' | 'battleSkill' | 'comboSkill' | 'ultimate';
+
+/**
+ * 原生 AbilitySystem 中可被 ChangeSkillAction 改写的稳定技能槽。
+ * 槽位属于战斗路由，不是技能库分组；编辑器可以恰好用同名 key，但二者没有运行时依赖。
+ */
+export interface OperatorSkillSlotDefinition {
+  readonly key: string;
+  readonly baseSkillKey: string;
+  /** 未发生槽位替换时仍可由同一语义动作明确请求的技能。 */
+  readonly stableSkillKeys?: readonly string[];
+  readonly replacementSkillKeys: readonly string[];
+}
+
+export type PlayerActionRouteDefinition =
+  | {
+      readonly kind: 'skillSlot';
+      readonly skillSlotKey: string;
+    }
+  | {
+      readonly kind: 'basicAttack';
+      /** 原生 normalAttackList、处决和下落等路径能够请求的技能全集。 */
+      readonly skillKeys: readonly string[];
+      /** 只有 SkillDataBundle/default mode 的命令映射已导入时才允许设置。 */
+      readonly defaultSkillKey?: string;
+    };
+
+/** 四类语义动作到原生技能请求来源的显式边；不得从技能库分组反推。 */
+export type OperatorPlayerActionRoutes = Readonly<
+  Partial<Record<PlayerSkillInput, PlayerActionRouteDefinition>>
+>;
+
+/**
+ * 原生 ComboCacheAction 在一段技能局部时间内对攻击操作的映射覆盖。
+ * Skill 命令中的战技/连携会把映射中的 skillId 覆盖为当前槽位技能，
+ * 终结技不读该映射，因此它们不能作为“选择哪个技能”的证据。
+ */
+export interface SkillInputCommandMappingWindow {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly input: 'basicAttack';
+  /** 空值是原生的“该窗口没有直接技能路由”，不得回退为基础技能。 */
+  readonly targetSourceSkillId: string | null;
+}
+
+/** 原生 AllowNextSkillAction 只授予提前接续许可，不负责选择技能。 */
+export interface SkillAllowedNextWindow {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly sourceSkillIds: readonly string[];
+}
+
 /** 事件触发器筛选干员自身或全队来源的范围。 */
 export type SkillTriggerScope = 'operator' | 'team';
 
@@ -102,6 +155,14 @@ export interface ComboSkillRegistrationDefinition {
  */
 export interface SkillDefinition {
   key: string;
+  /**
+   * 此技能执行体参与战斗事件与中断优先级判断时使用的分类。
+   * 它属于单个技能，不能从编辑器技能库分组反推。当前枚举是 Endaxis 已支持的战斗分类；
+   * 原生可变 SkillType 后续由运行时状态覆盖此初值。
+   */
+  skillType?: SkillType;
+  /** 从原生 CharGrowthTable 技能组成员关系得到的等级来源；不属于编辑器分组。 */
+  levelSource?: SkillLevelSource;
   /** 原始游戏数据中的技能身份；事件守卫不得用编辑器 key 冒充它。 */
   sourceSkillId?: string;
   /**
@@ -117,6 +178,16 @@ export interface SkillDefinition {
   timelineBlockFrames: number;
   /** 原生 SkillData.exclusiveFrame；只在需要读取当前技能可中断状态时参与运行时判断。 */
   exclusiveFrame?: number;
+  /**
+   * 从原生顶层直连输入 Action 保留的操作解析证据。两类窗口职责不同：
+   * commandMappings 选择该操作当前指向的技能，allowedNextSkills 只决定能否提前中断。
+   */
+  inputWindows?: {
+    readonly commandMappings?: readonly SkillInputCommandMappingWindow[];
+    readonly allowedNextSkills?: readonly SkillAllowedNextWindow[];
+    /** 存在条件或嵌套输入 Action；当前输入状态不足时必须返回未知而不是猜测。 */
+    readonly hasConditionalActions?: boolean;
+  };
   /**
    * 技能释放条件只生成合法性诊断；不成立也不会阻止技能进入模拟。
    * 模拟层将用户排入时间轴的动作视为已经成功释放，不得改写或跳过。
@@ -148,9 +219,9 @@ export interface SkillDefinition {
  */
 export interface SkillGroupDefinition {
   key: string;
-  /** 技能库条目内各技能共用的战斗分类。 */
+  /** @deprecated 迁移期展示元数据；模拟不得读取，最终由卡片展示语义替代。 */
   skillType: SkillType;
-  /** 提供当前技能等级的四种养成字段之一。 */
+  /** @deprecated 迁移期展示元数据；等级必须读取 SkillDefinition.levelSource。 */
   levelSource: SkillLevelSource;
   /** 单个可放置技能，或作为一个技能库条目放置的有序技能链。 */
   skills: SkillDefinition | readonly SkillDefinition[];

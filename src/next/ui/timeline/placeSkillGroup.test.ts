@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { laevatain, mifu, perlica, zhuangFangyi } from '../../data/operators';
+import { avywenna, laevatain, mifu, perlica, zhuangFangyi } from '../../data/operators';
 import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
 
 function createIds(): TimelineDocumentIdAllocator {
@@ -31,6 +31,26 @@ function createPerlicaScenario() {
 }
 
 describe('placeSkillGroup', () => {
+  it('stores the semantic action from explicit native routing on new casts', () => {
+    const scenario = createPerlicaScenario();
+    scenario.tracks[0]!.operator!.operatorSlug = avywenna.slug;
+    const result = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: avywenna,
+      skillGroupKey: 'battleSkill',
+      startFrame: 10,
+      ids: createIds(),
+    });
+
+    expect(result.scenario.tracks[0]!.skillCasts[0]!.source).toEqual({
+      kind: 'operatorSkill',
+      skillGroupKey: 'battleSkill',
+      skillKey: 'battleSkill',
+      action: 'battleSkill',
+    });
+  });
+
   it('places the generated basic-attack chain with definition defaults', () => {
     const original = createPerlicaScenario();
     const result = placeSkillGroup({

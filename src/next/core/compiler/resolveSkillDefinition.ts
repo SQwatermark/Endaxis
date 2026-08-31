@@ -14,9 +14,9 @@ import type { SkillCastDocument } from '../project/schema';
 export interface ResolvedSkillDefinition {
   /** 模拟和显示使用的技能定义。自定义定义优先，否则使用技能模板。 */
   readonly definition: SkillDefinition;
-  /** 定义所属的技能组（提供 skillType 与 levelSource）。 */
+  /** 定义所属的编辑器技能库分组；只能用于展示、放置和兼容旧项目身份。 */
   readonly group: SkillGroupDefinition;
-  /** 基础链使用组等级；具名形态可以明确改用另一养成技能等级。 */
+  /** 单技能等级来源；旧生成产物迁移完成前才允许回退到组字段。 */
   readonly levelSource: SkillLevelSource;
   readonly variantKey?: string;
 }
@@ -105,7 +105,11 @@ export function resolveSkillTemplateDefinition(
   return {
     definition: resolvedDefinition,
     group,
-    levelSource: variant?.levelSource ?? routedReplacement?.levelSource ?? group.levelSource,
+    levelSource:
+      resolvedDefinition.levelSource ??
+      variant?.levelSource ??
+      routedReplacement?.levelSource ??
+      group.levelSource,
     ...(variant === undefined ? {} : { variantKey: variant.key }),
   };
 }

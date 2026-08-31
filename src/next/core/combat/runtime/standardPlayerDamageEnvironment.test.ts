@@ -1879,6 +1879,17 @@ describe('StandardPlayerDamageEnvironment', () => {
             visible: true,
             iconId: 'icon_battle_buff_atk_up',
             iconPath: '/icons/icon_battle_buff_atk_up.webp',
+            showInSquadIcon: true,
+            showProgressInNormalSkillButton: true,
+            useWeakProgressInNormalSkillButton: true,
+            showWarningBackground: true,
+            iconStyleInSquad: 'LifeTime',
+            abnormalColorType: 'Fire',
+            orderPriority: {
+              useDirectoryValue: false,
+              value: 12,
+              category: 'CommonCharBuff',
+            },
           },
           childPresentations: [
             {
@@ -1904,6 +1915,15 @@ describe('StandardPlayerDamageEnvironment', () => {
         visible: true,
         iconId: 'icon_battle_buff_atk_up',
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        showInSquadIcon: true,
+        showProgressInNormalSkillButton: true,
+        useWeakProgressInNormalSkillButton: true,
+        showWarningBackground: true,
+        iconStyleInSquad: 'LifeTime',
+        abnormalColorType: 'Fire',
+        orderUseDirectoryValue: false,
+        orderPriorityValue: 12,
+        orderPriorityCategory: 'CommonCharBuff',
       },
     });
     expect(receipt.entries.find(entry => entry.event === 'BuffPresentationStarted')).toMatchObject({

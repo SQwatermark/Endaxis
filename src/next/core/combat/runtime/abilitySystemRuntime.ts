@@ -4,6 +4,7 @@
  */
 import type { FrameRuntime } from './combatSimulation';
 import type { SkillType } from '../../game-data/operatorDefinition';
+import type { PlayerSkillInput, SkillDefinition } from '../../game-data/operatorDefinition';
 import type {
   AfterSkillCastStart,
   RuntimeSkillInterruptReason,
@@ -23,6 +24,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly skillId: string;
   /** 原生动作继承白名单使用的表内 Skill ID；缺省时与 skillId 相同。 */
   readonly transitionSkillId?: string;
+  readonly inputWindows?: SkillDefinition['inputWindows'];
   /** 文档中的技能释放身份；同技能多次放置时用于唯一寻址。 */
   readonly castId?: string;
   readonly skillType: SkillType;
@@ -98,10 +100,14 @@ export interface AbilitySystemRuntimeOptions {
   /** 同一放置身份下可由战斗动作切换的技能形态。 */
   readonly skillSlotGroups?: readonly {
     readonly skillGroupKey: string;
+    readonly input?: PlayerSkillInput;
+    readonly defaultForInput?: boolean;
     readonly baseSkillKey: string;
     readonly stableInputSkillKeys?: readonly string[];
     readonly replacementSkillKeys: readonly string[];
   }[];
+  /** 四类语义动作的显式原生路由；存在时完全取代技能组推导。 */
+  readonly playerActionRoutes?: import('../../game-data/operatorDefinition').OperatorPlayerActionRoutes;
   readonly actionRuntime?: FrameRuntime;
   readonly resolveTickDeltas?: () => AbilityTickDeltas;
   /** 帧末延迟施放在真正启动前回到装配根，复用施放前事件与运行时参数准备。 */
@@ -124,6 +130,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
     string,
     {
       readonly baseSkillKey: string;
+      readonly input: PlayerSkillInput;
+      readonly defaultForInput: boolean;
       readonly stableInputSkillKeys: ReadonlySet<string>;
       readonly allowedSkillKeys: ReadonlySet<string>;
       currentSkillKey: string;
@@ -131,6 +139,9 @@ export class AbilitySystemRuntime implements FrameRuntime {
   >();
   readonly #slotGroupByStableInputSkill = new Map<string, string>();
   readonly #slotGroupByAllowedSkill = new Map<string, string>();
+  readonly #defaultSlotGroupByInput = new Map<PlayerSkillInput, string>();
+  readonly #playerActionRoutes?: import('../../game-data/operatorDefinition').OperatorPlayerActionRoutes;
+  readonly #skillKeysByTransitionSkillId = new Map<string, Set<string>>();
   readonly #actionRuntime?: FrameRuntime;
   readonly #resolveTickDeltas: () => AbilityTickDeltas;
   readonly #beforePostSkillCastStart?: (request: PostSkillCastRequest) => void;
@@ -145,6 +156,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#buffRuntime = options.buffRuntime;
     this.#skills = [...options.skills];
     this.#actionRuntime = options.actionRuntime;
+    this.#playerActionRoutes = options.playerActionRoutes;
     this.#beforePostSkillCastStart = options.beforePostSkillCastStart;
     if (
       (options.resolveActualFrame === undefined) !==
@@ -166,6 +178,10 @@ export class AbilitySystemRuntime implements FrameRuntime {
         throw new Error(`duplicate ability skill '${key}'`);
       }
       this.#skillsById.set(key, skill);
+      const transitionSkillId = skill.transitionSkillId ?? skill.skillId;
+      const skillKeys = this.#skillKeysByTransitionSkillId.get(transitionSkillId) ?? new Set();
+      skillKeys.add(skill.skillId);
+      this.#skillKeysByTransitionSkillId.set(transitionSkillId, skillKeys);
     }
     if (options.skillTickPlan !== undefined) {
       const ids = new Set<string>();
@@ -188,6 +204,23 @@ export class AbilitySystemRuntime implements FrameRuntime {
         throw new Error(`duplicate ability skill slot group '${group.skillGroupKey}'`);
       }
       const stableInputSkillKeys = group.stableInputSkillKeys ?? [group.baseSkillKey];
+      const baseSkill = this.#skills.find(skill => skill.skillId === group.baseSkillKey);
+      const input =
+        group.input ??
+        (baseSkill === undefined
+          ? 'battleSkill'
+          : baseSkill.skillType === 'basicAttack' ||
+              baseSkill.skillType === 'finisher' ||
+              baseSkill.skillType === 'plungingAttack'
+            ? 'basicAttack'
+            : baseSkill.skillType === 'battleSkill'
+              ? 'battleSkill'
+              : baseSkill.skillType === 'comboSkill'
+                ? 'comboSkill'
+                : 'ultimate');
+      // 基础命令映射必须来自原生 SkillDataBundle.defaultCmdMapping / ModeData，
+      // 不能由 Endaxis 的技能库分组反推。旧调用方未提供证据时不登记默认槽。
+      const defaultForInput = group.defaultForInput ?? false;
       if (!stableInputSkillKeys.includes(group.baseSkillKey)) {
         throw new Error(
           `ability skill slot group '${group.skillGroupKey}' does not include its base skill`,
@@ -214,10 +247,18 @@ export class AbilitySystemRuntime implements FrameRuntime {
       }
       this.#skillSlotGroups.set(group.skillGroupKey, {
         baseSkillKey: group.baseSkillKey,
+        input,
+        defaultForInput,
         stableInputSkillKeys: new Set(stableInputSkillKeys),
         allowedSkillKeys,
         currentSkillKey: group.baseSkillKey,
       });
+      if (defaultForInput) {
+        if (this.#defaultSlotGroupByInput.has(input)) {
+          throw new Error(`multiple default ability skill slots use input '${input}'`);
+        }
+        this.#defaultSlotGroupByInput.set(input, group.skillGroupKey);
+      }
     }
   }
 
@@ -264,24 +305,216 @@ export class AbilitySystemRuntime implements FrameRuntime {
    * 按玩家操作解析当前槽位，并与时间轴块显式声明的具体技能核对。
    * 基础状态下，多段稳定输入各自保持身份；换槽后，同组玩家操作只会解析到当前替换技能。
    */
-  resolvePlayerInputSkill(expectedSkillKey: string): {
-    readonly accepted: boolean;
-    readonly actualSkillKey: string;
-  } {
+  resolvePlayerInputSkill(
+    expectedSkillKey: string,
+    action?: PlayerSkillInput,
+  ):
+    | { readonly status: 'matched'; readonly actualSkillKey: string }
+    | { readonly status: 'mismatched'; readonly actualSkillKey: string }
+    | { readonly status: 'unknown'; readonly reason: string } {
+    if (this.#playerActionRoutes !== undefined) {
+      const matchingInputs = Object.entries(this.#playerActionRoutes).flatMap(([input, route]) => {
+        if (route === undefined) return [];
+        if (action !== undefined && input !== action) return [];
+        if (route.kind === 'basicAttack') {
+          return route.skillKeys.includes(expectedSkillKey) ? [input as PlayerSkillInput] : [];
+        }
+        const group = this.#skillSlotGroups.get(route.skillSlotKey);
+        return group?.allowedSkillKeys.has(expectedSkillKey) === true
+          ? [input as PlayerSkillInput]
+          : [];
+      });
+      if (matchingInputs.length === 0) {
+        return {
+          status: 'unknown',
+          reason:
+            action === undefined
+              ? 'skill is not reachable from an imported player action route'
+              : `skill is not reachable from player action '${action}'`,
+        };
+      }
+      if (matchingInputs.length > 1) {
+        return { status: 'unknown', reason: 'skill is reachable from multiple player actions' };
+      }
+      const input = matchingInputs[0]!;
+      const route = this.#playerActionRoutes[input]!;
+      if (route.kind === 'skillSlot') {
+        const actualSkillKey = this.#skillSlotGroups.get(route.skillSlotKey)!.currentSkillKey;
+        return actualSkillKey === expectedSkillKey
+          ? { status: 'matched', actualSkillKey }
+          : { status: 'mismatched', actualSkillKey };
+      }
+      const mapped = this.#resolveCurrentBasicAttackMapping(expectedSkillKey);
+      if (mapped !== null) return mapped;
+      if (route.defaultSkillKey === undefined) {
+        return { status: 'unknown', reason: 'native basic-attack command mapping is not imported' };
+      }
+      return route.defaultSkillKey === expectedSkillKey
+        ? { status: 'matched', actualSkillKey: route.defaultSkillKey }
+        : { status: 'mismatched', actualSkillKey: route.defaultSkillKey };
+    }
+
     const groupKey = this.#slotGroupByAllowedSkill.get(expectedSkillKey);
     if (groupKey === undefined) {
-      return { accepted: true, actualSkillKey: expectedSkillKey };
+      return { status: 'matched', actualSkillKey: expectedSkillKey };
     }
     const group = this.#skillSlotGroups.get(groupKey)!;
-    const actualSkillKey =
-      group.currentSkillKey === group.baseSkillKey &&
-      group.stableInputSkillKeys.has(expectedSkillKey)
-        ? expectedSkillKey
-        : group.currentSkillKey;
-    return {
-      accepted: actualSkillKey === expectedSkillKey,
-      actualSkillKey,
-    };
+    if (group.currentSkillKey !== group.baseSkillKey) {
+      return group.currentSkillKey === expectedSkillKey
+        ? { status: 'matched', actualSkillKey: expectedSkillKey }
+        : { status: 'mismatched', actualSkillKey: group.currentSkillKey };
+    }
+
+    const groupHasInputEvidence = this.#skills.some(skill =>
+      skill.inputWindows?.commandMappings?.some(window => window.input === group.input),
+    );
+    if (!groupHasInputEvidence && group.stableInputSkillKeys.has(expectedSkillKey)) {
+      // 旧正式产物尚未重生成输入窗口；在原子迁移前不制造虚假诊断。
+      return { status: 'matched', actualSkillKey: expectedSkillKey };
+    }
+
+    const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
+    if (current !== null && current.currentTimelineFrame !== undefined) {
+      const frame = current.currentTimelineFrame;
+      const mappings = (current.inputWindows?.commandMappings ?? []).filter(
+        window =>
+          window.input === group.input && window.startFrame <= frame && frame <= window.endFrame,
+      );
+      const targets = new Set(mappings.map(mapping => mapping.targetSourceSkillId));
+      if (targets.size > 1) {
+        return {
+          status: 'unknown',
+          reason: 'multiple active command mappings have unresolved priority',
+        };
+      }
+      if (targets.size === 1) {
+        const target = [...targets][0]!;
+        if (target === null) {
+          return { status: 'unknown', reason: 'active command mapping has no direct skill route' };
+        }
+        const keys = this.#skillKeysByTransitionSkillId.get(target);
+        if (keys === undefined || keys.size !== 1) {
+          return { status: 'unknown', reason: `command mapping target '${target}' is not unique` };
+        }
+        const actualSkillKey = [...keys][0]!;
+        return actualSkillKey === expectedSkillKey
+          ? { status: 'matched', actualSkillKey }
+          : { status: 'mismatched', actualSkillKey };
+      }
+      if (current.inputWindows?.hasConditionalActions === true) {
+        return { status: 'unknown', reason: 'current skill has conditional input actions' };
+      }
+    }
+
+    // Skill 命令由 curNormalSkill / curComboSkill / curUltimateSkill 直接给出当前槽位技能；
+    // 只有 Attack 需要基础命令映射、普攻序列和模式覆盖证据。
+    if (group.input !== 'basicAttack') {
+      const actualSkillKey = group.currentSkillKey;
+      return actualSkillKey === expectedSkillKey
+        ? { status: 'matched', actualSkillKey }
+        : { status: 'mismatched', actualSkillKey };
+    }
+
+    if (!group.defaultForInput) {
+      return {
+        status: 'unknown',
+        reason: 'native basic-attack command mapping is not imported',
+      };
+    }
+    const defaultGroupKey = this.#defaultSlotGroupByInput.get(group.input);
+    if (defaultGroupKey === undefined) {
+      return { status: 'unknown', reason: `input '${group.input}' has no default skill slot` };
+    }
+    const actualSkillKey = this.#skillSlotGroups.get(defaultGroupKey)!.currentSkillKey;
+    return actualSkillKey === expectedSkillKey
+      ? { status: 'matched', actualSkillKey }
+      : { status: 'mismatched', actualSkillKey };
+  }
+
+  #resolveCurrentBasicAttackMapping(
+    expectedSkillKey: string,
+  ):
+    | { readonly status: 'matched'; readonly actualSkillKey: string }
+    | { readonly status: 'mismatched'; readonly actualSkillKey: string }
+    | { readonly status: 'unknown'; readonly reason: string }
+    | null {
+    const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
+    if (current === null || current.currentTimelineFrame === undefined) return null;
+    const frame = current.currentTimelineFrame;
+    const mappings = (current.inputWindows?.commandMappings ?? []).filter(
+      window =>
+        window.input === 'basicAttack' && window.startFrame <= frame && frame <= window.endFrame,
+    );
+    const targets = new Set(mappings.map(mapping => mapping.targetSourceSkillId));
+    if (targets.size > 1) {
+      return {
+        status: 'unknown',
+        reason: 'multiple active command mappings have unresolved priority',
+      };
+    }
+    if (targets.size === 0) {
+      return current.inputWindows?.hasConditionalActions === true
+        ? { status: 'unknown', reason: 'current skill has conditional input actions' }
+        : null;
+    }
+    const target = [...targets][0]!;
+    if (target === null) {
+      return { status: 'unknown', reason: 'active command mapping has no direct skill route' };
+    }
+    const keys = this.#skillKeysByTransitionSkillId.get(target);
+    if (keys === undefined || keys.size !== 1) {
+      return { status: 'unknown', reason: `command mapping target '${target}' is not unique` };
+    }
+    const actualSkillKey = [...keys][0]!;
+    return actualSkillKey === expectedSkillKey
+      ? { status: 'matched', actualSkillKey }
+      : { status: 'mismatched', actualSkillKey };
+  }
+
+  evaluatePlayerInputInterruption(
+    expectedSkillKey: string,
+    castId?: string,
+  ):
+    | { readonly status: 'allowed' }
+    | { readonly status: 'blocked'; readonly currentSkillKey: string }
+    | { readonly status: 'unknown'; readonly reason: string } {
+    const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
+    if (current === null) return { status: 'allowed' };
+    const next = this.#requireSkill(expectedSkillKey, castId, false);
+    const nextSourceSkillId = next.transitionSkillId ?? next.skillId;
+    const frame = current.currentTimelineFrame;
+    if (frame !== undefined) {
+      const explicitlyAllowed = (current.inputWindows?.allowedNextSkills ?? []).some(
+        window =>
+          window.startFrame <= frame &&
+          frame <= window.endFrame &&
+          window.sourceSkillIds.includes(nextSourceSkillId),
+      );
+      if (explicitlyAllowed) return { status: 'allowed' };
+    }
+    if (current.inputWindows === undefined) {
+      // 只有 exclusiveFrame 无法排除尚未迁移的 AllowedNextSkill 旁路。
+      return { status: 'allowed' };
+    }
+    if (next.skillType === 'plungingAttack') return { status: 'allowed' };
+    const priority = (skillType: SkillType): number =>
+      ({
+        basicAttack: 1,
+        finisher: 2,
+        plungingAttack: 2,
+        battleSkill: 2,
+        comboSkill: 5,
+        ultimate: 7,
+      })[skillType];
+    if (priority(next.skillType) > priority(current.skillType)) return { status: 'allowed' };
+    if (current.canInterrupt === true) return { status: 'allowed' };
+    if (current.canInterrupt === undefined) {
+      return { status: 'unknown', reason: 'current skill has no recovered interrupt boundary' };
+    }
+    if (current.inputWindows?.hasConditionalActions === true) {
+      return { status: 'unknown', reason: 'current skill has conditional next-skill actions' };
+    }
+    return { status: 'blocked', currentSkillKey: current.skillId };
   }
 
   canStartSkill(skillId: string, castId?: string, resolveSkillSlot = true): boolean {

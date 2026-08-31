@@ -38,6 +38,12 @@ import type { SkillSlotReplacementActionSource } from '../src/source/skillSlotAc
 import { parseOperatorRuntimeTemplateSource } from '../src/source/operatorRuntimeTemplate.ts';
 import { compileAbilitySystemBlackboardsSource } from '../src/compiler/abilitySystemBlackboards.ts';
 import { compileComboSkillConditionDefinitionSource } from '../src/compiler/comboSkillConditions.ts';
+import type {
+  OperatorPlayerActionRoutes,
+  OperatorSkillSlotDefinition,
+  PlayerActionRouteDefinition,
+  PlayerSkillInput,
+} from '../../../packages/game-data-contract/src/index.ts';
 
 /**
  * 整名候选规划：只读原始资源，不写正式目录、不载入旧生成 Operator。
@@ -67,6 +73,12 @@ export function planOperatorDefinition(
   const runtimeReplacementSkillKeys =
     optionalStrings(row.runtimeReplacementSkillKeys, `${args.slug}.runtimeReplacementSkillKeys`) ??
     [];
+  const playerActionRouting = parsePlayerActionRouting(
+    row.skillSlots,
+    row.playerActionRoutes,
+    `${args.slug}.playerActionRouting`,
+    new Set(entries.map(entry => entry.key)),
+  );
   const skills = Object.fromEntries(
     entries.map(entry => [
       entry.sourceFile,
@@ -198,6 +210,7 @@ export function planOperatorDefinition(
     foundation,
     activeSkills,
     runtimeReplacementSkillKeys,
+    ...(playerActionRouting === undefined ? {} : playerActionRouting),
     routedSkills,
     nativeMissingBlackboardZeroKeys: parseNativeMissingBlackboardZeroKeys(
       row.nativeMissingBlackboardZeroKeys,
@@ -496,6 +509,105 @@ function resolveBasePassiveLevelSource(
     );
   }
   return { kind: 'operatorSkillGroup' as const, levelSource: levelSources[0]! };
+}
+
+function parsePlayerActionRouting(
+  slotsValue: unknown,
+  routesValue: unknown,
+  path: string,
+  knownSkillKeys: ReadonlySet<string>,
+):
+  | {
+      readonly skillSlots: readonly OperatorSkillSlotDefinition[];
+      readonly playerActionRoutes: OperatorPlayerActionRoutes;
+    }
+  | undefined {
+  if (slotsValue === undefined && routesValue === undefined) return undefined;
+  if (slotsValue === undefined || routesValue === undefined) {
+    throw new Error(`${path}: skillSlots and playerActionRoutes must be provided together`);
+  }
+  const skillSlots = requireArray(slotsValue, `${path}.skillSlots`).map((value, index) => {
+    const slotPath = `${path}.skillSlots[${index}]`;
+    const slot = requireRecord(value, slotPath);
+    const expected = new Set(['key', 'baseSkillKey', 'replacementSkillKeys']);
+    if (slot.stableSkillKeys !== undefined) expected.add('stableSkillKeys');
+    requireExactFields(slot, expected, slotPath);
+    const baseSkillKey = requireNonEmptyString(slot.baseSkillKey, `${slotPath}.baseSkillKey`);
+    const stableSkillKeys = optionalStrings(
+      slot.stableSkillKeys,
+      `${slotPath}.stableSkillKeys`,
+    ) ?? [baseSkillKey];
+    const replacementSkillKeys =
+      optionalStrings(slot.replacementSkillKeys, `${slotPath}.replacementSkillKeys`) ?? [];
+    if (!stableSkillKeys.includes(baseSkillKey)) {
+      throw new Error(`${slotPath}.stableSkillKeys: must include baseSkillKey`);
+    }
+    const allKeys = [...stableSkillKeys, ...replacementSkillKeys];
+    if (new Set(allKeys).size !== allKeys.length) {
+      throw new Error(`${slotPath}: duplicate skill identity`);
+    }
+    for (const key of allKeys) {
+      if (!knownSkillKeys.has(key)) throw new Error(`${slotPath}: unknown skill '${key}'`);
+    }
+    return {
+      key: requireNonEmptyString(slot.key, `${slotPath}.key`),
+      baseSkillKey,
+      ...(slot.stableSkillKeys === undefined ? {} : { stableSkillKeys }),
+      replacementSkillKeys,
+    } satisfies OperatorSkillSlotDefinition;
+  });
+  const slotByKey = new Map(skillSlots.map(slot => [slot.key, slot] as const));
+  if (slotByKey.size !== skillSlots.length) throw new Error(`${path}.skillSlots: duplicate key`);
+
+  const routesRecord = requireRecord(routesValue, `${path}.playerActionRoutes`);
+  const inputs = ['basicAttack', 'battleSkill', 'comboSkill', 'ultimate'] as const;
+  requireExactFields(routesRecord, new Set(inputs), `${path}.playerActionRoutes`);
+  const playerActionRoutes: Partial<Record<PlayerSkillInput, PlayerActionRouteDefinition>> = {};
+  for (const input of inputs) {
+    const routePath = `${path}.playerActionRoutes.${input}`;
+    const route = requireRecord(routesRecord[input], routePath);
+    const kind = requireNonEmptyString(route.kind, `${routePath}.kind`);
+    if (kind === 'basicAttack') {
+      const expected = new Set(['kind', 'skillKeys']);
+      if (route.defaultSkillKey !== undefined) expected.add('defaultSkillKey');
+      requireExactFields(route, expected, routePath);
+      const skillKeys = optionalStrings(route.skillKeys, `${routePath}.skillKeys`) ?? [];
+      if (skillKeys.length === 0) throw new Error(`${routePath}.skillKeys: expected entries`);
+      for (const key of skillKeys) {
+        if (!knownSkillKeys.has(key)) throw new Error(`${routePath}: unknown skill '${key}'`);
+      }
+      const defaultSkillKey =
+        route.defaultSkillKey === undefined
+          ? undefined
+          : requireNonEmptyString(route.defaultSkillKey, `${routePath}.defaultSkillKey`);
+      if (defaultSkillKey !== undefined && !skillKeys.includes(defaultSkillKey)) {
+        throw new Error(`${routePath}.defaultSkillKey: must be included in skillKeys`);
+      }
+      playerActionRoutes[input] = {
+        kind: 'basicAttack',
+        skillKeys,
+        ...(defaultSkillKey === undefined ? {} : { defaultSkillKey }),
+      };
+      continue;
+    }
+    if (kind !== 'skillSlot') throw new Error(`${routePath}.kind: unsupported '${kind}'`);
+    requireExactFields(route, new Set(['kind', 'skillSlotKey']), routePath);
+    const skillSlotKey = requireNonEmptyString(route.skillSlotKey, `${routePath}.skillSlotKey`);
+    if (!slotByKey.has(skillSlotKey)) {
+      throw new Error(`${routePath}.skillSlotKey: unknown slot '${skillSlotKey}'`);
+    }
+    playerActionRoutes[input] = { kind: 'skillSlot', skillSlotKey };
+  }
+  const referencedSlots = Object.values(playerActionRoutes).flatMap(route =>
+    route?.kind === 'skillSlot' ? [route.skillSlotKey] : [],
+  );
+  if (new Set(referencedSlots).size !== referencedSlots.length) {
+    throw new Error(`${path}.playerActionRoutes: a skill slot is used by multiple actions`);
+  }
+  if (referencedSlots.length !== skillSlots.length) {
+    throw new Error(`${path}.skillSlots: every slot must be referenced exactly once`);
+  }
+  return { skillSlots, playerActionRoutes };
 }
 
 function optionalStrings(value: unknown, sourcePath: string): string[] | undefined {

@@ -289,6 +289,31 @@ describe('V2 project document', () => {
     }
   });
 
+  it('validates the optional semantic player action stored on operator skill casts', () => {
+    const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
+    const track = createTrack();
+    track.skillCasts.push({
+      id: 'cast:action',
+      source: {
+        kind: 'operatorSkill',
+        skillGroupKey: 'battleSkill',
+        skillKey: 'battleSkill',
+        action: 'battleSkill',
+      },
+      placement: { startFrame: 0 },
+    });
+    project.scenarios[0]!.tracks[0] = track;
+    expect(validateProjectDocument(project).ok).toBe(true);
+
+    (track.skillCasts[0]!.source as { action?: string }).action = 'slot-1';
+    const invalid = validateProjectDocument(project);
+    expect(invalid.ok).toBe(false);
+    if (invalid.ok) throw new Error('expected invalid project');
+    expect(invalid.issues).toContainEqual(
+      expect.objectContaining({ path: expect.stringContaining('.source.action') }),
+    );
+  });
+
   it('preserves native sequence order instead of using before/after damage flags', () => {
     const project = createEmptyProject({
       createdWith: 'test',

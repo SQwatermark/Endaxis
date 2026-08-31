@@ -1698,7 +1698,50 @@ function formatGuideNumber(value: number | null): string {
 
 function castWarningTitle(castId: string): string {
   const reasons = diagnosticsByCastId.value.get(castId);
-  return reasons === undefined || reasons.length === 0 ? '' : reasons.join(', ');
+  if (reasons === undefined || reasons.length === 0) return '';
+  return reasons
+    .map(reason => {
+      if (reason === 'resourceUnavailable') return '资源不足：时间轴仍会强制执行该技能';
+      if (reason === 'cooldownUnavailable') return '技能尚在冷却：时间轴仍会强制执行该技能';
+      if (reason === 'skillInputMismatch') return '该操作当前不会触发这个技能';
+      if (reason.startsWith('skillInputMismatch:')) {
+        const mismatch = /^skillInputMismatch: expected '(.+)', actual '(.+)'$/.exec(reason);
+        return mismatch === null
+          ? '操作实际会触发其他技能；时间轴仍执行已放置技能'
+          : `操作实际会触发 '${mismatch[2]}'，不是已放置的 '${mismatch[1]}'；时间轴仍执行已放置技能`;
+      }
+      if (reason === 'skillInputUnknown') return '缺少该操作的原生技能路由证据';
+      if (reason.startsWith('skillInputUnknown:'))
+        return `无法确定该操作会触发哪个技能：${formatPlayerInputEvidenceDetail(reason.slice('skillInputUnknown: '.length))}`;
+      if (reason === 'skillInterruptUnavailable') return '当前技能尚不能被该操作中断';
+      if (reason.startsWith('skillInterruptUnavailable:'))
+        return `当前技能尚不能被该操作中断（${reason.slice('skillInterruptUnavailable: '.length)}）；时间轴仍执行已放置技能`;
+      if (reason === 'skillInterruptUnknown') return '缺少当前技能的中断判定证据';
+      if (reason.startsWith('skillInterruptUnknown:'))
+        return `无法确定当前技能能否被中断：${formatPlayerInputEvidenceDetail(reason.slice('skillInterruptUnknown: '.length))}`;
+      return reason;
+    })
+    .join('\n');
+}
+
+function formatPlayerInputEvidenceDetail(detail: string): string {
+  if (detail === 'multiple active command mappings have unresolved priority')
+    return '同时生效的同优先级命令映射尚无可证明的仲裁顺序';
+  if (detail === 'active command mapping has no direct skill route')
+    return '当前命令映射没有直接技能路由';
+  if (detail === 'current skill has conditional input actions')
+    return '当前技能的输入路由位于未闭环的条件分支';
+  if (detail === 'special basic-attack selection state is not modelled')
+    return '处决或下落攻击所需的特殊普攻选择状态尚未建模';
+  if (detail === 'current skill has no recovered interrupt boundary')
+    return '当前技能缺少已恢复的不可中断边界';
+  if (detail === 'current skill has conditional next-skill actions')
+    return '当前技能的接续白名单位于未闭环的条件分支';
+  const mappingTarget = /^command mapping target '(.+)' is not unique$/.exec(detail);
+  if (mappingTarget !== null) return `命令映射目标 '${mappingTarget[1]}' 无法唯一对应到技能模板`;
+  const missingDefault = /^input '(.+)' has no default skill slot$/.exec(detail);
+  if (missingDefault !== null) return `操作 '${missingDefault[1]}' 没有默认技能槽位`;
+  return detail;
 }
 
 const castHitEffects = computed(() => {

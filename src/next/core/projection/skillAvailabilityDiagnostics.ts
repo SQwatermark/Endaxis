@@ -9,6 +9,9 @@ export const SKILL_AVAILABILITY_DIAGNOSTIC_REASONS = [
   'resourceUnavailable',
   'cooldownUnavailable',
   'skillInputMismatch',
+  'skillInputUnknown',
+  'skillInterruptUnavailable',
+  'skillInterruptUnknown',
 ] as const;
 
 /** UI 可按稳定枚举映射本地化文本，核心投影不携带显示文案。 */
@@ -24,12 +27,21 @@ export interface SkillAvailabilityDiagnostic {
   readonly receiptSequences: readonly number[];
   /** 槽位不一致时保留原生实际解析到的具体技能，供感叹号解释而不是只给枚举。 */
   readonly actualSkillId?: string;
+  /** 原生操作路由证据不足时的具体边界，不得折叠成普通不可用。 */
+  readonly inputResolutionDetail?: string;
+  /** 无法提前中断时正在执行的技能。 */
+  readonly currentSkillId?: string;
+  /** 中断判定缺少证据时的具体边界。 */
+  readonly interruptionDetail?: string;
 }
 
 function readReason(event: string): SkillAvailabilityDiagnosticReason | undefined {
   if (event === 'SkillCostUnavailableAtStart') return 'resourceUnavailable';
   if (event === 'SkillCooldownUnavailableAtStart') return 'cooldownUnavailable';
   if (event === 'SkillInputResolvedToDifferentSkill') return 'skillInputMismatch';
+  if (event === 'SkillInputResolutionUnknown') return 'skillInputUnknown';
+  if (event === 'SkillInputCannotInterruptCurrentSkill') return 'skillInterruptUnavailable';
+  if (event === 'SkillInputInterruptionUnknown') return 'skillInterruptUnknown';
   return undefined;
 }
 
@@ -38,15 +50,31 @@ export function projectSkillAvailabilityDiagnostics(
   entries: readonly CombatReceiptEntry[],
 ): readonly SkillAvailabilityDiagnostic[] {
   return reduceSkillDiagnostics(entries, readReason).map(diagnostic => {
-    if (!diagnostic.reasons.includes('skillInputMismatch')) return diagnostic;
-    const mismatch = entries.find(
-      entry =>
-        diagnostic.receiptSequences.includes(entry.sequence) &&
-        entry.event === 'SkillInputResolvedToDifferentSkill',
+    const related = entries.filter(entry => diagnostic.receiptSequences.includes(entry.sequence));
+    const mismatch = related.find(entry => entry.event === 'SkillInputResolvedToDifferentSkill');
+    const inputUnknown = related.find(entry => entry.event === 'SkillInputResolutionUnknown');
+    const interruptionBlocked = related.find(
+      entry => entry.event === 'SkillInputCannotInterruptCurrentSkill',
+    );
+    const interruptionUnknown = related.find(
+      entry => entry.event === 'SkillInputInterruptionUnknown',
     );
     const actualSkillId = mismatch?.data?.actualSkillId;
-    return typeof actualSkillId === 'string' && actualSkillId.length > 0
-      ? { ...diagnostic, actualSkillId }
-      : diagnostic;
+    const inputResolutionDetail = inputUnknown?.data?.reason;
+    const currentSkillId = interruptionBlocked?.data?.currentSkillId;
+    const interruptionDetail = interruptionUnknown?.data?.reason;
+    return {
+      ...diagnostic,
+      ...(typeof actualSkillId === 'string' && actualSkillId.length > 0 ? { actualSkillId } : {}),
+      ...(typeof inputResolutionDetail === 'string' && inputResolutionDetail.length > 0
+        ? { inputResolutionDetail }
+        : {}),
+      ...(typeof currentSkillId === 'string' && currentSkillId.length > 0
+        ? { currentSkillId }
+        : {}),
+      ...(typeof interruptionDetail === 'string' && interruptionDetail.length > 0
+        ? { interruptionDetail }
+        : {}),
+    };
   });
 }

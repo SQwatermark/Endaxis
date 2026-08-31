@@ -938,6 +938,40 @@
       "gameId": "AVYWENNA",
       "charId": "chr_0012_avywen",
       "outputStage": "complete",
+      "skillSlots": [
+        {
+          "key": "battleSkill",
+          "baseSkillKey": "battleSkill",
+          "replacementSkillKeys": []
+        },
+        {
+          "key": "comboSkill",
+          "baseSkillKey": "comboSkill",
+          "replacementSkillKeys": []
+        },
+        {
+          "key": "ultimate",
+          "baseSkillKey": "ultimate",
+          "replacementSkillKeys": []
+        }
+      ],
+      "playerActionRoutes": {
+        "basicAttack": {
+          "kind": "basicAttack",
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5",
+            "finisher",
+            "plungingAttack"
+          ]
+        },
+        "battleSkill": { "kind": "skillSlot", "skillSlotKey": "battleSkill" },
+        "comboSkill": { "kind": "skillSlot", "skillSlotKey": "comboSkill" },
+        "ultimate": { "kind": "skillSlot", "skillSlotKey": "ultimate" }
+      },
       "talents": [
         {
           "index": 0,

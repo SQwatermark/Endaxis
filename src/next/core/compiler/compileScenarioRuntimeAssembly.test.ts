@@ -108,11 +108,13 @@ describe('compileScenarioRuntimeAssembly', () => {
     const operator = compiled.operators[0]!;
     expect(operator.skills).toEqual([]);
     expect(compiled.inputs).toEqual([]);
-    expect(operator.skillSlotGroups).toContainEqual({
-      skillGroupKey: 'comboSkill',
-      baseSkillKey: 'comboSkill',
-      replacementSkillKeys: [],
-    });
+    expect(operator.skillSlotGroups).toContainEqual(
+      expect.objectContaining({
+        skillGroupKey: 'comboSkill',
+        baseSkillKey: 'comboSkill',
+        replacementSkillKeys: [],
+      }),
+    );
     const combo = operator.skillCooldownPrograms!.find(program => program.skillId === 'comboSkill');
     expect(combo).toMatchObject({
       operatorId: 'track:0',
@@ -168,11 +170,13 @@ describe('compileScenarioRuntimeAssembly', () => {
       ['comboSkill', 75],
       ['replacement', 165],
     ]);
-    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual({
-      skillGroupKey: 'comboSkill',
-      baseSkillKey: 'comboSkill',
-      replacementSkillKeys: ['replacement'],
-    });
+    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
+      expect.objectContaining({
+        skillGroupKey: 'comboSkill',
+        baseSkillKey: 'comboSkill',
+        replacementSkillKeys: ['replacement'],
+      }),
+    );
   });
 
   it('放置块自定义冷却不改模板目录，实际装配使用放置定义而非强制模板值', () => {

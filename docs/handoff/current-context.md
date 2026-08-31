@@ -1,6 +1,6 @@
 # 当前任务快照
 
-> 更新时间：2026-08-31（Asia/Shanghai）
+> 更新时间：2026-09-01（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
 > **当前有效生成口径：30/30 名干员具备完整正式定义，310/310 个声明为主动的技能已进入统一 TS
@@ -11,6 +11,53 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器已删除，需要对照时查 Git 历史。仅仍有独立
 证据价值、尚未 TS 化的敌人 rank 提取器保存在该工具的 `legacy/` 边界，不承载生产生成。
+
+### 2026-09-01：四种操作解析竖切与 HUD 证据贯通
+
+- 本轮已开始按复核后的四层边界改造：单技能定义、玩家语义动作路由、运行时槽位/可变 SkillType、
+  技能库分组。契约新增单技能 `skillType/levelSource`、独立 `skillSlots/playerActionRoutes`；新放置的
+  技能块保存 `source.action`，场景输入将其传到运行时，不再要求运行时从技能库组恢复动作。
+- 整名生成器会把养成组成员关系投影成单技能等级来源，并独立输出非普攻槽位和动作路由。Avywenna
+  已从固定测试来源重生成；四套类型检查、game-data **112 文件 / 1073 项**、Next **283 文件 /
+  3871 项**全绿。其他正式产物仍处于迁移兼容期，尚不能删除组字段回退。
+- 复核后进一步移除了生成期的隐式推导：`skillSlots/playerActionRoutes` 必须在转换配置中独立、完整、
+  严格登记，生成器不会再从 `skillGroups` 组装它们。Avywenna 是首个显式登记样板；后续应由
+  CharacterData 和 ChangeSkillAction 证据生成/审计这些配置。
+- 普攻 CharacterData 尚未成为正式输入：当前只输出可达候选，不设置默认技能。没有活动
+  `ComboCacheAction` 映射时必须诊断 unknown，不拿技能库第一项猜 A1。
+
+- 后续复核确认 Endaxis `SkillGroup` 不得参与模拟。原生 `CharGrowthTable.skillGroupMap` 只提供养成/
+  面板分组；`SkillDataBundle.defaultCmdMapping + normalAttackList` 与 `ModeData` 独立决定命令入口和模式覆盖。
+  庄方宜终结 Buff 明确执行 `SwitchModeAction("UltMode")`，而强化普攻位于原生 UltimateSkill 养成组。
+  因此只有由养成组成员关系编译出的等级来源落到每个 `SkillDefinition`；操作身份属于独立路由边，
+  原生 `SkillType` 属于可被 `ChangeSkillType` 改写的运行时状态。分组仅保留技能库展示和顺序放置。
+  当前已禁止用 `libraryPresentation` 推导普通攻击的基础入口；基础映射未导入时必须 unknown。
+- 1.4.4 原生路径已明确拆成三层：命令映射选技能、输入请求缓存、`AllowedNext`/中断门禁。
+  `AllowNextSkillAction` 只给提前接续白名单，绝不选择技能。更重要的纠正是：
+  `ComboCacheAction` 只有 `Attack` 映射的目标 ID 会决定实际技能；`NormalSkill/ComboSkill`
+  映射的 ID 随后被当前槽位覆盖，终结技不读该映射。详见
+  [四种玩家操作的技能解析与校验](../research/player-action-skill-resolution.md)。
+- 游戏数据契约、主动技能公共编译、整名定义生成、场景编译和技能运行时已贯通
+  `commandMappings + allowedNextSkills + conditional evidence`。运行时按操作解析实际技能，并按
+  显式 AllowedNext、下落攻击旁路、严格优先级和 `exclusiveFrame` 判断中断。不一致、无法中断与
+  证据不足分别写回执，感叹号 title 保留实际/当前技能和详细原因；时间轴仍强制执行明示块。
+- 强化普攻等 `variants` 已进入普攻操作候选集，使终结技内的 Attack 映射能解析到它们；弥弗
+  C2/C3 等战技仍依赖 Buff `ChangeSkillAction` 换槽，不误用 ComboCache 目标。
+- 本地 `tmp/game-data-sources` 的闭包与仓库正式产物已不一致：安塔尔首先阻塞于未审计的治疗 Buff 事件，
+  已能生成的干员也出现大量与本任务无关的漂移。已撤回这次尝试产物，不可用该 `tmp` 目录全量覆盖正式
+  定义。旧正式产物尚未携带 `inputWindows`，运行时有明确的过渡兼容门，不会制造虚假警告。
+- HUD 反编译已覆盖 `UIHeadBar/UIPoiseBar/MainCharHpBar/SquadIcon/SkillButton/ComboSkillPanel/GPUIBuffNode`。
+  敌人核心为生命、失衡、弱点、附着/普通 Buff；干员核心为生命、Buff/附着、被动 UI、终结状态；
+  技能按钮核心为当前槽位图标、冷却/可用性、能量和 Buff 进度。详见
+  [战斗 HUD 状态与 Endaxis 状态栏整合](../research/combat-hud-state-integration.md)。
+- 转换器原先严格读取却丢弃的 Buff HUD 字段已进入公共契约与投影：血条/普通技能/终结技进度、
+  弱样式、警告背景、主角限定和原生排序证据均保留到 Buff 回执。新增 UI 无关
+  `projectCombatStatusIndicators`，只按原生字段产生头顶普通/附着、队伍头像、血条进度和两类技能进度去向。
+- 当前已跑的定向门禁：操作解析 **8 文件 / 179 项**，Buff/HUD 贯通 **5 文件 / 126 项**。
+  仍需在本阶段结束前跑四套类型检查与完整回归，不可用定向结果声称整仓全绿。
+- 下一步：先用一致源恢复正式干员 `inputWindows` 并全量审计 A/C/E 连段、换槽技能与处决/下落未知状态；
+  同时从既有曲线和状态生命周期建立 `cursorFrame` HUD 快照，再把敌人快照接底部敌人状态栏、干员快照接轨道头部。
+  沉默/缴械等 `IsAvailable.CheckTag` 仍等待同版本预定义表生产输入，不猜。
 
 ### 2026-08-31：停止点——真实排轴迁移、状态栏证据与伊冯普攻连段
 

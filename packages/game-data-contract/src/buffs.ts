@@ -234,6 +234,16 @@ export interface CombatBuffPresentation {
   readonly showInHeadBarAttached?: boolean;
   readonly showInSquadIcon?: boolean;
   readonly onlyShowForMainCharacter?: boolean;
+  readonly blinkInMainCharHpBar?: boolean;
+  readonly showProgressInHpBar?: boolean;
+  readonly showProgressInNormalSkillButton?: boolean;
+  readonly useWeakProgressInNormalSkillButton?: boolean;
+  readonly showProgressInUltimateSkillButton?: boolean;
+  readonly forceRaiseIconEvent?: boolean;
+  readonly showWarningBackground?: boolean;
+  readonly playStrongInAnimation?: boolean;
+  readonly hasCharHpBarVfxType?: boolean;
+  readonly charHpBarVfxType?: string;
   readonly iconStyleInSquad?: string;
   readonly abnormalColorType?: string;
   readonly orderPriority?: {

@@ -230,14 +230,13 @@ describe('compileScenarioTimeline', () => {
     expect(compiled.operators[0]!.skills.map(skill => [skill.skillId, skill.castId])).toEqual([
       ['battleSkill', 'skillCast:1'],
     ]);
-    expect(compiled.operators[0]!.skillSlotGroups).toEqual([
-      {
+    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
+      expect.objectContaining({
         skillGroupKey: 'battleSkill',
         baseSkillKey: 'battleSkill',
         replacementSkillKeys: ['battleSkillVariant'],
-      },
-      { skillGroupKey: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    ]);
+      }),
+    );
 
     const explicit = placeSkillGroup({
       scenario: baseScenario,
@@ -286,12 +285,47 @@ describe('compileScenarioTimeline', () => {
       getOperator: slug => (slug === operator.slug ? operator : null),
     });
 
-    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual({
-      skillGroupKey: 'battleSkill',
-      baseSkillKey: 'battleSkill',
-      stableInputSkillKeys: ['battleSkill', 'battleSkillCombo'],
-      replacementSkillKeys: ['battleSkillEnd'],
+    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
+      expect.objectContaining({
+        skillGroupKey: 'battleSkill',
+        baseSkillKey: 'battleSkill',
+        stableInputSkillKeys: ['battleSkill', 'battleSkillCombo'],
+        replacementSkillKeys: ['battleSkillEnd'],
+      }),
+    );
+  });
+
+  it('does not infer native default input slots from library presentation groups', () => {
+    const scenario = createScenario();
+    const basicGroup = perlica.skillGroups.find(group => group.skillType === 'basicAttack')!;
+    const baseSkill = Array.isArray(basicGroup.skills) ? basicGroup.skills[0]! : basicGroup.skills;
+    const operator = {
+      ...perlica,
+      skillGroups: [
+        ...perlica.skillGroups,
+        {
+          key: 'enhancedBasicAttack',
+          skillType: 'basicAttack' as const,
+          levelSource: 'ultimate' as const,
+          libraryPresentation: 'enhanced' as const,
+          skills: [{ ...baseSkill, key: 'enhancedBasicAttack1' }],
+        },
+      ],
+    };
+
+    const compiled = compileScenarioTimeline(scenario, {
+      getOperator: slug => (slug === operator.slug ? operator : null),
     });
+
+    expect(compiled.operators[0]!.skillSlotGroups!.filter(group => group.defaultForInput)).toEqual(
+      [],
+    );
+    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
+      expect.objectContaining({
+        skillGroupKey: 'enhancedBasicAttack',
+        input: 'basicAttack',
+      }),
+    );
   });
 
   it('compiles a routed replacement with its execution type and level while keeping the slot identity', () => {
@@ -369,11 +403,13 @@ describe('compileScenarioTimeline', () => {
       kind: 'dealDamage',
       parameters: { attackScale: 7 },
     });
-    expect(compiled.operators[0]!.skillSlotGroups![0]).toEqual({
-      skillGroupKey: 'battleSkill',
-      baseSkillKey: 'battleSkill',
-      replacementSkillKeys: ['battleSkillRoutedToCombo'],
-    });
+    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
+      expect.objectContaining({
+        skillGroupKey: 'battleSkill',
+        baseSkillKey: 'battleSkill',
+        replacementSkillKeys: ['battleSkillRoutedToCombo'],
+      }),
+    );
   });
 
   it('preserves the declaration order of same-frame inputs', () => {

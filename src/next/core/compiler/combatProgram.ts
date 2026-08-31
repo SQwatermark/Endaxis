@@ -430,6 +430,8 @@ export interface CompiledSkillProgram {
   /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
   readonly timelineBlockFrames: number;
   readonly exclusiveFrame?: number;
+  /** 原生技能局部输入映射与接续窗口；已无等级值，运行时只读。 */
+  readonly inputWindows?: import('../game-data/operatorDefinition').SkillDefinition['inputWindows'];
   readonly cooldownFrames?: number;
   readonly costFrame?: number;
   readonly costs: readonly CompiledSkillCost[];
@@ -454,6 +456,7 @@ export type CompiledSkillCooldownProgram = Pick<
   | 'skillId'
   | 'sourceSkillId'
   | 'skillType'
+  | 'inputWindows'
   | 'cooldownFrames'
   | 'costFrame'
 >;
@@ -461,6 +464,9 @@ export type CompiledSkillCooldownProgram = Pick<
 /** 一个稳定技能组可在释放之间切换的已编译技能身份。 */
 export interface CompiledSkillSlotGroup {
   readonly skillGroupKey: string;
+  readonly input?: import('../game-data/operatorDefinition').PlayerSkillInput;
+  /** 处决和下落同属普攻操作，但不是无条件默认映射。 */
+  readonly defaultForInput?: boolean;
   /** 未发生槽位覆盖时保持各自时间轴存档身份的可放置入口；省略表示只有 baseSkillKey。 */
   readonly stableInputSkillKeys?: readonly string[];
   readonly baseSkillKey: string;

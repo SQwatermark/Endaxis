@@ -1,5 +1,24 @@
 # Endaxis Next 当前状态与路线图
 
+> **2026-09-01 最新：**四种操作的原生生产路径已拆成“选技能→提前接续/中断→完整可用性”三层。
+> `ComboCacheAction` 只有 Attack 映射目标决定实际技能；战技/连携的映射 ID 会被当前槽位覆盖，
+> 终结技不读该映射。Next 契约、TS 编译器、场景编译与运行时已贯通直连命令窗口和 AllowedNext 窗口；
+> 技能不一致、不能中断和证据不足均投影到具体块的可解释感叹号，但块仍强制执行。
+> 正式干员尚未用一致来源全量重生成；本地 `tmp` 闭包会引入大量无关漂移，已拒绝覆盖。规则与过渡边界见
+> [四种玩家操作的技能解析与校验](../research/player-action-skill-resolution.md)。
+> 进一步确认技能库 `SkillGroup` 只应影响展示与成组放置，不能给模拟提供操作身份、等级来源或默认
+> 命令。原生养成组、`SkillDataBundle` 命令/普攻序列和 `ModeData` 覆盖本就是三套结构；Next 将把
+> `skillType/levelSource` 下沉到单技能，并独立导入原生基础命令与模式定义。
+> 当前已落地契约和生成链：单技能身份、独立 `skillSlots/playerActionRoutes`、时间轴 `source.action`
+> 均已贯通，Avywenna 已重生成验证。下一步是修复一致来源后全量重生成并删除旧组字段兼容，再接入
+> CharacterData 的 `defaultCmdMapping/normalAttackList/ModeData`。
+>
+> 战斗 HUD 已对 1.4.4 的敌人头顶栏、主控/队员状态、技能按钮、连携提示与 Buff 节点完成字段级盘点。
+> 编译器已不再丢弃 Buff 的血条/技能进度、警告、主角限定与排序字段，并新增不依赖 UI 的
+> `statusIndicators` 投影。后续以 `cursorFrame` 对既有曲线/回执取样，敌人快照进底部状态栏，干员快照进轨道头部；
+> 不复制多敌人空间 HUD，不建模木桩不可观察的敌人攻击与受击视效。详见
+> [战斗 HUD 状态与 Endaxis 状态栏整合](../research/combat-hud-state-integration.md)。
+
 > **2026-08-31 最新停止点：**真实排轴迁移已进入逐 cast 对照阶段；伊冯基础攻击连段窗口已从
 > `AllowNextSkillAction` 的目标技能证据修正，普通五段块宽为 `16/14/20/24/37`，不再因 0 帧跳段
 > 路由黏在一起。该规则只在有序基础攻击组装配时生效，编译期路由证据不会进入运行时契约。

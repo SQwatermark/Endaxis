@@ -82,6 +82,7 @@ export * from './projection/poiseChangePoints';
 export * from './projection/poiseCurves';
 export * from './projection/resourceChangePoints';
 export * from './projection/resourceCurves';
+export * from './projection/combatStatusIndicators';
 export * from './projection/curveSampling';
 export * from './projection/enemyHealthChangePoints';
 export * from './projection/enemyHealthCurves';

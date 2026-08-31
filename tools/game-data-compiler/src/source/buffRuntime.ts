@@ -55,6 +55,16 @@ export interface BuffPresentationSource {
   readonly showInHeadBarAttached: boolean;
   readonly showInSquadIcon: boolean;
   readonly onlyShowForMainCharacter: boolean;
+  readonly blinkInMainCharHpBar: boolean;
+  readonly showProgressInHpBar: boolean;
+  readonly showProgressInNormalSkillButton: boolean;
+  readonly useWeakProgressInNormalSkillButton: boolean;
+  readonly showProgressInUltimateSkillButton: boolean;
+  readonly forceRaiseIconEvent: boolean;
+  readonly showWarningBackground: boolean;
+  readonly playStrongInAnimation: boolean;
+  readonly hasCharHpBarVfxType: boolean;
+  readonly charHpBarVfxType: string;
   readonly iconStyleInSquad: string;
   readonly abnormalColorType: string;
   readonly orderUseDirectoryValue: boolean;
@@ -616,20 +626,6 @@ function parsePresentation(
     new Set(['useDirectoryValue', 'priorityValue', 'priorityEnum']),
     `${sourcePath}.iconConfig._orderPriorityConfig`,
   );
-  // Read currently non-projected flags as well: a type drift or malformed value still fails here.
-  for (const field of [
-    'blinkInMainCharHpBar',
-    'showProgressInHpBar',
-    'showProgressInNormalSkillButton',
-    'useWeakProgressInNormalSkillButton',
-    'showProgressInUltimateSkillButton',
-    'forceRaiseIconEvent',
-    'showWarningBackground',
-    'playStrongInAnimation',
-    'hasCharHpBarVfxType',
-  ])
-    requireBoolean(icon[field], `${sourcePath}.iconConfig.${field}`);
-  requireNonEmptyString(icon.charHpBarVfxType, `${sourcePath}.iconConfig.charHpBarVfxType`);
   return {
     hasIcon: requireBoolean(root.hasIcon, `${sourcePath}.hasIcon`),
     spritePath: requireString(icon._spritePath, `${sourcePath}.iconConfig._spritePath`),
@@ -648,6 +644,46 @@ function parsePresentation(
     onlyShowForMainCharacter: requireBoolean(
       icon.onlyShowForMainCharacter,
       `${sourcePath}.iconConfig.onlyShowForMainCharacter`,
+    ),
+    blinkInMainCharHpBar: requireBoolean(
+      icon.blinkInMainCharHpBar,
+      `${sourcePath}.iconConfig.blinkInMainCharHpBar`,
+    ),
+    showProgressInHpBar: requireBoolean(
+      icon.showProgressInHpBar,
+      `${sourcePath}.iconConfig.showProgressInHpBar`,
+    ),
+    showProgressInNormalSkillButton: requireBoolean(
+      icon.showProgressInNormalSkillButton,
+      `${sourcePath}.iconConfig.showProgressInNormalSkillButton`,
+    ),
+    useWeakProgressInNormalSkillButton: requireBoolean(
+      icon.useWeakProgressInNormalSkillButton,
+      `${sourcePath}.iconConfig.useWeakProgressInNormalSkillButton`,
+    ),
+    showProgressInUltimateSkillButton: requireBoolean(
+      icon.showProgressInUltimateSkillButton,
+      `${sourcePath}.iconConfig.showProgressInUltimateSkillButton`,
+    ),
+    forceRaiseIconEvent: requireBoolean(
+      icon.forceRaiseIconEvent,
+      `${sourcePath}.iconConfig.forceRaiseIconEvent`,
+    ),
+    showWarningBackground: requireBoolean(
+      icon.showWarningBackground,
+      `${sourcePath}.iconConfig.showWarningBackground`,
+    ),
+    playStrongInAnimation: requireBoolean(
+      icon.playStrongInAnimation,
+      `${sourcePath}.iconConfig.playStrongInAnimation`,
+    ),
+    hasCharHpBarVfxType: requireBoolean(
+      icon.hasCharHpBarVfxType,
+      `${sourcePath}.iconConfig.hasCharHpBarVfxType`,
+    ),
+    charHpBarVfxType: requireNonEmptyString(
+      icon.charHpBarVfxType,
+      `${sourcePath}.iconConfig.charHpBarVfxType`,
     ),
     iconStyleInSquad: requireNonEmptyString(
       icon.iconStyleInSquad,

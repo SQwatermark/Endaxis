@@ -294,7 +294,7 @@ describe('AbilitySystemRuntime', () => {
     expect(ability.currentSkillId).toBe('battleSkillCombo');
   });
 
-  it('compares an explicitly placed player skill with the current slot result', () => {
+  it('keeps legacy stable inputs until evidence is present and still diagnoses active replacements', () => {
     const events: string[] = [];
     const ability = new AbilitySystemRuntime({
       skills: [
@@ -313,23 +313,131 @@ describe('AbilitySystemRuntime', () => {
     });
 
     expect(ability.resolvePlayerInputSkill('battleSkillCombo')).toEqual({
-      accepted: true,
+      status: 'matched',
       actualSkillKey: 'battleSkillCombo',
     });
     expect(ability.resolvePlayerInputSkill('battleSkillEnd')).toEqual({
-      accepted: false,
+      status: 'mismatched',
       actualSkillKey: 'battleSkill',
     });
 
     ability.changeSkillSlot('battleSkill', 'battleSkillEnd');
 
     expect(ability.resolvePlayerInputSkill('battleSkillCombo')).toEqual({
-      accepted: false,
+      status: 'mismatched',
       actualSkillKey: 'battleSkillEnd',
     });
     expect(ability.resolvePlayerInputSkill('battleSkillEnd')).toEqual({
-      accepted: true,
+      status: 'matched',
       actualSkillKey: 'battleSkillEnd',
+    });
+  });
+
+  it('resolves semantic actions from explicit routes instead of library groups', () => {
+    const events: string[] = [];
+    const ability = new AbilitySystemRuntime({
+      skills: [
+        new FixtureRuntime('battleSkill', events, 'battleSkill'),
+        new FixtureRuntime('enhancedBattleSkill', events, 'battleSkill'),
+      ],
+      skillSlotGroups: [
+        {
+          skillGroupKey: 'normalSkillSlot',
+          input: 'battleSkill',
+          baseSkillKey: 'battleSkill',
+          replacementSkillKeys: ['enhancedBattleSkill'],
+        },
+      ],
+      playerActionRoutes: {
+        battleSkill: { kind: 'skillSlot', skillSlotKey: 'normalSkillSlot' },
+      },
+    });
+
+    expect(ability.resolvePlayerInputSkill('battleSkill', 'battleSkill')).toEqual({
+      status: 'matched',
+      actualSkillKey: 'battleSkill',
+    });
+    ability.changeSkillSlot('normalSkillSlot', 'enhancedBattleSkill');
+    expect(ability.resolvePlayerInputSkill('battleSkill', 'battleSkill')).toEqual({
+      status: 'mismatched',
+      actualSkillKey: 'enhancedBattleSkill',
+    });
+    expect(ability.resolvePlayerInputSkill('enhancedBattleSkill', 'ultimate')).toEqual({
+      status: 'unknown',
+      reason: "skill is not reachable from player action 'ultimate'",
+    });
+  });
+
+  it('keeps an imported basic-attack route unknown until a native default mapping is present', () => {
+    const events: string[] = [];
+    const ability = new AbilitySystemRuntime({
+      skills: [new FixtureRuntime('attack1', events, 'basicAttack')],
+      playerActionRoutes: {
+        basicAttack: { kind: 'basicAttack', skillKeys: ['attack1'] },
+      },
+    });
+
+    expect(ability.resolvePlayerInputSkill('attack1', 'basicAttack')).toEqual({
+      status: 'unknown',
+      reason: 'native basic-attack command mapping is not imported',
+    });
+  });
+
+  it('resolves a chained input from native command mapping and allowed-next windows', () => {
+    const events: string[] = [];
+    let frame = 5;
+    const first = new FixtureRuntime('attack1', events, 'basicAttack');
+    Object.defineProperties(first, {
+      transitionSkillId: { value: 'native.attack1' },
+      currentTimelineFrame: { get: () => frame },
+      canInterrupt: { get: () => false },
+      inputWindows: {
+        value: {
+          commandMappings: [
+            {
+              startFrame: 5,
+              endFrame: 10,
+              input: 'basicAttack',
+              targetSourceSkillId: 'native.attack2',
+            },
+          ],
+          allowedNextSkills: [{ startFrame: 7, endFrame: 10, sourceSkillIds: ['native.attack2'] }],
+        },
+      },
+    });
+    const second = new FixtureRuntime('attack2', events, 'basicAttack');
+    Object.defineProperty(second, 'transitionSkillId', { value: 'native.attack2' });
+    const ability = new AbilitySystemRuntime({
+      skills: [first, second],
+      skillSlotGroups: [
+        {
+          skillGroupKey: 'basicAttack',
+          input: 'basicAttack',
+          defaultForInput: true,
+          baseSkillKey: 'attack1',
+          stableInputSkillKeys: ['attack1', 'attack2'],
+          replacementSkillKeys: [],
+        },
+      ],
+    });
+
+    ability.tryStartSkill('attack1');
+    expect(ability.resolvePlayerInputSkill('attack2')).toEqual({
+      status: 'matched',
+      actualSkillKey: 'attack2',
+    });
+    expect(ability.evaluatePlayerInputInterruption('attack2')).toEqual({
+      status: 'blocked',
+      currentSkillKey: 'attack1',
+    });
+
+    frame = 7;
+    expect(ability.evaluatePlayerInputInterruption('attack2')).toEqual({ status: 'allowed' });
+
+    frame = 11;
+    expect(ability.resolvePlayerInputSkill('attack2')).toEqual({
+      status: 'mismatched',
+      actualSkillKey: 'attack1',
     });
   });
 

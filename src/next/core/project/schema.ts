@@ -104,6 +104,8 @@ export type DefinitionActionSource = {
   kind: 'operatorSkill';
   skillGroupKey: string;
   skillKey: string;
+  /** 玩家尝试执行的四类语义动作；新放置块必须保存，旧项目可在路由唯一时恢复。 */
+  action?: import('../game-data/operatorDefinition').PlayerSkillInput;
 };
 
 /**

@@ -84,6 +84,44 @@ describe('projectBuffTimelineViz', () => {
     expect(projectBuffTimelineViz([applied(0, 10, 'enemy', 1, 1, false)], 90)).toEqual([]);
   });
 
+  it('保留 HUD 分流、进度和排序证据', () => {
+    const entry = applied(0, 10, 'operator:1', 1, 2);
+    expect(
+      projectBuffTimelineViz(
+        [
+          {
+            ...entry,
+            data: {
+              ...entry.data,
+              showInSquadIcon: true,
+              onlyShowForMainCharacter: true,
+              showProgressInNormalSkillButton: true,
+              useWeakProgressInNormalSkillButton: true,
+              showWarningBackground: true,
+              iconStyleInSquad: 'LifeTime',
+              abnormalColorType: 'Fire',
+              orderUseDirectoryValue: false,
+              orderPriorityValue: 12,
+              orderPriorityCategory: 'CommonCharBuff',
+            },
+          },
+        ],
+        90,
+      )[0],
+    ).toMatchObject({
+      showInSquadIcon: true,
+      onlyShowForMainCharacter: true,
+      showProgressInNormalSkillButton: true,
+      useWeakProgressInNormalSkillButton: true,
+      showWarningBackground: true,
+      iconStyleInSquad: 'LifeTime',
+      abnormalColorType: 'Fire',
+      orderUseDirectoryValue: false,
+      orderPriorityValue: 12,
+      orderPriorityCategory: 'CommonCharBuff',
+    });
+  });
+
   it('projects child presentation lifetimes without inventing runtime Buff instances', () => {
     const entries: CombatReceiptEntry[] = [
       {

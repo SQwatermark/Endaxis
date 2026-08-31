@@ -16,6 +16,20 @@ export interface BuffTimelineSegment {
   readonly nameKey?: string;
   readonly iconId?: string;
   readonly iconPath?: string;
+  readonly showInHeadBarCommon?: boolean;
+  readonly showInHeadBarAttached?: boolean;
+  readonly showInSquadIcon?: boolean;
+  readonly onlyShowForMainCharacter?: boolean;
+  readonly showProgressInHpBar?: boolean;
+  readonly showProgressInNormalSkillButton?: boolean;
+  readonly useWeakProgressInNormalSkillButton?: boolean;
+  readonly showProgressInUltimateSkillButton?: boolean;
+  readonly showWarningBackground?: boolean;
+  readonly iconStyleInSquad?: string;
+  readonly abnormalColorType?: string;
+  readonly orderUseDirectoryValue?: boolean;
+  readonly orderPriorityValue?: number;
+  readonly orderPriorityCategory?: string;
 }
 
 export interface PositionedBuffTimelineSegment extends BuffTimelineSegment {
@@ -58,6 +72,14 @@ function optionalString(
 ): string | undefined {
   const value = data[key];
   return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function optionalBoolean(
+  data: Readonly<Record<string, CombatReceiptValue>>,
+  key: string,
+): boolean | undefined {
+  const value = data[key];
+  return typeof value === 'boolean' ? value : undefined;
 }
 
 function instanceKey(targetId: string, buffId: string, instanceId: number): string {
@@ -140,11 +162,49 @@ export function projectBuffTimelineViz(
       ...(optionalString(data, 'iconPath') === undefined
         ? {}
         : { iconPath: optionalString(data, 'iconPath') }),
+      ...copyOptionalBoolean(data, 'showInHeadBarCommon'),
+      ...copyOptionalBoolean(data, 'showInHeadBarAttached'),
+      ...copyOptionalBoolean(data, 'showInSquadIcon'),
+      ...copyOptionalBoolean(data, 'onlyShowForMainCharacter'),
+      ...copyOptionalBoolean(data, 'showProgressInHpBar'),
+      ...copyOptionalBoolean(data, 'showProgressInNormalSkillButton'),
+      ...copyOptionalBoolean(data, 'useWeakProgressInNormalSkillButton'),
+      ...copyOptionalBoolean(data, 'showProgressInUltimateSkillButton'),
+      ...copyOptionalBoolean(data, 'showWarningBackground'),
+      ...(optionalString(data, 'iconStyleInSquad') === undefined
+        ? {}
+        : { iconStyleInSquad: optionalString(data, 'iconStyleInSquad') }),
+      ...(optionalString(data, 'abnormalColorType') === undefined
+        ? {}
+        : { abnormalColorType: optionalString(data, 'abnormalColorType') }),
+      ...copyOptionalBoolean(data, 'orderUseDirectoryValue'),
+      ...(optionalNumber(data, 'orderPriorityValue') === undefined
+        ? {}
+        : { orderPriorityValue: optionalNumber(data, 'orderPriorityValue') }),
+      ...(optionalString(data, 'orderPriorityCategory') === undefined
+        ? {}
+        : { orderPriorityCategory: optionalString(data, 'orderPriorityCategory') }),
     });
   }
   return [...closed, ...open.values()].sort(
     (left, right) => left.startFrame - right.startFrame || left.instanceId - right.instanceId,
   );
+}
+
+function optionalNumber(
+  data: Readonly<Record<string, CombatReceiptValue>>,
+  key: string,
+): number | undefined {
+  const value = data[key];
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+function copyOptionalBoolean(
+  data: Readonly<Record<string, CombatReceiptValue>>,
+  key: string,
+): Readonly<Record<string, boolean>> {
+  const value = optionalBoolean(data, key);
+  return value === undefined ? {} : { [key]: value };
 }
 
 /** 复刻旧版的紧凑排布：同一行不重叠即可复用，避免无意义地撑高轨道。 */

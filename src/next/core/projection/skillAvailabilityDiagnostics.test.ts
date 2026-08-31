@@ -97,6 +97,33 @@ describe('projectSkillAvailabilityDiagnostics', () => {
     ]);
   });
 
+  it('保留操作路由与中断证据的具体解释', () => {
+    expect(
+      projectSkillAvailabilityDiagnostics([
+        receipt(10, 'SkillInputResolutionUnknown', {
+          data: { skillId: 'battleSkill', reason: 'conditional input route' },
+        }),
+        receipt(11, 'SkillInputCannotInterruptCurrentSkill', {
+          data: { skillId: 'battleSkill', currentSkillId: 'basicAttack2' },
+        }),
+        receipt(12, 'SkillInputInterruptionUnknown', {
+          data: { skillId: 'battleSkill', reason: 'missing interrupt boundary' },
+        }),
+      ]),
+    ).toEqual([
+      {
+        frame: 12,
+        sourceId: 'perlica',
+        skillId: 'battleSkill',
+        reasons: ['skillInputUnknown', 'skillInterruptUnavailable', 'skillInterruptUnknown'],
+        receiptSequences: [10, 11, 12],
+        inputResolutionDetail: 'conditional input route',
+        currentSkillId: 'basicAttack2',
+        interruptionDetail: 'missing interrupt boundary',
+      },
+    ]);
+  });
+
   it('拒绝无法定位到动作的可用性事实', () => {
     expect(() =>
       projectSkillAvailabilityDiagnostics([

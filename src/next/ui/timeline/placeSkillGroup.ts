@@ -4,6 +4,7 @@
  */
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import type { ScenarioDocument, SkillCastDocument, TrackIndex } from '../../core/project/schema';
+import { resolveUniquePlayerActionForSkill } from '../../core/game-data/resolvePlayerActionRoute';
 
 /** 放置命令生成稳定文档身份所需的端口。 */
 export type TimelineDocumentIdKind =
@@ -103,9 +104,15 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
 
   skills.forEach(skill => {
     const skillCastId = input.ids.allocate('skillCast');
+    const action = resolveUniquePlayerActionForSkill(input.operator, skill.key);
     created.push({
       id: skillCastId,
-      source: { kind: 'operatorSkill', skillGroupKey: group.key, skillKey: skill.key },
+      source: {
+        kind: 'operatorSkill',
+        skillGroupKey: group.key,
+        skillKey: skill.key,
+        ...(action === undefined ? {} : { action }),
+      },
       placement: { startFrame: nextStartFrame },
     });
     nextStartFrame += skill.timelineBlockFrames;

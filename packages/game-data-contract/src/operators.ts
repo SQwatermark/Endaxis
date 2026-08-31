@@ -314,6 +314,10 @@ export interface OperatorDefinition {
   /** 仅记录偏离全局 `[10, 15, 15, 20]` 主属性规则的干员。 */
   trustAttributeBonus?: TrustAttributeBonusDefinition;
   skillGroups: readonly SkillGroupDefinition[];
+  /** 战斗时可被 Buff/Mode 改写的技能槽；独立于技能库分组。 */
+  skillSlots?: readonly import('./skills.ts').OperatorSkillSlotDefinition[];
+  /** 四类玩家语义动作的原生路由；缺失边必须诊断为 unknown。 */
+  playerActionRoutes?: import('./skills.ts').OperatorPlayerActionRoutes;
   /** 旧项目技能身份到当前规范身份的只读兼容映射；不得作为技能库中的额外入口展示。 */
   skillAliases?: readonly {
     readonly from: readonly [skillGroupKey: string, skillKey: string];

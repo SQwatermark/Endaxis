@@ -138,6 +138,53 @@ const invalidMainCharacterRay = () =>
     useLastHitForEffect: false,
   });
 
+describe('player input windows', () => {
+  it('retains direct command mapping and allowed-next lifetimes outside combat steps', () => {
+    const comboCache = meta('ComboCacheAction', {
+      mappingDataList: [
+        {
+          cmdType: 'Attack',
+          skillId: 'native.attack2',
+          cacheEndByAction: true,
+          clearOffsetTargetSkillIdOnEnd: false,
+          overrideCacheTime: true,
+          cacheTime: scalarFixture(0.2),
+        },
+        {
+          cmdType: 'NormalSkill',
+          skillId: 'native.normal2',
+          cacheEndByAction: true,
+          clearOffsetTargetSkillIdOnEnd: false,
+          overrideCacheTime: true,
+          cacheTime: scalarFixture(0.2),
+        },
+      ],
+    });
+    const allowNext = meta('AllowNextSkillAction', {
+      allowedSkillIdList: ['native.attack2'],
+    });
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([comboCache, allowNext]),
+      sourcePath: 'active.input-windows',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+    });
+
+    expect(result.inputWindows).toEqual({
+      commandMappings: [
+        {
+          startFrame: 5,
+          endFrame: 8,
+          input: 'basicAttack',
+          targetSourceSkillId: 'native.attack2',
+        },
+      ],
+      allowedNextSkills: [{ startFrame: 5, endFrame: 8, sourceSkillIds: ['native.attack2'] }],
+    });
+    expect(result.scheduledSequences).toEqual([]);
+  });
+});
+
 function tangtangTargetPostProcessor(
   overrides: Record<string, unknown> = {},
 ): Record<string, unknown> {

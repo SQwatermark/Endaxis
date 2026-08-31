@@ -63,6 +63,7 @@ export interface CompiledActiveSkillRuntimeProjectionSource {
     readonly skillIds: readonly string[];
     readonly direct: boolean;
   }[];
+  readonly inputWindows?: SkillDefinition['inputWindows'];
   readonly blackboard: NonNullable<SkillDefinition['blackboard']>;
   readonly scheduledSequences: readonly CompiledActiveSkillTimelineSequenceSource[];
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
@@ -742,6 +743,59 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
       ];
     });
   });
+  const commandMappings: Array<
+    NonNullable<NonNullable<SkillDefinition['inputWindows']>['commandMappings']>[number]
+  > = [];
+  const allowedNextSkills: Array<
+    NonNullable<NonNullable<SkillDefinition['inputWindows']>['allowedNextSkills']>[number]
+  > = [];
+  let hasConditionalInputActions = false;
+  for (const timeline of graph.actionGroup.timelineActions) {
+    const directNodes = new Set(timeline.sequence.actions);
+    for (const node of collectNativeActionNodes(timeline.sequence)) {
+      if (
+        !node.metadata.enabled ||
+        node.body.kind !== 'leaf' ||
+        node.body.value.family !== 'inputControl'
+      ) {
+        continue;
+      }
+      const action = node.body.value.action;
+      if (action.kind !== 'comboCache' && action.kind !== 'allowNextSkill') continue;
+      if (!directNodes.has(node)) {
+        hasConditionalInputActions = true;
+        continue;
+      }
+      if (action.kind === 'allowNextSkill') {
+        allowedNextSkills.push({
+          startFrame: timeline.startFrame,
+          endFrame: timeline.endFrame,
+          sourceSkillIds: action.skillIds,
+        });
+        continue;
+      }
+      for (const mapping of action.mappings) {
+        // RefreshNextSkillRequest 只让 Attack 映射的 skillId 决定实际技能。
+        // NormalSkill/ComboSkill 映射仅供缓存配置，随后会被当前槽位 ID 覆盖；
+        // UltimateSkill 则直接以当前终结技构造请求。
+        if (mapping.commandType !== 'Attack') continue;
+        commandMappings.push({
+          startFrame: timeline.startFrame,
+          endFrame: timeline.endFrame,
+          input: 'basicAttack',
+          targetSourceSkillId: mapping.skillId.length === 0 ? null : mapping.skillId,
+        });
+      }
+    }
+  }
+  const inputWindows: SkillDefinition['inputWindows'] | undefined =
+    commandMappings.length === 0 && allowedNextSkills.length === 0 && !hasConditionalInputActions
+      ? undefined
+      : {
+          ...(commandMappings.length === 0 ? {} : { commandMappings }),
+          ...(allowedNextSkills.length === 0 ? {} : { allowedNextSkills }),
+          ...(hasConditionalInputActions ? { hasConditionalActions: true } : {}),
+        };
   const context = {
     ...input.context,
     staticEnemyTargetGroupKeys,
@@ -820,6 +874,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     ),
     exclusiveFrame,
     allowNextSkillTransitions,
+    ...(inputWindows === undefined ? {} : { inputWindows }),
     // combat-spec skill-blackboard：动态声明也进入实例初值；补丁同名键后覆盖。
     // 此处位于动作投影输出边界，不能回灌到上面的静态解析环境消除动态引用。
     blackboard: {

@@ -40,6 +40,7 @@ import {
 export type { ValidationIssue } from './validationHelpers';
 
 const damageElements = new Set<string>(DAMAGE_ELEMENTS);
+const playerSkillInputs = new Set<string>(['basicAttack', 'battleSkill', 'comboSkill', 'ultimate']);
 
 function validateProjectTemplateRecord(
   value: unknown,
@@ -189,6 +190,9 @@ function validateSkillCast(
     if (sourceKind === 'operatorSkill') {
       requireString(value.source, 'skillGroupKey', sourcePath, issues);
       requireString(value.source, 'skillKey', sourcePath, issues);
+      if (value.source.action !== undefined) {
+        requireEnum(value.source.action, playerSkillInputs, `${sourcePath}.action`, issues);
+      }
     } else if (sourceKind === 'custom') {
       requireString(value.source, 'actionType', sourcePath, issues);
       requireString(value.source, 'name', sourcePath, issues);

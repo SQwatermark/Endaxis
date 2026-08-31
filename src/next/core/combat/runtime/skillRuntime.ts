@@ -388,6 +388,10 @@ export class SkillRuntime {
     return this.#passedFrames > this.#program.exclusiveFrame + 0.0003;
   }
 
+  get inputWindows(): CompiledSkillProgram['inputWindows'] {
+    return this.#program.inputWindows;
+  }
+
   get currentTimelineFrame(): number {
     return roundToEven(this.#passedFrames);
   }

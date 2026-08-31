@@ -28,6 +28,7 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
 > & {
   /** 仅供整名技能组装配；生成最终 OperatorDefinition 前必须移除。 */
   readonly allowNextSkillTransitions: CompiledActiveSkillRuntimeProjectionSource['allowNextSkillTransitions'];
+  readonly inputWindows?: SkillDefinition['inputWindows'];
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   readonly switchToBuffCast?: NonNullable<SkillDefinition['switchToBuffCast']>;
   readonly costs?: readonly Readonly<SkillCostDefinition>[];
@@ -60,6 +61,7 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
     timelineBlockFrames: runtime.timelineBlockFrames,
     exclusiveFrame: runtime.exclusiveFrame,
     allowNextSkillTransitions: runtime.allowNextSkillTransitions,
+    ...(runtime.inputWindows === undefined ? {} : { inputWindows: runtime.inputWindows }),
     costFrame,
     scheduledSequences: runtime.scheduledSequences.map(item => ({
       startFrame: item.startFrame,

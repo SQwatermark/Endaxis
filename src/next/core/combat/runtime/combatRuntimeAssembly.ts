@@ -133,6 +133,8 @@ export interface CombatOperatorProgram {
   readonly abilityEntityDefinitions?: Readonly<Record<string, ResolvedAbilityEntityDefinition>>;
   /** 稳定技能组的基础形态与不可直接放置的运行时替换形态。 */
   readonly skillSlotGroups?: readonly CompiledSkillSlotGroup[];
+  /** 四类语义动作的显式技能请求路由；运行时不得从技能库分组恢复。 */
+  readonly playerActionRoutes?: import('../../game-data/operatorDefinition').OperatorPlayerActionRoutes;
   /** 构筑启用的养成初始化行为；在 Buff 生命周期装配后执行一次。 */
   readonly initializationPrograms?: readonly CompiledOperatorInitializationProgram[];
   /** 构筑启用的常驻被动；按声明顺序在战斗装配完成后启用一次。 */
@@ -746,6 +748,7 @@ export class CombatRuntimeAssembly {
             },
           })),
           skillSlotGroups: runtimeOperator.skillSlotGroups,
+          playerActionRoutes: runtimeOperator.playerActionRoutes,
           actionRuntime: operator.actionRuntime,
           beforePostSkillCastStart: request => {
             this.#prepareSkillStart(
@@ -1098,8 +1101,8 @@ export class CombatRuntimeAssembly {
         clock: this.clock,
         inputs: options.inputs ?? [],
         receipt: this.receipt,
-        tryStartSkill: (operatorId, skillId, castId) =>
-          this.tryStartPlayerInput(operatorId, skillId, castId),
+        tryStartSkill: (operatorId, skillId, castId, action) =>
+          this.tryStartPlayerInput(operatorId, skillId, castId, action),
       });
       this.simulation.add(inputRuntime);
       for (const operator of options.operators) {
@@ -1131,10 +1134,15 @@ export class CombatRuntimeAssembly {
   }
 
   /** 玩家时间轴输入记录原生槽位解析差异，但始终执行块中显式声明的技能。 */
-  tryStartPlayerInput(operatorId: string, expectedSkillId: string, castId?: string): boolean {
+  tryStartPlayerInput(
+    operatorId: string,
+    expectedSkillId: string,
+    castId?: string,
+    action?: import('../../game-data/operatorDefinition').PlayerSkillInput,
+  ): boolean {
     const ability = this.#requireAbilitySystem(operatorId);
-    const resolution = ability.resolvePlayerInputSkill(expectedSkillId);
-    if (!resolution.accepted) {
+    const resolution = ability.resolvePlayerInputSkill(expectedSkillId, action);
+    if (resolution.status === 'mismatched') {
       this.receipt.record({
         frame: this.clock.frame,
         time: this.clock.time,
@@ -1143,6 +1151,53 @@ export class CombatRuntimeAssembly {
         data: {
           skillId: expectedSkillId,
           actualSkillId: resolution.actualSkillKey,
+          ...(castId === undefined ? {} : { castId }),
+        },
+      });
+    } else if (resolution.status === 'unknown') {
+      this.receipt.record({
+        frame: this.clock.frame,
+        time: this.clock.time,
+        event: 'SkillInputResolutionUnknown',
+        sourceId: operatorId,
+        data: {
+          skillId: expectedSkillId,
+          reason: resolution.reason,
+          ...(castId === undefined ? {} : { castId }),
+        },
+      });
+    }
+    // 原生先解析操作实际指向的技能，再对该技能执行中断门禁。时间轴块即使不一致
+    // 仍会被强制执行，但诊断不能拿块中期望技能冒充原生请求。
+    const interruptionSkillId =
+      resolution.status === 'unknown' ? expectedSkillId : resolution.actualSkillKey;
+    const interruption = ability.evaluatePlayerInputInterruption(
+      interruptionSkillId,
+      interruptionSkillId === expectedSkillId ? castId : undefined,
+    );
+    if (interruption.status === 'blocked') {
+      this.receipt.record({
+        frame: this.clock.frame,
+        time: this.clock.time,
+        event: 'SkillInputCannotInterruptCurrentSkill',
+        sourceId: operatorId,
+        data: {
+          skillId: expectedSkillId,
+          assessedSkillId: interruptionSkillId,
+          currentSkillId: interruption.currentSkillKey,
+          ...(castId === undefined ? {} : { castId }),
+        },
+      });
+    } else if (interruption.status === 'unknown') {
+      this.receipt.record({
+        frame: this.clock.frame,
+        time: this.clock.time,
+        event: 'SkillInputInterruptionUnknown',
+        sourceId: operatorId,
+        data: {
+          skillId: expectedSkillId,
+          assessedSkillId: interruptionSkillId,
+          reason: interruption.reason,
           ...(castId === undefined ? {} : { castId }),
         },
       });

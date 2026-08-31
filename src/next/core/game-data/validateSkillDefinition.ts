@@ -33,6 +33,7 @@ import {
   SP_GAIN_KINDS,
   SP_GAIN_SOURCES,
   SKILL_TYPES,
+  SKILL_LEVEL_SOURCES,
   STATUS_MODIFIER_KINDS,
   TIME_DILATION_IGNORE_TARGETS,
   TIME_DILATION_ENTITY_TARGETS,
@@ -78,6 +79,7 @@ const SP_GAIN_KINDS_SET = new Set<string>(SP_GAIN_KINDS);
 const SP_GAIN_SOURCES_SET = new Set<string>(SP_GAIN_SOURCES);
 const STATUS_MODIFIER_KINDS_SET = new Set<string>(STATUS_MODIFIER_KINDS);
 const SKILL_TYPES_SET = new Set<string>(SKILL_TYPES);
+const SKILL_LEVEL_SOURCES_SET = new Set<string>(SKILL_LEVEL_SOURCES);
 const ACTION_VALUE_OPERATIONS_SET = new Set<string>(ACTION_VALUE_OPERATIONS);
 const ACTION_VALUE_CALCULATION_OPERATIONS_SET = new Set<string>(
   ACTION_VALUE_CALCULATION_OPERATIONS,
@@ -1850,6 +1852,16 @@ function validateCombatStep(
                       'showInHeadBarAttached',
                       'showInSquadIcon',
                       'onlyShowForMainCharacter',
+                      'blinkInMainCharHpBar',
+                      'showProgressInHpBar',
+                      'showProgressInNormalSkillButton',
+                      'useWeakProgressInNormalSkillButton',
+                      'showProgressInUltimateSkillButton',
+                      'forceRaiseIconEvent',
+                      'showWarningBackground',
+                      'playStrongInAnimation',
+                      'hasCharHpBarVfxType',
+                      'charHpBarVfxType',
                       'iconStyleInSquad',
                       'abnormalColorType',
                       'orderPriority',
@@ -1870,7 +1882,13 @@ function validateCombatStep(
                     out,
                   );
                 }
-                for (const key of ['nameKey', 'iconId', 'iconStyleInSquad', 'abnormalColorType']) {
+                for (const key of [
+                  'nameKey',
+                  'iconId',
+                  'iconStyleInSquad',
+                  'abnormalColorType',
+                  'charHpBarVfxType',
+                ]) {
                   if (presentationRecord[key] !== undefined) {
                     requireString(
                       presentationRecord,
@@ -1886,6 +1904,15 @@ function validateCombatStep(
                   'showInHeadBarAttached',
                   'showInSquadIcon',
                   'onlyShowForMainCharacter',
+                  'blinkInMainCharHpBar',
+                  'showProgressInHpBar',
+                  'showProgressInNormalSkillButton',
+                  'useWeakProgressInNormalSkillButton',
+                  'showProgressInUltimateSkillButton',
+                  'forceRaiseIconEvent',
+                  'showWarningBackground',
+                  'playStrongInAnimation',
+                  'hasCharHpBarVfxType',
                 ]) {
                   if (presentationRecord[key] !== undefined) {
                     requireBoolean(
@@ -3222,6 +3249,9 @@ export function validateSkillDefinition(
   if (record === null) return out;
 
   requireString(record, 'key', path, out);
+  if (record.skillType !== undefined) requireEnum(record, 'skillType', SKILL_TYPES_SET, path, out);
+  if (record.levelSource !== undefined)
+    requireEnum(record, 'levelSource', SKILL_LEVEL_SOURCES_SET, path, out);
   requireNonNegativeInteger(record, 'timelineBlockFrames', path, out);
   if (record.enhancementStateBuffId !== undefined) {
     requireString(record, 'enhancementStateBuffId', path, out);
@@ -3262,6 +3292,50 @@ export function validateSkillDefinition(
   }
   if (record.exclusiveFrame !== undefined) {
     requireNonNegativeInteger(record, 'exclusiveFrame', path, out);
+  }
+  if (record.inputWindows !== undefined) {
+    const windows = asRecord(record.inputWindows, `${path}.inputWindows`, out);
+    if (windows !== null) {
+      if (windows.hasConditionalActions !== undefined)
+        requireBoolean(windows, 'hasConditionalActions', `${path}.inputWindows`, out);
+      for (const field of ['commandMappings', 'allowedNextSkills'] as const) {
+        const value = windows[field];
+        if (value === undefined) continue;
+        if (!Array.isArray(value)) {
+          push(out, `${path}.inputWindows.${field}`, 'expected an array');
+          continue;
+        }
+        value.forEach((item, index) => {
+          const itemPath = `${path}.inputWindows.${field}[${index}]`;
+          const row = asRecord(item, itemPath, out);
+          if (row === null) return;
+          requireNonNegativeInteger(row, 'startFrame', itemPath, out);
+          requireNonNegativeInteger(row, 'endFrame', itemPath, out);
+          if (
+            typeof row.startFrame === 'number' &&
+            typeof row.endFrame === 'number' &&
+            row.endFrame < row.startFrame
+          )
+            push(out, `${itemPath}.endFrame`, 'expected endFrame >= startFrame');
+          if (field === 'commandMappings') {
+            requireEnum(row, 'input', new Set(['basicAttack']), itemPath, out);
+            if (row.targetSourceSkillId !== null)
+              requireString(row, 'targetSourceSkillId', itemPath, out);
+          } else if (!Array.isArray(row.sourceSkillIds)) {
+            push(out, `${itemPath}.sourceSkillIds`, 'expected an array');
+          } else {
+            row.sourceSkillIds.forEach((sourceSkillId, sourceIndex) => {
+              if (typeof sourceSkillId !== 'string' || sourceSkillId.length === 0)
+                push(
+                  out,
+                  `${itemPath}.sourceSkillIds[${sourceIndex}]`,
+                  'expected a non-empty string',
+                );
+            });
+          }
+        });
+      }
+    }
   }
   if (record.switchToBuffCast !== undefined) {
     const route = asRecord(record.switchToBuffCast, `${path}.switchToBuffCast`, out);

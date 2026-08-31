@@ -23,6 +23,24 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it('validates per-skill combat type and level source identities', () => {
+    expect(
+      validateSkillDefinition({
+        ...baseSkill(),
+        skillType: 'battleSkill',
+        levelSource: 'ultimate',
+      }),
+    ).toEqual([]);
+    expect(
+      validateSkillDefinition({ ...baseSkill(), skillType: 'input', levelSource: 'finisher' }),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: '$.skillType' }),
+        expect.objectContaining({ path: '$.levelSource' }),
+      ]),
+    );
+  });
+
   it('validates operator profession conditions as a closed role list', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [
