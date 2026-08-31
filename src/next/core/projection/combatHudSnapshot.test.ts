@@ -128,6 +128,46 @@ describe('projectCombatHudSnapshot', () => {
     ]);
   });
 
+  it('replays native skill-button progress pointers without falling back to older Buffs', () => {
+    const progress = (
+      sequence: number,
+      frame: number,
+      event: 'BuffApplied' | 'BuffFinished',
+      buffId: string,
+      instanceId: number,
+      flags: CombatReceiptEntry['data'] = {},
+    ): CombatReceiptEntry => ({
+      sequence,
+      frame,
+      time: frame / 30,
+      event,
+      targetId: 'track:1',
+      data: { buffId, instanceId, layers: 1, ...flags },
+    });
+    const entries = [
+      progress(0, 2, 'BuffApplied', 'older', 1, {
+        showProgressInNormalSkillButton: true,
+      }),
+      progress(1, 4, 'BuffApplied', 'newer', 2, {
+        showProgressInNormalSkillButton: true,
+        useWeakProgressInNormalSkillButton: true,
+        showProgressInUltimateSkillButton: true,
+      }),
+      progress(2, 6, 'BuffFinished', 'older', 1),
+      progress(3, 8, 'BuffFinished', 'newer', 2),
+    ];
+
+    expect(project(5, entries).operators[0]).toMatchObject({
+      battleSkillProgress: { buffId: 'newer', instanceId: 2, weakStyle: true },
+      ultimateProgress: { buffId: 'newer', instanceId: 2, weakStyle: true },
+    });
+    expect(project(7, entries).operators[0]?.battleSkillProgress?.buffId).toBe('newer');
+    expect(project(8, entries).operators[0]).toMatchObject({
+      battleSkillProgress: null,
+      ultimateProgress: null,
+    });
+  });
+
   it('rejects frames outside the simulated snapshot range', () => {
     expect(() =>
       projectCombatHudSnapshot({

@@ -39,6 +39,14 @@ export interface OperatorCombatHudSnapshot {
   readonly skillSlots: readonly CombatHudSkillSlotSnapshot[];
   readonly cooldowns: readonly SkillCooldownTimelineSegment[];
   readonly comboWindows: readonly ComboWindowTimelineSegment[];
+  readonly battleSkillProgress: CombatHudSkillProgressSnapshot | null;
+  readonly ultimateProgress: CombatHudSkillProgressSnapshot | null;
+}
+
+export interface CombatHudSkillProgressSnapshot {
+  readonly buffId: string;
+  readonly instanceId: number;
+  readonly weakStyle: boolean;
 }
 
 export interface CombatHudSkillSlotSnapshot {
@@ -95,6 +103,69 @@ function stringData(
 ): string | undefined {
   const value = data?.[key];
   return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function numberData(
+  data: Readonly<Record<string, CombatReceiptValue>> | undefined,
+  key: string,
+): number | undefined {
+  const value = data?.[key];
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+interface SkillProgressPointers {
+  readonly battleSkill: CombatHudSkillProgressSnapshot | null;
+  readonly ultimate: CombatHudSkillProgressSnapshot | null;
+}
+
+/**
+ * 复刻 SkillButton._OnBuffIconChange 的事件驱动指针。后施加者覆盖；只有当前
+ * 指针所指实例结束才清空，且不会回退到仍存活的旧实例。
+ */
+function skillProgressPointersAtFrame(
+  entries: readonly CombatReceiptEntry[],
+  frame: number,
+): ReadonlyMap<string, SkillProgressPointers> {
+  const pointers = new Map<
+    string,
+    {
+      battleSkill: CombatHudSkillProgressSnapshot | null;
+      ultimate: CombatHudSkillProgressSnapshot | null;
+    }
+  >();
+  for (const entry of entries) {
+    if (entry.frame > frame) break;
+    if (entry.targetId === undefined) continue;
+    const applied = entry.event === 'BuffApplied' || entry.event === 'BuffPresentationStarted';
+    const finished = entry.event === 'BuffFinished' || entry.event === 'BuffPresentationFinished';
+    if (!applied && !finished) continue;
+    const buffId = stringData(entry.data, 'buffId');
+    const instanceId = numberData(entry.data, 'instanceId');
+    if (buffId === undefined || instanceId === undefined) continue;
+    const current = pointers.get(entry.targetId) ?? { battleSkill: null, ultimate: null };
+    if (applied) {
+      const pointer = {
+        buffId,
+        instanceId,
+        weakStyle: booleanData(entry.data, 'useWeakProgressInNormalSkillButton') === true,
+      };
+      if (booleanData(entry.data, 'showProgressInNormalSkillButton') === true) {
+        current.battleSkill = pointer;
+      }
+      if (booleanData(entry.data, 'showProgressInUltimateSkillButton') === true) {
+        current.ultimate = pointer;
+      }
+    } else {
+      if (current.battleSkill?.buffId === buffId && current.battleSkill.instanceId === instanceId) {
+        current.battleSkill = null;
+      }
+      if (current.ultimate?.buffId === buffId && current.ultimate.instanceId === instanceId) {
+        current.ultimate = null;
+      }
+    }
+    pointers.set(entry.targetId, current);
+  }
+  return pointers;
 }
 
 function enemyPoiseState(
@@ -212,8 +283,10 @@ function operatorSnapshot(
   skillSlots: ReadonlyMap<string, readonly CombatHudSkillSlotSnapshot[]>,
   cooldowns: readonly SkillCooldownTimelineSegment[],
   comboWindows: readonly ComboWindowTimelineSegment[],
+  skillProgress: ReadonlyMap<string, SkillProgressPointers>,
 ): OperatorCombatHudSnapshot {
   const active = activeSkills.get(curve.operatorId);
+  const progress = skillProgress.get(curve.operatorId);
   return {
     operatorId: curve.operatorId,
     ultimateEnergy: gauge(curve.points, curve.maxValue, frame),
@@ -231,6 +304,8 @@ function operatorSnapshot(
         frame >= item.startFrame &&
         (frame < item.endFrame || (item.outcome === 'pending' && frame === item.endFrame)),
     ),
+    battleSkillProgress: progress?.battleSkill ?? null,
+    ultimateProgress: progress?.ultimate ?? null,
   };
 }
 
@@ -250,6 +325,7 @@ export function projectCombatHudSnapshot(input: CombatHudSnapshotInput): CombatH
   );
   const cooldowns = projectSkillCooldownTimelineViz(input.receiptEntries, input.endFrame);
   const comboWindows = projectComboWindowTimelineViz(input.receiptEntries, input.endFrame);
+  const skillProgress = skillProgressPointersAtFrame(input.receiptEntries, input.frame);
   return {
     frame: input.frame,
     sp: gauge(input.resourceCurves.sp.points, input.resourceCurves.sp.maxValue, input.frame),
@@ -264,7 +340,15 @@ export function projectCombatHudSnapshot(input: CombatHudSnapshotInput): CombatH
             },
     },
     operators: input.resourceCurves.ultimateEnergy.map(curve =>
-      operatorSnapshot(curve, input.frame, activeSkills, skillSlots, cooldowns, comboWindows),
+      operatorSnapshot(
+        curve,
+        input.frame,
+        activeSkills,
+        skillSlots,
+        cooldowns,
+        comboWindows,
+        skillProgress,
+      ),
     ),
   };
 }
