@@ -145,6 +145,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     [...compiledDefinitions.keys()],
     'skills',
   );
+  selectBasicAttackTimelineBlockFrames(compiledDefinitions, skillLibrary.skillGroups);
   const talentPassivePlans = input.talentBindings.map(binding => {
     const effectIds = progression.talentNodes
       .filter(node => node.nodeType === 'passiveSkill' && node.passiveSkill.index === binding.index)
@@ -582,7 +583,10 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);
   const hydrate = createPhysicalInflictionDefinitionHydrator(buffClosure.definitions);
   const definitions = new Map<string, SkillDefinition>(
-    [...compiledDefinitions].map(([key, definition]) => [key, hydrate(definition)]),
+    [...compiledDefinitions].map(([key, definition]) => [
+      key,
+      hydrate(stripSkillGroupCompilationEvidence(definition)),
+    ]),
   );
   const routedSkills = new Map((input.routedSkills ?? []).map(item => [item.key, item] as const));
   for (const routed of routedSkills.values()) {
@@ -749,6 +753,66 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       omittedEntityVisualOnlyBuffIds: [...entityVisualOnlyBuffIds],
     },
   };
+}
+
+/**
+ * 基础攻击组中的数组表示有序连段，而 AllowNextSkillAction 还可能同时包含跳段、退出强化
+ * 状态等其他输入路由。只有指向明确下一段的窗口才能决定时间轴技能块宽度。
+ *
+ * 同一目标有多个窗口时，优先顶层直连动作，再取其中较晚的开启帧：这会排除条件控制流
+ * 里的快捷退出，并保留强化连段“0 帧可退出、稍后可续段”的原生区别。
+ */
+export function selectBasicAttackTimelineBlockFrames(
+  definitions: Map<string, CompiledOperatorActiveSkillRuntimeDefinitionSource>,
+  groups: readonly {
+    readonly skillType: SkillType;
+    readonly skillKeys: readonly string[];
+    readonly variants: readonly { readonly skillKeys: readonly string[] }[];
+  }[],
+): void {
+  const selectedFrames = new Map<string, number>();
+  const selectRoute = (skillKeys: readonly string[]): void => {
+    if (skillKeys.length < 2) return;
+    for (let index = 0; index < skillKeys.length; index += 1) {
+      const key = skillKeys[index]!;
+      const nextKey = skillKeys[(index + 1) % skillKeys.length]!;
+      const definition = definitions.get(key);
+      const nextDefinition = definitions.get(nextKey);
+      if (definition === undefined || nextDefinition === undefined) continue;
+      const matching = definition.allowNextSkillTransitions.filter(item =>
+        item.skillIds.includes(nextDefinition.sourceSkillId),
+      );
+      if (matching.length === 0) continue;
+      const direct = matching.filter(item => item.direct);
+      const candidates = direct.length > 0 ? direct : matching;
+      const frame = Math.min(
+        definition.exclusiveFrame + 1,
+        Math.max(...candidates.map(item => item.startFrame)),
+      );
+      const previous = selectedFrames.get(key);
+      if (previous !== undefined && previous !== frame) {
+        throw new Error(
+          `basic attack '${key}' has conflicting ordered continuation windows ${previous} and ${frame}`,
+        );
+      }
+      selectedFrames.set(key, frame);
+    }
+  };
+  for (const group of groups) {
+    if (group.skillType !== 'basicAttack') continue;
+    selectRoute(group.skillKeys);
+    group.variants.forEach(variant => selectRoute(variant.skillKeys));
+  }
+  for (const [key, frame] of selectedFrames) {
+    definitions.set(key, { ...definitions.get(key)!, timelineBlockFrames: frame });
+  }
+}
+
+function stripSkillGroupCompilationEvidence(
+  definition: CompiledOperatorActiveSkillRuntimeDefinitionSource,
+): SkillDefinition {
+  const { allowNextSkillTransitions: _allowNextSkillTransitions, ...runtimeDefinition } = definition;
+  return runtimeDefinition;
 }
 
 function compileOperatorBuffSkillSlotReplacements(

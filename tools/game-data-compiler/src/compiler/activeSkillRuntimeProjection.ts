@@ -54,6 +54,15 @@ export interface CompiledActiveSkillRuntimeProjectionSource {
   readonly durationFrame: number;
   readonly timelineBlockFrames: number;
   readonly exclusiveFrame: number;
+  /**
+   * 原生输入窗口的编译期证据。它只供最终技能组装配选择“下一段”窗口，
+   * 不属于 Endaxis 运行时技能契约，也不能直接按最早帧压成技能块宽度。
+   */
+  readonly allowNextSkillTransitions: readonly {
+    readonly startFrame: number;
+    readonly skillIds: readonly string[];
+    readonly direct: boolean;
+  }[];
   readonly blackboard: NonNullable<SkillDefinition['blackboard']>;
   readonly scheduledSequences: readonly CompiledActiveSkillTimelineSequenceSource[];
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
@@ -714,16 +723,25 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
   const exclusiveFrame = Number(prepared.root.exclusiveFrame);
   if (!Number.isInteger(exclusiveFrame) || exclusiveFrame < 0)
     throw new Error(`${input.sourcePath}.exclusiveFrame: expected non-negative integer`);
-  const allowNextFrames = graph.actionGroup.timelineActions
-    .filter(timeline =>
-      collectNativeActionNodes(timeline.sequence).some(
-        node =>
-          node.body.kind === 'leaf' &&
-          node.body.value.family === 'inputControl' &&
-          node.body.value.action.kind === 'allowNextSkill',
-      ),
-    )
-    .map(timeline => timeline.startFrame);
+  const allowNextSkillTransitions = graph.actionGroup.timelineActions.flatMap(timeline => {
+    const directNodes = new Set(timeline.sequence.actions);
+    return collectNativeActionNodes(timeline.sequence).flatMap(node => {
+      if (
+        !node.metadata.enabled ||
+        node.body.kind !== 'leaf' ||
+        node.body.value.family !== 'inputControl' ||
+        node.body.value.action.kind !== 'allowNextSkill'
+      )
+        return [];
+      return [
+        {
+          startFrame: timeline.startFrame,
+          skillIds: node.body.value.action.skillIds,
+          direct: directNodes.has(node),
+        },
+      ];
+    });
+  });
   const context = {
     ...input.context,
     staticEnemyTargetGroupKeys,
@@ -794,8 +812,14 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
   return {
     skillId: graph.skillId,
     durationFrame: graph.durationFrame,
-    timelineBlockFrames: Math.min(exclusiveFrame + 1, ...allowNextFrames),
+    // 单技能定义尚不知道自己位于哪个技能组。这里保留旧的独立技能默认值；
+    // 多段基础攻击会在整名装配时按明确的下一段 skillId 重新选择窗口。
+    timelineBlockFrames: Math.min(
+      exclusiveFrame + 1,
+      ...allowNextSkillTransitions.map(item => item.startFrame),
+    ),
     exclusiveFrame,
+    allowNextSkillTransitions,
     // combat-spec skill-blackboard：动态声明也进入实例初值；补丁同名键后覆盖。
     // 此处位于动作投影输出边界，不能回灌到上面的静态解析环境消除动态引用。
     blackboard: {

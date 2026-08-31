@@ -773,7 +773,7 @@ describe('CombatRuntimeAssembly', () => {
     );
   });
 
-  it('runs Gilberta generated source-death monitor through the assembled entity Buff chain', () => {
+  it('runs Gilberta generated caster-health monitor through the assembled entity Buff chain', () => {
     let entityBuffs: CombatBuffContainer<string> | undefined;
     const createAbilityEntityBuffRuntime = (
       entityId: string,
@@ -825,10 +825,20 @@ describe('CombatRuntimeAssembly', () => {
       costs: [],
       timelineActions: [{ ...spawnAction, startFrame: 0 }],
     };
+    const operatorVitals = new CombatVitals({
+      health: 0,
+      maxHealth: 100,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
     const assembly = createAssembly(
       [program],
       undefined,
-      undefined,
+      () => operatorVitals,
       emptyEnemyBuffRuntime,
       undefined,
       testEnemy,
@@ -855,7 +865,8 @@ describe('CombatRuntimeAssembly', () => {
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({
         event: 'AbilityEntityFinished',
-        data: expect.objectContaining({ reason: 'sourceDied' }),
+        // 蓝图未启用 dieWhenSourceDies；实体由监视 Buff 的显式结束动作关闭。
+        data: expect.objectContaining({ reason: 'explicit' }),
       }),
     );
   });
@@ -2453,7 +2464,7 @@ describe('CombatRuntimeAssembly', () => {
 
     assembly.advanceFrames(3);
     expect(createOperatorBuffRuntime).toHaveBeenCalledOnce();
-    expect(createOperatorBuffRuntime).toHaveBeenCalledWith('operator', undefined);
+    expect(createOperatorBuffRuntime).toHaveBeenCalledWith('operator', undefined, undefined);
     expect(advanceFrame).toHaveBeenCalledTimes(3);
   });
 

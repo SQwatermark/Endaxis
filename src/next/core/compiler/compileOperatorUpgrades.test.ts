@@ -20,6 +20,7 @@ import type {
 import { compileOperatorDefinitionSkills } from './compileScenarioTimeline';
 import {
   applyOperatorUpgradeSkillPatches,
+  compileOperatorReactionModifiers,
   compileOperatorInitializationPrograms,
   compileOperatorUpgradeEventPrograms,
   compileOperatorPassivePrograms,
@@ -86,6 +87,40 @@ function hydrateOperatorBuffReferences<T>(value: T, operator: OperatorDefinition
 }
 
 describe('operator upgrade compilation', () => {
+  it('在技能补丁之外按养成等级聚合元素反应时长和效果修正', () => {
+    const [modifier] = compileOperatorReactionModifiers([
+        {
+          source: 'talent',
+          level: 2,
+          definition: {
+            key: 'corrosion-mastery',
+            levels: 2,
+            modifiers: [
+              { kind: 'addReactionDuration', reaction: 'corrosion', seconds: [5, 10] },
+              { kind: 'addReactionEffectiveness', reaction: 'corrosion', value: [0.05, 0.1] },
+            ],
+          },
+        },
+        {
+          source: 'potential',
+          level: 1,
+          definition: {
+            key: 'corrosion-potential',
+            levels: 1,
+            modifiers: [
+              { kind: 'addReactionDuration', reaction: 'corrosion', seconds: 5 },
+              { kind: 'addReactionEffectiveness', reaction: 'corrosion', value: 0.2 },
+            ],
+          },
+        },
+      ]);
+    expect(modifier).toMatchObject({
+      reaction: 'corrosion',
+      durationSecondsAddition: 15,
+    });
+    expect(modifier?.effectivenessAddition).toBeCloseTo(0.3);
+  });
+
   it('compiles direct upgrade initialization separately from passive skills', () => {
     const programs = compileOperatorInitializationPrograms([
       {
@@ -772,25 +807,69 @@ describe('operator upgrade compilation', () => {
     ]);
   });
 
-  it('compiles Last Rite talent 1 into the attachment-consumption event program', () => {
+  it('compiles Last Rite talent 1 into its native Buff event listener', () => {
     const active = resolveActiveOperatorUpgrades(
       build({ operatorSlug: lastRiteGeneratedOperator.slug, talentStates: { 0: 2 } }),
       lastRiteGeneratedOperator,
     );
 
-    expect(compileOperatorUpgradeEventPrograms(active)).toMatchObject([
+    expect(compileOperatorUpgradeEventPrograms(active)).toEqual([]);
+    expect(
+      hydrateOperatorBuffReferences(
+        compileOperatorInitializationPrograms(active),
+        lastRiteGeneratedOperator,
+      ),
+    ).toMatchObject([
       {
-        key: 'talent:talent1:0',
-        event: { kind: 'elementalAttachmentConsumed' },
-        initialBlackboard: { crystal_up: 0.04, duration: 15 },
+        key: 'talent:talent1',
         sequence: {
           steps: [
-            { kind: 'calculateActionValue', parameters: { key: 'crystal_vul' } },
             {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'buff_chr_0026_lastrite_talent_1_vul',
-                target: 'enemy',
+                buffId: 'buff_chr_0026_lastrite_talent_1',
+                target: 'caster',
+                blackboardAssignments: {
+                  crystal_up: { kind: 'constant', value: 0.04 },
+                  duration: { kind: 'constant', value: 15 },
+                },
+                definition: {
+                  abilityEventResponses: [
+                    {
+                      event: 'buffConsumed',
+                      sequence: {
+                        steps: [
+                          {
+                            kind: 'conditional',
+                            whenTrue: {
+                              steps: [
+                                {
+                                  kind: 'conditional',
+                                  whenTrue: {
+                                    steps: [
+                                      {
+                                        kind: 'calculateActionValue',
+                                        parameters: { key: 'crystal_vul' },
+                                      },
+                                      {
+                                        kind: 'applyBuff',
+                                        parameters: {
+                                          buffId: 'buff_chr_0026_lastrite_talent_1_vul',
+                                          target: 'eventTarget',
+                                          source: 'buffSource',
+                                        },
+                                      },
+                                    ],
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
               },
             },
           ],

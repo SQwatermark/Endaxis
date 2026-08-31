@@ -29,6 +29,8 @@ export type OpenProjectResult =
       gameDataRevision: string;
       /** 旧标记已归一为当前唯一数据版本，调用方应提示重新导出。 */
       gameDataRevisionUpdated: boolean;
+      /** 旧格式迁移中被明确省略或无法解析的输入；当前格式打开时不存在。 */
+      migrationWarnings?: readonly string[];
     }
   | {
       ok: false;
@@ -74,5 +76,8 @@ export function openProject(
       : project,
     gameDataRevision: repositoryRevision,
     gameDataRevisionUpdated,
+    ...(parsed.migrationWarnings === undefined
+      ? {}
+      : { migrationWarnings: parsed.migrationWarnings }),
   };
 }

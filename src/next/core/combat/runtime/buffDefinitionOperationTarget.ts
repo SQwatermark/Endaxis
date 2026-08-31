@@ -102,6 +102,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       {
         blackboardValues: request.blackboardValues,
         sourceActionId: request.sourceActionId ?? request.buffId,
+        definitionOwnerId: request.definitionOwnerId ?? request.sourceId,
         ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
         ...(request.finishParentGlobalBuff === undefined
           ? {}
@@ -232,6 +233,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
               this.#resolveLifecycleOperations!({
                 ownerId: buff.owner.ownerId,
                 sourceId: actionSourceId,
+                definitionOwnerId: buff.definitionOwnerId,
                 sourceActionId: buff.sourceActionId,
                 skillCastInfo,
               }),

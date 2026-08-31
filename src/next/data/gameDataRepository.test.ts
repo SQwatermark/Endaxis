@@ -42,7 +42,10 @@ import {
   NEXT_GAME_DATA_REVISION,
   nextGameDataRepository,
 } from './gameDataRepository';
-import { nextWeaponDefinitions } from './equipment/nextWeaponDefinitions';
+import {
+  nextWeaponDefinitions,
+  nextWeaponRegistration,
+} from './equipment/nextWeaponDefinitions';
 
 describe('gameDataRepository', () => {
   it('exposes the explicit definition revision', () => {
@@ -120,7 +123,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getWeapons()).toEqual(nextWeaponDefinitions);
     expect(nextGameDataRepository.getGears()).toEqual(nextGearDefinitions);
     expect(nextGameDataRepository.getGearSets()).toEqual(sharedGearSetDefinitions);
-    expect(nextGameDataRepository.getWeapon('tarr-11')).toBeNull();
+    expect(nextGameDataRepository.getWeapon('tarr-11')?.slug).toBe('tarr-11');
     expect(nextGameDataRepository.getGear('xiranflow-light-armor')).not.toBeNull();
     const xiranflowAliasTarget =
       nextGearDefinitionRegistration.gearAliases['xiranflow-light-armor'];
@@ -186,6 +189,16 @@ describe('gameDataRepository', () => {
     expect(repository.getGear('legacy-gear')?.slug).toBe('legacy-gear');
     expect(repository.getGearSet('legacy-set')?.slug).toBe('legacy-set');
     expect(Object.isFrozen(repository.getGear('legacy-gear'))).toBe(true);
+  });
+
+  it('resolves registered weapon presentation slugs without changing the native catalog', () => {
+    const [legacySlug, nativeSlug] = Object.entries(nextWeaponRegistration.aliases)[0]!;
+    const native = nextGameDataRepository.getWeapon(nativeSlug);
+
+    expect(native).not.toBeNull();
+    expect(nextGameDataRepository.getWeapon(legacySlug)).toEqual({ ...native, slug: legacySlug });
+    expect(nextGameDataRepository.getWeapon(legacySlug)?.slug).toBe(legacySlug);
+    expect(nextGameDataRepository.getWeapons()).toEqual(nextWeaponDefinitions);
   });
 
   it('rejects aliases that are redundant, shadow definitions or target missing definitions', () => {

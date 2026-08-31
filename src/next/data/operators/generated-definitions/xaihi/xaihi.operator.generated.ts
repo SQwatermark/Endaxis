@@ -19,6 +19,7 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0011_seraph_attack1',
     timelineBlockFrames: 13,
+    exclusiveFrame: 14,
     costFrame: 11,
     scheduledSequences: [
       scheduled(
@@ -99,6 +100,7 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0011_seraph_attack2',
     timelineBlockFrames: 17,
+    exclusiveFrame: 20,
     costFrame: 7,
     scheduledSequences: [
       scheduled(
@@ -179,6 +181,7 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0011_seraph_attack3',
     timelineBlockFrames: 14,
+    exclusiveFrame: 14,
     costFrame: 11,
     scheduledSequences: [
       scheduled(
@@ -259,6 +262,7 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0011_seraph_attack4',
     timelineBlockFrames: 21,
+    exclusiveFrame: 24,
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -403,6 +407,7 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0011_seraph_attack5',
     timelineBlockFrames: 33,
+    exclusiveFrame: 33,
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -463,6 +468,7 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0011_seraph_power_attack',
     timelineBlockFrames: 34,
+    exclusiveFrame: 50,
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -544,6 +550,7 @@ export const xaihiPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0011_seraph_plunging_attack_end',
     timelineBlockFrames: 13,
+    exclusiveFrame: 12,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -584,6 +591,7 @@ export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0011_seraph_normal_skill',
     timelineBlockFrames: 31,
+    exclusiveFrame: 30,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -672,6 +680,7 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0011_seraph_combo_skill',
     timelineBlockFrames: 25,
+    exclusiveFrame: 42,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -703,6 +712,21 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
               value: 1,
             },
             sequence(
+              forEachContextTarget(
+                'ball',
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0011_seraph_finishball_02',
+                    target: 'currentAbilityEntity',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+              ),
+              step('finishBuffsById', {
+                target: 'party',
+                buffIds: ['buff_chr_0011_seraph_atk_buff_normal_skill'],
+                reason: 'other',
+              }),
               withActionBlackboardScope(
                 'SkillData.chr_0011_seraph_combo_skill.actionGroupData.timelineActions[2]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0011_seraph_combo_skill',
                 {},
@@ -757,38 +781,6 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                         undefined,
                         { alwaysNext: true },
                       ),
-                      branch(
-                        {
-                          kind: 'all',
-                          conditions: [
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'blackboard', key: 'potential_3' },
-                              operator: 'equal',
-                              right: { kind: 'constant', value: 1 },
-                            },
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'blackboard', key: 'EntityBB_bounced' },
-                              operator: 'equal',
-                              right: { kind: 'constant', value: 0 },
-                            },
-                          ],
-                        },
-                        sequence(
-                          step('modifyActionValue', {
-                            key: 'EntityBB_bounced',
-                            operation: 'assign',
-                            value: { kind: 'constant', value: 1 },
-                          }),
-                          step('mergeContextTargets', {
-                            saveToContextKey: 'extra_target',
-                            sources: [],
-                          }),
-                        ),
-                        undefined,
-                        { alwaysNext: true },
-                      ),
                       step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                       step(
                         'dealDamage',
@@ -799,35 +791,23 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                           features: ['canBreakWeakness'],
                           stagger: { kind: 'blackboard', key: 'poise' },
                         },
-                        'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenTrue/steps/0/body/steps/0/body/steps/3',
+                        'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenTrue/steps/2/body/steps/0/body/steps/2',
                       ),
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                        sequence(
-                          step('startTimeDilation', {
-                            scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.2 },
-                            slot: 'TimeDilation/Layer/Entity/HitStop',
-                            priority: 10,
-                            curve: { kind: 'named', key: 'char_hard_stop' },
-                            finishByAction: false,
-                            targets: ['enemy', 'caster'],
-                          }),
-                          step('changeResourceByActionValue', {
-                            resource: 'ultimateEnergy',
-                            amount: { kind: 'blackboard', key: 'usp' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'caster',
-                          }),
-                        ),
-                        undefined,
-                        { alwaysNext: true },
-                      ),
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.2 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 10,
+                        curve: { kind: 'named', key: 'char_hard_stop' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
+                      step('changeResourceByActionValue', {
+                        resource: 'ultimateEnergy',
+                        amount: { kind: 'blackboard', key: 'usp' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'caster',
+                      }),
                     ),
                     undefined,
                     { lifetime: 'execution', alwaysNext: true },
@@ -836,6 +816,8 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
+            ),
+            sequence(
               forEachContextTarget(
                 'ball',
                 sequence(
@@ -851,8 +833,6 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                 buffIds: ['buff_chr_0011_seraph_atk_buff_normal_skill'],
                 reason: 'other',
               }),
-            ),
-            sequence(
               withActionBlackboardScope(
                 'SkillData.chr_0011_seraph_combo_skill.actionGroupData.timelineActions[2]._sequenceActionData.actionData[1].failActions.actionData[0]:projectile_chr_0011_seraph_combo_skill',
                 {},
@@ -907,38 +887,6 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                         undefined,
                         { alwaysNext: true },
                       ),
-                      branch(
-                        {
-                          kind: 'all',
-                          conditions: [
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'blackboard', key: 'potential_3' },
-                              operator: 'equal',
-                              right: { kind: 'constant', value: 1 },
-                            },
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'blackboard', key: 'EntityBB_bounced' },
-                              operator: 'equal',
-                              right: { kind: 'constant', value: 0 },
-                            },
-                          ],
-                        },
-                        sequence(
-                          step('modifyActionValue', {
-                            key: 'EntityBB_bounced',
-                            operation: 'assign',
-                            value: { kind: 'constant', value: 1 },
-                          }),
-                          step('mergeContextTargets', {
-                            saveToContextKey: 'extra_target',
-                            sources: [],
-                          }),
-                        ),
-                        undefined,
-                        { alwaysNext: true },
-                      ),
                       step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
                       step(
                         'dealDamage',
@@ -949,35 +897,23 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                           features: ['canBreakWeakness'],
                           stagger: { kind: 'blackboard', key: 'poise' },
                         },
-                        'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenFalse/steps/0/body/steps/0/body/steps/3',
+                        'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenFalse/steps/2/body/steps/0/body/steps/2',
                       ),
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                        sequence(
-                          step('startTimeDilation', {
-                            scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.2 },
-                            slot: 'TimeDilation/Layer/Entity/HitStop',
-                            priority: 10,
-                            curve: { kind: 'named', key: 'char_hard_stop' },
-                            finishByAction: false,
-                            targets: ['enemy', 'caster'],
-                          }),
-                          step('changeResourceByActionValue', {
-                            resource: 'ultimateEnergy',
-                            amount: { kind: 'blackboard', key: 'usp' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'caster',
-                          }),
-                        ),
-                        undefined,
-                        { alwaysNext: true },
-                      ),
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.2 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 10,
+                        curve: { kind: 'named', key: 'char_hard_stop' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
+                      step('changeResourceByActionValue', {
+                        resource: 'ultimateEnergy',
+                        amount: { kind: 'blackboard', key: 'usp' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'caster',
+                      }),
                     ),
                     undefined,
                     { lifetime: 'execution', alwaysNext: true },
@@ -986,21 +922,6 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                 undefined,
                 { lifetime: 'execution' },
               ),
-              forEachContextTarget(
-                'ball',
-                sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0011_seraph_finishball_02',
-                    target: 'currentAbilityEntity',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-              ),
-              step('finishBuffsById', {
-                target: 'party',
-                buffIds: ['buff_chr_0011_seraph_atk_buff_normal_skill'],
-                reason: 'other',
-              }),
             ),
             { alwaysNext: true },
           ),
@@ -1064,6 +985,7 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0011_seraph_ultimate_skill',
     timelineBlockFrames: 67,
+    exclusiveFrame: 80,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1127,11 +1049,6 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
               wisd_up: { kind: 'blackboard', key: 'wisd_up' },
               wisd_max: { kind: 'blackboard', key: 'wisd_max' },
             },
-          }),
-          step('applyBuff', {
-            buffId: 'buff_chr_0011_seraph_atk_buff_2',
-            target: 'party',
-            inheritSourceSkillCastInfo: true,
           }),
         ),
         61,
@@ -1647,19 +1564,6 @@ export default {
         ),
       },
     },
-    buff_chr_0011_seraph_atk_buff_2: {
-      stackingType: 'stack',
-      priority: 0,
-      maxStackCount: 1,
-      durationSeconds: 0.2,
-      triggerIntervalSeconds: 0,
-      waitFirstTriggerInterval: false,
-      maxTriggerCount: 1,
-      applyTags: [],
-      extendTags: [],
-      blackboard: { atk_scale: 0, heal_value: 0 },
-      attributeModifiers: [],
-    },
     buff_chr_0011_seraph_combo_count: {
       stackingType: 'enhance',
       priority: 0,
@@ -1682,6 +1586,7 @@ export default {
               step('applyBuff', {
                 buffId: 'buff_chr_0011_seraph_finishball_04',
                 target: 'buffOwner',
+                source: 'buffOwner',
                 inheritSourceSkillCastInfo: true,
               }),
               step('mergeContextTargets', {
@@ -1759,41 +1664,59 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         trigger: sequence(
-          step('storeSourceAttributeValue', {
-            attribute: { kind: 'specific', key: 'will' },
-            stage: 'finalNonConverted',
-            useFloor: false,
-            divisor: { kind: 'constant', value: 1 },
-            multiplier: { kind: 'blackboard', key: 'will_up' },
-            base: { kind: 'blackboard', key: 'heal_value' },
-            targetKey: 'final_heal_value',
-          }),
-          step('heal', {
-            target: 'caster',
-            alwaysNext: true,
-            tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
-            amount: { kind: 'blackboard', key: 'final_heal_value' },
-          }),
-          branch(
-            {
-              kind: 'healthCompare',
-              target: 'caster',
-              valueType: 'ratio',
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
+          withActionBlackboardScope(
+            'native-buff-callback:0',
+            {},
+            true,
             sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0011_seraph_potential_1_atkup',
-                target: 'buffOwner',
-                source: 'eventSource',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  buff_duration: { kind: 'blackboard', key: 'buff_duration' },
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                },
+              step('storeSourceAttributeValue', {
+                attribute: { kind: 'specific', key: 'will' },
+                stage: 'finalNonConverted',
+                useFloor: false,
+                divisor: { kind: 'constant', value: 1 },
+                multiplier: { kind: 'blackboard', key: 'will_up' },
+                base: { kind: 'blackboard', key: 'heal_value' },
+                targetKey: 'final_heal_value',
+              }),
+              step('heal', {
+                target: 'caster',
+                alwaysNext: true,
+                tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+                amount: { kind: 'blackboard', key: 'final_heal_value' },
               }),
             ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
+          ),
+          withActionBlackboardScope(
+            'native-buff-callback:1',
+            {},
+            true,
+            sequence(
+              branch(
+                {
+                  kind: 'healthCompare',
+                  target: 'caster',
+                  valueType: 'ratio',
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0011_seraph_potential_1_atkup',
+                    target: 'buffOwner',
+                    source: 'buffSource',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      buff_duration: { kind: 'blackboard', key: 'buff_duration' },
+                      atk_up: { kind: 'blackboard', key: 'atk_up' },
+                    },
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
           ),
         ),
       },
@@ -1864,7 +1787,7 @@ export default {
                                 step('applyBuff', {
                                   buffId: 'buff_chr_0011_seraph_combo_count',
                                   target: 'currentAbilityEntity',
-                                  source: 'eventSource',
+                                  source: 'buffSource',
                                   inheritSourceSkillCastInfo: true,
                                 }),
                               ),
@@ -1948,6 +1871,7 @@ export default {
         trigger: sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0011_seraph_normal_skill',
+            childSkillId: 'chr_0011_seraph_normal_skill_abentity_onfield',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
           }),
@@ -2067,6 +1991,7 @@ export default {
               step('applyBuff', {
                 buffId: 'buff_chr_0011_seraph_normal_skill_heal',
                 target: 'party',
+                source: 'currentAbilityEntity',
                 finishByAction: true,
                 blackboardAssignments: {
                   atk_scale: { kind: 'blackboard', key: 'atk_scale' },

@@ -205,6 +205,8 @@ export interface CombatBuffAddOptions {
   readonly blackboardValues?: Readonly<Record<string, ActionBlackboardValue>>;
   /** 创建该实例的技能、被动或配装动作身份，用于解释后续生命周期步骤。 */
   readonly sourceActionId?: string;
+  /** 创建该定义的 AbilitySystem；跨实体挂载和事件触发都不改变它。 */
+  readonly definitionOwnerId?: string;
   /** 创建时复制的来源施法信息；缺少表示该 Buff 不继承施法身份。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
   /** GlobalBuff 子投影专用：精确结束创建当前子 Buff 的父实例。 */
@@ -221,6 +223,7 @@ export class CombatBuff<Key extends string> {
   readonly blackboard: ActionBlackboard;
   readonly priority: number;
   readonly sourceActionId: string;
+  readonly definitionOwnerId: string;
   /** 来源施法在创建瞬间的快照，不随后续技能扣费变化。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
   readonly finishParentGlobalBuff: ((reason: 'early' | 'other') => boolean) | null;
@@ -272,6 +275,7 @@ export class CombatBuff<Key extends string> {
       initializedKeywordRates.add(enhancement.targetKey);
     }
     this.sourceActionId = options?.sourceActionId ?? definition.id;
+    this.definitionOwnerId = options?.definitionOwnerId ?? sourceId;
     this.skillCastInfo = options?.skillCastInfo === undefined ? null : { ...options.skillCastInfo };
     this.finishParentGlobalBuff = options?.finishParentGlobalBuff ?? null;
     this.priority = resolveBuffPriority(definition, this.blackboard);

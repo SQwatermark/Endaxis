@@ -142,4 +142,28 @@ describe('openProject', () => {
       }),
     );
   });
+
+  it('preserves explicit legacy migration warnings for the UI', () => {
+    const migrated = createProject();
+    const result = openProject(
+      { version: '1.0.0', scenarioList: [] },
+      {
+        gameDataRepository: createRepository(),
+        legacyImporter: {
+          migrate: () => ({
+            ok: true,
+            value: migrated,
+            warnings: ['one old connection was omitted'],
+          }),
+        },
+      },
+    );
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        ok: true,
+        migrationWarnings: ['one old connection was omitted'],
+      }),
+    );
+  });
 });

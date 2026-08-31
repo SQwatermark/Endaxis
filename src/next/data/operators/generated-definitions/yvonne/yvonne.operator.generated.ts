@@ -20,7 +20,7 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack1',
     sourceSkillId: 'chr_0017_yvonne_attack1',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 16,
     exclusiveFrame: 20,
     costFrame: 9,
     scheduledSequences: [
@@ -97,7 +97,7 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack2',
     sourceSkillId: 'chr_0017_yvonne_attack2',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 14,
     exclusiveFrame: 20,
     costFrame: 9,
     scheduledSequences: [
@@ -242,7 +242,7 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack3',
     sourceSkillId: 'chr_0017_yvonne_attack3',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 20,
     exclusiveFrame: 21,
     costFrame: 9,
     scheduledSequences: [
@@ -451,7 +451,7 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
     sourceSkillId: 'chr_0017_yvonne_attack4',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 24,
     exclusiveFrame: 25,
     costFrame: 9,
     scheduledSequences: [
@@ -528,7 +528,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack5',
     sourceSkillId: 'chr_0017_yvonne_attack5',
-    timelineBlockFrames: 34,
+    timelineBlockFrames: 37,
     exclusiveFrame: 37,
     costFrame: 9,
     scheduledSequences: [
@@ -617,7 +617,7 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimateAttack1',
     sourceSkillId: 'chr_0017_yvonne_ult_attack1_1',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 21,
     exclusiveFrame: 28,
     costFrame: 9,
     scheduledSequences: [
@@ -850,7 +850,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimateAttack2A',
     sourceSkillId: 'chr_0017_yvonne_ult_attack2_1',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 23,
     exclusiveFrame: 31,
     costFrame: 9,
     scheduledSequences: [
@@ -1509,7 +1509,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimateAttack2B',
     sourceSkillId: 'chr_0017_yvonne_ult_attack2_2',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 12,
     exclusiveFrame: 22,
     costFrame: 9,
     scheduledSequences: [
@@ -2104,7 +2104,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimateAttack3A',
     sourceSkillId: 'chr_0017_yvonne_ult_attack3_1',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 28,
     exclusiveFrame: 45,
     costFrame: 9,
     scheduledSequences: [
@@ -2952,7 +2952,7 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimateAttack3B',
     sourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 16,
     exclusiveFrame: 28,
     costFrame: 9,
     scheduledSequences: [

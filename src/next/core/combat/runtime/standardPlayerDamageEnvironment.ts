@@ -208,6 +208,11 @@ export class StandardPlayerDamageEnvironment {
   readonly #enemyKnockDown: OrdinaryKnockDownRuntime | null;
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
+  readonly #reactionModifiers = new Map<
+    string,
+    NonNullable<import('./combatRuntimeAssembly').CombatOperatorProgram['reactionModifiers']>
+  >();
+  #resolveAbilitySystemSourceId: (entityId: string) => string = entityId => entityId;
   readonly #reactions = new ElementalReactionContainer();
   readonly #operatorPanels = new Map<string, ResolvedOperatorPanel>();
   readonly #operatorVitals = new Map<string, CombatVitals>();
@@ -275,7 +280,8 @@ export class StandardPlayerDamageEnvironment {
       get enemyVitalsRuntime() {
         return vitalsRuntimeOf();
       },
-      createOperatorBuffRuntime: (operatorId, panel) => {
+      createOperatorBuffRuntime: (operatorId, panel, reactionModifiers) => {
+        if (reactionModifiers !== undefined) this.#reactionModifiers.set(operatorId, reactionModifiers);
         if (panel !== undefined) {
           this.#operatorPanels.set(operatorId, panel);
           this.#ensureOperatorVitals(operatorId, panel);
@@ -364,7 +370,11 @@ export class StandardPlayerDamageEnvironment {
 
   #createOperationExecutor(context: CombatDamageExecutorContext): CombatOperationExecutor {
     const program = 'program' in context ? context.program : undefined;
-    const operatorId = 'program' in context ? context.program.operatorId : context.operatorId;
+    const operatorId =
+      'program' in context ? (context.sourceOperatorId ?? context.program.operatorId) : context.operatorId;
+    if ('program' in context && context.resolveAbilitySystemSourceId !== undefined) {
+      this.#resolveAbilitySystemSourceId = context.resolveAbilitySystemSourceId;
+    }
     this.#bindBattleRuntime(context);
     if (context.panel !== undefined) {
       this.#operatorPanels.set(operatorId, context.panel);
@@ -948,7 +958,39 @@ export class StandardPlayerDamageEnvironment {
                     `but the registered definition is '${definition.id}'`,
                 );
               }
-              return result.blackboardValues as Readonly<Record<string, number>>;
+              const blackboard = { ...result.blackboardValues } as Record<string, number>;
+              const reaction =
+                incomingElement === 'nature'
+                  ? 'corrosion'
+                  : incomingElement === 'electric'
+                    ? 'electrification'
+                    : incomingElement === 'cryo'
+                      ? 'frozen'
+                      : 'burning';
+              const modifier = this.#reactionModifiers
+                .get(operatorId)
+                ?.find(candidate => candidate.reaction === reaction);
+              if (modifier !== undefined) {
+                if (typeof blackboard.duration !== 'number') {
+                  throw new Error(`reaction '${reaction}' has no numeric duration output`);
+                }
+                blackboard.duration += modifier.durationSecondsAddition;
+                if (modifier.effectivenessAddition !== 0) {
+                  if (reaction !== 'corrosion') {
+                    throw new Error(
+                      `reaction '${reaction}' effectiveness modifier has no connected factory output`,
+                    );
+                  }
+                  const multiplier = 1 + modifier.effectivenessAddition;
+                  for (const key of ['def_decrease_tick', 'max_def_decrease', 'start_def_decrease']) {
+                    if (typeof blackboard[key] !== 'number') {
+                      throw new Error(`corrosion factory has no numeric '${key}' output`);
+                    }
+                    blackboard[key] *= multiplier;
+                  }
+                }
+              }
+              return blackboard;
             };
       adapter = new ElementalInflictionBuffAdapter(
         this.#enemyBuffs,
@@ -994,6 +1036,7 @@ export class StandardPlayerDamageEnvironment {
       readonly stage: 'armedNonConverted' | 'finalNonConverted';
     },
   ): number {
+    sourceId = this.#resolveAbilitySystemSourceId(sourceId);
     if (request.attribute.kind === 'specific' && request.attribute.key === 'maxUltimateEnergy') {
       if (this.#resources === null) {
         throw new Error('combat resource ledger is not bound');

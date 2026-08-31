@@ -12,6 +12,7 @@ import { compileSkillSmartTargetSource } from '../../../../tools/game-data-compi
 import { createGameDataRepository } from '../../data/gameDataRepository';
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 import { skillSettings } from '../../data/combat/skillSettings';
+import { commonBuffDefinitions } from '../../data/buffs/commonDefinitions';
 import {
   timeDilationRuntimeConfig,
   STANDARD_TIME_MANAGER_DELTA_MODE,
@@ -94,6 +95,8 @@ function template(
     entityBlackboard: blackboards.entityInitialValues,
     // 两个构筑分支显式独立测试，不借载体面板恰好选择其中一侧。
     entityBlackboardInitializers: [],
+    // 诀的常驻被动会按真实面板再次写入同一黑板值；此测试只验证原生连携条件链，需隔离该写入。
+    passiveSkills: [],
     comboSkillConditions,
     // 只保留本次链路入口，避免将旧产物其他技能的编辑身份问题混入连携验证。
     skillGroups: carrier.skillGroups
@@ -162,7 +165,11 @@ describe('原生条件经正式项目定义进入实际附着', () => {
       for (const deckGate of [0, 1]) {
         const definition = template(element, deckGate, actualCombo);
         const carrier = actualCombo ? arcane : perlica;
-        const base = createGameDataRepository({ revision: 'fixture', operators: [carrier] });
+        const base = createGameDataRepository({
+          revision: 'fixture',
+          operators: [carrier],
+          commonBuffDefinitions,
+        });
         const project = deriveProjectOperatorTemplate(
           createEmptyProject({ createdWith: 'test', gameDataRevision: base.revision }),
           {
@@ -222,6 +229,9 @@ describe('原生条件经正式项目定义进入实际附着', () => {
           base,
           getProjectDefinitionLibrary(loaded.value),
         );
+        const restoredDefinition = repository.getOperator('project:operator:native-combo')!;
+        expect(restoredDefinition.entityBlackboard?.EntityBB_wisd_greater_will).toBe(deckGate);
+        expect(restoredDefinition.entityBlackboardInitializers).toEqual([]);
         const environment = new StandardPlayerDamageEnvironment({
           criticalSamples: { nextCriticalSample: () => 1 },
           resolveNonRandomRuntimeSnapshot: () => ({
@@ -257,6 +267,9 @@ describe('原生条件经正式项目定义进入实际附着', () => {
             },
           },
         });
+        expect(compiled.operators[0]!.initialEntityBlackboard?.EntityBB_wisd_greater_will).toBe(
+          deckGate,
+        );
         expect(compiled.operators[0]!.comboConditionPrograms).toHaveLength(5);
         expect(compiled.operators[0]!.skills.some(skill => skill.skillType === 'comboSkill')).toBe(
           actualCombo,

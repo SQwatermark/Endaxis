@@ -25,6 +25,12 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
   > &
     Required<Pick<SkillDefinition, 'sourceSkillId' | 'blackboard' | 'costFrame'>>
 > & {
+  /** 仅供整名技能组装配；生成最终 OperatorDefinition 前必须移除。 */
+  readonly allowNextSkillTransitions: readonly {
+    readonly startFrame: number;
+    readonly skillIds: readonly string[];
+    readonly direct: boolean;
+  }[];
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   readonly switchToBuffCast?: NonNullable<SkillDefinition['switchToBuffCast']>;
   readonly costs?: readonly Readonly<SkillCostDefinition>[];
@@ -56,6 +62,7 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
     ),
     timelineBlockFrames: runtime.timelineBlockFrames,
     exclusiveFrame: runtime.exclusiveFrame,
+    allowNextSkillTransitions: runtime.allowNextSkillTransitions,
     costFrame,
     scheduledSequences: runtime.scheduledSequences.map(item => ({
       startFrame: item.startFrame,
@@ -105,7 +112,9 @@ export function renderOperatorActiveSkillRuntimeDefinitionSource(input: {
     throw new Error('operatorSlug: expected stable kebab-case identity');
   const supplementalBuffDefinitions = input.supplementalBuffDefinitions ?? {};
   const hydrate = createPhysicalInflictionDefinitionHydrator(supplementalBuffDefinitions);
-  const definition = hydrate(input.definition);
+  const { allowNextSkillTransitions: _allowNextSkillTransitions, ...runtimeDefinition } =
+    input.definition;
+  const definition = hydrate(runtimeDefinition);
   const hydratedSupplementalBuffDefinitions = hydrate(supplementalBuffDefinitions);
   const renderedBuffs = renderTypeScriptData(hydratedSupplementalBuffDefinitions);
   const renderedDefinition = renderTypeScriptData(definition);

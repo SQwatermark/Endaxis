@@ -258,6 +258,7 @@ describe('BuffDefinitionOperationTarget', () => {
 
   it('binds lifecycle definitions to the configured per-instance operation factory', () => {
     let executed = false;
+    const lifecycleSources: unknown[] = [];
     const target = new BuffDefinitionOperationTarget(
       new CombatBuffContainer('operator', new CombatAttributeSet()),
       {
@@ -265,18 +266,23 @@ describe('BuffDefinitionOperationTarget', () => {
         compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
       },
     );
-    target.configureLifecycleOperations(() => ({
+    target.configureLifecycleOperations(source => {
+      lifecycleSources.push(source);
+      return {
       execute: () => {
         executed = true;
         return true;
       },
       evaluate: () => true,
-    }));
+      };
+    });
 
     expect(
       target.apply({
         buffId: 'active-buff',
-        sourceId: 'operator',
+        sourceId: 'support-operator',
+        definitionOwnerId: 'definition-operator',
+        sourceActionId: 'support-passive',
         blackboardValues: {},
         definition: {
           stackingType: 'unique',
@@ -294,6 +300,14 @@ describe('BuffDefinitionOperationTarget', () => {
       }),
     ).toBe(true);
     expect(executed).toBe(true);
+    expect(lifecycleSources).toEqual([
+      expect.objectContaining({
+        ownerId: 'operator',
+        sourceId: 'support-operator',
+        definitionOwnerId: 'definition-operator',
+        sourceActionId: 'support-passive',
+      }),
+    ]);
   });
 
   it('notifies the owner event boundary after a Buff is successfully applied', () => {

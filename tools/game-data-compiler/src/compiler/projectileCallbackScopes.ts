@@ -74,7 +74,7 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
     routes.set(callback.event, callback.skillId);
   }
   const skills = new Set<string>();
-  const steps: CompiledBuffStepSource[] = invocations.map(invocation => {
+  const steps: CompiledBuffStepSource[] = invocations.map((invocation, invocationIndex) => {
     if (routes.get(invocation.event) !== invocation.skillId)
       throw new Error(
         `${sourcePath}: callback ${invocation.event} does not match the enabled native route`,
@@ -84,6 +84,10 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
         `${sourcePath}: repeated callback skill requires dynamic restoration semantics`,
       );
     skills.add(invocation.skillId);
+    const sequence = omitDeadSingleEnemyBounceBookkeeping(
+      invocation.sequence,
+      invocations.slice(invocationIndex + 1).map(candidate => candidate.sequence),
+    );
     return {
       kind: 'withActionBlackboardScope',
       parameters: {
@@ -93,7 +97,7 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
         initialValues: numericInitialValues(invocation.declaredBlackboard, sourcePath),
         inheritParent: true,
       },
-      body: invocation.sequence,
+      body: sequence,
     } satisfies CompiledActionBlackboardScopeSource;
   });
   return {
@@ -112,6 +116,47 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
     },
     body: { steps },
   };
+}
+
+/**
+ * 唯一木桩被 ExcludeTarget 排除后，寻找弹射目标的投影会得到确定空组，后续发射也随之消失。
+ * 此时原分支只剩“记录已经弹射”的实体黑板写入和空组写入；若本次及后续回调均不再读取它们，
+ * 整个分支在 Next 的单敌人模型中不可观察。先从叶子确认消费者已消失，再删除条件，避免要求
+ * 一个本来只服务多敌人弹射的 EntityBB 初值。
+ */
+function omitDeadSingleEnemyBounceBookkeeping(
+  sequence: CompiledBuffSequenceSource,
+  laterCallbacks: readonly CompiledBuffSequenceSource[],
+): CompiledBuffSequenceSource {
+  const retained = sequence.steps.filter((step, index, steps) => {
+    if (step.kind !== 'conditional' || step.whenFalse !== undefined) return true;
+    if (step.parameters.alwaysNext !== true) return true;
+    const writes: string[] = [];
+    let hasEmptyTargetGroupWrite = false;
+    for (const child of step.whenTrue.steps) {
+      if (child.kind === 'modifyActionValue') {
+        writes.push(child.parameters.key);
+        continue;
+      }
+      if (child.kind === 'mergeContextTargets' && child.parameters.sources.length === 0) {
+        writes.push(child.parameters.saveToContextKey);
+        hasEmptyTargetGroupWrite = true;
+        continue;
+      }
+      return true;
+    }
+    if (!hasEmptyTargetGroupWrite || writes.length < 2) return true;
+    const remaining = [...steps.slice(index + 1), ...laterCallbacks.flatMap(item => item.steps)];
+    return writes.some(key => containsStringValue(remaining, key));
+  });
+  return retained.length === sequence.steps.length ? sequence : { steps: retained };
+}
+
+function containsStringValue(value: unknown, expected: string): boolean {
+  if (value === expected) return true;
+  if (Array.isArray(value)) return value.some(child => containsStringValue(child, expected));
+  if (value === null || typeof value !== 'object') return false;
+  return Object.values(value).some(child => containsStringValue(child, expected));
 }
 
 function projectEntityAssignments(

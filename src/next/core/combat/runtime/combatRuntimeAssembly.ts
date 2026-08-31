@@ -139,6 +139,8 @@ export interface CombatOperatorProgram {
   readonly passivePrograms?: readonly CompiledOperatorPassiveProgram[];
   /** 构筑启用的养成事件监听器；按养成声明顺序注册到数据动作阶段。 */
   readonly upgradeEventPrograms?: readonly CompiledOperatorUpgradeEventProgram[];
+  /** 复合元素状态由环境创建；这里保存当前构筑对其持续时间和效能的静态修正。 */
+  readonly reactionModifiers?: readonly import('../../compiler/compileOperatorUpgrades').CompiledOperatorReactionModifier[];
   /** 角色进入战斗时注册的首段连携入口；与时间轴上放置了多少技能块无关。 */
   readonly comboSkillRegistrations?: readonly CompiledComboSkillRegistration[];
   /** 原生附着事件的常驻条件；不按技能块重复注册，不替代旧语义连携规则。 */
@@ -189,6 +191,10 @@ export interface CombatEnemyProgram {
 /** 非资源操作执行器工厂能够读取的稳定运行时依赖。 */
 export interface CombatOperationExecutorContext {
   readonly program: CompiledSkillProgram;
+  /** 伤害、治疗和属性读取归属的干员；能力实体作为动作宿主时仍指向其定义宿主。 */
+  readonly sourceOperatorId?: string;
+  /** 把能力实体 AbilitySystem 身份沿来源链解析到实际干员/敌人。 */
+  readonly resolveAbilitySystemSourceId?: (entityId: string) => string;
   /** 当前定义宿主的已解析 Buff 闭包，供具有隐式 Buff 依赖的原生根动作复用。 */
   readonly buffDefinitions?: CombatOperatorProgram['buffDefinitions'];
   readonly enemy: CombatEnemyProgram;
@@ -264,6 +270,7 @@ export interface CombatRuntimeAssemblyOptions {
   readonly createOperatorBuffRuntime?: (
     operatorId: string,
     panel?: ResolvedOperatorPanel,
+    reactionModifiers?: CombatOperatorProgram['reactionModifiers'],
   ) => OperatorBuffRuntime;
   /** 按每次回能时的 Buff 属性状态解析 UltimateSpGainScalar。 */
   readonly resolveUltimateEnergyGainMultiplier?: (operatorId: string) => number;
@@ -570,7 +577,11 @@ export class CombatRuntimeAssembly {
       }
       const buffRuntime =
         operator.buffRuntime ??
-        options.createOperatorBuffRuntime?.(operator.operatorId, operator.panel);
+        options.createOperatorBuffRuntime?.(
+          operator.operatorId,
+          operator.panel,
+          operator.reactionModifiers,
+        );
       const runtimeOperator =
         buffRuntime === operator.buffRuntime ? operator : { ...operator, buffRuntime };
       this.#operators.set(operator.operatorId, runtimeOperator);
@@ -1735,6 +1746,12 @@ export class CombatRuntimeAssembly {
     // 当前创建来源干员。施法快照只负责定位原程序，不强迫后代 Buff 继续归因原施法者。
     const ownerOperator = this.#operators.get(source.ownerId);
     const sourceOperator = this.#operators.get(source.sourceId);
+    const definitionOperator = this.#operators.get(source.definitionOwnerId);
+    if (definitionOperator === undefined) {
+      throw new Error(
+        `Buff lifecycle definition owner '${source.definitionOwnerId}' is not a combat operator`,
+      );
+    }
     const operationOperator = ownerOperator ?? sourceOperator ?? binding.operator;
     const operationProgram =
       operationOperator.operatorId === binding.program.operatorId
@@ -1742,7 +1759,8 @@ export class CombatRuntimeAssembly {
         : { ...binding.program, operatorId: operationOperator.operatorId };
     return this.#createOperationChain({
       operator: operationOperator,
-      definitionOperator: binding.operator,
+      // 宿主、Buff 来源和触发施法都可能属于不同干员；定义目录使用实例保存的显式身份。
+      definitionOperator,
       program: operationProgram,
       enemy: options.enemy,
       statusRuntime:
@@ -1785,6 +1803,8 @@ export class CombatRuntimeAssembly {
     const operatorId = operator.operatorId;
     const terminalDelegate = createDelegate({
       program,
+      sourceOperatorId: definitionOperator.operatorId,
+      resolveAbilitySystemSourceId: entityId => this.#resolveAbilitySystemSourceId(entityId),
       buffDefinitions: definitionOperator.buffDefinitions,
       enemy,
       equipmentContributions: operator.equipmentContributions ?? [],
@@ -1881,6 +1901,7 @@ export class CombatRuntimeAssembly {
     );
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
+      definitionOwnerId: definitionOperator.operatorId,
       sourceActionId: program.castId ?? program.skillId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
@@ -1996,7 +2017,11 @@ export class CombatRuntimeAssembly {
         ? undefined
         : {
             sourceId: operator.operatorId,
-            read: this.#options.readSourceAttributeValue,
+            read: (sourceId, request) =>
+              this.#options.readSourceAttributeValue!(
+                this.#resolveAbilitySystemSourceId(sourceId),
+                request,
+              ),
           },
       ownerId => this.#abilitySystems.get(ownerId)?.currentSkillTimelineFrame,
       operator.panel?.attributes,
@@ -2245,7 +2270,11 @@ export class CombatRuntimeAssembly {
         ? undefined
         : {
             sourceId: operatorId,
-            read: options.readSourceAttributeValue,
+            read: (sourceId, request) =>
+              options.readSourceAttributeValue!(
+                this.#resolveAbilitySystemSourceId(sourceId),
+                request,
+              ),
           },
       undefined,
       operator.panel?.attributes,
@@ -2285,6 +2314,8 @@ export class CombatRuntimeAssembly {
     const template = operator.skills[0];
     if (template === undefined) return unsupportedReactiveTerminal;
     return options.createOperationExecutor({
+      sourceOperatorId: operator.operatorId,
+      resolveAbilitySystemSourceId: entityId => this.#resolveAbilitySystemSourceId(entityId),
       buffDefinitions: operator.buffDefinitions,
       program: {
         ...template,
@@ -2483,7 +2514,9 @@ export class CombatRuntimeAssembly {
     }).source;
     if (source.kind === 'operator') return source.operatorId;
     if (source.kind === 'enemy') return 'enemy';
-    if (source.kind === 'abilityEntity') return logicalAbilityEntityRuntimeId(source.instanceId);
+    if (source.kind === 'abilityEntity') {
+      return this.#resolveAbilitySystemSourceId(logicalAbilityEntityRuntimeId(source.instanceId));
+    }
     throw new Error('spatial points cannot be AbilitySystem sources');
   }
 

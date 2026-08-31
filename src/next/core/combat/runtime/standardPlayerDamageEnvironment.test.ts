@@ -948,6 +948,29 @@ describe('StandardPlayerDamageEnvironment', () => {
     ).toBe(5000);
   });
 
+  it('resolves an ability entity source back to its operator before reading panel attributes', () => {
+    const environment = createEnvironment();
+    const baseContext = createContext();
+    environment.runtimeOptions.createOperationExecutor({
+      ...baseContext,
+      program: { ...baseContext.program, operatorId: 'ability-entity:1' },
+      sourceOperatorId: 'operator',
+      resolveAbilitySystemSourceId: id => (id === 'ability-entity:1' ? 'operator' : id),
+    });
+
+    expect(
+      environment.runtimeOptions.readSourceAttributeValue?.('ability-entity:1', {
+        attribute: { kind: 'specific', key: 'maxHealth' },
+        stage: 'finalNonConverted',
+        useFloor: false,
+        divisor: { kind: 'constant', value: 1 },
+        multiplier: { kind: 'constant', value: 1 },
+        base: { kind: 'constant', value: 0 },
+        targetKey: 'max_hp',
+      }),
+    ).toBe(5000);
+  });
+
   it('副属性快照在执行时读取非转换阶段，并保留技能黑板乘加公式', () => {
     const environment = createEnvironment();
     const baseContext = createContext();

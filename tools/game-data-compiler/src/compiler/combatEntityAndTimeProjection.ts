@@ -1501,7 +1501,10 @@ export function compileBuffLeafNode(
           (context.actionSourceTarget === 'caster' ||
             context.fixedBuffSourceTarget === 'caster')) ||
         (write.selectorOwner === 'ActionOwner' &&
-          ['caster', 'buffOwner'].includes(context.actionOwnerTarget));
+          ['caster', 'buffOwner'].includes(context.actionOwnerTarget)) ||
+        (write.selectorOwner === 'ContextTarget' &&
+          write.selectorOwnerContextKey !== '' &&
+          partyTargetGroups.get(write.selectorOwnerContextKey) === 'buffSource');
       if (write.producerType !== 'FindTargetAction' || !ownerEnvironmentSupported)
         throw new Error(`${node.sourcePath}: unsupported AbilityEntity query environment`);
       const query = compileTargetGroupAbilityEntityQuerySource(

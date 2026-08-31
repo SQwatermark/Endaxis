@@ -56,6 +56,20 @@ describe('operator attack attributes', () => {
     expect(attributes.get('UltimateSpGainScalar')).toBeCloseTo(1.25);
   });
 
+  it('按 AttributeMetaTable 承载并限制关键词加速倍率', () => {
+    const attributes = createOperatorAttackAttributes(input);
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'KeywordSpeedUpScalar',
+        attributeModifierValues('baseAddition', 0.5),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+
+    expect(attributes.get('KeywordSpeedUpScalar')).toBe(1.3);
+  });
+
   it('按原生主副属性系数计算静态攻击', () => {
     const attributes = createOperatorAttackAttributes(input);
 

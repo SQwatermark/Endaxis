@@ -28,6 +28,8 @@ export interface BuffLifecycleOperationSource {
   readonly ownerId: string;
   /** 普通生命周期为创建者；叠层和点燃回调显式传入本次动作来源，不改变实例归属。 */
   readonly sourceId: string;
+  /** 创建当前 Buff 定义的 AbilitySystem；不能从宿主、来源或触发施法反推。 */
+  readonly definitionOwnerId: string;
   readonly sourceActionId: string;
   /** 普通/叠层回调沿用 Buff 来源施法，点燃使用本次 IgniteAction 的施法身份。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
@@ -137,6 +139,8 @@ export interface BuffApplicationRequest {
   /** 缺少表示旧式外部定义引用；内联技能步骤必须携带。 */
   readonly definition?: ResolvedSkillBuffDefinition;
   readonly sourceId: string;
+  /** 后代定义继续从该 AbilitySystem 的目录解析。 */
+  readonly definitionOwnerId?: string;
   readonly sourceActionId?: string;
   readonly blackboardValues: Readonly<Record<string, number>>;
   readonly skillCastInfo?: CombatSkillCastInfo;
@@ -146,6 +150,8 @@ export interface BuffApplicationRequest {
 
 export interface BuffOperationDependencies {
   readonly sourceId: string;
+  /** 当前操作链解析 Buff/能力实体定义所使用的干员。 */
+  readonly definitionOwnerId?: string;
   readonly sourceActionId?: string;
   readonly resolveTarget: (target: CombatTarget) => BuffOperationTarget;
   /** 集合施加只用于 CreateBuffAction；Buff 查询与结束仍必须解析为单一实体。 */
@@ -400,8 +406,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           );
         let definition =
           step.parameters.definition ?? this.dependencies.resolveBuffDefinition?.(buffId);
-        if (dynamicId && definition === undefined)
+        if (dynamicId && definition === undefined) {
           throw new Error(`动态 Buff ID '${buffId}' 在定义目录中不存在`);
+        }
         if (step.parameters.keywordEnhancements?.length) {
           if (definition === undefined)
             throw new Error(`关键词 Buff '${buffId}' 在定义目录中不存在`);
@@ -435,6 +442,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             step.parameters.source === undefined
               ? this.dependencies.sourceId
               : sourceTarget!.ownerId,
+          definitionOwnerId: this.dependencies.definitionOwnerId ?? this.dependencies.sourceId,
           ...(sourceTarget?.getAttributeValue === undefined
             ? {}
             : { getSourceAttributeValue: sourceTarget.getAttributeValue.bind(sourceTarget) }),

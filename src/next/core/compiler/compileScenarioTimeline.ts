@@ -31,6 +31,7 @@ import type {
 import { compileOperatorBuffResources, compileSkill } from './compileSkill';
 import {
   applyOperatorUpgradeSkillPatches,
+  compileOperatorReactionModifiers,
   compileOperatorInitializationPrograms,
   compileOperatorUpgradeEventPrograms,
   compileOperatorPassivePrograms,
@@ -552,6 +553,7 @@ function compileResolvedTimelineTracks(
         operatorInstance.skillLevels,
       ),
       upgradeEventPrograms: compileOperatorUpgradeEventPrograms(activeUpgrades),
+      reactionModifiers: compileOperatorReactionModifiers(activeUpgrades),
       skills: compiledSkills,
     });
   }

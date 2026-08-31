@@ -23,6 +23,7 @@
     "audit:game-data:operators": "node --experimental-strip-types tools/game-data-compiler/scripts/auditOperatorSourceClosures.ts",
     "audit:game-data:operator-active-skills": "node --experimental-strip-types tools/game-data-compiler/scripts/auditOperatorActiveSkillMigration.ts",
     "audit:game-data:tag-references": "node --experimental-strip-types tools/game-data-compiler/scripts/auditGameplayTagReferences.ts",
+    "audit:legacy-timeline": "node --experimental-strip-types tools/game-data-compiler/scripts/auditLegacyTimeline.ts",
     "audit:game-data:weapons": "node --experimental-strip-types tools/game-data-compiler/scripts/auditWeaponStaticDefinitions.ts",
     "audit:game-data:gear-set-sources": "node --experimental-strip-types tools/game-data-compiler/scripts/auditGearSetSourceClosure.ts",
     "audit:game-data:gear-set-static": "node --experimental-strip-types tools/game-data-compiler/scripts/auditGearSetStaticDefinitions.ts",

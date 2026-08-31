@@ -20,7 +20,7 @@ export interface ProjectInspection {
 
 /** 项目解析结果的完整分类；调用方必须处理每一种失败类型。 */
 export type ParseProjectResult =
-  | { ok: true; value: EndaxisProjectDocument }
+  | { ok: true; value: EndaxisProjectDocument; migrationWarnings?: readonly string[] }
   | { ok: false; kind: 'invalid-json'; message: string }
   | { ok: false; kind: 'legacy'; message: string }
   | { ok: false; kind: 'migration-failed'; errors: string[] }
@@ -82,7 +82,9 @@ export function parseProjectDocument(
       if (!migratedValidation.ok) {
         return { ok: false, kind: 'invalid-document', issues: migratedValidation.issues };
       }
-      return migratedValidation;
+      return migration.warnings.length === 0
+        ? migratedValidation
+        : { ...migratedValidation, migrationWarnings: migration.warnings };
     }
     return {
       ok: false,

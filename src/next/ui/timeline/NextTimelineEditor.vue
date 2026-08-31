@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onScopeDispose, ref, shallowRef, watch }
 import { useI18n } from 'vue-i18n';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useAppearance } from '../../../composables/useAppearance';
+import { createLegacyProjectImporter } from '../../application/legacy/legacyProjectImporter';
 import { ALL_GAME_TEXT_FAMILIES, setLocale } from '../../../i18n';
 import {
   getEnemyGameName,
@@ -619,7 +620,10 @@ async function handleProjectFileChange(event: Event): Promise<void> {
   if (file === undefined) return;
   const editingProject = projectSession.snapshot.project;
   try {
-    const result = openProject(await file.text(), { gameDataRepository: nextGameDataRepository });
+    const result = openProject(await file.text(), {
+      gameDataRepository: nextGameDataRepository,
+      legacyImporter: createLegacyProjectImporter(nextGameDataRepository),
+    });
     if (projectSession.snapshot.project !== editingProject)
       throw new Error('读取文件期间当前项目已变化，请重新加载');
     if (!result.ok) {
@@ -627,6 +631,13 @@ async function handleProjectFileChange(event: Event): Promise<void> {
       return;
     }
     await acceptOpenedProject(result.project, result.gameDataRevisionUpdated);
+    if (result.migrationWarnings !== undefined) {
+      ElMessage.warning({
+        message: `旧项目已迁移，但有 ${result.migrationWarnings.length} 项输入未能完整保留：${result.migrationWarnings[0]}`,
+        duration: 8000,
+        showClose: true,
+      });
+    }
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '打开项目失败');
   }

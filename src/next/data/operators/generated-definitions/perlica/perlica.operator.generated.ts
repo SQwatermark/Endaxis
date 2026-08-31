@@ -694,44 +694,6 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
                 },
                 true,
                 sequence(
-                  branch(
-                    {
-                      kind: 'all',
-                      conditions: [
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'talent2' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                        {
-                          kind: 'entityTagMatch',
-                          target: 'enemy',
-                          tagQueryType: 'hasAny',
-                          tags: ['Skill/Character/Common/NoGuard'],
-                        },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'EntityBB_bounced' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
-                      ],
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'EntityBB_bounced',
-                        operation: 'assign',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('mergeContextTargets', {
-                        saveToContextKey: 'extra_target',
-                        sources: [],
-                      }),
-                    ),
-                    undefined,
-                    { alwaysNext: true },
-                  ),
                   step('applyBuff', {
                     buffId: 'buff_common_pulse_pulse_conduct_triggered',
                     target: 'enemy',
@@ -750,7 +712,7 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
                       features: ['canBreakWeakness'],
                       stagger: { kind: 'blackboard', key: 'poise' },
                     },
-                    'chr_0004_pelica_combo_skill:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/2',
+                    'chr_0004_pelica_combo_skill:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/1',
                   ),
                   branch(
                     {

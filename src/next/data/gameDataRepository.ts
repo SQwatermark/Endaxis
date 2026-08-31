@@ -58,7 +58,10 @@ import {
 } from './equipment';
 import { legacyEnemyDefinitions } from './adapters/legacyEnemyDefinitionAdapter';
 import { commonBuffDefinitions } from './buffs/commonDefinitions';
-import { nextWeaponDefinitions } from './equipment/nextWeaponDefinitions';
+import {
+  nextWeaponDefinitions,
+  nextWeaponRegistration,
+} from './equipment/nextWeaponDefinitions';
 
 /** 项目始终使用随当前 Endaxis 发布的唯一最新定义库。 */
 export const NEXT_GAME_DATA_REVISION = 'endaxis-next-definitions-latest';
@@ -69,6 +72,8 @@ export interface GameDataRepositoryInput {
   readonly commonAbilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
   readonly operators?: readonly OperatorDefinition[];
   readonly weapons?: readonly WeaponDefinition[];
+  /** 旧项目展示 slug 到当前原生武器身份的兼容映射。 */
+  readonly weaponAliases?: Readonly<Record<string, string>>;
   readonly gears?: readonly GearDefinition[];
   /** 只用于解析旧项目身份；浏览器仍只枚举规范定义。 */
   readonly gearAliases?: Readonly<Record<string, string>>;
@@ -133,6 +138,7 @@ export function createGameDataRepository(
   const enemyList = Object.freeze([...(input.enemies ?? [])]);
   const operators = indexDefinitions(operatorList, value => value.slug, 'operator');
   const weapons = indexDefinitions(weaponList, value => value.slug, 'weapon');
+  const weaponAliases = indexSlugAliases(input.weaponAliases, weapons, 'weapon');
   const gears = indexDefinitions(gearList, value => value.slug, 'gear');
   const gearSets = indexDefinitions(gearSetList, value => value.slug, 'gear set');
   const gearAliases = indexSlugAliases(input.gearAliases, gears, 'gear');
@@ -150,7 +156,7 @@ export function createGameDataRepository(
     getGearSets: () => gearSetList,
     getEnemies: () => enemyList,
     getOperator: (slug: string) => operators.get(slug) ?? null,
-    getWeapon: (slug: string) => weapons.get(slug) ?? null,
+    getWeapon: (slug: string) => weapons.get(slug) ?? weaponAliases.get(slug) ?? null,
     getGear: (slug: string) => gears.get(slug) ?? gearAliases.get(slug) ?? null,
     getGearSet: (slug: string) => gearSets.get(slug) ?? gearSetAliases.get(slug) ?? null,
     getEnemy: (id: string) => enemies.get(id) ?? null,
@@ -195,6 +201,7 @@ export const nextGameDataRepository = createGameDataRepository({
     ardelia,
   ],
   weapons: nextWeaponDefinitions,
+  weaponAliases: nextWeaponRegistration.aliases,
   gears: nextGearDefinitions,
   gearAliases: nextGearDefinitionRegistration.gearAliases,
   gearSets: sharedGearSetDefinitions,

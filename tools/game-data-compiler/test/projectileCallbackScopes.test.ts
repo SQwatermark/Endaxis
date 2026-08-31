@@ -60,4 +60,70 @@ describe('synchronous projectile callback scope', () => {
       EntityBB_value: { kind: 'constant', value: 1 },
     });
   });
+
+  it('removes single-enemy bounce bookkeeping after its empty target consumer is omitted', () => {
+    const result = compileSynchronousProjectileCallbackScopesSource({
+      sourcePath: 'skill.LaunchProjectile',
+      launch,
+      template: {
+        projectileId: launch.projectileId,
+        entityBlackboard: [],
+      },
+      invocations: [
+        {
+          event: 'hit',
+          skillId: 'projectile_hit',
+          declaredBlackboard: [],
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'EntityBB_bounced' },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  alwaysNext: true,
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'modifyActionValue',
+                      parameters: {
+                        key: 'EntityBB_bounced',
+                        operation: 'assign',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                    },
+                    {
+                      kind: 'mergeContextTargets',
+                      parameters: { saveToContextKey: 'extra_target', sources: [] },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'dealDamage',
+                parameters: {
+                  damageType: 'electric',
+                  attackScale: { kind: 'constant', value: 1 },
+                  tags: [],
+                  features: [],
+                  stagger: { kind: 'constant', value: 0 },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    const callbackScope = result.body.steps[0];
+    expect(callbackScope).toMatchObject({
+      kind: 'withActionBlackboardScope',
+      body: { steps: [{ kind: 'dealDamage' }] },
+    });
+  });
 });

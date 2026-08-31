@@ -38,6 +38,7 @@ export type OperatorRuntimeAttribute =
   | 'PhysicalAndSpellInflictionEnhance'
   | 'AtbCostAddition'
   | 'ComboSkillCooldownRecoveryScalar'
+  | 'KeywordSpeedUpScalar'
   | 'SlowActionSpeedScalar'
   | 'UltimateSpGainScalar'
   | 'KnockDownTimeAddition'
@@ -144,6 +145,9 @@ export function createOperatorAttackAttributes(
   result.define('shelterDamageMultiplier', 0, {});
   // AttributeMetaTable[93]: default 1, minimum 0, no maximum.
   result.define('ComboSkillCooldownRecoveryScalar', 1, { minimum: 0 });
+  // AttributeMetaTable[92]：关键词“加速”的原生倍率，默认 1，范围 [0.1, 1.3]。
+  // 固定站桩模型未必消费其动作速度，但汤汤等 Buff 仍会按原生槽位修改它。
+  result.define('KeywordSpeedUpScalar', 1, { minimum: 0.1, maximum: 1.3 });
   // combat-spec derived-attributes：该原生属性默认 0，只派生移动速度；固定零距离模型仍须承载 Buff。
   result.define('SlowActionSpeedScalar', 0, {});
   // AttributeMetaTable[44]: 正向终结技能量回复在每次结算时读取该动态属性。
