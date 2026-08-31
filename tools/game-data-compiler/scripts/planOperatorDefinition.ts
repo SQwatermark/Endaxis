@@ -112,8 +112,9 @@ export function planOperatorDefinition(
   });
   const compileSkillSlotReplacement = createActiveSkillSlotReplacementProjection(
     foundation.skillLibrary.activeSkills.entries,
-    foundation.skillLibrary.skillGroups,
-    new Set(runtimeReplacementSkillKeys),
+  );
+  const compileSkillTypeMutation = createActiveSkillTypeMutationProjection(
+    foundation.skillLibrary.activeSkills.entries,
   );
   const basePassiveSkillRequests = basePassiveSkillIds.map(id => ({
     originKind: 'operatorProgression' as const,
@@ -147,6 +148,7 @@ export function planOperatorDefinition(
       supplementalBuffIds: [],
       allowMissingSkillPatch: runtimeReplacementSkillKeys.includes(entry.key),
       compileSkillSlotReplacement,
+      compileSkillTypeMutation,
     }),
   );
   const crossSkillObservedBuffIds = [
@@ -167,6 +169,7 @@ export function planOperatorDefinition(
       preserveBuffIds: crossSkillObservedBuffIds,
       allowMissingSkillPatch: runtimeReplacementSkillKeys.includes(entry.key),
       compileSkillSlotReplacement,
+      compileSkillTypeMutation,
     });
     return entry.enhancementStateBuffId === undefined
       ? planned
@@ -206,6 +209,10 @@ export function planOperatorDefinition(
     })),
     gameplayTagRegistry,
   );
+  const nativePlayerActionRouting =
+    runtimeTemplate === undefined
+      ? undefined
+      : compileNativePlayerActionRouting(runtimeTemplate.playerActionSource, activeSkills);
   const candidate = assembleOperatorDefinition({
     foundation,
     activeSkills,
@@ -252,6 +259,8 @@ export function planOperatorDefinition(
       : {
           runtimeEntityBlackboard: runtimeTemplate.entityBlackboard,
           comboSkillConditions: runtimeTemplate.comboSkillConditions,
+          nativeSkillTypeBySourceId: runtimeTemplate.playerActionSource.initialNativeSkillTypeById,
+          nativePlayerActionRouting,
         }),
     createBuffProjectionExtensions: (sources, visualOnlyIds) => {
       const resolveTimeDilationPriority = (tagId: number, sourcePath: string) => {
@@ -276,7 +285,7 @@ export function planOperatorDefinition(
           ),
         ),
       );
-      if (launches.length === 0) return { resolveTimeDilationPriority };
+      if (launches.length === 0) return { resolveTimeDilationPriority, compileSkillTypeMutation };
       const prepared = prepareProjectileProjection(args, launches, visualOnlyIds, {
         gameplayTagRegistry,
         actionOwnerTarget: 'unavailable',
@@ -287,6 +296,7 @@ export function planOperatorDefinition(
       return {
         compileProjectileLaunch: prepared.compileProjectileLaunch,
         resolveTimeDilationPriority,
+        compileSkillTypeMutation,
       };
     },
     createAbilityEntityProjectionExtensions: (skillId, value, visualOnlyIds) => {
@@ -328,7 +338,12 @@ export function planOperatorDefinition(
   return { ...candidate, activeSkills };
 }
 
-const RUNTIME_TEMPLATE_FIELDS = new Set(['sourceFile', 'sourceSha256', 'skillGroupKey']);
+const RUNTIME_TEMPLATE_FIELDS = new Set([
+  'sourceFile',
+  'sourceSha256',
+  'sourceCharacterId',
+  'comboSkillGroupKey',
+]);
 
 function planOperatorRuntimeTemplate(
   value: unknown,
@@ -361,36 +376,57 @@ function planOperatorRuntimeTemplate(
   if (!/^[0-9a-f]{64}$/iu.test(expectedSourceSha256)) {
     throw new Error(`${sourcePath}.sourceSha256: expected SHA256`);
   }
-  const skillGroupKey = requireNonEmptyString(config.skillGroupKey, `${sourcePath}.skillGroupKey`);
-  const skillGroup = skillGroups.find(group => group.key === skillGroupKey);
-  if (skillGroup === undefined || skillGroup.skillType !== 'comboSkill')
-    throw new Error(`${sourcePath}.skillGroupKey: expected a combo skill group`);
+  const sourceCharacterId = requireNonEmptyString(
+    config.sourceCharacterId,
+    `${sourcePath}.sourceCharacterId`,
+  );
+  const skillGroupKey =
+    config.comboSkillGroupKey === null
+      ? undefined
+      : requireNonEmptyString(config.comboSkillGroupKey, `${sourcePath}.comboSkillGroupKey`);
+  const skillGroup =
+    skillGroupKey === undefined
+      ? undefined
+      : skillGroups.find(group => group.key === skillGroupKey);
+  if (
+    skillGroupKey !== undefined &&
+    (skillGroup === undefined || skillGroup.skillType !== 'comboSkill')
+  )
+    throw new Error(`${sourcePath}.comboSkillGroupKey: expected a combo skill group`);
   const artifactPath = path.resolve(sourceRoot, sourceFile);
-  const template = parseOperatorRuntimeTemplateSource(read(artifactPath), artifactPath);
+  const template = parseOperatorRuntimeTemplateSource(read(artifactPath), artifactPath, {
+    parseComboConditions: skillGroupKey !== undefined,
+  });
   if (template.sourceSha256.toLowerCase() !== expectedSourceSha256.toLowerCase()) {
     throw new Error(`${sourcePath}.sourceSha256: runtime template source identity changed`);
   }
-  const charId = requireNonEmptyString(charIdValue, `${slug}.charId`);
-  if (template.characterId !== charId) {
-    throw new Error(`${sourcePath}: expected character ${JSON.stringify(charId)}`);
+  requireNonEmptyString(charIdValue, `${slug}.charId`);
+  if (template.characterId !== sourceCharacterId) {
+    throw new Error(
+      `${sourcePath}: expected source character ${JSON.stringify(sourceCharacterId)}`,
+    );
   }
-  const comboSkills = activeSkills.filter(
-    skill =>
-      skill.definition.sourceSkillId === template.comboSkillId &&
-      skillGroup.skillKeys.includes(skill.definition.key),
-  );
-  if (comboSkills.length !== 1) {
-    throw new Error(`${sourcePath}: runtime template combo skill identity does not match manifest`);
+  if (skillGroup !== undefined) {
+    const comboSkills = activeSkills.filter(
+      skill =>
+        skill.definition.sourceSkillId === template.comboSkillId &&
+        skillGroup.skillKeys.includes(skill.definition.key),
+    );
+    if (comboSkills.length !== 1) {
+      throw new Error(
+        `${sourcePath}: runtime template combo skill identity does not match manifest`,
+      );
+    }
   }
   const blackboards = compileAbilitySystemBlackboardsSource(template.blackboards);
   return {
     entityBlackboard: blackboards.entityInitialValues,
-    comboSkillConditions: template.conditions.conditions.map(
+    comboSkillConditions: template.conditions?.conditions.map(
       (condition, index) =>
         compileComboSkillConditionDefinitionSource(
           condition,
           blackboards,
-          { key: `native-combo:${index}`, skillGroupKey },
+          { key: `native-combo:${index}`, skillGroupKey: skillGroupKey! },
           {
             gameplayTagRegistry,
             actionOwnerTarget: 'caster',
@@ -399,17 +435,94 @@ function planOperatorRuntimeTemplate(
           },
         ).definition,
     ),
+    playerActionSource: template.playerActionSource,
+  };
+}
+
+function compileNativePlayerActionRouting(
+  source: ReturnType<typeof parseOperatorRuntimeTemplateSource>['playerActionSource'],
+  activeSkills: readonly PlannedOperatorActiveSkillRuntime[],
+) {
+  const keyBySourceId = new Map(
+    activeSkills.map(skill => [skill.definition.sourceSkillId, skill.definition.key] as const),
+  );
+  const requireSkillKey = (sourceSkillId: string, path: string) => {
+    const key = keyBySourceId.get(sourceSkillId);
+    if (key === undefined)
+      throw new Error(`${path}: native skill '${sourceSkillId}' is not converted`);
+    return key;
+  };
+  const slotBaseSkillKeys = {
+    battleSkill: requireSkillKey(source.slotSkillIds.battleSkill, 'CharacterData.normalSkillId'),
+    comboSkill: requireSkillKey(source.slotSkillIds.comboSkill, 'CharacterData.comboSkillId'),
+    ultimate: requireSkillKey(source.slotSkillIds.ultimate, 'CharacterData.ultimateSkillId'),
+  };
+  for (const input of ['battleSkill', 'comboSkill', 'ultimate'] as const) {
+    const mapped = source.defaultCommandSkillIds[input];
+    if (mapped !== undefined && mapped !== source.slotSkillIds[input]) {
+      throw new Error(`CharacterData.defaultCmdMapping.${input}: does not match its base slot`);
+    }
+  }
+  const basicAttackSkillKeys = [
+    ...new Set([
+      ...source.allNormalAttackIds,
+      ...source.modes.flatMap(mode => mode.normalAttackSkillIds ?? []),
+      ...source.modes.flatMap(mode => {
+        const skillId = mode.commandSkillIds?.basicAttack;
+        return skillId === undefined ? [] : [skillId];
+      }),
+    ]),
+  ].flatMap(sourceSkillId => {
+    const key = keyBySourceId.get(sourceSkillId);
+    return key === undefined ? [] : [key];
+  });
+  const defaultBasicAttackSourceId = source.defaultCommandSkillIds.basicAttack;
+  const defaultBasicAttackSkillKey =
+    defaultBasicAttackSourceId === undefined
+      ? undefined
+      : requireSkillKey(defaultBasicAttackSourceId, 'CharacterData.defaultCmdMapping.basicAttack');
+  const playerActionModes = source.modes.flatMap(mode => {
+    if (mode.normalAttackSkillIds === undefined && mode.commandSkillIds === undefined) return [];
+    const commandMappings = Object.fromEntries(
+      Object.entries(mode.commandSkillIds ?? {}).map(([input, sourceSkillId]) => [
+        input,
+        {
+          sourceSkillId,
+          ...(keyBySourceId.has(sourceSkillId)
+            ? { skillKey: keyBySourceId.get(sourceSkillId)! }
+            : {}),
+        },
+      ]),
+    );
+    return [
+      {
+        modeId: mode.modeId,
+        modeLayer: mode.modeLayer,
+        defaultEnabled: mode.defaultEnabled,
+        ...(mode.normalAttackSkillIds === undefined
+          ? {}
+          : {
+              normalAttackSkillKeys: mode.normalAttackSkillIds.map(sourceSkillId =>
+                requireSkillKey(
+                  sourceSkillId,
+                  `CharacterData.mode.${mode.modeId}.normalAttackSkillIds`,
+                ),
+              ),
+            }),
+        ...(Object.keys(commandMappings).length === 0 ? {} : { commandMappings }),
+      },
+    ];
+  });
+  return {
+    slotBaseSkillKeys,
+    basicAttackSkillKeys,
+    ...(defaultBasicAttackSkillKey === undefined ? {} : { defaultBasicAttackSkillKey }),
+    playerActionModes,
   };
 }
 
 function createActiveSkillSlotReplacementProjection(
   skills: readonly { readonly key: string; readonly skillId: string }[],
-  groups: readonly {
-    readonly key: string;
-    readonly skillType: string;
-    readonly skillKeys: readonly string[];
-  }[],
-  runtimeReplacementSkillKeys: ReadonlySet<string>,
 ) {
   const skillKeyByNativeId = new Map(skills.map(skill => [skill.skillId, skill.key] as const));
   return (action: SkillSlotReplacementActionSource, sourcePath: string) => {
@@ -435,36 +548,20 @@ function createActiveSkillSlotReplacementProjection(
     if (targetSkillKey === undefined) {
       throw new Error(`${sourcePath}: unknown replacement target skill '${action.targetSkillId}'`);
     }
-    const expectedSkillType =
+    const skillSlotKey =
       action.skillSlot === 'NormalSkill'
         ? 'battleSkill'
         : action.skillSlot === 'ComboSkill'
           ? 'comboSkill'
           : 'ultimate';
-    const matchingGroups = groups.filter(
-      group => group.skillType === expectedSkillType && group.skillKeys.includes(targetSkillKey),
-    );
-    if (matchingGroups.length !== 1) {
-      throw new Error(`${sourcePath}: expected one stable skill group for replacement target`);
-    }
-    const group = matchingGroups[0]!;
     const mappedRevertedSkillKey = action.specificRevertedSkillId
       ? skillKeyByNativeId.get(action.revertedSkillId)
       : undefined;
-    if (mappedRevertedSkillKey !== undefined && !group.skillKeys.includes(mappedRevertedSkillKey)) {
-      throw new Error(`${sourcePath}: reverted skill does not belong to replacement group`);
-    }
-    if (mappedRevertedSkillKey === undefined && runtimeReplacementSkillKeys.has(targetSkillKey)) {
-      const visibleSkillKeys = group.skillKeys.filter(key => !runtimeReplacementSkillKeys.has(key));
-      if (visibleSkillKeys.length !== 1) {
-        throw new Error(`${sourcePath}: replacement group must have one stable base skill`);
-      }
-    }
     return [
       {
         kind: 'changeSkillSlot' as const,
         parameters: {
-          skillGroupKey: group.key,
+          skillGroupKey: skillSlotKey,
           targetSkillKey,
           inheritOriginSkillCooldownProgress: action.inheritOriginSkillCooldownProgress,
           lifetime:
@@ -473,6 +570,34 @@ function createActiveSkillSlotReplacementProjection(
             ? {}
             : { revertedSkillKey: mappedRevertedSkillKey }),
         },
+      },
+    ];
+  };
+}
+
+function createActiveSkillTypeMutationProjection(
+  skills: readonly { readonly key: string; readonly skillId: string }[],
+) {
+  const skillKeyByNativeId = new Map(skills.map(skill => [skill.skillId, skill.key] as const));
+  return (
+    action: import('../src/source/presentationActions.ts').SkillTypeMutationActionSource,
+    sourcePath: string,
+    context: import('../src/compiler/combatProjectionCommon.ts').CombatActionProjectionContextSource,
+  ) => {
+    if (
+      context.actionOwnerTarget !== 'caster' &&
+      !(context.actionOwnerTarget === 'buffOwner' && context.fixedBuffOwnerTarget === 'caster')
+    ) {
+      throw new Error(`${sourcePath}: ChangeSkillType owner is not the compiled operator`);
+    }
+    const targetSkillKey = skillKeyByNativeId.get(action.sourceSkillId);
+    if (targetSkillKey === undefined) {
+      throw new Error(`${sourcePath}: unknown SkillType mutation target '${action.sourceSkillId}'`);
+    }
+    return [
+      {
+        kind: 'changeNativeSkillType' as const,
+        parameters: { targetSkillKey, nativeSkillType: action.nativeSkillType },
       },
     ];
   };
@@ -736,8 +861,8 @@ function planRoutedSkills(
     const targetGroups = foundation.skillLibrary.skillGroups.filter(group =>
       group.skillKeys.includes(targetSkillKey),
     );
-    if (targetGroups.length !== 1 || targetGroups[0]!.levelSource !== executionLevelSource) {
-      throw new Error(`${path}: target group or level source does not match`);
+    if (targetGroups.length !== 1 || targetEntry.levelSource !== executionLevelSource) {
+      throw new Error(`${path}: target placement group or per-skill level source does not match`);
     }
     const activationBuffId = requireNonEmptyString(
       config.activationBuffId,
@@ -792,7 +917,7 @@ function planRoutedSkills(
       key,
       targetSkillKey,
       skillType: targetEntry.skillType,
-      levelSource: targetGroups[0]!.levelSource,
+      levelSource: targetEntry.levelSource,
       executionSkillGroupKey: targetGroups[0]!.key,
       costs: [{ resource: 'sp' as const, value: costValue }],
       costFrame: wrapper.costFrame,

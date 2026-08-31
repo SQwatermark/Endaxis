@@ -1,9 +1,24 @@
-import { requireNonEmptyString, requireRecord } from './primitives.ts';
+import type {
+  NativeSkillType,
+  PlayerSkillInput,
+} from '../../../../packages/game-data-contract/src/index.ts';
+import {
+  requireArray,
+  requireBoolean,
+  requireInteger,
+  requireNonEmptyString,
+  requireRecord,
+  requireString,
+} from './primitives.ts';
 import { parseAbilitySystemBlackboardsSource } from './abilitySystemBlackboards.ts';
 import { parseUnityComboSkillConditionsSource } from './unityComboSkillConditions.ts';
 
 /** 只读取已解码的角色/AbilitySystem 前缀与完整条件叶子；未消费后缀保持 partial。 */
-export function parseOperatorRuntimeTemplateSource(value: unknown, path: string) {
+export function parseOperatorRuntimeTemplateSource(
+  value: unknown,
+  path: string,
+  options: { readonly parseComboConditions?: boolean } = {},
+) {
   const root = requireRecord(value, path);
   if (root.format !== 'character-template-prefix-v1')
     throw new Error(`${path}.format: unsupported template export`);
@@ -38,11 +53,195 @@ export function parseOperatorRuntimeTemplateSource(value: unknown, path: string)
       bundle.comboSkillId,
       `${path}.abilitySystem.skillDataBundle.comboSkillId`,
     ),
+    playerActionSource: parsePlayerActionSource(ability, bundle, path),
     blackboards: parseAbilitySystemBlackboardsSource(ability, `${path}.abilitySystem`),
-    conditions: parseUnityComboSkillConditionsSource(
-      bundle.comboSkillConditions,
-      root.conditionReferences,
-      `${path}.abilitySystem.skillDataBundle.comboSkillConditions`,
+    ...(options.parseComboConditions === false
+      ? {}
+      : {
+          conditions: parseUnityComboSkillConditionsSource(
+            bundle.comboSkillConditions,
+            root.conditionReferences,
+            `${path}.abilitySystem.skillDataBundle.comboSkillConditions`,
+          ),
+        }),
+  };
+}
+
+const nativeSkillTypes = new Map<number, NativeSkillType>([
+  [-1, 'passiveSkill'],
+  [0, 'attack'],
+  [1, 'breakingAttack'],
+  [2, 'normalSkill'],
+  [3, 'attachSkill'],
+  [5, 'dodge'],
+  [6, 'comboSkill'],
+  [7, 'ultimateSkill'],
+  [8, 'extraActiveSkill'],
+]);
+
+const playerInputByBattleCommand = new Map<number, PlayerSkillInput>([
+  [0, 'basicAttack'],
+  [3, 'battleSkill'],
+  [4, 'comboSkill'],
+  [5, 'ultimate'],
+]);
+
+function parseStringArray(value: unknown, path: string): string[] {
+  return requireArray(value, path).map((item, index) =>
+    requireNonEmptyString(item, `${path}[${index}]`),
+  );
+}
+
+function parseParallelDictionary(
+  value: unknown,
+  path: string,
+): readonly { readonly key: unknown; readonly value: unknown }[] {
+  const dictionary = requireRecord(value, path);
+  const keys = requireArray(dictionary.keys, `${path}.keys`);
+  const values = requireArray(dictionary.values, `${path}.values`);
+  if (keys.length !== values.length) throw new Error(`${path}: keys and values length differ`);
+  return keys.map((key, index) => ({ key, value: values[index] }));
+}
+
+function parseCommandMapping(value: unknown, path: string) {
+  const result: Partial<Record<PlayerSkillInput, string>> = {};
+  for (const [index, item] of parseParallelDictionary(value, path).entries()) {
+    const command = requireInteger(item.key, `${path}.keys[${index}]`);
+    // Dash/Jump 属于原生输入系统，但不属于 Endaxis 可排轴的四类语义操作。
+    if (command === 1 || command === 2) continue;
+    const input = playerInputByBattleCommand.get(command);
+    if (input === undefined)
+      throw new Error(`${path}.keys[${index}]: unsupported command ${command}`);
+    if (result[input] !== undefined) throw new Error(`${path}: duplicate command ${command}`);
+    result[input] = requireNonEmptyString(item.value, `${path}.values[${index}]`);
+  }
+  return result;
+}
+
+function parseNativeSkillType(value: unknown, path: string): NativeSkillType {
+  const numeric = requireInteger(value, path);
+  const result = nativeSkillTypes.get(numeric);
+  if (result === undefined) throw new Error(`${path}: unsupported native SkillType ${numeric}`);
+  return result;
+}
+
+function parsePlayerActionSource(
+  ability: Record<string, unknown>,
+  bundle: Record<string, unknown>,
+  rootPath: string,
+) {
+  const path = `${rootPath}.abilitySystem.skillDataBundle`;
+  const allNormalAttackIds = parseStringArray(
+    bundle.allNormalAttackId,
+    `${path}.allNormalAttackId`,
+  );
+  const allActiveSkillIds = parseStringArray(bundle.allActiveSkillId, `${path}.allActiveSkillId`);
+  const allPassiveSkillIds = parseStringArray(
+    bundle.allPassiveSkillId,
+    `${path}.allPassiveSkillId`,
+  );
+  const enabledBreakingNormalAttacks = new Set(
+    parseStringArray(bundle.enabledBreakingNormalAttacks, `${path}.enabledBreakingNormalAttacks`),
+  );
+  const normalSkillId = requireNonEmptyString(bundle.normalSkillId, `${path}.normalSkillId`);
+  const comboSkillId = requireNonEmptyString(bundle.comboSkillId, `${path}.comboSkillId`);
+  const ultimateSkillId = requireNonEmptyString(bundle.ultimateSkillId, `${path}.ultimateSkillId`);
+  const dodgeSkillId = requireNonEmptyString(bundle.dodgeSkillId, `${path}.dodgeSkillId`);
+  const initialNativeSkillTypeById: Record<string, NativeSkillType> = {};
+  const register = (skillId: string, type: NativeSkillType) => {
+    const previous = initialNativeSkillTypeById[skillId];
+    if (previous !== undefined && previous !== type) {
+      throw new Error(`${path}: skill ${JSON.stringify(skillId)} has conflicting initial types`);
+    }
+    initialNativeSkillTypeById[skillId] = type;
+  };
+  for (const skillId of allNormalAttackIds) {
+    register(skillId, enabledBreakingNormalAttacks.has(skillId) ? 'breakingAttack' : 'attack');
+  }
+  const overrides = new Map<string, NativeSkillType>();
+  for (const [index, item] of parseParallelDictionary(
+    bundle.activeSkillTypeOverrides,
+    `${path}.activeSkillTypeOverrides`,
+  ).entries()) {
+    const skillId = requireNonEmptyString(
+      item.key,
+      `${path}.activeSkillTypeOverrides.keys[${index}]`,
+    );
+    if (overrides.has(skillId))
+      throw new Error(`${path}.activeSkillTypeOverrides: duplicate skill`);
+    overrides.set(
+      skillId,
+      parseNativeSkillType(item.value, `${path}.activeSkillTypeOverrides.values[${index}]`),
+    );
+  }
+  for (const skillId of allActiveSkillIds) {
+    register(
+      skillId,
+      overrides.get(skillId) ??
+        (skillId === ultimateSkillId
+          ? 'ultimateSkill'
+          : skillId === comboSkillId
+            ? 'comboSkill'
+            : skillId === dodgeSkillId
+              ? 'dodge'
+              : 'normalSkill'),
+    );
+  }
+  for (const skillId of allPassiveSkillIds) register(skillId, 'passiveSkill');
+
+  const modeConfig = requireRecord(ability.modeConfig, `${rootPath}.abilitySystem.modeConfig`);
+  const modes = requireArray(modeConfig.modes, `${rootPath}.abilitySystem.modeConfig.modes`).map(
+    (value, index) => {
+      const modePath = `${rootPath}.abilitySystem.modeConfig.modes[${index}]`;
+      const mode = requireRecord(value, modePath);
+      const overrideNormalAttackList = requireBoolean(
+        mode.overrideNormalAttackList,
+        `${modePath}.overrideNormalAttackList`,
+      );
+      const overrideCmdMapping = requireBoolean(
+        mode.overrideCmdMapping,
+        `${modePath}.overrideCmdMapping`,
+      );
+      return {
+        modeId: requireNonEmptyString(mode.modeId, `${modePath}.modeId`),
+        modeLayer: requireNonEmptyString(mode.modeLayer, `${modePath}.modeLayer`),
+        defaultEnabled: requireBoolean(mode.defaultEnable, `${modePath}.defaultEnable`),
+        ...(overrideNormalAttackList
+          ? {
+              normalAttackSkillIds: parseStringArray(
+                mode.normalAttackList,
+                `${modePath}.normalAttackList`,
+              ),
+            }
+          : {}),
+        ...(overrideCmdMapping
+          ? { commandSkillIds: parseCommandMapping(mode.cmdMapping, `${modePath}.cmdMapping`) }
+          : {}),
+      };
+    },
+  );
+
+  return {
+    allNormalAttackIds,
+    allActiveSkillIds,
+    allPassiveSkillIds,
+    normalAttackSkillIds: parseStringArray(bundle.normalAttackList, `${path}.normalAttackList`),
+    breakingAttackSkillIds: [...enabledBreakingNormalAttacks],
+    plungingAttackStartId: requireString(
+      bundle.plungingAttackStartId,
+      `${path}.plungingAttackStartId`,
     ),
+    plungingAttackEndId: requireString(bundle.plungingAttackEndId, `${path}.plungingAttackEndId`),
+    slotSkillIds: {
+      battleSkill: normalSkillId,
+      comboSkill: comboSkillId,
+      ultimate: ultimateSkillId,
+    },
+    defaultCommandSkillIds: parseCommandMapping(
+      bundle.defaultCmdMapping,
+      `${path}.defaultCmdMapping`,
+    ),
+    initialNativeSkillTypeById,
+    modes,
   };
 }

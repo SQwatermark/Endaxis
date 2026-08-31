@@ -19,6 +19,20 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0006_wolfgd_attack1',
     timelineBlockFrames: 24,
+    exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 49,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0006_wolfgd_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 49, sourceSkillIds: ['chr_0006_wolfgd_attack2'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -118,6 +132,9 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
         15,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -131,6 +148,20 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0006_wolfgd_attack2',
     timelineBlockFrames: 23,
+    exclusiveFrame: 35,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 38,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0006_wolfgd_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 23, endFrame: 38, sourceSkillIds: ['chr_0006_wolfgd_attack3'] },
+      ],
+    },
     costFrame: 11,
     scheduledSequences: [
       scheduled(
@@ -230,6 +261,9 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
         16,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -243,6 +277,20 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0006_wolfgd_attack3',
     timelineBlockFrames: 32,
+    exclusiveFrame: 52,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 52,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0006_wolfgd_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 32, endFrame: 52, sourceSkillIds: ['chr_0006_wolfgd_attack4'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -390,6 +438,9 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
         24,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -403,6 +454,7 @@ export const wulfgardBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0006_wolfgd_attack4',
     timelineBlockFrames: 53,
+    exclusiveFrame: 52,
     costFrame: 23,
     scheduledSequences: [
       scheduled(
@@ -456,6 +508,9 @@ export const wulfgardBasicAttack4: SkillDefinition = withSkillBlackboard(
         33,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 18,
@@ -469,6 +524,16 @@ export const wulfgardFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0006_wolfgd_power_attack',
     timelineBlockFrames: 34,
+    exclusiveFrame: 60,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 34,
+          endFrame: 58,
+          sourceSkillIds: ['chr_0006_wolfgd_normal_skill', 'chr_0006_wolfgd_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -541,6 +606,9 @@ export const wulfgardFinisher: SkillDefinition = withSkillBlackboard(
         34,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -550,6 +618,12 @@ export const wulfgardPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0006_wolfgd_plunging_attack_end',
     timelineBlockFrames: 8,
+    exclusiveFrame: 20,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 8, endFrame: 20, sourceSkillIds: ['chr_0006_wolfgd_attack1'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -568,6 +642,9 @@ export const wulfgardPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -577,6 +654,13 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0006_wolfgd_normal_skill',
     timelineBlockFrames: 32,
+    exclusiveFrame: 159,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 32, endFrame: 54, sourceSkillIds: ['chr_0006_wolfgd_normal_skill'] },
+        { startFrame: 152, endFrame: 184, sourceSkillIds: ['chr_0006_wolfgd_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -999,6 +1083,9 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     add: 0,
@@ -1031,6 +1118,12 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0006_wolfgd_combo_skill',
     timelineBlockFrames: 30,
+    exclusiveFrame: 30,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 30, endFrame: 65, sourceSkillIds: ['chr_0006_wolfgd_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1048,6 +1141,7 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('spawnAbilityEntity', {
                     abilityEntityId: 'abilityentity_chr_0006_wolfgd_combo_skill',
+                    childSkillId: 'chr_0006_wolfgd_combo_skill_abilityrange',
                     inheritActionBlackboard: true,
                     dieWhenSourceDies: false,
                   }),
@@ -1081,6 +1175,9 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
@@ -1101,6 +1198,16 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0006_wolfgd_ultimate_skill',
     timelineBlockFrames: 75,
+    exclusiveFrame: 80,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 75,
+          endFrame: 89,
+          sourceSkillIds: ['chr_0006_wolfgd_normal_skill', 'chr_0006_wolfgd_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1277,6 +1384,9 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     angle: 360,
@@ -1310,22 +1420,26 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       trigger: sequence(
-        step('dealDamage', {
-          damageType: 'heat',
-          attackScale: { kind: 'blackboard', key: 'burning_atk_scale' },
-          takeAttackSnapshot: true,
-          tags: ['fireAbnormal'],
-          features: ['dot'],
-          instantAttributeModifiers: [
-            {
-              targetSide: 'attacker',
-              attribute: 'criticalRate',
-              slot: 'finalMultiplier',
-              value: { kind: 'constant', value: 0 },
-              attributeTiming: 'runtime',
-            },
-          ],
-        }),
+        step(
+          'dealDamage',
+          {
+            damageType: 'heat',
+            attackScale: { kind: 'blackboard', key: 'burning_atk_scale' },
+            takeAttackSnapshot: true,
+            tags: ['fireAbnormal'],
+            features: ['dot'],
+            instantAttributeModifiers: [
+              {
+                targetSide: 'attacker',
+                attribute: 'criticalRate',
+                slot: 'finalMultiplier',
+                value: { kind: 'constant', value: 0 },
+                attributeTiming: 'runtime',
+              },
+            ],
+          },
+          'buff_common_burning_status:/lifecycleSequences/trigger/steps/0',
+        ),
       ),
     },
   },
@@ -1374,6 +1488,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Fire',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -1384,37 +1508,51 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [0.24, 0.36, 0.48, 0.6],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'burning_atk_scale',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-            },
-          ],
-        }),
-        step('modifyActionValue', {
-          key: 'burning_atk_scale',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'extra_scaling' },
-        }),
-        step('applyBuff', {
-          buffId: 'buff_common_fire_triggered_start',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-        }),
-        step('applyBuff', {
-          buffId: 'buff_common_fire_triggered_fx',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-        }),
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [0.24, 0.36, 0.48, 0.6],
+                  column: { kind: 'blackboard', key: 'count' },
+                  storeKey: 'burning_atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+              ],
+            }),
+            step('modifyActionValue', {
+              key: 'burning_atk_scale',
+              operation: 'multiply',
+              value: { kind: 'blackboard', key: 'extra_scaling' },
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_common_fire_triggered_fx',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
       ),
       enable: sequence(
         step('applyBuff', {
           buffId: 'buff_common_burning_status',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           finishByAction: true,
           blackboardAssignments: {
@@ -1431,19 +1569,6 @@ export const commonBuffDefinitions = {
     durationSeconds: 5,
     triggerIntervalSeconds: 0,
     waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-  buff_common_fire_triggered_start: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: 3,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: false,
     maxTriggerCount: 1,
     applyTags: [],
     extendTags: [],
@@ -1522,6 +1647,28 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: wulfgardUltimate },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -1657,8 +1804,8 @@ export default {
               sequence(
                 step('applyBuff', {
                   buffId: 'buff_chr_0006_wolfgd_talent_0_effectbuff',
-                  target: 'caster',
-                  source: 'eventSource',
+                  target: 'buffSource',
+                  source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
                   blackboardAssignments: {
                     duration: { kind: 'blackboard', key: 'duration' },
@@ -1687,6 +1834,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },

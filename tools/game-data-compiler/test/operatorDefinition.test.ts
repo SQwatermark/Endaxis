@@ -20,6 +20,91 @@ import { skillSettings } from '../../../src/next/data/combat/skillSettings';
 let sourceRoot: string;
 let candidate: ReturnType<typeof planOperatorDefinition>;
 let args: Parameters<typeof planOperatorDefinition>[0];
+
+function avywennaRuntimeTemplateFixture(): unknown {
+  return {
+    format: 'character-template-prefix-v1',
+    decodeStatus: 'partial',
+    sourceSha256: 'aefbe71b7b9b14a258c922be943c3329fcb3cef8dd8f57dd860f7c8c7e3549cc',
+    root: {
+      class: 'CharacterTemplateData',
+      namespace: 'Beyond.Gameplay',
+      assembly: 'Gameplay.Beyond',
+    },
+    abilitySystemEntry: {
+      class: 'AbilitySystemData',
+      namespace: 'Beyond.Gameplay.Core',
+      assembly: 'Gameplay.Beyond',
+    },
+    data: { id: 'chr_0012_avywen' },
+    abilitySystem: {
+      modeConfig: {
+        modes: [
+          {
+            modeId: 'default',
+            modeLayer: 'default',
+            defaultEnable: true,
+            overrideNormalAttackList: false,
+            normalAttackList: [],
+            overrideCmdMapping: false,
+            cmdMapping: { keys: [], values: [] },
+          },
+        ],
+      },
+      entityBlackboard: [],
+      skillDataBundle: {
+        allNormalAttackId: [
+          'chr_0012_avywen_attack1',
+          'chr_0012_avywen_attack2',
+          'chr_0012_avywen_attack3',
+          'chr_0012_avywen_attack4',
+          'chr_0012_avywen_attack5',
+          'chr_0012_avywen_plunging_attack_start',
+          'chr_0012_avywen_plunging_attack_end',
+          'chr_0012_avywen_dash_attack',
+          'chr_0012_avywen_power_attack',
+        ],
+        allActiveSkillId: [
+          'chr_0012_avywen_normal_skill',
+          'chr_0012_avywen_ultimate_skill',
+          'common_character_perfect_dodge',
+          'chr_0012_avywen_combo_skill',
+        ],
+        allPassiveSkillId: [],
+        normalAttackList: [
+          'chr_0012_avywen_attack1',
+          'chr_0012_avywen_attack2',
+          'chr_0012_avywen_attack3',
+          'chr_0012_avywen_attack4',
+          'chr_0012_avywen_attack5',
+        ],
+        enabledBreakingNormalAttacks: ['chr_0012_avywen_power_attack'],
+        enabledPassiveSkills: [],
+        normalSkillId: 'chr_0012_avywen_normal_skill',
+        ultimateSkillId: 'chr_0012_avywen_ultimate_skill',
+        plungingAttackStartId: 'chr_0012_avywen_plunging_attack_start',
+        plungingAttackEndId: 'chr_0012_avywen_plunging_attack_end',
+        dodgeSkillId: 'common_character_perfect_dodge',
+        comboSkillId: 'chr_0012_avywen_combo_skill',
+        defaultCmdMapping: {
+          keys: [0, 3, 4, 5],
+          values: [
+            'chr_0012_avywen_attack1',
+            'chr_0012_avywen_normal_skill',
+            'chr_0012_avywen_combo_skill',
+            'chr_0012_avywen_ultimate_skill',
+          ],
+        },
+        activeSkillTypeOverrides: { keys: [], values: [] },
+        enableComboSkillBlackboard: false,
+        comboSkillBlackboard: [],
+        comboSkillConditions: [],
+      },
+    },
+    conditionReferences: {},
+  };
+}
+
 beforeAll(() => {
   sourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'endaxis-operator-inputs-'));
   const fixture = JSON.parse(
@@ -33,6 +118,12 @@ beforeAll(() => {
     fs.mkdirSync(path.dirname(destination), { recursive: true });
     fs.writeFileSync(destination, JSON.stringify(data));
   }
+  const runtimeTemplatePath = path.join(
+    sourceRoot,
+    'CharacterData/chr_0012_avywen.runtime-template.json',
+  );
+  fs.mkdirSync(path.dirname(runtimeTemplatePath), { recursive: true });
+  fs.writeFileSync(runtimeTemplatePath, JSON.stringify(avywennaRuntimeTemplateFixture()));
   args = {
     manifest: 'tools/game-data-compiler/config/operators.json',
     sourceRoot,

@@ -787,6 +787,16 @@ export interface CombatStepParameters {
     /** 原生指定还原技能；省略时由运行时快照替换前槽位。 */
     revertedSkillKey?: string;
   };
+  /** SwitchModeAction：只改变后续玩家操作的原生路由，结束时恢复同层上一模式。 */
+  changePlayerActionMode: {
+    modeId: string;
+    lifetime: 'finishByAction';
+  };
+  /** ChangeSkillType：原地改写既有技能实例的原生分类，不替换技能槽。 */
+  changeNativeSkillType: {
+    targetSkillKey: string;
+    nativeSkillType: import('./skills.ts').NativeSkillType;
+  };
   /**
    * 在所在调度项的有效区间内监听战斗事件。
    * 调度项开始时注册，结束或技能中断时注销；响应序列在事件派发过程中同步执行。
@@ -873,6 +883,8 @@ export const COMBAT_STEP_KINDS = [
   'setContextFlag',
   'openComboWindow',
   'changeSkillSlot',
+  'changePlayerActionMode',
+  'changeNativeSkillType',
   'listenForCombatEvents',
 ] as const satisfies readonly (keyof CombatStepParameters)[];
 

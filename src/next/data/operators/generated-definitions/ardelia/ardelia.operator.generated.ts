@@ -23,6 +23,19 @@ export const ardeliaBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0025_ardelia_attack1',
     timelineBlockFrames: 11,
     exclusiveFrame: 15,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0025_ardelia_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 11, endFrame: 30, sourceSkillIds: ['chr_0025_ardelia_attack2'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -90,6 +103,9 @@ export const ardeliaBasicAttack1: SkillDefinition = withSkillBlackboard(
         7,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68] },
 );
@@ -100,6 +116,19 @@ export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0025_ardelia_attack2',
     timelineBlockFrames: 20,
     exclusiveFrame: 26,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 36,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0025_ardelia_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 20, endFrame: 36, sourceSkillIds: ['chr_0025_ardelia_attack3'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -231,6 +260,9 @@ export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
         11,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -245,6 +277,19 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0025_ardelia_attack3',
     timelineBlockFrames: 45,
     exclusiveFrame: 47,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 58,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0025_ardelia_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 45, endFrame: 58, sourceSkillIds: ['chr_0025_ardelia_attack4'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1358,6 +1403,9 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
         40,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -1372,6 +1420,19 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0025_ardelia_attack4',
     timelineBlockFrames: 50,
     exclusiveFrame: 50,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 58,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0025_ardelia_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 50, endFrame: 58, sourceSkillIds: ['chr_0025_ardelia_attack1'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -1470,6 +1531,9 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
         198,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 18,
@@ -1484,6 +1548,15 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0025_ardelia_power_attack',
     timelineBlockFrames: 57,
     exclusiveFrame: 65,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 57,
+          endFrame: 65,
+          sourceSkillIds: ['chr_0025_ardelia_normal_skill', 'chr_0025_ardelia_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -1656,6 +1729,9 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
         57,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   {
     atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
@@ -1731,6 +1807,9 @@ export const ardeliaPlungingAttack: SkillDefinition = withSkillBlackboard(
         5,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -1741,6 +1820,12 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0025_ardelia_normal_skill',
     timelineBlockFrames: 47,
     exclusiveFrame: 239,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 47, endFrame: 52, sourceSkillIds: ['chr_0025_ardelia_attack1'] },
+        { startFrame: 236, endFrame: 241, sourceSkillIds: ['chr_0025_ardelia_attack1'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(188, sequence(step('finishTimeline', {})), 189),
@@ -1940,11 +2025,7 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
             },
             'chr_0025_ardelia_normal_skill:/scheduledSequences/5/sequence/steps/2',
           ),
-          step('applyBuff', {
-            buffId: 'buff_common_obtain_ultimate_sp',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
+          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
         ),
         33,
       ),
@@ -2005,11 +2086,7 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
             },
             'chr_0025_ardelia_normal_skill:/scheduledSequences/6/sequence/steps/2',
           ),
-          step('applyBuff', {
-            buffId: 'buff_common_obtain_ultimate_sp',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
+          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
         ),
         222,
       ),
@@ -2114,6 +2191,9 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     additional_def_decrease: 0,
@@ -2140,6 +2220,11 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0025_ardelia_combo_skill',
     timelineBlockFrames: 23,
     exclusiveFrame: 40,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 23, endFrame: 40, sourceSkillIds: ['chr_0025_ardelia_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2289,6 +2374,9 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'input',
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [0.45, 0.49, 0.54, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.93, 1],
@@ -2315,6 +2403,15 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0025_ardelia_ultimate_skill',
     timelineBlockFrames: 209,
     exclusiveFrame: 223,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 209,
+          endFrame: 226,
+          sourceSkillIds: ['chr_0025_ardelia_normal_skill', 'chr_0025_ardelia_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2589,6 +2686,9 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale: [0.73, 0.81, 0.88, 0.95, 1.03, 1.1, 1.17, 1.25, 1.32, 1.41, 1.52, 1.65],
@@ -2759,6 +2859,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Natural',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -3003,19 +3113,6 @@ export const commonBuffDefinitions = {
       ),
     },
   },
-  buff_common_obtain_ultimate_sp: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
-    },
-  },
   buff_common_power_attack_disable_cast_skill: {
     stackingType: 'unlimited',
     priority: 0,
@@ -3078,6 +3175,28 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: ardeliaUltimate },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -3229,6 +3348,7 @@ export default {
       ],
     },
   ],
+  entityBlackboard: { EntityBB_skill_bg_type: 99 },
   buffDefinitions: {
     buff_chr_0025_ardelia_affixes_vulnerable_physic_child: {
       stackingType: 'unlimited',
@@ -3253,6 +3373,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },

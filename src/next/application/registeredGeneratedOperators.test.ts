@@ -1122,6 +1122,8 @@ describe('registered generated operators', () => {
       if (cast === undefined) throw new Error('missing Laevatain test cast');
       const attachmentAndHit = (key: string): SkillDefinition => ({
         key: 'basicAttack1',
+        skillType: 'basicAttack',
+        levelSource: 'basicAttack',
         sourceSkillId: 'test_laevatain_talent_1_attachment',
         timelineBlockFrames: 1,
         scheduledSequences: [
@@ -1144,6 +1146,8 @@ describe('registered generated operators', () => {
       });
       const probe: SkillDefinition = {
         key: 'basicAttack1',
+        skillType: 'basicAttack',
+        levelSource: 'basicAttack',
         sourceSkillId: 'test_laevatain_talent_1_probe',
         timelineBlockFrames: 1,
         scheduledSequences: [
@@ -1832,8 +1836,8 @@ describe('registered generated operators', () => {
         initialState: { ultimateEnergy: 0 },
         skillCasts: [],
       };
-      // 卡米拉释放后、治疗帧到来前切入佩丽卡，使 controlledOperator 与施术者不同。
-      scenario.battle.controlSwitches.push({ id: 'switch:perlica', frame: 40, trackIndex: 1 });
+      // 用最小治疗动作隔离验证武器的“治疗他人”监听；不让卡米拉技能自身的蝙蝠条件和命停干扰武器门禁。
+      scenario.battle.controlSwitches.push({ id: 'switch:perlica', frame: 0, trackIndex: 1 });
       let placed = placeSkillGroup({
         scenario,
         trackIndex: 0,
@@ -1842,12 +1846,39 @@ describe('registered generated operators', () => {
         startFrame: 1,
         ids: { allocate: kind => `${kind}:camille:bedazzling` },
       }).scenario;
+      const camilleCast = placed.tracks[0]?.skillCasts[0];
+      if (camilleCast === undefined) throw new Error('missing Camille weapon probe cast');
+      placed.tracks[0]!.skillCasts = [
+        {
+          ...camilleCast,
+          customDefinition: {
+            key: 'comboSkill1',
+            skillType: 'comboSkill',
+            levelSource: 'comboSkill',
+            timelineBlockFrames: 1,
+            scheduledSequences: [
+              scheduled(
+                0,
+                sequence(
+                  step('heal', {
+                    target: 'controlledOperator',
+                    tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
+                    attribute: 'intellect',
+                    multiplier: { kind: 'constant', value: 0.3 },
+                    addition: { kind: 'constant', value: 60 },
+                  }),
+                ),
+              ),
+            ],
+          },
+        },
+      ];
       placed = placeSkillGroup({
         scenario: placed,
         trackIndex: 1,
         operator: perlica,
         skillGroupKey: 'basicAttack',
-        startFrame: 220,
+        startFrame: 20,
         ids: { allocate: kind => `${kind}:perlica:bedazzling` },
       }).scenario;
 

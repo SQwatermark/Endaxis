@@ -81,6 +81,8 @@ describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
           levelSource: 'battleSkill',
           skills: {
             key: 'buffProbe',
+            skillType: 'battleSkill',
+            levelSource: 'battleSkill',
             costs: [],
             timelineBlockFrames: 40,
             scheduledSequences: [0, 0, 5, 30].map(startFrame => ({
@@ -142,6 +144,8 @@ describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
           levelSource: 'battleSkill',
           skills: {
             key: 'buffProbe',
+            skillType: 'battleSkill',
+            levelSource: 'battleSkill',
             costs: [],
             timelineBlockFrames: expiryFrame + 30,
             scheduledSequences: [

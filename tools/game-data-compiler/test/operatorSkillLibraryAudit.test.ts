@@ -64,7 +64,7 @@ function operator(slug: string, charId: string, source: string) {
     gameId: slug.replaceAll('-', '_').toUpperCase(),
     exportName: `${slug.replaceAll('-', '_')}GeneratedSource`,
     charId,
-    skills: [{ key: 'basic', skillType: 'basicAttack', source }],
+    skills: [{ key: 'basic', skillType: 'basicAttack', levelSource: 'basicAttack', source }],
     skillGroups: [
       {
         key: 'basicAttack',

@@ -171,6 +171,8 @@ describe('回收标记作用于真实枪实例，而非木桩', () => {
             levelSource: 'comboSkill',
             skills: {
               key: 'spawnTest',
+              skillType: 'comboSkill',
+              levelSource: 'comboSkill',
               timelineBlockFrames: 1,
               scheduledSequences: [{ startFrame: 0, sequence: { steps: spawn } }],
             },
@@ -181,6 +183,8 @@ describe('回收标记作用于真实枪实例，而非木桩', () => {
             levelSource: 'battleSkill',
             skills: {
               key: 'returnTest',
+              skillType: 'battleSkill',
+              levelSource: 'battleSkill',
               timelineBlockFrames: 1,
               blackboard: { lance_count: 0 },
               scheduledSequences: [
@@ -312,6 +316,8 @@ describe('回收标记作用于真实枪实例，而非木桩', () => {
           levelSource: 'comboSkill',
           skills: {
             key: 'spawnRealChild',
+            skillType: 'comboSkill',
+            levelSource: 'comboSkill',
             timelineBlockFrames: 1,
             scheduledSequences: [
               {
@@ -334,6 +340,8 @@ describe('回收标记作用于真实枪实例，而非木桩', () => {
           levelSource: 'battleSkill',
           skills: {
             key: 'returnRealChild',
+            skillType: 'battleSkill',
+            levelSource: 'battleSkill',
             timelineBlockFrames: 1,
             blackboard: { lance_count: 0 },
             scheduledSequences: [{ startFrame: 0, sequence: projected }],

@@ -10,6 +10,7 @@ import {
   scheduled,
   sequence,
   step,
+  withActionBlackboardScope,
   withSkillBlackboard,
 } from '../../definitionHelpers';
 
@@ -18,6 +19,20 @@ export const chenQianyuBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0005_chen_attack1',
     timelineBlockFrames: 14,
+    exclusiveFrame: 19,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0005_chen_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 14, endFrame: 30, sourceSkillIds: ['chr_0005_chen_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -86,6 +101,9 @@ export const chenQianyuBasicAttack1: SkillDefinition = withSkillBlackboard(
         12,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -99,6 +117,20 @@ export const chenQianyuBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0005_chen_attack2',
     timelineBlockFrames: 10,
+    exclusiveFrame: 15,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 26,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0005_chen_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 10, endFrame: 26, sourceSkillIds: ['chr_0005_chen_attack3'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -132,6 +164,9 @@ export const chenQianyuBasicAttack2: SkillDefinition = withSkillBlackboard(
         9,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54] },
 );
@@ -141,6 +176,20 @@ export const chenQianyuBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0005_chen_attack3',
     timelineBlockFrames: 18,
+    exclusiveFrame: 22,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0005_chen_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 30, sourceSkillIds: ['chr_0005_chen_attack4'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -209,6 +258,9 @@ export const chenQianyuBasicAttack3: SkillDefinition = withSkillBlackboard(
         13,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -222,6 +274,20 @@ export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0005_chen_attack4',
     timelineBlockFrames: 21,
+    exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 31,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0005_chen_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 21, endFrame: 31, sourceSkillIds: ['chr_0005_chen_attack5'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -290,6 +356,9 @@ export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
         11,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -303,6 +372,20 @@ export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0005_chen_attack5',
     timelineBlockFrames: 32,
+    exclusiveFrame: 42,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 42,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0005_chen_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 32, endFrame: 42, sourceSkillIds: ['chr_0005_chen_attack1'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -374,6 +457,9 @@ export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
         21,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 18,
@@ -388,6 +474,16 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0005_chen_power_attack',
     timelineBlockFrames: 30,
+    exclusiveFrame: 50,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 30,
+          endFrame: 56,
+          sourceSkillIds: ['chr_0005_chen_normal_skill', 'chr_0005_chen_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -499,6 +595,9 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
         30,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -508,6 +607,7 @@ export const chenQianyuPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0005_chen_plunging_attack_end',
     timelineBlockFrames: 21,
+    exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -539,6 +639,9 @@ export const chenQianyuPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -548,6 +651,12 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0005_chen_normal_skill',
     timelineBlockFrames: 25,
+    exclusiveFrame: 32,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 25, endFrame: 54, sourceSkillIds: ['chr_0005_chen_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -580,6 +689,16 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: true,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -601,6 +720,7 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
                         target: 'buffOwner',
+                        source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -610,39 +730,58 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                   step('applyBuff', {
                     buffId: 'buff_physical_no_guard_fake',
                     target: 'buffOwner',
-                    source: 'eventSource',
+                    source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
                 afterEnhance: sequence(
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'buffOwner',
-                    igniteType: 'NoGuard',
-                  }),
-                  branch(
-                    {
-                      kind: 'currentBuffStackCompare',
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 2 },
-                    },
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'buffOwner',
+                        igniteType: 'NoGuard',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
                     sequence(
                       branch(
                         {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
+                          kind: 'currentBuffStackCompare',
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 2 },
                         },
                         sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_handle_cryst_break',
-                            target: 'buffOwner',
-                            inheritSourceSkillCastInfo: true,
-                          }),
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_physical_handle_cryst_break',
+                                target: 'buffOwner',
+                                source: 'buffSource',
+                                inheritSourceSkillCastInfo: true,
+                              }),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
                   ),
                 ),
               },
@@ -665,6 +804,16 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -675,47 +824,91 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
               attributeModifiers: [],
               lifecycleSequences: {
                 start: sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_physical_no_guard',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      skip_handle_cryst_break: { kind: 'constant', value: 1 },
-                    },
-                  }),
-                  step('readSkillSettingData', {
-                    items: [
-                      {
-                        values: [1.2, 1.2, 1.2, 1.2],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'atk_scale',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-                      },
-                      {
-                        values: [10, 10, 10, 10],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'poise',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
-                      },
-                    ],
-                  }),
-                  step('dealDamage', {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: [],
-                    features: ['physicalInfliction'],
-                    stagger: { kind: 'blackboard', key: 'poise' },
-                  }),
-                  step('applyBuff', {
-                    buffId: 'buff_physical_handle_cryst_break',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'caster',
-                    igniteType: 'PhysicalStatus',
-                  }),
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                        blackboardAssignments: {
+                          skip_handle_cryst_break: { kind: 'constant', value: 1 },
+                        },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
+                    sequence(
+                      step('readSkillSettingData', {
+                        items: [
+                          {
+                            values: [1.2, 1.2, 1.2, 1.2],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'atk_scale',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.01 },
+                            },
+                          },
+                          {
+                            values: [10, 10, 10, 10],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'poise',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.005 },
+                            },
+                          },
+                        ],
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['physicalInfliction'],
+                        stagger: { kind: 'blackboard', key: 'poise' },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:2',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:3',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
                 ),
               },
             },
@@ -764,6 +957,16 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: true,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -785,6 +988,7 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
                         target: 'buffOwner',
+                        source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -794,39 +998,58 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                   step('applyBuff', {
                     buffId: 'buff_physical_no_guard_fake',
                     target: 'buffOwner',
-                    source: 'eventSource',
+                    source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
                 afterEnhance: sequence(
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'buffOwner',
-                    igniteType: 'NoGuard',
-                  }),
-                  branch(
-                    {
-                      kind: 'currentBuffStackCompare',
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 2 },
-                    },
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'buffOwner',
+                        igniteType: 'NoGuard',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
                     sequence(
                       branch(
                         {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
+                          kind: 'currentBuffStackCompare',
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 2 },
                         },
                         sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_handle_cryst_break',
-                            target: 'buffOwner',
-                            inheritSourceSkillCastInfo: true,
-                          }),
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_physical_handle_cryst_break',
+                                target: 'buffOwner',
+                                source: 'buffSource',
+                                inheritSourceSkillCastInfo: true,
+                              }),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
                   ),
                 ),
               },
@@ -849,6 +1072,16 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -859,47 +1092,91 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
               attributeModifiers: [],
               lifecycleSequences: {
                 start: sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_physical_no_guard',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      skip_handle_cryst_break: { kind: 'constant', value: 1 },
-                    },
-                  }),
-                  step('readSkillSettingData', {
-                    items: [
-                      {
-                        values: [1.2, 1.2, 1.2, 1.2],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'atk_scale',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-                      },
-                      {
-                        values: [10, 10, 10, 10],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'poise',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
-                      },
-                    ],
-                  }),
-                  step('dealDamage', {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: [],
-                    features: ['physicalInfliction'],
-                    stagger: { kind: 'blackboard', key: 'poise' },
-                  }),
-                  step('applyBuff', {
-                    buffId: 'buff_physical_handle_cryst_break',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'caster',
-                    igniteType: 'PhysicalStatus',
-                  }),
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                        blackboardAssignments: {
+                          skip_handle_cryst_break: { kind: 'constant', value: 1 },
+                        },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
+                    sequence(
+                      step('readSkillSettingData', {
+                        items: [
+                          {
+                            values: [1.2, 1.2, 1.2, 1.2],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'atk_scale',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.01 },
+                            },
+                          },
+                          {
+                            values: [10, 10, 10, 10],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'poise',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.005 },
+                            },
+                          },
+                        ],
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['physicalInfliction'],
+                        stagger: { kind: 'blackboard', key: 'poise' },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:2',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:3',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
                 ),
               },
             },
@@ -910,16 +1187,15 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
             targetFilter: 'skipAll',
             returnWhen: 'always',
           }),
-          step('applyBuff', {
-            buffId: 'buff_common_obtain_ultimate_sp',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
+          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
         ),
         14,
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     airborne: 0,
@@ -939,6 +1215,12 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0005_chen_combo_skill',
     timelineBlockFrames: 23,
+    exclusiveFrame: 40,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 23, endFrame: 40, sourceSkillIds: ['chr_0005_chen_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -972,6 +1254,16 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: true,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -993,6 +1285,7 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
                         target: 'buffOwner',
+                        source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -1002,39 +1295,58 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
                   step('applyBuff', {
                     buffId: 'buff_physical_no_guard_fake',
                     target: 'buffOwner',
-                    source: 'eventSource',
+                    source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
                 afterEnhance: sequence(
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'buffOwner',
-                    igniteType: 'NoGuard',
-                  }),
-                  branch(
-                    {
-                      kind: 'currentBuffStackCompare',
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 2 },
-                    },
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'buffOwner',
+                        igniteType: 'NoGuard',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
                     sequence(
                       branch(
                         {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
+                          kind: 'currentBuffStackCompare',
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 2 },
                         },
                         sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_handle_cryst_break',
-                            target: 'buffOwner',
-                            inheritSourceSkillCastInfo: true,
-                          }),
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_physical_handle_cryst_break',
+                                target: 'buffOwner',
+                                source: 'buffSource',
+                                inheritSourceSkillCastInfo: true,
+                              }),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
                   ),
                 ),
               },
@@ -1057,6 +1369,16 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1067,47 +1389,91 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
               attributeModifiers: [],
               lifecycleSequences: {
                 start: sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_physical_no_guard',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      skip_handle_cryst_break: { kind: 'constant', value: 1 },
-                    },
-                  }),
-                  step('readSkillSettingData', {
-                    items: [
-                      {
-                        values: [1.2, 1.2, 1.2, 1.2],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'atk_scale',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-                      },
-                      {
-                        values: [10, 10, 10, 10],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'poise',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
-                      },
-                    ],
-                  }),
-                  step('dealDamage', {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: [],
-                    features: ['physicalInfliction'],
-                    stagger: { kind: 'blackboard', key: 'poise' },
-                  }),
-                  step('applyBuff', {
-                    buffId: 'buff_physical_handle_cryst_break',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'caster',
-                    igniteType: 'PhysicalStatus',
-                  }),
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                        blackboardAssignments: {
+                          skip_handle_cryst_break: { kind: 'constant', value: 1 },
+                        },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
+                    sequence(
+                      step('readSkillSettingData', {
+                        items: [
+                          {
+                            values: [1.2, 1.2, 1.2, 1.2],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'atk_scale',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.01 },
+                            },
+                          },
+                          {
+                            values: [10, 10, 10, 10],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'poise',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.005 },
+                            },
+                          },
+                        ],
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['physicalInfliction'],
+                        stagger: { kind: 'blackboard', key: 'poise' },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:2',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:3',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
                 ),
               },
             },
@@ -1181,6 +1547,9 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     cooldownFrames: [480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 450],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     alpha: 0,
@@ -1203,6 +1572,16 @@ export const chenQianyuUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0005_chen_ultimate_skill',
     timelineBlockFrames: 112,
+    exclusiveFrame: 130,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 112,
+          endFrame: 130,
+          sourceSkillIds: ['chr_0005_chen_normal_skill', 'chr_0005_chen_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1391,6 +1770,9 @@ export const chenQianyuUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 70 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale1: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
@@ -1416,12 +1798,16 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('dealDamage', {
-          damageType: 'physical',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: ['cryoAbnormal'],
-          features: ['shatter'],
-        }),
+        step(
+          'dealDamage',
+          {
+            damageType: 'physical',
+            attackScale: { kind: 'blackboard', key: 'atk_scale' },
+            tags: ['cryoAbnormal'],
+            features: ['shatter'],
+          },
+          'buff_common_cryst_triggered_physical_break:/lifecycleSequences/start/steps/0',
+        ),
       ),
     },
   },
@@ -1452,19 +1838,6 @@ export const commonBuffDefinitions = {
     extendTags: [],
     blackboard: { duration: 9999 },
     attributeModifiers: [],
-  },
-  buff_common_obtain_ultimate_sp: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
-    },
   },
   buff_common_power_attack_disable_cast_skill: {
     stackingType: 'unlimited',
@@ -1498,6 +1871,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1508,45 +1891,87 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('applyBuff', {
-          buffId: 'buff_physical_no_guard',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
-        }),
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [1.2, 1.2, 1.2, 1.2],
-              column: { kind: 'constant', value: 1 },
-              storeKey: 'atk_scale',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-            },
-            {
-              values: [10, 10, 10, 10],
-              column: { kind: 'constant', value: 1 },
-              storeKey: 'poise',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
-            },
-          ],
-        }),
-        step('dealDamage', {
-          damageType: 'physical',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: [],
-          features: ['physicalInfliction'],
-          stagger: { kind: 'blackboard', key: 'poise' },
-        }),
-        step('applyBuff', {
-          buffId: 'buff_physical_handle_cryst_break',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-        }),
-        step('igniteBuffs', {
-          target: 'buffOwner',
-          source: 'caster',
-          igniteType: 'PhysicalStatus',
-        }),
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_no_guard',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+              blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [1.2, 1.2, 1.2, 1.2],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+                {
+                  values: [10, 10, 10, 10],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'poise',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
+                },
+              ],
+            }),
+            step(
+              'dealDamage',
+              {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: [],
+                features: ['physicalInfliction'],
+                stagger: { kind: 'blackboard', key: 'poise' },
+              },
+              'buff_physical_airborne:/lifecycleSequences/start/steps/1/body/steps/1',
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:2',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:3',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'caster',
+              igniteType: 'PhysicalStatus',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
       ),
     },
   },
@@ -1593,6 +2018,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_physical_break',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: { atk_scale: { kind: 'blackboard', key: 'atk_scale' } },
         }),
@@ -1688,6 +2114,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: true,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1709,6 +2145,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -1718,35 +2155,58 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_physical_no_guard_fake',
           target: 'buffOwner',
-          source: 'eventSource',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
         }),
       ),
       afterEnhance: sequence(
-        step('igniteBuffs', { target: 'buffOwner', source: 'buffOwner', igniteType: 'NoGuard' }),
-        branch(
-          {
-            kind: 'currentBuffStackCompare',
-            operator: 'greaterOrEqual',
-            value: { kind: 'constant', value: 2 },
-          },
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'buffOwner',
+              igniteType: 'NoGuard',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
           sequence(
             branch(
               {
-                kind: 'actionValueCompare',
-                left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                operator: 'equal',
-                right: { kind: 'constant', value: 0 },
+                kind: 'currentBuffStackCompare',
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 2 },
               },
               sequence(
-                step('applyBuff', {
-                  buffId: 'buff_physical_handle_cryst_break',
-                  target: 'buffOwner',
-                  inheritSourceSkillCastInfo: true,
-                }),
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_physical_handle_cryst_break',
+                      target: 'buffOwner',
+                      source: 'buffSource',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
               ),
             ),
           ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
         ),
       ),
     },
@@ -1819,6 +2279,29 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: chenQianyuUltimate },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -1983,6 +2466,7 @@ export default {
                 step('applyBuff', {
                   buffId: 'buff_chr_0005_chen_talent_0_1',
                   target: 'buffOwner',
+                  source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                   blackboardAssignments: {
@@ -2004,6 +2488,7 @@ export default {
                 step('applyBuff', {
                   buffId: 'buff_chr_0005_chen_talent_0_1',
                   target: 'buffOwner',
+                  source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                   blackboardAssignments: {
@@ -2025,6 +2510,7 @@ export default {
                 step('applyBuff', {
                   buffId: 'buff_chr_0005_chen_talent_0_1',
                   target: 'buffOwner',
+                  source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                   blackboardAssignments: {
@@ -2051,6 +2537,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },

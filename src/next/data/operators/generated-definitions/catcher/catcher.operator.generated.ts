@@ -21,6 +21,19 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0020_meurs_attack1',
     timelineBlockFrames: 21,
     exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 39,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0020_meurs_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 21, endFrame: 39, sourceSkillIds: ['chr_0020_meurs_attack2'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -80,6 +93,9 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
         14,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -94,6 +110,19 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0020_meurs_attack2',
     timelineBlockFrames: 21,
     exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 35,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0020_meurs_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 21, endFrame: 35, sourceSkillIds: ['chr_0020_meurs_attack3'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -148,6 +177,9 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
         13,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -162,6 +194,19 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0020_meurs_attack3',
     timelineBlockFrames: 28,
     exclusiveFrame: 32,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 44,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0020_meurs_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 28, endFrame: 44, sourceSkillIds: ['chr_0020_meurs_attack4'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -209,6 +254,9 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
         17,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -223,6 +271,19 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0020_meurs_attack4',
     timelineBlockFrames: 45,
     exclusiveFrame: 47,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 60,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0020_meurs_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 45, endFrame: 60, sourceSkillIds: ['chr_0020_meurs_attack1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -284,6 +345,9 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
         25,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 25,
@@ -300,6 +364,15 @@ export const catcherFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0020_meurs_power_attack',
     timelineBlockFrames: 35,
     exclusiveFrame: 75,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 35,
+          endFrame: 75,
+          sourceSkillIds: ['chr_0020_meurs_normal_skill', 'chr_0020_meurs_combo_skill'],
+        },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -378,6 +451,9 @@ export const catcherFinisher: SkillDefinition = withSkillBlackboard(
         75,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -419,6 +495,9 @@ export const catcherPlungingAttack: SkillDefinition = withSkillBlackboard(
         2,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -433,6 +512,11 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0020_meurs_normal_skill',
     timelineBlockFrames: 95,
     exclusiveFrame: 285,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 95, endFrame: 129, sourceSkillIds: ['chr_0020_meurs_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -687,6 +771,9 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_return_base: 30,
@@ -706,6 +793,11 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0020_meurs_combo_skill',
     timelineBlockFrames: 24,
     exclusiveFrame: 45,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 60, sourceSkillIds: ['chr_0020_meurs_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -865,6 +957,9 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [1050, 1050, 1050, 1050, 1050, 1050, 1050, 1050, 1050, 1050, 1050, 990],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [0.25, 0.27, 0.3, 0.32, 0.34, 0.37, 0.39, 0.42, 0.44, 0.47, 0.51, 0.55],
@@ -890,6 +985,15 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0020_meurs_ultimate_skill',
     timelineBlockFrames: 103,
     exclusiveFrame: 120,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 103,
+          endFrame: 120,
+          sourceSkillIds: ['chr_0020_meurs_combo_skill', 'chr_0020_meurs_normal_skill'],
+        },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -1056,6 +1160,9 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 80 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale: [0.89, 0.98, 1.07, 1.16, 1.25, 1.34, 1.43, 1.51, 1.6, 1.72, 1.85, 2],
@@ -1122,6 +1229,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
@@ -1180,6 +1297,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -1513,6 +1640,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: true,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1657,6 +1794,28 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: catcherUltimate },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -1768,6 +1927,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },

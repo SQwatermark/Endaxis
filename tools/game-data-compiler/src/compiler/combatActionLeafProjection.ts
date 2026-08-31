@@ -19,6 +19,7 @@ import { projectKeywordBuffAction } from './keywordBuffProjection.ts';
 import {
   type ProjectedTargetGroup,
   type CombatActionProjectionContextSource,
+  type CombatActionProjectionExtensionsSource,
   BUFF_ACTION_CONTEXT,
   requireActionOwnerProjection,
   isPartyExceptOwnerInstantSearch,
@@ -80,6 +81,7 @@ export function compileActionNode(
   visualOnlyIds: ReadonlySet<string>,
   partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
+  extensions: CombatActionProjectionExtensionsSource = {},
 ): CompiledBuffStepSource[] {
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
@@ -178,6 +180,8 @@ export function compileActionNode(
       // 受击侧 Buff 可以基于本次伤害再结算一段反击伤害；下方 damage 投影仍校验
       // 事件来源、固定 Buff owner 与 DamageAction 目标，不能把普通受击回调一概放行。
       'damage',
+      // 受击侧 Buff 可以治疗自身；heal 分支仍严格校验 healer、目标和计算式。
+      'heal',
     ].includes(node.body.value.family)
   )
     throw new Error(
@@ -404,8 +408,12 @@ export function compileActionNode(
       ) {
         throw new Error(`${node.sourcePath}: unsupported SwitchMode lifecycle options`);
       }
-      // Endaxis 时间轴输入已经绑定玩家实际选择的具体形态；模式只负责原生输入槽路由。
-      return [];
+      return [
+        {
+          kind: 'changePlayerActionMode',
+          parameters: { modeId: action.modeId, lifetime: 'finishByAction' },
+        },
+      ];
     }
     if (
       (action.target.targetSource !== 'Source' && action.target.targetSource !== 'Owner') ||
@@ -1602,6 +1610,17 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'presentation') {
     const action = node.body.value.action;
+    if (action.kind === 'skillTypeMutation') {
+      const compile = extensions.compileSkillTypeMutation;
+      if (compile === undefined) throw new Error(`${node.sourcePath}: missing SkillType compiler`);
+      return [
+        ...compile(
+          action as import('../source/presentationActions.ts').SkillTypeMutationActionSource,
+          node.sourcePath,
+          context,
+        ),
+      ];
+    }
     if (action.kind === 'playAnimation' && action.onEnd !== undefined) {
       const conditionsArePureGuards = action.onEnd.conditions.every(
         condition => condition.kind === 'buffStack',

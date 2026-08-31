@@ -2078,6 +2078,8 @@
         "setContextFlag": "Sets a caster context flag for other mechanics to read.",
         "openComboWindow": "Queues the next combo stage in the scene-level window runtime. The window lasts 5 seconds and follows queue order.",
         "changeSkillSlot": "Changes the variant used by the next release of this stable skill group; an ongoing release keeps its snapshotted variant.",
+        "changePlayerActionMode": "Changes the native command mode for one semantic player action and may restore the mode that was active before the step.",
+        "changeNativeSkillType": "Changes one skill's mutable native SkillType without changing its library group or player-action identity.",
         "listenForCombatEvents": "Registers temporary event listeners for the outer scheduled sequence interval. They are disposed when the skill ends or is interrupted.",
         "startTimeDilation": "Starts ordinary time dilation. Scope, duration, slot, priority, and curve determine the resulting clock scale.",
         "startUltimateTimeDilation": "Starts ultimate-specific global time dilation. The caster ignores it automatically and it stops when the action ends.",

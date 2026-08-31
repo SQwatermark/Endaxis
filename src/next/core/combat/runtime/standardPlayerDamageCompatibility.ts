@@ -387,6 +387,8 @@ function inspectSequence(
       case 'gainFinisherSp':
       case 'openComboWindow':
       case 'changeSkillSlot':
+      case 'changePlayerActionMode':
+      case 'changeNativeSkillType':
       case 'adjustSkillCooldown':
       case 'startTimeDilation':
       case 'startUltimateTimeDilation':

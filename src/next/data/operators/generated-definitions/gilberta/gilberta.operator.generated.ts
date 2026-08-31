@@ -19,6 +19,20 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0013_aglina_attack1',
     timelineBlockFrames: 18,
+    exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0013_aglina_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 30, sourceSkillIds: ['chr_0013_aglina_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -86,6 +100,9 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
         7,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -99,6 +116,20 @@ export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0013_aglina_attack2',
     timelineBlockFrames: 22,
+    exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 29,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0013_aglina_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 22, endFrame: 29, sourceSkillIds: ['chr_0013_aglina_attack3'] },
+      ],
+    },
     costFrame: 11,
     scheduledSequences: [
       scheduled(
@@ -194,6 +225,9 @@ export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
         8,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -207,6 +241,20 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0013_aglina_attack3',
     timelineBlockFrames: 23,
+    exclusiveFrame: 38,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 38,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0013_aglina_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 23, endFrame: 38, sourceSkillIds: ['chr_0013_aglina_attack4'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -402,6 +450,9 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
         15,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -415,6 +466,20 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0013_aglina_attack4',
     timelineBlockFrames: 40,
+    exclusiveFrame: 50,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 50,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0013_aglina_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 40, endFrame: 50, sourceSkillIds: ['chr_0013_aglina_attack1'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -604,6 +669,9 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
         27,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 16,
@@ -618,6 +686,16 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0013_aglina_power_attack',
     timelineBlockFrames: 43,
+    exclusiveFrame: 50,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 43,
+          endFrame: 50,
+          sourceSkillIds: ['chr_0013_aglina_normal_skill', 'chr_0013_aglina_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -765,6 +843,9 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
         43,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   {
     atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
@@ -780,6 +861,7 @@ export const gilbertaPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0013_aglina_plunging_attack_end',
     timelineBlockFrames: 21,
+    exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -818,6 +900,9 @@ export const gilbertaPlungingAttack: SkillDefinition = withSkillBlackboard(
         5,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -827,6 +912,12 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0013_aglina_normal_skill',
     timelineBlockFrames: 123,
+    exclusiveFrame: 135,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 123, endFrame: 148, sourceSkillIds: ['chr_0013_aglina_combo_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -853,11 +944,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
             },
             'chr_0013_aglina_normal_skill:/scheduledSequences/1/sequence/steps/0',
           ),
-          step('applyBuff', {
-            buffId: 'buff_common_obtain_ultimate_sp',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-          }),
+          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
         ),
         30,
       ),
@@ -1007,6 +1094,9 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atk_scale_explosion: [0.58, 0.63, 0.69, 0.75, 0.81, 0.86, 0.92, 0.98, 1.04, 1.11, 1.2, 1.3],
@@ -1033,6 +1123,16 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0013_aglina_ultimate_skill',
     timelineBlockFrames: 64,
+    exclusiveFrame: 85,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 64,
+          endFrame: 91,
+          sourceSkillIds: ['chr_0013_aglina_normal_skill', 'chr_0013_aglina_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1125,6 +1225,9 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale: [3.33, 3.67, 4, 4.33, 4.67, 5, 5.34, 5.67, 6, 6.42, 6.92, 7.5],
@@ -1156,6 +1259,13 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0013_aglina_combo_skill',
     timelineBlockFrames: 53,
+    exclusiveFrame: 72,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 53, endFrame: 72, sourceSkillIds: ['chr_0013_aglina_normal_skill'] },
+        { startFrame: 53, endFrame: 72, sourceSkillIds: ['chr_0013_aglina_ultimate_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1189,6 +1299,16 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: true,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1294,6 +1414,16 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1518,6 +1648,9 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [1.4, 1.54, 1.68, 1.82, 1.96, 2.1, 2.24, 2.38, 2.52, 2.7, 2.91, 3.15],
@@ -1584,6 +1717,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -1664,6 +1807,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -1732,19 +1885,6 @@ export const commonBuffDefinitions = {
     blackboard: { duration: 9999 },
     attributeModifiers: [],
   },
-  buff_common_obtain_ultimate_sp: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
-    },
-  },
   buff_common_power_attack_disable_cast_skill: {
     stackingType: 'unlimited',
     priority: 0,
@@ -1777,6 +1917,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -2010,6 +2160,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: true,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -2164,6 +2324,28 @@ export default {
       skills: gilbertaComboSkill,
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -2409,6 +2591,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -2561,7 +2753,7 @@ export default {
         enable: sequence(
           step('applyBuff', {
             buffId: 'buff_common_affixes_vulnerable_spell',
-            target: 'buffOwner',
+            target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             blackboardAssignments: {

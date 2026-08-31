@@ -147,6 +147,9 @@ describe('compileScenarioRuntimeAssembly', () => {
           modifiers: [{ kind: 'addSkillCooldownFrames', skillGroupKey: 'comboSkill', frames: -15 }],
         },
       ],
+      skillSlots: perlica.skillSlots?.map(slot =>
+        slot.key === 'comboSkill' ? { ...slot, replacementSkillKeys: ['replacement'] } : slot,
+      ),
       skillGroups: perlica.skillGroups.map(group => {
         if (group.key !== 'comboSkill') return group;
         const base = group.skills as SkillDefinition;

@@ -11,6 +11,20 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0019_karin_attack1',
     timelineBlockFrames: 14,
+    exclusiveFrame: 17,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 1,
+          endFrame: 32,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0019_karin_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 14, endFrame: 32, sourceSkillIds: ['chr_0019_karin_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -45,6 +59,9 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
         10,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
 );
@@ -54,6 +71,20 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0019_karin_attack2',
     timelineBlockFrames: 22,
+    exclusiveFrame: 28,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 13,
+          endFrame: 38,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0019_karin_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 22, endFrame: 38, sourceSkillIds: ['chr_0019_karin_attack3'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -126,6 +157,9 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
         17,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -140,6 +174,20 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0019_karin_attack3',
     timelineBlockFrames: 21,
+    exclusiveFrame: 27,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 11,
+          endFrame: 36,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0019_karin_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 21, endFrame: 36, sourceSkillIds: ['chr_0019_karin_attack4'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -182,6 +230,9 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
         11,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73] },
 );
@@ -191,6 +242,20 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0019_karin_attack4',
     timelineBlockFrames: 35,
+    exclusiveFrame: 34,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 24,
+          endFrame: 52,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0019_karin_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 35, endFrame: 52, sourceSkillIds: ['chr_0019_karin_attack1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -281,6 +346,9 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
         22,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 19,
@@ -295,6 +363,16 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0019_karin_power_attack',
     timelineBlockFrames: 37,
+    exclusiveFrame: 60,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 37,
+          endFrame: 60,
+          sourceSkillIds: ['chr_0019_karin_normal_skill', 'chr_0019_karin_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -393,6 +471,9 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
         36,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -402,6 +483,7 @@ export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0019_karin_plunging_attack_end',
     timelineBlockFrames: 14,
+    exclusiveFrame: 13,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -435,6 +517,9 @@ export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -444,6 +529,7 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0019_karin_normal_skill',
     timelineBlockFrames: 41,
+    exclusiveFrame: 40,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -473,25 +559,12 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
         ),
         21,
       ),
-      scheduled(
-        20,
-        sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        21,
-      ),
+      scheduled(20, sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })), 21),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
@@ -507,6 +580,28 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0019_karin_ultimate_skill',
     timelineBlockFrames: 129,
+    exclusiveFrame: 150,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 120,
+          endFrame: 201,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0019_karin_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        {
+          startFrame: 129,
+          endFrame: 201,
+          sourceSkillIds: [
+            'chr_0019_karin_normal_skill',
+            'chr_0019_karin_attack1',
+            'chr_0019_karin_combo_skill',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -722,6 +817,9 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 120 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atb_1: [19, 19, 20, 21, 21, 22, 23, 23, 24, 25, 25, 26],
@@ -745,6 +843,12 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0019_karin_combo_skill',
     timelineBlockFrames: 38,
+    exclusiveFrame: 55,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 38, endFrame: 71, sourceSkillIds: ['chr_0019_karin_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -760,68 +864,56 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         22,
         sequence(
+          step('modifyActionValue', {
+            key: 'sub_ratio',
+            operation: 'divide',
+            value: { kind: 'blackboard', key: 'rate' },
+          }),
+          step('storeSourceAttributeValue', {
+            attribute: { kind: 'secondary' },
+            stage: 'finalNonConverted',
+            useFloor: false,
+            divisor: { kind: 'constant', value: 1 },
+            multiplier: { kind: 'blackboard', key: 'sub_ratio' },
+            base: { kind: 'constant', value: 1 },
+            targetKey: 'atb_up',
+          }),
+          step('modifyActionValue', {
+            key: 'max_ratio',
+            operation: 'add',
+            value: { kind: 'constant', value: 1 },
+          }),
           branch(
             {
               kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              left: { kind: 'blackboard', key: 'atb_up' },
+              operator: 'less',
+              right: { kind: 'blackboard', key: 'max_ratio' },
             },
             sequence(
               step('modifyActionValue', {
-                key: 'sub_ratio',
-                operation: 'divide',
-                value: { kind: 'blackboard', key: 'rate' },
-              }),
-              step('storeSourceAttributeValue', {
-                attribute: { kind: 'secondary' },
-                stage: 'finalNonConverted',
-                useFloor: false,
-                divisor: { kind: 'constant', value: 1 },
-                multiplier: { kind: 'blackboard', key: 'sub_ratio' },
-                base: { kind: 'constant', value: 1 },
-                targetKey: 'atb_up',
-              }),
-              step('modifyActionValue', {
-                key: 'max_ratio',
-                operation: 'add',
-                value: { kind: 'constant', value: 1 },
-              }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'atb_up' },
-                  operator: 'less',
-                  right: { kind: 'blackboard', key: 'max_ratio' },
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'atb',
-                    operation: 'multiply',
-                    value: { kind: 'blackboard', key: 'atb_up' },
-                  }),
-                ),
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'atb',
-                    operation: 'multiply',
-                    value: { kind: 'blackboard', key: 'max_ratio' },
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'skill',
+                key: 'atb',
+                operation: 'multiply',
+                value: { kind: 'blackboard', key: 'atb_up' },
               }),
             ),
-            undefined,
+            sequence(
+              step('modifyActionValue', {
+                key: 'atb',
+                operation: 'multiply',
+                value: { kind: 'blackboard', key: 'max_ratio' },
+              }),
+            ),
             { alwaysNext: true },
           ),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'atb' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
           step(
             'dealDamage',
             {
@@ -831,7 +923,7 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0019_karin_combo_skill:/scheduledSequences/1/sequence/steps/1',
+            'chr_0019_karin_combo_skill:/scheduledSequences/1/sequence/steps/5',
           ),
           branch(
             {
@@ -876,26 +968,14 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
             operation: 'assign',
             value: { kind: 'constant', value: 0 },
           }),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'skill',
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
+          step('changeResourceByActionValue', {
+            resource: 'sp',
+            amount: { kind: 'blackboard', key: 'atb' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'team',
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          }),
           step(
             'dealDamage',
             {
@@ -960,6 +1040,9 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     cooldownFrames: [300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 270],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb: 7.5,
@@ -1002,7 +1085,7 @@ export const commonBuffDefinitions = {
               step('applyBuff', {
                 buffId: 'buff_common_affixes_skillimbue',
                 target: 'buffOwner',
-                source: 'eventSource',
+                source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: { imbue_scale: { kind: 'blackboard', key: 'imbue_scale' } },
               }),
@@ -1029,6 +1112,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_affixes_skillimbue_atk',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           finishByAction: true,
         }),
@@ -1234,6 +1318,28 @@ export default {
       skills: akekuriComboSkill,
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -1381,6 +1487,7 @@ export default {
                 step('applyBuff', {
                   buffId: 'buff_chr_0019_karin_potential_1_1',
                   target: 'buffOwner',
+                  source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   blackboardAssignments: {
                     duration: { kind: 'blackboard', key: 'duration' },
@@ -1406,6 +1513,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1429,6 +1546,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1490,7 +1617,7 @@ export default {
               step('applyBuff', {
                 buffId: 'buff_chr_0019_karin_potential_5_combo',
                 target: 'buffOwner',
-                source: 'eventSource',
+                source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   potential_5_duration: { kind: 'blackboard', key: 'potential_5_duration' },

@@ -53,7 +53,13 @@ describe('Operator 来源闭包', () => {
         characterId: 'chr_test',
       },
       manifestSkills: [
-        { key: 'basic', skillType: 'basicAttack', source: 'basic.json', compile: {} },
+        {
+          key: 'basic',
+          skillType: 'basicAttack',
+          levelSource: 'basicAttack',
+          source: 'basic.json',
+          compile: {},
+        },
       ],
       manifestSkillGroups: [
         {

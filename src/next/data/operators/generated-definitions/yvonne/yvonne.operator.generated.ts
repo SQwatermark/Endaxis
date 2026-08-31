@@ -22,6 +22,20 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_attack1',
     timelineBlockFrames: 16,
     exclusiveFrame: 20,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 27,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0017_yvonne_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 16, endFrame: 27, sourceSkillIds: ['chr_0017_yvonne_attack2'] },
+        { startFrame: 0, endFrame: 27, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -89,6 +103,9 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
         11,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.24, 0.26, 0.28, 0.31, 0.33, 0.35, 0.38, 0.4, 0.42, 0.45, 0.49, 0.53] },
 );
@@ -99,6 +116,20 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_attack2',
     timelineBlockFrames: 14,
     exclusiveFrame: 20,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 28,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0017_yvonne_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 14, endFrame: 28, sourceSkillIds: ['chr_0017_yvonne_attack3'] },
+        { startFrame: 0, endFrame: 28, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -230,6 +261,9 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
         14,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -244,6 +278,20 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_attack3',
     timelineBlockFrames: 20,
     exclusiveFrame: 21,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 34,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0017_yvonne_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 20, endFrame: 34, sourceSkillIds: ['chr_0017_yvonne_attack4'] },
+        { startFrame: 0, endFrame: 34, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -439,6 +487,9 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
         12,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -453,6 +504,20 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_attack4',
     timelineBlockFrames: 24,
     exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 38,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0017_yvonne_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 38, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
+      ],
+      hasConditionalActions: true,
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -520,6 +585,9 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
         11,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.41, 0.45, 0.49, 0.53, 0.58, 0.62, 0.66, 0.7, 0.74, 0.79, 0.85, 0.92] },
 );
@@ -530,6 +598,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_attack5',
     timelineBlockFrames: 37,
     exclusiveFrame: 37,
+    inputWindows: { hasConditionalActions: true },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -602,6 +671,9 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
         24,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 17,
@@ -619,6 +691,28 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_ult_attack1_1',
     timelineBlockFrames: 21,
     exclusiveFrame: 28,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 26,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0017_yvonne_ult_attack2_1',
+        },
+      ],
+      allowedNextSkills: [
+        {
+          startFrame: 21,
+          endFrame: 26,
+          sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1', 'chr_0017_yvonne_ult_attack_end'],
+        },
+        {
+          startFrame: 0,
+          endFrame: 26,
+          sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+        },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -837,6 +931,9 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
         23,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'ultimate',
+    nativeSkillType: 'attack',
   },
   {
     atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2],
@@ -852,6 +949,28 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_ult_attack2_1',
     timelineBlockFrames: 23,
     exclusiveFrame: 31,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0017_yvonne_ult_attack2_2',
+        },
+      ],
+      allowedNextSkills: [
+        {
+          startFrame: 23,
+          endFrame: 30,
+          sourceSkillIds: ['chr_0017_yvonne_ult_attack2_2', 'chr_0017_yvonne_ult_attack_end'],
+        },
+        {
+          startFrame: 0,
+          endFrame: 30,
+          sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+        },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -1501,6 +1620,9 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
         24,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'ultimate',
+    nativeSkillType: 'attack',
   },
   { atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2] },
 );
@@ -1511,6 +1633,28 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_ult_attack2_2',
     timelineBlockFrames: 12,
     exclusiveFrame: 22,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 20,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0017_yvonne_ult_attack3_1',
+        },
+      ],
+      allowedNextSkills: [
+        {
+          startFrame: 12,
+          endFrame: 20,
+          sourceSkillIds: ['chr_0017_yvonne_ult_attack3_1', 'chr_0017_yvonne_ult_attack_end'],
+        },
+        {
+          startFrame: 0,
+          endFrame: 20,
+          sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+        },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -2096,6 +2240,9 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         13,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'ultimate',
+    nativeSkillType: 'attack',
   },
   { atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2] },
 );
@@ -2106,6 +2253,28 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_ult_attack3_1',
     timelineBlockFrames: 28,
     exclusiveFrame: 45,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 36,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
+        },
+      ],
+      allowedNextSkills: [
+        {
+          startFrame: 28,
+          endFrame: 36,
+          sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
+        },
+        {
+          startFrame: 0,
+          endFrame: 36,
+          sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+        },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -2944,6 +3113,9 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
         32,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'ultimate',
+    nativeSkillType: 'attack',
   },
   { atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2] },
 );
@@ -2954,6 +3126,25 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
     timelineBlockFrames: 16,
     exclusiveFrame: 28,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 24,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 0, endFrame: 24, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
+        { startFrame: 0, endFrame: 28, sourceSkillIds: ['chr_0017_yvonne_ult_attack_end'] },
+        {
+          startFrame: 16,
+          endFrame: 24,
+          sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
+        },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -3766,6 +3957,9 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
         18,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'ultimate',
+    nativeSkillType: 'attack',
   },
   { atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2] },
 );
@@ -4179,6 +4373,9 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
         70,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'ultimate',
+    nativeSkillType: 'attack',
   },
   {
     atk_scale: [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
@@ -4200,6 +4397,15 @@ export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_power_attack',
     timelineBlockFrames: 29,
     exclusiveFrame: 45,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 29,
+          endFrame: 47,
+          sourceSkillIds: ['chr_0017_yvonne_normal_skill', 'chr_0017_yvonne_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -4362,6 +4568,9 @@ export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
         29,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -4372,6 +4581,25 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_plunging_attack_end',
     timelineBlockFrames: 2,
     exclusiveFrame: 20,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 2,
+          endFrame: 20,
+          sourceSkillIds: [
+            'chr_0017_yvonne_ult_attack3_1',
+            'chr_0017_yvonne_ult_attack3_2',
+            'chr_0017_yvonne_ult_attack_end',
+            'chr_0017_yvonne_ult_attack2_1',
+            'chr_0017_yvonne_ult_attack2_2',
+            'chr_0017_yvonne_attack5',
+            'chr_0017_yvonne_attack4',
+            'chr_0017_yvonne_attack3',
+            'chr_0017_yvonne_attack2',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -4517,6 +4745,9 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -4534,6 +4765,11 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_normal_skill',
     timelineBlockFrames: 34,
     exclusiveFrame: 34,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 34, endFrame: 56, sourceSkillIds: ['chr_0017_yvonne_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -4590,6 +4826,9 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_return: 10,
@@ -4776,6 +5015,9 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 220 }],
     enhancementStateBuffId: 'buff_chr_0017_yvonne_ultimate_skill',
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale_extra: [2.67, 2.94, 3.2, 3.47, 3.74, 4, 4.27, 4.54, 4.8, 5.14, 5.54, 6],
@@ -4797,6 +5039,11 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0017_yvonne_combo_skill',
     timelineBlockFrames: 19,
     exclusiveFrame: 24,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 19, endFrame: 56, sourceSkillIds: ['chr_0017_yvonne_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -4856,6 +5103,9 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 570, 570, 570, 540],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale_boom: [0.89, 0.98, 1.07, 1.16, 1.25, 1.34, 1.42, 1.51, 1.6, 1.71, 1.85, 2],
@@ -4938,6 +5188,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Cryst',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -5174,6 +5434,74 @@ export default {
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
       skills: yvonneComboSkill,
+    },
+  ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+        'ultimateAttack1',
+        'ultimateAttack2A',
+        'ultimateAttack2B',
+        'ultimateAttack3A',
+        'ultimateAttack3B',
+        'ultimateAttackEnd',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
+  playerActionModes: [
+    {
+      modeId: 'ult',
+      modeLayer: 'default',
+      defaultEnabled: false,
+      normalAttackSkillKeys: [
+        'ultimateAttack1',
+        'ultimateAttack2A',
+        'ultimateAttack2B',
+        'ultimateAttack3A',
+        'ultimateAttack3B',
+      ],
+      commandMappings: {
+        basicAttack: {
+          sourceSkillId: 'chr_0017_yvonne_ult_attack1_1',
+          skillKey: 'ultimateAttack1',
+        },
+      },
+    },
+    {
+      modeId: 'ult_end',
+      modeLayer: 'default',
+      defaultEnabled: false,
+      commandMappings: {
+        basicAttack: {
+          sourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
+          skillKey: 'ultimateAttack3B',
+        },
+      },
+    },
+    {
+      modeId: 'talent_1',
+      modeLayer: 'default',
+      defaultEnabled: false,
+      commandMappings: {
+        basicAttack: { sourceSkillId: 'chr_0017_yvonne_attack5', skillKey: 'basicAttack5' },
+      },
     },
   ],
   talents: [
@@ -6610,6 +6938,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: true,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
@@ -6685,11 +7023,28 @@ export default {
           ),
         ),
         enable: sequence(
-          step('restrictUltimateEnergyRecovery', {
-            target: 'caster',
-            allowedRecoveryTags: ['Skill/Character/chr_0017_yvonne/UltimateEndUsp'],
-            clearUltimateEnergyOnEnd: false,
-          }),
+          withActionBlackboardScope(
+            'native-buff-callback:0',
+            {},
+            true,
+            sequence(step('changePlayerActionMode', { modeId: 'ult', lifetime: 'finishByAction' })),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
+          ),
+          withActionBlackboardScope(
+            'native-buff-callback:1',
+            {},
+            true,
+            sequence(
+              step('restrictUltimateEnergyRecovery', {
+                target: 'caster',
+                allowedRecoveryTags: ['Skill/Character/chr_0017_yvonne/UltimateEndUsp'],
+                clearUltimateEnergyOnEnd: false,
+              }),
+            ),
+            undefined,
+            { lifetime: 'execution', alwaysNext: true },
+          ),
         ),
         finish: sequence(
           step('applyBuff', {
@@ -6753,6 +7108,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
@@ -6915,6 +7280,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },

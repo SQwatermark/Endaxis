@@ -787,6 +787,8 @@ function resolveStep(
     case 'setContextFlag':
     case 'openComboWindow':
     case 'changeSkillSlot':
+    case 'changePlayerActionMode':
+    case 'changeNativeSkillType':
     case 'adjustSkillCooldown':
       return { ...keyed, kind: step.kind, parameters: step.parameters } as ResolvedCombatStep;
     case 'applyElementalReaction':
@@ -1150,6 +1152,9 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
       ? {}
       : { sourceSkillId: input.skill.sourceSkillId }),
     skillType: input.skillType,
+    ...(input.skill.nativeSkillType === undefined
+      ? {}
+      : { nativeSkillType: input.skill.nativeSkillType }),
     skillLevel: input.skillLevel,
     initialBlackboard,
     ...(input.skill.smartTarget === undefined ? {} : { smartTarget: input.skill.smartTarget }),

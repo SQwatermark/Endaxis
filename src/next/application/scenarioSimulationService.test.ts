@@ -112,7 +112,13 @@ describe('ScenarioSimulationService', () => {
     // 单节点失衡账本以敌人帧制失衡规则为初始值。
     expect(run.poiseCurve.maxValue).toBe(300);
     expect(run.poiseCurve.points[0]).toMatchObject({ value: 300 });
-    expect(run.availabilityDiagnostics).toEqual([]);
+    expect(run.availabilityDiagnostics).toEqual([
+      expect.objectContaining({
+        skillId: 'plungingAttack',
+        actualSkillId: 'basicAttack1',
+        reasons: ['skillInputMismatch'],
+      }),
+    ]);
     expect(run.executionDiagnostics).toEqual([]);
     expect(run.resourceCurves.sp.points[0]).toMatchObject({ value: run.initialResources.sp });
   });

@@ -1,4 +1,8 @@
-import type { SkillType } from '../../../../../packages/game-data-contract/src/primitives.ts';
+import {
+  SKILL_LEVEL_SOURCES,
+  type SkillLevelSource,
+  type SkillType,
+} from '../../../../../packages/game-data-contract/src/primitives.ts';
 import type { SkillGroupDefinition } from '../../../../../packages/game-data-contract/src/skills.ts';
 export type { SkillType as OperatorActiveSkillTypeSource } from '../../../../../packages/game-data-contract/src/primitives.ts';
 
@@ -14,7 +18,7 @@ import {
   type SourceRecord,
 } from '../../source/primitives.ts';
 
-const ENTRY_REQUIRED_FIELDS = new Set(['key', 'skillType', 'source']);
+const ENTRY_REQUIRED_FIELDS = new Set(['key', 'skillType', 'levelSource', 'source']);
 const ENTRY_OPTIONAL_FIELDS = ['compile', 'enhancementStateBuffId'] as const;
 
 /** 兼容旧入口的支持列表和遍历顺序；类型身份归契约，不能把排序差异误当成新枚举。 */
@@ -29,7 +33,7 @@ export const OPERATOR_ACTIVE_SKILL_TYPES = [
 
 /** operators.json 中的领域身份；compile 暂时只保留，不由新主干解释旧 Python 策略。 */
 export type OperatorActiveSkillEntrySource = Readonly<
-  Pick<SkillGroupDefinition, 'key' | 'skillType'>
+  Pick<SkillGroupDefinition, 'key' | 'skillType' | 'levelSource'>
 > & {
   readonly sourcePath: string;
   readonly sourceFile: string;
@@ -73,10 +77,18 @@ export function parseOperatorActiveSkillEntries(
         `${path}.skillType: unsupported operator skill type ${JSON.stringify(skillTypeName)}`,
       );
     }
+    const levelSourceName = requireNonEmptyString(row.levelSource, `${path}.levelSource`);
+    const levelSource = SKILL_LEVEL_SOURCES.find(source => source === levelSourceName);
+    if (levelSource === undefined) {
+      throw new Error(
+        `${path}.levelSource: unsupported level source ${JSON.stringify(levelSourceName)}`,
+      );
+    }
     return {
       sourcePath: path,
       key: requireNonEmptyString(row.key, `${path}.key`),
       skillType,
+      levelSource: levelSource satisfies SkillLevelSource,
       sourceFile,
       projectionConfig:
         row.compile === undefined ? null : requireRecord(row.compile, `${path}.compile`),

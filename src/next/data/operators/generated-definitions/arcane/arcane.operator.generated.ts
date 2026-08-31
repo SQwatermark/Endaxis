@@ -22,6 +22,19 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_attack1',
     timelineBlockFrames: 10,
     exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 3,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0032_lizhiyan_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 10, endFrame: 30, sourceSkillIds: ['chr_0032_lizhiyan_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -100,6 +113,9 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
         12,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -114,6 +130,19 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_attack2',
     timelineBlockFrames: 14,
     exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 32,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0032_lizhiyan_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 14, endFrame: 32, sourceSkillIds: ['chr_0032_lizhiyan_attack3'] },
+      ],
+    },
     costFrame: 11,
     scheduledSequences: [
       scheduled(
@@ -207,6 +236,9 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
         14,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -225,6 +257,19 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_attack3',
     timelineBlockFrames: 22,
     exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 39,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0032_lizhiyan_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 22, endFrame: 39, sourceSkillIds: ['chr_0032_lizhiyan_attack4'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -298,6 +343,9 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
         14,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -313,6 +361,19 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_attack4',
     timelineBlockFrames: 18,
     exclusiveFrame: 26,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 39,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0032_lizhiyan_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 39, sourceSkillIds: ['chr_0032_lizhiyan_attack5'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -476,6 +537,9 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
         36,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -491,6 +555,19 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_attack5',
     timelineBlockFrames: 40,
     exclusiveFrame: 41,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 50,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0032_lizhiyan_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 40, endFrame: 50, sourceSkillIds: ['chr_0032_lizhiyan_attack1'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -638,6 +715,9 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
         25,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 17,
@@ -658,6 +738,15 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_power_attack',
     timelineBlockFrames: 34,
     exclusiveFrame: 51,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 34,
+          endFrame: 51,
+          sourceSkillIds: ['chr_0032_lizhiyan_normal_skill', 'chr_0032_lizhiyan_combo_skill'],
+        },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -844,6 +933,9 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
         37,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   {
     atb: 8,
@@ -898,6 +990,9 @@ export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -908,6 +1003,11 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_normal_skill',
     timelineBlockFrames: 24,
     exclusiveFrame: 32,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 56, sourceSkillIds: ['chr_0032_lizhiyan_combo_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -939,6 +1039,9 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atk_scale: 2.85,
@@ -961,6 +1064,11 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_combo_skill',
     timelineBlockFrames: 16,
     exclusiveFrame: 23,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 16, endFrame: 39, sourceSkillIds: ['chr_0032_lizhiyan_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1360,6 +1468,9 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 570, 570, 570, 540],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb_return_wisd: [28, 28, 28, 28, 28, 28, 28, 28, 28, 30, 30, 30],
@@ -1407,6 +1518,15 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_ultimate_skill',
     timelineBlockFrames: 48,
     exclusiveFrame: 72,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 48,
+          endFrame: 79,
+          sourceSkillIds: ['chr_0032_lizhiyan_combo_skill', 'chr_0032_lizhiyan_normal_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1826,6 +1946,9 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
     enhancementStateBuffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_owner',
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
@@ -1860,6 +1983,15 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0032_lizhiyan_ultimate_skill2',
     timelineBlockFrames: 60,
     exclusiveFrame: 75,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 60,
+          endFrame: 91,
+          sourceSkillIds: ['chr_0032_lizhiyan_normal_skill', 'chr_0032_lizhiyan_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2278,6 +2410,9 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'normalSkill',
   },
   {
     atk_scale: [6.4, 7.04, 7.68, 8.32, 8.96, 9.6, 10.24, 10.88, 11.52, 12.32, 13.28, 14.4],
@@ -2372,6 +2507,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
@@ -2526,6 +2671,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Natural',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -2846,6 +3001,29 @@ export default {
       replacementSkillPlacements: { arcana: 'standard' },
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: ['arcana'] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   comboSkillConditions: [
     {
       key: 'native-combo:0',
@@ -3975,6 +4153,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
@@ -4062,6 +4250,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -4123,6 +4321,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -4250,6 +4458,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -4934,6 +5152,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: true,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
@@ -5093,6 +5321,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },

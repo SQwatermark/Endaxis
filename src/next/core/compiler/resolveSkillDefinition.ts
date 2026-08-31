@@ -102,14 +102,15 @@ export function resolveSkillTemplateDefinition(
       `skill '${operator.slug}/${group.key}/${resolvedDefinition.key}' is internal and cannot be placed on the timeline`,
     );
   }
+  if (resolvedDefinition.levelSource === undefined) {
+    throw new Error(
+      `skill '${operator.slug}/${group.key}/${resolvedDefinition.key}' has no per-skill level source`,
+    );
+  }
   return {
     definition: resolvedDefinition,
     group,
-    levelSource:
-      resolvedDefinition.levelSource ??
-      variant?.levelSource ??
-      routedReplacement?.levelSource ??
-      group.levelSource,
+    levelSource: resolvedDefinition.levelSource,
     ...(variant === undefined ? {} : { variantKey: variant.key }),
   };
 }

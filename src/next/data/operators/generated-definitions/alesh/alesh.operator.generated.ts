@@ -18,6 +18,20 @@ export const aleshBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0024_deepfin_attack1',
     timelineBlockFrames: 12,
+    exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 7,
+          endFrame: 25,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0024_deepfin_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 12, endFrame: 25, sourceSkillIds: ['chr_0024_deepfin_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -60,6 +74,9 @@ export const aleshBasicAttack1: SkillDefinition = withSkillBlackboard(
         8,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.18, 0.19, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39] },
 );
@@ -69,6 +86,20 @@ export const aleshBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0024_deepfin_attack2',
     timelineBlockFrames: 10,
+    exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 6,
+          endFrame: 25,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0024_deepfin_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 10, endFrame: 25, sourceSkillIds: ['chr_0024_deepfin_attack3'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -136,6 +167,9 @@ export const aleshBasicAttack2: SkillDefinition = withSkillBlackboard(
         8,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23] },
 );
@@ -145,6 +179,20 @@ export const aleshBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0024_deepfin_attack3',
     timelineBlockFrames: 16,
+    exclusiveFrame: 29,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 13,
+          endFrame: 31,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0024_deepfin_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 16, endFrame: 31, sourceSkillIds: ['chr_0024_deepfin_attack4'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -203,6 +251,9 @@ export const aleshBasicAttack3: SkillDefinition = withSkillBlackboard(
         14,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62] },
 );
@@ -212,6 +263,20 @@ export const aleshBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0024_deepfin_attack4',
     timelineBlockFrames: 22,
+    exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 15,
+          endFrame: 33,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0024_deepfin_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 22, endFrame: 33, sourceSkillIds: ['chr_0024_deepfin_attack5'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -229,35 +294,23 @@ export const aleshBasicAttack4: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.12 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 0.5 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.12 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.5 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -266,6 +319,9 @@ export const aleshBasicAttack4: SkillDefinition = withSkillBlackboard(
         16,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62] },
 );
@@ -275,6 +331,20 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0024_deepfin_attack5',
     timelineBlockFrames: 31,
+    exclusiveFrame: 40,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 14,
+          endFrame: 40,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0024_deepfin_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 31, endFrame: 40, sourceSkillIds: ['chr_0024_deepfin_attack1'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -294,27 +364,15 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.2 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_zero' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.2 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_zero' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -339,35 +397,23 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.2 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.2 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -376,6 +422,9 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
         20,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 19,
@@ -390,6 +439,16 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0024_deepfin_power_attack',
     timelineBlockFrames: 47,
+    exclusiveFrame: 75,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 47,
+          endFrame: 75,
+          sourceSkillIds: ['chr_0024_deepfin_normal_skill', 'chr_0024_deepfin_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -453,27 +512,15 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
             undefined,
             { alwaysNext: true },
           ),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.3 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: { kind: 'named', key: 'char_hard_stop' },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.3 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
         ),
         49,
       ),
@@ -532,6 +579,9 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
         47,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   {
     atk_scale: 4,
@@ -547,6 +597,7 @@ export const aleshPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0024_deepfin_plunging_attack_end',
     timelineBlockFrames: 21,
+    exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -580,6 +631,9 @@ export const aleshPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -589,6 +643,7 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0024_deepfin_normal_skill',
     timelineBlockFrames: 51,
+    exclusiveFrame: 50,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -808,27 +863,15 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
                 },
                 'chr_0024_deepfin_normal_skill:/scheduledSequences/2/sequence/steps/0/body/steps/0',
               ),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.3 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.3 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
             {
               nativeChanneling: {
@@ -842,23 +885,7 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
         ),
         28,
       ),
-      scheduled(
-        27,
-        sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        28,
-      ),
+      scheduled(27, sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })), 28),
       scheduled(
         27,
         sequence(
@@ -932,6 +959,9 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_1: [10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 15, 15],
@@ -959,6 +989,14 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0024_deepfin_combo_skill',
     timelineBlockFrames: 39,
+    exclusiveFrame: 130,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 39, endFrame: 65, sourceSkillIds: ['chr_0024_deepfin_normal_skill'] },
+        { startFrame: 94, endFrame: 120, sourceSkillIds: ['chr_0024_deepfin_normal_skill'] },
+        { startFrame: 120, endFrame: 130, sourceSkillIds: ['chr_0024_deepfin_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -983,35 +1021,6 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
         23,
       ),
       scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 4.5 },
-                },
-                sequence(),
-                sequence(step('jumpTimeline', { destinationFrame: 4 })),
-                { alwaysNext: true },
-              ),
-            ),
-            sequence(step('jumpTimeline', { destinationFrame: 4 })),
-            { alwaysNext: true },
-          ),
-        ),
-        1,
-      ),
-      scheduled(
         38,
         sequence(
           step(
@@ -1023,7 +1032,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0024_deepfin_combo_skill:/scheduledSequences/3/sequence/steps/0',
+            'chr_0024_deepfin_combo_skill:/scheduledSequences/2/sequence/steps/0',
           ),
         ),
         41,
@@ -1048,7 +1057,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0024_deepfin_combo_skill:/scheduledSequences/4/sequence/steps/1',
+            'chr_0024_deepfin_combo_skill:/scheduledSequences/3/sequence/steps/1',
           ),
         ),
         96,
@@ -1057,52 +1066,40 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
         38,
         sequence(
           branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+            { kind: 'casterControlled' },
             sequence(
-              branch(
-                { kind: 'casterControlled' },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'ultimateEnergy',
-                    amount: { kind: 'blackboard', key: 'usp_normal' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'caster',
-                  }),
-                ),
-              ),
-              branch(
-                { kind: 'casterControlled' },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.95 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'deepfin_combo2' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.3 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'deepfin_combo2' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
+              step('changeResourceByActionValue', {
+                resource: 'ultimateEnergy',
+                amount: { kind: 'blackboard', key: 'usp_normal' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'caster',
+              }),
             ),
-            undefined,
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.95 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'deepfin_combo2' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.3 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'deepfin_combo2' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
             { alwaysNext: true },
           ),
         ),
@@ -1112,52 +1109,40 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
         93,
         sequence(
           branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+            { kind: 'casterControlled' },
             sequence(
-              branch(
-                { kind: 'casterControlled' },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'ultimateEnergy',
-                    amount: { kind: 'blackboard', key: 'usp_normal' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'caster',
-                  }),
-                ),
-              ),
-              branch(
-                { kind: 'casterControlled' },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.95 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'deepfin_combo2' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.3 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'deepfin_combo2' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
+              step('changeResourceByActionValue', {
+                resource: 'ultimateEnergy',
+                amount: { kind: 'blackboard', key: 'usp_normal' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'caster',
+              }),
             ),
-            undefined,
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.95 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'deepfin_combo2' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.3 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'deepfin_combo2' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
             { alwaysNext: true },
           ),
         ),
@@ -1181,7 +1166,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
               attackScale: { kind: 'blackboard', key: 'atk_scale_1' },
               tags: ['comboSkill'],
             },
-            'chr_0024_deepfin_combo_skill:/scheduledSequences/7/sequence/steps/1',
+            'chr_0024_deepfin_combo_skill:/scheduledSequences/6/sequence/steps/1',
           ),
         ),
         24,
@@ -1205,7 +1190,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
               attackScale: { kind: 'blackboard', key: 'atk_scale_1ex' },
               tags: ['comboSkill'],
             },
-            'chr_0024_deepfin_combo_skill:/scheduledSequences/9/sequence/steps/1',
+            'chr_0024_deepfin_combo_skill:/scheduledSequences/8/sequence/steps/1',
           ),
         ),
         79,
@@ -1300,6 +1285,9 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [270, 270, 270, 270, 270, 270, 270, 270, 270, 270, 270, 240],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb: [10, 10, 10, 10, 10, 12, 12, 12, 12, 13, 13, 15],
@@ -1332,6 +1320,28 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0024_deepfin_ultimate_skill',
     timelineBlockFrames: 96,
+    exclusiveFrame: 110,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 87,
+          endFrame: 113,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0024_deepfin_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        {
+          startFrame: 96,
+          endFrame: 113,
+          sourceSkillIds: [
+            'chr_0024_deepfin_attack1',
+            'chr_0024_deepfin_normal_skill',
+            'chr_0024_deepfin_combo_skill',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1352,83 +1362,71 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         90,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+          step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
+          repeatEachTick(
             sequence(
-              step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
-              repeatEachTick(
-                sequence(
-                  branch(
+              branch(
+                {
+                  kind: 'all',
+                  conditions: [
                     {
-                      kind: 'all',
-                      conditions: [
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'potential_5' },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                        {
-                          kind: 'healthCompare',
-                          target: 'enemy',
-                          valueType: 'ratio',
-                          operator: 'lessOrEqual',
-                          value: { kind: 'blackboard', key: 'hp_tar' },
-                        },
-                      ],
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'potential_5' },
+                      operator: 'greaterOrEqual',
+                      right: { kind: 'constant', value: 1 },
                     },
-                    sequence(
-                      step('calculateActionValue', {
-                        key: 'atk_scale',
-                        operation: 'multiply',
-                        left: { kind: 'blackboard', key: 'atk_scale' },
-                        right: { kind: 'blackboard', key: 'atk_up' },
-                      }),
-                      step(
-                        'dealDamage',
-                        {
-                          damageType: 'cryo',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['ultimateSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'poise' },
-                        },
-                        'chr_0024_deepfin_ultimate_skill:/scheduledSequences/1/sequence/steps/0/whenTrue/steps/1/body/steps/0/whenTrue/steps/1',
-                      ),
-                    ),
-                    sequence(
-                      step(
-                        'dealDamage',
-                        {
-                          damageType: 'cryo',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['ultimateSkill'],
-                          features: ['canBreakWeakness'],
-                          stagger: { kind: 'blackboard', key: 'poise' },
-                        },
-                        'chr_0024_deepfin_ultimate_skill:/scheduledSequences/1/sequence/steps/0/whenTrue/steps/1/body/steps/0/whenFalse/steps/0',
-                      ),
-                    ),
-                    { alwaysNext: true },
+                    {
+                      kind: 'healthCompare',
+                      target: 'enemy',
+                      valueType: 'ratio',
+                      operator: 'lessOrEqual',
+                      value: { kind: 'blackboard', key: 'hp_tar' },
+                    },
+                  ],
+                },
+                sequence(
+                  step('calculateActionValue', {
+                    key: 'atk_scale',
+                    operation: 'multiply',
+                    left: { kind: 'blackboard', key: 'atk_scale' },
+                    right: { kind: 'blackboard', key: 'atk_up' },
+                  }),
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'cryo',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['ultimateSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'poise' },
+                    },
+                    'chr_0024_deepfin_ultimate_skill:/scheduledSequences/1/sequence/steps/1/body/steps/0/whenTrue/steps/1',
                   ),
                 ),
-                {
-                  nativeChanneling: {
-                    executeEachFrame: true,
-                    triggerIntervalSeconds: 0.033,
-                    maxCountPerTarget: 1,
-                    targetTriggerIntervalSeconds: 0.033,
-                  },
-                },
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'cryo',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['ultimateSkill'],
+                      features: ['canBreakWeakness'],
+                      stagger: { kind: 'blackboard', key: 'poise' },
+                    },
+                    'chr_0024_deepfin_ultimate_skill:/scheduledSequences/1/sequence/steps/1/body/steps/0/whenFalse/steps/0',
+                  ),
+                ),
+                { alwaysNext: true },
               ),
             ),
-            undefined,
-            { alwaysNext: true },
+            {
+              nativeChanneling: {
+                executeEachFrame: true,
+                triggerIntervalSeconds: 0.033,
+                maxCountPerTarget: 1,
+                targetTriggerIntervalSeconds: 0.033,
+              },
+            },
           ),
         ),
         93,
@@ -1436,55 +1434,43 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         91,
         sequence(
+          step('modifyActionValue', {
+            key: 'atb_up',
+            operation: 'multiply',
+            value: { kind: 'blackboard', key: 'kill_num' },
+          }),
+          step('modifyActionValue', {
+            key: 'atb_up',
+            operation: 'add',
+            value: { kind: 'blackboard', key: 'atb' },
+          }),
           branch(
             {
               kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              left: { kind: 'blackboard', key: 'atb_up' },
+              operator: 'lessOrEqual',
+              right: { kind: 'constant', value: 100 },
             },
             sequence(
-              step('modifyActionValue', {
-                key: 'atb_up',
-                operation: 'multiply',
-                value: { kind: 'blackboard', key: 'kill_num' },
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb_up' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'skill',
               }),
-              step('modifyActionValue', {
-                key: 'atb_up',
-                operation: 'add',
-                value: { kind: 'blackboard', key: 'atb' },
-              }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'atb_up' },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 100 },
-                },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb_up' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'skill',
-                  }),
-                ),
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb_max' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'skill',
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
             ),
-            undefined,
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb_max' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'skill',
+              }),
+            ),
             { alwaysNext: true },
           ),
         ),
@@ -1496,27 +1482,15 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.4 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'deepfin_ult' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.4 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'deepfin_ult' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
           ),
         ),
@@ -1548,6 +1522,9 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     angle: 0,
@@ -1596,6 +1573,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_cryst_frozen_triggered_do',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: {
             count: { kind: 'blackboard', key: 'count' },
@@ -1624,6 +1602,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Cryst',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -1646,6 +1634,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_fx',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
         }),
       ),
@@ -1660,6 +1649,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_common_frozen',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
               finishByAction: true,
               blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
@@ -1755,6 +1745,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_do_frozen',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           finishByAction: true,
           blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
@@ -1851,6 +1842,29 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: aleshUltimate },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -2031,6 +2045,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },

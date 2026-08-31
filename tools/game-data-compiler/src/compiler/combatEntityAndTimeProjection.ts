@@ -2150,7 +2150,7 @@ export function compileBuffLeafNode(
     );
   }
   return {
-    steps: compileActionNode(node, visualOnlyIds, partyTargetGroups, context),
+    steps: compileActionNode(node, visualOnlyIds, partyTargetGroups, context, extensions),
     state: partyTargetGroups,
   };
 }

@@ -22,6 +22,19 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0028_wulfa_attack1',
     timelineBlockFrames: 9,
     exclusiveFrame: 15,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 3,
+          endFrame: 34,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0028_wulfa_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 9, endFrame: 34, sourceSkillIds: ['chr_0028_wulfa_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -64,6 +77,9 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
         9,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.27, 0.3, 0.32, 0.35, 0.38, 0.41, 0.43, 0.46, 0.49, 0.52, 0.56, 0.61] },
 );
@@ -74,6 +90,19 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0028_wulfa_attack2',
     timelineBlockFrames: 12,
     exclusiveFrame: 20,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 4,
+          endFrame: 35,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0028_wulfa_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 12, endFrame: 34, sourceSkillIds: ['chr_0028_wulfa_attack3'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -145,6 +174,9 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
         10,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -159,6 +191,19 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0028_wulfa_attack3',
     timelineBlockFrames: 15,
     exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 5,
+          endFrame: 35,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0028_wulfa_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 15, endFrame: 36, sourceSkillIds: ['chr_0028_wulfa_attack4'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -242,6 +287,9 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
         13,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -254,8 +302,28 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
     sourceSkillId: 'chr_0028_wulfa_attack4',
-    timelineBlockFrames: 36,
+    timelineBlockFrames: 225,
     exclusiveFrame: 239,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 18,
+          endFrame: 65,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0028_wulfa_attack5',
+        },
+        {
+          startFrame: 207,
+          endFrame: 246,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0028_wulfa_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 36, endFrame: 67, sourceSkillIds: ['chr_0028_wulfa_attack5'] },
+        { startFrame: 225, endFrame: 250, sourceSkillIds: ['chr_0028_wulfa_attack5'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -584,6 +652,9 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(188, sequence(step('finishTimeline', {})), 189),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -598,6 +669,19 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0028_wulfa_attack5',
     timelineBlockFrames: 31,
     exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 27,
+          endFrame: 60,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0028_wulfa_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 45, endFrame: 60, sourceSkillIds: ['chr_0028_wulfa_attack1'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -729,6 +813,9 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
         18,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 21,
@@ -993,6 +1080,9 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
         65,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -1036,6 +1126,9 @@ export const rossiPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -1046,6 +1139,28 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0028_wulfa_normal_skill',
     timelineBlockFrames: 38,
     exclusiveFrame: 272,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 38,
+          endFrame: 56,
+          sourceSkillIds: [
+            'chr_0028_wulfa_normal_skill',
+            'chr_0028_wulfa_combo_2_skill',
+            'chr_0028_wulfa_combo_3_skill',
+          ],
+        },
+        {
+          startFrame: 258,
+          endFrame: 277,
+          sourceSkillIds: [
+            'chr_0028_wulfa_normal_skill',
+            'chr_0028_wulfa_combo_2_skill',
+            'chr_0028_wulfa_combo_3_skill',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1168,6 +1283,16 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         showInHeadBarAttached: true,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
+                        blinkInMainCharHpBar: false,
+                        showProgressInHpBar: false,
+                        showProgressInNormalSkillButton: false,
+                        useWeakProgressInNormalSkillButton: false,
+                        showProgressInUltimateSkillButton: false,
+                        forceRaiseIconEvent: false,
+                        showWarningBackground: false,
+                        playStrongInAnimation: false,
+                        hasCharHpBarVfxType: false,
+                        charHpBarVfxType: 'Fire',
                         iconStyleInSquad: 'Default',
                         abnormalColorType: 'Physical',
                         orderPriority: {
@@ -1282,6 +1407,16 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         showInHeadBarAttached: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
+                        blinkInMainCharHpBar: false,
+                        showProgressInHpBar: false,
+                        showProgressInNormalSkillButton: false,
+                        useWeakProgressInNormalSkillButton: false,
+                        showProgressInUltimateSkillButton: false,
+                        forceRaiseIconEvent: false,
+                        showWarningBackground: false,
+                        playStrongInAnimation: false,
+                        hasCharHpBarVfxType: false,
+                        charHpBarVfxType: 'Fire',
                         iconStyleInSquad: 'Default',
                         abnormalColorType: 'Physical',
                         orderPriority: {
@@ -1488,6 +1623,16 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         showInHeadBarAttached: true,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
+                        blinkInMainCharHpBar: false,
+                        showProgressInHpBar: false,
+                        showProgressInNormalSkillButton: false,
+                        useWeakProgressInNormalSkillButton: false,
+                        showProgressInUltimateSkillButton: false,
+                        forceRaiseIconEvent: false,
+                        showWarningBackground: false,
+                        playStrongInAnimation: false,
+                        hasCharHpBarVfxType: false,
+                        charHpBarVfxType: 'Fire',
                         iconStyleInSquad: 'Default',
                         abnormalColorType: 'Physical',
                         orderPriority: {
@@ -1602,6 +1747,16 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         showInHeadBarAttached: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
+                        blinkInMainCharHpBar: false,
+                        showProgressInHpBar: false,
+                        showProgressInNormalSkillButton: false,
+                        useWeakProgressInNormalSkillButton: false,
+                        showProgressInUltimateSkillButton: false,
+                        forceRaiseIconEvent: false,
+                        showWarningBackground: false,
+                        playStrongInAnimation: false,
+                        hasCharHpBarVfxType: false,
+                        charHpBarVfxType: 'Fire',
                         iconStyleInSquad: 'Default',
                         abnormalColorType: 'Physical',
                         orderPriority: {
@@ -3883,6 +4038,9 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_return: 10,
@@ -3929,6 +4087,15 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0028_wulfa_combo_2_skill',
     timelineBlockFrames: 37,
     exclusiveFrame: 65,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 37,
+          endFrame: 65,
+          sourceSkillIds: ['chr_0028_wulfa_normal_skill', 'chr_0028_wulfa_combo_3_skill'],
+        },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -4338,6 +4505,9 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 420],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     alpha: 0,
@@ -4375,6 +4545,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0028_wulfa_combo_3_skill',
     timelineBlockFrames: 52,
     exclusiveFrame: 259,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 52, endFrame: 72, sourceSkillIds: ['chr_0028_wulfa_normal_skill'] },
+        { startFrame: 249, endFrame: 269, sourceSkillIds: ['chr_0028_wulfa_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -4685,6 +4861,16 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             showInHeadBarAttached: true,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
+                            blinkInMainCharHpBar: false,
+                            showProgressInHpBar: false,
+                            showProgressInNormalSkillButton: false,
+                            useWeakProgressInNormalSkillButton: false,
+                            showProgressInUltimateSkillButton: false,
+                            forceRaiseIconEvent: false,
+                            showWarningBackground: false,
+                            playStrongInAnimation: false,
+                            hasCharHpBarVfxType: false,
+                            charHpBarVfxType: 'Fire',
                             iconStyleInSquad: 'Default',
                             abnormalColorType: 'Physical',
                             orderPriority: {
@@ -4802,6 +4988,16 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             showInHeadBarAttached: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
+                            blinkInMainCharHpBar: false,
+                            showProgressInHpBar: false,
+                            showProgressInNormalSkillButton: false,
+                            useWeakProgressInNormalSkillButton: false,
+                            showProgressInUltimateSkillButton: false,
+                            forceRaiseIconEvent: false,
+                            showWarningBackground: false,
+                            playStrongInAnimation: false,
+                            hasCharHpBarVfxType: false,
+                            charHpBarVfxType: 'Fire',
                             iconStyleInSquad: 'Default',
                             abnormalColorType: 'Physical',
                             orderPriority: {
@@ -5301,6 +5497,16 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             showInHeadBarAttached: true,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
+                            blinkInMainCharHpBar: false,
+                            showProgressInHpBar: false,
+                            showProgressInNormalSkillButton: false,
+                            useWeakProgressInNormalSkillButton: false,
+                            showProgressInUltimateSkillButton: false,
+                            forceRaiseIconEvent: false,
+                            showWarningBackground: false,
+                            playStrongInAnimation: false,
+                            hasCharHpBarVfxType: false,
+                            charHpBarVfxType: 'Fire',
                             iconStyleInSquad: 'Default',
                             abnormalColorType: 'Physical',
                             orderPriority: {
@@ -5418,6 +5624,16 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             showInHeadBarAttached: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
+                            blinkInMainCharHpBar: false,
+                            showProgressInHpBar: false,
+                            showProgressInNormalSkillButton: false,
+                            useWeakProgressInNormalSkillButton: false,
+                            showProgressInUltimateSkillButton: false,
+                            forceRaiseIconEvent: false,
+                            showWarningBackground: false,
+                            playStrongInAnimation: false,
+                            hasCharHpBarVfxType: false,
+                            charHpBarVfxType: 'Fire',
                             iconStyleInSquad: 'Default',
                             abnormalColorType: 'Physical',
                             orderPriority: {
@@ -6053,6 +6269,9 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
       ),
     ],
     smartTarget: 'enemy',
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     alpha: 0,
@@ -7094,6 +7313,9 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
     smartTarget: 'enemy',
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 110 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     angle: 130,
@@ -7224,6 +7446,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -7457,6 +7689,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: true,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -7609,6 +7851,29 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: rossiUltimate },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill2', replacementSkillKeys: ['comboSkill3'] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'finisher',
+        'plungingAttack',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -7850,7 +8115,12 @@ export default {
       ],
     },
   ],
-  entityBlackboard: { EntityBB_Combo_qte_proto_use: 0 },
+  entityBlackboard: {
+    EntityBB_Combo_qte_proto_use: 1,
+    EntityBB_Combo_QTE_Trigger: 0,
+    EntityBB_ComboUseCount: 0,
+    EntityBB_NormalSkill_wolf_gain_usp: 0,
+  },
   buffDefinitions: {
     buff_chr_0028_wulfa_combo_2_damage: {
       stackingType: 'refresh',
@@ -8124,6 +8394,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: true,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -8249,6 +8529,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: true,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },

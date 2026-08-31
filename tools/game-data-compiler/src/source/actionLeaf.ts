@@ -135,7 +135,7 @@ import {
   parseSetStrafeModeActionSource,
   parseOverrideMultiDashLimitActionSource,
   parseBombClearActionSource,
-  parseZhuangFangyiEndSkillTypeMutationSource,
+  parseSkillTypeMutationSource,
   parseNotifyCharacterPassiveUiActionSource,
   parseAnimatorAimOffsetActionSource,
   parseTryToTeleportSquadActionSource,
@@ -932,7 +932,7 @@ export function tryParseKnownNativeActionLeafSource(
     case 'ChangeSkillType':
       return {
         family: 'presentation',
-        action: parseZhuangFangyiEndSkillTypeMutationSource(value, path),
+        action: parseSkillTypeMutationSource(value, path),
       };
     case 'NotifyCharPassiveUIAction':
       return {

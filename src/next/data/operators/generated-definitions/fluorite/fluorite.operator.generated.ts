@@ -19,6 +19,19 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0022_bounda_attack1',
     timelineBlockFrames: 22,
     exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 10,
+          endFrame: 40,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0022_bounda_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 22, endFrame: 40, sourceSkillIds: ['chr_0022_bounda_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -55,6 +68,9 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
         14,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
 );
@@ -65,6 +81,19 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0022_bounda_attack2',
     timelineBlockFrames: 15,
     exclusiveFrame: 20,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 10,
+          endFrame: 36,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0022_bounda_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 15, endFrame: 36, sourceSkillIds: ['chr_0022_bounda_attack3'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -101,6 +130,9 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
         12,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -115,6 +147,26 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0022_bounda_attack3',
     timelineBlockFrames: 18,
     exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 10,
+          endFrame: 24,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0022_bounda_attack4',
+        },
+        {
+          startFrame: 24,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0022_bounda_attack4_1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 24, sourceSkillIds: ['chr_0022_bounda_attack4'] },
+        { startFrame: 24, endFrame: 30, sourceSkillIds: ['chr_0022_bounda_attack4_1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -182,6 +234,9 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
         10,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.26, 0.28, 0.31, 0.33, 0.36, 0.38, 0.41, 0.43, 0.46, 0.49, 0.53, 0.57] },
 );
@@ -192,6 +247,19 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0022_bounda_attack4',
     timelineBlockFrames: 52,
     exclusiveFrame: 55,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 29,
+          endFrame: 71,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0022_bounda_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 52, endFrame: 71, sourceSkillIds: ['chr_0022_bounda_attack1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -276,6 +344,9 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
         29,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 15,
@@ -291,6 +362,19 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0022_bounda_attack4_1',
     timelineBlockFrames: 49,
     exclusiveFrame: 52,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 10,
+          endFrame: 70,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0022_bounda_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 49, endFrame: 70, sourceSkillIds: ['chr_0022_bounda_attack1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -375,6 +459,9 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
         26,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 15,
@@ -390,6 +477,15 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0022_bounda_power_attack',
     timelineBlockFrames: 22,
     exclusiveFrame: 45,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 22,
+          endFrame: 45,
+          sourceSkillIds: ['chr_0022_bounda_normal_skill', 'chr_0022_bounda_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -475,6 +571,9 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
         22,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -516,6 +615,9 @@ export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -615,6 +717,9 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atk_scale: [1.87, 2.06, 2.24, 2.43, 2.62, 2.8, 2.99, 3.18, 3.36, 3.6, 3.88, 4.2],
@@ -638,6 +743,27 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0022_bounda_ultimate_skill',
     timelineBlockFrames: 77,
     exclusiveFrame: 90,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 68,
+          endFrame: 94,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0022_bounda_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        {
+          startFrame: 77,
+          endFrame: 94,
+          sourceSkillIds: [
+            'chr_0022_bounda_attack1',
+            'chr_0022_bounda_normal_skill',
+            'chr_0022_bounda_combo_skill',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -869,6 +995,9 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale1: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
@@ -889,6 +1018,11 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0022_bounda_combo_skill',
     timelineBlockFrames: 17,
     exclusiveFrame: 24,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 17, endFrame: 56, sourceSkillIds: ['chr_0022_bounda_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1014,6 +1148,9 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1140],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb: 10,
@@ -1088,6 +1225,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -1215,6 +1362,29 @@ export default {
       skills: fluoriteComboSkill,
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   comboSkillRegistrations: [
     {
       skillKey: 'comboSkill',
@@ -1360,6 +1530,7 @@ export default {
       ),
     },
   ],
+  entityBlackboard: { EntityBB_combo_index: 0 },
   buffDefinitions: {
     buff_chr_0022_bounda_normal_skill_onlymark: {
       stackingType: 'stack',
@@ -1676,6 +1847,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },

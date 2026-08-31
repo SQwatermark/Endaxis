@@ -61,7 +61,7 @@ describe('Operator 技能库组装', () => {
 });
 
 function skill(key: string, skillType: string, source: string) {
-  return { key, skillType, source, compile: { kind: 'resolvedSequence' } };
+  return { key, skillType, levelSource: skillType, source, compile: { kind: 'resolvedSequence' } };
 }
 
 function group(

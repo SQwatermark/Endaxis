@@ -11,6 +11,8 @@ export interface BuffTimelineSegment {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly layers: number;
+  /** 原生 Buff 是否具有有限生命周期；用于 Default 图标样式的原生回退。 */
+  readonly hasFiniteLifetime?: boolean;
   /** 旧版可视分区：干员来源位于技能块上方，配装来源位于下方。 */
   readonly placement: 'upper' | 'lower';
   readonly nameKey?: string;
@@ -152,6 +154,7 @@ export function projectBuffTimelineViz(
       startFrame: entry.frame,
       endFrame,
       layers: requireNumber(entry, data, 'layers'),
+      ...copyOptionalBoolean(data, 'hasFiniteLifetime'),
       placement: presentationPlacement(data),
       ...(optionalString(data, 'nameKey') === undefined
         ? {}

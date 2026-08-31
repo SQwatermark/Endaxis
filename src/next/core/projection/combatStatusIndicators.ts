@@ -8,12 +8,15 @@ export const COMBAT_STATUS_DISPLAY_SLOTS = [
   'headBarCommon',
   'headBarAttached',
   'squadIcon',
+  'mainCharacterHpBarCommon',
   'mainCharacterHpProgress',
   'normalSkillProgress',
   'ultimateSkillProgress',
 ] as const;
 
 export type CombatStatusDisplaySlot = (typeof COMBAT_STATUS_DISPLAY_SLOTS)[number];
+
+export type CombatStatusIconStyle = 'Attached' | 'LifeTime' | 'NoLifeTime' | 'SpellAbnormal';
 
 export interface CombatStatusIndicator {
   readonly targetId: string;
@@ -24,6 +27,7 @@ export interface CombatStatusIndicator {
   readonly endFrame: number;
   readonly slots: readonly CombatStatusDisplaySlot[];
   readonly onlyForControlledOperator: boolean;
+  readonly hasFiniteLifetime?: boolean;
   readonly nameKey?: string;
   readonly iconId?: string;
   readonly iconPath?: string;
@@ -42,11 +46,37 @@ function displaySlots(segment: BuffTimelineSegment): CombatStatusDisplaySlot[] {
   const slots: CombatStatusDisplaySlot[] = [];
   if (segment.showInHeadBarCommon === true) slots.push('headBarCommon');
   if (segment.showInHeadBarAttached === true) slots.push('headBarAttached');
-  if (segment.showInSquadIcon === true) slots.push('squadIcon');
+  if (segment.showInSquadIcon === true) {
+    if (segment.onlyShowForMainCharacter !== true) slots.push('squadIcon');
+    slots.push('mainCharacterHpBarCommon');
+  }
   if (segment.showProgressInHpBar === true) slots.push('mainCharacterHpProgress');
   if (segment.showProgressInNormalSkillButton === true) slots.push('normalSkillProgress');
   if (segment.showProgressInUltimateSkillButton === true) slots.push('ultimateSkillProgress');
   return slots;
+}
+
+/**
+ * 复刻 UIBuffNode._GetIconStyle：头顶附着固定 Attached，头顶普通只保留
+ * SpellAbnormal 特例，否则显示时长；队伍/主控栏使用配置，Default 再按生命周期回退。
+ */
+export function combatStatusIconStyle(
+  indicator: CombatStatusIndicator,
+  slot: CombatStatusDisplaySlot,
+): CombatStatusIconStyle {
+  if (slot === 'headBarAttached') return 'Attached';
+  if (slot === 'headBarCommon') {
+    return indicator.iconStyle === 'SpellAbnormal' ? 'SpellAbnormal' : 'LifeTime';
+  }
+  if (
+    indicator.iconStyle === 'Attached' ||
+    indicator.iconStyle === 'LifeTime' ||
+    indicator.iconStyle === 'NoLifeTime' ||
+    indicator.iconStyle === 'SpellAbnormal'
+  ) {
+    return indicator.iconStyle;
+  }
+  return indicator.hasFiniteLifetime === true ? 'LifeTime' : 'NoLifeTime';
 }
 
 /**
@@ -58,43 +88,53 @@ export function projectCombatStatusIndicators(
   frame: number,
 ): readonly CombatStatusIndicator[] {
   if (!Number.isFinite(frame)) throw new RangeError('status indicator frame must be finite');
-  return segments.flatMap(segment => {
-    if (segment.startFrame > frame || frame >= segment.endFrame) return [];
-    const slots = displaySlots(segment);
-    if (slots.length === 0) return [];
-    const hasOrder =
-      segment.orderUseDirectoryValue !== undefined &&
-      segment.orderPriorityValue !== undefined &&
-      segment.orderPriorityCategory !== undefined;
-    return [
-      {
-        targetId: segment.targetId,
-        buffId: segment.buffId,
-        instanceId: segment.instanceId,
-        layers: segment.layers,
-        startFrame: segment.startFrame,
-        endFrame: segment.endFrame,
-        slots,
-        onlyForControlledOperator: segment.onlyShowForMainCharacter === true,
-        ...(segment.nameKey === undefined ? {} : { nameKey: segment.nameKey }),
-        ...(segment.iconId === undefined ? {} : { iconId: segment.iconId }),
-        ...(segment.iconPath === undefined ? {} : { iconPath: segment.iconPath }),
-        ...(segment.iconStyleInSquad === undefined ? {} : { iconStyle: segment.iconStyleInSquad }),
-        ...(segment.abnormalColorType === undefined
-          ? {}
-          : { abnormalColorType: segment.abnormalColorType }),
-        showWarningBackground: segment.showWarningBackground === true,
-        useWeakNormalSkillProgress: segment.useWeakProgressInNormalSkillButton === true,
-        ...(hasOrder
-          ? {
-              order: {
-                useDirectoryValue: segment.orderUseDirectoryValue!,
-                value: segment.orderPriorityValue!,
-                category: segment.orderPriorityCategory!,
-              },
-            }
-          : {}),
-      },
-    ];
-  });
+  return segments
+    .flatMap(segment => {
+      if (segment.startFrame > frame || frame >= segment.endFrame) return [];
+      const slots = displaySlots(segment);
+      if (slots.length === 0) return [];
+      const hasOrder =
+        segment.orderUseDirectoryValue !== undefined &&
+        segment.orderPriorityValue !== undefined &&
+        segment.orderPriorityCategory !== undefined;
+      return [
+        {
+          targetId: segment.targetId,
+          buffId: segment.buffId,
+          instanceId: segment.instanceId,
+          layers: segment.layers,
+          startFrame: segment.startFrame,
+          endFrame: segment.endFrame,
+          slots,
+          onlyForControlledOperator: segment.onlyShowForMainCharacter === true,
+          ...(segment.hasFiniteLifetime === undefined
+            ? {}
+            : { hasFiniteLifetime: segment.hasFiniteLifetime }),
+          ...(segment.nameKey === undefined ? {} : { nameKey: segment.nameKey }),
+          ...(segment.iconId === undefined ? {} : { iconId: segment.iconId }),
+          ...(segment.iconPath === undefined ? {} : { iconPath: segment.iconPath }),
+          ...(segment.iconStyleInSquad === undefined
+            ? {}
+            : { iconStyle: segment.iconStyleInSquad }),
+          ...(segment.abnormalColorType === undefined
+            ? {}
+            : { abnormalColorType: segment.abnormalColorType }),
+          showWarningBackground: segment.showWarningBackground === true,
+          useWeakNormalSkillProgress: segment.useWeakProgressInNormalSkillButton === true,
+          ...(hasOrder
+            ? {
+                order: {
+                  useDirectoryValue: segment.orderUseDirectoryValue!,
+                  value: segment.orderPriorityValue!,
+                  category: segment.orderPriorityCategory!,
+                },
+              }
+            : {}),
+        },
+      ];
+    })
+    .sort((left, right) => {
+      const priority = (right.order?.value ?? 0) - (left.order?.value ?? 0);
+      return priority !== 0 ? priority : left.instanceId - right.instanceId;
+    });
 }

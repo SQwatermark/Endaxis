@@ -9,11 +9,15 @@ import { resolveEffectiveSkillDefinition } from './resolveSkillDefinition';
 
 const catalogSkill: SkillDefinition = {
   key: 'battleSkill',
+  skillType: 'battleSkill',
+  levelSource: 'battleSkill',
   timelineBlockFrames: 45,
   scheduledSequences: [],
 };
 const customSkill: SkillDefinition = {
   key: 'battleSkill',
+  skillType: 'battleSkill',
+  levelSource: 'battleSkill',
   timelineBlockFrames: 60,
   availability: { kind: 'combatActive' },
   costs: [{ resource: 'sp', value: [80, 90, 100, 110, 120, 125, 130, 135, 140, 145, 150, 155] }],
@@ -98,6 +102,8 @@ describe('resolveEffectiveSkillDefinition', () => {
   it('resolves a named group variant with its own level source', () => {
     const enhanced: SkillDefinition = {
       key: 'enhancedBattleSkill',
+      skillType: 'battleSkill',
+      levelSource: 'ultimate',
       timelineBlockFrames: 30,
       scheduledSequences: [],
     };
@@ -123,7 +129,12 @@ describe('resolveEffectiveSkillDefinition', () => {
 
   it('resolves explicitly placed same-slot and routed replacement skills', () => {
     const replacement = { ...catalogSkill, key: 'battleSkillDuringUltimate' };
-    const routed = { ...catalogSkill, key: 'comboWrapper' };
+    const routed = {
+      ...catalogSkill,
+      key: 'comboWrapper',
+      skillType: 'comboSkill' as const,
+      levelSource: 'comboSkill' as const,
+    };
     const group: SkillGroupDefinition = {
       ...skillGroup,
       replacementSkills: [replacement],

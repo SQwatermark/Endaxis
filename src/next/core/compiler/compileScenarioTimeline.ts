@@ -219,6 +219,20 @@ function requireSkillLevel(build: OperatorInstanceDocument, levelSource: string)
   return level;
 }
 
+function requireDefinitionSkillType(skill: SkillDefinition, path: string): SkillType {
+  if (skill.skillType === undefined) throw new Error(`${path} has no per-skill combat type`);
+  return skill.skillType;
+}
+
+function requireDefinitionLevelSource(skill: SkillDefinition, operatorSlug: string) {
+  if (skill.levelSource === undefined) {
+    throw new Error(
+      `operator '${operatorSlug}' skill '${skill.key}' has no per-skill level source`,
+    );
+  }
+  return skill.levelSource;
+}
+
 function resolveLevelValue(value: LevelValues, level: number, path: string): number {
   const resolved = typeof value === 'number' ? value : value[level - 1];
   if (resolved === undefined) throw new RangeError(`${path} has no value for skill level ${level}`);
@@ -243,12 +257,17 @@ function compileComboSkillRegistrations(
     const registeredSkill = (Array.isArray(group.skills) ? group.skills : [group.skills]).find(
       skill => skill.key === registration.skillKey,
     );
-    if ((registeredSkill?.skillType ?? group.skillType) !== 'comboSkill') {
+    if (registeredSkill?.skillType !== 'comboSkill') {
       throw new Error(
         `operator '${operator.slug}' combo registration '${registration.skillKey}' is not a combo skill`,
       );
     }
-    const level = requireSkillLevel(build, registeredSkill?.levelSource ?? group.levelSource);
+    if (registeredSkill.levelSource === undefined) {
+      throw new Error(
+        `operator '${operator.slug}' combo registration '${registration.skillKey}' has no skill level source`,
+      );
+    }
+    const level = requireSkillLevel(build, registeredSkill.levelSource);
     const invalidCastBlackboard = Object.fromEntries(
       Object.entries(registration.invalidCastBlackboard ?? {}).map(([key, value]) => [
         key,
@@ -309,7 +328,10 @@ function compileCastSkillPrograms(
   const definitions: SkillCompilationBinding[] = [
     {
       skill: definition,
-      skillType: definition.skillType ?? routed?.skillType ?? resolved.group.skillType,
+      skillType: requireDefinitionSkillType(
+        definition,
+        `operator '${resolved.group.key}' skill '${definition.key}'`,
+      ),
       level,
       ...(routed === undefined
         ? {}
@@ -353,67 +375,36 @@ function compileCastSkillPrograms(
 }
 
 function compileSkillSlotGroups(operator: OperatorDefinition): readonly CompiledSkillSlotGroup[] {
-  if (operator.skillSlots !== undefined) {
-    return operator.skillSlots.map(slot => {
-      const routes = Object.entries(operator.playerActionRoutes ?? {}).filter(
-        (
-          entry,
-        ): entry is [
-          import('../game-data/operatorDefinition').PlayerSkillInput,
-          Extract<
-            import('../game-data/operatorDefinition').PlayerActionRouteDefinition,
-            { readonly kind: 'skillSlot' }
-          >,
-        ] => entry[1]?.kind === 'skillSlot' && entry[1].skillSlotKey === slot.key,
-      );
-      if (routes.length !== 1) {
-        throw new Error(
-          `operator '${operator.slug}' skill slot '${slot.key}' must have exactly one player action route`,
-        );
-      }
-      return {
-        skillGroupKey: slot.key,
-        input: routes[0]![0],
-        baseSkillKey: slot.baseSkillKey,
-        ...(slot.stableSkillKeys === undefined
-          ? {}
-          : { stableInputSkillKeys: slot.stableSkillKeys }),
-        replacementSkillKeys: slot.replacementSkillKeys,
-      };
-    });
-  }
-  // 旧正式产物迁移完成前的兼容入口；新生成产物不得依赖技能库分组建立运行时槽位。
-  return operator.skillGroups.flatMap(group => {
-    const replacements = [
-      ...(group.replacementSkills ?? []),
-      ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
-    ];
-    const placedSkills = Array.isArray(group.skills) ? group.skills : [group.skills];
-    const variantSkills = (group.variants ?? []).flatMap(variant =>
-      Array.isArray(variant.skills) ? variant.skills : [variant.skills],
+  if (operator.skillSlots === undefined || operator.playerActionRoutes === undefined) {
+    throw new Error(
+      `operator '${operator.slug}' has no imported CharacterData player-action routing`,
     );
-    const stableInputSkills = [...placedSkills, ...variantSkills];
-    const input =
-      group.skillType === 'basicAttack' ||
-      group.skillType === 'finisher' ||
-      group.skillType === 'plungingAttack'
-        ? 'basicAttack'
-        : group.skillType === 'battleSkill'
-          ? 'battleSkill'
-          : group.skillType === 'comboSkill'
-            ? 'comboSkill'
-            : 'ultimate';
-    return [
-      {
-        skillGroupKey: group.key,
-        input,
-        baseSkillKey: placedSkills[0]!.key,
-        ...(stableInputSkills.length === 1
-          ? {}
-          : { stableInputSkillKeys: stableInputSkills.map(skill => skill.key) }),
-        replacementSkillKeys: replacements.map(skill => skill.key),
-      },
-    ];
+  }
+  const playerActionRoutes = operator.playerActionRoutes;
+  return operator.skillSlots.map(slot => {
+    const routes = Object.entries(playerActionRoutes).filter(
+      (
+        entry,
+      ): entry is [
+        import('../game-data/operatorDefinition').PlayerSkillInput,
+        Extract<
+          import('../game-data/operatorDefinition').PlayerActionRouteDefinition,
+          { readonly kind: 'skillSlot' }
+        >,
+      ] => entry[1]?.kind === 'skillSlot' && entry[1].skillSlotKey === slot.key,
+    );
+    if (routes.length !== 1) {
+      throw new Error(
+        `operator '${operator.slug}' skill slot '${slot.key}' must have exactly one player action route`,
+      );
+    }
+    return {
+      skillGroupKey: slot.key,
+      input: routes[0]![0],
+      baseSkillKey: slot.baseSkillKey,
+      ...(slot.stableSkillKeys === undefined ? {} : { stableInputSkillKeys: slot.stableSkillKeys }),
+      replacementSkillKeys: slot.replacementSkillKeys,
+    };
   });
 }
 
@@ -444,13 +435,19 @@ export function compileOperatorDefinitionSkills(
     const definitions: SkillCompilationBinding[] = [
       ...(Array.isArray(group.skills) ? group.skills : [group.skills]).map(skill => ({
         skill,
-        skillType: skill.skillType ?? group.skillType,
-        level: requireSkillLevel(build, skill.levelSource ?? group.levelSource),
+        skillType: requireDefinitionSkillType(
+          skill,
+          `operator '${operator.slug}' skill '${skill.key}'`,
+        ),
+        level: requireSkillLevel(build, requireDefinitionLevelSource(skill, operator.slug)),
       })),
       ...(group.replacementSkills ?? []).map(skill => ({
         skill,
-        skillType: skill.skillType ?? group.skillType,
-        level: requireSkillLevel(build, skill.levelSource ?? group.levelSource),
+        skillType: requireDefinitionSkillType(
+          skill,
+          `operator '${operator.slug}' skill '${skill.key}'`,
+        ),
+        level: requireSkillLevel(build, requireDefinitionLevelSource(skill, operator.slug)),
       })),
       ...(group.routedReplacementSkills ?? []).map(replacement => ({
         skill: replacement.skill,
@@ -462,8 +459,11 @@ export function compileOperatorDefinitionSkills(
       ...(group.variants ?? []).flatMap(variant => {
         return (Array.isArray(variant.skills) ? variant.skills : [variant.skills]).map(skill => ({
           skill,
-          skillType: skill.skillType ?? group.skillType,
-          level: requireSkillLevel(build, skill.levelSource ?? variant.levelSource),
+          skillType: requireDefinitionSkillType(
+            skill,
+            `operator '${operator.slug}' skill '${skill.key}'`,
+          ),
+          level: requireSkillLevel(build, requireDefinitionLevelSource(skill, operator.slug)),
         }));
       }),
     ];
@@ -591,6 +591,9 @@ function compileResolvedTimelineTracks(
       ...(operator.playerActionRoutes === undefined
         ? {}
         : { playerActionRoutes: operator.playerActionRoutes }),
+      ...(operator.playerActionModes === undefined
+        ? {}
+        : { playerActionModes: operator.playerActionModes }),
       initializationPrograms: compileOperatorInitializationPrograms(activeUpgrades),
       passivePrograms: compileOperatorPassivePrograms(
         activeUpgrades,

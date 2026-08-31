@@ -60,6 +60,31 @@ export interface SkillCostDefinition {
 /** Endaxis 可编辑的四种玩家战斗操作语义；键鼠/手柄绑定不进入战斗数据。 */
 export type PlayerSkillInput = 'basicAttack' | 'battleSkill' | 'comboSkill' | 'ultimate';
 
+/** 原生 `Beyond.Gameplay.SkillType`；它是技能实例的可变运行时状态，不是玩家操作或技能库分组。 */
+export type NativeSkillType =
+  | 'passiveSkill'
+  | 'attack'
+  | 'breakingAttack'
+  | 'normalSkill'
+  | 'attachSkill'
+  | 'dodge'
+  | 'comboSkill'
+  | 'ultimateSkill'
+  | 'extraActiveSkill';
+
+/** CharacterData 的模式只保存会改变四类玩家操作解析结果的字段。 */
+export interface OperatorPlayerActionModeDefinition {
+  readonly modeId: string;
+  readonly modeLayer: string;
+  readonly defaultEnabled: boolean;
+  readonly normalAttackSkillKeys?: readonly string[];
+  readonly commandMappings?: Readonly<
+    Partial<
+      Record<PlayerSkillInput, { readonly sourceSkillId: string; readonly skillKey?: string }>
+    >
+  >;
+}
+
 /**
  * 原生 AbilitySystem 中可被 ChangeSkillAction 改写的稳定技能槽。
  * 槽位属于战斗路由，不是技能库分组；编辑器可以恰好用同名 key，但二者没有运行时依赖。
@@ -161,6 +186,8 @@ export interface SkillDefinition {
    * 原生可变 SkillType 后续由运行时状态覆盖此初值。
    */
   skillType?: SkillType;
+  /** `_InitSkills` 创建实例时得到的原生初值；之后可由 ChangeSkillType 改写。 */
+  nativeSkillType?: NativeSkillType;
   /** 从原生 CharGrowthTable 技能组成员关系得到的等级来源；不属于编辑器分组。 */
   levelSource?: SkillLevelSource;
   /** 原始游戏数据中的技能身份；事件守卫不得用编辑器 key 冒充它。 */

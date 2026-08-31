@@ -59,6 +59,8 @@ describe('compileScenarioTimeline', () => {
     const cast = scenario.tracks[0]!.skillCasts[0]!;
     cast.customDefinition = {
       key: 'battleSkill',
+      skillType: 'battleSkill',
+      levelSource: 'battleSkill',
       timelineBlockFrames: 1,
       scheduledSequences: [
         {
@@ -142,6 +144,8 @@ describe('compileScenarioTimeline', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
     scenario.tracks[0]!.skillCasts[0]!.customDefinition = {
       key: 'battleSkill',
+      skillType: 'battleSkill',
+      levelSource: 'battleSkill',
       timelineBlockFrames: 1,
       scheduledSequences: [
         {
@@ -204,7 +208,13 @@ describe('compileScenarioTimeline', () => {
       },
     ]);
     expect(compiled.inputs).toEqual([
-      { frame: 60, operatorId: 'track:0', skillId: 'battleSkill', castId: 'skillCast:1' },
+      {
+        frame: 60,
+        operatorId: 'track:0',
+        skillId: 'battleSkill',
+        castId: 'skillCast:1',
+        action: 'battleSkill',
+      },
     ]);
   });
 
@@ -213,6 +223,11 @@ describe('compileScenarioTimeline', () => {
     const base = requireSingleSkill('battleSkill');
     const operator = {
       ...perlica,
+      skillSlots: perlica.skillSlots?.map(slot =>
+        slot.key === 'battleSkill'
+          ? { ...slot, replacementSkillKeys: ['battleSkillVariant'] }
+          : slot,
+      ),
       skillGroups: perlica.skillGroups.map(group =>
         group.key === 'battleSkill'
           ? { ...group, replacementSkills: [{ ...base, key: 'battleSkillVariant' }] }
@@ -225,7 +240,13 @@ describe('compileScenarioTimeline', () => {
     });
 
     expect(compiled.inputs).toEqual([
-      { frame: 60, operatorId: 'track:0', skillId: 'battleSkill', castId: 'skillCast:1' },
+      {
+        frame: 60,
+        operatorId: 'track:0',
+        skillId: 'battleSkill',
+        castId: 'skillCast:1',
+        action: 'battleSkill',
+      },
     ]);
     expect(compiled.operators[0]!.skills.map(skill => [skill.skillId, skill.castId])).toEqual([
       ['battleSkill', 'skillCast:1'],
@@ -255,6 +276,7 @@ describe('compileScenarioTimeline', () => {
       operatorId: 'track:0',
       skillId: 'battleSkillVariant',
       castId: 'skillCast:replacement',
+      action: 'battleSkill',
     });
     expect(explicitCompiled.operators[0]!.skills).toContainEqual(
       expect.objectContaining({
@@ -264,12 +286,15 @@ describe('compileScenarioTimeline', () => {
     );
   });
 
-  it('keeps multiple placed inputs stable while sharing one runtime replacement slot', () => {
+  it('does not let multiple library placements redefine an explicit runtime slot', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
     const base = requireSingleSkill('battleSkill');
     const comboInput = { ...base, key: 'battleSkillCombo' };
     const operator = {
       ...perlica,
+      skillSlots: perlica.skillSlots?.map(slot =>
+        slot.key === 'battleSkill' ? { ...slot, replacementSkillKeys: ['battleSkillEnd'] } : slot,
+      ),
       skillGroups: perlica.skillGroups.map(group =>
         group.key === 'battleSkill'
           ? {
@@ -289,7 +314,6 @@ describe('compileScenarioTimeline', () => {
       expect.objectContaining({
         skillGroupKey: 'battleSkill',
         baseSkillKey: 'battleSkill',
-        stableInputSkillKeys: ['battleSkill', 'battleSkillCombo'],
         replacementSkillKeys: ['battleSkillEnd'],
       }),
     );
@@ -320,11 +344,8 @@ describe('compileScenarioTimeline', () => {
     expect(compiled.operators[0]!.skillSlotGroups!.filter(group => group.defaultForInput)).toEqual(
       [],
     );
-    expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
-      expect.objectContaining({
-        skillGroupKey: 'enhancedBasicAttack',
-        input: 'basicAttack',
-      }),
+    expect(compiled.operators[0]!.skillSlotGroups).not.toContainEqual(
+      expect.objectContaining({ skillGroupKey: 'enhancedBasicAttack' }),
     );
   });
 
@@ -334,6 +355,8 @@ describe('compileScenarioTimeline', () => {
     scenario.tracks[0]!.operator!.skillLevels.comboSkill = 7;
     const routed: SkillDefinition = {
       key: 'battleSkillRoutedToCombo',
+      skillType: 'comboSkill',
+      levelSource: 'comboSkill',
       sourceSkillId: 'native_combo',
       timelineBlockFrames: 1,
       costs: [{ resource: 'sp', value: [10, 20, 30, 40, 50, 60, 70] }],
@@ -358,6 +381,11 @@ describe('compileScenarioTimeline', () => {
     };
     const operator = {
       ...perlica,
+      skillSlots: perlica.skillSlots?.map(slot =>
+        slot.key === 'battleSkill'
+          ? { ...slot, replacementSkillKeys: ['battleSkillRoutedToCombo'] }
+          : slot,
+      ),
       skillGroups: perlica.skillGroups.map(group =>
         group.key === 'battleSkill'
           ? {
@@ -417,8 +445,20 @@ describe('compileScenarioTimeline', () => {
     scenario = place(scenario, 'ultimate', 60);
 
     expect(compileScenarioTimeline(scenario, index()).inputs).toEqual([
-      { frame: 60, operatorId: 'track:0', skillId: 'battleSkill', castId: 'skillCast:1' },
-      { frame: 60, operatorId: 'track:0', skillId: 'ultimate', castId: 'skillCast:1' },
+      {
+        frame: 60,
+        operatorId: 'track:0',
+        skillId: 'battleSkill',
+        castId: 'skillCast:1',
+        action: 'battleSkill',
+      },
+      {
+        frame: 60,
+        operatorId: 'track:0',
+        skillId: 'ultimate',
+        castId: 'skillCast:1',
+        action: 'ultimate',
+      },
     ]);
   });
 
@@ -432,6 +472,7 @@ describe('compileScenarioTimeline', () => {
         operatorId: 'track:0',
         skillId: cast.source.kind === 'operatorSkill' ? cast.source.skillKey : '',
         castId: cast.id,
+        action: 'basicAttack',
       })),
     );
   });
@@ -501,6 +542,8 @@ describe('compileScenarioTimeline', () => {
     const cast = scenario.tracks[0]!.skillCasts[0]!;
     cast.customDefinition = {
       key: 'battleSkill',
+      skillType: 'battleSkill',
+      levelSource: 'battleSkill',
       timelineBlockFrames: 30,
       scheduledSequences: [
         {

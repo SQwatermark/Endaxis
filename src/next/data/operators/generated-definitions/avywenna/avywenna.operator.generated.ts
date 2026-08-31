@@ -83,6 +83,7 @@ export const avywennaBasicAttack1: SkillDefinition = withSkillBlackboard(
     ],
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37] },
 );
@@ -155,6 +156,7 @@ export const avywennaBasicAttack2: SkillDefinition = withSkillBlackboard(
     ],
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37, 0.39, 0.41, 0.45, 0.48] },
 );
@@ -218,6 +220,7 @@ export const avywennaBasicAttack3: SkillDefinition = withSkillBlackboard(
     ],
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.31, 0.33, 0.35, 0.37, 0.39, 0.43, 0.46] },
 );
@@ -334,6 +337,7 @@ export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
     ],
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -408,6 +412,7 @@ export const avywennaBasicAttack5: SkillDefinition = withSkillBlackboard(
     ],
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 19,
@@ -565,6 +570,7 @@ export const avywennaFinisher: SkillDefinition = withSkillBlackboard(
     ],
     skillType: 'finisher',
     levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -620,6 +626,7 @@ export const avywennaPlungingAttack: SkillDefinition = withSkillBlackboard(
     ],
     skillType: 'plungingAttack',
     levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -1212,6 +1219,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
     costs: [{ resource: 'sp', value: 100 }],
     skillType: 'battleSkill',
     levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atk_scale: [0.67, 0.73, 0.8, 0.87, 0.93, 1, 1.07, 1.13, 1.2, 1.28, 1.38, 1.5],
@@ -1331,6 +1339,7 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
     cooldownFrames: [390, 390, 390, 390, 390, 390, 390, 390, 390, 390, 390, 360],
     skillType: 'comboSkill',
     levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [1.69, 1.86, 2.03, 2.19, 2.36, 2.53, 2.7, 2.87, 3.04, 3.25, 3.5, 3.8],
@@ -1525,6 +1534,7 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
     skillType: 'ultimate',
     levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale: [4.22, 4.64, 5.07, 5.49, 5.91, 6.33, 6.75, 7.18, 7.6, 8.13, 8.76, 9.5],
@@ -1737,9 +1747,10 @@ export default {
         'basicAttack3',
         'basicAttack4',
         'basicAttack5',
-        'finisher',
         'plungingAttack',
+        'finisher',
       ],
+      defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },

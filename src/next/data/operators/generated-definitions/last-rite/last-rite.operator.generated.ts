@@ -6,6 +6,7 @@ import type {
 } from '../../../../core/game-data/operatorDefinition';
 import {
   branch,
+  forEachTarget,
   repeatEachTick,
   scheduled,
   sequence,
@@ -20,6 +21,19 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0026_lastrite_attack1',
     timelineBlockFrames: 20,
     exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 35,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0026_lastrite_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 20, endFrame: 35, sourceSkillIds: ['chr_0026_lastrite_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -37,39 +51,27 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.2 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
               branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
+                { kind: 'casterControlled' },
                 sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.2 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_normal_attack' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
                   }),
-                  branch(
-                    { kind: 'casterControlled' },
-                    sequence(
-                      step('changeResourceByActionValue', {
-                        resource: 'sp',
-                        amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 1 },
-                        recipient: 'team',
-                        spGainKind: 'gain',
-                        spGainSource: 'normalAttack',
-                      }),
-                    ),
-                  ),
                 ),
-                undefined,
-                { alwaysNext: true },
               ),
             ),
             undefined,
@@ -79,6 +81,9 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
         13,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -93,6 +98,19 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0026_lastrite_attack2',
     timelineBlockFrames: 29,
     exclusiveFrame: 34,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 44,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0026_lastrite_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 29, endFrame: 44, sourceSkillIds: ['chr_0026_lastrite_attack3'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -110,35 +128,23 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.067 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_normal_attack' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.067 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -161,35 +167,23 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.067 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_normal_attack' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.067 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -198,6 +192,9 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
         25,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -213,6 +210,19 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0026_lastrite_attack3',
     timelineBlockFrames: 36,
     exclusiveFrame: 47,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 48,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0026_lastrite_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 36, endFrame: 48, sourceSkillIds: ['chr_0026_lastrite_attack4'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -230,35 +240,23 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.1 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -287,67 +285,55 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.4 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: {
-                      kind: 'inline',
-                      keys: [
-                        {
-                          time: 0,
-                          value: 0.3,
-                          inTangent: 0.1907342,
-                          outTangent: 0.1907342,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 0.5,
-                          value: 0.03,
-                          inTangent: 0.008590988,
-                          outTangent: 0.28,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 0.75,
-                          value: 0.1,
-                          inTangent: 0.4178908,
-                          outTangent: 0.4481447,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 1,
-                          value: 0.5,
-                          inTangent: 3.019252,
-                          outTangent: 3.019252,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                      ],
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.4 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: {
+                  kind: 'inline',
+                  keys: [
+                    {
+                      time: 0,
+                      value: 0.3,
+                      inTangent: 0.1907342,
+                      outTangent: 0.1907342,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
                     },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+                    {
+                      time: 0.5,
+                      value: 0.03,
+                      inTangent: 0.008590988,
+                      outTangent: 0.28,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                    {
+                      time: 0.75,
+                      value: 0.1,
+                      inTangent: 0.4178908,
+                      outTangent: 0.4481447,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                    {
+                      time: 1,
+                      value: 0.5,
+                      inTangent: 3.019252,
+                      outTangent: 3.019252,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                  ],
+                },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -356,6 +342,9 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
         28,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -371,6 +360,19 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0026_lastrite_attack4',
     timelineBlockFrames: 46,
     exclusiveFrame: 54,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 54,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0026_lastrite_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 46, endFrame: 54, sourceSkillIds: ['chr_0026_lastrite_attack1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -450,26 +452,14 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -483,58 +473,46 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.3 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: {
-                      kind: 'inline',
-                      keys: [
-                        {
-                          time: 0,
-                          value: 0.3,
-                          inTangent: -0.956214,
-                          outTangent: -0.956214,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 0.1934154,
-                          value: 0.1150535,
-                          inTangent: -0.5494284,
-                          outTangent: -0.5494284,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 1,
-                          value: 0,
-                          inTangent: -0.1426428,
-                          outTangent: -0.1426428,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                      ],
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.3 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: {
+                  kind: 'inline',
+                  keys: [
+                    {
+                      time: 0,
+                      value: 0.3,
+                      inTangent: -0.956214,
+                      outTangent: -0.956214,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
                     },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+                    {
+                      time: 0.1934154,
+                      value: 0.1150535,
+                      inTangent: -0.5494284,
+                      outTangent: -0.5494284,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                    {
+                      time: 1,
+                      value: 0,
+                      inTangent: -0.1426428,
+                      outTangent: -0.1426428,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                  ],
+                },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -543,6 +521,9 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
         23,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 30,
@@ -560,6 +541,15 @@ export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0026_lastrite_power_attack',
     timelineBlockFrames: 40,
     exclusiveFrame: 58,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 40,
+          endFrame: 58,
+          sourceSkillIds: ['chr_0026_lastrite_normal_skill', 'chr_0026_lastrite_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -627,6 +617,9 @@ export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
         58,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -668,6 +661,9 @@ export const lastRitePlungingAttack: SkillDefinition = withSkillBlackboard(
         3,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -682,6 +678,20 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0026_lastrite_normal_skill',
     timelineBlockFrames: 34,
     exclusiveFrame: 373,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 34,
+          endFrame: 51,
+          sourceSkillIds: [
+            'chr_0026_lastrite_attack1',
+            'chr_0026_lastrite_attack2',
+            'chr_0026_lastrite_attack3',
+            'chr_0026_lastrite_attack4',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -802,11 +812,7 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
               right: { kind: 'constant', value: 1 },
             },
             sequence(
-              step('applyBuff', {
-                buffId: 'buff_common_obtain_ultimate_sp',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+              step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
               step('changeResourceByActionValue', {
                 resource: 'ultimateEnergy',
                 amount: { kind: 'blackboard', key: 'usp' },
@@ -843,6 +849,9 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     },
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb: 30,
@@ -868,6 +877,23 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0026_lastrite_ultimate_skill',
     timelineBlockFrames: 140,
     exclusiveFrame: 170,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 86,
+          endFrame: 170,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0026_lastrite_combo_skill',
+        },
+      ],
+      allowedNextSkills: [
+        {
+          startFrame: 140,
+          endFrame: 170,
+          sourceSkillIds: ['chr_0026_lastrite_normal_skill', 'chr_0026_lastrite_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1138,6 +1164,9 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 240 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
@@ -1158,6 +1187,11 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0026_lastrite_combo_skill',
     timelineBlockFrames: 65,
     exclusiveFrame: 90,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 65, endFrame: 91, sourceSkillIds: ['chr_0026_lastrite_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1219,76 +1253,69 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         63,
         sequence(
-          step('readBuffStackCount', {
-            target: 'enemy',
-            outputKey: 'infliction_num',
-            query: {
-              kind: 'tag',
-              tagQueryType: 'hasAny',
-              buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
-            },
-          }),
-          step('calculateActionValue', {
-            key: 'final_combo_atkscale',
-            operation: 'multiply',
-            left: { kind: 'blackboard', key: 'atk_scale3' },
-            right: { kind: 'blackboard', key: 'infliction_num' },
-          }),
-          step('modifyActionValue', {
-            key: 'infliction_num_total',
-            operation: 'add',
-            value: { kind: 'blackboard', key: 'infliction_num' },
-          }),
-          step(
-            'dealDamage',
-            {
-              damageType: 'cryo',
-              attackScale: { kind: 'blackboard', key: 'final_combo_atkscale' },
-              tags: ['comboSkill'],
-              features: ['canBreakWeakness'],
-            },
-            'chr_0026_lastrite_combo_skill:/scheduledSequences/1/sequence/steps/3',
+          forEachTarget(
+            'enemy',
+            sequence(
+              step('readBuffStackCount', {
+                target: 'enemy',
+                outputKey: 'infliction_num',
+                query: {
+                  kind: 'tag',
+                  tagQueryType: 'hasAny',
+                  buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
+                },
+              }),
+              step('calculateActionValue', {
+                key: 'final_combo_atkscale',
+                operation: 'multiply',
+                left: { kind: 'blackboard', key: 'atk_scale3' },
+                right: { kind: 'blackboard', key: 'infliction_num' },
+              }),
+              step('modifyActionValue', {
+                key: 'infliction_num_total',
+                operation: 'add',
+                value: { kind: 'blackboard', key: 'infliction_num' },
+              }),
+              step(
+                'dealDamage',
+                {
+                  damageType: 'cryo',
+                  attackScale: { kind: 'blackboard', key: 'final_combo_atkscale' },
+                  tags: ['comboSkill'],
+                  features: ['canBreakWeakness'],
+                },
+                'chr_0026_lastrite_combo_skill:/scheduledSequences/1/sequence/steps/0/body/steps/3',
+              ),
+              step(
+                'dealDamage',
+                {
+                  damageType: 'cryo',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale2' },
+                  tags: ['comboSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: { kind: 'blackboard', key: 'poise' },
+                },
+                'chr_0026_lastrite_combo_skill:/scheduledSequences/1/sequence/steps/0/body/steps/4',
+              ),
+              step('finishBuffsByTag', {
+                target: 'enemy',
+                tagQueryType: 'hasAny',
+                buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
+                reason: 'early',
+              }),
+            ),
           ),
-          step(
-            'dealDamage',
-            {
-              damageType: 'cryo',
-              attackScale: { kind: 'blackboard', key: 'atk_scale2' },
-              tags: ['comboSkill'],
-              features: ['canBreakWeakness'],
-              stagger: { kind: 'blackboard', key: 'poise' },
-            },
-            'chr_0026_lastrite_combo_skill:/scheduledSequences/1/sequence/steps/4',
-          ),
-          step('finishBuffsByTag', {
-            target: 'enemy',
-            tagQueryType: 'hasAny',
-            buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
-            reason: 'early',
-          }),
         ),
         63,
       ),
       scheduled(
         2,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0026_lastrite_combo_skill_hitstop',
-                target: 'enemy',
-                inheritSourceSkillCastInfo: true,
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
+          step('applyBuff', {
+            buffId: 'buff_chr_0026_lastrite_combo_skill_hitstop',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+          }),
         ),
         3,
       ),
@@ -1340,27 +1367,15 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         64,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.333 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: { kind: 'named', key: 'char_hard_stop' },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.333 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
         ),
         64,
       ),
@@ -1383,6 +1398,9 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [270, 270, 270, 270, 270, 270, 270, 270, 270, 270, 270, 240],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb: 0,
@@ -1461,6 +1479,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -1583,6 +1611,28 @@ export default {
       skills: lastRiteComboSkill,
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -1730,6 +1780,7 @@ export default {
       ],
     },
   ],
+  entityBlackboard: { EntityBB_ns_atb: 0, EntityBB_ns_atkscale1: 0, EntityBB_ns_atkscale2: 0 },
   buffDefinitions: {
     buff_chr_0026_lastrite_combo_skill_hitstop: {
       stackingType: 'stack',
@@ -1789,6 +1840,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: true,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -2025,12 +2086,7 @@ export default {
                   right: { kind: 'constant', value: 1 },
                 },
                 sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_common_obtain_ultimate_sp',
-                    target: 'buffOwner',
-                    source: 'buffSource',
-                    inheritSourceSkillCastInfo: true,
-                  }),
+                  step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                   step('changeResourceByActionValue', {
                     resource: 'ultimateEnergy',
                     amount: { kind: 'blackboard', key: 'usp' },
@@ -2086,12 +2142,7 @@ export default {
                 right: { kind: 'constant', value: 1 },
               },
               sequence(
-                step('applyBuff', {
-                  buffId: 'buff_common_obtain_ultimate_sp',
-                  target: 'buffOwner',
-                  source: 'buffSource',
-                  inheritSourceSkillCastInfo: true,
-                }),
+                step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                 step('changeResourceByActionValue', {
                   resource: 'ultimateEnergy',
                   amount: { kind: 'blackboard', key: 'usp' },

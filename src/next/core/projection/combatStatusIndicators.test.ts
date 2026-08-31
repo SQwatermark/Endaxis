@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BuffTimelineSegment } from './buffTimelineViz';
-import { projectCombatStatusIndicators } from './combatStatusIndicators';
+import { combatStatusIconStyle, projectCombatStatusIndicators } from './combatStatusIndicators';
 
 const segment: BuffTimelineSegment = {
   targetId: 'operator:1',
@@ -9,6 +9,7 @@ const segment: BuffTimelineSegment = {
   startFrame: 10,
   endFrame: 40,
   layers: 3,
+  hasFiniteLifetime: true,
   placement: 'upper',
   nameKey: 'effects.name.progress',
   iconPath: '/icons/progress.webp',
@@ -34,8 +35,9 @@ describe('projectCombatStatusIndicators', () => {
         layers: 3,
         startFrame: 10,
         endFrame: 40,
-        slots: ['squadIcon', 'normalSkillProgress'],
+        slots: ['mainCharacterHpBarCommon', 'normalSkillProgress'],
         onlyForControlledOperator: true,
+        hasFiniteLifetime: true,
         nameKey: 'effects.name.progress',
         iconPath: '/icons/progress.webp',
         iconStyle: 'LifeTime',
@@ -49,6 +51,42 @@ describe('projectCombatStatusIndicators', () => {
         },
       },
     ]);
+  });
+
+  it('按原生四类节点条件分流队伍与主控状态栏', () => {
+    const common = { ...segment, instanceId: 8, onlyShowForMainCharacter: false };
+    const [indicator] = projectCombatStatusIndicators([common], 20);
+    expect(indicator?.slots).toEqual([
+      'squadIcon',
+      'mainCharacterHpBarCommon',
+      'normalSkillProgress',
+    ]);
+  });
+
+  it('按原生优先级降序、实例 UID 升序排列', () => {
+    const indicators = projectCombatStatusIndicators(
+      [
+        { ...segment, instanceId: 20, orderPriorityValue: 2 },
+        { ...segment, instanceId: 30, orderPriorityValue: 8 },
+        { ...segment, instanceId: 10, orderPriorityValue: 8 },
+      ],
+      20,
+    );
+    expect(indicators.map(indicator => indicator.instanceId)).toEqual([10, 30, 20]);
+  });
+
+  it('按节点复刻原生图标样式选择与 Default 生命周期回退', () => {
+    const [indicator] = projectCombatStatusIndicators(
+      [{ ...segment, onlyShowForMainCharacter: false, iconStyleInSquad: 'Default' }],
+      20,
+    );
+    expect(indicator).toBeDefined();
+    expect(combatStatusIconStyle(indicator!, 'headBarAttached')).toBe('Attached');
+    expect(combatStatusIconStyle(indicator!, 'headBarCommon')).toBe('LifeTime');
+    expect(combatStatusIconStyle(indicator!, 'squadIcon')).toBe('LifeTime');
+    expect(combatStatusIconStyle({ ...indicator!, hasFiniteLifetime: false }, 'squadIcon')).toBe(
+      'NoLifeTime',
+    );
   });
 
   it('只返回光标帧内且具有原生 HUD 去向的状态', () => {

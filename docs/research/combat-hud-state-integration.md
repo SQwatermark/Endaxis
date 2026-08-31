@@ -66,6 +66,24 @@ Buff 数据本身提供可用于自动分流的原生字段：
 这些字段应该是 Endaxis 显示分流的第一证据，不应通过 Buff ID、图标名或干员名猜测。编译器原本已
 严格读取但丢弃了其中的进度/警告字段；现在已将它们纳入游戏数据契约、Buff 定义和显示回执。
 
+### Buff 节点执行规则（运行时反编译）
+
+1.4.4 运行时已经进一步确认节点的真实判断，而不再只是从字段名推断：
+
+- `GPUIBuffNode._IsBuffIconInThisNode`（RVA `0x03AA2E90`）：头顶普通取
+  `showInHeadBarCommon`，头顶附着取 `showInHeadBarAttached`；队伍头像取
+  `showInSquadIcon && !onlyShowForMainCharacter`；主控干员血条取全部 `showInSquadIcon`。
+- `UIBuffNode._GetIconStyle`（RVA `0x031D5E40`）：头顶附着固定为 `Attached`；头顶普通仅保留
+  `SpellAbnormal` 特例，其余使用 `LifeTime`；队伍头像和主控干员栏使用非 Default 的
+  `iconStyleInSquad`，Default 再按有限/无限生命周期回退到 `LifeTime` / `NoLifeTime`。
+- `GPUIBuffNode._SetBuffCellSiblingInOrder`（RVA `0x0B1216B0`）：按已解析的
+  `orderPriority` 降序，同优先级按 Buff 实例 UID 升序。
+- `UIBuffNode._DealWithBuffCellVisible`（RVA `0x031D5520`）：节点最大数量大于零时，排序后的前 N 个
+  显示，其余隐藏；非正数不限制。
+
+完整反编译记录位于 combat-spec 的 `docs/combat-hud-buff-routing.md`。最后一条只属于游戏的瞬时 HUD；
+Endaxis 时间轴 Buff 段必须保留全部生命周期，并通过增加画布高度容纳，不能裁切或压缩。
+
 ## Endaxis 的整合原则
 
 Endaxis 不应把屏幕空间 HUD 原样复制到时间轴。它需要将同一组战斗事实投影成两种互补视图：
@@ -92,7 +110,8 @@ Endaxis 不应把屏幕空间 HUD 原样复制到时间轴。它需要将同一�
 
 - 固定信息：头像、名称、武器/装备和构筑入口，继续由轨道头部承载；
 - 光标快照：终结技能量、当前执行技能、当前战技/连携/终结技槽位、冷却和连携候选；
-- Buff 区：以 `showInSquadIcon` 和 `onlyShowForMainCharacter` 为原生分流，按 `orderPriority` 排序；
+- Buff 区：队伍快照显示 `showInSquadIcon && !onlyShowForMainCharacter`，主控快照显示全部
+  `showInSquadIcon`，并按 `orderPriority` 降序、实例 UID 升序排列；
 - 技能状态：当前槽位图标与可用性、普通/终结技按钮进度 Buff；
 - 生命：当前木桩模型没有敌人主动伤害，干员会保持满血且治疗仍可发生。在干员生命曲线真正
   成为可观察模拟结果前，状态栏不伪造受击波动。
@@ -111,4 +130,5 @@ Endaxis 不应把屏幕空间 HUD 原样复制到时间轴。它需要将同一�
 2. 从既有生命/失衡/资源曲线按 `cursorFrame` 采样，不二次计算数值；
 3. 从 `SkillSlotChanged`、`SkillStarted/Ended/Interrupted`、冷却和连携窗口回执投影当前技能状态；
 4. 敌人快照放入现有敌人底部面板左侧状态栏，干员快照放入对应轨道头部；时段条保持在轴上；
-5. 最后再根据视觉对照补排序、最大图标数与进度样式，不将动画反向建模为战斗规则。
+5. 根据已反编译的规则落实节点分流、图标样式和排序；最大图标数只在确实复刻游戏快照 HUD 的组件中
+   使用，时间轴持续段继续通过扩高画布完整展示。

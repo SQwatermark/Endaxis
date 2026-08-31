@@ -19,6 +19,19 @@ export const perlicaBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0004_pelica_attack1',
     timelineBlockFrames: 16,
     exclusiveFrame: 15,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 5,
+          endFrame: 27,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0004_pelica_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 16, endFrame: 27, sourceSkillIds: ['chr_0004_pelica_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -81,6 +94,9 @@ export const perlicaBasicAttack1: SkillDefinition = withSkillBlackboard(
         8,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.25, 0.28, 0.31, 0.33, 0.36, 0.38, 0.41, 0.43, 0.46, 0.49, 0.53, 0.57] },
 );
@@ -91,6 +107,19 @@ export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0004_pelica_attack2',
     timelineBlockFrames: 18,
     exclusiveFrame: 22,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 28,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0004_pelica_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 28, sourceSkillIds: ['chr_0004_pelica_attack3'] },
+      ],
+    },
     costFrame: 11,
     scheduledSequences: [
       scheduled(
@@ -190,6 +219,9 @@ export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
         12,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -204,6 +236,19 @@ export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0004_pelica_attack3',
     timelineBlockFrames: 26,
     exclusiveFrame: 29,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 8,
+          endFrame: 40,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0004_pelica_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 26, endFrame: 40, sourceSkillIds: ['chr_0004_pelica_attack4'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -384,6 +429,9 @@ export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
         22,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -398,6 +446,19 @@ export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0004_pelica_attack4',
     timelineBlockFrames: 44,
     exclusiveFrame: 43,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 29,
+          endFrame: 64,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0004_pelica_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 54, endFrame: 64, sourceSkillIds: ['chr_0004_pelica_attack1'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -462,6 +523,9 @@ export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
         27,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 15,
@@ -476,6 +540,15 @@ export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0004_pelica_power_attack',
     timelineBlockFrames: 35,
     exclusiveFrame: 50,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 35,
+          endFrame: 58,
+          sourceSkillIds: ['chr_0004_pelica_normal_skill', 'chr_0004_pelica_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -558,6 +631,9 @@ export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
         35,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   {
     addition_vertical: 0,
@@ -607,6 +683,9 @@ export const perlicaPlungingAttack: SkillDefinition = withSkillBlackboard(
         8,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -617,6 +696,11 @@ export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0004_pelica_normal_skill',
     timelineBlockFrames: 28,
     exclusiveFrame: 30,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 28, endFrame: 54, sourceSkillIds: ['chr_0004_pelica_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -650,6 +734,9 @@ export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atk_scale: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4],
@@ -670,6 +757,11 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0004_pelica_combo_skill',
     timelineBlockFrames: 25,
     exclusiveFrame: 45,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 25, endFrame: 54, sourceSkillIds: ['chr_0004_pelica_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -759,6 +851,9 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb: 0,
@@ -784,6 +879,15 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0004_pelica_ultimate_skill',
     timelineBlockFrames: 63,
     exclusiveFrame: 85,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 63,
+          endFrame: 90,
+          sourceSkillIds: ['chr_0004_pelica_normal_skill', 'chr_0004_pelica_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -860,6 +964,9 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 80 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale: [4.45, 4.89, 5.34, 5.78, 6.22, 6.67, 7.11, 7.56, 8, 8.56, 9.23, 10],
@@ -999,6 +1106,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Pulse',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -1161,6 +1278,28 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: perlicaUltimate },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   comboSkillRegistrations: [
     {
       skillKey: 'comboSkill',
@@ -1314,6 +1453,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },

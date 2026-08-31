@@ -4,18 +4,20 @@
 > `ComboCacheAction` 只有 Attack 映射目标决定实际技能；战技/连携的映射 ID 会被当前槽位覆盖，
 > 终结技不读该映射。Next 契约、TS 编译器、场景编译与运行时已贯通直连命令窗口和 AllowedNext 窗口；
 > 技能不一致、不能中断和证据不足均投影到具体块的可解释感叹号，但块仍强制执行。
-> 正式干员尚未用一致来源全量重生成；本地 `tmp` 闭包会引入大量无关漂移，已拒绝覆盖。规则与过渡边界见
+> 30/30 名正式干员已用同版本 CharacterData 全量重生成；单技能等级来源、Endaxis 分类、原生可变
+> SkillType、动作路由、技能槽和模式均已独立落盘，运行时不再从技能库分组回退。规则与剩余边界见
 > [四种玩家操作的技能解析与校验](../research/player-action-skill-resolution.md)。
 > 进一步确认技能库 `SkillGroup` 只应影响展示与成组放置，不能给模拟提供操作身份、等级来源或默认
 > 命令。原生养成组、`SkillDataBundle` 命令/普攻序列和 `ModeData` 覆盖本就是三套结构；Next 将把
 > `skillType/levelSource` 下沉到单技能，并独立导入原生基础命令与模式定义。
-> 当前已落地契约和生成链：单技能身份、独立 `skillSlots/playerActionRoutes`、时间轴 `source.action`
-> 均已贯通，Avywenna 已重生成验证。下一步是修复一致来源后全量重生成并删除旧组字段兼容，再接入
-> CharacterData 的 `defaultCmdMapping/normalAttackList/ModeData`。
+> 当前已落地 `defaultCmdMapping/normalAttackList/ModeData`、`SwitchMode/ChangeSkillType` 与连携 HUD 候选
+> 优先选择。汤汤两个模式目标因来源中缺 SkillData 明确保持 unknown；卡米拉隐藏被动的启用来源仍待取证。
 >
-> 战斗 HUD 已对 1.4.4 的敌人头顶栏、主控/队员状态、技能按钮、连携提示与 Buff 节点完成字段级盘点。
+> 战斗 HUD 已对 1.4.4 的敌人头顶栏、主控/队员状态、技能按钮、连携提示与 Buff 节点完成字段级盘点，
+> 并完成 Buff 节点方法级反编译。
 > 编译器已不再丢弃 Buff 的血条/技能进度、警告、主角限定与排序字段，并新增不依赖 UI 的
-> `statusIndicators` 投影。后续以 `cursorFrame` 对既有曲线/回执取样，敌人快照进底部状态栏，干员快照进轨道头部；
+> `statusIndicators` 投影。光标快照现已接入敌人普通/附着与干员队伍/主控状态栏，按原生条件分流、
+> 优先级/实例 UID 排序并按生命周期选择图标样式；后续继续接生命、失衡、当前技能与技能按钮状态。
 > 不复制多敌人空间 HUD，不建模木桩不可观察的敌人攻击与受击视效。详见
 > [战斗 HUD 状态与 Endaxis 状态栏整合](../research/combat-hud-state-integration.md)。
 

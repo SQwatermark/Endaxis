@@ -2320,7 +2320,7 @@ describe('公共 Action 叶子分派', () => {
     ).toEqual({ family: 'presentation', action: { kind: 'immuneText' } });
   });
 
-  it('只省略庄方宜结束技能的 AttachSkill 类型改写', () => {
+  it('保留有明确目标和枚举值的原生 SkillType 改写', () => {
     expect(
       parseKnownNativeActionLeafSource(
         {
@@ -2339,10 +2339,15 @@ describe('公共 Action 叶子分派', () => {
       ),
     ).toEqual({
       family: 'presentation',
-      action: { kind: 'skillTypeMutationOmitted' },
+      action: {
+        kind: 'skillTypeMutation',
+        target: expect.objectContaining({ targetSource: 'Owner' }),
+        sourceSkillId: 'chr_0030_zhuangfy_ultimate_skill_end',
+        nativeSkillType: 'attachSkill',
+      },
     });
 
-    expect(() =>
+    expect(
       parseKnownNativeActionLeafSource(
         {
           ...META,
@@ -2358,7 +2363,15 @@ describe('公共 Action 叶子分派', () => {
         'fixture.changeSkillType',
         {},
       ),
-    ).toThrow('unsupported ChangeSkillType projection');
+    ).toEqual({
+      family: 'presentation',
+      action: {
+        kind: 'skillTypeMutation',
+        target: expect.objectContaining({ targetSource: 'Owner' }),
+        sourceSkillId: 'some_other_skill',
+        nativeSkillType: 'attachSkill',
+      },
+    });
   });
 
   it('NotifyCharPassiveUIAction 只保留被动 UI 的黑板读取', () => {

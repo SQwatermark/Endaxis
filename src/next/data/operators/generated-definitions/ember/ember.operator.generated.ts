@@ -11,6 +11,7 @@ import {
   scheduled,
   sequence,
   step,
+  withActionBlackboardScope,
   withSkillBlackboard,
 } from '../../definitionHelpers';
 
@@ -19,6 +20,20 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0009_azrila_attack1',
     timelineBlockFrames: 24,
+    exclusiveFrame: 38,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 38,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0009_azrila_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 38, sourceSkillIds: ['chr_0009_azrila_attack2'] },
+      ],
+    },
     costFrame: 15,
     scheduledSequences: [
       scheduled(
@@ -65,6 +80,9 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
         18,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.38, 0.42, 0.46, 0.5, 0.54, 0.57, 0.61, 0.65, 0.69, 0.74, 0.79, 0.86] },
 );
@@ -74,6 +92,20 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0009_azrila_attack2',
     timelineBlockFrames: 18,
+    exclusiveFrame: 26,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 41,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0009_azrila_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 41, sourceSkillIds: ['chr_0009_azrila_attack3'] },
+      ],
+    },
     costFrame: 6,
     scheduledSequences: [
       scheduled(
@@ -120,6 +152,9 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
         12,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.54, 0.59, 0.64, 0.7, 0.75, 0.8, 0.86, 0.91, 0.96, 1.03, 1.11, 1.2] },
 );
@@ -129,6 +164,20 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0009_azrila_attack3',
     timelineBlockFrames: 35,
+    exclusiveFrame: 47,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 50,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0009_azrila_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 35, endFrame: 50, sourceSkillIds: ['chr_0009_azrila_attack4'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -175,6 +224,9 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
         22,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.66, 0.73, 0.8, 0.86, 0.93, 0.99, 1.06, 1.13, 1.19, 1.28, 1.38, 1.49] },
 );
@@ -184,6 +236,7 @@ export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0009_azrila_attack4',
     timelineBlockFrames: 53,
+    exclusiveFrame: 52,
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -245,6 +298,9 @@ export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
         29,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 28,
@@ -258,6 +314,16 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0009_azrila_power_attack',
     timelineBlockFrames: 28,
+    exclusiveFrame: 50,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 28,
+          endFrame: 44,
+          sourceSkillIds: ['chr_0009_azrila_normal_skill', 'chr_0009_azrila_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -363,6 +429,9 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
         28,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -372,6 +441,12 @@ export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0009_azrila_plunging_attack_end',
     timelineBlockFrames: 12,
+    exclusiveFrame: 20,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 12, endFrame: 21, sourceSkillIds: ['chr_0009_azrila_attack1'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -410,6 +485,9 @@ export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -419,6 +497,12 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0009_azrila_normal_skill',
     timelineBlockFrames: 51,
+    exclusiveFrame: 55,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 51, endFrame: 60, sourceSkillIds: ['chr_0009_azrila_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -430,6 +514,36 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
           }),
         ),
         3,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('listenForCombatEvents', {
+            responses: [
+              {
+                key: 'SkillData.chr_0009_azrila_normal_skill.actionGroupData.timelineActions[2]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
+                event: { kind: 'operatorHit' },
+                sequence: sequence(
+                  branch(
+                    {
+                      kind: 'eventDamageFeaturesMatch',
+                      match: 'exceptAny',
+                      features: ['dot', 'remainArea'],
+                    },
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0009_azrila_normal_skill_gpsuccess',
+                        target: 'caster',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                  ),
+                ),
+              },
+            ],
+          }),
+        ),
+        38,
       ),
       scheduled(
         0,
@@ -489,7 +603,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
                   tags: ['normalSkill'],
                   features: ['canBreakWeakness'],
                 },
-                'chr_0009_azrila_normal_skill:/scheduledSequences/2/sequence/steps/0/body/steps/0',
+                'chr_0009_azrila_normal_skill:/scheduledSequences/3/sequence/steps/0/body/steps/0',
               ),
               step('startTimeDilation', {
                 scope: 'entity',
@@ -571,7 +685,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0009_azrila_normal_skill:/scheduledSequences/3/sequence/steps/2',
+            'chr_0009_azrila_normal_skill:/scheduledSequences/4/sequence/steps/2',
           ),
           branch(
             {
@@ -585,32 +699,16 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
             undefined,
             { alwaysNext: true },
           ),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_common_obtain_ultimate_sp',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.2 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: { kind: 'named', key: 'char_hard_stop' },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
+          step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.2 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
         ),
         41,
       ),
@@ -627,6 +725,9 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     angle: 120,
@@ -661,6 +762,16 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0009_azrila_ultimate_skill',
     timelineBlockFrames: 59,
+    exclusiveFrame: 90,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 59,
+          endFrame: 90,
+          sourceSkillIds: ['chr_0009_azrila_normal_skill', 'chr_0009_azrila_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -764,6 +875,9 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_reduce_scale: -0.7,
@@ -791,6 +905,12 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0009_azrila_combo_skill',
     timelineBlockFrames: 39,
+    exclusiveFrame: 38,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 40, endFrame: 60, sourceSkillIds: ['chr_0009_azrila_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -945,24 +1065,12 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
             undefined,
             { alwaysNext: true },
           ),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'caster',
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
         ),
         27,
       ),
@@ -985,6 +1093,9 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'input',
     cooldownFrames: [570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 540],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     angle: 120,
@@ -1068,6 +1179,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
@@ -1088,12 +1209,16 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('dealDamage', {
-          damageType: 'physical',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: ['cryoAbnormal'],
-          features: ['shatter'],
-        }),
+        step(
+          'dealDamage',
+          {
+            damageType: 'physical',
+            attackScale: { kind: 'blackboard', key: 'atk_scale' },
+            tags: ['cryoAbnormal'],
+            features: ['shatter'],
+          },
+          'buff_common_cryst_triggered_physical_break:/lifecycleSequences/start/steps/0',
+        ),
       ),
     },
   },
@@ -1124,19 +1249,6 @@ export const commonBuffDefinitions = {
     extendTags: [],
     blackboard: { duration: 9999 },
     attributeModifiers: [],
-  },
-  buff_common_obtain_ultimate_sp: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
-    },
   },
   buff_common_power_attack_disable_cast_skill: {
     stackingType: 'unlimited',
@@ -1196,6 +1308,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_physical_break',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: { atk_scale: { kind: 'blackboard', key: 'atk_scale' } },
         }),
@@ -1292,45 +1405,87 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('applyBuff', {
-          buffId: 'buff_physical_no_guard',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
-        }),
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [1.2, 1.2, 1.2, 1.2],
-              column: { kind: 'constant', value: 1 },
-              storeKey: 'atk_scale',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-            },
-            {
-              values: [10, 10, 10, 10],
-              column: { kind: 'constant', value: 1 },
-              storeKey: 'poise',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
-            },
-          ],
-        }),
-        step('dealDamage', {
-          damageType: 'physical',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: [],
-          features: ['knockDown', 'physicalInfliction'],
-          stagger: { kind: 'blackboard', key: 'poise' },
-        }),
-        step('applyBuff', {
-          buffId: 'buff_physical_handle_cryst_break',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-        }),
-        step('igniteBuffs', {
-          target: 'buffOwner',
-          source: 'caster',
-          igniteType: 'PhysicalStatus',
-        }),
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_no_guard',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+              blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [1.2, 1.2, 1.2, 1.2],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+                {
+                  values: [10, 10, 10, 10],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'poise',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
+                },
+              ],
+            }),
+            step(
+              'dealDamage',
+              {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: [],
+                features: ['knockDown', 'physicalInfliction'],
+                stagger: { kind: 'blackboard', key: 'poise' },
+              },
+              'buff_physical_knockdown:/lifecycleSequences/start/steps/1/body/steps/1',
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:2',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:3',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'caster',
+              igniteType: 'PhysicalStatus',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
       ),
     },
   },
@@ -1347,6 +1502,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: true,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1368,6 +1533,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -1377,35 +1543,58 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_physical_no_guard_fake',
           target: 'buffOwner',
-          source: 'eventSource',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
         }),
       ),
       afterEnhance: sequence(
-        step('igniteBuffs', { target: 'buffOwner', source: 'buffOwner', igniteType: 'NoGuard' }),
-        branch(
-          {
-            kind: 'currentBuffStackCompare',
-            operator: 'greaterOrEqual',
-            value: { kind: 'constant', value: 2 },
-          },
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'buffOwner',
+              igniteType: 'NoGuard',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
           sequence(
             branch(
               {
-                kind: 'actionValueCompare',
-                left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                operator: 'equal',
-                right: { kind: 'constant', value: 0 },
+                kind: 'currentBuffStackCompare',
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 2 },
               },
               sequence(
-                step('applyBuff', {
-                  buffId: 'buff_physical_handle_cryst_break',
-                  target: 'buffOwner',
-                  inheritSourceSkillCastInfo: true,
-                }),
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_physical_handle_cryst_break',
+                      target: 'buffOwner',
+                      source: 'buffSource',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
               ),
             ),
           ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
         ),
       ),
     },
@@ -1467,6 +1656,28 @@ export default {
       skills: emberComboSkill,
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -1642,6 +1853,45 @@ export default {
     },
   ],
   buffDefinitions: {
+    buff_chr_0009_azrila_normal_skill_gpsuccess: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 2,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { def: 0, dur: 0, prob: 0 },
+      attributeModifiers: [],
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            step('startTimeDilation', {
+              scope: 'entity',
+              durationSeconds: { kind: 'constant', value: 0.2 },
+              slot: 'TimeDilation/Layer/Entity/HitStop',
+              priority: 100,
+              curve: { kind: 'named', key: 'char_hard_stop' },
+              finishByAction: false,
+              targets: ['enemy', 'caster'],
+            }),
+          ),
+          96,
+        ),
+      ],
+      abilityEventResponses: [
+        {
+          event: 'skillEnd',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              { kind: 'eventSkillIdIn', skillIds: ['chr_0009_azrila_normal_skill'] },
+              sequence(step('finishCurrentBuff', { reason: 'other' })),
+            ),
+          ),
+        },
+      ],
+    },
     buff_chr_0009_azrila_normal_skill_shelter: {
       stackingType: 'unlimited',
       priority: 0,
@@ -1655,6 +1905,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1694,6 +1954,7 @@ export default {
             step('applyBuff', {
               buffId: 'buff_chr_0009_azrila_talent_2_buff',
               target: 'buffOwner',
+              source: 'buffOwner',
               inheritSourceSkillCastInfo: true,
               asChildBuff: true,
               blackboardAssignments: {
@@ -1718,6 +1979,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1741,6 +2012,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1772,6 +2053,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1813,6 +2104,7 @@ export default {
               step('applyBuff', {
                 buffId: 'buff_chr_0009_azrila_ultimate_skill_shield_extraattack',
                 target: 'buffOwner',
+                source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 asChildBuff: true,
                 blackboardAssignments: { extraattack: { kind: 'blackboard', key: 'extraattack' } },

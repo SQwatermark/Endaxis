@@ -135,6 +135,7 @@ export interface CombatOperatorProgram {
   readonly skillSlotGroups?: readonly CompiledSkillSlotGroup[];
   /** 四类语义动作的显式技能请求路由；运行时不得从技能库分组恢复。 */
   readonly playerActionRoutes?: import('../../game-data/operatorDefinition').OperatorPlayerActionRoutes;
+  readonly playerActionModes?: readonly import('../../game-data/operatorDefinition').OperatorPlayerActionModeDefinition[];
   /** 构筑启用的养成初始化行为；在 Buff 生命周期装配后执行一次。 */
   readonly initializationPrograms?: readonly CompiledOperatorInitializationProgram[];
   /** 构筑启用的常驻被动；按声明顺序在战斗装配完成后启用一次。 */
@@ -749,6 +750,7 @@ export class CombatRuntimeAssembly {
           })),
           skillSlotGroups: runtimeOperator.skillSlotGroups,
           playerActionRoutes: runtimeOperator.playerActionRoutes,
+          playerActionModes: runtimeOperator.playerActionModes,
           actionRuntime: operator.actionRuntime,
           beforePostSkillCastStart: request => {
             this.#prepareSkillStart(
@@ -1141,7 +1143,15 @@ export class CombatRuntimeAssembly {
     action?: import('../../game-data/operatorDefinition').PlayerSkillInput,
   ): boolean {
     const ability = this.#requireAbilitySystem(operatorId);
-    const resolution = ability.resolvePlayerInputSkill(expectedSkillId, action);
+    // 原生连携输入由 HUD 当前候选决定具体技能；CharacterData 的 curComboSkill 只提供
+    // 无候选时的静态槽位，不能覆盖已经打开的连携窗口阶段。
+    const pendingCombo = action === 'comboSkill' ? this.comboWindows.first : undefined;
+    const resolution =
+      pendingCombo !== undefined && pendingCombo.operatorId === operatorId
+        ? pendingCombo.nextSkillKey === expectedSkillId
+          ? ({ status: 'matched', actualSkillKey: pendingCombo.nextSkillKey } as const)
+          : ({ status: 'mismatched', actualSkillKey: pendingCombo.nextSkillKey } as const)
+        : ability.resolvePlayerInputSkill(expectedSkillId, action);
     if (resolution.status === 'mismatched') {
       this.receipt.record({
         frame: this.clock.frame,
@@ -1936,6 +1946,10 @@ export class CombatRuntimeAssembly {
       changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
         this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
       replaceSkillSlot: parameters => this.#replaceSkillSlot(operatorId, parameters),
+      activatePlayerActionMode: modeId =>
+        this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId),
+      changeNativeSkillType: (skillKey, nativeSkillType) =>
+        this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
       delegate: cooldownDelegate,
     });
     const deferredSkillCasts = new SkillCastOperationExecutor({
@@ -2201,6 +2215,10 @@ export class CombatRuntimeAssembly {
       changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
         this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
       replaceSkillSlot: parameters => this.#replaceSkillSlot(operatorId, parameters),
+      activatePlayerActionMode: modeId =>
+        this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId),
+      changeNativeSkillType: (skillKey, nativeSkillType) =>
+        this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
       delegate: cooldownOperations,
     });
     const deferredSkillCasts = new SkillCastOperationExecutor({

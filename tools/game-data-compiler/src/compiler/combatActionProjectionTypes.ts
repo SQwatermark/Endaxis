@@ -255,6 +255,8 @@ export type CompiledBuffStepSource =
   | Step<'triggerCustomAbilityEvent'>
   | Step<'castSkillDuringAction'>
   | Step<'changeSkillSlot'>
+  | Step<'changePlayerActionMode'>
+  | Step<'changeNativeSkillType'>
   | Step<'startCurrentAbilityEntityChildSkillById'>
   | Step<'startTimeDilation', GlobalTimeDilation | EntityTimeDilation>
   | Step<'setIgnoreGlobalTimeScale'>

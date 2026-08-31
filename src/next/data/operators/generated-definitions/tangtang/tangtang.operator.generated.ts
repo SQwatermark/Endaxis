@@ -21,6 +21,20 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0027_tangtang_attack1',
     timelineBlockFrames: 7,
+    exclusiveFrame: 15,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0027_tangtang_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 7, endFrame: 30, sourceSkillIds: ['chr_0027_tangtang_attack2'] },
+      ],
+    },
     costFrame: 3,
     scheduledSequences: [
       scheduled(
@@ -57,6 +71,9 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
         3,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51] },
 );
@@ -66,6 +83,20 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0027_tangtang_attack2',
     timelineBlockFrames: 18,
+    exclusiveFrame: 18,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 39,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0027_tangtang_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 39, sourceSkillIds: ['chr_0027_tangtang_attack3'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -166,6 +197,9 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
         10,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -180,6 +214,20 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0027_tangtang_attack3',
     timelineBlockFrames: 26,
+    exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 43,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0027_tangtang_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 26, endFrame: 43, sourceSkillIds: ['chr_0027_tangtang_attack4'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -342,6 +390,9 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
         18,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -356,6 +407,20 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0027_tangtang_attack4',
     timelineBlockFrames: 24,
+    exclusiveFrame: 28,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 50,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0027_tangtang_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 50, sourceSkillIds: ['chr_0027_tangtang_attack5'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -420,6 +485,9 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
         28,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -434,6 +502,20 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0027_tangtang_attack5',
     timelineBlockFrames: 36,
+    exclusiveFrame: 36,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 77,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0027_tangtang_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 36, endFrame: 77, sourceSkillIds: ['chr_0027_tangtang_attack1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -512,6 +594,9 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
         22,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 18,
@@ -526,6 +611,7 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0027_tangtang_power_attack',
     timelineBlockFrames: 48,
+    exclusiveFrame: 47,
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -542,67 +628,55 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
             },
             'chr_0027_tangtang_power_attack:/scheduledSequences/0/sequence/steps/0',
           ),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: {
-                  kind: 'inline',
-                  keys: [
-                    {
-                      time: 0,
-                      value: 0.5,
-                      inTangent: 0,
-                      outTangent: 0,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 0.1,
-                      value: 0.017,
-                      inTangent: -0.0608355,
-                      outTangent: -0.0608355,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 0.8860931,
-                      value: 0.3503852,
-                      inTangent: 1.160006,
-                      outTangent: 1.160006,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 1,
-                      value: 0.5,
-                      inTangent: 1.079618,
-                      outTangent: 1.079618,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                  ],
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.4 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: {
+              kind: 'inline',
+              keys: [
+                {
+                  time: 0,
+                  value: 0.5,
+                  inTangent: 0,
+                  outTangent: 0,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
                 },
-                finishByAction: false,
-                targets: ['caster'],
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
+                {
+                  time: 0.1,
+                  value: 0.017,
+                  inTangent: -0.0608355,
+                  outTangent: -0.0608355,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.8860931,
+                  value: 0.3503852,
+                  inTangent: 1.160006,
+                  outTangent: 1.160006,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 1,
+                  value: 0.5,
+                  inTangent: 1.079618,
+                  outTangent: 1.079618,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+              ],
+            },
+            finishByAction: false,
+            targets: ['caster'],
+          }),
         ),
         9,
       ),
@@ -658,6 +732,9 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
         33,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atb: 0, atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -667,6 +744,7 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0027_tangtang_plunging_attack_end',
     timelineBlockFrames: 16,
+    exclusiveFrame: 15,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -695,6 +773,9 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
         11,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -713,6 +794,12 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0027_tangtang_normal_skill',
     timelineBlockFrames: 50,
+    exclusiveFrame: 50,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 50, endFrame: 76, sourceSkillIds: ['chr_0027_tangtang_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -800,32 +887,20 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
               forEachContextTarget(
                 'water',
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 0 },
-                      operator: 'lessOrEqual',
-                      right: { kind: 'constant', value: 50 },
-                    },
+                  step('modifyActionValue', {
+                    key: 'water_cnt',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  forEachContextTarget(
+                    'water',
                     sequence(
-                      step('modifyActionValue', {
-                        key: 'water_cnt',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0027_tangtang_water_wake',
+                        target: 'currentAbilityEntity',
+                        inheritSourceSkillCastInfo: true,
                       }),
-                      forEachContextTarget(
-                        'water',
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0027_tangtang_water_wake',
-                            target: 'currentAbilityEntity',
-                            inheritSourceSkillCastInfo: true,
-                          }),
-                        ),
-                      ),
                     ),
-                    undefined,
-                    { alwaysNext: true },
                   ),
                 ),
               ),
@@ -971,6 +1046,9 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'input',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_return: 20,
@@ -1019,6 +1097,17 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0027_tangtang_ultimate_skill',
     timelineBlockFrames: 85,
+    exclusiveFrame: 84,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 82,
+          endFrame: 174,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0027_tangtang_attack1',
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1139,6 +1228,9 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale_1: [0.178, 0.196, 0.213, 0.231, 0.249, 0.267, 0.284, 0.302, 0.32, 0.342, 0.369, 0.4],
@@ -1176,6 +1268,12 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0027_tangtang_combo_skill',
     timelineBlockFrames: 31,
+    exclusiveFrame: 41,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 31, endFrame: 93, sourceSkillIds: ['chr_0027_tangtang_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2153,6 +2251,9 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [420, 420, 420, 420, 420, 420, 420, 420, 390, 390, 390, 360],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [1.067, 1.173, 1.28, 1.387, 1.494, 1.6, 1.707, 1.814, 1.92, 2.054, 2.214, 2.4],
@@ -2230,6 +2331,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -2344,6 +2455,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -2459,6 +2580,50 @@ export default {
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
       skills: tangtangComboSkill,
+    },
+  ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
+  playerActionModes: [
+    {
+      modeId: 'ult',
+      modeLayer: 'default',
+      defaultEnabled: false,
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+      ],
+      commandMappings: { basicAttack: { sourceSkillId: 'chr_0027_tangtang_ult_attack3' } },
+    },
+    {
+      modeId: 'ult_end',
+      modeLayer: 'default',
+      defaultEnabled: false,
+      commandMappings: { basicAttack: { sourceSkillId: 'chr_0027_tangtang_ult_attack5' } },
     },
   ],
   talents: [
@@ -2698,6 +2863,14 @@ export default {
       ],
     },
   ],
+  entityBlackboard: {
+    EntityBB_abilityentity_duration_spellvulnerable: 0,
+    EntityBB_abilityentity_rate_spellvulnerable: 0,
+    EntityBB_abilityentity_rate_spellvulnerable_02: 0,
+    EntityBB_abilityentity_water01: 0,
+    EntityBB_abilityentity_water02: 0,
+    EntityBB_abilityentity_water03: 0,
+  },
   passiveSkills: [
     {
       key: 'chr_0027_tangtang_passive_0',
@@ -2762,6 +2935,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -2807,6 +2990,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -3104,6 +3297,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
@@ -3160,6 +3363,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -3231,29 +3444,17 @@ export default {
                 forEachContextTarget(
                   'water',
                   sequence(
-                    branch(
-                      {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'constant', value: 0 },
-                        operator: 'lessOrEqual',
-                        right: { kind: 'constant', value: 50 },
-                      },
-                      sequence(
-                        step('modifyActionValue', {
-                          key: 'water_cnt',
-                          operation: 'add',
-                          value: { kind: 'constant', value: 1 },
-                        }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0027_tangtang_water_ultskillwake',
-                          target: 'currentAbilityEntity',
-                          source: 'buffSource',
-                          inheritSourceSkillCastInfo: true,
-                        }),
-                      ),
-                      undefined,
-                      { alwaysNext: true },
-                    ),
+                    step('modifyActionValue', {
+                      key: 'water_cnt',
+                      operation: 'add',
+                      value: { kind: 'constant', value: 1 },
+                    }),
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0027_tangtang_water_ultskillwake',
+                      target: 'currentAbilityEntity',
+                      source: 'buffSource',
+                      inheritSourceSkillCastInfo: true,
+                    }),
                   ),
                 ),
                 branch(
@@ -3398,6 +3599,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -3545,7 +3756,7 @@ export default {
               ),
               12,
             ),
-            scheduled(298, sequence(step('finishCurrentAbilityEntity', {})), 298),
+            scheduled(298, sequence(step('finishActionOwnerAbilityEntity', {})), 298),
             scheduled(
               0,
               sequence(
@@ -3664,7 +3875,7 @@ export default {
               ),
               18,
             ),
-            scheduled(150, sequence(step('finishCurrentAbilityEntity', {})), 150),
+            scheduled(150, sequence(step('finishActionOwnerAbilityEntity', {})), 150),
           ],
         },
       },
@@ -4566,12 +4777,12 @@ export default {
             ),
             1500,
           ),
-          scheduled(1500, sequence(step('finishCurrentAbilityEntity', {})), 1501),
-          scheduled(1515, sequence(step('finishCurrentAbilityEntity', {})), 1516),
+          scheduled(1500, sequence(step('finishActionOwnerAbilityEntity', {})), 1501),
+          scheduled(1515, sequence(step('finishActionOwnerAbilityEntity', {})), 1516),
           scheduled(
             900,
             sequence(
-              step('finishCurrentAbilityEntity', {}),
+              step('finishActionOwnerAbilityEntity', {}),
               step('finishBuffsById', {
                 target: 'caster',
                 buffIds: ['buff_chr_0027_tangtang_water'],
@@ -4581,8 +4792,8 @@ export default {
             ),
             901,
           ),
-          scheduled(1500, sequence(step('finishCurrentAbilityEntity', {})), 1501),
-          scheduled(1515, sequence(step('finishCurrentAbilityEntity', {})), 1516),
+          scheduled(1500, sequence(step('finishActionOwnerAbilityEntity', {})), 1501),
+          scheduled(1515, sequence(step('finishActionOwnerAbilityEntity', {})), 1516),
           scheduled(
             0,
             sequence(
@@ -4885,8 +5096,8 @@ export default {
             ),
             119,
           ),
-          scheduled(127, sequence(step('finishCurrentAbilityEntity', {})), 128),
-          scheduled(156, sequence(step('finishCurrentAbilityEntity', {})), 157),
+          scheduled(127, sequence(step('finishActionOwnerAbilityEntity', {})), 128),
+          scheduled(156, sequence(step('finishActionOwnerAbilityEntity', {})), 157),
         ],
       },
     },
@@ -5029,7 +5240,7 @@ export default {
             ),
             90,
           ),
-          scheduled(90, sequence(step('finishCurrentAbilityEntity', {})), 90),
+          scheduled(90, sequence(step('finishActionOwnerAbilityEntity', {})), 90),
         ],
       },
     },
@@ -5172,7 +5383,7 @@ export default {
             ),
             90,
           ),
-          scheduled(90, sequence(step('finishCurrentAbilityEntity', {})), 90),
+          scheduled(90, sequence(step('finishActionOwnerAbilityEntity', {})), 90),
         ],
       },
     },
@@ -5315,7 +5526,7 @@ export default {
             ),
             90,
           ),
-          scheduled(90, sequence(step('finishCurrentAbilityEntity', {})), 90),
+          scheduled(90, sequence(step('finishActionOwnerAbilityEntity', {})), 90),
         ],
       },
     },
@@ -5454,7 +5665,7 @@ export default {
             ),
             90,
           ),
-          scheduled(90, sequence(step('finishCurrentAbilityEntity', {})), 90),
+          scheduled(90, sequence(step('finishActionOwnerAbilityEntity', {})), 90),
         ],
       },
     },
@@ -5593,7 +5804,7 @@ export default {
             ),
             90,
           ),
-          scheduled(90, sequence(step('finishCurrentAbilityEntity', {})), 90),
+          scheduled(90, sequence(step('finishActionOwnerAbilityEntity', {})), 90),
         ],
       },
     },
@@ -5703,7 +5914,7 @@ export default {
             ),
             90,
           ),
-          scheduled(90, sequence(step('finishCurrentAbilityEntity', {})), 90),
+          scheduled(90, sequence(step('finishActionOwnerAbilityEntity', {})), 90),
         ],
       },
     },

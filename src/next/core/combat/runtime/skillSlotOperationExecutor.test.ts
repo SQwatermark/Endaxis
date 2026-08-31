@@ -91,4 +91,44 @@ describe('SkillSlotOperationExecutor', () => {
 
     expect(finish).toHaveBeenCalledTimes(1);
   });
+
+  it('activates a player-action mode for the action lifetime and restores it once', () => {
+    const finish = vi.fn();
+    const activatePlayerActionMode = vi.fn(() => ({ finish }));
+    const executor = new SkillSlotOperationExecutor({
+      changeSkillSlot: vi.fn(),
+      activatePlayerActionMode,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+    const step: ResolvedCombatOperationStep = {
+      kind: 'changePlayerActionMode',
+      parameters: { modeId: 'ultimateMode', lifetime: 'finishByAction' },
+    };
+
+    expect(executor.execute(step)).toBe(true);
+    executor.end(step);
+    executor.end(step);
+
+    expect(activatePlayerActionMode).toHaveBeenCalledWith('ultimateMode');
+    expect(finish).toHaveBeenCalledTimes(1);
+  });
+
+  it('applies a native SkillType mutation immediately without changing a slot', () => {
+    const changeNativeSkillType = vi.fn();
+    const changeSkillSlot = vi.fn();
+    const executor = new SkillSlotOperationExecutor({
+      changeSkillSlot,
+      changeNativeSkillType,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+
+    expect(
+      executor.execute({
+        kind: 'changeNativeSkillType',
+        parameters: { targetSkillKey: 'ultimateEnd', nativeSkillType: 'attachSkill' },
+      }),
+    ).toBe(true);
+    expect(changeNativeSkillType).toHaveBeenCalledWith('ultimateEnd', 'attachSkill');
+    expect(changeSkillSlot).not.toHaveBeenCalled();
+  });
 });

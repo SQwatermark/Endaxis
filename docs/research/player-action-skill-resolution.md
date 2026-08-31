@@ -88,8 +88,8 @@ passedTime > exclusiveFrame / 30 + 0.00001
 ## Next 实现
 
 - `SkillDefinition.skillType/levelSource` 保存单技能战斗分类初值和原生养成等级来源；生成器不再要求
-  模拟从技能库分组取这两项。`skillType` 目前仍是 Endaxis 已支持分类，不冒充尚未完整恢复的原生
-  可变 `SkillType` 初始化过程；
+  模拟从技能库分组取这两项。`nativeSkillType` 另存 CharacterData 注册时的原生初值，并可由
+  `ChangeSkillType` 在单场战斗中修改；
 - `OperatorDefinition.skillSlots` 独立保存可被 `ChangeSkillAction` 改写的槽位，
   `playerActionRoutes` 保存四类语义动作到槽位/普攻候选的边；二者在转换配置中独立登记，生成器
   严禁从 `skillGroups` 推导；
@@ -98,23 +98,24 @@ passedTime > exclusiveFrame / 30 + 0.00001
 - 游戏数据契约保留技能局部的 `commandMappings` 和 `allowedNextSkills`；
 - 编译器只把顶层直连的输入 Action 当作确定证据，条件/嵌套路径标记为未闭环；
 - `AbilitySystemRuntime.resolvePlayerInputSkill` 求当前实际技能，返回 `matched / mismatched / unknown`；
+- 连携操作先读取当前 HUD 连携候选；候选绑定的具体技能优先于静态 `curComboSkill` 槽，因而 E1/E2
+  等连续连携不需要伪造成技能库替换；没有候选仍由已有窗口门禁产生警告，时间轴继续强制执行；
 - `evaluatePlayerInputInterruption` 独立执行提前接续判定，不与选择合并；
 - 装配层把不一致、未知和无法中断分别写入回执，投影到具体 `castId` 的感叹号 title；
 - 无论校验结果如何，`tryStartPlayerInput` 最后都以 `resolveSkillSlot: false` 执行时间轴块明示的技能。
 
 ## 尚未闭环
 
-- 正式干员产物尚未用一致的完整来源重生成 `inputWindows`。本地 `tmp/game-data-sources` 在安塔尔
-  Buff 闭包处已与仓库正式产物不一致，强行全量生成会带入大量无关漂移。在来源修复前，旧产物对稳定
-  入口启用兼容门，不会制造虚假警告；
+- 30/30 名正式干员已从同版本 CharacterData 输入重生成动作路由、模式和原生 SkillType；运行时已经
+  删除从 `skillGroups` 推导操作的兼容分支。汤汤模式中的两个原生目标
+  `chr_0027_tangtang_ult_attack3/5` 在当前 VFS/AKEDB 来源中仍没有可转换 SkillData，模式保留来源 ID
+  并明确返回 unknown，不伪造技能；
 - `IsAvailable.CheckTag` 的控制流已在 combat-spec 闭环，但 `GameplayTagPredefineTable` 到战斗状态的
   生产数据仍未进入 Endaxis；不能把沉默、缴械等门禁猜成恒真或恒假；
 - 同优先级多个运行时命令映射的最终仲裁、`m_alwaysAllowSkills` 的两个硬编码 ID，仍必须继续取证。
-- `SkillDataBundle.defaultCmdMapping/normalAttackList` 与 `ModeData` 尚未进入 Endaxis 正式契约。在此之前
-  不允许用 `SkillGroup.skillType`、`levelSource` 或 `libraryPresentation` 猜普通攻击的基础入口；缺失基础映射时
-  应报告未知。
-- 正式生成产物正分批迁移。Avywenna 已包含单技能身份、独立槽位和动作路由；未重生成的产物仍由
-  编译层兼容旧组字段，兼容分支必须随全量重生成删除，不能成为长期规则。
+- 卡米拉有一条 `ChangeSkillType` 位于尚未纳入基础被动装配的隐藏被动
+  `chr_0033_camille_passive_listen_normal_skill`；在证明其启用来源前不能擅自安装，相关动态类型路径仍是
+  明确的转换缺口。
 
 ## 分组不是运行时规则
 
@@ -127,6 +128,6 @@ passedTime > exclusiveFrame / 30 + 0.00001
 `SkillDataBundle` 注册及 `activeSkillTypeOverrides` 决定，之后还可被 `ChangeSkillType` 修改。它必须
 作为技能运行时状态参与中断判断，不能从编辑器分组推导。
 
-当前契约中的 `SkillDefinition.skillType` 只是运行时实例的静态初值和既有事件分类。它不等同于“这个
-技能属于哪类玩家操作”，也不保证与原生对象此刻的 `Skill.skillType` 永远相同；后者必须在恢复注册
-初始化和 `activeSkillTypeOverrides/ChangeSkillType` 后成为独立的可变状态。
+当前契约中的 `SkillDefinition.skillType` 是 Endaxis 伤害/事件分类，不等同于“这个技能属于哪类玩家
+操作”。原生对象此刻的 `Skill.skillType` 由 `nativeSkillType` 初始化，并已作为独立可变状态接入
+`activeSkillTypeOverrides/ChangeSkillType` 与中断优先级判断；两者不能再合并。

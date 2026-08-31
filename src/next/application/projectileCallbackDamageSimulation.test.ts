@@ -85,6 +85,8 @@ async function simulate(input: Case) {
         levelSource: 'battleSkill',
         skills: {
           key: 'returnSlice',
+          skillType: 'battleSkill',
+          levelSource: 'battleSkill',
           timelineBlockFrames: 1,
           blackboard: {
             talent0_usp: input.energy,

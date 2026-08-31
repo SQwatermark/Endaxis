@@ -80,6 +80,7 @@ describe('placeSkillGroup', () => {
       kind: 'operatorSkill',
       skillGroupKey: 'basicAttack',
       skillKey: 'basicAttack1',
+      action: 'basicAttack',
     });
   });
 
@@ -102,6 +103,7 @@ describe('placeSkillGroup', () => {
       kind: 'operatorSkill',
       skillGroupKey: 'battleSkill',
       skillKey: 'battleSkill',
+      action: 'battleSkill',
     });
   });
 
@@ -122,6 +124,7 @@ describe('placeSkillGroup', () => {
       kind: 'operatorSkill',
       skillGroupKey: 'basicAttack',
       skillKey: 'basicAttack3',
+      action: 'basicAttack',
     });
     expect(casts[0]!.placement.startFrame).toBe(45);
   });
@@ -167,6 +170,7 @@ describe('placeSkillGroup', () => {
           kind: 'operatorSkill',
           skillGroupKey: 'battleSkill',
           skillKey: 'battleSkillDuringUltimate',
+          action: 'battleSkill',
         },
       }),
     ]);

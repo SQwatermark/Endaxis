@@ -22,6 +22,15 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_combo_skill',
     timelineBlockFrames: 68,
     exclusiveFrame: 98,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 68,
+          endFrame: 109,
+          sourceSkillIds: ['chr_0035_liino_normal_skill', 'chr_0035_liino_normal_skill_combo'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -413,6 +422,9 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
       ),
     },
     cooldownFrames: [300, 300, 300, 300, 300, 300, 300, 300, 270, 270, 270, 240],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb_return: 5,
@@ -446,6 +458,19 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_attack1',
     timelineBlockFrames: 12,
     exclusiveFrame: 18,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0035_liino_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 12, endFrame: 30, sourceSkillIds: ['chr_0035_liino_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -511,6 +536,9 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
         11,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -525,6 +553,19 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_attack2',
     timelineBlockFrames: 20,
     exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 38,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0035_liino_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 20, endFrame: 38, sourceSkillIds: ['chr_0035_liino_attack3'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -555,6 +596,9 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
         19,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -569,6 +613,19 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_attack3',
     timelineBlockFrames: 24,
     exclusiveFrame: 27,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 44,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0035_liino_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 44, sourceSkillIds: ['chr_0035_liino_attack4'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -930,6 +987,9 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
         32,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atk_scale: [0.22, 0.24, 0.26, 0.29, 0.31, 0.33, 0.35, 0.37, 0.4, 0.42, 0.46, 0.5],
@@ -944,6 +1004,19 @@ export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_attack4',
     timelineBlockFrames: 18,
     exclusiveFrame: 56,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 33,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0035_liino_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 33, sourceSkillIds: ['chr_0035_liino_attack5'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -1453,6 +1526,9 @@ export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
         63,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -1467,6 +1543,19 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_attack5',
     timelineBlockFrames: 28,
     exclusiveFrame: 46,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 49,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0035_liino_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 28, endFrame: 49, sourceSkillIds: ['chr_0035_liino_attack1'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -1689,6 +1778,9 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
         20,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 20,
@@ -1703,6 +1795,19 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_power_attack',
     timelineBlockFrames: 58,
     exclusiveFrame: 68,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 58,
+          endFrame: 74,
+          sourceSkillIds: [
+            'chr_0035_liino_normal_skill',
+            'chr_0035_liino_combo_skill',
+            'chr_0035_liino_power_attack',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1997,6 +2102,9 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
         49,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atb: 0, atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -2007,6 +2115,11 @@ export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_plunging_attack_end',
     timelineBlockFrames: 11,
     exclusiveFrame: 20,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 11, endFrame: 20, sourceSkillIds: ['chr_0012_avywen_attack1'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2201,6 +2314,9 @@ export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
         17,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -2216,6 +2332,38 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_normal_skill',
     timelineBlockFrames: 50,
     exclusiveFrame: 1821,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 50,
+          endFrame: 1872,
+          sourceSkillIds: ['chr_0035_liino_combo_skill', 'chr_0035_liino_normal_skill_end'],
+        },
+        {
+          startFrame: 1959,
+          endFrame: 2092,
+          sourceSkillIds: ['chr_0035_liino_combo_skill', 'chr_0035_liino_normal_skill_end'],
+        },
+        {
+          startFrame: 1817,
+          endFrame: 1872,
+          sourceSkillIds: [
+            'chr_0035_liino_combo_skill',
+            'chr_0035_liino_normal_skill',
+            'chr_0035_liino_power_attack',
+          ],
+        },
+        {
+          startFrame: 2024,
+          endFrame: 2092,
+          sourceSkillIds: [
+            'chr_0035_liino_combo_skill',
+            'chr_0035_liino_normal_skill',
+            'chr_0035_liino_power_attack',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -3328,6 +3476,9 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 25 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_return: 0,
@@ -3373,6 +3524,20 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_normal_skill_combo',
     timelineBlockFrames: 0,
     exclusiveFrame: 1954,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 0,
+          endFrame: 1800,
+          sourceSkillIds: ['chr_0035_liino_normal_skill_end', 'chr_0035_liino_combo_skill'],
+        },
+        {
+          startFrame: 1723,
+          endFrame: 1800,
+          sourceSkillIds: ['chr_0035_liino_normal_skill_end', 'chr_0035_liino_normal_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -3739,6 +3904,9 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
         1961,
       ),
     ],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'extraActiveSkill',
   },
   {
     atk_scale: [0.18, 0.2, 0.21, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.34, 0.37, 0.4],
@@ -3793,6 +3961,9 @@ export const liinoBattleSkillEnd: SkillDefinition = withSkillBlackboard(
         }),
       ),
     },
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'extraActiveSkill',
   },
   {
     atk_scale: 1,
@@ -3815,6 +3986,21 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0035_liino_ultimate_skill',
     timelineBlockFrames: 77,
     exclusiveFrame: 543,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 77, endFrame: 527, sourceSkillIds: ['chr_0035_liino_normal_skill_end'] },
+        { startFrame: 163, endFrame: 527, sourceSkillIds: ['chr_0035_liino_combo_skill'] },
+        {
+          startFrame: 527,
+          endFrame: 580,
+          sourceSkillIds: [
+            'chr_0035_liino_normal_skill',
+            'chr_0035_liino_combo_skill',
+            'chr_0035_liino_attack1',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -4191,6 +4377,9 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 160 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale: [0.07, 0.08, 0.09, 0.09, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
@@ -4285,6 +4474,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
@@ -4343,6 +4542,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
@@ -4489,6 +4698,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Pulse',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -4743,6 +4962,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: true,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -4895,6 +5124,29 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: liinoUltimate },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: ['battleSkillEnd'] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -5170,6 +5422,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -5195,6 +5457,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -5221,6 +5493,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -6119,6 +6401,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: true,
+        useWeakProgressInNormalSkillButton: true,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: true,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
@@ -6619,6 +6911,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -6658,6 +6960,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -6696,6 +7008,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -6734,6 +7056,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -6968,7 +7300,7 @@ export default {
             targetKey: 'final_heal_value',
           }),
           step('heal', {
-            target: 'caster',
+            target: 'buffOwner',
             alwaysNext: true,
             tags: ['Skill/Character/Common/Heal/UltimateSkillHeal'],
             amount: { kind: 'blackboard', key: 'final_heal_value' },
@@ -7003,7 +7335,7 @@ export default {
             targetKey: 'final_heal_value',
           }),
           step('heal', {
-            target: 'caster',
+            target: 'buffOwner',
             alwaysNext: true,
             tags: ['Skill/Character/Common/Heal/UltimateSkillHeal'],
             amount: { kind: 'blackboard', key: 'final_heal_value' },
@@ -7022,6 +7354,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: true,
+        useWeakProgressInNormalSkillButton: true,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: true,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },

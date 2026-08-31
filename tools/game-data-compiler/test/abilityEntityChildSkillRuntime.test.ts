@@ -67,6 +67,8 @@ async function simulate(index: number, potential: number, recall: boolean) {
         levelSource: 'battleSkill',
         skills: {
           key: 'entityLifecycleProbe',
+          skillType: 'battleSkill',
+          levelSource: 'battleSkill',
           timelineBlockFrames: 1,
           blackboard: { potential_2: potential },
           scheduledSequences: [

@@ -206,12 +206,18 @@ async function simulate(
     secondaryAttribute: base.secondaryAttribute,
     talents: [],
     potentials: [],
+    skillSlots: [],
+    playerActionRoutes: {
+      basicAttack: { kind: 'basicAttack', skillKeys: ['probe'], defaultSkillKey: 'probe' },
+    },
     skillGroups: [
       {
         key: 'basicAttack',
         skillType: 'basicAttack' as SkillType,
         levelSource: 'basicAttack',
         skills: {
+          skillType: 'basicAttack' as const,
+          levelSource: 'basicAttack' as const,
           key: 'state-probe',
           // 保留大潘原始猛击参数，不为 fixture 猜 crush_multi。
           blackboard: daPanComboSkill.blackboard,

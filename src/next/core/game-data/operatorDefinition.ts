@@ -94,6 +94,8 @@ export {
   type OperatorAbilityEntityDefinitions,
   type SkillCostDefinition,
   type PlayerSkillInput,
+  type NativeSkillType,
+  type OperatorPlayerActionModeDefinition,
   type OperatorSkillSlotDefinition,
   type PlayerActionRouteDefinition,
   type OperatorPlayerActionRoutes,

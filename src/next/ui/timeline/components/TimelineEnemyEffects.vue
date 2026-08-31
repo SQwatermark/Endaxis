@@ -8,6 +8,8 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { EnemyEffectViz } from '../../../core/projection/enemyEffectViz';
 import type { PositionedBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
+import type { CombatStatusIndicator } from '../../../core/projection/combatStatusIndicators';
+import CombatStatusIconStrip from './CombatStatusIconStrip.vue';
 
 const { t } = useI18n();
 
@@ -24,6 +26,8 @@ const props = defineProps<{
     reaction: string;
     reactionConsumed: string;
   };
+  statusIndicators: readonly CombatStatusIndicator[];
+  cursorFrame: number;
 }>();
 
 const ICON_SIZE = 20;
@@ -161,8 +165,25 @@ const height = computed(() => Math.max(24, rowCount.value * 22 + 2));
 
 <template>
   <div class="enemy-effects" :style="{ width: `${width}px`, height: `${height}px` }">
+    <CombatStatusIconStrip
+      class="enemy-status-strip"
+      :indicators="statusIndicators"
+      slot="headBarCommon"
+      :frame="cursorFrame"
+    />
+    <CombatStatusIconStrip
+      class="enemy-status-strip enemy-status-strip--attached"
+      :indicators="statusIndicators"
+      slot="headBarAttached"
+      :frame="cursorFrame"
+    />
     <div
-      v-if="segments.length === 0 && markers.length === 0 && buffs.length === 0"
+      v-if="
+        segments.length === 0 &&
+        markers.length === 0 &&
+        buffs.length === 0 &&
+        statusIndicators.length === 0
+      "
       class="enemy-effects__empty"
     >
       —
@@ -236,6 +257,19 @@ const height = computed(() => Math.max(24, rowCount.value * 22 + 2));
   height: 100%;
   color: var(--ea-text-muted, rgb(255 255 255 / 32%));
   font-size: 11px;
+}
+
+.enemy-status-strip {
+  position: absolute;
+  z-index: 20;
+  top: 2px;
+  left: 6px;
+  max-width: 82px;
+  overflow: visible;
+}
+
+.enemy-status-strip--attached {
+  left: 94px;
 }
 
 .attachment-item {

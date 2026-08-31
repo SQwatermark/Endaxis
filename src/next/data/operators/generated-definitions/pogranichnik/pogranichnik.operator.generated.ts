@@ -20,6 +20,20 @@ export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0029_pograni_attack1',
     timelineBlockFrames: 12,
+    exclusiveFrame: 17,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 7,
+          endFrame: 29,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0029_pograni_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 12, endFrame: 29, sourceSkillIds: ['chr_0029_pograni_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -62,6 +76,9 @@ export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
         9,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.23, 0.25, 0.28, 0.3, 0.32, 0.35, 0.37, 0.39, 0.41, 0.44, 0.48, 0.52] },
 );
@@ -71,6 +88,20 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0029_pograni_attack2',
     timelineBlockFrames: 19,
+    exclusiveFrame: 22,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 7,
+          endFrame: 39,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0029_pograni_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 19, endFrame: 39, sourceSkillIds: ['chr_0029_pograni_attack3'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -152,6 +183,9 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
         20,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -165,6 +199,20 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0029_pograni_attack3',
     timelineBlockFrames: 19,
+    exclusiveFrame: 29,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 11,
+          endFrame: 37,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0029_pograni_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 19, endFrame: 37, sourceSkillIds: ['chr_0029_pograni_attack4'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -250,6 +298,9 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
         16,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -264,6 +315,20 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0029_pograni_attack4',
     timelineBlockFrames: 18,
+    exclusiveFrame: 26,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 10,
+          endFrame: 33,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0029_pograni_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 33, sourceSkillIds: ['chr_0029_pograni_attack5'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -532,6 +597,9 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
         16,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -546,6 +614,20 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0029_pograni_attack5',
     timelineBlockFrames: 24,
+    exclusiveFrame: 32,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 15,
+          endFrame: 32,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0029_pograni_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 32, sourceSkillIds: ['chr_0029_pograni_attack1'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -565,23 +647,11 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'isHitbyMain',
-                    operation: 'assign',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('modifyActionValue', {
+                key: 'isHitbyMain',
+                operation: 'assign',
+                value: { kind: 'constant', value: 1 },
+              }),
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
@@ -625,6 +695,9 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
         21,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 20,
@@ -639,6 +712,16 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0029_pograni_power_attack',
     timelineBlockFrames: 27,
+    exclusiveFrame: 47,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 27,
+          endFrame: 49,
+          sourceSkillIds: ['chr_0029_pograni_normal_skill', 'chr_0029_pograni_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -785,6 +868,9 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
         27,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -794,6 +880,7 @@ export const pogranichnikPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0029_pograni_plunging_attack_end',
     timelineBlockFrames: 21,
+    exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -827,6 +914,9 @@ export const pogranichnikPlungingAttack: SkillDefinition = withSkillBlackboard(
         8,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -836,6 +926,23 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0029_pograni_normal_skill',
     timelineBlockFrames: 45,
+    exclusiveFrame: 55,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 48,
+          endFrame: 55,
+          sourceSkillIds: [
+            'chr_0029_pograni_attack1',
+            'chr_0029_pograni_attack2',
+            'chr_0029_pograni_attack3',
+            'chr_0029_pograni_attack4',
+            'chr_0029_pograni_attack5',
+          ],
+        },
+        { startFrame: 45, endFrame: 55, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -973,36 +1080,6 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         38,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 2 },
-            },
-            sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'has_potential1' },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb_return' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'refund',
-                    spGainSource: 'skill',
-                  }),
-                ),
-              ),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
           step('applyPhysicalInfliction', {
             type: 'fracture',
             target: 'enemy',
@@ -1021,6 +1098,16 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: true,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1042,6 +1129,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
                         target: 'buffOwner',
+                        source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -1051,7 +1139,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                   step('applyBuff', {
                     buffId: 'buff_physical_no_guard_fake',
                     target: 'buffOwner',
-                    source: 'eventSource',
+                    source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
@@ -1093,6 +1181,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                               step('applyBuff', {
                                 buffId: 'buff_physical_handle_cryst_break',
                                 target: 'buffOwner',
+                                source: 'buffSource',
                                 inheritSourceSkillCastInfo: true,
                               }),
                             ),
@@ -1138,6 +1227,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                   step('applyBuff', {
                     buffId: 'buff_physical_do_fracture',
                     target: 'buffOwner',
+                    source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
                   }),
@@ -1154,7 +1244,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0029_pograni_normal_skill:/scheduledSequences/3/sequence/steps/2',
+            'chr_0029_pograni_normal_skill:/scheduledSequences/3/sequence/steps/1',
           ),
           step('startTimeDilation', {
             scope: 'entity',
@@ -1220,28 +1310,19 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         38,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_common_obtain_ultimate_sp',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
+          step('applyBuff', {
+            buffId: 'buff_common_obtain_ultimate_sp',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
         ),
         39,
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_return: 15,
@@ -1266,6 +1347,59 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0029_pograni_combo_skill',
     timelineBlockFrames: 66,
+    exclusiveFrame: 649,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 66, endFrame: 96, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
+        { startFrame: 266, endFrame: 296, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
+        { startFrame: 442, endFrame: 460, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
+        { startFrame: 628, endFrame: 660, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
+        {
+          startFrame: 72,
+          endFrame: 96,
+          sourceSkillIds: [
+            'chr_0029_pograni_attack1',
+            'chr_0029_pograni_attack2',
+            'chr_0029_pograni_attack3',
+            'chr_0029_pograni_attack4',
+            'chr_0029_pograni_attack5',
+          ],
+        },
+        {
+          startFrame: 272,
+          endFrame: 296,
+          sourceSkillIds: [
+            'chr_0029_pograni_attack1',
+            'chr_0029_pograni_attack2',
+            'chr_0029_pograni_attack3',
+            'chr_0029_pograni_attack4',
+            'chr_0029_pograni_attack5',
+          ],
+        },
+        {
+          startFrame: 446,
+          endFrame: 460,
+          sourceSkillIds: [
+            'chr_0029_pograni_attack1',
+            'chr_0029_pograni_attack2',
+            'chr_0029_pograni_attack3',
+            'chr_0029_pograni_attack4',
+            'chr_0029_pograni_attack5',
+          ],
+        },
+        {
+          startFrame: 632,
+          endFrame: 660,
+          sourceSkillIds: [
+            'chr_0029_pograni_attack1',
+            'chr_0029_pograni_attack2',
+            'chr_0029_pograni_attack3',
+            'chr_0029_pograni_attack4',
+            'chr_0029_pograni_attack5',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1991,6 +2125,9 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb_ratio: 1,
@@ -2023,6 +2160,7 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0029_pograni_ultimate_skill',
     timelineBlockFrames: 91,
+    exclusiveFrame: 90,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2177,6 +2315,9 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 300,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     angle: 120,
@@ -2292,6 +2433,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -2363,6 +2514,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -2524,6 +2676,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_physical_do_fracture',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
         }),
@@ -2573,6 +2726,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_physical_break',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: { atk_scale: { kind: 'blackboard', key: 'atk_scale' } },
         }),
@@ -2668,6 +2822,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: true,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -2689,6 +2853,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -2698,7 +2863,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_physical_no_guard_fake',
           target: 'buffOwner',
-          source: 'eventSource',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
         }),
       ),
@@ -2740,6 +2905,7 @@ export const commonBuffDefinitions = {
                     step('applyBuff', {
                       buffId: 'buff_physical_handle_cryst_break',
                       target: 'buffOwner',
+                      source: 'buffSource',
                       inheritSourceSkillCastInfo: true,
                     }),
                   ),
@@ -2826,6 +2992,29 @@ export default {
       skills: pogranichnikUltimate,
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'finisher',
+        'plungingAttack',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -3002,6 +3191,7 @@ export default {
       ],
     },
   ],
+  entityBlackboard: { EntityBB_atb_contain: 0, EntityBB_noguard_count: 0 },
   buffDefinitions: {
     buff_chr_0029_pograni_talent1: {
       stackingType: 'highPriorityWithMaxStack',
@@ -3016,6 +3206,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
@@ -3072,7 +3272,8 @@ export default {
         start: sequence(
           step('applyBuff', {
             buffId: 'buff_chr_0029_pograni_ultimate_skill_count',
-            target: 'caster',
+            target: 'buffSource',
+            source: 'buffSource',
             count: { kind: 'blackboard', key: 'count' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
@@ -3083,6 +3284,7 @@ export default {
           step('applyBuff', {
             buffId: 'buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura',
             target: 'enemy',
+            source: 'buffOwner',
             finishByAction: true,
             blackboardAssignments: {
               duration: { kind: 'blackboard', key: 'duration' },
@@ -3159,7 +3361,7 @@ export default {
                     step('applyBuff', {
                       buffId: 'buff_chr_0029_pograni_ultimate_skill_finall_rush',
                       target: 'buffOwner',
-                      source: 'eventSource',
+                      source: 'buffSource',
                       inheritSourceSkillCastInfo: true,
                       blackboardAssignments: {
                         atk_scale_final: { kind: 'blackboard', key: 'atk_scale_final' },
@@ -3239,7 +3441,7 @@ export default {
                                 step('applyBuff', {
                                   buffId: 'buff_chr_0029_pograni_talent1',
                                   target: 'eventTarget',
-                                  source: 'eventSource',
+                                  source: 'buffSource',
                                   inheritSourceSkillCastInfo: true,
                                   blackboardAssignments: {
                                     duration: { kind: 'blackboard', key: 'duration_temp' },
@@ -3253,7 +3455,7 @@ export default {
                                 step('applyBuff', {
                                   buffId: 'buff_chr_0029_pograni_talent1',
                                   target: 'eventTarget',
-                                  source: 'eventSource',
+                                  source: 'buffSource',
                                   inheritSourceSkillCastInfo: true,
                                   blackboardAssignments: {
                                     duration: { kind: 'blackboard', key: 'duration_temp' },
@@ -3383,7 +3585,7 @@ export default {
                                 step('applyBuff', {
                                   buffId: 'buff_chr_0029_pograni_talent1',
                                   target: 'eventTarget',
-                                  source: 'eventSource',
+                                  source: 'buffSource',
                                   inheritSourceSkillCastInfo: true,
                                   blackboardAssignments: {
                                     duration: { kind: 'blackboard', key: 'duration_temp' },
@@ -3397,7 +3599,7 @@ export default {
                                 step('applyBuff', {
                                   buffId: 'buff_chr_0029_pograni_talent1',
                                   target: 'eventTarget',
-                                  source: 'eventSource',
+                                  source: 'buffSource',
                                   inheritSourceSkillCastInfo: true,
                                   blackboardAssignments: {
                                     duration: { kind: 'blackboard', key: 'duration_temp' },
@@ -3527,7 +3729,7 @@ export default {
                                     }),
                                     step('applyBuff', {
                                       buffId: 'buff_chr_0029_pograni_talent1',
-                                      target: 'caster',
+                                      target: 'buffSource',
                                       source: 'buffSource',
                                       inheritSourceSkillCastInfo: true,
                                       blackboardAssignments: {
@@ -3661,7 +3863,7 @@ export default {
                                     }),
                                     step('applyBuff', {
                                       buffId: 'buff_chr_0029_pograni_talent1',
-                                      target: 'caster',
+                                      target: 'buffSource',
                                       source: 'buffSource',
                                       inheritSourceSkillCastInfo: true,
                                       blackboardAssignments: {
@@ -3706,6 +3908,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'AttentionDebuff' },
@@ -3818,7 +4030,7 @@ export default {
             radius: 5,
           },
           scheduledSequences: [
-            scheduled(50, sequence(step('finishCurrentAbilityEntity', {})), 53),
+            scheduled(50, sequence(step('finishActionOwnerAbilityEntity', {})), 53),
             scheduled(
               3,
               sequence(
@@ -3920,10 +4132,10 @@ export default {
               ),
               3,
             ),
-            scheduled(59, sequence(step('finishCurrentAbilityEntity', {})), 62),
-            scheduled(157, sequence(step('finishCurrentAbilityEntity', {})), 160),
-            scheduled(257, sequence(step('finishCurrentAbilityEntity', {})), 260),
-            scheduled(357, sequence(step('finishCurrentAbilityEntity', {})), 360),
+            scheduled(59, sequence(step('finishActionOwnerAbilityEntity', {})), 62),
+            scheduled(157, sequence(step('finishActionOwnerAbilityEntity', {})), 160),
+            scheduled(257, sequence(step('finishActionOwnerAbilityEntity', {})), 260),
+            scheduled(357, sequence(step('finishActionOwnerAbilityEntity', {})), 360),
             scheduled(
               9,
               sequence(
@@ -4259,7 +4471,7 @@ export default {
             radius: 5,
           },
           scheduledSequences: [
-            scheduled(75, sequence(step('finishCurrentAbilityEntity', {})), 78),
+            scheduled(75, sequence(step('finishActionOwnerAbilityEntity', {})), 78),
             scheduled(
               31,
               sequence(

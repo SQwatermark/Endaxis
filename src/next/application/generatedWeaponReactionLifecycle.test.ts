@@ -358,6 +358,10 @@ function fixtureOperator(
     attributes: source.attributes,
     talents: [],
     potentials: [],
+    skillSlots: [],
+    playerActionRoutes: {
+      basicAttack: { kind: 'basicAttack', skillKeys: ['probe'], defaultSkillKey: 'probe' },
+    },
     skillGroups: [
       {
         key: 'basicAttack',
@@ -365,6 +369,8 @@ function fixtureOperator(
         levelSource: 'basicAttack',
         skills: {
           key: 'probe',
+          skillType: 'basicAttack',
+          levelSource: 'basicAttack',
           timelineBlockFrames: 1050,
           scheduledSequences: scheduledSequences.sort((a, b) => a.startFrame - b.startFrame),
         },

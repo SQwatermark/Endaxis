@@ -24,12 +24,14 @@ describe('Operator 主动技能入口', () => {
         {
           key: 'basicAttack1',
           skillType: 'basicAttack',
+          levelSource: 'basicAttack',
           source: 'attack_1.json',
           compile: { kind: 'resolvedSequence' },
         },
         {
           key: 'battleSkill',
           skillType: 'battleSkill',
+          levelSource: 'battleSkill',
           source: 'battle.json',
           enhancementStateBuffId: 'buff_native_battle_enhancement',
           compile: { kind: 'resolvedSequence' },
@@ -83,5 +85,5 @@ describe('Operator 主动技能入口', () => {
 });
 
 function entry(key: string, skillType: string, source: string) {
-  return { key, skillType, source };
+  return { key, skillType, levelSource: skillType, source };
 }

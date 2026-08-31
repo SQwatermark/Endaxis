@@ -73,6 +73,9 @@ export interface OperatorActiveSkillRuntimeArguments {
   readonly compileSkillSlotReplacement?: NonNullable<
     CombatActionProjectionExtensionsSource['compileSkillSlotReplacement']
   >;
+  readonly compileSkillTypeMutation?: NonNullable<
+    CombatActionProjectionExtensionsSource['compileSkillTypeMutation']
+  >;
 }
 
 export interface PlannedOperatorActiveSkillRuntime {
@@ -537,6 +540,9 @@ export function planOperatorActiveSkillRuntime(
       ...(args.compileSkillSlotReplacement === undefined
         ? {}
         : { compileSkillSlotReplacement: args.compileSkillSlotReplacement }),
+      ...(args.compileSkillTypeMutation === undefined
+        ? {}
+        : { compileSkillTypeMutation: args.compileSkillTypeMutation }),
     },
     visualOnlyIds,
   });

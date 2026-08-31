@@ -371,6 +371,10 @@ export class SkillRuntime {
     return this.#program.skillType;
   }
 
+  get nativeSkillType(): CompiledSkillProgram['nativeSkillType'] {
+    return this.#program.nativeSkillType;
+  }
+
   get timelineBlockFrames(): number {
     return this.#program.timelineBlockFrames;
   }

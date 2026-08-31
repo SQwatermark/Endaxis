@@ -318,6 +318,8 @@ export interface OperatorDefinition {
   skillSlots?: readonly import('./skills.ts').OperatorSkillSlotDefinition[];
   /** 四类玩家语义动作的原生路由；缺失边必须诊断为 unknown。 */
   playerActionRoutes?: import('./skills.ts').OperatorPlayerActionRoutes;
+  /** CharacterData 中会覆盖普攻序列或命令映射的模式；独立于技能库分组。 */
+  playerActionModes?: readonly import('./skills.ts').OperatorPlayerActionModeDefinition[];
   /** 旧项目技能身份到当前规范身份的只读兼容映射；不得作为技能库中的额外入口展示。 */
   skillAliases?: readonly {
     readonly from: readonly [skillGroupKey: string, skillKey: string];

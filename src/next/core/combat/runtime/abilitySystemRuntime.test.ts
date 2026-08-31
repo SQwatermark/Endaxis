@@ -294,7 +294,7 @@ describe('AbilitySystemRuntime', () => {
     expect(ability.currentSkillId).toBe('battleSkillCombo');
   });
 
-  it('keeps legacy stable inputs until evidence is present and still diagnoses active replacements', () => {
+  it('does not infer player actions from legacy skill-library groups', () => {
     const events: string[] = [];
     const ability = new AbilitySystemRuntime({
       skills: [
@@ -313,23 +313,15 @@ describe('AbilitySystemRuntime', () => {
     });
 
     expect(ability.resolvePlayerInputSkill('battleSkillCombo')).toEqual({
-      status: 'matched',
-      actualSkillKey: 'battleSkillCombo',
-    });
-    expect(ability.resolvePlayerInputSkill('battleSkillEnd')).toEqual({
-      status: 'mismatched',
-      actualSkillKey: 'battleSkill',
+      status: 'unknown',
+      reason: 'operator has no imported player action routes',
     });
 
     ability.changeSkillSlot('battleSkill', 'battleSkillEnd');
 
-    expect(ability.resolvePlayerInputSkill('battleSkillCombo')).toEqual({
-      status: 'mismatched',
-      actualSkillKey: 'battleSkillEnd',
-    });
     expect(ability.resolvePlayerInputSkill('battleSkillEnd')).toEqual({
-      status: 'matched',
-      actualSkillKey: 'battleSkillEnd',
+      status: 'unknown',
+      reason: 'operator has no imported player action routes',
     });
   });
 
@@ -383,6 +375,90 @@ describe('AbilitySystemRuntime', () => {
     });
   });
 
+  it('uses an active native mode for basic-attack routing and restores its layer', () => {
+    const events: string[] = [];
+    const ability = new AbilitySystemRuntime({
+      skills: [
+        new FixtureRuntime('attack1', events, 'basicAttack'),
+        new FixtureRuntime('enhancedAttack', events, 'basicAttack'),
+      ],
+      playerActionRoutes: {
+        basicAttack: {
+          kind: 'basicAttack',
+          skillKeys: ['attack1', 'enhancedAttack'],
+          defaultSkillKey: 'attack1',
+        },
+      },
+      playerActionModes: [
+        {
+          modeId: 'ultimateMode',
+          modeLayer: 'ultimate',
+          defaultEnabled: false,
+          normalAttackSkillKeys: ['enhancedAttack'],
+          commandMappings: {
+            basicAttack: { sourceSkillId: 'native.enhanced', skillKey: 'enhancedAttack' },
+          },
+        },
+      ],
+    });
+
+    const handle = ability.activatePlayerActionMode('ultimateMode');
+    expect(ability.resolvePlayerInputSkill('attack1', 'basicAttack')).toEqual({
+      status: 'mismatched',
+      actualSkillKey: 'enhancedAttack',
+    });
+    expect(ability.resolvePlayerInputSkill('enhancedAttack', 'basicAttack')).toEqual({
+      status: 'matched',
+      actualSkillKey: 'enhancedAttack',
+    });
+
+    handle.finish();
+    expect(ability.resolvePlayerInputSkill('attack1', 'basicAttack')).toEqual({
+      status: 'matched',
+      actualSkillKey: 'attack1',
+    });
+  });
+
+  it('keeps unresolved native mode targets explicit instead of inventing a skill', () => {
+    const ability = new AbilitySystemRuntime({
+      skills: [new FixtureRuntime('attack1', [], 'basicAttack')],
+      playerActionRoutes: {
+        basicAttack: {
+          kind: 'basicAttack',
+          skillKeys: ['attack1'],
+          defaultSkillKey: 'attack1',
+        },
+      },
+      playerActionModes: [
+        {
+          modeId: 'ultimateMode',
+          modeLayer: 'ultimate',
+          defaultEnabled: true,
+          commandMappings: { basicAttack: { sourceSkillId: 'native.missing' } },
+        },
+      ],
+    });
+
+    expect(ability.resolvePlayerInputSkill('attack1', 'basicAttack')).toEqual({
+      status: 'unknown',
+      reason: "active mode maps basic attack to unconverted native skill 'native.missing'",
+    });
+  });
+
+  it('mutates the native SkillType independently from the Endaxis skill category', () => {
+    const skill = Object.assign(new FixtureRuntime('ending', [], 'ultimate'), {
+      nativeSkillType: 'ultimateSkill' as const,
+    });
+    const ability = new AbilitySystemRuntime({ skills: [skill] });
+    ability.tryStartSkill('ending');
+
+    expect(ability.currentSkillType).toBe('ultimate');
+    expect(ability.currentNativeSkillType).toBe('ultimateSkill');
+    ability.changeNativeSkillType('ending', 'attachSkill');
+    expect(ability.currentSkillType).toBe('ultimate');
+    expect(ability.currentNativeSkillType).toBe('attachSkill');
+  });
+
   it('resolves a chained input from native command mapping and allowed-next windows', () => {
     const events: string[] = [];
     let frame = 5;
@@ -419,6 +495,13 @@ describe('AbilitySystemRuntime', () => {
           replacementSkillKeys: [],
         },
       ],
+      playerActionRoutes: {
+        basicAttack: {
+          kind: 'basicAttack',
+          skillKeys: ['attack1', 'attack2'],
+          defaultSkillKey: 'attack1',
+        },
+      },
     });
 
     ability.tryStartSkill('attack1');

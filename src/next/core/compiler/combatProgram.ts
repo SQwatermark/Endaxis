@@ -283,6 +283,8 @@ export interface ResolvedCombatStepParameters {
   setContextFlag: CombatStepParameters['setContextFlag'];
   openComboWindow: CombatStepParameters['openComboWindow'];
   changeSkillSlot: CombatStepParameters['changeSkillSlot'];
+  changePlayerActionMode: CombatStepParameters['changePlayerActionMode'];
+  changeNativeSkillType: CombatStepParameters['changeNativeSkillType'];
   castSkillDuringAction: CombatStepParameters['castSkillDuringAction'];
   withActionBlackboardScope: {
     scopeKey: string;
@@ -423,6 +425,8 @@ export interface CompiledSkillProgram {
   readonly executionSkillId?: string;
   readonly sourceSkillId?: string;
   readonly skillType: SkillType;
+  /** 原生技能实例的初始可变分类；不同于伤害/养成使用的 Endaxis skillType。 */
+  readonly nativeSkillType?: import('../game-data/operatorDefinition').NativeSkillType;
   readonly skillLevel: number;
   /** 已按技能等级解析；每次释放复制到该运行实例的动作黑板。 */
   readonly initialBlackboard: Readonly<Record<string, number>>;

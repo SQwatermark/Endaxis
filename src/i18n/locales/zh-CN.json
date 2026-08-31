@@ -2070,6 +2070,8 @@
         "setContextFlag": "设置施法者上下文标记，供其他机制读取。",
         "openComboWindow": "把下一段连携加入场景级窗口队列。窗口固定持续 5 秒，且必须按队列顺序释放。",
         "changeSkillSlot": "切换该稳定技能组下一次释放使用的形态；已经开始的当前释放保持原形态。",
+        "changePlayerActionMode": "切换指定玩家语义操作的原生命令模式；结束时可恢复进入步骤前的模式。",
+        "changeNativeSkillType": "修改指定技能实例的原生可变 SkillType；不改变技能库分组或玩家操作身份。",
         "listenForCombatEvents": "在外层调度项的起止帧之间注册临时事件监听器。技能结束或被打断时会立即注销。",
         "startTimeDilation": "启动普通时间膨胀。作用范围、持续时间、槽位、优先级和曲线共同决定最终时钟倍率。",
         "startUltimateTimeDilation": "启动终结技专用全局时间膨胀。施法者自动忽略该倍率，并在动作结束时停止。",

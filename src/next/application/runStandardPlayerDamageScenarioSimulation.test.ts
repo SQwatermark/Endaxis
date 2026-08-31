@@ -80,6 +80,8 @@ describe('标准入口普通倒地装配', () => {
           levelSource: 'battleSkill',
           skills: {
             key: 'battleSkill',
+            skillType: 'battleSkill',
+            levelSource: 'battleSkill',
             timelineBlockFrames: 1,
             scheduledSequences: [
               scheduled(
@@ -1547,11 +1549,18 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           entry.data?.priority === 50,
       ),
     ).toBe(true);
+    // 时间轴显式技能即使错过原生窗口也强制执行；窗口错误只形成诊断，不吞掉技能效果。
     expect(
       outside.receiptEntries.some(
         entry => entry.event === 'TimeDilationStarted' && entry.data?.priority === 50,
       ),
-    ).toBe(false);
+    ).toBe(true);
+    expect(outside.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ComboWindowUnavailableAtStart',
+        data: expect.objectContaining({ skillId: 'comboSkill3' }),
+      }),
+    );
   });
 
   it('pauses Rossi combo timers for the native power-attack action interval', () => {

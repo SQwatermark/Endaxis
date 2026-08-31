@@ -6,6 +6,11 @@
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
 import type { LoadoutGearSlot } from '../loadoutBuildViewModel';
 import OperatorSupportNotice from './OperatorSupportNotice.vue';
+import CombatStatusIconStrip from './CombatStatusIconStrip.vue';
+import type {
+  CombatStatusDisplaySlot,
+  CombatStatusIndicator,
+} from '../../../core/projection/combatStatusIndicators';
 
 const props = defineProps<{
   track: TimelineTrackViewModel;
@@ -21,6 +26,9 @@ const props = defineProps<{
   canMoveDown: boolean;
   statDetailsAvailable?: boolean;
   statDetailsError?: string | null;
+  statusIndicators: readonly CombatStatusIndicator[];
+  statusSlot: CombatStatusDisplaySlot;
+  cursorFrame: number;
 }>();
 
 const emit = defineEmits<{
@@ -209,6 +217,12 @@ function leaveReorderTarget(event: DragEvent): void {
           {{ activeGearSetLabel }}
         </span>
       </span>
+      <CombatStatusIconStrip
+        class="track-status-strip"
+        :indicators="statusIndicators"
+        :slot="statusSlot"
+        :frame="cursorFrame"
+      />
     </span>
   </div>
 </template>
@@ -480,6 +494,14 @@ function leaveReorderTarget(event: DragEvent): void {
   top: calc(50% + 58px);
   width: calc(100% - 12px);
   height: 22px;
+}
+
+.track-status-strip {
+  position: absolute;
+  top: calc(50% - 20px);
+  left: 58px;
+  right: 4px;
+  overflow: visible;
 }
 
 .set-bonus-hint {

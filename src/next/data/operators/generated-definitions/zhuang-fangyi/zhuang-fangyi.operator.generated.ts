@@ -23,6 +23,19 @@ export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0030_zhuangfy_attack1',
     timelineBlockFrames: 15,
     exclusiveFrame: 23,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0030_zhuangfy_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 15, endFrame: 30, sourceSkillIds: ['chr_0030_zhuangfy_attack2'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -92,6 +105,9 @@ export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
         9,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -108,6 +124,19 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0030_zhuangfy_attack2',
     timelineBlockFrames: 15,
     exclusiveFrame: 27,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 36,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0030_zhuangfy_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 15, endFrame: 36, sourceSkillIds: ['chr_0030_zhuangfy_attack3'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -223,6 +252,9 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
         18,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atk_scale: [0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08],
@@ -238,6 +270,19 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0030_zhuangfy_attack3',
     timelineBlockFrames: 26,
     exclusiveFrame: 29,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 39,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0030_zhuangfy_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 26, endFrame: 39, sourceSkillIds: ['chr_0030_zhuangfy_attack4'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -407,6 +452,9 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
         17,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -422,6 +470,19 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0030_zhuangfy_attack4',
     timelineBlockFrames: 17,
     exclusiveFrame: 23,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 33,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0030_zhuangfy_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 17, endFrame: 33, sourceSkillIds: ['chr_0030_zhuangfy_attack5'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -437,6 +498,9 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
         14,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atk_scale: [0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25],
@@ -450,6 +514,19 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0030_zhuangfy_attack5',
     timelineBlockFrames: 50,
     exclusiveFrame: 55,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 21,
+          endFrame: 60,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0030_zhuangfy_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 50, endFrame: 60, sourceSkillIds: ['chr_0030_zhuangfy_attack1'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -466,6 +543,9 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
         23,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 18,
@@ -480,6 +560,19 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0030_zhuangfy_power_attack',
     timelineBlockFrames: 41,
     exclusiveFrame: 45,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 41,
+          endFrame: 45,
+          sourceSkillIds: [
+            'chr_0030_zhuangfy_attack1',
+            'chr_0030_zhuangfy_combo_skill',
+            'chr_0030_zhuangfy_normal_skill',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -551,6 +644,9 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
         41,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -647,6 +743,9 @@ export const zhuangFangyiPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -657,6 +756,36 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0030_zhuangfy_normal_skill',
     timelineBlockFrames: 45,
     exclusiveFrame: 135,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 45,
+          endFrame: 116,
+          sourceSkillIds: [
+            'chr_0030_zhuangfy_attack1',
+            'chr_0030_zhuangfy_attack2',
+            'chr_0030_zhuangfy_attack3',
+            'chr_0030_zhuangfy_attack4',
+            'chr_0030_zhuangfy_attack5',
+            'chr_0030_zhuangfy_normal_skill',
+            'chr_0030_zhuangfy_power_attack',
+          ],
+        },
+        {
+          startFrame: 120,
+          endFrame: 147,
+          sourceSkillIds: [
+            'chr_0030_zhuangfy_attack1',
+            'chr_0030_zhuangfy_attack2',
+            'chr_0030_zhuangfy_attack3',
+            'chr_0030_zhuangfy_attack4',
+            'chr_0030_zhuangfy_attack5',
+            'chr_0030_zhuangfy_normal_skill',
+            'chr_0030_zhuangfy_power_attack',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1373,6 +1502,9 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_return: 0,
@@ -1402,6 +1534,20 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
     sourceSkillId: 'chr_0030_zhuangfy_normal_skill_ult',
     timelineBlockFrames: 30,
     exclusiveFrame: 143,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 30,
+          endFrame: 143,
+          sourceSkillIds: [
+            'chr_0030_zhuangfy_attack1_ult',
+            'chr_0030_zhuangfy_attack2_ult',
+            'chr_0030_zhuangfy_attack3_ult',
+            'chr_0030_zhuangfy_normal_skill_ult',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2354,6 +2500,9 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
     ],
     smartTarget: 'enemy',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_return: 0,
@@ -2381,6 +2530,23 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0030_zhuangfy_combo_skill',
     timelineBlockFrames: 25,
     exclusiveFrame: 60,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 25,
+          endFrame: 60,
+          sourceSkillIds: [
+            'chr_0030_zhuangfy_normal_skill',
+            'chr_0030_zhuangfy_power_attack',
+            'chr_0030_zhuangfy_attack1',
+            'chr_0030_zhuangfy_attack2',
+            'chr_0030_zhuangfy_attack3',
+            'chr_0030_zhuangfy_attack4',
+            'chr_0030_zhuangfy_attack5',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2528,6 +2694,9 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
@@ -2548,6 +2717,20 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
     sourceSkillId: 'chr_0030_zhuangfy_combo_skill_ult',
     timelineBlockFrames: 25,
     exclusiveFrame: 30,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 25,
+          endFrame: 54,
+          sourceSkillIds: [
+            'chr_0030_zhuangfy_normal_skill_ult',
+            'chr_0030_zhuangfy_attack1_ult',
+            'chr_0030_zhuangfy_attack2_ult',
+            'chr_0030_zhuangfy_attack3_ult',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2740,6 +2923,9 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
     ],
     smartTarget: 'enemy',
     cooldownFrames: [540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 510],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atk_scale: [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4],
@@ -2872,6 +3058,9 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 240 }],
     enhancementStateBuffId: 'buff_chr_0030_zhuangfy_ult_base',
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   { combo_cd_rate: 4, duration: 25, duration_extra: 1 },
 );
@@ -2896,6 +3085,9 @@ export const zhuangFangyiUltimateEnd: SkillDefinition = withSkillBlackboard(
         3,
       ),
     ],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'normalSkill',
   },
   { atb: 0, atk_scale: 0.7 },
 );
@@ -2906,6 +3098,20 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
     sourceSkillId: 'chr_0030_zhuangfy_attack1_ult',
     timelineBlockFrames: 22,
     exclusiveFrame: 135,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 60,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0030_zhuangfy_attack2_ult',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 22, endFrame: 60, sourceSkillIds: ['chr_0030_zhuangfy_attack2_ult'] },
+        { startFrame: 60, endFrame: 135, sourceSkillIds: ['chr_0030_zhuangfy_attack1_ult'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2977,6 +3183,9 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
         16,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'ultimate',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -2992,6 +3201,20 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
     sourceSkillId: 'chr_0030_zhuangfy_attack2_ult',
     timelineBlockFrames: 27,
     exclusiveFrame: 120,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 60,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0030_zhuangfy_attack3_ult',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 27, endFrame: 60, sourceSkillIds: ['chr_0030_zhuangfy_attack3_ult'] },
+        { startFrame: 60, endFrame: 120, sourceSkillIds: ['chr_0030_zhuangfy_attack1_ult'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -3063,6 +3286,9 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
         17,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'ultimate',
+    nativeSkillType: 'attack',
   },
   {
     atk_scale: [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1],
@@ -3077,6 +3303,19 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
     sourceSkillId: 'chr_0030_zhuangfy_attack3_ult',
     timelineBlockFrames: 60,
     exclusiveFrame: 140,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 140,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0030_zhuangfy_attack1_ult',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 60, endFrame: 140, sourceSkillIds: ['chr_0030_zhuangfy_attack1_ult'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -3119,6 +3358,9 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
         35,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'ultimate',
+    nativeSkillType: 'attack',
   },
   {
     atb: 20,
@@ -3178,6 +3420,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
@@ -3314,6 +3566,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Pulse',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -3509,6 +3771,54 @@ export default {
       ],
     },
   ],
+  skillSlots: [
+    {
+      key: 'battleSkill',
+      baseSkillKey: 'battleSkill',
+      replacementSkillKeys: ['enhancedBattleSkill'],
+    },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: ['enhancedComboSkill'] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+        'enhancedBasicAttack1',
+        'enhancedBasicAttack2',
+        'enhancedBasicAttack3',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
+  playerActionModes: [
+    {
+      modeId: 'UltMode',
+      modeLayer: 'UltMode',
+      defaultEnabled: false,
+      normalAttackSkillKeys: [
+        'enhancedBasicAttack1',
+        'enhancedBasicAttack2',
+        'enhancedBasicAttack3',
+      ],
+      commandMappings: {
+        basicAttack: {
+          sourceSkillId: 'chr_0030_zhuangfy_attack1_ult',
+          skillKey: 'enhancedBasicAttack1',
+        },
+      },
+    },
+  ],
   talents: [
     {
       key: 'talent1',
@@ -3685,6 +3995,7 @@ export default {
       ),
     },
   ],
+  entityBlackboard: { EntityBB_SwordNum: 0 },
   passiveSkills: [
     {
       key: 'chr_0030_zhuangfy_check_sword_passive',
@@ -3712,6 +4023,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -4415,6 +4736,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: true,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -4440,6 +4771,7 @@ export default {
           }),
         ),
         enable: sequence(
+          step('changePlayerActionMode', { modeId: 'UltMode', lifetime: 'finishByAction' }),
           step('restrictUltimateEnergyRecovery', {
             target: 'caster',
             allowedRecoveryTags: [],
@@ -4447,6 +4779,10 @@ export default {
           }),
         ),
         finish: sequence(
+          step('changeNativeSkillType', {
+            targetSkillKey: 'ultimateEnd',
+            nativeSkillType: 'attachSkill',
+          }),
           step('castSkillDuringAction', {
             skillId: 'chr_0030_zhuangfy_ultimate_skill_end',
             target: 'caster',
@@ -4489,6 +4825,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },

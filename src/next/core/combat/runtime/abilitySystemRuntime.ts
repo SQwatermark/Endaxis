@@ -3,7 +3,7 @@
  * 技能顺序必须由定义编译结果显式传入；该层不负责推断队伍顺序、输入许可或目标选择。
  */
 import type { FrameRuntime } from './combatSimulation';
-import type { SkillType } from '../../game-data/operatorDefinition';
+import type { NativeSkillType, SkillType } from '../../game-data/operatorDefinition';
 import type { PlayerSkillInput, SkillDefinition } from '../../game-data/operatorDefinition';
 import type {
   AfterSkillCastStart,
@@ -28,6 +28,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   /** 文档中的技能释放身份；同技能多次放置时用于唯一寻址。 */
   readonly castId?: string;
   readonly skillType: SkillType;
+  readonly nativeSkillType?: NativeSkillType;
   /** 场景技能块在宿主局部时钟中的可操作宽度；非场景测试运行时可省略。 */
   readonly timelineBlockFrames?: number;
   readonly state: RuntimeSkillState;
@@ -73,6 +74,32 @@ export function abilitySkillKey(skill: Pick<AbilitySkillRuntime, 'skillId' | 'ca
   return `${skill.skillId}\u0000${skill.castId ?? ''}`;
 }
 
+function fallbackNativeSkillType(skillType: SkillType): NativeSkillType {
+  return skillType === 'basicAttack' || skillType === 'plungingAttack'
+    ? 'attack'
+    : skillType === 'finisher'
+      ? 'breakingAttack'
+      : skillType === 'battleSkill'
+        ? 'normalSkill'
+        : skillType === 'comboSkill'
+          ? 'comboSkill'
+          : 'ultimateSkill';
+}
+
+function nativeSkillInterruptPriority(skillType: NativeSkillType): number {
+  return {
+    passiveSkill: 0,
+    attack: 1,
+    breakingAttack: 2,
+    normalSkill: 2,
+    attachSkill: 4,
+    dodge: 6,
+    comboSkill: 5,
+    ultimateSkill: 7,
+    extraActiveSkill: 2,
+  }[skillType];
+}
+
 /** 按唯一身份调用技能启动的端口。 */
 export interface AbilitySkillStarter {
   tryStartByKey(key: string): boolean;
@@ -108,6 +135,7 @@ export interface AbilitySystemRuntimeOptions {
   }[];
   /** 四类语义动作的显式原生路由；存在时完全取代技能组推导。 */
   readonly playerActionRoutes?: import('../../game-data/operatorDefinition').OperatorPlayerActionRoutes;
+  readonly playerActionModes?: readonly import('../../game-data/operatorDefinition').OperatorPlayerActionModeDefinition[];
   readonly actionRuntime?: FrameRuntime;
   readonly resolveTickDeltas?: () => AbilityTickDeltas;
   /** 帧末延迟施放在真正启动前回到装配根，复用施放前事件与运行时参数准备。 */
@@ -126,6 +154,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     readonly skills: readonly AbilitySkillRuntime[];
   }[];
   readonly #skillsById = new Map<string, AbilitySkillRuntime>();
+  readonly #nativeSkillTypeBySkillId = new Map<string, NativeSkillType>();
   readonly #skillSlotGroups = new Map<
     string,
     {
@@ -141,6 +170,11 @@ export class AbilitySystemRuntime implements FrameRuntime {
   readonly #slotGroupByAllowedSkill = new Map<string, string>();
   readonly #defaultSlotGroupByInput = new Map<PlayerSkillInput, string>();
   readonly #playerActionRoutes?: import('../../game-data/operatorDefinition').OperatorPlayerActionRoutes;
+  readonly #playerActionModes = new Map<
+    string,
+    import('../../game-data/operatorDefinition').OperatorPlayerActionModeDefinition
+  >();
+  readonly #activePlayerActionModeByLayer = new Map<string, string>();
   readonly #skillKeysByTransitionSkillId = new Map<string, Set<string>>();
   readonly #actionRuntime?: FrameRuntime;
   readonly #resolveTickDeltas: () => AbilityTickDeltas;
@@ -157,6 +191,18 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#skills = [...options.skills];
     this.#actionRuntime = options.actionRuntime;
     this.#playerActionRoutes = options.playerActionRoutes;
+    for (const mode of options.playerActionModes ?? []) {
+      if (this.#playerActionModes.has(mode.modeId)) {
+        throw new Error(`duplicate player-action mode '${mode.modeId}'`);
+      }
+      this.#playerActionModes.set(mode.modeId, mode);
+      if (mode.defaultEnabled) {
+        if (this.#activePlayerActionModeByLayer.has(mode.modeLayer)) {
+          throw new Error(`multiple default player-action modes use layer '${mode.modeLayer}'`);
+        }
+        this.#activePlayerActionModeByLayer.set(mode.modeLayer, mode.modeId);
+      }
+    }
     this.#beforePostSkillCastStart = options.beforePostSkillCastStart;
     if (
       (options.resolveActualFrame === undefined) !==
@@ -178,6 +224,12 @@ export class AbilitySystemRuntime implements FrameRuntime {
         throw new Error(`duplicate ability skill '${key}'`);
       }
       this.#skillsById.set(key, skill);
+      const nativeSkillType = skill.nativeSkillType ?? fallbackNativeSkillType(skill.skillType);
+      const previousNativeSkillType = this.#nativeSkillTypeBySkillId.get(skill.skillId);
+      if (previousNativeSkillType !== undefined && previousNativeSkillType !== nativeSkillType) {
+        throw new Error(`ability skill '${skill.skillId}' has inconsistent native SkillType`);
+      }
+      this.#nativeSkillTypeBySkillId.set(skill.skillId, nativeSkillType);
       const transitionSkillId = skill.transitionSkillId ?? skill.skillId;
       const skillKeys = this.#skillKeysByTransitionSkillId.get(transitionSkillId) ?? new Set();
       skillKeys.add(skill.skillId);
@@ -270,6 +322,20 @@ export class AbilitySystemRuntime implements FrameRuntime {
     return this.#currentSkill?.state === 'casting' ? this.#currentSkill.skillType : undefined;
   }
 
+  get currentNativeSkillType(): NativeSkillType | undefined {
+    return this.#currentSkill?.state === 'casting'
+      ? this.#nativeSkillTypeBySkillId.get(this.#currentSkill.skillId)
+      : undefined;
+  }
+
+  /** ChangeSkillType 修改同一原生技能身份的运行时类型，不改变玩家操作槽位。 */
+  changeNativeSkillType(skillId: string, nativeSkillType: NativeSkillType): void {
+    if (!this.#nativeSkillTypeBySkillId.has(skillId)) {
+      throw new Error(`unknown ability skill '${skillId}' for native SkillType mutation`);
+    }
+    this.#nativeSkillTypeBySkillId.set(skillId, nativeSkillType);
+  }
+
   get currentSkillTimelineFrame(): number | undefined {
     return this.#currentSkill?.state === 'casting'
       ? this.#currentSkill.currentTimelineFrame
@@ -346,6 +412,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
       }
       const mapped = this.#resolveCurrentBasicAttackMapping(expectedSkillKey);
       if (mapped !== null) return mapped;
+      const modeMapped = this.#resolveActiveModeBasicAttackMapping(expectedSkillKey);
+      if (modeMapped !== null) return modeMapped;
       if (route.defaultSkillKey === undefined) {
         return { status: 'unknown', reason: 'native basic-attack command mapping is not imported' };
       }
@@ -354,81 +422,10 @@ export class AbilitySystemRuntime implements FrameRuntime {
         : { status: 'mismatched', actualSkillKey: route.defaultSkillKey };
     }
 
-    const groupKey = this.#slotGroupByAllowedSkill.get(expectedSkillKey);
-    if (groupKey === undefined) {
-      return { status: 'matched', actualSkillKey: expectedSkillKey };
-    }
-    const group = this.#skillSlotGroups.get(groupKey)!;
-    if (group.currentSkillKey !== group.baseSkillKey) {
-      return group.currentSkillKey === expectedSkillKey
-        ? { status: 'matched', actualSkillKey: expectedSkillKey }
-        : { status: 'mismatched', actualSkillKey: group.currentSkillKey };
-    }
-
-    const groupHasInputEvidence = this.#skills.some(skill =>
-      skill.inputWindows?.commandMappings?.some(window => window.input === group.input),
-    );
-    if (!groupHasInputEvidence && group.stableInputSkillKeys.has(expectedSkillKey)) {
-      // 旧正式产物尚未重生成输入窗口；在原子迁移前不制造虚假诊断。
-      return { status: 'matched', actualSkillKey: expectedSkillKey };
-    }
-
-    const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
-    if (current !== null && current.currentTimelineFrame !== undefined) {
-      const frame = current.currentTimelineFrame;
-      const mappings = (current.inputWindows?.commandMappings ?? []).filter(
-        window =>
-          window.input === group.input && window.startFrame <= frame && frame <= window.endFrame,
-      );
-      const targets = new Set(mappings.map(mapping => mapping.targetSourceSkillId));
-      if (targets.size > 1) {
-        return {
-          status: 'unknown',
-          reason: 'multiple active command mappings have unresolved priority',
-        };
-      }
-      if (targets.size === 1) {
-        const target = [...targets][0]!;
-        if (target === null) {
-          return { status: 'unknown', reason: 'active command mapping has no direct skill route' };
-        }
-        const keys = this.#skillKeysByTransitionSkillId.get(target);
-        if (keys === undefined || keys.size !== 1) {
-          return { status: 'unknown', reason: `command mapping target '${target}' is not unique` };
-        }
-        const actualSkillKey = [...keys][0]!;
-        return actualSkillKey === expectedSkillKey
-          ? { status: 'matched', actualSkillKey }
-          : { status: 'mismatched', actualSkillKey };
-      }
-      if (current.inputWindows?.hasConditionalActions === true) {
-        return { status: 'unknown', reason: 'current skill has conditional input actions' };
-      }
-    }
-
-    // Skill 命令由 curNormalSkill / curComboSkill / curUltimateSkill 直接给出当前槽位技能；
-    // 只有 Attack 需要基础命令映射、普攻序列和模式覆盖证据。
-    if (group.input !== 'basicAttack') {
-      const actualSkillKey = group.currentSkillKey;
-      return actualSkillKey === expectedSkillKey
-        ? { status: 'matched', actualSkillKey }
-        : { status: 'mismatched', actualSkillKey };
-    }
-
-    if (!group.defaultForInput) {
-      return {
-        status: 'unknown',
-        reason: 'native basic-attack command mapping is not imported',
-      };
-    }
-    const defaultGroupKey = this.#defaultSlotGroupByInput.get(group.input);
-    if (defaultGroupKey === undefined) {
-      return { status: 'unknown', reason: `input '${group.input}' has no default skill slot` };
-    }
-    const actualSkillKey = this.#skillSlotGroups.get(defaultGroupKey)!.currentSkillKey;
-    return actualSkillKey === expectedSkillKey
-      ? { status: 'matched', actualSkillKey }
-      : { status: 'mismatched', actualSkillKey };
+    return {
+      status: 'unknown',
+      reason: 'operator has no imported player action routes',
+    };
   }
 
   #resolveCurrentBasicAttackMapping(
@@ -471,6 +468,52 @@ export class AbilitySystemRuntime implements FrameRuntime {
       : { status: 'mismatched', actualSkillKey };
   }
 
+  #resolveActiveModeBasicAttackMapping(
+    expectedSkillKey: string,
+  ):
+    | { readonly status: 'matched'; readonly actualSkillKey: string }
+    | { readonly status: 'mismatched'; readonly actualSkillKey: string }
+    | { readonly status: 'unknown'; readonly reason: string }
+    | null {
+    const mappings = [...this.#activePlayerActionModeByLayer.values()].flatMap(modeId => {
+      const mapping = this.#playerActionModes.get(modeId)?.commandMappings?.basicAttack;
+      return mapping === undefined ? [] : [mapping];
+    });
+    if (mappings.length === 0) return null;
+    if (mappings.length > 1) {
+      return { status: 'unknown', reason: 'multiple active modes override basic-attack routing' };
+    }
+    const mapping = mappings[0]!;
+    if (mapping.skillKey === undefined) {
+      return {
+        status: 'unknown',
+        reason: `active mode maps basic attack to unconverted native skill '${mapping.sourceSkillId}'`,
+      };
+    }
+    return mapping.skillKey === expectedSkillKey
+      ? { status: 'matched', actualSkillKey: mapping.skillKey }
+      : { status: 'mismatched', actualSkillKey: mapping.skillKey };
+  }
+
+  /** SwitchModeAction 在一个 modeLayer 上替换活动模式，并返回按动作寿命恢复的句柄。 */
+  activatePlayerActionMode(modeId: string): { finish(): void } {
+    const mode = this.#playerActionModes.get(modeId);
+    if (mode === undefined) throw new Error(`unknown player-action mode '${modeId}'`);
+    const previousModeId = this.#activePlayerActionModeByLayer.get(mode.modeLayer);
+    this.#activePlayerActionModeByLayer.set(mode.modeLayer, modeId);
+    let finished = false;
+    return {
+      finish: () => {
+        if (finished) return;
+        finished = true;
+        if (this.#activePlayerActionModeByLayer.get(mode.modeLayer) !== modeId) return;
+        if (previousModeId === undefined)
+          this.#activePlayerActionModeByLayer.delete(mode.modeLayer);
+        else this.#activePlayerActionModeByLayer.set(mode.modeLayer, previousModeId);
+      },
+    };
+  }
+
   evaluatePlayerInputInterruption(
     expectedSkillKey: string,
     castId?: string,
@@ -497,16 +540,13 @@ export class AbilitySystemRuntime implements FrameRuntime {
       return { status: 'allowed' };
     }
     if (next.skillType === 'plungingAttack') return { status: 'allowed' };
-    const priority = (skillType: SkillType): number =>
-      ({
-        basicAttack: 1,
-        finisher: 2,
-        plungingAttack: 2,
-        battleSkill: 2,
-        comboSkill: 5,
-        ultimate: 7,
-      })[skillType];
-    if (priority(next.skillType) > priority(current.skillType)) return { status: 'allowed' };
+    const nextNativeSkillType = this.#nativeSkillTypeBySkillId.get(next.skillId)!;
+    const currentNativeSkillType = this.#nativeSkillTypeBySkillId.get(current.skillId)!;
+    if (
+      nativeSkillInterruptPriority(nextNativeSkillType) >
+      nativeSkillInterruptPriority(currentNativeSkillType)
+    )
+      return { status: 'allowed' };
     if (current.canInterrupt === true) return { status: 'allowed' };
     if (current.canInterrupt === undefined) {
       return { status: 'unknown', reason: 'current skill has no recovered interrupt boundary' };

@@ -75,6 +75,9 @@ import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
 import { projectComboWindowTimelineViz } from '../../core/projection/comboWindowTimelineViz';
 import { projectSkillCooldownTimelineViz } from '../../core/projection/skillCooldownTimelineViz';
 import { projectSkillEnhancementTimelineViz } from '../../core/projection/skillEnhancementTimelineViz';
+import { projectCombatStatusIndicators } from '../../core/projection/combatStatusIndicators';
+import { resolveControlTimeline } from '../../core/project/resolveControlTimeline';
+import { resolveControlledOperator } from '../../core/combat/runtime/operatorControlTimeline';
 import {
   layoutBuffTimelineSegments,
   projectBuffTimelineViz,
@@ -1791,6 +1794,24 @@ const buffTimelineSegments = computed(() => {
   const current = simulationRun.value;
   return current === null ? [] : projectBuffTimelineViz(current.receiptEntries, current.frame);
 });
+
+/** 光标快照只消费已经生成的生命周期段，不回查或重算 Buff 运行时。 */
+const combatStatusIndicators = computed(() =>
+  projectCombatStatusIndicators(buffTimelineSegments.value, cursorFrame.value),
+);
+
+const controlledOperatorIdAtCursor = computed(() =>
+  resolveControlledOperator(
+    resolveControlTimeline(scenario.value.tracks, scenario.value.battle.controlSwitches),
+    cursorFrame.value,
+  ),
+);
+
+function statusIndicatorsForTarget(targetId: string | null) {
+  return targetId === null
+    ? []
+    : combatStatusIndicators.value.filter(indicator => indicator.targetId === targetId);
+}
 
 const comboWindowSegments = computed(() => {
   const current = simulationRun.value;
@@ -4353,6 +4374,13 @@ function setPanelDialogVisible(visible: boolean): void {
                     loadoutModels[track.trackIndex]?.gears.accessory2?.definition.iconPath ?? null,
                 }"
                 :active-gear-set-label="activeGearSetLabelsByTrack[track.trackIndex] ?? ''"
+                :status-indicators="statusIndicatorsForTarget(track.operatorInstanceId)"
+                :status-slot="
+                  controlledOperatorIdAtCursor === track.operatorInstanceId
+                    ? 'mainCharacterHpBarCommon'
+                    : 'squadIcon'
+                "
+                :cursor-frame="cursorFrame"
                 :labels="{
                   operator: t('timelineGrid.track.changeOperatorTooltip'),
                   weapon: t('timelineGrid.track.selectWeaponTooltip'),
@@ -4722,6 +4750,8 @@ function setPanelDialogVisible(visible: boolean): void {
             :px-per-frame="pxPerFrame"
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
             :scroll-left="timelineScrollLeft"
+            :status-indicators="statusIndicatorsForTarget('enemy')"
+            :cursor-frame="cursorFrame"
             :labels="{
               burst: t('nextTimeline.effect.burst'),
               reaction: t('nextTimeline.effect.reaction'),

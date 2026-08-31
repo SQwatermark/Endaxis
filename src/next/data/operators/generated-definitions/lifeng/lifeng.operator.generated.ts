@@ -6,6 +6,7 @@ import type {
 } from '../../../../core/game-data/operatorDefinition';
 import {
   branch,
+  forEachTarget,
   scheduled,
   sequence,
   step,
@@ -18,6 +19,20 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0015_lifeng_attack1',
     timelineBlockFrames: 24,
+    exclusiveFrame: 25,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 32,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0015_lifeng_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 32, sourceSkillIds: ['chr_0015_lifeng_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -171,6 +186,9 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
         18,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -184,6 +202,20 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0015_lifeng_attack2',
     timelineBlockFrames: 18,
+    exclusiveFrame: 18,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 24,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0015_lifeng_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 24, sourceSkillIds: ['chr_0015_lifeng_attack3'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -262,6 +294,9 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
         5,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.29, 0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.49, 0.52, 0.56, 0.6, 0.65] },
 );
@@ -271,6 +306,20 @@ export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0015_lifeng_attack3',
     timelineBlockFrames: 14,
+    exclusiveFrame: 14,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0015_lifeng_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 14, endFrame: 30, sourceSkillIds: ['chr_0015_lifeng_attack5'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -318,6 +367,9 @@ export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
         12,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -331,6 +383,20 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0015_lifeng_attack5',
     timelineBlockFrames: 35,
+    exclusiveFrame: 35,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 46,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0015_lifeng_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 35, endFrame: 46, sourceSkillIds: ['chr_0015_lifeng_attack1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -351,13 +417,8 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
       scheduled(
         24,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'equal',
-              right: { kind: 'constant', value: 1 },
-            },
+          forEachTarget(
+            'enemy',
             sequence(
               step(
                 'dealDamage',
@@ -368,23 +429,9 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
                   stagger: { kind: 'blackboard', key: 'poise' },
                   staggerOnlyWhenCasterControlled: true,
                 },
-                'chr_0015_lifeng_attack5:/scheduledSequences/1/sequence/steps/0/whenTrue/steps/0',
+                'chr_0015_lifeng_attack5:/scheduledSequences/1/sequence/steps/0/body/steps/0',
               ),
             ),
-            sequence(
-              step(
-                'dealDamage',
-                {
-                  damageType: 'physical',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale2' },
-                  tags: ['normalAttack', 'normalAttackLastCombo'],
-                  stagger: { kind: 'blackboard', key: 'poise' },
-                  staggerOnlyWhenCasterControlled: true,
-                },
-                'chr_0015_lifeng_attack5:/scheduledSequences/1/sequence/steps/0/whenFalse/steps/0',
-              ),
-            ),
-            { alwaysNext: true },
           ),
           step(
             'dealDamage',
@@ -470,6 +517,9 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
         24,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 21,
@@ -485,6 +535,16 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0015_lifeng_power_attack',
     timelineBlockFrames: 33,
+    exclusiveFrame: 68,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 33,
+          endFrame: 68,
+          sourceSkillIds: ['chr_0015_lifeng_normal_skill', 'chr_0015_lifeng_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -525,67 +585,55 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
       scheduled(
         34,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.2667 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: {
-                  kind: 'inline',
-                  keys: [
-                    {
-                      time: 0,
-                      value: 1,
-                      inTangent: -4.725137,
-                      outTangent: -4.725137,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 0.1938458,
-                      value: 0.08405209,
-                      inTangent: -0.1121379,
-                      outTangent: -0.1121379,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 0.7754285,
-                      value: 0.06392533,
-                      inTangent: 0.06279767,
-                      outTangent: 0.06279767,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 1,
-                      value: 1,
-                      inTangent: 4.168271,
-                      outTangent: 4.168271,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                  ],
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.2667 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: {
+              kind: 'inline',
+              keys: [
+                {
+                  time: 0,
+                  value: 1,
+                  inTangent: -4.725137,
+                  outTangent: -4.725137,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
                 },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
+                {
+                  time: 0.1938458,
+                  value: 0.08405209,
+                  inTangent: -0.1121379,
+                  outTangent: -0.1121379,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.7754285,
+                  value: 0.06392533,
+                  inTangent: 0.06279767,
+                  outTangent: 0.06279767,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 1,
+                  value: 1,
+                  inTangent: 4.168271,
+                  outTangent: 4.168271,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+              ],
+            },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
         ),
         34,
       ),
@@ -614,6 +662,9 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
         68,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -623,6 +674,7 @@ export const lifengPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0015_lifeng_plunging_attack_end',
     timelineBlockFrames: 26,
+    exclusiveFrame: 25,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -661,6 +713,9 @@ export const lifengPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -670,33 +725,44 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0015_lifeng_normal_skill',
     timelineBlockFrames: 67,
+    exclusiveFrame: 70,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 67, endFrame: 89, sourceSkillIds: ['chr_0015_lifeng_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
         54,
         sequence(
-          branch(
-            {
-              kind: 'buffStackCompare',
-              target: 'enemy',
-              tagQueryType: 'hasAny',
-              buffTags: ['Skill/Character/Common/NoGuard'],
-              operator: 'lessOrEqual',
-              value: { kind: 'blackboard', key: 'num' },
-            },
+          forEachTarget(
+            'enemy',
             sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0015_lifeng_purify',
-                target: 'enemy',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  rate: { kind: 'blackboard', key: 'phy_resist_down' },
-                  duration: { kind: 'blackboard', key: 'duration' },
+              branch(
+                {
+                  kind: 'buffStackCompare',
+                  target: 'enemy',
+                  tagQueryType: 'hasAny',
+                  buffTags: ['Skill/Character/Common/NoGuard'],
+                  operator: 'lessOrEqual',
+                  value: { kind: 'blackboard', key: 'num' },
                 },
-              }),
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0015_lifeng_purify',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      rate: { kind: 'blackboard', key: 'phy_resist_down' },
+                      duration: { kind: 'blackboard', key: 'duration' },
+                    },
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
             ),
-            undefined,
-            { alwaysNext: true },
           ),
         ),
         56,
@@ -779,6 +845,9 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atk_scale: [0.38, 0.42, 0.46, 0.5, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.79, 0.86],
@@ -798,6 +867,16 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0015_lifeng_ultimate_skill',
     timelineBlockFrames: 66,
+    exclusiveFrame: 75,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 66,
+          endFrame: 80,
+          sourceSkillIds: ['chr_0015_lifeng_normal_skill', 'chr_0015_lifeng_combo_skill'],
+        },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -843,6 +922,7 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0015_lifeng_ultimate_skill',
+            childSkillId: 'chr_0015_lifeng_ultimate_skill_abentity',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
           }),
@@ -852,6 +932,9 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale1: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
@@ -870,6 +953,12 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0015_lifeng_combo_skill',
     timelineBlockFrames: 50,
+    exclusiveFrame: 64,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 50, endFrame: 89, sourceSkillIds: ['chr_0015_lifeng_normal_skill'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -878,23 +967,11 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 10 },
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'main_near',
-                    operation: 'assign',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('modifyActionValue', {
+                key: 'main_near',
+                operation: 'assign',
+                value: { kind: 'constant', value: 1 },
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -960,6 +1037,9 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 450],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [0.47, 0.51, 0.56, 0.61, 0.65, 0.7, 0.75, 0.79, 0.84, 0.9, 0.97, 1.05],
@@ -1129,6 +1209,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_physical_break',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: { atk_scale: { kind: 'blackboard', key: 'atk_scale' } },
         }),
@@ -1233,6 +1314,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_no_guard',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
               blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
             }),
@@ -1284,6 +1366,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -1320,6 +1403,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: true,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1341,6 +1434,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -1350,7 +1444,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_physical_no_guard_fake',
           target: 'buffOwner',
-          source: 'eventSource',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
         }),
       ),
@@ -1392,6 +1486,7 @@ export const commonBuffDefinitions = {
                     step('applyBuff', {
                       buffId: 'buff_physical_handle_cryst_break',
                       target: 'buffOwner',
+                      source: 'buffSource',
                       inheritSourceSkillCastInfo: true,
                     }),
                   ),
@@ -1462,6 +1557,28 @@ export default {
       skills: lifengComboSkill,
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -1567,6 +1684,7 @@ export default {
       ),
     },
   ],
+  entityBlackboard: { EntityBB_isCombo: 0 },
   passiveSkills: [
     {
       key: 'chr_0015_lifeng_passive',
@@ -1643,7 +1761,7 @@ export default {
               step('applyBuff', {
                 buffId: 'buff_chr_0015_lifeng_potential_5_1',
                 target: 'buffOwner',
-                source: 'eventSource',
+                source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   atk_scale_potential5: { kind: 'blackboard', key: 'atk_scale_potential5' },
@@ -1673,6 +1791,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1720,6 +1848,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -1825,7 +1963,7 @@ export default {
                 step('applyBuff', {
                   buffId: 'buff_chr_0015_lifeng_potential_5',
                   target: 'buffOwner',
-                  source: 'eventSource',
+                  source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
                   blackboardAssignments: {
                     interval: { kind: 'blackboard', key: 'interval' },

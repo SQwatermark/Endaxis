@@ -12,6 +12,7 @@ import type { TargetGroupActionSource } from '../source/targetGroup.ts';
 import type { ActionValueOperand } from '../../../../packages/game-data-contract/src/conditions.ts';
 import type { SkillSlotReplacementActionSource } from '../source/skillSlotActions.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
+import type { SkillTypeMutationActionSource } from '../source/presentationActions.ts';
 
 /** 公共投影的底层约定：宿主/目标身份、已证明的即时搜索、数值引用和共享枚举映射。
  * 条件、动作及 Buff 装配共用同一份实现；不得反向调用序列编排或具体动作投影。 */
@@ -157,6 +158,11 @@ export interface CombatActionProjectionExtensionsSource {
   /** 主动技能整名装配提供原生 skillId 到稳定技能组/技能 key 的映射。 */
   readonly compileSkillSlotReplacement?: (
     action: SkillSlotReplacementActionSource,
+    sourcePath: string,
+    context: CombatActionProjectionContextSource,
+  ) => readonly CompiledBuffStepSource[];
+  readonly compileSkillTypeMutation?: (
+    action: SkillTypeMutationActionSource,
     sourcePath: string,
     context: CombatActionProjectionContextSource,
   ) => readonly CompiledBuffStepSource[];

@@ -43,6 +43,13 @@ export interface PlaySoundActionSource {
   readonly timeDilationFadeInDurationMilliseconds: number;
 }
 
+export interface SkillTypeMutationActionSource {
+  readonly kind: 'skillTypeMutation';
+  readonly target: TargetReferenceSource;
+  readonly sourceSkillId: string;
+  readonly nativeSkillType: import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType;
+}
+
 export interface DebugPrintActionSource {
   readonly kind: 'debugPrint';
   readonly logType: string | number;
@@ -115,12 +122,15 @@ export interface CameraPresentationActionSource {
     | 'strafeMode'
     | 'dashLimit'
     | 'bombClear'
-    | 'skillTypeMutationOmitted'
+    | 'skillTypeMutation'
     | 'passiveUiValue'
     | 'animatorAimOffset'
     | 'squadTeleportOmitted'
     | 'dashWindowOmitted';
   readonly readBlackboardKeys?: readonly string[];
+  readonly target?: TargetReferenceSource;
+  readonly sourceSkillId?: string;
+  readonly nativeSkillType?: import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType;
 }
 
 /** 只驱动 Animator 的瞄准偏移层；完整校验字段后在无表现模拟中省略。 */
@@ -521,7 +531,7 @@ export function parseBombClearActionSource(
  * ChangeSkillType 只修改既有技能实例的分类。Next 的内部 CastSkill 按 ID 直接解析技能定义，
  * 不依赖原生 AbilitySystem 的技能分类注册；当前仅省略庄方宜退场技能的 AttachSkill 改写。
  */
-export function parseZhuangFangyiEndSkillTypeMutationSource(
+export function parseSkillTypeMutationSource(
   value: unknown,
   path: string,
 ): CameraPresentationActionSource {
@@ -550,14 +560,32 @@ export function parseZhuangFangyiEndSkillTypeMutationSource(
   if (
     !isPlainTargetReference(target, 'Owner') ||
     requireBoolean(skillId.useBlackboardKey, `${path}.skillId.useBlackboardKey`) ||
-    requireString(skillId.value, `${path}.skillId.value`) !==
-      'chr_0030_zhuangfy_ultimate_skill_end' ||
-    requireString(skillId.blackboardKey, `${path}.skillId.blackboardKey`) !== '' ||
-    requireString(action.skillType, `${path}.skillType`) !== 'AttachSkill'
+    requireString(skillId.blackboardKey, `${path}.skillId.blackboardKey`) !== ''
   ) {
     throw new Error(`${path}: unsupported ChangeSkillType projection`);
   }
-  return { kind: 'skillTypeMutationOmitted' };
+  const nativeSkillTypeByName: Readonly<
+    Record<string, import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType>
+  > = {
+    PassiveSkill: 'passiveSkill',
+    Attack: 'attack',
+    BreakingAttack: 'breakingAttack',
+    NormalSkill: 'normalSkill',
+    AttachSkill: 'attachSkill',
+    Dodge: 'dodge',
+    ComboSkill: 'comboSkill',
+    UltimateSkill: 'ultimateSkill',
+    ExtraActiveSkill: 'extraActiveSkill',
+  };
+  const nativeSkillType =
+    nativeSkillTypeByName[requireString(action.skillType, `${path}.skillType`)];
+  if (nativeSkillType === undefined) throw new Error(`${path}.skillType: unsupported SkillType`);
+  return {
+    kind: 'skillTypeMutation' as const,
+    target,
+    sourceSkillId: requireNonEmptyString(skillId.value, `${path}.skillId.value`),
+    nativeSkillType,
+  };
 }
 
 /** NotifyCharPassiveUIAction 只把数值送入角色被动 UI；保留黑板读取用于数据流审计。 */

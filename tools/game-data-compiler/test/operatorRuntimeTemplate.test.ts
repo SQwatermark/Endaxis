@@ -29,6 +29,28 @@ function runtimeTemplate() {
     },
     data: { id: 'chr_0032_lizhiyan' },
     abilitySystem: {
+      modeConfig: {
+        modes: [
+          {
+            modeId: 'default',
+            modeLayer: 'default',
+            defaultEnable: true,
+            overrideNormalAttackList: false,
+            normalAttackList: [],
+            overrideCmdMapping: false,
+            cmdMapping: { keys: [], values: [] },
+          },
+          {
+            modeId: 'ult',
+            modeLayer: 'ultimate',
+            defaultEnable: false,
+            overrideNormalAttackList: true,
+            normalAttackList: ['attack_ult_1'],
+            overrideCmdMapping: true,
+            cmdMapping: { keys: [0], values: ['attack_ult_1'] },
+          },
+        ],
+      },
       entityBlackboard: [
         pair('EntityBB_consumed_type'),
         pair('EntityBB_consumed_layer'),
@@ -36,7 +58,28 @@ function runtimeTemplate() {
         pair('EntityBB_wisd_greater_will', 1),
       ],
       skillDataBundle: {
+        allNormalAttackId: ['attack_1', 'breaking_attack'],
+        allActiveSkillId: [
+          'normal_skill',
+          'chr_0032_lizhiyan_combo_skill',
+          'ultimate_skill',
+          'dodge_skill',
+          'extra_skill',
+        ],
+        allPassiveSkillId: ['passive_skill'],
+        normalAttackList: ['attack_1'],
+        enabledBreakingNormalAttacks: ['breaking_attack'],
+        normalSkillId: 'normal_skill',
         comboSkillId: 'chr_0032_lizhiyan_combo_skill',
+        ultimateSkillId: 'ultimate_skill',
+        plungingAttackStartId: 'plunge_start',
+        plungingAttackEndId: 'plunge_end',
+        dodgeSkillId: 'dodge_skill',
+        defaultCmdMapping: {
+          keys: [0, 3, 4, 5],
+          values: ['attack_1', 'normal_skill', 'chr_0032_lizhiyan_combo_skill', 'ultimate_skill'],
+        },
+        activeSkillTypeOverrides: { keys: ['extra_skill'], values: [8] },
         enableComboSkillBlackboard: true,
         comboSkillBlackboard: [pair('consumed_layer'), pair('consumed_type')],
         comboSkillConditions: combo.conditions,
@@ -58,8 +101,41 @@ describe('角色运行模板来源', () => {
     });
     expect(parsed.blackboards.entity.initialValues).toHaveLength(4);
     expect(parsed.blackboards.comboCondition.initialValues).toHaveLength(2);
-    expect(parsed.conditions.conditions).toHaveLength(5);
-    expect(parsed.conditions.referenceSources).toHaveLength(14);
+    expect(parsed.conditions?.conditions).toHaveLength(5);
+    expect(parsed.conditions?.referenceSources).toHaveLength(14);
+    expect(parsed.playerActionSource).toMatchObject({
+      slotSkillIds: {
+        battleSkill: 'normal_skill',
+        comboSkill: 'chr_0032_lizhiyan_combo_skill',
+        ultimate: 'ultimate_skill',
+      },
+      defaultCommandSkillIds: {
+        basicAttack: 'attack_1',
+        battleSkill: 'normal_skill',
+        comboSkill: 'chr_0032_lizhiyan_combo_skill',
+        ultimate: 'ultimate_skill',
+      },
+      initialNativeSkillTypeById: {
+        attack_1: 'attack',
+        breaking_attack: 'breakingAttack',
+        normal_skill: 'normalSkill',
+        chr_0032_lizhiyan_combo_skill: 'comboSkill',
+        ultimate_skill: 'ultimateSkill',
+        dodge_skill: 'dodge',
+        extra_skill: 'extraActiveSkill',
+        passive_skill: 'passiveSkill',
+      },
+      modes: [
+        { modeId: 'default', modeLayer: 'default', defaultEnabled: true },
+        {
+          modeId: 'ult',
+          modeLayer: 'ultimate',
+          defaultEnabled: false,
+          normalAttackSkillIds: ['attack_ult_1'],
+          commandSkillIds: { basicAttack: 'attack_ult_1' },
+        },
+      ],
+    });
   });
 
   it('来源哈希和原生类型不完整时失败，不把别的角色模板当作 Arcane', () => {

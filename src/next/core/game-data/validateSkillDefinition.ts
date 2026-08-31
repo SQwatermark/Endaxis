@@ -80,6 +80,17 @@ const SP_GAIN_SOURCES_SET = new Set<string>(SP_GAIN_SOURCES);
 const STATUS_MODIFIER_KINDS_SET = new Set<string>(STATUS_MODIFIER_KINDS);
 const SKILL_TYPES_SET = new Set<string>(SKILL_TYPES);
 const SKILL_LEVEL_SOURCES_SET = new Set<string>(SKILL_LEVEL_SOURCES);
+const NATIVE_SKILL_TYPES_SET = new Set<string>([
+  'passiveSkill',
+  'attack',
+  'breakingAttack',
+  'normalSkill',
+  'attachSkill',
+  'dodge',
+  'comboSkill',
+  'ultimateSkill',
+  'extraActiveSkill',
+]);
 const ACTION_VALUE_OPERATIONS_SET = new Set<string>(ACTION_VALUE_OPERATIONS);
 const ACTION_VALUE_CALCULATION_OPERATIONS_SET = new Set<string>(
   ACTION_VALUE_CALCULATION_OPERATIONS,
@@ -2945,6 +2956,30 @@ function validateCombatStep(
         }
       }
       break;
+    case 'changePlayerActionMode':
+      requireString(parameters, 'modeId', `${path}.parameters`, out);
+      requireEnum(parameters, 'lifetime', new Set(['finishByAction']), `${path}.parameters`, out);
+      break;
+    case 'changeNativeSkillType':
+      requireString(parameters, 'targetSkillKey', `${path}.parameters`, out);
+      requireEnum(
+        parameters,
+        'nativeSkillType',
+        new Set([
+          'passiveSkill',
+          'attack',
+          'breakingAttack',
+          'normalSkill',
+          'attachSkill',
+          'dodge',
+          'comboSkill',
+          'ultimateSkill',
+          'extraActiveSkill',
+        ]),
+        `${path}.parameters`,
+        out,
+      );
+      break;
     case 'listenForCombatEvents':
       if (!Array.isArray(parameters.responses) || parameters.responses.length === 0) {
         push(out, `${path}.parameters.responses`, 'expected a non-empty array');
@@ -3252,6 +3287,8 @@ export function validateSkillDefinition(
   if (record.skillType !== undefined) requireEnum(record, 'skillType', SKILL_TYPES_SET, path, out);
   if (record.levelSource !== undefined)
     requireEnum(record, 'levelSource', SKILL_LEVEL_SOURCES_SET, path, out);
+  if (record.nativeSkillType !== undefined)
+    requireEnum(record, 'nativeSkillType', NATIVE_SKILL_TYPES_SET, path, out);
   requireNonNegativeInteger(record, 'timelineBlockFrames', path, out);
   if (record.enhancementStateBuffId !== undefined) {
     requireString(record, 'enhancementStateBuffId', path, out);

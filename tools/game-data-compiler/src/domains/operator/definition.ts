@@ -9,6 +9,8 @@ import type {
   SkillType,
   OperatorSkillSlotDefinition,
   OperatorPlayerActionRoutes,
+  OperatorPlayerActionModeDefinition,
+  NativeSkillType,
 } from '../../../../../packages/game-data-contract/src/index.ts';
 import type { compileOperatorFoundationSource } from './sourceClosure.ts';
 import { compileOperatorDefinitionHeaderSource } from './definitionHeader.ts';
@@ -81,6 +83,15 @@ export interface OperatorDefinitionAssemblyInput {
   /** 经原生 CharacterData/槽位动作取证后写入的独立战斗路由；不得从技能库分组推导。 */
   readonly skillSlots?: readonly OperatorSkillSlotDefinition[];
   readonly playerActionRoutes?: OperatorPlayerActionRoutes;
+  readonly playerActionModes?: readonly OperatorPlayerActionModeDefinition[];
+  /** `_InitSkills` 从 CharacterData 注册出的原生类型初值，以 sourceSkillId 为键。 */
+  readonly nativeSkillTypeBySourceId?: Readonly<Record<string, NativeSkillType>>;
+  readonly nativePlayerActionRouting?: {
+    readonly slotBaseSkillKeys: Readonly<Record<'battleSkill' | 'comboSkill' | 'ultimate', string>>;
+    readonly basicAttackSkillKeys: readonly string[];
+    readonly defaultBasicAttackSkillKey?: string;
+    readonly playerActionModes: readonly OperatorPlayerActionModeDefinition[];
+  };
   /** 输入包装器同步 Cast 另一技能组执行体的严格跨组换槽定义。 */
   readonly routedSkills?: readonly {
     readonly key: string;
@@ -632,22 +643,35 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   for (const group of skillLibrary.skillGroups) {
     for (const key of group.skillKeys) {
       const routed = routedSkills.get(key);
+      const entry = skillLibrary.activeSkills.entries.find(item => item.key === key)!;
       registerSkillIdentity(
         key,
         routed?.skillType ?? activeSkillTypeByKey.get(key)!,
-        routed?.levelSource ?? group.levelSource,
+        routed?.levelSource ?? entry.levelSource,
       );
     }
     for (const variant of group.variants) {
       for (const key of variant.skillKeys) {
-        registerSkillIdentity(key, activeSkillTypeByKey.get(key)!, variant.levelSource);
+        const entry = skillLibrary.activeSkills.entries.find(item => item.key === key)!;
+        registerSkillIdentity(key, activeSkillTypeByKey.get(key)!, entry.levelSource);
       }
     }
   }
   for (const [key, definition] of definitions) {
     const identity = skillIdentityByKey.get(key);
     if (identity === undefined) throw new Error(`skill '${key}' has no runtime identity`);
-    definitions.set(key, { ...definition, ...identity });
+    const nativeSkillType =
+      definition.sourceSkillId === undefined
+        ? undefined
+        : input.nativeSkillTypeBySourceId?.[definition.sourceSkillId];
+    if (input.nativeSkillTypeBySourceId !== undefined && nativeSkillType === undefined) {
+      throw new Error(`skill '${key}' has no native SkillType initialization evidence`);
+    }
+    definitions.set(key, {
+      ...definition,
+      ...identity,
+      ...(nativeSkillType === undefined ? {} : { nativeSkillType }),
+    });
   }
   const abilityEntityDefinitions = hydrate(compiledAbilityEntityDefinitions);
   const assignedRuntimeReplacementSkillKeys = new Set<string>();
@@ -756,9 +780,9 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     commonBuffs: Record<string, CompiledBuffDefinitionSource> = {};
   const skillSlotReplacements = compileOperatorBuffSkillSlotReplacements(
     buffClosure.sources,
-    skillLibrary.skillGroups,
     input.activeSkills.map(item => item.definition),
     runtimeReplacementSkillKeys,
+    input.nativePlayerActionRouting?.slotBaseSkillKeys,
   );
   const { sourceCharacterId, ...header } = compileOperatorDefinitionHeaderSource(foundation);
   const entityBlackboard = new Map<string, number | string>(
@@ -801,10 +825,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   const operator: OperatorDefinition = {
     ...header,
     skillGroups,
-    ...(input.skillSlots === undefined ? {} : { skillSlots: input.skillSlots }),
-    ...(input.playerActionRoutes === undefined
-      ? {}
-      : { playerActionRoutes: input.playerActionRoutes }),
+    ...compileOperatorPlayerActionRouting(input, definitions, skillSlotReplacements),
     ...(input.comboSkillRegistrations === undefined
       ? {}
       : { comboSkillRegistrations: input.comboSkillRegistrations }),
@@ -909,11 +930,91 @@ function stripSkillGroupCompilationEvidence(
   return runtimeDefinition;
 }
 
+function compileOperatorPlayerActionRouting(
+  input: OperatorDefinitionAssemblyInput,
+  definitions: ReadonlyMap<string, SkillDefinition>,
+  buffReplacements: ReadonlyMap<string, readonly SkillBuffSlotReplacement[]>,
+): Pick<OperatorDefinition, 'skillSlots' | 'playerActionRoutes' | 'playerActionModes'> {
+  const native = input.nativePlayerActionRouting;
+  if (native === undefined) {
+    return {
+      ...(input.skillSlots === undefined ? {} : { skillSlots: input.skillSlots }),
+      ...(input.playerActionRoutes === undefined
+        ? {}
+        : { playerActionRoutes: input.playerActionRoutes }),
+      ...(input.playerActionModes === undefined
+        ? {}
+        : { playerActionModes: input.playerActionModes }),
+    };
+  }
+  if (input.skillSlots !== undefined || input.playerActionRoutes !== undefined) {
+    throw new Error('CharacterData routing cannot be combined with manual player-action routing');
+  }
+  const replacementKeysBySlot = new Map<string, Set<string>>(
+    (['battleSkill', 'comboSkill', 'ultimate'] as const).map(key => [key, new Set<string>()]),
+  );
+  const visit = (value: unknown): void => {
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item);
+      return;
+    }
+    if (typeof value !== 'object' || value === null) return;
+    if ('kind' in value && value.kind === 'changeSkillSlot') {
+      const parameters = 'parameters' in value ? value.parameters : undefined;
+      if (typeof parameters !== 'object' || parameters === null) {
+        throw new Error('compiled ChangeSkillAction has no parameters');
+      }
+      const slot = 'skillGroupKey' in parameters ? parameters.skillGroupKey : undefined;
+      const target = 'targetSkillKey' in parameters ? parameters.targetSkillKey : undefined;
+      const set = typeof slot === 'string' ? replacementKeysBySlot.get(slot) : undefined;
+      if (set === undefined || typeof target !== 'string') {
+        throw new Error('compiled ChangeSkillAction does not reference a native skill slot');
+      }
+      set.add(target);
+    }
+    for (const item of Object.values(value)) visit(item);
+  };
+  for (const definition of definitions.values()) visit(definition);
+  for (const replacements of buffReplacements.values()) {
+    for (const replacement of replacements) {
+      const set = replacementKeysBySlot.get(replacement.skillGroupKey);
+      if (set === undefined) throw new Error('Buff replacement references an unknown native slot');
+      set.add(replacement.targetSkillKey);
+    }
+  }
+  const skillSlots = (['battleSkill', 'comboSkill', 'ultimate'] as const).map(key => ({
+    key,
+    baseSkillKey: native.slotBaseSkillKeys[key],
+    replacementSkillKeys: [...replacementKeysBySlot.get(key)!].filter(
+      skillKey => skillKey !== native.slotBaseSkillKeys[key],
+    ),
+  }));
+  const playerActionRoutes: OperatorPlayerActionRoutes = {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: native.basicAttackSkillKeys,
+      ...(native.defaultBasicAttackSkillKey === undefined
+        ? {}
+        : { defaultSkillKey: native.defaultBasicAttackSkillKey }),
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  };
+  return {
+    skillSlots,
+    playerActionRoutes,
+    ...(native.playerActionModes.length === 0
+      ? {}
+      : { playerActionModes: native.playerActionModes }),
+  };
+}
+
 function compileOperatorBuffSkillSlotReplacements(
   sources: ReadonlyMap<string, BuffRuntimeSource>,
-  groups: readonly OperatorDefinitionAssemblyInput['foundation']['skillLibrary']['skillGroups'][number][],
   skills: readonly CompiledOperatorActiveSkillRuntimeDefinitionSource[],
   runtimeReplacementSkillKeys: ReadonlySet<string>,
+  baseSkillKeyBySlot?: Readonly<Record<'battleSkill' | 'comboSkill' | 'ultimate', string>>,
 ): ReadonlyMap<string, readonly SkillBuffSlotReplacement[]> {
   const skillKeyByNativeId = new Map(skills.map(skill => [skill.sourceSkillId, skill.key]));
   const result = new Map<string, readonly SkillBuffSlotReplacement[]>();
@@ -940,10 +1041,7 @@ function compileOperatorBuffSkillSlotReplacements(
             !action.specificRevertedSkillId &&
             action.revertedSkillId === '' &&
             restoredSkillKey !== undefined &&
-            groups.some(
-              group =>
-                group.skillType === 'comboSkill' && group.skillKeys.includes(restoredSkillKey),
-            );
+            restoredSkillKey === baseSkillKeyBySlot?.comboSkill;
           if (isDirectComboRestore) {
             // 原生在窗口 Buff 结束时把后续连携写回槽位；Endaxis 的现实时间轴由用户
             // 直接放置后续技能，因此只保留技能身份/冷却逻辑，不驱动自动替换或摆放。
@@ -975,27 +1073,16 @@ function compileOperatorBuffSkillSlotReplacements(
               `${node.sourcePath}: target skill is not an audited runtime replacement`,
             );
           }
-          const expectedSkillType =
+          const skillSlotKey =
             action.skillSlot === 'NormalSkill'
               ? 'battleSkill'
               : action.skillSlot === 'ComboSkill'
                 ? 'comboSkill'
                 : 'ultimate';
-          const matchingGroups = groups.filter(
-            group =>
-              group.skillType === expectedSkillType && group.skillKeys.includes(targetSkillKey),
-          );
-          if (matchingGroups.length !== 1) {
-            throw new Error(`${node.sourcePath}: expected one stable skill group for replacement`);
-          }
-          const group = matchingGroups[0]!;
-          const visibleSkillKeys = group.skillKeys.filter(
-            key => !runtimeReplacementSkillKeys.has(key),
-          );
           let revertedSkillKey: string;
           if (action.specificRevertedSkillId) {
             const specific = skillKeyByNativeId.get(action.revertedSkillId);
-            if (specific === undefined || !group.skillKeys.includes(specific)) {
+            if (specific === undefined) {
               throw new Error(`${node.sourcePath}: unknown specific reverted skill`);
             }
             revertedSkillKey = specific;
@@ -1003,15 +1090,14 @@ function compileOperatorBuffSkillSlotReplacements(
             if (action.revertedSkillId !== '') {
               throw new Error(`${node.sourcePath}: unexpected reverted skill ID`);
             }
-            if (visibleSkillKeys.length !== 1) {
-              throw new Error(
-                `${node.sourcePath}: replacement group must have one stable base skill`,
-              );
+            const baseSkillKey = baseSkillKeyBySlot?.[skillSlotKey];
+            if (baseSkillKey === undefined) {
+              throw new Error(`${node.sourcePath}: CharacterData base skill slot is unavailable`);
             }
-            revertedSkillKey = visibleSkillKeys[0]!;
+            revertedSkillKey = baseSkillKey;
           }
           replacements.push({
-            skillGroupKey: group.key,
+            skillGroupKey: skillSlotKey,
             targetSkillKey,
             revertedSkillKey,
             inheritOriginSkillCooldownProgress: action.inheritOriginSkillCooldownProgress,

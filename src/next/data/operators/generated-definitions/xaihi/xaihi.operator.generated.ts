@@ -20,6 +20,19 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0011_seraph_attack1',
     timelineBlockFrames: 13,
     exclusiveFrame: 14,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 25,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0011_seraph_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 13, endFrame: 25, sourceSkillIds: ['chr_0011_seraph_attack2'] },
+      ],
+    },
     costFrame: 11,
     scheduledSequences: [
       scheduled(
@@ -87,6 +100,9 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
         10,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -101,6 +117,19 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0011_seraph_attack2',
     timelineBlockFrames: 17,
     exclusiveFrame: 20,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 28,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0011_seraph_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 17, endFrame: 28, sourceSkillIds: ['chr_0011_seraph_attack3'] },
+      ],
+    },
     costFrame: 7,
     scheduledSequences: [
       scheduled(
@@ -168,6 +197,9 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
         7,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -182,6 +214,19 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0011_seraph_attack3',
     timelineBlockFrames: 14,
     exclusiveFrame: 14,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 25,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0011_seraph_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 14, endFrame: 25, sourceSkillIds: ['chr_0011_seraph_attack4'] },
+      ],
+    },
     costFrame: 11,
     scheduledSequences: [
       scheduled(
@@ -249,6 +294,9 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
         8,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -263,6 +311,19 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0011_seraph_attack4',
     timelineBlockFrames: 21,
     exclusiveFrame: 24,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 33,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0011_seraph_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 21, endFrame: 33, sourceSkillIds: ['chr_0011_seraph_attack5'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -394,6 +455,9 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
         7,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -408,6 +472,19 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0011_seraph_attack5',
     timelineBlockFrames: 33,
     exclusiveFrame: 33,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 40,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0011_seraph_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 33, endFrame: 40, sourceSkillIds: ['chr_0011_seraph_attack1'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -454,6 +531,9 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
         19,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 15,
@@ -469,6 +549,15 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0011_seraph_power_attack',
     timelineBlockFrames: 34,
     exclusiveFrame: 50,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 34,
+          endFrame: 53,
+          sourceSkillIds: ['chr_0011_seraph_normal_skill', 'chr_0011_seraph_combo_skill'],
+        },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -536,6 +625,9 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
         34,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   {
     atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
@@ -582,6 +674,9 @@ export const xaihiPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -656,6 +751,9 @@ export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb: 0,
@@ -681,6 +779,11 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0011_seraph_combo_skill',
     timelineBlockFrames: 25,
     exclusiveFrame: 42,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 25, endFrame: 60, sourceSkillIds: ['chr_0011_seraph_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -961,6 +1064,9 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     cooldownFrames: [240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 210],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
@@ -986,6 +1092,15 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0011_seraph_ultimate_skill',
     timelineBlockFrames: 67,
     exclusiveFrame: 80,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 67,
+          endFrame: 100,
+          sourceSkillIds: ['chr_0011_seraph_normal_skill', 'chr_0011_seraph_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1056,6 +1171,9 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 80 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale: 1.5,
@@ -1216,6 +1334,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'LifeTime',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
@@ -1363,6 +1491,29 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: xaihiUltimate },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -1679,7 +1830,7 @@ export default {
                 targetKey: 'final_heal_value',
               }),
               step('heal', {
-                target: 'caster',
+                target: 'buffOwner',
                 alwaysNext: true,
                 tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
                 amount: { kind: 'blackboard', key: 'final_heal_value' },
@@ -1900,6 +2051,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1936,6 +2097,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
@@ -1958,6 +2129,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },

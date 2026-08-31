@@ -21,6 +21,19 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0033_camille_attack1',
     timelineBlockFrames: 12,
     exclusiveFrame: 13,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 29,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0033_camille_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 12, endFrame: 29, sourceSkillIds: ['chr_0033_camille_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -102,6 +115,9 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
         12,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -117,6 +133,19 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0033_camille_attack2',
     timelineBlockFrames: 15,
     exclusiveFrame: 19,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 34,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0033_camille_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 15, endFrame: 34, sourceSkillIds: ['chr_0033_camille_attack3'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -198,6 +227,9 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
         16,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -213,6 +245,19 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0033_camille_attack3',
     timelineBlockFrames: 13,
     exclusiveFrame: 19,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0033_camille_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 13, endFrame: 30, sourceSkillIds: ['chr_0033_camille_attack4'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -267,6 +312,9 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
         22,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -281,6 +329,19 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0033_camille_attack4',
     timelineBlockFrames: 22,
     exclusiveFrame: 29,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 34,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0033_camille_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 22, endFrame: 34, sourceSkillIds: ['chr_0033_camille_attack5'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -491,6 +552,9 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
         15,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -589,6 +653,9 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
         15,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 20,
@@ -603,6 +670,19 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0033_camille_power_attack',
     timelineBlockFrames: 39,
     exclusiveFrame: 50,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 39,
+          endFrame: 46,
+          sourceSkillIds: [
+            'chr_0033_camille_normal_skill',
+            'chr_0033_camille_normal_skill_2',
+            'chr_0033_camille_combo_skill',
+          ],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -1019,6 +1099,9 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
         46,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   {
     atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
@@ -1065,6 +1148,9 @@ export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
         3,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -1079,6 +1165,11 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0033_camille_normal_skill',
     timelineBlockFrames: 18,
     exclusiveFrame: 26,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 34, sourceSkillIds: ['chr_0033_camille_combo_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1168,6 +1259,9 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb_obtain: 0,
@@ -1189,6 +1283,15 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
     sourceSkillId: 'chr_0033_camille_combo_skill_2',
     timelineBlockFrames: 79,
     exclusiveFrame: 86,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 79,
+          endFrame: 127,
+          sourceSkillIds: ['chr_0033_camille_normal_skill', 'chr_0033_camille_normal_skill_2'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1433,7 +1536,7 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
                 },
                 sequence(
                   step('heal', {
-                    target: 'controlledOperator',
+                    target: 'caster',
                     alwaysNext: true,
                     tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
                     attribute: 'intellect',
@@ -1512,6 +1615,9 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
     ],
     costs: [{ resource: 'sp', value: 40 }],
     cooldownFrames: 90,
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb: [16, 16, 16, 16, 16, 16, 18, 18, 18, 20, 20, 20],
@@ -1548,6 +1654,15 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0033_camille_combo_skill',
     timelineBlockFrames: 51,
     exclusiveFrame: 63,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 51,
+          endFrame: 63,
+          sourceSkillIds: ['chr_0033_camille_normal_skill', 'chr_0033_camille_normal_skill_2'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1716,7 +1831,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
                     },
                     sequence(
                       step('heal', {
-                        target: 'controlledOperator',
+                        target: 'caster',
                         alwaysNext: true,
                         tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
                         attribute: 'intellect',
@@ -1784,6 +1899,9 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 570, 570, 570, 540],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb: [16, 16, 16, 16, 16, 16, 18, 18, 18, 20, 20, 20],
@@ -1819,6 +1937,15 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0033_camille_combo_skill_2',
     timelineBlockFrames: 79,
     exclusiveFrame: 86,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 79,
+          endFrame: 127,
+          sourceSkillIds: ['chr_0033_camille_normal_skill', 'chr_0033_camille_normal_skill_2'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2063,7 +2190,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
                 },
                 sequence(
                   step('heal', {
-                    target: 'controlledOperator',
+                    target: 'caster',
                     alwaysNext: true,
                     tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
                     attribute: 'intellect',
@@ -2140,6 +2267,9 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
         73,
       ),
     ],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb: [16, 16, 16, 16, 16, 16, 18, 18, 18, 20, 20, 20],
@@ -2176,6 +2306,19 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0033_camille_ultimate_skill',
     timelineBlockFrames: 125,
     exclusiveFrame: 133,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 125,
+          endFrame: 150,
+          sourceSkillIds: [
+            'chr_0033_camille_normal_skill',
+            'chr_0033_camille_normal_skill_2',
+            'chr_0033_camille_combo_skill',
+          ],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2391,6 +2534,9 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 130 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atb: [32, 32, 32, 32, 32, 32, 32, 32, 36, 36, 36, 40],
@@ -2617,6 +2763,33 @@ export default {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: camilleUltimate },
   ],
+  skillSlots: [
+    {
+      key: 'battleSkill',
+      baseSkillKey: 'battleSkill',
+      replacementSkillKeys: ['battleSkillDuringUltimate'],
+    },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill1', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -2930,6 +3103,12 @@ export default {
       ],
     },
   ],
+  entityBlackboard: {
+    EntityBB_bat_spawned: 0,
+    EntityBB_henshin: 0,
+    EntityBB_trigger_count: 0,
+    EntityBB_ult_combo_count: 0,
+  },
   buffDefinitions: {
     buff_chr_0033_camille_cast_combo2: {
       stackingType: 'unique',
@@ -2964,6 +3143,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
@@ -3020,6 +3209,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -3082,6 +3281,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -3110,6 +3319,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: true,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },

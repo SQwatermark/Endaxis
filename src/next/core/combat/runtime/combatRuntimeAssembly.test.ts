@@ -132,6 +132,9 @@ function createAssembly(
   passivePrograms?: readonly CompiledOperatorPassiveProgram[],
   panel?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['operators'][number]['panel'],
   inputs?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['inputs'],
+  playerActionRoutes?: ConstructorParameters<
+    typeof CombatRuntimeAssembly
+  >[0]['operators'][number]['playerActionRoutes'],
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
     enemy,
@@ -161,6 +164,7 @@ function createAssembly(
         skills: programs,
         ...(buffDefinitions === undefined ? {} : { buffDefinitions }),
         ...(skillSlotGroups === undefined ? {} : { skillSlotGroups }),
+        ...(playerActionRoutes === undefined ? {} : { playerActionRoutes }),
         ...(initialEntityBlackboard === undefined ? {} : { initialEntityBlackboard }),
         ...(passivePrograms === undefined ? {} : { passivePrograms }),
         ...(panel === undefined ? {} : { panel }),
@@ -211,8 +215,12 @@ describe('CombatRuntimeAssembly', () => {
           operatorId: 'operator',
           skillId: 'battleSkillDuringUltimate',
           castId: 'cast:replacement',
+          action: 'battleSkill',
         },
       ],
+      {
+        battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+      },
     );
 
     expect(assembly.receipt.entries).toContainEqual(
@@ -239,6 +247,44 @@ describe('CombatRuntimeAssembly', () => {
         data: expect.objectContaining({ actualValue: -150, currentValue: -49 }),
       }),
     );
+  });
+
+  it('resolves the combo action to the active HUD candidate before the static combo slot', () => {
+    const first = skill({ skillId: 'combo-stage-1', skillType: 'comboSkill', costs: [] });
+    const second = skill({ skillId: 'combo-stage-2', skillType: 'comboSkill', costs: [] });
+    const assembly = createAssembly(
+      [first, second],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      [
+        {
+          skillGroupKey: 'comboSkill',
+          baseSkillKey: 'combo-stage-1',
+          stableInputSkillKeys: ['combo-stage-1', 'combo-stage-2'],
+          replacementSkillKeys: [],
+        },
+      ],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' } },
+    );
+    assembly.comboWindows.open('operator', 'combo-stage-2');
+
+    expect(assembly.tryStartPlayerInput('operator', 'combo-stage-2', undefined, 'comboSkill')).toBe(
+      true,
+    );
+    expect(
+      assembly.receipt.entries.some(entry => entry.event === 'SkillInputResolvedToDifferentSkill'),
+    ).toBe(false);
   });
 
   it('resolves descendant Buff definitions from the source skill after crossing to a teammate', () => {
@@ -3443,8 +3489,23 @@ describe('CombatRuntimeAssembly', () => {
         ],
       },
       enemyBuffRuntime: emptyEnemyBuffRuntime,
-      operators: [{ operatorId: 'operator', skills: [program] }],
-      inputs: [{ frame: 1, operatorId: 'operator', skillId: 'skill' }],
+      operators: [
+        {
+          operatorId: 'operator',
+          skills: [program],
+          skillSlotGroups: [
+            {
+              skillGroupKey: 'battleSkill',
+              baseSkillKey: 'skill',
+              replacementSkillKeys: [],
+            },
+          ],
+          playerActionRoutes: {
+            battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+          },
+        },
+      ],
+      inputs: [{ frame: 1, operatorId: 'operator', skillId: 'skill', action: 'battleSkill' }],
       createOperationExecutor: () => rejectingExecutor,
     });
 

@@ -6,10 +6,12 @@ import type {
 } from '../../../../core/game-data/operatorDefinition';
 import {
   branch,
+  forEachTarget,
   repeatEachTick,
   scheduled,
   sequence,
   step,
+  withActionBlackboardScope,
   withSkillBlackboard,
 } from '../../definitionHelpers';
 
@@ -18,6 +20,20 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0018_dapan_attack1',
     timelineBlockFrames: 15,
+    exclusiveFrame: 20,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0018_dapan_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 15, endFrame: 30, sourceSkillIds: ['chr_0018_dapan_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -35,41 +51,29 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
                 'chr_0018_dapan_attack1:/scheduledSequences/0/sequence/steps/0/body/steps/0',
               ),
               branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
+                { kind: 'casterControlled' },
                 sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.08 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 10,
+                    curve: { kind: 'named', key: 'char_normal_attack' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
                   branch(
                     { kind: 'casterControlled' },
                     sequence(
-                      step('startTimeDilation', {
-                        scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.08 },
-                        slot: 'TimeDilation/Layer/Entity/HitStop',
-                        priority: 10,
-                        curve: { kind: 'named', key: 'char_normal_attack' },
-                        finishByAction: false,
-                        targets: ['enemy', 'caster'],
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
                       }),
-                      branch(
-                        { kind: 'casterControlled' },
-                        sequence(
-                          step('changeResourceByActionValue', {
-                            resource: 'sp',
-                            amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'team',
-                            spGainKind: 'gain',
-                            spGainSource: 'normalAttack',
-                          }),
-                        ),
-                      ),
                     ),
-                    undefined,
-                    { alwaysNext: true },
                   ),
                 ),
                 undefined,
@@ -89,6 +93,9 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
         15,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -102,6 +109,20 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0018_dapan_attack2',
     timelineBlockFrames: 20,
+    exclusiveFrame: 30,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 25,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0018_dapan_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 20, endFrame: 25, sourceSkillIds: ['chr_0018_dapan_attack3'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -119,35 +140,23 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.08 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_normal_attack' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.08 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -156,6 +165,9 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
         8,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -169,6 +181,20 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0018_dapan_attack3',
     timelineBlockFrames: 25,
+    exclusiveFrame: 38,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 40,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0018_dapan_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 25, endFrame: 40, sourceSkillIds: ['chr_0018_dapan_attack4'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -188,39 +214,27 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
               branch(
                 { kind: 'casterControlled' },
                 sequence(
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 10,
+                    curve: { kind: 'named', key: 'char_normal_attack' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
                   branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
-                      step('startTimeDilation', {
-                        scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.1 },
-                        slot: 'TimeDilation/Layer/Entity/HitStop',
-                        priority: 10,
-                        curve: { kind: 'named', key: 'char_normal_attack' },
-                        finishByAction: false,
-                        targets: ['enemy', 'caster'],
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 0.5 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
                       }),
-                      branch(
-                        { kind: 'casterControlled' },
-                        sequence(
-                          step('changeResourceByActionValue', {
-                            resource: 'sp',
-                            amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 0.5 },
-                            recipient: 'team',
-                            spGainKind: 'gain',
-                            spGainSource: 'normalAttack',
-                          }),
-                        ),
-                      ),
                     ),
-                    undefined,
-                    { alwaysNext: true },
                   ),
                 ),
                 undefined,
@@ -254,39 +268,27 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.15 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_zero' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
               branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
+                { kind: 'casterControlled' },
                 sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.15 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_zero' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: { kind: 'constant', value: 0.5 },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
                   }),
-                  branch(
-                    { kind: 'casterControlled' },
-                    sequence(
-                      step('changeResourceByActionValue', {
-                        resource: 'sp',
-                        amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 0.5 },
-                        recipient: 'team',
-                        spGainKind: 'gain',
-                        spGainSource: 'normalAttack',
-                      }),
-                    ),
-                  ),
                 ),
-                undefined,
-                { alwaysNext: true },
               ),
             ),
             undefined,
@@ -296,6 +298,9 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
         24,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -312,6 +317,20 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0018_dapan_attack4',
     timelineBlockFrames: 45,
+    exclusiveFrame: 60,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 70,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0018_dapan_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 45, endFrame: 70, sourceSkillIds: ['chr_0018_dapan_attack1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -331,35 +350,23 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'gain',
-                    spGainSource: 'normalAttack',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.1 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
             ),
             undefined,
             { alwaysNext: true },
@@ -368,6 +375,9 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
         33,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 21,
@@ -383,6 +393,16 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0018_dapan_power_attack',
     timelineBlockFrames: 35,
+    exclusiveFrame: 46,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 35,
+          endFrame: 56,
+          sourceSkillIds: ['chr_0018_dapan_normal_skill', 'chr_0018_dapan_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -463,6 +483,9 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
         35,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atb: 0, atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -472,6 +495,7 @@ export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0018_dapan_plunging_attack_end',
     timelineBlockFrames: 16,
+    exclusiveFrame: 15,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -510,6 +534,9 @@ export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -519,6 +546,12 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0018_dapan_normal_skill',
     timelineBlockFrames: 65,
+    exclusiveFrame: 65,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 65, endFrame: 89, sourceSkillIds: ['chr_0018_dapan_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -567,6 +600,16 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: true,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -588,6 +631,7 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
                         target: 'buffOwner',
+                        source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -597,39 +641,58 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
                   step('applyBuff', {
                     buffId: 'buff_physical_no_guard_fake',
                     target: 'buffOwner',
-                    source: 'eventSource',
+                    source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
                 afterEnhance: sequence(
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'buffOwner',
-                    igniteType: 'NoGuard',
-                  }),
-                  branch(
-                    {
-                      kind: 'currentBuffStackCompare',
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 2 },
-                    },
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'buffOwner',
+                        igniteType: 'NoGuard',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
                     sequence(
                       branch(
                         {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
+                          kind: 'currentBuffStackCompare',
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 2 },
                         },
                         sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_handle_cryst_break',
-                            target: 'buffOwner',
-                            inheritSourceSkillCastInfo: true,
-                          }),
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_physical_handle_cryst_break',
+                                target: 'buffOwner',
+                                source: 'buffSource',
+                                inheritSourceSkillCastInfo: true,
+                              }),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
                   ),
                 ),
               },
@@ -652,6 +715,16 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -662,47 +735,91 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
               attributeModifiers: [],
               lifecycleSequences: {
                 start: sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_physical_no_guard',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      skip_handle_cryst_break: { kind: 'constant', value: 1 },
-                    },
-                  }),
-                  step('readSkillSettingData', {
-                    items: [
-                      {
-                        values: [1.2, 1.2, 1.2, 1.2],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'atk_scale',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-                      },
-                      {
-                        values: [10, 10, 10, 10],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'poise',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
-                      },
-                    ],
-                  }),
-                  step('dealDamage', {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: [],
-                    features: ['physicalInfliction'],
-                    stagger: { kind: 'blackboard', key: 'poise' },
-                  }),
-                  step('applyBuff', {
-                    buffId: 'buff_physical_handle_cryst_break',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'caster',
-                    igniteType: 'PhysicalStatus',
-                  }),
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                        blackboardAssignments: {
+                          skip_handle_cryst_break: { kind: 'constant', value: 1 },
+                        },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
+                    sequence(
+                      step('readSkillSettingData', {
+                        items: [
+                          {
+                            values: [1.2, 1.2, 1.2, 1.2],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'atk_scale',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.01 },
+                            },
+                          },
+                          {
+                            values: [10, 10, 10, 10],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'poise',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.005 },
+                            },
+                          },
+                        ],
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['physicalInfliction'],
+                        stagger: { kind: 'blackboard', key: 'poise' },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:2',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:3',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
                 ),
               },
             },
@@ -784,6 +901,9 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     airborne_duration: 1.8,
@@ -803,6 +923,16 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0018_dapan_ultimate_skill',
     timelineBlockFrames: 86,
+    exclusiveFrame: 100,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 86,
+          endFrame: 120,
+          sourceSkillIds: ['chr_0018_dapan_normal_skill', 'chr_0018_dapan_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -841,6 +971,16 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: true,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -862,6 +1002,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
                         target: 'buffOwner',
+                        source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
@@ -871,39 +1012,58 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                   step('applyBuff', {
                     buffId: 'buff_physical_no_guard_fake',
                     target: 'buffOwner',
-                    source: 'eventSource',
+                    source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                   }),
                 ),
                 afterEnhance: sequence(
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'buffOwner',
-                    igniteType: 'NoGuard',
-                  }),
-                  branch(
-                    {
-                      kind: 'currentBuffStackCompare',
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 2 },
-                    },
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'buffOwner',
+                        igniteType: 'NoGuard',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
                     sequence(
                       branch(
                         {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
+                          kind: 'currentBuffStackCompare',
+                          operator: 'greaterOrEqual',
+                          value: { kind: 'constant', value: 2 },
                         },
                         sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_handle_cryst_break',
-                            target: 'buffOwner',
-                            inheritSourceSkillCastInfo: true,
-                          }),
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                              operator: 'equal',
+                              right: { kind: 'constant', value: 0 },
+                            },
+                            sequence(
+                              step('applyBuff', {
+                                buffId: 'buff_physical_handle_cryst_break',
+                                target: 'buffOwner',
+                                source: 'buffSource',
+                                inheritSourceSkillCastInfo: true,
+                              }),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
                   ),
                 ),
               },
@@ -926,6 +1086,16 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                 showInHeadBarAttached: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
                 iconStyleInSquad: 'Default',
                 abnormalColorType: 'Physical',
                 orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -936,47 +1106,91 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
               attributeModifiers: [],
               lifecycleSequences: {
                 start: sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_physical_no_guard',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      skip_handle_cryst_break: { kind: 'constant', value: 1 },
-                    },
-                  }),
-                  step('readSkillSettingData', {
-                    items: [
-                      {
-                        values: [1.2, 1.2, 1.2, 1.2],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'atk_scale',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-                      },
-                      {
-                        values: [10, 10, 10, 10],
-                        column: { kind: 'constant', value: 1 },
-                        storeKey: 'poise',
-                        enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
-                      },
-                    ],
-                  }),
-                  step('dealDamage', {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: [],
-                    features: ['physicalInfliction'],
-                    stagger: { kind: 'blackboard', key: 'poise' },
-                  }),
-                  step('applyBuff', {
-                    buffId: 'buff_physical_handle_cryst_break',
-                    target: 'buffOwner',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                  step('igniteBuffs', {
-                    target: 'buffOwner',
-                    source: 'caster',
-                    igniteType: 'PhysicalStatus',
-                  }),
+                  withActionBlackboardScope(
+                    'native-buff-callback:0',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_no_guard',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                        blackboardAssignments: {
+                          skip_handle_cryst_break: { kind: 'constant', value: 1 },
+                        },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:1',
+                    {},
+                    true,
+                    sequence(
+                      step('readSkillSettingData', {
+                        items: [
+                          {
+                            values: [1.2, 1.2, 1.2, 1.2],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'atk_scale',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.01 },
+                            },
+                          },
+                          {
+                            values: [10, 10, 10, 10],
+                            column: { kind: 'constant', value: 1 },
+                            storeKey: 'poise',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.005 },
+                            },
+                          },
+                        ],
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['physicalInfliction'],
+                        stagger: { kind: 'blackboard', key: 'poise' },
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:2',
+                    {},
+                    true,
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                  withActionBlackboardScope(
+                    'native-buff-callback:3',
+                    {},
+                    true,
+                    sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
                 ),
               },
             },
@@ -1038,16 +1252,21 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
               right: { kind: 'constant', value: 1 },
             },
             sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0018_dapan_talent_1_preparation',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  duration: { kind: 'blackboard', key: 'talent_1_duration' },
-                  max_stack: { kind: 'blackboard', key: 'talent_1_stack' },
-                  talent_1_cd_reduce: { kind: 'blackboard', key: 'talent_1_cd_reduce' },
-                },
-              }),
+              forEachTarget(
+                'enemy',
+                sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0018_dapan_talent_1_preparation',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                    blackboardAssignments: {
+                      duration: { kind: 'blackboard', key: 'talent_1_duration' },
+                      max_stack: { kind: 'blackboard', key: 'talent_1_stack' },
+                      talent_1_cd_reduce: { kind: 'blackboard', key: 'talent_1_cd_reduce' },
+                    },
+                  }),
+                ),
+              ),
             ),
             undefined,
             { alwaysNext: true },
@@ -1134,6 +1353,9 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale_end: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
@@ -1153,6 +1375,12 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0018_dapan_combo_skill',
     timelineBlockFrames: 24,
+    exclusiveFrame: 52,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 24, endFrame: 59, sourceSkillIds: ['chr_0018_dapan_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1184,6 +1412,16 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                     showInHeadBarAttached: true,
                     showInSquadIcon: false,
                     onlyShowForMainCharacter: false,
+                    blinkInMainCharHpBar: false,
+                    showProgressInHpBar: false,
+                    showProgressInNormalSkillButton: false,
+                    useWeakProgressInNormalSkillButton: false,
+                    showProgressInUltimateSkillButton: false,
+                    forceRaiseIconEvent: false,
+                    showWarningBackground: false,
+                    playStrongInAnimation: false,
+                    hasCharHpBarVfxType: false,
+                    charHpBarVfxType: 'Fire',
                     iconStyleInSquad: 'Default',
                     abnormalColorType: 'Physical',
                     orderPriority: {
@@ -1209,6 +1447,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                           step('applyBuff', {
                             buffId: 'buff_physical_handle_cryst_break',
                             target: 'buffOwner',
+                            source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                           }),
                         ),
@@ -1218,39 +1457,58 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_physical_no_guard_fake',
                         target: 'buffOwner',
-                        source: 'eventSource',
+                        source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
                     afterEnhance: sequence(
-                      step('igniteBuffs', {
-                        target: 'buffOwner',
-                        source: 'buffOwner',
-                        igniteType: 'NoGuard',
-                      }),
-                      branch(
-                        {
-                          kind: 'currentBuffStackCompare',
-                          operator: 'greaterOrEqual',
-                          value: { kind: 'constant', value: 2 },
-                        },
+                      withActionBlackboardScope(
+                        'native-buff-callback:0',
+                        {},
+                        true,
+                        sequence(
+                          step('igniteBuffs', {
+                            target: 'buffOwner',
+                            source: 'buffOwner',
+                            igniteType: 'NoGuard',
+                          }),
+                        ),
+                        undefined,
+                        { lifetime: 'execution', alwaysNext: true },
+                      ),
+                      withActionBlackboardScope(
+                        'native-buff-callback:1',
+                        {},
+                        true,
                         sequence(
                           branch(
                             {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                              operator: 'equal',
-                              right: { kind: 'constant', value: 0 },
+                              kind: 'currentBuffStackCompare',
+                              operator: 'greaterOrEqual',
+                              value: { kind: 'constant', value: 2 },
                             },
                             sequence(
-                              step('applyBuff', {
-                                buffId: 'buff_physical_handle_cryst_break',
-                                target: 'buffOwner',
-                                inheritSourceSkillCastInfo: true,
-                              }),
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                                  operator: 'equal',
+                                  right: { kind: 'constant', value: 0 },
+                                },
+                                sequence(
+                                  step('applyBuff', {
+                                    buffId: 'buff_physical_handle_cryst_break',
+                                    target: 'buffOwner',
+                                    source: 'buffSource',
+                                    inheritSourceSkillCastInfo: true,
+                                  }),
+                                ),
+                              ),
                             ),
                           ),
                         ),
+                        undefined,
+                        { lifetime: 'execution', alwaysNext: true },
                       ),
                     ),
                   },
@@ -1273,6 +1531,16 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                     showInHeadBarAttached: false,
                     showInSquadIcon: false,
                     onlyShowForMainCharacter: false,
+                    blinkInMainCharHpBar: false,
+                    showProgressInHpBar: false,
+                    showProgressInNormalSkillButton: false,
+                    useWeakProgressInNormalSkillButton: false,
+                    showProgressInUltimateSkillButton: false,
+                    forceRaiseIconEvent: false,
+                    showWarningBackground: false,
+                    playStrongInAnimation: false,
+                    hasCharHpBarVfxType: false,
+                    charHpBarVfxType: 'Fire',
                     iconStyleInSquad: 'Default',
                     abnormalColorType: 'Physical',
                     orderPriority: {
@@ -1293,136 +1561,173 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                   attributeModifiers: [],
                   lifecycleSequences: {
                     start: sequence(
-                      step('readBuffStackCount', {
-                        target: 'buffOwner',
-                        outputKey: 'count',
-                        query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
-                      }),
-                      step('readSkillSettingData', {
-                        items: [
-                          {
-                            values: [3, 4.5, 6, 7.5],
-                            column: { kind: 'blackboard', key: 'count' },
-                            storeKey: 'atk_scale',
-                            enhance: {
-                              target: 'caster',
-                              formula: { kind: 'linear', paramA: 0.01 },
-                            },
-                          },
-                        ],
-                      }),
-                      step('modifyActionValue', {
-                        key: 'atk_scale',
-                        operation: 'multiply',
-                        value: { kind: 'blackboard', key: 'dmg_multiplier' },
-                      }),
-                      step('finishBuffsById', {
-                        target: 'buffOwner',
-                        buffIds: ['buff_physical_no_guard'],
-                        reason: 'early',
-                      }),
-                      step('dealDamage', {
-                        damageType: 'physical',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                        tags: [],
-                        features: ['physicalInfliction'],
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_physical_handle_cryst_break',
-                        target: 'buffOwner',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('igniteBuffs', {
-                        target: 'buffOwner',
-                        source: 'caster',
-                        igniteType: 'PhysicalStatus',
-                      }),
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'ignore_hit_effect' },
-                          operator: 'less',
-                          right: { kind: 'constant', value: 0.5 },
-                        },
-                        sequence({
-                          kind: 'switch',
-                          parameters: {
-                            choice: { kind: 'blackboard', key: 'count' },
-                            alwaysNext: true,
-                          },
-                          options: [
+                      withActionBlackboardScope(
+                        'native-buff-callback:0',
+                        {},
+                        true,
+                        sequence(
+                          step('readBuffStackCount', {
+                            target: 'buffOwner',
+                            outputKey: 'count',
+                            query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
+                          }),
+                          step('readSkillSettingData', {
+                            items: [
+                              {
+                                values: [3, 4.5, 6, 7.5],
+                                column: { kind: 'blackboard', key: 'count' },
+                                storeKey: 'atk_scale',
+                                enhance: {
+                                  target: 'caster',
+                                  formula: { kind: 'linear', paramA: 0.01 },
+                                },
+                              },
+                            ],
+                          }),
+                          step('modifyActionValue', {
+                            key: 'atk_scale',
+                            operation: 'multiply',
+                            value: { kind: 'blackboard', key: 'dmg_multiplier' },
+                          }),
+                          step('finishBuffsById', {
+                            target: 'buffOwner',
+                            buffIds: ['buff_physical_no_guard'],
+                            reason: 'early',
+                          }),
+                          step('dealDamage', {
+                            damageType: 'physical',
+                            attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                            tags: [],
+                            features: ['physicalInfliction'],
+                          }),
+                        ),
+                        undefined,
+                        { lifetime: 'execution', alwaysNext: true },
+                      ),
+                      withActionBlackboardScope(
+                        'native-buff-callback:1',
+                        {},
+                        true,
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_physical_handle_cryst_break',
+                            target: 'buffOwner',
+                            source: 'buffSource',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                        undefined,
+                        { lifetime: 'execution', alwaysNext: true },
+                      ),
+                      withActionBlackboardScope(
+                        'native-buff-callback:2',
+                        {},
+                        true,
+                        sequence(
+                          step('igniteBuffs', {
+                            target: 'buffOwner',
+                            source: 'caster',
+                            igniteType: 'PhysicalStatus',
+                          }),
+                        ),
+                        undefined,
+                        { lifetime: 'execution', alwaysNext: true },
+                      ),
+                      withActionBlackboardScope(
+                        'native-buff-callback:3',
+                        {},
+                        true,
+                        sequence(
+                          branch(
                             {
-                              value: { kind: 'constant', value: 0 },
-                              sequence: sequence(
-                                step('startTimeDilation', {
-                                  scope: 'entity',
-                                  durationSeconds: { kind: 'constant', value: 0.1 },
-                                  slot: 'TimeDilation/Layer/Entity/HitStop',
-                                  priority: 15,
-                                  curve: { kind: 'named', key: 'interrupt_weakness' },
-                                  finishByAction: false,
-                                  targets: ['enemy', 'caster'],
-                                }),
-                              ),
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'ignore_hit_effect' },
+                              operator: 'less',
+                              right: { kind: 'constant', value: 0.5 },
                             },
-                            {
-                              value: { kind: 'constant', value: 1 },
-                              sequence: sequence(
-                                step('startTimeDilation', {
-                                  scope: 'entity',
-                                  durationSeconds: { kind: 'constant', value: 0.1 },
-                                  slot: 'TimeDilation/Layer/Entity/HitStop',
-                                  priority: 10,
-                                  curve: { kind: 'named', key: 'interrupt_weakness' },
-                                  finishByAction: false,
-                                  targets: ['enemy', 'caster'],
-                                }),
-                              ),
-                            },
-                            {
-                              value: { kind: 'constant', value: 2 },
-                              sequence: sequence(
-                                step('startTimeDilation', {
-                                  scope: 'entity',
-                                  durationSeconds: { kind: 'constant', value: 0.25 },
-                                  slot: 'TimeDilation/Layer/Entity/HitStop',
-                                  priority: 20,
-                                  curve: { kind: 'named', key: 'interrupt_weakness' },
-                                  finishByAction: false,
-                                  targets: ['enemy', 'caster'],
-                                }),
-                              ),
-                            },
-                            {
-                              value: { kind: 'constant', value: 3 },
-                              sequence: sequence(
-                                step('startTimeDilation', {
-                                  scope: 'entity',
-                                  durationSeconds: { kind: 'constant', value: 0.5 },
-                                  slot: 'TimeDilation/Layer/Entity/HitStop',
-                                  priority: 20,
-                                  curve: { kind: 'named', key: 'interrupt_weakness' },
-                                  finishByAction: false,
-                                  targets: ['enemy', 'caster'],
-                                }),
-                              ),
-                            },
-                            {
-                              value: { kind: 'constant', value: 4 },
-                              sequence: sequence(
-                                step('startTimeDilation', {
-                                  scope: 'entity',
-                                  durationSeconds: { kind: 'constant', value: 0.65 },
-                                  slot: 'TimeDilation/Layer/Entity/HitStop',
-                                  priority: 20,
-                                  curve: { kind: 'named', key: 'interrupt_weakness' },
-                                  finishByAction: false,
-                                  targets: ['enemy', 'caster'],
-                                }),
-                              ),
-                            },
-                          ],
-                        }),
+                            sequence({
+                              kind: 'switch',
+                              parameters: {
+                                choice: { kind: 'blackboard', key: 'count' },
+                                alwaysNext: true,
+                              },
+                              options: [
+                                {
+                                  value: { kind: 'constant', value: 0 },
+                                  sequence: sequence(
+                                    step('startTimeDilation', {
+                                      scope: 'entity',
+                                      durationSeconds: { kind: 'constant', value: 0.1 },
+                                      slot: 'TimeDilation/Layer/Entity/HitStop',
+                                      priority: 15,
+                                      curve: { kind: 'named', key: 'interrupt_weakness' },
+                                      finishByAction: false,
+                                      targets: ['enemy', 'caster'],
+                                    }),
+                                  ),
+                                },
+                                {
+                                  value: { kind: 'constant', value: 1 },
+                                  sequence: sequence(
+                                    step('startTimeDilation', {
+                                      scope: 'entity',
+                                      durationSeconds: { kind: 'constant', value: 0.1 },
+                                      slot: 'TimeDilation/Layer/Entity/HitStop',
+                                      priority: 10,
+                                      curve: { kind: 'named', key: 'interrupt_weakness' },
+                                      finishByAction: false,
+                                      targets: ['enemy', 'caster'],
+                                    }),
+                                  ),
+                                },
+                                {
+                                  value: { kind: 'constant', value: 2 },
+                                  sequence: sequence(
+                                    step('startTimeDilation', {
+                                      scope: 'entity',
+                                      durationSeconds: { kind: 'constant', value: 0.25 },
+                                      slot: 'TimeDilation/Layer/Entity/HitStop',
+                                      priority: 20,
+                                      curve: { kind: 'named', key: 'interrupt_weakness' },
+                                      finishByAction: false,
+                                      targets: ['enemy', 'caster'],
+                                    }),
+                                  ),
+                                },
+                                {
+                                  value: { kind: 'constant', value: 3 },
+                                  sequence: sequence(
+                                    step('startTimeDilation', {
+                                      scope: 'entity',
+                                      durationSeconds: { kind: 'constant', value: 0.5 },
+                                      slot: 'TimeDilation/Layer/Entity/HitStop',
+                                      priority: 20,
+                                      curve: { kind: 'named', key: 'interrupt_weakness' },
+                                      finishByAction: false,
+                                      targets: ['enemy', 'caster'],
+                                    }),
+                                  ),
+                                },
+                                {
+                                  value: { kind: 'constant', value: 4 },
+                                  sequence: sequence(
+                                    step('startTimeDilation', {
+                                      scope: 'entity',
+                                      durationSeconds: { kind: 'constant', value: 0.65 },
+                                      slot: 'TimeDilation/Layer/Entity/HitStop',
+                                      priority: 20,
+                                      curve: { kind: 'named', key: 'interrupt_weakness' },
+                                      finishByAction: false,
+                                      targets: ['enemy', 'caster'],
+                                    }),
+                                  ),
+                                },
+                              ],
+                            }),
+                          ),
+                        ),
+                        undefined,
+                        { lifetime: 'execution', alwaysNext: true },
                       ),
                     ),
                   },
@@ -1480,6 +1785,9 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'trigger',
     cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atk_scale: [2.89, 3.18, 3.47, 3.75, 4.04, 4.33, 4.62, 4.91, 5.2, 5.56, 5.99, 6.5],
@@ -1507,12 +1815,16 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('dealDamage', {
-          damageType: 'physical',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: ['cryoAbnormal'],
-          features: ['shatter'],
-        }),
+        step(
+          'dealDamage',
+          {
+            damageType: 'physical',
+            attackScale: { kind: 'blackboard', key: 'atk_scale' },
+            tags: ['cryoAbnormal'],
+            features: ['shatter'],
+          },
+          'buff_common_cryst_triggered_physical_break:/lifecycleSequences/start/steps/0',
+        ),
       ),
     },
   },
@@ -1583,6 +1895,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1593,45 +1915,87 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('applyBuff', {
-          buffId: 'buff_physical_no_guard',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
-        }),
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [1.2, 1.2, 1.2, 1.2],
-              column: { kind: 'constant', value: 1 },
-              storeKey: 'atk_scale',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-            },
-            {
-              values: [10, 10, 10, 10],
-              column: { kind: 'constant', value: 1 },
-              storeKey: 'poise',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
-            },
-          ],
-        }),
-        step('dealDamage', {
-          damageType: 'physical',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: [],
-          features: ['physicalInfliction'],
-          stagger: { kind: 'blackboard', key: 'poise' },
-        }),
-        step('applyBuff', {
-          buffId: 'buff_physical_handle_cryst_break',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-        }),
-        step('igniteBuffs', {
-          target: 'buffOwner',
-          source: 'caster',
-          igniteType: 'PhysicalStatus',
-        }),
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_no_guard',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+              blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [1.2, 1.2, 1.2, 1.2],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+                {
+                  values: [10, 10, 10, 10],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'poise',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
+                },
+              ],
+            }),
+            step(
+              'dealDamage',
+              {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: [],
+                features: ['physicalInfliction'],
+                stagger: { kind: 'blackboard', key: 'poise' },
+              },
+              'buff_physical_airborne:/lifecycleSequences/start/steps/1/body/steps/1',
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:2',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:3',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'caster',
+              igniteType: 'PhysicalStatus',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
       ),
     },
   },
@@ -1652,6 +2016,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1662,130 +2036,171 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('readBuffStackCount', {
-          target: 'buffOwner',
-          outputKey: 'count',
-          query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
-        }),
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [3, 4.5, 6, 7.5],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'atk_scale',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-            },
-          ],
-        }),
-        step('modifyActionValue', {
-          key: 'atk_scale',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'dmg_multiplier' },
-        }),
-        step('finishBuffsById', {
-          target: 'buffOwner',
-          buffIds: ['buff_physical_no_guard'],
-          reason: 'early',
-        }),
-        step('dealDamage', {
-          damageType: 'physical',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: [],
-          features: ['physicalInfliction'],
-        }),
-        step('applyBuff', {
-          buffId: 'buff_physical_handle_cryst_break',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-        }),
-        step('igniteBuffs', {
-          target: 'buffOwner',
-          source: 'caster',
-          igniteType: 'PhysicalStatus',
-        }),
-        branch(
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'blackboard', key: 'ignore_hit_effect' },
-            operator: 'less',
-            right: { kind: 'constant', value: 0.5 },
-          },
-          sequence({
-            kind: 'switch',
-            parameters: { choice: { kind: 'blackboard', key: 'count' }, alwaysNext: true },
-            options: [
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('readBuffStackCount', {
+              target: 'buffOwner',
+              outputKey: 'count',
+              query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
+            }),
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [3, 4.5, 6, 7.5],
+                  column: { kind: 'blackboard', key: 'count' },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+              ],
+            }),
+            step('modifyActionValue', {
+              key: 'atk_scale',
+              operation: 'multiply',
+              value: { kind: 'blackboard', key: 'dmg_multiplier' },
+            }),
+            step('finishBuffsById', {
+              target: 'buffOwner',
+              buffIds: ['buff_physical_no_guard'],
+              reason: 'early',
+            }),
+            step(
+              'dealDamage',
               {
-                value: { kind: 'constant', value: 0 },
-                sequence: sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 15,
-                    curve: { kind: 'named', key: 'interrupt_weakness' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: [],
+                features: ['physicalInfliction'],
               },
+              'buff_physical_crushed:/lifecycleSequences/start/steps/0/body/steps/4',
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:2',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'caster',
+              igniteType: 'PhysicalStatus',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:3',
+          {},
+          true,
+          sequence(
+            branch(
               {
-                value: { kind: 'constant', value: 1 },
-                sequence: sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'interrupt_weakness' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
+                kind: 'actionValueCompare',
+                left: { kind: 'blackboard', key: 'ignore_hit_effect' },
+                operator: 'less',
+                right: { kind: 'constant', value: 0.5 },
               },
-              {
-                value: { kind: 'constant', value: 2 },
-                sequence: sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.25 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 20,
-                    curve: { kind: 'named', key: 'interrupt_weakness' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              },
-              {
-                value: { kind: 'constant', value: 3 },
-                sequence: sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.5 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 20,
-                    curve: { kind: 'named', key: 'interrupt_weakness' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              },
-              {
-                value: { kind: 'constant', value: 4 },
-                sequence: sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.65 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 20,
-                    curve: { kind: 'named', key: 'interrupt_weakness' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              },
-            ],
-          }),
+              sequence({
+                kind: 'switch',
+                parameters: { choice: { kind: 'blackboard', key: 'count' }, alwaysNext: true },
+                options: [
+                  {
+                    value: { kind: 'constant', value: 0 },
+                    sequence: sequence(
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.1 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 15,
+                        curve: { kind: 'named', key: 'interrupt_weakness' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
+                    ),
+                  },
+                  {
+                    value: { kind: 'constant', value: 1 },
+                    sequence: sequence(
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.1 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 10,
+                        curve: { kind: 'named', key: 'interrupt_weakness' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
+                    ),
+                  },
+                  {
+                    value: { kind: 'constant', value: 2 },
+                    sequence: sequence(
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.25 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 20,
+                        curve: { kind: 'named', key: 'interrupt_weakness' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
+                    ),
+                  },
+                  {
+                    value: { kind: 'constant', value: 3 },
+                    sequence: sequence(
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.5 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 20,
+                        curve: { kind: 'named', key: 'interrupt_weakness' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
+                    ),
+                  },
+                  {
+                    value: { kind: 'constant', value: 4 },
+                    sequence: sequence(
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.65 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 20,
+                        curve: { kind: 'named', key: 'interrupt_weakness' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
+                    ),
+                  },
+                ],
+              }),
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
         ),
       ),
     },
@@ -1833,6 +2248,7 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_common_cryst_triggered_physical_break',
           target: 'buffOwner',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           blackboardAssignments: { atk_scale: { kind: 'blackboard', key: 'atk_scale' } },
         }),
@@ -1929,45 +2345,87 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        step('applyBuff', {
-          buffId: 'buff_physical_no_guard',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
-        }),
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [1.2, 1.2, 1.2, 1.2],
-              column: { kind: 'constant', value: 1 },
-              storeKey: 'atk_scale',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-            },
-            {
-              values: [10, 10, 10, 10],
-              column: { kind: 'constant', value: 1 },
-              storeKey: 'poise',
-              enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
-            },
-          ],
-        }),
-        step('dealDamage', {
-          damageType: 'physical',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: [],
-          features: ['knockDown', 'physicalInfliction'],
-          stagger: { kind: 'blackboard', key: 'poise' },
-        }),
-        step('applyBuff', {
-          buffId: 'buff_physical_handle_cryst_break',
-          target: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-        }),
-        step('igniteBuffs', {
-          target: 'buffOwner',
-          source: 'caster',
-          igniteType: 'PhysicalStatus',
-        }),
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_no_guard',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+              blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
+          sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [1.2, 1.2, 1.2, 1.2],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+                {
+                  values: [10, 10, 10, 10],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'poise',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.005 } },
+                },
+              ],
+            }),
+            step(
+              'dealDamage',
+              {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: [],
+                features: ['knockDown', 'physicalInfliction'],
+                stagger: { kind: 'blackboard', key: 'poise' },
+              },
+              'buff_physical_knockdown:/lifecycleSequences/start/steps/1/body/steps/1',
+            ),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:2',
+          {},
+          true,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_physical_handle_cryst_break',
+              target: 'buffOwner',
+              source: 'buffSource',
+              inheritSourceSkillCastInfo: true,
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:3',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'caster',
+              igniteType: 'PhysicalStatus',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
       ),
     },
   },
@@ -1984,6 +2442,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: true,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'Default',
       abnormalColorType: 'Physical',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -2005,6 +2473,7 @@ export const commonBuffDefinitions = {
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
+              source: 'buffSource',
               inheritSourceSkillCastInfo: true,
             }),
           ),
@@ -2014,35 +2483,58 @@ export const commonBuffDefinitions = {
         step('applyBuff', {
           buffId: 'buff_physical_no_guard_fake',
           target: 'buffOwner',
-          source: 'eventSource',
+          source: 'buffSource',
           inheritSourceSkillCastInfo: true,
         }),
       ),
       afterEnhance: sequence(
-        step('igniteBuffs', { target: 'buffOwner', source: 'buffOwner', igniteType: 'NoGuard' }),
-        branch(
-          {
-            kind: 'currentBuffStackCompare',
-            operator: 'greaterOrEqual',
-            value: { kind: 'constant', value: 2 },
-          },
+        withActionBlackboardScope(
+          'native-buff-callback:0',
+          {},
+          true,
+          sequence(
+            step('igniteBuffs', {
+              target: 'buffOwner',
+              source: 'buffOwner',
+              igniteType: 'NoGuard',
+            }),
+          ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
+        ),
+        withActionBlackboardScope(
+          'native-buff-callback:1',
+          {},
+          true,
           sequence(
             branch(
               {
-                kind: 'actionValueCompare',
-                left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
-                operator: 'equal',
-                right: { kind: 'constant', value: 0 },
+                kind: 'currentBuffStackCompare',
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 2 },
               },
               sequence(
-                step('applyBuff', {
-                  buffId: 'buff_physical_handle_cryst_break',
-                  target: 'buffOwner',
-                  inheritSourceSkillCastInfo: true,
-                }),
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'skip_handle_cryst_break' },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_physical_handle_cryst_break',
+                      target: 'buffOwner',
+                      source: 'buffSource',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
               ),
             ),
           ),
+          undefined,
+          { lifetime: 'execution', alwaysNext: true },
         ),
       ),
     },
@@ -2104,6 +2596,28 @@ export default {
       skills: daPanComboSkill,
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'plungingAttack',
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'talent1',
@@ -2258,8 +2772,8 @@ export default {
                   sequence(
                     step('applyBuff', {
                       buffId: 'buff_chr_0018_dapan_talent_0_dmg_up',
-                      target: 'caster',
-                      source: 'eventSource',
+                      target: 'buffSource',
+                      source: 'buffSource',
                       count: { kind: 'blackboard', key: 'consumedLayer' },
                       inheritSourceSkillCastInfo: true,
                       blackboardAssignments: {
@@ -2289,6 +2803,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -2362,6 +2886,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -2381,7 +2915,7 @@ export default {
                 step('applyBuff', {
                   buffId: 'buff_chr_0018_dapan_talent_1_cd_reduce',
                   target: 'buffOwner',
-                  source: 'eventSource',
+                  source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
                   blackboardAssignments: {
                     cd_reduce: { kind: 'blackboard', key: 'talent_1_cd_reduce' },

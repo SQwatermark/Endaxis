@@ -20,6 +20,19 @@ export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0007_ikut_attack1',
     timelineBlockFrames: 9,
     exclusiveFrame: 21,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 26,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0007_ikut_attack2',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 9, endFrame: 26, sourceSkillIds: ['chr_0007_ikut_attack2'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -53,6 +66,9 @@ export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23] },
 );
@@ -63,6 +79,19 @@ export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0007_ikut_attack2',
     timelineBlockFrames: 10,
     exclusiveFrame: 15,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 26,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0007_ikut_attack3',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 10, endFrame: 26, sourceSkillIds: ['chr_0007_ikut_attack3'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -96,6 +125,9 @@ export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28] },
 );
@@ -106,6 +138,19 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0007_ikut_attack3',
     timelineBlockFrames: 20,
     exclusiveFrame: 33,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 30,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0007_ikut_attack4',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 20, endFrame: 30, sourceSkillIds: ['chr_0007_ikut_attack4'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -179,6 +224,9 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
         14,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -193,6 +241,19 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0007_ikut_attack4',
     timelineBlockFrames: 27,
     exclusiveFrame: 36,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 40,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0007_ikut_attack5',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 27, endFrame: 40, sourceSkillIds: ['chr_0007_ikut_attack5'] },
+      ],
+    },
     costFrame: 8,
     scheduledSequences: [
       scheduled(
@@ -243,6 +304,9 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
         20,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 0,
@@ -257,6 +321,19 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0007_ikut_attack5',
     timelineBlockFrames: 27,
     exclusiveFrame: 26,
+    inputWindows: {
+      commandMappings: [
+        {
+          startFrame: 0,
+          endFrame: 40,
+          input: 'basicAttack',
+          targetSourceSkillId: 'chr_0007_ikut_attack1',
+        },
+      ],
+      allowedNextSkills: [
+        { startFrame: 29, endFrame: 40, sourceSkillIds: ['chr_0007_ikut_attack1'] },
+      ],
+    },
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -314,6 +391,9 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
         14,
       ),
     ],
+    skillType: 'basicAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   {
     atb: 17,
@@ -328,6 +408,15 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0007_ikut_power_attack',
     timelineBlockFrames: 40,
     exclusiveFrame: 68,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 40,
+          endFrame: 68,
+          sourceSkillIds: ['chr_0007_ikut_normal_skill', 'chr_0007_ikut_combo_skill'],
+        },
+      ],
+    },
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -422,6 +511,9 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
         40,
       ),
     ],
+    skillType: 'finisher',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'breakingAttack',
   },
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
@@ -470,6 +562,9 @@ export const arclightPlungingAttack: SkillDefinition = withSkillBlackboard(
         6,
       ),
     ],
+    skillType: 'plungingAttack',
+    levelSource: 'basicAttack',
+    nativeSkillType: 'attack',
   },
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
@@ -480,6 +575,12 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0007_ikut_normal_skill',
     timelineBlockFrames: 36,
     exclusiveFrame: 164,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 36, endFrame: 60, sourceSkillIds: ['chr_0007_ikut_normal_skill'] },
+        { startFrame: 162, endFrame: 188, sourceSkillIds: ['chr_0007_ikut_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -811,6 +912,9 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'enemy',
     costs: [{ resource: 'sp', value: 100 }],
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'normalSkill',
   },
   {
     atb: [30, 30, 30, 30, 30, 35, 35, 35, 35, 35, 35, 40],
@@ -838,6 +942,15 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0007_ikut_ultimate_skill',
     timelineBlockFrames: 77,
     exclusiveFrame: 85,
+    inputWindows: {
+      allowedNextSkills: [
+        {
+          startFrame: 77,
+          endFrame: 89,
+          sourceSkillIds: ['chr_0007_ikut_normal_skill', 'chr_0007_ikut_combo_skill'],
+        },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -893,6 +1006,9 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
     ],
     cooldownFrames: 450,
     costs: [{ resource: 'ultimateEnergy', value: 90 }],
+    skillType: 'ultimate',
+    levelSource: 'ultimate',
+    nativeSkillType: 'ultimateSkill',
   },
   {
     atk_scale1: [1.56, 1.71, 1.87, 2.02, 2.18, 2.34, 2.49, 2.65, 2.8, 3, 3.23, 3.5],
@@ -910,6 +1026,11 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
     sourceSkillId: 'chr_0007_ikut_combo_skill',
     timelineBlockFrames: 27,
     exclusiveFrame: 37,
+    inputWindows: {
+      allowedNextSkills: [
+        { startFrame: 27, endFrame: 60, sourceSkillIds: ['chr_0007_ikut_normal_skill'] },
+      ],
+    },
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1024,6 +1145,9 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
     ],
     smartTarget: 'input',
     cooldownFrames: 90,
+    skillType: 'comboSkill',
+    levelSource: 'comboSkill',
+    nativeSkillType: 'comboSkill',
   },
   {
     atb: [8, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10],
@@ -1185,6 +1309,16 @@ export const commonBuffDefinitions = {
       showInHeadBarAttached: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
+      blinkInMainCharHpBar: false,
+      showProgressInHpBar: false,
+      showProgressInNormalSkillButton: false,
+      useWeakProgressInNormalSkillButton: false,
+      showProgressInUltimateSkillButton: false,
+      forceRaiseIconEvent: false,
+      showWarningBackground: false,
+      playStrongInAnimation: false,
+      hasCharHpBarVfxType: false,
+      charHpBarVfxType: 'Fire',
       iconStyleInSquad: 'SpellAbnormal',
       abnormalColorType: 'Pulse',
       orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
@@ -1358,6 +1492,29 @@ export default {
       skills: arclightComboSkill,
     },
   ],
+  skillSlots: [
+    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+  ],
+  playerActionRoutes: {
+    basicAttack: {
+      kind: 'basicAttack',
+      skillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+        'plungingAttack',
+        'finisher',
+      ],
+      defaultSkillKey: 'basicAttack1',
+    },
+    battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
+    comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
+    ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
+  },
   talents: [
     {
       key: 'electricDamageBonus',
@@ -1488,6 +1645,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'LifeTime',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
@@ -1533,6 +1700,16 @@ export default {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
