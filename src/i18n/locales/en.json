@@ -2343,7 +2343,9 @@
     },
     "simGuide": {
       "enemyHp": "Enemy HP",
-      "poise": "Poise"
+      "poise": "Poise",
+      "poiseRecovering": "Broken",
+      "poiseBrokenEndWindow": "Break ending"
     }
   }
 }

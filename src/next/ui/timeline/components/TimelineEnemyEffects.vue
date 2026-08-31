@@ -9,7 +9,9 @@ import { useI18n } from 'vue-i18n';
 import type { EnemyEffectViz } from '../../../core/projection/enemyEffectViz';
 import type { PositionedBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
 import type { CombatStatusIndicator } from '../../../core/projection/combatStatusIndicators';
+import type { EnemyCombatHudSnapshot as EnemyCombatHudSnapshotModel } from '../../../core/projection/combatHudSnapshot';
 import CombatStatusIconStrip from './CombatStatusIconStrip.vue';
+import EnemyCombatHudSnapshot from './EnemyCombatHudSnapshot.vue';
 
 const { t } = useI18n();
 
@@ -28,6 +30,15 @@ const props = defineProps<{
   };
   statusIndicators: readonly CombatStatusIndicator[];
   cursorFrame: number;
+  hudSnapshot: EnemyCombatHudSnapshotModel;
+  enemyName: string;
+  enemyLevel: number;
+  hudLabels: {
+    hp: string;
+    poise: string;
+    recovering: string;
+    brokenEndWindow: string;
+  };
 }>();
 
 const ICON_SIZE = 20;
@@ -160,11 +171,18 @@ const rowCount = computed(() =>
     ...buffs.value.map(buff => buff.lane + buffLaneOffset.value + 1),
   ),
 );
-const height = computed(() => Math.max(24, rowCount.value * 22 + 2));
+const height = computed(() => Math.max(90, rowCount.value * 22 + 2));
 </script>
 
 <template>
   <div class="enemy-effects" :style="{ width: `${width}px`, height: `${height}px` }">
+    <EnemyCombatHudSnapshot
+      class="enemy-hud"
+      :snapshot="hudSnapshot"
+      :name="enemyName"
+      :level="enemyLevel"
+      :labels="hudLabels"
+    />
     <CombatStatusIconStrip
       class="enemy-status-strip"
       :indicators="statusIndicators"
@@ -251,6 +269,12 @@ const height = computed(() => Math.max(24, rowCount.value * 22 + 2));
   background: var(--ea-surface, #17191c);
 }
 
+.enemy-hud {
+  position: absolute;
+  z-index: 10;
+  inset: 0 auto auto 0;
+}
+
 .enemy-effects__empty {
   display: grid;
   place-items: center;
@@ -262,14 +286,14 @@ const height = computed(() => Math.max(24, rowCount.value * 22 + 2));
 .enemy-status-strip {
   position: absolute;
   z-index: 20;
-  top: 2px;
-  left: 6px;
+  top: 69px;
+  left: 8px;
   max-width: 82px;
   overflow: visible;
 }
 
 .enemy-status-strip--attached {
-  left: 94px;
+  left: 96px;
 }
 
 .attachment-item {

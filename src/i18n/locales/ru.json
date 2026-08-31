@@ -2227,7 +2227,9 @@
     },
     "simGuide": {
       "enemyHp": "HP врага",
-      "poise": "Ошеломление"
+      "poise": "Ошеломление",
+      "poiseRecovering": "Пробитие",
+      "poiseBrokenEndWindow": "Конец пробития"
     }
   }
 }

@@ -2331,7 +2331,9 @@
     },
     "simGuide": {
       "enemyHp": "敌人生命",
-      "poise": "失衡"
+      "poise": "失衡",
+      "poiseRecovering": "破防中",
+      "poiseBrokenEndWindow": "破防结束"
     }
   }
 }

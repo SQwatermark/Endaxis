@@ -11,6 +11,7 @@ import type {
   CombatStatusDisplaySlot,
   CombatStatusIndicator,
 } from '../../../core/projection/combatStatusIndicators';
+import type { OperatorCombatHudSnapshot } from '../../../core/projection/combatHudSnapshot';
 
 const props = defineProps<{
   track: TimelineTrackViewModel;
@@ -29,6 +30,8 @@ const props = defineProps<{
   statusIndicators: readonly CombatStatusIndicator[];
   statusSlot: CombatStatusDisplaySlot;
   cursorFrame: number;
+  hudSnapshot: OperatorCombatHudSnapshot | null;
+  activeSkillLabel: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -68,6 +71,10 @@ function leaveReorderTarget(event: DragEvent): void {
   const current = event.currentTarget as HTMLElement;
   if (event.relatedTarget instanceof Node && current.contains(event.relatedTarget)) return;
   emit('reorderDragLeave');
+}
+
+function formatHudNumber(value: number | null): string {
+  return value === null ? '—' : String(Math.round(value));
 }
 </script>
 
@@ -165,6 +172,22 @@ function leaveReorderTarget(event: DragEvent): void {
         </button>
         <span class="operator-name-row">
           <span class="operator-name">{{ name }}</span>
+          <span v-if="hudSnapshot !== null" class="runtime-summary">
+            <span class="runtime-energy">
+              U {{ formatHudNumber(hudSnapshot.ultimateEnergy.current) }}/{{
+                formatHudNumber(hudSnapshot.ultimateEnergy.maximum)
+              }}
+            </span>
+            <span v-if="activeSkillLabel !== null" class="runtime-active" :title="activeSkillLabel">
+              {{ activeSkillLabel }}
+            </span>
+            <span v-if="hudSnapshot.comboWindows.length > 0" class="runtime-combo">
+              E×{{ hudSnapshot.comboWindows.length }}
+            </span>
+            <span v-if="hudSnapshot.cooldowns.length > 0" class="runtime-cooldown">
+              CD×{{ hudSnapshot.cooldowns.length }}
+            </span>
+          </span>
           <OperatorSupportNotice
             v-if="track.operatorSlug"
             :support="track.operatorSupport"
@@ -459,6 +482,37 @@ function leaveReorderTarget(event: DragEvent): void {
   padding-right: 20px;
 }
 
+.runtime-summary {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin-top: 2px;
+  font:
+    700 8px/10px 'Roboto Mono',
+    monospace;
+  white-space: nowrap;
+}
+
+.runtime-energy {
+  color: var(--ea-energy-accent, #7dd3fc);
+}
+
+.runtime-active {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ea-gold);
+  text-overflow: ellipsis;
+}
+
+.runtime-combo {
+  color: #52d3a9;
+}
+
+.runtime-cooldown {
+  color: var(--ea-fg-faint, rgb(255 255 255 / 45%));
+}
+
 .stat-detail-button {
   position: absolute;
   top: calc(50% - 53px);
@@ -498,7 +552,7 @@ function leaveReorderTarget(event: DragEvent): void {
 
 .track-status-strip {
   position: absolute;
-  top: calc(50% - 20px);
+  top: calc(50% + 3px);
   left: 58px;
   right: 4px;
   overflow: visible;

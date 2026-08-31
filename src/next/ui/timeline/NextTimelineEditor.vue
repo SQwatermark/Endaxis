@@ -66,7 +66,7 @@ import {
 } from '../../application/editor/projectEditorSession';
 import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
 import { useScenarioSimulation } from './useScenarioSimulation';
-import { sampleStepCurve } from '../../core/projection/curveSampling';
+import { projectCombatHudSnapshot } from '../../core/projection/combatHudSnapshot';
 import { resolveTimelineWheelIntent } from './timelineWheel';
 import { projectActiveGearSetLabels } from './activeGearSetHint';
 import { passedTimelineDragThreshold } from './timelineDragThreshold';
@@ -1800,6 +1800,37 @@ const combatStatusIndicators = computed(() =>
   projectCombatStatusIndicators(buffTimelineSegments.value, cursorFrame.value),
 );
 
+const combatHudInitialSkillSlots = computed(() =>
+  viewModel.value.tracks.flatMap(track => {
+    if (track.operatorInstanceId === null || track.operatorSlug === null) return [];
+    const definition = editorGameDataRepository.getOperator(track.operatorSlug);
+    return [
+      {
+        operatorId: track.operatorInstanceId,
+        slots: (definition?.skillSlots ?? []).map(slot => ({
+          skillSlotKey: slot.key,
+          currentSkillKey: slot.baseSkillKey,
+        })),
+      },
+    ];
+  }),
+);
+
+/** 状态栏和光标辅助线共用一份只读快照，避免各组件分别解释回执。 */
+const combatHudSnapshot = computed(() => {
+  const current = simulationRun.value;
+  if (current === null || cursorFrame.value > current.frame) return null;
+  return projectCombatHudSnapshot({
+    frame: cursorFrame.value,
+    endFrame: current.frame,
+    enemyHealthCurve: current.enemyHealthCurve,
+    poiseCurve: current.poiseCurve,
+    resourceCurves: current.resourceCurves,
+    receiptEntries: current.receiptEntries,
+    operatorSkillSlots: combatHudInitialSkillSlots.value,
+  });
+});
+
 const controlledOperatorIdAtCursor = computed(() =>
   resolveControlledOperator(
     resolveControlTimeline(scenario.value.tracks, scenario.value.battle.controlSwitches),
@@ -1811,6 +1842,24 @@ function statusIndicatorsForTarget(targetId: string | null) {
   return targetId === null
     ? []
     : combatStatusIndicators.value.filter(indicator => indicator.targetId === targetId);
+}
+
+function operatorHudSnapshotFor(operatorId: string | null) {
+  if (operatorId === null) return null;
+  return (
+    combatHudSnapshot.value?.operators.find(snapshot => snapshot.operatorId === operatorId) ?? null
+  );
+}
+
+function activeSkillLabelFor(trackIndex: TrackIndex): string | null {
+  const track = viewModel.value.tracks[trackIndex];
+  const snapshot = operatorHudSnapshotFor(track?.operatorInstanceId ?? null);
+  if (track === undefined || snapshot?.activeCastId === null || snapshot === null) return null;
+  const cast = scenario.value.tracks[trackIndex]?.skillCasts.find(
+    candidate => candidate.id === snapshot.activeCastId,
+  );
+  if (cast?.source.kind !== 'operatorSkill') return snapshot.activeSkillId;
+  return skillName(cast.source.skillGroupKey, track.operatorSlug);
 }
 
 const comboWindowSegments = computed(() => {
@@ -2141,29 +2190,39 @@ const cursorGuideMetrics = computed(() => {
   let enemyHealth: string | null = null;
   const gauges: TimelineCursorGaugeRow[] = [];
   const current = simulationRun.value;
-  if (current !== null) {
-    const sampledSp = sampleStepCurve(current.resourceCurves.sp.points, frame);
-    sp = formatGuideNumber(sampledSp.value);
-    const health = sampleStepCurve(current.enemyHealthCurve.points, frame);
-    enemyHealth = `${formatGuideNumber(health.value)}/${formatGuideNumber(current.enemyHealthCurve.maxValue)}`;
-    if (current.poiseCurve.maxValue > 0) {
-      const sampledPoise = sampleStepCurve(current.poiseCurve.points, frame);
-      poise = `${formatGuideNumber(sampledPoise.value)}/${formatGuideNumber(current.poiseCurve.maxValue)}`;
+  const snapshot =
+    current === null || frame > current.frame
+      ? null
+      : projectCombatHudSnapshot({
+          frame,
+          endFrame: current.frame,
+          enemyHealthCurve: current.enemyHealthCurve,
+          poiseCurve: current.poiseCurve,
+          resourceCurves: current.resourceCurves,
+          receiptEntries: current.receiptEntries,
+          operatorSkillSlots: combatHudInitialSkillSlots.value,
+        });
+  if (current !== null && snapshot !== null) {
+    sp = formatGuideNumber(snapshot.sp.current);
+    enemyHealth = `${formatGuideNumber(snapshot.enemy.health.current)}/${formatGuideNumber(snapshot.enemy.health.maximum)}`;
+    if (snapshot.enemy.poise !== null) {
+      poise = `${formatGuideNumber(snapshot.enemy.poise.current)}/${formatGuideNumber(snapshot.enemy.poise.maximum)}`;
     }
-    for (const curve of current.resourceCurves.ultimateEnergy) {
-      const sampled = sampleStepCurve(curve.points, frame);
+    for (const operator of snapshot.operators) {
       const trackIndex = viewModel.value.tracks.findIndex(
-        track => track.operatorInstanceId === curve.operatorId,
+        track => track.operatorInstanceId === operator.operatorId,
       );
       const track = trackIndex < 0 ? undefined : viewModel.value.tracks[trackIndex];
       if (track === undefined) continue;
       gauges.push({
-        id: curve.operatorId,
+        id: operator.operatorId,
         name: operatorName(track.operatorSlug),
-        current: formatGuideNumber(sampled.value),
-        max: formatGuideNumber(curve.maxValue),
+        current: formatGuideNumber(operator.ultimateEnergy.current),
+        max: formatGuideNumber(operator.ultimateEnergy.maximum),
         color: gaugeColorFor(trackIndex as TrackIndex),
-        isFull: sampled.value !== null && sampled.value >= curve.maxValue,
+        isFull:
+          operator.ultimateEnergy.current !== null &&
+          operator.ultimateEnergy.current >= operator.ultimateEnergy.maximum,
       });
     }
   }
@@ -2188,6 +2247,12 @@ function operatorName(slug: string | null): string {
 function enemyName(enemyId: string): string {
   return getEnemyGameName(enemyId, locale.value);
 }
+
+const enemyHudName = computed(() =>
+  scenario.value.enemy.source.kind === 'prefab'
+    ? enemyName(scenario.value.enemy.source.enemyId)
+    : t('resourceMonitor.enemy.custom'),
+);
 
 function skillName(groupKey: string, slug: string | null): string {
   if (slug === null) return groupKey;
@@ -4381,6 +4446,8 @@ function setPanelDialogVisible(visible: boolean): void {
                     : 'squadIcon'
                 "
                 :cursor-frame="cursorFrame"
+                :hud-snapshot="operatorHudSnapshotFor(track.operatorInstanceId)"
+                :active-skill-label="activeSkillLabelFor(track.trackIndex)"
                 :labels="{
                   operator: t('timelineGrid.track.changeOperatorTooltip'),
                   weapon: t('timelineGrid.track.selectWeaponTooltip'),
@@ -4743,6 +4810,7 @@ function setPanelDialogVisible(visible: boolean): void {
         />
         <div v-if="simulationRun !== null" class="simulation-curves">
           <TimelineEnemyEffects
+            v-if="combatHudSnapshot !== null"
             :viz="enemyEffectViz"
             :buffs="buffSegmentsForTarget('enemy')"
             :timeline-width="timelineWidth"
@@ -4752,6 +4820,15 @@ function setPanelDialogVisible(visible: boolean): void {
             :scroll-left="timelineScrollLeft"
             :status-indicators="statusIndicatorsForTarget('enemy')"
             :cursor-frame="cursorFrame"
+            :hud-snapshot="combatHudSnapshot.enemy"
+            :enemy-name="enemyHudName"
+            :enemy-level="scenario.enemy.source.level"
+            :hud-labels="{
+              hp: t('nextTimeline.simGuide.enemyHp'),
+              poise: t('nextTimeline.simGuide.poise'),
+              recovering: t('nextTimeline.simGuide.poiseRecovering'),
+              brokenEndWindow: t('nextTimeline.simGuide.poiseBrokenEndWindow'),
+            }"
             :labels="{
               burst: t('nextTimeline.effect.burst'),
               reaction: t('nextTimeline.effect.reaction'),
