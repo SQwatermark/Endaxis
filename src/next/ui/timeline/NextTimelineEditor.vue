@@ -1862,6 +1862,44 @@ function activeSkillLabelFor(trackIndex: TrackIndex): string | null {
   return skillName(cast.source.skillGroupKey, track.operatorSlug);
 }
 
+function skillHudButtonsFor(trackIndex: TrackIndex) {
+  const track = viewModel.value.tracks[trackIndex];
+  const snapshot = operatorHudSnapshotFor(track?.operatorInstanceId ?? null);
+  if (track === undefined || track.operatorSlug === null || snapshot === null) return [];
+  const definition = editorGameDataRepository.getOperator(track.operatorSlug);
+  if (definition === undefined || definition === null) return [];
+
+  return (['battleSkill', 'ultimate'] as const).flatMap(action => {
+    const route = definition.playerActionRoutes?.[action];
+    if (route?.kind !== 'skillSlot') return [];
+    const slot = snapshot.skillSlots.find(item => item.skillSlotKey === route.skillSlotKey);
+    if (slot === undefined) return [];
+    const entry = track.skillLibrary.find(candidate =>
+      candidate.skills.some(skill => skill.skillKey === slot.currentSkillKey),
+    );
+    const label =
+      entry === undefined
+        ? slot.currentSkillKey
+        : (timelineSkillSegmentLabel(entry, slot.currentSkillKey, skillSegmentLabels()) ??
+          skillName(entry.skillGroupKey, track.operatorSlug));
+    const cooldown = snapshot.cooldowns.find(item => item.skillId === slot.currentSkillKey);
+    const duration = cooldown === undefined ? 0 : cooldown.endFrame - cooldown.startFrame;
+    return [
+      {
+        action,
+        skillKey: slot.currentSkillKey,
+        label,
+        icon: skillDisplayIcon(action, track.operatorSlug),
+        cooldownRatio:
+          cooldown?.completed === true && duration > 0
+            ? Math.max(0, Math.min(1, (cooldown.endFrame - cursorFrame.value) / duration))
+            : null,
+        cooldownKnown: cooldown === undefined || cooldown.completed,
+      },
+    ];
+  });
+}
+
 const comboWindowSegments = computed(() => {
   const current = simulationRun.value;
   return current === null
@@ -4448,6 +4486,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :cursor-frame="cursorFrame"
                 :hud-snapshot="operatorHudSnapshotFor(track.operatorInstanceId)"
                 :active-skill-label="activeSkillLabelFor(track.trackIndex)"
+                :skill-buttons="skillHudButtonsFor(track.trackIndex)"
                 :labels="{
                   operator: t('timelineGrid.track.changeOperatorTooltip'),
                   weapon: t('timelineGrid.track.selectWeaponTooltip'),

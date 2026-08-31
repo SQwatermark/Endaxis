@@ -26,5 +26,8 @@ describe('combat HUD snapshot integration', () => {
     expect(trackHeaderSource).toContain('hudSnapshot.comboWindows.length');
     expect(trackHeaderSource).toContain('hudSnapshot.cooldowns.length');
     expect(trackHeaderSource).toContain('activeSkillLabel');
+    expect(trackHeaderSource).toContain('v-for="button in skillButtons"');
+    expect(editorSource).toContain('definition.playerActionRoutes?.[action]');
+    expect(editorSource).toContain('snapshot.skillSlots.find');
   });
 });

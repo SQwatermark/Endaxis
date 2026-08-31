@@ -32,6 +32,14 @@ const props = defineProps<{
   cursorFrame: number;
   hudSnapshot: OperatorCombatHudSnapshot | null;
   activeSkillLabel: string | null;
+  skillButtons: readonly {
+    action: 'battleSkill' | 'ultimate';
+    skillKey: string;
+    label: string;
+    icon: string;
+    cooldownRatio: number | null;
+    cooldownKnown: boolean;
+  }[];
 }>();
 
 const emit = defineEmits<{
@@ -75,6 +83,11 @@ function leaveReorderTarget(event: DragEvent): void {
 
 function formatHudNumber(value: number | null): string {
   return value === null ? '—' : String(Math.round(value));
+}
+
+function cooldownMask(ratio: number | null): string | undefined {
+  if (ratio === null) return undefined;
+  return `conic-gradient(rgb(8 9 11 / 82%) ${ratio * 360}deg, transparent 0deg)`;
 }
 </script>
 
@@ -209,6 +222,25 @@ function formatHudNumber(value: number | null): string {
       >
         {{ $t('statDetail.button') }}
       </button>
+      <span v-if="skillButtons.length > 0" class="skill-hud-buttons">
+        <span
+          v-for="button in skillButtons"
+          :key="button.action"
+          class="skill-hud-button"
+          :class="[`is-${button.action}`, { 'is-cooldown-unknown': !button.cooldownKnown }]"
+          :title="button.label"
+        >
+          <img :src="button.icon" alt="" />
+          <span
+            v-if="button.cooldownRatio !== null"
+            class="skill-hud-button__cooldown"
+            :style="{ background: cooldownMask(button.cooldownRatio) }"
+          ></span>
+          <span class="skill-hud-button__kind">{{
+            button.action === 'battleSkill' ? 'C' : 'U'
+          }}</span>
+        </span>
+      </span>
       <span v-if="track.operatorSlug" class="loadout-row">
         <button
           type="button"
@@ -531,6 +563,63 @@ function formatHudNumber(value: number | null): string {
 .stat-detail-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.skill-hud-buttons {
+  position: absolute;
+  top: calc(50% - 53px);
+  left: 50px;
+  display: flex;
+  gap: 4px;
+}
+
+.skill-hud-button {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 52%);
+  border-radius: 2px;
+  background: #303238;
+}
+
+.skill-hud-button.is-ultimate {
+  border-color: color-mix(in srgb, var(--ea-energy-accent, #7dd3fc) 72%, #aaa);
+}
+
+.skill-hud-button.is-cooldown-unknown {
+  border-style: dashed;
+}
+
+.skill-hud-button img,
+.skill-hud-button__cooldown {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.skill-hud-button img {
+  object-fit: cover;
+}
+
+.skill-hud-button__cooldown {
+  z-index: 1;
+}
+
+.skill-hud-button__kind {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  min-width: 7px;
+  background: rgb(0 0 0 / 76%);
+  color: #fff;
+  font:
+    700 7px/8px 'Roboto Mono',
+    monospace;
+  text-align: center;
 }
 
 .loadout-row {
