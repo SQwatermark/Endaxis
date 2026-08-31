@@ -1936,6 +1936,22 @@ describe('StandardPlayerDamageEnvironment', () => {
         iconPath: '/icons/icon_battle_buff_child.webp',
       },
     });
+    for (let frame = 0; frame < 3; frame += 1) {
+      context.clock.advanceFrame();
+      runtime.advanceFrame!();
+    }
+    expect(environment.skillButtonProgressCurves).toHaveLength(1);
+    expect(environment.skillButtonProgressCurves[0]).toMatchObject({
+      targetId: 'operator',
+      buffId: 'buff:operator-visible',
+      instanceId: 1,
+      showInBattleSkillButton: true,
+      weakBattleSkillStyle: true,
+    });
+    expect(environment.skillButtonProgressCurves[0]?.points.map(point => point.frame)).toEqual([
+      0, 3,
+    ]);
+    expect(environment.skillButtonProgressCurves[0]?.points[1]?.ratio).toBeCloseTo(0.98);
   });
 
   it('applies reactions with levels and evaluates reaction conditions', () => {

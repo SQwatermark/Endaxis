@@ -46,6 +46,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   #resolveLifecycleOperations:
     ((source: BuffLifecycleOperationSource) => CombatOperationExecutor) | null = null;
   #buffAppliedObserver: ((event: BuffAppliedEvent) => void) | null = null;
+  #advancedObserver: (() => void) | null = null;
   #registerSemanticEventAction: RegisterBuffSemanticEventAction | null = null;
   constructor(
     readonly container: CombatBuffContainer<Key>,
@@ -251,11 +252,18 @@ export class BuffDefinitionOperationTarget<Key extends string>
 
   advanceFrame(): void {
     this.container.tick(COMBAT_FRAME_INTERVAL);
+    this.#advancedObserver?.();
   }
 
   /** AbilitySystem 提供四路时钟后，由各 Buff 定义自行选择其生命周期时间域。 */
   advanceWithDeltas(deltas: AbilityTickDeltas): void {
     this.container.tick(deltas);
+    this.#advancedObserver?.();
+  }
+
+  configureAdvancedObserver(observer: () => void): void {
+    if (this.#advancedObserver !== null) throw new Error('advanced observer is configured');
+    this.#advancedObserver = observer;
   }
 
   finishAll(reason: BuffFinishReason = 'other'): number {

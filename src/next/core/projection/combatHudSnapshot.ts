@@ -17,6 +17,7 @@ import {
   projectSkillCooldownTimelineViz,
   type SkillCooldownTimelineSegment,
 } from './skillCooldownTimelineViz';
+import type { SkillButtonProgressCurve } from '../combat/runtime/skillButtonProgressRecorder';
 
 export interface CombatHudGaugeSnapshot {
   readonly current: number | null;
@@ -47,6 +48,7 @@ export interface CombatHudSkillProgressSnapshot {
   readonly buffId: string;
   readonly instanceId: number;
   readonly weakStyle: boolean;
+  readonly ratio: number | null;
 }
 
 export interface CombatHudSkillSlotSnapshot {
@@ -74,6 +76,7 @@ export interface CombatHudSnapshotInput {
   readonly resourceCurves: CombatResourceCurves;
   readonly receiptEntries: readonly CombatReceiptEntry[];
   readonly operatorSkillSlots?: readonly CombatHudOperatorSkillSlotsInitial[];
+  readonly skillButtonProgressCurves?: readonly SkillButtonProgressCurve[];
 }
 
 function gauge(
@@ -118,6 +121,33 @@ interface SkillProgressPointers {
   readonly ultimate: CombatHudSkillProgressSnapshot | null;
 }
 
+function sampleSkillProgressCurve(
+  curves: readonly SkillButtonProgressCurve[],
+  pointer: CombatHudSkillProgressSnapshot | null,
+  targetId: string,
+  frame: number,
+): CombatHudSkillProgressSnapshot | null {
+  if (pointer === null) return null;
+  const curve = curves.find(
+    candidate =>
+      candidate.targetId === targetId &&
+      candidate.buffId === pointer.buffId &&
+      candidate.instanceId === pointer.instanceId,
+  );
+  if (curve === undefined || curve.points.length === 0) return pointer;
+  const rightIndex = curve.points.findIndex(point => point.frame >= frame);
+  if (rightIndex < 0) return { ...pointer, ratio: curve.points.at(-1)?.ratio ?? null };
+  const right = curve.points[rightIndex]!;
+  if (right.frame === frame || rightIndex === 0) return { ...pointer, ratio: right.ratio };
+  const left = curve.points[rightIndex - 1]!;
+  if (left.ratio === null || right.ratio === null) return pointer;
+  return {
+    ...pointer,
+    ratio:
+      left.ratio + ((right.ratio - left.ratio) * (frame - left.frame)) / (right.frame - left.frame),
+  };
+}
+
 /**
  * 复刻 SkillButton._OnBuffIconChange 的事件驱动指针。后施加者覆盖；只有当前
  * 指针所指实例结束才清空，且不会回退到仍存活的旧实例。
@@ -148,6 +178,7 @@ function skillProgressPointersAtFrame(
         buffId,
         instanceId,
         weakStyle: booleanData(entry.data, 'useWeakProgressInNormalSkillButton') === true,
+        ratio: null,
       };
       if (booleanData(entry.data, 'showProgressInNormalSkillButton') === true) {
         current.battleSkill = pointer;
@@ -284,6 +315,7 @@ function operatorSnapshot(
   cooldowns: readonly SkillCooldownTimelineSegment[],
   comboWindows: readonly ComboWindowTimelineSegment[],
   skillProgress: ReadonlyMap<string, SkillProgressPointers>,
+  progressCurves: readonly SkillButtonProgressCurve[],
 ): OperatorCombatHudSnapshot {
   const active = activeSkills.get(curve.operatorId);
   const progress = skillProgress.get(curve.operatorId);
@@ -304,8 +336,18 @@ function operatorSnapshot(
         frame >= item.startFrame &&
         (frame < item.endFrame || (item.outcome === 'pending' && frame === item.endFrame)),
     ),
-    battleSkillProgress: progress?.battleSkill ?? null,
-    ultimateProgress: progress?.ultimate ?? null,
+    battleSkillProgress: sampleSkillProgressCurve(
+      progressCurves,
+      progress?.battleSkill ?? null,
+      curve.operatorId,
+      frame,
+    ),
+    ultimateProgress: sampleSkillProgressCurve(
+      progressCurves,
+      progress?.ultimate ?? null,
+      curve.operatorId,
+      frame,
+    ),
   };
 }
 
@@ -348,6 +390,7 @@ export function projectCombatHudSnapshot(input: CombatHudSnapshotInput): CombatH
         cooldowns,
         comboWindows,
         skillProgress,
+        input.skillButtonProgressCurves ?? [],
       ),
     ),
   };

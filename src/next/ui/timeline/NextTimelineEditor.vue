@@ -1828,6 +1828,7 @@ const combatHudSnapshot = computed(() => {
     resourceCurves: current.resourceCurves,
     receiptEntries: current.receiptEntries,
     operatorSkillSlots: combatHudInitialSkillSlots.value,
+    skillButtonProgressCurves: current.skillButtonProgressCurves,
   });
 });
 
@@ -1883,6 +1884,8 @@ function skillHudButtonsFor(trackIndex: TrackIndex) {
         : (timelineSkillSegmentLabel(entry, slot.currentSkillKey, skillSegmentLabels()) ??
           skillName(entry.skillGroupKey, track.operatorSlug));
     const cooldown = snapshot.cooldowns.find(item => item.skillId === slot.currentSkillKey);
+    const progress =
+      action === 'battleSkill' ? snapshot.battleSkillProgress : snapshot.ultimateProgress;
     const duration = cooldown === undefined ? 0 : cooldown.endFrame - cooldown.startFrame;
     return [
       {
@@ -1895,6 +1898,8 @@ function skillHudButtonsFor(trackIndex: TrackIndex) {
             ? Math.max(0, Math.min(1, (cooldown.endFrame - cursorFrame.value) / duration))
             : null,
         cooldownKnown: cooldown === undefined || cooldown.completed,
+        progressRatio: progress?.ratio ?? null,
+        weakProgress: progress?.weakStyle === true,
       },
     ];
   });

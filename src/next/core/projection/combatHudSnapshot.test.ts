@@ -34,7 +34,13 @@ const curves = {
   ],
 };
 
-function project(frame: number, entries: readonly CombatReceiptEntry[]) {
+function project(
+  frame: number,
+  entries: readonly CombatReceiptEntry[],
+  skillButtonProgressCurves: Parameters<
+    typeof projectCombatHudSnapshot
+  >[0]['skillButtonProgressCurves'] = [],
+) {
   return projectCombatHudSnapshot({
     frame,
     endFrame: 60,
@@ -57,6 +63,7 @@ function project(frame: number, entries: readonly CombatReceiptEntry[]) {
       ],
     },
     receiptEntries: entries,
+    skillButtonProgressCurves,
     operatorSkillSlots: [
       {
         operatorId: 'track:1',
@@ -165,6 +172,26 @@ describe('projectCombatHudSnapshot', () => {
     expect(project(8, entries).operators[0]).toMatchObject({
       battleSkillProgress: null,
       ultimateProgress: null,
+    });
+
+    expect(
+      project(5, entries, [
+        {
+          targetId: 'track:1',
+          buffId: 'newer',
+          instanceId: 2,
+          showInBattleSkillButton: true,
+          showInUltimateButton: true,
+          weakBattleSkillStyle: true,
+          points: [
+            { frame: 4, ratio: 1 },
+            { frame: 6, ratio: 0.5 },
+          ],
+        },
+      ]).operators[0],
+    ).toMatchObject({
+      battleSkillProgress: { ratio: 0.75 },
+      ultimateProgress: { ratio: 0.75 },
     });
   });
 

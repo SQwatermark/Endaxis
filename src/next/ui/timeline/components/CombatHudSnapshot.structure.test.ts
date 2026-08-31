@@ -29,5 +29,8 @@ describe('combat HUD snapshot integration', () => {
     expect(trackHeaderSource).toContain('v-for="button in skillButtons"');
     expect(editorSource).toContain('definition.playerActionRoutes?.[action]');
     expect(editorSource).toContain('snapshot.skillSlots.find');
+    expect(editorSource).toContain('snapshot.battleSkillProgress');
+    expect(editorSource).toContain('current.skillButtonProgressCurves');
+    expect(trackHeaderSource).toContain('button.progressRatio');
   });
 });

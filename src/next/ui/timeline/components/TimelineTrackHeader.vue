@@ -39,6 +39,8 @@ const props = defineProps<{
     icon: string;
     cooldownRatio: number | null;
     cooldownKnown: boolean;
+    progressRatio: number | null;
+    weakProgress: boolean;
   }[];
 }>();
 
@@ -231,6 +233,12 @@ function cooldownMask(ratio: number | null): string | undefined {
           :title="button.label"
         >
           <img :src="button.icon" alt="" />
+          <span
+            v-if="button.progressRatio !== null"
+            class="skill-hud-button__progress"
+            :class="{ 'is-weak': button.weakProgress }"
+            :style="{ '--progress-angle': `${button.progressRatio * 360}deg` }"
+          ></span>
           <span
             v-if="button.cooldownRatio !== null"
             class="skill-hud-button__cooldown"
@@ -593,6 +601,7 @@ function cooldownMask(ratio: number | null): string | undefined {
 }
 
 .skill-hud-button img,
+.skill-hud-button__progress,
 .skill-hud-button__cooldown {
   position: absolute;
   inset: 0;
@@ -604,13 +613,26 @@ function cooldownMask(ratio: number | null): string | undefined {
   object-fit: cover;
 }
 
-.skill-hud-button__cooldown {
+.skill-hud-button__progress {
   z-index: 1;
+  background: conic-gradient(
+    color-mix(in srgb, var(--ea-gold) 72%, transparent) var(--progress-angle),
+    transparent 0
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ea-gold) 70%, transparent);
+}
+
+.skill-hud-button__progress.is-weak {
+  opacity: 0.45;
+}
+
+.skill-hud-button__cooldown {
+  z-index: 2;
 }
 
 .skill-hud-button__kind {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   right: 0;
   bottom: 0;
   min-width: 7px;
