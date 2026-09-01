@@ -4,11 +4,7 @@ import {
   type SkillLevelSource,
   type SkillType,
 } from './primitives.ts';
-import {
-  type CombatEventHandlerDefinition,
-  type CombatEventTrigger,
-  type ScheduledSequenceDefinition,
-} from './actions.ts';
+import { type CombatEventHandlerDefinition, type ScheduledSequenceDefinition } from './actions.ts';
 import { type BuildCondition, type CombatCondition } from './conditions.ts';
 
 /** 生成期已从原生 born-tag 证据解析出的可执行能力实体查询。 */
@@ -140,41 +136,10 @@ export interface SkillAllowedNextWindow {
 /** 事件触发器筛选干员自身或全队来源的范围。 */
 export type SkillTriggerScope = 'operator' | 'team';
 
-/** 角色级连携入口的一条事件规则；条件成立后进入 pending 或立即尝试释放。 */
-export interface ComboSkillTriggerRule {
-  trigger: Extract<
-    CombatEventTrigger,
-    { kind: 'damageTagHit' | 'elementalInflictionApplied' | 'physicalInflictionApplied' }
-  >;
-  condition?: CombatCondition;
-  /** 原生条件命中时随候选复制的事件分支参数；覆盖角色级连携默认黑板。 */
-  blackboard?: Readonly<Record<string, LevelValues>>;
-  /** 对应原生 `comboSkillConditionImmediately`；省略时进入连携窗口。 */
-  castImmediately?: boolean;
-}
-
 export const COMBO_SKILL_PRIORITIES = ['default', 'firstBlackboard', 'enemyRank'] as const;
 
 /** 同一干员存在多个目标候选时，原生运行时选择实际施法目标的策略。 */
 export type ComboSkillPriority = (typeof COMBO_SKILL_PRIORITIES)[number];
-
-/**
- * 角色进入战斗时向场景连携管理器注册的一组入口。
- * 它对应角色级 SkillDataBundle 数据，不属于某次技能释放，也不能在技能块编辑器中修改。
- */
-export interface ComboSkillRegistrationDefinition {
-  /** 条件成立后准备释放的稳定技能定义键。 */
-  skillKey: string;
-  priority: ComboSkillPriority;
-  /** 创建候选时复制到本次连携施法参数中的默认黑板。 */
-  blackboard?: Readonly<Record<string, LevelValues>>;
-  /**
-   * 时间轴强制释放但没有合法窗口时使用的模拟哨兵值。只允许让事件依赖分支不执行；
-   * `ComboWindowUnavailableAtStart` 诊断仍保留，不能把它当成原生默认输入。
-   */
-  invalidCastBlackboard?: Readonly<Record<string, LevelValues>>;
-  rules: readonly ComboSkillTriggerRule[];
-}
 
 /**
  * 一个可独立释放或触发的技能定义。
@@ -205,6 +170,11 @@ export interface SkillDefinition {
   smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴技能块的显示宽度；由可操作边界推导，不对应原生 `durationFrame`。 */
   timelineBlockFrames: number;
+  /**
+   * 原生 `SkillData.durationFrame` 的运行时自然结束周期，已按原生 getter 钳制为至少 1 帧。
+   * 它不决定技能块宽度，也不能用 `exclusiveFrame` 或最后一个可见战斗动作代替。
+   */
+  naturalDurationFrames?: number;
   /** 原生 SkillData.exclusiveFrame；只在需要读取当前技能可中断状态时参与运行时判断。 */
   exclusiveFrame?: number;
   /**

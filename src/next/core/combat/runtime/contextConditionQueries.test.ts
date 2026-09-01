@@ -103,6 +103,45 @@ describe('Context 条件查询', () => {
     context.blackboard.assign({ threshold: 0 });
     expect(executor.evaluate(condition, context)).toBe(true);
   });
+  it('Advanced(Id) 复用同一 Buff 容器并按 ID 汇总首目标增强层数', () => {
+    const buffs = new CombatBuffContainer(
+      'ally',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([]),
+    );
+    buffs.add({ id: 'buff-a', stackingType: 'enhance', applyTags: [] }, 'owner');
+    buffs.add({ id: 'buff-a', stackingType: 'enhance', applyTags: [] }, 'owner');
+    buffs.add({ id: 'buff-b', stackingType: 'enhance', applyTags: [] }, 'owner');
+    const executor = new BuffOperationExecutor({
+      sourceId: 'owner',
+      resolveTarget: () => buffs,
+      resolveEventTarget: id => {
+        expect(id).toBe('ally');
+        return buffs;
+      },
+      delegate: terminal,
+    });
+    const context = {
+      blackboard: new ActionBlackboard(),
+      targetContext: new RuntimeTargetContext(),
+    };
+    const condition = {
+      kind: 'contextTargetBuffIdStackCompare' as const,
+      contextKey: 'trigger',
+      buffIds: ['buff-a'],
+      operator: 'equal' as const,
+      value: { kind: 'constant' as const, value: 2 },
+    };
+    expect(executor.evaluate(condition, context)).toBe(false);
+    context.targetContext.setSingle('trigger', { kind: 'operator', operatorId: 'ally' });
+    expect(executor.evaluate(condition, context)).toBe(true);
+    expect(
+      executor.evaluate(
+        { ...condition, buffIds: ['buff-a', 'buff-b'], value: { kind: 'constant', value: 3 } },
+        context,
+      ),
+    ).toBe(true);
+  });
   it.each([-2147483649, 2147483648, 0.5, '16'])('正式定义拒绝非法 mask %j', objectTypeMask => {
     expect(
       validateSkillDefinition({

@@ -6,6 +6,10 @@ import type { CombatActionProjectionContextSource } from './combatProjectionComm
 import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
 
 const INFLICTION_COMBO_EVENTS = {
+  9: 'addedBuff',
+  101: 'beforeTakeDamage',
+  12: 'takeDamage',
+  60: 'afterTakePhysicalInfliction',
   126: 'beforeOutputInfliction',
   121: 'beforeTakeInfliction',
   129: 'afterOutputInfliction',
@@ -35,6 +39,7 @@ export function compileComboSkillConditionDefinitionSource(
         `${source.sourcePath}.binding.skillGroupKey`,
       ),
       event: compiled.event,
+      immediately: source.immediately,
       initialValues:
         blackboards.comboConditionInitialValues === null
           ? null
@@ -44,13 +49,11 @@ export function compileComboSkillConditionDefinitionSource(
   };
 }
 
-/** 只编译已审计的四类附着 Pending 注册；不猜 immediate、主控/支援过滤或其他事件目标。 */
+/** 只编译已审计目标绑定的伤害/Buff/附着条件；immediate 事实保留，运行端能力另行门禁。 */
 export function compilePendingComboConditionSource(
   source: ComboSkillConditionSource,
   context: CombatActionProjectionContextSource,
 ): CompiledComboConditionSource {
-  if (source.immediately)
-    throw new Error(`${source.sourcePath}: immediate combo conditions are unsupported`);
   if (!Object.hasOwn(INFLICTION_COMBO_EVENTS, source.nativeEvent)) {
     throw new Error(`${source.sourcePath}: unaudited combo event ${source.nativeEvent}`);
   }
@@ -85,7 +88,11 @@ function rejectUnboundInputTargets(value: unknown, path: string): void {
   )
     return;
   for (const [key, child] of Object.entries(value)) {
-    if (key === 'targetSource' && child === 'Target') {
+    if (
+      key === 'targetSource' &&
+      child === 'Target' &&
+      (!('targetGroupKey' in value) || value.targetGroupKey === '')
+    ) {
       throw new Error(`${path}: combo InputTarget projection is not installed`);
     }
     rejectUnboundInputTargets(child, `${path}.${key}`);

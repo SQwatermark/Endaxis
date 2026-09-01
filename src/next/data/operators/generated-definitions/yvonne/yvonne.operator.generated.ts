@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -21,6 +20,7 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0017_yvonne_attack1',
     timelineBlockFrames: 16,
+    naturalDurationFrames: 121,
     exclusiveFrame: 20,
     inputWindows: {
       commandMappings: [
@@ -115,6 +115,7 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0017_yvonne_attack2',
     timelineBlockFrames: 14,
+    naturalDurationFrames: 126,
     exclusiveFrame: 20,
     inputWindows: {
       commandMappings: [
@@ -277,6 +278,7 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0017_yvonne_attack3',
     timelineBlockFrames: 20,
+    naturalDurationFrames: 127,
     exclusiveFrame: 21,
     inputWindows: {
       commandMappings: [
@@ -503,6 +505,7 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0017_yvonne_attack4',
     timelineBlockFrames: 24,
+    naturalDurationFrames: 156,
     exclusiveFrame: 25,
     inputWindows: {
       commandMappings: [
@@ -597,6 +600,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0017_yvonne_attack5',
     timelineBlockFrames: 37,
+    naturalDurationFrames: 145,
     exclusiveFrame: 37,
     inputWindows: { hasConditionalActions: true },
     costFrame: 9,
@@ -690,6 +694,7 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack1',
     sourceSkillId: 'chr_0017_yvonne_ult_attack1_1',
     timelineBlockFrames: 21,
+    naturalDurationFrames: 77,
     exclusiveFrame: 28,
     inputWindows: {
       commandMappings: [
@@ -948,6 +953,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack2A',
     sourceSkillId: 'chr_0017_yvonne_ult_attack2_1',
     timelineBlockFrames: 23,
+    naturalDurationFrames: 133,
     exclusiveFrame: 31,
     inputWindows: {
       commandMappings: [
@@ -1632,6 +1638,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack2B',
     sourceSkillId: 'chr_0017_yvonne_ult_attack2_2',
     timelineBlockFrames: 12,
+    naturalDurationFrames: 123,
     exclusiveFrame: 22,
     inputWindows: {
       commandMappings: [
@@ -2252,6 +2259,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack3A',
     sourceSkillId: 'chr_0017_yvonne_ult_attack3_1',
     timelineBlockFrames: 28,
+    naturalDurationFrames: 163,
     exclusiveFrame: 45,
     inputWindows: {
       commandMappings: [
@@ -3125,6 +3133,7 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack3B',
     sourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
     timelineBlockFrames: 16,
+    naturalDurationFrames: 151,
     exclusiveFrame: 28,
     inputWindows: {
       commandMappings: [
@@ -3969,6 +3978,7 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttackEnd',
     sourceSkillId: 'chr_0017_yvonne_ult_attack_end',
     timelineBlockFrames: 61,
+    naturalDurationFrames: 161,
     exclusiveFrame: 60,
     costFrame: 9,
     scheduledSequences: [
@@ -4396,6 +4406,7 @@ export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0017_yvonne_power_attack',
     timelineBlockFrames: 29,
+    naturalDurationFrames: 135,
     exclusiveFrame: 45,
     inputWindows: {
       allowedNextSkills: [
@@ -4580,6 +4591,7 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0017_yvonne_plunging_attack_end',
     timelineBlockFrames: 2,
+    naturalDurationFrames: 130,
     exclusiveFrame: 20,
     inputWindows: {
       allowedNextSkills: [
@@ -4764,6 +4776,7 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0017_yvonne_normal_skill',
     timelineBlockFrames: 34,
+    naturalDurationFrames: 150,
     exclusiveFrame: 34,
     inputWindows: {
       allowedNextSkills: [
@@ -4855,6 +4868,7 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0017_yvonne_ultimate_skill',
     timelineBlockFrames: 65,
+    naturalDurationFrames: 126,
     exclusiveFrame: 64,
     costFrame: 0,
     scheduledSequences: [
@@ -5038,6 +5052,7 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0017_yvonne_combo_skill',
     timelineBlockFrames: 19,
+    naturalDurationFrames: 130,
     exclusiveFrame: 24,
     inputWindows: {
       allowedNextSkills: [
@@ -5129,246 +5144,6 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
     usp_extra: 10,
   },
 );
-
-export const commonBuffDefinitions = {
-  buff_common_cryst_cryst_frozen_triggered: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: 3,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { consumed_layer: 0, consumed_type: 2, count: 1, duration: 0, extra_duration: 0 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [6, 7, 8, 9],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'duration',
-            },
-          ],
-        }),
-        step('modifyActionValue', {
-          key: 'duration',
-          operation: 'add',
-          value: { kind: 'blackboard', key: 'extra_duration' },
-        }),
-        step('applyBuff', {
-          buffId: 'buff_common_cryst_cryst_frozen_triggered_do',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: {
-            count: { kind: 'blackboard', key: 'count' },
-            duration: { kind: 'blackboard', key: 'duration' },
-            consumed_type: { kind: 'blackboard', key: 'consumed_type' },
-            consumed_layer: { kind: 'blackboard', key: 'consumed_layer' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_cryst_cryst_frozen_triggered_do: {
-    stackingType: 'stack',
-    stackingKey: 'cryst_triggered',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 1,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_frozen',
-      iconPath: '/icons/icon_battle_frozen.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: false,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'SpellAbnormal',
-      abnormalColorType: 'Cryst',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
-    },
-    applyTags: ['Skill/Character/Common/SpellStatus/Frozen'],
-    extendTags: [],
-    blackboard: { count: 1, duration: 5, final_phy_dmg_up: 0, phy_dmg_up: 0.2 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(
-        step('storeSourceAttributeValue', {
-          attribute: { kind: 'specific', key: 'cryoAbnormalDamageIncrease' },
-          stage: 'finalNonConverted',
-          useFloor: false,
-          divisor: { kind: 'constant', value: 1 },
-          multiplier: { kind: 'blackboard', key: 'phy_dmg_up' },
-          base: { kind: 'blackboard', key: 'phy_dmg_up' },
-          targetKey: 'final_phy_dmg_up',
-        }),
-        step('applyBuff', {
-          buffId: 'buff_common_cryst_triggered_fx',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-        }),
-      ),
-      enable: sequence(
-        branch(
-          {
-            kind: 'enemySuperArmorCompare',
-            operator: 'lessOrEqual',
-            value: { kind: 'constant', value: 20 },
-          },
-          sequence(
-            step('applyBuff', {
-              buffId: 'buff_common_frozen',
-              target: 'buffOwner',
-              source: 'buffSource',
-              inheritSourceSkillCastInfo: true,
-              finishByAction: true,
-              blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
-            }),
-          ),
-        ),
-      ),
-    },
-  },
-  buff_common_cryst_triggered_fx: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 5,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_do_frozen: {
-    stackingType: 'stack',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: ['Status/Immobilized/Frozen', 'Status/DisableFaceToAttacker'],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      enable: sequence(
-        step('startTimeDilation', {
-          scope: 'entity',
-          durationSeconds: { kind: 'blackboard', key: 'duration' },
-          slot: 'TimeDilation/Layer/Entity/Frozen',
-          priority: 50,
-          curve: {
-            kind: 'inline',
-            keys: [
-              {
-                time: 0,
-                value: 0,
-                inTangent: 0,
-                outTangent: 0,
-                weightedMode: 0,
-                inWeight: 0,
-                outWeight: 0.333333343,
-              },
-              {
-                time: 1,
-                value: 0,
-                inTangent: 0,
-                outTangent: 0,
-                weightedMode: 0,
-                inWeight: 0.333333343,
-                outWeight: 0,
-              },
-            ],
-          },
-          finishByAction: true,
-          targets: ['enemy'],
-        }),
-      ),
-    },
-  },
-  buff_common_frozen: {
-    stackingType: 'stack',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: 'buff_common_do_frozen',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
-        }),
-      ),
-    },
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
 
 export default {
   slug: 'yvonne',

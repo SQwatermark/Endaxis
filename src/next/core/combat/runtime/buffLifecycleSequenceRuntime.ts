@@ -42,6 +42,24 @@ import { DAMAGE_TYPES, type SkillBuffSlotReplacement } from '../../game-data/ope
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { EquipmentAbilityEvent } from '../../game-data/equipmentDefinition';
 
+/**
+ * 条件执行器可接收的 AbilitySystem 事件名。Buff 定义目前只订阅其中一部分；
+ * 连携条件仍必须复用同一负载规范化入口，不能因此另建事件投影。
+ */
+export type NormalizedAbilityEventName =
+  | Exclude<
+      ResolvedSkillBuffAbilityEventResponse['event'],
+      | 'afterKillEntity'
+      | 'outputKnockDown'
+      | 'afterOutputPhysicalInfliction'
+      | 'skillSpGained'
+      | 'buffConsumed'
+    >
+  | EquipmentAbilityEvent
+  | 'afterOutputInfliction'
+  | 'afterTakeInfliction'
+  | 'afterTakePhysicalInfliction';
+
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
   event: Exclude<
@@ -670,23 +688,14 @@ export function readEventSkillCastInfo(payload: unknown): CombatSkillCastInfo | 
     typeof source.nonReturnedSpCost !== 'number'
   ) {
     if (!nested) return undefined;
-    throw new TypeError('Buff ability event payload has invalid skill cast identity');
+    throw new TypeError('Ability event payload has invalid skill cast identity');
   }
   return source as unknown as CombatSkillCastInfo;
 }
 
 /** 把 AbilitySystem 原始负载转换成 Action/Condition 执行器共享的事件上下文。 */
 export function normalizeAbilityEventPayload(
-  event:
-    | Exclude<
-        ResolvedSkillBuffAbilityEventResponse['event'],
-        | 'afterKillEntity'
-        | 'outputKnockDown'
-        | 'afterOutputPhysicalInfliction'
-        | 'skillSpGained'
-        | 'buffConsumed'
-      >
-    | EquipmentAbilityEvent,
+  event: NormalizedAbilityEventName,
   payload: unknown,
 ):
   | CombatSemanticEvent
@@ -702,11 +711,11 @@ export function normalizeAbilityEventPayload(
   | CombatAbilityWeaknessTriggeredEvent
   | CombatAbilityCustomEvent {
   if (typeof payload !== 'object' || payload === null) {
-    throw new TypeError(`Buff ability event '${event}' payload must be an object`);
+    throw new TypeError(`Ability event '${event}' payload must be an object`);
   }
   const source = payload as Record<string, unknown>;
   if (typeof source.sourceId !== 'string' || typeof source.targetId !== 'string') {
-    throw new TypeError(`Buff ability event '${event}' payload has invalid entity identities`);
+    throw new TypeError(`Ability event '${event}' payload has invalid entity identities`);
   }
   if (
     event === 'enterFight' ||
@@ -723,7 +732,7 @@ export function normalizeAbilityEventPayload(
   }
   if (event === 'customAbilityEvent') {
     if (typeof source.eventName !== 'string' || typeof source.eventParam !== 'number') {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid custom event values`);
+      throw new TypeError(`Ability event '${event}' payload has invalid custom event values`);
     }
     return {
       kind: 'abilityCustom',
@@ -744,7 +753,7 @@ export function normalizeAbilityEventPayload(
   }
   if (event === 'beforeOutputKnockDown' || event === 'afterOutputKnockDown') {
     if (typeof source.fromAirborne !== 'boolean') {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid fromAirborne`);
+      throw new TypeError(`Ability event '${event}' payload has invalid fromAirborne`);
     }
     return {
       kind: 'abilityKnockDown',
@@ -754,7 +763,11 @@ export function normalizeAbilityEventPayload(
       fromAirborne: source.fromAirborne,
     };
   }
-  if (event === 'beforeTakePhysicalInfliction' || event === 'beforeOutputPhysicalInfliction') {
+  if (
+    event === 'beforeTakePhysicalInfliction' ||
+    event === 'beforeOutputPhysicalInfliction' ||
+    event === 'afterTakePhysicalInfliction'
+  ) {
     return {
       kind: 'abilityPhysicalInfliction',
       event,
@@ -779,7 +792,7 @@ export function normalizeAbilityEventPayload(
       !Array.isArray(source.features) ||
       !source.features.every(value => typeof value === 'string')
     ) {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid damage properties`);
+      throw new TypeError(`Ability event '${event}' payload has invalid damage properties`);
     }
     return {
       kind: 'abilityDamage',
@@ -796,7 +809,9 @@ export function normalizeAbilityEventPayload(
   if (
     event === 'beforeTakeSpellInfliction' ||
     event === 'beforeTakeInfliction' ||
-    event === 'beforeOutputInfliction'
+    event === 'beforeOutputInfliction' ||
+    event === 'afterTakeInfliction' ||
+    event === 'afterOutputInfliction'
   ) {
     if (
       source.element !== undefined &&
@@ -805,7 +820,7 @@ export function normalizeAbilityEventPayload(
       source.element !== 'cryo' &&
       source.element !== 'nature'
     ) {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid element`);
+      throw new TypeError(`Ability event '${event}' payload has invalid element`);
     }
     return {
       kind: 'abilitySpellInfliction',
@@ -817,7 +832,7 @@ export function normalizeAbilityEventPayload(
   }
   if (event === 'beforeOutputSpellBurst') {
     if (typeof source.burstType !== 'string') {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid burst type`);
+      throw new TypeError(`Ability event '${event}' payload has invalid burst type`);
     }
     return {
       kind: 'abilitySpellBurst',
@@ -838,7 +853,7 @@ export function normalizeAbilityEventPayload(
       !Array.isArray(source.buffTags) ||
       !source.buffTags.every(value => typeof value === 'string')
     ) {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid Buff identity`);
+      throw new TypeError(`Ability event '${event}' payload has invalid Buff identity`);
     }
     return {
       kind: 'buffApplied',
@@ -858,7 +873,7 @@ export function normalizeAbilityEventPayload(
         source.reason !== 'absorbed' &&
         source.reason !== 'other')
     ) {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid Buff identity`);
+      throw new TypeError(`Ability event '${event}' payload has invalid Buff identity`);
     }
     return {
       kind: 'buffFinished',
@@ -877,10 +892,10 @@ export function normalizeAbilityEventPayload(
       source.skillType !== 'finisher' &&
       source.skillType !== 'plungingAttack'
     ) {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid skill type`);
+      throw new TypeError(`Ability event '${event}' payload has invalid skill type`);
     }
     if (!Number.isSafeInteger(source.skillCastId) || (source.skillCastId as number) <= 0) {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid skill cast id`);
+      throw new TypeError(`Ability event '${event}' payload has invalid skill cast id`);
     }
     return {
       kind: 'abilitySkill',
@@ -892,9 +907,7 @@ export function normalizeAbilityEventPayload(
         typeof source.skillId === 'string'
           ? source.skillId
           : (() => {
-              throw new TypeError(
-                `Buff ability event '${event}' payload has invalid skill identity`,
-              );
+              throw new TypeError(`Ability event '${event}' payload has invalid skill identity`);
             })(),
       skillCastId: source.skillCastId as number,
       ...(typeof source.attachBuffToCurrentSkill === 'function'
@@ -922,7 +935,7 @@ export function normalizeAbilityEventPayload(
       !Array.isArray(source.tags) ||
       !source.tags.every(value => typeof value === 'string')
     ) {
-      throw new TypeError(`Buff ability event '${event}' payload has invalid healing values`);
+      throw new TypeError(`Ability event '${event}' payload has invalid healing values`);
     }
     return {
       kind: 'abilityHeal',
@@ -941,13 +954,13 @@ export function normalizeAbilityEventPayload(
     !Array.isArray(source.features) ||
     !source.features.every(value => typeof value === 'string')
   ) {
-    throw new TypeError(`Buff ability event '${event}' payload has invalid damage properties`);
+    throw new TypeError(`Ability event '${event}' payload has invalid damage properties`);
   }
   if (
     source.damageType !== undefined &&
     !DAMAGE_TYPES.includes(source.damageType as (typeof DAMAGE_TYPES)[number])
   ) {
-    throw new TypeError(`Buff ability event '${event}' payload has invalid damage type`);
+    throw new TypeError(`Ability event '${event}' payload has invalid damage type`);
   }
   return {
     kind: 'abilityDamage',

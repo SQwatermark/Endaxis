@@ -86,6 +86,7 @@ function avywennaRuntimeTemplateFixture(): unknown {
         plungingAttackEndId: 'chr_0012_avywen_plunging_attack_end',
         dodgeSkillId: 'common_character_perfect_dodge',
         comboSkillId: 'chr_0012_avywen_combo_skill',
+        comboSkillPriorityType: 0,
         defaultCmdMapping: {
           keys: [0, 3, 4, 5],
           values: [

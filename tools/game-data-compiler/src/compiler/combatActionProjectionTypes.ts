@@ -53,6 +53,7 @@ export type CompiledBuffConditionSource =
       | 'contextTargetCountCompare'
       | 'contextTargetObjectTypeMatch'
       | 'contextTargetBuffStackCompare'
+      | 'contextTargetBuffIdStackCompare'
       | 'abilityEntityRemainingDurationCompare'
       | 'actionValueCompare'
       | 'eventOverheal'

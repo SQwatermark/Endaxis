@@ -30,7 +30,6 @@ import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDef
 import { compilePassiveSkillRequestBatch } from '../src/compiler/passiveSkillBatch.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
-import { parseOperatorComboSkillRegistrationsSource } from '../src/domains/operator/comboSkillRegistrations.ts';
 import { prepareSkillDefinitionInputSource } from '../src/compiler/skillDefinitionInput.ts';
 import { parseKnownSkillActionGraphSource } from '../src/source/skillActionGraph.ts';
 import type { NativeConditionSource } from '../src/source/condition.ts';
@@ -248,17 +247,16 @@ export function planOperatorDefinition(
     skillSettingCatalog: read(args.skillSettingCatalog),
     passiveSkills,
     basePassiveSkillRequests,
-    comboSkillRegistrations: parseOperatorComboSkillRegistrationsSource(
-      row.comboSkillRegistrations,
-      `${args.slug}.comboSkillRegistrations`,
-      new Set(entries.map(entry => entry.key)),
-      gameplayTagRegistry,
-    ),
     ...(runtimeTemplate === undefined
       ? {}
       : {
           runtimeEntityBlackboard: runtimeTemplate.entityBlackboard,
-          comboSkillConditions: runtimeTemplate.comboSkillConditions,
+          ...(runtimeTemplate.comboSkillConditions === undefined
+            ? {}
+            : {
+                comboSkillConditions: runtimeTemplate.comboSkillConditions,
+                comboSkillPriority: runtimeTemplate.comboSkillPriority,
+              }),
           nativeSkillTypeBySourceId: runtimeTemplate.playerActionSource.initialNativeSkillTypeById,
           nativePlayerActionRouting,
         }),
@@ -435,6 +433,7 @@ function planOperatorRuntimeTemplate(
           },
         ).definition,
     ),
+    comboSkillPriority: template.comboSkillPriority,
     playerActionSource: template.playerActionSource,
   };
 }
@@ -946,7 +945,6 @@ export async function generateOperatorDefinition(
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
   const content = await format(
     renderOperatorDefinitionSource({
-      commonBuffDefinitions: plan.commonBuffDefinitions,
       operator: {
         ...plan.operator,
         conversionSupport: { completeness: 'complete', missingCapabilities: [] },

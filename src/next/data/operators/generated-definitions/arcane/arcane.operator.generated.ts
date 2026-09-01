@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -20,6 +19,7 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0032_lizhiyan_attack1',
     timelineBlockFrames: 10,
+    naturalDurationFrames: 224,
     exclusiveFrame: 30,
     inputWindows: {
       commandMappings: [
@@ -128,6 +128,7 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0032_lizhiyan_attack2',
     timelineBlockFrames: 14,
+    naturalDurationFrames: 215,
     exclusiveFrame: 30,
     inputWindows: {
       commandMappings: [
@@ -255,6 +256,7 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0032_lizhiyan_attack3',
     timelineBlockFrames: 22,
+    naturalDurationFrames: 235,
     exclusiveFrame: 30,
     inputWindows: {
       commandMappings: [
@@ -359,6 +361,7 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0032_lizhiyan_attack4',
     timelineBlockFrames: 18,
+    naturalDurationFrames: 230,
     exclusiveFrame: 26,
     inputWindows: {
       commandMappings: [
@@ -553,6 +556,7 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0032_lizhiyan_attack5',
     timelineBlockFrames: 40,
+    naturalDurationFrames: 300,
     exclusiveFrame: 41,
     inputWindows: {
       commandMappings: [
@@ -736,6 +740,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0032_lizhiyan_power_attack',
     timelineBlockFrames: 34,
+    naturalDurationFrames: 163,
     exclusiveFrame: 51,
     inputWindows: {
       allowedNextSkills: [
@@ -950,6 +955,7 @@ export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0032_lizhiyan_plunging_attack_end',
     timelineBlockFrames: 13,
+    naturalDurationFrames: 120,
     exclusiveFrame: 12,
     costFrame: 0,
     scheduledSequences: [
@@ -1001,6 +1007,7 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0032_lizhiyan_normal_skill',
     timelineBlockFrames: 24,
+    naturalDurationFrames: 225,
     exclusiveFrame: 32,
     inputWindows: {
       allowedNextSkills: [
@@ -1062,6 +1069,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0032_lizhiyan_combo_skill',
     timelineBlockFrames: 16,
+    naturalDurationFrames: 122,
     exclusiveFrame: 23,
     inputWindows: {
       allowedNextSkills: [
@@ -1516,6 +1524,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0032_lizhiyan_ultimate_skill',
     timelineBlockFrames: 48,
+    naturalDurationFrames: 308,
     exclusiveFrame: 72,
     inputWindows: {
       allowedNextSkills: [
@@ -1981,6 +1990,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
     key: 'arcana',
     sourceSkillId: 'chr_0032_lizhiyan_ultimate_skill2',
     timelineBlockFrames: 60,
+    naturalDurationFrames: 287,
     exclusiveFrame: 75,
     inputWindows: {
       allowedNextSkills: [
@@ -2434,513 +2444,6 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const commonBuffDefinitions = {
-  buff_common_affixes_enhance_spell: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Enhance',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceFire',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceCryst',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhancePulse',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceNatural',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_enhance_spell_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'heatEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'electricEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'cryoEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'natureEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_enhance_spell_default_child: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_affix_spell_enhance',
-      iconPath: '/icons/icon_battle_affix_spell_enhance.webp',
-      showInHeadBarCommon: false,
-      showInHeadBarAttached: false,
-      showInSquadIcon: true,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'LifeTime',
-      abnormalColorType: 'Physical',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
-    },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0.2 },
-    attributeModifiers: [],
-  },
-  buff_common_affixes_vulnerable_crystal: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Vulnerable',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableCryst',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_vulnerable_crystal_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'cryoVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_vulnerable_crystal_lizhiyan_child: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0.2 },
-    attributeModifiers: [],
-  },
-  buff_common_affixes_vulnerable_natural: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Vulnerable',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableNatural',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_vulnerable_natural_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'natureVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_vulnerable_natural_lizhiyan_child: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0.2 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_natural_natural_corrupt_do: {
-    stackingType: 'stack',
-    stackingKey: 'natural_triggered',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 1,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: -1,
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_corrupt',
-      iconPath: '/icons/icon_battle_corrupt.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: false,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'SpellAbnormal',
-      abnormalColorType: 'Natural',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
-    },
-    applyTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
-    extendTags: [],
-    blackboard: {
-      additional_def_decrease: 0,
-      count: 1,
-      def_decrease: 0,
-      def_decrease_tick: 0,
-      duration: 0,
-      extra_scaling: 1,
-      max_def_decrease: 0,
-      start_def_decrease: 0,
-      tick: 0,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'PhysicalResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'PhysicalResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-      {
-        attribute: 'FireResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'FireResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-      {
-        attribute: 'PulseResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'PulseResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-      {
-        attribute: 'CrystResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'CrystResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-      {
-        attribute: 'NaturalResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'NaturalResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-    ],
-    lifecycleSequences: {
-      start: sequence(
-        branch(
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'blackboard', key: 'def_decrease' },
-            operator: 'greater',
-            right: { kind: 'blackboard', key: 'start_def_decrease' },
-          },
-          sequence(
-            step('modifyActionValue', {
-              key: 'def_decrease',
-              operation: 'assign',
-              value: { kind: 'blackboard', key: 'start_def_decrease' },
-            }),
-            step('refreshCurrentBuffAttributeModifiers', {}),
-          ),
-        ),
-      ),
-      trigger: sequence(
-        branch(
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'blackboard', key: 'def_decrease' },
-            operator: 'greater',
-            right: { kind: 'blackboard', key: 'max_def_decrease' },
-          },
-          sequence(
-            step('modifyActionValue', {
-              key: 'def_decrease',
-              operation: 'add',
-              value: { kind: 'blackboard', key: 'def_decrease_tick' },
-            }),
-            step('modifyActionValue', {
-              key: 'tick',
-              operation: 'add',
-              value: { kind: 'constant', value: 1 },
-            }),
-            branch(
-              {
-                kind: 'actionValueCompare',
-                left: { kind: 'blackboard', key: 'def_decrease' },
-                operator: 'greater',
-                right: { kind: 'blackboard', key: 'max_def_decrease' },
-              },
-              sequence(),
-              sequence(
-                step('modifyActionValue', {
-                  key: 'def_decrease',
-                  operation: 'assign',
-                  value: { kind: 'blackboard', key: 'max_def_decrease' },
-                }),
-              ),
-              { alwaysNext: true },
-            ),
-            step('refreshCurrentBuffAttributeModifiers', {}),
-          ),
-        ),
-      ),
-    },
-  },
-  buff_common_natural_natural_corrupt_triggered: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 2,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {
-      additional_def_decrease: 0,
-      consumed_layer: 0,
-      consumed_type: 3,
-      count: 1,
-      def_decrease: 0,
-      def_decrease_tick: 0,
-      def_decrease_tick_final: 0,
-      duration: 0,
-      extra_scaling: 1,
-      max_def_decrease: 0,
-      max_def_decrease_final: 0,
-      start_def_decrease: 0,
-      tick: 0,
-    },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [-0.84, -1.12, -1.4, -1.68],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'def_decrease_tick',
-              enhance: {
-                target: 'caster',
-                formula: { kind: 'saturating', paramA: 2, paramB: 300 },
-              },
-            },
-            {
-              values: [-12, -16, -20, -24],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'max_def_decrease',
-              enhance: {
-                target: 'caster',
-                formula: { kind: 'saturating', paramA: 2, paramB: 300 },
-              },
-            },
-            {
-              values: [-3.6, -4.8, -6, -7.2],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'start_def_decrease',
-              enhance: {
-                target: 'caster',
-                formula: { kind: 'saturating', paramA: 2, paramB: 300 },
-              },
-            },
-          ],
-        }),
-        step('modifyActionValue', {
-          key: 'def_decrease_tick',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'extra_scaling' },
-        }),
-        step('modifyActionValue', {
-          key: 'max_def_decrease',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'extra_scaling' },
-        }),
-        step('modifyActionValue', {
-          key: 'start_def_decrease',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'extra_scaling' },
-        }),
-        branch(
-          {
-            kind: 'buffStackCompare',
-            target: 'buffOwner',
-            tagQueryType: 'hasAny',
-            buffTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
-            operator: 'greaterOrEqual',
-            value: { kind: 'constant', value: 1 },
-          },
-          sequence(
-            step('readBuffBlackboard', {
-              target: 'buffOwner',
-              query: {
-                kind: 'tag',
-                tagQueryType: 'hasAny',
-                buffTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
-              },
-              desiredKey: 'def_decrease',
-              outputKey: 'def_decrease',
-            }),
-          ),
-          undefined,
-          { alwaysNext: true },
-        ),
-        step('applyBuff', {
-          buffId: 'buff_common_natural_natural_corrupt_do',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: {
-            def_decrease: { kind: 'blackboard', key: 'def_decrease' },
-            max_def_decrease: { kind: 'blackboard', key: 'max_def_decrease' },
-            def_decrease_tick: { kind: 'blackboard', key: 'def_decrease_tick' },
-            start_def_decrease: { kind: 'blackboard', key: 'start_def_decrease' },
-            duration: { kind: 'blackboard', key: 'duration' },
-            consumed_type: { kind: 'blackboard', key: 'consumed_type' },
-            consumed_layer: { kind: 'blackboard', key: 'consumed_layer' },
-            count: { kind: 'blackboard', key: 'count' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
-
 export default {
   slug: 'arcane',
   gameId: 'ARCANE',
@@ -2959,7 +2462,7 @@ export default {
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
   trustAttributeBonus: { values: [8, 10, 10, 15], attributes: ['intellect', 'will'] },
-  passiveUi: { kind: 'numeric', maximum: 3 },
+  passiveUi: { kind: 'numeric', appearance: 'arcaneSigils', maximum: 3 },
   skillGroups: [
     {
       key: 'basicAttack',
@@ -3029,6 +2532,7 @@ export default {
       key: 'native-combo:0',
       skillGroupKey: 'comboSkill',
       event: 'beforeTakeInfliction',
+      immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
       sequence: sequence(
         branch(
@@ -3041,6 +2545,7 @@ export default {
       key: 'native-combo:1',
       skillGroupKey: 'comboSkill',
       event: 'beforeTakeInfliction',
+      immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
       sequence: sequence(
         branch(
@@ -3070,6 +2575,7 @@ export default {
       key: 'native-combo:2',
       skillGroupKey: 'comboSkill',
       event: 'beforeTakeInfliction',
+      immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
       sequence: sequence(
         branch(
@@ -3099,6 +2605,7 @@ export default {
       key: 'native-combo:3',
       skillGroupKey: 'comboSkill',
       event: 'beforeTakeInfliction',
+      immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
       sequence: sequence(
         branch(
@@ -3128,6 +2635,7 @@ export default {
       key: 'native-combo:4',
       skillGroupKey: 'comboSkill',
       event: 'beforeTakeInfliction',
+      immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
       sequence: sequence(
         branch(
@@ -3151,6 +2659,7 @@ export default {
       ),
     },
   ],
+  comboSkillPriority: 'enemyRank',
   talents: [
     {
       key: 'formationEnhancement',

@@ -29,6 +29,17 @@ describe('旧干员生成产物退役门禁', () => {
   it('根 scripts 目录不再保存第二套游戏数据工具', () => {
     expect(collectFiles(path.resolve('scripts'))).toEqual([]);
   });
+
+  it('manifest 不再允许手写连携注册', () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.resolve('tools/game-data-compiler/config/operators.json'), 'utf8'),
+    ) as { operators: { slug: string; comboSkillRegistrations?: unknown }[] };
+    expect(
+      manifest.operators
+        .filter(operator => operator.comboSkillRegistrations !== undefined)
+        .map(operator => operator.slug),
+    ).toEqual([]);
+  });
 });
 
 function collectFiles(root: string): string[] {

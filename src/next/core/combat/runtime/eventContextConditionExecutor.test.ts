@@ -206,6 +206,43 @@ describe('EventContextConditionExecutor', () => {
     ).toBe(false);
   });
 
+  it('物理异常类型匹配后按原生枚举值写入动作黑板', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const blackboard = new ActionBlackboard({ physicalType: -1 });
+    const context = {
+      blackboard,
+      event: {
+        kind: 'abilityPhysicalInfliction' as const,
+        event: 'afterTakePhysicalInfliction' as const,
+        sourceId: 'operator',
+        targetId: 'enemy',
+        type: 'fracture' as const,
+      },
+    };
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventPhysicalInflictionTypeIn',
+          types: ['fracture'],
+          outputKey: 'physicalType',
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('physicalType')).toBe(2);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventPhysicalInflictionTypeIn',
+          types: ['knockDown'],
+          outputKey: 'physicalType',
+        },
+        context,
+      ),
+    ).toBe(false);
+    expect(blackboard.getNumber('physicalType')).toBe(2);
+  });
+
   it('matches only the requested element on an enemy infliction event', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const condition = {

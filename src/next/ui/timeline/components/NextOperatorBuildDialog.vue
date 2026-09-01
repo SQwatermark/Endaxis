@@ -710,6 +710,7 @@ function maxOut(): void {
   border: 2px solid var(--ea-border-strong, #555);
   border-radius: 50%;
   background: var(--ea-fill-muted, #222228);
+  cursor: pointer;
 }
 .skill-icon {
   width: 48px;

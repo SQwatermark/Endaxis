@@ -595,6 +595,7 @@ describe('StandardPlayerDamageEnvironment', () => {
             key: `${index}`,
             skillGroupKey: 'combo',
             event: compiled.event,
+            immediately: source.immediately,
             initialValues: { consumed_type: 0, consumed_layer: 0 },
             sequence: compileActionSequence(compiled.sequence as ActionSequenceDefinition, 1),
           };
@@ -1953,6 +1954,194 @@ describe('StandardPlayerDamageEnvironment', () => {
     });
     expect(environment.buffProgressCurves[0]?.points.map(point => point.frame)).toEqual([0, 3]);
     expect(environment.buffProgressCurves[0]?.points[1]?.ratio).toBeCloseTo(0.98);
+  });
+
+  it('真实伤害事件通过公共分派器进入 OnTakeDamage 连携条件', () => {
+    const context = createContext();
+    const environment = createEnvironment();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const pending = vi.fn();
+    environment.comboConditions.registerPendingCondition({
+      event: 'takeDamage',
+      ownerId: 'operator',
+      sourceId: 'operator',
+      entityBlackboard: new ActionBlackboard(),
+      initialValues: null,
+      sequence: compileActionSequence(
+        {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'eventDamageTagsMatch',
+                  match: 'hasAny',
+                  tags: ['cryoBurst'],
+                },
+              },
+              whenTrue: { steps: [] },
+            },
+          ],
+        },
+        1,
+      ),
+      operations: new EventContextConditionExecutor({
+        execute: () => {
+          throw new Error('unexpected combo condition operation');
+        },
+        evaluate: () => {
+          throw new Error('unexpected delegated combo condition');
+        },
+      }),
+      isOwnerAlive: () => true,
+      isOwnerSilenced: () => false,
+      currentComboCooldown: () => ({ oneReady: true, maxPassedTime: 0, startCdFrame: 0 }),
+      resolveTarget: id =>
+        id === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: id },
+      onPending: pending,
+    });
+
+    expect(
+      executor.execute({
+        kind: 'dealDamage',
+        parameters: { damageType: 'cryo', attackScale: 1, tags: ['cryoBurst'] },
+      }),
+    ).toBe(true);
+    expect(pending).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        inputTarget: { kind: 'operator', operatorId: 'operator' },
+        triggerTarget: { kind: 'enemy' },
+      }),
+    );
+  });
+
+  it('真实伤害在扣血前事件中按原生 input/trigger 身份触发主控来源连携条件', () => {
+    const context = createContext();
+    const environment = createEnvironment();
+    const pending = vi.fn();
+    environment.comboConditions.registerPendingCondition({
+      event: 'beforeTakeDamage',
+      ownerId: 'operator',
+      sourceId: 'operator',
+      entityBlackboard: new ActionBlackboard(),
+      initialValues: null,
+      sequence: compileActionSequence(
+        {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: { condition: { kind: 'eventSourceControlled' } },
+              whenTrue: { steps: [] },
+            },
+          ],
+        },
+        1,
+      ),
+      operations: new EventContextConditionExecutor(
+        {
+          execute: () => {
+            throw new Error('unexpected combo condition operation');
+          },
+          evaluate: () => {
+            throw new Error('unexpected delegated combo condition');
+          },
+        },
+        operatorId => operatorId === 'operator',
+      ),
+      isOwnerAlive: () => true,
+      isOwnerSilenced: () => false,
+      currentComboCooldown: () => ({ oneReady: true, maxPassedTime: 0, startCdFrame: 0 }),
+      resolveTarget: id =>
+        id === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: id },
+      onPending: pending,
+    });
+
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    expect(
+      executor.execute({
+        kind: 'dealDamage',
+        parameters: {
+          damageType: 'physical',
+          attackScale: 1,
+          tags: ['normalAttackLastCombo'],
+        },
+      }),
+    ).toBe(true);
+
+    expect(pending).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        inputTarget: { kind: 'operator', operatorId: 'operator' },
+        triggerTarget: { kind: 'enemy' },
+      }),
+    );
+  });
+
+  it('真实 Buff 成功事件通过公共分派器进入 OnAddedBuff 连携条件', () => {
+    const context = createContext();
+    const environment = createEnvironment();
+    environment.runtimeOptions.createOperationExecutor(context);
+    const pending = vi.fn();
+    environment.comboConditions.registerPendingCondition({
+      event: 'addedBuff',
+      ownerId: 'operator',
+      sourceId: 'operator',
+      entityBlackboard: new ActionBlackboard(),
+      initialValues: null,
+      sequence: compileActionSequence(
+        {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'eventBuffTagsMatch',
+                  match: 'hasAny',
+                  buffTags: ['Skill/Character/Common/SpellBurst'],
+                },
+              },
+              whenTrue: { steps: [] },
+            },
+          ],
+        },
+        1,
+      ),
+      operations: new EventContextConditionExecutor({
+        execute: () => {
+          throw new Error('unexpected combo condition operation');
+        },
+        evaluate: () => {
+          throw new Error('unexpected delegated combo condition');
+        },
+      }),
+      isOwnerAlive: () => true,
+      isOwnerSilenced: () => false,
+      currentComboCooldown: () => ({ oneReady: true, maxPassedTime: 0, startCdFrame: 0 }),
+      resolveTarget: id =>
+        id === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: id },
+      onPending: pending,
+    });
+
+    const enemyBuffs = environment.runtimeOptions.enemyBuffRuntime;
+    if (!(enemyBuffs instanceof BuffDefinitionOperationTarget)) {
+      throw new Error('enemy Buff runtime is unavailable');
+    }
+    expect(
+      enemyBuffs.apply({
+        buffId: 'buff.fixture.spell-burst',
+        sourceId: 'operator',
+        blackboardValues: {},
+        definition: {
+          stackingType: 'unique',
+          applyTags: ['Skill/Character/Common/SpellBurst'],
+        },
+      }),
+    ).toBe(true);
+    expect(pending).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        inputTarget: { kind: 'operator', operatorId: 'operator' },
+        triggerTarget: { kind: 'enemy' },
+      }),
+    );
   });
 
   it('applies reactions with levels and evaluates reaction conditions', () => {

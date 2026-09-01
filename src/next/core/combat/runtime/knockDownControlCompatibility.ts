@@ -24,7 +24,6 @@ export function inspectKnockDownControlConsumers(operators: readonly CombatOpera
       initializationPrograms: operator.initializationPrograms,
       passivePrograms: operator.passivePrograms,
       upgradeEventPrograms: operator.upgradeEventPrograms,
-      comboSkillRegistrations: operator.comboSkillRegistrations,
       comboConditionPrograms: operator.comboConditionPrograms,
       equipmentContributions: operator.equipmentContributions,
       combatModifiers: operator.panel?.combatModifiers,

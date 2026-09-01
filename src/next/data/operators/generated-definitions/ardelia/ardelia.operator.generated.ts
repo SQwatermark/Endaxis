@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -22,6 +21,7 @@ export const ardeliaBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0025_ardelia_attack1',
     timelineBlockFrames: 11,
+    naturalDurationFrames: 110,
     exclusiveFrame: 15,
     inputWindows: {
       commandMappings: [
@@ -115,6 +115,7 @@ export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0025_ardelia_attack2',
     timelineBlockFrames: 20,
+    naturalDurationFrames: 118,
     exclusiveFrame: 26,
     inputWindows: {
       commandMappings: [
@@ -276,6 +277,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0025_ardelia_attack3',
     timelineBlockFrames: 45,
+    naturalDurationFrames: 164,
     exclusiveFrame: 47,
     inputWindows: {
       commandMappings: [
@@ -1419,6 +1421,7 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0025_ardelia_attack4',
     timelineBlockFrames: 50,
+    naturalDurationFrames: 198,
     exclusiveFrame: 50,
     inputWindows: {
       commandMappings: [
@@ -1547,6 +1550,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0025_ardelia_power_attack',
     timelineBlockFrames: 57,
+    naturalDurationFrames: 215,
     exclusiveFrame: 65,
     inputWindows: {
       allowedNextSkills: [
@@ -1745,6 +1749,7 @@ export const ardeliaPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0025_ardelia_plunging_attack_end',
     timelineBlockFrames: 23,
+    naturalDurationFrames: 156,
     exclusiveFrame: 22,
     costFrame: 0,
     scheduledSequences: [
@@ -1819,6 +1824,7 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0025_ardelia_normal_skill',
     timelineBlockFrames: 47,
+    naturalDurationFrames: 378,
     exclusiveFrame: 239,
     inputWindows: {
       allowedNextSkills: [
@@ -2219,6 +2225,7 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0025_ardelia_combo_skill',
     timelineBlockFrames: 23,
+    naturalDurationFrames: 160,
     exclusiveFrame: 40,
     inputWindows: {
       allowedNextSkills: [
@@ -2402,6 +2409,7 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0025_ardelia_ultimate_skill',
     timelineBlockFrames: 209,
+    naturalDurationFrames: 261,
     exclusiveFrame: 223,
     inputWindows: {
       allowedNextSkills: [
@@ -2708,427 +2716,6 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
     duration: 3,
   },
 );
-
-export const commonBuffDefinitions = {
-  buff_common_affixes_vulnerable_physical: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Vulnerable',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_vulnerable_physical_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'physicalVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_vulnerable_spell: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Vulnerable',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableFire',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableCryst',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableNatural',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_vulnerable_spell_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'heatVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'electricVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'cryoVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'natureVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_full_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_natural_natural_corrupt_do: {
-    stackingType: 'stack',
-    stackingKey: 'natural_triggered',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 1,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: -1,
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_corrupt',
-      iconPath: '/icons/icon_battle_corrupt.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: false,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'SpellAbnormal',
-      abnormalColorType: 'Natural',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
-    },
-    applyTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
-    extendTags: [],
-    blackboard: {
-      additional_def_decrease: 0,
-      count: 1,
-      def_decrease: 0,
-      def_decrease_tick: 0,
-      duration: 0,
-      extra_scaling: 1,
-      max_def_decrease: 0,
-      start_def_decrease: 0,
-      tick: 0,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'PhysicalResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'PhysicalResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-      {
-        attribute: 'FireResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'FireResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-      {
-        attribute: 'PulseResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'PulseResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-      {
-        attribute: 'CrystResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'CrystResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-      {
-        attribute: 'NaturalResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'def_decrease' },
-      },
-      {
-        attribute: 'NaturalResistance',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'additional_def_decrease' },
-      },
-    ],
-    lifecycleSequences: {
-      start: sequence(
-        branch(
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'blackboard', key: 'def_decrease' },
-            operator: 'greater',
-            right: { kind: 'blackboard', key: 'start_def_decrease' },
-          },
-          sequence(
-            step('modifyActionValue', {
-              key: 'def_decrease',
-              operation: 'assign',
-              value: { kind: 'blackboard', key: 'start_def_decrease' },
-            }),
-            step('refreshCurrentBuffAttributeModifiers', {}),
-          ),
-        ),
-      ),
-      trigger: sequence(
-        branch(
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'blackboard', key: 'def_decrease' },
-            operator: 'greater',
-            right: { kind: 'blackboard', key: 'max_def_decrease' },
-          },
-          sequence(
-            step('modifyActionValue', {
-              key: 'def_decrease',
-              operation: 'add',
-              value: { kind: 'blackboard', key: 'def_decrease_tick' },
-            }),
-            step('modifyActionValue', {
-              key: 'tick',
-              operation: 'add',
-              value: { kind: 'constant', value: 1 },
-            }),
-            branch(
-              {
-                kind: 'actionValueCompare',
-                left: { kind: 'blackboard', key: 'def_decrease' },
-                operator: 'greater',
-                right: { kind: 'blackboard', key: 'max_def_decrease' },
-              },
-              sequence(),
-              sequence(
-                step('modifyActionValue', {
-                  key: 'def_decrease',
-                  operation: 'assign',
-                  value: { kind: 'blackboard', key: 'max_def_decrease' },
-                }),
-              ),
-              { alwaysNext: true },
-            ),
-            step('refreshCurrentBuffAttributeModifiers', {}),
-          ),
-        ),
-      ),
-    },
-  },
-  buff_common_natural_natural_corrupt_triggered: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 2,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {
-      additional_def_decrease: 0,
-      consumed_layer: 0,
-      consumed_type: 3,
-      count: 1,
-      def_decrease: 0,
-      def_decrease_tick: 0,
-      def_decrease_tick_final: 0,
-      duration: 0,
-      extra_scaling: 1,
-      max_def_decrease: 0,
-      max_def_decrease_final: 0,
-      start_def_decrease: 0,
-      tick: 0,
-    },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [-0.84, -1.12, -1.4, -1.68],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'def_decrease_tick',
-              enhance: {
-                target: 'caster',
-                formula: { kind: 'saturating', paramA: 2, paramB: 300 },
-              },
-            },
-            {
-              values: [-12, -16, -20, -24],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'max_def_decrease',
-              enhance: {
-                target: 'caster',
-                formula: { kind: 'saturating', paramA: 2, paramB: 300 },
-              },
-            },
-            {
-              values: [-3.6, -4.8, -6, -7.2],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'start_def_decrease',
-              enhance: {
-                target: 'caster',
-                formula: { kind: 'saturating', paramA: 2, paramB: 300 },
-              },
-            },
-          ],
-        }),
-        step('modifyActionValue', {
-          key: 'def_decrease_tick',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'extra_scaling' },
-        }),
-        step('modifyActionValue', {
-          key: 'max_def_decrease',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'extra_scaling' },
-        }),
-        step('modifyActionValue', {
-          key: 'start_def_decrease',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'extra_scaling' },
-        }),
-        branch(
-          {
-            kind: 'buffStackCompare',
-            target: 'buffOwner',
-            tagQueryType: 'hasAny',
-            buffTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
-            operator: 'greaterOrEqual',
-            value: { kind: 'constant', value: 1 },
-          },
-          sequence(
-            step('readBuffBlackboard', {
-              target: 'buffOwner',
-              query: {
-                kind: 'tag',
-                tagQueryType: 'hasAny',
-                buffTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
-              },
-              desiredKey: 'def_decrease',
-              outputKey: 'def_decrease',
-            }),
-          ),
-          undefined,
-          { alwaysNext: true },
-        ),
-        step('applyBuff', {
-          buffId: 'buff_common_natural_natural_corrupt_do',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: {
-            def_decrease: { kind: 'blackboard', key: 'def_decrease' },
-            max_def_decrease: { kind: 'blackboard', key: 'max_def_decrease' },
-            def_decrease_tick: { kind: 'blackboard', key: 'def_decrease_tick' },
-            start_def_decrease: { kind: 'blackboard', key: 'start_def_decrease' },
-            duration: { kind: 'blackboard', key: 'duration' },
-            consumed_type: { kind: 'blackboard', key: 'consumed_type' },
-            consumed_layer: { kind: 'blackboard', key: 'consumed_layer' },
-            count: { kind: 'blackboard', key: 'count' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
 
 export default {
   slug: 'ardelia',

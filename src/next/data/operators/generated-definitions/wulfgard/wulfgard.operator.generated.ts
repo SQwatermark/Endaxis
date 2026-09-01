@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -19,6 +18,7 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0006_wolfgd_attack1',
     timelineBlockFrames: 24,
+    naturalDurationFrames: 121,
     exclusiveFrame: 30,
     inputWindows: {
       commandMappings: [
@@ -148,6 +148,7 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0006_wolfgd_attack2',
     timelineBlockFrames: 23,
+    naturalDurationFrames: 129,
     exclusiveFrame: 35,
     inputWindows: {
       commandMappings: [
@@ -277,6 +278,7 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0006_wolfgd_attack3',
     timelineBlockFrames: 32,
+    naturalDurationFrames: 146,
     exclusiveFrame: 52,
     inputWindows: {
       commandMappings: [
@@ -454,6 +456,7 @@ export const wulfgardBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0006_wolfgd_attack4',
     timelineBlockFrames: 53,
+    naturalDurationFrames: 141,
     exclusiveFrame: 52,
     costFrame: 23,
     scheduledSequences: [
@@ -524,6 +527,7 @@ export const wulfgardFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0006_wolfgd_power_attack',
     timelineBlockFrames: 34,
+    naturalDurationFrames: 150,
     exclusiveFrame: 60,
     inputWindows: {
       allowedNextSkills: [
@@ -618,6 +622,7 @@ export const wulfgardPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0006_wolfgd_plunging_attack_end',
     timelineBlockFrames: 8,
+    naturalDurationFrames: 120,
     exclusiveFrame: 20,
     inputWindows: {
       allowedNextSkills: [
@@ -654,6 +659,7 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0006_wolfgd_normal_skill',
     timelineBlockFrames: 32,
+    naturalDurationFrames: 272,
     exclusiveFrame: 159,
     inputWindows: {
       allowedNextSkills: [
@@ -1118,6 +1124,7 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0006_wolfgd_combo_skill',
     timelineBlockFrames: 30,
+    naturalDurationFrames: 138,
     exclusiveFrame: 30,
     inputWindows: {
       allowedNextSkills: [
@@ -1198,6 +1205,7 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0006_wolfgd_ultimate_skill',
     timelineBlockFrames: 75,
+    naturalDurationFrames: 168,
     exclusiveFrame: 80,
     inputWindows: {
       allowedNextSkills: [
@@ -1406,200 +1414,6 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const commonBuffDefinitions = {
-  buff_common_burning_status: {
-    stackingType: 'unique',
-    priority: 0,
-    maxStackCount: 1,
-    triggerIntervalSeconds: 1,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 9999,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { burning_atk_scale: 0, duration: 20 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      trigger: sequence(
-        step(
-          'dealDamage',
-          {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'burning_atk_scale' },
-            takeAttackSnapshot: true,
-            tags: ['fireAbnormal'],
-            features: ['dot'],
-            instantAttributeModifiers: [
-              {
-                targetSide: 'attacker',
-                attribute: 'criticalRate',
-                slot: 'finalMultiplier',
-                value: { kind: 'constant', value: 0 },
-                attributeTiming: 'runtime',
-              },
-            ],
-          },
-          'buff_common_burning_status:/lifecycleSequences/trigger/steps/0',
-        ),
-      ),
-    },
-  },
-  buff_common_damage_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_fire_fire_burning_triggered: {
-    stackingType: 'stack',
-    stackingKey: 'fire_triggered',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 1,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_burning',
-      iconPath: '/icons/icon_battle_burning.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: false,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'SpellAbnormal',
-      abnormalColorType: 'Fire',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
-    },
-    applyTags: ['Skill/Character/Common/SpellStatus/Burning'],
-    extendTags: [],
-    blackboard: { burning_atk_scale: 0, count: 1, duration: 10, extra_scaling: 1 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(
-        {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            scopeKey: 'native-buff-callback:0',
-            lifetime: 'execution',
-            alwaysNext: true,
-            shareParentBlackboard: true,
-            initialValues: {},
-            inheritParent: true,
-          },
-          body: sequence(
-            step('readSkillSettingData', {
-              items: [
-                {
-                  values: [0.24, 0.36, 0.48, 0.6],
-                  column: { kind: 'blackboard', key: 'count' },
-                  storeKey: 'burning_atk_scale',
-                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-                },
-              ],
-            }),
-            step('modifyActionValue', {
-              key: 'burning_atk_scale',
-              operation: 'multiply',
-              value: { kind: 'blackboard', key: 'extra_scaling' },
-            }),
-          ),
-        },
-        {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            scopeKey: 'native-buff-callback:1',
-            lifetime: 'execution',
-            alwaysNext: true,
-            shareParentBlackboard: true,
-            initialValues: {},
-            inheritParent: true,
-          },
-          body: sequence(
-            step('applyBuff', {
-              buffId: 'buff_common_fire_triggered_fx',
-              target: 'buffOwner',
-              source: 'buffSource',
-              inheritSourceSkillCastInfo: true,
-            }),
-          ),
-        },
-      ),
-      enable: sequence(
-        step('applyBuff', {
-          buffId: 'buff_common_burning_status',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          blackboardAssignments: {
-            burning_atk_scale: { kind: 'blackboard', key: 'burning_atk_scale' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_fire_triggered_fx: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 5,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
-
 export default {
   slug: 'wulfgard',
   gameId: 'WULFGARD',
@@ -1677,6 +1491,22 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          sequence(),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

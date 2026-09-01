@@ -1,6 +1,6 @@
 import type {
   ComboSkillConditionDefinition,
-  ComboSkillRegistrationDefinition,
+  ComboSkillPriority,
   OperatorDefinition,
   SkillBuffSlotReplacement,
   SkillDefinition,
@@ -74,9 +74,9 @@ export interface OperatorDefinitionAssemblyInput {
   readonly passiveSkills: PassiveSkillCompilationBatchSource;
   /** 角色自身始终安装的隐藏被动请求；与养成解锁的请求分开。 */
   readonly basePassiveSkillRequests?: readonly PassiveSkillCompileRequestSource[];
-  readonly comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
   /** 角色模板原生常驻连携条件；已经过 RID 展开、黑板与事件投影。 */
   readonly comboSkillConditions?: readonly ComboSkillConditionDefinition[];
+  readonly comboSkillPriority?: ComboSkillPriority;
   /** 角色 AbilitySystem 实体黑板的原生字面初值。 */
   readonly runtimeEntityBlackboard?: Readonly<Record<string, number | string>>;
   /** 隐藏注册技能：保留定义与冷却/内部 Cast 路由，不暴露为可直接放置的组技能。 */
@@ -834,12 +834,12 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     })(),
     skillGroups,
     ...compileOperatorPlayerActionRouting(input, definitions, skillSlotReplacements),
-    ...(input.comboSkillRegistrations === undefined
-      ? {}
-      : { comboSkillRegistrations: input.comboSkillRegistrations }),
     ...(input.comboSkillConditions === undefined
       ? {}
       : { comboSkillConditions: input.comboSkillConditions }),
+    ...(input.comboSkillPriority === undefined
+      ? {}
+      : { comboSkillPriority: input.comboSkillPriority }),
     talents,
     potentials,
     ...(entityBlackboard.size

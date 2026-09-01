@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -18,6 +17,7 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0022_bounda_attack1',
     timelineBlockFrames: 22,
+    naturalDurationFrames: 132,
     exclusiveFrame: 25,
     inputWindows: {
       commandMappings: [
@@ -80,6 +80,7 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0022_bounda_attack2',
     timelineBlockFrames: 15,
+    naturalDurationFrames: 106,
     exclusiveFrame: 20,
     inputWindows: {
       commandMappings: [
@@ -146,6 +147,7 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0022_bounda_attack3',
     timelineBlockFrames: 18,
+    naturalDurationFrames: 137,
     exclusiveFrame: 25,
     inputWindows: {
       commandMappings: [
@@ -246,6 +248,7 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0022_bounda_attack4',
     timelineBlockFrames: 52,
+    naturalDurationFrames: 153,
     exclusiveFrame: 55,
     inputWindows: {
       commandMappings: [
@@ -361,6 +364,7 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0022_bounda_attack4_1',
     timelineBlockFrames: 49,
+    naturalDurationFrames: 150,
     exclusiveFrame: 52,
     inputWindows: {
       commandMappings: [
@@ -476,6 +480,7 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0022_bounda_power_attack',
     timelineBlockFrames: 22,
+    naturalDurationFrames: 127,
     exclusiveFrame: 45,
     inputWindows: {
       allowedNextSkills: [
@@ -583,6 +588,7 @@ export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0022_bounda_plunging_attack_end',
     timelineBlockFrames: 21,
+    naturalDurationFrames: 90,
     exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
@@ -634,6 +640,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0022_bounda_normal_skill',
     timelineBlockFrames: 35,
+    naturalDurationFrames: 101,
     exclusiveFrame: 34,
     costFrame: 0,
     scheduledSequences: [
@@ -742,6 +749,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0022_bounda_ultimate_skill',
     timelineBlockFrames: 77,
+    naturalDurationFrames: 120,
     exclusiveFrame: 90,
     inputWindows: {
       commandMappings: [
@@ -1017,6 +1025,7 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0022_bounda_combo_skill',
     timelineBlockFrames: 17,
+    naturalDurationFrames: 93,
     exclusiveFrame: 24,
     inputWindows: {
       allowedNextSkills: [
@@ -1177,135 +1186,6 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const commonBuffDefinitions = {
-  buff_common_affixes_slow: {
-    stackingType: 'highPriority',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: ['Skill/Character/Common/Affixes/Slow'],
-    extendTags: [],
-    blackboard: { child_buff_id: 'buff_common_affixes_slow_default_child', duration: 0, rate: 0 },
-    attributeModifiers: [
-      { attribute: 'SlowActionSpeedScalar', slot: 'addition', value: { blackboardKey: 'rate' } },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_slow_default_child: {
-    stackingType: 'highPriority',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_affix_slow',
-      iconPath: '/icons/icon_battle_affix_slow.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: true,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'LifeTime',
-      abnormalColorType: 'Physical',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
-    },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_talent: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: ['Status/DodgeDamageImmune', 'Status/SkillDamageImmune', 'Status/NoBehitVFX'],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_full_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
-
 export default {
   slug: 'fluorite',
   gameId: 'FLUORITE',
@@ -1385,39 +1265,67 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
-  comboSkillRegistrations: [
+  comboSkillConditions: [
     {
-      skillKey: 'comboSkill',
-      priority: 'default',
-      invalidCastBlackboard: { EntityBB_combo_index: -1 },
-      rules: [
-        {
-          trigger: { kind: 'elementalInflictionApplied', elements: 'cryo', scope: 'team' },
-          condition: {
-            kind: 'buffStackCompare',
-            target: 'enemy',
+      key: 'native-combo:0',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'contextTargetBuffStackCompare',
+            contextKey: 'trigger',
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
             operator: 'greaterOrEqual',
             value: { kind: 'constant', value: 1 },
           },
-          blackboard: { EntityBB_combo_index: 2 },
-        },
-        {
-          trigger: { kind: 'elementalInflictionApplied', elements: 'nature', scope: 'team' },
-          condition: {
-            kind: 'buffStackCompare',
-            target: 'enemy',
+          sequence(
+            branch(
+              {
+                kind: 'eventInflictionElementIn',
+                elements: ['cryo'],
+                outputKey: 'EntityBB_combo_index',
+              },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'contextTargetBuffStackCompare',
+            contextKey: 'trigger',
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/NaturalInflict'],
             operator: 'greaterOrEqual',
             value: { kind: 'constant', value: 1 },
           },
-          blackboard: { EntityBB_combo_index: 3 },
-        },
-      ],
+          sequence(
+            branch(
+              {
+                kind: 'eventInflictionElementIn',
+                elements: ['nature'],
+                outputKey: 'EntityBB_combo_index',
+              },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
     },
   ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

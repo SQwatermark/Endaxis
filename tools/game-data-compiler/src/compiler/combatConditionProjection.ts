@@ -823,6 +823,10 @@ function compileConditionLeaf(
       ...(has(8192) ? (['comboSkill'] as const) : []),
       ...(has(131072) ? (['dashAttack'] as const) : []),
       ...(has(2097152) ? (['normalAttackLastCombo'] as const) : []),
+      ...(has(4194304) ? (['fireBurst'] as const) : []),
+      ...(has(8388608) ? (['cryoBurst'] as const) : []),
+      ...(has(16777216) ? (['electricBurst'] as const) : []),
+      ...(has(33554432) ? (['natureBurst'] as const) : []),
     ];
     const features = [
       ...(has(4096) ? (['canBreakWeakness'] as const) : []),
@@ -836,8 +840,8 @@ function compileConditionLeaf(
       ...(has(2147483648) ? (['talentDamage'] as const) : []),
     ];
     const knownBits = [
-      4, 128, 256, 512, 1024, 4096, 8192, 16384, 32768, 65536, 131072, 2097152, 134217728,
-      268435456, 536870912, 1073741824, 2147483648,
+      4, 128, 256, 512, 1024, 4096, 8192, 16384, 32768, 65536, 131072, 2097152, 4194304, 8388608,
+      16777216, 33554432, 134217728, 268435456, 536870912, 1073741824, 2147483648,
     ];
     if (
       match === undefined ||
@@ -882,9 +886,11 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'physicalInflictionType') {
-    if (condition.savedKey !== '')
-      throw new Error(`${sourcePath}: physical infliction savedKey is unsupported`);
-    return { kind: 'eventPhysicalInflictionTypeIn', types: condition.types };
+    return {
+      kind: 'eventPhysicalInflictionTypeIn',
+      types: condition.types,
+      ...(condition.savedKey === '' ? {} : { outputKey: condition.savedKey }),
+    };
   }
   if (condition.kind === 'overHeal') {
     return {
@@ -1042,6 +1048,27 @@ function compileConditionLeaf(
     if (matchesBuffSourceAndOwner && context.actionOwnerTarget === 'buffOwner') {
       return { kind: 'buffSourceMatchesOwner' };
     }
+    const isEventInputReference = (target: typeof first) =>
+      target.targetSource === 'Target' &&
+      isPlainReference(target);
+    const isControlledOperatorSearch = (target: typeof first) =>
+      target.targetSource === 'InstantSearch' &&
+      target.targetGroupKey === '' &&
+      target.finderType === 'CharacterTeamFinder' &&
+      target.validatorTypes.length === 1 &&
+      target.validatorTypes[0] === 'MainCharacterValidator' &&
+      target.postProcessorTypes.length === 0 &&
+      target.priorityFilters.length === 0 &&
+      target.shuffleTargets.length === 0 &&
+      target.distanceValidators.length === 0;
+    if (
+      (isEventInputReference(first) && isControlledOperatorSearch(second)) ||
+      (isEventInputReference(second) && isControlledOperatorSearch(first))
+    ) {
+      // TargetSource.Target 读取本次事件 input；非 Context 来源不消费序列化残留 group key。
+      // 对已审计承伤事件，input 是伤害来源，即 CombatAbilityDamageEvent.sourceId。
+      return { kind: 'eventSourceControlled' };
+    }
     const matchesEventSourceAndTarget =
       first.targetGroupKey === '' &&
       second.targetGroupKey === '' &&
@@ -1144,6 +1171,26 @@ function compileConditionLeaf(
         buffTags,
         operator,
         value,
+      };
+    }
+    if (
+      condition.targetSource === 'Context' &&
+      condition.targetGroupKey !== '' &&
+      condition.sourceType === 'CheckBuffStackNumAdvanced' &&
+      condition.buffCheckType === 'Id' &&
+      condition.buffIds.length > 0 &&
+      condition.countType === 'BuffCount' &&
+      !condition.limitSkillCastId
+    ) {
+      const operator = COMPARISON_OPERATORS[condition.comparison];
+      if (operator === undefined)
+        throw new Error(`${sourcePath}: unsupported Buff stack comparison`);
+      return {
+        kind: 'contextTargetBuffIdStackCompare',
+        contextKey: condition.targetGroupKey,
+        buffIds: condition.buffIds,
+        operator,
+        value: actionValueOperand(condition.value),
       };
     }
     // ByTag 无目标返回 false；不能沿用 Advanced 的零层路径或实例计数。

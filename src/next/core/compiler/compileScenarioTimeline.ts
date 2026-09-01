@@ -8,7 +8,6 @@
 import type { CombatOperatorProgram } from '../combat/runtime/combatRuntimeAssembly';
 import type {
   CompiledAbilityEntityChildSkillProgram,
-  CompiledComboSkillRegistration,
   ResolvedActionSequence,
   ResolvedCombatStep,
   CompiledSkillProgram,
@@ -17,7 +16,6 @@ import type {
 import type { ScheduledSkillInput } from '../combat/runtime/combatInputRuntime';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type {
-  LevelValues,
   OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
@@ -231,86 +229,6 @@ function requireDefinitionLevelSource(skill: SkillDefinition, operatorSlug: stri
     );
   }
   return skill.levelSource;
-}
-
-function resolveLevelValue(value: LevelValues, level: number, path: string): number {
-  const resolved = typeof value === 'number' ? value : value[level - 1];
-  if (resolved === undefined) throw new RangeError(`${path} has no value for skill level ${level}`);
-  if (!Number.isFinite(resolved)) throw new TypeError(`${path} must resolve to a finite number`);
-  return resolved;
-}
-
-function compileComboSkillRegistrations(
-  build: OperatorInstanceDocument,
-  operator: OperatorDefinition,
-): readonly CompiledComboSkillRegistration[] {
-  return (operator.comboSkillRegistrations ?? []).map((registration, index) => {
-    const group = operator.skillGroups.find(candidate => {
-      const skills = Array.isArray(candidate.skills) ? candidate.skills : [candidate.skills];
-      return skills.some(skill => skill.key === registration.skillKey);
-    });
-    if (group === undefined) {
-      throw new Error(
-        `operator '${operator.slug}' combo registration ${index} references missing skill '${registration.skillKey}'`,
-      );
-    }
-    const registeredSkill = (Array.isArray(group.skills) ? group.skills : [group.skills]).find(
-      skill => skill.key === registration.skillKey,
-    );
-    if (registeredSkill?.skillType !== 'comboSkill') {
-      throw new Error(
-        `operator '${operator.slug}' combo registration '${registration.skillKey}' is not a combo skill`,
-      );
-    }
-    if (registeredSkill.levelSource === undefined) {
-      throw new Error(
-        `operator '${operator.slug}' combo registration '${registration.skillKey}' has no skill level source`,
-      );
-    }
-    const level = requireSkillLevel(build, registeredSkill.levelSource);
-    const invalidCastBlackboard = Object.fromEntries(
-      Object.entries(registration.invalidCastBlackboard ?? {}).map(([key, value]) => [
-        key,
-        resolveLevelValue(
-          value,
-          level,
-          `operator '${operator.slug}'.comboSkillRegistrations[${index}].invalidCastBlackboard.${key}`,
-        ),
-      ]),
-    );
-    return {
-      skillKey: registration.skillKey,
-      priority: registration.priority,
-      blackboard: Object.fromEntries(
-        Object.entries(registration.blackboard ?? {}).map(([key, value]) => [
-          key,
-          resolveLevelValue(
-            value,
-            level,
-            `operator '${operator.slug}'.comboSkillRegistrations[${index}].blackboard.${key}`,
-          ),
-        ]),
-      ),
-      ...(Object.keys(invalidCastBlackboard).length === 0 ? {} : { invalidCastBlackboard }),
-      rules: registration.rules.map((rule, ruleIndex) => {
-        const { blackboard: ruleBlackboard, ...ruleWithoutBlackboard } = rule;
-        const blackboard = Object.fromEntries(
-          Object.entries(ruleBlackboard ?? {}).map(([key, value]) => [
-            key,
-            resolveLevelValue(
-              value,
-              level,
-              `operator '${operator.slug}'.comboSkillRegistrations[${index}].rules[${ruleIndex}].blackboard.${key}`,
-            ),
-          ]),
-        );
-        return {
-          ...ruleWithoutBlackboard,
-          ...(Object.keys(blackboard).length === 0 ? {} : { blackboard }),
-        };
-      }),
-    };
-  });
 }
 
 /** 编译一次技能释放。等级和养成效果在这里按当前项目配置计算。 */
@@ -581,11 +499,11 @@ function compileResolvedTimelineTracks(
       ...(Object.keys(buffAbilityEntityDefinitions).length === 0
         ? {}
         : { abilityEntityDefinitions: buffAbilityEntityDefinitions }),
-      comboSkillRegistrations: compileComboSkillRegistrations(operatorInstance, operator),
       ...(operator.comboSkillConditions === undefined
         ? {}
         : {
             comboConditionPrograms: compileOperatorComboSkillConditions(operator, operatorInstance),
+            comboConditionPriority: operator.comboSkillPriority ?? 'default',
           }),
       skillSlotGroups: compileSkillSlotGroups(operator),
       ...(operator.playerActionRoutes === undefined

@@ -1098,6 +1098,14 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
       `skill '${input.skill.key}' must use non-negative integer timelineBlockFrames`,
     );
   }
+  if (
+    input.skill.naturalDurationFrames !== undefined &&
+    (!Number.isInteger(input.skill.naturalDurationFrames) || input.skill.naturalDurationFrames <= 0)
+  ) {
+    throw new RangeError(
+      `skill '${input.skill.key}' must use positive integer naturalDurationFrames`,
+    );
+  }
   if (input.skill.eventHandlers?.length) {
     throw new Error(
       `skill '${input.skill.key}' uses legacy eventHandlers without a listener interval`,
@@ -1176,6 +1184,9 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     initialBlackboard,
     ...(input.skill.smartTarget === undefined ? {} : { smartTarget: input.skill.smartTarget }),
     timelineBlockFrames: input.skill.timelineBlockFrames,
+    ...(input.skill.naturalDurationFrames === undefined
+      ? {}
+      : { naturalDurationFrames: input.skill.naturalDurationFrames }),
     ...(input.skill.exclusiveFrame === undefined
       ? {}
       : { exclusiveFrame: input.skill.exclusiveFrame }),

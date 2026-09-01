@@ -41,7 +41,6 @@ function createTwoOperatorComboScenario(): {
   const attacker = {
     ...perlica,
     slug: 'perlica-combo-test-attacker',
-    comboSkillRegistrations: [],
   } satisfies typeof perlica;
   scenario.tracks[0]!.operator!.operatorSlug = attacker.slug;
   scenario.tracks[1] = {

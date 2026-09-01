@@ -183,13 +183,28 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       return true;
     }
     if (condition.kind === 'eventPhysicalInflictionTypeIn') {
-      return (
-        (context.event.kind === 'abilityPhysicalInfliction' &&
-          context.event.type !== undefined &&
-          condition.types.includes(context.event.type)) ||
-        (context.event.kind === 'physicalInflictionApplied' &&
-          condition.types.includes(context.event.type))
-      );
+      const type =
+        context.event.kind === 'abilityPhysicalInfliction'
+          ? context.event.type
+          : context.event.kind === 'physicalInflictionApplied'
+            ? context.event.type
+            : undefined;
+      const matched = type !== undefined && condition.types.includes(type);
+      if (matched && condition.outputKey !== undefined) {
+        const values = { airborne: 0, knockDown: 1, fracture: 2, crush: 3 } as const;
+        const old = Math.fround(
+          resolveActionValueOperand(
+            { kind: 'blackboard', key: condition.outputKey },
+            context.blackboard,
+          ),
+        );
+        const value = values[type];
+        if (!(Math.abs(Math.fround(old - value)) <= Math.fround(0.00001))) {
+          context.blackboard.assignDynamicUnconditionally(condition.outputKey, value);
+          context.refreshCurrentBuffAttributeModifiers?.();
+        }
+      }
+      return matched;
     }
     if (condition.kind === 'eventSkillIdIn') {
       return (

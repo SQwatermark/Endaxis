@@ -89,6 +89,8 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
     environment: {
       enemyBuffRuntime: enemyBuffRuntime(),
       createOperationExecutor: () => operationExecutor(),
+      registerComboSkillCondition: () => ({ dispose: () => undefined }),
+      comboConditionEligibility: { isAlive: () => true, isSilenced: () => false },
     },
   };
 }
@@ -252,7 +254,7 @@ describe('compileScenarioRuntimeAssembly', () => {
       return new CombatRuntimeAssembly({
         ...compiled,
         inputs: [],
-        operators: [{ ...compiled.operators[0]!, comboSkillRegistrations: [], skills: [program] }],
+        operators: [{ ...compiled.operators[0]!, skills: [program] }],
         createOperationExecutor: () => ({
           evaluate: () => false,
           execute: (_step, context) => {

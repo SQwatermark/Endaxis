@@ -22,9 +22,18 @@ import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/physi
 export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
   Pick<
     SkillDefinition,
-    'key' | 'timelineBlockFrames' | 'cooldownFrames' | 'enhancementStateBuffId'
+    | 'key'
+    | 'timelineBlockFrames'
+    | 'naturalDurationFrames'
+    | 'cooldownFrames'
+    | 'enhancementStateBuffId'
   > &
-    Required<Pick<SkillDefinition, 'sourceSkillId' | 'blackboard' | 'costFrame' | 'exclusiveFrame'>>
+    Required<
+      Pick<
+        SkillDefinition,
+        'sourceSkillId' | 'blackboard' | 'costFrame' | 'exclusiveFrame' | 'naturalDurationFrames'
+      >
+    >
 > & {
   /** 仅供整名技能组装配；生成最终 OperatorDefinition 前必须移除。 */
   readonly allowNextSkillTransitions: CompiledActiveSkillRuntimeProjectionSource['allowNextSkillTransitions'];
@@ -59,6 +68,8 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
       Object.entries(runtime.blackboard).map(([key, values]) => [key, collapse(values)]),
     ),
     timelineBlockFrames: runtime.timelineBlockFrames,
+    // SkillData.duration getter 使用 max(durationFrame, 1) / 30；正式契约保存运行时帧语义。
+    naturalDurationFrames: Math.max(runtime.durationFrame, 1),
     exclusiveFrame: runtime.exclusiveFrame,
     allowNextSkillTransitions: runtime.allowNextSkillTransitions,
     ...(runtime.inputWindows === undefined ? {} : { inputWindows: runtime.inputWindows }),

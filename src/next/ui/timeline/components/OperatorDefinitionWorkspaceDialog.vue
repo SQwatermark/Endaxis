@@ -148,9 +148,6 @@ const selectedUpgradeModifier = computed(
   () => selectedUpgrade.value?.modifiers?.[selectedModifierIndex.value],
 );
 const skillGroupKeys = computed(() => draft.value.skillGroups.map(group => group.key));
-const operatorSkillKeys = computed(() =>
-  draft.value.skillGroups.flatMap(group => normalizeSkills(group.skills).map(skill => skill.key)),
-);
 const passiveSkillKeys = computed(() => [
   ...(draft.value.passiveSkills ?? []).map(passive => passive.key),
   ...(selectedUpgrade.value?.passiveSkills ?? []).map(passive => passive.key),
@@ -689,12 +686,10 @@ function saveRuntimeBehaviors(value: {
 }
 
 function saveComboDefinitions(value: {
-  registrations?: OperatorDefinition['comboSkillRegistrations'];
   conditions?: OperatorDefinition['comboSkillConditions'];
 }): void {
   draft.value = {
     ...draft.value,
-    comboSkillRegistrations: value.registrations,
     comboSkillConditions: value.conditions,
   };
   showComboEditor.value = false;
@@ -1228,9 +1223,7 @@ function openReferencedDefinition(reference: {
           <OperatorComboDefinitionsDialog
             v-if="showComboEditor"
             :visible="true"
-            :registrations="draft.comboSkillRegistrations"
             :conditions="draft.comboSkillConditions"
-            :skill-keys="operatorSkillKeys"
             :skill-group-keys="skillGroupKeys"
             :skill-level="skillLevel"
             @update:visible="showComboEditor = $event"
@@ -1381,7 +1374,6 @@ function openReferencedDefinition(reference: {
             </div>
             <div class="runtime-boundary">
               <strong>角色级连携结构</strong>
-              <span>连携注册 {{ draft.comboSkillRegistrations?.length ?? 0 }}</span>
               <span>连携条件 {{ draft.comboSkillConditions?.length ?? 0 }}</span>
               <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="showComboEditor = true">
                 编辑连携定义

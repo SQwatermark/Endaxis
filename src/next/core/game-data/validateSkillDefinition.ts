@@ -166,6 +166,20 @@ function requireNonNegativeInteger(
   return v;
 }
 
+function requirePositiveInteger(
+  value: Record<string, unknown>,
+  key: string,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): number | null {
+  const v = value[key];
+  if (typeof v !== 'number' || !Number.isInteger(v) || v <= 0) {
+    push(out, `${path}.${key}`, 'expected a positive integer');
+    return null;
+  }
+  return v;
+}
+
 function requireInteger(
   value: Record<string, unknown>,
   key: string,
@@ -508,6 +522,7 @@ function validateCombatCondition(
           }
         });
       }
+      if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
       break;
     case 'operatorRoleIn':
       requireEnum(record, 'target', new Set(['caster', 'buffOwner', 'eventTarget']), path, out);
@@ -603,6 +618,12 @@ function validateCombatCondition(
       requireString(record, 'contextKey', path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
       validateGameplayTags(record.buffTags, `${path}.buffTags`, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      break;
+    case 'contextTargetBuffIdStackCompare':
+      requireString(record, 'contextKey', path, out);
+      validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
       break;
@@ -707,6 +728,7 @@ function validateCombatCondition(
           }
         });
       }
+      if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
       break;
     }
     case 'currentSkillTypeIn':
@@ -3326,6 +3348,9 @@ export function validateSkillDefinition(
   if (record.nativeSkillType !== undefined)
     requireEnum(record, 'nativeSkillType', NATIVE_SKILL_TYPES_SET, path, out);
   requireNonNegativeInteger(record, 'timelineBlockFrames', path, out);
+  if (record.naturalDurationFrames !== undefined) {
+    requirePositiveInteger(record, 'naturalDurationFrames', path, out);
+  }
   if (record.enhancementStateBuffId !== undefined) {
     requireString(record, 'enhancementStateBuffId', path, out);
   }

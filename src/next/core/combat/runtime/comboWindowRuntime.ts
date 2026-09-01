@@ -183,7 +183,8 @@ export class ComboWindowRuntime implements FrameRuntime {
     for (const record of [...this.#records.values()]) {
       if (this.#pausedOperators.has(record.operatorId)) continue;
       for (const candidate of record.candidates) candidate.remainingFrames -= 1;
-      const expired = record.candidates.filter(candidate => candidate.remainingFrames <= 0);
+      // 原生只在 remainTime < 0 时移除；恰好归零的候选在本帧仍然存在。
+      const expired = record.candidates.filter(candidate => candidate.remainingFrames < 0);
       if (expired.length === 0) continue;
       const expiredSequences = new Set(expired.map(candidate => candidate.sequence));
       record.candidates.splice(

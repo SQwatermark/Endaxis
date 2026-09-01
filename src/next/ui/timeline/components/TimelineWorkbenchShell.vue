@@ -395,6 +395,11 @@ watch(
   width: 100vw;
   height: 100vh;
   display: grid;
+  /*
+   * 时间轴内部会用较高层级抬起选中和拖动中的技能块。工作台必须形成自己的
+   * 堆叠上下文，避免这些内部层级越过 append-to-body 的编辑器遮罩和弹窗。
+   */
+  isolation: isolate;
   overflow: hidden;
   background: var(--ea-workbench);
   color: var(--ea-fg);

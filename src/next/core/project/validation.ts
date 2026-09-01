@@ -92,6 +92,17 @@ function validateProjectTemplateRecord(
           `${definitionPath}.comboSkillConditions`,
         ),
       );
+      if (
+        template.definition.comboSkillPriority !== undefined &&
+        !['default', 'firstBlackboard', 'enemyRank'].includes(
+          String(template.definition.comboSkillPriority),
+        )
+      ) {
+        issues.push({
+          path: `${definitionPath}.comboSkillPriority`,
+          message: 'expected a native combo priority',
+        });
+      }
       requireString(template.definition, 'gameId', definitionPath, issues);
       if (!Array.isArray(template.definition.skillGroups)) {
         issues.push({ path: `${definitionPath}.skillGroups`, message: 'expected an array' });

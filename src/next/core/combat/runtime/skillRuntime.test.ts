@@ -303,6 +303,96 @@ describe('SkillRuntime', () => {
     );
   });
 
+  it('uses native natural duration instead of the last retained combat action', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'native-duration',
+      timelineBlockFrames: 2,
+      naturalDurationFrames: 5,
+      scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+    });
+
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(4);
+    expect(fixture.runtime.state).toBe('casting');
+    fixture.simulation.advanceFrames(1);
+    expect(fixture.runtime.state).toBe('ended');
+    expect(fixture.runtime.passedFrames).toBe(5);
+  });
+
+  it('keeps the current combo segment alive until the next independent input window', () => {
+    const first = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'enhancedBasicAttack1',
+      sourceSkillId: 'native.enhancedAttack1',
+      skillType: 'basicAttack',
+      timelineBlockFrames: 22,
+      naturalDurationFrames: 160,
+      exclusiveFrame: 135,
+      inputWindows: {
+        commandMappings: [
+          {
+            startFrame: 0,
+            endFrame: 60,
+            input: 'basicAttack',
+            targetSourceSkillId: 'native.enhancedAttack2',
+          },
+        ],
+        allowedNextSkills: [
+          {
+            startFrame: 22,
+            endFrame: 60,
+            sourceSkillIds: ['native.enhancedAttack2'],
+          },
+        ],
+      },
+      scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+    });
+    const second = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'enhancedBasicAttack2',
+      sourceSkillId: 'native.enhancedAttack2',
+      skillType: 'basicAttack',
+      timelineBlockFrames: 27,
+      naturalDurationFrames: 155,
+      exclusiveFrame: 120,
+      scheduledSequences: [],
+    });
+    const ability = new AbilitySystemRuntime({
+      skills: [first.runtime, second.runtime],
+      playerActionRoutes: {
+        basicAttack: {
+          kind: 'basicAttack',
+          skillKeys: ['enhancedBasicAttack1', 'enhancedBasicAttack2'],
+          defaultSkillKey: 'enhancedBasicAttack1',
+        },
+      },
+      playerActionModes: [
+        {
+          modeId: 'enhancedMode',
+          modeLayer: 'enhancedMode',
+          defaultEnabled: true,
+          normalAttackSkillKeys: ['enhancedBasicAttack1', 'enhancedBasicAttack2'],
+          commandMappings: {
+            basicAttack: {
+              sourceSkillId: 'native.enhancedAttack1',
+              skillKey: 'enhancedBasicAttack1',
+            },
+          },
+        },
+      ],
+    });
+
+    expect(ability.tryStartSkill('enhancedBasicAttack1')).toBe(true);
+    for (let frame = 0; frame < 22; frame++) ability.advanceFrame();
+
+    expect(first.runtime.state).toBe('casting');
+    expect(ability.resolvePlayerInputSkill('enhancedBasicAttack2', 'basicAttack')).toEqual({
+      status: 'matched',
+      actualSkillKey: 'enhancedBasicAttack2',
+    });
+    expect(ability.evaluatePlayerInputInterruption('enhancedBasicAttack2')).toEqual({
+      status: 'allowed',
+    });
+  });
+
   it('exposes the native rounded local execute frame to timeline actions', () => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'local-frame-fixture',

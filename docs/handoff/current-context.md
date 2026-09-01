@@ -7,6 +7,11 @@
 > 生成主链并通过生成门禁。** `320/320` 只表示更早的源入口结构审计，本文及其他文档下方按日期保留的
 > `274/310`、`184/309`、`173/309`、`Tangtang 9/10` 等数字均为历史进度，不是当前状态。
 
+> **最高优先级 UI 不变量：不得主动修改技能库卡片、拖拽幽灵或时间轴技能块的任何可见文本。**
+> 当前信息层级固定为“技能类型主标题、技能名弱化辅助”；除非用户明确授权修改文本，否则只允许调整
+> 颜色、轮廓、尺寸、状态装饰和交互。任何看似需要改标题、文案来源或主次关系的任务都必须先停下确认，
+> 不得再以“参考旧版”为由自行推断。
+
 当前工作树为 `Endaxis-game-data-refactor` / `refactor/common-game-data`，已按用户要求合回
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器已删除，需要对照时查 Git 历史。仅仍有独立
@@ -14,6 +19,30 @@
 
 ### 2026-09-01：角色专属被动 HUD 与能力实体生命周期竖切
 
+- 30 名正式定义已用同版本 CharacterTemplate 证据重新生成，310/310 个主动技能统一保存
+  `naturalDurationFrames = max(SkillData.durationFrame, 1)`；它表示技能自然结束边界，不替代编辑器块的
+  可操作宽度。缺失的 25 份 runtime-template 由台式机 VFS 唯一资源查询和正式 partial decoder 导出，
+  全部留在被忽略的 `tmp/game-data-sources/CharacterData`，没有从旧 TS 回填。
+- 下落攻击和处决共用基础攻击输入，但分别依赖未建模的腾空状态和敌人处决状态。输入诊断现明确返回
+  `notApplicable`，不再用落地 A1 默认映射制造永久错误角标；时间轴仍执行显式放置技能并正常检查中断。
+  `*_plunging_attack_end` 的 SkillData 从落地动作开始计帧，空中移动不属于该技能。没有固定跳跃时长证据，
+  因此不向技能及其所有事件统一添加猜测偏移。
+- 技能块可见文本保持既有信息层级，不再允许随视觉适配改写。视觉编码独立处理：普攻、连携、处决和
+  下落攻击按技能类型定色，战技和终结技继承干员属性色；时间轴普通攻击、连携、终结技和其他技能分别
+  使用实线/圆角/径向背景/虚线规则，自定义颜色仍具有最高优先级。
+- 普通 Buff 与干员专属 UI 已共用 `TimelineStatusSegment`：18px 框、右下角计数、悬停放大和条纹持续段
+  只有一份实现，来源组件只提供内部图形。头像区域不再显示专属 UI、全局 Buff 图标条或 Buff 驱动的
+  生命进度；此前遗漏的战技/终结技按钮、能量、当前技能、连携和冷却摘要也已从头像区移除。干员随
+  时间变化的信息只通过时间轴段、曲线和标记显示。
+- 五个原生 `charpassiveui` prefab 已完成对象级复核。新增
+  `generate:game-data:operator-passive-ui`，从 VFS `GameObject/MonoBehaviour` 快照直接识别
+  `UICharPassive*` 专用组件，生成计数上限、状态阈值和梨诺两个可读 Buff ID；支持 `--check`，未知、
+  缺失或重复组件严格失败。当前 VFS 正式快照出口还需补齐 `MonoBehaviour/RectTransform` 类型，现有
+  生成目录已由同构的临时 worker 快照验证，临时输入位于被忽略的 `tmp/`，不得提交。
+- 网页图形已按原生 `RectTransform` 和状态控制器证据修正：汤汤是单个水滴状态而非双槽；莱万汀四片
+  叶子使用原生镜像；庄方宜九点为菱形坐标；诀的两片能量按 0/1/2/3 状态着色；梨诺区分普通/终结
+  音乐的竖向进度与星形位置。只复刻静态可读状态，不导入 Animation、材质动画、粒子、闪烁或音效，
+  也不实现通用 Unity UI 渲染器。
 - `CharacterTable.charPassiveUIPrefabName` 已进入严格来源契约。当前 1.4.4 只识别五个真实挂载：汤汤、
   梨诺、莱万汀、庄方宜、Arcane；未知非空 prefab 会生成失败，弭弗字段为空，因此不凭旧资源残留猜测展示。
   数值型上限分别为汤汤 2、莱万汀 4、庄方宜 9、Arcane 3；梨诺按普通/终结音乐 Buff 的真实生命周期和
@@ -4906,3 +4935,63 @@ Gain)`，且数值为目标派生浮点值乘 `factor`；目标派生字段/枚�
 - `CombatHudSnapshot.mainCharacterHpProgress` 按主控时间线与 Buff 回执重放选择状态机；轨道头只在当前
   主控行显示独立进度条。木桩模型仍不伪造干员生命变化。
 - 当前定向门禁为 **5 文件 / 90 项**，Next 全量为 **286 文件 / 3892 项**；四套类型检查均通过。
+
+### 2026-09-01：原生连携入口收束
+
+- combat-spec 的 `docs/combo-skill-lifecycle.md` 是连携原生规则的唯一总规格；Endaxis 研究文档只记录
+  场景投影和实现状态，不再维护另一套规则结论。E 键路径已由 `ComboSkillPanel.CastComboSkill`
+  机器码确认只消费 UI 队首。
+- 安塔尔、萤石、诀、狼卫和 Last Rite 已使用 `SkillDataBundle.comboSkillConditions`；正式条件保留
+  `comboSkillConditionImmediately`，角色定义保留可读的 `comboSkillPriority`。当前 30 份模板中
+  priority 仅出现 0 和 2；机器码确认 0/1/2 分别为 default/firstBlackboard/enemyRank。
+- afterTakePhysicalInfliction、OnAddedBuff 与 OnTakeDamage 已进入同一个连携条件环境和 Pending
+  快照链；所有事件继续复用普通 Ability 事件的分派、负载规范化、公共条件执行器与动作序列，连携
+  只额外负责 owner/沉默/冷却门禁、每注册 direct 板及成功后的 Pending。
+  CheckBuffStackNumAdvanced(Id)、CheckPhysicalInflictionType.savedKey、事件 Buff 标签和 Burst
+  伤害标签均有运行回归。
+- 狼卫已生成事件 121 的敌人对象类型条件；Last Rite 已生成“寒冷附着且目标已有至少两层结晶附着”
+  条件。桌面端 VFS 已从实际 8896 字节汤汤角色资产重导模板；根 `sourceSha256`
+  `7fdfa2f96443489d39c497117e8660e2471f3cc3c3c571858321af171df98f4c` 与旧快照一致，证明来源资产
+  未变，变化仅来自 `CheckBuffIdInContextAdvanced` 完整叶子解码。4/4 条条件引用现均完整，整份
+  `SkillDataBundle` 已原子生成：事件 12 为四种可读 Burst 伤害标签，事件 9 为
+  `Skill/Character/Common/SpellBurst` Buff 标签，事件 121 为寒冷附着。未选择性安装可编译子集。
+  Pending 过期判断已由 `<= 0` 修正为原生 `remainTime < 0`，零值帧仍可消费。
+- 佩丽卡也已从同一根 SHA 的 8144 字节原始角色资产重导。`CheckTargetsEqual` 引用的
+  `CharacterTeamFinder` 与 `MainCharacterValidator` 是类型明确、载荷严格为空的 selector 节点；Unity
+  RID 适配器只把它们还原成公共 TargetSettings `$type`，目标语义仍由公共 selector parser 解释。
+  事件 101 经 `DoesEventHaveTarget` 和 `_DoApplyModifier` 机器码确认是有目标的
+  `OnBeforeTakeDamage`：承伤方发布，伤害来源为 input，承伤方为 trigger。佩丽卡因此整体生成“末段
+  普攻标签 + input 为当前主控 + trigger 为 Enemy”条件；manifest 中已无任何手写
+  `comboSkillRegistrations`。
+- 旧 `comboSkillRegistrations` 的数据契约、manifest 解析器、场景编译器、语义监听运行时和编辑入口
+  已全部删除；角色编辑器只保留 `comboSkillConditions`。旧字段名仅允许出现在 manifest 反回归审计与
+  历史记录中，不能重新进入产品定义。
+- 立即连携目前只保留事实，若出现 true 会明确阻塞；不能复用只接收 operatorId/skillKey 的旧手写
+  immediate 回调，因为原生直接施放仍需要本次 input、trigger 和条件黑板快照。
+
+### 2026-09-01：公共 Buff 所有权纠正
+
+- `commonBuffDefinitions` 已从所有干员生成文件移除。干员定义只拥有 `buff_chr_*` 私有定义，并按
+  ID 引用公共 Buff；公共定义不是干员编辑器内容，也不随某个干员生成文件导出。
+- 新入口 `generate:game-data:common-buffs` 从 30 名正式干员的原始资源闭包统一收集公共 Buff，当前
+  生成 60 项到 `src/next/data/buffs/generated/commonBuffDefinitions.generated.ts`。同 ID 的定义必须
+  深度一致，否则严格失败，不再使用旧 `commonDefinitions.ts` 的 import/展开顺序覆盖冲突。
+- `src/next/data/buffs/commonDefinitions.ts` 只作为产品稳定入口转出独立生成目录。后续单干员生成不
+  改写公共文件；公共来源变化必须显式重跑公共生成器及 `--check`。
+
+### 2026-09-01：本工作树提交前交接
+
+- 本轮同时收束了三条相关链路：公共 Buff 已从干员生成物剥离为独立只读目录；角色专属 HUD 状态
+  统一投影为时间轴状态段；首段连携只保留 `CharacterTemplate -> SkillDataBundle ->
+  comboSkillConditions -> 公共事件/条件动作运行时` 一条权威路径。
+- 汤汤角色模板的 4/4 连携条件引用已完整解码；佩丽卡事件 101 的 input/trigger 与零载荷 selector
+  RID 已按机器码和 VFS 原始对象闭合。佩丽卡、汤汤整名生成 `--complete --check` 均通过。
+- 旧 `comboSkillRegistrations` 已从正式契约、manifest 解析、场景编译、运行时和角色编辑器删除；
+  `legacyOperatorArtifacts.test.ts` 只保留对旧 manifest 字段不得回流的反回归检查。
+- Endaxis 连携/编译/运行时专项为 **12 文件 / 286 项**通过，game-data 与 Next 类型检查通过。
+  combat-spec 连携事件专项 **13/13** 通过；其全套测试有 **26** 项因当前工作树缺少
+  `artifacts/skill-data-cdn` 和装备 BuffData 失败，其余 **1583** 项通过。VFS Unity Worker 为
+  **40 通过 / 6 跳过 / 0 失败**。
+- 后续连携主线是按原生目标与黑板快照补齐 `immediately=true` 的直接施放端口，并复核 UI 队首切换、
+  激活间隔和同帧重排；不得恢复旧手写语义事件注册。HUD 主线继续复刻已有账本能够证明的状态，
+  不引入敌人主动行为或干员虚构受击。

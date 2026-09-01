@@ -13,7 +13,7 @@ import {
 import { type BuildCondition, type CombatCondition } from './conditions.ts';
 import { type ActionSequenceDefinition, type CombatEventTrigger } from './actions.ts';
 import {
-  type ComboSkillRegistrationDefinition,
+  type ComboSkillPriority,
   type OperatorAbilityEntityDefinitions,
   type SkillGroupDefinition,
 } from './skills.ts';
@@ -277,33 +277,45 @@ export interface OperatorEntityBlackboardInitializerDefinition {
   falseValue: number;
 }
 
-/** 原生角色专属 HUD 的稳定状态源；动画状态名与配色不进入战斗定义。 */
+/** 原生角色专属 HUD 的可读外观身份；纹理路径和动画参数仍由 UI 资产层维护。 */
+export type OperatorPassiveUiAppearance =
+  'tangtangDroplets' | 'laevatainCounter' | 'zhuangFangyiThunder' | 'arcaneSigils' | 'liinoMusic';
+
+/** 原生角色专属 HUD 的稳定状态源与原生 prefab 外观身份。 */
 export type OperatorPassiveUiDefinition =
   | {
       readonly kind: 'numeric';
+      readonly appearance: Exclude<OperatorPassiveUiAppearance, 'liinoMusic'>;
       readonly maximum: number;
       /** 达到该值时原生节点进入满层/强化状态；没有独立满层态时省略。 */
       readonly activeAt?: number;
     }
   | {
       readonly kind: 'buffProgress';
+      readonly appearance: Extract<OperatorPassiveUiAppearance, 'liinoMusic'>;
       readonly normalBuffId: string;
       readonly ultimateBuffId: string;
     };
 
 export const COMBO_SKILL_CONDITION_EVENTS = [
+  'addedBuff',
+  'beforeTakeDamage',
+  'takeDamage',
   'beforeOutputInfliction',
   'beforeTakeInfliction',
   'afterOutputInfliction',
   'afterTakeInfliction',
+  'afterTakePhysicalInfliction',
 ] as const;
 
-/** 原生角色常驻条件；独立于技能块，也不复用附着完成后的语义连携规则。 */
+/** 原生角色常驻条件；独立于技能块，也不复用旧手写语义连携规则。 */
 export interface ComboSkillConditionDefinition {
   key: string;
   /** 绑定当前连携槽位，条件序列按该组的 levelSource 编译。 */
   skillGroupKey: string;
   event: (typeof COMBO_SKILL_CONDITION_EVENTS)[number];
+  /** 原生条件命中后直接 TryCastComboSkill；false 才进入 Pending 窗口。 */
+  immediately: boolean;
   /** 模板字面初值，不是等级数组；null 为禁用，{} 为启用空板，每条注册独立复制。 */
   initialValues: Readonly<Record<string, number | string | null>> | null;
   sequence: ActionSequenceDefinition;
@@ -343,10 +355,10 @@ export interface OperatorDefinition {
   buffDefinitions?: OperatorBuffDefinitions;
   /** 干员级能力实体蓝图；子技能按引用它的技能等级编译。 */
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
-  /** 角色级首段连携入口；多段连携的后续窗口仍由技能序列中的步骤开启。 */
-  comboSkillRegistrations?: readonly ComboSkillRegistrationDefinition[];
-  /** 四类已取证附着事件的原生条件；与旧 semantic 连携入口明确分开。 */
+  /** 原生角色常驻连携条件；多段连携的后续窗口仍由技能序列中的步骤开启。 */
   comboSkillConditions?: readonly ComboSkillConditionDefinition[];
+  /** SkillDataBundle.comboSkillPriorityType；单敌人运行时不评分，但转换不得丢失。 */
+  comboSkillPriority?: ComboSkillPriority;
   /** 角色模板的字面实体初值；不是技能初值，动态值也不随每次技能施放重置。 */
   entityBlackboard?: Readonly<Record<string, number | string>>;
   /** CharacterTable 明确挂载的角色专属战斗 HUD；不存在时不得从遗留 prefab 猜测。 */

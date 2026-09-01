@@ -377,6 +377,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
   ):
     | { readonly status: 'matched'; readonly actualSkillKey: string }
     | { readonly status: 'mismatched'; readonly actualSkillKey: string }
+    | { readonly status: 'notApplicable'; readonly reason: string }
     | { readonly status: 'unknown'; readonly reason: string } {
     if (this.#playerActionRoutes !== undefined) {
       const matchingInputs = Object.entries(this.#playerActionRoutes).flatMap(([input, route]) => {
@@ -414,6 +415,18 @@ export class AbilitySystemRuntime implements FrameRuntime {
       if (mapped !== null) return mapped;
       const modeMapped = this.#resolveActiveModeBasicAttackMapping(expectedSkillKey);
       if (modeMapped !== null) return modeMapped;
+      const expectedSkillType = this.#skills.find(
+        skill => skill.skillId === expectedSkillKey,
+      )?.skillType;
+      if (expectedSkillType === 'finisher' || expectedSkillType === 'plungingAttack') {
+        // 处决和下落攻击与普通攻击共用输入，但由敌人处决状态或角色腾空状态选择。
+        // Next 尚未建模这两项空间/敌人状态；缺少显式命令映射时不能拿 A1 默认映射
+        // 反证时间轴上已经明确放置的特殊攻击。
+        return {
+          status: 'notApplicable',
+          reason: 'special basic-attack selection state is outside simulation scope',
+        };
+      }
       if (route.defaultSkillKey === undefined) {
         return { status: 'unknown', reason: 'native basic-attack command mapping is not imported' };
       }

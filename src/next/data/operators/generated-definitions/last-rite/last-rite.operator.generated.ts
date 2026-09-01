@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -20,6 +19,7 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0026_lastrite_attack1',
     timelineBlockFrames: 20,
+    naturalDurationFrames: 171,
     exclusiveFrame: 25,
     inputWindows: {
       commandMappings: [
@@ -97,6 +97,7 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0026_lastrite_attack2',
     timelineBlockFrames: 29,
+    naturalDurationFrames: 175,
     exclusiveFrame: 34,
     inputWindows: {
       commandMappings: [
@@ -209,6 +210,7 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0026_lastrite_attack3',
     timelineBlockFrames: 36,
+    naturalDurationFrames: 230,
     exclusiveFrame: 47,
     inputWindows: {
       commandMappings: [
@@ -359,6 +361,7 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0026_lastrite_attack4',
     timelineBlockFrames: 46,
+    naturalDurationFrames: 182,
     exclusiveFrame: 54,
     inputWindows: {
       commandMappings: [
@@ -540,6 +543,7 @@ export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0026_lastrite_power_attack',
     timelineBlockFrames: 40,
+    naturalDurationFrames: 176,
     exclusiveFrame: 58,
     inputWindows: {
       allowedNextSkills: [
@@ -629,6 +633,7 @@ export const lastRitePlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0026_lastrite_plunging_attack_end',
     timelineBlockFrames: 21,
+    naturalDurationFrames: 133,
     exclusiveFrame: 20,
     costFrame: 9,
     scheduledSequences: [
@@ -677,6 +682,7 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0026_lastrite_normal_skill',
     timelineBlockFrames: 34,
+    naturalDurationFrames: 429,
     exclusiveFrame: 373,
     inputWindows: {
       allowedNextSkills: [
@@ -876,6 +882,7 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0026_lastrite_ultimate_skill',
     timelineBlockFrames: 140,
+    naturalDurationFrames: 360,
     exclusiveFrame: 170,
     inputWindows: {
       commandMappings: [
@@ -1186,6 +1193,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0026_lastrite_combo_skill',
     timelineBlockFrames: 65,
+    naturalDurationFrames: 216,
     exclusiveFrame: 90,
     inputWindows: {
       allowedNextSkills: [
@@ -1425,137 +1433,6 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const commonBuffDefinitions = {
-  buff_common_affixes_vulnerable_crystal: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Vulnerable',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableCryst',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_vulnerable_crystal_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'cryoVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_vulnerable_crystal_default_child: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_affix_cryst_vulnerable',
-      iconPath: '/icons/icon_battle_affix_cryst_vulnerable.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: true,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'LifeTime',
-      abnormalColorType: 'Physical',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
-    },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0.2 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_obtain_ultimate_sp: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
-    },
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
-
 export default {
   slug: 'last-rite',
   gameId: 'LASTRITE',
@@ -1633,6 +1510,34 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'eventInflictionElementIn', elements: ['cryo'] },
+          sequence(
+            branch(
+              {
+                kind: 'contextTargetBuffStackCompare',
+                contextKey: 'trigger',
+                tagQueryType: 'hasAny',
+                buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 2 },
+              },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

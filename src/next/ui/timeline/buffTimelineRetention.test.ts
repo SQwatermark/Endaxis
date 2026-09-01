@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import source from './NextTimelineEditor.vue?raw';
 import buffBandsSource from './components/TimelineBuffBands.vue?raw';
 import enemyEffectsSource from './components/TimelineEnemyEffects.vue?raw';
+import statusSegmentSource from './components/TimelineStatusSegment.vue?raw';
 
 describe('Next timeline Buff visualization retention', () => {
   it('projects one receipt stream onto operator tracks and the enemy status row', () => {
@@ -22,10 +23,13 @@ describe('Next timeline Buff visualization retention', () => {
     expect(source).toContain("'--timeline-action-top'");
   });
 
-  it('keeps the legacy icon, stack badge, and striped duration-bar layout', () => {
-    expect(buffBandsSource).toContain('timeline-buff-stacks');
+  it('uses the shared status segment for icon, stack badge, hover, and duration stripes', () => {
+    expect(buffBandsSource).toContain('TimelineStatusSegment');
+    expect(buffBandsSource).toContain(':count="item.layers > 1 ? item.layers : null"');
+    expect(statusSegmentSource).toContain('timeline-status-segment__count');
+    expect(statusSegmentSource).toContain('transform: scale(1.18)');
     expect(enemyEffectsSource).toContain('anomaly-stacks');
-    expect(buffBandsSource).toContain('repeating-linear-gradient');
+    expect(statusSegmentSource).toContain('repeating-linear-gradient');
     expect(enemyEffectsSource).toContain('repeating-linear-gradient');
     expect(buffBandsSource).toContain('const ICON_SIZE = 18');
     expect(enemyEffectsSource).toContain('const ICON_SIZE = 20');

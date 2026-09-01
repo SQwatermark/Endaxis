@@ -2481,69 +2481,6 @@ describe('CombatRuntimeAssembly', () => {
     ).toBe(false);
   });
 
-  it('installs operator combo registrations once and opens a window from a semantic event', () => {
-    const assembly = new CombatRuntimeAssembly({
-      enemy: testEnemy,
-      resources: {
-        sp: 100,
-        maxSp: 300,
-        returnedSp: 0,
-        sharedSpGain: { baseGainEfficiency: 1 },
-        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
-        ultimateEnergySystemUnlocked: true,
-        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
-        squad: [
-          {
-            operatorId: 'operator',
-            ultimateEnergy: 0,
-            maxUltimateEnergy: 100,
-            ultimateEnergyGainMultiplier: 1,
-            allowedUltimateEnergyRecoveryTags: null,
-          },
-        ],
-      },
-      enemyBuffRuntime: emptyEnemyBuffRuntime,
-      operators: [
-        {
-          operatorId: 'operator',
-          skills: [],
-          comboSkillRegistrations: [
-            {
-              skillKey: 'comboSkill',
-              priority: 'default',
-              blackboard: { coefficient: 1.5 },
-              rules: [
-                {
-                  trigger: {
-                    kind: 'damageTagHit',
-                    tag: 'normalAttackLastCombo',
-                    scope: 'team',
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      ],
-      createOperationExecutor: () => rejectingExecutor,
-    });
-
-    assembly.semanticEvents.emit({
-      kind: 'damageTagHit',
-      sourceOperatorId: 'another-operator',
-      tags: ['normalAttackLastCombo'],
-    });
-
-    expect(assembly.comboWindows.first).toMatchObject({
-      operatorId: 'operator',
-      nextSkillKey: 'comboSkill',
-      blackboard: { coefficient: 1.5 },
-    });
-    expect(
-      assembly.receipt.entries.filter(entry => entry.event === 'ComboWindowOpened'),
-    ).toHaveLength(1);
-  });
-
   it('records a diagnostic fact but still starts a combo skill without a window', () => {
     const combo = skill({ skillId: 'comboSkill', skillType: 'comboSkill' });
     const assembly = createAssembly([combo]);

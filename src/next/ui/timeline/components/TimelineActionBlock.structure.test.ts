@@ -10,7 +10,28 @@ describe('TimelineActionBlock legacy visual parity', () => {
     expect(source).toContain('border: 2px dashed var(--action-accent)');
     expect(source).toContain("[data-skill-type='basicAttack']");
     expect(source).toContain("[data-skill-type='comboSkill']");
-    expect(source).toContain("[data-skill-type='ultimate']");
+    expect(source).toContain(
+      ".timeline-action-block:not(.is-disabled)[data-skill-type='ultimate']",
+    );
+    expect(source).toContain(
+      ".timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='basicAttack']",
+    );
+    expect(source).toContain(
+      ".timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='comboSkill']",
+    );
+  });
+
+  it('derives default accents from skill type and operator element while preserving custom colors', () => {
+    expect(editorSource).toContain('const OPERATOR_ELEMENT_SKILL_COLORS');
+    expect(editorSource).toContain("heat: '#ff4d4f'");
+    expect(editorSource).toContain("comboSkill'\n        ? '#fdd900'");
+    expect(editorSource).toContain('editorGameDataRepository.getOperator(operatorSlug)?.element');
+    expect(editorSource).toContain(
+      ':color="cast.color ?? skillAccentColor(cast.skillType, track.operatorSlug)"',
+    );
+    expect(editorSource).toContain(
+      ':accent-color="skillAccentColor(entry.skillType, selectedTrackModel.operatorSlug)"',
+    );
   });
 
   it('keeps document-order stacking deterministic and raises selected or moving actions', () => {
@@ -33,6 +54,11 @@ describe('TimelineActionBlock legacy visual parity', () => {
   it('keeps status marks, hit markers and ultimate side bars as independent overlays', () => {
     expect(source).toContain('class="hit-marker"');
     expect(source).toContain('class="warning-mark"');
+    expect(source).toContain(
+      'd="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"',
+    );
+    expect(source).toMatch(/\.warning-mark\s*\{[^}]*top: 2px;[^}]*right: 2px;/s);
+    expect(source).not.toContain("content: '!'");
     expect(source).toContain('class="status-mark lock-mark"');
     expect(source).toContain('class="status-mark disabled-mark"');
     expect(source).toContain('ultimate-side-bar--left');

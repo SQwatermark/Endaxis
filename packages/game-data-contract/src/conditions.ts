@@ -121,6 +121,14 @@ export type CombatCondition =
       value: ActionValueOperand;
     }
   | {
+      /** CheckBuffStackNumAdvanced(Id) 的命名组首目标增强层数；空组直接 false。 */
+      kind: 'contextTargetBuffIdStackCompare';
+      contextKey: string;
+      buffIds: readonly string[];
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
+  | {
       /** 比较当前 Context 迭代目标的有限能力实体剩余时长。 */
       kind: 'abilityEntityRemainingDurationCompare';
       operator: ComparisonOperator;
@@ -210,6 +218,8 @@ export type CombatCondition =
       /** 匹配来源 AbilitySystem 即将输出的物理异常类型。 */
       kind: 'eventPhysicalInflictionTypeIn';
       types: readonly ('airborne' | 'knockDown' | 'fracture' | 'crush')[];
+      /** 命中后把原生物理异常编号写入已声明键；规则与元素 savedKey 相同。 */
+      outputKey?: string;
     }
   | {
       /** 匹配触发 Buff 响应的待施放技能类型。 */
@@ -359,6 +369,7 @@ export const COMBAT_CONDITION_KINDS = [
   'contextTargetCountCompare',
   'contextTargetObjectTypeMatch',
   'contextTargetBuffStackCompare',
+  'contextTargetBuffIdStackCompare',
   'abilityEntityRemainingDurationCompare',
   'statusActive',
   'buffStackCompare',

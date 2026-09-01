@@ -7,8 +7,6 @@ import type {
   AbilityEntityDefinition,
   CombatCondition,
   CombatEventTrigger,
-  ComboSkillPriority,
-  ComboSkillTriggerRule,
   CombatResource,
   CombatStepKind,
   CombatStepParameters,
@@ -436,6 +434,8 @@ export interface CompiledSkillProgram {
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
   readonly timelineBlockFrames: number;
+  /** 原生技能实例的自然结束周期；与块宽、可中断边界彼此独立。 */
+  readonly naturalDurationFrames?: number;
   readonly exclusiveFrame?: number;
   /** 原生技能局部输入映射与接续窗口；已无等级值，运行时只读。 */
   readonly inputWindows?: import('../game-data/operatorDefinition').SkillDefinition['inputWindows'];
@@ -480,23 +480,13 @@ export interface CompiledSkillSlotGroup {
   readonly replacementSkillKeys: readonly string[];
 }
 
-/** 角色级首段连携入口的单等级编译结果；运行时不得再读取养成配置。 */
-export interface CompiledComboSkillRegistration {
-  readonly skillKey: string;
-  readonly priority: ComboSkillPriority;
-  readonly blackboard: Readonly<Record<string, number>>;
-  readonly invalidCastBlackboard?: Readonly<Record<string, number>>;
-  readonly rules: readonly (Omit<ComboSkillTriggerRule, 'blackboard'> & {
-    readonly blackboard?: Readonly<Record<string, number>>;
-  })[];
-}
-
 /** 原生附着事件的常驻条件环境；不与旧语义事件连携规则混用。 */
 export interface CompiledComboSkillConditionProgram {
   readonly key: string;
   /** 每次求值读取该槽的当前形态，而不是注册时的技能 ID。 */
   readonly skillGroupKey: string;
   readonly event: import('../game-data/operatorDefinition').ComboSkillConditionDefinition['event'];
+  readonly immediately: boolean;
   /** null 为禁用，{} 为启用空板；字符串/空值不降格成数值。 */
   readonly initialValues: Readonly<Record<string, number | string | null>> | null;
   readonly sequence: ResolvedActionSequence;

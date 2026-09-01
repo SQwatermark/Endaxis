@@ -12,6 +12,7 @@ function skill(
     sourceSkillId,
     blackboard: {},
     timelineBlockFrames: 0,
+    naturalDurationFrames: 40,
     exclusiveFrame: 40,
     costFrame: 0,
     scheduledSequences: [],

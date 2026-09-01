@@ -103,22 +103,18 @@ describe('next Perlica definition', () => {
     ]);
   });
 
-  it('opens the combo window from the final normal-attack damage tag', () => {
-    expect(perlica.comboSkillRegistrations).toEqual([
-      {
-        skillKey: 'comboSkill',
-        priority: 'default',
-        rules: [
-          {
-            trigger: {
-              kind: 'damageTagHit',
-              tag: 'normalAttackLastCombo',
-              scope: 'team',
-            },
-          },
-        ],
-      },
-    ]);
+  it('keeps the native before-take-damage combo condition instead of a handwritten tag rule', () => {
+    expect('comboSkillRegistrations' in perlica).toBe(false);
+    expect(perlica.comboSkillConditions).toHaveLength(1);
+    expect(perlica.comboSkillConditions?.[0]).toMatchObject({
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeDamage',
+      immediately: false,
+    });
+    const source = JSON.stringify(perlica.comboSkillConditions);
+    expect(source).toContain('normalAttackLastCombo');
+    expect(source).toContain('eventSourceControlled');
+    expect(source).toContain('contextTargetObjectTypeMatch');
   });
 
   it('defines finisher and plunging attack as independent basic-attack-level groups', () => {

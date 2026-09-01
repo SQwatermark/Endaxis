@@ -58,6 +58,10 @@ describe('旧版构筑编辑行为兼容结构', () => {
     expect(weaponTooltipSource).toContain('<GameRichTextRenderer');
   });
 
+  it('干员实例面板的技能图标以可交互光标提示 tooltip', () => {
+    expect(operatorBuildSource).toMatch(/\.skill-icon-frame\s*\{[\s\S]*?cursor:\s*pointer;/);
+  });
+
   it('AKEDB 新武器也通过 i18n 提供展示名，不向定义写入中文名', () => {
     expect(getWeaponGameName('bedazzling-night-debut', 'zh-CN')).toBe('曜夜的首演');
     expect(getWeaponGameName('bedazzling-night-debut', 'en')).toBe('Bedazzling Night Debut');

@@ -33,7 +33,8 @@ export interface ElementalInflictionEventPayload {
   readonly skillId: string;
   readonly element: InflictionStep['parameters']['element'];
   readonly isExtra: boolean;
-  readonly skillCastInfo?: CombatSkillCastInfo;
+  /** undefined 表示生产端尚未提供来源；null 表示已确认本事件没有来源技能。 */
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
 }
 
 /** 元素附着执行节点所需的状态读写、事件、回执和后继执行端口。 */

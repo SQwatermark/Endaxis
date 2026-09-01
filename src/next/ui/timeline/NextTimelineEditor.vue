@@ -50,6 +50,7 @@ import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
 import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vue';
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
 import TimelineBuffBands from './components/TimelineBuffBands.vue';
+import TimelineOperatorPassiveUiBands from './components/TimelineOperatorPassiveUiBands.vue';
 import {
   projectTimelineTrackEffectLayout,
   resizeTimelineTrackPair,
@@ -77,13 +78,18 @@ import { projectSkillCooldownTimelineViz } from '../../core/projection/skillCool
 import { projectSkillEnhancementTimelineViz } from '../../core/projection/skillEnhancementTimelineViz';
 import { projectCombatStatusIndicators } from '../../core/projection/combatStatusIndicators';
 import { resolveControlTimeline } from '../../core/project/resolveControlTimeline';
-import { resolveControlledOperator } from '../../core/combat/runtime/operatorControlTimeline';
 import {
   layoutBuffTimelineSegments,
   projectBuffTimelineViz,
   type BuffTimelineSegment,
   type PositionedBuffTimelineSegment,
 } from '../../core/projection/buffTimelineViz';
+import {
+  layoutOperatorPassiveUiTimelineSegments,
+  projectOperatorPassiveUiTimelineViz,
+  type OperatorPassiveUiTimelineSegment,
+  type PositionedOperatorPassiveUiTimelineSegment,
+} from '../../core/projection/operatorPassiveUiTimelineViz';
 import type { OperatorUltimateEnergyCurve } from '../../core/projection/resourceCurves';
 import {
   PROJECT_FPS,
@@ -1824,6 +1830,18 @@ const combatHudOperatorPassiveUis = computed(() =>
   }),
 );
 
+/** 专属 UI 不只采样光标快照；非零状态还要保留完整生命周期供轨道展示。 */
+const operatorPassiveUiTimelineSegments = computed(() => {
+  const current = simulationRun.value;
+  return current === null
+    ? []
+    : projectOperatorPassiveUiTimelineViz(
+        current.receiptEntries,
+        current.frame,
+        combatHudOperatorPassiveUis.value,
+      );
+});
+
 const operatorControlTimeline = computed(() =>
   resolveControlTimeline(scenario.value.tracks, scenario.value.battle.controlSwitches),
 );
@@ -1846,74 +1864,10 @@ const combatHudSnapshot = computed(() => {
   });
 });
 
-const controlledOperatorIdAtCursor = computed(() =>
-  resolveControlledOperator(operatorControlTimeline.value, cursorFrame.value),
-);
-
 function statusIndicatorsForTarget(targetId: string | null) {
   return targetId === null
     ? []
     : combatStatusIndicators.value.filter(indicator => indicator.targetId === targetId);
-}
-
-function operatorHudSnapshotFor(operatorId: string | null) {
-  if (operatorId === null) return null;
-  return (
-    combatHudSnapshot.value?.operators.find(snapshot => snapshot.operatorId === operatorId) ?? null
-  );
-}
-
-function activeSkillLabelFor(trackIndex: TrackIndex): string | null {
-  const track = viewModel.value.tracks[trackIndex];
-  const snapshot = operatorHudSnapshotFor(track?.operatorInstanceId ?? null);
-  if (track === undefined || snapshot?.activeCastId === null || snapshot === null) return null;
-  const cast = scenario.value.tracks[trackIndex]?.skillCasts.find(
-    candidate => candidate.id === snapshot.activeCastId,
-  );
-  if (cast?.source.kind !== 'operatorSkill') return snapshot.activeSkillId;
-  return skillName(cast.source.skillGroupKey, track.operatorSlug);
-}
-
-function skillHudButtonsFor(trackIndex: TrackIndex) {
-  const track = viewModel.value.tracks[trackIndex];
-  const snapshot = operatorHudSnapshotFor(track?.operatorInstanceId ?? null);
-  if (track === undefined || track.operatorSlug === null || snapshot === null) return [];
-  const definition = editorGameDataRepository.getOperator(track.operatorSlug);
-  if (definition === undefined || definition === null) return [];
-
-  return (['battleSkill', 'ultimate'] as const).flatMap(action => {
-    const route = definition.playerActionRoutes?.[action];
-    if (route?.kind !== 'skillSlot') return [];
-    const slot = snapshot.skillSlots.find(item => item.skillSlotKey === route.skillSlotKey);
-    if (slot === undefined) return [];
-    const entry = track.skillLibrary.find(candidate =>
-      candidate.skills.some(skill => skill.skillKey === slot.currentSkillKey),
-    );
-    const label =
-      entry === undefined
-        ? slot.currentSkillKey
-        : (timelineSkillSegmentLabel(entry, slot.currentSkillKey, skillSegmentLabels()) ??
-          skillName(entry.skillGroupKey, track.operatorSlug));
-    const cooldown = snapshot.cooldowns.find(item => item.skillId === slot.currentSkillKey);
-    const progress =
-      action === 'battleSkill' ? snapshot.battleSkillProgress : snapshot.ultimateProgress;
-    const duration = cooldown === undefined ? 0 : cooldown.endFrame - cooldown.startFrame;
-    return [
-      {
-        action,
-        skillKey: slot.currentSkillKey,
-        label,
-        icon: skillDisplayIcon(action, track.operatorSlug),
-        cooldownRatio:
-          cooldown?.completed === true && duration > 0
-            ? Math.max(0, Math.min(1, (cooldown.endFrame - cursorFrame.value) / duration))
-            : null,
-        cooldownKnown: cooldown === undefined || cooldown.completed,
-        progressRatio: progress?.ratio ?? null,
-        weakProgress: progress?.weakStyle === true,
-      },
-    ];
-  });
 }
 
 const comboWindowSegments = computed(() => {
@@ -1999,6 +1953,29 @@ const positionedBuffsByTarget = computed(() => {
   return positioned;
 });
 
+const positionedOperatorPassiveUisByTarget = computed(() => {
+  const grouped = new Map<string, OperatorPassiveUiTimelineSegment[]>();
+  for (const segment of operatorPassiveUiTimelineSegments.value) {
+    const list = grouped.get(segment.operatorId) ?? [];
+    list.push(segment);
+    grouped.set(segment.operatorId, list);
+  }
+  const positioned = new Map<string, readonly PositionedOperatorPassiveUiTimelineSegment[]>();
+  for (const [operatorId, segments] of grouped) {
+    const upperBuffLaneCount = Math.max(
+      0,
+      ...(positionedBuffsByTarget.value.get(operatorId) ?? [])
+        .filter(segment => segment.placement === 'upper')
+        .map(segment => segment.lane + 1),
+    );
+    positioned.set(
+      operatorId,
+      layoutOperatorPassiveUiTimelineSegments(segments, upperBuffLaneCount),
+    );
+  }
+  return positioned;
+});
+
 function buffSegmentsForTarget(
   targetId: string | null,
   placement?: BuffTimelineSegment['placement'],
@@ -2010,13 +1987,25 @@ function buffSegmentsForTarget(
     : segments.filter(segment => segment.placement === placement);
 }
 
+function operatorPassiveUiSegmentsForTarget(
+  targetId: string | null,
+): readonly PositionedOperatorPassiveUiTimelineSegment[] {
+  return targetId === null ? [] : (positionedOperatorPassiveUisByTarget.value.get(targetId) ?? []);
+}
+
 function trackEffectLayout(trackIndex: TrackIndex, targetId: string | null) {
   const laneCount = (placement: BuffTimelineSegment['placement']): number => {
     if (targetId === null || !isOperatorEffectsVisible(trackIndex)) return 0;
-    return Math.max(
+    const buffLaneCount = Math.max(
       0,
       ...buffSegmentsForTarget(targetId, placement).map(segment => segment.lane + 1),
     );
+    return placement === 'upper'
+      ? Math.max(
+          buffLaneCount,
+          ...operatorPassiveUiSegmentsForTarget(targetId).map(segment => segment.lane + 1),
+        )
+      : buffLaneCount;
   };
   return projectTimelineTrackEffectLayout({
     mode: buffLayoutMode.value,
@@ -2394,17 +2383,37 @@ function timelineCastLabel(
   );
 }
 
-function skillAccentColor(skillType: string): string {
-  return (
-    {
-      basicAttack: '#aaaaaa',
-      battleSkill: '#ffffff',
-      comboSkill: '#fdd900',
-      ultimate: '#00e5ff',
-      finisher: '#a61d24',
-      plungingAttack: '#69c0ff',
-    }[skillType] ?? '#8c8c8c'
-  );
+const OPERATOR_ELEMENT_SKILL_COLORS: Readonly<Record<string, string>> = {
+  heat: '#ff4d4f',
+  cryo: '#00e5ff',
+  electric: '#ffbf00',
+  nature: '#52c41a',
+  physical: '#e0e0e0',
+};
+
+/**
+ * 照录旧版技能块配色边界：普攻、连携、处决和下落攻击由技能类型定色，
+ * 战技与终结技继承干员属性色。轮廓差异仍由 TimelineActionBlock 的技能类型样式负责。
+ */
+function skillAccentColor(skillType: string | null, operatorSlug: string | null): string {
+  const typeColor =
+    skillType === 'basicAttack'
+      ? '#aaaaaa'
+      : skillType === 'comboSkill'
+        ? '#fdd900'
+        : skillType === 'finisher'
+          ? '#a61d24'
+          : skillType === 'plungingAttack'
+            ? '#69c0ff'
+            : null;
+  if (typeColor !== null) return typeColor;
+
+  const element =
+    operatorSlug === null ? null : editorGameDataRepository.getOperator(operatorSlug)?.element;
+  if (element !== null && element !== undefined) {
+    return OPERATOR_ELEMENT_SKILL_COLORS[element] ?? '#8c8c8c';
+  }
+  return skillType === 'ultimate' ? '#00e5ff' : skillType === 'battleSkill' ? '#ffffff' : '#8c8c8c';
 }
 
 function skillDisplayIcon(skillType: string, operatorSlug: string | null): string {
@@ -3207,7 +3216,7 @@ function beginSkillDrag(
   const ghost = createLibraryDragGhost(
     { name: label, duration: durationSeconds },
     pxPerFrame.value * PROJECT_FPS,
-    () => skillAccentColor(entry.skillType),
+    () => skillAccentColor(entry.skillType, selectedTrackModel.value.operatorSlug),
   );
   if (event.dataTransfer !== null) {
     event.dataTransfer.effectAllowed = 'copy';
@@ -4060,7 +4069,7 @@ function setPanelDialogVisible(visible: boolean): void {
               :type-label="skillLibraryTypeLabel(entry)"
               :duration="skillDurationSeconds(entry)"
               :icon="skillDisplayIcon(entry.skillType, selectedTrackModel.operatorSlug)"
-              :accent-color="skillAccentColor(entry.skillType)"
+              :accent-color="skillAccentColor(entry.skillType, selectedTrackModel.operatorSlug)"
               :selected="libraryEntrySelected(entry)"
               :segments="skillSegments(entry)"
               @dragstart="beginSkillDrag($event, entry)"
@@ -4494,21 +4503,6 @@ function setPanelDialogVisible(visible: boolean): void {
                     loadoutModels[track.trackIndex]?.gears.accessory2?.definition.iconPath ?? null,
                 }"
                 :active-gear-set-label="activeGearSetLabelsByTrack[track.trackIndex] ?? ''"
-                :status-indicators="statusIndicatorsForTarget(track.operatorInstanceId)"
-                :status-slot="
-                  controlledOperatorIdAtCursor === track.operatorInstanceId
-                    ? 'mainCharacterHpBarCommon'
-                    : 'squadIcon'
-                "
-                :cursor-frame="cursorFrame"
-                :hud-snapshot="operatorHudSnapshotFor(track.operatorInstanceId)"
-                :hp-bar-progress="
-                  controlledOperatorIdAtCursor === track.operatorInstanceId
-                    ? (combatHudSnapshot?.mainCharacterHpProgress ?? null)
-                    : null
-                "
-                :active-skill-label="activeSkillLabelFor(track.trackIndex)"
-                :skill-buttons="skillHudButtonsFor(track.trackIndex)"
                 :labels="{
                   operator: t('timelineGrid.track.changeOperatorTooltip'),
                   weapon: t('timelineGrid.track.selectWeaponTooltip'),
@@ -4570,6 +4564,17 @@ function setPanelDialogVisible(visible: boolean): void {
                   :prep-frames="scenario.battle.prepFrames"
                   :px-per-frame="pxPerFrame"
                   placement="upper"
+                  :action-top="
+                    trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
+                  "
+                />
+                <TimelineOperatorPassiveUiBands
+                  v-if="
+                    timelineViewLayers.upperEffects && isOperatorEffectsVisible(track.trackIndex)
+                  "
+                  :segments="operatorPassiveUiSegmentsForTarget(track.operatorInstanceId)"
+                  :prep-frames="scenario.battle.prepFrames"
+                  :px-per-frame="pxPerFrame"
                   :action-top="
                     trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
                   "
@@ -4715,7 +4720,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :disabled="cast.disabled"
                   :locked="cast.locked"
                   :edited="cast.edited"
-                  :color="cast.color"
+                  :color="cast.color ?? skillAccentColor(cast.skillType, track.operatorSlug)"
                   :connection-tool-enabled="connectionToolEnabled"
                   :connection-dragging="connectionDrag !== null"
                   :connection-source-action-id="connectionDrag?.skillCastId ?? null"

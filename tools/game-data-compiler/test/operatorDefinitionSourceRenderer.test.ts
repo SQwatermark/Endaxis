@@ -4,7 +4,6 @@ import { renderOperatorDefinitionSource } from '../src/domains/operator/definiti
 describe('complete operator definition source renderer', () => {
   it('uses the established definition helpers and named skill references', () => {
     const source = renderOperatorDefinitionSource({
-      commonBuffDefinitions: {},
       operator: {
         slug: 'sample-operator',
         skillGroups: [
@@ -46,5 +45,6 @@ describe('complete operator definition source renderer', () => {
     expect(source).toContain('percentages([20, 30])');
     expect(source).toContain('"skills": sampleOperatorBattleSkill');
     expect(source).not.toContain('prettier-ignore');
+    expect(source).not.toContain('commonBuffDefinitions');
   });
 });

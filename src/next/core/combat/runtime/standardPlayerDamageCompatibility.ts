@@ -89,6 +89,7 @@ function inspectCondition(
     case 'contextTargetCountCompare':
     case 'contextTargetObjectTypeMatch':
     case 'contextTargetBuffStackCompare':
+    case 'contextTargetBuffIdStackCompare':
     case 'abilityEntityRemainingDurationCompare':
     case 'ownerSpawnedAbilityEntityPresent':
     case 'timedMarkerPresent':

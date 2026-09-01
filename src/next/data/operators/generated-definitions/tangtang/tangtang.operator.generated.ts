@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -21,6 +20,7 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0027_tangtang_attack1',
     timelineBlockFrames: 7,
+    naturalDurationFrames: 90,
     exclusiveFrame: 15,
     inputWindows: {
       commandMappings: [
@@ -83,6 +83,7 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0027_tangtang_attack2',
     timelineBlockFrames: 18,
+    naturalDurationFrames: 117,
     exclusiveFrame: 18,
     inputWindows: {
       commandMappings: [
@@ -214,6 +215,7 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0027_tangtang_attack3',
     timelineBlockFrames: 26,
+    naturalDurationFrames: 115,
     exclusiveFrame: 30,
     inputWindows: {
       commandMappings: [
@@ -407,6 +409,7 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0027_tangtang_attack4',
     timelineBlockFrames: 24,
+    naturalDurationFrames: 143,
     exclusiveFrame: 28,
     inputWindows: {
       commandMappings: [
@@ -502,6 +505,7 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0027_tangtang_attack5',
     timelineBlockFrames: 36,
+    naturalDurationFrames: 190,
     exclusiveFrame: 36,
     inputWindows: {
       commandMappings: [
@@ -611,6 +615,7 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0027_tangtang_power_attack',
     timelineBlockFrames: 48,
+    naturalDurationFrames: 121,
     exclusiveFrame: 47,
     costFrame: 4,
     scheduledSequences: [
@@ -744,6 +749,7 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0027_tangtang_plunging_attack_end',
     timelineBlockFrames: 16,
+    naturalDurationFrames: 118,
     exclusiveFrame: 15,
     costFrame: 0,
     scheduledSequences: [
@@ -794,6 +800,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0027_tangtang_normal_skill',
     timelineBlockFrames: 50,
+    naturalDurationFrames: 136,
     exclusiveFrame: 50,
     inputWindows: {
       allowedNextSkills: [
@@ -1097,6 +1104,7 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0027_tangtang_ultimate_skill',
     timelineBlockFrames: 85,
+    naturalDurationFrames: 202,
     exclusiveFrame: 84,
     inputWindows: {
       commandMappings: [
@@ -1268,6 +1276,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0027_tangtang_combo_skill',
     timelineBlockFrames: 31,
+    naturalDurationFrames: 200,
     exclusiveFrame: 41,
     inputWindows: {
       allowedNextSkills: [
@@ -2283,249 +2292,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const commonBuffDefinitions = {
-  buff_common_affixes_slow: {
-    stackingType: 'highPriority',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: ['Skill/Character/Common/Affixes/Slow'],
-    extendTags: [],
-    blackboard: { child_buff_id: 'buff_common_affixes_slow_default_child', duration: 0, rate: 0 },
-    attributeModifiers: [
-      { attribute: 'SlowActionSpeedScalar', slot: 'addition', value: { blackboardKey: 'rate' } },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_slow_default_child: {
-    stackingType: 'highPriority',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_affix_slow',
-      iconPath: '/icons/icon_battle_affix_slow.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: true,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'LifeTime',
-      abnormalColorType: 'Physical',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
-    },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0 },
-    attributeModifiers: [],
-  },
-  buff_common_affixes_speedup: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate', negate: true },
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: ['Skill/Character/Common/Affixes/Speedup'],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_speedup_default_child',
-      duration: 0,
-      rate: 0,
-    },
-    attributeModifiers: [
-      { attribute: 'KeywordSpeedUpScalar', slot: 'baseAddition', value: { blackboardKey: 'rate' } },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_vulnerable_spell: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Vulnerable',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableFire',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableCryst',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableNatural',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_vulnerable_spell_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'heatVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'electricVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'cryoVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'natureVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_vulnerable_spell_default_child: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_affix_spell_vulnerable',
-      iconPath: '/icons/icon_battle_affix_spell_vulnerable.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: true,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'LifeTime',
-      abnormalColorType: 'Physical',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
-    },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0.2 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_full_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
-
 export default {
   slug: 'tangtang',
   gameId: 'TANGTANG',
@@ -2543,7 +2309,7 @@ export default {
     baseAttack: [30, 92, 157, 223, 288, 321],
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
-  passiveUi: { kind: 'numeric', maximum: 2 },
+  passiveUi: { kind: 'numeric', appearance: 'tangtangDroplets', maximum: 2 },
   skillGroups: [
     {
       key: 'basicAttack',
@@ -2627,6 +2393,63 @@ export default {
       commandMappings: { basicAttack: { sourceSkillId: 'chr_0027_tangtang_ult_attack5' } },
     },
   ],
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillGroupKey: 'comboSkill',
+      event: 'takeDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'eventDamageTagsMatch',
+            match: 'hasAny',
+            tags: ['fireBurst', 'cryoBurst', 'electricBurst', 'natureBurst'],
+          },
+          sequence(
+            branch(
+              { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeInfliction',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch({ kind: 'eventInflictionElementIn', elements: ['cryo'] }, sequence()),
+      ),
+    },
+    {
+      key: 'native-combo:2',
+      skillGroupKey: 'comboSkill',
+      event: 'addedBuff',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'eventBuffTagsMatch',
+            match: 'hasAny',
+            buffTags: ['Skill/Character/Common/SpellBurst'],
+          },
+          sequence(
+            branch(
+              { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

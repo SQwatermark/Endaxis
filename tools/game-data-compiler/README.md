@@ -17,11 +17,33 @@
 - `scripts/exportReferencedGameIcons.ts`：扫描正式运行引用，只补缺漏地导出 WebP；`--overwrite` 覆盖，
   `--dry-run` 只审计，`--prune` 删除引用闭包外的受管游戏资源；
 - `scripts/exportGameLocales.py`：AKEDB 本地化和富文本图标来源导出；图标入口会调用它生成临时 manifest；
+- `scripts/generateOperatorPassiveUiPrefabCatalog.ts`：从 VFS 对象快照识别角色专属 HUD prefab 的
+  `UICharPassive*` 组件，并生成模拟所需的窄语义目录；
 - `config/gearSetIdentities.json`：已闭合并进入正式库的套装身份；
 - `legacy/enemy-ranks`：仍有证据价值、但尚未改写为 TS 的敌人 rank 原始提取器。
 
 根 `package.json` 暴露 `generate:game-data:*`、`audit:game-data:*`、`export:game-icons` 和
 `export:game-locales`。机器审计和中间 manifest 只写入已忽略的 `tmp/`。
+
+### 角色专属 HUD prefab 转换边界
+
+输入目录的每个一级子目录表示一个 prefab，至少要含 VFS `ObjectSnapshot` 导出的
+`GameObject/` 和 `MonoBehaviour/`。当前只接受原生专用组件
+`UICharPassiveMultiStates`、`UICharPassiveCounter`、`UICharPassiveZhuangfy`、
+`UICharPassiveLizhiyan`、`UICharPassiveLiino`；缺失、重复或未知组件都会阻断，不按 prefab
+名字猜规则。生成命令示例：
+
+```powershell
+npm run generate:game-data:operator-passive-ui -- --snapshot-root tmp/passive-ui-prefabs
+npm run generate:game-data:operator-passive-ui -- --snapshot-root tmp/passive-ui-prefabs --check
+```
+
+自动进入数据契约的只有计数上限、状态阈值和可读 Buff ID。这些字段直接决定时间轴状态段和
+模拟快照，适合稳定转换。`RectTransform`、`UIImage` 的静态布局可以由每种受支持组件的窄
+展示适配器提取或核对，但不属于模拟契约；通用 Animation、材质动画、粒子、闪烁和音效不转换，
+也不为此实现 Unity UI 运行时。当前网页展示使用原生纹理和逐组件核实的静态状态，省略动画不会
+改变状态是否存在、层数或进度。要扩展新 prefab，必须先确认其专用组件语义，再新增显式适配器和
+回归样例，不能把未知通用层级静默拍平成图片列表。
 
 ## 当前纵向迁移（2026-08-28）
 
@@ -527,9 +549,12 @@ npm run generate:game-data:operator-active-skills -- --complete `
   已生成 TS。Arcane 当前约定路径为
   `CharacterData/chr_0032_lizhiyan.runtime-template.json`，源 SHA-256 为
   `33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc`。
-- 一次原子写入一个 `<slug>.operator.generated.ts`，其中公共 Buff 为独立导出，不属于 Operator 的
-  私有 `buffDefinitions`。全局只读目录采用已迁移公共定义，未迁移部分暂保留旧基线；不能按宿主
-  再造独立的公共 Buff 实现。注册由明确的产品 import 完成，生成命令不改产品接线。
+- 单干员命令一次原子写入一个 `<slug>.operator.generated.ts`，只包含干员定义、私有 `buff_chr_*`
+  和对公共 Buff ID 的引用。它不得导出 `commonBuffDefinitions`，也不得反向决定公共资源内容。
+- 公共 Buff 使用独立 `generate:game-data:common-buffs` 命令扫描全部正式来源闭包，原子生成
+  `src/next/data/buffs/generated/commonBuffDefinitions.generated.ts`。相同 ID 在多个闭包中出现时必须
+  得到深度一致的定义，否则生成失败；不能再靠干员 import 或对象展开顺序选择“规范版本”。产品只
+  通过 `src/next/data/buffs/commonDefinitions.ts` 的稳定只读入口注册该目录。
 - 输出目录严格限定为上述父目录下的 slug 子目录；未知文件拒绝覆盖。审计写入 tmp，正式数据不带
   本机路径。`--check` 忽略 CRLF/LF，仍严格核对内容；文件存在数与注册/可模拟计数不能混用。
 - 伤害 key 按技能身份与最终结构路径确定，展开后的独立回调步骤各有唯一 key；不随机、不取绝对路径。
@@ -643,6 +668,22 @@ IR 必须能够追溯到原生证据，至少保留：
 
 同一种原生结构只能有一个解析器和一个语义编译入口。领域差异通过配置或外层适配器表达，
 不能复制公共编译逻辑后分别演化。
+
+连携技是这条规则的强制样例。游戏语义只引用 combat-spec
+`docs/combo-skill-lifecycle.md`；转换器只允许以下单向数据流：
+
+```text
+CharacterData.SkillDataBundle
+  -> source/operatorRuntimeTemplate.ts（槽位、优先级、条件、条件黑板）
+  -> source/comboSkillConditions.ts + 公共 Action IR
+  -> compiler/comboSkillConditions.ts
+  -> 干员级连携运行时定义
+```
+
+`operators.json` 不得逐条声明伤害标签、附着类型或 Buff 条件来代替上述转换。旧
+`comboSkillRegistrations` 是已经删除的手写捷径，不是另一类原生来源；其契约、解析器、编译与运行时
+均不得恢复，产品定义只接受上游生成的 `comboSkillConditions`。Unity RID 仍为 raw、事件目标绑定未取证或公共 Action 尚不支持时，
+必须报告来源路径与阻塞类型，不能退回手写语义规则，也不能静默省略该干员的连携条件。
 
 这里的“同一种”不能根据字段相似、输出相同或代码长相判断。原生归属必须从对应版本 schema
 的类型引用图计算：以 Operator、Equipment、Weapon 等顶层 schema 为根，按原生类型身份递归遍历
@@ -997,10 +1038,23 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
   真实 14 条来源核对一致，五条条件可编译。Context 对象类型及 ByTag 首目标增强层数进入 Next。
   DebugPrint/关闭动作不再被残留 Target 假阻塞；真正的 InputTarget、非空子 RID 和 BuffIdCount
   仍是显式边界。诀常驻产物已切换，不等同完整干员迁移完成；木桩资格和 Pending 施法已接通。
-- 公共连携条件来源读取与四类已审计附着事件 Pending 编译，复用公共条件/序列而不另写叶子；
-  布尔结果被消费时保留纯尾条件。原始 RID 未展开、immediate、主控/支援过滤、未审计事件仍拒绝；
+- 公共连携条件来源读取与四类附着事件、afterTakePhysicalInfliction、OnAddedBuff、OnTakeDamage
+  条件编译，复用公共事件上下文、条件/序列
+  而不另写叶子；布尔结果被消费时保留纯尾条件。`comboSkillConditionImmediately` 和
+  `comboSkillPriorityType` 已转换成可读正式字段，不能因当前样本均为 Pending 或单敌人而丢弃；
+  立即 TryCast 的目标感知运行端仍显式阻塞。连携只另加 owner/沉默/冷却门禁、每注册 direct 板和
+  Pending 生命周期，不另写 Buff/伤害事件或条件叶。原始 RID 未展开、主控/支援过滤、未审计事件仍拒绝；
   InputTarget 尚未投影时禁止把 Target 编成 Buff 的物理 eventTarget。证据见 combat-spec 的
   combo-condition-environment.md、combo-event-gates-and-pending.md；正式定义到场景生成已接通。
+- 安塔尔、萤石、诀、狼卫、Last Rite 与汤汤已由各自 `SkillDataBundle` 整体生成常驻条件。汤汤模板
+  经桌面端 VFS 从实际角色资产重导后，`CheckBuffIdInContextAdvanced` 等 4/4 条条件引用均完整；事件
+  12 生成 Burst 伤害条件，事件 9 生成 SpellBurst Buff 标签条件，事件 121 生成寒冷附着条件。重导
+  前后根 `sourceSha256` 一致，证明只补全了解码结果。生成器仍要求整个 Bundle 完整，不允许只选可
+  编译子集。Pending 过期使用原生 `remainTime < 0`，剩余时间恰好为零时仍保留候选。
+- 佩丽卡同样整体生成事件 101 `OnBeforeTakeDamage` 条件。VFS 重导闭合零载荷
+  `CharacterTeamFinder + MainCharacterValidator` selector RID；公共事件投影保留“伤害来源 input / 承伤
+  方 trigger”，生成末段普攻标签、input 为当前主控及 trigger 为 Enemy 三重条件。manifest 中手写
+  连携注册数量为零。
 - AbilitySystemData 两层黑板的公共安装投影：实体字面值与启用/禁用的条件局部板分离，动态声明
   不当作编译期常量；Next 实体初值随场景装配进入共享运行板，正式诀常驻条件生成已切换。
 - CheckSpellInflictionType 的原生数值/命名/零 mask 与 savedKey 写回投影；有写入副作用的尾条件

@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -22,6 +21,7 @@ export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0030_zhuangfy_attack1',
     timelineBlockFrames: 15,
+    naturalDurationFrames: 123,
     exclusiveFrame: 23,
     inputWindows: {
       commandMappings: [
@@ -123,6 +123,7 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0030_zhuangfy_attack2',
     timelineBlockFrames: 15,
+    naturalDurationFrames: 320,
     exclusiveFrame: 27,
     inputWindows: {
       commandMappings: [
@@ -269,6 +270,7 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0030_zhuangfy_attack3',
     timelineBlockFrames: 26,
+    naturalDurationFrames: 105,
     exclusiveFrame: 29,
     inputWindows: {
       commandMappings: [
@@ -469,6 +471,7 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0030_zhuangfy_attack4',
     timelineBlockFrames: 17,
+    naturalDurationFrames: 170,
     exclusiveFrame: 23,
     inputWindows: {
       commandMappings: [
@@ -513,6 +516,7 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0030_zhuangfy_attack5',
     timelineBlockFrames: 50,
+    naturalDurationFrames: 165,
     exclusiveFrame: 55,
     inputWindows: {
       commandMappings: [
@@ -559,6 +563,7 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0030_zhuangfy_power_attack',
     timelineBlockFrames: 41,
+    naturalDurationFrames: 153,
     exclusiveFrame: 45,
     inputWindows: {
       allowedNextSkills: [
@@ -656,6 +661,7 @@ export const zhuangFangyiPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0030_zhuangfy_plunging_attack_end',
     timelineBlockFrames: 21,
+    naturalDurationFrames: 170,
     exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
@@ -755,6 +761,7 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0030_zhuangfy_normal_skill',
     timelineBlockFrames: 45,
+    naturalDurationFrames: 290,
     exclusiveFrame: 135,
     inputWindows: {
       allowedNextSkills: [
@@ -1533,6 +1540,7 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
     key: 'enhancedBattleSkill',
     sourceSkillId: 'chr_0030_zhuangfy_normal_skill_ult',
     timelineBlockFrames: 30,
+    naturalDurationFrames: 210,
     exclusiveFrame: 143,
     inputWindows: {
       allowedNextSkills: [
@@ -2529,6 +2537,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0030_zhuangfy_combo_skill',
     timelineBlockFrames: 25,
+    naturalDurationFrames: 210,
     exclusiveFrame: 60,
     inputWindows: {
       allowedNextSkills: [
@@ -2716,6 +2725,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
     key: 'enhancedComboSkill',
     sourceSkillId: 'chr_0030_zhuangfy_combo_skill_ult',
     timelineBlockFrames: 25,
+    naturalDurationFrames: 197,
     exclusiveFrame: 30,
     inputWindows: {
       allowedNextSkills: [
@@ -2943,6 +2953,7 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0030_zhuangfy_ultimate_skill',
     timelineBlockFrames: 91,
+    naturalDurationFrames: 208,
     exclusiveFrame: 90,
     costFrame: 0,
     scheduledSequences: [
@@ -3070,6 +3081,7 @@ export const zhuangFangyiUltimateEnd: SkillDefinition = withSkillBlackboard(
     key: 'ultimateEnd',
     sourceSkillId: 'chr_0030_zhuangfy_ultimate_skill_end',
     timelineBlockFrames: 21,
+    naturalDurationFrames: 189,
     exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
@@ -3097,6 +3109,7 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
     key: 'enhancedBasicAttack1',
     sourceSkillId: 'chr_0030_zhuangfy_attack1_ult',
     timelineBlockFrames: 22,
+    naturalDurationFrames: 160,
     exclusiveFrame: 135,
     inputWindows: {
       commandMappings: [
@@ -3200,6 +3213,7 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
     key: 'enhancedBasicAttack2',
     sourceSkillId: 'chr_0030_zhuangfy_attack2_ult',
     timelineBlockFrames: 27,
+    naturalDurationFrames: 155,
     exclusiveFrame: 120,
     inputWindows: {
       commandMappings: [
@@ -3302,6 +3316,7 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
     key: 'enhancedBasicAttack3',
     sourceSkillId: 'chr_0030_zhuangfy_attack3_ult',
     timelineBlockFrames: 60,
+    naturalDurationFrames: 179,
     exclusiveFrame: 140,
     inputWindows: {
       commandMappings: [
@@ -3370,329 +3385,6 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
   },
 );
 
-export const commonBuffDefinitions = {
-  buff_common_affixes_enhance_pulse: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: ['Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhancePulse'],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_enhance_pulse_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'electricEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_enhance_pulse_default_child: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_affix_pulse_enhance',
-      iconPath: '/icons/icon_battle_affix_pulse_enhance.webp',
-      showInHeadBarCommon: false,
-      showInHeadBarAttached: false,
-      showInSquadIcon: true,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'LifeTime',
-      abnormalColorType: 'Physical',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
-    },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0.2 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-  buff_common_pulse_pulse_conduct_triggered: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: 2,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {
-      consumed_layer: 0,
-      consumed_type: 1,
-      count: 1,
-      duration: 0,
-      extra_scaling: 1,
-      real_duration: 0,
-    },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(
-        branch(
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'blackboard', key: 'duration' },
-            operator: 'greater',
-            right: { kind: 'constant', value: 0 },
-          },
-          sequence(
-            step('modifyActionValue', {
-              key: 'real_duration',
-              operation: 'assign',
-              value: { kind: 'blackboard', key: 'duration' },
-            }),
-          ),
-          sequence(
-            step('readSkillSettingData', {
-              items: [
-                {
-                  values: [12, 18, 24, 30],
-                  column: { kind: 'blackboard', key: 'count' },
-                  storeKey: 'real_duration',
-                },
-              ],
-            }),
-          ),
-          { alwaysNext: true },
-        ),
-        step('applyElementalReaction', {
-          reaction: 'electrification',
-          target: 'enemy',
-          durationSeconds: { kind: 'blackboard', key: 'real_duration' },
-          effectiveness: 1,
-        }),
-        step('applyBuff', {
-          buffId: 'buff_common_pulse_pulse_conduct_triggered_do',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: {
-            duration: { kind: 'blackboard', key: 'real_duration' },
-            count: { kind: 'blackboard', key: 'count' },
-            consumed_type: { kind: 'blackboard', key: 'consumed_type' },
-            consumed_layer: { kind: 'blackboard', key: 'consumed_layer' },
-            extra_scaling: { kind: 'blackboard', key: 'extra_scaling' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_pulse_pulse_conduct_triggered_do: {
-    stackingType: 'stack',
-    stackingKey: 'pulse_triggered',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 1,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_conduct',
-      iconPath: '/icons/icon_battle_conduct.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: false,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'SpellAbnormal',
-      abnormalColorType: 'Pulse',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
-    },
-    applyTags: ['Skill/Character/Common/SpellStatus/Conduct'],
-    extendTags: [],
-    blackboard: {
-      count: 1,
-      duration: 5,
-      extra_scaling: 1,
-      final_spell_resistance_decrease: 0,
-      spell_resistance_decrease: 0.2,
-    },
-    attributeModifiers: [],
-    damageModifiers: [
-      {
-        enabledSide: 'defender',
-        condition: { kind: 'eventDamageTypesMatch', damageTypes: ['heat'] },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'defender',
-            zone: 'normal',
-            addition: { blackboardKey: 'final_spell_resistance_decrease' },
-          },
-        ],
-      },
-      {
-        enabledSide: 'defender',
-        condition: { kind: 'eventDamageTypesMatch', damageTypes: ['electric'] },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'defender',
-            zone: 'normal',
-            addition: { blackboardKey: 'final_spell_resistance_decrease' },
-          },
-        ],
-      },
-      {
-        enabledSide: 'defender',
-        condition: { kind: 'eventDamageTypesMatch', damageTypes: ['cryo'] },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'defender',
-            zone: 'normal',
-            addition: { blackboardKey: 'final_spell_resistance_decrease' },
-          },
-        ],
-      },
-      {
-        enabledSide: 'defender',
-        condition: { kind: 'eventDamageTypesMatch', damageTypes: ['nature'] },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'defender',
-            zone: 'normal',
-            addition: { blackboardKey: 'final_spell_resistance_decrease' },
-          },
-        ],
-      },
-    ],
-    lifecycleSequences: {
-      start: sequence(
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [0.12, 0.16, 0.2, 0.24],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'spell_resistance_decrease',
-              enhance: {
-                target: 'caster',
-                formula: { kind: 'saturating', paramA: 2, paramB: 300 },
-              },
-            },
-          ],
-        }),
-        step('storeSourceAttributeValue', {
-          attribute: { kind: 'specific', key: 'electricAbnormalDamageIncrease' },
-          stage: 'finalNonConverted',
-          useFloor: false,
-          divisor: { kind: 'constant', value: 1 },
-          multiplier: { kind: 'blackboard', key: 'spell_resistance_decrease' },
-          base: { kind: 'blackboard', key: 'spell_resistance_decrease' },
-          targetKey: 'final_spell_resistance_decrease',
-        }),
-        step('modifyActionValue', {
-          key: 'final_spell_resistance_decrease',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'extra_scaling' },
-        }),
-        step('applyBuff', {
-          buffId: 'buff_common_pulse_triggered_fx',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-        }),
-      ),
-    },
-  },
-  buff_common_pulse_triggered_fx: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 5,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
-
 export default {
   slug: 'zhuang-fangyi',
   gameId: 'ZHUANGFANGYI',
@@ -3710,7 +3402,7 @@ export default {
     baseAttack: [30, 93, 160, 227, 293, 326],
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
-  passiveUi: { kind: 'numeric', maximum: 9, activeAt: 9 },
+  passiveUi: { kind: 'numeric', appearance: 'zhuangFangyiThunder', maximum: 9, activeAt: 9 },
   skillGroups: [
     {
       key: 'basicAttack',

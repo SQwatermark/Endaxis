@@ -20,7 +20,6 @@ describe('普通倒地起身消费者门禁', () => {
     'initializationPrograms',
     'passivePrograms',
     'upgradeEventPrograms',
-    'comboSkillRegistrations',
     'comboConditionPrograms',
     'equipmentContributions',
   ])('检查队友 %s 中的嵌套读者', field => {

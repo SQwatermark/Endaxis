@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -19,6 +18,7 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0011_seraph_attack1',
     timelineBlockFrames: 13,
+    naturalDurationFrames: 117,
     exclusiveFrame: 14,
     inputWindows: {
       commandMappings: [
@@ -116,6 +116,7 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0011_seraph_attack2',
     timelineBlockFrames: 17,
+    naturalDurationFrames: 121,
     exclusiveFrame: 20,
     inputWindows: {
       commandMappings: [
@@ -213,6 +214,7 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0011_seraph_attack3',
     timelineBlockFrames: 14,
+    naturalDurationFrames: 125,
     exclusiveFrame: 14,
     inputWindows: {
       commandMappings: [
@@ -310,6 +312,7 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0011_seraph_attack4',
     timelineBlockFrames: 21,
+    naturalDurationFrames: 128,
     exclusiveFrame: 24,
     inputWindows: {
       commandMappings: [
@@ -471,6 +474,7 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0011_seraph_attack5',
     timelineBlockFrames: 33,
+    naturalDurationFrames: 137,
     exclusiveFrame: 33,
     inputWindows: {
       commandMappings: [
@@ -548,6 +552,7 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0011_seraph_power_attack',
     timelineBlockFrames: 34,
+    naturalDurationFrames: 160,
     exclusiveFrame: 50,
     inputWindows: {
       allowedNextSkills: [
@@ -642,6 +647,7 @@ export const xaihiPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0011_seraph_plunging_attack_end',
     timelineBlockFrames: 13,
+    naturalDurationFrames: 116,
     exclusiveFrame: 12,
     costFrame: 0,
     scheduledSequences: [
@@ -686,6 +692,7 @@ export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0011_seraph_normal_skill',
     timelineBlockFrames: 31,
+    naturalDurationFrames: 145,
     exclusiveFrame: 30,
     costFrame: 0,
     scheduledSequences: [
@@ -778,6 +785,7 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0011_seraph_combo_skill',
     timelineBlockFrames: 25,
+    naturalDurationFrames: 122,
     exclusiveFrame: 42,
     inputWindows: {
       allowedNextSkills: [
@@ -1091,6 +1099,7 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0011_seraph_ultimate_skill',
     timelineBlockFrames: 67,
+    naturalDurationFrames: 183,
     exclusiveFrame: 80,
     inputWindows: {
       allowedNextSkills: [
@@ -1189,256 +1198,6 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
     ],
   },
 );
-
-export const commonBuffDefinitions = {
-  buff_common_affixes_enhance_crystal: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: ['Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceCryst'],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_enhance_crystal_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'cryoEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_enhance_natural: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: ['Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceNatural'],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_enhance_natural_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'natureEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_enhance_spell: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Enhance',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceFire',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceCryst',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhancePulse',
-      'Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceNatural',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_enhance_spell_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'heatEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'electricEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'cryoEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-      {
-        attribute: 'natureEnhancedDamageIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_enhance_spell_default_child: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_affix_spell_enhance',
-      iconPath: '/icons/icon_battle_affix_spell_enhance.webp',
-      showInHeadBarCommon: false,
-      showInHeadBarAttached: false,
-      showInSquadIcon: true,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'LifeTime',
-      abnormalColorType: 'Physical',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
-    },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0.2 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_full_immune: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Immune/Damage',
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_full_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_obtain_ultimate_sp: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
-    },
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
 
 export default {
   slug: 'xaihi',

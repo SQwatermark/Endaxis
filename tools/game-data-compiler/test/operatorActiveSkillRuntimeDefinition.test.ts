@@ -143,6 +143,7 @@ describe('Operator 主动技能正式运行定义', () => {
       sourceSkillId: 'battle',
       blackboard: { attack_scale: [1, 1.2] },
       timelineBlockFrames: 21,
+      naturalDurationFrames: 30,
       cooldownFrames: [30, 45],
       costs: [{ resource: 'sp', value: 100 }],
       costFrame: 3,

@@ -3,7 +3,6 @@
  * 这里只负责依赖接线与原生阶段顺序，不解析存档，也不为还没做通的战斗操作提供默认行为。
  */
 import type {
-  CompiledComboSkillRegistration,
   CompiledComboSkillConditionProgram,
   CompiledOperatorInitializationProgram,
   CompiledOperatorPassiveProgram,
@@ -70,7 +69,6 @@ import {
   type RegisterEquipmentAbilityEventAction,
   type EquipmentEventExecutionContext,
 } from './equipmentEventRuntime';
-import { ComboSkillRegistrationRuntime } from './comboSkillRegistrationRuntime';
 import type {
   ComboConditionRegistration,
   PendingComboCondition,
@@ -144,10 +142,10 @@ export interface CombatOperatorProgram {
   readonly upgradeEventPrograms?: readonly CompiledOperatorUpgradeEventProgram[];
   /** 复合元素状态由环境创建；这里保存当前构筑对其持续时间和效能的静态修正。 */
   readonly reactionModifiers?: readonly import('../../compiler/compileOperatorUpgrades').CompiledOperatorReactionModifier[];
-  /** 角色进入战斗时注册的首段连携入口；与时间轴上放置了多少技能块无关。 */
-  readonly comboSkillRegistrations?: readonly CompiledComboSkillRegistration[];
   /** 原生附着事件的常驻条件；不按技能块重复注册，不替代旧语义连携规则。 */
   readonly comboConditionPrograms?: readonly CompiledComboSkillConditionProgram[];
+  /** 原生多目标候选选择策略；当前单敌人投影只保留事实，不执行评分差异。 */
+  readonly comboConditionPriority?: import('../../game-data/operatorDefinition').ComboSkillPriority;
   /** 已按当前构筑等级和装备者主副属性解析的静态装备贡献。 */
   readonly equipmentContributions?: readonly CompiledEquipmentContribution[];
   /** 场景编译入口提供的静态面板；底层运行时单元测试可按需省略。 */
@@ -466,7 +464,6 @@ export class CombatRuntimeAssembly {
   readonly #ambiguousNativeSkillKeys = new Set<string>();
   readonly #equipmentEventRuntimes = new Map<string, EquipmentEventRuntime>();
   readonly #operatorUpgradeEventRuntimes: OperatorUpgradeEventRuntime[] = [];
-  readonly #comboSkillRegistrationRuntimes: ComboSkillRegistrationRuntime[] = [];
   readonly #comboConditionRegistrations: AbilityEventRegistration[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
   readonly #passiveSequences: ActionSequence[] = [];
@@ -857,29 +854,6 @@ export class CombatRuntimeAssembly {
       );
     }
 
-    for (const operator of options.operators) {
-      const registrations = operator.comboSkillRegistrations ?? [];
-      if (registrations.length === 0) continue;
-      this.#comboSkillRegistrationRuntimes.push(
-        new ComboSkillRegistrationRuntime({
-          operatorId: operator.operatorId,
-          registrations,
-          semanticEvents: this.semanticEvents,
-          comboWindows: this.comboWindows,
-          createOperations: () =>
-            this.#createReactiveOperationChain(
-              operator,
-              `combo-registration:${operator.operatorId}`,
-              unsupportedReactiveTerminal,
-              options,
-            ),
-          ...(options.castComboSkillImmediately === undefined
-            ? {}
-            : { castImmediately: options.castComboSkillImmediately }),
-        }),
-      );
-    }
-
     const configureBuffLifecycle = (target: BuffOperationTarget): void => {
       target.configureLifecycleOperations?.(source =>
         this.#createBuffLifecycleOperationChain(source, options),
@@ -1193,7 +1167,9 @@ export class CombatRuntimeAssembly {
     // 原生先解析操作实际指向的技能，再对该技能执行中断门禁。时间轴块即使不一致
     // 仍会被强制执行，但诊断不能拿块中期望技能冒充原生请求。
     const interruptionSkillId =
-      resolution.status === 'unknown' ? expectedSkillId : resolution.actualSkillKey;
+      resolution.status === 'matched' || resolution.status === 'mismatched'
+        ? resolution.actualSkillKey
+        : expectedSkillId;
     const interruption = ability.evaluatePlayerInputInterruption(
       interruptionSkillId,
       interruptionSkillId === expectedSkillId ? castId : undefined,
@@ -1263,19 +1239,6 @@ export class CombatRuntimeAssembly {
           );
         }
       } else {
-        const invalidCastBlackboard = this.#operators
-          .get(operatorId)
-          ?.comboSkillRegistrations?.find(
-            registration => registration.skillKey === skillId,
-          )?.invalidCastBlackboard;
-        if (invalidCastBlackboard !== undefined && Object.keys(invalidCastBlackboard).length > 0) {
-          ability.prepareSkillStartBlackboard(
-            skillId,
-            castId,
-            invalidCastBlackboard,
-            resolveSkillSlot,
-          );
-        }
         this.receipt.record({
           frame: this.clock.frame,
           time: this.clock.time,
@@ -1519,6 +1482,11 @@ export class CombatRuntimeAssembly {
           );
         }
         keys.add(program.key);
+        if (program.immediately) {
+          throw new Error(
+            `combo condition '${program.key}' requires target-aware immediate TryCastComboSkill support`,
+          );
+        }
         const group = operator.skillSlotGroups?.find(
           group => group.skillGroupKey === program.skillGroupKey,
         );

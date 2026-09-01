@@ -28,6 +28,10 @@ describe('TimelineWorkbenchShell legacy behavior parity', () => {
     expect(source).toMatch(/\.workbench-layout\s*\{[^}]*height: 100vh;[^}]*overflow: hidden;/s);
   });
 
+  it('contains elevated timeline content below dialogs teleported to the document body', () => {
+    expect(source).toMatch(/\.workbench-layout\s*\{[^}]*isolation: isolate;/s);
+  });
+
   it('keeps the resize cursor and selection lock after the pointer leaves the divider', () => {
     expect(source).toContain(
       "'is-resizing-horizontal': resizing === 'left' || resizing === 'right'",

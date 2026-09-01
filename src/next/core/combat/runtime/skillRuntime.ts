@@ -62,7 +62,8 @@ export interface CombatAbilityPhysicalInflictionEvent {
   readonly event:
     | 'beforeTakePhysicalInfliction'
     | 'beforeOutputPhysicalInfliction'
-    | 'afterOutputPhysicalInfliction';
+    | 'afterOutputPhysicalInfliction'
+    | 'afterTakePhysicalInfliction';
   readonly sourceId: string;
   readonly targetId: string;
   readonly type?: 'airborne' | 'knockDown' | 'fracture' | 'crush';
@@ -299,6 +300,7 @@ export class SkillRuntime {
   #preparedSkipApplyCost = false;
   #preparedForceTimelinePayment = false;
   #forceTimelinePayment = false;
+  #timelineFinishRequested = false;
   readonly #attachedBuffs = new Set<BuffApplicationHandle>();
   #pendingTransition: RuntimeSkillTransition | null = null;
   #preparedStartBlackboard: Readonly<Record<string, number>> = {};
@@ -608,6 +610,7 @@ export class SkillRuntime {
     this.#appliedCost = this.#preparedSkipApplyCost;
     this.#attemptedCost = this.#preparedSkipApplyCost;
     this.#forceTimelinePayment = this.#preparedForceTimelinePayment;
+    this.#timelineFinishRequested = false;
     this.#inheritedSkillCastInfo = this.#preparedSkillCastInfo;
     this.#nonReturnedSpCost = this.#preparedSkillCastInfo?.nonReturnedSpCost ?? 0;
     this.#skillCastId =
@@ -654,8 +657,15 @@ export class SkillRuntime {
     if (this.#state !== 'casting') return;
     this.#passedFrames += timelineDeltaSeconds * COMBAT_FRAMES_PER_SECOND;
     this.#tick(timelineDeltaSeconds);
-    // 时间轴动作全部执行完毕后技能自然结束，允许同技能再次释放。
-    if (this.#timeline?.isComplete === true) this.end();
+    // 原生自然结束由 SkillData.durationFrame 计时器驱动；到期帧先完成本帧 Timeline Tick，
+    // 再进入 CastEnd。旧自定义定义没有该字段时才沿用“动作全部完成”的兼容边界。
+    if (
+      this.#timelineFinishRequested ||
+      (this.#program.naturalDurationFrames === undefined
+        ? this.#timeline?.isComplete === true
+        : this.#passedFrames >= this.#program.naturalDurationFrames)
+    )
+      this.end();
   }
 
   end(): void {
@@ -800,6 +810,7 @@ export class SkillRuntime {
       throw new Error(`skill '${this.#program.skillId}' cannot finish outside an active cast`);
     }
     timeline.finish(this.#passedFrames, this.#context);
+    this.#timelineFinishRequested = true;
     this.record('SkillTimelineFinished');
   }
 

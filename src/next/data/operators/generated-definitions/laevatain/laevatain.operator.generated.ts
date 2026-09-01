@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -21,6 +20,7 @@ export const laevatainBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0016_laevat_attack1',
     timelineBlockFrames: 10,
+    naturalDurationFrames: 120,
     exclusiveFrame: 16,
     inputWindows: {
       commandMappings: [
@@ -81,6 +81,7 @@ export const laevatainBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0016_laevat_attack2',
     timelineBlockFrames: 16,
+    naturalDurationFrames: 140,
     exclusiveFrame: 25,
     inputWindows: {
       commandMappings: [
@@ -186,6 +187,7 @@ export const laevatainBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0016_laevat_attack3',
     timelineBlockFrames: 12,
+    naturalDurationFrames: 105,
     exclusiveFrame: 22,
     inputWindows: {
       commandMappings: [
@@ -254,6 +256,7 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0016_laevat_attack4',
     timelineBlockFrames: 22,
+    naturalDurationFrames: 121,
     exclusiveFrame: 35,
     inputWindows: {
       commandMappings: [
@@ -407,6 +410,7 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0016_laevat_attack5',
     timelineBlockFrames: 34,
+    naturalDurationFrames: 145,
     exclusiveFrame: 42,
     inputWindows: {
       commandMappings: [
@@ -555,6 +559,7 @@ export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack1',
     sourceSkillId: 'chr_0016_laevat_ult_attack1',
     timelineBlockFrames: 17,
+    naturalDurationFrames: 155,
     exclusiveFrame: 25,
     inputWindows: {
       commandMappings: [
@@ -679,6 +684,7 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack2',
     sourceSkillId: 'chr_0016_laevat_ult_attack2',
     timelineBlockFrames: 27,
+    naturalDurationFrames: 245,
     exclusiveFrame: 36,
     inputWindows: {
       commandMappings: [
@@ -886,6 +892,7 @@ export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack3',
     sourceSkillId: 'chr_0016_laevat_ult_attack3',
     timelineBlockFrames: 14,
+    naturalDurationFrames: 180,
     exclusiveFrame: 20,
     inputWindows: {
       commandMappings: [
@@ -1011,6 +1018,7 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
     key: 'ultimateAttack4',
     sourceSkillId: 'chr_0016_laevat_ult_attack4',
     timelineBlockFrames: 35,
+    naturalDurationFrames: 181,
     exclusiveFrame: 47,
     inputWindows: {
       commandMappings: [
@@ -1195,6 +1203,7 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0016_laevat_power_attack',
     timelineBlockFrames: 42,
+    naturalDurationFrames: 141,
     exclusiveFrame: 50,
     inputWindows: {
       allowedNextSkills: [
@@ -1364,6 +1373,7 @@ export const laevatainPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0016_laevat_plunging_attack_end',
     timelineBlockFrames: 14,
+    naturalDurationFrames: 145,
     exclusiveFrame: 13,
     costFrame: 0,
     scheduledSequences: [
@@ -1415,6 +1425,7 @@ export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0016_laevat_normal_skill',
     timelineBlockFrames: 118,
+    naturalDurationFrames: 282,
     exclusiveFrame: 117,
     costFrame: 0,
     scheduledSequences: [
@@ -1610,6 +1621,7 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
     key: 'battleSkillDuringUltimate',
     sourceSkillId: 'chr_0016_laevat_normal_skill_during_ult',
     timelineBlockFrames: 33,
+    naturalDurationFrames: 271,
     exclusiveFrame: 115,
     inputWindows: {
       allowedNextSkills: [
@@ -1974,6 +1986,7 @@ export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0016_laevat_ultimate_skill',
     timelineBlockFrames: 74,
+    naturalDurationFrames: 245,
     exclusiveFrame: 73,
     costFrame: 0,
     scheduledSequences: [
@@ -2087,6 +2100,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0016_laevat_combo_skill',
     timelineBlockFrames: 41,
+    naturalDurationFrames: 180,
     exclusiveFrame: 57,
     inputWindows: {
       allowedNextSkills: [
@@ -2374,288 +2388,6 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const commonBuffDefinitions = {
-  buff_common_affixes_shelter: {
-    stackingType: 'highPriority',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: ['Skill/Character/Common/Affixes/Shelter'],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_shelter_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'shelterDamageMultiplier',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_shelter_default_child: {
-    stackingType: 'highPriority',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_affix_shelter',
-      iconPath: '/icons/icon_battle_affix_shelter.webp',
-      showInHeadBarCommon: false,
-      showInHeadBarAttached: false,
-      showInSquadIcon: true,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'LifeTime',
-      abnormalColorType: 'Physical',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordBuff' },
-    },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: -0.2 },
-    attributeModifiers: [],
-  },
-  buff_common_burning_status: {
-    stackingType: 'unique',
-    priority: 0,
-    maxStackCount: 1,
-    triggerIntervalSeconds: 1,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 9999,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { burning_atk_scale: 0, duration: 20 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      trigger: sequence(
-        step(
-          'dealDamage',
-          {
-            damageType: 'heat',
-            attackScale: { kind: 'blackboard', key: 'burning_atk_scale' },
-            takeAttackSnapshot: true,
-            tags: ['fireAbnormal'],
-            features: ['dot'],
-            instantAttributeModifiers: [
-              {
-                targetSide: 'attacker',
-                attribute: 'criticalRate',
-                slot: 'finalMultiplier',
-                value: { kind: 'constant', value: 0 },
-                attributeTiming: 'runtime',
-              },
-            ],
-          },
-          'buff_common_burning_status:/lifecycleSequences/trigger/steps/0',
-        ),
-      ),
-    },
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_fire_fire_burning_triggered: {
-    stackingType: 'stack',
-    stackingKey: 'fire_triggered',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 1,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_burning',
-      iconPath: '/icons/icon_battle_burning.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: false,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'SpellAbnormal',
-      abnormalColorType: 'Fire',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
-    },
-    applyTags: ['Skill/Character/Common/SpellStatus/Burning'],
-    extendTags: [],
-    blackboard: { burning_atk_scale: 0, count: 1, duration: 10, extra_scaling: 1 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(
-        {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            scopeKey: 'native-buff-callback:0',
-            lifetime: 'execution',
-            alwaysNext: true,
-            shareParentBlackboard: true,
-            initialValues: {},
-            inheritParent: true,
-          },
-          body: sequence(
-            step('readSkillSettingData', {
-              items: [
-                {
-                  values: [0.24, 0.36, 0.48, 0.6],
-                  column: { kind: 'blackboard', key: 'count' },
-                  storeKey: 'burning_atk_scale',
-                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-                },
-              ],
-            }),
-            step('modifyActionValue', {
-              key: 'burning_atk_scale',
-              operation: 'multiply',
-              value: { kind: 'blackboard', key: 'extra_scaling' },
-            }),
-          ),
-        },
-        {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            scopeKey: 'native-buff-callback:1',
-            lifetime: 'execution',
-            alwaysNext: true,
-            shareParentBlackboard: true,
-            initialValues: {},
-            inheritParent: true,
-          },
-          body: sequence(
-            step('applyBuff', {
-              buffId: 'buff_common_fire_triggered_fx',
-              target: 'buffOwner',
-              source: 'buffSource',
-              inheritSourceSkillCastInfo: true,
-            }),
-          ),
-        },
-      ),
-      enable: sequence(
-        step('applyBuff', {
-          buffId: 'buff_common_burning_status',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          blackboardAssignments: {
-            burning_atk_scale: { kind: 'blackboard', key: 'burning_atk_scale' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_fire_triggered_fx: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 5,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-  buff_common_full_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_obtain_ultimate_sp: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { ratio: 1, usp_everyone: 6.5, usp_self: 0 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 })),
-    },
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
-
 export default {
   slug: 'laevatain',
   gameId: 'LAEVATAIN',
@@ -2673,7 +2405,7 @@ export default {
     baseAttack: [30, 91, 156, 221, 285, 318],
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
-  passiveUi: { kind: 'numeric', maximum: 4, activeAt: 4 },
+  passiveUi: { kind: 'numeric', appearance: 'laevatainCounter', maximum: 4, activeAt: 4 },
   skillGroups: [
     {
       key: 'basicAttack',

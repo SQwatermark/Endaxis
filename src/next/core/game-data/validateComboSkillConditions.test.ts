@@ -14,6 +14,7 @@ const entry: ComboSkillConditionDefinition = {
   key: 'condition',
   skillGroupKey: 'comboSkill',
   event: 'beforeTakeInfliction',
+  immediately: false,
   initialValues: { count: 1, label: 'local', empty: null },
   sequence: { steps: [] },
 };
@@ -64,7 +65,7 @@ describe('正式原生连携条件结构与绑定', () => {
       [{ ...entry, initialValues: { x: NaN } }],
       [{ ...entry, initialValues: { '': 0 } }],
       [{ ...entry, initialValues: { x: false } }],
-      [{ ...entry, immediately: true }],
+      [{ ...entry, immediately: 'yes' }],
       [{ ...entry, sequence: { steps: [{ kind: 'unknown', parameters: {} }] } }],
     ].map(value => ({ value })),
   )('损坏或尚未支持的字段给出可定位路径：%j', ({ value }) => {

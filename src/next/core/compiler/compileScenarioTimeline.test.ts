@@ -191,22 +191,6 @@ describe('compileScenarioTimeline', () => {
     expect(compiled.operators).toHaveLength(1);
     expect(compiled.operators[0]!.operatorId).toBe('track:0');
     expect(compiled.operators[0]!.skills.map(skill => skill.skillId)).toContain('battleSkill');
-    expect(compiled.operators[0]!.comboSkillRegistrations).toEqual([
-      {
-        skillKey: 'comboSkill',
-        priority: 'default',
-        blackboard: {},
-        rules: [
-          {
-            trigger: {
-              kind: 'damageTagHit',
-              tag: 'normalAttackLastCombo',
-              scope: 'team',
-            },
-          },
-        ],
-      },
-    ]);
     expect(compiled.inputs).toEqual([
       {
         frame: 60,

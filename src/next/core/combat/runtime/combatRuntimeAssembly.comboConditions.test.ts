@@ -14,6 +14,7 @@ const condition: CompiledComboSkillConditionProgram = {
   key: 'saved-element',
   skillGroupKey: 'combo',
   event: 'beforeTakeInfliction',
+  immediately: false,
   initialValues: { local: 0, label: 'condition' },
   sequence: {
     steps: [
@@ -234,7 +235,7 @@ describe('assembly 原生常驻连携条件', () => {
       }),
     });
     f.emit();
-    assembly.simulation.advanceFrames(150);
+    assembly.simulation.advanceFrames(151);
     expect(assembly.comboWindows.pending).toEqual([]);
     expect(assembly.tryStartSkill('owner', 'combo')).toBe(true);
     expect(observed).toBe(0);

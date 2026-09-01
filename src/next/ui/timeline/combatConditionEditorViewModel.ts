@@ -77,6 +77,14 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
         operator: 'greaterOrEqual',
         value: { kind: 'constant', value: 1 },
       };
+    case 'contextTargetBuffIdStackCompare':
+      return {
+        kind,
+        contextKey: 'custom-targets',
+        buffIds: ['custom-buff'],
+        operator: 'greaterOrEqual',
+        value: { kind: 'constant', value: 1 },
+      };
     case 'abilityEntityRemainingDurationCompare':
       return {
         kind,

@@ -12,7 +12,7 @@ import {
 import { compileActionSequence } from '../../../src/next/core/compiler/compileSkill';
 import { CombatActionSequenceRuntime } from '../../../src/next/core/combat/runtime/combatActionSequenceRuntime';
 import { ActionBlackboard } from '../../../src/next/core/combat/runtime/actionBlackboard';
-import { renderOperatorDefinitionSource } from '../src/domains/operator/definitionSourceRenderer.ts';
+import { renderCommonBuffDefinitionsSource } from '../src/domains/operator/definitionSourceRenderer.ts';
 
 const meta = { isEnable: true, priorityLevel: 'Default', priorityOffset: 0, serverActionIndex: 0 };
 const sequence = (actionData: unknown[]) => ({
@@ -94,11 +94,8 @@ describe('公共 Switch 投影', () => {
     );
     expect(runtime.createSequence(compileActionSequence(result, 1)).executeInstant({})).toBe(true);
     expect(execute).not.toHaveBeenCalled();
-    const rendered = renderOperatorDefinitionSource({
-      operator: { slug: 'test', skillGroups: [] },
-      commonBuffDefinitions: {
-        buff: { id: 'buff', lifecycleSequences: { start: result } },
-      },
+    const rendered = renderCommonBuffDefinitionsSource({
+      buff: { id: 'buff', lifecycleSequences: { start: result } },
     });
     expect(rendered).toContain('"kind": "switch"');
     expect(rendered).toContain('"options":');

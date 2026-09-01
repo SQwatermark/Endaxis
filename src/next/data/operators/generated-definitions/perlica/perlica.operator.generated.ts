@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -18,6 +17,7 @@ export const perlicaBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0004_pelica_attack1',
     timelineBlockFrames: 16,
+    naturalDurationFrames: 166,
     exclusiveFrame: 15,
     inputWindows: {
       commandMappings: [
@@ -106,6 +106,7 @@ export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0004_pelica_attack2',
     timelineBlockFrames: 18,
+    naturalDurationFrames: 168,
     exclusiveFrame: 22,
     inputWindows: {
       commandMappings: [
@@ -235,6 +236,7 @@ export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0004_pelica_attack3',
     timelineBlockFrames: 26,
+    naturalDurationFrames: 173,
     exclusiveFrame: 29,
     inputWindows: {
       commandMappings: [
@@ -445,6 +447,7 @@ export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0004_pelica_attack4',
     timelineBlockFrames: 44,
+    naturalDurationFrames: 269,
     exclusiveFrame: 43,
     inputWindows: {
       commandMappings: [
@@ -539,6 +542,7 @@ export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0004_pelica_power_attack',
     timelineBlockFrames: 35,
+    naturalDurationFrames: 135,
     exclusiveFrame: 50,
     inputWindows: {
       allowedNextSkills: [
@@ -651,6 +655,7 @@ export const perlicaPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0004_pelica_plunging_attack_end',
     timelineBlockFrames: 21,
+    naturalDurationFrames: 168,
     exclusiveFrame: 20,
     costFrame: 0,
     scheduledSequences: [
@@ -695,6 +700,7 @@ export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0004_pelica_normal_skill',
     timelineBlockFrames: 28,
+    naturalDurationFrames: 155,
     exclusiveFrame: 30,
     inputWindows: {
       allowedNextSkills: [
@@ -756,6 +762,7 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0004_pelica_combo_skill',
     timelineBlockFrames: 25,
+    naturalDurationFrames: 115,
     exclusiveFrame: 45,
     inputWindows: {
       allowedNextSkills: [
@@ -878,6 +885,7 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0004_pelica_ultimate_skill',
     timelineBlockFrames: 63,
+    naturalDurationFrames: 114,
     exclusiveFrame: 85,
     inputWindows: {
       allowedNextSkills: [
@@ -978,261 +986,6 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const commonBuffDefinitions = {
-  buff_common_damage_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-  buff_common_pulse_pulse_conduct_triggered: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: 2,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {
-      consumed_layer: 0,
-      consumed_type: 1,
-      count: 1,
-      duration: 0,
-      extra_scaling: 1,
-      real_duration: 0,
-    },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      start: sequence(
-        branch(
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'blackboard', key: 'duration' },
-            operator: 'greater',
-            right: { kind: 'constant', value: 0 },
-          },
-          sequence(
-            step('modifyActionValue', {
-              key: 'real_duration',
-              operation: 'assign',
-              value: { kind: 'blackboard', key: 'duration' },
-            }),
-          ),
-          sequence(
-            step('readSkillSettingData', {
-              items: [
-                {
-                  values: [12, 18, 24, 30],
-                  column: { kind: 'blackboard', key: 'count' },
-                  storeKey: 'real_duration',
-                },
-              ],
-            }),
-          ),
-          { alwaysNext: true },
-        ),
-        step('applyElementalReaction', {
-          reaction: 'electrification',
-          target: 'enemy',
-          durationSeconds: { kind: 'blackboard', key: 'real_duration' },
-          effectiveness: 1,
-        }),
-        step('applyBuff', {
-          buffId: 'buff_common_pulse_pulse_conduct_triggered_do',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: {
-            duration: { kind: 'blackboard', key: 'real_duration' },
-            count: { kind: 'blackboard', key: 'count' },
-            consumed_type: { kind: 'blackboard', key: 'consumed_type' },
-            consumed_layer: { kind: 'blackboard', key: 'consumed_layer' },
-            extra_scaling: { kind: 'blackboard', key: 'extra_scaling' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_pulse_pulse_conduct_triggered_do: {
-    stackingType: 'stack',
-    stackingKey: 'pulse_triggered',
-    priority: 0,
-    maxStackCount: 1,
-    durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 1,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_conduct',
-      iconPath: '/icons/icon_battle_conduct.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: false,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'SpellAbnormal',
-      abnormalColorType: 'Pulse',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'AttachedAndAbnormal' },
-    },
-    applyTags: ['Skill/Character/Common/SpellStatus/Conduct'],
-    extendTags: [],
-    blackboard: {
-      count: 1,
-      duration: 5,
-      extra_scaling: 1,
-      final_spell_resistance_decrease: 0,
-      spell_resistance_decrease: 0.2,
-    },
-    attributeModifiers: [],
-    damageModifiers: [
-      {
-        enabledSide: 'defender',
-        condition: { kind: 'eventDamageTypesMatch', damageTypes: ['heat'] },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'defender',
-            zone: 'normal',
-            addition: { blackboardKey: 'final_spell_resistance_decrease' },
-          },
-        ],
-      },
-      {
-        enabledSide: 'defender',
-        condition: { kind: 'eventDamageTypesMatch', damageTypes: ['electric'] },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'defender',
-            zone: 'normal',
-            addition: { blackboardKey: 'final_spell_resistance_decrease' },
-          },
-        ],
-      },
-      {
-        enabledSide: 'defender',
-        condition: { kind: 'eventDamageTypesMatch', damageTypes: ['cryo'] },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'defender',
-            zone: 'normal',
-            addition: { blackboardKey: 'final_spell_resistance_decrease' },
-          },
-        ],
-      },
-      {
-        enabledSide: 'defender',
-        condition: { kind: 'eventDamageTypesMatch', damageTypes: ['nature'] },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'defender',
-            zone: 'normal',
-            addition: { blackboardKey: 'final_spell_resistance_decrease' },
-          },
-        ],
-      },
-    ],
-    lifecycleSequences: {
-      start: sequence(
-        step('readSkillSettingData', {
-          items: [
-            {
-              values: [0.12, 0.16, 0.2, 0.24],
-              column: { kind: 'blackboard', key: 'count' },
-              storeKey: 'spell_resistance_decrease',
-              enhance: {
-                target: 'caster',
-                formula: { kind: 'saturating', paramA: 2, paramB: 300 },
-              },
-            },
-          ],
-        }),
-        step('storeSourceAttributeValue', {
-          attribute: { kind: 'specific', key: 'electricAbnormalDamageIncrease' },
-          stage: 'finalNonConverted',
-          useFloor: false,
-          divisor: { kind: 'constant', value: 1 },
-          multiplier: { kind: 'blackboard', key: 'spell_resistance_decrease' },
-          base: { kind: 'blackboard', key: 'spell_resistance_decrease' },
-          targetKey: 'final_spell_resistance_decrease',
-        }),
-        step('modifyActionValue', {
-          key: 'final_spell_resistance_decrease',
-          operation: 'multiply',
-          value: { kind: 'blackboard', key: 'extra_scaling' },
-        }),
-        step('applyBuff', {
-          buffId: 'buff_common_pulse_triggered_fx',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-        }),
-      ),
-    },
-  },
-  buff_common_pulse_triggered_fx: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 5,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
-
 export default {
   slug: 'perlica',
   gameId: 'PERLICA',
@@ -1300,13 +1053,36 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
-  comboSkillRegistrations: [
+  comboSkillConditions: [
     {
-      skillKey: 'comboSkill',
-      priority: 'default',
-      rules: [{ trigger: { kind: 'damageTagHit', tag: 'normalAttackLastCombo', scope: 'team' } }],
+      key: 'native-combo:0',
+      skillGroupKey: 'comboSkill',
+      event: 'beforeTakeDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalAttackLastCombo'] },
+          sequence(
+            branch(
+              { kind: 'eventSourceControlled' },
+              sequence(
+                branch(
+                  {
+                    kind: 'contextTargetObjectTypeMatch',
+                    contextKey: 'trigger',
+                    objectTypeMask: 16,
+                  },
+                  sequence(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     },
   ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'staggerDamageBonus',

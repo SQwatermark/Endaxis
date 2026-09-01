@@ -25,6 +25,7 @@ export function compileOperatorComboSkillConditions(
       key: condition.key,
       skillGroupKey: condition.skillGroupKey,
       event: condition.event,
+      immediately: condition.immediately,
       initialValues:
         condition.initialValues === null ? null : Object.freeze({ ...condition.initialValues }),
       sequence: compileActionSequence(condition.sequence, level, `${p}.sequence`),

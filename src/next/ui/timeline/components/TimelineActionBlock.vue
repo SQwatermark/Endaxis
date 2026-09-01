@@ -199,10 +199,28 @@ function formatDurationFrames(frames: number): string {
       :content="warningText || warningFallbackText || ''"
       placement="top"
       effect="dark"
-      :show-after="120"
+      :show-after="80"
       popper-class="next-timeline-warning-tooltip"
     >
-      <span class="warning-mark" :aria-label="warningFallbackText"></span>
+      <span class="warning-mark" :aria-label="warningFallbackText">
+        <svg
+          viewBox="0 0 24 24"
+          width="12"
+          height="12"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path
+            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+          ></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </span>
     </el-tooltip>
     <EditPen
       v-if="edited"
@@ -441,7 +459,7 @@ function formatDurationFrames(frames: number): string {
   --action-accent: #facc15;
 }
 
-.timeline-action-block[data-skill-type='ultimate'] {
+.timeline-action-block:not(.is-disabled)[data-skill-type='ultimate'] {
   --action-accent: #22c55e;
   background: radial-gradient(
     circle at center,
@@ -711,26 +729,17 @@ function formatDurationFrames(frames: number): string {
 
 .warning-mark {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 0;
-  height: 0;
-  border-top: 9px solid #f5222d;
-  border-left: 9px solid transparent;
-  filter: drop-shadow(0 0 3px rgb(245 34 45 / 80%));
-}
-
-.warning-mark::after {
-  content: '!';
-  position: absolute;
-  top: -9px;
-  right: 0;
-  width: 8px;
-  color: #fff;
-  font:
-    800 8px/9px Consolas,
-    monospace;
-  text-align: center;
+  top: 2px;
+  right: 2px;
+  z-index: 25;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  color: #ff4d4f;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 80%));
+  cursor: default;
 }
 
 .hit-marker {

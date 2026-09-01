@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -20,6 +19,7 @@ export const avywennaBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0012_avywen_attack1',
     timelineBlockFrames: 8,
+    naturalDurationFrames: 188,
     exclusiveFrame: 20,
     inputWindows: {
       commandMappings: [
@@ -93,6 +93,7 @@ export const avywennaBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0012_avywen_attack2',
     timelineBlockFrames: 14,
+    naturalDurationFrames: 224,
     exclusiveFrame: 17,
     inputWindows: {
       commandMappings: [
@@ -166,6 +167,7 @@ export const avywennaBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0012_avywen_attack3',
     timelineBlockFrames: 10,
+    naturalDurationFrames: 183,
     exclusiveFrame: 17,
     inputWindows: {
       commandMappings: [
@@ -230,6 +232,7 @@ export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0012_avywen_attack4',
     timelineBlockFrames: 22,
+    naturalDurationFrames: 208,
     exclusiveFrame: 30,
     inputWindows: {
       commandMappings: [
@@ -352,6 +355,7 @@ export const avywennaBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0012_avywen_attack5',
     timelineBlockFrames: 45,
+    naturalDurationFrames: 192,
     exclusiveFrame: 45,
     inputWindows: {
       commandMappings: [
@@ -426,6 +430,7 @@ export const avywennaFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0012_avywen_power_attack',
     timelineBlockFrames: 29,
+    naturalDurationFrames: 207,
     exclusiveFrame: 44,
     inputWindows: {
       allowedNextSkills: [
@@ -580,6 +585,7 @@ export const avywennaPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0012_avywen_plunging_attack_end',
     timelineBlockFrames: 11,
+    naturalDurationFrames: 228,
     exclusiveFrame: 15,
     inputWindows: {
       allowedNextSkills: [
@@ -636,6 +642,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0012_avywen_normal_skill',
     timelineBlockFrames: 34,
+    naturalDurationFrames: 306,
     exclusiveFrame: 38,
     inputWindows: {
       allowedNextSkills: [
@@ -1242,6 +1249,7 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0012_avywen_combo_skill',
     timelineBlockFrames: 21,
+    naturalDurationFrames: 254,
     exclusiveFrame: 40,
     inputWindows: {
       allowedNextSkills: [
@@ -1364,6 +1372,7 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0012_avywen_ultimate_skill',
     timelineBlockFrames: 57,
+    naturalDurationFrames: 273,
     exclusiveFrame: 65,
     inputWindows: {
       allowedNextSkills: [
@@ -1551,131 +1560,6 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
     pulse_resist_down_rate: [0.3, 0.32, 0.32, 0.32, 0.32, 0.34, 0.34, 0.34, 0.34, 0.36, 0.38, 0.4],
   },
 );
-
-export const commonBuffDefinitions = {
-  buff_common_affixes_vulnerable_pulse: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Vulnerable',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerablePulse',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_vulnerable_pulse_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'electricVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_vulnerable_pulse_default_child: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    presentation: {
-      visible: true,
-      iconId: 'icon_battle_affix_pulse_vulnerable',
-      iconPath: '/icons/icon_battle_affix_pulse_vulnerable.webp',
-      showInHeadBarCommon: true,
-      showInHeadBarAttached: false,
-      showInSquadIcon: true,
-      onlyShowForMainCharacter: false,
-      blinkInMainCharHpBar: false,
-      showProgressInHpBar: false,
-      showProgressInNormalSkillButton: false,
-      useWeakProgressInNormalSkillButton: false,
-      showProgressInUltimateSkillButton: false,
-      forceRaiseIconEvent: false,
-      showWarningBackground: false,
-      playStrongInAnimation: false,
-      hasCharHpBarVfxType: false,
-      charHpBarVfxType: 'Fire',
-      iconStyleInSquad: 'LifeTime',
-      abnormalColorType: 'Physical',
-      orderPriority: { useDirectoryValue: false, value: 0, category: 'KeywordDebuff' },
-    },
-    applyTags: [],
-    extendTags: [],
-    blackboard: { duration: 0, rate: 0.2 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_full_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
 
 export default {
   slug: 'avywenna',

@@ -1,4 +1,5 @@
 import type {
+  ComboSkillPriority,
   NativeSkillType,
   PlayerSkillInput,
 } from '../../../../packages/game-data-contract/src/index.ts';
@@ -12,6 +13,13 @@ import {
 } from './primitives.ts';
 import { parseAbilitySystemBlackboardsSource } from './abilitySystemBlackboards.ts';
 import { parseUnityComboSkillConditionsSource } from './unityComboSkillConditions.ts';
+
+const COMBO_SKILL_PRIORITIES: Readonly<Record<number, ComboSkillPriority>> = {
+  // GetBestCastInfo 0x06D8FE23：0→默认，1→首黑板值，2→敌人品阶分支。
+  0: 'default',
+  1: 'firstBlackboard',
+  2: 'enemyRank',
+};
 
 /** 只读取已解码的角色/AbilitySystem 前缀与完整条件叶子；未消费后缀保持 partial。 */
 export function parseOperatorRuntimeTemplateSource(
@@ -53,6 +61,10 @@ export function parseOperatorRuntimeTemplateSource(
       bundle.comboSkillId,
       `${path}.abilitySystem.skillDataBundle.comboSkillId`,
     ),
+    comboSkillPriority: parseComboSkillPriority(
+      bundle.comboSkillPriorityType,
+      `${path}.abilitySystem.skillDataBundle.comboSkillPriorityType`,
+    ),
     playerActionSource: parsePlayerActionSource(ability, bundle, path),
     blackboards: parseAbilitySystemBlackboardsSource(ability, `${path}.abilitySystem`),
     ...(options.parseComboConditions === false
@@ -65,6 +77,13 @@ export function parseOperatorRuntimeTemplateSource(
           ),
         }),
   };
+}
+
+function parseComboSkillPriority(value: unknown, path: string): ComboSkillPriority {
+  const numeric = requireInteger(value, path);
+  const priority = COMBO_SKILL_PRIORITIES[numeric];
+  if (priority === undefined) throw new Error(`${path}: unsupported native priority ${numeric}`);
+  return priority;
 }
 
 const nativeSkillTypes = new Map<number, NativeSkillType>([

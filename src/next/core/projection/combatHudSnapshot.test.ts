@@ -308,9 +308,23 @@ describe('projectCombatHudSnapshot', () => {
     ];
     expect(
       project(4, numericEntries, [], undefined, [
-        { operatorId: 'track:1', definition: { kind: 'numeric', maximum: 4, activeAt: 4 } },
+        {
+          operatorId: 'track:1',
+          definition: {
+            kind: 'numeric',
+            appearance: 'laevatainCounter',
+            maximum: 4,
+            activeAt: 4,
+          },
+        },
       ]).operators[0]?.passiveUi,
-    ).toEqual({ kind: 'numeric', value: 4, maximum: 4, active: true });
+    ).toEqual({
+      kind: 'numeric',
+      appearance: 'laevatainCounter',
+      value: 4,
+      maximum: 4,
+      active: true,
+    });
 
     const buffEntries: CombatReceiptEntry[] = [
       {
@@ -347,6 +361,7 @@ describe('projectCombatHudSnapshot', () => {
             operatorId: 'track:1',
             definition: {
               kind: 'buffProgress',
+              appearance: 'liinoMusic',
               normalBuffId: 'normal-music',
               ultimateBuffId: 'ultimate-music',
             },

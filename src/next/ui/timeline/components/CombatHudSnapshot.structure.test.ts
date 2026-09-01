@@ -5,12 +5,12 @@ import effectsSource from './TimelineEnemyEffects.vue?raw';
 import trackHeaderSource from './TimelineTrackHeader.vue?raw';
 
 describe('combat HUD snapshot integration', () => {
-  it('uses one receipt-backed snapshot for the cursor guide and fixed status bars', () => {
+  it('uses one receipt-backed snapshot for the enemy HUD without projecting status into track headers', () => {
     expect(editorSource).toContain('projectCombatHudSnapshot({');
     expect(editorSource).toContain(':hud-snapshot="combatHudSnapshot.enemy"');
-    expect(editorSource).toContain(
-      ':hud-snapshot="operatorHudSnapshotFor(track.operatorInstanceId)"',
-    );
+    expect(editorSource).not.toContain(':hud-snapshot="operatorHudSnapshotFor');
+    expect(editorSource).not.toContain(':active-skill-label=');
+    expect(editorSource).not.toContain(':skill-buttons=');
     expect(editorSource).not.toContain("from '../../core/projection/curveSampling'");
   });
 
@@ -29,18 +29,17 @@ describe('combat HUD snapshot integration', () => {
     expect(enemySource).not.toContain('weakness');
   });
 
-  it('keeps compact operator runtime facts in the existing track header', () => {
-    expect(trackHeaderSource).toContain('hudSnapshot.ultimateEnergy.current');
-    expect(trackHeaderSource).toContain('hudSnapshot.comboWindows.length');
-    expect(trackHeaderSource).toContain('hudSnapshot.cooldowns.length');
-    expect(trackHeaderSource).toContain('activeSkillLabel');
-    expect(trackHeaderSource).toContain('v-for="button in skillButtons"');
-    expect(editorSource).toContain('definition.playerActionRoutes?.[action]');
-    expect(editorSource).toContain('snapshot.skillSlots.find');
-    expect(editorSource).toContain('snapshot.battleSkillProgress');
+  it('keeps all operator time-varying state out of the avatar area', () => {
+    expect(trackHeaderSource).not.toContain('runtime-summary');
+    expect(trackHeaderSource).not.toContain('skill-hud-buttons');
+    expect(trackHeaderSource).not.toContain('hudSnapshot');
+    expect(trackHeaderSource).not.toContain('skillButtons');
     expect(editorSource).toContain('current.buffProgressCurves');
-    expect(editorSource).toContain('combatHudSnapshot?.mainCharacterHpProgress');
-    expect(trackHeaderSource).toContain('button.progressRatio');
-    expect(trackHeaderSource).toContain('hpBarProgress.ratio');
+    expect(trackHeaderSource).not.toContain('CombatStatusIconStrip');
+    expect(trackHeaderSource).not.toContain('OperatorPassiveUiWidget');
+    expect(trackHeaderSource).not.toContain('hpBarProgress');
+    expect(editorSource).not.toContain(
+      ':status-indicators="statusIndicatorsForTarget(track.operatorInstanceId)"',
+    );
   });
 });

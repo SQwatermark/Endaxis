@@ -2,6 +2,9 @@
 
 本文核实原生游戏如何处理多段连携，并据此约束 Endaxis Next 的连携窗口与技能定义模型。结论来自 1.4.4 的 `CharGrowthTable`、洛茜 SkillData/BuffData，以及 `Gameplay.Beyond.dll` 静态类型信息。
 
+> 游戏规则的唯一权威总规格位于 combat-spec `docs/combo-skill-lifecycle.md`。本文只记录洛茜样本及
+> Endaxis 单敌人时间轴投影，不再独立定义注册、Pending、排序或输入规则。
+
 ## 结论
 
 1. 通用连携窗口固定为 5 秒，即 Endaxis 的 30 FPS 时间基准下固定为 150 帧。它是场景级连携管理器创建的 pending 候选，不是每个技能自行配置的可变持续时间。
@@ -141,11 +144,14 @@ Endaxis 当前采用单敌人模型，可以化简目标选择，但仍应保留
 
 所以窗口应建模为可暂停的剩余时间。使用固定绝对 `expiresFrame` 只有在永不暂停时才等价，不能作为最终实现。
 
-## 跨干员调度仍需核实的边界
+## 跨干员调度与玩家输入
 
 `ReactiveAllPendingComboSkill` 会读取各干员记录的 `lastTriggerTime` 并排序。其比较器已经确认：时间差明显时按时间先后排序；时间近似相同时使用干员序号稳定排序。这个行为与实测的“先触发者优先，同帧时低轨道优先”一致。
 
-但目前尚未证明 `CastPendingComboSkill(charIndex)` 自身会拒绝非队首干员。静态接口允许按指定 `charIndex` 查询和尝试释放，更可能是输入/UI 层只激活排序后的当前候选，释放或过期后再调用 `ReactiveAllPendingComboSkill` 激活下一项。
+底层 `CastPendingComboSkill(charIndex)` 接受指定角色，不负责表达玩家可以选择哪一项；玩家输入由
+`Beyond.UI.ComboSkillPanel.CastComboSkill` 约束。1.4.4 机器码确认该入口先从面板候选列表取索引
+`0`，再查询存在性与 `canCast`，通过后才把这个角色序号传给 `CastPendingComboSkill`。
+因此 E 键明确消费当前队首，不能用底层 API 可传任意角色反推玩家能够跳过队首。
 
 因此 Next 最终应区分：
 
@@ -153,7 +159,8 @@ Endaxis 当前采用单敌人模型，可以化简目标选择，但仍应保留
 - 场景级的当前可交互连携项；
 - 候选存在但因排队或施法门禁暂时不可释放的状态。
 
-在输入激活链尚未完成还原前，不能把“全局数组队首才能消费”写成原生数据结构，也不能删除这项产品行为约束。
+Next 可以把这条输入约束实现为“只有场景当前队首可被正常连携输入消费”；它是 UI/输入行为，
+不是 `m_pendingComboSkill` 容器必须只能访问队首的声明。
 
 ## 精准衔接不是连携窗口
 
@@ -223,15 +230,47 @@ Endaxis 当前采用单敌人模型，可以化简目标选择，但仍应保留
 
 Next 已加入 `openComboWindow` 步骤和全场唯一的 `ComboWindowRuntime`。运行时按干员保存候选，使用可暂停的 150 帧剩余时间，并按开启帧、同帧轨道顺序选择当前激活记录；连携输入开始前，仅当干员与技能键同时匹配当前候选时才消费该干员的整条记录，并把候选黑板注入本次技能动作黑板。
 
-干员级首段注册已经随参战干员安装一次。伤害标签命中和元素附着会同步发布语义事件，匹配规则在条件成立后开启窗口；窗口开启、消费、过期和释放失败都进入统一战斗回执。无窗口、非当前队首和阶段不匹配会投影为技能块诊断，但不会阻止用户排入时间轴的连携技执行。双干员样本已覆盖“队友末段普攻命中 -> 佩丽卡窗口 -> 连携消费 -> 伤害与反应”的完整链路。
+角色模板生成的首段条件已经随参战干员安装一次。原生 AbilityEvent 到达后由公共条件动作序列执行，成功后开启窗口；窗口开启、消费、过期和释放失败都进入统一战斗回执。无窗口、非当前队首和阶段不匹配会投影为技能块诊断，但不会阻止用户排入时间轴的连携技执行。
 
-首段外部事件规则位于 `OperatorDefinition.comboSkillRegistrations`，不属于 `SkillDefinition` 或技能块编辑器，并按当前连携技能等级展开黑板值进入 `CombatOperatorProgram`。注册运行时只负责订阅和生命周期；实时条件由战斗环境的统一条件端口求值，不另建连携专用解释器。
+旧 manifest `comboSkillRegistrations` 曾手写语义事件并与角色模板条件并行安装。它不是第二套原生
+机制，会丢失原生事件时机、条件动作、input/trigger、独立黑板、角色位置过滤和立即施放语义；当前
+manifest 已清空这类配置；对应数据契约、manifest 解析器、场景编译器、语义监听运行时和编辑入口也已删除，正式干员只由 `comboSkillConditions` 生成。
+
+收束后的唯一入口必须来自 `SkillDataBundle` 整体转换：连携槽与优先级、条件列表、条件黑板开关
+及初值共同形成一个干员级连携定义。转换器只能对已完整解码的事件和叶子生成运行时程序；未解码
+来源进入审计阻塞，不得回退到 manifest 手写规则。
+
+目前安塔尔、萤石、诀、狼卫、Last Rite、汤汤和佩丽卡已经改走角色模板条件，manifest 不再含手写
+注册。佩丽卡重导模板包含 `CheckTargetsEqual.secondTargetSettings` 的完整 RID 闭包；其中
+`CharacterTeamFinder` 和 `MainCharacterValidator` 是类型明确、零载荷的原生 selector 节点，只在 Unity
+适配层还原为公共 TargetSettings 类型。事件 101 的机器码证明它是有目标的 OnBeforeTakeDamage：
+承伤方发布、伤害来源为 input、承伤方为 trigger。因此完整条件是末段普攻伤害标签、input 为当前
+主控且 trigger 为 Enemy，不再由旧 `normalAttackLastCombo` 监听器近似。
+
+正式条件现在显式保留 `immediately`；原生值为 true 时 Endaxis 会因尚缺目标感知的直接
+`TryCastComboSkill` 端口而阻塞，不会偷换成普通窗口。角色级 `comboSkillPriorityType` 也保留为
+可读的 default/firstBlackboard/enemyRank；`GetBestCastInfo` 的机器码分支确认数值映射为 0/1/2。
+单敌人运行时暂不执行三种多目标评分差异，但定义和编译程序不能丢失这一事实。
+
+狼卫的一条事件 121 条件只检查 `trigger` 的对象类型掩码 16；Last Rite 的同类条件要求寒冷附着，
+且 `trigger` 已具有至少两层 `Skill/Character/Common/SpellInflict/CrystInflict`。两者的来源 RID 均已
+完整解码，因此现在直接随干员定义生成，不再需要产品配置重写。汤汤的三条入口也已由同一份
+`SkillDataBundle` 原子生成：事件 12 `OnTakeDamage` 检查四种 Burst 伤害标签，事件 9
+`OnAddedBuff` 检查 `Skill/Character/Common/SpellBurst` Buff 标签，事件 121
+`OnBeforeTakeInfliction` 检查寒冷附着。桌面端 VFS 从实际 8896 字节角色资产重导后，4/4 条条件引用
+均完整；根 `sourceSha256` 与旧快照相同，确认此前差异只是缺少
+`CheckBuffIdInContextAdvanced` 解码，而不是替换了来源资产。三类入口与普通 Buff/伤害响应共用事件
+分派、上下文规范化、公共条件执行器和动作序列；连携层只额外执行 owner/沉默/冷却门禁并产出
+Pending。生成器仍坚持 Bundle 整体失败关闭，未绕过来源边界选择性安装子集。
+
+Pending 更新已按原生严格使用 `remainTime < 0` 作为过期条件；恰好降到零的帧仍可消费。此前
+`<= 0` 的实现会让窗口提前一帧消失，现已修正。
 
 安塔尔样本进一步证明，同一个连携技能的不同触发事件可以携带不同的候选黑板。原始
 `chr_0023_antal_combo_skill` 使用 `EntityBB_combo_type/index` 选择“重复本次物理异常或
 元素附着”的分支：元素映射为热/电/寒冷/自然 `0..3`，物理映射为浮空/击倒/破防/碎甲
-`0..3`。Next 因此在规则层保存候选黑板，而不是给技能模板猜一个全局默认值；合法窗口
-消费时才把命中规则的值注入本次释放。物理异常输出也统一发布携带具体类型的语义事件。
+`0..3`。这些值应由原生条件动作执行并在 Pending 时复制，不能在配置中展开成八条手写规则；
+合法窗口消费时才把实际命中条件产生的快照注入本次释放。
 
 时间轴仍允许强制放置没有窗口的连携块。对安塔尔这类必须读取触发载荷的技能，定义可以
 声明 `invalidCastBlackboard` 哨兵，使依赖载荷的附加异常分支不执行、基础伤害仍可审计；

@@ -61,6 +61,7 @@ describe('公共连携条件来源与 Pending 编译', () => {
       key: 'check',
       skillGroupKey: 'combo',
       event: 'beforeTakeInfliction',
+      immediately: false,
       initialValues: enabled ? { local: 3 } : null,
       sequence: { steps: [] },
     });
@@ -92,14 +93,14 @@ describe('公共连携条件来源与 Pending 编译', () => {
           context,
         ),
       ).toThrow('binding');
-    expect(() =>
+    expect(
       compileComboSkillConditionDefinitionSource(
         parse([{ ...record(), comboSkillConditionImmediately: true }])[0]!,
         blackboards,
         { key: 'check', skillGroupKey: 'combo' },
         context,
-      ),
-    ).toThrow('immediate');
+      ).definition.immediately,
+    ).toBe(true);
   });
   it('依赖 InputTarget 的条件不能被公共 Buff 投影误编译为敌人的 eventTarget', () => {
     const value = record();
@@ -120,6 +121,9 @@ describe('公共连携条件来源与 Pending 编译', () => {
     );
   });
   it.each([
+    [9, 'addedBuff'],
+    [101, 'beforeTakeDamage'],
+    [12, 'takeDamage'],
     [126, 'beforeOutputInfliction'],
     [121, 'beforeTakeInfliction'],
     [129, 'afterOutputInfliction'],
@@ -129,6 +133,36 @@ describe('公共连携条件来源与 Pending 编译', () => {
     const result = compilePendingComboConditionSource(source, context);
     expect(result).toEqual({ source, event, sequence: { steps: [] } });
     expect(result.source.sourcePath).toBe('bundle.comboSkillConditions[0]');
+  });
+  it('OnTakeDamage 的 Burst 掩码由公共伤害条件投影为四种可读标签', () => {
+    const value = record(12);
+    value.comboSkillCheckAction.actionData = [
+      {
+        $type: 'Beyond.Gameplay.Core.Conditions.CheckDamageDecorateMask+Data, Gameplay.Beyond',
+        isEnable: true,
+        priorityLevel: 'Default',
+        priorityOffset: 0,
+        serverActionIndex: 1001,
+        checkType: 'HasAny',
+        mask: 62914560,
+      },
+    ];
+    expect(compilePendingComboConditionSource(parse([value])[0]!, context)).toMatchObject({
+      event: 'takeDamage',
+      sequence: {
+        steps: [
+          {
+            parameters: {
+              condition: {
+                kind: 'eventDamageTagsMatch',
+                match: 'hasAny',
+                tags: ['fireBurst', 'cryoBurst', 'electricBurst', 'natureBurst'],
+              },
+            },
+          },
+        ],
+      },
+    });
   });
   it('按来源保留多条注册，不合并相同事件或空序列', () => {
     const source = parse([record(), record()]);
@@ -141,12 +175,12 @@ describe('公共连携条件来源与 Pending 编译', () => {
       `unaudited combo event ${id}`,
     );
   });
-  it('来源保留立即施法字段，但 Pending 编译拒绝偷换成开窗口', () => {
+  it('来源与编译结果都保留立即施放事实，不在转换器偷换成开窗口', () => {
     const value = record();
     value.comboSkillConditionImmediately = true;
     const source = parse([value])[0]!;
     expect(source.immediately).toBe(true);
-    expect(() => compilePendingComboConditionSource(source, context)).toThrow('immediate');
+    expect(compilePendingComboConditionSource(source, context).source.immediately).toBe(true);
   });
   it.each(['onlyExecuteWhenSourceIsMainChar', 'onlyExecuteWhenSourceIsGuard'] as const)(
     '尚未接通 %s 时严格失败',

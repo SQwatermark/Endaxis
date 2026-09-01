@@ -19,7 +19,9 @@ SkillGroupDefinition
        -> scheduledSequences[] 中的 listenForCombatEvents 步骤
 ```
 
-首段连携入口不属于单次技能释放，配置在 `OperatorDefinition.comboSkillRegistrations`；多段连携的后续窗口由技能序列中的 `openComboWindow` 步骤开启。
+首段连携入口不属于单次技能释放。它必须从角色 `SkillDataBundle` 的连携槽、优先级、条件列表及
+条件黑板整体转换为唯一的干员级连携定义；多段连携的后续候选由技能序列中的
+`TriggerComboSkillAction` 投影产生。manifest 不得逐条手写触发规则。
 
 游戏数据中的技能模板和项目中的完整自定义技能使用同一个结构。项目版本可以使用可变数组和 JSON 友好的接口，数据 TS 可以使用 `readonly`；字段语义必须完全一致。
 
@@ -304,17 +306,13 @@ Buff 生命周期行为通过 `definition.lifecycleSequences` 表达，序列内
 ## 15. 连携窗口与事件组件
 
 ```ts
-interface ComboSkillTriggerRule {
-  trigger: DamageTagHitTrigger | ElementalInflictionAppliedTrigger;
-  condition?: CombatCondition;
-  castImmediately?: boolean;
-}
-
-interface ComboSkillRegistrationDefinition {
-  skillKey: string;
-  priority: 'default' | 'firstBlackboard' | 'enemyRank';
-  blackboard?: Readonly<Record<string, LevelValues>>;
-  rules: readonly ComboSkillTriggerRule[];
+interface ComboSkillConditionDefinition {
+  key: string;
+  skillGroupKey: string;
+  event: ComboSkillConditionEvent;
+  immediately: boolean;
+  initialValues: Readonly<Record<string, number | string | null>> | null;
+  sequence: ActionSequenceDefinition;
 }
 
 interface CombatEventHandlerDefinition {
@@ -325,7 +323,7 @@ interface CombatEventHandlerDefinition {
 }
 ```
 
-事件触发器完整集合：
+普通技能/被动监听器的语义事件触发器完整集合：
 
 - `damageTagHit`：指定伤害标签命中，范围为自身或全队。
 - `elementalInflictionApplied`：指定元素附着成功，范围为自身或全队。
@@ -333,7 +331,11 @@ interface CombatEventHandlerDefinition {
 - `statusExpired`：指定目标状态到期。
 - `statusConsumed`：指定目标状态被消费。
 
-`comboSkillRegistrations` 是干员级常驻注册：外部事件与附加条件满足后，创建首段连携候选或立即释放。它不能进入 `SkillDefinition`，否则每个放到轴上的技能块都会看起来拥有一份常驻监听器。
+干员级连携定义是角色常驻条件：原生 AbilityEvent 到达后执行该条独立条件环境，成功后创建
+首段 Pending 候选或立即施放。它不能进入 `SkillDefinition`，否则每个放到轴上的技能块都会
+重复安装一份常驻监听器。旧 `comboSkillRegistrations` 手写语义事件协议已删除；游戏语义以
+combat-spec `docs/combo-skill-lifecycle.md` 为唯一依据；
+本文件只规定 Endaxis 定义层的归属。
 
 `openComboWindow` 是一次技能释放中的步骤，用于创建多段连携的下一段候选。两种入口最终都交给同一个场景级运行时，但原生运行时先按干员保存候选，再按触发时间、轨道顺序和配置优先级选择当前可操作项。候选保存可暂停的剩余时间，不使用不可暂停的绝对过期帧。
 

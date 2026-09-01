@@ -6,13 +6,6 @@
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
 import type { LoadoutGearSlot } from '../loadoutBuildViewModel';
 import OperatorSupportNotice from './OperatorSupportNotice.vue';
-import CombatStatusIconStrip from './CombatStatusIconStrip.vue';
-import type {
-  CombatStatusDisplaySlot,
-  CombatStatusIndicator,
-} from '../../../core/projection/combatStatusIndicators';
-import type { OperatorCombatHudSnapshot } from '../../../core/projection/combatHudSnapshot';
-import type { CombatHudHpProgressSnapshot } from '../../../core/projection/combatHudSnapshot';
 
 const props = defineProps<{
   track: TimelineTrackViewModel;
@@ -28,22 +21,6 @@ const props = defineProps<{
   canMoveDown: boolean;
   statDetailsAvailable?: boolean;
   statDetailsError?: string | null;
-  statusIndicators: readonly CombatStatusIndicator[];
-  statusSlot: CombatStatusDisplaySlot;
-  cursorFrame: number;
-  hudSnapshot: OperatorCombatHudSnapshot | null;
-  hpBarProgress: CombatHudHpProgressSnapshot | null;
-  activeSkillLabel: string | null;
-  skillButtons: readonly {
-    action: 'battleSkill' | 'ultimate';
-    skillKey: string;
-    label: string;
-    icon: string;
-    cooldownRatio: number | null;
-    cooldownKnown: boolean;
-    progressRatio: number | null;
-    weakProgress: boolean;
-  }[];
 }>();
 
 const emit = defineEmits<{
@@ -83,15 +60,6 @@ function leaveReorderTarget(event: DragEvent): void {
   const current = event.currentTarget as HTMLElement;
   if (event.relatedTarget instanceof Node && current.contains(event.relatedTarget)) return;
   emit('reorderDragLeave');
-}
-
-function formatHudNumber(value: number | null): string {
-  return value === null ? '—' : String(Math.round(value));
-}
-
-function cooldownMask(ratio: number | null): string | undefined {
-  if (ratio === null) return undefined;
-  return `conic-gradient(rgb(8 9 11 / 82%) ${ratio * 360}deg, transparent 0deg)`;
 }
 </script>
 
@@ -189,49 +157,6 @@ function cooldownMask(ratio: number | null): string | undefined {
         </button>
         <span class="operator-name-row">
           <span class="operator-name">{{ name }}</span>
-          <span
-            v-if="hudSnapshot?.passiveUi?.kind === 'numeric'"
-            class="passive-ui passive-ui--numeric"
-            :class="{ 'is-active': hudSnapshot.passiveUi.active }"
-            :title="`${hudSnapshot.passiveUi.value}/${hudSnapshot.passiveUi.maximum}`"
-          >
-            <span class="passive-ui__pips" aria-hidden="true">
-              <i
-                v-for="index in hudSnapshot.passiveUi.maximum"
-                :key="index"
-                :class="{ filled: index <= hudSnapshot.passiveUi.value }"
-              ></i>
-            </span>
-            <b>{{ hudSnapshot.passiveUi.value }}</b>
-          </span>
-          <span
-            v-else-if="hudSnapshot?.passiveUi?.kind === 'buffProgress'"
-            class="passive-ui passive-ui--progress"
-            :class="`is-${hudSnapshot.passiveUi.mode}`"
-            :title="hudSnapshot.passiveUi.buffId"
-          >
-            <span
-              class="passive-ui__progress"
-              :style="{ width: `${(hudSnapshot.passiveUi.ratio ?? 0) * 100}%` }"
-            ></span>
-            <b>{{ hudSnapshot.passiveUi.mode === 'ultimate' ? 'U' : 'C' }}</b>
-          </span>
-          <span v-if="hudSnapshot !== null" class="runtime-summary">
-            <span class="runtime-energy">
-              U {{ formatHudNumber(hudSnapshot.ultimateEnergy.current) }}/{{
-                formatHudNumber(hudSnapshot.ultimateEnergy.maximum)
-              }}
-            </span>
-            <span v-if="activeSkillLabel !== null" class="runtime-active" :title="activeSkillLabel">
-              {{ activeSkillLabel }}
-            </span>
-            <span v-if="hudSnapshot.comboWindows.length > 0" class="runtime-combo">
-              E×{{ hudSnapshot.comboWindows.length }}
-            </span>
-            <span v-if="hudSnapshot.cooldowns.length > 0" class="runtime-cooldown">
-              CD×{{ hudSnapshot.cooldowns.length }}
-            </span>
-          </span>
           <OperatorSupportNotice
             v-if="track.operatorSlug"
             :support="track.operatorSupport"
@@ -253,31 +178,6 @@ function cooldownMask(ratio: number | null): string | undefined {
       >
         {{ $t('statDetail.button') }}
       </button>
-      <span v-if="skillButtons.length > 0" class="skill-hud-buttons">
-        <span
-          v-for="button in skillButtons"
-          :key="button.action"
-          class="skill-hud-button"
-          :class="[`is-${button.action}`, { 'is-cooldown-unknown': !button.cooldownKnown }]"
-          :title="button.label"
-        >
-          <img :src="button.icon" alt="" />
-          <span
-            v-if="button.progressRatio !== null"
-            class="skill-hud-button__progress"
-            :class="{ 'is-weak': button.weakProgress }"
-            :style="{ '--progress-angle': `${button.progressRatio * 360}deg` }"
-          ></span>
-          <span
-            v-if="button.cooldownRatio !== null"
-            class="skill-hud-button__cooldown"
-            :style="{ background: cooldownMask(button.cooldownRatio) }"
-          ></span>
-          <span class="skill-hud-button__kind">{{
-            button.action === 'battleSkill' ? 'C' : 'U'
-          }}</span>
-        </span>
-      </span>
       <span v-if="track.operatorSlug" class="loadout-row">
         <button
           type="button"
@@ -308,18 +208,6 @@ function cooldownMask(ratio: number | null): string | undefined {
         <span class="set-bonus-hint" :class="{ 'is-hidden': activeGearSetLabel === '' }">
           {{ activeGearSetLabel }}
         </span>
-      </span>
-      <CombatStatusIconStrip
-        class="track-status-strip"
-        :indicators="statusIndicators"
-        :slot="statusSlot"
-        :frame="cursorFrame"
-      />
-      <span v-if="hpBarProgress !== null" class="main-hp-progress" :title="hpBarProgress.buffId">
-        <span
-          class="main-hp-progress__fill"
-          :style="{ width: `${(hpBarProgress.ratio ?? 0) * 100}%` }"
-        ></span>
       </span>
     </span>
   </div>
@@ -557,94 +445,6 @@ function cooldownMask(ratio: number | null): string | undefined {
   padding-right: 20px;
 }
 
-.runtime-summary {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-  margin-top: 2px;
-  font:
-    700 8px/10px 'Roboto Mono',
-    monospace;
-  white-space: nowrap;
-}
-
-.passive-ui {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 24px;
-  height: 16px;
-  padding: 0 4px;
-  overflow: hidden;
-  color: #d8dce2;
-  font-size: 9px;
-  line-height: 1;
-  background: #25292e;
-  border: 1px solid #4a5058;
-  border-radius: 2px;
-}
-
-.passive-ui.is-active {
-  color: #17191c;
-  background: #f2c44f;
-  border-color: #ffe08a;
-}
-
-.passive-ui__pips {
-  display: flex;
-  gap: 1px;
-}
-
-.passive-ui__pips i {
-  width: 2px;
-  height: 7px;
-  background: rgb(255 255 255 / 18%);
-}
-
-.passive-ui__pips i.filled {
-  background: currentcolor;
-}
-
-.passive-ui--progress {
-  width: 32px;
-  justify-content: center;
-}
-
-.passive-ui__progress {
-  position: absolute;
-  inset: 0 auto 0 0;
-  background: rgb(85 203 235 / 36%);
-}
-
-.passive-ui--progress.is-ultimate .passive-ui__progress {
-  background: rgb(241 174 72 / 42%);
-}
-
-.passive-ui--progress b {
-  position: relative;
-}
-
-.runtime-energy {
-  color: var(--ea-energy-accent, #7dd3fc);
-}
-
-.runtime-active {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--ea-gold);
-  text-overflow: ellipsis;
-}
-
-.runtime-combo {
-  color: #52d3a9;
-}
-
-.runtime-cooldown {
-  color: var(--ea-fg-faint, rgb(255 255 255 / 45%));
-}
-
 .stat-detail-button {
   position: absolute;
   top: calc(50% - 53px);
@@ -665,77 +465,6 @@ function cooldownMask(ratio: number | null): string | undefined {
   cursor: not-allowed;
 }
 
-.skill-hud-buttons {
-  position: absolute;
-  top: calc(50% - 53px);
-  left: 50px;
-  display: flex;
-  gap: 4px;
-}
-
-.skill-hud-button {
-  position: relative;
-  width: 18px;
-  height: 18px;
-  box-sizing: border-box;
-  overflow: hidden;
-  border: 1px solid rgb(255 255 255 / 52%);
-  border-radius: 2px;
-  background: #303238;
-}
-
-.skill-hud-button.is-ultimate {
-  border-color: color-mix(in srgb, var(--ea-energy-accent, #7dd3fc) 72%, #aaa);
-}
-
-.skill-hud-button.is-cooldown-unknown {
-  border-style: dashed;
-}
-
-.skill-hud-button img,
-.skill-hud-button__progress,
-.skill-hud-button__cooldown {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.skill-hud-button img {
-  object-fit: cover;
-}
-
-.skill-hud-button__progress {
-  z-index: 1;
-  background: conic-gradient(
-    color-mix(in srgb, var(--ea-gold) 72%, transparent) var(--progress-angle),
-    transparent 0
-  );
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ea-gold) 70%, transparent);
-}
-
-.skill-hud-button__progress.is-weak {
-  opacity: 0.45;
-}
-
-.skill-hud-button__cooldown {
-  z-index: 2;
-}
-
-.skill-hud-button__kind {
-  position: absolute;
-  z-index: 3;
-  right: 0;
-  bottom: 0;
-  min-width: 7px;
-  background: rgb(0 0 0 / 76%);
-  color: #fff;
-  font:
-    700 7px/8px 'Roboto Mono',
-    monospace;
-  text-align: center;
-}
-
 .loadout-row {
   position: absolute;
   left: 6px;
@@ -751,32 +480,6 @@ function cooldownMask(ratio: number | null): string | undefined {
   top: calc(50% + 58px);
   width: calc(100% - 12px);
   height: 22px;
-}
-
-.track-status-strip {
-  position: absolute;
-  top: calc(50% + 3px);
-  left: 58px;
-  right: 4px;
-  overflow: visible;
-}
-
-.main-hp-progress {
-  position: absolute;
-  top: calc(50% - 5px);
-  left: 58px;
-  right: 6px;
-  height: 3px;
-  overflow: hidden;
-  background: rgb(255 255 255 / 10%);
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 40%);
-}
-
-.main-hp-progress__fill {
-  display: block;
-  height: 100%;
-  background: var(--ea-gold);
-  transition: width 80ms linear;
 }
 
 .set-bonus-hint {

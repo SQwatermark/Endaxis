@@ -23,6 +23,13 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it('requires a positive native natural duration when present', () => {
+    expect(validateSkillDefinition({ ...baseSkill(), naturalDurationFrames: 1 })).toEqual([]);
+    expect(validateSkillDefinition({ ...baseSkill(), naturalDurationFrames: 0 })).toEqual(
+      expect.arrayContaining([expect.objectContaining({ path: '$.naturalDurationFrames' })]),
+    );
+  });
+
   it('validates per-skill combat type and level source identities', () => {
     expect(
       validateSkillDefinition({

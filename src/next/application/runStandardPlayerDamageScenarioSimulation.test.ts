@@ -65,7 +65,6 @@ describe('标准入口普通倒地装配', () => {
   function fixture(observeGetUp = false) {
     const definition: OperatorDefinition = {
       ...perlica,
-      comboSkillRegistrations: [],
       talents: [],
       potentials: [],
       buffDefinitions: {

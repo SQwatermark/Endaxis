@@ -24,7 +24,66 @@ function event(
 ) {
   return {
     event,
-    payload: { sourceId: 'ally', targetId: 'enemy', skillId: 'skill', element, isExtra: false },
+    payload: {
+      sourceId: 'ally',
+      targetId: 'enemy',
+      skillId: 'skill',
+      element,
+      isExtra: false,
+      skillCastInfo: null,
+    },
+  };
+}
+function physicalEvent() {
+  return {
+    event: 'afterTakePhysicalInfliction' as const,
+    payload: {
+      sourceId: 'ally',
+      targetId: 'enemy',
+      type: 'knockDown' as const,
+      isExtra: false,
+      fromAirborne: false as const,
+      skillCastInfo: {
+        skillCastId: 7,
+        originSkillId: 'battleSkill',
+        originSkillType: 'battleSkill' as const,
+        nonReturnedSpCost: 0,
+      },
+    },
+  };
+}
+function addedBuffEvent() {
+  return {
+    event: 'addedBuff' as const,
+    payload: {
+      sourceId: 'ally',
+      targetId: 'enemy',
+      buffId: 'buff.spell-burst',
+      buffTags: ['Skill/Character/Common/SpellBurst'],
+    },
+  };
+}
+function takeDamageEvent() {
+  return {
+    event: 'takeDamage' as const,
+    payload: {
+      sourceId: 'ally',
+      targetId: 'enemy',
+      damageType: 'cryo' as const,
+      tags: ['cryoBurst'] as const,
+      features: [] as const,
+      result: {
+        value: 1,
+        isCritical: false,
+        criticalMultiplier: 1,
+        defenseMultiplier: 1,
+        resistanceMultiplier: 1,
+        weaknessShelterMultiplier: 1,
+        runtimeExtensionMultiplier: 1,
+        igniteMultiplier: 1,
+        physicalInflictionMultiplier: 1,
+      },
+    },
   };
 }
 const operations = new ActionBlackboardOperationExecutor(
@@ -146,6 +205,98 @@ describe('原生连携条件注册环境', () => {
     for (const element of ['heat', 'electric', 'cryo', 'nature'] as const)
       runtime.onAbilityEvent(event(undefined, element));
     expect(pending).toHaveBeenCalledTimes(mask === 0 ? 0 : mask === 15 ? 4 : 1);
+  });
+
+  it('afterTakePhysicalInfliction 使用同一 Pending 环境并保留事件来源技能', () => {
+    const runtime = new ComboSkillConditionRuntime();
+    const pending = vi.fn();
+    runtime.registerPendingCondition(
+      options({
+        event: 'afterTakePhysicalInfliction',
+        sequence: compileActionSequence(
+          {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'eventPhysicalInflictionTypeIn',
+                    types: ['knockDown'],
+                    outputKey: 'physicalType',
+                  },
+                },
+                whenTrue: { steps: [] },
+              },
+            ],
+          },
+          1,
+        ),
+        initialValues: { physicalType: -1 },
+        onPending: pending,
+      }),
+    );
+    runtime.onAbilityEvent(physicalEvent());
+    expect(pending).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        inputTarget: { kind: 'operator', operatorId: 'ally' },
+        triggerTarget: { kind: 'enemy' },
+        assignPairs: { physicalType: 1 },
+        event: expect.objectContaining({
+          payload: expect.objectContaining({ skillCastInfo: expect.any(Object) }),
+        }),
+      }),
+    );
+  });
+
+  it.each([
+    {
+      name: 'OnAddedBuff',
+      event: addedBuffEvent(),
+      condition: {
+        kind: 'eventBuffTagsMatch' as const,
+        match: 'hasAny' as const,
+        buffTags: ['Skill/Character/Common/SpellBurst'],
+      },
+    },
+    {
+      name: 'OnTakeDamage',
+      event: takeDamageEvent(),
+      condition: {
+        kind: 'eventDamageTagsMatch' as const,
+        match: 'hasAny' as const,
+        tags: ['cryoBurst'] as const,
+      },
+    },
+  ])('$name 与普通事件响应共用条件上下文投影', ({ event, condition }) => {
+    const runtime = new ComboSkillConditionRuntime();
+    const pending = vi.fn();
+    runtime.registerPendingCondition(
+      options({
+        event: event.event,
+        sequence: compileActionSequence(
+          {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: { condition },
+                whenTrue: { steps: [] },
+              },
+            ],
+          },
+          1,
+        ),
+        onPending: pending,
+      }),
+    );
+
+    runtime.onAbilityEvent(event);
+
+    expect(pending).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        inputTarget: { kind: 'operator', operatorId: 'ally' },
+        triggerTarget: { kind: 'enemy' },
+      }),
+    );
   });
 
   it('每条注册独享 direct 板，连续事件保持写入，Pending 快照不随之后写入改变', () => {

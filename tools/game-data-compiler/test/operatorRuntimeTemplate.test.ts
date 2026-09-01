@@ -71,6 +71,7 @@ function runtimeTemplate() {
         enabledBreakingNormalAttacks: ['breaking_attack'],
         normalSkillId: 'normal_skill',
         comboSkillId: 'chr_0032_lizhiyan_combo_skill',
+        comboSkillPriorityType: 2,
         ultimateSkillId: 'ultimate_skill',
         plungingAttackStartId: 'plunge_start',
         plungingAttackEndId: 'plunge_end',
@@ -98,6 +99,7 @@ describe('角色运行模板来源', () => {
       decodeStatus: 'partial',
       characterId: 'chr_0032_lizhiyan',
       comboSkillId: 'chr_0032_lizhiyan_combo_skill',
+      comboSkillPriority: 'enemyRank',
     });
     expect(parsed.blackboards.entity.initialValues).toHaveLength(4);
     expect(parsed.blackboards.comboCondition.initialValues).toHaveLength(2);

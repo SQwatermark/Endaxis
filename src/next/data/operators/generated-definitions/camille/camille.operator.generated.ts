@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -20,6 +19,7 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0033_camille_attack1',
     timelineBlockFrames: 12,
+    naturalDurationFrames: 118,
     exclusiveFrame: 13,
     inputWindows: {
       commandMappings: [
@@ -132,6 +132,7 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0033_camille_attack2',
     timelineBlockFrames: 15,
+    naturalDurationFrames: 124,
     exclusiveFrame: 19,
     inputWindows: {
       commandMappings: [
@@ -244,6 +245,7 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0033_camille_attack3',
     timelineBlockFrames: 13,
+    naturalDurationFrames: 130,
     exclusiveFrame: 19,
     inputWindows: {
       commandMappings: [
@@ -328,6 +330,7 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0033_camille_attack4',
     timelineBlockFrames: 22,
+    naturalDurationFrames: 187,
     exclusiveFrame: 29,
     inputWindows: {
       commandMappings: [
@@ -571,6 +574,7 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack5',
     sourceSkillId: 'chr_0033_camille_attack5',
     timelineBlockFrames: 42,
+    naturalDurationFrames: 171,
     exclusiveFrame: 41,
     costFrame: 9,
     scheduledSequences: [
@@ -669,6 +673,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0033_camille_power_attack',
     timelineBlockFrames: 39,
+    naturalDurationFrames: 230,
     exclusiveFrame: 50,
     inputWindows: {
       allowedNextSkills: [
@@ -1114,6 +1119,7 @@ export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0033_camille_plunging_attack_end',
     timelineBlockFrames: 16,
+    naturalDurationFrames: 149,
     exclusiveFrame: 15,
     costFrame: 0,
     scheduledSequences: [
@@ -1164,6 +1170,7 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0033_camille_normal_skill',
     timelineBlockFrames: 18,
+    naturalDurationFrames: 192,
     exclusiveFrame: 26,
     inputWindows: {
       allowedNextSkills: [
@@ -1282,6 +1289,7 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
     key: 'battleSkillDuringUltimate',
     sourceSkillId: 'chr_0033_camille_combo_skill_2',
     timelineBlockFrames: 79,
+    naturalDurationFrames: 213,
     exclusiveFrame: 86,
     inputWindows: {
       allowedNextSkills: [
@@ -1653,6 +1661,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill1',
     sourceSkillId: 'chr_0033_camille_combo_skill',
     timelineBlockFrames: 51,
+    naturalDurationFrames: 191,
     exclusiveFrame: 63,
     inputWindows: {
       allowedNextSkills: [
@@ -1936,6 +1945,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill2',
     sourceSkillId: 'chr_0033_camille_combo_skill_2',
     timelineBlockFrames: 79,
+    naturalDurationFrames: 213,
     exclusiveFrame: 86,
     inputWindows: {
       allowedNextSkills: [
@@ -2305,6 +2315,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0033_camille_ultimate_skill',
     timelineBlockFrames: 125,
+    naturalDurationFrames: 236,
     exclusiveFrame: 133,
     inputWindows: {
       allowedNextSkills: [
@@ -2550,157 +2561,6 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
     display_atk_scale: [2.667, 2.933, 3.2, 3.467, 3.733, 4, 4.267, 4.533, 4.8, 5.133, 5.533, 6],
   },
 );
-
-export const commonBuffDefinitions = {
-  buff_common_affixes_vulnerable_fire: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate' },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Skill/Character/Common/Affixes/Vulnerable',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableSpell',
-      'Skill/Character/Common/Affixes/Vulnerable/VulnerableFire',
-    ],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_vulnerable_fire_default_child',
-      duration: 0.8,
-      rate: 0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'heatVulnerabilityIncrease',
-        slot: 'baseAddition',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_affixes_weak: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'rate', negate: true },
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: ['Skill/Character/Common/Affixes/Weak'],
-    extendTags: [],
-    blackboard: {
-      child_buff_id: 'buff_common_affixes_weak_default_child',
-      duration: 0.8,
-      rate: -0.2,
-    },
-    attributeModifiers: [
-      {
-        attribute: 'weaknessDamageMultiplier',
-        slot: 'finalMultiplier',
-        value: { blackboardKey: 'rate' },
-      },
-    ],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: { blackboardKey: 'child_buff_id' },
-          target: 'buffOwner',
-          source: 'buffOwner',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-          asChildBuff: true,
-          blackboardAssignments: {
-            rate: { kind: 'blackboard', key: 'rate' },
-            duration: { kind: 'blackboard', key: 'duration' },
-          },
-        }),
-      ),
-    },
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_full_immune: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Immune/Damage',
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_full_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
 
 export default {
   slug: 'camille',

@@ -28,7 +28,6 @@ export * from './combat/runtime/combatActionSequenceRuntime';
 export * from './combat/runtime/buffLifecycleSequenceRuntime';
 export * from './combat/runtime/combatStatusRuntime';
 export * from './combat/runtime/comboWindowRuntime';
-export * from './combat/runtime/comboSkillRegistrationRuntime';
 export * from './combat/runtime/skillResourceOperationExecutor';
 export * from './combat/runtime/statusOperationExecutor';
 export * from './combat/runtime/combatVitals';

@@ -8,6 +8,7 @@ import { resolveOperatorPanel } from '../core/compiler/resolveOperatorPanel';
 import { resolveScenarioBuilds } from '../core/compiler/resolveScenarioBuilds';
 import { createEmptyScenario } from '../core/project/createProject';
 import { projectSkillEnhancementTimelineViz } from '../core/projection/skillEnhancementTimelineViz';
+import { projectOperatorPassiveUiTimelineViz } from '../core/projection/operatorPassiveUiTimelineViz';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { skillSettings } from '../data/combat/skillSettings';
@@ -26,6 +27,7 @@ import {
   estella,
   fluorite,
   laevatain,
+  lastRite,
   liino,
   perlica,
   pogranichnik,
@@ -1455,7 +1457,17 @@ describe('registered generated operators', () => {
         operator: fluorite,
         skillGroupKey: 'battleSkill',
         startFrame: 1,
-        ids: { allocate: kind => `${kind}:fluorite:${potential}:battle` },
+        ids: { allocate: kind => `${kind}:fluorite:${potential}:battle:first` },
+      }).scenario;
+      // 原生连携条件运行在附着写入前，要求 trigger 已经持有对应附着 Tag；
+      // 第二次自然附着才会通过条件并创建 Pending。
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 0,
+        operator: fluorite,
+        skillGroupKey: 'battleSkill',
+        startFrame: 70,
+        ids: { allocate: kind => `${kind}:fluorite:${potential}:battle:second` },
       }).scenario;
       placed = placeSkillGroup({
         scenario: placed,
@@ -2096,6 +2108,92 @@ describe('registered generated operators', () => {
         'buff_chr_0030_zhuangfy_potential1',
         'buff_chr_0030_zhuangfy_potential5',
       ]),
+    );
+  });
+
+  it('keeps Zhuang Fangyi basic attack 1 active until the independently placed attack 2 input', () => {
+    const scenario = createEmptyScenario(
+      'scenario:zhuang-fangyi:basic-chain-input',
+      '庄方宜普攻独立输入回归',
+    );
+    scenario.battle.durationFrames = 60;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:zhuang-fangyi',
+      operator: {
+        operatorSlug: zhuangFangyi.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    let nextId = 0;
+    const ids = { allocate: (kind: string) => `${kind}:zhuang-fangyi:basic-chain:${++nextId}` };
+    const withAttack1 = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: zhuangFangyi,
+      skillGroupKey: 'basicAttack',
+      skillKey: 'basicAttack1',
+      startFrame: 1,
+      ids,
+    }).scenario;
+    const placed = placeSkillGroup({
+      scenario: withAttack1,
+      trackIndex: 0,
+      operator: zhuangFangyi,
+      skillGroupKey: 'basicAttack',
+      skillKey: 'basicAttack2',
+      startFrame: 16,
+      ids,
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 60,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      probabilitySamples: new ExplicitProbabilitySampleSource(Array(20).fill(0)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    const attack2CastId = placed.tracks[0]!.skillCasts.find(
+      cast => cast.source.kind === 'operatorSkill' && cast.source.skillKey === 'basicAttack2',
+    )!.id;
+    expect(
+      result.receiptEntries.filter(
+        entry =>
+          (entry.event === 'SkillInputResolvedToDifferentSkill' ||
+            entry.event === 'SkillInputCannotInterruptCurrentSkill') &&
+          entry.data?.castId === attack2CastId,
+      ),
+    ).toEqual([]);
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillStarted',
+        sourceId: 'track:zhuang-fangyi',
+        data: expect.objectContaining({ skillId: 'basicAttack2', castId: attack2CastId }),
+      }),
     );
   });
 
@@ -2807,12 +2905,110 @@ describe('registered generated operators', () => {
       expect.objectContaining({ event: 'ComboWindowConsumed', sourceId: 'track:antal' }),
     );
     expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:wulfgard' }),
+    );
+    expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'DamageApplied',
         sourceId: 'track:antal',
         targetId: 'enemy',
       }),
     );
+  });
+
+  it('keeps Perlica, Wulfgard, Last Rite and Tangtang native combo conditions in generated operator definitions', () => {
+    expect('comboSkillRegistrations' in perlica).toBe(false);
+    expect(perlica.comboSkillConditions).toEqual([
+      expect.objectContaining({
+        key: 'native-combo:0',
+        skillGroupKey: 'comboSkill',
+        event: 'beforeTakeDamage',
+        immediately: false,
+        initialValues: null,
+        sequence: expect.objectContaining({
+          steps: expect.arrayContaining([
+            expect.objectContaining({
+              parameters: expect.objectContaining({
+                condition: expect.objectContaining({
+                  kind: 'eventDamageTagsMatch',
+                  tags: ['normalAttackLastCombo'],
+                }),
+              }),
+            }),
+          ]),
+        }),
+      }),
+    ]);
+    expect(JSON.stringify(perlica.comboSkillConditions)).toContain('eventSourceControlled');
+    expect(JSON.stringify(perlica.comboSkillConditions)).toContain(
+      'contextTargetObjectTypeMatch',
+    );
+    expect('comboSkillRegistrations' in wulfgard).toBe(false);
+    expect(wulfgard.comboSkillConditions).toEqual([
+      expect.objectContaining({
+        key: 'native-combo:0',
+        skillGroupKey: 'comboSkill',
+        event: 'beforeTakeInfliction',
+        immediately: false,
+        initialValues: null,
+      }),
+    ]);
+    expect('comboSkillRegistrations' in lastRite).toBe(false);
+    expect(lastRite.comboSkillConditions).toEqual([
+      expect.objectContaining({
+        key: 'native-combo:0',
+        skillGroupKey: 'comboSkill',
+        event: 'beforeTakeInfliction',
+        immediately: false,
+        initialValues: null,
+      }),
+    ]);
+    expect('comboSkillRegistrations' in tangtang).toBe(false);
+    expect(tangtang.comboSkillConditions).toEqual([
+      expect.objectContaining({
+        key: 'native-combo:0',
+        skillGroupKey: 'comboSkill',
+        event: 'takeDamage',
+        immediately: false,
+        initialValues: null,
+        sequence: expect.objectContaining({
+          steps: expect.arrayContaining([
+            expect.objectContaining({
+              parameters: expect.objectContaining({
+                condition: {
+                  kind: 'eventDamageTagsMatch',
+                  match: 'hasAny',
+                  tags: ['fireBurst', 'cryoBurst', 'electricBurst', 'natureBurst'],
+                },
+              }),
+            }),
+          ]),
+        }),
+      }),
+      expect.objectContaining({
+        key: 'native-combo:1',
+        skillGroupKey: 'comboSkill',
+        event: 'beforeTakeInfliction',
+      }),
+      expect.objectContaining({
+        key: 'native-combo:2',
+        skillGroupKey: 'comboSkill',
+        event: 'addedBuff',
+        sequence: expect.objectContaining({
+          steps: expect.arrayContaining([
+            expect.objectContaining({
+              parameters: expect.objectContaining({
+                condition: {
+                  kind: 'eventBuffTagsMatch',
+                  match: 'hasAny',
+                  buffTags: ['Skill/Character/Common/SpellBurst'],
+                },
+              }),
+            }),
+          ]),
+        }),
+      }),
+    ]);
   });
 
   it('keeps Antal forced combo casts simulatable while diagnosing the missing trigger', () => {
@@ -2932,5 +3128,22 @@ describe('registered generated operators', () => {
         data: expect.objectContaining({ value: 1 }),
       }),
     );
+    expect(
+      projectOperatorPassiveUiTimelineViz(result.receiptEntries, 150, [
+        {
+          operatorId: 'track:tangtang',
+          definition: tangtang.passiveUi!,
+        },
+      ]),
+    ).toContainEqual({
+      kind: 'numeric',
+      appearance: 'tangtangDroplets',
+      operatorId: 'track:tangtang',
+      startFrame: expect.any(Number),
+      endFrame: 150,
+      value: 1,
+      maximum: 2,
+      active: false,
+    });
   });
 });

@@ -12,10 +12,7 @@ interface RawExpression {
  * 将整名编译器的结构化结果渲染成与旧生成器一致的声明式源码。
  * 这里只恢复机械 DSL（调度、序列、步骤和技能黑板），不重新解释游戏规则。
  */
-export function renderOperatorDefinitionSource(input: {
-  readonly operator: RecordValue;
-  readonly commonBuffDefinitions: RecordValue;
-}): string {
+export function renderOperatorDefinitionSource(input: { readonly operator: RecordValue }): string {
   assertFiniteNumbers(input, '$');
   const context: RenderContext = { helpers: new Set() };
   const operator = { ...input.operator };
@@ -96,21 +93,30 @@ export function renderOperatorDefinitionSource(input: {
   );
   operator.skillGroups = skillGroups;
 
-  const commonBuffs = renderValue(input.commonBuffDefinitions, context);
   const renderedOperator = renderValue(operator, context);
   const helperImport = [...context.helpers].sort().join(', ');
   return `/** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
 ${helperImport ? `import { ${helperImport} } from '../../definitionHelpers';\n` : ''}
 ${skillDeclarations.join('\n\n')}
 
-export const commonBuffDefinitions = ${commonBuffs} as const satisfies OperatorBuffDefinitions;
-
 export default ${renderedOperator} as const satisfies OperatorDefinition;
+`;
+}
+
+/** 公共 Buff 是独立、不可编辑的全局资源；不得从任一干员生成文件反向聚合。 */
+export function renderCommonBuffDefinitionsSource(definitions: RecordValue): string {
+  assertFiniteNumbers(definitions, '$.commonBuffDefinitions');
+  const context: RenderContext = { helpers: new Set() };
+  const rendered = renderValue(definitions, context);
+  const helperImport = [...context.helpers].sort().join(', ');
+  return `/** 由 tools/game-data-compiler 公共 Buff 生成器生成；不要手工编辑。 */
+import type { OperatorBuffDefinitions } from '../../../core/game-data/operatorDefinition';
+${helperImport ? `import { ${helperImport} } from '../../operators/definitionHelpers';\n` : ''}
+export const commonBuffDefinitions = Object.freeze(${rendered}) as OperatorBuffDefinitions;
 `;
 }
 

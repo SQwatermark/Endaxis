@@ -83,21 +83,6 @@
           "skillKeys": ["ultimate"]
         }
       ],
-      "comboSkillRegistrations": [
-        {
-          "skillKey": "comboSkill",
-          "priority": "default",
-          "rules": [
-            {
-              "trigger": {
-                "kind": "damageTagHit",
-                "tag": "normalAttackLastCombo",
-                "scope": "team"
-              }
-            }
-          ]
-        }
-      ],
       "skills": [
         {
           "key": "basicAttack1",
@@ -197,7 +182,7 @@
         "sourceFile": "CharacterData/chr_0004_pelica.runtime-template.json",
         "sourceSha256": "d3e8abd97fcc0b4411dfc422309f8a638681d6f8fd77a898e23e0af5cb9eae82",
         "sourceCharacterId": "chr_0004_pelica",
-        "comboSkillGroupKey": null
+        "comboSkillGroupKey": "comboSkill"
       }
     },
     {
@@ -563,7 +548,7 @@
         "sourceFile": "CharacterData/chr_0006_wolfgd.runtime-template.json",
         "sourceSha256": "15af52a0964f75c46e8a0d4463347f01837fa3e517a078fd0cccbd94406cec0d",
         "sourceCharacterId": "chr_0006_wolfgd",
-        "comboSkillGroupKey": null
+        "comboSkillGroupKey": "comboSkill"
       }
     },
     {
@@ -648,162 +633,6 @@
           "levelSource": "ultimate",
           "nativeGroupType": 2,
           "skillKeys": ["ultimate"]
-        }
-      ],
-      "comboSkillRegistrations": [
-        {
-          "skillKey": "comboSkill",
-          "priority": "default",
-          "invalidCastBlackboard": {
-            "EntityBB_combo_type": 2,
-            "EntityBB_combo_index": -1
-          },
-          "rules": [
-            {
-              "trigger": {
-                "kind": "elementalInflictionApplied",
-                "elements": "heat",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffIdStackCompare",
-                "target": "enemy",
-                "buffIds": ["buff_chr_0023_antal_tageffect"],
-                "operator": "greater",
-                "value": 0
-              },
-              "blackboard": {
-                "EntityBB_combo_type": 0,
-                "EntityBB_combo_index": 0
-              }
-            },
-            {
-              "trigger": {
-                "kind": "elementalInflictionApplied",
-                "elements": "electric",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffIdStackCompare",
-                "target": "enemy",
-                "buffIds": ["buff_chr_0023_antal_tageffect"],
-                "operator": "greater",
-                "value": 0
-              },
-              "blackboard": {
-                "EntityBB_combo_type": 0,
-                "EntityBB_combo_index": 1
-              }
-            },
-            {
-              "trigger": {
-                "kind": "elementalInflictionApplied",
-                "elements": "cryo",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffIdStackCompare",
-                "target": "enemy",
-                "buffIds": ["buff_chr_0023_antal_tageffect"],
-                "operator": "greater",
-                "value": 0
-              },
-              "blackboard": {
-                "EntityBB_combo_type": 0,
-                "EntityBB_combo_index": 2
-              }
-            },
-            {
-              "trigger": {
-                "kind": "elementalInflictionApplied",
-                "elements": "nature",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffIdStackCompare",
-                "target": "enemy",
-                "buffIds": ["buff_chr_0023_antal_tageffect"],
-                "operator": "greater",
-                "value": 0
-              },
-              "blackboard": {
-                "EntityBB_combo_type": 0,
-                "EntityBB_combo_index": 3
-              }
-            },
-            {
-              "trigger": {
-                "kind": "physicalInflictionApplied",
-                "types": "airborne",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffIdStackCompare",
-                "target": "enemy",
-                "buffIds": ["buff_chr_0023_antal_tageffect"],
-                "operator": "greater",
-                "value": 0
-              },
-              "blackboard": {
-                "EntityBB_combo_type": 1,
-                "EntityBB_combo_index": 0
-              }
-            },
-            {
-              "trigger": {
-                "kind": "physicalInflictionApplied",
-                "types": "knockDown",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffIdStackCompare",
-                "target": "enemy",
-                "buffIds": ["buff_chr_0023_antal_tageffect"],
-                "operator": "greater",
-                "value": 0
-              },
-              "blackboard": {
-                "EntityBB_combo_type": 1,
-                "EntityBB_combo_index": 1
-              }
-            },
-            {
-              "trigger": {
-                "kind": "physicalInflictionApplied",
-                "types": "fracture",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffIdStackCompare",
-                "target": "enemy",
-                "buffIds": ["buff_chr_0023_antal_tageffect"],
-                "operator": "greater",
-                "value": 0
-              },
-              "blackboard": {
-                "EntityBB_combo_type": 1,
-                "EntityBB_combo_index": 2
-              }
-            },
-            {
-              "trigger": {
-                "kind": "physicalInflictionApplied",
-                "types": "crush",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffIdStackCompare",
-                "target": "enemy",
-                "buffIds": ["buff_chr_0023_antal_tageffect"],
-                "operator": "greater",
-                "value": 0
-              },
-              "blackboard": {
-                "EntityBB_combo_type": 1,
-                "EntityBB_combo_index": 3
-              }
-            }
-          ]
         }
       ],
       "skills": [
@@ -902,7 +731,7 @@
         "sourceFile": "CharacterData/chr_0023_antal.runtime-template.json",
         "sourceSha256": "34e6ec444c2560da22417a98de8515e8125b888b2ed596f3e5a8faf608c2ca57",
         "sourceCharacterId": "chr_0023_antal",
-        "comboSkillGroupKey": null
+        "comboSkillGroupKey": "comboSkill"
       }
     },
     {
@@ -4617,7 +4446,7 @@
         "sourceFile": "CharacterData/chr_0027_tangtang.runtime-template.json",
         "sourceSha256": "7fdfa2f96443489d39c497117e8660e2471f3cc3c3c571858321af171df98f4c",
         "sourceCharacterId": "chr_0027_tangtang",
-        "comboSkillGroupKey": null
+        "comboSkillGroupKey": "comboSkill"
       }
     },
     {
@@ -4706,59 +4535,6 @@
           "levelSource": "comboSkill",
           "nativeGroupType": 3,
           "skillKeys": ["comboSkill"]
-        }
-      ],
-      "comboSkillRegistrations": [
-        {
-          "skillKey": "comboSkill",
-          "priority": "default",
-          "invalidCastBlackboard": {
-            "EntityBB_combo_index": -1
-          },
-          "rules": [
-            {
-              "trigger": {
-                "kind": "elementalInflictionApplied",
-                "elements": "cryo",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffStackCompare",
-                "target": "enemy",
-                "tagQueryType": "hasAny",
-                "buffTagIds": [1570888476],
-                "operator": "greaterOrEqual",
-                "value": {
-                  "kind": "constant",
-                  "value": 1
-                }
-              },
-              "blackboard": {
-                "EntityBB_combo_index": 2
-              }
-            },
-            {
-              "trigger": {
-                "kind": "elementalInflictionApplied",
-                "elements": "nature",
-                "scope": "team"
-              },
-              "condition": {
-                "kind": "buffStackCompare",
-                "target": "enemy",
-                "tagQueryType": "hasAny",
-                "buffTagIds": [-1411846745],
-                "operator": "greaterOrEqual",
-                "value": {
-                  "kind": "constant",
-                  "value": 1
-                }
-              },
-              "blackboard": {
-                "EntityBB_combo_index": 3
-              }
-            }
-          ]
         }
       ],
       "skills": [
@@ -4873,7 +4649,7 @@
         "sourceFile": "CharacterData/chr_0022_bounda.runtime-template.json",
         "sourceSha256": "092afffb6ce596f7cd4e68ebdef229b6123cfb37026b0db88e3f1d6170c8f2ce",
         "sourceCharacterId": "chr_0022_bounda",
-        "comboSkillGroupKey": null
+        "comboSkillGroupKey": "comboSkill"
       }
     },
     {
@@ -5347,7 +5123,7 @@
         "sourceFile": "CharacterData/chr_0026_lastrite.runtime-template.json",
         "sourceSha256": "bf4ff06976b506da00104cc09e5c9870b86481514de56625419ac2bff2bbfce9",
         "sourceCharacterId": "chr_0026_lastrite",
-        "comboSkillGroupKey": null
+        "comboSkillGroupKey": "comboSkill"
       }
     },
     {

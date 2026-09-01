@@ -1,6 +1,5 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
-  OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
@@ -11,6 +10,7 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack1',
     sourceSkillId: 'chr_0019_karin_attack1',
     timelineBlockFrames: 14,
+    naturalDurationFrames: 90,
     exclusiveFrame: 17,
     inputWindows: {
       commandMappings: [
@@ -71,6 +71,7 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack2',
     sourceSkillId: 'chr_0019_karin_attack2',
     timelineBlockFrames: 22,
+    naturalDurationFrames: 112,
     exclusiveFrame: 28,
     inputWindows: {
       commandMappings: [
@@ -174,6 +175,7 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack3',
     sourceSkillId: 'chr_0019_karin_attack3',
     timelineBlockFrames: 21,
+    naturalDurationFrames: 95,
     exclusiveFrame: 27,
     inputWindows: {
       commandMappings: [
@@ -242,6 +244,7 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
     key: 'basicAttack4',
     sourceSkillId: 'chr_0019_karin_attack4',
     timelineBlockFrames: 35,
+    naturalDurationFrames: 110,
     exclusiveFrame: 34,
     inputWindows: {
       commandMappings: [
@@ -363,6 +366,7 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
     key: 'finisher',
     sourceSkillId: 'chr_0019_karin_power_attack',
     timelineBlockFrames: 37,
+    naturalDurationFrames: 137,
     exclusiveFrame: 60,
     inputWindows: {
       allowedNextSkills: [
@@ -483,6 +487,7 @@ export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
     key: 'plungingAttack',
     sourceSkillId: 'chr_0019_karin_plunging_attack_end',
     timelineBlockFrames: 14,
+    naturalDurationFrames: 95,
     exclusiveFrame: 13,
     costFrame: 0,
     scheduledSequences: [
@@ -529,6 +534,7 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
     key: 'battleSkill',
     sourceSkillId: 'chr_0019_karin_normal_skill',
     timelineBlockFrames: 41,
+    naturalDurationFrames: 125,
     exclusiveFrame: 40,
     costFrame: 0,
     scheduledSequences: [
@@ -580,6 +586,7 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
     key: 'ultimate',
     sourceSkillId: 'chr_0019_karin_ultimate_skill',
     timelineBlockFrames: 129,
+    naturalDurationFrames: 233,
     exclusiveFrame: 150,
     inputWindows: {
       commandMappings: [
@@ -843,6 +850,7 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
     key: 'comboSkill',
     sourceSkillId: 'chr_0019_karin_combo_skill',
     timelineBlockFrames: 38,
+    naturalDurationFrames: 136,
     exclusiveFrame: 55,
     inputWindows: {
       allowedNextSkills: [
@@ -1061,217 +1069,6 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
     usp: 5,
   },
 );
-
-export const commonBuffDefinitions = {
-  buff_common_affixes_combo_trigger: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'imbue_scale', negate: true },
-    maxStackCount: 99,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { imbue_scale: 0 },
-    attributeModifiers: [],
-    abilityEventResponses: [
-      {
-        event: 'beforeCastSkill',
-        priority: 0,
-        sequence: sequence(
-          branch(
-            { kind: 'eventSkillTypeIn', skillTypes: ['battleSkill', 'ultimate'] },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_common_affixes_skillimbue',
-                target: 'buffOwner',
-                source: 'buffSource',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: { imbue_scale: { kind: 'blackboard', key: 'imbue_scale' } },
-              }),
-              step('finishParentGlobalBuff', { reason: 'early' }),
-            ),
-          ),
-        ),
-      },
-    ],
-  },
-  buff_common_affixes_skillimbue: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'imbue_scale', negate: true },
-    maxStackCount: 4,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: ['Skill/Character/Common/Affixes/skillimbue'],
-    extendTags: [],
-    blackboard: { duration: 0, imbue_scale: 0.3, trigger_num: 0 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      enable: sequence(
-        step('applyBuff', {
-          buffId: 'buff_common_affixes_skillimbue_atk',
-          target: 'buffOwner',
-          source: 'buffSource',
-          inheritSourceSkillCastInfo: true,
-          finishByAction: true,
-        }),
-      ),
-    },
-    abilityEventResponses: [
-      {
-        event: 'skillEnd',
-        priority: 0,
-        sequence: sequence(
-          branch(
-            { kind: 'eventSkillCastMatchesBuffSource' },
-            sequence(step('finishCurrentBuff', { reason: 'other' })),
-          ),
-        ),
-      },
-    ],
-  },
-  buff_common_affixes_skillimbue_atk: {
-    stackingType: 'unlimited',
-    priority: { blackboardKey: 'imbue_scale', negate: true },
-    maxStackCount: 4,
-    triggerIntervalSeconds: 0,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: [],
-    extendTags: [],
-    blackboard: { count: 0, imbue_scale: 0 },
-    attributeModifiers: [],
-    damageModifiers: [
-      {
-        enabledSide: 'attacker',
-        condition: {
-          kind: 'all',
-          conditions: [
-            { kind: 'sourceSkillCastMatch' },
-            {
-              kind: 'eventDamageTagsMatch',
-              match: 'hasAny',
-              tags: ['normalSkill', 'ultimateSkill'],
-            },
-          ],
-        },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'attacker',
-            zone: 'combo',
-            addition: { blackboardKey: 'imbue_scale' },
-          },
-        ],
-      },
-    ],
-    abilityEventResponses: [
-      {
-        event: 'beforeCalculateDamage',
-        priority: 0,
-        sequence: sequence(
-          step('readBuffStackCount', {
-            target: 'buffOwner',
-            outputKey: 'count',
-            query: { kind: 'id', buffIds: ['buff_common_affixes_skillimbue_atk'] },
-          }),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'count' },
-              operator: 'greater',
-              right: { kind: 'constant', value: 4 },
-            },
-            sequence(
-              step('modifyActionValue', {
-                key: 'count',
-                operation: 'assign',
-                value: { kind: 'constant', value: 4 },
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
-          step('readSkillSettingData', {
-            items: [
-              {
-                values: [0.2, 0.15, 0.1333, 0.125],
-                column: { kind: 'blackboard', key: 'count' },
-                storeKey: 'imbue_scale',
-              },
-            ],
-          }),
-          branch(
-            { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalSkill'] },
-            sequence(
-              step('modifyActionValue', {
-                key: 'imbue_scale',
-                operation: 'multiply',
-                value: { kind: 'constant', value: 1.5 },
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-      },
-      {
-        event: 'skillEnd',
-        priority: 0,
-        sequence: sequence(
-          branch(
-            { kind: 'eventSkillCastMatchesBuffSource' },
-            sequence(step('finishCurrentBuff', { reason: 'other' })),
-          ),
-        ),
-      },
-    ],
-  },
-  buff_common_damage_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_damage_immune_ult_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
-  buff_common_power_attack_disable_cast_skill: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    applyTags: [
-      'Status/DisableDash',
-      'Status/CantSwitchOutCenter',
-      'Status/DisableNormalSkill',
-      'Status/DisableCastComboSkill',
-      'Status/Unjumpable',
-    ],
-    extendTags: [],
-    blackboard: {},
-    attributeModifiers: [],
-  },
-} as const satisfies OperatorBuffDefinitions;
 
 export default {
   slug: 'akekuri',

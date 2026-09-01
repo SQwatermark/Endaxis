@@ -1481,7 +1481,36 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #emit(entityId: string, event: StandardPlayerDamageEvent, payload: unknown): void {
-    this.eventsFor(entityId).dispatch({ event, payload }, []);
+    this.eventsFor(entityId).dispatch(
+      { event, payload },
+      [],
+      event === 'afterTakePhysicalInfliction' ||
+      event === 'addedBuff' ||
+      event === 'beforeTakeDamage' ||
+      event === 'takeDamage'
+        ? {
+            onAbilityEvent: () =>
+              this.comboConditions.onAbilityEvent(
+                event === 'afterTakePhysicalInfliction'
+                  ? {
+                      event,
+                      payload:
+                        payload as import('./knockDownOperationExecutor').KnockDownEventPayload,
+                    }
+                  : event === 'addedBuff'
+                    ? {
+                        event,
+                        payload: payload as import('./buffOperationExecutor').BuffAppliedEvent,
+                      }
+                    : {
+                        event,
+                        payload:
+                          payload as import('../damage/healthDamage').HealthDamageEventPayload,
+                      },
+              ),
+          }
+        : undefined,
+    );
     if (event === 'takeDamage' && isCriticalDamagePayload(payload)) {
       this.eventsFor(entityId).dispatch({ event: 'takeCriticalDamage', payload }, []);
     }

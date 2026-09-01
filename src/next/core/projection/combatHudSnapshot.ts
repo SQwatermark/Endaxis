@@ -50,12 +50,17 @@ export interface OperatorCombatHudSnapshot {
 export type CombatHudPassiveUiSnapshot =
   | {
       readonly kind: 'numeric';
+      readonly appearance: Extract<OperatorPassiveUiDefinition, { kind: 'numeric' }>['appearance'];
       readonly value: number;
       readonly maximum: number;
       readonly active: boolean;
     }
   | {
       readonly kind: 'buffProgress';
+      readonly appearance: Extract<
+        OperatorPassiveUiDefinition,
+        { kind: 'buffProgress' }
+      >['appearance'];
       readonly mode: 'normal' | 'ultimate';
       readonly buffId: string;
       readonly instanceId: number;
@@ -508,6 +513,7 @@ function passiveUiSnapshotsAtFrame(
       value = Math.min(definition.maximum, Math.max(0, Math.round(value)));
       result.set(operatorId, {
         kind: 'numeric',
+        appearance: definition.appearance,
         value,
         maximum: definition.maximum,
         active: definition.activeAt !== undefined && value >= definition.activeAt,
@@ -549,6 +555,7 @@ function passiveUiSnapshotsAtFrame(
     );
     result.set(operatorId, {
       kind: 'buffProgress',
+      appearance: definition.appearance,
       mode: activePointer.mode,
       buffId: activePointer.buffId,
       instanceId: activePointer.instanceId,

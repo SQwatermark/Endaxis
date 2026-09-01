@@ -91,7 +91,6 @@ function template(
   const comboSkillConditions = definitions as readonly ComboSkillConditionDefinition[];
   return {
     ...carrier,
-    comboSkillRegistrations: [],
     entityBlackboard: blackboards.entityInitialValues,
     // 两个构筑分支显式独立测试，不借载体面板恰好选择其中一侧。
     entityBlackboardInitializers: [],

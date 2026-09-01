@@ -23,6 +23,9 @@ describe('ComboWindowRuntime', () => {
     advance(clock, runtime, 149);
     expect(runtime.first).toBe(window);
     advance(clock, runtime, 1);
+    expect(window.remainingFrames).toBe(0);
+    expect(runtime.first).toBe(window);
+    advance(clock, runtime, 1);
     expect(runtime.first).toBeUndefined();
     expect(receipt.entries.map(entry => entry.event)).toEqual([
       'ComboWindowOpened',

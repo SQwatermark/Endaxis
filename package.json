@@ -32,6 +32,8 @@
     "generate:game-data:gear-sets": "node --experimental-strip-types tools/game-data-compiler/scripts/generateGearSetDefinitions.ts",
     "generate:game-data:operator-active-skill": "node --experimental-strip-types tools/game-data-compiler/scripts/generateOperatorActiveSkillRuntime.ts",
     "generate:game-data:operator-active-skills": "node --experimental-strip-types tools/game-data-compiler/scripts/generateOperatorActiveSkillRuntimeBatch.ts",
+    "generate:game-data:operator-passive-ui": "node --experimental-strip-types tools/game-data-compiler/scripts/generateOperatorPassiveUiPrefabCatalog.ts",
+    "generate:game-data:common-buffs": "node --experimental-strip-types tools/game-data-compiler/scripts/generateCommonBuffDefinitions.ts",
     "plan:game-data:operator-unity-templates": "node --experimental-strip-types tools/game-data-compiler/scripts/planOperatorUnityTemplates.ts",
     "download:game-data:operator-closure": "node --experimental-strip-types tools/game-data-compiler/scripts/downloadOperatorSourceClosure.ts",
     "download:game-data:sources": "node --experimental-strip-types tools/game-data-compiler/scripts/downloadAkedbSources.ts",

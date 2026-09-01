@@ -1,5 +1,5 @@
 /**
- * 四类已审计附着事件的连携条件阶段。每条注册保留自己的 direct 板，共享 owner 的实体板。
+ * 已审计 Ability 事件的连携条件阶段。每条注册保留自己的 direct 板，共享 owner 的实体板。
  * 只产出 Pending 数据，不选择候选、不施法，也不把它降格为附着后的语义事件。
  * 原生依据：combat-spec/docs/combo-condition-environment.md、combo-event-gates-and-pending.md。
  */
@@ -17,6 +17,13 @@ import {
   type ElementalInflictionEvent,
   type ElementalInflictionEventPayload,
 } from './elementalInflictionOperationExecutor';
+import type { KnockDownEventPayload } from './knockDownOperationExecutor';
+import type { BuffAppliedEvent } from './buffOperationExecutor';
+import type { HealthDamageEventPayload } from '../damage/healthDamage';
+import {
+  normalizeAbilityEventPayload,
+  readEventSkillCastInfo,
+} from './buffLifecycleSequenceRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationExecutor } from './skillRuntime';
 
@@ -24,10 +31,23 @@ type InflictionContext = AbilityEventContext<
   ElementalInflictionEvent,
   ElementalInflictionEventPayload
 >;
+type PhysicalInflictionContext = AbilityEventContext<
+  'afterTakePhysicalInfliction',
+  KnockDownEventPayload
+>;
+type AddedBuffContext = AbilityEventContext<'addedBuff', BuffAppliedEvent>;
+type BeforeTakeDamageContext = AbilityEventContext<'beforeTakeDamage', HealthDamageEventPayload>;
+type TakeDamageContext = AbilityEventContext<'takeDamage', HealthDamageEventPayload>;
+type ComboConditionEventContext =
+  | InflictionContext
+  | PhysicalInflictionContext
+  | AddedBuffContext
+  | BeforeTakeDamageContext
+  | TakeDamageContext;
 type BlackboardSnapshot = Readonly<Record<string, ActionBlackboardValue>>;
 
 export interface PendingComboCondition {
-  readonly event: InflictionContext;
+  readonly event: ComboConditionEventContext;
   readonly inputTarget: RuntimeTargetRef;
   readonly triggerTarget: RuntimeTargetRef;
   /** null 表示未启用条件板；启用空板则为 {}。不包含共享 entity 板。 */
@@ -35,7 +55,12 @@ export interface PendingComboCondition {
 }
 
 export interface ComboConditionRegistration {
-  readonly event: ElementalInflictionEvent;
+  readonly event:
+    | ElementalInflictionEvent
+    | 'afterTakePhysicalInfliction'
+    | 'addedBuff'
+    | 'beforeTakeDamage'
+    | 'takeDamage';
   readonly ownerId: string;
   readonly sourceId: string;
   readonly sequence: ResolvedActionSequence;
@@ -65,11 +90,17 @@ interface Registration {
 }
 
 export class ComboSkillConditionRuntime {
-  readonly #registrations = new Map<ElementalInflictionEvent, Registration[]>();
+  readonly #registrations = new Map<ComboConditionRegistration['event'], Registration[]>();
   disableTriggerComboSkill = false;
 
   registerPendingCondition(options: ComboConditionRegistration): AbilityEventRegistration {
-    if (!ELEMENTAL_INFLICTION_EVENTS.includes(options.event)) {
+    if (
+      options.event !== 'afterTakePhysicalInfliction' &&
+      options.event !== 'addedBuff' &&
+      options.event !== 'beforeTakeDamage' &&
+      options.event !== 'takeDamage' &&
+      !ELEMENTAL_INFLICTION_EVENTS.includes(options.event)
+    ) {
       throw new Error(`unaudited combo condition event '${options.event}'`);
     }
     const registration: Registration = {
@@ -93,7 +124,7 @@ export class ComboSkillConditionRuntime {
     };
   }
 
-  onAbilityEvent(event: InflictionContext): void {
+  onAbilityEvent(event: ComboConditionEventContext): void {
     if (this.disableTriggerComboSkill) return;
     // 原生注册容器是 set；此处遍历快照不承诺跨注册的原生优先级。
     for (const { options, blackboard, targets, captureBlackboard } of this.#registrations
@@ -124,6 +155,7 @@ export class ComboSkillConditionRuntime {
         ...options.resolveTarget(output ? event.payload.sourceId : event.payload.targetId),
       });
       targets.setSingle('trigger', triggerTarget);
+      const eventSkillCastInfo = readEventSkillCastInfo(event.payload);
       // 每次检查重新建立动作状态，但绝不重置该注册的 direct/entity 黑板。
       const runtime = new CombatActionSequenceRuntime(options.operations, {
         blackboard,
@@ -131,8 +163,8 @@ export class ComboSkillConditionRuntime {
         actionInputTarget: inputTarget,
         actionOwnerId: options.ownerId,
         actionSourceId: options.sourceId,
-        event: { kind: 'abilitySpellInfliction', event: event.event, ...event.payload },
-        eventSkillCastInfo: event.payload.skillCastInfo ?? null,
+        event: normalizeAbilityEventPayload(event.event, event.payload),
+        ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
       });
       let passed: boolean;
       try {
