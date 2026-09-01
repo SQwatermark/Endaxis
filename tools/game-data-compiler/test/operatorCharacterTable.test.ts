@@ -112,6 +112,7 @@ interface CharacterTableFixture {
     mainAttrType: number;
     subAttrType: number;
     defaultWeaponId: string;
+    charPassiveUIPrefabName: string;
     weaponType: number;
     attributes: Array<{
       Attribute: { attrs: Array<{ attrType: number; attrValue: number }> };
@@ -139,6 +140,7 @@ function characterTable(): CharacterTableFixture {
       mainAttrType: 41,
       subAttrType: 42,
       defaultWeaponId: 'wpn_funnel_0002',
+      charPassiveUIPrefabName: '',
       weaponType: 2,
       attributes: panels.map(
         ([level, breakStage, strength, agility, intellect, will, attack, health]) => ({

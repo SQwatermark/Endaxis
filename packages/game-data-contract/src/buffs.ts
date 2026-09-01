@@ -52,6 +52,8 @@ export interface SkillBuffAbilityEventResponse {
   event:
     | 'enterFight'
     | 'ownerHpZero'
+    | 'abilityEntitySpawned'
+    | 'abilityEntityFinished'
     | 'beforeTakeDamage'
     | 'beforeCalculateDamage'
     | 'beforeDamageAction'

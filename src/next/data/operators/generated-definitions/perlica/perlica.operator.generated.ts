@@ -1506,6 +1506,12 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0004_pelica_ultimate_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 50 },
       childSkill: {
         skillId: 'chr_0004_pelica_ultimate_skill_abilityrange',

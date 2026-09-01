@@ -19,6 +19,7 @@ import {
 } from './skillCooldownTimelineViz';
 import type { BuffProgressCurve } from '../combat/runtime/buffProgressRecorder';
 import type { OperatorControlTimeline } from '../combat/runtime/operatorControlTimeline';
+import type { OperatorPassiveUiDefinition } from '../game-data/operatorDefinition';
 
 export interface CombatHudGaugeSnapshot {
   readonly current: number | null;
@@ -43,7 +44,23 @@ export interface OperatorCombatHudSnapshot {
   readonly comboWindows: readonly ComboWindowTimelineSegment[];
   readonly battleSkillProgress: CombatHudSkillProgressSnapshot | null;
   readonly ultimateProgress: CombatHudSkillProgressSnapshot | null;
+  readonly passiveUi: CombatHudPassiveUiSnapshot | null;
 }
+
+export type CombatHudPassiveUiSnapshot =
+  | {
+      readonly kind: 'numeric';
+      readonly value: number;
+      readonly maximum: number;
+      readonly active: boolean;
+    }
+  | {
+      readonly kind: 'buffProgress';
+      readonly mode: 'normal' | 'ultimate';
+      readonly buffId: string;
+      readonly instanceId: number;
+      readonly ratio: number | null;
+    };
 
 export interface CombatHudHpProgressSnapshot {
   readonly targetId: string;
@@ -69,6 +86,11 @@ export interface CombatHudOperatorSkillSlotsInitial {
   readonly slots: readonly CombatHudSkillSlotSnapshot[];
 }
 
+export interface CombatHudOperatorPassiveUiInitial {
+  readonly operatorId: string;
+  readonly definition: OperatorPassiveUiDefinition;
+}
+
 export interface CombatHudSnapshot {
   readonly frame: number;
   readonly sp: CombatHudGaugeSnapshot;
@@ -86,6 +108,7 @@ export interface CombatHudSnapshotInput {
   readonly resourceCurves: CombatResourceCurves;
   readonly receiptEntries: readonly CombatReceiptEntry[];
   readonly operatorSkillSlots?: readonly CombatHudOperatorSkillSlotsInitial[];
+  readonly operatorPassiveUis?: readonly CombatHudOperatorPassiveUiInitial[];
   readonly buffProgressCurves?: readonly BuffProgressCurve[];
   readonly controlTimeline?: OperatorControlTimeline;
 }
@@ -428,6 +451,7 @@ function operatorSnapshot(
   comboWindows: readonly ComboWindowTimelineSegment[],
   skillProgress: ReadonlyMap<string, SkillProgressPointers>,
   progressCurves: readonly BuffProgressCurve[],
+  passiveUi: CombatHudPassiveUiSnapshot | null,
 ): OperatorCombatHudSnapshot {
   const active = activeSkills.get(curve.operatorId);
   const progress = skillProgress.get(curve.operatorId);
@@ -460,7 +484,78 @@ function operatorSnapshot(
       curve.operatorId,
       frame,
     ),
+    passiveUi,
   };
+}
+
+function passiveUiSnapshotsAtFrame(
+  entries: readonly CombatReceiptEntry[],
+  frame: number,
+  definitions: readonly CombatHudOperatorPassiveUiInitial[],
+  curves: readonly BuffProgressCurve[],
+): ReadonlyMap<string, CombatHudPassiveUiSnapshot> {
+  const result = new Map<string, CombatHudPassiveUiSnapshot>();
+  for (const { operatorId, definition } of definitions) {
+    if (definition.kind === 'numeric') {
+      let value = 0;
+      for (const entry of entries) {
+        if (entry.frame > frame) break;
+        if (entry.event !== 'CharacterPassiveUiValueChanged' || entry.targetId !== operatorId)
+          continue;
+        const next = numberData(entry.data, 'value');
+        if (next !== undefined) value = next;
+      }
+      value = Math.min(definition.maximum, Math.max(0, Math.round(value)));
+      result.set(operatorId, {
+        kind: 'numeric',
+        value,
+        maximum: definition.maximum,
+        active: definition.activeAt !== undefined && value >= definition.activeAt,
+      });
+      continue;
+    }
+    let pointer: {
+      readonly mode: 'normal' | 'ultimate';
+      readonly buffId: string;
+      readonly instanceId: number;
+    } | null = null;
+    for (const entry of entries) {
+      if (entry.frame > frame || entry.targetId !== operatorId) continue;
+      const buffId = stringData(entry.data, 'buffId');
+      const instanceId = numberData(entry.data, 'instanceId');
+      if (buffId === undefined) continue;
+      const mode =
+        buffId === definition.normalBuffId
+          ? ('normal' as const)
+          : buffId === definition.ultimateBuffId
+            ? ('ultimate' as const)
+            : null;
+      if (mode === null || instanceId === undefined) continue;
+      if (entry.event === 'BuffApplied') pointer = { mode, buffId, instanceId };
+      else if (
+        entry.event === 'BuffFinished' &&
+        pointer?.buffId === buffId &&
+        pointer.instanceId === instanceId
+      )
+        pointer = null;
+    }
+    if (pointer === null) continue;
+    const activePointer = pointer;
+    const sampled = sampleBuffProgressCurve(
+      curves,
+      { ...activePointer, targetId: operatorId, ratio: null },
+      operatorId,
+      frame,
+    );
+    result.set(operatorId, {
+      kind: 'buffProgress',
+      mode: activePointer.mode,
+      buffId: activePointer.buffId,
+      instanceId: activePointer.instanceId,
+      ratio: sampled?.ratio ?? null,
+    });
+  }
+  return result;
 }
 
 /** 在现实时间轴帧上采样一次只读 HUD 快照。 */
@@ -481,6 +576,12 @@ export function projectCombatHudSnapshot(input: CombatHudSnapshotInput): CombatH
   const comboWindows = projectComboWindowTimelineViz(input.receiptEntries, input.endFrame);
   const skillProgress = skillProgressPointersAtFrame(input.receiptEntries, input.frame);
   const buffProgressCurves = input.buffProgressCurves ?? [];
+  const passiveUis = passiveUiSnapshotsAtFrame(
+    input.receiptEntries,
+    input.frame,
+    input.operatorPassiveUis ?? [],
+    buffProgressCurves,
+  );
   return {
     frame: input.frame,
     sp: gauge(input.resourceCurves.sp.points, input.resourceCurves.sp.maxValue, input.frame),
@@ -504,6 +605,7 @@ export function projectCombatHudSnapshot(input: CombatHudSnapshotInput): CombatH
         comboWindows,
         skillProgress,
         buffProgressCurves,
+        passiveUis.get(curve.operatorId) ?? null,
       ),
     ),
     mainCharacterHpProgress: mainCharacterHpProgressAtFrame(

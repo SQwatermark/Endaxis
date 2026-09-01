@@ -3385,6 +3385,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0033_camille_normal_skill: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0033_camille/NormalSkillBat',
+      ],
       lifetime: {
         kind: 'limited',
         durationSeconds: { blackboardKey: 'EntityBB_bat_duration', fallback: 30 },

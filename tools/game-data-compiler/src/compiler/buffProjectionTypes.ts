@@ -186,6 +186,8 @@ export type CompiledBuffDefinitionSource = Pick<
         | 'afterKillEntity'
         | 'buffConsumed'
         | 'enterFight'
+        | 'abilityEntitySpawned'
+        | 'abilityEntityFinished'
         | 'skillSpGained'
       >;
       readonly sequence: CompiledBuffSequenceSource;

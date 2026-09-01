@@ -41,6 +41,7 @@ function project(
   controlTimeline: Parameters<typeof projectCombatHudSnapshot>[0]['controlTimeline'] = {
     segments: [{ startFrame: 0, operatorId: 'track:1' }],
   },
+  operatorPassiveUis: Parameters<typeof projectCombatHudSnapshot>[0]['operatorPassiveUis'] = [],
 ) {
   return projectCombatHudSnapshot({
     frame,
@@ -66,6 +67,7 @@ function project(
     receiptEntries: entries,
     buffProgressCurves,
     controlTimeline,
+    operatorPassiveUis,
     operatorSkillSlots: [
       {
         operatorId: 'track:1',
@@ -290,5 +292,67 @@ describe('projectCombatHudSnapshot', () => {
         receiptEntries: [],
       }),
     ).toThrow('endFrame');
+  });
+
+  it('projects mounted numeric and Buff-driven character passive widgets', () => {
+    const numericEntries: CombatReceiptEntry[] = [
+      {
+        sequence: 0,
+        frame: 3,
+        time: 0.1,
+        event: 'CharacterPassiveUiValueChanged',
+        sourceId: 'track:1',
+        targetId: 'track:1',
+        data: { value: 3.6 },
+      },
+    ];
+    expect(
+      project(4, numericEntries, [], undefined, [
+        { operatorId: 'track:1', definition: { kind: 'numeric', maximum: 4, activeAt: 4 } },
+      ]).operators[0]?.passiveUi,
+    ).toEqual({ kind: 'numeric', value: 4, maximum: 4, active: true });
+
+    const buffEntries: CombatReceiptEntry[] = [
+      {
+        sequence: 0,
+        frame: 2,
+        time: 2 / 30,
+        event: 'BuffApplied',
+        targetId: 'track:1',
+        data: { buffId: 'normal-music', instanceId: 8 },
+      },
+    ];
+    expect(
+      project(
+        4,
+        buffEntries,
+        [
+          {
+            targetId: 'track:1',
+            buffId: 'normal-music',
+            instanceId: 8,
+            showInBattleSkillButton: false,
+            showInUltimateButton: false,
+            showInHpBar: false,
+            weakBattleSkillStyle: false,
+            points: [
+              { frame: 2, ratio: 1 },
+              { frame: 6, ratio: 0 },
+            ],
+          },
+        ],
+        undefined,
+        [
+          {
+            operatorId: 'track:1',
+            definition: {
+              kind: 'buffProgress',
+              normalBuffId: 'normal-music',
+              ultimateBuffId: 'ultimate-music',
+            },
+          },
+        ],
+      ).operators[0]?.passiveUi,
+    ).toMatchObject({ kind: 'buffProgress', mode: 'normal', ratio: 0.5 });
   });
 });

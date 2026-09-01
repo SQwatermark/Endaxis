@@ -3710,6 +3710,7 @@ export default {
     baseAttack: [30, 93, 160, 227, 293, 326],
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
+  passiveUi: { kind: 'numeric', maximum: 9, activeAt: 9 },
   skillGroups: [
     {
       key: 'basicAttack',
@@ -4310,6 +4311,10 @@ export default {
               outputKey: 'swordsNum',
             },
             sequence(
+              step('setCharacterPassiveUiValue', {
+                target: 'caster',
+                value: { kind: 'blackboard', key: 'swordsNum' },
+              }),
               step('modifyActionValue', {
                 key: 'EntityBB_SwordNum',
                 operation: 'assign',
@@ -4847,6 +4852,7 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0030_zhuangfy_attack2: {
+      bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
       lifetime: { kind: 'limited', durationSeconds: 1 },
       maxStackingCount: 1,
       childSkill: {
@@ -4935,6 +4941,7 @@ export default {
       },
     },
     abilityentity_chr_0030_zhuangfy_attack5: {
+      bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
       lifetime: { kind: 'limited', durationSeconds: 1 },
       maxStackingCount: 1,
       childSkill: {
@@ -5123,6 +5130,7 @@ export default {
       },
     },
     abilityentity_chr_0030_zhuangfy_attack_ult: {
+      bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
       lifetime: { kind: 'limited', durationSeconds: 1.5 },
       childSkills: {
         chr_0030_zhuangfy_attack1_ult_1_abilityrange: {
@@ -5308,6 +5316,7 @@ export default {
       },
     },
     abilityentity_chr_0030_zhuangfy_attack3_ult: {
+      bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
       lifetime: { kind: 'limited', durationSeconds: 1 },
       childSkill: {
         skillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange',
@@ -5369,10 +5378,20 @@ export default {
       },
     },
     abilityentity_chr_0030_zhuangfy_normal_skill_fake_target: {
+      bornTags: [
+        'SelectCategory/Unmarkable',
+        'Immune/Damage',
+        'Skill/Character/chr_0030_zhuangfy/ThunderAura',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 1 },
       maxStackingCount: 10,
     },
     abilityentity_chr_0030_zhuangfy_normal_skill_sword: {
+      bornTags: [
+        'SelectCategory/Unmarkable',
+        'Immune/Damage',
+        'Skill/Character/chr_0030_zhuangfy/ActivedSword',
+      ],
       lifetime: {
         kind: 'limited',
         durationSeconds: { blackboardKey: 'EntityBB_swordDuration', fallback: 45 },
@@ -5398,6 +5417,7 @@ export default {
       },
     },
     abilityentity_chr_0030_zhuangfy_normal_skill_ult: {
+      bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
       lifetime: { kind: 'limited', durationSeconds: 1 },
       childSkill: {
         skillId: 'chr_0030_zhuangfy_normal_skill_ult_abilityrange',
@@ -5639,10 +5659,12 @@ export default {
       },
     },
     abilityentity_chr_0030_zhuangfy_ult_mirror: {
+      bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
       lifetime: { kind: 'limited', durationSeconds: 3 },
       maxStackingCount: 1,
     },
     abilityentity_chr_0030_zhuangfy_ult: {
+      bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
       lifetime: { kind: 'limited', durationSeconds: 3 },
       maxStackingCount: 1,
     },

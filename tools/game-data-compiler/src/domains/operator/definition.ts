@@ -48,6 +48,7 @@ import {
   compileTargetGroupAbilityEntityQuerySource,
   compileTargetReferenceAbilityEntityQuerySource,
 } from '../../compiler/abilityEntityQuery.ts';
+import { compileOperatorPassiveUiDefinition } from './passiveUi.ts';
 
 export interface OperatorDefinitionAssemblyInput {
   readonly foundation: ReturnType<typeof compileOperatorFoundationSource>;
@@ -824,6 +825,13 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   }
   const operator: OperatorDefinition = {
     ...header,
+    ...(() => {
+      const passiveUi = compileOperatorPassiveUiDefinition(
+        foundation.character.charPassiveUiPrefabName,
+        `${foundation.character.sourcePath}.charPassiveUIPrefabName`,
+      );
+      return passiveUi === undefined ? {} : { passiveUi };
+    })(),
     skillGroups,
     ...compileOperatorPlayerActionRouting(input, definitions, skillSlotReplacements),
     ...(input.comboSkillRegistrations === undefined

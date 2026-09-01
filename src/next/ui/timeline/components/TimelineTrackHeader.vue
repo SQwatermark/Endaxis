@@ -189,6 +189,33 @@ function cooldownMask(ratio: number | null): string | undefined {
         </button>
         <span class="operator-name-row">
           <span class="operator-name">{{ name }}</span>
+          <span
+            v-if="hudSnapshot?.passiveUi?.kind === 'numeric'"
+            class="passive-ui passive-ui--numeric"
+            :class="{ 'is-active': hudSnapshot.passiveUi.active }"
+            :title="`${hudSnapshot.passiveUi.value}/${hudSnapshot.passiveUi.maximum}`"
+          >
+            <span class="passive-ui__pips" aria-hidden="true">
+              <i
+                v-for="index in hudSnapshot.passiveUi.maximum"
+                :key="index"
+                :class="{ filled: index <= hudSnapshot.passiveUi.value }"
+              ></i>
+            </span>
+            <b>{{ hudSnapshot.passiveUi.value }}</b>
+          </span>
+          <span
+            v-else-if="hudSnapshot?.passiveUi?.kind === 'buffProgress'"
+            class="passive-ui passive-ui--progress"
+            :class="`is-${hudSnapshot.passiveUi.mode}`"
+            :title="hudSnapshot.passiveUi.buffId"
+          >
+            <span
+              class="passive-ui__progress"
+              :style="{ width: `${(hudSnapshot.passiveUi.ratio ?? 0) * 100}%` }"
+            ></span>
+            <b>{{ hudSnapshot.passiveUi.mode === 'ultimate' ? 'U' : 'C' }}</b>
+          </span>
           <span v-if="hudSnapshot !== null" class="runtime-summary">
             <span class="runtime-energy">
               U {{ formatHudNumber(hudSnapshot.ultimateEnergy.current) }}/{{
@@ -540,6 +567,63 @@ function cooldownMask(ratio: number | null): string | undefined {
     700 8px/10px 'Roboto Mono',
     monospace;
   white-space: nowrap;
+}
+
+.passive-ui {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 24px;
+  height: 16px;
+  padding: 0 4px;
+  overflow: hidden;
+  color: #d8dce2;
+  font-size: 9px;
+  line-height: 1;
+  background: #25292e;
+  border: 1px solid #4a5058;
+  border-radius: 2px;
+}
+
+.passive-ui.is-active {
+  color: #17191c;
+  background: #f2c44f;
+  border-color: #ffe08a;
+}
+
+.passive-ui__pips {
+  display: flex;
+  gap: 1px;
+}
+
+.passive-ui__pips i {
+  width: 2px;
+  height: 7px;
+  background: rgb(255 255 255 / 18%);
+}
+
+.passive-ui__pips i.filled {
+  background: currentcolor;
+}
+
+.passive-ui--progress {
+  width: 32px;
+  justify-content: center;
+}
+
+.passive-ui__progress {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: rgb(85 203 235 / 36%);
+}
+
+.passive-ui--progress.is-ultimate .passive-ui__progress {
+  background: rgb(241 174 72 / 42%);
+}
+
+.passive-ui--progress b {
+  position: relative;
 }
 
 .runtime-energy {

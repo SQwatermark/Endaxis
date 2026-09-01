@@ -269,6 +269,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     const entity = this.#entities.spawn({
       abilityEntityId: parameters.abilityEntityId,
       definition: {
+        ...(definition.bornTags === undefined ? {} : { bornTags: definition.bornTags }),
         lifetime:
           definition.lifetime.kind === 'infinite'
             ? definition.lifetime

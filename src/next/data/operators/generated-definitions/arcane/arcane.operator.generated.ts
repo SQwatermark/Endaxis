@@ -12,7 +12,6 @@ import {
   scheduled,
   sequence,
   step,
-  withActionBlackboardScope,
   withSkillBlackboard,
 } from '../../definitionHelpers';
 
@@ -2960,6 +2959,7 @@ export default {
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
   trustAttributeBonus: { values: [8, 10, 10, 15], attributes: ['intellect', 'will'] },
+  passiveUi: { kind: 'numeric', maximum: 3 },
   skillGroups: [
     {
       key: 'basicAttack',
@@ -5130,11 +5130,21 @@ export default {
       blackboard: { count: 0 },
       attributeModifiers: [],
       lifecycleSequences: {
+        start: sequence(
+          step('setCharacterPassiveUiValue', {
+            target: 'caster',
+            value: { kind: 'constant', value: 1 },
+          }),
+        ),
         enhanceChanged: sequence(
           step('readBuffStackCount', {
             target: 'caster',
             outputKey: 'count',
             query: { kind: 'environment' },
+          }),
+          step('setCharacterPassiveUiValue', {
+            target: 'caster',
+            value: { kind: 'blackboard', key: 'count' },
           }),
         ),
       },
@@ -5172,11 +5182,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         start: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('finishBuffsById', {
                 target: 'buffOwner',
                 buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_listener_owner'],
@@ -5191,14 +5207,18 @@ export default {
                 ultimateRecoveryTag: 'Skill/Character/chr_0032_lizhiyan/special_usp',
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'actionValueCompare',
@@ -5247,9 +5267,24 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:2',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
+              step('setCharacterPassiveUiValue', {
+                target: 'caster',
+                value: { kind: 'constant', value: 2 },
+              }),
+            ),
+          },
         ),
         enable: sequence(
           step('restrictUltimateEnergyRecovery', {
@@ -5259,6 +5294,10 @@ export default {
           }),
         ),
         finish: sequence(
+          step('setCharacterPassiveUiValue', {
+            target: 'caster',
+            value: { kind: 'constant', value: 0 },
+          }),
           step('finishBuffsById', {
             target: 'buffOwner',
             buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
@@ -5341,53 +5380,83 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         start: sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'blackboard', key: 'isWisd' },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
             },
-            sequence(
+            body: sequence(
+              step('setCharacterPassiveUiValue', {
+                target: 'caster',
+                value: { kind: 'constant', value: 3 },
+              }),
+            ),
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
-                  kind: 'buffIdStackCompare',
-                  target: 'caster',
-                  buffIds: ['buff_chr_0032_lizhiyan_talent1'],
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'isWisd' },
                   operator: 'greaterOrEqual',
-                  value: { kind: 'constant', value: 1 },
+                  right: { kind: 'constant', value: 1 },
                 },
                 sequence(
-                  step('readBuffBlackboard', {
-                    target: 'caster',
-                    query: { kind: 'id', buffIds: ['buff_chr_0032_lizhiyan_talent1'] },
-                    desiredKey: 'enhance_rate',
-                    outputKey: 'enhance_rate',
-                  }),
                   branch(
                     {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'enhance_rate' },
-                      operator: 'greater',
-                      right: { kind: 'constant', value: 0 },
+                      kind: 'buffIdStackCompare',
+                      target: 'caster',
+                      buffIds: ['buff_chr_0032_lizhiyan_talent1'],
+                      operator: 'greaterOrEqual',
+                      value: { kind: 'constant', value: 1 },
                     },
                     sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
-                        target: 'buffSource',
-                        source: 'buffSource',
-                        inheritSourceSkillCastInfo: true,
-                        asChildBuff: true,
-                        blackboardAssignments: {
-                          enhance_rate: { kind: 'blackboard', key: 'enhance_rate' },
-                        },
+                      step('readBuffBlackboard', {
+                        target: 'caster',
+                        query: { kind: 'id', buffIds: ['buff_chr_0032_lizhiyan_talent1'] },
+                        desiredKey: 'enhance_rate',
+                        outputKey: 'enhance_rate',
                       }),
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'enhance_rate' },
+                          operator: 'greater',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
+                            target: 'buffSource',
+                            source: 'buffSource',
+                            inheritSourceSkillCastInfo: true,
+                            asChildBuff: true,
+                            blackboardAssignments: {
+                              enhance_rate: { kind: 'blackboard', key: 'enhance_rate' },
+                            },
+                          }),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
+          },
         ),
         enable: sequence(
           step('restrictUltimateEnergyRecovery', {
@@ -5412,6 +5481,10 @@ export default {
                 amount: { kind: 'constant', value: -999 },
                 coefficient: { kind: 'constant', value: 1 },
                 recipient: 'caster',
+              }),
+              step('setCharacterPassiveUiValue', {
+                target: 'caster',
+                value: { kind: 'constant', value: 0 },
               }),
             ),
             { alwaysNext: true },
@@ -5623,6 +5696,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0032_lizhiyan_combo_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0032_lizhiyan/combo_bunshin',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 50 },
       childSkills: {
         chr_032_lizhiyan_combo_skill_abilityentity_seal: {
@@ -6097,6 +6177,12 @@ export default {
       },
     },
     abilityentity_chr_0032_lizhiyan_normal_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
       childSkill: {
         skillId: 'chr_0032_lizhiyan_normal_skill_abilityrange2',
@@ -6243,6 +6329,13 @@ export default {
       },
     },
     abilityentity_chr_0032_lizhiyan_ultimate_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0032_lizhiyan/ultimate_aura',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
       childSkill: {
         skillId: 'chr_0032_lizhiyan_ultimate_skill_abilityrange',
@@ -6307,15 +6400,41 @@ export default {
       },
     },
     abilityentity_chr_0032_lizhiyan_ultimate_skill_place: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0032_lizhiyan/ultimate_place',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
     },
     abilityentity_chr_0032_lizhiyan_ultimate_skill_death: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
     },
     abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
     },
     abilityentity_chr_0032_lizhiyan_ultimate_skill_laser: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0032_lizhiyan/ultimate_tower',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
       childSkill: {
         skillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
@@ -6409,6 +6528,12 @@ export default {
       },
     },
     abilityentity_chr_0032_lizhiyan_combo_skill_death: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
       childSkill: {
         skillId: 'chr_0032_lizhiyan_combo_skill_abilityentity_death_move',
@@ -6426,6 +6551,12 @@ export default {
       },
     },
     abilityentity_chr_0032_lizhiyan_combo_skill_place: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
     },
   },

@@ -3499,6 +3499,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0025_ardelia_attack4: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0025_ardelia/Attack4Sheep',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 5 },
       childSkill: {
         skillId: 'chr_0025_ardelia_attack4_sheep',
@@ -3557,6 +3564,13 @@ export default {
       },
     },
     abilityentity_chr_0025_ardelia_attack4_end: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0025_ardelia/Attack4Sheep',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 5 },
       childSkill: {
         skillId: 'chr_0025_ardelia_attack4_end_sheep',
@@ -3567,6 +3581,13 @@ export default {
       },
     },
     abilityentity_chr_0025_ardelia_attack4_low: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0025_ardelia/Attack4Sheep',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 5 },
       childSkill: {
         skillId: 'chr_0025_ardelia_attack4_sheep',
@@ -3625,6 +3646,13 @@ export default {
       },
     },
     abilityentity_chr_0025_ardelia_normal_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0025_ardelia/NormalSkillSheep',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 5 },
       childSkill: {
         skillId: 'chr_0025_ardelia_normal_skill_sheep',
@@ -3635,6 +3663,12 @@ export default {
       },
     },
     abilityentity_chr_0025_ardelia_remain_loop: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 10 },
       maxStackingCount: 10,
       childSkill: {
@@ -3931,6 +3965,13 @@ export default {
       },
     },
     abilityentity_chr_0025_ardelia_combo_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0025_ardelia/ComboSkillSheep',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 5 },
       childSkill: {
         skillId: 'chr_0025_ardelia_combo_skill_sheep',
@@ -3941,6 +3982,12 @@ export default {
       },
     },
     abilityentity_chr_0025_ardelia_combo_skill_bomb: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 3 },
       childSkill: {
         skillId: 'chr_0025_ardelia_combo_skill_bomb',

@@ -129,6 +129,8 @@ const BUFF_ABILITY_EVENTS: Readonly<Record<string, CompiledBuffAbilityEvent>> = 
   OnTakeCriticalDamage: 'takeCriticalDamage',
   OnPoiseZero: 'poiseZero',
   OnEnterFight: 'enterFight',
+  OnAbilityEntitySpawned: 'abilityEntitySpawned',
+  OnAbilityEntityFinished: 'abilityEntityFinished',
   OnOutputBuff: 'outputBuff',
   OnBeforeOutputBuff: 'beforeOutputBuff',
   OnBeforeAddedBuff: 'beforeAddedBuff',
@@ -2284,9 +2286,7 @@ function collectBuffPresentationRandomKeys(
         return node.body.options.every(option =>
           collectNativeActionNodes(option.action)
             .filter(child => child.metadata.enabled)
-            .every(
-              child => child.body.kind === 'leaf' && child.body.value.family === 'presentation',
-            ),
+            .every(child => isCombatInvisiblePresentationLeaf(child)),
         );
       });
     if (!leafReadsAreSafe || !switchesArePresentationOnly) candidates.delete(key);
@@ -2336,9 +2336,9 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
             child =>
               (child.body.kind === 'ifElse' && child.body.alwaysNext) ||
               (child.body.kind === 'leaf' &&
-                ['condition', 'presentation', 'presentationCalculation'].includes(
-                  child.body.value.family,
-                )),
+                (child.body.value.family === 'condition' ||
+                  child.body.value.family === 'presentationCalculation' ||
+                  isCombatInvisiblePresentationLeaf(child))),
           )
         );
       });
@@ -2351,7 +2351,8 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
         node =>
           JSON.stringify(node.body).includes(encoded) &&
           node.body.kind === 'leaf' &&
-          ['presentation', 'presentationCalculation'].includes(node.body.value.family),
+          (node.body.value.family === 'presentationCalculation' ||
+            isCombatInvisiblePresentationLeaf(node)),
       );
       const leafReferencesAreCombatInvisible = leafNodes.every(node => {
         if (!JSON.stringify(node.body).includes(encoded)) return true;
@@ -2373,7 +2374,8 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
               node.body.value.action.directValue &&
               node.body.value.action.value.blackboardKey === key &&
               candidates.has(node.body.value.action.key)) ||
-            ['presentation', 'presentationCalculation'].includes(node.body.value.family) ||
+            node.body.value.family === 'presentationCalculation' ||
+            isCombatInvisiblePresentationLeaf(node) ||
             (node.body.value.family === 'condition' && presentationConditionNodes.has(node)))
         );
       });
@@ -2413,6 +2415,16 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
     }
   }
   return candidates;
+}
+
+function isCombatInvisiblePresentationLeaf(
+  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
+): boolean {
+  return (
+    node.body.kind === 'leaf' &&
+    node.body.value.family === 'presentation' &&
+    node.body.value.action.kind !== 'passiveUiValue'
+  );
 }
 
 /**
@@ -2607,6 +2619,7 @@ function isCombatInvisibleIfElse(
   return nodes.every(child => {
     if (child.body.kind !== 'leaf') return child.body.kind === 'ifElse' && child.body.alwaysNext;
     const leaf = child.body.value;
+    if (leaf.family === 'presentation') return isCombatInvisiblePresentationLeaf(child);
     if (invisibleFamilies.has(leaf.family)) return true;
     if (leaf.family === 'condition' && leaf.action.kind === 'targetAngle') return true;
     if (
@@ -2831,7 +2844,7 @@ export function collectBuffRuntimePresentationActionPaths(
       node =>
         node.metadata.enabled &&
         node.body.kind === 'leaf' &&
-        node.body.value.family === 'presentation',
+        isCombatInvisiblePresentationLeaf(node),
     )
     .map(node => node.sourcePath);
 }
@@ -2936,7 +2949,7 @@ function mergeSequences(
   if (sequences.length <= 1) return sequences[0] ?? { steps: [] };
   // BuffEventAction / IgniteEventAction 的 actions 数组是彼此独立的回调序列：
   // 单个回调可以按原生返回值短路自身，但失败不能阻止后续回调执行。
-  // execution 局部黑板也与原生每次回调的 direct blackboard 生命周期一致。
+  // 它们仍属于同一 Buff 实例，必须共享 Buff direct blackboard，不能把前一回调的写入丢掉。
   return {
     steps: sequences.map((body, index) => ({
       kind: 'withActionBlackboardScope' as const,
@@ -2944,6 +2957,7 @@ function mergeSequences(
         scopeKey: `native-buff-callback:${index}`,
         lifetime: 'execution' as const,
         alwaysNext: true,
+        shareParentBlackboard: true,
         initialValues: {},
         inheritParent: true,
       },

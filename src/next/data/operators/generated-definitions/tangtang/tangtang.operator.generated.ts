@@ -2543,6 +2543,7 @@ export default {
     baseAttack: [30, 92, 157, 223, 288, 321],
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
+  passiveUi: { kind: 'numeric', maximum: 2 },
   skillGroups: [
     {
       key: 'basicAttack',
@@ -3626,6 +3627,58 @@ export default {
       extendTags: [],
       blackboard: { water_num: 0 },
       attributeModifiers: [],
+      abilityEventResponses: [
+        {
+          event: 'abilityEntitySpawned',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              {
+                kind: 'entityTagMatch',
+                target: 'eventTarget',
+                tagQueryType: 'hasAny',
+                tags: ['Skill/Character/chr_0027_tangtang/ComboSkillWater'],
+              },
+              sequence(
+                step('modifyActionValue', {
+                  key: 'water_num',
+                  operation: 'add',
+                  value: { kind: 'constant', value: 1 },
+                }),
+                step('setCharacterPassiveUiValue', {
+                  target: 'caster',
+                  value: { kind: 'blackboard', key: 'water_num' },
+                }),
+              ),
+            ),
+          ),
+        },
+        {
+          event: 'abilityEntityFinished',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              {
+                kind: 'entityTagMatch',
+                target: 'eventTarget',
+                tagQueryType: 'hasAny',
+                tags: ['Skill/Character/chr_0027_tangtang/ComboSkillWater'],
+              },
+              sequence(
+                step('modifyActionValue', {
+                  key: 'water_num',
+                  operation: 'add',
+                  value: { kind: 'constant', value: -1 },
+                }),
+                step('setCharacterPassiveUiValue', {
+                  target: 'caster',
+                  value: { kind: 'blackboard', key: 'water_num' },
+                }),
+              ),
+            ),
+          ),
+        },
+      ],
     },
     buff_chr_0027_tangtang_water_ultskillwake: {
       stackingType: 'unique',
@@ -3650,6 +3703,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0027_tangtang_normal_skill_move: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0027_tangtang/NormalSkillWaterMove',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkills: {
@@ -3881,6 +3941,21 @@ export default {
       },
     },
     abilityentity_chr_0027_tangtang_comboskill_water: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Immune/Stunned',
+        'Immune/Frozen',
+        'Immune/Airborne',
+        'Immune/KnockDown',
+        'Immune/KnockBack',
+        'Immune/Pull',
+        'Immune/PowerSmash',
+        'Immune/Poise',
+        'Skill/Character/chr_0027_tangtang/ComboSkillWater',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 62 },
       maxStackingCount: 2,
       childSkill: {
@@ -4864,6 +4939,13 @@ export default {
       },
     },
     abilityentity_chr_0027_tangtang_ultskill: {
+      bornTags: [
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Category/EnergyShard/Pulse',
+        'Skill/Character/chr_0027_tangtang/UltSkillWater',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 10 },
       childSkill: {
         skillId: 'chr_0027_tangtang_ultimate_skill_1',
@@ -5102,6 +5184,13 @@ export default {
       },
     },
     abilityentity_chr_0027_tangtang_normal_skill_03: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0027_tangtang/NormalSkillWater',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkill: {
@@ -5245,6 +5334,13 @@ export default {
       },
     },
     abilityentity_chr_0027_tangtang_normal_skill_03_02: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0027_tangtang/NormalSkillWater',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkill: {
@@ -5388,6 +5484,13 @@ export default {
       },
     },
     abilityentity_chr_0027_tangtang_normal_skill_03_03: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0027_tangtang/NormalSkillWater',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkill: {
@@ -5531,6 +5634,13 @@ export default {
       },
     },
     abilityentity_chr_0027_tangtang_normal_skill_02: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0027_tangtang/NormalSkillWater',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkill: {
@@ -5670,6 +5780,14 @@ export default {
       },
     },
     abilityentity_chr_0027_tangtang_normal_skill_02_02: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0011_seraph/UltimateAbilityEntity',
+        'Skill/Character/chr_0027_tangtang/NormalSkillWater',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkill: {
@@ -5809,6 +5927,13 @@ export default {
       },
     },
     abilityentity_chr_0027_tangtang_normal_skill: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0027_tangtang/NormalSkillWater',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkill: {

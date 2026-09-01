@@ -1797,6 +1797,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0014_aurora_combo_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'SelectCategory/ProjectilePassThru',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 3 },
       deathReleaseDelaySeconds: 0.100000001490116,
       childSkill: {
@@ -1857,6 +1864,13 @@ export default {
       },
     },
     abilityentity_chr_0014_aurora_ultimate_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'SelectCategory/ProjectilePassThru',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 8 },
       deathReleaseDelaySeconds: 0.100000001490116,
       childSkills: {

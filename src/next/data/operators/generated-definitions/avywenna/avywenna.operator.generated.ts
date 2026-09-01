@@ -1971,6 +1971,14 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0012_avywen_combo_skill_lance: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'SelectCategory/ProjectilePassThru',
+        'Skill/Character/chr_0012_avywen/Lance/ComboLance',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 62 },
       childSkill: {
         skillId: 'chr_0012_avywen_combo_skill_lance',
@@ -2013,6 +2021,22 @@ export default {
       },
     },
     abilityentity_chr_0012_avywen_ultimate_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Category/EnergyShard/Pulse',
+        'Immune/Stunned',
+        'Immune/Frozen',
+        'Immune/Airborne',
+        'Immune/KnockDown',
+        'Immune/KnockBack',
+        'Immune/Pull',
+        'Immune/PowerSmash',
+        'Immune/Poise',
+        'Skill/Character/chr_0012_avywen/Lance/UltiLance',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 62 },
       childSkill: {
         skillId: 'chr_0012_avywen_ultimate_skill_lance',

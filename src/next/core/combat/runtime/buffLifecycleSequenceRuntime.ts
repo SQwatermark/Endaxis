@@ -708,7 +708,12 @@ export function normalizeAbilityEventPayload(
   if (typeof source.sourceId !== 'string' || typeof source.targetId !== 'string') {
     throw new TypeError(`Buff ability event '${event}' payload has invalid entity identities`);
   }
-  if (event === 'enterFight' || event === 'ownerHpZero') {
+  if (
+    event === 'enterFight' ||
+    event === 'ownerHpZero' ||
+    event === 'abilityEntitySpawned' ||
+    event === 'abilityEntityFinished'
+  ) {
     return {
       kind: 'abilityLifecycle',
       event,

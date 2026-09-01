@@ -2374,7 +2374,7 @@ describe('公共 Action 叶子分派', () => {
     });
   });
 
-  it('NotifyCharPassiveUIAction 只保留被动 UI 的黑板读取', () => {
+  it('NotifyCharPassiveUIAction 保留被动 UI 的目标和值', () => {
     expect(
       parseKnownNativeActionLeafSource(
         {
@@ -2388,7 +2388,12 @@ describe('公共 Action 叶子分派', () => {
       ),
     ).toEqual({
       family: 'presentation',
-      action: { kind: 'passiveUiValue', readBlackboardKeys: ['swordsNum'] },
+      action: {
+        kind: 'passiveUiValue',
+        target: expect.objectContaining({ targetSource: 'Owner' }),
+        value: { value: 0, blackboardKey: 'swordsNum', levelValues: [0, 3] },
+        readBlackboardKeys: ['swordsNum'],
+      },
     });
   });
 });

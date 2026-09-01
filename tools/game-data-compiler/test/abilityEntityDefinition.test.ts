@@ -8,6 +8,7 @@ describe('能力实体模板定义投影', () => {
     const template = parseNativeAbilityEntityTemplateSource(
       {
         ...abilityEntityFixture(),
+        bornTagIds: [],
         durationBlackboard: { useBlackboardKey: false, value: 0, blackboardKey: '' },
         maxDurationForServerSeconds: 0,
         maxStackingCount: -1,
@@ -27,6 +28,7 @@ describe('能力实体模板定义投影', () => {
     const template = parseNativeAbilityEntityTemplateSource(
       {
         ...abilityEntityFixture(),
+        bornTagIds: [],
         durationBlackboard: { useBlackboardKey: false, value: 0, blackboardKey: '' },
         maxDurationForServerSeconds: 0,
         maxStackingCount: -1,
@@ -45,6 +47,7 @@ describe('能力实体模板定义投影', () => {
     const template = parseNativeAbilityEntityTemplateSource(
       {
         ...abilityEntityFixture(),
+        bornTagIds: [],
         durationBlackboard: {
           useBlackboardKey: true,
           value: 45,

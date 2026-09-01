@@ -282,6 +282,7 @@ export interface CombatRuntimeAssemblyOptions {
     entityId: string,
     entityBlackboard: ActionBlackboard,
     target: RuntimeTargetRef,
+    bornTags: readonly import('../tags/gameplayTags').GameplayTag[],
   ) => AbilityEntityBuffRuntime;
   readonly enemyStatusContainer?: CombatStatusContainer;
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
@@ -323,6 +324,8 @@ export interface CombatRuntimeAssemblyOptions {
       | 'afterSkillApplyCost'
       | 'skillEnd'
       | 'ownerHpZero'
+      | 'abilityEntitySpawned'
+      | 'abilityEntityFinished'
       | 'beforeOutputPhysicalInfliction'
       | 'afterOutputPhysicalInfliction'
       | 'customAbilityEvent',
@@ -514,19 +517,25 @@ export class CombatRuntimeAssembly {
         COMBAT_FRAME_INTERVAL *
         (this.timeDilation?.getEntityScale(logicalAbilityEntityRuntimeId(entity.instanceId)) ?? 1),
       hooks: {
-        spawned: entity =>
+        spawned: entity => {
+          const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
           this.receipt.record({
             frame: this.clock.frame,
             time: this.clock.time,
             event: 'AbilityEntitySpawned',
             sourceId: entity.ownerId,
-            targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
+            targetId: entityId,
             data: {
               abilityEntityId: entity.abilityEntityId,
               childSkillId: entity.childSkillId ?? null,
               remainingDurationSeconds: entity.remainingDurationSeconds,
             },
-          }),
+          });
+          this.#options.emitAbilityEvent?.(entity.ownerId, 'abilityEntitySpawned', {
+            sourceId: entity.ownerId,
+            targetId: entityId,
+          });
+        },
         childSkillRequested: (entity, childSkillId) =>
           this.receipt.record({
             frame: this.clock.frame,
@@ -537,8 +546,12 @@ export class CombatRuntimeAssembly {
             data: { abilityEntityId: entity.abilityEntityId, childSkillId },
           }),
         finished: (entity, reason) => {
+          const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
+          this.#options.emitAbilityEvent?.(entity.ownerId, 'abilityEntityFinished', {
+            sourceId: entity.ownerId,
+            targetId: entityId,
+          });
           if (reason === 'durationExpired' || reason === 'explicit') {
-            const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
             this.#options.emitAbilityEvent?.(entityId, 'ownerHpZero', {
               sourceId: entityId,
               targetId: entityId,
@@ -2654,6 +2667,7 @@ export class CombatRuntimeAssembly {
       logicalAbilityEntityRuntimeId(target.instanceId),
       this.abilityEntities.entityBlackboard(target),
       target,
+      this.abilityEntities.snapshot(target).bornTags,
     );
     if (runtime.ownerId !== logicalAbilityEntityRuntimeId(target.instanceId)) {
       throw new Error(

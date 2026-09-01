@@ -1508,11 +1508,17 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        withActionBlackboardScope(
-          'native-buff-callback:0',
-          {},
-          true,
-          sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('readSkillSettingData', {
               items: [
                 {
@@ -1529,14 +1535,18 @@ export const commonBuffDefinitions = {
               value: { kind: 'blackboard', key: 'extra_scaling' },
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:1',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('applyBuff', {
               buffId: 'buff_common_fire_triggered_fx',
               target: 'buffOwner',
@@ -1544,9 +1554,7 @@ export const commonBuffDefinitions = {
               inheritSourceSkillCastInfo: true,
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
+        },
       ),
       enable: sequence(
         step('applyBuff', {
@@ -1858,6 +1866,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0006_wolfgd_combo_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Category/EnergyShard/Pulse',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 1.5 },
       childSkill: {
         skillId: 'chr_0006_wolfgd_combo_skill_abilityrange',

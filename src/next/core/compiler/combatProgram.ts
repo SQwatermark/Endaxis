@@ -87,6 +87,7 @@ export interface CompiledAbilityEntityChildSkillProgram {
 
 /** 已按引用技能等级展开、可供逻辑能力实体运行时创建实例的蓝图。 */
 export interface ResolvedAbilityEntityDefinition {
+  readonly bornTags?: AbilityEntityDefinition['bornTags'];
   readonly lifetime: AbilityEntityDefinition['lifetime'];
   readonly deathReleaseDelaySeconds?: number;
   readonly maxStackingCount?: AbilityEntityDefinition['maxStackingCount'];
@@ -285,11 +286,13 @@ export interface ResolvedCombatStepParameters {
   changeSkillSlot: CombatStepParameters['changeSkillSlot'];
   changePlayerActionMode: CombatStepParameters['changePlayerActionMode'];
   changeNativeSkillType: CombatStepParameters['changeNativeSkillType'];
+  setCharacterPassiveUiValue: CombatStepParameters['setCharacterPassiveUiValue'];
   castSkillDuringAction: CombatStepParameters['castSkillDuringAction'];
   withActionBlackboardScope: {
     scopeKey: string;
     lifetime?: 'parent' | 'execution';
     alwaysNext?: boolean;
+    shareParentBlackboard?: boolean;
     initialValues: Readonly<Record<string, number>>;
     inheritParent: boolean;
     entityInitialValues?: Readonly<Record<string, number>>;

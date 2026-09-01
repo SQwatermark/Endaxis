@@ -671,6 +671,7 @@ export class CombatActionSequenceRuntime {
     step: Extract<ResolvedCombatStep, { kind: 'withActionBlackboardScope' }>,
     parent: ActionBlackboard,
   ): ActionBlackboard {
+    if (step.parameters.shareParentBlackboard === true) return parent;
     let scopes = this.#actionBlackboardScopes.get(parent);
     const existing = scopes?.get(step.parameters.scopeKey);
     if (step.parameters.lifetime === 'execution') {

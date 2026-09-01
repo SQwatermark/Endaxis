@@ -520,6 +520,18 @@ function resolveStep(
         body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
       };
     case 'withActionBlackboardScope':
+      if (step.parameters.shareParentBlackboard === true) {
+        if (
+          Object.keys(step.parameters.initialValues).length !== 0 ||
+          step.parameters.inheritParent !== true ||
+          step.parameters.entityInitialValues !== undefined ||
+          step.parameters.entityAssignments !== undefined
+        ) {
+          throw new Error(
+            `${path}: shareParentBlackboard requires empty initialValues, inheritParent=true, and no entity blackboard configuration`,
+          );
+        }
+      }
       return {
         ...keyed,
         kind: step.kind,
@@ -529,6 +541,9 @@ function resolveStep(
           ...(step.parameters.alwaysNext === undefined
             ? {}
             : { alwaysNext: step.parameters.alwaysNext }),
+          ...(step.parameters.shareParentBlackboard === undefined
+            ? {}
+            : { shareParentBlackboard: step.parameters.shareParentBlackboard }),
           inheritParent: step.parameters.inheritParent,
           initialValues: Object.fromEntries(
             Object.entries(step.parameters.initialValues).map(([key, value]) => [
@@ -789,6 +804,7 @@ function resolveStep(
     case 'changeSkillSlot':
     case 'changePlayerActionMode':
     case 'changeNativeSkillType':
+    case 'setCharacterPassiveUiValue':
     case 'adjustSkillCooldown':
       return { ...keyed, kind: step.kind, parameters: step.parameters } as ResolvedCombatStep;
     case 'applyElementalReaction':
@@ -984,6 +1000,7 @@ function compileAbilityEntityDefinition(
   abilityEntities?: AbilityEntityCompileContext,
 ): ResolvedAbilityEntityDefinition {
   return {
+    ...(definition.bornTags === undefined ? {} : { bornTags: definition.bornTags }),
     lifetime: definition.lifetime,
     ...(definition.deathReleaseDelaySeconds === undefined
       ? {}

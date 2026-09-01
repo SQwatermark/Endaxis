@@ -5008,25 +5008,35 @@ export const commonBuffDefinitions = {
         }),
       ),
       afterEnhance: sequence(
-        withActionBlackboardScope(
-          'native-buff-callback:0',
-          {},
-          true,
-          sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('igniteBuffs', {
               target: 'buffOwner',
               source: 'buffOwner',
               igniteType: 'NoGuard',
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:1',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             branch(
               {
                 kind: 'currentBuffStackCompare',
@@ -5053,9 +5063,7 @@ export const commonBuffDefinitions = {
               ),
             ),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
+        },
       ),
     },
   },
@@ -5087,6 +5095,11 @@ export default {
     will: [21, 55, 90, 125, 160, 177],
     baseAttack: [30, 90, 152, 215, 277, 309],
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
+  },
+  passiveUi: {
+    kind: 'buffProgress',
+    normalBuffId: 'buff_chr_0035_liino_normalskill_music_tag',
+    ultimateBuffId: 'buff_chr_0035_liino_ultskill_music_tag',
   },
   skillGroups: [
     {
@@ -6259,11 +6272,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         trigger: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'actionValueCompare',
@@ -6324,14 +6343,18 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'buffIdStackCompare',
@@ -6384,9 +6407,7 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
       },
     },
@@ -6432,11 +6453,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         enable: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0035_liino_normalskill_buff_atkup',
                 target: 'partyExceptCaster',
@@ -6457,14 +6484,18 @@ export default {
                 },
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'actionValueCompare',
@@ -6498,9 +6529,7 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
       },
       abilityEventResponses: [
@@ -7385,11 +7414,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         enable: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0035_liino_normalskill_buff_atkup',
                 target: 'partyExceptCaster',
@@ -7435,14 +7470,18 @@ export default {
                 },
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'actionValueCompare',
@@ -7476,9 +7515,7 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
       },
     },
@@ -7503,6 +7540,12 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0035_liino_ult_skill_projhit: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkill: {

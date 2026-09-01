@@ -164,6 +164,7 @@ function characterTable() {
       subAttrType: 42,
       defaultWeaponId: 'wpn_test',
       weaponType: 2,
+      charPassiveUIPrefabName: '',
       attributes: panels.map(
         ([level, breakStage, strength, agility, intellect, will, attack, health]) => ({
           Attribute: {

@@ -1780,6 +1780,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0007_ikut_ultimate_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'SelectCategory/ProjectilePassThru',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 5 },
       deathReleaseDelaySeconds: 0.100000001490116,
       childSkill: {

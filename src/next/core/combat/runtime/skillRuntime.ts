@@ -136,7 +136,7 @@ export interface CombatAbilitySkillEvent {
 /** 本场固定战斗在装配完成后向已注册 Buff 发布的一次实体入战事件。 */
 export interface CombatAbilityLifecycleEvent {
   readonly kind: 'abilityLifecycle';
-  readonly event: 'enterFight' | 'ownerHpZero';
+  readonly event: 'enterFight' | 'ownerHpZero' | 'abilityEntitySpawned' | 'abilityEntityFinished';
   readonly sourceId: string;
   readonly targetId: string;
 }

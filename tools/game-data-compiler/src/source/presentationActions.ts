@@ -10,7 +10,7 @@ import {
   nativeActionName,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
-import { parseScalarSource, type BlackboardLevelValues } from './scalar.ts';
+import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseTimeDilationCurveKeys } from './timeDilationActions.ts';
 import {
   parseBuffApplicationActionSource,
@@ -131,6 +131,7 @@ export interface CameraPresentationActionSource {
   readonly target?: TargetReferenceSource;
   readonly sourceSkillId?: string;
   readonly nativeSkillType?: import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType;
+  readonly value?: ScalarSource;
 }
 
 /** 只驱动 Animator 的瞄准偏移层；完整校验字段后在无表现模拟中省略。 */
@@ -588,7 +589,7 @@ export function parseSkillTypeMutationSource(
   };
 }
 
-/** NotifyCharPassiveUIAction 只把数值送入角色被动 UI；保留黑板读取用于数据流审计。 */
+/** NotifyCharPassiveUIAction 把求值后的数值送入动作 Owner 的角色被动 UI。 */
 export function parseNotifyCharacterPassiveUiActionSource(
   value: unknown,
   path: string,
@@ -608,10 +609,12 @@ export function parseNotifyCharacterPassiveUiActionSource(
     ]),
     path,
   );
-  parseTargetReferenceSource(action.target, `${path}.target`);
+  const target = parseTargetReferenceSource(action.target, `${path}.target`);
   const scalar = parseScalarSource(action.value, `${path}.value`, inheritedBlackboard);
   return {
     kind: 'passiveUiValue',
+    target,
+    value: scalar,
     ...(scalar.blackboardKey === null ? {} : { readBlackboardKeys: [scalar.blackboardKey] }),
   };
 }

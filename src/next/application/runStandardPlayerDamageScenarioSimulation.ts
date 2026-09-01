@@ -96,6 +96,16 @@ export function runStandardPlayerDamageScenarioSimulation(
     input.scenario.tracks,
     input.scenario.battle.controlSwitches,
   );
+  const passiveProgressBuffIdsByOperator = new Map<string, ReadonlySet<string>>();
+  for (const track of input.scenario.tracks) {
+    if (track === null || track.operator === null) continue;
+    const passiveUi = input.options.index.getOperator(track.operator.operatorSlug)?.passiveUi;
+    if (passiveUi?.kind !== 'buffProgress') continue;
+    passiveProgressBuffIdsByOperator.set(
+      track.id,
+      new Set([passiveUi.normalBuffId, passiveUi.ultimateBuffId]),
+    );
+  }
 
   const environmentOptions: StandardPlayerDamageEnvironmentOptions = {
     criticalSamples: input.criticalSamples,
@@ -112,6 +122,7 @@ export function runStandardPlayerDamageScenarioSimulation(
     },
     isOperatorControlled: (operatorId, frame) =>
       isOperatorControlledAt(controlTimeline, operatorId, frame),
+    passiveProgressBuffIdsByOperator,
     ...(input.elementalInflictionDocument === undefined
       ? {}
       : { elementalInflictionDocument: input.elementalInflictionDocument }),

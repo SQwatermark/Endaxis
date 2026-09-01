@@ -7,6 +7,7 @@ import {
   requireNonNegativeInteger,
   requireNumber,
   requireRecord,
+  requireString,
 } from './primitives.ts';
 import { parseWeaponTypeValue, type WeaponTypeSource } from './weaponType.ts';
 
@@ -46,6 +47,8 @@ export interface NativeOperatorCharacterTableSource {
   readonly secondaryAttributeType: AttributeTypeSource;
   readonly nativeWeaponType: WeaponTypeSource;
   readonly defaultWeaponId: string;
+  /** CharacterTable 决定战斗 HUD 是否实际挂载角色专属被动节点；空串表示不挂载。 */
+  readonly charPassiveUiPrefabName: string;
   readonly attributeKeyFrames: readonly CharacterAttributeKeyFrameSource[];
 }
 
@@ -82,6 +85,10 @@ export function parseNativeOperatorCharacterTableSource(
     secondaryAttributeType: parseAttributeTypeValue(row.subAttrType, `${sourcePath}.subAttrType`),
     nativeWeaponType: parseWeaponTypeValue(row.weaponType, `${sourcePath}.weaponType`),
     defaultWeaponId: requireNonEmptyString(row.defaultWeaponId, `${sourcePath}.defaultWeaponId`),
+    charPassiveUiPrefabName: requireString(
+      row.charPassiveUIPrefabName,
+      `${sourcePath}.charPassiveUIPrefabName`,
+    ),
     attributeKeyFrames,
   };
 }

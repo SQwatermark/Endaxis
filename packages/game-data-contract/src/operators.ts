@@ -277,6 +277,20 @@ export interface OperatorEntityBlackboardInitializerDefinition {
   falseValue: number;
 }
 
+/** 原生角色专属 HUD 的稳定状态源；动画状态名与配色不进入战斗定义。 */
+export type OperatorPassiveUiDefinition =
+  | {
+      readonly kind: 'numeric';
+      readonly maximum: number;
+      /** 达到该值时原生节点进入满层/强化状态；没有独立满层态时省略。 */
+      readonly activeAt?: number;
+    }
+  | {
+      readonly kind: 'buffProgress';
+      readonly normalBuffId: string;
+      readonly ultimateBuffId: string;
+    };
+
 export const COMBO_SKILL_CONDITION_EVENTS = [
   'beforeOutputInfliction',
   'beforeTakeInfliction',
@@ -335,6 +349,8 @@ export interface OperatorDefinition {
   comboSkillConditions?: readonly ComboSkillConditionDefinition[];
   /** 角色模板的字面实体初值；不是技能初值，动态值也不随每次技能施放重置。 */
   entityBlackboard?: Readonly<Record<string, number | string>>;
+  /** CharacterTable 明确挂载的角色专属战斗 HUD；不存在时不得从遗留 prefab 猜测。 */
+  passiveUi?: OperatorPassiveUiDefinition;
   /** 技能间共享的实体黑板初值；条件只读取已解析的静态构筑。 */
   entityBlackboardInitializers?: readonly OperatorEntityBlackboardInitializerDefinition[];
   /** 角色自身始终安装的隐藏基础被动；与受构筑开关控制的天赋/潜能被动分开。 */

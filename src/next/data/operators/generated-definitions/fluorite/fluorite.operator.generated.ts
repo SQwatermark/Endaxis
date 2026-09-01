@@ -1884,6 +1884,12 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0022_bounda_normal_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 5 },
       maxStackingCount: 1,
       childSkill: {

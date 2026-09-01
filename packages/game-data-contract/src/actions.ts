@@ -731,13 +731,18 @@ export interface CombatStepParameters {
   };
   /** 同一个技能释放实例内共享的只执行一次作用域。 */
   once: { scopeKey: string };
-  /** 在一次原生子 SkillData 调用独占的 direct blackboard 中执行 body。 */
+  /** 在一次原生子 SkillData 调用的 direct blackboard 中执行 body。 */
   withActionBlackboardScope: {
     scopeKey: string;
     /** 默认在同一父黑板内复用；execution 用于每次发射等独立实例，不跨循环项共享。 */
     lifetime?: 'parent' | 'execution';
     /** 回调边界忽略局部序列的短路结果，不阻止后续独立回调。 */
     alwaysNext?: boolean;
+    /**
+     * 原生同一 Buff 实例上的并列回调共享 Buff direct blackboard；仅隔离返回值控制流。
+     * 启用时 initialValues 必须为空、inheritParent 必须为 true，且不得声明实体黑板初值或赋值。
+     */
+    shareParentBlackboard?: boolean;
     initialValues: Readonly<Record<string, LevelValues>>;
     /** 原生 assignBlackboard：调用时把父 direct blackboard 覆盖到子初值之上。 */
     inheritParent: boolean;
@@ -796,6 +801,11 @@ export interface CombatStepParameters {
   changeNativeSkillType: {
     targetSkillKey: string;
     nativeSkillType: import('./skills.ts').NativeSkillType;
+  };
+  /** 原生 NotifyCharPassiveUIAction：更新角色专属 HUD 数值，不修改伤害状态。 */
+  setCharacterPassiveUiValue: {
+    target: CombatTarget;
+    value: ActionValueOperand;
   };
   /**
    * 在所在调度项的有效区间内监听战斗事件。
@@ -885,6 +895,7 @@ export const COMBAT_STEP_KINDS = [
   'changeSkillSlot',
   'changePlayerActionMode',
   'changeNativeSkillType',
+  'setCharacterPassiveUiValue',
   'listenForCombatEvents',
 ] as const satisfies readonly (keyof CombatStepParameters)[];
 

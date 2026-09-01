@@ -74,13 +74,14 @@ export class BuffProgressRecorder {
     targetId: string,
     buff: CombatBuff<string>,
     buffId: string,
-    presentation: NonNullable<CombatBuff<string>['definition']['presentation']>,
+    presentation: NonNullable<CombatBuff<string>['definition']['presentation']> | undefined,
     frame: number,
+    forceTrack = false,
   ): void {
-    const showInBattleSkillButton = presentation.showProgressInNormalSkillButton === true;
-    const showInUltimateButton = presentation.showProgressInUltimateSkillButton === true;
-    const showInHpBar = presentation.showProgressInHpBar === true;
-    if (!showInBattleSkillButton && !showInUltimateButton && !showInHpBar) return;
+    const showInBattleSkillButton = presentation?.showProgressInNormalSkillButton === true;
+    const showInUltimateButton = presentation?.showProgressInUltimateSkillButton === true;
+    const showInHpBar = presentation?.showProgressInHpBar === true;
+    if (!forceTrack && !showInBattleSkillButton && !showInUltimateButton && !showInHpBar) return;
     const key = curveKey(targetId, buffId, buff.instanceId);
     let curve = this.#curves.get(key);
     if (curve === undefined) {
@@ -91,7 +92,7 @@ export class BuffProgressRecorder {
         showInBattleSkillButton,
         showInUltimateButton,
         showInHpBar,
-        weakBattleSkillStyle: presentation.useWeakProgressInNormalSkillButton === true,
+        weakBattleSkillStyle: presentation?.useWeakProgressInNormalSkillButton === true,
         durationSeconds: buff.remainingDuration,
         points: [],
       };

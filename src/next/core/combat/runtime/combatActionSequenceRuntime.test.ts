@@ -315,6 +315,58 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.executed).toEqual(alwaysNext ? ['after'] : []);
   });
 
+  it('并列 Buff 回调隔离短路结果但共享父级 direct blackboard', () => {
+    const parent = new ActionBlackboard();
+    const seen: number[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (step, context) => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected test operation');
+          if (step.parameters.flag === 'write') {
+            context!.blackboard.assignDynamic('shared_from_callback', 4);
+          } else {
+            seen.push(context!.blackboard.getNumber('shared_from_callback')!);
+          }
+          return true;
+        },
+        evaluate: () => false,
+      },
+      { blackboard: parent },
+    );
+    const callback = (scopeKey: string, body: ResolvedActionSequence): ResolvedCombatStep => ({
+      kind: 'withActionBlackboardScope',
+      parameters: {
+        scopeKey,
+        lifetime: 'execution',
+        alwaysNext: true,
+        shareParentBlackboard: true,
+        initialValues: {},
+        inheritParent: true,
+      },
+      body,
+    });
+
+    expect(
+      runtime
+        .createSequence(
+          sequence(
+            callback(
+              'first',
+              sequence(operation('write'), {
+                kind: 'conditional',
+                parameters: { condition: { kind: 'combatActive' } },
+                whenTrue: sequence(operation('unreachable')),
+              }),
+            ),
+            callback('second', sequence(operation('read'))),
+          ),
+        )
+        .executeInstant({}),
+    ).toBe(true);
+    expect(seen).toEqual([4]);
+    expect(parent.getNumber('shared_from_callback')).toBe(4);
+  });
+
   it('execution 作用域在执行、tick 和 end 期间保持同一黑板', () => {
     const boards: ActionBlackboard[] = [];
     const runtime = new CombatActionSequenceRuntime(

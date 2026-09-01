@@ -11,7 +11,6 @@ import {
   scheduled,
   sequence,
   step,
-  withActionBlackboardScope,
   withSkillBlackboard,
 } from '../../definitionHelpers';
 
@@ -1144,25 +1143,35 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                   }),
                 ),
                 afterEnhance: sequence(
-                  withActionBlackboardScope(
-                    'native-buff-callback:0',
-                    {},
-                    true,
-                    sequence(
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:0',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
                       step('igniteBuffs', {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         igniteType: 'NoGuard',
                       }),
                     ),
-                    undefined,
-                    { lifetime: 'execution', alwaysNext: true },
-                  ),
-                  withActionBlackboardScope(
-                    'native-buff-callback:1',
-                    {},
-                    true,
-                    sequence(
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:1',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
                       branch(
                         {
                           kind: 'currentBuffStackCompare',
@@ -1189,9 +1198,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                         ),
                       ),
                     ),
-                    undefined,
-                    { lifetime: 'execution', alwaysNext: true },
-                  ),
+                  },
                 ),
               },
             },
@@ -2467,11 +2474,17 @@ export const commonBuffDefinitions = {
     ],
     lifecycleSequences: {
       start: sequence(
-        withActionBlackboardScope(
-          'native-buff-callback:0',
-          {},
-          true,
-          sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('readBuffStackCount', {
               target: 'buffOwner',
               outputKey: 'count',
@@ -2503,14 +2516,18 @@ export const commonBuffDefinitions = {
             }),
             step('refreshCurrentBuffAttributeModifiers', {}),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:1',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
@@ -2518,28 +2535,36 @@ export const commonBuffDefinitions = {
               inheritSourceSkillCastInfo: true,
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:2',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:2',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('igniteBuffs', {
               target: 'buffOwner',
               source: 'caster',
               igniteType: 'PhysicalStatus',
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:3',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:3',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('finishBuffsById', {
               target: 'buffOwner',
               buffIds: ['buff_physical_no_guard'],
@@ -2556,14 +2581,18 @@ export const commonBuffDefinitions = {
               'buff_physical_do_fracture:/lifecycleSequences/start/steps/3/body/steps/1',
             ),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:4',
-          {},
-          true,
-          sequence({
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:4',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence({
             kind: 'switch',
             parameters: { choice: { kind: 'blackboard', key: 'count' }, alwaysNext: true },
             options: [
@@ -2639,9 +2668,7 @@ export const commonBuffDefinitions = {
               },
             ],
           }),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
+        },
       ),
     },
   },
@@ -2868,25 +2895,35 @@ export const commonBuffDefinitions = {
         }),
       ),
       afterEnhance: sequence(
-        withActionBlackboardScope(
-          'native-buff-callback:0',
-          {},
-          true,
-          sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('igniteBuffs', {
               target: 'buffOwner',
               source: 'buffOwner',
               igniteType: 'NoGuard',
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:1',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             branch(
               {
                 kind: 'currentBuffStackCompare',
@@ -2913,9 +2950,7 @@ export const commonBuffDefinitions = {
               ),
             ),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
+        },
       ),
     },
   },
@@ -4015,6 +4050,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0029_pograni_ultimate_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0029_pgrani/Soldier',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 50 },
       childSkills: {
         chr_0029_pograni_ultimate_skill_abilityentity: {

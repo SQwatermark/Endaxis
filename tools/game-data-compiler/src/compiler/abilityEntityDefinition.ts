@@ -4,6 +4,7 @@ import type { NativeAbilityEntityTemplateSource } from '../source/abilityEntity.
 import { compileAbilityEntityChildSkillSource } from './abilityEntityChildSkill.ts';
 import type { CombatActionProjectionExtensionsSource } from './combatProjectionCommon.ts';
 import type { CombatActionProjectionContextSource } from './combatProjectionCommon.ts';
+import { projectGameplayTags } from './combatProjectionCommon.ts';
 
 /** 只接入现有零空间运行时可表示的模板寿命；子技能身份来自 Spawn 动作，不从模板名称推导。 */
 export function compileAbilityEntityDefinitionSource(
@@ -60,6 +61,15 @@ export function compileAbilityEntityDefinitionSource(
     return childSkill;
   });
   return {
+    ...(template.bornTagIds.length === 0
+      ? {}
+      : {
+          bornTags: projectGameplayTags(
+            template.bornTagIds,
+            { gameplayTagRegistry, abilityEntityQueries },
+            `${template.gameId}.bornTagIds`,
+          ),
+        }),
     lifetime:
       template.lifeTypeNativeValue === 0
         ? {

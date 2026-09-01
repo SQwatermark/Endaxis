@@ -257,6 +257,7 @@ export type CompiledBuffStepSource =
   | Step<'changeSkillSlot'>
   | Step<'changePlayerActionMode'>
   | Step<'changeNativeSkillType'>
+  | Step<'setCharacterPassiveUiValue'>
   | Step<'startCurrentAbilityEntityChildSkillById'>
   | Step<'startTimeDilation', GlobalTimeDilation | EntityTimeDilation>
   | Step<'setIgnoreGlobalTimeScale'>
@@ -268,7 +269,10 @@ export type CompiledBuffStepSource =
     >
   | (Step<
       'withActionBlackboardScope',
-      Pick<Parameters<'withActionBlackboardScope'>, 'scopeKey' | 'alwaysNext' | 'inheritParent'> & {
+      Pick<
+        Parameters<'withActionBlackboardScope'>,
+        'scopeKey' | 'alwaysNext' | 'inheritParent' | 'shareParentBlackboard'
+      > & {
         readonly lifetime: 'execution';
         readonly initialValues: Readonly<Record<string, number>>;
         readonly entityInitialValues?: Readonly<Record<string, number>>;

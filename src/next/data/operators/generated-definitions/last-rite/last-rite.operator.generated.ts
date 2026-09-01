@@ -2040,11 +2040,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         start: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('modifyActionValue', {
                 key: 'atk_scale',
                 operation: 'multiply',
@@ -2070,14 +2076,18 @@ export default {
                 },
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'actionValueCompare',
@@ -2097,9 +2107,7 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
       },
     },

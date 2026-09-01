@@ -158,6 +158,64 @@ describe('validateSkillDefinition', () => {
       expect(validateSkillDefinition(skill)).not.toEqual([]);
     },
   );
+  it.each([
+    { shareParentBlackboard: 'yes' },
+    { shareParentBlackboard: true, initialValues: { local: [1] } },
+    { shareParentBlackboard: true, inheritParent: false },
+    { shareParentBlackboard: true, entityInitialValues: {} },
+    { shareParentBlackboard: true, entityAssignments: {} },
+  ])('拒绝非法共享父黑板参数 %j', invalid => {
+    const skill = {
+      ...baseSkill(),
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'withActionBlackboardScope',
+                parameters: {
+                  scopeKey: 'native-callback',
+                  initialValues: {},
+                  inheritParent: true,
+                  ...invalid,
+                },
+                body: { steps: [] },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    expect(validateSkillDefinition(skill)).not.toEqual([]);
+  });
+  it('接受只隔离控制流的共享父 Buff 黑板回调边界', () => {
+    const skill = {
+      ...baseSkill(),
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'withActionBlackboardScope',
+                parameters: {
+                  scopeKey: 'native-callback',
+                  lifetime: 'execution',
+                  alwaysNext: true,
+                  shareParentBlackboard: true,
+                  initialValues: {},
+                  inheritParent: true,
+                },
+                body: { steps: [] },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    expect(validateSkillDefinition(skill)).toEqual([]);
+  });
   it.each(['enemy', 'input', 'trigger', undefined])('接受有界智能目标 %s', smartTarget => {
     expect(validateSkillDefinition({ ...baseSkill(), smartTarget })).toEqual([]);
   });

@@ -12,12 +12,14 @@ import { ActionBlackboard, type ActionBlackboardValue } from './actionBlackboard
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 import { TimedMarkerContainer } from './timedMarkers';
+import type { GameplayTag } from '../tags/gameplayTags';
 
 export type LogicalAbilityEntityFinishReason =
   'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied' | 'stackingLimit';
 
 /** 编译后生成步骤携带的自包含蓝图；运行时只依赖子技能身份。 */
 export interface LogicalAbilityEntityDefinition {
+  readonly bornTags?: readonly GameplayTag[];
   readonly lifetime:
     { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
   readonly deathReleaseDelaySeconds?: number;
@@ -51,6 +53,7 @@ export interface LogicalAbilityEntityChildRuntime {
 export interface LogicalAbilityEntitySnapshot {
   readonly instanceId: number;
   readonly abilityEntityId: string;
+  readonly bornTags: readonly GameplayTag[];
   readonly ownerId: string;
   readonly source: RuntimeTargetRef;
   readonly sourceSkillCastId?: number;
@@ -297,10 +300,10 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
 
   finish(entity: RuntimeTargetRef, reason: LogicalAbilityEntityFinishReason = 'explicit'): void {
     const instance = this.#requireInstance(entity);
-    this.#instances.delete(instance.instanceId);
     for (const runtime of instance.childRuntimes) runtime.finish();
     for (const child of instance.childBuffs) child.finish('other');
     this.#hooks.finished?.(this.#snapshot(instance), reason);
+    this.#instances.delete(instance.instanceId);
   }
 
   /**
@@ -391,6 +394,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     return Object.freeze({
       instanceId: instance.instanceId,
       abilityEntityId: instance.abilityEntityId,
+      bornTags: instance.definition.bornTags ?? [],
       ownerId: instance.ownerId,
       source: instance.source,
       ...(instance.sourceSkillCastId === undefined

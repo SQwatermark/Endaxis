@@ -502,7 +502,7 @@ describe('主动技能正式时间轴投影', () => {
     );
   });
 
-  it('识别只累计后送入被动 UI 的表现键', () => {
+  it('保留送入角色被动 HUD 的黑板累计值', () => {
     const sequence = {
       actions: [
         {
@@ -526,15 +526,13 @@ describe('主动技能正式时间轴投影', () => {
             kind: 'leaf',
             value: {
               family: 'presentation',
-              action: { kind: 'notifyCharacterPassiveUi', value: { blackboardKey: 'water_num' } },
+              action: { kind: 'passiveUiValue', value: { blackboardKey: 'water_num' } },
             },
           },
         },
       ],
     } as never;
-    expect(collectCombatInvisiblePresentationAssignmentKeys([sequence])).toEqual(
-      new Set(['water_num']),
-    );
+    expect(collectCombatInvisiblePresentationAssignmentKeys([sequence])).toEqual(new Set());
   });
 
   const interruptCurrentSkill = () =>

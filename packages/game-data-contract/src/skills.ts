@@ -33,6 +33,8 @@ export type AbilityEntityDefinitionNumber =
 
 /** 可由干员级定义表复用的完整逻辑能力实体蓝图。 */
 export interface AbilityEntityDefinition {
+  /** AbilityEntityTemplateData.bornTags；实体创建时立即成为其 AbilitySystem 自身标签。 */
+  readonly bornTags?: readonly import('./gameplayTags.ts').GameplayTag[];
   readonly lifetime:
     | {
         readonly kind: 'limited';

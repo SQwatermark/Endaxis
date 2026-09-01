@@ -1816,6 +1816,14 @@ const combatHudInitialSkillSlots = computed(() =>
   }),
 );
 
+const combatHudOperatorPassiveUis = computed(() =>
+  viewModel.value.tracks.flatMap(track => {
+    if (track.operatorInstanceId === null || track.operatorSlug === null) return [];
+    const definition = editorGameDataRepository.getOperator(track.operatorSlug)?.passiveUi;
+    return definition === undefined ? [] : [{ operatorId: track.operatorInstanceId, definition }];
+  }),
+);
+
 const operatorControlTimeline = computed(() =>
   resolveControlTimeline(scenario.value.tracks, scenario.value.battle.controlSwitches),
 );
@@ -1832,6 +1840,7 @@ const combatHudSnapshot = computed(() => {
     resourceCurves: current.resourceCurves,
     receiptEntries: current.receiptEntries,
     operatorSkillSlots: combatHudInitialSkillSlots.value,
+    operatorPassiveUis: combatHudOperatorPassiveUis.value,
     buffProgressCurves: current.buffProgressCurves,
     controlTimeline: operatorControlTimeline.value,
   });
@@ -2246,6 +2255,7 @@ const cursorGuideMetrics = computed(() => {
           resourceCurves: current.resourceCurves,
           receiptEntries: current.receiptEntries,
           operatorSkillSlots: combatHudInitialSkillSlots.value,
+          operatorPassiveUis: combatHudOperatorPassiveUis.value,
         });
   if (current !== null && snapshot !== null) {
     sp = formatGuideNumber(snapshot.sp.current);

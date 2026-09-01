@@ -5707,11 +5707,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         trigger: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               forEachTarget(
                 'enemy',
                 sequence(
@@ -5806,23 +5812,25 @@ export default {
                 { alwaysNext: true },
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('modifyActionValue', {
                 key: 'count',
                 operation: 'add',
                 value: { kind: 'constant', value: 1 },
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
         finish: sequence(
           step('applyBuff', {
@@ -6965,11 +6973,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         start: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'actionValueCompare',
@@ -6988,14 +7002,18 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'actionValueCompare',
@@ -7018,33 +7036,41 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
         enable: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(step('changePlayerActionMode', { modeId: 'ult', lifetime: 'finishByAction' })),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
+              step('changePlayerActionMode', { modeId: 'ult', lifetime: 'finishByAction' }),
+            ),
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('restrictUltimateEnergyRecovery', {
                 target: 'caster',
                 allowedRecoveryTags: ['Skill/Character/chr_0017_yvonne/UltimateEndUsp'],
                 clearUltimateEnergyOnEnd: false,
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
         finish: sequence(
           step('applyBuff', {
@@ -7128,11 +7154,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         start: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'actionValueCompare',
@@ -7155,23 +7187,25 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('finishBuffsById', {
                 target: 'buffOwner',
                 buffIds: ['buff_chr_0017_yvonne_ultimate_skill_layer_effect'],
                 reason: 'other',
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
         enable: sequence(
           step('restrictUltimateEnergyRecovery', {
@@ -7181,11 +7215,17 @@ export default {
           }),
         ),
         finish: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('findOwnerSpawnedAbilityEntities', {
                 saveToContextKey: 'robots',
                 abilityEntityIds: [
@@ -7206,14 +7246,18 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('finishBuffsById', {
                 target: 'caster',
                 buffIds: ['buff_chr_0017_yvonne_ultimate_skill_shield'],
@@ -7245,14 +7289,18 @@ export default {
                 reason: 'other',
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:2',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:2',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('adjustSkillCooldown', {
                 target: 'caster',
                 skill: { kind: 'type', skillType: 'ultimate' },
@@ -7261,9 +7309,7 @@ export default {
                 value: { kind: 'constant', value: 10 },
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
       },
     },
@@ -7420,6 +7466,12 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0017_yvonne_combo_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 50 },
       childSkill: {
         skillId: 'chr_0017_yvonne_combo_skill_abilityrange',
@@ -7468,6 +7520,13 @@ export default {
       },
     },
     abilityentity_chr_0017_yvonne_ultimate_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0017_yvonne/UltimateAbilityEntity',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 50 },
       maxStackingCount: 1,
       childSkill: {
@@ -7477,6 +7536,13 @@ export default {
       },
     },
     abilityentity_chr_0017_yvonne_ultimate_skill2: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0017_yvonne/UltimateAbilityEntity',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 50 },
       maxStackingCount: 1,
       childSkill: {
@@ -7486,6 +7552,13 @@ export default {
       },
     },
     abilityentity_chr_0017_yvonne_ultimate_skill3: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0017_yvonne/UltimateAbilityEntity',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 50 },
       maxStackingCount: 1,
       childSkill: {

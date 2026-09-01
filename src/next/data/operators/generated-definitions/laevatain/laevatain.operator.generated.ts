@@ -2530,11 +2530,17 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        withActionBlackboardScope(
-          'native-buff-callback:0',
-          {},
-          true,
-          sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('readSkillSettingData', {
               items: [
                 {
@@ -2551,14 +2557,18 @@ export const commonBuffDefinitions = {
               value: { kind: 'blackboard', key: 'extra_scaling' },
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:1',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('applyBuff', {
               buffId: 'buff_common_fire_triggered_fx',
               target: 'buffOwner',
@@ -2566,9 +2576,7 @@ export const commonBuffDefinitions = {
               inheritSourceSkillCastInfo: true,
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
+        },
       ),
       enable: sequence(
         step('applyBuff', {
@@ -2665,6 +2673,7 @@ export default {
     baseAttack: [30, 91, 156, 221, 285, 318],
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
+  passiveUi: { kind: 'numeric', maximum: 4, activeAt: 4 },
   skillGroups: [
     {
       key: 'basicAttack',
@@ -3237,24 +3246,58 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         start: sequence(
-          step('readBuffBlackboard', {
-            target: 'buffOwner',
-            query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
-            desiredKey: 'ignore_fire_resist',
-            outputKey: 'ignore_fire_resist',
-          }),
-          step('readBuffBlackboard', {
-            target: 'buffOwner',
-            query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
-            desiredKey: 'ignore_fire_resist_duration',
-            outputKey: 'ignore_fire_resist_duration',
-          }),
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
+              step('setCharacterPassiveUiValue', {
+                target: 'caster',
+                value: { kind: 'constant', value: 1 },
+              }),
+            ),
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
+              step('readBuffBlackboard', {
+                target: 'buffOwner',
+                query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
+                desiredKey: 'ignore_fire_resist',
+                outputKey: 'ignore_fire_resist',
+              }),
+              step('readBuffBlackboard', {
+                target: 'buffOwner',
+                query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_passive'] },
+                desiredKey: 'ignore_fire_resist_duration',
+                outputKey: 'ignore_fire_resist_duration',
+              }),
+            ),
+          },
         ),
         enhanceChanged: sequence(
           step('readBuffStackCount', {
             target: 'buffOwner',
             outputKey: 'count',
             query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+          }),
+          step('setCharacterPassiveUiValue', {
+            target: 'caster',
+            value: { kind: 'blackboard', key: 'count' },
           }),
           {
             kind: 'switch',
@@ -3282,6 +3325,10 @@ export default {
           },
         ),
         finish: sequence(
+          step('setCharacterPassiveUiValue', {
+            target: 'caster',
+            value: { kind: 'constant', value: 0 },
+          }),
           step('finishBuffsById', {
             target: 'buffOwner',
             buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
@@ -3382,25 +3429,35 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         enable: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0016_laevat_passive_enemy',
                 target: 'enemy',
                 finishByAction: true,
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('applyBuff', {
                 buffId: 'buff_chr_0016_laevat_passive_teammate',
                 target: 'party',
@@ -3408,9 +3465,7 @@ export default {
                 blackboardAssignments: { max_stack: { kind: 'blackboard', key: 'max_stack' } },
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
       },
     },
@@ -4146,6 +4201,12 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0016_laevat_normal_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 5 },
       childSkill: {
         skillId: 'chr_0016_laevat_normal_skill_abilityentity',

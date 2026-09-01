@@ -1345,25 +1345,35 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                   }),
                 ),
                 afterEnhance: sequence(
-                  withActionBlackboardScope(
-                    'native-buff-callback:0',
-                    {},
-                    true,
-                    sequence(
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:0',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
                       step('igniteBuffs', {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         igniteType: 'NoGuard',
                       }),
                     ),
-                    undefined,
-                    { lifetime: 'execution', alwaysNext: true },
-                  ),
-                  withActionBlackboardScope(
-                    'native-buff-callback:1',
-                    {},
-                    true,
-                    sequence(
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:1',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
                       branch(
                         {
                           kind: 'currentBuffStackCompare',
@@ -1390,9 +1400,7 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                         ),
                       ),
                     ),
-                    undefined,
-                    { lifetime: 'execution', alwaysNext: true },
-                  ),
+                  },
                 ),
               },
             },
@@ -1434,11 +1442,17 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
               attributeModifiers: [],
               lifecycleSequences: {
                 start: sequence(
-                  withActionBlackboardScope(
-                    'native-buff-callback:0',
-                    {},
-                    true,
-                    sequence(
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:0',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
                       step('applyBuff', {
                         buffId: 'buff_physical_no_guard',
                         target: 'buffOwner',
@@ -1449,14 +1463,18 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                         },
                       }),
                     ),
-                    undefined,
-                    { lifetime: 'execution', alwaysNext: true },
-                  ),
-                  withActionBlackboardScope(
-                    'native-buff-callback:1',
-                    {},
-                    true,
-                    sequence(
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:1',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
                       step('readSkillSettingData', {
                         items: [
                           {
@@ -1487,14 +1505,18 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                         stagger: { kind: 'blackboard', key: 'poise' },
                       }),
                     ),
-                    undefined,
-                    { lifetime: 'execution', alwaysNext: true },
-                  ),
-                  withActionBlackboardScope(
-                    'native-buff-callback:2',
-                    {},
-                    true,
-                    sequence(
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:2',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
                       step('applyBuff', {
                         buffId: 'buff_physical_handle_cryst_break',
                         target: 'buffOwner',
@@ -1502,23 +1524,25 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
-                    undefined,
-                    { lifetime: 'execution', alwaysNext: true },
-                  ),
-                  withActionBlackboardScope(
-                    'native-buff-callback:3',
-                    {},
-                    true,
-                    sequence(
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:3',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
                       step('igniteBuffs', {
                         target: 'buffOwner',
                         source: 'caster',
                         igniteType: 'PhysicalStatus',
                       }),
                     ),
-                    undefined,
-                    { lifetime: 'execution', alwaysNext: true },
-                  ),
+                  },
                 ),
               },
             },
@@ -1937,11 +1961,17 @@ export const commonBuffDefinitions = {
     attributeModifiers: [],
     lifecycleSequences: {
       start: sequence(
-        withActionBlackboardScope(
-          'native-buff-callback:0',
-          {},
-          true,
-          sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('applyBuff', {
               buffId: 'buff_physical_no_guard',
               target: 'buffOwner',
@@ -1950,14 +1980,18 @@ export const commonBuffDefinitions = {
               blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:1',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('readSkillSettingData', {
               items: [
                 {
@@ -1986,14 +2020,18 @@ export const commonBuffDefinitions = {
               'buff_physical_airborne:/lifecycleSequences/start/steps/1/body/steps/1',
             ),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:2',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:2',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('applyBuff', {
               buffId: 'buff_physical_handle_cryst_break',
               target: 'buffOwner',
@@ -2001,23 +2039,25 @@ export const commonBuffDefinitions = {
               inheritSourceSkillCastInfo: true,
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:3',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:3',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('igniteBuffs', {
               target: 'buffOwner',
               source: 'caster',
               igniteType: 'PhysicalStatus',
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
+        },
       ),
     },
   },
@@ -2206,25 +2246,35 @@ export const commonBuffDefinitions = {
         }),
       ),
       afterEnhance: sequence(
-        withActionBlackboardScope(
-          'native-buff-callback:0',
-          {},
-          true,
-          sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             step('igniteBuffs', {
               target: 'buffOwner',
               source: 'buffOwner',
               igniteType: 'NoGuard',
             }),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
-        withActionBlackboardScope(
-          'native-buff-callback:1',
-          {},
-          true,
-          sequence(
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
             branch(
               {
                 kind: 'currentBuffStackCompare',
@@ -2251,9 +2301,7 @@ export const commonBuffDefinitions = {
               ),
             ),
           ),
-          undefined,
-          { lifetime: 'execution', alwaysNext: true },
-        ),
+        },
       ),
     },
   },
@@ -2620,11 +2668,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         enable: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('modifyActionValue', {
                 key: 'FinalRate',
                 operation: 'assign',
@@ -2716,14 +2770,18 @@ export default {
                 blackboardAssignments: { rate: { kind: 'blackboard', key: 'FinalRate' } },
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('applyBuff', {
                 buffId: 'buff_common_affixes_slow',
                 target: 'enemy',
@@ -2735,9 +2793,7 @@ export default {
                 },
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
       },
     },
@@ -2767,6 +2823,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0013_aglina_normal_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Category/EnergyShard/Pulse',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
       childSkill: {
         skillId: 'chr_0013_aglina_normal_skill_abilityrange',
@@ -2809,6 +2872,13 @@ export default {
       },
     },
     abilityentity_chr_0013_aglina_ultimate_skill: {
+      bornTags: [
+        'Immune/Damage',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Category/EnergyShard/Pulse',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 6 },
       childSkill: {
         skillId: 'chr_0013_aglina_ultimate_skill_abilityrange',

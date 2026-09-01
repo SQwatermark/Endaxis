@@ -1610,6 +1610,35 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'presentation') {
     const action = node.body.value.action;
+    if (action.kind === 'passiveUiValue') {
+      if (
+        action.target === undefined ||
+        action.value === undefined ||
+        !(
+          action.target.targetSource === 'Owner' &&
+          action.target.targetGroupKey === '' &&
+          action.target.finderType === null &&
+          action.target.validatorTypes.length === 0 &&
+          action.target.postProcessorTypes.length === 0
+        )
+      ) {
+        throw new Error(`${node.sourcePath}: unsupported character passive UI target`);
+      }
+      const owner = requireActionOwnerProjection(context, node.sourcePath);
+      const target =
+        owner === 'caster' || (owner === 'buffOwner' && context.fixedBuffOwnerTarget === 'caster')
+          ? ('caster' as const)
+          : null;
+      if (target === null) {
+        throw new Error(`${node.sourcePath}: character passive UI owner is not a proven operator`);
+      }
+      return [
+        {
+          kind: 'setCharacterPassiveUiValue',
+          parameters: { target, value: actionValueOperand(action.value) },
+        },
+      ];
+    }
     if (action.kind === 'skillTypeMutation') {
       const compile = extensions.compileSkillTypeMutation;
       if (compile === undefined) throw new Error(`${node.sourcePath}: missing SkillType compiler`);

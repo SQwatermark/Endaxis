@@ -141,6 +141,7 @@ export {
   type OperatorEvent,
   type OperatorEventHandlerDefinition,
   type OperatorEntityBlackboardInitializerDefinition,
+  type OperatorPassiveUiDefinition,
   COMBO_SKILL_CONDITION_EVENTS,
   type ComboSkillConditionDefinition,
   type OperatorDefinition,

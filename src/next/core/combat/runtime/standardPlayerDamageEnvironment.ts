@@ -115,6 +115,8 @@ export type StandardPlayerDamageEvent =
   | KnockDownAbilityEvent
   | 'enterFight'
   | 'ownerHpZero'
+  | 'abilityEntitySpawned'
+  | 'abilityEntityFinished'
   | 'beforeDamageAction'
   | 'beforeCalculateDamage'
   | 'beforeTakeDamage'
@@ -178,6 +180,8 @@ export interface StandardPlayerDamageEnvironmentOptions {
   readonly tagRegistry?: GameplayTagRegistry;
   /** 当前帧主控身份由场景控制时间线提供；仅在伤害修正使用该条件时需要。 */
   readonly isOperatorControlled?: (operatorId: string, frame: number) => boolean;
+  /** 原生角色专属 HUD 直接跟踪的 Buff；与通用图标进度标志相互独立。 */
+  readonly passiveProgressBuffIdsByOperator?: ReadonlyMap<string, ReadonlySet<string>>;
   /**
    * 普通倒地的显式装配端口。到期策略必须来自当前闭包的消费者审计；
    * 不默认注入零秒起身，也不因存在本端口就放开标准场景预检。
@@ -293,16 +297,18 @@ export class StandardPlayerDamageEnvironment {
       },
       resolveUltimateEnergyGainMultiplier: operatorId =>
         this.#operatorBuffRuntime(operatorId).container.attributes.get('UltimateSpGainScalar'),
-      createAbilityEntityBuffRuntime: (entityId, entityBlackboard, target) =>
-        new BuffDefinitionOperationTarget(
-          new CombatBuffContainer(
-            entityId,
-            new CombatAttributeSet<string>(),
-            options.tagRegistry,
-            null,
-            entityBlackboard,
-            (buff, reason) => this.#recordOwnedBuffFinished(entityId, buff, reason),
-          ),
+      createAbilityEntityBuffRuntime: (entityId, entityBlackboard, target, bornTags) => {
+        const container = new CombatBuffContainer(
+          entityId,
+          new CombatAttributeSet<string>(),
+          options.tagRegistry,
+          null,
+          entityBlackboard,
+          (buff, reason) => this.#recordOwnedBuffFinished(entityId, buff, reason),
+        );
+        container.addEntityTags(bornTags);
+        return new BuffDefinitionOperationTarget(
+          container,
           {
             get: () => undefined,
             compile: entry => this.#compileInlineBuffDefinition(entry),
@@ -313,7 +319,8 @@ export class StandardPlayerDamageEnvironment {
           event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
           event => this.#emit(event.sourceId, 'outputBuff', event),
           event => this.#emit(entityId, 'beforeAddedBuff', event),
-        ),
+        );
+      },
       createOperationExecutor: context => this.#createOperationExecutor(context),
       readSourceAttributeValue: (sourceId, request) =>
         this.#readSourceAttributeValue(sourceId, request),
@@ -1364,8 +1371,16 @@ export class StandardPlayerDamageEnvironment {
         },
       });
     recordPresentation('BuffApplied', buff.definition.id, presentation);
-    if (ownerId !== 'enemy' && presentation !== undefined) {
-      this.#buffProgress.register(ownerId, buff, buff.definition.id, presentation, clock.frame);
+    if (ownerId !== 'enemy') {
+      this.#buffProgress.register(
+        ownerId,
+        buff,
+        buff.definition.id,
+        presentation,
+        clock.frame,
+        this.options.passiveProgressBuffIdsByOperator?.get(ownerId)?.has(buff.definition.id) ===
+          true,
+      );
     }
     for (const child of buff.definition.childPresentations ?? []) {
       recordPresentation(

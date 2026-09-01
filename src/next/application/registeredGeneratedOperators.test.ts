@@ -30,6 +30,7 @@ import {
   perlica,
   pogranichnik,
   snowshine,
+  tangtang,
   wulfgard,
   xaihi,
   yvonne,
@@ -2871,6 +2872,65 @@ describe('registered generated operators', () => {
     );
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({ event: 'DamageApplied', sourceId: 'track:antal' }),
+    );
+  });
+
+  it('updates Tangtang passive HUD when a tagged combo water entity spawns', () => {
+    const scenario = createEmptyScenario('scenario:tangtang:passive-ui', '汤汤被动界面回归');
+    scenario.battle.durationFrames = 150;
+    scenario.tracks[0] = {
+      id: 'track:tangtang',
+      operator: {
+        operatorSlug: tangtang.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: tangtang,
+      skillGroupKey: 'comboSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:tangtang:combo` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 150,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: false,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'CharacterPassiveUiValueChanged',
+        sourceId: 'track:tangtang',
+        targetId: 'track:tangtang',
+        data: expect.objectContaining({ value: 1 }),
+      }),
     );
   });
 });

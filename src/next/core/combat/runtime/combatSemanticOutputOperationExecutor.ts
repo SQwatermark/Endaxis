@@ -5,6 +5,7 @@ import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { CombatClock } from './combatClock';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { resolveActionValueOperand } from './actionBlackboard';
 
 export interface CombatSemanticOutputOperationExecutorOptions {
   readonly sourceOperatorId: string;
@@ -22,6 +23,20 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
     step: ResolvedCombatOperationStep,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'setCharacterPassiveUiValue') {
+      if (context === undefined) {
+        throw new Error('character passive UI value requires an action blackboard');
+      }
+      this.options.receipt.record({
+        frame: this.options.clock.frame,
+        time: this.options.clock.time,
+        event: 'CharacterPassiveUiValueChanged',
+        sourceId: this.options.sourceOperatorId,
+        targetId: this.options.resolveTargetId(step.parameters.target),
+        data: { value: resolveActionValueOperand(step.parameters.value, context.blackboard) },
+      });
+      return true;
+    }
     if (step.kind !== 'outputAirborne' && step.kind !== 'outputKnockDown') {
       return context === undefined
         ? this.options.delegate.execute(step)
@@ -58,7 +73,12 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
     step: ResolvedCombatOperationStep,
     context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
   ): void {
-    if (step.kind === 'outputAirborne' || step.kind === 'outputKnockDown') return;
+    if (
+      step.kind === 'outputAirborne' ||
+      step.kind === 'outputKnockDown' ||
+      step.kind === 'setCharacterPassiveUiValue'
+    )
+      return;
     this.options.delegate.end?.(step, context);
   }
 

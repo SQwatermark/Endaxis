@@ -1815,11 +1815,17 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         trigger: sequence(
-          withActionBlackboardScope(
-            'native-buff-callback:0',
-            {},
-            true,
-            sequence(
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               step('storeSourceAttributeValue', {
                 attribute: { kind: 'specific', key: 'will' },
                 stage: 'finalNonConverted',
@@ -1836,14 +1842,18 @@ export default {
                 amount: { kind: 'blackboard', key: 'final_heal_value' },
               }),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
-          withActionBlackboardScope(
-            'native-buff-callback:1',
-            {},
-            true,
-            sequence(
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
               branch(
                 {
                   kind: 'healthCompare',
@@ -1866,9 +1876,7 @@ export default {
                 ),
               ),
             ),
-            undefined,
-            { lifetime: 'execution', alwaysNext: true },
-          ),
+          },
         ),
       },
     },
@@ -2151,6 +2159,13 @@ export default {
   },
   abilityEntityDefinitions: {
     abilityentity_chr_0011_seraph_normal_skill: {
+      bornTags: [
+        'Immune',
+        'SelectCategory/Unmarkable',
+        'SelectCategory/UnSkillManualSelectable',
+        'SelectCategory/UnSkillAutoSelectable',
+        'Skill/Character/chr_0011_seraph/UltimateAbilityEntity',
+      ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkill: {

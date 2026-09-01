@@ -2801,6 +2801,12 @@ function validateCombatStep(
         push(out, `${path}.parameters.alwaysNext`, 'expected a boolean');
       }
       if (
+        parameters.shareParentBlackboard !== undefined &&
+        typeof parameters.shareParentBlackboard !== 'boolean'
+      ) {
+        push(out, `${path}.parameters.shareParentBlackboard`, 'expected a boolean');
+      }
+      if (
         parameters.lifetime !== undefined &&
         parameters.lifetime !== 'parent' &&
         parameters.lifetime !== 'execution'
@@ -2856,6 +2862,36 @@ function validateCombatStep(
             }
             validateActionValueOperand(value, `${path}.parameters.entityAssignments.${key}`, out);
           });
+        }
+      }
+      if (parameters.shareParentBlackboard === true) {
+        if (initialValues !== null && Object.keys(initialValues).length !== 0) {
+          push(
+            out,
+            `${path}.parameters.initialValues`,
+            'expected no initial values when sharing the parent blackboard',
+          );
+        }
+        if (parameters.inheritParent !== true) {
+          push(
+            out,
+            `${path}.parameters.inheritParent`,
+            'expected true when sharing the parent blackboard',
+          );
+        }
+        if (parameters.entityInitialValues !== undefined) {
+          push(
+            out,
+            `${path}.parameters.entityInitialValues`,
+            'expected no entity initial values when sharing the parent blackboard',
+          );
+        }
+        if (parameters.entityAssignments !== undefined) {
+          push(
+            out,
+            `${path}.parameters.entityAssignments`,
+            'expected no entity assignments when sharing the parent blackboard',
+          );
         }
       }
       break;
