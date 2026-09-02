@@ -1256,6 +1256,43 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'outputBuff',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'eventBuffTagsMatch',
+            match: 'hasAny',
+            buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
+          },
+          sequence(),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillKey: 'comboSkill',
+      event: 'buffEndsEarly',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'eventBuffTagsMatch',
+            match: 'hasAny',
+            buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
+          },
+          sequence(),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'electricDamageBonus',

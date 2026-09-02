@@ -56,19 +56,27 @@ export interface SkillCostDefinition {
 }
 
 /** Endaxis 可编辑的四种玩家战斗操作语义；键鼠/手柄绑定不进入战斗数据。 */
-export type PlayerSkillInput = 'basicAttack' | 'battleSkill' | 'comboSkill' | 'ultimate';
+export const PLAYER_SKILL_INPUTS = [
+  'basicAttack',
+  'battleSkill',
+  'comboSkill',
+  'ultimate',
+] as const;
+export type PlayerSkillInput = (typeof PLAYER_SKILL_INPUTS)[number];
 
 /** 原生 `Beyond.Gameplay.SkillType`；它是技能实例的可变运行时状态，不是玩家操作或技能库分组。 */
-export type NativeSkillType =
-  | 'passiveSkill'
-  | 'attack'
-  | 'breakingAttack'
-  | 'normalSkill'
-  | 'attachSkill'
-  | 'dodge'
-  | 'comboSkill'
-  | 'ultimateSkill'
-  | 'extraActiveSkill';
+export const NATIVE_SKILL_TYPES = [
+  'passiveSkill',
+  'attack',
+  'breakingAttack',
+  'normalSkill',
+  'attachSkill',
+  'dodge',
+  'comboSkill',
+  'ultimateSkill',
+  'extraActiveSkill',
+] as const;
+export type NativeSkillType = (typeof NATIVE_SKILL_TYPES)[number];
 
 /** CharacterData 的模式只保存会改变四类玩家操作解析结果的字段。 */
 export interface OperatorPlayerActionModeDefinition {
@@ -134,7 +142,8 @@ export interface SkillAllowedNextWindow {
 }
 
 /** 事件触发器筛选干员自身或全队来源的范围。 */
-export type SkillTriggerScope = 'operator' | 'team';
+export const SKILL_TRIGGER_SCOPES = ['operator', 'team'] as const;
+export type SkillTriggerScope = (typeof SKILL_TRIGGER_SCOPES)[number];
 
 export const COMBO_SKILL_PRIORITIES = ['default', 'firstBlackboard', 'enemyRank'] as const;
 
@@ -268,9 +277,9 @@ export interface SkillGroupVariantDefinition {
 export interface RoutedSkillReplacementDefinition {
   /** 已合并输入包装器资源规则、且拥有独立稳定 key 的执行定义。 */
   skill: SkillDefinition;
-  /** 真正被 Cast 的原生技能分类，而不是所在槽位的分类。 */
+  /** @deprecated 迁移期路由元数据；执行分类必须读取 `skill.skillType`。 */
   skillType: SkillType;
-  /** 真正被 Cast 的原生技能等级来源。 */
+  /** @deprecated 迁移期路由元数据；养成等级必须读取 `skill.levelSource`。 */
   levelSource: SkillLevelSource;
   /** 执行体在原生养成定义中的技能组身份。 */
   executionSkillGroupKey: string;

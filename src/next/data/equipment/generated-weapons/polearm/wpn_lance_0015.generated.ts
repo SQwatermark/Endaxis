@@ -58,6 +58,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -104,6 +114,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -258,7 +278,6 @@ const definition = {
                       "parameters": {
                         "buffId": "buff_wpn_lance_0015_atkup",
                         "target": "party",
-                        "source": "eventSource",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
                         "blackboardAssignments": {
@@ -373,7 +392,6 @@ const definition = {
                             "parameters": {
                               "buffId": "buff_wpn_lance_0015_dmgup",
                               "target": "party",
-                              "source": "eventSource",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
                               "blackboardAssignments": {

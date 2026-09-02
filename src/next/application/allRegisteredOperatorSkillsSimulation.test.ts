@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { OperatorDefinition, SkillDefinition } from '../core/game-data/operatorDefinition';
+import { listOperatorSkillDefinitionBindings } from '../core/game-data/operatorSkillDefinitions';
 import { createEmptyScenario } from '../core/project/createProject';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { skillSettings } from '../data/combat/skillSettings';
@@ -19,17 +20,14 @@ interface RegisteredSkillPlacementCase {
 const cases: readonly RegisteredSkillPlacementCase[] = nextGameDataRepository
   .getOperators()
   .flatMap(operator =>
-    operator.skillGroups.flatMap(group => [
-      ...asSkills(group.skills).map(skill => ({ operator, groupKey: group.key, skill })),
-      ...(group.variants ?? []).flatMap(variant =>
-        asSkills(variant.skills).map(skill => ({
-          operator,
-          groupKey: group.key,
-          variantKey: variant.key,
-          skill,
-        })),
-      ),
-    ]),
+    listOperatorSkillDefinitionBindings(operator)
+      .filter(({ group, skill }) => group.replacementSkillPlacements?.[skill.key] !== 'internal')
+      .map(({ group, skill, variant }) => ({
+        operator,
+        groupKey: group.key,
+        ...(variant === undefined ? {} : { variantKey: variant.key }),
+        skill,
+      })),
   );
 
 const resources = {
@@ -48,7 +46,8 @@ const knownFailures: Readonly<Record<string, string>> = {};
 describe('所有正式干员技能逐项放置与模拟', () => {
   it('覆盖默认仓库中的每个干员和每个基础/变体技能', () => {
     expect(nextGameDataRepository.getOperators()).toHaveLength(30);
-    expect(cases).toHaveLength(300);
+    // 310 个声明技能中，庄方宜 ultimateEnd 是技能内部收尾，不对应玩家可主动放置的动作。
+    expect(cases).toHaveLength(309);
     expect(Object.keys(knownFailures)).toHaveLength(0);
     expect(
       new Set(
@@ -144,10 +143,6 @@ describe('所有正式干员技能逐项放置与模拟', () => {
     },
   );
 });
-
-function asSkills(value: SkillDefinition | readonly SkillDefinition[]): readonly SkillDefinition[] {
-  return 'key' in value ? [value] : value;
-}
 
 function skillIdentity(entry: RegisteredSkillPlacementCase): string {
   return `${entry.operator.slug}/${entry.groupKey}/${entry.variantKey ?? 'base'}/${entry.skill.key}`;

@@ -2784,6 +2784,47 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'outputDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'contextTargetIdentityMatch',
+            contextKey: 'trigger',
+            other: 'controlledOperator',
+            operator: 'equal',
+          },
+          sequence(
+            branch(
+              { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalAttackLastCombo'] },
+              sequence(
+                branch(
+                  {
+                    kind: 'buffStackCompare',
+                    target: 'actionInputTarget',
+                    tagQueryType: 'hasAny',
+                    buffTags: [
+                      'Skill/Character/Common/NoGuard',
+                      'Skill/Character/Common/SpellInflict',
+                    ],
+                    operator: 'equal',
+                    value: { kind: 'constant', value: 0 },
+                  },
+                  sequence(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

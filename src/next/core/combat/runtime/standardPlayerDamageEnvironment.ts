@@ -77,6 +77,11 @@ import type { GameplayTagRegistry } from '../tags/gameplayTags';
 import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationExecutor';
 import { compareCombatNumbers } from './numericComparison';
 import type { RegisterBuffAbilityEventAction } from './buffLifecycleSequenceRuntime';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import {
+  hasAbilityEventActionContextBinding,
+  resolveAbilityEventActionContextBinding,
+} from '../events/abilityEventActionContext';
 import type { CombatResources } from './combatResources';
 import { BuffProgressRecorder, type BuffProgressCurve } from './buffProgressRecorder';
 import type { HealModifierSide } from '../heal/healModifiers';
@@ -109,6 +114,8 @@ type EnvironmentOptions = Pick<
   | 'emitOperatorEnterFight'
   | 'emitExternalOperatorHit'
   | 'emitExternalOperatorWeaknessTriggeredOutput'
+  | 'emitExternalEnemyWeaknessSet'
+  | 'emitBuffLifecycleAbilityEvent'
 >;
 
 export type StandardPlayerDamageEvent =
@@ -153,7 +160,10 @@ export type StandardPlayerDamageEvent =
   | 'addedBuff'
   | 'finishedBuff'
   | 'buffEndsEarly'
+  | 'buffConsumed'
+  | 'buffAbsorbed'
   | 'afterOutputWeaknessTriggered'
+  | 'weaknessSet'
   | 'customAbilityEvent';
 
 export interface StandardPlayerDamageEnvironmentOptions {
@@ -339,10 +349,20 @@ export class StandardPlayerDamageEnvironment {
           sourceId: operatorId,
           targetId: 'enemy',
         }),
+      emitExternalEnemyWeaknessSet: () =>
+        this.#emit('enemy', 'weaknessSet', {
+          sourceId: 'enemy',
+          targetId: 'enemy',
+        }),
+      emitBuffLifecycleAbilityEvent: (event, payload) =>
+        this.#emit(payload.sourceId, event, payload),
       createEquipmentEventOperationExecutor: context => this.#createOperationExecutor(context),
       registerEquipmentAbilityEventAction: (operatorId, event, priority, handle) =>
         this.eventsFor(operatorId).registerAction(event, priority, context =>
-          handle(context.payload),
+          handle(
+            context.payload,
+            this.#resolveAbilityEventRuntimeActionContext(event, context.payload),
+          ),
         ),
       registerComboSkillCondition: registration =>
         this.comboConditions.registerPendingCondition(registration),
@@ -909,18 +929,47 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #buffAbilityEventRegistrar(entityId: string): RegisterBuffAbilityEventAction {
-    return (
-      event,
-      priority: number,
-      handle: (payload: unknown) => void,
-      samePriorityKey?: string,
-    ) =>
+    return (event, priority: number, handle, samePriorityKey?: string) =>
       this.eventsFor(entityId).registerAction(
         event,
         priority,
-        context => handle(context.payload),
+        context => {
+          const payload = context.payload;
+          handle(payload, this.#resolveAbilityEventRuntimeActionContext(event, payload));
+        },
         samePriorityKey,
       );
+  }
+
+  #resolveAbilityEventRuntimeActionContext(
+    event: import('../../../../../packages/game-data-contract/src/abilityEvents').AbilityEvent,
+    payload: unknown,
+  ): import('../events/abilityEventActionContext').AbilityEventRuntimeActionContext | undefined {
+    if (
+      !hasAbilityEventActionContextBinding(event) ||
+      typeof payload !== 'object' ||
+      payload === null ||
+      typeof (payload as { sourceId?: unknown }).sourceId !== 'string' ||
+      typeof (payload as { targetId?: unknown }).targetId !== 'string'
+    )
+      return undefined;
+    const ids = resolveAbilityEventActionContextBinding(
+      event,
+      payload as { sourceId: string; targetId: string },
+    );
+    return {
+      inputTarget: this.#runtimeTargetFromEntityId(ids.inputTargetId),
+      triggerTarget:
+        ids.triggerTargetId === null ? null : this.#runtimeTargetFromEntityId(ids.triggerTargetId),
+    };
+  }
+
+  #runtimeTargetFromEntityId(entityId: string): RuntimeTargetRef {
+    if (entityId === 'enemy') return { kind: 'enemy' };
+    const abilityEntity = /^ability-entity:([1-9]\d*)$/.exec(entityId);
+    if (abilityEntity !== null)
+      return { kind: 'abilityEntity', instanceId: Number(abilityEntity[1]) };
+    return { kind: 'operator', operatorId: entityId };
   }
 
   #compileInlineBuffDefinition(
@@ -1437,6 +1486,7 @@ export class StandardPlayerDamageEnvironment {
       sourceId: ownerId,
       targetId: ownerId,
       buffId: buff.definition.id,
+      buffTags: buff.definition.applyTags ?? [],
       reason,
     });
     if (reason === 'early' || reason === 'ignite') {
@@ -1446,6 +1496,7 @@ export class StandardPlayerDamageEnvironment {
         sourceId: ownerId,
         targetId: ownerId,
         buffId: buff.definition.id,
+        buffTags: buff.definition.applyTags ?? [],
         reason,
       });
     }
@@ -1485,9 +1536,18 @@ export class StandardPlayerDamageEnvironment {
       { event, payload },
       [],
       event === 'afterTakePhysicalInfliction' ||
-      event === 'addedBuff' ||
-      event === 'beforeTakeDamage' ||
-      event === 'takeDamage'
+        event === 'beforeAddedBuff' ||
+        event === 'addedBuff' ||
+        event === 'outputBuff' ||
+        event === 'buffEndsEarly' ||
+        event === 'beforeTakeDamage' ||
+        event === 'beforeOutputDamage' ||
+        event === 'takeDamage' ||
+        event === 'outputDamage' ||
+        event === 'poiseZero' ||
+        event === 'buffConsumed' ||
+        event === 'buffAbsorbed' ||
+        event === 'weaknessSet'
         ? {
             onAbilityEvent: () =>
               this.comboConditions.onAbilityEvent(
@@ -1497,16 +1557,48 @@ export class StandardPlayerDamageEnvironment {
                       payload:
                         payload as import('./knockDownOperationExecutor').KnockDownEventPayload,
                     }
-                  : event === 'addedBuff'
+                  : event === 'beforeAddedBuff' || event === 'addedBuff' || event === 'outputBuff'
                     ? {
                         event,
                         payload: payload as import('./buffOperationExecutor').BuffAppliedEvent,
                       }
-                    : {
-                        event,
-                        payload:
-                          payload as import('../damage/healthDamage').HealthDamageEventPayload,
-                      },
+                    : event === 'buffEndsEarly'
+                      ? {
+                          event,
+                          payload: payload as {
+                            readonly sourceId: string;
+                            readonly targetId: string;
+                            readonly buffId: string;
+                            readonly buffTags: readonly string[];
+                            readonly reason: 'ignite' | 'early';
+                          },
+                        }
+                      : event === 'poiseZero'
+                        ? {
+                            event,
+                            payload: payload as import('../damage/poiseDamage').PoiseDamageModifier,
+                          }
+                        : event === 'buffConsumed' || event === 'buffAbsorbed'
+                          ? {
+                              event,
+                              payload:
+                                payload as import('./buffOperationExecutor').BuffConsumedEvent & {
+                                  readonly sourceId: string;
+                                },
+                            }
+                          : event === 'weaknessSet'
+                            ? {
+                                event,
+                                payload: payload as {
+                                  readonly sourceId: string;
+                                  readonly targetId: string;
+                                },
+                              }
+                            : {
+                                event,
+                                payload:
+                                  payload as import('../damage/healthDamage').HealthDamageEventPayload,
+                              },
               ),
           }
         : undefined,

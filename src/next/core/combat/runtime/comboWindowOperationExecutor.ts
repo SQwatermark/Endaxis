@@ -7,6 +7,9 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
     readonly operatorId: string,
     readonly windows: ComboWindowRuntime,
     readonly delegate: CombatOperationExecutor,
+    readonly resolveCurrentSkillKey: (skillGroupKey: 'comboSkill') => string = () => {
+      throw new Error('current combo skill slot resolver is unavailable');
+    },
   ) {}
 
   execute(
@@ -14,7 +17,12 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
     context?: CombatOperationContext,
   ): boolean {
     if (step.kind === 'openComboWindow') {
-      this.windows.open(this.operatorId, step.parameters.nextSkillKey);
+      this.windows.open(
+        this.operatorId,
+        'nextSkillKey' in step.parameters
+          ? step.parameters.nextSkillKey
+          : this.resolveCurrentSkillKey(step.parameters.nextSkillKeyFromSlot),
+      );
       return true;
     }
     return context === undefined

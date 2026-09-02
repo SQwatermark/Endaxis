@@ -3512,6 +3512,99 @@ export default {
       },
     },
   ],
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'beforeOutputDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalAttackLastCombo'] },
+          sequence(
+            branch(
+              {
+                kind: 'contextTargetIdentityMatch',
+                contextKey: 'trigger',
+                other: 'controlledOperator',
+                operator: 'equal',
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'buffStackCompare',
+                    target: 'actionInputTarget',
+                    tagQueryType: 'hasAny',
+                    buffTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
+                    operator: 'greaterOrEqual',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                  sequence(
+                    branch(
+                      { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+                      sequence(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillKey: 'comboSkill',
+      event: 'beforeOutputDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'contextTargetIdentityMatch',
+            contextKey: 'trigger',
+            other: 'controlledOperator',
+            operator: 'equal',
+          },
+          sequence(
+            branch(
+              { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['powerAttack'] },
+              sequence(
+                branch(
+                  {
+                    kind: 'contextTargetIdentityMatch',
+                    contextKey: 'trigger',
+                    other: 'controlledOperator',
+                    operator: 'equal',
+                  },
+                  sequence(
+                    branch(
+                      {
+                        kind: 'buffStackCompare',
+                        target: 'actionInputTarget',
+                        tagQueryType: 'hasAny',
+                        buffTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
+                        operator: 'greaterOrEqual',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                      sequence(
+                        branch(
+                          { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+                          sequence(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',
@@ -3534,8 +3627,7 @@ export default {
                       sequence(
                         step('applyBuff', {
                           buffId: 'buff_chr_0030_zhuangfy_talent1_base',
-                          target: 'eventSource',
-                          source: 'eventSource',
+                          target: 'caster',
                           inheritSourceSkillCastInfo: true,
                           blackboardAssignments: {
                             duration: { kind: 'blackboard', key: 'duration' },

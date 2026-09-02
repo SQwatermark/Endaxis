@@ -22,6 +22,38 @@ let candidate: ReturnType<typeof planOperatorDefinition>;
 let args: Parameters<typeof planOperatorDefinition>[0];
 
 function avywennaRuntimeTemplateFixture(): unknown {
+  const target = (targetSource: number, targetGroupKey = '') => ({
+    targetSource,
+    targetGroupKey,
+    selectorOwner: 1,
+    ownerContextKey: '',
+    centerType: 0,
+    centerContextKey: '',
+    centerToGround: false,
+    selectorData: { finderData: '-2', validatorData: [], postProcessorData: [] },
+    enableAdvancedDirection: false,
+    advancedDirection: {
+      directionType: 0,
+      source: '-2',
+      target: '-2',
+      sourceMountPoint: 0,
+      targetMountPoint: 0,
+      customSourceAndTarget: false,
+      clampToXZ: true,
+      invertDirection: false,
+    },
+    selectorDirection: 0,
+    target: 0,
+    targetContextKey: '',
+  });
+  const reference = (rid: string, className: string, data: unknown) => ({
+    rid,
+    class: `${className}/Data`,
+    namespace: 'Beyond.Gameplay.Core.Conditions',
+    assembly: 'Gameplay.Beyond',
+    decodeStatus: 'complete',
+    data,
+  });
   return {
     format: 'character-template-prefix-v1',
     decodeStatus: 'partial',
@@ -99,10 +131,58 @@ function avywennaRuntimeTemplateFixture(): unknown {
         activeSkillTypeOverrides: { keys: [], values: [] },
         enableComboSkillBlackboard: false,
         comboSkillBlackboard: [],
-        comboSkillConditions: [],
+        comboSkillConditions: [
+          {
+            comboSkillEvent: 302,
+            comboSkillCheckAction: {
+              actionData: ['1', '2', '3', '4'],
+              onlyExecuteWhenSourceIsMainChar: false,
+              onlyExecuteWhenSourceIsGuard: false,
+            },
+            comboSkillConditionImmediately: false,
+          },
+        ],
       },
     },
-    conditionReferences: {},
+    conditionReferences: {
+      '1': reference('1', 'CheckDamageDecorateMask', {
+        isEnable: true,
+        priorityLevel: 0,
+        priorityOffset: 0,
+        serverActionIndex: 1000,
+        checkType: 2,
+        mask: 2097152,
+      }),
+      '2': reference('2', 'CheckMainCharacterCondition', {
+        isEnable: true,
+        priorityLevel: 0,
+        priorityOffset: 0,
+        serverActionIndex: 1001,
+        checkTarget: target(2, 'trigger'),
+      }),
+      '3': reference('3', 'CheckTagMatch', {
+        isEnable: true,
+        priorityLevel: 0,
+        priorityOffset: 0,
+        serverActionIndex: 1002,
+        checkTarget: target(0),
+        query: {
+          queryType: { value: 0, name: 'HasAny' },
+          tags: [
+            { tagId: { value: 1466867135, hex: '0x576e9dbf' } },
+            { tagId: { value: 2123008650, hex: '0x7e8a8a8a' } },
+          ],
+        },
+      }),
+      '4': reference('4', 'CheckObjectTypeMatch', {
+        isEnable: true,
+        priorityLevel: 0,
+        priorityOffset: 0,
+        serverActionIndex: 1003,
+        target: target(0),
+        objectTypeMask: 16,
+      }),
+    },
   };
 }
 

@@ -123,7 +123,9 @@ const definition = {
                           "kind": "conditional",
                           "parameters": {
                             "condition": {
-                              "kind": "eventSourceMatchesBuffSource"
+                              "kind": "actionInputTargetIdentityMatch",
+                              "other": "actionSource",
+                              "operator": "equal"
                             }
                           },
                           "whenTrue": {
@@ -215,7 +217,9 @@ const definition = {
                             "condition": {
                               "kind": "not",
                               "condition": {
-                                "kind": "eventSourceMatchesBuffSource"
+                                "kind": "actionInputTargetIdentityMatch",
+                                "other": "actionSource",
+                                "operator": "equal"
                               }
                             }
                           },
@@ -277,6 +281,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "Default",
             "abnormalColorType": "Physical",
             "orderPriority": {

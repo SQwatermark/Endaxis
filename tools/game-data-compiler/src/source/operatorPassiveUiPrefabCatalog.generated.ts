@@ -1,6 +1,6 @@
 // 此文件由 generateOperatorPassiveUiPrefabCatalog.ts 从原生 prefab 对象快照生成，请勿手改。
 
-import type { OperatorPassiveUiPrefabComponentEvidence } from '../domains/operator/passiveUiPrefab.ts';
+import type { OperatorPassiveUiPrefabComponentEvidence } from './operatorPassiveUiPrefabEvidence.ts';
 
 export const OPERATOR_PASSIVE_UI_COMPONENT_BY_PREFAB = {
   OverlayInfoNodeLaevat: {

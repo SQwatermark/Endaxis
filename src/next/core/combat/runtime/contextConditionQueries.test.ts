@@ -16,6 +16,76 @@ const terminal = {
   },
 };
 describe('Context 条件查询', () => {
+  it('以同一命名 Context 比较 trigger 与主控、ActionSource 身份', () => {
+    const context = {
+      blackboard: new ActionBlackboard(),
+      targetContext: new RuntimeTargetContext(),
+      actionSourceId: 'source',
+    };
+    context.targetContext.setSingle('trigger', { kind: 'operator', operatorId: 'source' });
+    const executor = new TargetContextOperationExecutor('owner', terminal, id => id, {
+      listOperatorIds: () => ['source'],
+      isOperatorControlled: id => id === 'source',
+      resolveVitals: () => {
+        throw new Error('identity queries must not read vitals');
+      },
+    });
+    expect(
+      executor.evaluate(
+        {
+          kind: 'contextTargetIdentityMatch',
+          contextKey: 'trigger',
+          other: 'controlledOperator',
+          operator: 'equal',
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'contextTargetIdentityMatch',
+          contextKey: 'trigger',
+          other: 'actionSource',
+          operator: 'equal',
+        },
+        context,
+      ),
+    ).toBe(true);
+  });
+
+  it('从命名 Context 首目标查询实体标签', () => {
+    const tag = 'Character/Enemy/Boss';
+    const buffs = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet(),
+      new GameplayTagRegistry([tag]),
+    );
+    buffs.addEntityTags([tag]);
+    const executor = new BuffOperationExecutor({
+      sourceId: 'owner',
+      resolveTarget: () => buffs,
+      resolveEventTarget: () => buffs,
+      delegate: terminal,
+    });
+    const context = {
+      blackboard: new ActionBlackboard(),
+      targetContext: new RuntimeTargetContext(),
+    };
+    context.targetContext.setSingle('trigger', { kind: 'enemy' });
+    expect(
+      executor.evaluate(
+        {
+          kind: 'contextTargetEntityTagMatch',
+          contextKey: 'trigger',
+          tagQueryType: 'hasAny',
+          tags: [tag],
+        },
+        context,
+      ),
+    ).toBe(true);
+  });
+
   it.each([
     [16, { kind: 'enemy' }, true],
     [16, { kind: 'operator', operatorId: 'ally' }, false],

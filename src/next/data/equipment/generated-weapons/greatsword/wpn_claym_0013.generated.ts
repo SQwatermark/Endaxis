@@ -56,6 +56,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "Default",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -100,6 +110,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "Default",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -306,8 +326,7 @@ const definition = {
                                   "kind": "applyBuff",
                                   "parameters": {
                                     "buffId": "buff_wpn_claym_0013_normal_skill",
-                                    "target": "eventSource",
-                                    "source": "eventSource",
+                                    "target": "caster",
                                     "inheritSourceSkillCastInfo": true,
                                     "blackboardAssignments": {
                                       "cryst_dmg_up": {
@@ -426,7 +445,7 @@ const definition = {
                       "parameters": {
                         "condition": {
                           "kind": "buffStackCompare",
-                          "target": "eventTarget",
+                          "target": "actionInputTarget",
                           "tagQueryType": "hasAny",
                           "buffTags": [
                             "Skill/Character/Common/SpellInflict/CrystInflict"
@@ -458,8 +477,7 @@ const definition = {
                                   "kind": "applyBuff",
                                   "parameters": {
                                     "buffId": "buff_wpn_claym_0013_combo_skill",
-                                    "target": "eventSource",
-                                    "source": "eventSource",
+                                    "target": "caster",
                                     "inheritSourceSkillCastInfo": true,
                                     "blackboardAssignments": {
                                       "cryst_dmg_up2": {

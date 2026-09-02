@@ -2072,6 +2072,40 @@ describe('CombatBuffContainer', () => {
     expect(container.getCountById(definition.id)).toBe(2);
   });
 
+  it('publishes absorbed Buff identity with absorber and owner kept separate', () => {
+    const observed: string[] = [];
+    const tag = 'Skill/Character/Common/SpellInflict/FireInflict';
+    const container = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet<Attribute>(),
+      new GameplayTagRegistry([tag]),
+    );
+    container.configureAbsorbedObserver((buff, sourceId, layers) => {
+      observed.push(`${sourceId}:${container.ownerId}:${buff.definition.id}:${layers}`);
+    });
+    container.add(
+      {
+        id: 'fire-infliction',
+        stackingType: 'enhance',
+        maxStackCount: 4,
+        applyTags: [tag],
+      },
+      'original-source',
+    );
+    container.add(
+      {
+        id: 'fire-infliction',
+        stackingType: 'enhance',
+        maxStackCount: 4,
+        applyTags: [tag],
+      },
+      'original-source',
+    );
+
+    expect(container.finishByTags([tag], 'hasAny', 'absorbed', false, 'camille')).toBe(1);
+    expect(observed).toEqual(['camille:enemy:fire-infliction:2']);
+  });
+
   it('dispatches typed ignite events only to active matching Buff definitions', () => {
     const reached: string[] = [];
     const consumed: string[] = [];

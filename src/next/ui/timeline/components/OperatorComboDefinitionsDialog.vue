@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import {
-  COMBO_SKILL_CONDITION_EVENTS,
+  ABILITY_EVENTS,
   type ActionSequenceDefinition,
   type CombatStepDefinition,
   type ComboSkillConditionDefinition,
@@ -16,7 +16,7 @@ import ActionSequenceEditor from './ActionSequenceEditor.vue';
 const props = defineProps<{
   visible: boolean;
   conditions?: readonly ComboSkillConditionDefinition[];
-  skillGroupKeys: readonly string[];
+  skillKeys: readonly string[];
   skillLevel: number;
 }>();
 const emit = defineEmits<{
@@ -59,8 +59,8 @@ function addCondition(): void {
     ...conditions.value,
     {
       key: `custom-combo-condition-${index}`,
-      skillGroupKey: props.skillGroupKeys[0] ?? '',
-      event: COMBO_SKILL_CONDITION_EVENTS[0],
+      skillKey: props.skillKeys[0] ?? '',
+      event: ABILITY_EVENTS[0],
       immediately: false,
       initialValues: {},
       sequence: { steps: [] },
@@ -192,16 +192,16 @@ function save(): void {
               "
           /></label>
           <label
-            >绑定技能组<select
-              :value="selectedCondition.skillGroupKey"
+            >绑定具体技能<select
+              :value="selectedCondition.skillKey"
               @change="
                 updateCondition({
                   ...selectedCondition,
-                  skillGroupKey: ($event.target as HTMLSelectElement).value,
+                  skillKey: ($event.target as HTMLSelectElement).value,
                 })
               "
             >
-              <option v-for="key in skillGroupKeys" :key="key" :value="key">{{ key }}</option>
+              <option v-for="key in skillKeys" :key="key" :value="key">{{ key }}</option>
             </select></label
           >
           <label
@@ -215,7 +215,7 @@ function save(): void {
                 })
               "
             >
-              <option v-for="value in COMBO_SKILL_CONDITION_EVENTS" :key="value" :value="value">
+              <option v-for="value in ABILITY_EVENTS" :key="value" :value="value">
                 {{ value }}
               </option>
             </select></label

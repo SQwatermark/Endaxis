@@ -37,7 +37,7 @@ function adapter(overrides: Partial<MechanicAdapter> = {}): MechanicAdapter {
     compile: input => [
       {
         kind: 'combatEventSequence',
-        event: 'damageOutput',
+        event: 'outputDamage',
         priority: 10,
         sequence: {
           steps: [
@@ -166,7 +166,7 @@ describe('compileMechanics', () => {
         [
           {
             kind: 'combatEventSequence',
-            event: 'damageOutput',
+            event: 'outputDamage',
             priority: 1,
             sequence: { steps: [], callback: () => undefined },
           },

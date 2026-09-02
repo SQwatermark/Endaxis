@@ -23,6 +23,7 @@ const props = defineProps<{
     operatorHit: string;
     operatorWeakness: string;
     teamHit: string;
+    enemyWeaknessSet: string;
   };
 }>();
 const emit = defineEmits<{
@@ -34,6 +35,7 @@ const emit = defineEmits<{
   addOperatorHit: [];
   addOperatorWeakness: [];
   addTeamHit: [];
+  addEnemyWeaknessSet: [];
   delete: [];
 }>();
 const menu = ref<HTMLElement | null>(null);
@@ -105,6 +107,9 @@ onBeforeUnmount(() => {
           {{ labels.operatorWeakness }}
         </button>
         <button role="menuitem" @click="$emit('addTeamHit')">{{ labels.teamHit }}</button>
+        <button role="menuitem" @click="$emit('addEnemyWeaknessSet')">
+          {{ labels.enemyWeaknessSet }}
+        </button>
       </template>
     </div>
   </Teleport>

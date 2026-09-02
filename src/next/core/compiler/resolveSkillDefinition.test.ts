@@ -201,12 +201,27 @@ describe('resolveEffectiveSkillDefinition', () => {
 
   it('returns custom definition when present', () => {
     const resolved = resolveEffectiveSkillDefinition(
-      createCast({ customDefinition: customSkill }),
+      createCast({ customDefinition: { ...customSkill, levelSource: 'ultimate' } }),
       operator,
     );
 
-    expect(resolved.definition).toBe(customSkill);
+    expect(resolved.definition).toMatchObject({ key: customSkill.key, levelSource: 'ultimate' });
     expect(resolved.definition.timelineBlockFrames).toBe(60);
+    expect(resolved.levelSource).toBe('ultimate');
+  });
+
+  it('rejects duplicate skill keys across the same group definition tree', () => {
+    expect(() =>
+      resolveEffectiveSkillDefinition(createCast(), {
+        ...operator,
+        skillGroups: [
+          {
+            ...skillGroup,
+            replacementSkills: [{ ...catalogSkill }],
+          },
+        ],
+      }),
+    ).toThrow("skill group 'test/battleSkill' has multiple skills 'battleSkill'");
   });
 
   it('rejects custom definition whose key does not match source', () => {

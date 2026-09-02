@@ -4,6 +4,7 @@
  */
 import type { GearDefinition, WeaponDefinition } from '../../core/game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import { listOperatorSkillDefinitionBindings } from '../../core/game-data/operatorSkillDefinitions';
 import type {
   GearInstanceDocument,
   OperatorInstanceDocument,
@@ -14,7 +15,13 @@ export function createDefaultOperatorInstance(
   operator: OperatorDefinition,
 ): OperatorInstanceDocument {
   const skillLevels = Object.fromEntries(
-    [...new Set(operator.skillGroups.map(group => group.levelSource))].map(source => [source, 12]),
+    [
+      ...new Set(
+        listOperatorSkillDefinitionBindings(operator).flatMap(({ skill }) =>
+          skill.levelSource === undefined ? [] : [skill.levelSource],
+        ),
+      ),
+    ].map(source => [source, 12]),
   );
   return {
     operatorSlug: operator.slug,
@@ -49,10 +56,7 @@ export function resolveDefaultOperatorPotential(operator: OperatorDefinition): n
  * 复现旧版 90 级、已调谐武器的词条上限：前两条随调谐达到 9，第三条由潜能达到 4..9。
  * 自定义/未来词条仍受定义自身 levelCount 限制，不把旧三槽身份外推成游戏规则。
  */
-export function resolveMaxWeaponTraitLevels(
-  weapon: WeaponDefinition,
-  potential: number,
-): number[] {
+export function resolveMaxWeaponTraitLevels(weapon: WeaponDefinition, potential: number): number[] {
   return weapon.traits.map(trait => {
     const legacyMaximum = trait.key === 'skill3' ? 4 + potential : 9;
     return Math.min(trait.levelCount, legacyMaximum);

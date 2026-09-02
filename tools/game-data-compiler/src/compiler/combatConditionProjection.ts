@@ -75,6 +75,7 @@ function compileConditionLeaf(
   context: CombatActionProjectionContextSource,
   targetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
 ): CompiledBuffConditionSource {
+  if (condition.kind === 'constant') return { kind: 'constant', value: condition.value };
   // 主动动作/命中回调没有 Buff 事件环境；只有已验收的条件可使用显式木桩 Target。
   if (
     context.actionTargetTarget === 'enemy' &&
@@ -411,7 +412,7 @@ function compileConditionLeaf(
     };
   }
   if (
-    context.actionTargetTarget === 'eventSource' &&
+    context.restrictEventSourceTargetProjection === true &&
     ![
       'contextBuff',
       'buffStack',
@@ -430,6 +431,14 @@ function compileConditionLeaf(
   )
     throw new Error(`${sourcePath}: unaudited receiving Buff event condition ${condition.kind}`);
   if (condition.kind === 'mainOperator') {
+    if (condition.targetSource === 'Context' && condition.targetGroupKey !== '') {
+      return {
+        kind: 'contextTargetIdentityMatch',
+        contextKey: condition.targetGroupKey,
+        other: 'controlledOperator',
+        operator: 'equal',
+      };
+    }
     if (
       condition.targetSource === 'Owner' &&
       context.actionOwnerTarget === 'currentAbilityEntity'
@@ -453,6 +462,17 @@ function compileConditionLeaf(
         left: { kind: 'constant', value: 0 },
         operator: 'equal',
         right: { kind: 'constant', value: 1 },
+      };
+    }
+    if (
+      condition.targetSource === 'Target' &&
+      condition.targetGroupKey === '' &&
+      (context.actionTargetTarget === 'eventSource' || context.actionTargetTarget === 'eventTarget')
+    ) {
+      return {
+        kind: 'actionInputTargetIdentityMatch',
+        other: 'controlledOperator',
+        operator: 'equal',
       };
     }
     const projectsCaster =
@@ -546,13 +566,11 @@ function compileConditionLeaf(
                     context.fixedBuffSourceTarget === 'enemy'
                   ? ('enemy' as const)
                   : condition.targetSource === 'Context' &&
-                      targetGroups.get(condition.targetGroupKey) === 'contextOperator'
-                    ? ('contextTarget' as const)
-                    : condition.targetSource === 'Context' &&
-                        (targetGroups.get(condition.targetGroupKey) === 'enemy' ||
-                          context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) ===
-                            true)
-                      ? ('enemy' as const)
+                      (targetGroups.get(condition.targetGroupKey) === 'enemy' ||
+                        context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true)
+                    ? ('enemy' as const)
+                    : condition.targetSource === 'Context' && condition.targetGroupKey !== ''
+                      ? ('contextTarget' as const)
                       : null;
     if (target === null || operator === undefined) {
       throw new Error(`${sourcePath}: unsupported health condition target`);
@@ -916,15 +934,9 @@ function compileConditionLeaf(
           : { buffIdOutputKey: condition.buffIdOutputKey }),
       };
     }
-    const match = TAG_QUERY_TYPES[condition.matcher.queryType];
-    if (match === undefined) {
-      throw new Error(
-        `${sourcePath}: unsupported event Buff tag query ${JSON.stringify(condition.matcher.queryType)}`,
-      );
-    }
     return {
       kind: 'eventBuffTagsMatch',
-      match,
+      match: condition.matcher.queryType,
       buffTags: projectGameplayTags(condition.matcher.buffTagIds, context, sourcePath),
       ...(condition.buffIdOutputKey === undefined
         ? {}
@@ -944,20 +956,28 @@ function compileConditionLeaf(
         : { kind: 'any', conditions: [] };
     }
     if (
+      (context.actionTargetTarget === 'eventSource' ||
+        context.actionTargetTarget === 'eventTarget') &&
+      condition.target.targetSource === 'Target'
+    ) {
+      return {
+        kind: 'actionInputTargetObjectTypeMatch',
+        objectTypeMask: parseObjectTypeMask(
+          condition.objectTypeMask,
+          `${sourcePath}.objectTypeMask`,
+        ),
+      };
+    }
+    if (
       context.actionTargetTarget === 'currentOperator' &&
-      condition.target.targetSource === 'Target' &&
-      condition.target.targetGroupKey === ''
+      condition.target.targetSource === 'Target'
     ) {
       const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
       return (mask & 0x08) === 0x08
         ? { kind: 'all', conditions: [] }
         : { kind: 'any', conditions: [] };
     }
-    if (
-      context.actionTargetTarget === 'enemy' &&
-      condition.target.targetSource === 'Target' &&
-      condition.target.targetGroupKey === ''
-    ) {
+    if (context.actionTargetTarget === 'enemy' && condition.target.targetSource === 'Target') {
       const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
       // Endaxis 的唯一木桩是原生 ObjectType.Enemy (0x10)。原生查询在 mask
       // 含 Enemy 时额外加入 EnemyPart，但这不会改变对 Enemy 本体的完整包含判断。
@@ -1049,8 +1069,53 @@ function compileConditionLeaf(
       return { kind: 'buffSourceMatchesOwner' };
     }
     const isEventInputReference = (target: typeof first) =>
-      target.targetSource === 'Target' &&
-      isPlainReference(target);
+      target.targetSource === 'Target' && isPlainReference(target);
+    const contextIdentityOther = (
+      target: typeof first,
+      other: typeof first,
+    ): 'actionSource' | 'actionOwner' | 'controlledOperator' | null => {
+      if (
+        target.targetSource !== 'Context' ||
+        target.targetGroupKey === '' ||
+        !isPlainReference(target) ||
+        !isPlainReference(other)
+      )
+        return null;
+      if (other.targetSource === 'Source') return 'actionSource';
+      if (other.targetSource === 'Owner') return 'actionOwner';
+      if (other.targetSource === 'MainCharacter') return 'controlledOperator';
+      return null;
+    };
+    const contextOther = contextIdentityOther(first, second) ?? contextIdentityOther(second, first);
+    if (contextOther !== null) {
+      const contextTarget = first.targetSource === 'Context' ? first : second;
+      return {
+        kind: 'contextTargetIdentityMatch',
+        contextKey: contextTarget.targetGroupKey,
+        other: contextOther,
+        operator: 'equal',
+      };
+    }
+    const eventInputIdentityOther = (
+      target: typeof first,
+      other: typeof first,
+    ): 'actionSource' | 'actionOwner' | 'controlledOperator' | null => {
+      if (!isEventInputReference(target) || !isPlainReference(other)) return null;
+      if (other.targetSource === 'Source') return 'actionSource';
+      if (other.targetSource === 'Owner') return 'actionOwner';
+      if (other.targetSource === 'MainCharacter') return 'controlledOperator';
+      return null;
+    };
+    if (
+      context.actionTargetTarget === 'eventSource' ||
+      context.actionTargetTarget === 'eventTarget'
+    ) {
+      const other =
+        eventInputIdentityOther(first, second) ?? eventInputIdentityOther(second, first);
+      if (other !== null) {
+        return { kind: 'actionInputTargetIdentityMatch', other, operator: 'equal' };
+      }
+    }
     const isControlledOperatorSearch = (target: typeof first) =>
       target.targetSource === 'InstantSearch' &&
       target.targetGroupKey === '' &&
@@ -1141,7 +1206,6 @@ function compileConditionLeaf(
       condition.targetGroupKey !== '' &&
       context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true &&
       condition.buffCheckType === 'Tag' &&
-      condition.buffIds.length === 0 &&
       condition.countType === 'BuffCount' &&
       !condition.limitSkillCastId
     ) {
@@ -1177,6 +1241,27 @@ function compileConditionLeaf(
       condition.targetSource === 'Context' &&
       condition.targetGroupKey !== '' &&
       condition.sourceType === 'CheckBuffStackNumAdvanced' &&
+      condition.buffCheckType === 'Tag' &&
+      condition.countType === 'BuffCount' &&
+      !condition.limitSkillCastId
+    ) {
+      const operator = COMPARISON_OPERATORS[condition.comparison];
+      if (operator === undefined)
+        throw new Error(`${sourcePath}: unsupported Buff stack comparison`);
+      return {
+        kind: 'contextTargetBuffStackCompare',
+        contextKey: condition.targetGroupKey,
+        tagQueryType: condition.tagQueryType,
+        buffTags: projectGameplayTags(condition.buffTagIds, context, sourcePath),
+        operator,
+        value: actionValueOperand(condition.value),
+      };
+    }
+    if (
+      condition.targetSource === 'Context' &&
+      condition.targetGroupKey !== '' &&
+      (condition.sourceType === 'CheckBuffStackNum' ||
+        condition.sourceType === 'CheckBuffStackNumAdvanced') &&
       condition.buffCheckType === 'Id' &&
       condition.buffIds.length > 0 &&
       condition.countType === 'BuffCount' &&
@@ -1231,7 +1316,6 @@ function compileConditionLeaf(
     if (
       condition.countType === 'BuffIdCount' &&
       condition.buffCheckType === 'Tag' &&
-      condition.buffIds.length === 0 &&
       !condition.limitSkillCastId
     ) {
       return {
@@ -1250,11 +1334,7 @@ function compileConditionLeaf(
         value: actionValueOperand(condition.value),
       };
     }
-    if (
-      condition.countType === 'BuffCount' &&
-      condition.buffCheckType === 'Tag' &&
-      condition.buffIds.length === 0
-    ) {
+    if (condition.countType === 'BuffCount' && condition.buffCheckType === 'Tag') {
       const target =
         condition.targetSource === 'Owner'
           ? buffConditionOwner(context, sourcePath)
@@ -1328,6 +1408,27 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'entityTag') {
+    if (
+      condition.targetSource === 'Context' &&
+      condition.targetGroupKey !== '' &&
+      (targetGroups.get(condition.targetGroupKey) === 'enemy' ||
+        context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true)
+    ) {
+      return {
+        kind: 'entityTagMatch',
+        target: 'enemy',
+        tagQueryType: condition.tagQueryType,
+        tags: projectGameplayTags(condition.tagIds, context, sourcePath),
+      };
+    }
+    if (condition.targetSource === 'Context' && condition.targetGroupKey !== '') {
+      return {
+        kind: 'contextTargetEntityTagMatch',
+        contextKey: condition.targetGroupKey,
+        tagQueryType: condition.tagQueryType,
+        tags: projectGameplayTags(condition.tagIds, context, sourcePath),
+      };
+    }
     const target =
       condition.targetSource === 'Owner'
         ? buffConditionOwner(context, sourcePath)
@@ -1410,7 +1511,7 @@ function compileConditionLeaf(
     return { kind: 'enemyRankIn', ranks };
   }
   if (condition.kind === 'timedMarker') {
-    if (context.actionTargetTarget === 'eventSource' && condition.targetSource === 'Target')
+    if (context.restrictEventSourceTargetProjection === true && condition.targetSource === 'Target')
       throw new Error(`${sourcePath}: unaudited receiving Buff event marker target`);
     if (
       condition.targetSource === 'Context' &&
@@ -1500,12 +1601,19 @@ function compileConditionLeaf(
 function singleBuffConditionTarget(
   context: CombatActionProjectionContextSource,
   sourcePath: string,
-): 'enemy' | 'buffOwner' | 'currentAbilityEntity' | 'eventTarget' | 'currentTarget' {
+):
+  | 'enemy'
+  | 'buffOwner'
+  | 'currentAbilityEntity'
+  | 'eventTarget'
+  | 'actionInputTarget'
+  | 'currentTarget' {
   if (context.actionTargetTarget === 'currentOperator') return 'currentTarget';
+  if (context.actionTargetTarget === 'eventSource' || context.actionTargetTarget === 'eventTarget')
+    return 'actionInputTarget';
   if (
     context.actionTargetTarget === 'enemy' ||
     context.actionTargetTarget === 'buffOwner' ||
-    context.actionTargetTarget === 'eventTarget' ||
     context.actionTargetTarget === 'currentAbilityEntity'
   ) {
     return context.actionTargetTarget;
@@ -1563,14 +1671,3 @@ function decodeAttackTypeMask(value: string | number | undefined): number {
   }
   return result;
 }
-
-const TAG_QUERY_TYPES: Readonly<Record<string, 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll'>> = {
-  HasAny: 'hasAny',
-  HasAll: 'hasAll',
-  ExceptAny: 'exceptAny',
-  ExceptAll: 'exceptAll',
-  hasAny: 'hasAny',
-  hasAll: 'hasAll',
-  exceptAny: 'exceptAny',
-  exceptAll: 'exceptAll',
-};

@@ -8,6 +8,7 @@ import type { GearDefinition, GearSlotType, WeaponDefinition } from './equipment
 import type { GameDataRepository } from './gameDataRepository';
 import type { OperatorDefinition } from './operatorDefinition';
 import { collectDamageStepKeys } from './collectDamageStepKeys';
+import { listSkillGroupDefinitionBindings } from './operatorSkillDefinitions';
 
 type BuildDefinitionIndex = {
   getOperator(
@@ -93,13 +94,9 @@ export function validateProjectBuildDefinitionReferences(
               });
               continue;
             }
-            const skills = [
-              ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
-              ...(group.variants ?? []).flatMap(variant =>
-                Array.isArray(variant.skills) ? variant.skills : [variant.skills],
-              ),
-            ];
-            const skill = skills.find(candidate => candidate.key === source.skillKey);
+            const skill = listSkillGroupDefinitionBindings(group).find(
+              candidate => candidate.skill.key === source.skillKey,
+            )?.skill;
             if (skill === undefined) {
               issues.push({
                 path: `${castPath}.skillKey`,

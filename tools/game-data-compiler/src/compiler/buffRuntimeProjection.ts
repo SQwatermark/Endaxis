@@ -15,6 +15,7 @@ import type {
 } from '../source/buffRuntime.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { BuffStackingType } from '../../../../packages/game-data-contract/src/buffs.ts';
+import type { DamageModifierSide } from '../../../../packages/game-data-contract/src/modifiers.ts';
 import type {
   CompiledBuffPresentationSource,
   CompiledBuffDamageModifierSource,
@@ -29,6 +30,7 @@ import type {
 } from './combatActionProjectionTypes.ts';
 import { projectTimelineJump } from './timelineControlProjection.ts';
 import { compileAbilityEventPrograms } from './abilityEventProgram.ts';
+import { projectAbilityEvent } from './abilityEventProjection.ts';
 import {
   compileActionSequenceProgram,
   type CompileActionSequenceProgramOptions,
@@ -94,6 +96,7 @@ const BUFF_BEFORE_ADDED_CONTEXT: CombatActionProjectionContextSource = {
   actionOwnerTarget: 'buffOwner',
   actionSourceTarget: 'buffSource',
   actionTargetTarget: 'eventSource',
+  restrictEventSourceTargetProjection: true,
 };
 
 // DamagePack 的受击侧事件把本次伤害来源作为动作 InputTarget；监听 Buff 自身的
@@ -103,6 +106,7 @@ const BUFF_BEFORE_TAKE_DAMAGE_CONTEXT: CombatActionProjectionContextSource = {
   actionOwnerTarget: 'buffOwner',
   actionSourceTarget: 'buffSource',
   actionTargetTarget: 'eventSource',
+  restrictEventSourceTargetProjection: true,
 };
 
 // IgniteAction 以被点燃 Buff 的 owner 为 ActionOwner，而本次点燃者同时作为
@@ -117,44 +121,6 @@ type CompiledBuffAbilityEvent = NonNullable<
   CompiledBuffDefinitionSource['abilityEventResponses']
 >[number]['event'];
 
-const BUFF_ABILITY_EVENTS: Readonly<Record<string, CompiledBuffAbilityEvent>> = {
-  OnBeforeCastSkill: 'beforeCastSkill',
-  OnAfterSkillApplyCost: 'afterSkillApplyCost',
-  OnSkillEnd: 'skillEnd',
-  OnBeforeCalculateDamage: 'beforeCalculateDamage',
-  OnBeforeDamageAction: 'beforeDamageAction',
-  OnBeforeTakeDamage: 'beforeTakeDamage',
-  OnBeforeTakePhysicalInfliction: 'beforeTakePhysicalInfliction',
-  OnTakeDamage: 'takeDamage',
-  OnTakeCriticalDamage: 'takeCriticalDamage',
-  OnPoiseZero: 'poiseZero',
-  OnEnterFight: 'enterFight',
-  OnAbilityEntitySpawned: 'abilityEntitySpawned',
-  OnAbilityEntityFinished: 'abilityEntityFinished',
-  OnOutputBuff: 'outputBuff',
-  OnBeforeOutputBuff: 'beforeOutputBuff',
-  OnBeforeAddedBuff: 'beforeAddedBuff',
-  OnAddedBuff: 'addedBuff',
-  OnBeforeOutputPhysicalInfliction: 'beforeOutputPhysicalInfliction',
-  OnAfterOutputPhysicalInfliction: 'afterOutputPhysicalInfliction',
-  // 组件专属同步事件，不替换成成功后补发的通用物理异常/旧语义标记。
-  OnBeforeOutputKnockDown: 'beforeOutputKnockDown',
-  OnAfterOutputKnockDown: 'afterOutputKnockDown',
-  OnAfterOutputWeaknessTriggered: 'afterOutputWeaknessTriggered',
-  OnCustomAbilityEvent: 'customAbilityEvent',
-  OnOutputDamage: 'outputDamage',
-  OnCharBeforeOutputSpellInfliction: 'beforeOutputInfliction',
-  OnCharBeforeOutputSpellBurst: 'beforeOutputSpellBurst',
-  OnOutputCriticalDamage: 'outputCriticalDamage',
-  OnOutputHeal: 'outputHeal',
-  OnReceiveHeal: 'receiveHeal',
-  OnObtainAtb: 'skillSpGained',
-  OnFinishedBuff: 'finishedBuff',
-  OnBuffEndsEarly: 'buffEndsEarly',
-  OnAfterKillEntity: 'afterKillEntity',
-  OnConsumeBuff: 'buffConsumed',
-};
-
 function projectBuffAbilityEvent(
   event: string | number,
   sourcePath: string,
@@ -168,10 +134,7 @@ function projectBuffAbilityEvent(
     // 该原生事件监听目标方附着入口；角色侧 OnCharBeforeTakeSpellInfliction 是另一事件。
     return 'beforeTakeInfliction';
   }
-  if (typeof event !== 'string' || BUFF_ABILITY_EVENTS[event] === undefined) {
-    throw new Error(`${sourcePath}: unsupported ability event ${JSON.stringify(event)}`);
-  }
-  return BUFF_ABILITY_EVENTS[event]!;
+  return projectAbilityEvent(event, sourcePath) as CompiledBuffAbilityEvent;
 }
 
 export function buffRuntimeReadsBlackboardKey(source: BuffRuntimeSource, key: string): boolean {
@@ -2981,7 +2944,7 @@ const STACKING_TYPES: Record<BuffStackingTypeSource, BuffStackingType> = {
   HighPriorityWithMaxStack: 'highPriorityWithMaxStack',
 };
 
-const DAMAGE_MODIFIER_SIDES: Readonly<Record<string, 'attacker' | 'defender'>> = {
+const DAMAGE_MODIFIER_SIDES: Readonly<Record<string, DamageModifierSide>> = {
   Attacker: 'attacker',
   Defender: 'defender',
 };

@@ -1137,6 +1137,35 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'poiseZero',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          sequence(),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillKey: 'comboSkill',
+      event: 'poiseKnotBreak',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          sequence(),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

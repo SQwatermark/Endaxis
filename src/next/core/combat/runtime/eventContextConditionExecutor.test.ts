@@ -10,6 +10,50 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('按公共 Action Context 查询 InputTarget 的对象类型与主控身份', () => {
+    const executor = new EventContextConditionExecutor(
+      terminal,
+      operatorId => operatorId === 'controlled',
+    );
+    const context = {
+      blackboard: new ActionBlackboard(),
+      actionInputTarget: { kind: 'operator' as const, operatorId: 'controlled' },
+      actionSourceId: 'listener',
+      actionOwnerId: 'listener',
+      event: {
+        kind: 'abilityDamage' as const,
+        event: 'takeDamage' as const,
+        sourceId: 'controlled',
+        targetId: 'listener',
+        tags: [] as const,
+        features: [] as const,
+      },
+    };
+    expect(
+      executor.evaluate({ kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 8 }, context),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'actionInputTargetIdentityMatch',
+          other: 'controlledOperator',
+          operator: 'equal',
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'actionInputTargetIdentityMatch',
+          other: 'actionSource',
+          operator: 'equal',
+        },
+        context,
+      ),
+    ).toBe(false);
+  });
+
   it('matches a custom ability event name exactly', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const context = {
@@ -424,11 +468,34 @@ describe('EventContextConditionExecutor', () => {
             targetId: 'enemy',
             buffId: 'seal',
             sourceId: 'operator',
+            buffTags: [],
             reason,
           },
         },
       ),
     ).toBe(expected);
+  });
+
+  it('uses the same Buff-tag condition for applied and finished Ability events', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const condition = {
+      kind: 'eventBuffTagsMatch',
+      match: 'hasAny',
+      buffTags: ['Skill/Character/Common/SpellStatus'],
+    } as const;
+    expect(
+      executor.evaluate(condition, {
+        blackboard: new ActionBlackboard(),
+        event: {
+          kind: 'buffFinished',
+          sourceId: 'enemy',
+          targetId: 'enemy',
+          buffId: 'spell-status',
+          buffTags: ['Skill/Character/Common/SpellStatus'],
+          reason: 'early',
+        },
+      }),
+    ).toBe(true);
   });
 
   it.each([

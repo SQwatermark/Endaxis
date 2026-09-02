@@ -7,8 +7,10 @@ import { computed, reactive, ref, watch } from 'vue';
 import { Delete, Plus, Search } from '@element-plus/icons-vue';
 import type { EnemyDefinition, EnemyTier } from '../../../core/game-data/enemyDefinition';
 import type { EnemyDocument, EnemyEditableValues } from '../../../core/project/schema';
+import { DAMAGE_ELEMENTS } from '../../../core/game-data/operatorDefinition';
 
-const DAMAGE_TYPES = ['physical', 'heat', 'cryo', 'electric', 'nature'] as const;
+const EDITABLE_RESISTANCE_DAMAGE_TYPES = DAMAGE_ELEMENTS;
+
 const LEVELS = [1, 20, 40, 60, 80, 90] as const;
 const TIERS: readonly { value: EnemyTier; color: string }[] = [
   { value: 'leader', color: '#ff4d4f' },
@@ -48,7 +50,7 @@ const props = defineProps<{
     finisherRecovery: string;
     superArmor: string;
     resistances: string;
-    resistance: Record<(typeof DAMAGE_TYPES)[number], string>;
+    resistance: Record<(typeof EDITABLE_RESISTANCE_DAMAGE_TYPES)[number], string>;
     tier: Record<EnemyTier, string>;
   };
 }>();
@@ -170,7 +172,11 @@ function removeKnotThreshold(index: number): void {
       <div class="summary-row summary-row--resistance">
         <span>{{ labels.resistances }}</span>
         <strong>
-          {{ DAMAGE_TYPES.map(type => enemy.editable.resistances[type] ?? 0).join(' / ') }}
+          {{
+            EDITABLE_RESISTANCE_DAMAGE_TYPES.map(
+              type => enemy.editable.resistances[type] ?? 0,
+            ).join(' / ')
+          }}
         </strong>
       </div>
       <button type="button" class="stats-edit-button" @click="statsVisible = true">
@@ -337,7 +343,7 @@ function removeKnotThreshold(index: number): void {
           ><input v-model.number="draft.superArmor" type="number" min="0"
         /></label>
         <div class="form-section-title">{{ labels.resistances }}</div>
-        <label v-for="type in DAMAGE_TYPES" :key="type">
+        <label v-for="type in EDITABLE_RESISTANCE_DAMAGE_TYPES" :key="type">
           <span>{{ labels.resistance[type] }}</span>
           <input
             :value="draft.resistances[type] ?? 0"

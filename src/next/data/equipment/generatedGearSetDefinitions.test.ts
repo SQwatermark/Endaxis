@@ -327,8 +327,7 @@ describe('生成套装正式定义', () => {
                 {
                   parameters: {
                     buffId: 'buff_equipsuit_atk_02_addcombodamage',
-                    target: 'eventSource',
-                    source: 'eventSource',
+                    target: 'caster',
                   },
                 },
               ],
@@ -662,7 +661,7 @@ describe('生成套装正式定义', () => {
     }
   });
 
-  it('让失衡套按事件目标上的失衡 Buff 实例数追加两段物理增伤', () => {
+  it('让失衡套按原生动作 InputTarget 上的失衡 Buff 实例数追加两段物理增伤', () => {
     const definition = generatedGearSetDefinitions.find(item => item.slug === 'suit_poise01')!;
     expect(validateGearSetDefinition(definition, '$.suit_poise01')).toEqual([]);
     const compiled = compileGearSetContribution(definition, {
@@ -688,7 +687,7 @@ describe('生成套装正式定义', () => {
             parameters: {
               condition: {
                 kind: 'buffStackCompare',
-                target: 'eventTarget',
+                target: 'actionInputTarget',
                 tagQueryType: 'hasAny',
                 buffTags: ['Skill/Character/Common/NoGuard'],
                 operator: 'greaterOrEqual',
@@ -794,7 +793,7 @@ describe('生成套装正式定义', () => {
                   parameters: {
                     condition: {
                       kind: 'buffStackCompare',
-                      target: 'eventTarget',
+                      target: 'actionInputTarget',
                       buffTags: ['Skill/Character/Common/NoGuard'],
                     },
                   },
@@ -1002,7 +1001,7 @@ describe('生成套装正式定义', () => {
             parameters: {
               condition: {
                 kind: 'buffStackCompare',
-                target: 'eventTarget',
+                target: 'actionInputTarget',
                 tagQueryType: 'hasAny',
                 buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
                 operator: 'greaterOrEqual',

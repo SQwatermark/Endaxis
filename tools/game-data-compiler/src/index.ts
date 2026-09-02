@@ -45,6 +45,7 @@ export {
   type CompiledAbilityEventProgram,
   type CompileAbilityEventProgramOptions,
 } from './compiler/abilityEventProgram.ts';
+export { projectAbilityEvent } from './compiler/abilityEventProjection.ts';
 export {
   compileActionNodePrograms,
   compileActionSequenceProgram,

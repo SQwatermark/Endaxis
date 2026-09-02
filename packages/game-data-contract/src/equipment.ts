@@ -8,6 +8,7 @@ import {
 import { type CombatCondition } from './conditions.ts';
 import { type ActionSequenceDefinition, type CombatEventTrigger } from './actions.ts';
 import { type OperatorBuffDefinitions } from './buffs.ts';
+import type { AbilityEvent } from './abilityEvents.ts';
 
 export const WEAPON_RARITIES = [3, 4, 5, 6] as const;
 
@@ -109,7 +110,7 @@ export const EQUIPMENT_ABILITY_EVENTS = [
   'beforeOutputBuff',
   'outputBuff',
   'addedBuff',
-] as const;
+] as const satisfies readonly AbilityEvent[];
 
 export type EquipmentAbilityEvent = (typeof EQUIPMENT_ABILITY_EVENTS)[number];
 

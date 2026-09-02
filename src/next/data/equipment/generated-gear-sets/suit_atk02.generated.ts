@@ -69,6 +69,16 @@ const definition = {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: {
@@ -260,8 +270,7 @@ const definition = {
                       kind: 'applyBuff',
                       parameters: {
                         buffId: 'buff_equipsuit_atk_02_addcombodamage',
-                        target: 'eventSource',
-                        source: 'eventSource',
+                        target: 'caster',
                         inheritSourceSkillCastInfo: true,
                         asChildBuff: true,
                         blackboardAssignments: {

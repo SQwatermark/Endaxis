@@ -21,7 +21,11 @@ import type { CombatSkillCastInfo } from './skillCastInfo';
 import { SkillCooldown, type SkillCooldownSnapshot } from './skillCooldown';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatSemanticEvent, CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
-import type { DamageFeature, DamageTag } from '../../game-data/operatorDefinition';
+import type {
+  DamageFeature,
+  DamageTag,
+  PhysicalInflictionType,
+} from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { BuffApplicationHandle } from './buffOperationExecutor';
@@ -66,7 +70,7 @@ export interface CombatAbilityPhysicalInflictionEvent {
     | 'afterTakePhysicalInfliction';
   readonly sourceId: string;
   readonly targetId: string;
-  readonly type?: 'airborne' | 'knockDown' | 'fracture' | 'crush';
+  readonly type?: PhysicalInflictionType;
   /** 物理异常由当前技能动作同步输出时保留其原生 CastSkillContext 附着端口。 */
   readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
 }
@@ -104,7 +108,7 @@ export interface CombatAbilitySpellBurstEvent {
 /** AbilitySystem 的失衡归零同步事件；保留本次失衡来源与目标身份。 */
 export interface CombatAbilityPoiseEvent {
   readonly kind: 'abilityPoise';
-  readonly event: 'poiseZero';
+  readonly event: 'poiseZero' | 'poiseKnotBreak';
   readonly sourceId: string;
   readonly targetId: string;
 }
@@ -146,6 +150,15 @@ export interface CombatAbilityLifecycleEvent {
 export interface CombatAbilityWeaknessTriggeredEvent {
   readonly kind: 'abilityWeaknessTriggered';
   readonly event: 'afterOutputWeaknessTriggered';
+  readonly sourceId: string;
+  readonly targetId: string;
+}
+
+/** SetWeaknessAction 在弱点所属实体上发布的无目标同步事件。 */
+export interface CombatAbilityWeaknessSetEvent {
+  readonly kind: 'abilityWeaknessSet';
+  readonly event: 'weaknessSet';
+  /** 无目标事件仍保留统一载荷形状；两者均为发布者。 */
   readonly sourceId: string;
   readonly targetId: string;
 }
@@ -202,6 +215,7 @@ export interface CombatOperationContext {
     | CombatAbilitySkillEvent
     | CombatAbilityLifecycleEvent
     | CombatAbilityWeaknessTriggeredEvent
+    | CombatAbilityWeaknessSetEvent
     | CombatAbilityCustomEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */
   readonly buffSourceId?: string;

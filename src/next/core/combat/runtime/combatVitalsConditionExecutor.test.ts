@@ -116,6 +116,42 @@ describe('CombatVitalsConditionExecutor', () => {
     expect(resolveContextTarget).toHaveBeenCalledWith('ally');
   });
 
+  it('resolves a saved enemy through the shared enemy vitals ledger', () => {
+    const enemyVitals = new CombatVitals({
+      health: 0,
+      maxHealth: 1000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const resolveTarget = vi.fn(() => enemyVitals);
+    const executor = new CombatVitalsConditionExecutor({
+      resolveTarget,
+      resolveContextTarget: vi.fn(),
+      delegate: { execute: vi.fn(() => false), evaluate: vi.fn(() => false) },
+    });
+    const targetContext = new RuntimeTargetContext();
+    targetContext.setSingle('smart_target', { kind: 'enemy' });
+
+    expect(
+      executor.evaluate(
+        {
+          kind: 'healthCompare',
+          target: 'contextTarget',
+          contextKey: 'smart_target',
+          valueType: 'current',
+          operator: 'lessOrEqual',
+          value: { kind: 'constant', value: 0 },
+        },
+        { blackboard: new ActionBlackboard(), targetContext },
+      ),
+    ).toBe(true);
+    expect(resolveTarget).toHaveBeenCalledWith('enemy', undefined);
+  });
+
   it('resolves the current forEach operator for a health condition', () => {
     const vitals = new CombatVitals({
       health: 1000,

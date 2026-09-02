@@ -736,6 +736,7 @@ describe('attachBuffLifecycleSequences', () => {
           sourceId: 'operator',
           targetId: 'operator',
           buffId: 'resume-marker',
+          buffTags: [],
           reason: 'other',
         },
       },

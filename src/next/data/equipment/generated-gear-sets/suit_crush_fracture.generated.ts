@@ -49,7 +49,7 @@ const definition = {
                       parameters: {
                         condition: {
                           kind: 'buffStackCompare',
-                          target: 'eventTarget',
+                          target: 'actionInputTarget',
                           tagQueryType: 'hasAny',
                           buffTags: ['Skill/Character/Common/NoGuard'],
                           operator: 'greaterOrEqual',
@@ -103,7 +103,7 @@ const definition = {
                                 conditions: [
                                   {
                                     kind: 'buffStackCompare',
-                                    target: 'eventTarget',
+                                    target: 'actionInputTarget',
                                     tagQueryType: 'hasAny',
                                     buffTags: [
                                       'Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic',
@@ -116,7 +116,7 @@ const definition = {
                                   },
                                   {
                                     kind: 'buffIdStackCompare',
-                                    target: 'eventTarget',
+                                    target: 'actionInputTarget',
                                     buffIds: ['buff_common_originum_frozen'],
                                     operator: 'greaterOrEqual',
                                     value: {
@@ -220,6 +220,16 @@ const definition = {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: {

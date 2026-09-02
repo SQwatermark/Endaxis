@@ -1407,7 +1407,8 @@
       "restrictedHint": "Only supplement events the target-dummy model cannot produce naturally",
       "operatorHit": "Current operator is hit",
       "operatorWeakness": "Current operator triggers enemy weakness",
-      "teamHit": "All operators are hit"
+      "teamHit": "All operators are hit",
+      "enemyWeaknessSet": "Enemy weakness is set"
     },
     "markerInspector": {
       "title": "External event",
@@ -1419,7 +1420,8 @@
       "boundaryHint": "This only declares an external fact the target-dummy model cannot produce. It does not simulate enemy skills, health loss, or active behavior.",
       "eventKinds": {
         "operatorHit": "Operator is hit",
-        "operatorWeaknessTriggeredOutput": "Operator triggers enemy weakness"
+        "operatorWeaknessTriggeredOutput": "Operator triggers enemy weakness",
+        "enemyWeaknessSet": "Enemy weakness is set"
       }
     },
     "documentMarkerInspector": {
@@ -1444,7 +1446,8 @@
       "controlSwitch": "Operator switch",
       "operatorWeakness": "Enemy weakness triggered",
       "hitShort": "Hit",
-      "weaknessShort": "Weakness"
+      "weaknessShort": "Weakness",
+      "enemyWeaknessSet": "Set weakness"
     },
     "skillEditing": {
       "section": "Skill Logic",
@@ -1481,11 +1484,17 @@
       "addActivationRule": "Add opening rule",
       "triggerKind": "Trigger event",
       "triggerKinds": {
+        "operatorHit": "Operator receives hit",
+        "operatorHealed": "Operator healed",
         "buffApplied": "Buff applied",
+        "buffOutput": "Buff output",
+        "buffConsumed": "Buff consumed",
         "airborneOutput": "Airborne output",
         "knockDownOutput": "Knockdown output",
+        "spGained": "SP gained",
         "damageTagHit": "Damage tag hit",
         "elementalInflictionApplied": "Elemental infliction applied",
+        "physicalInflictionApplied": "Physical infliction applied",
         "skillHit": "Specified skill hit",
         "enemyDefeated": "Enemy defeated",
         "statusExpired": "Status expired",
@@ -1493,6 +1502,16 @@
       },
       "triggerScope": "Event source scope",
       "triggerScopes": { "operator": "Current operator", "team": "Team" },
+      "eventRole": "Event role",
+      "eventRoles": { "source": "Heal source", "target": "Heal target (default)" },
+      "anyValue": "Any",
+      "physicalInflictionType": "Physical infliction type",
+      "physicalInflictionTypes": {
+        "airborne": "Airborne",
+        "knockDown": "Knockdown",
+        "fracture": "Fracture",
+        "crush": "Crush"
+      },
       "damageTag": "Damage tag",
       "additionalCondition": "Additional opening condition",
       "eventHandlers": "Event handlers",
@@ -1765,6 +1784,10 @@
         "buffStackCompare": "Buff tag stack comparison",
         "currentBuffStackCompare": "Current Buff enhancement count comparison",
         "contextTargetObjectTypeMatch": "Context target object type match",
+        "actionInputTargetObjectTypeMatch": "Action input target object type match",
+        "actionInputTargetIdentityMatch": "Action input target identity match",
+        "contextTargetIdentityMatch": "Context target identity match",
+        "contextTargetEntityTagMatch": "Context target entity-tag match",
         "contextTargetBuffStackCompare": "First context target Buff stack comparison",
         "eventTargetBuffCountCompare": "Event target Buff instance count",
         "entityTagMatch": "Entity tag match",
@@ -1782,6 +1805,12 @@
       "conditionNoParameters": "This condition has no additional parameters.",
       "conditionContextKey": "Target context key",
       "conditionObjectTypeMask": "ObjectType mask",
+      "actionContextIdentityOther": "Compare identity",
+      "actionContextIdentities": {
+        "controlledOperator": "Controlled operator",
+        "actionSource": "Action source",
+        "actionOwner": "Action owner"
+      },
       "probability": "Probability",
       "superArmor": "Super armor",
       "cameraTargetAngle": "Signed angle (degrees)",
@@ -1809,7 +1838,12 @@
       },
       "scalarValue": "Direct value",
       "actionOperandValue": "Action blackboard operand",
-      "targets": { "caster": "Caster", "enemy": "Enemy", "controlled": "Controlled operator" },
+      "targets": {
+        "caster": "Caster",
+        "enemy": "Enemy",
+        "controlled": "Controlled operator",
+        "actionInputTarget": "Action input target"
+      },
       "gameplayTagPath": "GameplayTag path",
       "addGameplayTag": "Search and add GameplayTag",
       "deleteGameplayTag": "Delete GameplayTag",

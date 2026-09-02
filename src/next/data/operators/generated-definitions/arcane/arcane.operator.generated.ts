@@ -2530,7 +2530,7 @@ export default {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2543,7 +2543,7 @@ export default {
     },
     {
       key: 'native-combo:1',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2573,7 +2573,7 @@ export default {
     },
     {
       key: 'native-combo:2',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2603,7 +2603,7 @@ export default {
     },
     {
       key: 'native-combo:3',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2633,7 +2633,7 @@ export default {
     },
     {
       key: 'native-combo:4',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2959,7 +2959,7 @@ export default {
           priority: 0,
           sequence: sequence(
             branch(
-              { kind: 'eventSourceMatchesBuffSource' },
+              { kind: 'actionInputTargetIdentityMatch', other: 'actionSource', operator: 'equal' },
               sequence(
                 branch(
                   { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalSkill'] },
@@ -3706,7 +3706,11 @@ export default {
                   { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalSkill'] },
                   sequence(
                     branch(
-                      { kind: 'eventSourceMatchesBuffSource' },
+                      {
+                        kind: 'actionInputTargetIdentityMatch',
+                        other: 'actionSource',
+                        operator: 'equal',
+                      },
                       sequence(
                         step('changeResourceByActionValue', {
                           resource: 'sp',
@@ -4060,7 +4064,11 @@ export default {
           priority: 0,
           sequence: sequence(
             branch(
-              { kind: 'eventSourceControlled' },
+              {
+                kind: 'actionInputTargetIdentityMatch',
+                other: 'controlledOperator',
+                operator: 'equal',
+              },
               sequence(
                 branch(
                   {
@@ -4121,7 +4129,11 @@ export default {
           priority: 0,
           sequence: sequence(
             branch(
-              { kind: 'eventSourceControlled' },
+              {
+                kind: 'actionInputTargetIdentityMatch',
+                other: 'controlledOperator',
+                operator: 'equal',
+              },
               sequence(
                 branch(
                   {

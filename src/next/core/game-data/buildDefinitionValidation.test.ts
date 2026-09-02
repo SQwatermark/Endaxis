@@ -13,6 +13,31 @@ const operator = {
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
       skills: { key: 'current-skill', timelineBlockFrames: 30, scheduledSequences: [] },
+      variants: [
+        {
+          key: 'variant',
+          levelSource: 'battleSkill',
+          skills: { key: 'variant-skill', timelineBlockFrames: 30, scheduledSequences: [] },
+        },
+      ],
+      replacementSkills: [
+        { key: 'replacement-skill', timelineBlockFrames: 30, scheduledSequences: [] },
+      ],
+      routedReplacementSkills: [
+        {
+          skill: {
+            key: 'routed-skill',
+            skillType: 'comboSkill',
+            levelSource: 'comboSkill',
+            timelineBlockFrames: 30,
+            scheduledSequences: [],
+          },
+          skillType: 'comboSkill',
+          levelSource: 'comboSkill',
+          executionSkillGroupKey: 'comboSkill',
+          executionSkillKey: 'combo-skill',
+        },
+      ],
     },
   ],
 } as const;
@@ -127,6 +152,20 @@ describe('validateProjectBuildDefinitionReferences', () => {
     expect(validateProjectBuildDefinitionReferences(createProject(), createRepository())).toEqual(
       [],
     );
+  });
+
+  it('accepts casts that reference variant and replacement execution definitions', () => {
+    const project = createProject();
+    const track = project.scenarios[0]!.tracks[0]!;
+    for (const skillKey of ['variant-skill', 'replacement-skill', 'routed-skill']) {
+      track.skillCasts.push({
+        id: `cast:${skillKey}`,
+        source: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey },
+        placement: { startFrame: 30 },
+      });
+    }
+
+    expect(validateProjectBuildDefinitionReferences(project, createRepository())).toEqual([]);
   });
 
   it('reports every unknown build definition reference', () => {

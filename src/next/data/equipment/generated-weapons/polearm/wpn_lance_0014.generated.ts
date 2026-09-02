@@ -58,6 +58,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -201,7 +211,8 @@ const definition = {
                         "condition": {
                           "kind": "not",
                           "condition": {
-                            "kind": "eventActionOwnerTargetMatch",
+                            "kind": "actionInputTargetIdentityMatch",
+                            "other": "actionOwner",
                             "operator": "equal"
                           }
                         }

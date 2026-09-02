@@ -7,7 +7,7 @@ import {
 } from '../src/compiler/comboSkillConditions.ts';
 import { compileAbilitySystemBlackboardsSource } from '../src/compiler/abilitySystemBlackboards.ts';
 import { parseAbilitySystemBlackboardsSource } from '../src/source/abilitySystemBlackboards.ts';
-import { targetFixture } from './sourceFixtures.ts';
+import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 const context = {
   gameplayTagRegistry: fixtureGameplayTagRegistry,
@@ -54,12 +54,12 @@ describe('公共连携条件来源与 Pending 编译', () => {
     const result = compileComboSkillConditionDefinitionSource(
       source,
       blackboards,
-      { key: 'check', skillGroupKey: 'combo' },
+      { key: 'check', skillKey: 'combo' },
       context,
     );
     expect(result.definition).toEqual({
       key: 'check',
-      skillGroupKey: 'combo',
+      skillKey: 'combo',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: enabled ? { local: 3 } : null,
@@ -82,8 +82,8 @@ describe('公共连携条件来源与 Pending 编译', () => {
       ),
     );
     for (const binding of [
-      { key: '', skillGroupKey: 'combo' },
-      { key: 'check', skillGroupKey: '' },
+      { key: '', skillKey: 'combo' },
+      { key: 'check', skillKey: '' },
     ])
       expect(() =>
         compileComboSkillConditionDefinitionSource(
@@ -97,12 +97,12 @@ describe('公共连携条件来源与 Pending 编译', () => {
       compileComboSkillConditionDefinitionSource(
         parse([{ ...record(), comboSkillConditionImmediately: true }])[0]!,
         blackboards,
-        { key: 'check', skillGroupKey: 'combo' },
+        { key: 'check', skillKey: 'combo' },
         context,
       ).definition.immediately,
     ).toBe(true);
   });
-  it('依赖 InputTarget 的条件不能被公共 Buff 投影误编译为敌人的 eventTarget', () => {
+  it('依赖 InputTarget 的条件按事件方向投影为独立动作输入目标', () => {
     const value = record();
     value.comboSkillCheckAction.actionData = [
       {
@@ -116,18 +116,102 @@ describe('公共连携条件来源与 Pending 编译', () => {
       },
     ];
     const source = parse([value])[0]!;
-    expect(() => compilePendingComboConditionSource(source, context)).toThrow(
-      'InputTarget projection is not installed',
-    );
+    expect(compilePendingComboConditionSource(source, context)).toMatchObject({
+      event: 'beforeTakeInfliction',
+      sequence: {
+        steps: [
+          {
+            parameters: {
+              condition: { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+            },
+          },
+        ],
+      },
+    });
+  });
+  it('Context.trigger 的生命条件保留为运行时命名目标查询', () => {
+    const value = record(12);
+    value.comboSkillCheckAction.actionData = [
+      {
+        $type: 'Beyond.Gameplay.Core.Conditions.CheckHp+Data, Gameplay.Beyond',
+        isEnable: true,
+        priorityLevel: 'Default',
+        priorityOffset: 0,
+        serverActionIndex: 1001,
+        hpOwner: targetFixture('Context', undefined, 'trigger'),
+        compare: 'LT',
+        isRatio: true,
+        value: scalarFixture(0.4),
+      },
+    ];
+    expect(compilePendingComboConditionSource(parse([value])[0]!, context)).toMatchObject({
+      sequence: {
+        steps: [
+          {
+            parameters: {
+              condition: {
+                kind: 'healthCompare',
+                target: 'contextTarget',
+                contextKey: 'trigger',
+                valueType: 'ratio',
+                operator: 'less',
+                value: { kind: 'constant', value: 0.4 },
+              },
+            },
+          },
+        ],
+      },
+    });
+  });
+  it('Context.trigger 的简单 Buff ID 层数条件复用公共命名目标协议', () => {
+    const value = record(12);
+    value.comboSkillCheckAction.actionData = [
+      {
+        $type: 'Beyond.Gameplay.Core.Conditions.CheckBuffStackNum+Data, Gameplay.Beyond',
+        isEnable: true,
+        priorityLevel: 'Default',
+        priorityOffset: 0,
+        serverActionIndex: 1002,
+        checkTarget: targetFixture('Context', undefined, 'trigger'),
+        buffId: { buffId: 'buff_physical_no_guard' },
+        compareType: 'GE',
+        value: scalarFixture(3),
+      },
+    ];
+    expect(compilePendingComboConditionSource(parse([value])[0]!, context)).toMatchObject({
+      sequence: {
+        steps: [
+          {
+            parameters: {
+              condition: {
+                kind: 'contextTargetBuffIdStackCompare',
+                contextKey: 'trigger',
+                buffIds: ['buff_physical_no_guard'],
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 3 },
+              },
+            },
+          },
+        ],
+      },
+    });
   });
   it.each([
     [9, 'addedBuff'],
+    [102, 'outputBuff'],
     [101, 'beforeTakeDamage'],
+    [302, 'beforeOutputDamage'],
     [12, 'takeDamage'],
+    [13, 'outputDamage'],
     [126, 'beforeOutputInfliction'],
     [121, 'beforeTakeInfliction'],
     [129, 'afterOutputInfliction'],
     [130, 'afterTakeInfliction'],
+    [204, 'buffEndsEarly'],
+    [208, 'buffConsumed'],
+    [211, 'buffAbsorbed'],
+    [21, 'poiseZero'],
+    [241, 'poiseKnotBreak'],
   ] as const)('原生事件 %s → %s', (id, event) => {
     const source = parse([record(id)])[0]!;
     const result = compilePendingComboConditionSource(source, context);
@@ -170,9 +254,9 @@ describe('公共连携条件来源与 Pending 编译', () => {
     expect(source[0]).not.toBe(source[1]);
     expect(parse([])).toEqual([]);
   });
-  it.each([0, 125, 999])('未审计事件 %s 不能冒充支持', id => {
+  it.each([0, 125, 999])('公共词汇尚不认识的事件 %s 不能冒充支持', id => {
     expect(() => compilePendingComboConditionSource(parse([record(id)])[0]!, context)).toThrow(
-      `unaudited combo event ${id}`,
+      `unsupported ability event ${id}`,
     );
   });
   it('来源与编译结果都保留立即施放事实，不在转换器偷换成开窗口', () => {
@@ -181,6 +265,29 @@ describe('公共连携条件来源与 Pending 编译', () => {
     const source = parse([value])[0]!;
     expect(source.immediately).toBe(true);
     expect(compilePendingComboConditionSource(source, context).source.immediately).toBe(true);
+  });
+  it('ReturnFalseAction 作为公共常量条件保留原生序列返回值', () => {
+    const value = record(12);
+    value.comboSkillCheckAction.actionData = [
+      {
+        $type: 'Beyond.Gameplay.Core.ReturnFalseAction+Data, Gameplay.Beyond',
+        isEnable: true,
+        priorityLevel: 'Default',
+        priorityOffset: 0,
+        serverActionIndex: 1000,
+      },
+    ];
+    expect(compilePendingComboConditionSource(parse([value])[0]!, context)).toMatchObject({
+      sequence: {
+        steps: [
+          {
+            kind: 'conditional',
+            parameters: { condition: { kind: 'constant', value: false } },
+            whenTrue: { steps: [] },
+          },
+        ],
+      },
+    });
   });
   it.each(['onlyExecuteWhenSourceIsMainChar', 'onlyExecuteWhenSourceIsGuard'] as const)(
     '尚未接通 %s 时严格失败',

@@ -1,5 +1,9 @@
 import { parseAttributeTypeValue, type AttributeTypeSource } from './attributeModifiers.ts';
 import {
+  COMPARISON_OPERATORS,
+  type ComparisonOperator,
+} from '../../../../packages/game-data-contract/src/primitives.ts';
+import {
   requireExactFields,
   requireNonEmptyString,
   requireNonNegativeInteger,
@@ -17,15 +21,8 @@ const CONDITION_FIELDS = new Set([
   'toastText',
 ]);
 
-export const COMPARE_OPERATORS = [
-  'equal',
-  'notEqual',
-  'greater',
-  'greaterOrEqual',
-  'less',
-  'lessOrEqual',
-] as const;
-export type CompareOperatorSource = (typeof COMPARE_OPERATORS)[number];
+export const COMPARE_OPERATORS = COMPARISON_OPERATORS;
+export type CompareOperatorSource = ComparisonOperator;
 
 /** SkillConditionTable 中一条原生条件；condType 保留原生整数身份。 */
 export interface SkillConditionSource {

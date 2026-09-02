@@ -7,7 +7,11 @@ import {
   requireRecord,
   requireString,
 } from './primitives.ts';
-import type { TagQuerySource, TagQueryType } from './tagQuery.ts';
+import {
+  NATIVE_GAMEPLAY_TAG_QUERY_NAMES,
+  projectNativeTagQueryType,
+  type TagQuerySource,
+} from './tagQuery.ts';
 import { parseScalarSource, type ScalarSource } from './scalar.ts';
 
 export interface ProjectileRuntimeSource {
@@ -272,12 +276,10 @@ function parseDecodedProjectileTagQuery(value: unknown, path: string): TagQueryS
   const query = requireRecord(value, path);
   const rawType = requireRecord(query.queryType, `${path}.queryType`);
   const numeric = requireInteger(rawType.value, `${path}.queryType.value`);
-  const names = ['HasAny', 'HasAll', 'ExceptAny', 'ExceptAll'] as const;
-  const types: readonly TagQueryType[] = ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'];
-  const expectedName = names[numeric];
-  const queryType = types[numeric];
-  if (expectedName === undefined || queryType === undefined)
+  const expectedName = NATIVE_GAMEPLAY_TAG_QUERY_NAMES[numeric];
+  if (expectedName === undefined)
     throw new Error(`${path}.queryType.value: unsupported value ${numeric}`);
+  const queryType = projectNativeTagQueryType(numeric, `${path}.queryType.value`);
   if (requireString(rawType.name, `${path}.queryType.name`) !== expectedName)
     throw new Error(`${path}.queryType: value/name mismatch`);
   const tagIds = requireArray(query.tags, `${path}.tags`).map((entry, index) => {

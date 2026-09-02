@@ -3,6 +3,7 @@ import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import { ArrowDown, ArrowUp, CopyDocument, Delete } from '@element-plus/icons-vue';
 import type {
   AbilityEntityDefinition,
+  AbilityEntityDefinitionNumber,
   CombatCondition,
   CombatEventResponseDefinition,
   CombatStepDefinition,
@@ -40,6 +41,9 @@ import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import StepTypePicker from './StepTypePicker.vue';
+import AbilityEntityDefinitionNumberEditor from './AbilityEntityDefinitionNumberEditor.vue';
+import GameplayTagsEditor from './GameplayTagsEditor.vue';
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
 
 type StructureOperationNode = {
   readonly id: string;
@@ -54,7 +58,9 @@ type StructureOperationNode = {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffDefinition'
+    | 'globalBuffChild';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -65,7 +71,8 @@ type StructureOperationNode = {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffChild';
 };
 
 const props = defineProps<{
@@ -288,17 +295,38 @@ function setLifetimeKind(event: Event): void {
     ),
   );
 }
-function setLifetimeDuration(event: Event): void {
+function setLifetimeDurationValue(durationSeconds: AbilityEntityDefinitionNumber): void {
   if (props.definition.lifetime.kind !== 'limited') return;
-  const durationSeconds = Number((event.target as HTMLInputElement).value);
-  if (!Number.isFinite(durationSeconds) || durationSeconds < 0) return;
-  emit(
-    'update',
-    replaceStructureValueAtPath(props.definition, 'lifetime', {
-      kind: 'limited',
-      durationSeconds,
-    }),
-  );
+  emit('update', {
+    ...props.definition,
+    lifetime: { kind: 'limited', durationSeconds },
+  });
+}
+function setBornTags(bornTags: readonly GameplayTag[]): void {
+  const next = { ...props.definition };
+  if (bornTags.length === 0) delete next.bornTags;
+  else next.bornTags = bornTags;
+  emit('update', next);
+}
+function setOptionalDefinitionNumber(
+  field: 'maxStackingCount',
+  value: AbilityEntityDefinitionNumber | undefined,
+): void {
+  const next = { ...props.definition };
+  if (value === undefined) delete next[field];
+  else next[field] = value;
+  emit('update', next);
+}
+function setDeathReleaseDelay(event: Event): void {
+  const raw = (event.target as HTMLInputElement).value;
+  const next = { ...props.definition };
+  if (raw === '') delete next.deathReleaseDelaySeconds;
+  else {
+    const value = Number(raw);
+    if (!Number.isFinite(value) || value < 0 || value >= 300) return;
+    next.deathReleaseDelaySeconds = value;
+  }
+  emit('update', next);
 }
 function updateChildSkillId(event: Event): void {
   const childSkill = props.definition.childSkill;
@@ -633,6 +661,43 @@ async function deleteCurrent(): Promise<void> {
           </div>
         </header>
         <p>{{ selectedNode?.summary }}</p>
+        <GameplayTagsEditor
+          label="出生标签"
+          help="实体创建时立即写入自身 AbilitySystem；实体查询和条件可依赖这些稳定标签。"
+          :tags="definition.bornTags ?? []"
+          @update="setBornTags"
+        />
+        <label class="field-row">
+          <span>死亡回收延迟（秒）</span>
+          <input
+            type="number"
+            min="0"
+            max="299.99"
+            step="0.01"
+            :value="definition.deathReleaseDelaySeconds ?? ''"
+            placeholder="未设置"
+            @input="setDeathReleaseDelay"
+          />
+        </label>
+        <label class="field-row field-row--optional">
+          <span
+            ><input
+              type="checkbox"
+              :checked="definition.maxStackingCount !== undefined"
+              @change="
+                setOptionalDefinitionNumber(
+                  'maxStackingCount',
+                  ($event.target as HTMLInputElement).checked ? 1 : undefined,
+                )
+              "
+            />最大同模板实例数</span
+          >
+          <AbilityEntityDefinitionNumberEditor
+            v-if="definition.maxStackingCount !== undefined"
+            :value="definition.maxStackingCount"
+            @update="setOptionalDefinitionNumber('maxStackingCount', $event)"
+          />
+        </label>
         <p>生命周期与子技能分别作为导图子节点编辑。</p>
       </section>
       <section v-else-if="selectedId === 'entity:lifetime'" class="node-card">
@@ -648,12 +713,9 @@ async function deleteCurrent(): Promise<void> {
         </label>
         <label v-if="definition.lifetime.kind === 'limited'" class="field-row">
           <span>持续秒数</span>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
+          <AbilityEntityDefinitionNumberEditor
             :value="definition.lifetime.durationSeconds"
-            @input="setLifetimeDuration"
+            @update="setLifetimeDurationValue"
           />
         </label>
       </section>

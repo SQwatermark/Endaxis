@@ -36,7 +36,10 @@ import type { NativeConditionSource } from '../src/source/condition.ts';
 import type { SkillSlotReplacementActionSource } from '../src/source/skillSlotActions.ts';
 import { parseOperatorRuntimeTemplateSource } from '../src/source/operatorRuntimeTemplate.ts';
 import { compileAbilitySystemBlackboardsSource } from '../src/compiler/abilitySystemBlackboards.ts';
-import { compileComboSkillConditionDefinitionSource } from '../src/compiler/comboSkillConditions.ts';
+import {
+  compileComboSkillConditionDefinitionSource,
+  createOperatorComboActionProjectionContext,
+} from '../src/compiler/comboSkillConditions.ts';
 import type {
   OperatorPlayerActionRoutes,
   OperatorSkillSlotDefinition,
@@ -404,6 +407,7 @@ function planOperatorRuntimeTemplate(
       `${sourcePath}: expected source character ${JSON.stringify(sourceCharacterId)}`,
     );
   }
+  let comboSkill: PlannedOperatorActiveSkillRuntime | undefined;
   if (skillGroup !== undefined) {
     const comboSkills = activeSkills.filter(
       skill =>
@@ -415,6 +419,7 @@ function planOperatorRuntimeTemplate(
         `${sourcePath}: runtime template combo skill identity does not match manifest`,
       );
     }
+    comboSkill = comboSkills[0]!;
   }
   const blackboards = compileAbilitySystemBlackboardsSource(template.blackboards);
   return {
@@ -424,13 +429,8 @@ function planOperatorRuntimeTemplate(
         compileComboSkillConditionDefinitionSource(
           condition,
           blackboards,
-          { key: `native-combo:${index}`, skillGroupKey: skillGroupKey! },
-          {
-            gameplayTagRegistry,
-            actionOwnerTarget: 'caster',
-            actionSourceTarget: 'caster',
-            actionTargetTarget: 'eventTarget',
-          },
+          { key: `native-combo:${index}`, skillKey: comboSkill!.definition.key },
+          createOperatorComboActionProjectionContext(gameplayTagRegistry),
         ).definition,
     ),
     comboSkillPriority: template.comboSkillPriority,

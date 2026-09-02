@@ -27,6 +27,20 @@ import TimeDilationStepEditor from './TimeDilationStepEditor.vue';
 import AbilityEntityStepEditor from './AbilityEntityStepEditor.vue';
 import SkillCooldownStepEditor from './SkillCooldownStepEditor.vue';
 import PhysicalInflictionStepEditor from './PhysicalInflictionStepEditor.vue';
+import SkillRoutingStepEditor from './SkillRoutingStepEditor.vue';
+import ActionDispatchStepEditor from './ActionDispatchStepEditor.vue';
+import BuffLifecycleOperationStepEditor from './BuffLifecycleOperationStepEditor.vue';
+import BuffRuntimeStateStepEditor from './BuffRuntimeStateStepEditor.vue';
+import SourceValueStepEditor from './SourceValueStepEditor.vue';
+import AbilityEntityTimedMarkerStepEditor from './AbilityEntityTimedMarkerStepEditor.vue';
+import BlackboardCaptureStepEditor from './BlackboardCaptureStepEditor.vue';
+import IgnoreGlobalTimeScaleStepEditor from './IgnoreGlobalTimeScaleStepEditor.vue';
+import KnockDownStepEditor from './KnockDownStepEditor.vue';
+import GlobalBuffStepEditor from './GlobalBuffStepEditor.vue';
+import TargetContextStepEditor from './TargetContextStepEditor.vue';
+import ForEachContextTargetStepEditor from './ForEachContextTargetStepEditor.vue';
+import AbilityEntityLifecycleStepEditor from './AbilityEntityLifecycleStepEditor.vue';
+import StructuredControlStepEditor from './StructuredControlStepEditor.vue';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 
 const props = defineProps<{
@@ -80,6 +94,51 @@ function forward(step: CombatStepDefinition): void {
       >
         <TimeDilationStepEditor :step="step" @update="forward" />
       </template>
+      <template v-else-if="step.kind === 'setIgnoreGlobalTimeScale'">
+        <IgnoreGlobalTimeScaleStepEditor :step="step" @update="forward" />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'mergeContextTargets' ||
+          step.kind === 'findCharacterTeamTargets' ||
+          step.kind === 'findOwnerSpawnedAbilityEntities' ||
+          step.kind === 'pickContextTarget'
+        "
+      >
+        <TargetContextStepEditor :step="step" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'forEachContextTarget'">
+        <ForEachContextTargetStepEditor :step="step" @update="forward" />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'readAbilityEntityRemainingDuration' ||
+          step.kind === 'setAbilityEntityRemainingDuration' ||
+          step.kind === 'finishCurrentAbilityEntity' ||
+          step.kind === 'finishActionOwnerAbilityEntity' ||
+          step.kind === 'finishCurrentAbilityEntityWhenSourceDies' ||
+          step.kind === 'startCurrentAbilityEntityChildSkillById'
+        "
+      >
+        <AbilityEntityLifecycleStepEditor :step="step" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'startCurrentAbilityEntityChildSkill'">
+        <p class="step-editor__unsupported">
+          内联子技能本层没有额外参数；定义、黑板和调度序列在左侧导图中分层编辑。
+        </p>
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'createSpatialPointTargets' ||
+          step.kind === 'jumpTimeline' ||
+          step.kind === 'finishTimeline' ||
+          step.kind === 'withActionBlackboardScope' ||
+          step.kind === 'repeatByActionValue' ||
+          step.kind === 'scheduleProjectileFinishCallback'
+        "
+      >
+        <StructuredControlStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
       <template v-else-if="step.kind === 'switch'">
         <SwitchStepEditor
           :step="step"
@@ -110,13 +169,37 @@ function forward(step: CombatStepDefinition): void {
       <template v-else-if="step.kind === 'applyPhysicalInfliction'">
         <PhysicalInflictionStepEditor :step="step" @update="forward" />
       </template>
+      <template v-else-if="step.kind === 'applyKnockDown'">
+        <KnockDownStepEditor :step="step" @update="forward" />
+      </template>
       <template v-else-if="step.kind === 'triggerSpellBurst'">
         <SpellBurstStepEditor :step="step" @update="forward" />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'triggerCustomAbilityEvent' || step.kind === 'castSkillDuringAction'
+        "
+      >
+        <ActionDispatchStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="step.kind === 'modifyActionValue' || step.kind === 'calculateActionValue'"
       >
         <ActionValueStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'readSkillSettingData' || step.kind === 'storeSourceAttributeValue'
+        "
+      >
+        <SourceValueStepEditor :step="step" @update="forward" />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'storeCurrentTimelineFrame' || step.kind === 'storeEventSpGainAmount'
+        "
+      >
+        <BlackboardCaptureStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="step.kind === 'changeResource' || step.kind === 'changeResourceByActionValue'"
@@ -166,16 +249,47 @@ function forward(step: CombatStepDefinition): void {
       </template>
       <template
         v-else-if="
+          step.kind === 'readEventBuffBlackboard' ||
+          step.kind === 'readCurrentBuffRemainingDuration' ||
+          step.kind === 'readBuffRemainingDuration' ||
+          step.kind === 'setCurrentBuffRemainingDuration' ||
+          step.kind === 'refreshCurrentBuffAttributeModifiers' ||
+          step.kind === 'finishCurrentBuff' ||
+          step.kind === 'setCurrentBuffTimePaused'
+        "
+      >
+        <BuffRuntimeStateStepEditor :step="step" @update="forward" />
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'igniteBuffs' ||
+          step.kind === 'inheritBuffById' ||
+          step.kind === 'restrictUltimateEnergyRecovery'
+        "
+      >
+        <BuffLifecycleOperationStepEditor :step="step" @update="forward" />
+      </template>
+      <template
+        v-else-if="step.kind === 'createGlobalBuff' || step.kind === 'finishParentGlobalBuff'"
+      >
+        <GlobalBuffStepEditor :step="step" @update="forward" />
+      </template>
+      <template
+        v-else-if="
           step.kind === 'createTimedMarker' ||
           step.kind === 'outputAirborne' ||
           step.kind === 'outputKnockDown' ||
           step.kind === 'gainSquadUltimateEnergyFromSkillCost' ||
           step.kind === 'gainFinisherSp' ||
           step.kind === 'setContextFlag' ||
+          step.kind === 'setCharacterPassiveUiValue' ||
           step.kind === 'openComboWindow'
         "
       >
         <MechanicStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
+      </template>
+      <template v-else-if="step.kind === 'createAbilityEntityTimedMarker'">
+        <AbilityEntityTimedMarkerStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="
@@ -202,6 +316,15 @@ function forward(step: CombatStepDefinition): void {
           @update="forward"
         />
         <p v-else class="step-editor__unsupported">事件响应在左侧导图中添加和选择。</p>
+      </template>
+      <template
+        v-else-if="
+          step.kind === 'changeSkillSlot' ||
+          step.kind === 'changePlayerActionMode' ||
+          step.kind === 'changeNativeSkillType'
+        "
+      >
+        <SkillRoutingStepEditor :step="step" @update="forward" />
       </template>
 
       <p v-else class="step-editor__unsupported">

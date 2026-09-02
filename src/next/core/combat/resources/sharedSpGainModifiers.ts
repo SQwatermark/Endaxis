@@ -5,10 +5,14 @@
  * SkillSetting.atbGainEfficiency 作为稳定战斗配置传入，并让 Buff 按启停生命周期注册、注销
  * 同一个修正对象。最终写入共享 SP 账本及上限裁剪不属于本模块职责。
  */
+import {
+  SP_GAIN_SOURCES,
+  type SpGainSource,
+} from '../../../../../packages/game-data-contract/src/primitives';
 
-export const SHARED_SP_GAIN_SOURCES = ['default', 'normalAttack', 'powerAttack', 'skill'] as const;
+export const SHARED_SP_GAIN_SOURCES = SP_GAIN_SOURCES;
 /** 共享 SP 的获取来源；来源决定是否应用普攻或重击专属效率。 */
-export type SharedSpGainSource = (typeof SHARED_SP_GAIN_SOURCES)[number];
+export type SharedSpGainSource = SpGainSource;
 
 export const SHARED_SP_GAIN_METHODS = ['gain', 'return'] as const;
 /** 普通获取不会进入返还池；返还获取还会受到修正项的过滤标记约束。 */

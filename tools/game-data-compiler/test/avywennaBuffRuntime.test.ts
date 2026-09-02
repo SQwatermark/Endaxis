@@ -74,6 +74,7 @@ describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
       buffDefinitions: { ...avywenna.buffDefinitions, [id]: definition as SkillBuffDefinition },
       talents: [],
       potentials: [],
+      comboSkillConditions: [],
       skillGroups: [
         {
           key: 'battleSkill',
@@ -137,6 +138,7 @@ describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
       buffDefinitions: closure.definitions as Record<string, SkillBuffDefinition>,
       talents: [],
       potentials: [],
+      comboSkillConditions: [],
       skillGroups: [
         {
           key: 'battleSkill',

@@ -316,6 +316,7 @@ import {
 } from './eventPayloadActions.ts';
 
 const CONDITION_ACTION_NAMES = new Set([
+  'ReturnFalseAction',
   'OrConditionAction',
   'CompareFloat',
   'CompareString',

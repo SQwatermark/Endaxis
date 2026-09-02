@@ -4,6 +4,7 @@
  * 证据：combat-spec combo-condition-leaves.md / Runtime/TargetResolution.cs / MathUtils.cs。
  */
 import { parseComboSkillConditionsSource } from './comboSkillConditions.ts';
+import { NATIVE_GAMEPLAY_TAG_QUERY_NAMES } from './tagQuery.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import {
   requireArray,
@@ -38,7 +39,6 @@ const DIRECTIONS = [
   'CameraForward',
 ];
 const COMPARISONS = ['LT', 'LE', 'GT', 'GE', 'Equals'];
-const TAG_QUERIES = ['HasAny', 'HasAll', 'ExceptAny', 'ExceptAll'];
 const META = ['isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex'];
 const LEAF_FIELDS: Readonly<Record<string, readonly string[]>> = {
   'Beyond.Gameplay.Core.Conditions.CheckObjectTypeMatch/Data': ['target', 'objectTypeMask'],
@@ -86,6 +86,52 @@ const LEAF_FIELDS: Readonly<Record<string, readonly string[]>> = {
     'query',
     'blackboardKey',
   ],
+  'Beyond.Gameplay.Core.Conditions.CheckMainCharacterCondition/Data': ['checkTarget'],
+  'Beyond.Gameplay.Core.Conditions.CheckBuffIdInContext/Data': [
+    'checkType',
+    'buffIdList',
+    'query',
+    'blackboardKey',
+  ],
+  'Beyond.Gameplay.Core.Conditions.CheckTagMatch/Data': ['checkTarget', 'query'],
+  'Beyond.Gameplay.Core.Conditions.CheckHp/Data': ['hpOwner', 'compare', 'isRatio', 'value'],
+  'Beyond.Gameplay.Core.Conditions.CheckBuffStackNum/Data': [
+    'checkTarget',
+    'buffId',
+    'compareType',
+    'value',
+  ],
+  'Beyond.Gameplay.Core.CreateBuffAction/Data': [
+    'buffs',
+    'count',
+    'targetSettings',
+    'buffSource',
+    'contextKey',
+    'autoFinishByAction',
+    'inheritSkillIdList',
+    'finishWithNextSkillIfNotInherited',
+    'asChildBuff',
+    'inheritSourceSkillCastId',
+    'inheritSourceSkillCastInfo',
+    'isExtra',
+    'passTargetGroupsToBuff',
+    'overrideBuffIconDuration',
+    'buffIconDurationSource',
+  ],
+  'Beyond.Gameplay.Core.StoreBuffCount/Data': [
+    'useCurrentBuff',
+    'buffOwners',
+    'buffId',
+    'blackboardKey',
+  ],
+  'Beyond.Gameplay.Core.ReturnFalseAction/Data': [],
+  'Beyond.Gameplay.Core.IfElseAction/IfElseActionData': [
+    'conditionAction',
+    'succeedActions',
+    'failActions',
+    'alwaysNext',
+  ],
+  'Beyond.Gameplay.Core.NotNextCheckAction/Data': [],
 };
 
 export function parseUnityComboSkillConditionsSource(
@@ -125,12 +171,7 @@ export function parseUnityComboSkillConditionsSource(
               );
             }
             usedReferences.push({ rid, sourcePath: refPath, source: reference });
-            return normalizeLeaf(
-              reference,
-              references,
-              usedReferences,
-              `${refPath} RID ${rid}`,
-            );
+            return normalizeLeaf(reference, references, usedReferences, `${refPath} RID ${rid}`);
           },
         ),
       },
@@ -164,23 +205,24 @@ function normalizeLeaf(
     throw new Error(`${path}: only audited Default priority is supported`);
   const result: Record<string, unknown> = {
     ...data,
-    $type: `${type.replace('/Data', '+Data')}, Gameplay.Beyond`,
+    // Unity's managed-reference registry writes nested CLR classes with a slash
+    // (for example IfElseAction/IfElseActionData).  The common source parser
+    // consumes the canonical exported JSON spelling, which uses '+'.
+    $type: `${type.replace('/', '+')}, Gameplay.Beyond`,
     priorityLevel: 'Default',
   };
   for (const key of [
     'target',
     'checkTarget',
+    'hpOwner',
     'firstTargetSettings',
     'secondTargetSettings',
     'calculationTarget',
+    'targetSettings',
+    'buffOwners',
   ])
     if (key in data)
-      result[key] = normalizeTarget(
-        data[key],
-        references,
-        usedReferences,
-        `${path}.${key}`,
-      );
+      result[key] = normalizeTarget(data[key], references, usedReferences, `${path}.${key}`);
   for (const key of ['valueA', 'valueB', 'value'])
     if (key in data) result[key] = normalizeScalar(data[key], `${path}.${key}`);
   for (const key of ['compare', 'compareType'])
@@ -192,12 +234,13 @@ function normalizeLeaf(
       `${path}.buffStackNumType`,
     );
   if ('tagQuery' in data) result.tagQuery = normalizeTagQuery(data.tagQuery, `${path}.tagQuery`);
+  if ('query' in data) result.query = normalizeTagQuery(data.query, `${path}.query`);
   if ('buffSettings' in data)
     result.buffSettings = normalizeBuffFindSettings(data.buffSettings, `${path}.buffSettings`);
   if (type.endsWith('.CheckDamageDecorateMask/Data')) {
     result.checkType = enumName(
       data.checkType,
-      ['Exact', 'HasAny', 'HasAll', 'ExceptAny', 'ExceptAll'],
+      ['Exact', ...NATIVE_GAMEPLAY_TAG_QUERY_NAMES],
       `${path}.checkType`,
     );
   }
@@ -208,12 +251,16 @@ function normalizeLeaf(
       `${path}.mask`,
     );
   }
-  if (type.endsWith('.CheckBuffIdInContextAdvanced/Data')) {
+  if (
+    type.endsWith('.CheckBuffIdInContext/Data') ||
+    type.endsWith('.CheckBuffIdInContextAdvanced/Data')
+  ) {
     result.checkType = enumName(data.checkType, ['Id', 'Tag'], `${path}.checkType`);
+  }
+  if (type.endsWith('.CheckBuffIdInContextAdvanced/Data')) {
     result.buffIdList = requireArray(data.buffIdList, `${path}.buffIdList`).map((value, index) =>
       normalizeBlackboardString(value, `${path}.buffIdList[${index}]`),
     );
-    result.query = normalizeTagQuery(data.query, `${path}.query`);
   }
   if (type.endsWith('.ModifyDynamicBlackboard/Data')) {
     result.operation = enumName(
@@ -223,7 +270,108 @@ function normalizeLeaf(
     );
     result.calculateType = enumName(data.calculateType, ['HpRatio'], `${path}.calculateType`);
   }
+  if (type.endsWith('.CreateBuffAction/Data')) {
+    result.count = normalizeScalar(data.count, `${path}.count`);
+    result.buffSource = enumName(data.buffSource, ACTION_TARGETS, `${path}.buffSource`);
+    result.buffs = requireArray(data.buffs, `${path}.buffs`).map((value, index) =>
+      normalizeCreateBuffInput(value, `${path}.buffs[${index}]`),
+    );
+    const duration = requireRecord(data.buffIconDurationSource, `${path}.buffIconDurationSource`);
+    requireExactFields(
+      duration,
+      new Set(['durationSourceType', 'timedMarkerId']),
+      `${path}.buffIconDurationSource`,
+    );
+    result.buffIconDurationSource = {
+      m_abilityEntityTypeInfo: '当ActionOwner是AbilityEntity时，Buff图标倒计时显示Owner的剩余时间',
+      m_timedMarkerInfo: '选择ActionOwner身上的一个TimedMarker作为Buff图标倒计时显示的来源',
+      durationSourceType: enumName(
+        duration.durationSourceType,
+        ['AbilityEntity', 'TimedMarker'],
+        `${path}.buffIconDurationSource.durationSourceType`,
+      ),
+      timedMarkerId: requireString(
+        duration.timedMarkerId,
+        `${path}.buffIconDurationSource.timedMarkerId`,
+      ),
+    };
+  }
+  if (type.endsWith('.IfElseAction/IfElseActionData')) {
+    for (const key of ['conditionAction', 'succeedActions', 'failActions'])
+      result[key] = normalizeReferencedSequence(
+        data[key],
+        references,
+        usedReferences,
+        `${path}.${key}`,
+      );
+  }
   return result;
+}
+
+function normalizeReferencedSequence(
+  value: unknown,
+  references: Record<string, unknown>,
+  usedReferences: { rid: string; sourcePath: string; source: Record<string, unknown> }[],
+  path: string,
+) {
+  const sequence = requireRecord(value, path);
+  requireExactFields(
+    sequence,
+    new Set(['actionData', 'onlyExecuteWhenSourceIsMainChar', 'onlyExecuteWhenSourceIsGuard']),
+    path,
+  );
+  return {
+    ...sequence,
+    actionData: requireArray(sequence.actionData, `${path}.actionData`).map((value, index) => {
+      const refPath = `${path}.actionData[${index}]`;
+      const rid = requireString(value, refPath);
+      const reference = requireRecord(references[rid], `${refPath} RID ${rid}`);
+      if (
+        reference.rid !== rid ||
+        reference.decodeStatus !== 'complete' ||
+        reference.assembly !== 'Gameplay.Beyond'
+      )
+        throw new Error(`${refPath} RID ${rid}: mismatched, incomplete or unaudited reference`);
+      usedReferences.push({ rid, sourcePath: refPath, source: reference });
+      return normalizeLeaf(reference, references, usedReferences, `${refPath} RID ${rid}`);
+    }),
+  };
+}
+
+function normalizeCreateBuffInput(value: unknown, path: string) {
+  const input = requireRecord(value, path);
+  requireExactFields(
+    input,
+    new Set(['buffId', 'assignBlackboard', 'assignItems', 'readIdFromBlackboard', 'buffIdKey']),
+    path,
+  );
+  return {
+    ...input,
+    assignItems: requireArray(input.assignItems, `${path}.assignItems`).map((value, index) => {
+      const itemPath = `${path}.assignItems[${index}]`;
+      const item = requireRecord(value, itemPath);
+      requireExactFields(
+        item,
+        new Set([
+          'targetKey',
+          'inputValueKey',
+          'useDirectValue',
+          'directValueType',
+          'numericValue',
+          'stringValue',
+        ]),
+        itemPath,
+      );
+      return {
+        ...item,
+        directValueType: enumName(
+          item.directValueType,
+          ['Numeric', 'String'],
+          `${itemPath}.directValueType`,
+        ),
+      };
+    }),
+  };
 }
 
 function normalizeBlackboardString(value: unknown, path: string) {
@@ -388,7 +536,7 @@ function normalizeTagQuery(value: unknown, path: string) {
   requireExactFields(query, new Set(['queryType', 'tags']), path);
   const type = requireRecord(query.queryType, `${path}.queryType`);
   requireExactFields(type, new Set(['value', 'name']), `${path}.queryType`);
-  const name = enumName(type.value, TAG_QUERIES, `${path}.queryType.value`);
+  const name = enumName(type.value, NATIVE_GAMEPLAY_TAG_QUERY_NAMES, `${path}.queryType.value`);
   if (type.name !== name) throw new Error(`${path}: tag query enum name/value mismatch`);
   return {
     queryType: name,

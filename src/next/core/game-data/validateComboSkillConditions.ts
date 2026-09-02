@@ -1,4 +1,4 @@
-import { COMBO_SKILL_CONDITION_EVENTS } from './operatorDefinition';
+import { ABILITY_EVENTS } from './operatorDefinition';
 import {
   validateActionSequenceDefinition,
   type SkillDefinitionValidationIssue,
@@ -17,14 +17,7 @@ export function validateComboSkillConditions(
   if (value === undefined) return issues;
   if (!Array.isArray(value)) return [{ path, message: 'expected an array' }];
   const keys = new Set<string>();
-  const fields = new Set([
-    'key',
-    'skillGroupKey',
-    'event',
-    'immediately',
-    'initialValues',
-    'sequence',
-  ]);
+  const fields = new Set(['key', 'skillKey', 'event', 'immediately', 'initialValues', 'sequence']);
   value.forEach((entry: unknown, index) => {
     const p = `${path}[${index}]`;
     if (!isRecord(entry)) {
@@ -35,7 +28,7 @@ export function validateComboSkillConditions(
       if (!fields.has(key))
         issues.push({ path: `${p}.${key}`, message: 'unsupported combo condition field' });
     }
-    for (const key of ['key', 'skillGroupKey']) {
+    for (const key of ['key', 'skillKey']) {
       if (typeof entry[key] !== 'string' || entry[key].length === 0)
         issues.push({ path: `${p}.${key}`, message: 'expected a non-empty string' });
     }
@@ -44,8 +37,8 @@ export function validateComboSkillConditions(
         issues.push({ path: `${p}.key`, message: 'duplicate combo condition key' });
       keys.add(entry.key);
     }
-    if (!COMBO_SKILL_CONDITION_EVENTS.some(event => event === entry.event))
-      issues.push({ path: `${p}.event`, message: 'expected an audited native infliction event' });
+    if (!ABILITY_EVENTS.some(event => event === entry.event))
+      issues.push({ path: `${p}.event`, message: 'expected a known AbilitySystem event' });
     if (typeof entry.immediately !== 'boolean')
       issues.push({ path: `${p}.immediately`, message: 'expected a native boolean' });
     if (entry.initialValues !== null) {

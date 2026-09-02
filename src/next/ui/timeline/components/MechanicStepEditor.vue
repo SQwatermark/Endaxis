@@ -30,6 +30,7 @@ type MechanicStep = Extract<
       | 'gainSquadUltimateEnergyFromSkillCost'
       | 'gainFinisherSp'
       | 'setContextFlag'
+      | 'setCharacterPassiveUiValue'
       | 'openComboWindow';
   }
 >;
@@ -151,6 +152,11 @@ function setContextValue(event: Event): void {
   if (typeof value === 'number' && !Number.isFinite(value)) return;
   emit('update', { ...props.step, parameters: { ...props.step.parameters, value } });
 }
+
+function setPassiveUiValue(value: ActionValueOperand): void {
+  if (props.step.kind !== 'setCharacterPassiveUiValue') return;
+  emit('update', { ...props.step, parameters: { ...props.step.parameters, value } });
+}
 </script>
 
 <template>
@@ -239,13 +245,38 @@ function setContextValue(event: Event): void {
       </label>
     </template>
 
+    <template v-else-if="step.kind === 'setCharacterPassiveUiValue'">
+      <label>
+        <EditorFieldLabel
+          label="角色专属 HUD 目标"
+          help="当前公共协议只支持把数值写到施法者自己的专属 HUD 状态。"
+        />
+        <em>{{ t('nextTimeline.skillEditing.targets.caster') }}</em>
+      </label>
+      <label class="step-editor__operand">
+        <EditorFieldLabel
+          label="HUD 数值"
+          help="只更新角色专属战斗界面的可视状态，不直接改变伤害属性。"
+        />
+        <ActionValueOperandEditor
+          :value="step.parameters.value"
+          :labels="operandLabels()"
+          @update="setPassiveUiValue"
+        />
+      </label>
+    </template>
+
     <template v-else-if="step.kind === 'openComboWindow'">
       <label>
         <EditorFieldLabel
           :label="t('nextTimeline.skillEditing.nextComboSkillKey')"
           :help="t('nextTimeline.skillEditing.fieldHelp.nextComboSkillKey')"
         />
-        <input type="text" :value="step.parameters.nextSkillKey" @input="setNextSkillKey" />
+        <input
+          type="text"
+          :value="'nextSkillKey' in step.parameters ? step.parameters.nextSkillKey : ''"
+          @input="setNextSkillKey"
+        />
       </label>
       <label>
         <EditorFieldLabel
@@ -256,7 +287,7 @@ function setContextValue(event: Event): void {
       </label>
     </template>
 
-    <template v-else>
+    <template v-else-if="step.kind === 'setContextFlag'">
       <label>
         <EditorFieldLabel
           :label="t('nextTimeline.skillEditing.contextFlag')"

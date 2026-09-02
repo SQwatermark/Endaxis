@@ -21,6 +21,7 @@ import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
@@ -58,7 +59,11 @@ export type NormalizedAbilityEventName =
   | EquipmentAbilityEvent
   | 'afterOutputInfliction'
   | 'afterTakeInfliction'
-  | 'afterTakePhysicalInfliction';
+  | 'afterTakePhysicalInfliction'
+  | 'poiseKnotBreak'
+  | 'buffConsumed'
+  | 'buffAbsorbed'
+  | 'weaknessSet';
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
@@ -71,7 +76,7 @@ export type RegisterBuffAbilityEventAction = (
     | 'buffConsumed'
   >,
   priority: number,
-  handle: (payload: unknown) => void,
+  handle: (payload: unknown, actionContext?: AbilityEventRuntimeActionContext) => void,
   samePriorityKey?: string,
 ) => AbilityEventRegistration;
 
@@ -466,8 +471,13 @@ export function attachBuffLifecycleSequences<Key extends string>(
           registerAbilityEventAction!(
             group.event,
             group.priority,
-            payload => {
+            (payload, actionContext) => {
               const runtime = runtimeFor(buff);
+              const callbackTargets = runtime.context.targetContext;
+              if (callbackTargets === undefined)
+                throw new Error('Buff ability response requires a combat target context');
+              if (actionContext?.triggerTarget != null)
+                callbackTargets.setSingle('trigger', actionContext.triggerTarget);
               for (const response of group.responses) {
                 const event = normalizeAbilityEventPayload(
                   response.event as Exclude<
@@ -484,6 +494,12 @@ export function attachBuffLifecycleSequences<Key extends string>(
                 runtime
                   .createSequence(response.sequence, {
                     ...runtime.context,
+                    targetContext: callbackTargets,
+                    ...(actionContext === undefined
+                      ? {}
+                      : { actionInputTarget: actionContext.inputTarget }),
+                    actionOwnerId: buff.owner.ownerId,
+                    actionSourceId: buff.sourceId,
                     event,
                     ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
                   })
@@ -709,6 +725,7 @@ export function normalizeAbilityEventPayload(
   | CombatAbilitySkillEvent
   | CombatAbilityLifecycleEvent
   | CombatAbilityWeaknessTriggeredEvent
+  | import('./skillRuntime').CombatAbilityWeaknessSetEvent
   | CombatAbilityCustomEvent {
   if (typeof payload !== 'object' || payload === null) {
     throw new TypeError(`Ability event '${event}' payload must be an object`);
@@ -746,6 +763,14 @@ export function normalizeAbilityEventPayload(
   if (event === 'afterOutputWeaknessTriggered') {
     return {
       kind: 'abilityWeaknessTriggered',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+    };
+  }
+  if (event === 'weaknessSet') {
+    return {
+      kind: 'abilityWeaknessSet',
       event,
       sourceId: source.sourceId,
       targetId: source.targetId,
@@ -866,6 +891,8 @@ export function normalizeAbilityEventPayload(
   if (event === 'finishedBuff' || event === 'buffEndsEarly') {
     if (
       typeof source.buffId !== 'string' ||
+      !Array.isArray(source.buffTags) ||
+      !source.buffTags.every(value => typeof value === 'string') ||
       (source.reason !== 'lifetime' &&
         source.reason !== 'ignite' &&
         source.reason !== 'early' &&
@@ -880,7 +907,33 @@ export function normalizeAbilityEventPayload(
       sourceId: source.sourceId,
       targetId: source.targetId,
       buffId: source.buffId,
+      buffTags: source.buffTags as string[],
       reason: source.reason,
+    };
+  }
+  if (event === 'buffConsumed' || event === 'buffAbsorbed') {
+    if (
+      typeof source.buffId !== 'string' ||
+      typeof source.layers !== 'number' ||
+      !Array.isArray(source.buffTags) ||
+      !source.buffTags.every(value => typeof value === 'string')
+    ) {
+      throw new TypeError(`Ability event '${event}' payload has invalid Buff identity`);
+    }
+    return {
+      kind: 'buffConsumed',
+      sourceOperatorId: source.sourceId,
+      targetId: source.targetId,
+      buffId: source.buffId,
+      layers: source.layers,
+      buffTags: source.buffTags as string[],
+      ...(typeof source.blackboardValues === 'object' && source.blackboardValues !== null
+        ? {
+            blackboardValues: source.blackboardValues as Readonly<
+              Record<string, string | number | null>
+            >,
+          }
+        : {}),
     };
   }
   if (event === 'beforeCastSkill' || event === 'afterSkillApplyCost' || event === 'skillEnd') {
@@ -919,7 +972,7 @@ export function normalizeAbilityEventPayload(
         : {}),
     };
   }
-  if (event === 'poiseZero') {
+  if (event === 'poiseZero' || event === 'poiseKnotBreak') {
     return {
       kind: 'abilityPoise',
       event,

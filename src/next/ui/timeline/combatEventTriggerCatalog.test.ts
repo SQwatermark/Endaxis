@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { validateCombatEventTriggerDefinition } from '../../core/game-data/validateSkillDefinition';
+import { COMBAT_EVENT_TRIGGER_KINDS } from '../../core/game-data/operatorDefinition';
 import {
   createCombatEventTriggerDraft,
   EDITABLE_COMBAT_EVENT_TRIGGER_KINDS,
@@ -14,18 +15,7 @@ describe('combatEventTriggerCatalog', () => {
     }
   });
 
-  it('keeps the picker restricted to trigger kinds supported by the layer-local editor', () => {
-    expect(EDITABLE_COMBAT_EVENT_TRIGGER_KINDS).toEqual([
-      'buffApplied',
-      'operatorHealed',
-      'airborneOutput',
-      'knockDownOutput',
-      'damageTagHit',
-      'elementalInflictionApplied',
-      'skillHit',
-      'enemyDefeated',
-      'statusExpired',
-      'statusConsumed',
-    ]);
+  it('covers every trigger kind declared by the public protocol', () => {
+    expect(EDITABLE_COMBAT_EVENT_TRIGGER_KINDS).toEqual(COMBAT_EVENT_TRIGGER_KINDS);
   });
 });

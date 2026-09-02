@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../core/project/createProject';
 import type { ScenarioDocument } from '../core/project/schema';
+import type { OperatorDefinition } from '../core/game-data/operatorDefinition';
 import { perlica } from '../data/operators/perlica';
 import { commonBuffDefinitions } from '../data/buffs/commonDefinitions';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
@@ -35,13 +36,16 @@ function createPerlicaScenario(): ScenarioDocument {
 
 function createTwoOperatorComboScenario(): {
   readonly scenario: ScenarioDocument;
-  readonly attacker: typeof perlica;
+  readonly attacker: OperatorDefinition;
 } {
   const scenario = createPerlicaScenario();
-  const attacker = {
+  const attacker: OperatorDefinition = {
     ...perlica,
     slug: 'perlica-combo-test-attacker',
-  } satisfies typeof perlica;
+    // 该夹具只模拟“另一名角色的末段普攻”。若复制佩丽卡的角色级连携注册，
+    // 攻击者也会按原生规则为自己打开窗口，反而不再是单一触发来源。
+    comboSkillConditions: undefined,
+  };
   scenario.tracks[0]!.operator!.operatorSlug = attacker.slug;
   scenario.tracks[1] = {
     id: 'track:1',
@@ -111,13 +115,8 @@ describe('ScenarioSimulationService', () => {
     // 单节点失衡账本以敌人帧制失衡规则为初始值。
     expect(run.poiseCurve.maxValue).toBe(300);
     expect(run.poiseCurve.points[0]).toMatchObject({ value: 300 });
-    expect(run.availabilityDiagnostics).toEqual([
-      expect.objectContaining({
-        skillId: 'plungingAttack',
-        actualSkillId: 'basicAttack1',
-        reasons: ['skillInputMismatch'],
-      }),
-    ]);
+    // 下落攻击依赖未建模的腾空状态；显式排轴仍执行，但不再拿 A1 默认路由制造误报。
+    expect(run.availabilityDiagnostics).toEqual([]);
     expect(run.executionDiagnostics).toEqual([]);
     expect(run.resourceCurves.sp.points[0]).toMatchObject({ value: run.initialResources.sp });
   });

@@ -20,6 +20,7 @@ Next 不是对旧模拟器的局部重构，而是在 `src/next` 中并行建设
 12. [SkillDefinition 数据结构蓝图](./12-skill-definition-blueprint.md)：完整组件、条件、执行顺序、校验和编辑器契约。
 13. [时间冻结与时间投影](./13-time-freeze-and-projection.md)：原生时间语义、旧版表现参考及 Next 各层职责。
 14. [武器与装备定义结构蓝图](./14-equipment-definition-blueprint.md)：武器、装备、套装的定义、实例、编译贡献和运行时安装契约。
+15. [公共协议、转换链路与解释职责审计](./15-contract-and-conversion-ownership.md)：统一词表、原始数据投影、Action/Condition 所有权和迁移门禁。
 
 只想快速定位代码时，可先看[分层架构](./02-layered-architecture.md)和[端到端数据流](./03-end-to-end-data-flow.md)。准备修改战斗规则时，必须继续阅读[战斗运行时](./05-combat-runtime.md)和对应专题证据。
 

@@ -99,10 +99,10 @@ describe('OperatorDefinitionWorkspaceDialog structure', () => {
 
   it('edits combo registrations separately from attachment event conditions', () => {
     expect(workspaceSource).toContain('OperatorComboDefinitionsDialog');
-    expect(comboDefinitionsSource).toContain('首段连携注册与附着事件常驻条件是两套不同协议');
-    expect(comboDefinitionsSource).toContain('伤害标签命中');
-    expect(comboDefinitionsSource).toContain('元素附着生效');
-    expect(comboDefinitionsSource).toContain('物理异常生效');
+    expect(comboDefinitionsSource).toContain('角色原生连携条件');
+    expect(comboDefinitionsSource).toContain('附着事件常驻条件');
+    expect(comboDefinitionsSource).toContain('角色进入战斗时安装一次，不按技能块重复安装');
+    expect(comboDefinitionsSource).toContain('监听事件');
     expect(comboDefinitionsSource).toContain('每次注册复制的字面黑板');
     expect(comboDefinitionsSource).not.toContain('<textarea');
   });

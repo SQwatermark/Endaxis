@@ -19,7 +19,8 @@ export interface ScheduledExternalCombatEventInput {
         readonly tags: readonly DamageTag[];
         readonly features: readonly DamageFeature[];
       }
-    | { readonly kind: 'operatorWeaknessTriggeredOutput' };
+    | { readonly kind: 'operatorWeaknessTriggeredOutput' }
+    | { readonly kind: 'enemyWeaknessSet' };
 }
 
 export interface ExternalCombatEventRuntimeOptions {
@@ -39,6 +40,8 @@ export interface ExternalCombatEventRuntimeOptions {
   ) => void;
   /** 在攻击者 AbilitySystem 上发射弱点触发后的输出事件；敌人保持唯一木桩目标。 */
   readonly emitOperatorWeaknessTriggeredOutput?: (operatorId: string) => void;
+  /** 唯一敌人发布无目标 OnSetWeakness；由全局连携监听器消费。 */
+  readonly emitEnemyWeaknessSet?: () => void;
   readonly receipt: CombatReceiptSink;
 }
 
@@ -48,6 +51,7 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
   readonly #semanticEvents: CombatSemanticEventRuntime;
   readonly #emitOperatorHitAbilityEvent: ExternalCombatEventRuntimeOptions['emitOperatorHitAbilityEvent'];
   readonly #emitOperatorWeaknessTriggeredOutput: ExternalCombatEventRuntimeOptions['emitOperatorWeaknessTriggeredOutput'];
+  readonly #emitEnemyWeaknessSet: ExternalCombatEventRuntimeOptions['emitEnemyWeaknessSet'];
   readonly #receipt: CombatReceiptSink;
   #nextEventIndex = 0;
 
@@ -57,6 +61,7 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
     this.#semanticEvents = options.semanticEvents;
     this.#emitOperatorHitAbilityEvent = options.emitOperatorHitAbilityEvent;
     this.#emitOperatorWeaknessTriggeredOutput = options.emitOperatorWeaknessTriggeredOutput;
+    this.#emitEnemyWeaknessSet = options.emitEnemyWeaknessSet;
     this.#receipt = options.receipt;
     let previousFrame = -1;
     for (const [index, input] of this.#events.entries()) {
@@ -86,6 +91,18 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
       const input = this.#events[this.#nextEventIndex];
       if (input === undefined || input.frame > actualFrame) break;
       this.#nextEventIndex += 1;
+      if (input.event.kind === 'enemyWeaknessSet') {
+        this.#emitEnemyWeaknessSet?.();
+        this.#receipt.record({
+          frame: this.#clock.frame,
+          time: this.#clock.time,
+          event: 'ExternalEnemyWeaknessSetProcessed',
+          sourceId: 'enemy',
+          targetId: 'enemy',
+          data: { scheduledActualFrame: input.frame },
+        });
+        continue;
+      }
       for (const operatorId of input.targetOperatorIds) {
         if (input.event.kind === 'operatorWeaknessTriggeredOutput') {
           this.#emitOperatorWeaknessTriggeredOutput?.(operatorId);

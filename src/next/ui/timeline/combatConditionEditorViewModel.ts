@@ -9,6 +9,8 @@ import type { CombatCondition, CombatConditionKind } from '../../core/game-data/
 /** 为指定条件类型创建可直接进入草稿的完整结构。 */
 export function createCombatCondition(kind: CombatConditionKind): CombatCondition {
   switch (kind) {
+    case 'constant':
+      return { kind, value: true };
     case 'combatActive':
       return { kind };
     case 'singleEnemyPresent':
@@ -68,6 +70,19 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, contextKey: 'custom-targets', operator: 'greaterOrEqual', value: 1 };
     case 'contextTargetObjectTypeMatch':
       return { kind, contextKey: 'custom-targets', objectTypeMask: 16 };
+    case 'actionInputTargetObjectTypeMatch':
+      return { kind, objectTypeMask: 16 };
+    case 'actionInputTargetIdentityMatch':
+      return { kind, other: 'controlledOperator', operator: 'equal' };
+    case 'contextTargetIdentityMatch':
+      return {
+        kind,
+        contextKey: 'trigger',
+        other: 'controlledOperator',
+        operator: 'equal',
+      };
+    case 'contextTargetEntityTagMatch':
+      return { kind, contextKey: 'trigger', tagQueryType: 'hasAny', tags: ['Custom/Tag'] };
     case 'contextTargetBuffStackCompare':
       return {
         kind,

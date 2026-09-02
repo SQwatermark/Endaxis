@@ -12,6 +12,7 @@ import { useI18n } from 'vue-i18n';
 import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/icons-vue';
 import {
   COMBAT_RESOURCES,
+  type AbilityEntityChildSkillDefinition,
   type CombatCondition,
   type CombatEventResponseDefinition,
   type CombatEventHandlerDefinition,
@@ -19,6 +20,8 @@ import {
   type CombatStepDefinition,
   type ScheduledSequenceDefinition,
   type SkillDefinition,
+  type SkillGlobalBuffChildDefinition,
+  type SkillGlobalBuffDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import { validateSkillDefinition } from '../../../core/game-data/validateSkillDefinition';
 import type { ValidationIssue } from '../../../core/project/validation';
@@ -66,6 +69,9 @@ import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
 import SkillEventHandlerInspector from './SkillEventHandlerInspector.vue';
+import GlobalBuffChildInspector from './GlobalBuffChildInspector.vue';
+import GlobalBuffDefinitionInspector from './GlobalBuffDefinitionInspector.vue';
+import InlineAbilityEntityChildSkillInspector from './InlineAbilityEntityChildSkillInspector.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
@@ -85,7 +91,9 @@ type StructureOperationNode = {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffDefinition'
+    | 'globalBuffChild';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -96,7 +104,8 @@ type StructureOperationNode = {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffChild';
 };
 
 const props = defineProps<{
@@ -157,6 +166,7 @@ const structureClipboard = shallowRef<
   | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
   | { readonly kind: 'eventResponse'; readonly value: CombatEventResponseDefinition }
   | { readonly kind: 'skillEventHandler'; readonly value: CombatEventHandlerDefinition }
+  | { readonly kind: 'globalBuffChild'; readonly value: SkillGlobalBuffChildDefinition }
 >();
 const structureUndoStack = shallowRef<SkillDefinition[]>([]);
 const structureRedoStack = shallowRef<SkillDefinition[]>([]);
@@ -220,6 +230,30 @@ const selectedSkillEventHandler = computed(() =>
         draft.value,
         selectedStructureSourcePath.value,
       ) as CombatEventHandlerDefinition)
+    : undefined,
+);
+const selectedGlobalBuffDefinition = computed(() =>
+  selectedStructureNode.value?.payloadKind === 'globalBuffDefinition'
+    ? (resolveStructureValue(
+        draft.value,
+        selectedStructureSourcePath.value,
+      ) as SkillGlobalBuffDefinition)
+    : undefined,
+);
+const selectedGlobalBuffChild = computed(() =>
+  selectedStructureNode.value?.payloadKind === 'globalBuffChild'
+    ? (resolveStructureValue(
+        draft.value,
+        selectedStructureSourcePath.value,
+      ) as SkillGlobalBuffChildDefinition)
+    : undefined,
+);
+const selectedInlineAbilityEntityChildSkill = computed(() =>
+  selectedStructureNode.value?.payloadKind === 'childSkill'
+    ? (resolveStructureValue(
+        draft.value,
+        selectedStructureSourcePath.value.replace(/\.scheduledSequences$/, ''),
+      ) as AbilityEntityChildSkillDefinition)
     : undefined,
 );
 
@@ -340,7 +374,8 @@ function beginAddChild(
       | 'eventResponse'
       | 'skillEventHandler'
       | 'buffAbilityResponse'
-      | 'buffIgniteResponse';
+      | 'buffIgniteResponse'
+      | 'globalBuffChild';
   },
   anchor: { readonly x: number; readonly y: number },
 ): void {
@@ -363,10 +398,23 @@ function beginAddChild(
     void appendSkillEventHandler();
     return;
   }
+  if (node.canAddChild === 'globalBuffChild') {
+    void appendGlobalBuffChild(node.sourcePath);
+    return;
+  }
   if (node.canAddChild !== 'step') return;
   pendingStepTargetPath.value = node.sourcePath;
   insertAnchor.value = { ...anchor };
   stepPickerKey.value += 1;
+}
+
+async function appendGlobalBuffChild(definitionPath: string): Promise<void> {
+  const result = insertStructureArrayItem(draft.value, `${definitionPath}.children`, {
+    buffId: 'custom-buff',
+    blackboardAssignments: {},
+  } satisfies SkillGlobalBuffChildDefinition);
+  commitStructureDraft(result.root);
+  await selectStructurePath(result.itemPath);
 }
 
 async function appendSkillEventHandler(): Promise<void> {
@@ -491,6 +539,33 @@ function replaceSelectedSkillEventHandler(handler: CombatEventHandlerDefinition)
   );
 }
 
+function replaceSelectedGlobalBuffDefinition(definition: SkillGlobalBuffDefinition): void {
+  if (selectedGlobalBuffDefinition.value === undefined) return;
+  commitStructureDraft(
+    replaceStructureValueAtPath(draft.value, selectedStructureSourcePath.value, definition),
+  );
+}
+
+function replaceSelectedGlobalBuffChild(child: SkillGlobalBuffChildDefinition): void {
+  if (selectedGlobalBuffChild.value === undefined) return;
+  commitStructureDraft(
+    replaceStructureValueAtPath(draft.value, selectedStructureSourcePath.value, child),
+  );
+}
+
+function replaceSelectedInlineAbilityEntityChildSkill(
+  childSkill: AbilityEntityChildSkillDefinition,
+): void {
+  if (selectedInlineAbilityEntityChildSkill.value === undefined) return;
+  commitStructureDraft(
+    replaceStructureValueAtPath(
+      draft.value,
+      selectedStructureSourcePath.value.replace(/\.scheduledSequences$/, ''),
+      childSkill,
+    ),
+  );
+}
+
 async function moveSelectedCombatStep(offset: -1 | 1): Promise<void> {
   if (selectedCombatStep.value === undefined) return;
   const result = moveCombatStepAtPath(draft.value, selectedStructureSourcePath.value, offset);
@@ -519,7 +594,12 @@ async function removeSelectedCombatStep(): Promise<void> {
 function childArrayPath(
   node: StructureOperationNode,
   kind:
-    'combatStep' | 'scheduledSequence' | 'combatCondition' | 'eventResponse' | 'skillEventHandler',
+    | 'combatStep'
+    | 'scheduledSequence'
+    | 'combatCondition'
+    | 'eventResponse'
+    | 'skillEventHandler'
+    | 'globalBuffChild',
 ): string | undefined {
   if (kind === 'scheduledSequence') {
     return node.acceptsChildKind === kind
@@ -537,6 +617,9 @@ function childArrayPath(
   if (kind === 'skillEventHandler') {
     return node.acceptsChildKind === kind ? 'eventHandlers' : undefined;
   }
+  if (kind === 'globalBuffChild') {
+    return node.acceptsChildKind === kind ? `${node.sourcePath}.children` : undefined;
+  }
   if (node.acceptsChildKind !== kind) return undefined;
   return node.payloadKind === 'scheduledSequence'
     ? `${node.sourcePath}.sequence.steps`
@@ -546,7 +629,12 @@ function childArrayPath(
 function insertionTarget(
   target: StructureOperationNode,
   kind:
-    'combatStep' | 'scheduledSequence' | 'combatCondition' | 'eventResponse' | 'skillEventHandler',
+    | 'combatStep'
+    | 'scheduledSequence'
+    | 'combatCondition'
+    | 'eventResponse'
+    | 'skillEventHandler'
+    | 'globalBuffChild',
   placement: 'inside' | 'before' | 'after',
 ): { readonly arrayPath: string; readonly index?: number } | undefined {
   if (placement === 'inside') {
@@ -572,7 +660,8 @@ async function moveStructureNode(operation: {
     kind !== 'scheduledSequence' &&
     kind !== 'combatCondition' &&
     kind !== 'eventResponse' &&
-    kind !== 'skillEventHandler'
+    kind !== 'skillEventHandler' &&
+    kind !== 'globalBuffChild'
   )
     return;
   if (kind === 'combatCondition') {
@@ -583,6 +672,12 @@ async function moveStructureNode(operation: {
   }
   if (kind === 'eventResponse') {
     const source = /^(.*\.responses)\[(\d+)\]$/.exec(operation.source.sourcePath);
+    if (source === null) return;
+    const siblings = resolveStructureValue(draft.value, source[1]!) as readonly unknown[];
+    if (siblings.length <= 1) return;
+  }
+  if (kind === 'globalBuffChild') {
+    const source = /^(.*\.children)\[(\d+)\]$/.exec(operation.source.sourcePath);
     if (source === null) return;
     const siblings = resolveStructureValue(draft.value, source[1]!) as readonly unknown[];
     if (siblings.length <= 1) return;
@@ -642,6 +737,13 @@ async function runStructureNodeAction(
           resolveStructureValue(draft.value, node.sourcePath) as CombatEventHandlerDefinition,
         ),
       };
+    } else if (node.payloadKind === 'globalBuffChild') {
+      structureClipboard.value = {
+        kind: 'globalBuffChild',
+        value: cloneStructureValue(
+          resolveStructureValue(draft.value, node.sourcePath) as SkillGlobalBuffChildDefinition,
+        ),
+      };
     }
     return;
   }
@@ -679,7 +781,19 @@ async function runStructureNodeAction(
       await selectStructurePath('eventHandlers');
       return;
     }
-    const parentPath = node.sourcePath.replace(/\.steps\[\d+\]$|scheduledSequences\[\d+\]$/, '');
+    if (node.payloadKind === 'globalBuffChild') {
+      const children = /^(.*\.children)\[\d+\]$/.exec(node.sourcePath);
+      if (children === null) return;
+      const siblings = resolveStructureValue(draft.value, children[1]!) as readonly unknown[];
+      if (siblings.length <= 1) return;
+      commitStructureDraft(removeStructureArrayItem(draft.value, node.sourcePath));
+      await selectStructurePath(children[1]!.replace(/\.children$/, ''));
+      return;
+    }
+    const parentPath = node.sourcePath.replace(
+      /\.steps\[\d+\]$|(?:^|\.)scheduledSequences\[\d+\]$/,
+      '',
+    );
     commitStructureDraft(removeStructureArrayItem(draft.value, node.sourcePath));
     await selectStructurePath(parentPath);
     return;
@@ -1017,6 +1131,25 @@ function reset(): void {
           v-else-if="selectedSkillEventHandler"
           :handler="selectedSkillEventHandler"
           @update="replaceSelectedSkillEventHandler"
+        />
+
+        <GlobalBuffDefinitionInspector
+          v-else-if="selectedGlobalBuffDefinition"
+          :definition="selectedGlobalBuffDefinition"
+          @update="replaceSelectedGlobalBuffDefinition"
+        />
+
+        <GlobalBuffChildInspector
+          v-else-if="selectedGlobalBuffChild"
+          :child="selectedGlobalBuffChild"
+          @update="replaceSelectedGlobalBuffChild"
+        />
+
+        <InlineAbilityEntityChildSkillInspector
+          v-else-if="selectedInlineAbilityEntityChildSkill"
+          :child-skill="selectedInlineAbilityEntityChildSkill"
+          :skill-level="skillLevel"
+          @update="replaceSelectedInlineAbilityEntityChildSkill"
         />
 
         <section

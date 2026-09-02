@@ -778,9 +778,10 @@ export interface CombatStepParameters {
     target: 'caster';
   };
   /** 为当前干员开启固定五秒的连携候选；下一段技能身份随候选进入场景级队列。 */
-  openComboWindow: {
-    nextSkillKey: string;
-  };
+  openComboWindow:
+    | { nextSkillKey: string }
+    /** TriggerComboSkillAction 读取 owner 当前 ComboSkill 槽，不携带静态技能 ID。 */
+    | { nextSkillKeyFromSlot: 'comboSkill' };
   /** 切换稳定技能组后续释放所使用的技能形态；当前已启动的释放不受影响。 */
   changeSkillSlot: {
     skillGroupKey: string;
@@ -989,6 +990,25 @@ export type CombatEventTrigger =
   | { kind: 'enemyDefeated'; scope: SkillTriggerScope }
   | { kind: 'statusExpired'; statusKey: string; target: CombatTarget }
   | { kind: 'statusConsumed'; statusKey: string; target: CombatTarget };
+
+/** 技能、Buff 与配装事件监听共用的语义触发器词表。 */
+export const COMBAT_EVENT_TRIGGER_KINDS = [
+  'operatorHit',
+  'operatorHealed',
+  'buffApplied',
+  'buffOutput',
+  'buffConsumed',
+  'airborneOutput',
+  'knockDownOutput',
+  'spGained',
+  'damageTagHit',
+  'elementalInflictionApplied',
+  'physicalInflictionApplied',
+  'skillHit',
+  'enemyDefeated',
+  'statusExpired',
+  'statusConsumed',
+] as const satisfies readonly CombatEventTrigger['kind'][];
 
 /** 一个技能在战斗事件发生后调度的条件化行为。 */
 export interface CombatEventHandlerDefinition {

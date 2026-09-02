@@ -1503,6 +1503,7 @@ export default {
                 saveToContextKey: 'seraph',
                 sources: [{ kind: 'target', target: 'buffSource' }],
               }),
+              step('openComboWindow', { nextSkillKeyFromSlot: 'comboSkill' }),
               step('finishBuffsById', {
                 target: 'buffOwner',
                 buffIds: ['buff_chr_0011_seraph_combo_count'],

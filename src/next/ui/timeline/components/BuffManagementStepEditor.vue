@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
+import { GAMEPLAY_TAG_QUERY_TYPES } from '../../../../../packages/game-data-contract/src/gameplayTags';
 
 /**
  * Buff 查询、读取、结束与保留步骤的参数编辑器。
@@ -28,16 +29,11 @@ type BuffManagementStep = Extract<
       | 'holdBuffsById';
   }
 >;
-type QueryType = 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+type QueryType = (typeof GAMEPLAY_TAG_QUERY_TYPES)[number];
 type FinishReason = 'early' | 'absorbed' | 'other';
 type ReadStep = Extract<BuffManagementStep, { kind: 'readBuffBlackboard' | 'readBuffStackCount' }>;
 
-const TAG_QUERY_TYPES = [
-  'hasAny',
-  'hasAll',
-  'exceptAny',
-  'exceptAll',
-] as const satisfies readonly QueryType[];
+const TAG_QUERY_TYPES = GAMEPLAY_TAG_QUERY_TYPES satisfies readonly QueryType[];
 const FINISH_REASONS = ['early', 'absorbed', 'other'] as const satisfies readonly FinishReason[];
 
 const props = defineProps<{ step: BuffManagementStep }>();

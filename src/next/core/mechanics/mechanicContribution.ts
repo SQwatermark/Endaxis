@@ -3,16 +3,17 @@
  * 只允许可校验的纯数据序列，禁止 Adapter 注入回调或任意对象补丁。
  */
 import type { ResolvedActionSequence } from '../compiler/combatProgram';
+import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 
 /** 当前向机制适配器开放的、已确认的原生 `AbilityEvent` 身份。 */
 export const MECHANIC_ABILITY_EVENTS = [
-  'beforeSkillCast',
-  'skillEnded',
-  'damageOutput',
-  'damageTaken',
-  'beforeDamageCalculation',
-  'skillCostApplied',
-] as const;
+  'beforeCastSkill',
+  'skillEnd',
+  'outputDamage',
+  'takeDamage',
+  'beforeCalculateDamage',
+  'afterSkillApplyCost',
+] as const satisfies readonly AbilityEvent[];
 /** 场景机制当前允许监听的 Ability 事件集合。 */
 export type MechanicAbilityEvent = (typeof MECHANIC_ABILITY_EVENTS)[number];
 

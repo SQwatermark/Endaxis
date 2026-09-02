@@ -28,7 +28,8 @@ interface MapNodeSource {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffChild';
   readonly payloadKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -39,7 +40,9 @@ interface MapNodeSource {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffDefinition'
+    | 'globalBuffChild';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -50,9 +53,11 @@ interface MapNodeSource {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffChild';
   readonly canDelete?: boolean;
   readonly canMove?: boolean;
+  readonly canCopy?: boolean;
   readonly relationToParent?: 'port' | 'member';
 }
 
@@ -174,6 +179,7 @@ const clipboardLabel = computed(() => {
   if (props.clipboardKind === 'skillEventHandler') return '技能事件响应';
   if (props.clipboardKind === 'buffAbilityResponse') return 'Buff Ability 事件响应';
   if (props.clipboardKind === 'buffIgniteResponse') return 'Buff 点燃响应';
+  if (props.clipboardKind === 'globalBuffChild') return 'GlobalBuff 子 Buff';
   return '';
 });
 
@@ -296,7 +302,7 @@ function handleKeyboard(event: KeyboardEvent): void {
     event.preventDefault();
     event.stopImmediatePropagation();
     emit('nodeAction', 'delete', node);
-  } else if (command && key === 'c' && node.payloadKind !== undefined) {
+  } else if (command && key === 'c' && node.payloadKind !== undefined && node.canCopy !== false) {
     event.preventDefault();
     event.stopImmediatePropagation();
     emit('nodeAction', 'copy', node);
@@ -512,7 +518,7 @@ watch(
       </div>
       <div v-if="selectedNode" class="selected-node-actions">
         <button
-          v-if="selectedNode.payloadKind"
+          v-if="selectedNode.payloadKind && selectedNode.canCopy !== false"
           title="复制选中节点 (Ctrl+C)"
           @click="runNodeAction('copy', selectedNode)"
         >
@@ -644,7 +650,7 @@ watch(
         @pointerdown.stop
       >
         <button
-          v-if="contextMenu.node.payloadKind"
+          v-if="contextMenu.node.payloadKind && contextMenu.node.canCopy !== false"
           @click="runNodeAction('copy', contextMenu.node)"
         >
           复制 <kbd>Ctrl+C</kbd>

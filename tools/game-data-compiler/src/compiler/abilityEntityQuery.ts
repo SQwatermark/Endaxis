@@ -1,7 +1,7 @@
 import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import type { TargetGroupActionSource } from '../source/targetGroup.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
-import type { TagQuerySource, TagQueryType } from '../source/tagQuery.ts';
+import { projectNativeTagQueryType, type TagQuerySource } from '../source/tagQuery.ts';
 import type {
   DistanceValidatorSource,
   PriorityFilterSource,
@@ -92,13 +92,6 @@ interface AbilityEntitySelectorFactsSource {
   readonly center: string | null;
   readonly centerContextKey: string;
 }
-
-const TAG_QUERY_TYPES: Readonly<Record<string, TagQueryType>> = {
-  HasAny: 'hasAny',
-  HasAll: 'hasAll',
-  ExceptAny: 'exceptAny',
-  ExceptAll: 'exceptAll',
-};
 
 /** 编译 FindTargetAction 已解析出的 owner-spawned AbilityEntity 查询。 */
 export function compileTargetGroupAbilityEntityQuerySource(
@@ -376,9 +369,6 @@ function compileTagQuery(
   source: readonly [string, readonly number[]],
   sourcePath: string,
 ): TagQuerySource {
-  const queryType = TAG_QUERY_TYPES[source[0]];
-  if (!queryType) {
-    throw new Error(`${sourcePath}: unsupported query type ${JSON.stringify(source[0])}`);
-  }
+  const queryType = projectNativeTagQueryType(source[0], sourcePath);
   return { queryType, tagIds: source[1] };
 }

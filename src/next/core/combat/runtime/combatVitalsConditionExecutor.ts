@@ -16,7 +16,7 @@ export interface CombatVitalsConditionDependencies {
     >['target'],
     buffSourceId?: string,
   ) => CombatVitals;
-  /** Context 查询保存的是干员实例身份；条件不得重新运行选择器。 */
+  /** Context 查询中的干员实例直接按身份读取；条件不得重新运行选择器。 */
   readonly resolveContextTarget?: (operatorId: string) => CombatVitals;
   readonly delegate: CombatOperationExecutor;
 }
@@ -86,8 +86,18 @@ export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
     }
     const targets = context.targetContext.get(contextKey);
     const target = targets[0];
-    if (targets.length !== 1 || target?.kind !== 'operator') {
-      throw new Error(`healthCompare context target '${contextKey}' must be one operator`);
+    if (targets.length !== 1 || target === undefined) {
+      throw new Error(
+        `healthCompare context target '${contextKey}' must contain exactly one target`,
+      );
+    }
+    if (target.kind === 'enemy') {
+      return this.dependencies.resolveTarget('enemy', context.buffSourceId);
+    }
+    if (target.kind !== 'operator') {
+      throw new Error(
+        `healthCompare context target '${contextKey}' does not support '${target.kind}' vitals`,
+      );
     }
     const resolve = this.dependencies.resolveContextTarget;
     if (resolve === undefined) throw new Error('context health target resolver is not configured');

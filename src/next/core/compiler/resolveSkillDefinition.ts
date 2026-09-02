@@ -9,6 +9,7 @@ import type {
   SkillLevelSource,
 } from '../game-data/operatorDefinition';
 import type { SkillCastDocument } from '../project/schema';
+import { listSkillGroupDefinitionBindings } from '../game-data/operatorSkillDefinitions';
 
 /** 一次技能释放使用的技能定义及其所属技能组。 */
 export interface ResolvedSkillDefinition {
@@ -34,29 +35,13 @@ export function resolveSkillTemplateDefinition(
   const directGroup = operator.skillGroups.find(
     candidate => candidate.key === source.skillGroupKey,
   );
-  const directSkills =
-    directGroup === undefined
-      ? []
-      : Array.isArray(directGroup.skills)
-        ? directGroup.skills
-        : [directGroup.skills];
-  const directDefinition = directSkills.find(candidate => candidate.key === source.skillKey);
-  const directVariant = directGroup?.variants?.find(variant =>
-    (Array.isArray(variant.skills) ? variant.skills : [variant.skills]).some(
-      candidate => candidate.key === source.skillKey,
-    ),
-  );
-  const directReplacement = directGroup?.replacementSkills?.find(
-    candidate => candidate.key === source.skillKey,
-  );
-  const directRoutedReplacement = directGroup?.routedReplacementSkills?.find(
-    candidate => candidate.skill.key === source.skillKey,
-  );
+  const directBinding = directGroup
+    ? listSkillGroupDefinitionBindings(directGroup).find(
+        candidate => candidate.skill.key === source.skillKey,
+      )
+    : undefined;
   const alias =
-    directDefinition === undefined &&
-    directVariant === undefined &&
-    directReplacement === undefined &&
-    directRoutedReplacement === undefined
+    directBinding === undefined
       ? operator.skillAliases?.find(
           candidate =>
             candidate.from[0] === source.skillGroupKey && candidate.from[1] === source.skillKey,
@@ -68,35 +53,18 @@ export function resolveSkillTemplateDefinition(
   if (group === undefined) {
     throw new Error(`operator '${operator.slug}' has no skill group '${source.skillGroupKey}'`);
   }
-  const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
-  const definition = skills.find(candidate => candidate.key === skillKey);
-  const variant =
-    definition === undefined
-      ? group.variants?.find(candidate =>
-          (Array.isArray(candidate.skills) ? candidate.skills : [candidate.skills]).some(
-            skill => skill.key === skillKey,
-          ),
-        )
-      : undefined;
-  const variantDefinition =
-    variant === undefined
-      ? undefined
-      : (Array.isArray(variant.skills) ? variant.skills : [variant.skills]).find(
-          candidate => candidate.key === skillKey,
-        );
-  const replacementDefinition = group.replacementSkills?.find(
-    candidate => candidate.key === skillKey,
-  );
-  const routedReplacement = group.routedReplacementSkills?.find(
+  const matches = listSkillGroupDefinitionBindings(group).filter(
     candidate => candidate.skill.key === skillKey,
   );
-  const resolvedDefinition =
-    definition ?? variantDefinition ?? replacementDefinition ?? routedReplacement?.skill;
-  if (resolvedDefinition === undefined) {
+  if (matches.length !== 1) {
     throw new Error(
-      `skill group '${operator.slug}/${group.key}' has no skill '${source.skillKey}'`,
+      matches.length === 0
+        ? `skill group '${operator.slug}/${group.key}' has no skill '${source.skillKey}'`
+        : `skill group '${operator.slug}/${group.key}' has multiple skills '${source.skillKey}'`,
     );
   }
+  const binding = matches[0]!;
+  const resolvedDefinition = binding.skill;
   if (group.replacementSkillPlacements?.[resolvedDefinition.key] === 'internal') {
     throw new Error(
       `skill '${operator.slug}/${group.key}/${resolvedDefinition.key}' is internal and cannot be placed on the timeline`,
@@ -111,7 +79,7 @@ export function resolveSkillTemplateDefinition(
     definition: resolvedDefinition,
     group,
     levelSource: resolvedDefinition.levelSource,
-    ...(variant === undefined ? {} : { variantKey: variant.key }),
+    ...(binding.variant === undefined ? {} : { variantKey: binding.variant.key }),
   };
 }
 
@@ -144,7 +112,7 @@ export function resolveEffectiveSkillDefinition(
     return {
       definition,
       group: template.group,
-      levelSource: template.levelSource,
+      levelSource: definition.levelSource ?? template.levelSource,
       ...(template.variantKey === undefined ? {} : { variantKey: template.variantKey }),
     };
   }

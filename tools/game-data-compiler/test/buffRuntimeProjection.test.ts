@@ -476,44 +476,49 @@ describe('公共 Buff 运行时投影', () => {
       event: 'takeDamage',
       sequence: { steps: [{ kind: 'applyBuff' }] },
     });
-    expect(() =>
-      compileBuffRuntimeDefinitionSource(
-        {
-          ...source,
-          graph: {
-            ...source.graph,
-            abilityEvents: [
-              {
-                event: 'OnTakeDamage',
-                actions: [
-                  {
-                    ...sequence,
-                    actions: [
-                      {
-                        ...condition,
-                        body: {
-                          ...condition.body,
-                          value: {
-                            ...condition.body.value,
-                            action: { ...condition.body.value.action, objectTypeMask: 'Character' },
+    expect(
+      JSON.stringify(
+        compileBuffRuntimeDefinitionSource(
+          {
+            ...source,
+            graph: {
+              ...source.graph,
+              abilityEvents: [
+                {
+                  event: 'OnTakeDamage',
+                  actions: [
+                    {
+                      ...sequence,
+                      actions: [
+                        {
+                          ...condition,
+                          body: {
+                            ...condition.body,
+                            value: {
+                              ...condition.body.value,
+                              action: {
+                                ...condition.body.value.action,
+                                objectTypeMask: 'Character',
+                              },
+                            },
                           },
                         },
-                      },
-                      apply,
-                    ],
-                  },
-                ],
-              },
-            ],
+                        apply,
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
           },
-        },
-        new Set(),
-        new Set(),
-        {},
-        undefined,
-        { fixedBuffOwnerTarget: 'caster', gameplayTagRegistry: fixtureGameplayTagRegistry },
+          new Set(),
+          new Set(),
+          {},
+          undefined,
+          { fixedBuffOwnerTarget: 'caster', gameplayTagRegistry: fixtureGameplayTagRegistry },
+        ),
       ),
-    ).toThrow('unsupported object type target');
+    ).toContain('actionInputTargetObjectTypeMatch');
   });
 
   it.each([
@@ -1258,7 +1263,13 @@ describe('公共 Buff 运行时投影', () => {
       );
       expect(definition.abilityEventResponses?.[0]?.sequence.steps[0]).toMatchObject({
         kind: 'conditional',
-        parameters: { condition: { kind: 'eventSourceMatchesBuffSource' } },
+        parameters: {
+          condition: {
+            kind: 'actionInputTargetIdentityMatch',
+            other: 'actionSource',
+            operator: 'equal',
+          },
+        },
         whenTrue: {
           steps: [
             {
@@ -2652,7 +2663,7 @@ describe('公共 Buff 运行时投影', () => {
                           sourceType: 'CheckBuffIdInContext',
                           matcher: {
                             kind: 'tag',
-                            queryType: 'HasAny',
+                            queryType: 'hasAny',
                             buffTagIds: [1466867135],
                           },
                         },
@@ -2697,7 +2708,7 @@ describe('公共 Buff 运行时投影', () => {
   });
 
   it.each([
-    ['Target', 'eventTarget'],
+    ['Target', 'actionInputTarget'],
     ['Owner', 'buffOwner'],
     ['Source', 'caster'],
   ])('按原生 BuffCount 保留 %s 的增强层数守卫，不统一指向事件目标', (targetSource, target) => {
@@ -3138,7 +3149,7 @@ describe('公共 Buff 运行时投影', () => {
             sourceType: 'CheckBuffIdInContext',
             matcher: {
               kind: 'tag' as const,
-              queryType: 'HasAny',
+              queryType: 'hasAny' as const,
               buffTagIds: [-6380412],
             },
           },

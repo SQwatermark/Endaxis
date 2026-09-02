@@ -17,6 +17,10 @@ export function assertGameplayTag(value: unknown): asserts value is GameplayTag 
 export const GAMEPLAY_TAG_QUERY_TYPES = ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const;
 export type GameplayTagQueryType = (typeof GAMEPLAY_TAG_QUERY_TYPES)[number];
 
+/** 事件载荷匹配比普通标签查询多一个“集合完全相等”语义。 */
+export const GAMEPLAY_TAG_MATCH_TYPES = ['exact', ...GAMEPLAY_TAG_QUERY_TYPES] as const;
+export type GameplayTagMatchType = (typeof GAMEPLAY_TAG_MATCH_TYPES)[number];
+
 export interface GameplayTagQueryDefinition {
   readonly queryType: GameplayTagQueryType;
   readonly tags: readonly GameplayTag[];

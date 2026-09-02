@@ -22,22 +22,17 @@ import type {
   WeaponRarity,
   WeaponTraitDefinition,
 } from '../../core/game-data/equipmentDefinition';
-import type {
-  DamageType,
-  OperatorWeaponType,
-  SkillType,
+import {
+  OPERATOR_WEAPON_TYPES,
+  type OperatorWeaponType,
 } from '../../core/game-data/operatorDefinition';
+import { WEAPON_RARITIES as CONTRACT_WEAPON_RARITIES } from '../../core/game-data/equipmentDefinition';
+import type { DamageType, SkillType } from '../../core/game-data/operatorDefinition';
 
 const WEAPON_TRAIT_LEVEL_COUNT = 9;
 const GEAR_TRAIT_LEVEL_COUNT = 4;
-const WEAPON_TYPES = new Set<OperatorWeaponType>([
-  'sword',
-  'greatsword',
-  'polearm',
-  'handcannon',
-  'arts-unit',
-]);
-const WEAPON_RARITIES = new Set<WeaponRarity>([3, 4, 5, 6]);
+const WEAPON_TYPES = new Set<OperatorWeaponType>(OPERATOR_WEAPON_TYPES);
+const WEAPON_RARITIES = new Set<WeaponRarity>(CONTRACT_WEAPON_RARITIES);
 const ALL_SCOPED_DAMAGE_TYPES: readonly DamageType[] = [
   'physical',
   'true',

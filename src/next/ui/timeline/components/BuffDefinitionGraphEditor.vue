@@ -78,7 +78,9 @@ type StructureOperationNode = {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffDefinition'
+    | 'globalBuffChild';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -89,7 +91,8 @@ type StructureOperationNode = {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffChild';
 };
 
 const props = defineProps<{

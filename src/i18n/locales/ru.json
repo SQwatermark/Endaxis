@@ -1284,7 +1284,8 @@
       "restrictedHint": "Только события, которые модель манекена не создаёт естественно",
       "operatorHit": "Текущий оперативник получает удар",
       "operatorWeakness": "Текущий оперативник активирует слабость врага",
-      "teamHit": "Все оперативники получают удар"
+      "teamHit": "Все оперативники получают удар",
+      "enemyWeaknessSet": "Врагу установлена уязвимость"
     },
     "markerInspector": {
       "title": "Внешнее событие",
@@ -1296,7 +1297,8 @@
       "boundaryHint": "Здесь задаётся только внешний факт, который модель манекена не может создать сама. Навыки врага, потеря здоровья и активное поведение не симулируются.",
       "eventKinds": {
         "operatorHit": "Оперативник получает удар",
-        "operatorWeaknessTriggeredOutput": "Оперативник активирует слабость врага"
+        "operatorWeaknessTriggeredOutput": "Оперативник активирует слабость врага",
+        "enemyWeaknessSet": "Врагу установлена уязвимость"
       }
     },
     "documentMarkerInspector": {
@@ -1321,7 +1323,8 @@
       "controlSwitch": "Смена оперативника",
       "operatorWeakness": "Активирована слабость врага",
       "hitShort": "Удар",
-      "weaknessShort": "Слабость"
+      "weaknessShort": "Слабость",
+      "enemyWeaknessSet": "Установить уязвимость"
     },
     "skillEditing": {
       "section": "Логика навыка",
@@ -1358,11 +1361,17 @@
       "addActivationRule": "Добавить правило открытия",
       "triggerKind": "Событие-триггер",
       "triggerKinds": {
+        "operatorHit": "Оператор получает попадание",
+        "operatorHealed": "Лечение оператора",
         "buffApplied": "Наложение усиления",
+        "buffOutput": "Вывод усиления",
+        "buffConsumed": "Расход усиления",
         "airborneOutput": "Подбрасывание",
         "knockDownOutput": "Опрокидывание",
+        "spGained": "Получение SP",
         "damageTagHit": "Попадание с тегом урона",
         "elementalInflictionApplied": "Наложение элемента",
+        "physicalInflictionApplied": "Физическое наложение",
         "skillHit": "Попадание указанного навыка",
         "enemyDefeated": "Победа над противником",
         "statusExpired": "Состояние истекло",
@@ -1370,6 +1379,16 @@
       },
       "triggerScope": "Источник события",
       "triggerScopes": { "operator": "Текущий оператор", "team": "Отряд" },
+      "eventRole": "Роль события",
+      "eventRoles": { "source": "Источник лечения", "target": "Цель лечения (по умолчанию)" },
+      "anyValue": "Любое",
+      "physicalInflictionType": "Тип физического наложения",
+      "physicalInflictionTypes": {
+        "airborne": "Подбрасывание",
+        "knockDown": "Опрокидывание",
+        "fracture": "Перелом",
+        "crush": "Сокрушение"
+      },
       "damageTag": "Тег урона",
       "additionalCondition": "Дополнительное условие открытия",
       "eventHandlers": "Обработчики событий",
@@ -1642,6 +1661,10 @@
         "buffStackCompare": "Сравнение слоёв Buff по тегу",
         "currentBuffStackCompare": "Сравнение слоёв текущего Buff",
         "contextTargetObjectTypeMatch": "Тип объекта в группе целей",
+        "actionInputTargetObjectTypeMatch": "Тип входной цели действия",
+        "actionInputTargetIdentityMatch": "Идентичность входной цели действия",
+        "contextTargetIdentityMatch": "Идентичность цели контекста",
+        "contextTargetEntityTagMatch": "Теги сущности цели контекста",
         "contextTargetBuffStackCompare": "Слои Buff первой цели группы",
         "eventTargetBuffCountCompare": "Число экземпляров Buff у цели события",
         "entityTagMatch": "Теги сущности",
@@ -1659,6 +1682,12 @@
       "conditionNoParameters": "У этого условия нет дополнительных параметров.",
       "conditionContextKey": "Ключ группы целей",
       "conditionObjectTypeMask": "Маска ObjectType",
+      "actionContextIdentityOther": "Сравнить идентичность",
+      "actionContextIdentities": {
+        "controlledOperator": "Управляемый оперативник",
+        "actionSource": "Источник действия",
+        "actionOwner": "Владелец действия"
+      },
       "probability": "Вероятность",
       "superArmor": "Суперброня",
       "cameraTargetAngle": "Знаковый угол (градусы)",

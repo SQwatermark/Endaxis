@@ -60,6 +60,7 @@ async function simulate(index: number, potential: number, recall: boolean) {
       },
     },
     buffDefinitions: { [marker]: avywenna.buffDefinitions![marker]! },
+    comboSkillConditions: [],
     skillGroups: [
       {
         key: 'battleSkill',

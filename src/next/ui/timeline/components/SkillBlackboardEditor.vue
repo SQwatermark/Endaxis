@@ -18,6 +18,9 @@ const props = defineProps<{
   skillLevel: number;
   collapsible?: boolean;
   initiallyCollapsed?: boolean;
+  title?: string;
+  description?: string;
+  newKeyPrefix?: string;
 }>();
 const emit = defineEmits<{ update: [blackboard: Readonly<Record<string, LevelValues>>] }>();
 const { t } = useI18n({ useScope: 'global' });
@@ -29,8 +32,9 @@ function entries(): readonly [string, LevelValues][] {
 
 function addEntry(): void {
   let index = 1;
-  while (`value${index}` in props.blackboard) index += 1;
-  emit('update', { ...props.blackboard, [`value${index}`]: 0 });
+  const prefix = props.newKeyPrefix ?? 'value';
+  while (`${prefix}${index}` in props.blackboard) index += 1;
+  emit('update', { ...props.blackboard, [`${prefix}${index}`]: 0 });
 }
 
 function removeEntry(key: string): void {
@@ -77,7 +81,7 @@ function setValue(key: string, value: LevelValues, event: Event): void {
         >
           <el-icon><CaretRight v-if="collapsed" /><CaretBottom v-else /></el-icon>
         </button>
-        <h4>{{ t('nextTimeline.skillEditing.initialBlackboard') }}</h4>
+        <h4>{{ title ?? t('nextTimeline.skillEditing.initialBlackboard') }}</h4>
         <span class="blackboard-heading__count">{{ entries().length }}</span>
       </div>
       <button
@@ -90,7 +94,7 @@ function setValue(key: string, value: LevelValues, event: Event): void {
       </button>
     </div>
     <p v-if="!collapsed" class="skill-subsection-help">
-      {{ t('nextTimeline.skillEditing.blackboardDescription') }}
+      {{ description ?? t('nextTimeline.skillEditing.blackboardDescription') }}
     </p>
     <div v-if="!collapsed && entries().length === 0" class="editor-empty">—</div>
     <div v-else-if="!collapsed" class="blackboard-list">

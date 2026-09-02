@@ -11,7 +11,7 @@ export function prepareComboCast(
   program: Pick<CompiledSkillProgram, 'smartTarget'>,
   pending?: PendingComboCondition,
 ): AfterSkillCastStart {
-  const trigger = pending === undefined ? undefined : { ...pending.triggerTarget };
+  const trigger = pending?.triggerTarget == null ? undefined : { ...pending.triggerTarget };
   const assignPairs = pending?.assignPairs == null ? null : { ...pending.assignPairs };
   const selected =
     program.smartTarget === undefined
@@ -22,7 +22,7 @@ export function prepareComboCast(
           ? { kind: 'enemy' as const } // 无候选的手工排轴：固定有效主目标。
           : program.smartTarget === 'input'
             ? pending.inputTarget
-            : pending.triggerTarget;
+            : (pending.triggerTarget ?? undefined);
   if (selected !== undefined && selected.kind !== 'enemy')
     throw new Error('combo smart target requires an audited non-enemy target selection projection');
   const smartTarget = selected === undefined ? undefined : { ...selected };

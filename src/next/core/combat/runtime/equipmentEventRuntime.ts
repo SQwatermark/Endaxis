@@ -23,12 +23,14 @@ import {
   readEventSkillCastInfo,
 } from './buffLifecycleSequenceRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 export type RegisterEquipmentAbilityEventAction = (
   operatorId: string,
   event: EquipmentAbilityEvent,
   priority: number,
-  handle: (payload: unknown) => void,
+  handle: (payload: unknown, actionContext?: AbilityEventRuntimeActionContext) => void,
 ) => AbilityEventRegistration;
 
 /** 配装操作执行器用于归因和选择实体状态的稳定上下文。 */
@@ -78,7 +80,7 @@ export class EquipmentEventRuntime {
               operatorId,
               handler.abilityEvent,
               handler.priority ?? 0,
-              payload => {
+              (payload, actionContext) => {
                 const event = normalizeAbilityEventPayload(handler.abilityEvent!, payload);
                 this.#execute(
                   contributionIndex,
@@ -91,6 +93,7 @@ export class EquipmentEventRuntime {
                   }),
                   event,
                   readEventSkillCastInfo(payload),
+                  actionContext,
                 );
               },
             ),
@@ -147,12 +150,20 @@ export class EquipmentEventRuntime {
     operations: CombatOperationExecutor,
     event: EquipmentEventExecutionContext['event'],
     eventSkillCastInfo?: CombatSkillCastInfo | null,
+    actionContext?: AbilityEventRuntimeActionContext,
   ): void {
     const blackboard = new ActionBlackboard(handler.blackboard ?? {});
+    const targetContext =
+      actionContext?.triggerTarget == null ? undefined : new RuntimeTargetContext();
+    if (actionContext?.triggerTarget != null)
+      targetContext!.setSingle('trigger', actionContext.triggerTarget);
     const operationContext: CombatOperationContext = {
       blackboard,
       event,
       actionOwnerId: this.#operatorId,
+      actionSourceId: this.#operatorId,
+      ...(targetContext === undefined ? {} : { targetContext }),
+      ...(actionContext === undefined ? {} : { actionInputTarget: actionContext.inputTarget }),
       ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
       addAbilityChildBuff: child => {
         this.addChildBuff(contributionIndex, child);

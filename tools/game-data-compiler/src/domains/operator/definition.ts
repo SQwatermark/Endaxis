@@ -280,6 +280,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       ...talentPassivePlans.flatMap(plan => plan.buffIds),
       ...potentialPassivePlans.flatMap(plan => plan.buffIds),
       ...basePassivePlans.flatMap(plan => plan.buffIds),
+      ...collectCompiledBuffIds(input.comboSkillConditions ?? []),
     ]),
   ];
   const globalBuffCatalog = parseGlobalBuffTemplateCatalogSource(input.globalBuffCatalog);
@@ -543,6 +544,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   for (const application of collectCompiledBuffApplications([
     ...input.activeSkills.map(item => item.definition),
     compiledAbilityEntityDefinitions,
+    input.comboSkillConditions ?? [],
   ])) {
     // 编译后的 `caster` 在 Buff 生命周期中绑定实际 Buff 宿主。所有干员集合目标都会
     // 为每个命中的干员各建一份实例，因此其固定宿主种类同样是 operator/caster；
@@ -587,6 +589,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     new Set([
       ...entityBuffIdentityReads,
       ...collectCompiledBuffIdentityReadIds(input.activeSkills.map(item => item.definition)),
+      ...collectCompiledBuffIdentityReadIds(input.comboSkillConditions ?? []),
     ]),
     input.gameplayTagRegistry,
     rootBuffSourceTargets,
@@ -594,6 +597,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     collectCompiledBuffCapturedTargetGroups([
       ...input.activeSkills.map(item => item.definition),
       compiledAbilityEntityDefinitions,
+      input.comboSkillConditions ?? [],
     ]),
   );
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');

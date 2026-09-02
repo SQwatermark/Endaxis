@@ -1133,6 +1133,50 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'beforeTakeDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'contextTargetBuffStackCompare',
+            contextKey: 'trigger',
+            tagQueryType: 'hasAny',
+            buffTags: [
+              'Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic',
+              'Skill/Character/Common/PhysicalStatus/FractureStatus',
+            ],
+            operator: 'greaterOrEqual',
+            value: { kind: 'constant', value: 1 },
+          },
+          sequence(
+            branch(
+              {
+                kind: 'actionInputTargetIdentityMatch',
+                other: 'controlledOperator',
+                operator: 'equal',
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'eventDamageTagsMatch',
+                    match: 'hasAny',
+                    tags: ['normalAttackLastCombo'],
+                  },
+                  sequence(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

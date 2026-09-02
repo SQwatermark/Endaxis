@@ -1,4 +1,8 @@
-import { assertGameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
+import {
+  assertGameplayTag,
+  GAMEPLAY_TAG_MATCH_TYPES,
+  GAMEPLAY_TAG_QUERY_TYPES,
+} from '../../../../packages/game-data-contract/src/gameplayTags';
 /**
  * SkillDefinition 的严格结构验证。
  *
@@ -29,11 +33,15 @@ import {
   HEAL_TARGETS,
   INFLICTION_ELEMENTS,
   OPERATOR_ATTRIBUTES,
+  OPERATOR_ROLES,
+  NATIVE_SKILL_TYPES,
+  PHYSICAL_INFLICTION_TYPES,
   RESOURCE_RECIPIENTS,
   SP_GAIN_KINDS,
   SP_GAIN_SOURCES,
   SKILL_TYPES,
   SKILL_LEVEL_SOURCES,
+  SKILL_TRIGGER_SCOPES,
   STATUS_MODIFIER_KINDS,
   TIME_DILATION_IGNORE_TARGETS,
   TIME_DILATION_ENTITY_TARGETS,
@@ -42,6 +50,9 @@ import { ENEMY_RANKS } from './enemyRank';
 import { collectDamageStepKeys } from './collectDamageStepKeys';
 import { parseCombatBuffDefinitionEntry } from '../combat/buffs/combatBuffDefinitions';
 import {
+  ATTRIBUTE_MODIFIER_SLOTS,
+  ATTRIBUTE_MODIFIER_TIMINGS,
+  DAMAGE_MODIFIER_SIDES,
   DAMAGE_SCALE_SIDES,
   DAMAGE_SCALE_ZONES,
 } from '../../../../packages/game-data-contract/src/modifiers';
@@ -69,6 +80,7 @@ const TIME_DILATION_IGNORE_TARGETS_SET = new Set<string>(TIME_DILATION_IGNORE_TA
 const TIME_DILATION_ENTITY_TARGETS_SET = new Set<string>(TIME_DILATION_ENTITY_TARGETS);
 const BUFF_APPLICATION_TARGETS_SET = new Set<string>(BUFF_APPLICATION_TARGETS);
 const BUFF_SINGLE_TARGETS_SET = new Set<string>(BUFF_SINGLE_TARGETS);
+const BUFF_CONDITION_TARGETS_SET = new Set<string>([...BUFF_SINGLE_TARGETS, 'actionInputTarget']);
 const BUFF_APPLICATION_SOURCES_SET = new Set<string>(BUFF_APPLICATION_SOURCES);
 const RESOURCE_RECIPIENTS_SET = new Set<string>(RESOURCE_RECIPIENTS);
 const COMPARISON_OPERATORS_SET = new Set<string>(COMPARISON_OPERATORS);
@@ -77,31 +89,25 @@ const HEAL_CALCULATION_ATTRIBUTES_SET = new Set<string>([...OPERATOR_ATTRIBUTES,
 const DAMAGE_CALCULATIONS_SET = new Set<string>(DAMAGE_CALCULATIONS);
 const SP_GAIN_KINDS_SET = new Set<string>(SP_GAIN_KINDS);
 const SP_GAIN_SOURCES_SET = new Set<string>(SP_GAIN_SOURCES);
+const PHYSICAL_INFLICTION_TYPES_SET = new Set<string>(PHYSICAL_INFLICTION_TYPES);
 const STATUS_MODIFIER_KINDS_SET = new Set<string>(STATUS_MODIFIER_KINDS);
 const SKILL_TYPES_SET = new Set<string>(SKILL_TYPES);
 const SKILL_LEVEL_SOURCES_SET = new Set<string>(SKILL_LEVEL_SOURCES);
-const NATIVE_SKILL_TYPES_SET = new Set<string>([
-  'passiveSkill',
-  'attack',
-  'breakingAttack',
-  'normalSkill',
-  'attachSkill',
-  'dodge',
-  'comboSkill',
-  'ultimateSkill',
-  'extraActiveSkill',
-]);
+const NATIVE_SKILL_TYPES_SET = new Set<string>(NATIVE_SKILL_TYPES);
 const ACTION_VALUE_OPERATIONS_SET = new Set<string>(ACTION_VALUE_OPERATIONS);
 const ACTION_VALUE_CALCULATION_OPERATIONS_SET = new Set<string>(
   ACTION_VALUE_CALCULATION_OPERATIONS,
 );
 const DAMAGE_SCALE_SIDES_SET = new Set<string>(DAMAGE_SCALE_SIDES);
 const DAMAGE_SCALE_ZONES_SET = new Set<string>(DAMAGE_SCALE_ZONES);
+const DAMAGE_MODIFIER_SIDES_SET = new Set<string>(DAMAGE_MODIFIER_SIDES);
+const ATTRIBUTE_MODIFIER_SLOTS_SET = new Set<string>(ATTRIBUTE_MODIFIER_SLOTS);
+const ATTRIBUTE_MODIFIER_TIMINGS_SET = new Set<string>(ATTRIBUTE_MODIFIER_TIMINGS);
 const HEALTH_VALUE_TYPES_SET = new Set<string>(['current', 'ratio']);
-const TAG_QUERY_TYPES_SET = new Set<string>(['hasAny', 'hasAll', 'exceptAny', 'exceptAll']);
-const TAG_QUERY_TYPES_WITH_EXACT_SET = new Set<string>(['exact', ...TAG_QUERY_TYPES_SET]);
+const TAG_QUERY_TYPES_SET = new Set<string>(GAMEPLAY_TAG_QUERY_TYPES);
+const TAG_QUERY_TYPES_WITH_EXACT_SET = new Set<string>(GAMEPLAY_TAG_MATCH_TYPES);
 const BUFF_FINISH_REASONS_SET = new Set<string>(['early', 'absorbed', 'other']);
-const TRIGGER_SCOPES_SET = new Set<string>(['operator', 'team']);
+const TRIGGER_SCOPES_SET = new Set<string>(SKILL_TRIGGER_SCOPES);
 
 function issue(path: string, message: string): SkillDefinitionValidationIssue {
   return { path, message };
@@ -409,6 +415,23 @@ function validateNonEmptyStringArray(
   });
 }
 
+/** 可为空但每一项都必须是非空字符串的数组。 */
+function validateStringArray(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  if (!Array.isArray(value)) {
+    push(out, path, 'expected an array');
+    return;
+  }
+  value.forEach((entry, index) => {
+    if (typeof entry !== 'string' || entry.length === 0) {
+      push(out, `${path}[${index}]`, 'expected a non-empty string');
+    }
+  });
+}
+
 /** 非空且只包含已定义伤害标签的数组。 */
 function validateDamageTags(
   value: unknown,
@@ -487,6 +510,9 @@ function validateCombatCondition(
   }
 
   switch (kind) {
+    case 'constant':
+      if (typeof record.value !== 'boolean') push(out, `${path}.value`, 'expected boolean');
+      break;
     case 'combatActive':
     case 'singleEnemyPresent':
     case 'casterControlled':
@@ -529,7 +555,7 @@ function validateCombatCondition(
       if (!Array.isArray(record.roles) || record.roles.length === 0) {
         push(out, `${path}.roles`, 'expected a non-empty array');
       } else {
-        const roles = new Set(['guard', 'caster', 'defender', 'vanguard', 'supporter', 'striker']);
+        const roles = new Set<string>(OPERATOR_ROLES);
         record.roles.forEach((value, index) => {
           if (typeof value !== 'string' || !roles.has(value)) {
             push(out, `${path}.roles[${index}]`, 'unknown operator role');
@@ -614,6 +640,42 @@ function validateCombatCondition(
         push(out, `${path}.objectTypeMask`, 'expected signed int32 mask');
       }
       break;
+    case 'actionInputTargetObjectTypeMatch':
+      if (
+        !Number.isInteger(record.objectTypeMask) ||
+        typeof record.objectTypeMask !== 'number' ||
+        record.objectTypeMask < -2147483648 ||
+        record.objectTypeMask > 2147483647
+      ) {
+        push(out, `${path}.objectTypeMask`, 'expected signed int32 mask');
+      }
+      break;
+    case 'actionInputTargetIdentityMatch':
+      requireEnum(
+        record,
+        'other',
+        new Set(['actionSource', 'actionOwner', 'controlledOperator']),
+        path,
+        out,
+      );
+      requireEnum(record, 'operator', new Set(['equal', 'notEqual']), path, out);
+      break;
+    case 'contextTargetIdentityMatch':
+      requireString(record, 'contextKey', path, out);
+      requireEnum(
+        record,
+        'other',
+        new Set(['actionSource', 'actionOwner', 'controlledOperator']),
+        path,
+        out,
+      );
+      requireEnum(record, 'operator', new Set(['equal', 'notEqual']), path, out);
+      break;
+    case 'contextTargetEntityTagMatch':
+      requireString(record, 'contextKey', path, out);
+      requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
+      validateGameplayTags(record.tags, `${path}.tags`, out);
+      break;
     case 'contextTargetBuffStackCompare':
       requireString(record, 'contextKey', path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
@@ -643,7 +705,7 @@ function validateCombatCondition(
       }
       break;
     case 'buffStackCompare':
-      requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
+      requireEnum(record, 'target', BUFF_CONDITION_TARGETS_SET, path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
       validateGameplayTags(record.buffTags, `${path}.buffTags`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
@@ -653,7 +715,7 @@ function validateCombatCondition(
       }
       break;
     case 'buffTagIdCountCompare':
-      requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
+      requireEnum(record, 'target', BUFF_CONDITION_TARGETS_SET, path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
       validateGameplayTags(record.buffTags, `${path}.buffTags`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
@@ -664,12 +726,12 @@ function validateCombatCondition(
       validateActionValueOperand(record.value, `${path}.value`, out);
       break;
     case 'entityTagMatch':
-      requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
+      requireEnum(record, 'target', BUFF_CONDITION_TARGETS_SET, path, out);
       requireEnum(record, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
       validateGameplayTags(record.tags, `${path}.tags`, out);
       break;
     case 'buffIdStackCompare':
-      requireEnum(record, 'target', BUFF_SINGLE_TARGETS_SET, path, out);
+      requireEnum(record, 'target', BUFF_CONDITION_TARGETS_SET, path, out);
       validateNonEmptyStringArray(record.buffIds, `${path}.buffIds`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateLevelValuesOrActionValueOperand(record.value, `${path}.value`, out);
@@ -718,12 +780,11 @@ function validateCombatCondition(
       if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
       break;
     case 'eventPhysicalInflictionTypeIn': {
-      const known = new Set(['airborne', 'knockDown', 'fracture', 'crush']);
       if (!Array.isArray(record.types) || record.types.length === 0) {
         push(out, `${path}.types`, 'expected a non-empty array');
       } else {
         record.types.forEach((type, index) => {
-          if (typeof type !== 'string' || !known.has(type)) {
+          if (typeof type !== 'string' || !PHYSICAL_INFLICTION_TYPES_SET.has(type)) {
             push(out, `${path}.types[${index}]`, 'unknown physical infliction type');
           }
         });
@@ -1134,6 +1195,7 @@ function validateCombatStep(
         const selectionKind = requireString(selection, 'kind', selectionPath, out);
         if (
           selectionKind !== null &&
+          selectionKind !== 'allOperators' &&
           selectionKind !== 'controlledOperator' &&
           selectionKind !== 'lowestHealthRatioOperator'
         ) {
@@ -1158,6 +1220,18 @@ function validateCombatStep(
               out,
               `${selectionPath}.excludeCaster`,
               'only lowestHealthRatioOperator can exclude the caster',
+            );
+          }
+        }
+        if (selection.excludeCurrentTarget !== undefined) {
+          if (selection.excludeCurrentTarget !== true) {
+            push(out, `${selectionPath}.excludeCurrentTarget`, 'expected true');
+          }
+          if (selectionKind !== 'lowestHealthRatioOperator') {
+            push(
+              out,
+              `${selectionPath}.excludeCurrentTarget`,
+              'only lowestHealthRatioOperator can exclude the current target',
             );
           }
         }
@@ -1474,35 +1548,14 @@ function validateCombatStep(
             const modifierPath = `${path}.parameters.instantAttributeModifiers[${index}]`;
             const modifier = asRecord(rawModifier, modifierPath, out);
             if (modifier === null) return;
-            requireEnum(
-              modifier,
-              'targetSide',
-              new Set(['attacker', 'defender']),
-              modifierPath,
-              out,
-            );
+            requireEnum(modifier, 'targetSide', DAMAGE_MODIFIER_SIDES_SET, modifierPath, out);
             requireString(modifier, 'attribute', modifierPath, out);
-            requireEnum(
-              modifier,
-              'slot',
-              new Set([
-                'addition',
-                'multiplier',
-                'finalAddition',
-                'finalMultiplier',
-                'baseAddition',
-                'baseMultiplier',
-                'baseFinalAddition',
-                'baseFinalMultiplier',
-              ]),
-              modifierPath,
-              out,
-            );
+            requireEnum(modifier, 'slot', ATTRIBUTE_MODIFIER_SLOTS_SET, modifierPath, out);
             validateActionValueOperand(modifier.value, `${modifierPath}.value`, out);
             requireEnum(
               modifier,
               'attributeTiming',
-              new Set(['deck', 'runtime']),
+              ATTRIBUTE_MODIFIER_TIMINGS_SET,
               modifierPath,
               out,
             );
@@ -2538,7 +2591,7 @@ function validateCombatStep(
         push(out, `${path}.parameters.target`, "expected 'caster'");
       }
       requireString(parameters, 'buffId', `${path}.parameters`, out);
-      validateNonEmptyStringArray(
+      validateStringArray(
         parameters.inheritToNextSkillIds,
         `${path}.parameters.inheritToNextSkillIds`,
         out,
@@ -2971,6 +3024,13 @@ function validateCombatStep(
     case 'repeatByActionValue':
       validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
       break;
+    case 'scheduleProjectileFinishCallback': {
+      const delay = requireFiniteNumber(parameters, 'delaySeconds', `${path}.parameters`, out);
+      if (delay !== null && delay < 0) {
+        push(out, `${path}.parameters.delaySeconds`, 'expected a non-negative number');
+      }
+      break;
+    }
     case 'setContextFlag':
       requireString(parameters, 'flag', `${path}.parameters`, out);
       validateScalar(parameters.value, `${path}.parameters.value`, out);
@@ -2979,11 +3039,32 @@ function validateCombatStep(
       }
       break;
     case 'openComboWindow':
-      requireString(parameters, 'nextSkillKey', `${path}.parameters`, out);
+      if (parameters.nextSkillKeyFromSlot === 'comboSkill') {
+        if (parameters.nextSkillKey !== undefined)
+          push(out, `${path}.parameters.nextSkillKey`, 'must be omitted for slot lookup');
+      } else {
+        requireString(parameters, 'nextSkillKey', `${path}.parameters`, out);
+        if (parameters.nextSkillKeyFromSlot !== undefined)
+          push(out, `${path}.parameters.nextSkillKeyFromSlot`, "expected 'comboSkill'");
+      }
+      break;
+    case 'triggerCustomAbilityEvent':
+      requireString(parameters, 'eventName', `${path}.parameters`, out);
+      requireFiniteNumber(parameters, 'eventParam', `${path}.parameters`, out);
+      requireEnum(parameters, 'target', new Set(['caster']), `${path}.parameters`, out);
+      if (parameters.source !== undefined) {
+        requireEnum(
+          parameters,
+          'source',
+          new Set(['caster', 'currentAbilityEntity']),
+          `${path}.parameters`,
+          out,
+        );
+      }
       break;
     case 'castSkillDuringAction':
       requireString(parameters, 'skillId', `${path}.parameters`, out);
-      requireEnum(parameters, 'target', new Set(['enemy']), `${path}.parameters`, out);
+      requireEnum(parameters, 'target', new Set(['caster', 'enemy']), `${path}.parameters`, out);
       requireBoolean(parameters, 'skipApplyCost', `${path}.parameters`, out);
       requireBoolean(parameters, 'inheritSourceSkillCastInfo', `${path}.parameters`, out);
       break;
@@ -3020,23 +3101,7 @@ function validateCombatStep(
       break;
     case 'changeNativeSkillType':
       requireString(parameters, 'targetSkillKey', `${path}.parameters`, out);
-      requireEnum(
-        parameters,
-        'nativeSkillType',
-        new Set([
-          'passiveSkill',
-          'attack',
-          'breakingAttack',
-          'normalSkill',
-          'attachSkill',
-          'dodge',
-          'comboSkill',
-          'ultimateSkill',
-          'extraActiveSkill',
-        ]),
-        `${path}.parameters`,
-        out,
-      );
+      requireEnum(parameters, 'nativeSkillType', NATIVE_SKILL_TYPES_SET, `${path}.parameters`, out);
       break;
     case 'listenForCombatEvents':
       if (!Array.isArray(parameters.responses) || parameters.responses.length === 0) {
@@ -3145,7 +3210,8 @@ function validateActionSequence(
       stepKind === 'once' ||
       stepKind === 'withActionBlackboardScope' ||
       stepKind === 'repeatEachTick' ||
-      stepKind === 'repeatByActionValue'
+      stepKind === 'repeatByActionValue' ||
+      stepKind === 'scheduleProjectileFinishCallback'
     ) {
       validateActionSequence(
         recordStep.body,
@@ -3181,6 +3247,7 @@ function containsCombatEventListener(value: unknown): boolean {
     record.kind === 'withActionBlackboardScope' ||
     record.kind === 'repeatEachTick' ||
     record.kind === 'repeatByActionValue' ||
+    record.kind === 'scheduleProjectileFinishCallback' ||
     record.kind === 'forEachContextTarget'
   ) {
     return containsCombatEventListener(record.body);
@@ -3232,12 +3299,28 @@ function validateEventTrigger(
       }
       break;
     case 'buffApplied':
+    case 'buffOutput':
     case 'airborneOutput':
     case 'knockDownOutput':
       break;
+    case 'buffConsumed':
+      if (record.buffIds !== undefined) {
+        if (!Array.isArray(record.buffIds)) {
+          push(out, `${path}.buffIds`, 'expected an array');
+        } else {
+          record.buffIds.forEach((buffId, index) => {
+            if (typeof buffId !== 'string' || buffId.length === 0) {
+              push(out, `${path}.buffIds[${index}]`, 'expected a non-empty string');
+            }
+          });
+        }
+      }
+      break;
     case 'spGained':
-      requireEnum(record, 'source', SP_GAIN_SOURCES_SET, path, out);
-      requireEnum(record, 'gainKind', SP_GAIN_KINDS_SET, path, out);
+      if (record.source !== undefined)
+        requireEnum(record, 'source', SP_GAIN_SOURCES_SET, path, out);
+      if (record.gainKind !== undefined)
+        requireEnum(record, 'gainKind', SP_GAIN_KINDS_SET, path, out);
       break;
     case 'damageTagHit':
       requireEnum(record, 'tag', DAMAGE_TAGS_SET, path, out);
@@ -3247,6 +3330,20 @@ function validateEventTrigger(
       validateElements(record.elements, `${path}.elements`, out);
       requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);
       break;
+    case 'physicalInflictionApplied': {
+      const types = Array.isArray(record.types) ? record.types : [record.types];
+      types.forEach((type, index) => {
+        if (typeof type !== 'string' || !PHYSICAL_INFLICTION_TYPES_SET.has(type)) {
+          push(
+            out,
+            Array.isArray(record.types) ? `${path}.types[${index}]` : `${path}.types`,
+            'unknown physical infliction type',
+          );
+        }
+      });
+      requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);
+      break;
+    }
     case 'skillHit':
       requireString(record, 'skillGroupKey', path, out);
       requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);

@@ -76,6 +76,61 @@ function setScopeKey(event: Event): void {
   });
 }
 
+function setRepeatMode(event: Event): void {
+  if (props.step.kind !== 'repeatEachTick') return;
+  const mode = (event.target as HTMLSelectElement).value;
+  emit('update', {
+    ...props.step,
+    parameters:
+      mode === 'nativeChanneling'
+        ? {
+            nativeChanneling: {
+              executeEachFrame: false,
+              triggerIntervalSeconds: 1,
+              maxCountPerTarget: -1,
+              targetTriggerIntervalSeconds: 0,
+            },
+          }
+        : mode === 'nativeTickInterval'
+          ? { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 1 } }
+          : {},
+  });
+}
+
+function setRepeatBoolean(owner: 'nativeChanneling' | 'nativeTickInterval', event: Event): void {
+  if (props.step.kind !== 'repeatEachTick') return;
+  const current = props.step.parameters[owner];
+  if (current === undefined) return;
+  emit('update', {
+    ...props.step,
+    parameters: {
+      [owner]: {
+        ...current,
+        executeEachFrame: (event.target as HTMLInputElement).checked,
+      },
+    },
+  });
+}
+
+function setRepeatNumber(
+  owner: 'nativeChanneling' | 'nativeTickInterval',
+  field:
+    | 'triggerIntervalSeconds'
+    | 'maxCountPerTarget'
+    | 'targetTriggerIntervalSeconds'
+    | 'intervalSeconds',
+  event: Event,
+): void {
+  if (props.step.kind !== 'repeatEachTick') return;
+  const current = props.step.parameters[owner];
+  const value = Number((event.target as HTMLInputElement).value);
+  if (current === undefined || !Number.isFinite(value)) return;
+  emit('update', {
+    ...props.step,
+    parameters: { [owner]: { ...current, [field]: value } },
+  });
+}
+
 function replaceBranchSteps(nextSteps: readonly CombatStepDefinition[]): void {
   if (props.step.kind !== 'conditional') {
     emit('update', { ...props.step, body: { steps: nextSteps } });
@@ -118,6 +173,86 @@ function removeStep(index: number): void {
       />
       <input type="text" :value="step.parameters.scopeKey" @input="setScopeKey" />
     </label>
+
+    <div v-else-if="step.kind === 'repeatEachTick'" class="branch-editor__repeat-fields">
+      <label class="branch-editor__field">
+        <span>驱动语义</span>
+        <select
+          :value="
+            step.parameters.nativeChanneling !== undefined
+              ? 'nativeChanneling'
+              : step.parameters.nativeTickInterval !== undefined
+                ? 'nativeTickInterval'
+                : 'hostTick'
+          "
+          @change="setRepeatMode"
+        >
+          <option value="hostTick">宿主每 Tick</option>
+          <option value="nativeChanneling">原生引导扫描</option>
+          <option value="nativeTickInterval">原生定时 Tick</option>
+        </select>
+      </label>
+      <template v-if="step.parameters.nativeChanneling !== undefined">
+        <label class="branch-editor__field">
+          <span>扫描间隔（秒）</span>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            :value="step.parameters.nativeChanneling.triggerIntervalSeconds"
+            @input="setRepeatNumber('nativeChanneling', 'triggerIntervalSeconds', $event)"
+          />
+        </label>
+        <label class="branch-editor__field">
+          <span>每目标最多次数</span>
+          <input
+            type="number"
+            min="-1"
+            step="1"
+            :value="step.parameters.nativeChanneling.maxCountPerTarget"
+            @input="setRepeatNumber('nativeChanneling', 'maxCountPerTarget', $event)"
+          />
+        </label>
+        <label class="branch-editor__field">
+          <span>同目标间隔（秒）</span>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            :value="step.parameters.nativeChanneling.targetTriggerIntervalSeconds"
+            @input="setRepeatNumber('nativeChanneling', 'targetTriggerIntervalSeconds', $event)"
+          />
+        </label>
+        <label class="branch-editor__repeat-check">
+          <input
+            type="checkbox"
+            :checked="step.parameters.nativeChanneling.executeEachFrame"
+            @change="setRepeatBoolean('nativeChanneling', $event)"
+          />
+          <span>每帧执行</span>
+        </label>
+      </template>
+      <template v-else-if="step.parameters.nativeTickInterval !== undefined">
+        <label class="branch-editor__field">
+          <span>Tick 间隔（秒）</span>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            :value="step.parameters.nativeTickInterval.intervalSeconds"
+            @input="setRepeatNumber('nativeTickInterval', 'intervalSeconds', $event)"
+          />
+        </label>
+        <label class="branch-editor__repeat-check">
+          <input
+            type="checkbox"
+            :checked="step.parameters.nativeTickInterval.executeEachFrame"
+            @change="setRepeatBoolean('nativeTickInterval', $event)"
+          />
+          <span>每帧执行</span>
+        </label>
+      </template>
+    </div>
 
     <div v-if="step.kind === 'conditional' && !inspectorOnly" class="branch-editor__tabs">
       <button
@@ -178,6 +313,15 @@ function removeStep(index: number): void {
   grid-template-columns: minmax(130px, 180px) minmax(0, 1fr);
   align-items: center;
   gap: 10px;
+}
+.branch-editor__repeat-fields {
+  display: grid;
+  gap: 10px;
+}
+.branch-editor__repeat-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .branch-editor__tabs {
   display: flex;

@@ -20,6 +20,7 @@ import {
   type SkillDefinition,
   type SkillGroupDefinition,
 } from '../../../core/game-data/operatorDefinition';
+import { listOperatorSkillDefinitionBindings } from '../../../core/game-data/operatorSkillDefinitions';
 import { validateSkillDefinition } from '../../../core/game-data/validateSkillDefinition';
 import type { ValidationIssue } from '../../../core/project/validation';
 import {
@@ -135,11 +136,18 @@ const filteredBuffIds = computed(() =>
   buffIds.value.filter(id => id.toLocaleLowerCase().includes(normalizedObjectSearch.value)),
 );
 const draftIssues = computed<readonly ValidationIssue[]>(() =>
-  draft.value.skillGroups.flatMap((group, groupIndex) =>
-    normalizeSkills(group.skills).flatMap((skill, skillIndex) =>
-      validateSkillDefinition(skill, `skillGroups[${groupIndex}].skills[${skillIndex}]`),
-    ),
-  ),
+  listOperatorSkillDefinitionBindings(draft.value).flatMap(({ group, skill, origin, variant }) => {
+    const groupIndex = draft.value.skillGroups.indexOf(group);
+    const path =
+      origin === 'base'
+        ? `skillGroups[${groupIndex}].skills`
+        : origin === 'variant'
+          ? `skillGroups[${groupIndex}].variants[${group.variants?.indexOf(variant!) ?? -1}].skills`
+          : origin === 'replacement'
+            ? `skillGroups[${groupIndex}].replacementSkills`
+            : `skillGroups[${groupIndex}].routedReplacementSkills`;
+    return validateSkillDefinition(skill, `${path}['${skill.key}']`);
+  }),
 );
 const selectedUpgrades = computed(() => draft.value[progressionKind.value]);
 const selectedUpgrade = computed(() => selectedUpgrades.value[selectedUpgradeIndex.value]);
@@ -148,6 +156,12 @@ const selectedUpgradeModifier = computed(
   () => selectedUpgrade.value?.modifiers?.[selectedModifierIndex.value],
 );
 const skillGroupKeys = computed(() => draft.value.skillGroups.map(group => group.key));
+const comboSkillKeys = computed(() =>
+  listOperatorSkillDefinitionBindings(draft.value)
+    .filter(({ skill }) => skill.skillType === 'comboSkill')
+    .map(({ skill }) => skill.key)
+    .filter((key, index, keys) => keys.indexOf(key) === index),
+);
 const passiveSkillKeys = computed(() => [
   ...(draft.value.passiveSkills ?? []).map(passive => passive.key),
   ...(selectedUpgrade.value?.passiveSkills ?? []).map(passive => passive.key),
@@ -1224,7 +1238,7 @@ function openReferencedDefinition(reference: {
             v-if="showComboEditor"
             :visible="true"
             :conditions="draft.comboSkillConditions"
-            :skill-group-keys="skillGroupKeys"
+            :skill-keys="comboSkillKeys"
             :skill-level="skillLevel"
             @update:visible="showComboEditor = $event"
             @save="saveComboDefinitions"

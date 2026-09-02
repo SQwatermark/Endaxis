@@ -81,6 +81,7 @@ function inspectCondition(
   flags: CompatibilityFlags,
 ): void {
   switch (condition.kind) {
+    case 'constant':
     case 'combatActive':
     case 'singleEnemyPresent':
     case 'actionValueCompare':
@@ -88,6 +89,10 @@ function inspectCondition(
     case 'probability':
     case 'contextTargetCountCompare':
     case 'contextTargetObjectTypeMatch':
+    case 'actionInputTargetObjectTypeMatch':
+    case 'actionInputTargetIdentityMatch':
+    case 'contextTargetIdentityMatch':
+    case 'contextTargetEntityTagMatch':
     case 'contextTargetBuffStackCompare':
     case 'contextTargetBuffIdStackCompare':
     case 'abilityEntityRemainingDurationCompare':

@@ -594,6 +594,7 @@ describe('StandardPlayerDamageEnvironment', () => {
           return {
             key: `${index}`,
             skillGroupKey: 'combo',
+            skillKey: 'combo',
             event: compiled.event,
             immediately: source.immediately,
             initialValues: { consumed_type: 0, consumed_layer: 0 },

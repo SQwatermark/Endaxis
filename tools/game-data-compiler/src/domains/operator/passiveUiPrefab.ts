@@ -1,31 +1,7 @@
 import type { OperatorPassiveUiDefinition } from '../../../../../packages/game-data-contract/src/operators.ts';
+import type { OperatorPassiveUiPrefabComponentEvidence } from '../../source/operatorPassiveUiPrefabEvidence.ts';
 
-export type OperatorPassiveUiPrefabComponentEvidence =
-  | {
-      readonly componentType: 'UICharPassiveMultiStates';
-      readonly fullCount: number;
-      readonly stateCounts: readonly number[];
-    }
-  | {
-      readonly componentType: 'UICharPassiveCounter';
-      readonly layerCount: number;
-      readonly activeCount: number;
-    }
-  | {
-      readonly componentType: 'UICharPassiveZhuangfy';
-      readonly fullCount: number;
-      readonly stateCounts: readonly number[];
-    }
-  | {
-      readonly componentType: 'UICharPassiveLizhiyan';
-      readonly fullCount: number;
-      readonly stateCounts: readonly number[];
-    }
-  | {
-      readonly componentType: 'UICharPassiveLiino';
-      readonly normalBuffId: string;
-      readonly ultimateBuffId: string;
-    };
+export type { OperatorPassiveUiPrefabComponentEvidence } from '../../source/operatorPassiveUiPrefabEvidence.ts';
 
 function requirePositiveInteger(value: number, sourcePath: string): number {
   if (!Number.isInteger(value) || value <= 0) {

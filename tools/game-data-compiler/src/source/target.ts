@@ -8,7 +8,11 @@ import {
   requireRecord,
   requireString,
 } from './primitives.ts';
-import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
+import {
+  NATIVE_GAMEPLAY_TAG_QUERY_NAMES,
+  parseTagQuerySource,
+  type TagQuerySource,
+} from './tagQuery.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import {
   parsePriorityFilterSources,
@@ -662,7 +666,7 @@ export function parseSpawnedEntitySelectorIdentitySource(
     const query = requireRecord(validator.query, queryPath);
     requireExactFields(query, new Set(['queryType', 'tags']), queryPath);
     const queryType = requireString(query.queryType, `${queryPath}.queryType`);
-    if (!['HasAny', 'HasAll', 'ExceptAny', 'ExceptAll'].includes(queryType)) {
+    if (!(NATIVE_GAMEPLAY_TAG_QUERY_NAMES as readonly string[]).includes(queryType)) {
       throw new Error(`${queryPath}.queryType: unsupported value ${JSON.stringify(queryType)}`);
     }
     const tags = requireArray(query.tags, `${queryPath}.tags`).map((rawTag, tagIndex) => {

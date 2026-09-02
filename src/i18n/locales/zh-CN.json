@@ -1407,7 +1407,8 @@
       "restrictedHint": "仅补充木桩模型无法自然产生的事件",
       "operatorHit": "当前干员受到攻击",
       "operatorWeakness": "当前干员触发敌方弱点",
-      "teamHit": "全队受到攻击"
+      "teamHit": "全队受到攻击",
+      "enemyWeaknessSet": "敌人被设置弱点"
     },
     "markerInspector": {
       "title": "外部事件",
@@ -1419,7 +1420,8 @@
       "boundaryHint": "这里只声明木桩模型无法自然产生的外部事实；不会模拟敌方技能、扣血或主动行为。",
       "eventKinds": {
         "operatorHit": "干员受到攻击",
-        "operatorWeaknessTriggeredOutput": "干员触发敌方弱点"
+        "operatorWeaknessTriggeredOutput": "干员触发敌方弱点",
+        "enemyWeaknessSet": "敌人被设置弱点"
       }
     },
     "documentMarkerInspector": {
@@ -1444,7 +1446,8 @@
       "controlSwitch": "切入干员",
       "operatorWeakness": "触发敌方弱点",
       "hitShort": "受击",
-      "weaknessShort": "弱点"
+      "weaknessShort": "弱点",
+      "enemyWeaknessSet": "设置弱点"
     },
     "skillEditing": {
       "section": "技能逻辑",
@@ -1481,11 +1484,17 @@
       "addActivationRule": "添加开启规则",
       "triggerKind": "触发事件",
       "triggerKinds": {
+        "operatorHit": "干员受到命中",
+        "operatorHealed": "干员受到治疗",
         "buffApplied": "施加 Buff",
+        "buffOutput": "输出 Buff",
+        "buffConsumed": "消耗 Buff",
         "airborneOutput": "输出浮空",
         "knockDownOutput": "输出击倒",
+        "spGained": "获得技力",
         "damageTagHit": "伤害标签命中",
         "elementalInflictionApplied": "施加元素附着",
+        "physicalInflictionApplied": "施加物理附着",
         "skillHit": "指定技能命中",
         "enemyDefeated": "击败敌人",
         "statusExpired": "状态自然结束",
@@ -1493,6 +1502,16 @@
       },
       "triggerScope": "事件来源范围",
       "triggerScopes": { "operator": "当前干员", "team": "全队" },
+      "eventRole": "事件角色",
+      "eventRoles": { "source": "治疗来源", "target": "治疗目标（默认）" },
+      "anyValue": "任意",
+      "physicalInflictionType": "物理附着类型",
+      "physicalInflictionTypes": {
+        "airborne": "浮空",
+        "knockDown": "击倒",
+        "fracture": "破碎",
+        "crush": "碾压"
+      },
       "damageTag": "伤害标签",
       "additionalCondition": "附加开启条件",
       "eventHandlers": "事件监听器",
@@ -1762,6 +1781,10 @@
         "buffStackCompare": "按标签比较 Buff 层数",
         "currentBuffStackCompare": "当前 Buff 实例增强层数比较",
         "contextTargetObjectTypeMatch": "目标组对象类型匹配",
+        "actionInputTargetObjectTypeMatch": "事件输入目标对象类型匹配",
+        "actionInputTargetIdentityMatch": "事件输入目标身份匹配",
+        "contextTargetIdentityMatch": "目标组首目标身份匹配",
+        "contextTargetEntityTagMatch": "目标组首目标实体标签匹配",
         "contextTargetBuffStackCompare": "目标组首目标 Buff 层数比较",
         "eventTargetBuffCountCompare": "比较事件目标的 Buff 实例数",
         "entityTagMatch": "实体标签匹配",
@@ -1779,6 +1802,12 @@
       "conditionNoParameters": "该条件不需要额外参数。",
       "conditionContextKey": "目标组键",
       "conditionObjectTypeMask": "对象类型掩码（ObjectType）",
+      "actionContextIdentityOther": "比较身份",
+      "actionContextIdentities": {
+        "controlledOperator": "当前主控干员",
+        "actionSource": "动作来源（ActionSource）",
+        "actionOwner": "动作宿主（ActionOwner）"
+      },
       "probability": "触发概率",
       "superArmor": "霸体值",
       "cameraTargetAngle": "有符号夹角（度）",
@@ -1801,7 +1830,12 @@
       "attributes": { "strength": "力量", "agility": "敏捷", "intellect": "智识", "will": "意志" },
       "scalarValue": "直接数值",
       "actionOperandValue": "动作黑板操作数",
-      "targets": { "caster": "施法者", "enemy": "敌人", "controlled": "当前主控干员" },
+      "targets": {
+        "caster": "施法者",
+        "enemy": "敌人",
+        "controlled": "当前主控干员",
+        "actionInputTarget": "事件输入目标"
+      },
       "gameplayTagPath": "GameplayTag 路径",
       "addGameplayTag": "搜索并添加 GameplayTag",
       "deleteGameplayTag": "删除 GameplayTag",

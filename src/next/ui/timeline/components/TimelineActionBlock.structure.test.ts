@@ -24,7 +24,7 @@ describe('TimelineActionBlock legacy visual parity', () => {
   it('derives default accents from skill type and operator element while preserving custom colors', () => {
     expect(editorSource).toContain('const OPERATOR_ELEMENT_SKILL_COLORS');
     expect(editorSource).toContain("heat: '#ff4d4f'");
-    expect(editorSource).toContain("comboSkill'\n        ? '#fdd900'");
+    expect(editorSource).toMatch(/skillType === 'comboSkill'\s*\? '#fdd900'/);
     expect(editorSource).toContain('editorGameDataRepository.getOperator(operatorSlug)?.element');
     expect(editorSource).toContain(
       ':color="cast.color ?? skillAccentColor(cast.skillType, track.operatorSlug)"',

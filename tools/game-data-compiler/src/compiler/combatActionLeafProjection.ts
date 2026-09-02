@@ -162,7 +162,7 @@ export function compileActionNode(
   )
     throw new Error(`${node.sourcePath}: unaudited single-enemy action ${node.body.value.family}`);
   if (
-    context.actionTargetTarget === 'eventSource' &&
+    context.restrictEventSourceTargetProjection === true &&
     ![
       'buffApplication',
       'buffFinish',
@@ -1053,13 +1053,21 @@ export function compileActionNode(
         context.actionTargetTarget === 'buffOwner')
         ? context.actionTargetTarget
         : null;
+    const namedContextTarget =
+      action.target.targetSource === 'Context' && action.target.targetGroupKey !== ''
+        ? (context.contextTargetGroupTargets?.get(action.target.targetGroupKey) ?? null)
+        : null;
     if (
       (!targetsStaticEnemy &&
         directTarget === null &&
+        namedContextTarget === null &&
         action.target.targetSource !== 'Target' &&
         action.target.targetSource !== 'Owner' &&
         action.target.targetSource !== 'Source') ||
-      (!targetsStaticEnemy && directTarget === null && action.target.targetGroupKey !== '') ||
+      (!targetsStaticEnemy &&
+        directTarget === null &&
+        namedContextTarget === null &&
+        action.target.targetGroupKey !== '') ||
       action.countType !== 'BuffCount' ||
       action.limitSkillCastId
     ) {
@@ -1089,13 +1097,15 @@ export function compileActionNode(
               ? 'caster'
               : targetsStaticEnemy
                 ? 'enemy'
-                : directTarget !== null
-                  ? directTarget
-                  : action.target.targetSource === 'Owner'
-                    ? requireActionOwnerProjection(context, node.sourcePath)
-                    : action.target.targetSource === 'Source'
-                      ? context.actionSourceTarget
-                      : 'eventTarget',
+                : namedContextTarget !== null
+                  ? namedContextTarget
+                  : directTarget !== null
+                    ? directTarget
+                    : action.target.targetSource === 'Owner'
+                      ? requireActionOwnerProjection(context, node.sourcePath)
+                      : action.target.targetSource === 'Source'
+                        ? context.actionSourceTarget
+                        : 'eventTarget',
           outputKey: action.outputKey,
           query,
         },
@@ -1503,7 +1513,10 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'timedMarker') {
     const action = node.body.value.action;
-    if (context.actionTargetTarget === 'eventSource' && action.target.targetSource === 'Target')
+    if (
+      context.restrictEventSourceTargetProjection === true &&
+      action.target.targetSource === 'Target'
+    )
       throw new Error(`${node.sourcePath}: unaudited receiving Buff event marker target`);
     if (
       action.target.targetSource === 'Owner' &&
@@ -1755,10 +1768,14 @@ export function compileActionNode(
   if (node.body.value.family === 'comboPending') {
     const action = node.body.value.action;
     const ownerIsFixedCaster =
-      isPlainTargetReference(action.owner, 'Owner', '') &&
-      (context.actionOwnerTarget === 'caster' || context.fixedBuffOwnerTarget === 'caster');
+      (isPlainTargetReference(action.owner, 'Owner', '') &&
+        (context.actionOwnerTarget === 'caster' || context.fixedBuffOwnerTarget === 'caster')) ||
+      (isPlainTargetReference(action.owner, 'Source', '') &&
+        context.fixedBuffSourceTarget === 'caster');
     const targetIsFixedEnemy =
       isMainEnemySearch(action.target) ||
+      (isPlainTargetReference(action.target, 'Owner', '') &&
+        context.fixedBuffOwnerTarget === 'enemy') ||
       (action.target.targetSource === 'Context' &&
         action.target.targetGroupKey !== '' &&
         context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
@@ -1771,8 +1788,8 @@ export function compileActionNode(
     ) {
       throw new Error(`${node.sourcePath}: unsupported combo Pending projection`);
     }
-    // combat-spec：该动作仅向 BattleManager 提交连携候选；现实时间轴由玩家显式放置连携。
-    return [];
+    // 该动作只开启候选，不代替玩家施法；实际技能身份在执行时读取 owner 当前连携槽。
+    return [{ kind: 'openComboWindow', parameters: { nextSkillKeyFromSlot: 'comboSkill' } }];
   }
   // 技能内施法限制由现实时间轴的技能占用区间覆盖；原生载荷仍在来源层严格解析。
   if (node.body.value.family === 'castingControl') return [];
@@ -1890,7 +1907,7 @@ function compileBuffApplication(
     return [{ kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } }];
   }
   if (
-    context.actionTargetTarget === 'eventSource' &&
+    context.restrictEventSourceTargetProjection === true &&
     !['Source', 'Owner', 'Target'].includes(action.target.targetSource) &&
     !(
       action.target.targetSource === 'Context' &&
@@ -1931,12 +1948,7 @@ function compileBuffApplication(
           ? 'buffSource'
           : context.actionSourceTarget === 'buffSource'
             ? 'buffSource'
-            : context.actionTargetTarget === 'enemy' ||
-                context.actionTargetTarget === 'buffOwner' ||
-                context.actionTargetTarget === 'currentAbilityEntity' ||
-                context.actionTargetTarget === 'currentOperator'
-              ? 'caster'
-              : 'eventSource'
+            : 'caster'
         : action.target.targetSource === 'Target'
           ? context.actionTargetTarget === 'currentOperator'
             ? ('currentTarget' as const)
@@ -1991,12 +2003,7 @@ function compileBuffApplication(
           ? 'buffSource'
           : context.actionSourceTarget === 'buffSource'
             ? 'buffSource'
-            : context.actionTargetTarget === 'enemy' ||
-                context.actionTargetTarget === 'buffOwner' ||
-                context.actionTargetTarget === 'currentAbilityEntity' ||
-                context.actionTargetTarget === 'currentOperator'
-              ? undefined
-              : 'eventSource'
+            : undefined
         : action.buffSource === 'ContextTarget' &&
             context.actionTargetTarget === 'enemy' &&
             action.contextKey === 'smart_target'

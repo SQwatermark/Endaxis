@@ -1,5 +1,8 @@
 import { requireArray, requireExactFields, requireInteger, requireRecord } from './primitives.ts';
-import type { GameplayTagQueryType } from '../../../../packages/game-data-contract/src/gameplayTags.ts';
+import {
+  GAMEPLAY_TAG_QUERY_TYPES,
+  type GameplayTagQueryType,
+} from '../../../../packages/game-data-contract/src/gameplayTags.ts';
 
 export type TagQueryType = GameplayTagQueryType;
 /** 来源解析保留原生身份；不可作为公开契约输出。 */
@@ -8,23 +11,42 @@ export interface TagQuerySource {
   readonly tagIds: readonly number[];
 }
 
+export const NATIVE_GAMEPLAY_TAG_QUERY_NAMES = [
+  'HasAny',
+  'HasAll',
+  'ExceptAny',
+  'ExceptAll',
+] as const;
+
 const QUERY_TYPES: Readonly<Record<string, TagQueryType>> = {
   HasAny: 'hasAny',
   HasAll: 'hasAll',
   ExceptAny: 'exceptAny',
   ExceptAll: 'exceptAll',
+  hasAny: 'hasAny',
+  hasAll: 'hasAll',
+  exceptAny: 'exceptAny',
+  exceptAll: 'exceptAll',
 };
+
+export function projectNativeTagQueryType(value: unknown, path: string): TagQueryType {
+  const projected =
+    typeof value === 'number'
+      ? GAMEPLAY_TAG_QUERY_TYPES[value]
+      : typeof value === 'string'
+        ? QUERY_TYPES[value]
+        : undefined;
+  if (projected === undefined)
+    throw new Error(`${path}: unsupported value ${JSON.stringify(value)}`);
+  return projected;
+}
 
 /** 读取 GameplayTag 查询；这里只保留原生 ID，不为 ID 猜测显示语义。 */
 export function parseTagQuerySource(value: unknown, path: string): TagQuerySource {
   const query = requireRecord(value, path);
   requireExactFields(query, new Set(['queryType', 'tags']), path);
 
-  const rawQueryType = query.queryType;
-  const queryType = typeof rawQueryType === 'string' ? QUERY_TYPES[rawQueryType] : undefined;
-  if (!queryType) {
-    throw new Error(`${path}.queryType: unsupported value ${JSON.stringify(rawQueryType)}`);
-  }
+  const queryType = projectNativeTagQueryType(query.queryType, `${path}.queryType`);
 
   return { queryType, tagIds: parseTagIdsSource(query.tags, `${path}.tags`) };
 }
@@ -34,9 +56,7 @@ export function parseCachedTagQuerySource(value: unknown, path: string): TagQuer
   const query = requireRecord(value, path);
   requireExactFields(query, new Set(['queryType', 'tags']), path);
   const queryType = requireInteger(query.queryType, `${path}.queryType`);
-  const kinds = ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const;
-  const kind = kinds[queryType];
-  if (kind === undefined) throw new Error(`${path}.queryType: unsupported value ${queryType}`);
+  const kind = projectNativeTagQueryType(queryType, `${path}.queryType`);
   return { queryType: kind, tagIds: parseTagIdsSource(query.tags, `${path}.tags`) };
 }
 

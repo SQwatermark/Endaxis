@@ -262,9 +262,19 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
         }
         if (
           entry.event.kind !== 'operatorHit' &&
-          entry.event.kind !== 'operatorWeaknessTriggeredOutput'
+          entry.event.kind !== 'operatorWeaknessTriggeredOutput' &&
+          entry.event.kind !== 'enemyWeaknessSet'
         ) {
           issues.push({ path: `${entryPath}.event.kind`, message: 'unknown external event kind' });
+          return;
+        }
+        if (entry.event.kind === 'enemyWeaknessSet') {
+          if (!isObject(entry.target) || entry.target.scope !== 'team') {
+            issues.push({
+              path: `${entryPath}.target.scope`,
+              message: 'enemy weakness-set event requires team scope',
+            });
+          }
           return;
         }
         if (entry.event.kind === 'operatorWeaknessTriggeredOutput') return;

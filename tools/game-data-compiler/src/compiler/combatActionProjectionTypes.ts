@@ -35,6 +35,7 @@ type BuffQueryTarget =
   | 'controlledOperator'
   | 'currentAbilityEntity'
   | 'eventTarget'
+  | 'actionInputTarget'
   | 'buffOwner'
   | 'buffSource'
   | 'currentTarget';
@@ -42,6 +43,7 @@ type MarkerTarget =
   'caster' | 'enemy' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'currentAbilityEntity';
 
 export type CompiledBuffConditionSource =
+  | Condition<'constant'>
   | Condition<
       | 'casterControlled'
       | 'characterTypeIn'
@@ -52,6 +54,10 @@ export type CompiledBuffConditionSource =
       | 'eventCustomAbilityNameMatch'
       | 'contextTargetCountCompare'
       | 'contextTargetObjectTypeMatch'
+      | 'actionInputTargetObjectTypeMatch'
+      | 'actionInputTargetIdentityMatch'
+      | 'contextTargetIdentityMatch'
+      | 'contextTargetEntityTagMatch'
       | 'contextTargetBuffStackCompare'
       | 'contextTargetBuffIdStackCompare'
       | 'abilityEntityRemainingDurationCompare'
@@ -254,6 +260,7 @@ export type CompiledBuffStepSource =
   | Step<'igniteBuffs'>
   | Step<'triggerSpellBurst'>
   | Step<'triggerCustomAbilityEvent'>
+  | Step<'openComboWindow'>
   | Step<'castSkillDuringAction'>
   | Step<'changeSkillSlot'>
   | Step<'changePlayerActionMode'>

@@ -1,4 +1,4 @@
-import type { GameplayTag, GameplayTagQueryType } from './gameplayTags.ts';
+import type { GameplayTag, GameplayTagMatchType, GameplayTagQueryType } from './gameplayTags.ts';
 import {
   type BuffSingleTarget,
   type CombatTarget,
@@ -20,6 +20,9 @@ import {
   type ActionStringOperand,
 } from './primitives.ts';
 
+/** 条件查询可读取事件 Action Context 的 InputTarget；动作目标集合仍保持严格不变。 */
+export type BuffConditionTarget = BuffSingleTarget | 'actionInputTarget';
+
 /**
  * 原生 CheckSkillHasHit 的技能实例内状态键。它不属于导出的游戏黑板数据，
  * 只用于让编译器与运行时共享同一项内部状态约定。
@@ -31,6 +34,8 @@ export const NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY = '__endaxis_native_skill_has_h
  * 新条件必须能由运行时统一求值，不能在干员文件中嵌入函数。
  */
 export type CombatCondition =
+  /** 原生显式返回动作的布尔结果；用于控制流，不代表战斗状态。 */
+  | { kind: 'constant'; value: boolean }
   /** 时间轴模拟始终处于战斗阶段，用于承接原生的队伍战斗状态检查。 */
   | { kind: 'combatActive' }
   /** Endaxis 固定单敌人场景中，表示原生智能目标数量检查已被模型保证。 */
@@ -112,6 +117,31 @@ export type CombatCondition =
       objectTypeMask: number;
     }
   | {
+      /** 原生事件动作的 InputTarget 对象类型；与物理 eventTarget 方向可能相反。 */
+      kind: 'actionInputTargetObjectTypeMatch';
+      objectTypeMask: number;
+    }
+  | {
+      /** 比较原生事件动作 InputTarget 与 ActionSource/ActionOwner/当前主控身份。 */
+      kind: 'actionInputTargetIdentityMatch';
+      other: 'actionSource' | 'actionOwner' | 'controlledOperator';
+      operator: 'equal' | 'notEqual';
+    }
+  | {
+      /** 比较命名 Context 中首个目标与动作身份；连携的 trigger 也走同一目标组协议。 */
+      kind: 'contextTargetIdentityMatch';
+      contextKey: string;
+      other: 'actionSource' | 'actionOwner' | 'controlledOperator';
+      operator: 'equal' | 'notEqual';
+    }
+  | {
+      /** 查询命名 Context 首个实体当前持有的 GameplayTag。 */
+      kind: 'contextTargetEntityTagMatch';
+      contextKey: string;
+      tagQueryType: GameplayTagQueryType;
+      tags: readonly GameplayTag[];
+    }
+  | {
       /** CheckBuffStackNumByTag 的首目标增强层数；空组直接 false，不读取阈值。 */
       kind: 'contextTargetBuffStackCompare';
       contextKey: string;
@@ -146,7 +176,7 @@ export type CombatCondition =
   | {
       /** 按原生 Buff 标签查询累计强化层数，并使用原生容差比较。 */
       kind: 'buffStackCompare';
-      target: BuffSingleTarget;
+      target: BuffConditionTarget;
       tagQueryType: GameplayTagQueryType;
       buffTags: readonly GameplayTag[];
       sameSourceSkillCast?: boolean;
@@ -156,7 +186,7 @@ export type CombatCondition =
   | {
       /** 按原生 Buff 标签查询未结束 Buff 的不同定义 ID 数，不累计实例数或强化层数。 */
       kind: 'buffTagIdCountCompare';
-      target: BuffSingleTarget;
+      target: BuffConditionTarget;
       tagQueryType: GameplayTagQueryType;
       buffTags: readonly GameplayTag[];
       operator: ComparisonOperator;
@@ -165,14 +195,14 @@ export type CombatCondition =
   | {
       /** 查询目标实体当前持有的 GameplayTag；它与 Buff 身份、数量和层数无关。 */
       kind: 'entityTagMatch';
-      target: BuffSingleTarget;
+      target: BuffConditionTarget;
       tagQueryType: GameplayTagQueryType;
       tags: readonly GameplayTag[];
     }
   | {
       /** 按Buff 定义 身份查询累计强化层数；ID 列表按“任一匹配”处理。 */
       kind: 'buffIdStackCompare';
-      target: BuffSingleTarget;
+      target: BuffConditionTarget;
       buffIds: readonly string[];
       sameSourceSkillCast?: boolean;
       operator: ComparisonOperator;
@@ -193,13 +223,13 @@ export type CombatCondition =
   | {
       /** 匹配触发当前响应的伤害事件标签；普通技能步骤没有事件上下文。 */
       kind: 'eventDamageTagsMatch';
-      match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      match: GameplayTagMatchType;
       tags: readonly DamageTag[];
     }
   | {
       /** 匹配触发当前响应的伤害行为特征；普通技能步骤没有事件上下文。 */
       kind: 'eventDamageFeaturesMatch';
-      match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      match: GameplayTagMatchType;
       features: readonly DamageFeature[];
     }
   | {
@@ -351,6 +381,7 @@ export type CombatCondition =
     };
 
 export const COMBAT_CONDITION_KINDS = [
+  'constant',
   'combatActive',
   'singleEnemyPresent',
   'casterControlled',
@@ -368,6 +399,10 @@ export const COMBAT_CONDITION_KINDS = [
   'probability',
   'contextTargetCountCompare',
   'contextTargetObjectTypeMatch',
+  'actionInputTargetObjectTypeMatch',
+  'actionInputTargetIdentityMatch',
+  'contextTargetIdentityMatch',
+  'contextTargetEntityTagMatch',
   'contextTargetBuffStackCompare',
   'contextTargetBuffIdStackCompare',
   'abilityEntityRemainingDurationCompare',

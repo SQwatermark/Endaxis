@@ -2279,6 +2279,40 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'outputDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['comboSkill'] },
+          sequence(
+            branch(
+              {
+                kind: 'not',
+                condition: {
+                  kind: 'contextTargetIdentityMatch',
+                  contextKey: 'trigger',
+                  other: 'actionSource',
+                  operator: 'equal',
+                },
+              },
+              sequence(
+                branch(
+                  { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+                  sequence(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

@@ -1027,6 +1027,35 @@ describe('施法输入限制与木桩物理控制投影', () => {
     });
   });
 
+  it('生命条件把已证明为唯一敌人的命名目标折叠到木桩账本', () => {
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.Conditions.CheckHp+Data, Gameplay.Beyond',
+        hpOwner: targetFixture('Context', undefined, 'maintar'),
+        compare: 'GT',
+        isRatio: true,
+        value: scalarFixture(0),
+      },
+      'fixture.action',
+      {},
+    );
+
+    expect(
+      compileEventCondition(
+        node(action),
+        { ...ACTIVE_SKILL_CONTEXT, staticEnemyTargetGroupKeys: new Set(['maintar']) },
+        new Map(),
+      ),
+    ).toEqual({
+      kind: 'healthCompare',
+      target: 'enemy',
+      valueType: 'ratio',
+      operator: 'greater',
+      value: { kind: 'constant', value: 0 },
+    });
+  });
+
   it('能力实体子技能的 Owner 受击表现不产生木桩模拟步骤', () => {
     const action = {
       family: 'stumpControl' as const,

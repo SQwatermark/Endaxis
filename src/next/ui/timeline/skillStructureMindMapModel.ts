@@ -1,6 +1,7 @@
 import type {
   ActionSequenceDefinition,
   AbilityEntityDefinition,
+  AbilityEntityChildSkillDefinition,
   CombatCondition,
   CombatEventResponseDefinition,
   CombatEventHandlerDefinition,
@@ -8,6 +9,7 @@ import type {
   ScheduledSequenceDefinition,
   SkillBuffDefinition,
   SkillDefinition,
+  SkillGlobalBuffDefinition,
 } from '../../core/game-data/operatorDefinition';
 import type { EquipmentContributionDefinition } from '../../core/game-data/equipmentDefinition';
 
@@ -34,7 +36,8 @@ export interface SkillStructureNode {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffChild';
   readonly payloadKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -45,7 +48,9 @@ export interface SkillStructureNode {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffDefinition'
+    | 'globalBuffChild';
   readonly acceptsChildKind?:
     | 'scheduledSequence'
     | 'combatStep'
@@ -56,9 +61,11 @@ export interface SkillStructureNode {
     | 'eventResponse'
     | 'skillEventHandler'
     | 'buffAbilityResponse'
-    | 'buffIgniteResponse';
+    | 'buffIgniteResponse'
+    | 'globalBuffChild';
   readonly canDelete?: boolean;
   readonly canMove?: boolean;
+  readonly canCopy?: boolean;
   /** 固定字段/结构槽位使用端口关系；数组成员使用普通成员关系。 */
   readonly relationToParent?: 'port' | 'member';
 }
@@ -260,6 +267,90 @@ function inlineBuffDefinitionNode(
   return project(root);
 }
 
+function globalBuffDefinitionNode(
+  definition: SkillGlobalBuffDefinition,
+  id: string,
+  sourcePath: string,
+  editorSection: number,
+): SkillStructureNode {
+  return {
+    id,
+    label: 'GlobalBuff 定义',
+    kind: '父实例定义',
+    summary: `${definition.stackingType} · ${definition.children.length} 个子 Buff`,
+    sourcePath,
+    details: {
+      叠加方式: definition.stackingType,
+      持续时间: shortValue(definition.durationSeconds),
+      子Buff数: definition.children.length,
+    },
+    editorSection,
+    relationToParent: 'port',
+    payloadKind: 'globalBuffDefinition',
+    canCopy: false,
+    canMove: false,
+    canDelete: false,
+    canAddChild: 'globalBuffChild',
+    acceptsChildKind: 'globalBuffChild',
+    children: definition.children.map((child, index) => ({
+      id: `${id}:child:${index}`,
+      label: `${index + 1}. ${child.buffId}`,
+      kind: 'GlobalBuff 子 Buff',
+      summary: `${Object.keys(child.blackboardAssignments).length} 项父黑板赋值`,
+      sourcePath: `${sourcePath}.children[${index}]`,
+      details: {
+        BuffID: child.buffId,
+        黑板赋值数: Object.keys(child.blackboardAssignments).length,
+      },
+      editorSection,
+      relationToParent: 'member',
+      payloadKind: 'globalBuffChild',
+      canDelete: definition.children.length > 1,
+      canMove: definition.children.length > 1,
+      children: [],
+    })),
+  };
+}
+
+function inlineAbilityEntityChildSkillNode(
+  childSkill: AbilityEntityChildSkillDefinition,
+  id: string,
+  sourcePath: string,
+  editorSection: number,
+): SkillStructureNode {
+  const sequenceArrayPath = `${sourcePath}.scheduledSequences`;
+  return {
+    id,
+    label: childSkill.skillId,
+    kind: '内联实体子技能',
+    summary: `${childSkill.scheduledSequences.length} 条调度序列`,
+    sourcePath: sequenceArrayPath,
+    details: {
+      子技能ID: childSkill.skillId,
+      黑板参数数: Object.keys(childSkill.blackboard ?? {}).length,
+    },
+    editorSection,
+    relationToParent: 'port',
+    payloadKind: 'childSkill',
+    canCopy: false,
+    canMove: false,
+    canDelete: false,
+    canAddChild: 'sequence',
+    acceptsChildKind: 'scheduledSequence',
+    children: childSkill.scheduledSequences.map((sequence, index) =>
+      scheduledSequenceNodeAtPath(
+        sequence,
+        `${id}:sequence:${index}`,
+        `${sequenceArrayPath}[${index}]`,
+        `子序列 ${index + 1}`,
+        editorSection,
+        true,
+        childSkill.scheduledSequences.length > 1,
+      ),
+    ),
+  };
+}
+
 function stepNode(
   step: CombatStepDefinition,
   id: string,
@@ -318,7 +409,9 @@ function stepNode(
     step.kind === 'once' ||
     step.kind === 'withActionBlackboardScope' ||
     step.kind === 'repeatEachTick' ||
-    step.kind === 'forEachContextTarget'
+    step.kind === 'forEachContextTarget' ||
+    step.kind === 'repeatByActionValue' ||
+    step.kind === 'scheduleProjectileFinishCallback'
   ) {
     children.push(
       sequenceNode(
@@ -408,6 +501,24 @@ function stepNode(
         `${sourcePath}.parameters.${statusDefinitionKey}`,
         statusLabel,
         statusBuffId,
+        editorSection,
+      ),
+    );
+  } else if (step.kind === 'createGlobalBuff') {
+    children.push(
+      globalBuffDefinitionNode(
+        step.parameters.definition,
+        `${id}:definition`,
+        `${sourcePath}.parameters.definition`,
+        editorSection,
+      ),
+    );
+  } else if (step.kind === 'startCurrentAbilityEntityChildSkill') {
+    children.push(
+      inlineAbilityEntityChildSkillNode(
+        step.parameters.childSkill,
+        `${id}:child-skill`,
+        `${sourcePath}.parameters.childSkill`,
         editorSection,
       ),
     );

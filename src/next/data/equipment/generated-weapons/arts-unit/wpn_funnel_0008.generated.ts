@@ -56,6 +56,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": false,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -199,7 +209,6 @@ const definition = {
                 "parameters": {
                   "buffId": "buff_wpn_funnel_0008_magic_damage_taken_up",
                   "target": "eventTarget",
-                  "source": "eventSource",
                   "inheritSourceSkillCastInfo": true,
                   "blackboardAssignments": {
                     "spell_damage_taken_up": {

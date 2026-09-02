@@ -77,6 +77,7 @@ async function simulate(input: Case) {
   const base = nextGameDataRepository.getOperator('avywenna')!;
   const operator: OperatorDefinition = {
     ...base,
+    comboSkillConditions: [],
     // 只借已发布面板，不安装旧的展平回收链或天赋补丁。
     skillGroups: [
       {

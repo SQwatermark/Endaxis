@@ -3,19 +3,7 @@ import type {
   SkillBuffAbilityEventResponse,
   SkillBuffIgniteEventResponse,
 } from '../../../core/game-data/operatorDefinition';
-
-const ABILITY_EVENTS = [
-  'enterFight',
-  'ownerHpZero',
-  'beforeTakeDamage',
-  'takeCriticalDamage',
-  'outputDamage',
-  'beforeCastSkill',
-  'skillEnd',
-  'beforeAddedBuff',
-  'addedBuff',
-  'finishedBuff',
-] as const satisfies readonly SkillBuffAbilityEventResponse['event'][];
+import { BUFF_ABILITY_EVENTS } from '../../../core/game-data/operatorDefinition';
 
 const props = defineProps<
   | { kind: 'ability'; response: SkillBuffAbilityEventResponse }
@@ -63,7 +51,9 @@ function setFinishAfterIgnited(event: Event): void {
       <label>
         <span>事件</span>
         <select :value="response.event" @change="setAbilityEvent">
-          <option v-for="event in ABILITY_EVENTS" :key="event" :value="event">{{ event }}</option>
+          <option v-for="event in BUFF_ABILITY_EVENTS" :key="event" :value="event">
+            {{ event }}
+          </option>
         </select>
       </label>
       <label>

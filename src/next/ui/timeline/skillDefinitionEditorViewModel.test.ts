@@ -10,6 +10,7 @@ import {
   applySkillEditorSequenceFrames,
   createSkillEditorDraft,
   createSkillEditorStep,
+  EDITABLE_COMBAT_STEP_KINDS,
   createCombatEventResponseDraft,
   createBuffAbilityEventResponseDraft,
   createBuffIgniteEventResponseDraft,
@@ -48,6 +49,135 @@ describe('LevelValues editor helpers', () => {
 });
 
 describe('技能顶层结构默认值', () => {
+  it('每种可新增步骤的默认草稿都能通过严格定义校验', () => {
+    const template = templateDefinition();
+    const currentAbilityEntityKinds = new Set([
+      'readAbilityEntityRemainingDuration',
+      'setAbilityEntityRemainingDuration',
+      'finishCurrentAbilityEntity',
+      'finishCurrentAbilityEntityWhenSourceDies',
+      'startCurrentAbilityEntityChildSkillById',
+      'startCurrentAbilityEntityChildSkill',
+    ]);
+    for (const kind of EDITABLE_COMBAT_STEP_KINDS) {
+      const step = createSkillEditorStep(template, kind);
+      const validatedStep = currentAbilityEntityKinds.has(kind)
+        ? {
+            kind: 'forEachContextTarget' as const,
+            parameters: { contextKey: 'entities' },
+            body: { steps: [step] },
+          }
+        : step;
+      const draft = {
+        ...template,
+        scheduledSequences: [{ startFrame: 0, endFrame: 1, sequence: { steps: [validatedStep] } }],
+      };
+      expect(validateSkillDefinition(draft), kind).toEqual([]);
+    }
+  });
+
+  it('原生延迟施放允许协议与运行时均支持的施法者目标', () => {
+    const template = templateDefinition();
+    const step = createSkillEditorStep(template, 'castSkillDuringAction');
+    if (step.kind !== 'castSkillDuringAction') throw new Error('expected castSkillDuringAction');
+    const draft = {
+      ...template,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: { steps: [{ ...step, parameters: { ...step.parameters, target: 'caster' } }] },
+        },
+      ],
+    };
+    expect(validateSkillDefinition(draft)).toEqual([]);
+  });
+
+  it('队伍目标严格校验接受公共协议的全员快照与当前迭代目标排除项', () => {
+    const template = templateDefinition();
+    const allOperators = createSkillEditorStep(template, 'findCharacterTeamTargets');
+    if (allOperators.kind !== 'findCharacterTeamTargets') throw new Error('expected team query');
+    const lowest = {
+      ...allOperators,
+      parameters: {
+        ...allOperators.parameters,
+        selection: {
+          kind: 'lowestHealthRatioOperator' as const,
+          excludeCurrentTarget: true as const,
+        },
+      },
+    };
+    const validate = (step: typeof allOperators | typeof lowest) =>
+      validateSkillDefinition({
+        ...template,
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                step === allOperators
+                  ? {
+                      ...step,
+                      parameters: { ...step.parameters, selection: { kind: 'allOperators' } },
+                    }
+                  : step,
+              ],
+            },
+          },
+        ],
+      });
+    expect(validate(allOperators)).toEqual([]);
+    expect(validate(lowest)).toEqual([]);
+  });
+
+  it('投射物结束回调拒绝负延迟并严格校验其 Body', () => {
+    const template = templateDefinition();
+    const step = createSkillEditorStep(template, 'scheduleProjectileFinishCallback');
+    if (step.kind !== 'scheduleProjectileFinishCallback') throw new Error('expected callback');
+    const draft = {
+      ...template,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                ...step,
+                parameters: { delaySeconds: -1 },
+                body: {
+                  steps: [{ kind: 'jumpTimeline' as const, parameters: { destinationFrame: -1 } }],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    expect(validateSkillDefinition(draft).map(issue => issue.path)).toEqual(
+      expect.arrayContaining([
+        '$.scheduledSequences[0].sequence.steps[0].parameters.delaySeconds',
+        '$.scheduledSequences[0].sequence.steps[0].body.steps[0].parameters.destinationFrame',
+      ]),
+    );
+  });
+
+  it('Buff 继承白名单允许正式数据使用的空列表', () => {
+    const template = templateDefinition();
+    const step = createSkillEditorStep(template, 'inheritBuffById');
+    if (step.kind !== 'inheritBuffById') throw new Error('expected inheritBuffById');
+    const draft = {
+      ...template,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [{ ...step, parameters: { ...step.parameters, inheritToNextSkillIds: [] } }],
+          },
+        },
+      ],
+    };
+    expect(validateSkillDefinition(draft)).toEqual([]);
+  });
+
   it('Switch 默认值可保存，重复伤害 key 与缺失候选序列能被校验器定位', () => {
     const template = templateDefinition();
     const step = createSkillEditorStep(template, 'switch');

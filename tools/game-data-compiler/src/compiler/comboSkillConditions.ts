@@ -4,21 +4,28 @@ import { requireNonEmptyString } from '../source/primitives.ts';
 import { compileCombatConditionSequenceSource } from './buffRuntimeProjection.ts';
 import type { CombatActionProjectionContextSource } from './combatProjectionCommon.ts';
 import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
+import {
+  ABILITY_EVENT_ACTION_CONTEXT_BINDINGS,
+  type AbilityEvent,
+  type ActionContextBoundAbilityEvent,
+} from '../../../../packages/game-data-contract/src/abilityEvents.ts';
+import { projectAbilityEvent } from './abilityEventProjection.ts';
 
-const INFLICTION_COMBO_EVENTS = {
-  9: 'addedBuff',
-  101: 'beforeTakeDamage',
-  12: 'takeDamage',
-  60: 'afterTakePhysicalInfliction',
-  126: 'beforeOutputInfliction',
-  121: 'beforeTakeInfliction',
-  129: 'afterOutputInfliction',
-  130: 'afterTakeInfliction',
-} as const;
+export function createOperatorComboActionProjectionContext(
+  gameplayTagRegistry: CombatActionProjectionContextSource['gameplayTagRegistry'],
+): CombatActionProjectionContextSource {
+  return {
+    gameplayTagRegistry,
+    actionOwnerTarget: 'caster',
+    actionSourceTarget: 'caster',
+    actionTargetTarget: 'eventTarget',
+    contextTargetGroupTargets: new Map([['trigger', 'eventTarget']]),
+  };
+}
 
 export interface CompiledComboConditionSource {
   readonly source: ComboSkillConditionSource;
-  readonly event: (typeof INFLICTION_COMBO_EVENTS)[keyof typeof INFLICTION_COMBO_EVENTS];
+  readonly event: AbilityEvent;
   readonly sequence: CompiledBuffSequenceSource;
 }
 
@@ -26,7 +33,7 @@ export interface CompiledComboConditionSource {
 export function compileComboSkillConditionDefinitionSource(
   source: ComboSkillConditionSource,
   blackboards: CompiledAbilitySystemBlackboardsSource,
-  binding: { readonly key: string; readonly skillGroupKey: string },
+  binding: { readonly key: string; readonly skillKey: string },
   context: CombatActionProjectionContextSource,
 ) {
   const compiled = compilePendingComboConditionSource(source, context);
@@ -34,10 +41,7 @@ export function compileComboSkillConditionDefinitionSource(
     source: { condition: compiled.source, blackboards: blackboards.source },
     definition: {
       key: requireNonEmptyString(binding.key, `${source.sourcePath}.binding.key`),
-      skillGroupKey: requireNonEmptyString(
-        binding.skillGroupKey,
-        `${source.sourcePath}.binding.skillGroupKey`,
-      ),
+      skillKey: requireNonEmptyString(binding.skillKey, `${source.sourcePath}.binding.skillKey`),
       event: compiled.event,
       immediately: source.immediately,
       initialValues:
@@ -49,52 +53,25 @@ export function compileComboSkillConditionDefinitionSource(
   };
 }
 
-/** 只编译已审计目标绑定的伤害/Buff/附着条件；immediate 事实保留，运行端能力另行门禁。 */
+/** 事件身份与条件树均走公共编译器；目标绑定和事件产生能力由运行端另行门禁。 */
 export function compilePendingComboConditionSource(
   source: ComboSkillConditionSource,
   context: CombatActionProjectionContextSource,
 ): CompiledComboConditionSource {
-  if (!Object.hasOwn(INFLICTION_COMBO_EVENTS, source.nativeEvent)) {
-    throw new Error(`${source.sourcePath}: unaudited combo event ${source.nativeEvent}`);
-  }
-  rejectUnboundInputTargets(source.sequence, source.sourcePath);
+  const event = projectAbilityEvent(source.nativeEvent, `${source.sourcePath}.nativeEvent`);
+  if (!(event in ABILITY_EVENT_ACTION_CONTEXT_BINDINGS))
+    throw new Error(
+      `${source.sourcePath}.nativeEvent: AbilityEvent '${event}' has no audited action-context binding`,
+    );
+  const binding = ABILITY_EVENT_ACTION_CONTEXT_BINDINGS[event as ActionContextBoundAbilityEvent];
   return {
     source,
-    event: INFLICTION_COMBO_EVENTS[source.nativeEvent as keyof typeof INFLICTION_COMBO_EVENTS],
-    sequence: compileCombatConditionSequenceSource(source.sequence, context),
+    event,
+    sequence: compileCombatConditionSequenceSource(source.sequence, {
+      ...context,
+      actionTargetTarget:
+        'fixedStumpInputTarget' in binding ? binding.fixedStumpInputTarget : binding.inputTarget,
+      ...(binding.triggerTarget === null ? { contextTargetGroupTargets: new Map() } : {}),
+    }),
   };
-}
-
-/** 公共 Buff 投影的 Target 是物理 eventTarget，不能套到连携 InputTarget。未接适配前严格拒绝。 */
-function rejectUnboundInputTargets(value: unknown, path: string): void {
-  if (value === null || typeof value !== 'object') return;
-  if (
-    'metadata' in value &&
-    typeof value.metadata === 'object' &&
-    value.metadata !== null &&
-    'enabled' in value.metadata &&
-    value.metadata.enabled === false
-  )
-    return;
-  // 原生 DebugPrint fallback 不读取目标/黑板，不能被关闭字段中的 Target 假阻塞。
-  if (
-    'family' in value &&
-    value.family === 'presentation' &&
-    'action' in value &&
-    typeof value.action === 'object' &&
-    value.action !== null &&
-    'kind' in value.action &&
-    value.action.kind === 'debugPrint'
-  )
-    return;
-  for (const [key, child] of Object.entries(value)) {
-    if (
-      key === 'targetSource' &&
-      child === 'Target' &&
-      (!('targetGroupKey' in value) || value.targetGroupKey === '')
-    ) {
-      throw new Error(`${path}: combo InputTarget projection is not installed`);
-    }
-    rejectUnboundInputTargets(child, `${path}.${key}`);
-  }
 }

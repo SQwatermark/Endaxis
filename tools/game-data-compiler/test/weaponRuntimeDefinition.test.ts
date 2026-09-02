@@ -158,7 +158,7 @@ describe('weapon runtime definitions', () => {
       sourcePath: `${definition.slug}.skill1.actionGraph`,
       reason:
         `${definition.slug}.skill1.actionGraph.passiveEventActions[0].abilityEvent: ` +
-        'unsupported weapon AbilityEvent "OnProjectileLaunched"',
+        'unsupported ability event "OnProjectileLaunched"',
     });
   });
 

@@ -272,7 +272,9 @@ export const SP_GAIN_SOURCES = ['default', 'normalAttack', 'powerAttack', 'skill
 /** 原生共享 SP 获取效率用于区分普攻、重击和其他动作来源。 */
 export type SpGainSource = (typeof SP_GAIN_SOURCES)[number];
 
-export type PhysicalInflictionType = 'airborne' | 'knockDown' | 'fracture' | 'crush';
+export const PHYSICAL_INFLICTION_TYPES = ['airborne', 'knockDown', 'fracture', 'crush'] as const;
+
+export type PhysicalInflictionType = (typeof PHYSICAL_INFLICTION_TYPES)[number];
 
 /** 原生 EnemyTemplateData.rank；与用于筛选和展示的五档 EnemyTier 无关。 */
 export const ENEMY_RANKS = ['mob', 'elite', 'boss'] as const;

@@ -1,4 +1,4 @@
-import type { GameplayTag, GameplayTagQueryType } from './gameplayTags.ts';
+import type { GameplayTag, GameplayTagMatchType, GameplayTagQueryType } from './gameplayTags.ts';
 import {
   type CombatTarget,
   type ComparisonOperator,
@@ -55,7 +55,13 @@ export const DAMAGE_SCALE_ZONES = [
 /** 七区间伤害倍率中的稳定区间身份。 */
 export type DamageScaleZone = (typeof DAMAGE_SCALE_ZONES)[number];
 
-export const DAMAGE_SCALE_SIDES = ['attacker', 'defender'] as const;
+export const DAMAGE_MODIFIER_SIDES = ['attacker', 'defender'] as const;
+
+/** 指明修正来自伤害来源方还是目标方。 */
+export type DamageModifierSide = (typeof DAMAGE_MODIFIER_SIDES)[number];
+
+/** 伤害倍率与其他伤害修正使用同一来源方/目标方身份。 */
+export const DAMAGE_SCALE_SIDES = DAMAGE_MODIFIER_SIDES;
 
 /** 区分来源方增伤和目标方易伤/减伤的倍率所有者。 */
 export type DamageScaleSide = (typeof DAMAGE_SCALE_SIDES)[number];
@@ -64,11 +70,6 @@ export const DAMAGE_PROCESS_TIMINGS = ['beforeCalculation', 'afterCalculation'] 
 
 /** 伤害修正器可以挂载的原生处理阶段。 */
 export type DamageProcessTiming = (typeof DAMAGE_PROCESS_TIMINGS)[number];
-
-export const DAMAGE_MODIFIER_SIDES = ['attacker', 'defender'] as const;
-
-/** 指明修正来自伤害来源方还是目标方。 */
-export type DamageModifierSide = (typeof DAMAGE_MODIFIER_SIDES)[number];
 
 export const DAMAGE_TARGET_HEALTH_TYPES = ['none', 'normal', 'independent'] as const;
 
@@ -96,12 +97,12 @@ export type DamageModifierExternalCondition =
     }
   | {
       readonly kind: 'eventDamageTagsMatch';
-      readonly match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      readonly match: GameplayTagMatchType;
       readonly tags: readonly DamageTag[];
     }
   | {
       readonly kind: 'eventDamageFeaturesMatch';
-      readonly match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll';
+      readonly match: GameplayTagMatchType;
       readonly features: readonly DamageFeature[];
     }
   | {
@@ -170,7 +171,7 @@ export interface DamageModifierDefinition {
 
 export type HealModifierSide = 'healer' | 'receiver';
 
-export type HealProcessTiming = 'afterCalculation' | 'beforeCalculation';
+export type HealProcessTiming = DamageProcessTiming;
 
 export type HealModifierNumber = number | { readonly blackboardKey: string };
 
@@ -215,9 +216,9 @@ export interface HealModifierDefinition {
   )[];
 }
 
-export type PoiseModifierSide = 'attacker' | 'defender';
+export type PoiseModifierSide = DamageModifierSide;
 
-export type PoiseProcessTiming = 'beforeCalculation' | 'afterCalculation';
+export type PoiseProcessTiming = DamageProcessTiming;
 
 export type PoiseModifierNumber = number | { readonly blackboardKey: string };
 

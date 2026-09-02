@@ -60,7 +60,9 @@ type ContributionPayloadKind =
   | 'eventResponse'
   | 'skillEventHandler'
   | 'buffAbilityResponse'
-  | 'buffIgniteResponse';
+  | 'buffIgniteResponse'
+  | 'globalBuffDefinition'
+  | 'globalBuffChild';
 interface ContributionOperationNode {
   readonly id: string;
   readonly sourcePath: string;
@@ -155,7 +157,8 @@ function beginAdd(
       | 'buffIgniteResponse'
       | 'sequence'
       | 'lifecycle'
-      | 'childSkill';
+      | 'childSkill'
+      | 'globalBuffChild';
   },
   anchor: { readonly x: number; readonly y: number },
 ): void {

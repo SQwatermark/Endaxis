@@ -17,6 +17,7 @@ import {
   alesh,
   antal,
   arcane,
+  arclight,
   ardelia,
   avywenna,
   catcher,
@@ -24,13 +25,17 @@ import {
   chenQianyu,
   daPan,
   ember,
+  endministrator,
   estella,
   fluorite,
+  gilberta,
   laevatain,
   lastRite,
+  lifeng,
   liino,
   perlica,
   pogranichnik,
+  rossi,
   snowshine,
   tangtang,
   wulfgard,
@@ -840,6 +845,65 @@ describe('registered generated operators', () => {
         targetId: 'enemy',
         data: expect.objectContaining({ calculatedDamage: 10, currentPoise: 90 }),
       }),
+    );
+  });
+
+  it('opens Catcher combo window from the explicit enemy weakness-set fact', () => {
+    const scenario = createEmptyScenario('scenario:catcher:combo', 'Catcher 连携条件回归');
+    scenario.battle.durationFrames = 30;
+    scenario.tracks[0] = {
+      id: 'track:catcher',
+      operator: {
+        operatorSlug: catcher.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    scenario.battle.externalEventMarkers = [
+      {
+        id: 'weakness:set',
+        frame: 0,
+        target: { scope: 'team' },
+        event: { kind: 'enemyWeaknessSet' },
+      },
+    ];
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario,
+      endFrame: 30,
+      criticalSamples: new ExplicitCriticalSampleSource([]),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ExternalEnemyWeaknessSetProcessed',
+        sourceId: 'enemy',
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:catcher' }),
     );
   });
 
@@ -1861,13 +1925,16 @@ describe('registered generated operators', () => {
       }).scenario;
       const camilleCast = placed.tracks[0]?.skillCasts[0];
       if (camilleCast === undefined) throw new Error('missing Camille weapon probe cast');
+      const camilleComboDefinition = camille.skillGroups
+        .flatMap(group => (Array.isArray(group.skills) ? group.skills : [group.skills]))
+        .find(skill => skill.key === 'comboSkill1');
+      if (camilleComboDefinition === undefined)
+        throw new Error('missing Camille combo skill definition');
       placed.tracks[0]!.skillCasts = [
         {
           ...camilleCast,
           customDefinition: {
-            key: 'comboSkill1',
-            skillType: 'comboSkill',
-            levelSource: 'comboSkill',
+            ...camilleComboDefinition,
             timelineBlockFrames: 1,
             scheduledSequences: [
               scheduled(
@@ -2921,7 +2988,7 @@ describe('registered generated operators', () => {
     expect(perlica.comboSkillConditions).toEqual([
       expect.objectContaining({
         key: 'native-combo:0',
-        skillGroupKey: 'comboSkill',
+        skillKey: 'comboSkill',
         event: 'beforeTakeDamage',
         immediately: false,
         initialValues: null,
@@ -2940,14 +3007,12 @@ describe('registered generated operators', () => {
       }),
     ]);
     expect(JSON.stringify(perlica.comboSkillConditions)).toContain('eventSourceControlled');
-    expect(JSON.stringify(perlica.comboSkillConditions)).toContain(
-      'contextTargetObjectTypeMatch',
-    );
+    expect(JSON.stringify(perlica.comboSkillConditions)).toContain('contextTargetObjectTypeMatch');
     expect('comboSkillRegistrations' in wulfgard).toBe(false);
     expect(wulfgard.comboSkillConditions).toEqual([
       expect.objectContaining({
         key: 'native-combo:0',
-        skillGroupKey: 'comboSkill',
+        skillKey: 'comboSkill',
         event: 'beforeTakeInfliction',
         immediately: false,
         initialValues: null,
@@ -2957,7 +3022,7 @@ describe('registered generated operators', () => {
     expect(lastRite.comboSkillConditions).toEqual([
       expect.objectContaining({
         key: 'native-combo:0',
-        skillGroupKey: 'comboSkill',
+        skillKey: 'comboSkill',
         event: 'beforeTakeInfliction',
         immediately: false,
         initialValues: null,
@@ -2967,7 +3032,7 @@ describe('registered generated operators', () => {
     expect(tangtang.comboSkillConditions).toEqual([
       expect.objectContaining({
         key: 'native-combo:0',
-        skillGroupKey: 'comboSkill',
+        skillKey: 'comboSkill',
         event: 'takeDamage',
         immediately: false,
         initialValues: null,
@@ -2987,12 +3052,12 @@ describe('registered generated operators', () => {
       }),
       expect.objectContaining({
         key: 'native-combo:1',
-        skillGroupKey: 'comboSkill',
+        skillKey: 'comboSkill',
         event: 'beforeTakeInfliction',
       }),
       expect.objectContaining({
         key: 'native-combo:2',
-        skillGroupKey: 'comboSkill',
+        skillKey: 'comboSkill',
         event: 'addedBuff',
         sequence: expect.objectContaining({
           steps: expect.arrayContaining([
@@ -3009,6 +3074,146 @@ describe('registered generated operators', () => {
         }),
       }),
     ]);
+  });
+
+  it('keeps newly decoded Arclight, Gilberta, Estella and Laevatain native combo conditions', () => {
+    expect(arclight.comboSkillConditions?.map(condition => condition.event)).toEqual([
+      'outputBuff',
+      'buffEndsEarly',
+    ]);
+    expect(JSON.stringify(arclight.comboSkillConditions)).toContain(
+      'Skill/Character/Common/SpellStatus/Conduct',
+    );
+
+    expect(gilberta.comboSkillConditions?.map(condition => condition.event)).toEqual(['addedBuff']);
+    expect(JSON.stringify(gilberta.comboSkillConditions)).toContain('contextTargetObjectTypeMatch');
+    expect(JSON.stringify(gilberta.comboSkillConditions)).toContain(
+      'Skill/Character/Common/SpellStatus',
+    );
+
+    expect(estella.comboSkillConditions?.map(condition => condition.event)).toEqual(['addedBuff']);
+    expect(JSON.stringify(estella.comboSkillConditions)).toContain(
+      'Skill/Character/Common/SpellStatus/Frozen',
+    );
+
+    expect(laevatain.comboSkillConditions?.map(condition => condition.event)).toEqual([
+      'addedBuff',
+    ]);
+    expect(JSON.stringify(laevatain.comboSkillConditions)).toContain(
+      'Skill/Character/Common/SpellStatus/Burning',
+    );
+    expect(JSON.stringify(laevatain.comboSkillConditions)).toContain(
+      'Skill/Character/Common/SpellStatus/Corrupt',
+    );
+  });
+
+  it('keeps shared target-context combo conditions for the next eight generated operators', () => {
+    expect(alesh.comboSkillConditions?.map(condition => condition.event)).toEqual([
+      'buffEndsEarly',
+      'buffEndsEarly',
+    ]);
+    expect(ember.comboSkillConditions?.map(condition => condition.event)).toEqual(['takeDamage']);
+    expect(avywenna.comboSkillConditions?.map(condition => condition.event)).toEqual([
+      'beforeOutputDamage',
+    ]);
+    expect(ardelia.comboSkillConditions?.map(condition => condition.event)).toEqual([
+      'outputDamage',
+    ]);
+    expect(zhuangFangyi.comboSkillConditions?.map(condition => condition.event)).toEqual([
+      'beforeOutputDamage',
+      'beforeOutputDamage',
+    ]);
+    expect(lifeng.comboSkillConditions?.map(condition => condition.event)).toEqual([
+      'beforeTakeDamage',
+    ]);
+    expect(endministrator.comboSkillConditions?.map(condition => condition.event)).toEqual([
+      'outputDamage',
+    ]);
+    expect(yvonne.comboSkillConditions?.map(condition => condition.event)).toEqual([
+      'beforeTakeDamage',
+    ]);
+
+    const serialized = JSON.stringify([
+      ember.comboSkillConditions,
+      avywenna.comboSkillConditions,
+      ardelia.comboSkillConditions,
+      zhuangFangyi.comboSkillConditions,
+      lifeng.comboSkillConditions,
+      endministrator.comboSkillConditions,
+      yvonne.comboSkillConditions,
+      alesh.comboSkillConditions,
+    ]);
+    expect(serialized).toContain('actionInputTargetObjectTypeMatch');
+    expect(serialized).toContain('actionInputTargetIdentityMatch');
+    expect(serialized).toContain('contextTargetIdentityMatch');
+    expect(serialized).toContain('contextTargetEntityTagMatch');
+  });
+
+  it('binds Rossi native combo conditions to combo 2 without borrowing combo 3 cooldown', () => {
+    expect(rossi.comboSkillConditions).toHaveLength(2);
+    expect(rossi.comboSkillConditions?.map(condition => condition.skillKey)).toEqual([
+      'comboSkill2',
+      'comboSkill2',
+    ]);
+  });
+
+  it('opens Arclight combo window from the real output-Buff event', () => {
+    const scenario = createEmptyScenario(
+      'scenario:arclight:output-buff-combo',
+      '弧光输出 Buff 连携回归',
+    );
+    scenario.battle.durationFrames = 90;
+    const createTrack = (id: string, operatorSlug: string) => ({
+      id,
+      operator: {
+        operatorSlug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    });
+    scenario.tracks[0] = createTrack('track:arclight', arclight.slug);
+    scenario.tracks[1] = createTrack('track:perlica', perlica.slug);
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 1,
+      operator: perlica,
+      skillGroupKey: 'comboSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:perlica:conduct` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 90,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: false,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:arclight' }),
+    );
   });
 
   it('keeps Antal forced combo casts simulatable while diagnosing the missing trigger', () => {

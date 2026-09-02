@@ -72,7 +72,9 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventOverheal' &&
       condition.kind !== 'eventSourceMatchesBuffSource' &&
       condition.kind !== 'eventSourceMatchesBuffSourceEntitySource' &&
-      condition.kind !== 'eventSourceControlled'
+      condition.kind !== 'eventSourceControlled' &&
+      condition.kind !== 'actionInputTargetObjectTypeMatch' &&
+      condition.kind !== 'actionInputTargetIdentityMatch'
     ) {
       return context === undefined
         ? this.delegate.evaluate(condition)
@@ -145,6 +147,48 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         context.event.kind === 'abilityHeal'
         ? this.isOperatorControlled(context.event.sourceId)
         : false;
+    }
+    if (condition.kind === 'actionInputTargetObjectTypeMatch') {
+      const target = context.actionInputTarget;
+      if (target === undefined) {
+        throw new Error('actionInputTargetObjectTypeMatch requires an action InputTarget');
+      }
+      const mask =
+        condition.objectTypeMask & 16 ? condition.objectTypeMask | 16384 : condition.objectTypeMask;
+      const objectType =
+        target.kind === 'enemy'
+          ? 16
+          : target.kind === 'operator'
+            ? 8
+            : target.kind === 'abilityEntity'
+              ? 512
+              : 0;
+      return objectType !== 0 && (mask & objectType) === objectType;
+    }
+    if (condition.kind === 'actionInputTargetIdentityMatch') {
+      const target = context.actionInputTarget;
+      if (target === undefined) {
+        throw new Error('actionInputTargetIdentityMatch requires an action InputTarget');
+      }
+      const targetId =
+        target.kind === 'operator'
+          ? target.operatorId
+          : target.kind === 'abilityEntity'
+            ? `abilityEntity:${target.instanceId}`
+            : 'enemy';
+      const matches =
+        condition.other === 'controlledOperator'
+          ? (() => {
+              if (target.kind !== 'operator') return false;
+              if (this.isOperatorControlled === undefined) {
+                throw new Error('actionInputTargetIdentityMatch requires control state');
+              }
+              return this.isOperatorControlled(target.operatorId);
+            })()
+          : condition.other === 'actionSource'
+            ? context.actionSourceId !== undefined && targetId === context.actionSourceId
+            : context.actionOwnerId !== undefined && targetId === context.actionOwnerId;
+      return condition.operator === 'equal' ? matches : !matches;
     }
     if (condition.kind === 'eventSkillTypeIn') {
       return (
@@ -238,7 +282,12 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     if (condition.kind === 'eventBuffTagsMatch') {
       const event = context.event;
-      if (event.kind !== 'buffApplied' && event.kind !== 'buffConsumed') return false;
+      if (
+        event.kind !== 'buffApplied' &&
+        event.kind !== 'buffFinished' &&
+        event.kind !== 'buffConsumed'
+      )
+        return false;
       const matched =
         this.matchBuffTags === undefined
           ? matchValues(event.buffTags ?? [], condition.buffTags, condition.match)

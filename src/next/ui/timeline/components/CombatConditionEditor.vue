@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
+import { GAMEPLAY_TAG_QUERY_TYPES } from '../../../../../packages/game-data-contract/src/gameplayTags';
 
 /**
  * 战斗条件树的递归参数编辑器。
@@ -12,6 +13,7 @@ import { useI18n } from 'vue-i18n';
 import {
   COMBAT_CONDITION_KINDS,
   COMBAT_TARGETS,
+  BUFF_SINGLE_TARGETS,
   COMPARISON_OPERATORS,
   DAMAGE_ELEMENTS,
   DAMAGE_FEATURES,
@@ -24,7 +26,6 @@ import {
   type ActionValueOperand,
   type CombatCondition,
   type CombatConditionKind,
-  type CombatTarget,
   type ComparisonOperator,
   type DamageElement,
   type DamageFeature,
@@ -42,8 +43,9 @@ import EditorFieldLabel from './EditorFieldLabel.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
 const RecursiveConditionEditor = defineAsyncComponent(() => import('./CombatConditionEditor.vue'));
-const TAG_QUERY_TYPES = ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const;
+const TAG_QUERY_TYPES = GAMEPLAY_TAG_QUERY_TYPES;
 const EVENT_TAG_MATCH_TYPES = ['exact', ...TAG_QUERY_TYPES] as const;
+const CONDITION_QUERY_TARGETS = [...BUFF_SINGLE_TARGETS, 'actionInputTarget'] as const;
 
 const props = defineProps<{ condition: CombatCondition; layerOnly?: boolean }>();
 const emit = defineEmits<{ update: [condition: CombatCondition] }>();
@@ -68,9 +70,20 @@ function setKind(event: Event): void {
 }
 
 function setTarget(event: Event): void {
-  const target = (event.target as HTMLSelectElement).value as CombatTarget;
-  if (!COMBAT_TARGETS.includes(target)) return;
+  const rawTarget = (event.target as HTMLSelectElement).value;
   const condition = props.condition;
+  if (
+    condition.kind === 'buffStackCompare' ||
+    condition.kind === 'buffTagIdCountCompare' ||
+    condition.kind === 'entityTagMatch' ||
+    condition.kind === 'buffIdStackCompare'
+  ) {
+    const target = CONDITION_QUERY_TARGETS.find(value => value === rawTarget);
+    if (target !== undefined) emit('update', { ...condition, target });
+    return;
+  }
+  const target = COMBAT_TARGETS.find(value => value === rawTarget);
+  if (target === undefined) return;
   switch (condition.kind) {
     case 'targetStaggered':
       emit('update', { ...condition, target });
@@ -82,16 +95,6 @@ function setTarget(event: Event): void {
       emit('update', { ...condition, target });
       break;
     case 'statusActive':
-      emit('update', { ...condition, target });
-      break;
-    case 'buffStackCompare':
-    case 'buffTagIdCountCompare':
-      emit('update', { ...condition, target });
-      break;
-    case 'entityTagMatch':
-      emit('update', { ...condition, target });
-      break;
-    case 'buffIdStackCompare':
       emit('update', { ...condition, target });
       break;
     case 'timedMarkerPresent':
@@ -237,6 +240,8 @@ function setGameplayTags(values: readonly GameplayTag[]): void {
     emit('update', { ...props.condition, buffTags: values });
   else if (props.condition.kind === 'entityTagMatch')
     emit('update', { ...props.condition, tags: values });
+  else if (props.condition.kind === 'contextTargetEntityTagMatch')
+    emit('update', { ...props.condition, tags: values });
   else if (props.condition.kind === 'eventBuffTagsMatch')
     emit('update', { ...props.condition, buffTags: values });
   else if (props.condition.kind === 'eventTargetBuffCountCompare')
@@ -285,19 +290,51 @@ function setTagQueryType(event: Event): void {
     emit('update', { ...props.condition, tagQueryType });
   else if (props.condition.kind === 'entityTagMatch')
     emit('update', { ...props.condition, tagQueryType });
+  else if (props.condition.kind === 'contextTargetEntityTagMatch')
+    emit('update', { ...props.condition, tagQueryType });
 }
 
 function setContextKey(event: Event): void {
   const condition = props.condition;
   if (
     condition.kind === 'contextTargetObjectTypeMatch' ||
-    condition.kind === 'contextTargetBuffStackCompare'
+    condition.kind === 'contextTargetBuffStackCompare' ||
+    condition.kind === 'contextTargetIdentityMatch' ||
+    condition.kind === 'contextTargetEntityTagMatch'
   )
     emit('update', { ...condition, contextKey: (event.target as HTMLInputElement).value });
 }
 
+function setActionContextIdentityOther(event: Event): void {
+  const condition = props.condition;
+  if (
+    condition.kind !== 'actionInputTargetIdentityMatch' &&
+    condition.kind !== 'contextTargetIdentityMatch'
+  )
+    return;
+  const other = (event.target as HTMLSelectElement).value;
+  if (other === 'actionSource' || other === 'actionOwner' || other === 'controlledOperator') {
+    emit('update', { ...condition, other });
+  }
+}
+
+function setIdentityComparison(event: Event): void {
+  const condition = props.condition;
+  if (
+    condition.kind !== 'actionInputTargetIdentityMatch' &&
+    condition.kind !== 'contextTargetIdentityMatch'
+  )
+    return;
+  const operator = (event.target as HTMLSelectElement).value;
+  if (operator === 'equal' || operator === 'notEqual') emit('update', { ...condition, operator });
+}
+
 function setObjectTypeMask(event: Event): void {
-  if (props.condition.kind !== 'contextTargetObjectTypeMatch') return;
+  if (
+    props.condition.kind !== 'contextTargetObjectTypeMatch' &&
+    props.condition.kind !== 'actionInputTargetObjectTypeMatch'
+  )
+    return;
   const raw = (event.target as HTMLInputElement).value;
   const value = Number(raw);
   if (raw.trim() !== '' && Number.isInteger(value) && value >= -2147483648 && value <= 2147483647)
@@ -496,14 +533,55 @@ function removeChild(index: number): void {
     <label
       v-if="
         condition.kind === 'contextTargetObjectTypeMatch' ||
-        condition.kind === 'contextTargetBuffStackCompare'
+        condition.kind === 'contextTargetBuffStackCompare' ||
+        condition.kind === 'contextTargetIdentityMatch' ||
+        condition.kind === 'contextTargetEntityTagMatch'
       "
       class="condition-editor__field"
     >
       <EditorFieldLabel :label="t('nextTimeline.skillEditing.conditionContextKey')" />
       <input type="text" :value="condition.contextKey" @input="setContextKey" />
     </label>
-    <label v-if="condition.kind === 'contextTargetObjectTypeMatch'" class="condition-editor__field">
+
+    <template
+      v-if="
+        condition.kind === 'actionInputTargetIdentityMatch' ||
+        condition.kind === 'contextTargetIdentityMatch'
+      "
+    >
+      <label class="condition-editor__field">
+        <EditorFieldLabel :label="t('nextTimeline.skillEditing.actionContextIdentityOther')" />
+        <select :value="condition.other" @change="setActionContextIdentityOther">
+          <option value="controlledOperator">
+            {{ t('nextTimeline.skillEditing.actionContextIdentities.controlledOperator') }}
+          </option>
+          <option value="actionSource">
+            {{ t('nextTimeline.skillEditing.actionContextIdentities.actionSource') }}
+          </option>
+          <option value="actionOwner">
+            {{ t('nextTimeline.skillEditing.actionContextIdentities.actionOwner') }}
+          </option>
+        </select>
+      </label>
+      <label class="condition-editor__field">
+        <EditorFieldLabel :label="t('nextTimeline.skillEditing.comparisonOperator')" />
+        <select :value="condition.operator" @change="setIdentityComparison">
+          <option value="equal">
+            {{ t('nextTimeline.skillEditing.comparisonOperators.equal') }}
+          </option>
+          <option value="notEqual">
+            {{ t('nextTimeline.skillEditing.comparisonOperators.notEqual') }}
+          </option>
+        </select>
+      </label>
+    </template>
+    <label
+      v-if="
+        condition.kind === 'contextTargetObjectTypeMatch' ||
+        condition.kind === 'actionInputTargetObjectTypeMatch'
+      "
+      class="condition-editor__field"
+    >
       <EditorFieldLabel :label="t('nextTimeline.skillEditing.conditionObjectTypeMask')" />
       <input
         type="number"
@@ -543,7 +621,18 @@ function removeChild(index: number): void {
         :label="t('nextTimeline.skillEditing.target')"
         :help="t('nextTimeline.skillEditing.fieldHelp.conditionTarget')"
       /><select :value="'target' in condition ? condition.target : 'enemy'" @change="setTarget">
-        <option v-for="target in COMBAT_TARGETS" :key="target" :value="target">
+        <option
+          v-for="target in [
+            'buffStackCompare',
+            'buffTagIdCountCompare',
+            'entityTagMatch',
+            'buffIdStackCompare',
+          ].includes(condition.kind)
+            ? CONDITION_QUERY_TARGETS
+            : COMBAT_TARGETS"
+          :key="target"
+          :value="target"
+        >
           {{ t(`nextTimeline.skillEditing.targets.${target}`) }}
         </option>
       </select></label
@@ -831,7 +920,8 @@ function removeChild(index: number): void {
         condition.kind === 'buffTagIdCountCompare' ||
         condition.kind === 'contextTargetBuffStackCompare' ||
         condition.kind === 'eventTargetBuffCountCompare' ||
-        condition.kind === 'entityTagMatch'
+        condition.kind === 'entityTagMatch' ||
+        condition.kind === 'contextTargetEntityTagMatch'
       "
     >
       <label class="condition-editor__field"
@@ -849,7 +939,11 @@ function removeChild(index: number): void {
           :label="t('nextTimeline.skillEditing.buffTags')"
           :help="t('nextTimeline.skillEditing.fieldHelp.buffTags')"
         /><GameplayTagsEditor
-          :tags="condition.kind === 'entityTagMatch' ? condition.tags : condition.buffTags"
+          :tags="
+            condition.kind === 'entityTagMatch' || condition.kind === 'contextTargetEntityTagMatch'
+              ? condition.tags
+              : condition.buffTags
+          "
           @update="setGameplayTags"
         />
       </label>

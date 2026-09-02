@@ -1627,6 +1627,49 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'buffEndsEarly',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+          sequence(
+            branch(
+              {
+                kind: 'eventBuffTagsMatch',
+                match: 'hasAny',
+                buffTags: ['Skill/Character/Common/SpellStatus'],
+              },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillKey: 'comboSkill',
+      event: 'buffEndsEarly',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+          sequence(
+            branch(
+              { kind: 'eventBuffIdMatch', buffIds: ['buff_common_originum_frozen'] },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

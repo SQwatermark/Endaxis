@@ -26,7 +26,7 @@ describe('installMechanicContributions', () => {
           contributionIndex: 0,
           contribution: {
             kind: 'combatEventSequence',
-            event: 'damageOutput',
+            event: 'outputDamage',
             priority: 20,
             sequence: emptySequence,
           },
@@ -56,14 +56,14 @@ describe('installMechanicContributions', () => {
       sequenceExecutor: { execute },
     });
 
-    abilityEvents.dispatch({ event: 'damageOutput', payload: { damage: 10 } }, []);
+    abilityEvents.dispatch({ event: 'outputDamage', payload: { damage: 10 } }, []);
     gameLevelEvents.dispatch({ event: 'spellInflictionStarted', payload: { stacks: 2 } });
 
     expect(execute).toHaveBeenCalledTimes(2);
     expect(execute.mock.calls[0]).toEqual([
       emptySequence,
       { selectionId: 'selection:1', mechanicId: 'seasonTower:test' },
-      { domain: 'ability', event: { event: 'damageOutput', payload: { damage: 10 } } },
+      { domain: 'ability', event: { event: 'outputDamage', payload: { damage: 10 } } },
     ]);
     expect(execute.mock.calls[1]?.[2]).toEqual({
       domain: 'gameLevel',

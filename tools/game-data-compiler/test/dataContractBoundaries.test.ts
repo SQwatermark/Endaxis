@@ -3,14 +3,31 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import ts from 'typescript';
+import { COMBAT_PROTOCOL_RUNTIME_GAPS } from '../../../src/next/core/combat/runtime/combatProtocolCapabilities.ts';
 import {
+  ABILITY_EVENTS,
+  ATTRIBUTE_MODIFIER_SLOTS,
+  ATTRIBUTE_MODIFIER_TIMINGS,
+  COMBO_SKILL_PRIORITIES,
+  COMBAT_CONDITION_KINDS,
+  COMBAT_EVENT_TRIGGER_KINDS,
+  COMBAT_STEP_KINDS,
+  COMPARISON_OPERATORS,
+  DAMAGE_MODIFIER_SIDES,
+  DAMAGE_PROCESS_TIMINGS,
   EQUIPMENT_ABILITY_EVENTS,
+  GAMEPLAY_TAG_QUERY_TYPES,
   GEAR_SLOT_TYPES,
+  NATIVE_SKILL_TYPES,
   OPERATOR_WEAPON_TYPES,
   OPERATOR_RARITIES,
   OPERATOR_ROLES,
   DAMAGE_ELEMENTS,
+  PLAYER_SKILL_INPUTS,
+  PHYSICAL_INFLICTION_TYPES,
   SKILL_LEVEL_SOURCES,
+  SKILL_TRIGGER_SCOPES,
+  SP_GAIN_SOURCES,
   WEAPON_RARITIES,
 } from '../../../packages/game-data-contract/src/index.ts';
 
@@ -75,6 +92,77 @@ function loadProgram(configFile: string): ts.Program {
 }
 
 describe('独立游戏数据契约边界', () => {
+  it('公共战斗事件触发器同时具备严格校验草稿和语义运行时匹配分支', () => {
+    const runtimePath = join(productRoot, 'core/combat/runtime/combatSemanticEventRuntime.ts');
+    const ast = ts.createSourceFile(
+      runtimePath,
+      readFileSync(runtimePath, 'utf8'),
+      ts.ScriptTarget.Latest,
+      true,
+    );
+    const runtimeCases = new Set<string>();
+    const visit = (node: ts.Node): void => {
+      if (ts.isCaseClause(node) && ts.isStringLiteral(node.expression)) {
+        runtimeCases.add(node.expression.text);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(ast);
+
+    expect(COMBAT_EVENT_TRIGGER_KINDS.filter(kind => !runtimeCases.has(kind))).toEqual([]);
+  });
+
+  it('公共动作和条件没有新增未登记的生产运行时缺口', () => {
+    const runtimeRoot = join(productRoot, 'core/combat/runtime');
+    const discriminants = new Set<string>();
+    for (const path of sourceFiles(runtimeRoot).filter(
+      path =>
+        !/\.(test|spec)\.ts$/.test(path) && !path.endsWith('standardPlayerDamageCompatibility.ts'),
+    )) {
+      const ast = ts.createSourceFile(
+        path,
+        readFileSync(path, 'utf8'),
+        ts.ScriptTarget.Latest,
+        true,
+      );
+      const visit = (node: ts.Node): void => {
+        if (
+          ts.isBinaryExpression(node) &&
+          [
+            ts.SyntaxKind.EqualsEqualsToken,
+            ts.SyntaxKind.EqualsEqualsEqualsToken,
+            ts.SyntaxKind.ExclamationEqualsToken,
+            ts.SyntaxKind.ExclamationEqualsEqualsToken,
+          ].includes(node.operatorToken.kind)
+        ) {
+          for (const [left, right] of [
+            [node.left, node.right],
+            [node.right, node.left],
+          ] as const) {
+            if (
+              ts.isPropertyAccessExpression(left) &&
+              left.name.text === 'kind' &&
+              ts.isStringLiteral(right)
+            ) {
+              discriminants.add(right.text);
+            }
+          }
+        }
+        if (ts.isCaseClause(node) && ts.isStringLiteral(node.expression)) {
+          discriminants.add(node.expression.text);
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(ast);
+    }
+    expect(COMBAT_STEP_KINDS.filter(kind => !discriminants.has(kind))).toEqual(
+      Object.keys(COMBAT_PROTOCOL_RUNTIME_GAPS.steps),
+    );
+    expect(COMBAT_CONDITION_KINDS.filter(kind => !discriminants.has(kind))).toEqual(
+      Object.keys(COMBAT_PROTOCOL_RUNTIME_GAPS.conditions),
+    );
+  });
+
   it('实体及整名干员装配直接接受契约检查，不用类型断言绕过输出差异', () => {
     const violations: string[] = [];
     for (const name of [
@@ -189,7 +277,7 @@ describe('独立游戏数据契约边界', () => {
     expect(violations).toEqual([]);
   });
 
-  it('已确认归属的八组正式枚举不得换名复制为类型或校验集合', () => {
+  it('已确认归属的正式枚举不得换名复制为类型或校验集合', () => {
     // 只约束已逐项确认身份的枚举，不把任意“长得相同”的原生类型自动合并。
     const signature = (values: readonly (string | number)[]) =>
       values
@@ -205,6 +293,20 @@ describe('独立游戏数据契约边界', () => {
       [signature(OPERATOR_ROLES), 'OperatorRole'],
       [signature(DAMAGE_ELEMENTS), 'DamageElement'],
       [signature(SKILL_LEVEL_SOURCES), 'SkillLevelSource'],
+      [signature(ABILITY_EVENTS), 'AbilityEvent'],
+      [signature(GAMEPLAY_TAG_QUERY_TYPES), 'GameplayTagQueryType'],
+      [signature(COMPARISON_OPERATORS), 'ComparisonOperator'],
+      [signature(SP_GAIN_SOURCES), 'SpGainSource'],
+      [signature(ATTRIBUTE_MODIFIER_TIMINGS), 'AttributeModifierTiming'],
+      [signature(ATTRIBUTE_MODIFIER_SLOTS), 'AttributeModifierSlot'],
+      [signature(DAMAGE_PROCESS_TIMINGS), 'DamageProcessTiming'],
+      [signature(DAMAGE_MODIFIER_SIDES), 'DamageModifierSide'],
+      [signature(PLAYER_SKILL_INPUTS), 'PlayerSkillInput'],
+      [signature(NATIVE_SKILL_TYPES), 'NativeSkillType'],
+      [signature(SKILL_TRIGGER_SCOPES), 'SkillTriggerScope'],
+      [signature(COMBO_SKILL_PRIORITIES), 'ComboSkillPriority'],
+      [signature(COMBAT_EVENT_TRIGGER_KINDS), 'CombatEventTriggerKind'],
+      [signature(PHYSICAL_INFLICTION_TYPES), 'PhysicalInflictionType'],
     ]);
     const violations: string[] = [];
     const check = (nodes: readonly ts.Node[], path: string) => {
@@ -218,8 +320,18 @@ describe('独立游戏数据契约边界', () => {
       const owner = owners.get(signature(values));
       if (owner) violations.push(`${relative(root, path)}: 应复用 ${owner}`);
     };
-    for (const directory of ['compiler', 'domains']) {
-      for (const path of sourceFiles(join(compilerRoot, 'src', directory))) {
+    const inspectedRoots = [
+      join(compilerRoot, 'src/compiler'),
+      join(compilerRoot, 'src/domains'),
+      join(compilerRoot, 'src/source'),
+      join(productRoot, 'core'),
+      join(productRoot, 'data'),
+      join(productRoot, 'ui'),
+    ];
+    for (const directory of inspectedRoots) {
+      for (const path of sourceFiles(directory).filter(
+        path => !/[\\/]generated(?:-definitions)?[\\/]|\.generated\./.test(path),
+      )) {
         const ast = ts.createSourceFile(
           path,
           readFileSync(path, 'utf8'),
@@ -249,6 +361,14 @@ describe('独立游戏数据契约边界', () => {
               value = value.arguments[0];
             }
             if (ts.isArrayLiteralExpression(value)) check(value.elements, path);
+          }
+          if (
+            ts.isNewExpression(node) &&
+            node.expression.getText(ast) === 'Set' &&
+            node.arguments?.[0] &&
+            ts.isArrayLiteralExpression(node.arguments[0])
+          ) {
+            check(node.arguments[0].elements, path);
           }
           ts.forEachChild(node, visit);
         };

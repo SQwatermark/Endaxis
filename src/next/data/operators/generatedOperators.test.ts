@@ -55,13 +55,13 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [endministrator, 10],
   [lastRite, 9],
   [chenQianyu, 10],
-  [rossi, 10],
-  [camille, 11],
+  [rossi, 11],
+  [camille, 12],
   [tangtang, 10],
-  [laevatain, 14],
-  [mifu, 9],
+  [laevatain, 15],
+  [mifu, 11],
   [yvonne, 16],
-  [zhuangFangyi, 13],
+  [zhuangFangyi, 15],
   [pogranichnik, 10],
   [snowshine, 8],
   [wulfgard, 9],
@@ -71,7 +71,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [avywenna, 10],
   [catcher, 9],
   [ardelia, 9],
-  [liino, 11],
+  [liino, 12],
 ];
 
 function hasUpgradeBehavior(
@@ -98,6 +98,13 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('buff_chr_0035_liino_ultskill_music_heal');
     expect(serialized).toContain('dealDamage');
     expect(serialized).toContain('heal');
+    expect(liino.comboSkillConditions).toMatchObject([
+      { event: 'addedBuff', skillKey: 'comboSkill', immediately: false },
+      { event: 'buffEndsEarly', skillKey: 'comboSkill', immediately: false },
+    ]);
+    expect(JSON.stringify(liino.comboSkillConditions)).toContain(
+      'Skill/Character/chr_0035_liino/NormalSkillMusic',
+    );
   });
 
   it('Ardelia 保留战技易伤、潜能一黑板增幅与潜能五连携改写', () => {
@@ -335,6 +342,12 @@ describe('新增的完整技能转换干员', () => {
       ...(group.variants ?? []).flatMap(variant =>
         Array.isArray(variant.skills) ? variant.skills : [variant.skills],
       ),
+      ...(group.replacementSkills ?? []).filter(
+        skill => group.replacementSkillPlacements?.[skill.key] !== 'internal',
+      ),
+      ...(group.routedReplacementSkills ?? [])
+        .map(replacement => replacement.skill)
+        .filter(skill => group.replacementSkillPlacements?.[skill.key] !== 'internal'),
     ]);
 
     expect(skills).toHaveLength(count);

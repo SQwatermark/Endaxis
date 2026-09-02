@@ -45,6 +45,7 @@ import type { OperatorAttribute } from '../game-data/operatorDefinition';
 import { resolveOperatorPanel } from './resolveOperatorPanel';
 import { compileOperatorComboSkillConditions } from './compileOperatorComboSkillConditions';
 import { resolveUniquePlayerActionForSkill } from '../game-data/resolvePlayerActionRoute';
+import { listSkillGroupDefinitionBindings } from '../game-data/operatorSkillDefinitions';
 
 interface SkillCompilationBinding {
   readonly skill: SkillDefinition;
@@ -350,41 +351,22 @@ export function compileOperatorDefinitionSkills(
     ...operator.abilityEntityDefinitions,
   };
   const skills = operator.skillGroups.flatMap(group => {
-    const definitions: SkillCompilationBinding[] = [
-      ...(Array.isArray(group.skills) ? group.skills : [group.skills]).map(skill => ({
+    const definitions: SkillCompilationBinding[] = listSkillGroupDefinitionBindings(group).map(
+      ({ skill, routedReplacement }) => ({
         skill,
         skillType: requireDefinitionSkillType(
           skill,
           `operator '${operator.slug}' skill '${skill.key}'`,
         ),
         level: requireSkillLevel(build, requireDefinitionLevelSource(skill, operator.slug)),
-      })),
-      ...(group.replacementSkills ?? []).map(skill => ({
-        skill,
-        skillType: requireDefinitionSkillType(
-          skill,
-          `operator '${operator.slug}' skill '${skill.key}'`,
-        ),
-        level: requireSkillLevel(build, requireDefinitionLevelSource(skill, operator.slug)),
-      })),
-      ...(group.routedReplacementSkills ?? []).map(replacement => ({
-        skill: replacement.skill,
-        skillType: replacement.skillType,
-        level: requireSkillLevel(build, replacement.levelSource),
-        executionSkillGroupKey: replacement.executionSkillGroupKey,
-        executionSkillId: replacement.executionSkillKey,
-      })),
-      ...(group.variants ?? []).flatMap(variant => {
-        return (Array.isArray(variant.skills) ? variant.skills : [variant.skills]).map(skill => ({
-          skill,
-          skillType: requireDefinitionSkillType(
-            skill,
-            `operator '${operator.slug}' skill '${skill.key}'`,
-          ),
-          level: requireSkillLevel(build, requireDefinitionLevelSource(skill, operator.slug)),
-        }));
+        ...(routedReplacement === undefined
+          ? {}
+          : {
+              executionSkillGroupKey: routedReplacement.executionSkillGroupKey,
+              executionSkillId: routedReplacement.executionSkillKey,
+            }),
       }),
-    ];
+    );
     return definitions.map(
       ({ skill, skillType, level, executionSkillGroupKey, executionSkillId }) => ({
         ...compileSkill({

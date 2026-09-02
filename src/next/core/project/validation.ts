@@ -8,7 +8,11 @@ import {
   PROJECT_SCHEMA_VERSION,
   type EndaxisProjectDocument,
 } from './schema';
-import { DAMAGE_ELEMENTS } from '../game-data/operatorDefinition';
+import {
+  COMBO_SKILL_PRIORITIES,
+  DAMAGE_ELEMENTS,
+  PLAYER_SKILL_INPUTS,
+} from '../game-data/operatorDefinition';
 import {
   validateGearDefinition,
   validateGearSetDefinition,
@@ -40,7 +44,7 @@ import {
 export type { ValidationIssue } from './validationHelpers';
 
 const damageElements = new Set<string>(DAMAGE_ELEMENTS);
-const playerSkillInputs = new Set<string>(['basicAttack', 'battleSkill', 'comboSkill', 'ultimate']);
+const playerSkillInputs = new Set<string>(PLAYER_SKILL_INPUTS);
 
 function validateProjectTemplateRecord(
   value: unknown,
@@ -94,7 +98,7 @@ function validateProjectTemplateRecord(
       );
       if (
         template.definition.comboSkillPriority !== undefined &&
-        !['default', 'firstBlackboard', 'enemyRank'].includes(
+        !(COMBO_SKILL_PRIORITIES as readonly string[]).includes(
           String(template.definition.comboSkillPriority),
         )
       ) {

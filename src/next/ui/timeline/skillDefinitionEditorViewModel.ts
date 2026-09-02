@@ -398,14 +398,37 @@ export function removeSkillEditorSequence(
 
 /** 提供专用表单的高频步骤；其余步骤仍可查看和调整顺序。 */
 export const EDITABLE_COMBAT_STEP_KINDS = [
+  'mergeContextTargets',
+  'findCharacterTeamTargets',
+  'findOwnerSpawnedAbilityEntities',
+  'pickContextTarget',
+  'forEachContextTarget',
+  'readAbilityEntityRemainingDuration',
+  'setAbilityEntityRemainingDuration',
+  'finishCurrentAbilityEntity',
+  'finishActionOwnerAbilityEntity',
+  'finishCurrentAbilityEntityWhenSourceDies',
+  'startCurrentAbilityEntityChildSkillById',
+  'startCurrentAbilityEntityChildSkill',
+  'createSpatialPointTargets',
+  'jumpTimeline',
+  'finishTimeline',
+  'withActionBlackboardScope',
+  'repeatByActionValue',
+  'scheduleProjectileFinishCallback',
   'startTimeDilation',
   'startUltimateTimeDilation',
+  'setIgnoreGlobalTimeScale',
   'dealDamage',
   'dealFixedDamage',
   'dealStagger',
   'heal',
   'applyElementalInfliction',
+  'applyPhysicalInfliction',
+  'applyKnockDown',
   'triggerSpellBurst',
+  'triggerCustomAbilityEvent',
+  'castSkillDuringAction',
   'applyElementalReaction',
   'consumeElementalReaction',
   'outputAirborne',
@@ -414,12 +437,28 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'applyBuff',
   'readBuffBlackboard',
   'readBuffStackCount',
+  'readEventBuffBlackboard',
+  'readCurrentBuffRemainingDuration',
+  'readBuffRemainingDuration',
+  'setCurrentBuffRemainingDuration',
+  'refreshCurrentBuffAttributeModifiers',
+  'finishCurrentBuff',
+  'setCurrentBuffTimePaused',
+  'createGlobalBuff',
+  'finishParentGlobalBuff',
   'finishBuffsByTag',
   'finishBuffsById',
   'holdBuffsById',
+  'igniteBuffs',
+  'inheritBuffById',
+  'restrictUltimateEnergyRecovery',
   'adjustSkillCooldown',
   'modifyActionValue',
   'calculateActionValue',
+  'readSkillSettingData',
+  'storeSourceAttributeValue',
+  'storeCurrentTimelineFrame',
+  'storeEventSpGainAmount',
   'changeResource',
   'changeResourceByActionValue',
   'gainSquadUltimateEnergyFromSkillCost',
@@ -427,12 +466,18 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'applyStatus',
   'consumeStatus',
   'createTimedMarker',
+  'createAbilityEntityTimedMarker',
   'setContextFlag',
+  'setCharacterPassiveUiValue',
   'openComboWindow',
+  'changeSkillSlot',
+  'changePlayerActionMode',
+  'changeNativeSkillType',
   'listenForCombatEvents',
   'conditional',
   'switch',
   'once',
+  'repeatEachTick',
 ] as const satisfies readonly CombatStepKind[];
 export type EditableCombatStepKind = (typeof EDITABLE_COMBAT_STEP_KINDS)[number];
 
@@ -525,6 +570,73 @@ export function createSkillEditorStep(
   kind: EditableCombatStepKind,
 ): CombatStepDefinition {
   switch (kind) {
+    case 'mergeContextTargets':
+      return { kind, parameters: { saveToContextKey: 'targets', sources: [] } };
+    case 'findCharacterTeamTargets':
+      return {
+        kind,
+        parameters: { saveToContextKey: 'team', selection: { kind: 'controlledOperator' } },
+      };
+    case 'findOwnerSpawnedAbilityEntities':
+      return { kind, parameters: { saveToContextKey: 'entities' } };
+    case 'pickContextTarget':
+      return {
+        kind,
+        parameters: {
+          sourceContextKey: 'targets',
+          saveToContextKey: 'target',
+          index: { kind: 'constant', value: 0 },
+        },
+      };
+    case 'forEachContextTarget':
+      return { kind, parameters: { contextKey: 'targets' }, body: { steps: [] } };
+    case 'readAbilityEntityRemainingDuration':
+      return { kind, parameters: { outputKey: 'remaining-seconds' } };
+    case 'setAbilityEntityRemainingDuration':
+      return { kind, parameters: { value: { kind: 'constant', value: 0 } } };
+    case 'finishCurrentAbilityEntity':
+    case 'finishActionOwnerAbilityEntity':
+    case 'finishCurrentAbilityEntityWhenSourceDies':
+      return { kind, parameters: {} };
+    case 'startCurrentAbilityEntityChildSkillById':
+      return { kind, parameters: { childSkillId: 'custom-child-skill' } };
+    case 'startCurrentAbilityEntityChildSkill':
+      return {
+        kind,
+        parameters: {
+          childSkill: { skillId: 'custom-child-skill', scheduledSequences: [] },
+        },
+      };
+    case 'createSpatialPointTargets':
+      return {
+        kind,
+        parameters: {
+          saveToContextKey: 'spatial-points',
+          count: { kind: 'constant', value: 1 },
+        },
+      };
+    case 'jumpTimeline':
+      return { kind, parameters: { destinationFrame: 0 } };
+    case 'finishTimeline':
+      return { kind, parameters: {} };
+    case 'withActionBlackboardScope':
+      return {
+        kind,
+        parameters: {
+          scopeKey: 'custom-scope',
+          initialValues: {},
+          inheritParent: true,
+        },
+        body: { steps: [] },
+      };
+    case 'repeatByActionValue':
+      return {
+        kind,
+        parameters: { count: { kind: 'constant', value: 1 } },
+        body: { steps: [] },
+      };
+    case 'scheduleProjectileFinishCallback':
+      return { kind, parameters: { delaySeconds: 1 }, body: { steps: [] } };
     case 'startTimeDilation':
       return {
         kind,
@@ -545,6 +657,15 @@ export function createSkillEditorStep(
           priority: 0,
           targetScale: { kind: 'constant', value: 0 },
           ignoredTargets: [],
+        },
+      };
+    case 'setIgnoreGlobalTimeScale':
+      return {
+        kind,
+        parameters: {
+          abilityEntityTargets: [{ kind: 'ownerSpawned' }],
+          ignore: true,
+          revertOnEnd: true,
         },
       };
     case 'dealDamage':
@@ -574,8 +695,48 @@ export function createSkillEditorStep(
       };
     case 'applyElementalInfliction':
       return { kind, parameters: { element: 'heat', isExtra: false } };
+    case 'applyPhysicalInfliction':
+      return {
+        kind,
+        parameters: {
+          type: 'fracture',
+          target: 'enemy',
+          isExtra: false,
+          noGuardBuffId: 'custom-no-guard',
+          noGuardDefinition: { stackingType: 'refresh', durationSeconds: 10 },
+          fractureBuffId: 'custom-fracture',
+          fractureDefinition: { stackingType: 'refresh', durationSeconds: 10 },
+        },
+      };
+    case 'applyKnockDown':
+      return {
+        kind,
+        parameters: {
+          target: 'enemy',
+          duration: { kind: 'constant', value: 0 },
+          force: false,
+          isExtra: false,
+          targetFilter: 'aliveOnly',
+          returnWhen: 'always',
+        },
+      };
     case 'triggerSpellBurst':
       return { kind, parameters: { burstType: 'Cryst' } };
+    case 'triggerCustomAbilityEvent':
+      return {
+        kind,
+        parameters: { eventName: 'custom-event', eventParam: 0, target: 'caster' },
+      };
+    case 'castSkillDuringAction':
+      return {
+        kind,
+        parameters: {
+          skillId: 'custom-native-skill-id',
+          target: 'enemy',
+          skipApplyCost: true,
+          inheritSourceSkillCastInfo: true,
+        },
+      };
     case 'applyElementalReaction':
       return {
         kind,
@@ -627,6 +788,48 @@ export function createSkillEditorStep(
           outputKey: 'custom-count',
         },
       };
+    case 'readEventBuffBlackboard':
+      return {
+        kind,
+        parameters: { desiredKey: 'value', outputKey: 'custom-value' },
+      };
+    case 'readCurrentBuffRemainingDuration':
+      return { kind, parameters: { outputKey: 'custom-remaining-seconds' } };
+    case 'readBuffRemainingDuration':
+      return {
+        kind,
+        parameters: {
+          target: 'caster',
+          buffIds: ['custom-buff'],
+          outputKey: 'custom-remaining-seconds',
+        },
+      };
+    case 'setCurrentBuffRemainingDuration':
+      return {
+        kind,
+        parameters: { operation: 'assign', value: { kind: 'constant', value: 0 } },
+      };
+    case 'refreshCurrentBuffAttributeModifiers':
+      return { kind, parameters: {} };
+    case 'finishCurrentBuff':
+      return { kind, parameters: { reason: 'early' } };
+    case 'setCurrentBuffTimePaused':
+      return { kind, parameters: { paused: true } };
+    case 'createGlobalBuff':
+      return {
+        kind,
+        parameters: {
+          globalBuffId: 'custom-global-buff',
+          definition: {
+            stackingType: 'unlimited',
+            blackboard: {},
+            children: [{ buffId: 'custom-buff', blackboardAssignments: {} }],
+          },
+          finishByAction: false,
+        },
+      };
+    case 'finishParentGlobalBuff':
+      return { kind, parameters: { reason: 'early' } };
     case 'finishBuffsByTag':
       return {
         kind,
@@ -644,6 +847,31 @@ export function createSkillEditorStep(
       };
     case 'holdBuffsById':
       return { kind, parameters: { target: 'caster', buffIds: ['custom-buff'] } };
+    case 'igniteBuffs':
+      return {
+        kind,
+        parameters: { target: 'caster', source: 'caster', igniteType: 'custom-ignite' },
+      };
+    case 'inheritBuffById':
+      return {
+        kind,
+        parameters: {
+          target: 'caster',
+          buffId: 'custom-buff',
+          inheritToNextSkillIds: ['custom-native-skill-id'],
+          finishByAction: true,
+          finishWithNextSkillIfNotInherited: true,
+        },
+      };
+    case 'restrictUltimateEnergyRecovery':
+      return {
+        kind,
+        parameters: {
+          target: 'caster',
+          allowedRecoveryTags: ['Custom/UltimateRecovery'],
+          clearUltimateEnergyOnEnd: false,
+        },
+      };
     case 'adjustSkillCooldown':
       return {
         kind,
@@ -674,6 +902,36 @@ export function createSkillEditorStep(
           right: { kind: 'constant', value: 0 },
         },
       };
+    case 'readSkillSettingData':
+      return {
+        kind,
+        parameters: {
+          items: [
+            {
+              values: [0, 0, 0, 0],
+              column: { kind: 'constant', value: 0 },
+              storeKey: 'custom-setting-value',
+            },
+          ],
+        },
+      };
+    case 'storeSourceAttributeValue':
+      return {
+        kind,
+        parameters: {
+          attribute: { kind: 'specific', key: 'strength' },
+          stage: 'finalNonConverted',
+          useFloor: false,
+          divisor: { kind: 'constant', value: 1 },
+          multiplier: { kind: 'constant', value: 1 },
+          base: { kind: 'constant', value: 0 },
+          targetKey: 'custom-attribute-value',
+        },
+      };
+    case 'storeCurrentTimelineFrame':
+      return { kind, parameters: { outputKey: 'custom-timeline-frame' } };
+    case 'storeEventSpGainAmount':
+      return { kind, parameters: { outputKey: 'custom-sp-gain-value' } };
     case 'changeResource':
       return { kind, parameters: { resource: 'sp', amount: 0, recipient: 'caster' } };
     case 'changeResourceByActionValue':
@@ -703,13 +961,46 @@ export function createSkillEditorStep(
           autoFinishByAction: false,
         },
       };
+    case 'createAbilityEntityTimedMarker':
+      return {
+        kind,
+        parameters: {
+          markerId: 'custom-ability-marker',
+          durationSeconds: { kind: 'constant', value: 0 },
+          autoFinishByAction: false,
+          timeDomain: 'self',
+        },
+      };
     case 'setContextFlag':
       return {
         kind,
         parameters: { flag: 'custom-flag', value: false, target: 'caster' },
       };
+    case 'setCharacterPassiveUiValue':
+      return {
+        kind,
+        parameters: { target: 'caster', value: { kind: 'constant', value: 0 } },
+      };
     case 'openComboWindow':
       return { kind, parameters: { nextSkillKey: 'comboSkillStage2' } };
+    case 'changeSkillSlot':
+      return {
+        kind,
+        parameters: {
+          skillGroupKey: 'custom-skill-group',
+          targetSkillKey: 'custom-skill',
+          inheritOriginSkillCooldownProgress: true,
+          lifetime: 'finishByAction',
+          revertedSkillKey: 'custom-origin-skill',
+        },
+      };
+    case 'changePlayerActionMode':
+      return { kind, parameters: { modeId: 'custom-mode', lifetime: 'finishByAction' } };
+    case 'changeNativeSkillType':
+      return {
+        kind,
+        parameters: { targetSkillKey: 'custom-skill', nativeSkillType: 'normalSkill' },
+      };
     case 'listenForCombatEvents':
       return {
         kind,
@@ -733,6 +1024,8 @@ export function createSkillEditorStep(
         parameters: { scopeKey: 'custom-once' },
         body: { steps: [] },
       };
+    case 'repeatEachTick':
+      return { kind, parameters: {}, body: { steps: [] } };
   }
 }
 

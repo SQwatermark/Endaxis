@@ -10,6 +10,7 @@ import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
 import type { TimeDilationCurveKeySource } from '../source/timeDilationActions.ts';
 import type { TargetGroupActionSource } from '../source/targetGroup.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
+import { projectNativeTagQueryType } from '../source/tagQuery.ts';
 import { projectFinishOwner } from './timelineControlProjection.ts';
 import {
   compileTargetGroupAbilityEntityQuerySource,
@@ -1394,19 +1395,10 @@ export function compileBuffLeafNode(
     }
     if (context.actionTargetTarget === 'enemy' && isDynamicSingleEnemyTagTargetGroup(write)) {
       const rawQuery = write.validatorTagQueries[0]!;
-      const queryType = (
-        {
-          HasAny: 'hasAny',
-          HasAll: 'hasAll',
-          ExceptAny: 'exceptAny',
-          ExceptAll: 'exceptAll',
-        } as const
-      )[rawQuery[0] as 'HasAny' | 'HasAll' | 'ExceptAny' | 'ExceptAll'];
-      if (queryType === undefined) {
-        throw new Error(
-          `${node.sourcePath}.validatorTagQueries[0]: unsupported query type ${JSON.stringify(rawQuery[0])}`,
-        );
-      }
+      const queryType = projectNativeTagQueryType(
+        rawQuery[0],
+        `${node.sourcePath}.validatorTagQueries[0]`,
+      );
       const mergeEnemy = {
         kind: 'mergeContextTargets' as const,
         parameters: {

@@ -286,7 +286,9 @@ export type ExternalCombatEventDocument =
       features: import('../game-data/operatorDefinition').DamageFeature[];
     }
   /** 敌方弱点窗口回投给指定攻击者 AbilitySystem 的 OnAfterOutputWeaknessTriggered。 */
-  | { kind: 'operatorWeaknessTriggeredOutput' };
+  | { kind: 'operatorWeaknessTriggeredOutput' }
+  /** SetWeaknessAction 在唯一敌人上发布的无目标 OnSetWeakness；只允许全队作用域。 */
+  | { kind: 'enemyWeaknessSet' };
 
 /**
  * 用户显式声明的外部事件标记。它不代表敌方技能，也不会自行扣减生命。

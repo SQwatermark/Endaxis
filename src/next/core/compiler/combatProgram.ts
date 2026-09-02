@@ -483,8 +483,10 @@ export interface CompiledSkillSlotGroup {
 /** 原生附着事件的常驻条件环境；不与旧语义事件连携规则混用。 */
 export interface CompiledComboSkillConditionProgram {
   readonly key: string;
-  /** 每次求值读取该槽的当前形态，而不是注册时的技能 ID。 */
+  /** 由具体技能身份反查得到，仅用于把候选窗口投影回稳定输入槽。 */
   readonly skillGroupKey: string;
+  /** 角色模板注册条件时绑定的具体技能；不随槽位替换状态漂移。 */
+  readonly skillKey: string;
   readonly event: import('../game-data/operatorDefinition').ComboSkillConditionDefinition['event'];
   readonly immediately: boolean;
   /** null 为禁用，{} 为启用空板；字符串/空值不降格成数值。 */

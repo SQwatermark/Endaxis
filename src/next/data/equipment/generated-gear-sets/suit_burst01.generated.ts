@@ -63,7 +63,7 @@ const definition = {
                       parameters: {
                         condition: {
                           kind: 'buffStackCompare',
-                          target: 'eventTarget',
+                          target: 'actionInputTarget',
                           tagQueryType: 'hasAny',
                           buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
                           operator: 'greaterOrEqual',
@@ -125,7 +125,7 @@ const definition = {
                       parameters: {
                         condition: {
                           kind: 'buffStackCompare',
-                          target: 'eventTarget',
+                          target: 'actionInputTarget',
                           tagQueryType: 'hasAny',
                           buffTags: ['Skill/Character/Common/SpellInflict/NaturalInflict'],
                           operator: 'greaterOrEqual',
@@ -187,7 +187,7 @@ const definition = {
                       parameters: {
                         condition: {
                           kind: 'buffStackCompare',
-                          target: 'eventTarget',
+                          target: 'actionInputTarget',
                           tagQueryType: 'hasAny',
                           buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
                           operator: 'greaterOrEqual',
@@ -249,7 +249,7 @@ const definition = {
                       parameters: {
                         condition: {
                           kind: 'buffStackCompare',
-                          target: 'eventTarget',
+                          target: 'actionInputTarget',
                           tagQueryType: 'hasAny',
                           buffTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
                           operator: 'greaterOrEqual',
@@ -310,6 +310,16 @@ const definition = {
         showInHeadBarAttached: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
+        blinkInMainCharHpBar: false,
+        showProgressInHpBar: false,
+        showProgressInNormalSkillButton: false,
+        useWeakProgressInNormalSkillButton: false,
+        showProgressInUltimateSkillButton: false,
+        forceRaiseIconEvent: false,
+        showWarningBackground: false,
+        playStrongInAnimation: false,
+        hasCharHpBarVfxType: false,
+        charHpBarVfxType: 'Fire',
         iconStyleInSquad: 'Default',
         abnormalColorType: 'Physical',
         orderPriority: {

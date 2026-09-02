@@ -1253,6 +1253,68 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'takeDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'contextTargetIdentityMatch',
+            contextKey: 'trigger',
+            other: 'controlledOperator',
+            operator: 'equal',
+          },
+          sequence(
+            branch(
+              {
+                kind: 'healthCompare',
+                target: 'contextTarget',
+                contextKey: 'trigger',
+                valueType: 'ratio',
+                operator: 'less',
+                value: { kind: 'constant', value: 0.4 },
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'eventDamageFeaturesMatch',
+                    match: 'exceptAny',
+                    features: ['dot', 'remainArea'],
+                  },
+                  sequence(
+                    branch(
+                      { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+                      sequence(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillKey: 'comboSkill',
+      event: 'weaknessSet',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0020_meurs_signal_weakness_trigger_combo',
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+        }),
+        branch({ kind: 'constant', value: false }, sequence()),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',
@@ -1496,6 +1558,19 @@ export default {
             },
           }),
         ),
+      },
+    },
+    buff_chr_0020_meurs_signal_weakness_trigger_combo: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 0.4,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+      lifecycleSequences: {
+        finish: sequence(step('openComboWindow', { nextSkillKeyFromSlot: 'comboSkill' })),
       },
     },
     buff_chr_0020_meurs_talent_0: {

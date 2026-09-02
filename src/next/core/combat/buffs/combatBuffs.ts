@@ -823,6 +823,7 @@ export class CombatBuffContainer<Key extends string> {
   readonly #sustainedProtections = new Map<CombatBuff<Key>, readonly [number, number]>();
   #nextInstanceId = 1;
   #onBuffConsumed?: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void;
+  #onBuffAbsorbed?: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void;
 
   constructor(
     readonly ownerId: string,
@@ -848,6 +849,15 @@ export class CombatBuffContainer<Key extends string> {
       throw new Error(`Buff container '${this.ownerId}' consumed observer is already configured`);
     }
     this.#onBuffConsumed = observer;
+  }
+
+  configureAbsorbedObserver(
+    observer: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void,
+  ): void {
+    if (this.#onBuffAbsorbed !== undefined) {
+      throw new Error(`Buff container '${this.ownerId}' absorbed observer is already configured`);
+    }
+    this.#onBuffAbsorbed = observer;
   }
 
   get buffs(): readonly CombatBuff<Key>[] {
@@ -937,17 +947,29 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   /** 按容器插入顺序结束所有 ID 命中任一候选项的 Buff。 */
-  finishByIds(ids: readonly string[], reason: BuffFinishReason): number {
+  finishByIds(ids: readonly string[], reason: BuffFinishReason, sourceId?: string): number {
     const accepted = new Set(ids);
     let count = 0;
     for (const buff of this.#buffs) {
-      if (!buff.isFinished && accepted.has(buff.definition.id) && buff.finish(reason)) count += 1;
+      if (!buff.isFinished && accepted.has(buff.definition.id)) {
+        const layers = buff.enhanceCount;
+        if (buff.finish(reason)) {
+          count += 1;
+          if (reason === 'absorbed' && sourceId !== undefined)
+            this.#onBuffAbsorbed?.(buff, sourceId, layers);
+        }
+      }
     }
     return count;
   }
 
   /** 按容器插入顺序结束最多 count 个 ID 匹配的 Buff 实例。 */
-  finishCountByIds(ids: readonly string[], count: number, reason: BuffFinishReason): number {
+  finishCountByIds(
+    ids: readonly string[],
+    count: number,
+    reason: BuffFinishReason,
+    sourceId?: string,
+  ): number {
     if (!Number.isFinite(count) || count < 0) {
       throw new RangeError('Buff finish count must be a finite non-negative number');
     }
@@ -976,8 +998,13 @@ export class CombatBuffContainer<Key extends string> {
     let finished = 0;
     for (const buff of this.#buffs) {
       if (finished >= count) break;
-      if (!buff.isFinished && accepted.has(buff.definition.id) && buff.finish(reason)) {
-        finished += 1;
+      if (!buff.isFinished && accepted.has(buff.definition.id)) {
+        const layers = buff.enhanceCount;
+        if (buff.finish(reason)) {
+          finished += 1;
+          if (reason === 'absorbed' && sourceId !== undefined)
+            this.#onBuffAbsorbed?.(buff, sourceId, layers);
+        }
       }
     }
     return finished;
@@ -1132,13 +1159,20 @@ export class CombatBuffContainer<Key extends string> {
     type: GameplayTagQueryType,
     reason: BuffFinishReason,
     exact = false,
+    sourceId?: string,
   ): number {
     let count = 0;
     for (const buff of this.#buffs) {
       if (
         !buff.isFinished &&
         this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact) &&
-        buff.finish(reason)
+        (() => {
+          const layers = buff.enhanceCount;
+          const finished = buff.finish(reason);
+          if (finished && reason === 'absorbed' && sourceId !== undefined)
+            this.#onBuffAbsorbed?.(buff, sourceId, layers);
+          return finished;
+        })()
       ) {
         count += 1;
       }
@@ -1153,6 +1187,7 @@ export class CombatBuffContainer<Key extends string> {
     count: number,
     reason: BuffFinishReason,
     exact = false,
+    sourceId?: string,
   ): number {
     if (!Number.isFinite(count) || count < 0) {
       throw new RangeError('Buff finish count must be a finite non-negative number');
@@ -1165,7 +1200,7 @@ export class CombatBuffContainer<Key extends string> {
       )
       .map(buff => buff.definition.id);
     let changed = 0;
-    for (const id of matchingIds) changed += this.finishCountByIds([id], count, reason);
+    for (const id of matchingIds) changed += this.finishCountByIds([id], count, reason, sourceId);
     return changed;
   }
 

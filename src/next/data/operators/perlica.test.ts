@@ -107,7 +107,7 @@ describe('next Perlica definition', () => {
     expect('comboSkillRegistrations' in perlica).toBe(false);
     expect(perlica.comboSkillConditions).toHaveLength(1);
     expect(perlica.comboSkillConditions?.[0]).toMatchObject({
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'beforeTakeDamage',
       immediately: false,
     });

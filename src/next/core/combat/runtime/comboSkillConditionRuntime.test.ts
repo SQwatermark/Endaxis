@@ -17,6 +17,7 @@ import type { ActionSequenceDefinition } from '../../game-data/operatorDefinitio
 import { validateSkillDefinition } from '../../game-data/validateSkillDefinition';
 import { parseComboSkillConditionsSource } from '../../../../../tools/game-data-compiler/src/source/comboSkillConditions.ts';
 import { compilePendingComboConditionSource } from '../../../../../tools/game-data-compiler/src/compiler/comboSkillConditions.ts';
+import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
 
 function event(
   event: ElementalInflictionEvent = 'beforeTakeInfliction',
@@ -83,6 +84,16 @@ function takeDamageEvent() {
         igniteMultiplier: 1,
         physicalInflictionMultiplier: 1,
       },
+    },
+  };
+}
+function beforeOutputDamageEvent() {
+  return {
+    event: 'beforeOutputDamage' as const,
+    payload: {
+      ...takeDamageEvent().payload,
+      targetId: 'enemy',
+      sourceId: 'ally',
     },
   };
 }
@@ -160,6 +171,105 @@ function compileElementCondition(mask: number, savedKey = '') {
 }
 
 describe('原生连携条件注册环境', () => {
+  it('无目标事件保留空 trigger，并以发布者作为 InputTarget', () => {
+    const runtime = new ComboSkillConditionRuntime();
+    const pending = vi.fn();
+    runtime.registerPendingCondition(
+      options({
+        event: 'weaknessSet',
+        sequence: { steps: [] },
+        resolveTarget: id => {
+          if (id === 'enemy') return { kind: 'enemy' };
+          throw new Error(`unknown target '${id}'`);
+        },
+        onPending: pending,
+      }),
+    );
+
+    runtime.onAbilityEvent({
+      event: 'weaknessSet',
+      payload: { sourceId: 'enemy', targetId: 'enemy' },
+    });
+
+    expect(pending).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inputTarget: { kind: 'enemy' },
+        triggerTarget: null,
+      }),
+    );
+  });
+
+  it('输出伤害事件同时向条件树提供 InputTarget 与 trigger 命名组', () => {
+    const runtime = new ComboSkillConditionRuntime();
+    const pending = vi.fn();
+    const targetOperations = new TargetContextOperationExecutor(
+      'owner',
+      new EventContextConditionExecutor(
+        {
+          execute: () => false,
+          evaluate: () => false,
+        },
+        id => id === 'ally',
+      ),
+      id => id,
+      {
+        listOperatorIds: () => ['ally'],
+        isOperatorControlled: id => id === 'ally',
+        resolveVitals: () => {
+          throw new Error('identity-only condition must not query vitals');
+        },
+      },
+    );
+    runtime.registerPendingCondition(
+      options({
+        event: 'beforeOutputDamage',
+        operations: targetOperations,
+        sequence: compileActionSequence(
+          {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'actionInputTargetObjectTypeMatch',
+                    objectTypeMask: 16,
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'conditional',
+                      parameters: {
+                        condition: {
+                          kind: 'contextTargetIdentityMatch',
+                          contextKey: 'trigger',
+                          other: 'controlledOperator',
+                          operator: 'equal',
+                        },
+                      },
+                      whenTrue: { steps: [] },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+          1,
+        ),
+        onPending: pending,
+      }),
+    );
+
+    runtime.onAbilityEvent(beforeOutputDamageEvent());
+
+    expect(pending).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        inputTarget: { kind: 'enemy' },
+        triggerTarget: { kind: 'operator', operatorId: 'ally' },
+      }),
+    );
+  });
+
   it.each(ELEMENTAL_INFLICTION_EVENTS)('%s 保留物理来源，并独立绑定 InputTarget/trigger', type => {
     const runtime = new ComboSkillConditionRuntime();
     const pending = vi.fn();

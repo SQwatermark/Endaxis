@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { validateComboSkillConditions } from './validateComboSkillConditions';
-import {
-  COMBO_SKILL_CONDITION_EVENTS,
-  type ComboSkillConditionDefinition,
-} from './operatorDefinition';
+import { ABILITY_EVENTS, type ComboSkillConditionDefinition } from './operatorDefinition';
 import { perlica } from '../../data/operators/perlica';
 import { compileOperatorComboSkillConditions } from '../compiler/compileOperatorComboSkillConditions';
 import { createEmptyProject } from '../project/createProject';
@@ -12,7 +9,7 @@ import { parseProjectDocument, serializeProjectDocument } from '../project/seria
 
 const entry: ComboSkillConditionDefinition = {
   key: 'condition',
-  skillGroupKey: 'comboSkill',
+  skillKey: 'comboSkill',
   event: 'beforeTakeInfliction',
   immediately: false,
   initialValues: { count: 1, label: 'local', empty: null },
@@ -40,7 +37,7 @@ function project(condition: ComboSkillConditionDefinition = entry) {
 }
 
 describe('正式原生连携条件结构与绑定', () => {
-  it.each(COMBO_SKILL_CONDITION_EVENTS)('%s 接受独立原生事件及现有动作树', event => {
+  it.each(ABILITY_EVENTS)('%s 接受公共 AbilitySystem 事件及现有动作树', event => {
     expect(validateComboSkillConditions([{ ...entry, event }])).toEqual([]);
   });
   it.each(
@@ -57,7 +54,7 @@ describe('正式原生连携条件结构与绑定', () => {
       [null],
       [{ ...entry, key: '' }],
       [entry, entry],
-      [{ ...entry, skillGroupKey: 1 }],
+      [{ ...entry, skillKey: 1 }],
       [{ ...entry, event: 'elementalInflictionApplied' }],
       [{ ...entry, event: 121 }],
       [{ ...entry, initialValues: undefined }],
@@ -75,7 +72,7 @@ describe('正式原生连携条件结构与绑定', () => {
       true,
     );
   });
-  it('序列按绑定组等级展开，局部字面板不混进实体板或被当作等级数组', () => {
+  it('序列按绑定技能等级展开，局部字面板不混进实体板或被当作等级数组', () => {
     const definition = {
       ...perlica,
       comboSkillConditions: [
@@ -101,19 +98,13 @@ describe('正式原生连携条件结构与绑定', () => {
     expect(compiled?.initialValues).not.toBe(entry.initialValues);
     expect(Object.isFrozen(compiled?.initialValues)).toBe(true);
   });
-  it.each(['missing', 'battleSkill'])(
-    '引用 %s 可保存编辑草稿，但编译场景时严格拒绝',
-    skillGroupKey => {
-      const condition = { ...entry, skillGroupKey };
-      expect(parseProjectDocument(serializeProjectDocument(project(condition))).ok).toBe(true);
-      expect(() =>
-        compileOperatorComboSkillConditions(
-          { ...perlica, comboSkillConditions: [condition] },
-          build,
-        ),
-      ).toThrow('must resolve to exactly one combo skill group');
-    },
-  );
+  it.each(['missing', 'battleSkill'])('引用 %s 可保存编辑草稿，但编译场景时严格拒绝', skillKey => {
+    const condition = { ...entry, skillKey };
+    expect(parseProjectDocument(serializeProjectDocument(project(condition))).ok).toBe(true);
+    expect(() =>
+      compileOperatorComboSkillConditions({ ...perlica, comboSkillConditions: [condition] }, build),
+    ).toThrow('must resolve to exactly one combo skill');
+  });
   it.each([undefined, 0, 1.5, -1])('空序列也不能绕过缺失/非法组等级 %s', level => {
     const invalidBuild: import('../project/schema').OperatorInstanceDocument = {
       ...build,
@@ -126,16 +117,17 @@ describe('正式原生连携条件结构与绑定', () => {
       ),
     ).toThrow('requires a positive integer level');
   });
-  it('重复组身份不能悄悄绑定第一组', () => {
+  it('重复技能身份不能悄悄绑定第一项', () => {
     const combo = perlica.skillGroups.find(group => group.key === 'comboSkill')!;
     expect(() =>
       compileOperatorComboSkillConditions(
         { ...perlica, skillGroups: [combo, combo], comboSkillConditions: [entry] },
         build,
       ),
-    ).toThrow('exactly one combo skill group');
+    ).toThrow('exactly one combo skill');
   });
   it('项目模板保存加载保留原生条件和 null/字符串，不污染内置定义', () => {
+    const builtInConditions = structuredClone(perlica.comboSkillConditions);
     const loaded = parseProjectDocument(serializeProjectDocument(project()));
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) throw new Error('invalid project');
@@ -143,7 +135,7 @@ describe('正式原生连携条件结构与绑定', () => {
       loaded.value.definitionLibrary?.operators['project:operator:conditions']?.definition
         .comboSkillConditions,
     ).toEqual([entry]);
-    expect(perlica.comboSkillConditions).toBeUndefined();
+    expect(perlica.comboSkillConditions).toEqual(builtInConditions);
     const raw = JSON.parse(serializeProjectDocument(project()));
     raw.definitionLibrary.operators[
       'project:operator:conditions'

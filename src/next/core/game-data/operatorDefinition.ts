@@ -47,6 +47,7 @@ export {
   COMPARISON_OPERATORS,
   type ComparisonOperator,
   type LevelValues,
+  type ActionStringOperand,
   DAMAGE_CALCULATIONS,
   type DamageCalculation,
   RESOURCE_RECIPIENTS,
@@ -57,6 +58,7 @@ export {
   type SpGainKind,
   SP_GAIN_SOURCES,
   type SpGainSource,
+  PHYSICAL_INFLICTION_TYPES,
   type PhysicalInflictionType,
 } from '../../../../packages/game-data-contract/src/primitives.ts';
 export {
@@ -72,6 +74,7 @@ export {
   type ScheduledSequenceDefinition,
   type CombatEventResponseDefinition,
   type CombatEventTrigger,
+  COMBAT_EVENT_TRIGGER_KINDS,
   type CombatEventHandlerDefinition,
 } from '../../../../packages/game-data-contract/src/actions.ts';
 export {
@@ -91,9 +94,12 @@ export {
   type AbilityEntityTargetQuery,
   type AbilityEntityChildSkillDefinition,
   type AbilityEntityDefinition,
+  type AbilityEntityDefinitionNumber,
   type OperatorAbilityEntityDefinitions,
   type SkillCostDefinition,
+  PLAYER_SKILL_INPUTS,
   type PlayerSkillInput,
+  NATIVE_SKILL_TYPES,
   type NativeSkillType,
   type OperatorPlayerActionModeDefinition,
   type OperatorSkillSlotDefinition,
@@ -101,6 +107,7 @@ export {
   type OperatorPlayerActionRoutes,
   type SkillInputCommandMappingWindow,
   type SkillAllowedNextWindow,
+  SKILL_TRIGGER_SCOPES,
   type SkillTriggerScope,
   COMBO_SKILL_PRIORITIES,
   type ComboSkillPriority,
@@ -117,9 +124,11 @@ export {
   type SkillBuffIgniteEventResponse,
   type SkillBuffSlotReplacement,
   type SkillBuffDefinition,
+  type SkillGlobalBuffChildDefinition,
   type SkillGlobalBuffDefinition,
   type OperatorBuffDefinitions,
 } from '../../../../packages/game-data-contract/src/buffs.ts';
+export type { ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
 export {
   type AttributeGrowthDefinition,
   type TrustAttributeBonusDefinition,
@@ -140,7 +149,14 @@ export {
   type OperatorEventHandlerDefinition,
   type OperatorEntityBlackboardInitializerDefinition,
   type OperatorPassiveUiDefinition,
-  COMBO_SKILL_CONDITION_EVENTS,
   type ComboSkillConditionDefinition,
   type OperatorDefinition,
 } from '../../../../packages/game-data-contract/src/operators.ts';
+export {
+  ABILITY_EVENTS,
+  type AbilityEvent,
+} from '../../../../packages/game-data-contract/src/abilityEvents.ts';
+export {
+  BUFF_ABILITY_EVENTS,
+  type BuffAbilityEvent,
+} from '../../../../packages/game-data-contract/src/buffs.ts';

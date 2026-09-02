@@ -1945,6 +1945,38 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'addedBuff',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          sequence(
+            branch(
+              { kind: 'eventBuffIdMatch', buffIds: ['buff_physical_no_guard'] },
+              sequence(
+                branch(
+                  {
+                    kind: 'contextTargetBuffIdStackCompare',
+                    contextKey: 'trigger',
+                    buffIds: ['buff_physical_no_guard'],
+                    operator: 'greaterOrEqual',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                  sequence(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

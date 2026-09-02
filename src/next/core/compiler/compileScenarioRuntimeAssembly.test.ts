@@ -497,6 +497,12 @@ describe('compileScenarioRuntimeAssembly', () => {
         target: { scope: 'operator', trackIndex: 0 },
         event: { kind: 'operatorWeaknessTriggeredOutput' },
       },
+      {
+        id: 'weakness:set',
+        frame: 45,
+        target: { scope: 'team' },
+        event: { kind: 'enemyWeaknessSet' },
+      },
     ];
 
     expect(compileScenarioRuntimeAssembly(scenario, options()).externalEvents).toEqual([
@@ -504,6 +510,11 @@ describe('compileScenarioRuntimeAssembly', () => {
         frame: 30,
         targetOperatorIds: ['track:0'],
         event: { kind: 'operatorWeaknessTriggeredOutput' },
+      },
+      {
+        frame: 45,
+        targetOperatorIds: ['track:0'],
+        event: { kind: 'enemyWeaknessSet' },
       },
       {
         frame: 60,

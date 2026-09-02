@@ -2435,6 +2435,114 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'beforeAddedBuff',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'eventBuffTagsMatch',
+            match: 'hasAny',
+            buffTags: [
+              'Skill/Character/Common/PhysicalStatus/FractureStatus',
+              'Skill/Character/Common/PhysicalStatus/CrushStatus',
+            ],
+          },
+          sequence(
+            branch(
+              {
+                kind: 'contextTargetBuffIdStackCompare',
+                contextKey: 'trigger',
+                buffIds: ['buff_physical_no_guard'],
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 1 },
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'contextTargetObjectTypeMatch',
+                    contextKey: 'trigger',
+                    objectTypeMask: 16400,
+                  },
+                  sequence(
+                    step('readBuffStackCount', {
+                      target: 'eventTarget',
+                      outputKey: 'EntityBB_noguard_count',
+                      query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
+                    }),
+                    branch(
+                      {
+                        kind: 'actionValueCompare',
+                        left: { kind: 'blackboard', key: 'EntityBB_noguard_count' },
+                        operator: 'equal',
+                        right: { kind: 'constant', value: 4 },
+                      },
+                      sequence(
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0029_pograni_combo_skill_count4',
+                          target: 'caster',
+                          inheritSourceSkillCastInfo: true,
+                        }),
+                      ),
+                      sequence(
+                        branch(
+                          {
+                            kind: 'actionValueCompare',
+                            left: { kind: 'blackboard', key: 'EntityBB_noguard_count' },
+                            operator: 'equal',
+                            right: { kind: 'constant', value: 3 },
+                          },
+                          sequence(
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0029_pograni_combo_skill_count3',
+                              target: 'caster',
+                              inheritSourceSkillCastInfo: true,
+                            }),
+                          ),
+                          sequence(
+                            branch(
+                              {
+                                kind: 'actionValueCompare',
+                                left: { kind: 'blackboard', key: 'EntityBB_noguard_count' },
+                                operator: 'equal',
+                                right: { kind: 'constant', value: 2 },
+                              },
+                              sequence(
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0029_pograni_combo_skill_count2',
+                                  target: 'caster',
+                                  inheritSourceSkillCastInfo: true,
+                                }),
+                              ),
+                              sequence(
+                                step('applyBuff', {
+                                  buffId: 'buff_chr_0029_pograni_combo_skill_count1',
+                                  target: 'caster',
+                                  inheritSourceSkillCastInfo: true,
+                                }),
+                              ),
+                              { alwaysNext: true },
+                            ),
+                          ),
+                          { alwaysNext: true },
+                        ),
+                      ),
+                      { alwaysNext: true },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',
@@ -2499,8 +2607,7 @@ export default {
                             }),
                             step('applyBuff', {
                               buffId: 'buff_chr_0029_pograni_talent1',
-                              target: 'eventSource',
-                              source: 'eventSource',
+                              target: 'caster',
                               inheritSourceSkillCastInfo: true,
                               asChildBuff: true,
                               blackboardAssignments: {
@@ -2613,6 +2720,46 @@ export default {
   ],
   entityBlackboard: { EntityBB_atb_contain: 0, EntityBB_noguard_count: 0 },
   buffDefinitions: {
+    buff_chr_0029_pograni_combo_skill_count1: {
+      stackingType: 'overwriteDuration',
+      priority: 0,
+      maxStackCount: 99,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: ['Skill/Character/chr_0029_pgrani/combo/combo1'],
+      extendTags: [],
+      blackboard: { duration: 6 },
+      attributeModifiers: [],
+    },
+    buff_chr_0029_pograni_combo_skill_count2: {
+      stackingType: 'overwriteDuration',
+      priority: 0,
+      maxStackCount: 99,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: ['Skill/Character/chr_0029_pgrani/combo/combo2'],
+      extendTags: [],
+      blackboard: { duration: 6 },
+      attributeModifiers: [],
+    },
+    buff_chr_0029_pograni_combo_skill_count3: {
+      stackingType: 'overwriteDuration',
+      priority: 0,
+      maxStackCount: 99,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: ['Skill/Character/chr_0029_pgrani/combo/combo3'],
+      extendTags: [],
+      blackboard: { duration: 6 },
+      attributeModifiers: [],
+    },
+    buff_chr_0029_pograni_combo_skill_count4: {
+      stackingType: 'overwriteDuration',
+      priority: 0,
+      maxStackCount: 99,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: ['Skill/Character/chr_0029_pgrani/combo/combo4'],
+      extendTags: [],
+      blackboard: { duration: 6 },
+      attributeModifiers: [],
+    },
     buff_chr_0029_pograni_talent1: {
       stackingType: 'highPriorityWithMaxStack',
       priority: 0,
@@ -2856,7 +3003,11 @@ export default {
                               outputKey: 'max_stack_team_temp',
                             }),
                             branch(
-                              { kind: 'eventSourceTargetMatch', operator: 'equal' },
+                              {
+                                kind: 'actionInputTargetIdentityMatch',
+                                other: 'actionSource',
+                                operator: 'equal',
+                              },
                               sequence(
                                 step('applyBuff', {
                                   buffId: 'buff_chr_0029_pograni_talent1',
@@ -3000,7 +3151,11 @@ export default {
                               outputKey: 'max_stack_team_temp',
                             }),
                             branch(
-                              { kind: 'eventSourceTargetMatch', operator: 'equal' },
+                              {
+                                kind: 'actionInputTargetIdentityMatch',
+                                other: 'actionSource',
+                                operator: 'equal',
+                              },
                               sequence(
                                 step('applyBuff', {
                                   buffId: 'buff_chr_0029_pograni_talent1',

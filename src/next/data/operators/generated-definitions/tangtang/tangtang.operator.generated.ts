@@ -2396,7 +2396,7 @@ export default {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'takeDamage',
       immediately: false,
       initialValues: null,
@@ -2418,7 +2418,7 @@ export default {
     },
     {
       key: 'native-combo:1',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: null,
@@ -2428,7 +2428,7 @@ export default {
     },
     {
       key: 'native-combo:2',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'addedBuff',
       immediately: false,
       initialValues: null,
@@ -3458,7 +3458,7 @@ export default {
             branch(
               {
                 kind: 'entityTagMatch',
-                target: 'eventTarget',
+                target: 'actionInputTarget',
                 tagQueryType: 'hasAny',
                 tags: ['Skill/Character/chr_0027_tangtang/ComboSkillWater'],
               },
@@ -3483,7 +3483,7 @@ export default {
             branch(
               {
                 kind: 'entityTagMatch',
-                target: 'eventTarget',
+                target: 'actionInputTarget',
                 tagQueryType: 'hasAny',
                 tags: ['Skill/Character/chr_0027_tangtang/ComboSkillWater'],
               },

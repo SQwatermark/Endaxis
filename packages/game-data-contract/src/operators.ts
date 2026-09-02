@@ -18,6 +18,7 @@ import {
   type SkillGroupDefinition,
 } from './skills.ts';
 import { type OperatorBuffDefinitions } from './buffs.ts';
+import { type AbilityEvent } from './abilityEvents.ts';
 
 /** 干员各等级四维、基础攻击与基础生命的成长定义表。 */
 export type AttributeGrowthDefinition = Record<OperatorAttribute, readonly number[]> & {
@@ -297,23 +298,12 @@ export type OperatorPassiveUiDefinition =
       readonly ultimateBuffId: string;
     };
 
-export const COMBO_SKILL_CONDITION_EVENTS = [
-  'addedBuff',
-  'beforeTakeDamage',
-  'takeDamage',
-  'beforeOutputInfliction',
-  'beforeTakeInfliction',
-  'afterOutputInfliction',
-  'afterTakeInfliction',
-  'afterTakePhysicalInfliction',
-] as const;
-
 /** 原生角色常驻条件；独立于技能块，也不复用旧手写语义连携规则。 */
 export interface ComboSkillConditionDefinition {
   key: string;
-  /** 绑定当前连携槽位，条件序列按该组的 levelSource 编译。 */
-  skillGroupKey: string;
-  event: (typeof COMBO_SKILL_CONDITION_EVENTS)[number];
+  /** 原生角色模板注册该条件时绑定的具体连携技能；展示分组不得参与运行语义。 */
+  skillKey: string;
+  event: AbilityEvent;
   /** 原生条件命中后直接 TryCastComboSkill；false 才进入 Pending 窗口。 */
   immediately: boolean;
   /** 模板字面初值，不是等级数组；null 为禁用，{} 为启用空板，每条注册独立复制。 */

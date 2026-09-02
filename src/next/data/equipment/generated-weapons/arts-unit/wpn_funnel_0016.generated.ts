@@ -198,7 +198,6 @@ const definition = {
                           "parameters": {
                             "buffId": "buff_wpn_funnel_0016_will_atk",
                             "target": "eventTarget",
-                            "source": "eventSource",
                             "inheritSourceSkillCastInfo": true,
                             "asChildBuff": true,
                             "blackboardAssignments": {
@@ -256,7 +255,6 @@ const definition = {
                                 "parameters": {
                                   "buffId": "buff_wpn_funnel_0016_will_dmg",
                                   "target": "eventTarget",
-                                  "source": "eventSource",
                                   "inheritSourceSkillCastInfo": true,
                                   "asChildBuff": true,
                                   "blackboardAssignments": {
@@ -302,6 +300,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": false,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -395,6 +403,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": false,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -486,6 +504,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": false,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -559,7 +587,6 @@ const definition = {
                           "parameters": {
                             "buffId": "buff_wpn_funnel_0016_wisd_natureup",
                             "target": "buffOwner",
-                            "source": "eventSource",
                             "inheritSourceSkillCastInfo": true,
                             "asChildBuff": true,
                             "blackboardAssignments": {
@@ -617,7 +644,6 @@ const definition = {
                                 "parameters": {
                                   "buffId": "buff_wpn_funnel_0016_wisd_atkup",
                                   "target": "buffOwner",
-                                  "source": "eventSource",
                                   "inheritSourceSkillCastInfo": true,
                                   "asChildBuff": true,
                                   "blackboardAssignments": {
@@ -661,6 +687,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "Default",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -703,6 +739,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "Default",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -927,7 +973,6 @@ const definition = {
                       "parameters": {
                         "buffId": "buff_wpn_funnel_0016_wisd",
                         "target": "caster",
-                        "source": "eventSource",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
                         "blackboardAssignments": {
@@ -969,7 +1014,6 @@ const definition = {
                       "parameters": {
                         "buffId": "buff_wpn_funnel_0016_will",
                         "target": "caster",
-                        "source": "eventSource",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
                         "blackboardAssignments": {
@@ -1259,7 +1303,6 @@ const definition = {
                   "parameters": {
                     "buffId": "buff_wpn_funnel_0016_wisd",
                     "target": "caster",
-                    "source": "eventSource",
                     "inheritSourceSkillCastInfo": true,
                     "asChildBuff": true,
                     "blackboardAssignments": {
@@ -1301,7 +1344,6 @@ const definition = {
                   "parameters": {
                     "buffId": "buff_wpn_funnel_0016_will",
                     "target": "caster",
-                    "source": "eventSource",
                     "inheritSourceSkillCastInfo": true,
                     "asChildBuff": true,
                     "blackboardAssignments": {

@@ -2,6 +2,7 @@ import type { DamageActionSource } from '../source/damageActions.ts';
 import type { ScalarSource } from '../source/scalar.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
 import { projectNativeDamageElement } from '../source/damageElement.ts';
+import type { DamageModifierSide } from '../../../../packages/game-data-contract/src/modifiers.ts';
 import {
   compileResolvedAttributeModifierSource,
   projectCombatRuntimeAttributeKey,
@@ -187,7 +188,7 @@ export function compileEventTargetSimpleDamageOperationSource(
   const instantDamageScaleModifiers = unit.processors.flatMap((processor, index) => {
     if (processor.kind !== 'damageScale') return [];
     const processorPath = `${sourcePath}.units[0].processors[${index}]`;
-    const sides: Readonly<Record<string, 'attacker' | 'defender'>> = {
+    const sides: Readonly<Record<string, DamageModifierSide>> = {
       Attacker: 'attacker',
       Defender: 'defender',
     };

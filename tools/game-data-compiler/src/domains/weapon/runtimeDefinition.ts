@@ -18,6 +18,7 @@ import {
   compileSkillSpGainActionSequenceSource,
 } from '../../compiler/buffRuntimeProjection.ts';
 import { compileAbilityEventPrograms } from '../../compiler/abilityEventProgram.ts';
+import { projectAbilityEvent } from '../../compiler/abilityEventProjection.ts';
 import { compileStandardStumpBuffClosure } from '../../compiler/standardStumpBuffClosure.ts';
 import { evaluateStandardStumpFullHealthComparison } from '../../compiler/standardStumpScenarioPolicy.ts';
 import type { BuildDefinitionDiagnosticSource } from '../../compiler/formalBuildDefinition.ts';
@@ -324,22 +325,6 @@ function projectWeaponAbilityEvent(
   if (typeof event !== 'string') {
     throw new Error(`${sourcePath}: unnamed numeric weapon AbilityEvent is unsupported`);
   }
-  const abilityEvents: Readonly<Record<string, EquipmentAbilityEvent>> = {
-    OnEnterFight: 'enterFight',
-    OnBeforeOutputDamage: 'beforeOutputDamage',
-    OnOutputCriticalDamage: 'outputCriticalDamage',
-    OnOutputHeal: 'outputHeal',
-    OnBeforeCastSkill: 'beforeCastSkill',
-    OnAfterSkillApplyCost: 'afterSkillApplyCost',
-    OnBeforeOutputPhysicalInfliction: 'beforeOutputPhysicalInfliction',
-    OnCharBeforeOutputSpellInfliction: 'beforeOutputInfliction',
-    OnCharBeforeOutputSpellBurst: 'beforeOutputSpellBurst',
-    OnBeforeOutputBuff: 'beforeOutputBuff',
-    OnOutputBuff: 'outputBuff',
-    OnAddedBuff: 'addedBuff',
-  };
-  const abilityEvent = abilityEvents[event];
-  if (abilityEvent !== undefined) return { abilityEvent };
   if (event === 'OnConsumeBuff') return { event: { kind: 'buffConsumed' } };
   if (event === 'OnObtainAtb') {
     return { event: { kind: 'spGained' } };
@@ -353,7 +338,7 @@ function projectWeaponAbilityEvent(
       },
     };
   }
-  throw new Error(`${sourcePath}: unsupported weapon AbilityEvent ${JSON.stringify(event)}`);
+  return { abilityEvent: projectAbilityEvent(event, sourcePath) as EquipmentAbilityEvent };
 }
 
 function compileWeaponEventBlackboard(

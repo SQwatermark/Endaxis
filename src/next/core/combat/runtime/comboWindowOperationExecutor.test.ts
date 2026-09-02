@@ -26,4 +26,30 @@ describe('ComboWindowOperationExecutor', () => {
     });
     expect(delegate.execute).not.toHaveBeenCalled();
   });
+
+  it('resolves TriggerComboSkillAction against the current combo slot at execution time', () => {
+    const delegate: CombatOperationExecutor = {
+      execute: vi.fn(() => true),
+      evaluate: vi.fn(() => true),
+    };
+    const windows = new ComboWindowRuntime(new CombatClock(), new CombatReceiptCollector());
+    const resolveCurrentSkillKey = vi.fn(() => 'enhancedComboSkill');
+    const executor = new ComboWindowOperationExecutor(
+      'catcher',
+      windows,
+      delegate,
+      resolveCurrentSkillKey,
+    );
+    const step: Extract<ResolvedCombatStep, { kind: 'openComboWindow' }> = {
+      kind: 'openComboWindow',
+      parameters: { nextSkillKeyFromSlot: 'comboSkill' },
+    };
+
+    expect(executor.execute(step)).toBe(true);
+    expect(resolveCurrentSkillKey).toHaveBeenCalledWith('comboSkill');
+    expect(windows.first).toMatchObject({
+      operatorId: 'catcher',
+      nextSkillKey: 'enhancedComboSkill',
+    });
+  });
 });

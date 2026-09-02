@@ -14,6 +14,7 @@ import type {
   InflictionElement,
   SpGainKind,
   SpGainSource,
+  SkillTriggerScope,
   UpgradeEvent,
 } from '../../game-data/operatorDefinition';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
@@ -60,6 +61,7 @@ export type CombatSemanticEvent =
       readonly buffId: string;
       readonly sourceId: string;
       readonly reason: BuffFinishReason;
+      readonly buffTags: readonly GameplayTag[];
     }
   | {
       readonly kind: 'airborneOutput';
@@ -189,7 +191,7 @@ function includesValue<T>(filter: T | readonly T[], value: T): boolean {
 }
 
 function matchesScope(
-  scope: 'operator' | 'team',
+  scope: SkillTriggerScope,
   ownerOperatorId: string,
   sourceOperatorId: string,
 ): boolean {

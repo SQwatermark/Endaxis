@@ -363,6 +363,20 @@ export interface CombatRuntimeAssemblyOptions {
   ) => void;
   /** 显式补入敌方弱点窗口回投给攻击者的事件，不创建敌方弱点状态。 */
   readonly emitExternalOperatorWeaknessTriggeredOutput?: (operatorId: string) => void;
+  /** 显式补入唯一敌人被设置弱点的无目标事件，不创建或推进弱点窗口。 */
+  readonly emitExternalEnemyWeaknessSet?: () => void;
+  /** Buff 消费/吸收的原生 AbilityEvent 阶段；语义事件仍由装配根并行发布给配装与养成。 */
+  readonly emitBuffLifecycleAbilityEvent?: (
+    event: 'buffConsumed' | 'buffAbsorbed',
+    payload: {
+      readonly sourceId: string;
+      readonly targetId: string;
+      readonly buffId: string;
+      readonly layers: number;
+      readonly buffTags: readonly import('../tags/gameplayTags').GameplayTag[];
+      readonly blackboardValues: Readonly<Record<string, string | number | null>>;
+    },
+  ) => void;
   /** 仅在存在配装事件处理器时需要；不得通过伪造技能程序复用技能末端执行器。 */
   readonly createEquipmentEventOperationExecutor?: (
     context: EquipmentEventOperationExecutorContext,
@@ -862,9 +876,19 @@ export class CombatRuntimeAssembly {
         this.semanticEvents.emit({ kind: 'buffApplied', ...event });
         this.semanticEvents.emit({ kind: 'buffOutput', ...event });
       });
-      target.configureBuffConsumedObserver?.(event =>
-        this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
-      );
+      target.configureBuffConsumedObserver?.(event => {
+        this.semanticEvents.emit({ kind: 'buffConsumed', ...event });
+        options.emitBuffLifecycleAbilityEvent?.('buffConsumed', {
+          ...event,
+          sourceId: event.sourceOperatorId,
+        });
+      });
+      target.configureBuffAbsorbedObserver?.(event => {
+        options.emitBuffLifecycleAbilityEvent?.('buffAbsorbed', {
+          ...event,
+          sourceId: event.sourceOperatorId,
+        });
+      });
       target.configureSemanticEventAction?.((event, priority, handle) =>
         this.semanticEvents.register({
           ownerOperatorId: target.ownerId,
@@ -1103,6 +1127,7 @@ export class CombatRuntimeAssembly {
         semanticEvents: this.semanticEvents,
         emitOperatorHitAbilityEvent: options.emitExternalOperatorHit,
         emitOperatorWeaknessTriggeredOutput: options.emitExternalOperatorWeaknessTriggeredOutput,
+        emitEnemyWeaknessSet: options.emitExternalEnemyWeaknessSet,
         receipt: this.receipt,
       });
       // 外部事实晚于同帧技能动作：第 0 帧启用的临时监听器也能接收第 0 帧标记。
@@ -1494,31 +1519,25 @@ export class CombatRuntimeAssembly {
           throw new Error(
             `combo condition '${program.key}' requires skill slot '${program.skillGroupKey}'`,
           );
-        for (const skillKey of [
-          group.baseSkillKey,
-          ...(group.stableInputSkillKeys ?? []),
-          ...group.replacementSkillKeys,
-        ]) {
-          const skill = this.#skillCooldowns.get(
-            `${operator.operatorId}\u0000${skillKey}`,
-          )?.program;
-          if (
-            skill === undefined ||
-            skill.skillType !== 'comboSkill' ||
-            skill.skillGroupKey !== group.skillGroupKey
-          ) {
-            throw new Error(
-              `combo condition '${program.key}' requires assembled combo skill '${skillKey}'`,
-            );
-          }
-          if (
-            this.#skillCooldowns.get(`${operator.operatorId}\u0000${skillKey}`)?.cooldown
-              .comboConditionSnapshot == null
-          ) {
-            throw new Error(
-              `combo condition '${program.key}' requires configured cooldown and startCdFrame for '${skillKey}'`,
-            );
-          }
+        const skill = this.#skillCooldowns.get(
+          `${operator.operatorId}\u0000${program.skillKey}`,
+        )?.program;
+        if (
+          skill === undefined ||
+          skill.skillType !== 'comboSkill' ||
+          skill.skillGroupKey !== group.skillGroupKey
+        ) {
+          throw new Error(
+            `combo condition '${program.key}' requires assembled combo skill '${program.skillKey}'`,
+          );
+        }
+        if (
+          this.#skillCooldowns.get(`${operator.operatorId}\u0000${program.skillKey}`)?.cooldown
+            .comboConditionSnapshot == null
+        ) {
+          throw new Error(
+            `combo condition '${program.key}' requires configured cooldown and startCdFrame for '${program.skillKey}'`,
+          );
         }
         pending.push({ operator, program });
       }
@@ -1550,23 +1569,14 @@ export class CombatRuntimeAssembly {
           ),
           isOwnerAlive: () => eligibility.isAlive(operatorId),
           isOwnerSilenced: () => eligibility.isSilenced(operatorId),
-          currentComboCooldown: () => {
-            const skillKey = this.#requireAbilitySystem(operatorId).currentSkillKeyForSlot(
-              program.skillGroupKey,
-            );
-            return (
-              this.#skillCooldowns.get(`${operatorId}\u0000${skillKey}`)?.cooldown
-                .comboConditionSnapshot ?? null
-            );
-          },
+          currentComboCooldown: () =>
+            this.#skillCooldowns.get(`${operatorId}\u0000${program.skillKey}`)?.cooldown
+              .comboConditionSnapshot ?? null,
           resolveTarget: entityId => this.#resolveRuntimeTarget(entityId),
           onPending: value => {
-            const skillKey = this.#requireAbilitySystem(operatorId).currentSkillKeyForSlot(
-              program.skillGroupKey,
-            );
             this.comboWindows.open(
               operatorId,
-              skillKey,
+              program.skillKey,
               {},
               { ...value, skillGroupKey: program.skillGroupKey },
             );
@@ -2088,6 +2098,7 @@ export class CombatRuntimeAssembly {
       operatorId,
       this.comboWindows,
       controlConditions,
+      skillGroupKey => this.#requireAbilitySystem(operatorId).currentSkillKeyForSlot(skillGroupKey),
     );
     const eventConditions = new EventContextConditionExecutor(
       comboWindowOperations,
@@ -2346,8 +2357,14 @@ export class CombatRuntimeAssembly {
       },
       delegate: vitalsConditions,
     });
-    const eventConditions = new EventContextConditionExecutor(
+    const comboWindowOperations = new ComboWindowOperationExecutor(
+      operatorId,
+      this.comboWindows,
       controlConditions,
+      skillGroupKey => this.#requireAbilitySystem(operatorId).currentSkillKeyForSlot(skillGroupKey),
+    );
+    const eventConditions = new EventContextConditionExecutor(
+      comboWindowOperations,
       options.isOperatorControlled === undefined
         ? undefined
         : sourceId => options.isOperatorControlled!(sourceId, this.clock.frame),
@@ -2649,9 +2666,19 @@ export class CombatRuntimeAssembly {
       this.semanticEvents.emit({ kind: 'buffApplied', ...event });
       this.semanticEvents.emit({ kind: 'buffOutput', ...event });
     });
-    runtime.configureBuffConsumedObserver?.(event =>
-      this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
-    );
+    runtime.configureBuffConsumedObserver?.(event => {
+      this.semanticEvents.emit({ kind: 'buffConsumed', ...event });
+      options.emitBuffLifecycleAbilityEvent?.('buffConsumed', {
+        ...event,
+        sourceId: event.sourceOperatorId,
+      });
+    });
+    runtime.configureBuffAbsorbedObserver?.(event => {
+      options.emitBuffLifecycleAbilityEvent?.('buffAbsorbed', {
+        ...event,
+        sourceId: event.sourceOperatorId,
+      });
+    });
     runtime.configureSemanticEventAction?.((event, priority, handle) =>
       this.semanticEvents.register({
         ownerOperatorId: runtime!.ownerId,

@@ -11,6 +11,11 @@ import conditionTypePickerSource from './CombatConditionTypePicker.vue?raw';
 import conditionEditorSource from './CombatConditionEditor.vue?raw';
 import responseInspectorSource from './CombatEventResponseInspector.vue?raw';
 import skillHandlerInspectorSource from './SkillEventHandlerInspector.vue?raw';
+import globalBuffStepEditorSource from './GlobalBuffStepEditor.vue?raw';
+import globalBuffDefinitionInspectorSource from './GlobalBuffDefinitionInspector.vue?raw';
+import globalBuffChildInspectorSource from './GlobalBuffChildInspector.vue?raw';
+import inlineAbilityEntityChildSkillInspectorSource from './InlineAbilityEntityChildSkillInspector.vue?raw';
+import structuredControlStepEditorSource from './StructuredControlStepEditor.vue?raw';
 import buffStepEditorSource from './BuffStepEditor.vue?raw';
 import abilityEntityStepEditorSource from './AbilityEntityStepEditor.vue?raw';
 import abilityEntityGraphEditorSource from './AbilityEntityDefinitionGraphEditor.vue?raw';
@@ -72,6 +77,27 @@ describe('SkillDefinitionEditor structure', () => {
     expect(actionSequenceEditorSource).toContain('CombatStepEditor');
     expect(eventListenerStepEditorSource).toContain('ActionSequenceEditor');
     expect(eventListenerStepEditorSource).toContain('CombatEventTriggerEditor');
+  });
+
+  it('GlobalBuff 用父定义端口和子 Buff 成员组成导图，不在步骤表单嵌套整棵定义', () => {
+    expect(stepEditorSource).toContain('GlobalBuffStepEditor');
+    expect(editorSource).toContain('selectedGlobalBuffDefinition');
+    expect(editorSource).toContain('selectedGlobalBuffChild');
+    expect(editorSource).toContain('appendGlobalBuffChild');
+    expect(editorSource).toContain("kind: 'globalBuffChild'");
+    expect(globalBuffStepEditorSource).toContain('父定义与子 Buff 在左侧导图中分层编辑');
+    expect(globalBuffStepEditorSource).not.toContain('definition.children');
+    expect(globalBuffDefinitionInspectorSource).toContain('子 Buff 是父定义的有序成员');
+    expect(globalBuffChildInspectorSource).toContain('ActionValueAssignmentMapEditor');
+  });
+
+  it('内联实体子技能与结构控制步骤仍由导图承载子序列', () => {
+    expect(editorSource).toContain('selectedInlineAbilityEntityChildSkill');
+    expect(inlineAbilityEntityChildSkillInspectorSource).toContain('SkillBlackboardEditor');
+    expect(inlineAbilityEntityChildSkillInspectorSource).not.toContain('ActionSequenceEditor');
+    expect(stepEditorSource).toContain('StructuredControlStepEditor');
+    expect(structuredControlStepEditorSource).toContain('Body 从左侧导图添加和选择');
+    expect(structuredControlStepEditorSource).not.toContain('ActionSequenceEditor');
   });
 
   it('Buff 与能力实体定义也使用纯当前层 Inspector，并从导图节点添加子项', () => {

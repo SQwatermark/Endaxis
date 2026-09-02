@@ -20,6 +20,101 @@ function parse(fixture = unityComboConditionFixture()) {
 }
 
 describe('Unity RID 条件适配', () => {
+  it('新增四类 RID 叶子只规范化序列化形状，并统一进入公共 Condition 编译', () => {
+    const target = structuredClone(
+      unityComboConditionFixture().references['2708501211437859822']!.data.target,
+    ) as Record<string, unknown>;
+    target.targetSource = 1; // Source；公共编译器根据事件上下文投影为 caster。
+    target.targetGroupKey = '';
+    const tagQuery = {
+      queryType: { value: 0, name: 'HasAny' },
+      tags: [{ tagId: { value: 2025186574, hex: '0x78b5e50e' } }],
+    };
+    const header = {
+      isEnable: true,
+      priorityLevel: 0,
+      priorityOffset: 0,
+      serverActionIndex: 1000,
+    };
+    const reference = (
+      rid: string,
+      name: string,
+      data: Record<string, unknown>,
+      namespace = 'Beyond.Gameplay.Core.Conditions',
+    ) => ({
+      rid,
+      class: `${name}/Data`,
+      namespace,
+      assembly: 'Gameplay.Beyond',
+      decodeStatus: 'complete',
+      data: { ...header, ...data },
+    });
+    const row = (actionData: readonly string[]) => ({
+      comboSkillEvent: 9,
+      comboSkillConditionImmediately: false,
+      comboSkillCheckAction: {
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+        actionData,
+      },
+    });
+    const references = {
+      '1': reference('1', 'CheckBuffIdInContext', {
+        checkType: 0,
+        buffIdList: [{ buffId: 'buff_combo_gate' }],
+        query: tagQuery,
+        blackboardKey: 'matched_buff',
+      }),
+      '2': reference('2', 'CheckTagMatch', { checkTarget: target, query: tagQuery }),
+      '3': reference('3', 'CheckMainCharacterCondition', { checkTarget: target }),
+      '4': reference('4', 'NotNextCheckAction', {}, 'Beyond.Gameplay.Core'),
+    };
+    const source = parseUnityComboSkillConditionsSource(
+      [row(['1']), row(['2']), row(['3']), row(['4', '3'])],
+      references,
+      'character.combo',
+    );
+
+    expect(
+      source.conditions.map(condition => condition.sequence.actions.map(action => action.body)),
+    ).toMatchObject([
+      [{ value: { action: { kind: 'contextBuff' } } }],
+      [{ value: { action: { kind: 'entityTag' } } }],
+      [{ value: { action: { kind: 'mainOperator' } } }],
+      [{ kind: 'negateNextResult' }, { value: { action: { kind: 'mainOperator' } } }],
+    ]);
+    const compiled = source.conditions.map(condition =>
+      compilePendingComboConditionSource(condition, projection),
+    );
+    expect(compiled[0]!.sequence.steps[0]).toMatchObject({
+      parameters: {
+        condition: {
+          kind: 'eventBuffIdMatch',
+          buffIds: ['buff_combo_gate'],
+          buffIdOutputKey: 'matched_buff',
+        },
+      },
+    });
+    expect(compiled[1]!.sequence.steps[0]).toMatchObject({
+      parameters: {
+        condition: {
+          kind: 'entityTagMatch',
+          target: 'caster',
+          tagQueryType: 'hasAny',
+          tags: ['Skill/Character/Common/SpellBurst'],
+        },
+      },
+    });
+    expect(compiled[2]!.sequence.steps[0]).toMatchObject({
+      parameters: { condition: { kind: 'casterControlled' } },
+    });
+    expect(compiled[3]!.sequence.steps[0]).toMatchObject({
+      parameters: {
+        condition: { kind: 'not', condition: { kind: 'casterControlled' } },
+      },
+    });
+  });
+
   it('Advanced 事件 Buff 条件只做 Unity 字段规范化，随后进入公共条件读取器', () => {
     const rid = '2708501211437859624';
     const source = parseUnityComboSkillConditionsSource(
@@ -288,15 +383,15 @@ describe('Unity RID 条件适配', () => {
     }
     expect(() => parse(f)).toThrow('character.combo');
   });
-  it('关闭的对象 Target 不造成假阻塞，开启时仍拒绝未实现 InputTarget 查询', () => {
+  it('对象 Target 编译为公共 InputTarget 查询；关闭节点不造成假阻塞', () => {
     const f = unityComboConditionFixture();
     const data = f.references['2708501211437859822']!.data;
     const target = data.target as { targetSource: number; targetGroupKey: string };
     target.targetSource = 0;
     target.targetGroupKey = '';
-    expect(() => compilePendingComboConditionSource(parse(f).conditions[0]!, projection)).toThrow(
-      'InputTarget',
-    );
+    expect(
+      JSON.stringify(compilePendingComboConditionSource(parse(f).conditions[0]!, projection)),
+    ).toContain('actionInputTargetObjectTypeMatch');
     data.isEnable = false;
     expect(() =>
       compilePendingComboConditionSource(parse(f).conditions[0]!, projection),

@@ -21,8 +21,11 @@ import {
 import { parseCharacterTeamSelection, type CharacterTeamSelectionSource } from './selectorFacts.ts';
 import { parseTagQuerySource, type TagQueryType } from './tagQuery.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
-import type { DamageElement } from '../../../../packages/game-data-contract/src/primitives.ts';
-import type { OperatorRole } from '../../../../packages/game-data-contract/src/primitives.ts';
+import type {
+  DamageElement,
+  OperatorRole,
+  PhysicalInflictionType,
+} from '../../../../packages/game-data-contract/src/primitives.ts';
 import {
   parseCheckCustomAbilityEventSource,
   type CheckCustomAbilityEventSource,
@@ -41,6 +44,7 @@ function parseAttackTypeMaskSource(value: unknown, path: string): AttackTypeMask
 }
 
 export type NativeConditionSource =
+  | (ConditionIdentity & { readonly kind: 'constant'; readonly value: boolean })
   | (ConditionIdentity & CheckCustomAbilityEventSource)
   | (ConditionIdentity & { readonly kind: 'squadInFight' })
   | (ConditionIdentity & {
@@ -192,7 +196,7 @@ export type NativeConditionSource =
   | (ConditionIdentity & {
       /** 物理异常事件上下文的 0..3 类型位集；非空 savedKey 尚未进入运行投影。 */
       readonly kind: 'physicalInflictionType';
-      readonly types: readonly ('airborne' | 'knockDown' | 'fracture' | 'crush')[];
+      readonly types: readonly PhysicalInflictionType[];
       readonly savedKey: string;
     })
   | (ConditionIdentity & {
@@ -241,7 +245,7 @@ export type NativeConditionSource =
           }
         | {
             readonly kind: 'tag';
-            readonly queryType: string;
+            readonly queryType: TagQueryType;
             readonly buffTagIds: readonly number[];
           };
       readonly buffIdOutputKey?: string;
@@ -334,6 +338,13 @@ export function parseConditionLeafSource(
   const sourceType = typeof condition.$type === 'string' ? nativeActionName(condition.$type) : '';
 
   switch (sourceType) {
+    case 'ReturnFalseAction':
+      requireExactFields(
+        condition,
+        new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+        path,
+      );
+      return { kind: 'constant', sourceType, value: false };
     case 'CheckCustomAbilityEvent':
       return { sourceType, ...parseCheckCustomAbilityEventSource(value, path) };
     case 'CheckHasMoveInput':
@@ -855,7 +866,7 @@ function projectProfessionRole(value: string, path: string): OperatorRole {
 function parsePhysicalInflictionMask(
   value: unknown,
   path: string,
-): readonly ('airborne' | 'knockDown' | 'fracture' | 'crush')[] {
+): readonly PhysicalInflictionType[] {
   const names = requireNonEmptyString(value, path)
     .split(',')
     .map(item => item.trim());
@@ -864,7 +875,7 @@ function parsePhysicalInflictionMask(
     KnockDown: 'knockDown',
     Fracture: 'fracture',
     Crush: 'crush',
-  } as const;
+  } as const satisfies Readonly<Record<string, PhysicalInflictionType>>;
   return names.map(name => {
     const type = mapping[name as keyof typeof mapping];
     if (type === undefined) throw new Error(`${path}: unknown physical infliction flag '${name}'`);

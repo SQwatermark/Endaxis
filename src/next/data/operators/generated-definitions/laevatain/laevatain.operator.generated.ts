@@ -2252,14 +2252,12 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                   step('applyBuff', {
                     buffId: 'buff_chr_0016_laevat_show_weapon',
                     target: 'caster',
-                    source: 'eventSource',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: { duration: { kind: 'constant', value: 0.1 } },
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0016_laevat_ult_end',
                     target: 'caster',
-                    source: 'eventSource',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: { duration: { kind: 'constant', value: 0.1 } },
                   }),
@@ -2507,6 +2505,29 @@ export default {
       },
     },
   ],
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'addedBuff',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'eventBuffTagsMatch',
+            match: 'hasAny',
+            buffTags: [
+              'Skill/Character/Common/SpellStatus/Burning',
+              'Skill/Character/Common/SpellStatus/Corrupt',
+            ],
+          },
+          sequence(),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

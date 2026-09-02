@@ -1208,7 +1208,7 @@ describe('公共 Action 叶子分派', () => {
     ).toThrow('fixture.unknown.$type: unsupported native action "UnknownCombatAction"');
   });
 
-  it('TriggerComboSkillAction 严格保留 Pending 目标并拒绝会传给连携施法的黑板', () => {
+  it('TriggerComboSkillAction 保留 Pending 目标、按当前连携槽开窗并拒绝施法黑板', () => {
     const action = {
       ...META,
       $type: 'Beyond.Gameplay.Core.TriggerComboSkillAction+Data, Gameplay.Beyond',
@@ -1260,7 +1260,14 @@ describe('公共 Action 叶子分派', () => {
           staticEnemyTargetGroupKeys: new Set(['smart_target']),
         },
       ),
-    ).toEqual({ steps: [] });
+    ).toEqual({
+      steps: [
+        {
+          kind: 'openComboWindow',
+          parameters: { nextSkillKeyFromSlot: 'comboSkill' },
+        },
+      ],
+    });
   });
 
   it('PauseComboSkillTime 严格保留自动连携候选暂停范围', () => {

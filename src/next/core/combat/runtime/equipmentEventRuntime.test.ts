@@ -253,4 +253,69 @@ describe('EquipmentEventRuntime', () => {
       }),
     );
   });
+
+  it('把公共 AbilityEvent 的 InputTarget 传入配装动作上下文', () => {
+    const events = new CombatSemanticEventRuntime();
+    let registered:
+      | ((
+          payload: unknown,
+          actionContext?: {
+            readonly inputTarget: { readonly kind: 'enemy' };
+            readonly triggerTarget: { readonly kind: 'operator'; readonly operatorId: string };
+          },
+        ) => void)
+      | undefined;
+    const execute: ReturnType<typeof vi.fn<CombatOperationExecutor['execute']>> = vi.fn(() => true);
+    new EquipmentEventRuntime(
+      events,
+      'operator:a',
+      [
+        {
+          ...contribution,
+          eventHandlers: [
+            {
+              ...contribution.eventHandlers[0]!,
+              event: undefined,
+              abilityEvent: 'outputBuff',
+            },
+          ],
+        },
+      ],
+      () => ({ execute, evaluate: () => true }),
+      (_operatorId, _event, _priority, handle) => {
+        registered = handle as typeof registered;
+        return { dispose: vi.fn() };
+      },
+    );
+
+    registered?.(
+      {
+        sourceId: 'operator:a',
+        targetId: 'enemy',
+        buffId: 'fixture',
+        buffTags: [],
+      },
+      {
+        inputTarget: { kind: 'enemy' },
+        triggerTarget: { kind: 'operator', operatorId: 'operator:a' },
+      },
+    );
+
+    expect(execute).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        actionOwnerId: 'operator:a',
+        actionSourceId: 'operator:a',
+        actionInputTarget: { kind: 'enemy' },
+        targetContext: expect.objectContaining({}),
+      }),
+    );
+    const operationContext = execute.mock.calls[0]?.[1];
+    expect(operationContext?.targetContext?.get('trigger')).toEqual([
+      {
+        kind: 'operator',
+        operatorId: 'operator:a',
+      },
+    ]);
+  });
 });

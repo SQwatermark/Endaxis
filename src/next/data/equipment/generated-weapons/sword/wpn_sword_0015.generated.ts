@@ -56,6 +56,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -248,7 +258,6 @@ const definition = {
                             "parameters": {
                               "buffId": "buff_wpn_sword_0015_exist",
                               "target": "caster",
-                              "source": "eventSource",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
                               "lifetimeOwner": "currentCastSkill",
@@ -382,7 +391,6 @@ const definition = {
                       "parameters": {
                         "buffId": "buff_wpn_sword_0015_pdi_up",
                         "target": "caster",
-                        "source": "eventSource",
                         "inheritSourceSkillCastInfo": true,
                         "lifetimeOwner": "currentCastSkill",
                         "blackboardAssignments": {

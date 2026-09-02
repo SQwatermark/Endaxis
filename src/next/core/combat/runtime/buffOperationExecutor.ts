@@ -48,6 +48,7 @@ export interface BuffOperationTarget {
   /** 场景装配根把成功施加事实接入全场语义事件中心。 */
   configureBuffAppliedObserver?(observer: (event: BuffAppliedEvent) => void): void;
   configureBuffConsumedObserver?(observer: (event: BuffConsumedEvent) => void): void;
+  configureBuffAbsorbedObserver?(observer: (event: BuffConsumedEvent) => void): void;
   /** 场景装配根把 Buff 存续期内的全场语义事件监听接入唯一事件中心。 */
   configureSemanticEventAction?(register: RegisterBuffSemanticEventAction): void;
   apply?(request: BuffApplicationRequest): boolean;
@@ -57,8 +58,13 @@ export interface BuffOperationTarget {
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
   /** InheritBuffAction 需要稳定实例身份；普通查询端口不能代替。 */
   findFirstHandleByIds?(ids: readonly string[]): BuffApplicationHandle | undefined;
-  finishByIds(ids: readonly string[], reason: BuffFinishReason): number;
-  finishCountByIds?(ids: readonly string[], count: number, reason: BuffFinishReason): number;
+  finishByIds(ids: readonly string[], reason: BuffFinishReason, sourceId?: string): number;
+  finishCountByIds?(
+    ids: readonly string[],
+    count: number,
+    reason: BuffFinishReason,
+    sourceId?: string,
+  ): number;
   ignite?(igniteType: string, sourceId: string, skillCastInfo?: CombatSkillCastInfo): number;
   holdByIds(ids: readonly string[]): { release(): void };
   getCountByTags(
@@ -100,6 +106,7 @@ export interface BuffOperationTarget {
     type: GameplayTagQueryType,
     reason: BuffFinishReason,
     exact?: boolean,
+    sourceId?: string,
   ): number;
   finishCountByTags?(
     tags: readonly GameplayTag[],
@@ -107,6 +114,7 @@ export interface BuffOperationTarget {
     count: number,
     reason: BuffFinishReason,
     exact?: boolean,
+    sourceId?: string,
   ): number;
 }
 
@@ -641,8 +649,15 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'finishBuffsByTag') {
       const target = this.#resolveSingleTarget(step.parameters.target, context);
       const tags = step.parameters.buffTags;
+      const finishSourceId = context?.actionSourceId ?? context?.buffSourceId;
       if (step.parameters.count === undefined) {
-        target.finishByTags(tags, step.parameters.tagQueryType, step.parameters.reason);
+        target.finishByTags(
+          tags,
+          step.parameters.tagQueryType,
+          step.parameters.reason,
+          false,
+          finishSourceId,
+        );
       } else {
         if (context === undefined) {
           throw new Error('finishBuffsByTag runtime count requires a combat operation context');
@@ -651,16 +666,24 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         if (target.finishCountByTags === undefined) {
           throw new Error('finishBuffsByTag count requires a count-aware Buff target');
         }
-        target.finishCountByTags(tags, step.parameters.tagQueryType, count, step.parameters.reason);
+        target.finishCountByTags(
+          tags,
+          step.parameters.tagQueryType,
+          count,
+          step.parameters.reason,
+          false,
+          finishSourceId,
+        );
       }
       return true;
     }
 
     if (step.kind === 'finishBuffsById') {
       const targets = this.#resolveApplicationTargets(step.parameters.target, context);
+      const finishSourceId = context?.actionSourceId ?? context?.buffSourceId;
       for (const target of targets) {
         if (step.parameters.count === undefined) {
-          target.finishByIds(step.parameters.buffIds, step.parameters.reason);
+          target.finishByIds(step.parameters.buffIds, step.parameters.reason, finishSourceId);
         } else {
           if (context === undefined) {
             throw new Error('finishBuffsById runtime count requires a combat operation context');
@@ -669,7 +692,12 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           if (target.finishCountByIds === undefined) {
             throw new Error('finishBuffsById count requires a count-aware Buff target');
           }
-          target.finishCountByIds(step.parameters.buffIds, count, step.parameters.reason);
+          target.finishCountByIds(
+            step.parameters.buffIds,
+            count,
+            step.parameters.reason,
+            finishSourceId,
+          );
         }
       }
       return true;
@@ -967,6 +995,25 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         condition.operator,
       );
     }
+    if (condition.kind === 'contextTargetEntityTagMatch') {
+      if (context?.targetContext === undefined) {
+        throw new Error('context entity tag check requires a combat target context');
+      }
+      const first = context.targetContext.getOptional(condition.contextKey)?.[0];
+      if (first === undefined) return false;
+      if (first.kind === 'spatialPoint') {
+        throw new Error('spatial Context targets do not own entity tags');
+      }
+      const target =
+        first.kind === 'abilityEntity'
+          ? this.dependencies.resolveCurrentAbilityEntityTarget?.(first)
+          : this.dependencies.resolveEventTarget?.(
+              first.kind === 'enemy' ? 'enemy' : first.operatorId,
+            );
+      if (target === undefined)
+        throw new Error('context entity tag check requires a target resolver');
+      return target.matchesEntityTags(condition.tags, condition.tagQueryType);
+    }
     if (condition.kind === 'eventTargetBuffCountCompare') {
       if (context?.event === undefined || !('targetId' in context.event)) {
         throw new Error('eventTargetBuffCountCompare requires an event target identity');
@@ -1062,12 +1109,30 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       | 'currentAbilityEntity'
       | 'eventTarget'
       | 'eventSource'
+      | 'actionInputTarget'
       | 'controlledOperator'
       | 'buffOwner'
       | 'buffSource'
       | 'currentTarget',
     context: Parameters<CombatOperationExecutor['execute']>[1],
   ): BuffOperationTarget {
+    if (target === 'actionInputTarget') {
+      const inputTarget = context?.actionInputTarget;
+      if (inputTarget === undefined) {
+        throw new Error('actionInputTarget Buff operation requires an action InputTarget');
+      }
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined) {
+        throw new Error('actionInputTarget Buff operation is not configured');
+      }
+      return resolve(
+        inputTarget.kind === 'operator'
+          ? inputTarget.operatorId
+          : inputTarget.kind === 'abilityEntity'
+            ? `ability-entity:${inputTarget.instanceId}`
+            : 'enemy',
+      );
+    }
     if (target === 'eventSource') {
       const resolve = this.dependencies.resolveEventTarget;
       if (resolve === undefined) {

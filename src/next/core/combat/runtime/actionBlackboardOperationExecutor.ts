@@ -193,6 +193,7 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
+    if (condition.kind === 'constant') return condition.value;
     if (condition.kind === 'combatActive') return true;
     if (condition.kind === 'singleEnemyPresent') return true;
     if (condition.kind === 'characterTypeIn') {

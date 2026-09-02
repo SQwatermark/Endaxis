@@ -5279,6 +5279,46 @@ export default {
       },
     },
   ],
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'beforeTakeDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalAttackLastCombo'] },
+          sequence(
+            branch(
+              { kind: 'eventSourceControlled' },
+              sequence(
+                branch(
+                  {
+                    kind: 'contextTargetEntityTagMatch',
+                    contextKey: 'trigger',
+                    tagQueryType: 'hasAny',
+                    tags: ['Skill/Character/Common/SpellStatus/Frozen'],
+                  },
+                  sequence(
+                    branch(
+                      {
+                        kind: 'contextTargetObjectTypeMatch',
+                        contextKey: 'trigger',
+                        objectTypeMask: 16,
+                      },
+                      sequence(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

@@ -164,6 +164,7 @@ describe('回收标记作用于真实枪实例，而非木桩', () => {
           ]),
         ),
         buffDefinitions: { [marker]: base.buffDefinitions![marker]! },
+        comboSkillConditions: [],
         skillGroups: [
           {
             key: 'comboSkill',
@@ -309,6 +310,7 @@ describe('回收标记作用于真实枪实例，而非木桩', () => {
       potentials: [],
       abilityEntityDefinitions: { [combo]: definition },
       buffDefinitions: { [marker]: base.buffDefinitions![marker]! },
+      comboSkillConditions: [],
       skillGroups: [
         {
           key: 'comboSkill',

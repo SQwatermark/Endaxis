@@ -1470,7 +1470,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     ).toBe(true);
   });
 
-  it('uses Rossi QTE active timer as the precise-link input boundary', () => {
+  it('keeps Rossi follow-up available for the native combo window after the precise-link timer', () => {
     const simulate = (comboSkill3StartFrame: number) => {
       const scenario = createEmptyScenario(
         `scenario:generated-rossi-qte-${comboSkill3StartFrame}`,
@@ -1548,7 +1548,8 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           entry.data?.priority === 50,
       ),
     ).toBe(true);
-    // 时间轴显式技能即使错过原生窗口也强制执行；窗口错误只形成诊断，不吞掉技能效果。
+    // 精准衔接计时决定技能内部效果；TriggerComboSkillAction 另行开启原生 5 秒连携候选，
+    // 因而 82 帧仍能按当前连携槽消费 comboSkill3，不能把两个计时器混为一谈。
     expect(
       outside.receiptEntries.some(
         entry => entry.event === 'TimeDilationStarted' && entry.data?.priority === 50,
@@ -1556,8 +1557,8 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     ).toBe(true);
     expect(outside.receiptEntries).toContainEqual(
       expect.objectContaining({
-        event: 'ComboWindowUnavailableAtStart',
-        data: expect.objectContaining({ skillId: 'comboSkill3' }),
+        event: 'ComboWindowConsumed',
+        data: expect.objectContaining({ nextSkillKey: 'comboSkill3' }),
       }),
     );
   });

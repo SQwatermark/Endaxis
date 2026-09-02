@@ -30,17 +30,19 @@ import {
   getLegacyOperatorSheet,
   OperatorSkillTooltip,
 } from '../../legacy/legacyPresentation';
-import type {
-  OperatorDefinition,
-  SkillLevelSource,
+import {
+  DEFAULT_TRUST_ATTRIBUTE_BONUS,
+  PLAYER_SKILL_INPUTS,
+  type OperatorDefinition,
+  type SkillLevelSource,
 } from '../../../core/game-data/operatorDefinition';
-import { DEFAULT_TRUST_ATTRIBUTE_BONUS } from '../../../core/game-data/operatorDefinition';
+import { listOperatorSkillDefinitionBindings } from '../../../core/game-data/operatorSkillDefinitions';
 import type { OperatorInstanceChanges } from '../loadoutBuildCommands';
 import type { OperatorInstanceViewModel } from '../loadoutBuildViewModel';
 import { createDefaultOperatorInstance } from '../../../application/editor/loadoutBuildFactory';
 
 const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly NextOperatorLevel[];
-const SKILL_ORDER = ['basicAttack', 'battleSkill', 'comboSkill', 'ultimate'] as const;
+const SKILL_ORDER = PLAYER_SKILL_INPUTS;
 const ATTRIBUTE_ICON = {
   strength: '/icons/icon_attribute_str.webp',
   agility: '/icons/icon_attribute_agi.webp',
@@ -105,7 +107,13 @@ const potentialCount = computed(() =>
   (definition.value?.potentials ?? []).reduce((sum, potential) => sum + potential.levels, 0),
 );
 const availableSkillSources = computed(() => {
-  const sources = new Set((definition.value?.skillGroups ?? []).map(group => group.levelSource));
+  const sources = new Set(
+    definition.value === null
+      ? []
+      : listOperatorSkillDefinitionBindings(definition.value).flatMap(({ skill }) =>
+          skill.levelSource === undefined ? [] : [skill.levelSource],
+        ),
+  );
   return SKILL_ORDER.filter(source => sources.has(source));
 });
 const trustAttributeKeys = computed(() => {

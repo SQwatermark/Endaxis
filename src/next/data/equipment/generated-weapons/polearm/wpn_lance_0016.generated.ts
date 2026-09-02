@@ -56,6 +56,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "Default",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -119,6 +129,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -267,8 +287,7 @@ const definition = {
                       "kind": "applyBuff",
                       "parameters": {
                         "buffId": "buff_wpn_lance_0016_heal",
-                        "target": "eventSource",
-                        "source": "eventSource",
+                        "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
                         "blackboardAssignments": {
@@ -371,7 +390,8 @@ const definition = {
                         "condition": {
                           "kind": "not",
                           "condition": {
-                            "kind": "eventActionOwnerTargetMatch",
+                            "kind": "actionInputTargetIdentityMatch",
+                            "other": "actionOwner",
                             "operator": "equal"
                           }
                         }
@@ -383,7 +403,6 @@ const definition = {
                             "parameters": {
                               "buffId": "buff_wpn_lance_0016_dmgup",
                               "target": "party",
-                              "source": "eventSource",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
                               "blackboardAssignments": {

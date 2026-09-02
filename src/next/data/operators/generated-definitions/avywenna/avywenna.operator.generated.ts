@@ -1640,6 +1640,50 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'beforeOutputDamage',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalAttackLastCombo'] },
+          sequence(
+            branch(
+              {
+                kind: 'contextTargetIdentityMatch',
+                contextKey: 'trigger',
+                other: 'controlledOperator',
+                operator: 'equal',
+              },
+              sequence(
+                branch(
+                  {
+                    kind: 'entityTagMatch',
+                    target: 'actionInputTarget',
+                    tagQueryType: 'hasAny',
+                    tags: [
+                      'Skill/Character/Common/SpellStatus/Conduct',
+                      'Skill/Character/Common/SpellInflict/PulseInflict',
+                    ],
+                  },
+                  sequence(
+                    branch(
+                      { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+                      sequence(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

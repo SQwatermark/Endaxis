@@ -13,6 +13,7 @@ import {
 const condition: CompiledComboSkillConditionProgram = {
   key: 'saved-element',
   skillGroupKey: 'combo',
+  skillKey: 'combo',
   event: 'beforeTakeInfliction',
   immediately: false,
   initialValues: { local: 0, label: 'condition' },
@@ -244,7 +245,7 @@ describe('assembly 原生常驻连携条件', () => {
     ).toBe(true);
   });
 
-  it('候选绑定槽位，触发后换槽仍在实际变体的第零帧应用快照', () => {
+  it('条件读取具体技能冷却，候选窗口仍交给当前输入形态施放', () => {
     const f = setup();
     let observed = -1;
     f.owner.skillSlotGroups[0]!.replacementSkillKeys.push('replacement');
@@ -410,7 +411,7 @@ describe('assembly 原生常驻连携条件', () => {
     },
   );
 
-  it('基础连携和变体都未放置时仍可切换槽位并继承归一化冷却', () => {
+  it('具体连携未放置时仍按其静态冷却账本判断，不随替换槽漂移', () => {
     const f = setup();
     f.owner.skillSlotGroups[0]!.replacementSkillKeys.push('variant');
     f.owner.skills = [
@@ -457,9 +458,6 @@ describe('assembly 原生常驻连携条件', () => {
     f.emit();
     expect(f.pending).toHaveLength(0);
     assembly.simulation.advanceFrames(299);
-    f.emit();
-    expect(f.pending).toHaveLength(0);
-    assembly.simulation.advanceFrame();
     f.emit();
     expect(f.pending).toHaveLength(1);
   });
@@ -664,7 +662,7 @@ describe('assembly 原生常驻连携条件', () => {
     expect(f.pending[0]?.assignPairs).toEqual({ local: 1, label: 'condition' });
   });
 
-  it('槽位替换后立即读取新形态冷却，切回仍读取旧账本，不缓存初始技能', () => {
+  it('槽位替换前后始终读取条件绑定技能的冷却', () => {
     const f = setup();
     f.owner.skillSlotGroups[0]!.replacementSkillKeys.push('variant');
     f.owner.skills.push(combo('variant'));
@@ -683,8 +681,11 @@ describe('assembly 原生常驻连携条件', () => {
     expect(f.pending).toHaveLength(0);
     assembly.tryStartSkill('owner', 'to-variant');
     f.emit();
-    expect(f.pending).toHaveLength(1);
+    expect(f.pending).toHaveLength(0);
     assembly.tryStartSkill('owner', 'to-base');
+    f.emit();
+    expect(f.pending).toHaveLength(0);
+    assembly.simulation.advanceFrames(294);
     f.emit();
     expect(f.pending).toHaveLength(1);
   });
@@ -726,7 +727,6 @@ describe('assembly 原生常驻连携条件', () => {
     'no-cooldown',
     'no-start-frame',
     'wrong-type',
-    'missing-variant',
     'duplicate-key',
     'no-slot',
   ] as const)('%s 严格拒绝不完整装配', failure => {
@@ -735,8 +735,6 @@ describe('assembly 原生常驻连携条件', () => {
     if (failure === 'no-cooldown') f.owner.skills[0] = { ...combo(), cooldownFrames: undefined };
     if (failure === 'no-start-frame') f.owner.skills[0] = { ...combo(), costFrame: undefined };
     if (failure === 'wrong-type') f.owner.skills[0] = { ...combo(), skillType: 'battleSkill' };
-    if (failure === 'missing-variant')
-      f.owner.skillSlotGroups[0]!.replacementSkillKeys.push('unknown');
     if (failure === 'duplicate-key') f.owner.comboConditionPrograms.push(condition);
     if (failure === 'no-slot') f.owner.skillSlotGroups = [];
     expect(() => new CombatRuntimeAssembly(f.options)).toThrow(/combo condition/);

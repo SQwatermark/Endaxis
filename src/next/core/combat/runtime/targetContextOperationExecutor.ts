@@ -151,6 +151,21 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
         return (mask & objectType) === objectType;
       });
     }
+    if (condition.kind === 'contextTargetIdentityMatch') {
+      if (context?.targetContext === undefined) {
+        throw new Error('context target identity check requires a combat target context');
+      }
+      const target = context.targetContext.getOptional(condition.contextKey)?.[0];
+      const matches =
+        target !== undefined &&
+        (condition.other === 'controlledOperator'
+          ? target.kind === 'operator' &&
+            this.characterTeam !== undefined &&
+            this.characterTeam.isOperatorControlled(target.operatorId)
+          : targetId(target) ===
+            (condition.other === 'actionSource' ? context.actionSourceId : context.actionOwnerId));
+      return condition.operator === 'equal' ? matches : !matches;
+    }
     if (condition.kind !== 'contextTargetContains') {
       return context === undefined
         ? this.delegate.evaluate(condition)
@@ -187,6 +202,13 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     const targetId = eventTargetId(context);
     return targetId === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: targetId };
   }
+}
+
+function targetId(target: RuntimeTargetRef): string | undefined {
+  if (target.kind === 'enemy') return 'enemy';
+  if (target.kind === 'operator') return target.operatorId;
+  if (target.kind === 'abilityEntity') return `abilityEntity:${target.instanceId}`;
+  return undefined;
 }
 
 function eventTargetId(context: CombatOperationContext): string {

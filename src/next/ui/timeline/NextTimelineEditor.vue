@@ -133,6 +133,7 @@ import type {
   WeaponDefinition,
 } from '../../core/game-data/equipmentDefinition';
 import { placeSkillGroup } from './placeSkillGroup';
+import { resolveSkillGroupPlacementSkills } from './skillGroupPlacement';
 import { createProjectDocumentIdAllocator } from './projectDocumentIdAllocator';
 import {
   projectTimelineEditor,
@@ -2728,7 +2729,8 @@ function addMarkerFromContext(
     | 'switch'
     | 'operatorHit'
     | 'operatorWeakness'
-    | 'teamHit',
+    | 'teamHit'
+    | 'enemyWeaknessSet',
 ): void {
   const target = markerContextTarget.value;
   if (target === null || target.existing !== undefined) return;
@@ -2754,9 +2756,11 @@ function addMarkerFromContext(
     const event: ExternalCombatEventDocument =
       kind === 'operatorWeakness'
         ? { kind: 'operatorWeaknessTriggeredOutput' }
-        : { kind: 'operatorHit', tags: [], features: [] };
+        : kind === 'enemyWeaknessSet'
+          ? { kind: 'enemyWeaknessSet' }
+          : { kind: 'operatorHit', tags: [], features: [] };
     const eventTarget =
-      kind === 'teamHit'
+      kind === 'teamHit' || kind === 'enemyWeaknessSet'
         ? ({ scope: 'team' } as const)
         : ({ scope: 'operator', trackIndex: target.trackIndex } as const);
     commitScenario('addExternalEventMarker', current =>
@@ -3150,37 +3154,7 @@ function resolvePlacedSkillDurationFrames(
   if (operator === null) return 0;
   const group = operator.skillGroups.find(g => g.key === skillGroupKey);
   if (group === undefined) return 0;
-  if (skillKey !== undefined) {
-    const candidates = [
-      ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
-      ...(group.variants ?? []).flatMap(variant =>
-        Array.isArray(variant.skills) ? variant.skills : [variant.skills],
-      ),
-      ...(group.replacementSkills ?? []),
-      ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
-    ];
-    return candidates.find(skill => skill.key === skillKey)?.timelineBlockFrames ?? 0;
-  }
-  const variant = group.variants?.find(candidate => candidate.key === variantKey);
-  const selectedSkills = variant?.skills ?? group.skills;
-  let skills: readonly { timelineBlockFrames: number; key: string }[] = Array.isArray(
-    selectedSkills,
-  )
-    ? selectedSkills
-    : [selectedSkills];
-  if (variant === undefined && group.placementSequenceSkillKeys !== undefined) {
-    const candidates = [
-      ...skills,
-      ...(group.replacementSkills ?? []),
-      ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
-    ];
-    skills = group.placementSequenceSkillKeys.flatMap(skillKey => {
-      const skill = candidates.find(candidate => candidate.key === skillKey);
-      return skill === undefined ? [] : [skill];
-    });
-  }
-  const filtered = skillKey === undefined ? skills : skills.filter(s => s.key === skillKey);
-  const lastSkill = filtered.at(-1);
+  const lastSkill = resolveSkillGroupPlacementSkills(group, variantKey, skillKey).at(-1);
   return lastSkill?.timelineBlockFrames ?? 0;
 }
 
@@ -4460,7 +4434,11 @@ function setPanelDialogVisible(visible: boolean): void {
             "
           >
             <span>{{ displayedMarkerFrame('externalEvent', marker.id, marker.frame) }}f</span>
-            <b>{{ t('nextTimeline.markerLabels.teamHit') }}</b>
+            <b>{{
+              marker.event.kind === 'enemyWeaknessSet'
+                ? t('nextTimeline.markerLabels.enemyWeaknessSet')
+                : t('nextTimeline.markerLabels.teamHit')
+            }}</b>
           </div>
 
           <div class="track-stack">
@@ -5018,6 +4996,7 @@ function setPanelDialogVisible(visible: boolean): void {
       operatorHit: t('nextTimeline.markerContext.operatorHit'),
       operatorWeakness: t('nextTimeline.markerContext.operatorWeakness'),
       teamHit: t('nextTimeline.markerContext.teamHit'),
+      enemyWeaknessSet: t('nextTimeline.markerContext.enemyWeaknessSet'),
     }"
     @close="markerContextTarget = null"
     @add-cycle="addMarkerFromContext('cycle')"
@@ -5027,6 +5006,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @add-operator-hit="addMarkerFromContext('operatorHit')"
     @add-operator-weakness="addMarkerFromContext('operatorWeakness')"
     @add-team-hit="addMarkerFromContext('teamHit')"
+    @add-enemy-weakness-set="addMarkerFromContext('enemyWeaknessSet')"
     @delete="removeMarkerFromContext"
   />
   <OperatorSelectionDialog

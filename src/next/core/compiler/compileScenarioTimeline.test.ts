@@ -377,8 +377,9 @@ describe('compileScenarioTimeline', () => {
               routedReplacementSkills: [
                 {
                   skill: routed,
-                  skillType: 'comboSkill' as const,
-                  levelSource: 'comboSkill' as const,
+                  // 路由包装元数据即便滞后，也不能覆盖单个技能自己的战斗类型与等级来源。
+                  skillType: 'battleSkill' as const,
+                  levelSource: 'battleSkill' as const,
                   executionSkillGroupKey: 'comboSkill',
                   executionSkillKey: 'comboSkill',
                 },

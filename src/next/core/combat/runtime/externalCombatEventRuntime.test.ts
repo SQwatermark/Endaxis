@@ -114,4 +114,34 @@ describe('ExternalCombatEventRuntime', () => {
       }),
     );
   });
+
+  it('dispatches enemy weakness-set once as a global untargeted fact', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const received: string[] = [];
+    const runtime = new ExternalCombatEventRuntime({
+      clock,
+      semanticEvents: new CombatSemanticEventRuntime(),
+      receipt,
+      emitEnemyWeaknessSet: () => received.push('enemy'),
+      events: [
+        {
+          frame: 0,
+          targetOperatorIds: ['operator:a', 'operator:b'],
+          event: { kind: 'enemyWeaknessSet' },
+        },
+      ],
+    });
+
+    runtime.applyCurrentFrame();
+
+    expect(received).toEqual(['enemy']);
+    expect(receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'ExternalEnemyWeaknessSetProcessed',
+        sourceId: 'enemy',
+        targetId: 'enemy',
+      }),
+    );
+  });
 });

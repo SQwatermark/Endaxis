@@ -88,6 +88,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -257,8 +267,7 @@ const definition = {
                             "kind": "applyBuff",
                             "parameters": {
                               "buffId": "buff_wpn_sword_0016_valid",
-                              "target": "eventSource",
-                              "source": "eventSource",
+                              "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
                               "blackboardAssignments": {
@@ -282,7 +291,6 @@ const definition = {
                             "parameters": {
                               "buffId": "buff_wpn_sword_0016_valid",
                               "target": "partyExceptCaster",
-                              "source": "eventSource",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
                               "blackboardAssignments": {

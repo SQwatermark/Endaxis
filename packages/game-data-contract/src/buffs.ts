@@ -16,6 +16,51 @@ import {
   type PoiseModifierDefinition,
 } from './modifiers.ts';
 import { type ActionValueOperand } from './conditions.ts';
+import { type AbilityEvent } from './abilityEvents.ts';
+
+/** 当前公共 Buff 生命周期已经能够注册和归一化的 AbilitySystem 事件。 */
+export const BUFF_ABILITY_EVENTS = [
+  'enterFight',
+  'ownerHpZero',
+  'abilityEntitySpawned',
+  'abilityEntityFinished',
+  'beforeTakeDamage',
+  'beforeCalculateDamage',
+  'beforeDamageAction',
+  'beforeTakePhysicalInfliction',
+  'beforeOutputPhysicalInfliction',
+  'afterOutputPhysicalInfliction',
+  'beforeOutputKnockDown',
+  'afterOutputKnockDown',
+  'beforeOutputInfliction',
+  'beforeOutputSpellBurst',
+  'beforeTakeSpellInfliction',
+  'beforeTakeInfliction',
+  'takeDamage',
+  'takeCriticalDamage',
+  'outputDamage',
+  'outputCriticalDamage',
+  'outputKnockDown',
+  'outputHeal',
+  'receiveHeal',
+  'poiseZero',
+  'beforeCastSkill',
+  'afterSkillApplyCost',
+  'skillEnd',
+  'beforeOutputBuff',
+  'beforeAddedBuff',
+  'outputBuff',
+  'addedBuff',
+  'finishedBuff',
+  'buffEndsEarly',
+  'afterOutputWeaknessTriggered',
+  'customAbilityEvent',
+  'afterKillEntity',
+  'buffConsumed',
+  'skillSpGained',
+] as const satisfies readonly AbilityEvent[];
+
+export type BuffAbilityEvent = (typeof BUFF_ABILITY_EVENTS)[number];
 
 /**
  * `applyBuff` 步骤内联的 Buff 蓝图，不重复保存步骤已经携带的 `buffId`。
@@ -49,47 +94,7 @@ export interface SkillBuffLifecycleSequences {
 /** Buff 启用期间注册在其所有者 AbilitySystem 上的一条同步事件响应。 */
 export interface SkillBuffAbilityEventResponse {
   /** 已接入实体 AbilitySystem 事件中心的同步事件。 */
-  event:
-    | 'enterFight'
-    | 'ownerHpZero'
-    | 'abilityEntitySpawned'
-    | 'abilityEntityFinished'
-    | 'beforeTakeDamage'
-    | 'beforeCalculateDamage'
-    | 'beforeDamageAction'
-    | 'beforeTakePhysicalInfliction'
-    | 'beforeOutputPhysicalInfliction'
-    | 'afterOutputPhysicalInfliction'
-    | 'beforeOutputKnockDown'
-    | 'afterOutputKnockDown'
-    | 'beforeOutputInfliction'
-    | 'beforeOutputSpellBurst'
-    | 'beforeTakeSpellInfliction'
-    | 'beforeTakeInfliction'
-    | 'takeDamage'
-    | 'takeCriticalDamage'
-    | 'outputDamage'
-    | 'outputCriticalDamage'
-    | 'outputKnockDown'
-    | 'outputHeal'
-    | 'receiveHeal'
-    | 'poiseZero'
-    | 'beforeCastSkill'
-    | 'afterSkillApplyCost'
-    | 'skillEnd'
-    | 'beforeOutputBuff'
-    | 'beforeAddedBuff'
-    | 'outputBuff'
-    | 'addedBuff'
-    | 'finishedBuff'
-    /** 原生 OnBuffEndsEarly：只在 Ignite/Early 的提前结束消费路径广播。 */
-    | 'buffEndsEarly'
-    | 'afterOutputWeaknessTriggered'
-    | 'customAbilityEvent'
-    | 'afterKillEntity'
-    | 'buffConsumed'
-    /** OnObtainAtb + CheckObtainAtbType(Skill, Gain) 的编译后语义事件。 */
-    | 'skillSpGained';
+  event: BuffAbilityEvent;
   /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */
   priority: number;
   /** 已证明同优先级、同 key 的实例响应可交换时允许并列注册。 */

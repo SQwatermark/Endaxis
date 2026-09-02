@@ -1,17 +1,9 @@
-import type { CombatEventTrigger } from '../../core/game-data/operatorDefinition';
+import {
+  COMBAT_EVENT_TRIGGER_KINDS,
+  type CombatEventTrigger,
+} from '../../core/game-data/operatorDefinition';
 
-export const EDITABLE_COMBAT_EVENT_TRIGGER_KINDS = [
-  'buffApplied',
-  'operatorHealed',
-  'airborneOutput',
-  'knockDownOutput',
-  'damageTagHit',
-  'elementalInflictionApplied',
-  'skillHit',
-  'enemyDefeated',
-  'statusExpired',
-  'statusConsumed',
-] as const satisfies readonly CombatEventTrigger['kind'][];
+export const EDITABLE_COMBAT_EVENT_TRIGGER_KINDS = COMBAT_EVENT_TRIGGER_KINDS;
 
 export type EditableCombatEventTriggerKind = (typeof EDITABLE_COMBAT_EVENT_TRIGGER_KINDS)[number];
 
@@ -20,15 +12,21 @@ export function createCombatEventTriggerDraft(
   kind: EditableCombatEventTriggerKind,
 ): CombatEventTrigger {
   switch (kind) {
+    case 'operatorHit':
     case 'buffApplied':
+    case 'buffOutput':
+    case 'buffConsumed':
     case 'operatorHealed':
     case 'airborneOutput':
     case 'knockDownOutput':
+    case 'spGained':
       return { kind };
     case 'damageTagHit':
       return { kind, tag: 'normalSkill', scope: 'operator' };
     case 'elementalInflictionApplied':
       return { kind, elements: 'heat', scope: 'operator' };
+    case 'physicalInflictionApplied':
+      return { kind, types: 'fracture', scope: 'operator' };
     case 'skillHit':
       return { kind, skillGroupKey: 'skill', scope: 'operator' };
     case 'enemyDefeated':

@@ -5,6 +5,7 @@
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import type { ScenarioDocument, SkillCastDocument, TrackIndex } from '../../core/project/schema';
 import { resolveUniquePlayerActionForSkill } from '../../core/game-data/resolvePlayerActionRoute';
+import { resolveSkillGroupPlacementSkills } from './skillGroupPlacement';
 
 /** 放置命令生成稳定文档身份所需的端口。 */
 export type TimelineDocumentIdKind =
@@ -66,39 +67,7 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
     );
   }
 
-  const variant =
-    input.variantKey === undefined
-      ? undefined
-      : group.variants?.find(candidate => candidate.key === input.variantKey);
-  if (input.variantKey !== undefined && variant === undefined) {
-    throw new Error(`skill group '${input.skillGroupKey}' has no variant '${input.variantKey}'`);
-  }
-  const directlyPlaceableReplacements = [
-    ...(group.replacementSkills ?? []),
-    ...(group.routedReplacementSkills ?? []).map(replacement => replacement.skill),
-  ].filter(skill => group.replacementSkillPlacements?.[skill.key] !== 'internal');
-  const selectedSkills = variant?.skills ?? group.skills;
-  const defaultGroupSkills = Array.isArray(selectedSkills) ? selectedSkills : [selectedSkills];
-  const allGroupSkills = [...defaultGroupSkills, ...directlyPlaceableReplacements];
-  const groupSkills =
-    variant !== undefined || group.placementSequenceSkillKeys === undefined
-      ? defaultGroupSkills
-      : group.placementSequenceSkillKeys.map(skillKey => {
-          const skill = allGroupSkills.find(candidate => candidate.key === skillKey);
-          if (skill === undefined) {
-            throw new Error(
-              `skill group '${input.skillGroupKey}' placement sequence has no skill '${skillKey}'`,
-            );
-          }
-          return skill;
-        });
-  const skills =
-    input.skillKey === undefined
-      ? groupSkills
-      : allGroupSkills.filter(skill => skill.key === input.skillKey);
-  if (skills.length === 0) {
-    throw new Error(`skill group '${input.skillGroupKey}' has no skill '${input.skillKey ?? ''}'`);
-  }
+  const skills = resolveSkillGroupPlacementSkills(group, input.variantKey, input.skillKey);
   const created: SkillCastDocument[] = [];
   let nextStartFrame = input.startFrame;
 

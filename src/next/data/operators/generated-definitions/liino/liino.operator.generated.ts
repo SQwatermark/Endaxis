@@ -3126,7 +3126,6 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx',
                         target: 'caster',
-                        source: 'eventSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                       step('finishBuffsById', {
@@ -3585,7 +3584,6 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx',
                         target: 'caster',
-                        source: 'eventSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                       step('finishBuffsById', {
@@ -4207,7 +4205,6 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
                       step('applyBuff', {
                         buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx',
                         target: 'caster',
-                        source: 'eventSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                       step('finishBuffsById', {
@@ -4517,6 +4514,79 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill',
+      event: 'addedBuff',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'eventBuffTagsMatch',
+            match: 'hasAny',
+            buffTags: [
+              'Skill/Character/Common/SpellStatus',
+              'Skill/Character/Common/SpellStatus/Conduct',
+              'Skill/Character/Common/SpellStatus/Frozen',
+              'Skill/Character/Common/SpellStatus/Burning',
+              'Skill/Character/Common/SpellStatus/Corrupt',
+            ],
+          },
+          sequence(
+            branch(
+              {
+                kind: 'buffTagIdCountCompare',
+                target: 'caster',
+                tagQueryType: 'hasAny',
+                buffTags: ['Skill/Character/chr_0035_liino/NormalSkillMusic'],
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 1 },
+              },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillKey: 'comboSkill',
+      event: 'buffEndsEarly',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'eventBuffTagsMatch',
+            match: 'hasAny',
+            buffTags: [
+              'Skill/Character/Common/SpellStatus',
+              'Skill/Character/Common/SpellStatus/Conduct',
+              'Skill/Character/Common/SpellStatus/Frozen',
+              'Skill/Character/Common/SpellStatus/Burning',
+              'Skill/Character/Common/SpellStatus/Corrupt',
+            ],
+          },
+          sequence(
+            branch(
+              {
+                kind: 'buffTagIdCountCompare',
+                target: 'caster',
+                tagQueryType: 'hasAny',
+                buffTags: ['Skill/Character/chr_0035_liino/NormalSkillMusic'],
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 1 },
+              },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',

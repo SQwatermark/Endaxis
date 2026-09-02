@@ -877,10 +877,12 @@ describe('SkillRuntime', () => {
       'dealDamage',
       'gainSquadUltimateEnergyFromSkillCost',
     ]);
-    // 时间轴动作全部执行后技能在同一帧自然结束。
+    // 原生 SkillData.durationFrame 是自然结束边界；动作在 13 帧完成不等于技能结束。
+    expect(fixture.runtime.state).toBe('casting');
+    fixture.simulation.advanceFrames(142);
     expect(fixture.receipt.entries.at(-1)).toMatchObject({
-      frame: 13,
-      time: 13 / 30,
+      frame: 155,
+      time: 155 / 30,
       event: 'SkillEnded',
     });
   });
@@ -943,10 +945,10 @@ describe('SkillRuntime', () => {
     expect(runtime.tryStart()).toBe(true);
     expect(resources.pay('other', [{ resource: 'sp', value: 100 }]).paid).toBe(true);
 
-    simulation.advanceFrames(13);
+    simulation.advanceFrames(155);
 
     expect(runtime.appliedCost).toBe(false);
-    // 扣费失败不阻止时间轴动作，动作执行完毕后技能自然结束。
+    // 扣费失败不阻止时间轴动作，技能仍在原生自然寿命结束。
     expect(runtime.state).toBe('ended');
     expect(operations.execute).toHaveBeenCalledTimes(4);
     expect(receipt.entries.some(entry => entry.event === 'SkillCostRejected')).toBe(true);

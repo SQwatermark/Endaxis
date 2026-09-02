@@ -79,6 +79,8 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
       enemyBuffRuntime: enemyBuffRuntime(),
       createOperatorBuffRuntime: operatorBuffRuntime,
       createOperationExecutor: () => operationExecutor(),
+      registerComboSkillCondition: () => ({ dispose: () => undefined }),
+      comboConditionEligibility: { isAlive: () => true, isSilenced: () => false },
     },
   };
 }

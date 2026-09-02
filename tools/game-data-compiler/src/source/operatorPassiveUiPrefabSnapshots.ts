@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { OperatorPassiveUiPrefabComponentEvidence } from '../domains/operator/passiveUiPrefab.ts';
+import type { OperatorPassiveUiPrefabComponentEvidence } from './operatorPassiveUiPrefabEvidence.ts';
 
 interface SnapshotHeader {
   readonly name?: unknown;
@@ -144,5 +144,5 @@ export function projectOperatorPassiveUiSnapshotRoot(
 export function renderOperatorPassiveUiPrefabCatalog(
   catalog: Readonly<Record<string, OperatorPassiveUiPrefabComponentEvidence>>,
 ): string {
-  return `// 此文件由 generateOperatorPassiveUiPrefabCatalog.ts 从原生 prefab 对象快照生成，请勿手改。\n\nimport type { OperatorPassiveUiPrefabComponentEvidence } from '../domains/operator/passiveUiPrefab.ts';\n\nexport const OPERATOR_PASSIVE_UI_COMPONENT_BY_PREFAB = ${JSON.stringify(catalog, null, 2)} as const satisfies Readonly<Record<string, OperatorPassiveUiPrefabComponentEvidence>>;\n`;
+  return `// 此文件由 generateOperatorPassiveUiPrefabCatalog.ts 从原生 prefab 对象快照生成，请勿手改。\n\nimport type { OperatorPassiveUiPrefabComponentEvidence } from './operatorPassiveUiPrefabEvidence.ts';\n\nexport const OPERATOR_PASSIVE_UI_COMPONENT_BY_PREFAB = ${JSON.stringify(catalog, null, 2)} as const satisfies Readonly<Record<string, OperatorPassiveUiPrefabComponentEvidence>>;\n`;
 }

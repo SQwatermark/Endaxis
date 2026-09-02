@@ -141,6 +141,19 @@ export class BuffDefinitionOperationTarget<Key extends string>
     );
   }
 
+  configureBuffAbsorbedObserver(observer: (event: BuffConsumedEvent) => void): void {
+    this.container.configureAbsorbedObserver((buff, sourceOperatorId, layers) =>
+      observer({
+        sourceOperatorId,
+        targetId: this.container.ownerId,
+        buffId: buff.definition.id,
+        layers,
+        buffTags: buff.definition.applyTags ?? [],
+        blackboardValues: buff.blackboard.snapshot(),
+      }),
+    );
+  }
+
   configureSemanticEventAction(register: RegisterBuffSemanticEventAction): void {
     if (this.#registerSemanticEventAction !== null) {
       throw new Error(`combat Buff runtime '${this.ownerId}' semantic events are configured`);
@@ -286,12 +299,17 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.findFirstByIds(ids);
   }
 
-  finishByIds(ids: readonly string[], reason: BuffFinishReason): number {
-    return this.container.finishByIds(ids, reason);
+  finishByIds(ids: readonly string[], reason: BuffFinishReason, sourceId?: string): number {
+    return this.container.finishByIds(ids, reason, sourceId);
   }
 
-  finishCountByIds(ids: readonly string[], count: number, reason: BuffFinishReason): number {
-    return this.container.finishCountByIds(ids, count, reason);
+  finishCountByIds(
+    ids: readonly string[],
+    count: number,
+    reason: BuffFinishReason,
+    sourceId?: string,
+  ): number {
+    return this.container.finishCountByIds(ids, count, reason, sourceId);
   }
 
   ignite(igniteType: string, sourceId: string, skillCastInfo?: CombatSkillCastInfo): number {
@@ -356,8 +374,9 @@ export class BuffDefinitionOperationTarget<Key extends string>
     type: GameplayTagQueryType,
     reason: BuffFinishReason,
     exact?: boolean,
+    sourceId?: string,
   ): number {
-    return this.container.finishByTags(tags, type, reason, exact);
+    return this.container.finishByTags(tags, type, reason, exact, sourceId);
   }
 
   finishCountByTags(
@@ -366,7 +385,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
     count: number,
     reason: BuffFinishReason,
     exact?: boolean,
+    sourceId?: string,
   ): number {
-    return this.container.finishCountByTags(tags, type, count, reason, exact);
+    return this.container.finishCountByTags(tags, type, count, reason, exact, sourceId);
   }
 }

@@ -1268,7 +1268,7 @@ export default {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: null,
@@ -1297,7 +1297,7 @@ export default {
     },
     {
       key: 'native-combo:1',
-      skillGroupKey: 'comboSkill',
+      skillKey: 'comboSkill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: null,

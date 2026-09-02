@@ -10,6 +10,7 @@ import type { GlobalBuffActionSource } from '../source/globalBuffActions.ts';
 import type { SkillSettingReadActionSource } from '../source/skillSettingActions.ts';
 import type { TargetGroupActionSource } from '../source/targetGroup.ts';
 import type { ActionValueOperand } from '../../../../packages/game-data-contract/src/conditions.ts';
+import type { ComparisonOperator } from '../../../../packages/game-data-contract/src/primitives.ts';
 import type { SkillSlotReplacementActionSource } from '../source/skillSlotActions.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
 import type { SkillTypeMutationActionSource } from '../source/presentationActions.ts';
@@ -77,6 +78,11 @@ export interface CombatActionProjectionContextSource {
     | 'partyExceptCaster'
     | 'partyExceptCasterAndSameCharacterType';
   /**
+   * 旧接收侧 Buff 回调只审计过 eventSource 的有限动作/条件集合。
+   * eventSource 本身是公共目标身份，不能再用它暗示调用方一定是 Buff 回调。
+   */
+  readonly restrictEventSourceTargetProjection?: boolean;
+  /**
    * 同版本模板与标签目录；仅适用于已核实查询标签不会被运行时增删的 born-tag 筛选。
    * 动态实体标签需另接运行时验证，不能以目录候选替代；目录本身也不是已生成实例集合。
    */
@@ -90,6 +96,11 @@ export interface CombatActionProjectionContextSource {
   readonly fixedBuffSourceTarget?: 'caster' | 'enemy' | 'currentAbilityEntity';
   /** 已由同一主动技能动作图证明会命中唯一木桩的命名目标组。 */
   readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
+  /** 事件宿主可证明的命名 Context 身份；例如连携检查中的 trigger 就是事件发布者。 */
+  readonly contextTargetGroupTargets?: ReadonlyMap<
+    string,
+    'caster' | 'enemy' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'currentAbilityEntity'
+  >;
   /** 已由完整图证明恒为空的命名目标组。 */
   readonly staticEmptyTargetGroupKeys?: ReadonlySet<string>;
   /** 运行时可为空、但任一成员都已证明只能是唯一木桩的命名目标组。 */
@@ -587,9 +598,7 @@ export const DAMAGE_TYPES: Readonly<
   Ether: 'ether',
 };
 
-export const COMPARISON_OPERATORS: Readonly<
-  Record<string, 'equal' | 'notEqual' | 'greater' | 'greaterOrEqual' | 'less' | 'lessOrEqual'>
-> = {
+export const COMPARISON_OPERATORS: Readonly<Record<string, ComparisonOperator>> = {
   EQ: 'equal',
   NE: 'notEqual',
   GT: 'greater',

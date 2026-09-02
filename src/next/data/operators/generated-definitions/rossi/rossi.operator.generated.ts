@@ -4488,6 +4488,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                   value: { kind: 'constant', value: 0 },
                 },
                 sequence(
+                  step('openComboWindow', { nextSkillKeyFromSlot: 'comboSkill' }),
                   step('adjustSkillCooldown', {
                     target: 'caster',
                     skill: { kind: 'id', skillId: 'chr_0028_wulfa_combo_2_skill' },
@@ -4502,6 +4503,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                   }),
                 ),
                 sequence(
+                  step('openComboWindow', { nextSkillKeyFromSlot: 'comboSkill' }),
                   step('adjustSkillCooldown', {
                     target: 'caster',
                     skill: { kind: 'id', skillId: 'chr_0028_wulfa_combo_2_skill' },
@@ -7536,6 +7538,87 @@ export default {
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
     ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' },
   },
+  comboSkillConditions: [
+    {
+      key: 'native-combo:0',
+      skillKey: 'comboSkill2',
+      event: 'beforeTakeInfliction',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          {
+            kind: 'contextTargetBuffStackCompare',
+            contextKey: 'trigger',
+            tagQueryType: 'hasAny',
+            buffTags: ['Skill/Character/Common/NoGuard'],
+            operator: 'greaterOrEqual',
+            value: { kind: 'constant', value: 1 },
+          },
+          sequence(
+            branch(
+              {
+                kind: 'buffIdStackCompare',
+                target: 'caster',
+                buffIds: [
+                  'buff_chr_0028_wulfa_combo_usetimer',
+                  'buff_chr_0028_wulfa_combo_cannottrigger',
+                ],
+                operator: 'less',
+                value: { kind: 'constant', value: 1 },
+              },
+              sequence(),
+            ),
+          ),
+        ),
+      ),
+    },
+    {
+      key: 'native-combo:1',
+      skillKey: 'comboSkill2',
+      event: 'addedBuff',
+      immediately: false,
+      initialValues: null,
+      sequence: sequence(
+        branch(
+          { kind: 'eventBuffIdMatch', buffIds: ['buff_physical_no_guard'] },
+          sequence(
+            branch(
+              { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+              sequence(
+                branch(
+                  {
+                    kind: 'contextTargetBuffStackCompare',
+                    contextKey: 'trigger',
+                    tagQueryType: 'hasAny',
+                    buffTags: ['Skill/Character/Common/SpellInflict'],
+                    operator: 'greaterOrEqual',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                  sequence(
+                    branch(
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'caster',
+                        buffIds: [
+                          'buff_chr_0028_wulfa_combo_usetimer',
+                          'buff_chr_0028_wulfa_combo_cannottrigger',
+                        ],
+                        operator: 'less',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                      sequence(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    },
+  ],
+  comboSkillPriority: 'default',
   talents: [
     {
       key: 'talent1',
@@ -8306,7 +8389,11 @@ export default {
               },
               sequence(
                 branch(
-                  { kind: 'eventSourceTargetMatch', operator: 'equal' },
+                  {
+                    kind: 'actionInputTargetIdentityMatch',
+                    other: 'actionSource',
+                    operator: 'equal',
+                  },
                   sequence(
                     branch(
                       {

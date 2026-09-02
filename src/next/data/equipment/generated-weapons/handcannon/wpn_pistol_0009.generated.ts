@@ -73,6 +73,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": false,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -131,6 +141,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": false,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -189,6 +209,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": false,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -247,6 +277,16 @@ const definition = {
             "showInHeadBarAttached": false,
             "showInSquadIcon": false,
             "onlyShowForMainCharacter": false,
+            "blinkInMainCharHpBar": false,
+            "showProgressInHpBar": false,
+            "showProgressInNormalSkillButton": false,
+            "useWeakProgressInNormalSkillButton": false,
+            "showProgressInUltimateSkillButton": false,
+            "forceRaiseIconEvent": false,
+            "showWarningBackground": false,
+            "playStrongInAnimation": false,
+            "hasCharHpBarVfxType": false,
+            "charHpBarVfxType": "Fire",
             "iconStyleInSquad": "LifeTime",
             "abnormalColorType": "Physical",
             "orderPriority": {
@@ -539,8 +579,7 @@ const definition = {
                             "kind": "applyBuff",
                             "parameters": {
                               "buffId": "buff_wpn_pistol_0009_cd",
-                              "target": "eventSource",
-                              "source": "eventSource",
+                              "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "blackboardAssignments": {
                                 "cd": {
@@ -555,7 +594,6 @@ const definition = {
                             "parameters": {
                               "buffId": "buff_wpn_pistol_0009_dmg_taken_up_f",
                               "target": "eventTarget",
-                              "source": "eventSource",
                               "inheritSourceSkillCastInfo": true,
                               "blackboardAssignments": {
                                 "damage_taken_up_fire": {
@@ -690,8 +728,7 @@ const definition = {
                             "kind": "applyBuff",
                             "parameters": {
                               "buffId": "buff_wpn_pistol_0009_cd",
-                              "target": "eventSource",
-                              "source": "eventSource",
+                              "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "blackboardAssignments": {
                                 "cd": {
@@ -706,7 +743,6 @@ const definition = {
                             "parameters": {
                               "buffId": "buff_wpn_pistol_0009_dmg_taken_up_p",
                               "target": "eventTarget",
-                              "source": "eventSource",
                               "inheritSourceSkillCastInfo": true,
                               "blackboardAssignments": {
                                 "damage_taken_up_pulse": {
@@ -841,8 +877,7 @@ const definition = {
                             "kind": "applyBuff",
                             "parameters": {
                               "buffId": "buff_wpn_pistol_0009_cd",
-                              "target": "eventSource",
-                              "source": "eventSource",
+                              "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "blackboardAssignments": {
                                 "cd": {
@@ -857,7 +892,6 @@ const definition = {
                             "parameters": {
                               "buffId": "buff_wpn_pistol_0009_dmg_taken_up_c",
                               "target": "eventTarget",
-                              "source": "eventSource",
                               "inheritSourceSkillCastInfo": true,
                               "blackboardAssignments": {
                                 "damage_taken_up_cryst": {
@@ -992,8 +1026,7 @@ const definition = {
                             "kind": "applyBuff",
                             "parameters": {
                               "buffId": "buff_wpn_pistol_0009_cd",
-                              "target": "eventSource",
-                              "source": "eventSource",
+                              "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "blackboardAssignments": {
                                 "cd": {
@@ -1008,7 +1041,6 @@ const definition = {
                             "parameters": {
                               "buffId": "buff_wpn_pistol_0009_dmg_taken_up_n",
                               "target": "eventTarget",
-                              "source": "eventSource",
                               "inheritSourceSkillCastInfo": true,
                               "blackboardAssignments": {
                                 "damage_taken_up_natural": {

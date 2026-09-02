@@ -76,7 +76,7 @@ function template(
     compileComboSkillConditionDefinitionSource(
       source,
       blackboards,
-      { key: `condition:${index}`, skillGroupKey: 'comboSkill' },
+      { key: `condition:${index}`, skillKey: 'comboSkill' },
       {
         gameplayTagRegistry: fixtureGameplayTagRegistry,
         actionOwnerTarget: 'caster',

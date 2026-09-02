@@ -10,6 +10,122 @@ import {
 } from './skillStructureMindMapModel';
 
 describe('skillStructureMindMapModel', () => {
+  it('把 GlobalBuff 父定义投影为固定端口，把子 Buff 投影为可排序成员', () => {
+    const skill: SkillDefinition = {
+      key: 'global-buff',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'createGlobalBuff',
+                parameters: {
+                  globalBuffId: 'global.test',
+                  definition: {
+                    stackingType: 'stack',
+                    maxStackCount: 4,
+                    blackboard: { duration: 10 },
+                    children: [
+                      { buffId: 'buff.a', blackboardAssignments: {} },
+                      {
+                        buffId: 'buff.b',
+                        blackboardAssignments: {
+                          scale: { kind: 'blackboard', key: 'scale' },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const nodes = indexSkillStructureNodes(buildSkillStructureMindMap(skill));
+    const definition = nodes.get('sequence:0:step:0:definition');
+    const firstChild = nodes.get('sequence:0:step:0:definition:child:0');
+    const secondChild = nodes.get('sequence:0:step:0:definition:child:1');
+
+    expect(definition).toMatchObject({
+      payloadKind: 'globalBuffDefinition',
+      relationToParent: 'port',
+      canAddChild: 'globalBuffChild',
+      acceptsChildKind: 'globalBuffChild',
+      sourcePath: 'scheduledSequences[0].sequence.steps[0].parameters.definition',
+    });
+    expect(firstChild).toMatchObject({
+      payloadKind: 'globalBuffChild',
+      relationToParent: 'member',
+      canDelete: true,
+      canMove: true,
+      sourcePath: 'scheduledSequences[0].sequence.steps[0].parameters.definition.children[0]',
+    });
+    expect(secondChild?.summary).toBe('1 项父黑板赋值');
+  });
+
+  it('把内联能力实体子技能和回调 Body 展开为固定结构端口', () => {
+    const skill: SkillDefinition = {
+      key: 'inline-child-skill',
+      timelineBlockFrames: 1,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'forEachContextTarget',
+                parameters: { contextKey: 'entities' },
+                body: {
+                  steps: [
+                    {
+                      kind: 'startCurrentAbilityEntityChildSkill',
+                      parameters: {
+                        childSkill: {
+                          skillId: 'child.test',
+                          scheduledSequences: [
+                            {
+                              startFrame: 0,
+                              sequence: { steps: [{ kind: 'finishTimeline', parameters: {} }] },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      kind: 'scheduleProjectileFinishCallback',
+                      parameters: { delaySeconds: 1 },
+                      body: { steps: [{ kind: 'finishTimeline', parameters: {} }] },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const nodes = [...indexSkillStructureNodes(buildSkillStructureMindMap(skill)).values()];
+    const childSkill = nodes.find(node => node.payloadKind === 'childSkill');
+    const callbackBody = nodes.find(
+      node => node.sourcePath === 'scheduledSequences[0].sequence.steps[0].body.steps[1].body',
+    );
+    expect(childSkill).toMatchObject({
+      relationToParent: 'port',
+      canAddChild: 'sequence',
+      acceptsChildKind: 'scheduledSequence',
+      canCopy: false,
+      sourcePath:
+        'scheduledSequences[0].sequence.steps[0].body.steps[0].parameters.childSkill.scheduledSequences',
+    });
+    expect(childSkill?.children[0]?.sourcePath).toBe(
+      'scheduledSequences[0].sequence.steps[0].body.steps[0].parameters.childSkill.scheduledSequences[0]',
+    );
+    expect(callbackBody).toMatchObject({ canAddChild: 'step', relationToParent: 'port' });
+  });
+
   it('Switch 候选是可添加步骤的序列端口，重复标签仍有独立路径', () => {
     const skill: SkillDefinition = {
       key: 'test',
