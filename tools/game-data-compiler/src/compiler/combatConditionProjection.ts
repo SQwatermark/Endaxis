@@ -951,9 +951,7 @@ function compileConditionLeaf(
     ) {
       const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
       // 闭包来源已证明 Buff owner 是队伍干员；原生 Character 位为 0x08。
-      return (mask & 0x08) === 0x08
-        ? { kind: 'all', conditions: [] }
-        : { kind: 'any', conditions: [] };
+      return { kind: 'constant', value: (mask & 0x08) === 0x08 };
     }
     if (
       (context.actionTargetTarget === 'eventSource' ||
@@ -973,18 +971,14 @@ function compileConditionLeaf(
       condition.target.targetSource === 'Target'
     ) {
       const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
-      return (mask & 0x08) === 0x08
-        ? { kind: 'all', conditions: [] }
-        : { kind: 'any', conditions: [] };
+      return { kind: 'constant', value: (mask & 0x08) === 0x08 };
     }
     if (context.actionTargetTarget === 'enemy' && condition.target.targetSource === 'Target') {
       const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
       // Endaxis 的唯一木桩是原生 ObjectType.Enemy (0x10)。原生查询在 mask
       // 含 Enemy 时额外加入 EnemyPart，但这不会改变对 Enemy 本体的完整包含判断。
-      // all([])/any([]) 分别是公共条件协议中的显式真/假，不借用事件上下文。
-      return (mask & 0x10) === 0x10
-        ? { kind: 'all', conditions: [] }
-        : { kind: 'any', conditions: [] };
+      // 静态真假使用公共 constant 条件；all/any 必须保留至少一个真实子条件。
+      return { kind: 'constant', value: (mask & 0x10) === 0x10 };
     }
     if (condition.target.targetSource !== 'Context' || condition.target.targetGroupKey === '') {
       throw new Error(

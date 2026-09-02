@@ -1,10 +1,18 @@
 import type { GameDataBrowser, GameDataRepository } from '../game-data/gameDataRepository';
 import type { OperatorDefinition } from '../game-data/operatorDefinition';
+import { listOperatorSkillDefinitionBindings } from '../game-data/operatorSkillDefinitions';
+import { validateOperatorDefinition } from '../game-data/validateOperatorDefinition';
 import type {
   GearDefinition,
   GearSetDefinition,
   WeaponDefinition,
 } from '../game-data/equipmentDefinition';
+import {
+  validateGearDefinition,
+  validateGearSetDefinition,
+  validateWeaponDefinition,
+  type EquipmentDefinitionValidationIssue,
+} from '../game-data/equipmentDefinitionValidation';
 import type {
   EndaxisProjectDocument,
   ProjectDefinitionLibraryDocument,
@@ -13,6 +21,7 @@ import type {
   TrackDocument,
   TrackIndex,
 } from './schema';
+import { validateProjectDocument } from './validation';
 
 export const EMPTY_PROJECT_DEFINITION_LIBRARY: ProjectDefinitionLibraryDocument = Object.freeze({
   operators: Object.freeze({}),
@@ -20,6 +29,15 @@ export const EMPTY_PROJECT_DEFINITION_LIBRARY: ProjectDefinitionLibraryDocument 
   gears: Object.freeze({}),
   gearSets: Object.freeze({}),
 });
+
+function assertValidEquipmentDefinition(
+  kind: 'weapon' | 'gear' | 'gear set',
+  issues: readonly EquipmentDefinitionValidationIssue[],
+): void {
+  if (issues.length === 0) return;
+  const summary = issues.map(issue => `${issue.path}: ${issue.message}`).join('; ');
+  throw new Error(`invalid project ${kind} definition: ${summary}`);
+}
 
 export function getProjectDefinitionLibrary(
   project: EndaxisProjectDocument,
@@ -126,6 +144,10 @@ export function deriveProjectWeaponTemplateInLibrary(
   gameDataRevision: string,
   input: DeriveEquipmentTemplateInput<WeaponDefinition>,
 ): ProjectDefinitionLibraryDocument {
+  assertValidEquipmentDefinition(
+    'weapon',
+    validateWeaponDefinition(input.definition, `$.source.weapons['${input.baseTemplateId}']`),
+  );
   return {
     ...library,
     weapons: deriveEquipmentTemplate(library.weapons, gameDataRevision, 'weapon', input),
@@ -137,6 +159,10 @@ export function deriveProjectGearTemplateInLibrary(
   gameDataRevision: string,
   input: DeriveEquipmentTemplateInput<GearDefinition>,
 ): ProjectDefinitionLibraryDocument {
+  assertValidEquipmentDefinition(
+    'gear',
+    validateGearDefinition(input.definition, `$.source.gears['${input.baseTemplateId}']`),
+  );
   return {
     ...library,
     gears: deriveEquipmentTemplate(library.gears, gameDataRevision, 'gear', input),
@@ -148,6 +174,10 @@ export function deriveProjectGearSetTemplateInLibrary(
   gameDataRevision: string,
   input: DeriveEquipmentTemplateInput<GearSetDefinition>,
 ): ProjectDefinitionLibraryDocument {
+  assertValidEquipmentDefinition(
+    'gear set',
+    validateGearSetDefinition(input.definition, `$.source.gearSets['${input.baseTemplateId}']`),
+  );
   return {
     ...library,
     gearSets: deriveEquipmentTemplate(library.gearSets, gameDataRevision, 'gearSet', input),
@@ -159,6 +189,7 @@ export function deriveProjectOperatorTemplateInLibrary(
   gameDataRevision: string,
   input: DeriveOperatorTemplateInput,
 ): ProjectDefinitionLibraryDocument {
+  assertValidOperatorDefinition(input.definition);
   requireProjectTemplateId(input.id, 'operator');
   if (input.name.trim().length === 0)
     throw new Error('project operator template name must not be empty');
@@ -188,7 +219,7 @@ export function deriveProjectOperatorTemplate(
   project: EndaxisProjectDocument,
   input: DeriveOperatorTemplateInput,
 ): EndaxisProjectDocument {
-  return {
+  const candidate: EndaxisProjectDocument = {
     ...project,
     definitionLibrary: deriveProjectOperatorTemplateInLibrary(
       getProjectDefinitionLibrary(project),
@@ -196,6 +227,12 @@ export function deriveProjectOperatorTemplate(
       input,
     ),
   };
+  const validation = validateProjectDocument(candidate);
+  if (!validation.ok) {
+    const summary = validation.issues.map(issue => `${issue.path}: ${issue.message}`).join('; ');
+    throw new Error(`invalid project operator definition: ${summary}`);
+  }
+  return candidate;
 }
 
 export function deriveProjectWeaponTemplate(
@@ -241,18 +278,78 @@ export function deriveProjectGearSetTemplate(
 }
 
 function collectSkillIdentities(definition: OperatorDefinition): ReadonlySet<string> {
-  const identities = new Set<string>();
-  for (const group of definition.skillGroups) {
-    for (const skill of Array.isArray(group.skills) ? group.skills : [group.skills]) {
-      identities.add(`${group.key}\u0000${skill.key}`);
-    }
-    for (const variant of group.variants ?? []) {
-      for (const skill of Array.isArray(variant.skills) ? variant.skills : [variant.skills]) {
-        identities.add(`${group.key}\u0000${skill.key}`);
+  const identities = new Set(
+    listOperatorSkillDefinitionBindings(definition).map(
+      ({ group, skill }) => `${group.key}\u0000${skill.key}`,
+    ),
+  );
+  for (const alias of definition.skillAliases ?? []) {
+    identities.add(`${alias.from[0]}\u0000${alias.from[1]}`);
+  }
+  return identities;
+}
+
+function assertValidOperatorDefinition(definition: OperatorDefinition): void {
+  const issues = validateOperatorDefinition(
+    definition,
+    `$.definitionLibrary.operators['${definition.slug}'].definition`,
+  );
+  if (issues.length === 0) return;
+  const summary = issues.map(issue => `${issue.path}: ${issue.message}`).join('; ');
+  throw new Error(`invalid project operator definition: ${summary}`);
+}
+
+/** 替换一个物化干员定义，并在同一项目命令中守住定义结构和轴上技能引用。 */
+export function replaceProjectOperatorTemplateDefinition(
+  project: EndaxisProjectDocument,
+  templateId: string,
+  definition: OperatorDefinition,
+): EndaxisProjectDocument {
+  const library = getProjectDefinitionLibrary(project);
+  const template = library.operators[templateId];
+  if (template === undefined) throw new Error(`missing project operator template '${templateId}'`);
+  if (definition.slug !== templateId) {
+    throw new Error(
+      `project operator definition slug '${definition.slug}' does not match template '${templateId}'`,
+    );
+  }
+  assertValidOperatorDefinition(definition);
+  const skillIdentities = collectSkillIdentities(definition);
+  for (const scenario of project.scenarios) {
+    for (const track of scenario.tracks) {
+      if (track?.operator?.operatorSlug !== templateId) continue;
+      for (const cast of track.skillCasts) {
+        if (cast.source.kind !== 'operatorSkill') continue;
+        const identity = `${cast.source.skillGroupKey}\u0000${cast.source.skillKey}`;
+        if (!skillIdentities.has(identity)) {
+          throw new Error(
+            `operator template '${templateId}' cannot preserve cast '${cast.id}' (${cast.source.skillGroupKey}/${cast.source.skillKey})`,
+          );
+        }
       }
     }
   }
-  return identities;
+
+  const candidate: EndaxisProjectDocument = {
+    ...project,
+    definitionLibrary: {
+      ...library,
+      operators: {
+        ...library.operators,
+        [templateId]: {
+          ...template,
+          name: definition.displayName?.trim() || template.name,
+          definition: clone(definition),
+        },
+      },
+    },
+  };
+  const validation = validateProjectDocument(candidate);
+  if (!validation.ok) {
+    const summary = validation.issues.map(issue => `${issue.path}: ${issue.message}`).join('; ');
+    throw new Error(`invalid project operator definition: ${summary}`);
+  }
+  return candidate;
 }
 
 /** 派生模板与当前模板结构相同才允许原子切换并保留轴上技能块。 */
@@ -322,6 +419,11 @@ export function replaceProjectWeaponTemplateDefinition(
       `project weapon definition slug '${definition.slug}' does not match template '${templateId}'`,
     );
   }
+  // 项目命令是定义进入撤销历史的最后边界，不能只依赖某个 UI 入口预先校验。
+  assertValidEquipmentDefinition(
+    'weapon',
+    validateWeaponDefinition(definition, `$.definitionLibrary.weapons['${templateId}'].definition`),
+  );
 
   const nextDefinition = clone(definition);
   return {
@@ -394,6 +496,10 @@ export function replaceProjectGearTemplateDefinition(
       `project gear definition slug '${definition.slug}' does not match template '${templateId}'`,
     );
   }
+  assertValidEquipmentDefinition(
+    'gear',
+    validateGearDefinition(definition, `$.definitionLibrary.gears['${templateId}'].definition`),
+  );
   const nextDefinition = clone(definition);
   const slots = ['armor', 'gloves', 'accessory1', 'accessory2'] as const;
   return {
@@ -445,6 +551,13 @@ export function replaceProjectGearSetTemplateDefinition(
       `project gear set definition slug '${definition.slug}' does not match template '${templateId}'`,
     );
   }
+  assertValidEquipmentDefinition(
+    'gear set',
+    validateGearSetDefinition(
+      definition,
+      `$.definitionLibrary.gearSets['${templateId}'].definition`,
+    ),
+  );
   return {
     ...project,
     definitionLibrary: {

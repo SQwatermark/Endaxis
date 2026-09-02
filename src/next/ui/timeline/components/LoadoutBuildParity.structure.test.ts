@@ -28,11 +28,13 @@ describe('旧版构筑编辑行为兼容结构', () => {
     expect(weaponBuildSource).toContain(
       'resolveMaxWeaponTraitLevels(weapon.definition, potential)',
     );
+    expect(weaponBuildSource).toContain('traitDisplayLevels(key)');
   });
 
   it('装备拉满只处理可精炼装备', () => {
     expect(gearBuildSource).toContain('isEquipmentArtificable(build.definition.levelRequirement)');
-    expect(gearBuildSource).toContain('setUniformLevel(build, 3)');
+    expect(gearBuildSource).toContain('resolveMaxGearArtificingLevels(build.definition)');
+    expect(gearBuildSource).toContain('resolveGearArtificingLevels(build.definition, level)');
   });
 
   it('自定义定义入口随当前语言显示，并区分首次自定义与继续编辑', () => {

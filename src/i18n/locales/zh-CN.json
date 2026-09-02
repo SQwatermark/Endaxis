@@ -2348,6 +2348,17 @@
       "reactionConsumed": "反应消费",
       "layers": "{stacks} 层"
     },
+    "buffDetail": {
+      "title": "状态详情",
+      "source": "来源",
+      "effect": "效果摘要",
+      "layers": "层数",
+      "start": "开始",
+      "end": "结束",
+      "duration": "持续时间",
+      "frames": "{value} 帧",
+      "buffId": "原始 Buff ID"
+    },
     "hitDetail": {
       "frame": "帧",
       "damage": "伤害",

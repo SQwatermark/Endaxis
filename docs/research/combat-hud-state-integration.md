@@ -66,6 +66,12 @@ Buff 数据本身提供可用于自动分流的原生字段：
 这些字段应该是 Endaxis 显示分流的第一证据，不应通过 Buff ID、图标名或干员名猜测。编译器原本已
 严格读取但丢弃了其中的进度/警告字段；现在已将它们纳入游戏数据契约、Buff 定义和显示回执。
 
+元素反应的战斗语义与 HUD 展示不是同一个对象。以导电为例，原生动作先把反应写入
+`ElementalReactionContainer`，再施加可见的 `buff_common_pulse_pulse_conduct_triggered_do`；后者带有
+`showInHeadBarCommon: true` 和 `iconStyleInSquad: SpellAbnormal`，因此只有这个 Buff 实例进入
+`GPUIBuffNode`。Endaxis 也必须以该原生可见 Buff 的实例身份投影唯一持续段，不能再把
+`ElementalReactionApplied` 语义事实画成第二条“反应状态”。
+
 ### Buff 节点执行规则（运行时反编译）
 
 1.4.4 运行时已经进一步确认节点的真实判断，而不再只是从字段名推断：
@@ -99,7 +105,7 @@ owner 的失衡属性；恢复计时和恢复后仍短暂保留的 `PoiseBroken`
 
 Endaxis 不应把屏幕空间 HUD 原样复制到时间轴。它需要将同一组战斗事实投影成两种互补视图：
 
-1. **时段视图**：现有 Buff/附着/反应/冷却/连携持续段，用于回答“什么时候开始和结束”；
+1. **时段视图**：原生可见 Buff（包括附着与法术异常）、冷却和连携持续段，用于回答“什么时候开始和结束”；
 2. **光标快照**：在时间光标所在帧对曲线和生命周期取样，用于回答“这一刻的 HUD 是什么状态”。
 
 状态栏不得反过来驱动模拟。数据流固定为：
@@ -114,7 +120,9 @@ Endaxis 不应把屏幕空间 HUD 原样复制到时间轴。它需要将同一�
 
 - 固定信息：敌人名称、等级/危险等级（来自场景配置，不进回执）；
 - 光标快照：生命/最大生命、失衡/最大失衡和失衡恢复状态；
-- 效果区：`showInHeadBarAttached` 附着与 `showInHeadBarCommon` 普通 Buff，另加已有元素附着/爆发/反应；
+- 效果区：统一显示 `showInHeadBarAttached` 附着与 `showInHeadBarCommon` 普通 Buff；法术异常也由其中
+  `iconStyleInSquad: SpellAbnormal` 的原生 Buff 表达。元素爆发与成功消费等瞬时事实可以另画标记，
+  但不得由语义回执复制一条持续状态；
 - 时间区：保留现有持续段，不把图标只收缩成光标瞬时状态。
 
 ### 干员状态栏

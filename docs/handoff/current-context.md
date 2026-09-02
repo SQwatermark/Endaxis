@@ -76,8 +76,12 @@
 - `TriggerComboSkillAction` 的正式接入还纠正了一条旧测试假设：Rossi 的精准衔接 Buff 计时决定技能
   内部效果，动作另外开启通用 5 秒连携候选；二者不是同一可输入窗口。测试现验证候选按执行时当前
   ComboSkill 槽开启并被 `comboSkill3` 消费，不再期待该公共动作被丢弃或 82 帧误报无窗口。
-- 30 名干员已经用统一编译器全量重生成。CharacterTemplate 审计保持 **29 compiled-and-bound / 1
-  compiled-unbound / 0 blocked**，唯一 unbound 的 Xaihi 原始 `conditionCount=0`。当前正式门禁为 Next
+- 30 名干员已经用统一编译器全量重生成。CharacterTemplate 条件表专项审计保持 **29
+  compiled-and-bound / 1 compiled-unbound / 0 blocked**；Xaihi 的模板 `conditionCount=0`，但这只表示
+  它不使用角色常驻条件表。其真实连携入口位于支援晶体内部
+  `buff_chr_0011_seraph_combo_count`：第二次治疗将计数叠到 2 后，原生
+  `OnBuffEnhanceChanged -> TriggerComboSkillAction` 开启候选窗口。该 Buff 动作链已经由统一公共动作
+  编译器转换，不能把模板专项统计误写成整名连携覆盖统计。当前正式门禁为 Next
   **290 文件 / 3982 项**、game-data-compiler **115 文件 / 1111 项**全绿；game-data-contract、
   game-data-compiler、Next 三套类型检查通过。直接运行无目录限定的根 `vitest run` 仍会纳入旧版与
   `tmp/` 诊断测试及其既有失败，不能拿它替代这两套正式范围门禁，也不得借机修改旧版。
@@ -85,10 +89,12 @@
   改变木桩伤害、Buff、资源或技能路由的横向缺口；对己方护盾/霸体、敌方主动行为等不可见机制保持
   记录边界，不占用当前贯通主线。
 
-### 2026-09-02：CharacterTemplate 连携条件全量闭合
+### 2026-09-02：CharacterTemplate 连携条件表全量闭合
 
-- 30 份运行时模板审计现为 **29 compiled-and-bound / 1 compiled-unbound / 0 blocked**。29 名具有
-  原生条件的干员均已完整绑定；Xaihi 是唯一未绑定项，但其模板 `conditionCount=0`，不是转换缺漏。
+- 30 份运行时模板专项审计现为 **29 compiled-and-bound / 1 compiled-unbound / 0 blocked**。29 名具有
+  角色常驻条件表的干员均已完整绑定；Xaihi 是唯一模板 `conditionCount=0` 的干员，但它不是“没有连携
+  条件”。赛希的条件由支援晶体实体内部 Buff 计数表达：两次治疗耗尽后执行
+  `TriggerComboSkillAction`。该路径属于 Buff/能力实体动作闭包，不属于 CharacterTemplate 条件表。
   最后一批公共事件已覆盖 `poiseZero/poiseKnotBreak`、`buffConsumed/buffAbsorbed` 与
   `weaknessSet`，没有按干员建立事件或条件特例。
 - `SetWeaknessAction.ExecuteInternal` 的 1.4.4 机器码确认：事件 151 由动作 owner 发布，
@@ -122,7 +128,8 @@
 - 强制解析 30 份 CharacterTemplate 的审计入口为
   `audit:game-data:operator-runtime-templates`。当前结果为 **21 compiled-and-bound / 1
   compiled-unbound / 8 blocked**，较本轮开始的 12/1/17 新增 Alesh、Ember、艾维文娜、Ardelia、
-  庄方宜、Lifeng、管理员、Yvonne、Rossi 九名正式连携条件。Xaihi 原始模板没有条件条目，仍不凭空建立窗口。
+  庄方宜、Lifeng、管理员、Yvonne、Rossi 九名角色常驻连携条件。Xaihi 原始模板没有条件条目；其窗口
+  必须由支援晶体 Buff 中已有的 `TriggerComboSkillAction` 开启，不能在模板层凭空补一条条件。
 - 庄方宜暴露了真实 `CheckBuffStackNumAdvanced(checkType=Tag)` 样本携带非空 `buffIdList`。复刻库
   已依据原生分支语义改为只读取被 `checkType` 选中的载荷，并补真实残留 ID 回归；Endaxis 同步移除
   “Tag 模式必须空 ID 列表”的错误门禁。
@@ -4438,13 +4445,14 @@ Liino 普通战技的直接敌方 Aura 已按项目零距离、唯一敌人模�
 
 ### 2026-08-23：元素反应持续时间进入敌人状态轴
 
-- `ElementalReactionApplied` 不再只投影为瞬时图标。敌人状态轴现在依据回执中的
-  `durationSeconds` 生成反应持续段；重复施加会在施加帧关闭旧段并刷新持续时间，成功消费则在消费帧
-  提前结束。这里只做固定 30 FPS 回执时间换算，不增补或猜测元素反应规则。
-- 佩丽卡连携的正式生产回归确认导电回执持续 5 秒，时间轴段因此覆盖精确 150 帧。反应段与元素附着段
-  共用紧凑分行，持续图标取正式反应资源，施加点不再重复绘制第二枚图标；消费与元素爆发仍保留瞬时标记。
-- 定向回归覆盖自然到期、刷新和提前消费，并由佩丽卡正式技能定义贯通生成、模拟回执和投影。`tmp/`
-  继续保持未跟踪且不得提交。
+- 本节最初让 `ElementalReactionApplied` 直接生成持续段；后续对原生 HUD 路由复核后确认这是错误的
+  双重展示。反应容器只承载战斗语义，原生 UI 实际显示随后施加、带 `SpellAbnormal` 展示配置的可见
+  `_do` Buff。两者不是需要按同帧合并的两个 UI 对象。
+- 当前规则改为：原生可见 Buff 实例是附着和法术异常唯一的持续展示身份；其生命周期自然覆盖刷新、
+  到期和提前结束。`ElementalReactionApplied` 不再生成图标或持续段，元素爆发与成功消费仍可作为瞬时标记。
+- 佩丽卡的导电因此只显示 `buff_common_pulse_pulse_conduct_triggered_do` 对应的一条状态段，不使用
+  开始帧、名称或持续时间启发式去重。完整展示所有权边界记录在
+  `docs/research/combat-hud-state-integration.md`；`tmp/` 继续保持未跟踪且不得提交。
 
 ### 2026-08-23：帧 0 Buff 初始化与战斗环境绑定顺序
 
@@ -5228,3 +5236,117 @@ comboSkillConditions -> 公共事件/条件动作运行时` 一条权威路径�
   断言失败，均未用猜测规则绕过。VFS Unity Worker 为 **49 通过 / 6 跳过 / 0 失败**。
 - 后续优先级：① 能力实体具名 childSkills 与编辑往返；② Buff 定义全部字段和展示身份的编辑覆盖；
   ③ 武器/装备贡献与实例字段覆盖账本；④ 用真实干员、武器、装备复杂样本做编辑保存后全量模拟回归。
+
+### 2026-09-02：能力实体具名 childSkills 编辑闭环
+
+- 能力实体导图现同时支持旧单体 `childSkill` 与原生多成员 `childSkills`。具名映射中的每个技能 ID
+  都展开为独立成员节点，各自拥有黑板、调度序列、条件、事件响应与步骤子树；新增和删除不会把多份
+  子技能压回单体字段，也不会允许两种协议形态并存。
+- 结构编辑路径新增 JSON 引号记录键语法，可无歧义寻址包含下划线、点号、引号等字符的原生 ID；
+  非法或未完整消费的路径会直接失败，不再由宽松正则跳过未知片段。具名子技能改名会同步修改记录键
+  与内部 `skillId`，重复键保持失败关闭。
+- 使用正式 Arcane `abilityentity_chr_0032_lizhiyan_combo_skill` 建立复杂往返回归：3 个具名子技能
+  全部进入导图；只修改 `chr_0032_lizhiyan_combo_skill_abilityentity_end` 的一个黑板值后，其他子技能、
+  调度序列和实体字段逐项不变，修改后定义仍通过严格校验。
+- 本阶段门禁：结构/编辑定向 **4 文件 / 46 项**通过，Next 全量 **295 文件 / 4014 项**通过，
+  `type-check:next` 与 `git diff --check` 通过。未修改 combat-spec 或 VFS 已拉取提交；VFS 既有
+  `.tmp-*` 调查文件继续保持未跟踪。
+- 下一步转向 Buff 定义编辑覆盖账本：先按公共契约列出全部字段、现有 Inspector、只读展示与缺口，
+  再选正式复杂 Buff 做同样的单层编辑往返；不得从能力实体表单复制一套近似 Buff 协议。
+
+### 2026-09-02：Buff 根定义覆盖账本与动态值编辑
+
+- `buffDefinitionEditorCoverage.ts` 以 `Record<keyof SkillBuffDefinition, ...>` 建立编译期穷尽的顶层字段账本。公共契约增加字段时，编辑器必须明确标记为可编辑、结构可编辑、部分可编辑或仅保留，不能再静默遗漏。
+- Buff 根 Inspector 的时长、触发间隔、最大层数、最大触发次数已统一支持“未设置 / 常量 / 黑板键”，不再把动态形式显示为空值；最大触发次数保留原生 `-1` 语义。
+- 优先级支持常量、动态黑板和动态取反；时间域与首次触发前等待间隔已进入编辑器。
+- Buff 初始黑板使用独立的实例黑板编辑器，完整区分数字、字符串和 `null`；没有误复用只接受技能等级数值数组的 `SkillBlackboardEditor`。
+- 属性修正器直接消费公共八槽协议，支持属性键、槽位、常量/黑板值、owner/buffSource 目标与 Converted 来源；使用秋栗正式 Buff 验证单项修改不影响 presentation、黑板和时长。
+- 伤害修正器已按“修正器 → 专用条件树 → 处理器”分层编辑。13 类递归 `DamageModifierCondition` 没有冒充技能 `CombatCondition`；倍率区间、即时属性单槽和完整八槽 `values` 均可编辑，修正器与处理器顺序也可调整。
+- 父 `presentation` 的 21 个公共字段已全部进入专用折叠编辑器，包括三类身份字段、14 个三态显示规则、三类原生样式字符串与完整排序优先级；覆盖账本对子字段使用 `Record<keyof CombatBuffPresentation, ...>` 做编译期穷尽。
+- `childPresentations` 使用有序子项编辑器，每项分别保存稳定 Buff ID 和完整 presentation；编辑器不会据父展示规则推导子项，也不会改变子 Buff 的战斗定义。
+- 正式数据中 8 处技能槽替换已进入独立有序编辑器，完整保留技能组、换入技能、还原技能和冷却进度证据位；弧光终结技真实 Buff 往返保持生命周期和黑板。
+- 治疗修正器覆盖三类专用条件和两类处理器，使用雪绒真实 Buff 验证；护盾覆盖直接值/属性公式、动态吸收次数、消费规则和分伤害类型吸收，使用余烬真实 Buff 验证。二者都直接消费公共契约。
+- `buffDefinitionEditorCommands.test.ts` 使用弧光真实复杂 Buff `buff_chr_0032_lizhiyan_combo_skill_seal` 验证：修改动态时长只替换目标字段，生命周期、黑板、触发间隔等证据保持不变。
+- 本批 `type-check:next` 与定向结构/往返测试通过。Next 全量为 4023/4024 通过，唯一失败是 `wpn_funnel_0009` 全组合模拟在并行全量运行中超过固定 5 秒；该武器门禁文件随后单独复跑 176/176 通过，属于当前测试负载波动，不是 Buff 语义失败。
+- 关键词强化现完整编辑触发 Buff 身份、赋值/加算/乘算操作、目标键和两个动态值。持续保护、三类元素
+  语义角色与法术爆发参数进入同一高级原生语义折叠区，但仍逐字段写回公共契约。
+- 韧性修正器使用独立编辑器覆盖 `casterControlled`、`eventDamageTagsMatch`、递归 `all` 三类条件及
+  唯一 `modifyPoiseScalar(beforeCalculation)` 处理器；没有借用更宽的伤害条件/处理器类型。
+- Buff 顶层覆盖账本现为：普通字段全部可编辑，四个调度/生命周期/事件响应字段由导图编辑，
+  `partiallyEditable = 0`、`preservedOnly = 0`。定向结构与不可变往返测试 **6 文件 / 69 项**通过，
+  `type-check:next` 通过；完成全部字段后 Next 全量 **297 文件 / 4037 项**通过，先前武器组合门禁的
+  5 秒负载超时未复现。
+- 下一步：运行 Next 全量回归并核对差异；随后转向武器/装备贡献与实例字段覆盖账本，继续沿用公共
+  契约穷尽、专用 IR/运行结构不得回流编辑协议、真实复杂样本单层往返三条门禁。
+
+### 2026-09-02：配装定义、贡献与实例覆盖账本起步
+
+- 新增 `equipmentDefinitionEditorCoverage.ts`，分别对武器、装备、套装、武器/装备词条、公共贡献、
+  事件响应、武器实例和装备实例做 `keyof` 穷尽；定义身份、行为结构和用户实例输入不再靠一张近似
+  字段表混合声明。
+- 盘点确认原贡献 Inspector 只真正覆盖 attribute、panelStat、damageBonus 三类修正，其余三类会落入
+  damageBonus 的默认分支且无法修改。现已补齐 damageScale 的原生目标与可选公式槽、静态治疗增幅
+  的 output/taken 目标，以及技能冷却倍率的一个或多个技能类型；新增选单也覆盖全部六类联合成员。
+- 配装事件新增选单现在同时提供公共战斗事件和原生 AbilitySystem 事件，不再只能从原始数据继承后者。
+  事件节点补齐此前漏掉的原生优先级与逐级动作黑板；条件和动作序列继续作为导图结构编辑，没有塞回
+  当前层大表单。
+- 本批 `type-check:next` 与定义/贡献/实例覆盖、工作区结构和 Buff 回归定向 **6 文件 / 72 项**通过。
+- 加入配装覆盖账本和六类修正后，Next 全量 **298 文件 / 4041 项**通过，`git diff --check` 通过。
+- 下一步：用正式生成武器和装备样本建立贡献单层编辑往返；检查附属 Buff 工作区是否已继承本轮完整
+  Buff 字段覆盖；再跑 Next 全量回归并审计实例“拉满”命令与定义上限的一致性。
+- 正式样本往返已加入：`wpn_claym_0006` 的 staticHealingIncrease、
+  `item_equip_t4_suit_atk02_body_04` 的 damageScale、`suit_combo_cd01` 的
+  skillCooldownMultiplier。每项只替换选中修正，初始化序列、兄弟修正或附属 Buff 闭包保持深度相等，
+  修改后的武器/装备/套装均通过统一严格校验。
+- “拉满”审计修复两处只在自定义定义中暴露的硬编码：装备不再固定按 0–3，而按每条 trait 的
+  `levelCount - 1` 分别解析默认值、按钮、归一化和最大值；非 `skill1/2/3` 的自定义武器词条不再被
+  技能区过滤，也不再被旧三槽的 9 级上限截断。原生三槽仍沿用既有调谐/潜能解锁规则。
+- 本轮定向 `type-check:next` 与正式贡献往返、默认构筑、覆盖账本和 UI 结构 **5 文件 / 32 项**通过。
+- 完成本轮实例边界修正后，Next 全量 **299 文件 / 4046 项**通过。
+- 命令层审计确认 `updateTrackWeaponInstance` / `updateTrackGearInstance` 是不持有仓库定义的存档形状
+  命令，只负责整数下界；引用数量和逐 trait 上界已由 `buildDefinitionValidation.ts` 统一结合仓库定义
+  校验，项目模板替换也会按新定义归一化，不应把定义依赖反向塞入低层命令形成第二套校验。
+- 装备附属 Buff 工作区确认直接复用 `BuffDefinitionGraphEditor → BuffStepEditor(definition-only)`，因此
+  展示、伤害/治疗/韧性修正、护盾和高级原生语义均使用同一实现；没有装备专用 Buff schema 或表单。
+- 定义保存原子性审计确认：武器/装备替换函数在一个纯函数返回值中同时更新模板和全部场景引用；新增
+  双场景回归证明两份引用一起归一化，原项目保持不变。`ProjectEditorSession.commit` 只发布这个最终
+  项目，没有逐实例通知。
+- 修复定义保存后的重复模拟窗口：原实现提交后立即 `simulateNow()`，而场景 watcher 可能在随后微任务
+  再排一份 150ms 模拟。现统一由 `refreshSimulationAfterDefinitionChange` 清缓存并在 `nextTick` 立即
+  模拟，使 watcher 先标脏、其待执行任务再被同一次模拟清除；仅定义库变化的套装/干员保存也走同一
+  入口。组合式函数回归验证场景变化后总调用数只增加一次，发布快照绑定新场景引用。
+- 本批 `type-check:next` 与模拟调度、双场景项目替换、武器/装备工作区结构 **4 文件 / 34 项**通过。
+- 撤销/重做审计确认项目历史既包含场景操作也包含定义库操作；后者可能保持活动场景引用不变，因此
+  不能只依赖场景 watcher。`restoreEditorHistory` 现同样通过统一定义刷新入口清缓存并触发一次模拟；
+  场景类历史项的 watcher 排队会被该立即模拟合并，不会重复运行。
+- 完整回归现为 Next **299 文件 / 4053 项**通过。项目级武器、装备、套装的“派生模板”和“替换定义”
+  入口均在构造新项目之前调用公共严格定义校验；因此 UI 之外的调用者也不能把非法定义放入撤销历史。
+  替换入口随后才归一化全部场景引用，仍保持单次原子发布。相关失败信息保留精确契约路径，不能等到
+  模拟阶段才暴露。
+- 干员保存/重置也已从页面内手工改库收束到 `replaceProjectOperatorTemplateDefinition`。入口会校验全部
+  base、variant、replacement 与 routed replacement 技能定义，并拒绝删除轴上仍被引用的技能身份；
+  兼容身份集合同时识别显式 skillAliases。候选项目通过项目结构校验后才返回，场景数组保持同一引用，
+  因而定义库仍是单次原子替换。
+- 干员工作区现在接收当前项目全部场景中对该模板的技能引用；草稿删除仍被排轴引用的身份时，问题栏
+  会在 commit 前列出具体技能块和 group/skill，保存按钮直接禁用。此前问题栏虽显示技能定义错误但仍
+  可点击保存的漏洞也已关闭。
+- 下一步：把干员根字段的校验覆盖账本与现有技能级校验统一，避免“所有技能合法”被误显示成“整个
+  干员定义合法”；随后为天赋、潜能、常驻被动、连携条件和能力实体引用补充跨根闭包校验。
+
+### 2026-09-02：Buff 展示命名、详情与法术异常唯一身份
+
+- 公共 Buff 的固定显示名由编译器配置生成到应用层 i18n 映射，不再把 `nameKey` 塞进游戏数据契约、
+  编译中间结构、运行时定义或回执。跨层只传 Buff 身份、来源身份和修正事实；应用层按“配置名 → 来源
+  具体名称 → 数值摘要”解析标题，避免应用文案污染公共数据结构。
+- 可见 Buff 图标现可点击打开统一详情面板，查看来源、修正摘要、层数、开始/结束帧、持续时间和原始
+  Buff ID。干员轨、敌人轨和光标 HUD 状态均复用同一详情目标协议。
+- 原生 HUD 证据确认：`ElementalReactionContainer` 维护反应战斗语义，随后施加、带
+  `showInHeadBarCommon` 与 `SpellAbnormal` 配置的 `_do` Buff 才进入 `GPUIBuffNode`。Endaxis 因此以
+  原生可见 Buff 实例作为唯一持续展示身份；`ElementalReactionApplied` 不再制造第二条 segment，也
+  不使用同帧、名称或持续时间启发式去重。
+- 导电正式链路为 `applyElementalReaction(electrification)` 后施加
+  `buff_common_pulse_pulse_conduct_triggered_do`。修复后只显示后者对应的一条“导电”状态段；元素爆发
+  和成功消费仍可作为瞬时事实标记。权威边界同步记录在
+  `docs/research/combat-hud-state-integration.md`。
+- 本轮定向回归 **5 文件 / 20 项**通过，随后核心敌人投影回归 **2 文件 / 6 项**通过；
+  `type-check:next` 与 `git diff --check` 通过。未修改旧版代码，未纳入 `tmp/`。

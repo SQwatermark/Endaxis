@@ -2360,6 +2360,17 @@
       "reactionConsumed": "Reaction consumed",
       "layers": "{stacks} layers"
     },
+    "buffDetail": {
+      "title": "Status details",
+      "source": "Source",
+      "effect": "Effect summary",
+      "layers": "Stacks",
+      "start": "Start",
+      "end": "End",
+      "duration": "Duration",
+      "frames": "Frame {value}",
+      "buffId": "Original Buff ID"
+    },
     "hitDetail": {
       "frame": "Frame",
       "damage": "Damage",

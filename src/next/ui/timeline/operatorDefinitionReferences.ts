@@ -1,7 +1,15 @@
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 
 export type OperatorDefinitionReferenceKind = 'buff' | 'entity';
-export type OperatorDefinitionReferenceOwnerKind = 'skill' | 'buff' | 'entity';
+export type OperatorDefinitionReferenceOwnerKind =
+  | 'skill'
+  | 'buff'
+  | 'entity'
+  | 'passiveSkill'
+  | 'operatorEvent'
+  | 'comboCondition'
+  | 'upgrade'
+  | 'operator';
 
 export interface OperatorDefinitionReference {
   readonly kind: OperatorDefinitionReferenceKind;
@@ -11,10 +19,7 @@ export interface OperatorDefinitionReference {
   readonly ownerId: string;
 }
 
-type ReferenceSource = Pick<
-  OperatorDefinition,
-  'skillGroups' | 'buffDefinitions' | 'abilityEntityDefinitions'
->;
+type ReferenceSource = OperatorDefinition;
 
 interface ReferenceOwner {
   readonly kind: OperatorDefinitionReferenceOwnerKind;
@@ -50,7 +55,7 @@ function collectValueReferences(
 
   for (const [property, child] of Object.entries(value)) {
     const childPath = propertyPath(path, property);
-    if (property === 'buffId' && typeof child === 'string') {
+    if (property === 'buffId' && typeof child === 'string' && !('definition' in value)) {
       output.push({
         kind: 'buff',
         id: child,
@@ -69,7 +74,11 @@ function collectValueReferences(
           ownerId: owner.id,
         });
       });
-    } else if (property === 'abilityEntityId' && typeof child === 'string') {
+    } else if (
+      property === 'abilityEntityId' &&
+      typeof child === 'string' &&
+      !('definition' in value)
+    ) {
       output.push({
         kind: 'entity',
         id: child,
@@ -121,6 +130,22 @@ export function collectOperatorDefinitionReferences(
         );
       });
     });
+    (group.replacementSkills ?? []).forEach((skill, skillIndex) => {
+      collectValueReferences(
+        skill,
+        `skillGroups[${groupIndex}].replacementSkills[${skillIndex}]`,
+        { kind: 'skill', id: `${group.key}/${skill.key}` },
+        references,
+      );
+    });
+    (group.routedReplacementSkills ?? []).forEach((replacement, replacementIndex) => {
+      collectValueReferences(
+        replacement.skill,
+        `skillGroups[${groupIndex}].routedReplacementSkills[${replacementIndex}].skill`,
+        { kind: 'skill', id: `${group.key}/${replacement.skill.key}` },
+        references,
+      );
+    });
   });
 
   Object.entries(definition.buffDefinitions ?? {}).forEach(([id, buff]) => {
@@ -140,6 +165,54 @@ export function collectOperatorDefinitionReferences(
       references,
     );
   });
+
+  (definition.passiveSkills ?? []).forEach((passive, index) =>
+    collectValueReferences(
+      passive,
+      `passiveSkills[${index}]`,
+      { kind: 'passiveSkill', id: passive.key },
+      references,
+    ),
+  );
+  (definition.eventHandlers ?? []).forEach((handler, index) =>
+    collectValueReferences(
+      handler,
+      `eventHandlers[${index}]`,
+      { kind: 'operatorEvent', id: handler.key },
+      references,
+    ),
+  );
+  (definition.comboSkillConditions ?? []).forEach((condition, index) =>
+    collectValueReferences(
+      condition,
+      `comboSkillConditions[${index}]`,
+      { kind: 'comboCondition', id: condition.key },
+      references,
+    ),
+  );
+  for (const collection of ['talents', 'potentials'] as const) {
+    definition[collection].forEach((upgrade, index) =>
+      collectValueReferences(
+        upgrade,
+        `${collection}[${index}]`,
+        { kind: 'upgrade', id: `${collection}/${upgrade.key}` },
+        references,
+      ),
+    );
+  }
+  for (const field of [
+    'skillSlots',
+    'playerActionRoutes',
+    'playerActionModes',
+    'passiveUi',
+  ] as const) {
+    collectValueReferences(
+      definition[field],
+      field,
+      { kind: 'operator', id: definition.slug },
+      references,
+    );
+  }
 
   return references;
 }

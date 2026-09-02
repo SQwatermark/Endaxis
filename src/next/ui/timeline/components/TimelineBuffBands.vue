@@ -4,6 +4,8 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { PositionedBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
 import { resolveBuffDisplayName } from '../buffDisplayName';
+import { resolveSimpleBuffModifierDisplayName } from '../buffDisplayName';
+import type { BuffDetailTarget } from '../buffDetail';
 import TimelineStatusSegment from './TimelineStatusSegment.vue';
 
 const props = defineProps<{
@@ -12,8 +14,15 @@ const props = defineProps<{
   pxPerFrame: number;
   placement?: 'upper' | 'lower';
   actionTop?: number;
+  sourceName?: (source: {
+    readonly sourceId?: string;
+    readonly sourceActionId?: string;
+  }) => string | undefined;
 }>();
 const { t, te } = useI18n({ useScope: 'global' });
+const emit = defineEmits<{
+  'open-detail': [target: BuffDetailTarget];
+}>();
 
 const ICON_SIZE = 18;
 const BAR_GAP = 2;
@@ -26,9 +35,29 @@ const items = computed(() =>
   props.segments.map(segment => {
     const left = (segment.startFrame + props.prepFrames) * props.pxPerFrame;
     const right = (segment.endFrame + props.prepFrames) * props.pxPerFrame;
+    const sourceName = props.sourceName?.(segment);
+    const modifierSummary = resolveSimpleBuffModifierDisplayName(
+      {
+        attribute: segment.simpleModifierAttribute,
+        slot: segment.simpleModifierSlot,
+        value: segment.simpleModifierValue,
+      },
+      { t, te },
+    );
+    const title = resolveBuffDisplayName(
+      segment.buffId,
+      { t, te },
+      {
+        attribute: segment.simpleModifierAttribute,
+        slot: segment.simpleModifierSlot,
+        value: segment.simpleModifierValue,
+      },
+      sourceName,
+    );
+    const icon = segment.iconPath ?? (segment.iconId ? `/icons/${segment.iconId}.webp` : null);
     return {
       ...segment,
-      title: resolveBuffDisplayName(segment.nameKey, segment.buffId, { t, te }),
+      title,
       key: `${segment.targetId}:${segment.buffId}:${segment.instanceId}:${segment.startFrame}`,
       left,
       top:
@@ -40,7 +69,18 @@ const items = computed(() =>
             LOWER_OFFSET_FROM_ACTION +
             segment.lane * LANE_PITCH,
       width: Math.max(0, right - left - ICON_SIZE - BAR_GAP * 2),
-      icon: segment.iconPath ?? (segment.iconId ? `/icons/${segment.iconId}.webp` : null),
+      icon,
+      detail: {
+        title,
+        buffId: segment.buffId,
+        targetId: segment.targetId,
+        ...(sourceName === undefined ? {} : { sourceName }),
+        startFrame: segment.startFrame,
+        endFrame: segment.endFrame,
+        layers: segment.layers,
+        icon,
+        ...(modifierSummary === undefined ? {} : { modifierSummary }),
+      } satisfies BuffDetailTarget,
     };
   }),
 );
@@ -56,6 +96,7 @@ const items = computed(() =>
       :width="item.width"
       :title="item.title"
       :count="item.layers > 1 ? item.layers : null"
+      @activate="emit('open-detail', item.detail)"
     >
       <template #content>
         <img v-if="item.icon" :src="item.icon" class="timeline-buff-icon" alt="" />

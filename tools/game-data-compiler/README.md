@@ -670,7 +670,7 @@ IR 必须能够追溯到原生证据，至少保留：
 不能复制公共编译逻辑后分别演化。
 
 连携技是这条规则的强制样例。游戏语义只引用 combat-spec
-`docs/combo-skill-lifecycle.md`；转换器只允许以下单向数据流：
+`docs/combo-skill-lifecycle.md`。已证实存在两类原生触发位置，转换器必须分别走以下单向数据流：
 
 ```text
 CharacterData.SkillDataBundle
@@ -678,7 +678,18 @@ CharacterData.SkillDataBundle
   -> source/comboSkillConditions.ts + 公共 Action IR
   -> compiler/comboSkillConditions.ts
   -> 干员级连携运行时定义
+
+SkillData / BuffData / AbilityEntityData 的动作树
+  -> 各领域来源读取器
+  -> 公共 Action IR 中的 TriggerComboSkillAction
+  -> 公共动作编译器生成 openComboWindow
+  -> 同一个连携候选窗口运行时
 ```
+
+两类来源不是两套产品语义：前者负责事件常驻注册与条件求值，后者在动作执行到该节点时直接提交候选。
+例如 Xaihi 的 CharacterTemplate `comboSkillConditions=[]`，真实条件由支援晶体内部
+`buff_chr_0011_seraph_combo_count` 在第二次治疗后执行 `TriggerComboSkillAction` 表达。模板条件数只能
+用于该专项审计，不能代替整名动作闭包的连携覆盖审计。
 
 `operators.json` 不得逐条声明伤害标签、附着类型或 Buff 条件来代替上述转换。旧
 `comboSkillRegistrations` 是已经删除的手写捷径，不是另一类原生来源；其契约、解析器、编译与运行时

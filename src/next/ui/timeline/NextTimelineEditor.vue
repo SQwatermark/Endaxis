@@ -11,6 +11,8 @@ import {
   getGearSetGameName,
   getOperatorCombatSkillName,
   getOperatorGameName,
+  getOperatorPotentialName,
+  getOperatorTalentName,
   getWeaponGameName,
 } from '../legacy/legacyGameText';
 import SkillLibraryCard from './components/SkillLibraryCard.vue';
@@ -50,6 +52,8 @@ import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
 import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vue';
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
 import TimelineBuffBands from './components/TimelineBuffBands.vue';
+import TimelineBuffDetailDialog from './components/TimelineBuffDetailDialog.vue';
+import type { BuffDetailTarget } from './buffDetail';
 import TimelineOperatorPassiveUiBands from './components/TimelineOperatorPassiveUiBands.vue';
 import {
   projectTimelineTrackEffectLayout,
@@ -109,6 +113,7 @@ import {
   getProjectDefinitionLibrary,
   replaceProjectGearTemplateDefinition,
   replaceProjectGearSetTemplateDefinition,
+  replaceProjectOperatorTemplateDefinition,
   replaceProjectWeaponTemplateDefinition,
   switchTrackToCompatibleOperatorTemplate,
   switchTrackToCompatibleGearTemplate,
@@ -383,6 +388,7 @@ const selectedCastId = computed(() => actionSelection.value.primaryId);
 const showSkillDefinitionEditor = ref(false);
 const showDamageAnalysis = ref(false);
 const showShortcutHelp = ref(false);
+const buffDetailTarget = ref<BuffDetailTarget | null>(null);
 const showOperatorDefinitionWorkspace = ref(false);
 const showWeaponDefinitionWorkspace = ref(false);
 const gearDefinitionWorkspaceSlot = ref<TrackGearSlot | null>(null);
@@ -884,6 +890,27 @@ const selectedOperatorCustomDefinition = computed(() => {
     ? undefined
     : projectDefinitionLibrary.value.operators[slug]?.definition;
 });
+const selectedOperatorRequiredSkillReferences = computed(() => {
+  projectRevision.value;
+  const slug = selectedLoadoutModel.value.operator?.operatorSlug;
+  if (slug === undefined) return [];
+  return projectSession.snapshot.project.scenarios.flatMap(projectScenario =>
+    projectScenario.tracks.flatMap(track => {
+      if (track?.operator?.operatorSlug !== slug) return [];
+      return track.skillCasts.flatMap(cast =>
+        cast.source.kind === 'operatorSkill'
+          ? [
+              {
+                skillGroupKey: cast.source.skillGroupKey,
+                skillKey: cast.source.skillKey,
+                castId: cast.id,
+              },
+            ]
+          : [],
+      );
+    }),
+  );
+});
 const selectedOperatorDefinitionSkillLevel = computed(() =>
   Math.max(1, ...Object.values(selectedLoadoutModel.value.operator?.skillLevels ?? {})),
 );
@@ -947,6 +974,15 @@ const selectedGearSetBaseDefinition = computed(() => {
   return nextGameDataRepository.getGearSet(template?.origin?.templateId ?? id);
 });
 
+/**
+ * 项目定义提交可能同时替换活动场景，也可能只替换定义库。
+ * 统一等 Vue 场景 watcher 先标脏/排队，再立即模拟；simulateNow 会清掉该待执行定时器，保证只跑一份。
+ */
+function refreshSimulationAfterDefinitionChange(): void {
+  simulationService.clearCache();
+  void nextTick(simulateNow);
+}
+
 function openOperatorDefinitionWorkspace(): void {
   const track = scenario.value.tracks[selectedTrack.value];
   const current = selectedLoadoutModel.value.operator?.definition ?? null;
@@ -990,25 +1026,10 @@ function openOperatorDefinitionWorkspace(): void {
 }
 
 function saveOperatorDefinition(definition: OperatorDefinition): void {
-  const template = projectDefinitionLibrary.value.operators[definition.slug];
-  if (template === undefined)
-    throw new Error(`missing project operator template '${definition.slug}'`);
-  projectSession.commit('saveProjectOperatorTemplate', project => ({
-    ...project,
-    definitionLibrary: {
-      ...getProjectDefinitionLibrary(project),
-      operators: {
-        ...getProjectDefinitionLibrary(project).operators,
-        [definition.slug]: {
-          ...template,
-          name: definition.displayName ?? template.name,
-          definition: structuredClone({ ...definition, slug: template.id }),
-        },
-      },
-    },
-  }));
-  simulationService.clearCache();
-  void simulateNow();
+  projectSession.commit('saveProjectOperatorTemplate', project =>
+    replaceProjectOperatorTemplateDefinition(project, definition.slug, definition),
+  );
+  refreshSimulationAfterDefinitionChange();
 }
 
 function resetOperatorDefinition(): void {
@@ -1017,27 +1038,17 @@ function resetOperatorDefinition(): void {
   const template = projectDefinitionLibrary.value.operators[slug];
   const base = selectedOperatorBaseDefinition.value;
   if (template === undefined || base === null) return;
-  projectSession.commit('resetProjectOperatorTemplate', project => ({
-    ...project,
-    definitionLibrary: {
-      ...getProjectDefinitionLibrary(project),
-      operators: {
-        ...getProjectDefinitionLibrary(project).operators,
-        [slug]: {
-          ...template,
-          definition: structuredClone({
-            ...base,
-            slug,
-            displayName: template.name,
-            assetSlug: base.assetSlug ?? base.slug,
-          }),
-        },
-      },
-    },
-  }));
+  const definition = structuredClone({
+    ...base,
+    slug,
+    displayName: template.name,
+    assetSlug: base.assetSlug ?? base.slug,
+  });
+  projectSession.commit('resetProjectOperatorTemplate', project =>
+    replaceProjectOperatorTemplateDefinition(project, slug, definition),
+  );
   showOperatorDefinitionWorkspace.value = false;
-  simulationService.clearCache();
-  void simulateNow();
+  refreshSimulationAfterDefinitionChange();
 }
 
 function openWeaponDefinitionWorkspace(): void {
@@ -1083,8 +1094,7 @@ function saveWeaponDefinition(definition: WeaponDefinition): void {
   projectSession.commit('saveProjectWeaponTemplate', project =>
     replaceProjectWeaponTemplateDefinition(project, definition.slug, definition),
   );
-  simulationService.clearCache();
-  void simulateNow();
+  refreshSimulationAfterDefinitionChange();
 }
 
 function resetWeaponDefinition(): void {
@@ -1102,8 +1112,7 @@ function resetWeaponDefinition(): void {
     replaceProjectWeaponTemplateDefinition(project, slug, definition),
   );
   showWeaponDefinitionWorkspace.value = false;
-  simulationService.clearCache();
-  void simulateNow();
+  refreshSimulationAfterDefinitionChange();
 }
 
 function openGearDefinitionWorkspace(slot: TrackGearSlot): void {
@@ -1147,8 +1156,7 @@ function saveGearDefinition(definition: GearDefinition): void {
   projectSession.commit('saveProjectGearTemplate', project =>
     replaceProjectGearTemplateDefinition(project, definition.slug, definition),
   );
-  simulationService.clearCache();
-  void simulateNow();
+  refreshSimulationAfterDefinitionChange();
 }
 
 function resetGearDefinition(): void {
@@ -1166,8 +1174,7 @@ function resetGearDefinition(): void {
     replaceProjectGearTemplateDefinition(project, slug, definition),
   );
   gearDefinitionWorkspaceSlot.value = null;
-  simulationService.clearCache();
-  void simulateNow();
+  refreshSimulationAfterDefinitionChange();
 }
 
 function openGearSetDefinitionWorkspace(gearDefinition: GearDefinition): void {
@@ -1182,8 +1189,7 @@ function openGearSetDefinitionWorkspace(gearDefinition: GearDefinition): void {
     );
     gearDefinitionWorkspaceSlot.value = null;
     gearSetDefinitionWorkspaceId.value = sourceSetId;
-    simulationService.clearCache();
-    void simulateNow();
+    refreshSimulationAfterDefinitionChange();
     return;
   }
 
@@ -1214,16 +1220,14 @@ function openGearSetDefinitionWorkspace(gearDefinition: GearDefinition): void {
   if (!changed) return;
   gearDefinitionWorkspaceSlot.value = null;
   gearSetDefinitionWorkspaceId.value = templateId;
-  simulationService.clearCache();
-  void simulateNow();
+  refreshSimulationAfterDefinitionChange();
 }
 
 function saveGearSetDefinition(definition: GearSetDefinition): void {
   projectSession.commit('saveProjectGearSetTemplate', project =>
     replaceProjectGearSetTemplateDefinition(project, definition.slug, definition),
   );
-  simulationService.clearCache();
-  void simulateNow();
+  refreshSimulationAfterDefinitionChange();
 }
 
 function resetGearSetDefinition(): void {
@@ -1239,8 +1243,7 @@ function resetGearSetDefinition(): void {
     }),
   );
   gearSetDefinitionWorkspaceId.value = null;
-  simulationService.clearCache();
-  void simulateNow();
+  refreshSimulationAfterDefinitionChange();
 }
 const panelDialogOperator = computed(() => {
   const trackIndex = panelDialogTrack.value;
@@ -1385,6 +1388,7 @@ const selectedCastConnections = computed(() => {
 });
 const commonAbilityEntityDefinitions =
   nextGameDataRepository.getCommonAbilityEntityDefinitions?.() ?? {};
+const commonBuffDefinitions = nextGameDataRepository.getCommonBuffDefinitions?.() ?? {};
 const selectedCastAbilityEntityIds = computed(() => {
   const selected = selectedCastModel.value;
   if (selected === null) return Object.keys(commonAbilityEntityDefinitions).sort();
@@ -1785,18 +1789,18 @@ const hitActualFrames = computed(() =>
     : projectTimelineHitActualFrames(simulationRun.value.receiptEntries),
 );
 
-/** 敌人效果面板数据：附着段与爆发/反应标记，全部来自同一份回执。 */
+/** 敌人瞬时效果标记；附着和法术异常的持续展示统一由可见 Buff 生命周期负责。 */
 const enemyEffectViz = computed(() => {
   const current = simulationRun.value;
   if (current === null) {
-    return { segments: [], markers: [] };
+    return { markers: [] };
   }
   // 拖动草稿会立即把模拟标脏，但上一份成功回执仍是比空白更稳定的视觉占位；
   // 新模拟完成后 simulationRun 会整体替换，效果条随之原子更新，避免来回闪烁。
   return projectEnemyEffectViz(current.receiptEntries, current.frame);
 });
 
-/** 普通 Buff 与元素效果共用模拟回执，但分别投影，避免 UI 反推运行时状态。 */
+/** 所有持续状态统一由原生可见 Buff 生命周期投影，Buff 实例就是稳定展示身份。 */
 const buffTimelineSegments = computed(() => {
   const current = simulationRun.value;
   return current === null ? [] : projectBuffTimelineViz(current.receiptEntries, current.frame);
@@ -2303,6 +2307,99 @@ function skillName(groupKey: string, slug: string | null): string {
   if (slug === null) return groupKey;
   const definition = editorGameDataRepository.getOperator(slug);
   return getOperatorCombatSkillName(definition?.assetSlug ?? slug, groupKey, locale.value);
+}
+
+function buffSourceName(segment: {
+  readonly sourceId?: string;
+  readonly sourceActionId?: string;
+}): string | undefined {
+  const sourceActionId = segment.sourceActionId;
+  if (sourceActionId === undefined) return undefined;
+
+  for (const track of viewModel.value.tracks) {
+    const cast = track.skillCasts.find(candidate => candidate.id === sourceActionId);
+    if (cast !== undefined) {
+      if (cast.source.kind === 'custom') return cast.source.name;
+      const assetSlug = track.operatorAssetSlug ?? track.operatorSlug;
+      return assetSlug === null
+        ? cast.source.skillKey
+        : getOperatorCombatSkillName(assetSlug, cast.source.skillKey, locale.value);
+    }
+  }
+
+  const equipmentMatch =
+    /^(?:equipment:|upgrade-initialization:)(weaponTrait|gearTrait|gearSet|weapon-trait|gear-trait|gear-set):([^:]+)/.exec(
+      sourceActionId,
+    );
+  if (equipmentMatch !== null) {
+    const [, kind, slug] = equipmentMatch;
+    if (kind === 'weapon-trait' || kind === 'weaponTrait') {
+      return getWeaponGameName(slug!, locale.value);
+    }
+    if (kind === 'gear-trait' || kind === 'gearTrait') {
+      return getGearPieceGameName(slug!, locale.value);
+    }
+    return getGearSetGameName(slug!, locale.value);
+  }
+
+  const track = viewModel.value.tracks.find(
+    candidate => candidate.operatorInstanceId === segment.sourceId,
+  );
+  if (track?.operatorSlug === null || track === undefined) return undefined;
+  const definition = editorGameDataRepository.getOperator(track.operatorSlug);
+  if (definition == null) return undefined;
+  const assetSlug = definition.assetSlug ?? track.operatorSlug;
+
+  const initializationMatch = /^upgrade-initialization:(talent|potential):([^:]+)$/.exec(
+    sourceActionId,
+  );
+  if (initializationMatch !== null) {
+    const [, kind, key] = initializationMatch;
+    if (kind === 'potential') {
+      const index = definition.potentials.findIndex(candidate => candidate.key === key);
+      return index < 0 ? undefined : getOperatorPotentialName(assetSlug, index, locale.value);
+    }
+    const index = definition.talents.findIndex(candidate => candidate.key === key);
+    if (index < 0) return undefined;
+    const flatIndex = definition.talents
+      .slice(0, index)
+      .reduce((sum, talent) => sum + talent.levels, 0);
+    return getOperatorTalentName(assetSlug, flatIndex, 0, locale.value);
+  }
+
+  if (sourceActionId.startsWith('passive:')) {
+    const passiveKey = sourceActionId.slice('passive:'.length);
+    const talentIndex = definition.talents.findIndex(talent =>
+      talent.passiveSkills?.some(passive => passive.key === passiveKey),
+    );
+    if (talentIndex >= 0) {
+      const flatIndex = definition.talents
+        .slice(0, talentIndex)
+        .reduce((sum, talent) => sum + talent.levels, 0);
+      return getOperatorTalentName(assetSlug, flatIndex, 0, locale.value);
+    }
+    const potentialIndex = definition.potentials.findIndex(potential =>
+      potential.passiveSkills?.some(passive => passive.key === passiveKey),
+    );
+    if (potentialIndex >= 0) {
+      return getOperatorPotentialName(assetSlug, potentialIndex, locale.value);
+    }
+  }
+
+  if (
+    definition.skillGroups.some(group =>
+      (Array.isArray(group.skills) ? group.skills : [group.skills]).some(
+        skill => skill.key === sourceActionId,
+      ),
+    )
+  ) {
+    return getOperatorCombatSkillName(assetSlug, sourceActionId, locale.value);
+  }
+  return undefined;
+}
+
+function openBuffDetail(target: BuffDetailTarget): void {
+  buffDetailTarget.value = target;
 }
 
 function skillLibraryEntryName(entry: TimelineSkillLibraryEntryViewModel): string {
@@ -3592,6 +3689,8 @@ function restoreEditorHistory(direction: 'undo' | 'redo'): boolean {
   if (!restored) return false;
   clearTimelineSelection();
   contextMenuTarget.value = null;
+  // 历史项可能只改变定义库而保持活动场景引用不变，不能只依赖场景 watcher。
+  refreshSimulationAfterDefinitionChange();
   return true;
 }
 
@@ -3785,6 +3884,7 @@ const hasModalPanel = computed(
     panelDialogTrack.value !== null ||
     hitDetailTarget.value !== null ||
     showDamageAnalysis.value ||
+    buffDetailTarget.value !== null ||
     showShortcutHelp.value,
 );
 
@@ -4539,12 +4639,14 @@ function setPanelDialogVisible(visible: boolean): void {
                     timelineViewLayers.upperEffects && isOperatorEffectsVisible(track.trackIndex)
                   "
                   :segments="buffSegmentsForTarget(track.operatorInstanceId, 'upper')"
+                  :source-name="buffSourceName"
                   :prep-frames="scenario.battle.prepFrames"
                   :px-per-frame="pxPerFrame"
                   placement="upper"
                   :action-top="
                     trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
                   "
+                  @open-detail="openBuffDetail"
                 />
                 <TimelineOperatorPassiveUiBands
                   v-if="
@@ -4560,12 +4662,14 @@ function setPanelDialogVisible(visible: boolean): void {
                 <TimelineBuffBands
                   v-if="timelineViewLayers.lowerBuffs && isOperatorEffectsVisible(track.trackIndex)"
                   :segments="buffSegmentsForTarget(track.operatorInstanceId, 'lower')"
+                  :source-name="buffSourceName"
                   :prep-frames="scenario.battle.prepFrames"
                   :px-per-frame="pxPerFrame"
                   placement="lower"
                   :action-top="
                     trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
                   "
+                  @open-detail="openBuffDetail"
                 />
                 <TimelineComboWindowBands
                   v-if="
@@ -4574,7 +4678,9 @@ function setPanelDialogVisible(visible: boolean): void {
                   :segments="comboWindowSegmentsFor(track.operatorInstanceId)"
                   :prep-frames="scenario.battle.prepFrames"
                   :px-per-frame="pxPerFrame"
-                  :color="gaugeColorFor(track.trackIndex)"
+                  :action-top="
+                    trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
+                  "
                   :label="t('timeline.header.viewLayers.comboWindows')"
                 />
                 <div
@@ -4857,6 +4963,7 @@ function setPanelDialogVisible(visible: boolean): void {
             v-if="combatHudSnapshot !== null"
             :viz="enemyEffectViz"
             :buffs="buffSegmentsForTarget('enemy')"
+            :source-name="buffSourceName"
             :timeline-width="timelineWidth"
             :prep-frames="scenario.battle.prepFrames"
             :px-per-frame="pxPerFrame"
@@ -4879,6 +4986,7 @@ function setPanelDialogVisible(visible: boolean): void {
               reaction: t('nextTimeline.effect.reaction'),
               reactionConsumed: t('nextTimeline.effect.reactionConsumed'),
             }"
+            @open-buff-detail="openBuffDetail"
           />
           <TimelineResourceCurves
             :sp-curve="simulationRun.resourceCurves.sp"
@@ -5090,7 +5198,9 @@ function setPanelDialogVisible(visible: boolean): void {
     :base-definition="selectedOperatorBaseDefinition"
     :custom-definition="selectedOperatorCustomDefinition"
     :common-ability-entity-definitions="commonAbilityEntityDefinitions"
+    :common-buff-definitions="commonBuffDefinitions"
     :skill-level="selectedOperatorDefinitionSkillLevel"
+    :required-skill-references="selectedOperatorRequiredSkillReferences"
     @update:visible="showOperatorDefinitionWorkspace = $event"
     @save="saveOperatorDefinition"
     @reset="resetOperatorDefinition"
@@ -5186,6 +5296,23 @@ function setPanelDialogVisible(visible: boolean): void {
     }"
     @close="hitDetailTarget = null"
     @toggle-force-critical="toggleHitDetailForceCritical"
+  />
+  <TimelineBuffDetailDialog
+    :visible="buffDetailTarget !== null"
+    :target="buffDetailTarget"
+    :fps="PROJECT_FPS"
+    :labels="{
+      title: t('nextTimeline.buffDetail.title'),
+      source: t('nextTimeline.buffDetail.source'),
+      effect: t('nextTimeline.buffDetail.effect'),
+      layers: t('nextTimeline.buffDetail.layers'),
+      start: t('nextTimeline.buffDetail.start'),
+      end: t('nextTimeline.buffDetail.end'),
+      duration: t('nextTimeline.buffDetail.duration'),
+      frames: value => t('nextTimeline.buffDetail.frames', { value }),
+      buffId: t('nextTimeline.buffDetail.buffId'),
+    }"
+    @update:visible="buffDetailTarget = $event ? buffDetailTarget : null"
   />
   <NextDamageAnalysisDialog
     :visible="showDamageAnalysis"

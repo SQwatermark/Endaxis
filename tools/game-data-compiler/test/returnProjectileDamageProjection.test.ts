@@ -1851,11 +1851,7 @@ describe('公共回调伤害投影', () => {
     );
 
     expect(compileCombatActionSequenceSource(source, returnProjectionContext).steps).toMatchObject([
-      {
-        kind: 'conditional',
-        parameters: { condition: { kind: 'all', conditions: [] } },
-        whenTrue: { steps: [{ kind: 'dealDamage' }] },
-      },
+      { kind: 'dealDamage' },
     ]);
   });
 

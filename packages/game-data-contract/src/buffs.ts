@@ -227,13 +227,8 @@ export interface BuffSustainedProtectionDefinition {
 /** Buff 生命周期可选择的原生时间域；缺省使用 TimeManager 默认时钟。 */
 export type BuffTimeClock = 'default' | 'global' | 'self';
 
-/** Buff 实例的用户可观察显示身份；不参与数值计算，但必须随定义进入运行时。 */
+/** Buff 实例的原生可观察显示规则；不参与数值计算，但必须随定义进入运行时。 */
 export interface CombatBuffPresentation {
-  /**
-   * 展示名称的 i18n 键。短键按旧版规则优先解析 `effects.name.<key>`，
-   * 也允许传入完整 i18n 路径；不得由 Buff ID 或图标名猜测。
-   */
-  readonly nameKey?: string;
   readonly iconId?: string;
   readonly iconPath?: string;
   readonly visible?: boolean;

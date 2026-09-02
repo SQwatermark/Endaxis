@@ -10,6 +10,8 @@ import conditionTypePickerSource from './CombatConditionTypePicker.vue?raw';
 import conditionEditorSource from './CombatConditionEditor.vue?raw';
 import weaponWorkspaceSource from './WeaponDefinitionWorkspaceDialog.vue?raw';
 import equipmentBuffDialogSource from './EquipmentBuffDefinitionsDialog.vue?raw';
+import buffDefinitionGraphEditorSource from './BuffDefinitionGraphEditor.vue?raw';
+import buffStepEditorSource from './BuffStepEditor.vue?raw';
 
 describe('GearDefinitionWorkspaceDialog structure', () => {
   it('materializes and switches a selected gear slot through the project library', () => {
@@ -18,6 +20,20 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(timelineEditorSource).toContain('replaceProjectGearTemplateDefinition');
     expect(timelineEditorSource).toContain('@edit-definition="openGearDefinitionWorkspace"');
     expect(buildDialogSource).toContain("'edit-definition': [slot: LoadoutGearSlot]");
+  });
+
+  it('装备和套装定义保存共用一次性模拟刷新边界', () => {
+    expect(timelineEditorSource).toContain('function refreshSimulationAfterDefinitionChange()');
+    for (const name of [
+      'saveGearDefinition',
+      'resetGearDefinition',
+      'saveGearSetDefinition',
+      'resetGearSetDefinition',
+    ]) {
+      expect(timelineEditorSource).toMatch(
+        new RegExp(`function ${name}[\\s\\S]*?refreshSimulationAfterDefinitionChange\\(\\);`),
+      );
+    }
   });
 
   it('keeps the inspector layer-local and validates without raw JSON editing', () => {
@@ -86,6 +102,22 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(equipmentBuffDialogSource).not.toContain('<textarea');
   });
 
+  it('附属 Buff 复用完整根定义导图，不维护装备专用 Buff 表单', () => {
+    expect(equipmentBuffDialogSource).toContain('BuffDefinitionGraphEditor');
+    expect(buffDefinitionGraphEditorSource).toContain('BuffStepEditor');
+    expect(buffDefinitionGraphEditorSource).toContain('definition-only');
+    for (const editor of [
+      'CombatBuffPresentationEditor',
+      'BuffDamageModifierEditor',
+      'BuffHealModifierEditor',
+      'BuffPoiseModifierEditor',
+      'BuffShieldEditor',
+      'BuffAdvancedPropertiesEditor',
+    ]) {
+      expect(buffStepEditorSource).toContain(editor);
+    }
+  });
+
   it('adds contribution structures through an explicit mouse-position type picker', () => {
     expect(contributionTypePickerSource).toContain('<Teleport to="body">');
     expect(contributionTypePickerSource).toContain('props.anchor.x');
@@ -102,7 +134,23 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionEditorSource).toContain('toggleDamageType');
     expect(contributionEditorSource).toContain('toggleSkillType');
     expect(contributionEditorSource).toContain('clearSkillTypeFilter');
+    expect(contributionEditorSource).toContain("selectedModifier.kind === 'damageScale'");
+    expect(contributionEditorSource).toContain("selectedModifier.kind === 'staticHealingIncrease'");
+    expect(contributionEditorSource).toContain(
+      "selectedModifier.kind === 'skillCooldownMultiplier'",
+    );
+    expect(contributionTypePickerSource).toContain('EQUIPMENT_DAMAGE_SCALE_TARGETS');
+    expect(contributionTypePickerSource).toContain('chooseStaticHealingIncrease');
+    expect(contributionTypePickerSource).toContain('chooseSkillCooldownMultiplier');
     expect(contributionEditorSource).not.toContain('v-for="(value, key) in selectedModifier"');
+  });
+
+  it('edits both handler event families plus priority and per-level blackboard', () => {
+    expect(contributionTypePickerSource).toContain('chooseAbilityHandler');
+    expect(contributionTypePickerSource).toContain('EQUIPMENT_ABILITY_EVENTS');
+    expect(contributionEditorSource).toContain('setHandlerPriority');
+    expect(contributionEditorSource).toContain('handlerBlackboardEntries');
+    expect(contributionEditorSource).toContain('addHandlerBlackboardEntry');
   });
 
   it('projects event conditions into the map and keeps their inspector layer-local', () => {

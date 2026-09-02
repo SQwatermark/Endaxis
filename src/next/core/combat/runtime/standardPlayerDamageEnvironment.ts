@@ -93,6 +93,35 @@ import {
 } from './knockDownOperationExecutor';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
+
+const MULTIPLICATIVE_ATTRIBUTE_SLOTS = new Set(['finalMultiplier', 'baseFinalMultiplier']);
+
+/**
+ * 只有“一项属性修正、一个非单位槽位”才可自动摘要。
+ * 这里记录原始事实，不在战斗回执中写本地化名称或猜测复杂 Buff 的总效果。
+ */
+function simpleAttributeModifierFact(buff: CombatBuff<string>):
+  | {
+      readonly simpleModifierAttribute: string;
+      readonly simpleModifierSlot: string;
+      readonly simpleModifierValue: number;
+    }
+  | undefined {
+  if (buff.attributeModifiers.length !== 1) return undefined;
+  const modifier = buff.attributeModifiers[0]!;
+  const changed = Object.entries(modifier.values).filter(([slot, value]) => {
+    const identity = MULTIPLICATIVE_ATTRIBUTE_SLOTS.has(slot) ? 1 : 0;
+    return Math.abs(value - identity) > 0.0000001;
+  });
+  if (changed.length !== 1) return undefined;
+  const [slot, value] = changed[0]!;
+  return {
+    simpleModifierAttribute: modifier.attribute,
+    simpleModifierSlot: slot,
+    simpleModifierValue: value,
+  };
+}
+
 type EnvironmentOptions = Pick<
   CombatRuntimeAssemblyOptions,
   | 'enemyBuffRuntime'
@@ -1336,6 +1365,7 @@ export class StandardPlayerDamageEnvironment {
       throw new Error(`Applied Buff '${event.buffId}' on '${ownerId}' has no active instance`);
     }
     const presentation = buff.definition.presentation;
+    const simpleModifier = simpleAttributeModifierFact(buff);
     const recordPresentation = (
       eventName: 'BuffApplied' | 'BuffPresentationStarted',
       buffId: string,
@@ -1355,10 +1385,8 @@ export class StandardPlayerDamageEnvironment {
           layers: buff.enhanceCount,
           hasFiniteLifetime: buff.remainingDuration !== null,
           sourceActionId: buff.sourceActionId,
+          ...(simpleModifier ?? {}),
           ...(parentBuffId === undefined ? {} : { parentBuffId }),
-          ...(currentPresentation?.nameKey === undefined
-            ? {}
-            : { nameKey: currentPresentation.nameKey }),
           ...(currentPresentation?.iconId === undefined
             ? {}
             : { iconId: currentPresentation.iconId }),

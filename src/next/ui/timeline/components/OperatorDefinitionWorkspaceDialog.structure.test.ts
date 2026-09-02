@@ -33,6 +33,12 @@ describe('OperatorDefinitionWorkspaceDialog structure', () => {
     expect(workspaceSource).toContain('function moveSkill(offset: -1 | 1)');
   });
 
+  it('blocks saving invalid definitions and reports placed skill references before commit', () => {
+    expect(workspaceSource).toContain('requiredSkillReferences');
+    expect(workspaceSource).toContain("轴上技能块 '${reference.castId}' 仍引用");
+    expect(workspaceSource).toContain(':disabled="!isDirty || draftIssues.length > 0"');
+  });
+
   it('edits trust progression and separates character blackboard scopes', () => {
     expect(workspaceSource).toContain('DEFAULT_TRUST_ATTRIBUTE_BONUS');
     expect(workspaceSource).toContain('function updateTrustValues');

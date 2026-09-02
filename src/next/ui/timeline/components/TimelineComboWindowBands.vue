@@ -8,9 +8,13 @@ const props = defineProps<{
   segments: readonly ComboWindowTimelineSegment[];
   prepFrames: number;
   pxPerFrame: number;
-  color: string;
+  actionTop: number;
   label: string;
 }>();
+
+/** 旧版连携窗口固定使用连携技主题金色，不跟随干员属性色。 */
+const COMBO_WINDOW_COLOR = '#fdd900';
+const ACTION_HEIGHT = 50;
 
 function formatDuration(frames: number): string {
   if (frames < PROJECT_FPS) return `${frames}f`;
@@ -32,17 +36,21 @@ const items = computed(() =>
 </script>
 
 <template>
-  <div v-if="items.length > 0" class="combo-window-bar-layer">
+  <div
+    v-if="items.length > 0"
+    class="combo-window-bar-layer"
+    :style="{ top: `${actionTop + ACTION_HEIGHT}px` }"
+  >
     <div
       v-for="item in items"
       :key="`${item.operatorId}:${item.sequence}`"
       class="combo-window-bar"
       :class="`is-${item.outcome}`"
-      :title="`${label} · ${item.nextSkillKey} · ${item.duration}`"
+      :title="label"
       :style="{
         left: `${item.left}px`,
         width: `${item.width}px`,
-        '--cw-color': color,
+        '--cw-color': COMBO_WINDOW_COLOR,
       }"
     >
       <div class="cw-start-mark"></div>
@@ -57,7 +65,6 @@ const items = computed(() =>
 .combo-window-bar-layer {
   position: absolute;
   right: 0;
-  bottom: 0;
   left: 0;
   height: 0;
   pointer-events: none;

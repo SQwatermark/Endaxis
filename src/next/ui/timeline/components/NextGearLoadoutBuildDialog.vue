@@ -16,6 +16,10 @@ import {
 } from '../../legacy/legacyGameText';
 import { getEquipmentLevelColor, isEquipmentArtificable } from '../../legacy/legacyProgression';
 import { GameRichTextRenderer } from '../../legacy/legacyPresentation';
+import {
+  resolveGearArtificingLevels,
+  resolveMaxGearArtificingLevels,
+} from '../../../application/editor/loadoutBuildFactory';
 import type {
   GearInstanceViewModel,
   GearSlotsViewModel,
@@ -38,7 +42,6 @@ const emit = defineEmits<{
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const SET_BONUS_REQUIRED_COUNT = 3;
-const REFINE_LEVELS = [0, 1, 2, 3] as const;
 
 interface SlotConfig {
   readonly slot: LoadoutGearSlot;
@@ -75,7 +78,20 @@ function translate(key: string, fallback: string): string {
 }
 
 function normalizedArtificingLevels(build: GearInstanceViewModel): readonly number[] {
-  return build.artificingLevels.map(level => Math.max(0, Math.min(3, Number(level) || 0)));
+  return build.definition.traits.map((trait, index) =>
+    Math.max(
+      0,
+      Math.min(
+        Math.max(0, trait.levelCount - 1),
+        Math.trunc(Number(build.artificingLevels[index]) || 0),
+      ),
+    ),
+  );
+}
+
+function refineLevels(build: GearInstanceViewModel): readonly number[] {
+  const maximum = Math.max(0, ...resolveMaxGearArtificingLevels(build.definition));
+  return Array.from({ length: maximum + 1 }, (_, level) => level);
 }
 
 function isUniformLevel(build: GearInstanceViewModel, level: number): boolean {
@@ -85,18 +101,14 @@ function isUniformLevel(build: GearInstanceViewModel, level: number): boolean {
 
 function setUniformLevel(build: GearInstanceViewModel, level: number): void {
   if (!isEquipmentArtificable(build.definition.levelRequirement)) return;
-  emit(
-    'update',
-    build.slot,
-    build.artificingLevels.map(() => level),
-  );
+  emit('update', build.slot, resolveGearArtificingLevels(build.definition, level));
 }
 
 function maxOut(): void {
   for (const config of SLOT_CONFIGS) {
     const build = props.gears[config.slot];
     if (build !== null && isEquipmentArtificable(build.definition.levelRequirement)) {
-      setUniformLevel(build, 3);
+      emit('update', build.slot, resolveMaxGearArtificingLevels(build.definition));
     }
   }
 }
@@ -206,7 +218,7 @@ const activeSetBonuses = computed(() => {
             </span>
             <div v-if="slot.isArtificable" class="refine-buttons">
               <button
-                v-for="level in REFINE_LEVELS"
+                v-for="level in refineLevels(slot.build)"
                 :key="`${slot.slot}-${level}`"
                 type="button"
                 class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold refine-btn"

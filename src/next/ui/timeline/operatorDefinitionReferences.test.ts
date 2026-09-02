@@ -41,6 +41,14 @@ function definition(): OperatorDefinition {
                     parameters: { target: 'caster', buffId: 'buff-a' },
                   },
                   {
+                    kind: 'applyBuff',
+                    parameters: {
+                      target: 'caster',
+                      buffId: 'inline-only',
+                      definition: { stackingType: 'refresh' },
+                    },
+                  },
+                  {
                     kind: 'spawnAbilityEntity',
                     parameters: { abilityEntityId: 'entity-a', dieWhenSourceDies: true },
                   },
@@ -49,6 +57,25 @@ function definition(): OperatorDefinition {
             },
           ],
         },
+        replacementSkills: [
+          {
+            key: 'replacement',
+            timelineBlockFrames: 10,
+            scheduledSequences: [
+              {
+                startFrame: 0,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'applyBuff',
+                      parameters: { target: 'caster', buffId: 'buff-b' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
       },
     ],
     buffDefinitions: {
@@ -92,7 +119,33 @@ function definition(): OperatorDefinition {
       },
       'entity-b': { lifetime: { kind: 'infinite' } },
     },
-    talents: [],
+    passiveSkills: [
+      {
+        key: 'root-passive',
+        enableSequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: { target: 'caster', buffId: 'buff-b' },
+            },
+          ],
+        },
+      },
+    ],
+    talents: [
+      {
+        key: 'talent-a',
+        levels: 1,
+        initializationSequence: {
+          steps: [
+            {
+              kind: 'spawnAbilityEntity',
+              parameters: { abilityEntityId: 'entity-b', dieWhenSourceDies: true },
+            },
+          ],
+        },
+      },
+    ],
     potentials: [],
   };
 }
@@ -105,13 +158,16 @@ describe('operator definition references', () => {
       { ownerKind: 'skill', ownerId: 'normal/attack' },
     ]);
     expect(referencesToDefinition(references, 'buff', 'buff-b')).toMatchObject([
+      { ownerKind: 'skill', ownerId: 'normal/replacement' },
       { ownerKind: 'buff', ownerId: 'buff-a' },
+      { ownerKind: 'passiveSkill', ownerId: 'root-passive' },
     ]);
     expect(referencesToDefinition(references, 'entity', 'entity-a')).toMatchObject([
       { ownerKind: 'skill', ownerId: 'normal/attack' },
     ]);
     expect(referencesToDefinition(references, 'entity', 'entity-b')).toMatchObject([
       { ownerKind: 'entity', ownerId: 'entity-a' },
+      { ownerKind: 'upgrade', ownerId: 'talents/talent-a' },
     ]);
   });
 
@@ -122,5 +178,6 @@ describe('operator definition references', () => {
     expect(references.some(reference => reference.path === 'buffDefinitions["buff-a"]')).toBe(
       false,
     );
+    expect(referencesToDefinition(references, 'buff', 'inline-only')).toEqual([]);
   });
 });

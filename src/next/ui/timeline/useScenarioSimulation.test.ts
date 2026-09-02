@@ -129,6 +129,41 @@ describe('useScenarioSimulation', () => {
     }
   });
 
+  it('场景 watcher 排队后立即模拟会清除待执行任务，不重复运行', async () => {
+    const initial = createPerlicaScenario();
+    const scenario = shallowRef<ScenarioDocument>(initial);
+    let calls = 0;
+    const fakeService = {
+      simulate: async () => {
+        calls += 1;
+        return {
+          availabilityDiagnostics: [],
+          executionDiagnostics: [],
+          comboWindowDiagnostics: [],
+        };
+      },
+    } as unknown as ScenarioSimulationService;
+    let result!: UseScenarioSimulationResult;
+    const scope = effectScope();
+    scope.run(() => {
+      result = useScenarioSimulation({ scenario, service: fakeService, debounceMs: 10_000 });
+    });
+    try {
+      await result.simulateNow();
+      expect(calls).toBe(1);
+
+      scenario.value = { ...initial, name: '定义与实例已原子替换' };
+      await nextTick();
+      await result.simulateNow();
+      await nextTick();
+
+      expect(calls).toBe(2);
+      expect(result.published.value?.scenario).toBe(scenario.value);
+    } finally {
+      scope.stop();
+    }
+  });
+
   it('场景变化后自动运行并保留防竞态的最新结果', async () => {
     const { session, result, stop } = createHarness(createPerlicaScenario());
     try {

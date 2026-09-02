@@ -58,8 +58,9 @@ export function resolveDefaultOperatorPotential(operator: OperatorDefinition): n
  */
 export function resolveMaxWeaponTraitLevels(weapon: WeaponDefinition, potential: number): number[] {
   return weapon.traits.map(trait => {
-    const legacyMaximum = trait.key === 'skill3' ? 4 + potential : 9;
-    return Math.min(trait.levelCount, legacyMaximum);
+    if (trait.key === 'skill1' || trait.key === 'skill2') return Math.min(trait.levelCount, 9);
+    if (trait.key === 'skill3') return Math.min(trait.levelCount, 4 + potential);
+    return trait.levelCount;
   });
 }
 
@@ -69,6 +70,16 @@ export function createDefaultGearInstance(
 ): GearInstanceDocument {
   return {
     gearSlug: gear.slug,
-    artificingLevels: gear.traits.map(() => artificingTier),
+    artificingLevels: resolveGearArtificingLevels(gear, artificingTier),
   };
+}
+
+/** 装备精锻实例使用 0 基档位；每条词条的最大值由自身 levelCount 唯一决定。 */
+export function resolveGearArtificingLevels(gear: GearDefinition, requestedTier: number): number[] {
+  const tier = Number.isFinite(requestedTier) ? Math.max(0, Math.trunc(requestedTier)) : 0;
+  return gear.traits.map(trait => Math.min(tier, Math.max(0, trait.levelCount - 1)));
+}
+
+export function resolveMaxGearArtificingLevels(gear: GearDefinition): number[] {
+  return gear.traits.map(trait => Math.max(0, trait.levelCount - 1));
 }

@@ -25,9 +25,9 @@ export type CompiledBuffNumberSource = CombatBuffDefinitionNumberOperand;
 
 /** 输出字段来自独立契约；此处只声明当前投影保证写出的字段与支持子集。 */
 export type CompiledBuffPresentationSource = Required<
-  Omit<CombatBuffPresentation, 'nameKey' | 'iconId' | 'iconPath'>
+  Omit<CombatBuffPresentation, 'iconId' | 'iconPath'>
 > &
-  Pick<CombatBuffPresentation, 'nameKey' | 'iconId' | 'iconPath'>;
+  Pick<CombatBuffPresentation, 'iconId' | 'iconPath'>;
 
 export type CompiledBuffAttributeModifierSource = Pick<
   CombatBuffDefinitionAttributeModifier,

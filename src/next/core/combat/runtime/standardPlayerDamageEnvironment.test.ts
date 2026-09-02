@@ -1877,6 +1877,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         definition: {
           stackingType: 'unique',
           durationSeconds: 5,
+          attributeModifiers: [{ attribute: 'Atk', slot: 'baseMultiplier', value: 0.1 }],
           presentation: {
             visible: true,
             iconId: 'icon_battle_buff_atk_up',
@@ -1915,6 +1916,9 @@ describe('StandardPlayerDamageEnvironment', () => {
         instanceId: 1,
         layers: 1,
         sourceActionId: 'buff:operator-visible',
+        simpleModifierAttribute: 'Atk',
+        simpleModifierSlot: 'baseMultiplier',
+        simpleModifierValue: 0.1,
         visible: true,
         iconId: 'icon_battle_buff_atk_up',
         iconPath: '/icons/icon_battle_buff_atk_up.webp',

@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { mergeCommonBuffDefinitions } from '../scripts/generateCommonBuffDefinitions.ts';
+import {
+  mergeCommonBuffDefinitions,
+  readPresentationNameKeys,
+  renderCommonBuffPresentationNamesSource,
+} from '../scripts/generateCommonBuffDefinitions.ts';
 
 describe('公共 Buff 独立所有权', () => {
   it('相同 ID 的相同定义只保留一份，冲突定义严格失败', () => {
@@ -38,5 +42,35 @@ describe('公共 Buff 独立所有权', () => {
     expect(source).toContain("from './generated/commonBuffDefinitions.generated'");
     expect(source).not.toContain('operators/');
     expect(source).not.toContain('generated-definitions/');
+  });
+
+  it('公共 Buff 名称配置与生成映射保持一致', () => {
+    const configPath = path.resolve(
+      'tools/game-data-compiler/config/commonBuffPresentationNames.json',
+    );
+    const names = readPresentationNameKeys(configPath);
+    const generatedSource = fs.readFileSync(
+      path.resolve('src/next/data/buffs/generated/commonBuffPresentationNames.generated.ts'),
+      'utf8',
+    );
+    expect(renderCommonBuffPresentationNamesSource(names).replace(/\r\n/g, '\n')).toContain(
+      JSON.stringify(names, null, 2),
+    );
+    for (const [buffId, nameKey] of Object.entries(names)) {
+      expect(generatedSource).toContain(`${buffId}: '${nameKey}'`);
+    }
+  });
+
+  it('展示名称不会注入公共战斗定义', () => {
+    const generatedDefinitions = fs.readFileSync(
+      path.resolve('src/next/data/buffs/generated/commonBuffDefinitions.generated.ts'),
+      'utf8',
+    );
+    const names = readPresentationNameKeys(
+      path.resolve('tools/game-data-compiler/config/commonBuffPresentationNames.json'),
+    );
+    for (const nameKey of Object.values(names)) {
+      expect(generatedDefinitions).not.toContain(`nameKey: '${nameKey}'`);
+    }
   });
 });

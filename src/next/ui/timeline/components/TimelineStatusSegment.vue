@@ -12,6 +12,10 @@ defineProps<{
   count?: number | string | null;
   active?: boolean;
 }>();
+
+const emit = defineEmits<{
+  activate: [];
+}>();
 </script>
 
 <template>
@@ -20,7 +24,15 @@ defineProps<{
     :class="{ 'is-active': active }"
     :style="{ left: `${left}px`, top: `${top}px` }"
   >
-    <span class="timeline-status-segment__icon" :title="title">
+    <span
+      class="timeline-status-segment__icon"
+      :title="title"
+      role="button"
+      tabindex="0"
+      @click.stop="emit('activate')"
+      @keydown.enter.stop.prevent="emit('activate')"
+      @keydown.space.stop.prevent="emit('activate')"
+    >
       <span class="timeline-status-segment__content"><slot name="content" /></span>
       <span v-if="count !== undefined && count !== null" class="timeline-status-segment__count">
         {{ count }}
@@ -60,6 +72,7 @@ defineProps<{
   background: var(--ea-keycap-skill-bg, #333);
   box-shadow: 0 1px 2px rgb(0 0 0 / 50%);
   pointer-events: auto;
+  cursor: pointer;
   transition:
     transform 0.12s ease,
     filter 0.12s ease,

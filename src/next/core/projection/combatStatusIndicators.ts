@@ -19,6 +19,8 @@ export type CombatStatusDisplaySlot = (typeof COMBAT_STATUS_DISPLAY_SLOTS)[numbe
 export type CombatStatusIconStyle = 'Attached' | 'LifeTime' | 'NoLifeTime' | 'SpellAbnormal';
 
 export interface CombatStatusIndicator {
+  readonly sourceId?: string;
+  readonly sourceActionId?: string;
   readonly targetId: string;
   readonly buffId: string;
   readonly instanceId: number;
@@ -28,7 +30,9 @@ export interface CombatStatusIndicator {
   readonly slots: readonly CombatStatusDisplaySlot[];
   readonly onlyForControlledOperator: boolean;
   readonly hasFiniteLifetime?: boolean;
-  readonly nameKey?: string;
+  readonly simpleModifierAttribute?: string;
+  readonly simpleModifierSlot?: string;
+  readonly simpleModifierValue?: number;
   readonly iconId?: string;
   readonly iconPath?: string;
   readonly iconStyle?: string;
@@ -99,6 +103,10 @@ export function projectCombatStatusIndicators(
         segment.orderPriorityCategory !== undefined;
       return [
         {
+          ...(segment.sourceId === undefined ? {} : { sourceId: segment.sourceId }),
+          ...(segment.sourceActionId === undefined
+            ? {}
+            : { sourceActionId: segment.sourceActionId }),
           targetId: segment.targetId,
           buffId: segment.buffId,
           instanceId: segment.instanceId,
@@ -110,7 +118,15 @@ export function projectCombatStatusIndicators(
           ...(segment.hasFiniteLifetime === undefined
             ? {}
             : { hasFiniteLifetime: segment.hasFiniteLifetime }),
-          ...(segment.nameKey === undefined ? {} : { nameKey: segment.nameKey }),
+          ...(segment.simpleModifierAttribute === undefined
+            ? {}
+            : { simpleModifierAttribute: segment.simpleModifierAttribute }),
+          ...(segment.simpleModifierSlot === undefined
+            ? {}
+            : { simpleModifierSlot: segment.simpleModifierSlot }),
+          ...(segment.simpleModifierValue === undefined
+            ? {}
+            : { simpleModifierValue: segment.simpleModifierValue }),
           ...(segment.iconId === undefined ? {} : { iconId: segment.iconId }),
           ...(segment.iconPath === undefined ? {} : { iconPath: segment.iconPath }),
           ...(segment.iconStyleInSquad === undefined

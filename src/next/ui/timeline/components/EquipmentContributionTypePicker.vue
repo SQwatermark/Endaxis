@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, type CSSProperties } from 'vue';
 import {
+  EQUIPMENT_ABILITY_EVENTS,
+  EQUIPMENT_DAMAGE_SCALE_TARGETS,
   EQUIPMENT_PANEL_STATS,
   type EquipmentAttribute,
   type EquipmentEventHandlerDefinition,
   type EquipmentModifierDefinition,
 } from '../../../core/game-data/equipmentDefinition';
-import { DAMAGE_TYPES, OPERATOR_ATTRIBUTES } from '../../../core/game-data/operatorDefinition';
+import {
+  DAMAGE_TYPES,
+  OPERATOR_ATTRIBUTES,
+  SKILL_TYPES,
+  type SkillType,
+} from '../../../core/game-data/operatorDefinition';
 import {
   createCombatEventTriggerDraft,
   EDITABLE_COMBAT_EVENT_TRIGGER_KINDS,
@@ -48,12 +55,32 @@ function chooseDamageBonus(damageType: (typeof DAMAGE_TYPES)[number]): void {
   emit('modifier', { kind: 'damageBonus', damageTypes: damageType, value: values() });
 }
 
+function chooseDamageScale(target: (typeof EQUIPMENT_DAMAGE_SCALE_TARGETS)[number]): void {
+  emit('modifier', { kind: 'damageScale', target, slot: 'baseAddition', value: values() });
+}
+
+function chooseStaticHealingIncrease(target: 'output' | 'taken'): void {
+  emit('modifier', { kind: 'staticHealingIncrease', target, value: values() });
+}
+
+function chooseSkillCooldownMultiplier(skillType: SkillType): void {
+  emit('modifier', { kind: 'skillCooldownMultiplier', skillTypes: skillType, value: values() });
+}
+
 function chooseHandler(kind: EditableCombatEventTriggerKind): void {
   const prefix = `event-${kind}`;
   let key = prefix;
   let suffix = 2;
   while (props.handlerKeys.includes(key)) key = `${prefix}-${suffix++}`;
   emit('handler', { key, event: createCombatEventTriggerDraft(kind), sequence: { steps: [] } });
+}
+
+function chooseAbilityHandler(abilityEvent: (typeof EQUIPMENT_ABILITY_EVENTS)[number]): void {
+  const prefix = `ability-${abilityEvent}`;
+  let key = prefix;
+  let suffix = 2;
+  while (props.handlerKeys.includes(key)) key = `${prefix}-${suffix++}`;
+  emit('handler', { key, abilityEvent, sequence: { steps: [] } });
 }
 
 function position(): void {
@@ -133,6 +160,31 @@ onBeforeUnmount(() => {
             {{ damageType }}
           </button>
         </section>
+        <section>
+          <h5>原生伤害倍率</h5>
+          <button
+            v-for="target in EQUIPMENT_DAMAGE_SCALE_TARGETS"
+            :key="target"
+            @click="chooseDamageScale(target)"
+          >
+            {{ target }}
+          </button>
+        </section>
+        <section>
+          <h5>治疗增幅</h5>
+          <button @click="chooseStaticHealingIncrease('output')">output</button>
+          <button @click="chooseStaticHealingIncrease('taken')">taken</button>
+        </section>
+        <section>
+          <h5>技能冷却倍率</h5>
+          <button
+            v-for="skillType in SKILL_TYPES"
+            :key="skillType"
+            @click="chooseSkillCooldownMultiplier(skillType)"
+          >
+            {{ skillType }}
+          </button>
+        </section>
       </div>
       <div v-else class="options">
         <section>
@@ -143,6 +195,16 @@ onBeforeUnmount(() => {
             @click="chooseHandler(kind)"
           >
             {{ kind }}
+          </button>
+        </section>
+        <section>
+          <h5>AbilitySystem 事件</h5>
+          <button
+            v-for="event in EQUIPMENT_ABILITY_EVENTS"
+            :key="event"
+            @click="chooseAbilityHandler(event)"
+          >
+            {{ event }}
           </button>
         </section>
       </div>

@@ -2239,6 +2239,17 @@
       "reactionConsumed": "Поглощение реакции",
       "layers": "Слоёв: {stacks}"
     },
+    "buffDetail": {
+      "title": "Сведения о статусе",
+      "source": "Источник",
+      "effect": "Краткий эффект",
+      "layers": "Слои",
+      "start": "Начало",
+      "end": "Конец",
+      "duration": "Длительность",
+      "frames": "Кадр {value}",
+      "buffId": "Исходный ID Buff"
+    },
     "hitDetail": {
       "frame": "Кадр",
       "damage": "Урон",

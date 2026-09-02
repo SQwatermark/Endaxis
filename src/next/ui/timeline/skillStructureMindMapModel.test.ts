@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
+import type {
+  AbilityEntityDefinition,
+  SkillDefinition,
+} from '../../core/game-data/operatorDefinition';
 import {
   buildAbilityEntityStructureMindMap,
   buildBuffStructureMindMap,
@@ -10,6 +13,45 @@ import {
 } from './skillStructureMindMapModel';
 
 describe('skillStructureMindMapModel', () => {
+  it('把具名能力实体子技能分别展开为成员，并保留各自完整结构路径', () => {
+    const definition: AbilityEntityDefinition = {
+      lifetime: { kind: 'limited', durationSeconds: 50 },
+      childSkills: {
+        chr_0032_first: {
+          skillId: 'chr_0032_first',
+          scheduledSequences: [],
+        },
+        'chr_0032.second': {
+          skillId: 'chr_0032.second',
+          blackboard: { scale: 1 },
+          scheduledSequences: [
+            {
+              startFrame: 14,
+              sequence: { steps: [{ kind: 'finishActionOwnerAbilityEntity', parameters: {} }] },
+            },
+          ],
+        },
+      },
+    };
+    const root = buildAbilityEntityStructureMindMap('entity.test', definition);
+    const children = root.children.filter(node => node.payloadKind === 'childSkill');
+
+    expect(root.summary).toContain('2 个子技能 · 1 条子序列');
+    expect(children).toHaveLength(2);
+    expect(children[0]).toMatchObject({
+      label: 'chr_0032_first',
+      relationToParent: 'member',
+      sourcePath: 'childSkills["chr_0032_first"]',
+    });
+    expect(children[1]?.children[0]).toMatchObject({
+      sourcePath: 'childSkills["chr_0032.second"].scheduledSequences[0]',
+      payloadKind: 'scheduledSequence',
+    });
+    expect(findSkillStructureNodeForPath(root, children[1]!.children[0]!.sourcePath).id).toBe(
+      children[1]!.children[0]!.id,
+    );
+  });
+
   it('把 GlobalBuff 父定义投影为固定端口，把子 Buff 投影为可排序成员', () => {
     const skill: SkillDefinition = {
       key: 'global-buff',

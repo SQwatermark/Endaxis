@@ -26,7 +26,6 @@ function conductStatus(
   return {
     id,
     presentation: {
-      nameKey: 'electrification',
       visible: true,
       iconId: 'icon_battle_conduct',
       showInHeadBarCommon: true,
@@ -96,9 +95,9 @@ function compoundDamage(
 }
 
 const STATUS_PRESENTATION = {
-  heat: { nameKey: 'combustion', iconId: 'icon_battle_burning', abnormalColorType: 'Fire' },
-  cryo: { nameKey: 'solidification', iconId: 'icon_battle_frozen', abnormalColorType: 'Cryst' },
-  nature: { nameKey: 'corrosion', iconId: 'icon_battle_corrupt', abnormalColorType: 'Natural' },
+  heat: { iconId: 'icon_battle_burning', abnormalColorType: 'Fire' },
+  cryo: { iconId: 'icon_battle_frozen', abnormalColorType: 'Cryst' },
+  nature: { iconId: 'icon_battle_corrupt', abnormalColorType: 'Natural' },
 } as const;
 
 function visibleCompoundPresentation(element: keyof typeof STATUS_PRESENTATION) {

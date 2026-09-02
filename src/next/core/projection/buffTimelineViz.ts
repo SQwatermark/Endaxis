@@ -5,6 +5,8 @@
 import type { CombatReceiptEntry, CombatReceiptValue } from '../combat/receipt/combatReceipt';
 
 export interface BuffTimelineSegment {
+  readonly sourceId?: string;
+  readonly sourceActionId?: string;
   readonly targetId: string;
   readonly buffId: string;
   readonly instanceId: number;
@@ -15,7 +17,10 @@ export interface BuffTimelineSegment {
   readonly hasFiniteLifetime?: boolean;
   /** 旧版可视分区：干员来源位于技能块上方，配装来源位于下方。 */
   readonly placement: 'upper' | 'lower';
-  readonly nameKey?: string;
+  /** 严格单属性修正的事实字段；本地化摘要由 UI 生成。 */
+  readonly simpleModifierAttribute?: string;
+  readonly simpleModifierSlot?: string;
+  readonly simpleModifierValue?: number;
   readonly iconId?: string;
   readonly iconPath?: string;
   readonly showInHeadBarCommon?: boolean;
@@ -88,6 +93,58 @@ function instanceKey(targetId: string, buffId: string, instanceId: number): stri
   return `${targetId}\u0000${buffId}\u0000${instanceId}`;
 }
 
+interface SimpleModifierFact {
+  readonly simpleModifierAttribute: string;
+  readonly simpleModifierSlot: string;
+  readonly simpleModifierValue: number;
+}
+
+function simpleModifierFact(
+  data: Readonly<Record<string, CombatReceiptValue>>,
+): SimpleModifierFact | undefined {
+  const simpleModifierAttribute = optionalString(data, 'simpleModifierAttribute');
+  const simpleModifierSlot = optionalString(data, 'simpleModifierSlot');
+  const simpleModifierValue = optionalNumber(data, 'simpleModifierValue');
+  return simpleModifierAttribute === undefined ||
+    simpleModifierSlot === undefined ||
+    simpleModifierValue === undefined
+    ? undefined
+    : { simpleModifierAttribute, simpleModifierSlot, simpleModifierValue };
+}
+
+function sourceFrameKey(entry: CombatReceiptEntry): string | undefined {
+  if (entry.targetId === undefined || entry.data === undefined) return undefined;
+  const sourceActionId = optionalString(entry.data, 'sourceActionId');
+  return sourceActionId === undefined
+    ? undefined
+    : `${entry.targetId}\u0000${sourceActionId}\u0000${entry.frame}`;
+}
+
+/**
+ * 原生“战斗修正父 Buff + 纯展示子 Buff”会在同帧使用同一 sourceActionId。
+ * 仅当该来源帧只有一种严格单属性事实时才允许展示子项继承摘要；多项效果保持无摘要。
+ */
+function collectUnambiguousModifierFacts(
+  entries: readonly CombatReceiptEntry[],
+): ReadonlyMap<string, SimpleModifierFact> {
+  const candidates = new Map<string, Map<string, SimpleModifierFact>>();
+  for (const entry of entries) {
+    if (entry.event !== 'BuffApplied' || entry.data === undefined) continue;
+    const key = sourceFrameKey(entry);
+    const fact = simpleModifierFact(entry.data);
+    if (key === undefined || fact === undefined) continue;
+    const identity = `${fact.simpleModifierAttribute}\u0000${fact.simpleModifierSlot}\u0000${fact.simpleModifierValue}`;
+    const values = candidates.get(key) ?? new Map<string, SimpleModifierFact>();
+    values.set(identity, fact);
+    candidates.set(key, values);
+  }
+  return new Map(
+    [...candidates].flatMap(([key, values]) =>
+      values.size === 1 ? [[key, [...values.values()][0]!] as const] : [],
+    ),
+  );
+}
+
 function presentationPlacement(
   data: Readonly<Record<string, CombatReceiptValue>>,
 ): BuffTimelineSegment['placement'] {
@@ -123,6 +180,7 @@ export function projectBuffTimelineViz(
   }
   const open = new Map<string, BuffTimelineSegment>();
   const closed: BuffTimelineSegment[] = [];
+  const inheritedModifierFacts = collectUnambiguousModifierFacts(entries);
 
   for (const entry of entries) {
     const isApplied = entry.event === 'BuffApplied' || entry.event === 'BuffPresentationStarted';
@@ -145,9 +203,18 @@ export function projectBuffTimelineViz(
       continue;
     }
     if (!isVisibleBuff(data)) continue;
+    const modifierFact =
+      simpleModifierFact(data) ??
+      (sourceFrameKey(entry) === undefined
+        ? undefined
+        : inheritedModifierFacts.get(sourceFrameKey(entry)!));
     const previous = open.get(key);
     if (previous !== undefined) closed.push({ ...previous, endFrame: entry.frame });
     open.set(key, {
+      ...(entry.sourceId === undefined ? {} : { sourceId: entry.sourceId }),
+      ...(optionalString(data, 'sourceActionId') === undefined
+        ? {}
+        : { sourceActionId: optionalString(data, 'sourceActionId') }),
       targetId: entry.targetId,
       buffId,
       instanceId,
@@ -156,9 +223,7 @@ export function projectBuffTimelineViz(
       layers: requireNumber(entry, data, 'layers'),
       ...copyOptionalBoolean(data, 'hasFiniteLifetime'),
       placement: presentationPlacement(data),
-      ...(optionalString(data, 'nameKey') === undefined
-        ? {}
-        : { nameKey: optionalString(data, 'nameKey') }),
+      ...(modifierFact ?? {}),
       ...(optionalString(data, 'iconId') === undefined
         ? {}
         : { iconId: optionalString(data, 'iconId') }),

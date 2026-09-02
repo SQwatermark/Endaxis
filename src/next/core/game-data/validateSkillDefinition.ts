@@ -1930,7 +1930,6 @@ function validateCombatStep(
                 for (const key of Object.keys(presentationRecord)) {
                   if (
                     ![
-                      'nameKey',
                       'iconId',
                       'iconPath',
                       'visible',
@@ -1969,7 +1968,6 @@ function validateCombatStep(
                   );
                 }
                 for (const key of [
-                  'nameKey',
                   'iconId',
                   'iconStyleInSquad',
                   'abnormalColorType',

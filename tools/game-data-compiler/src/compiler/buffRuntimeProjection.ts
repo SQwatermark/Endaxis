@@ -1526,6 +1526,12 @@ function createBuffSequenceProjection(
     compileCondition: (node, targetGroups) => compileEventCondition(node, context, targetGroups),
     canOmitTerminalCondition: canOmitUnusedCompiledCondition,
     canOmitUnusedCondition: canOmitUnusedNativeCondition,
+    evaluateCondition: condition => {
+      if (condition.kind === 'constant') return condition.value;
+      if (condition.kind === 'all' && condition.conditions.length === 0) return true;
+      if (condition.kind === 'any' && condition.conditions.length === 0) return false;
+      return undefined;
+    },
     combineConditions: conditions =>
       conditions.length === 1 ? conditions[0]! : { kind: 'all', conditions },
     negateCondition: condition => ({ kind: 'not', condition }),
@@ -2131,6 +2137,7 @@ function createBuffSequenceProjection(
       const conditions = node.body.condition.actions.filter(child => child.metadata.enabled);
       if (conditions.length !== 1) return undefined;
       const projected = compileEventCondition(conditions[0]!, context, state);
+      if (projected?.kind === 'constant') return projected.value;
       if (projected?.kind === 'all' && projected.conditions.length === 0) return true;
       if (projected?.kind === 'any' && projected.conditions.length === 0) return false;
       if (

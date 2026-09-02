@@ -27,6 +27,12 @@ interface Arguments {
   readonly check: boolean;
 }
 
+const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
+const presentationNamesPath = path.resolve(
+  scriptDirectory,
+  '../config/commonBuffPresentationNames.json',
+);
+
 /**
  * 从所有正式干员的原始闭包收集公共 Buff，并生成一份全局只读目录。
  * 干员只负责暴露“使用了哪些公共 ID”；重复 ID 必须得到完全一致的定义，不能靠导入顺序覆盖。
@@ -53,16 +59,48 @@ export async function generateCommonBuffDefinitions(args: Arguments) {
     batches.push({ slug, definitions: plan.commonBuffDefinitions });
   }
   const definitions = mergeCommonBuffDefinitions(batches);
+  const presentationNameKeys = readPresentationNameKeys(presentationNamesPath);
 
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
   const content = await format(renderCommonBuffDefinitionsSource(definitions), {
     ...prettierConfig,
     parser: 'typescript',
   });
-  const files = [{ relativePath: 'commonBuffDefinitions.generated.ts', content }];
+  const presentationNamesContent = await format(
+    renderCommonBuffPresentationNamesSource(presentationNameKeys),
+    { ...prettierConfig, parser: 'typescript' },
+  );
+  const files = [
+    { relativePath: 'commonBuffDefinitions.generated.ts', content },
+    {
+      relativePath: 'commonBuffPresentationNames.generated.ts',
+      content: presentationNamesContent,
+    },
+  ];
   if (args.check) checkGeneratedDefinitionFiles(args.output, files);
   else await writeGeneratedDefinitionFiles(args.output, files);
   return { operatorCount: slugs.length, buffCount: Object.keys(definitions).length };
+}
+
+export function readPresentationNameKeys(sourcePath: string): Record<string, string> {
+  const source = requireRecord(read(sourcePath), sourcePath);
+  const result: Record<string, string> = {};
+  for (const [buffId, value] of Object.entries(source)) {
+    result[requireNonEmptyString(buffId, `${sourcePath}.<key>`)] = requireNonEmptyString(
+      value,
+      `${sourcePath}.${buffId}`,
+    );
+  }
+  return result;
+}
+
+export function renderCommonBuffPresentationNamesSource(
+  presentationNameKeys: Readonly<Record<string, string>>,
+): string {
+  return (
+    `/** 由 tools/game-data-compiler 公共 Buff 生成器生成；不要手工编辑。 */\n` +
+    `export const commonBuffPresentationNameKeys = Object.freeze(${JSON.stringify(presentationNameKeys, null, 2)} as const);\n`
+  );
 }
 
 /** 合并公共所有权闭包；相同 ID 只允许完全相同的不可变定义。 */

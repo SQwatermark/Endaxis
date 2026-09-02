@@ -3,6 +3,7 @@ import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import { ArrowDown, ArrowUp, CopyDocument, Delete } from '@element-plus/icons-vue';
 import type {
   AbilityEntityDefinition,
+  AbilityEntityChildSkillDefinition,
   AbilityEntityDefinitionNumber,
   CombatCondition,
   CombatEventResponseDefinition,
@@ -33,6 +34,7 @@ import {
   removeStructureArrayItem,
   replaceStructureValueAtPath,
   resolveStructureValue,
+  structureRecordEntryPath,
 } from '../skillStructureEditorCommands';
 import CombatStepEditor from './CombatStepEditor.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
@@ -121,14 +123,34 @@ const selectedEventResponse = computed(() =>
     ? (resolveStructureValue(props.definition, selectedPath.value) as CombatEventResponseDefinition)
     : undefined,
 );
+const selectedChildSkillNode = computed(
+  () =>
+    [...nodeIndex.value.values()]
+      .filter(
+        node =>
+          node.payloadKind === 'childSkill' &&
+          (selectedPath.value === node.sourcePath ||
+            selectedPath.value.startsWith(`${node.sourcePath}.`) ||
+            selectedPath.value.startsWith(`${node.sourcePath}[`)),
+      )
+      .sort((left, right) => right.sourcePath.length - left.sourcePath.length)[0],
+);
+const selectedChildSkillPath = computed(() => selectedChildSkillNode.value?.sourcePath);
+const selectedChildSkill = computed(() => {
+  const path = selectedChildSkillPath.value;
+  return path === undefined
+    ? undefined
+    : (resolveStructureValue(props.definition, path) as AbilityEntityChildSkillDefinition);
+});
 const selectedSequenceIndex = computed(() => {
-  const match = /^entity:sequence:(\d+)$/.exec(selectedId.value);
+  if (selectedNode.value?.payloadKind !== 'scheduledSequence') return undefined;
+  const match = /\.scheduledSequences\[(\d+)\]$/.exec(selectedPath.value);
   return match === null ? undefined : Number(match[1]);
 });
 const selectedSequence = computed(() =>
   selectedSequenceIndex.value === undefined
     ? undefined
-    : props.definition.childSkill?.scheduledSequences[selectedSequenceIndex.value],
+    : (resolveStructureValue(props.definition, selectedPath.value) as ScheduledSequenceDefinition),
 );
 watch(
   () => props.abilityEntityId,
@@ -146,7 +168,7 @@ function context(): SkillDefinition {
   return {
     key: `ability-entity:${props.abilityEntityId}`,
     timelineBlockFrames: 0,
-    scheduledSequences: props.definition.childSkill?.scheduledSequences ?? [],
+    scheduledSequences: selectedChildSkill.value?.scheduledSequences ?? [],
   };
 }
 function createStep(kind: EditableCombatStepKind): CombatStepDefinition {
@@ -196,15 +218,18 @@ async function beginAdd(
   selectNode(node);
   insertAnchor.value = { ...anchor };
   if (node.canAddChild === 'childSkill') {
-    emitStructureUpdate(
-      replaceStructureValueAtPath(props.definition, 'childSkill', {
-        skillId: 'custom-ability-entity-child',
-        scheduledSequences: [],
-      }),
-    );
-    await selectPath('childSkill');
+    const childSkills = { ...(props.definition.childSkills ?? {}) };
+    let index = Object.keys(childSkills).length + 1;
+    let skillId = `custom-ability-entity-child-${index}`;
+    while (skillId in childSkills) {
+      index += 1;
+      skillId = `custom-ability-entity-child-${index}`;
+    }
+    childSkills[skillId] = { skillId, scheduledSequences: [] };
+    emitStructureUpdate(replaceStructureValueAtPath(props.definition, 'childSkills', childSkills));
+    await selectPath(structureRecordEntryPath('childSkills', skillId));
   } else if (node.canAddChild === 'sequence') {
-    appendSequence();
+    appendSequence(node.sourcePath);
   } else if (node.canAddChild === 'step') {
     pendingStep.value = true;
     pickerKey.value += 1;
@@ -254,17 +279,19 @@ async function appendCondition(condition: CombatCondition): Promise<void> {
   emitStructureUpdate(replaceStructureValueAtPath(props.definition, conditionPath, condition));
   await selectPath(conditionPath);
 }
-async function appendSequence(): Promise<void> {
-  const childSkill = props.definition.childSkill;
+async function appendSequence(childSkillPath = selectedChildSkillPath.value): Promise<void> {
+  if (childSkillPath === undefined) return;
+  const childSkill = resolveStructureValue(props.definition, childSkillPath) as
+    AbilityEntityChildSkillDefinition | undefined;
   if (childSkill === undefined) return;
   const index = childSkill.scheduledSequences.length;
   emitStructureUpdate(
-    replaceStructureValueAtPath(props.definition, 'childSkill.scheduledSequences', [
+    replaceStructureValueAtPath(props.definition, `${childSkillPath}.scheduledSequences`, [
       ...childSkill.scheduledSequences,
       { startFrame: 0, sequence: { steps: [] } },
     ]),
   );
-  await selectPath(`childSkill.scheduledSequences[${index}]`);
+  await selectPath(`${childSkillPath}.scheduledSequences[${index}]`);
 }
 async function appendStep(kind: EditableCombatStepKind): Promise<void> {
   const sequencePath =
@@ -328,24 +355,41 @@ function setDeathReleaseDelay(event: Event): void {
   }
   emit('update', next);
 }
-function updateChildSkillId(event: Event): void {
-  const childSkill = props.definition.childSkill;
-  if (childSkill === undefined) return;
-  emit(
-    'update',
-    replaceStructureValueAtPath(props.definition, 'childSkill', {
-      ...childSkill,
-      skillId: (event.target as HTMLInputElement).value,
-    }),
+async function updateChildSkillId(event: Event): Promise<void> {
+  const childSkill = selectedChildSkill.value;
+  const childSkillPath = selectedChildSkillPath.value;
+  if (childSkill === undefined || childSkillPath === undefined) return;
+  const skillId = (event.target as HTMLInputElement).value.trim();
+  if (skillId === '') return;
+  if (childSkillPath === 'childSkill') {
+    emit(
+      'update',
+      replaceStructureValueAtPath(props.definition, childSkillPath, { ...childSkill, skillId }),
+    );
+    return;
+  }
+  const oldEntry = Object.entries(props.definition.childSkills ?? {}).find(
+    ([key]) => structureRecordEntryPath('childSkills', key) === childSkillPath,
   );
+  if (oldEntry === undefined) return;
+  const [oldKey] = oldEntry;
+  if (skillId !== oldKey && props.definition.childSkills?.[skillId] !== undefined) return;
+  const childSkills = Object.fromEntries(
+    Object.entries(props.definition.childSkills ?? {}).map(([key, value]) =>
+      key === oldKey ? [skillId, { ...value, skillId }] : [key, value],
+    ),
+  );
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, 'childSkills', childSkills));
+  await selectPath(structureRecordEntryPath('childSkills', skillId));
 }
 function updateChildBlackboard(blackboard: NonNullable<SkillDefinition['blackboard']>): void {
-  const childSkill = props.definition.childSkill;
-  if (childSkill === undefined) return;
+  const childSkill = selectedChildSkill.value;
+  const childSkillPath = selectedChildSkillPath.value;
+  if (childSkill === undefined || childSkillPath === undefined) return;
   const next = { ...childSkill };
   if (Object.keys(blackboard).length === 0) delete next.blackboard;
   else next.blackboard = blackboard;
-  emit('update', replaceStructureValueAtPath(props.definition, 'childSkill', next));
+  emit('update', replaceStructureValueAtPath(props.definition, childSkillPath, next));
 }
 function updateSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): void {
   if (selectedSequence.value === undefined || selectedSequenceIndex.value === undefined) return;
@@ -357,14 +401,7 @@ function updateSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): vo
     if (!Number.isFinite(value) || value < 0) return;
     next[field] = value;
   }
-  emit(
-    'update',
-    replaceStructureValueAtPath(
-      props.definition,
-      `childSkill.scheduledSequences[${selectedSequenceIndex.value}]`,
-      next,
-    ),
-  );
+  emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, next));
 }
 function updateStep(step: CombatStepDefinition): void {
   emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, step));
@@ -376,23 +413,35 @@ function updateEventResponse(response: CombatEventResponseDefinition): void {
   emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, response));
 }
 async function moveSequence(offset: -1 | 1): Promise<void> {
-  const childSkill = props.definition.childSkill;
+  const childSkill = selectedChildSkill.value;
+  const childSkillPath = selectedChildSkillPath.value;
   const index = selectedSequenceIndex.value;
-  if (childSkill === undefined || index === undefined) return;
+  if (childSkill === undefined || childSkillPath === undefined || index === undefined) return;
   const target = index + offset;
   if (target < 0 || target >= childSkill.scheduledSequences.length) return;
   const sequences = [...childSkill.scheduledSequences];
   [sequences[index], sequences[target]] = [sequences[target]!, sequences[index]!];
   emitStructureUpdate(
-    replaceStructureValueAtPath(props.definition, 'childSkill.scheduledSequences', sequences),
+    replaceStructureValueAtPath(
+      props.definition,
+      `${childSkillPath}.scheduledSequences`,
+      sequences,
+    ),
   );
-  await selectPath(`childSkill.scheduledSequences[${target}]`);
+  await selectPath(`${childSkillPath}.scheduledSequences[${target}]`);
 }
 async function copySequence(): Promise<void> {
-  const childSkill = props.definition.childSkill;
+  const childSkill = selectedChildSkill.value;
+  const childSkillPath = selectedChildSkillPath.value;
   const index = selectedSequenceIndex.value;
   const sequence = index === undefined ? undefined : childSkill?.scheduledSequences[index];
-  if (childSkill === undefined || index === undefined || sequence === undefined) return;
+  if (
+    childSkill === undefined ||
+    childSkillPath === undefined ||
+    index === undefined ||
+    sequence === undefined
+  )
+    return;
   const copy: ScheduledSequenceDefinition = {
     ...sequence,
     sequence: { steps: sequence.sequence.steps.map(duplicateStep) },
@@ -400,9 +449,13 @@ async function copySequence(): Promise<void> {
   const sequences = [...childSkill.scheduledSequences];
   sequences.splice(index + 1, 0, copy);
   emitStructureUpdate(
-    replaceStructureValueAtPath(props.definition, 'childSkill.scheduledSequences', sequences),
+    replaceStructureValueAtPath(
+      props.definition,
+      `${childSkillPath}.scheduledSequences`,
+      sequences,
+    ),
   );
-  await selectPath(`childSkill.scheduledSequences[${index + 1}]`);
+  await selectPath(`${childSkillPath}.scheduledSequences[${index + 1}]`);
 }
 async function moveStep(offset: -1 | 1): Promise<void> {
   const result = moveCombatStepInStructure(props.definition, selectedPath.value, offset);
@@ -525,10 +578,7 @@ async function runStructureNodeAction(
     action === 'delete' &&
     (node.payloadKind === 'combatStep' || node.payloadKind === 'scheduledSequence')
   ) {
-    const parentPath = node.sourcePath.replace(
-      /\.steps\[\d+\]$|childSkill\.scheduledSequences\[\d+\]$/,
-      '',
-    );
+    const parentPath = node.sourcePath.replace(/\.steps\[\d+\]$|\.scheduledSequences\[\d+\]$/, '');
     emitStructureUpdate(removeStructureArrayItem(props.definition, node.sourcePath));
     await selectPath(parentPath);
     return;
@@ -558,6 +608,26 @@ async function runStructureNodeAction(
     if (siblings.length <= 1) return;
     emitStructureUpdate(removeStructureArrayItem(props.definition, node.sourcePath));
     await selectPath(responses[1]!.replace(/\.parameters\.responses$/, ''));
+    return;
+  }
+  if (action === 'delete' && node.payloadKind === 'childSkill') {
+    if (node.sourcePath === 'childSkill') {
+      const next = { ...props.definition };
+      delete next.childSkill;
+      emitStructureUpdate(next);
+    } else {
+      const entry = Object.keys(props.definition.childSkills ?? {}).find(
+        key => structureRecordEntryPath('childSkills', key) === node.sourcePath,
+      );
+      if (entry === undefined) return;
+      const childSkills = { ...(props.definition.childSkills ?? {}) };
+      delete childSkills[entry];
+      const next = { ...props.definition };
+      if (Object.keys(childSkills).length === 0) delete next.childSkills;
+      else next.childSkills = childSkills;
+      emitStructureUpdate(next);
+    }
+    await selectPath('');
     return;
   }
   const clipboard = structureClipboard.value;
@@ -605,19 +675,22 @@ async function deleteCurrent(): Promise<void> {
     await selectPath(parentPath);
     return;
   }
-  if (selectedSequenceIndex.value !== undefined && props.definition.childSkill !== undefined) {
-    const sequences = props.definition.childSkill.scheduledSequences.filter(
+  if (selectedSequenceIndex.value !== undefined && selectedChildSkill.value !== undefined) {
+    const childSkillPath = selectedChildSkillPath.value;
+    if (childSkillPath === undefined) return;
+    const sequences = selectedChildSkill.value.scheduledSequences.filter(
       (_, index) => index !== selectedSequenceIndex.value,
     );
     emitStructureUpdate(
-      replaceStructureValueAtPath(props.definition, 'childSkill.scheduledSequences', sequences),
+      replaceStructureValueAtPath(
+        props.definition,
+        `${childSkillPath}.scheduledSequences`,
+        sequences,
+      ),
     );
-    await selectPath('childSkill');
-  } else if (selectedId.value === 'entity:child-skill') {
-    const next = { ...props.definition };
-    delete next.childSkill;
-    emitStructureUpdate(next);
-    await selectPath('');
+    await selectPath(childSkillPath);
+  } else if (selectedNode.value?.payloadKind === 'childSkill') {
+    await runStructureNodeAction('delete', selectedNode.value);
   }
 }
 </script>
@@ -698,7 +771,9 @@ async function deleteCurrent(): Promise<void> {
             @update="setOptionalDefinitionNumber('maxStackingCount', $event)"
           />
         </label>
-        <p>生命周期与子技能分别作为导图子节点编辑。</p>
+        <p>
+          生命周期与子技能分别作为导图子节点编辑；具名子技能映射中的每个原生技能 ID 都是独立成员。
+        </p>
       </section>
       <section v-else-if="selectedId === 'entity:lifetime'" class="node-card">
         <header>
@@ -719,10 +794,10 @@ async function deleteCurrent(): Promise<void> {
           />
         </label>
       </section>
-      <section v-else-if="selectedId === 'entity:child-skill'" class="node-card">
+      <section v-else-if="selectedNode?.payloadKind === 'childSkill'" class="node-card">
         <header>
           <div>
-            <small>实体子技能</small><strong>{{ definition.childSkill?.skillId }}</strong>
+            <small>实体子技能</small><strong>{{ selectedChildSkill?.skillId }}</strong>
           </div>
           <button @click="deleteCurrent">
             <el-icon><Delete /></el-icon>
@@ -730,10 +805,10 @@ async function deleteCurrent(): Promise<void> {
         </header>
         <label class="field-row">
           <span>子技能 ID</span>
-          <input :value="definition.childSkill?.skillId" @input="updateChildSkillId" />
+          <input :value="selectedChildSkill?.skillId" @change="updateChildSkillId" />
         </label>
         <SkillBlackboardEditor
-          :blackboard="definition.childSkill?.blackboard ?? {}"
+          :blackboard="selectedChildSkill?.blackboard ?? {}"
           :skill-level="skillLevel"
           @update="updateChildBlackboard"
         />
@@ -750,7 +825,7 @@ async function deleteCurrent(): Promise<void> {
             </button>
             <button
               :disabled="
-                selectedSequenceIndex === definition.childSkill!.scheduledSequences.length - 1
+                selectedSequenceIndex === selectedChildSkill!.scheduledSequences.length - 1
               "
               @click="moveSequence(1)"
             >

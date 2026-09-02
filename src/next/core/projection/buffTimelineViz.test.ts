@@ -58,6 +58,8 @@ describe('projectBuffTimelineViz', () => {
       ),
     ).toEqual([
       {
+        sourceId: 'source',
+        sourceActionId: 'skill:test',
         targetId: 'operator:1',
         buffId: 'buff:test',
         instanceId: 4,
@@ -68,6 +70,8 @@ describe('projectBuffTimelineViz', () => {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
       },
       {
+        sourceId: 'source',
+        sourceActionId: 'skill:test',
         targetId: 'operator:1',
         buffId: 'buff:test',
         instanceId: 4,
@@ -149,6 +153,7 @@ describe('projectBuffTimelineViz', () => {
     ];
     expect(projectBuffTimelineViz(entries, 60)).toEqual([
       {
+        sourceId: 'source',
         targetId: 'operator:1',
         buffId: 'buff:child-icon',
         instanceId: 2,
@@ -159,6 +164,33 @@ describe('projectBuffTimelineViz', () => {
         iconPath: '/icons/child.webp',
       },
     ]);
+  });
+
+  it('让同帧同来源的纯展示子 Buff 继承唯一单属性摘要', () => {
+    const parent = applied(0, 5, 'enemy', 1, 1, false, 'cast:skill');
+    const child = applied(1, 5, 'enemy', 2, 1, true, 'cast:skill');
+    expect(
+      projectBuffTimelineViz(
+        [
+          {
+            ...parent,
+            data: {
+              ...parent.data,
+              simpleModifierAttribute: 'physicalVulnerabilityIncrease',
+              simpleModifierSlot: 'baseAddition',
+              simpleModifierValue: 0.1,
+            },
+          },
+          { ...child, data: { ...child.data, buffId: 'buff:visual-child' } },
+        ],
+        30,
+      )[0],
+    ).toMatchObject({
+      buffId: 'buff:visual-child',
+      simpleModifierAttribute: 'physicalVulnerabilityIncrease',
+      simpleModifierSlot: 'baseAddition',
+      simpleModifierValue: 0.1,
+    });
   });
 
   it('uses compact non-overlapping lanes', () => {

@@ -1174,17 +1174,22 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
   冷却与进度 Buff 映射为紧凑图标；连携候选维持独立窗口语义。中期再处理敌人弱点/失衡节点等已有
   账本事实。干员生命、受击动画、敌人预警等在木桩模型下不可观察的 HUD 内容继续后置。
 
-### 2026-09-01：首段连携统一来源
+### 2026-09-01：连携触发统一转换入口
 
-- 原生规则总规格统一指向 combat-spec `docs/combo-skill-lifecycle.md`。Endaxis 的正式方向只有
-  `CharacterTemplate -> SkillDataBundle -> 公共条件 IR -> OperatorDefinition -> 运行时条件环境`；
-  manifest 手写 `comboSkillRegistrations` 已清零。
+- 原生规则总规格统一指向 combat-spec `docs/combo-skill-lifecycle.md`。连携候选有两类已证实的原生
+  触发位置：CharacterTemplate 的 `SkillDataBundle.comboSkillConditions` 常驻条件，以及技能、Buff、
+  能力实体动作树中的 `TriggerComboSkillAction`。二者分别进入公共条件 IR 与公共 Action IR，最终共用
+  同一个候选窗口运行时；manifest 手写 `comboSkillRegistrations` 已清零。
 - 安塔尔、萤石、诀、狼卫、Last Rite、汤汤与佩丽卡已走模板条件。转换保留 `immediately` 和可读
   `comboSkillPriority`；物理异常、Buff、伤害和元素附着事件及条件黑板写回已接运行回归。单敌人可不
   实现 priority 的多目标评分差异，但不得从数据契约或编译程序删除原生字段。
 - 佩丽卡引用闭包已重导并复用公共 finder/validator 与事件条件运行时。已无正式消费者的旧注册契约、
   manifest 解析器、语义监听运行时及对应编辑入口均已删除；编辑器只显示角色模板生成的原生连携条件。
   证据缺失时仍不得从旧行为反推。下一步闭合立即施放端口与 UI 激活间隔。
+- Xaihi 不使用 CharacterTemplate 条件表。其支援晶体在第二次治疗后把实体内部
+  `buff_chr_0011_seraph_combo_count` 增强到 2 层，Buff 的 `OnBuffEnhanceChanged` 随即执行原生
+  `TriggerComboSkillAction`。因此模板 `conditionCount=0` 不能被解释为“没有连携条件”；完整覆盖审计
+  必须同时遍历角色条件表和整名技能/Buff/能力实体动作闭包。
 
 ### 2026-09-01：当前技能槽按钮投影
 
@@ -1230,3 +1235,13 @@ ID 当作物品主键。当前 48 条玩家承伤修正只在木桩边界省略�
 - 当前主控轨道头新增独立进度条。下一短期项审计主控/队伍被动专用 UI；只有能由已有 Buff、能力
   实体或资源账本表达且影响玩家判断的状态才进入 Endaxis，纯动画继续后置。
 - 本阶段定向门禁为 **5 文件 / 90 项**，Next 全量为 **286 文件 / 3892 项**；四套类型检查均通过。
+
+### 2026-09-02：敌人元素状态展示所有权闭合
+
+- 原生反应容器负责战斗条件和事件，可见 `_do` Buff 负责 `GPUIBuffNode` 展示；Next 不再把
+  `ElementalReactionApplied` 另投影为一条持续段。导电等法术异常以 Buff 实例生命周期显示一次，
+  不使用同帧去重启发式。
+- 公共 Buff 固定名称已从数据契约剥离到生成的应用层 i18n 映射；缺少固定名称时依次使用来源具体名称
+  和属性修正摘要。状态图标可打开统一详情面板查看来源、数值、层数和完整生命周期。
+- 下一步用佩丽卡直接连携、附着升级为反应、反应刷新/消费三类正式轴做浏览器视觉回归，并继续检查
+  四种元素附着、四种法术异常、破防和物理异常是否均由其原生 presentation 自动进入同一框架。

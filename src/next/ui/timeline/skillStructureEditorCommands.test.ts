@@ -8,9 +8,11 @@ import {
   moveStructureArrayItem,
   moveCombatStepAtPath,
   removeCombatStepAtPath,
+  replaceStructureValueAtPath,
   replaceCombatStepAtPath,
   resolveSkillStructureValue,
   resolveStructureValue,
+  structureRecordEntryPath,
 } from './skillStructureEditorCommands';
 
 function skill(): SkillDefinition {
@@ -104,5 +106,22 @@ describe('skillStructureEditorCommands', () => {
     const result = deleteStructureValueAtPath(input, 'handlers[0].condition');
     expect(resolveStructureValue(result, 'handlers[0].condition')).toBeUndefined();
     expect(resolveStructureValue(input, 'handlers[0].condition')).toEqual({ kind: 'combatActive' });
+  });
+
+  it('安全寻址包含下划线、点号和引号的原生记录键', () => {
+    const key = 'chr_0032.skill_"end"';
+    const path = structureRecordEntryPath('childSkills', key);
+    const source = { childSkills: { [key]: { skillId: key, scheduledSequences: [] } } };
+    const changed = replaceStructureValueAtPath(source, `${path}.skillId`, 'renamed');
+
+    expect(resolveStructureValue(source, `${path}.skillId`)).toBe(key);
+    expect(resolveStructureValue(changed, `${path}.skillId`)).toBe('renamed');
+    expect(Object.keys(changed.childSkills)).toEqual([key]);
+  });
+
+  it('拒绝未完整消费的非法结构路径', () => {
+    expect(() => resolveStructureValue({ childSkills: {} }, 'childSkills[broken]')).toThrow(
+      'invalid structure path',
+    );
   });
 });

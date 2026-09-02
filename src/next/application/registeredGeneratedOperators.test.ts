@@ -7,10 +7,12 @@ import { compileOperatorDefinitionSkills } from '../core/compiler/compileScenari
 import { resolveOperatorPanel } from '../core/compiler/resolveOperatorPanel';
 import { resolveScenarioBuilds } from '../core/compiler/resolveScenarioBuilds';
 import { createEmptyScenario } from '../core/project/createProject';
+import type { SkillCastDocument } from '../core/project/schema';
 import { projectSkillEnhancementTimelineViz } from '../core/projection/skillEnhancementTimelineViz';
 import { projectOperatorPassiveUiTimelineViz } from '../core/projection/operatorPassiveUiTimelineViz';
 import { nextGameDataRepository } from '../data/gameDataRepository';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
+import { compoundStatusFactories } from '../data/buffs/compoundStatusFactories';
 import { skillSettings } from '../data/combat/skillSettings';
 import { scheduled, sequence, step } from '../data/operators/definitionHelpers';
 import {
@@ -772,6 +774,84 @@ describe('registered generated operators', () => {
 
     expect(base).toBeGreaterThan(0);
     expect(enhanced).toBeGreaterThan(base);
+  });
+
+  it('opens Xaihi combo window when the support crystal consumes both heals', () => {
+    const scenario = createEmptyScenario(
+      'scenario:xaihi:crystal-combo-window',
+      '赛希支援晶体连携窗口回归',
+    );
+    scenario.battle.durationFrames = 180;
+    scenario.enemy.editable.hp = 10_000_000;
+    scenario.tracks[0] = {
+      id: 'track:xaihi:crystal-combo-window',
+      operator: {
+        operatorSlug: xaihi.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    let nextId = 0;
+    const ids = { allocate: (kind: string) => `${kind}:xaihi:crystal:${++nextId}` };
+    let placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: xaihi,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids,
+    }).scenario;
+    for (const startFrame of [50, 100]) {
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 0,
+        operator: xaihi,
+        skillGroupKey: 'basicAttack',
+        skillKey: 'basicAttack5',
+        startFrame,
+        ids,
+      }).scenario;
+    }
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 180,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    const windows = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'ComboWindowOpened' &&
+        entry.sourceId === 'track:xaihi:crystal-combo-window',
+    );
+    expect(windows).toHaveLength(1);
+    expect(windows[0]).toMatchObject({
+      frame: 118,
+      data: { nextSkillKey: 'comboSkill' },
+    });
   });
 
   it('applies Chen talent 2 poise damage from an explicit weakness-window output fact', () => {
@@ -3147,6 +3227,218 @@ describe('registered generated operators', () => {
     expect(serialized).toContain('actionInputTargetIdentityMatch');
     expect(serialized).toContain('contextTargetIdentityMatch');
     expect(serialized).toContain('contextTargetEntityTagMatch');
+  });
+
+  it('opens Zhuang Fangyi combo window after controlled finisher hits Perlica infliction', () => {
+    const scenario = createEmptyScenario(
+      'scenario:zhuang-fangyi:perlica-infliction-combo',
+      '佩丽卡电磁附着接庄方宜重击连携回归',
+    );
+    scenario.battle.durationFrames = 150;
+    const createTrack = (id: string, operatorSlug: string) => ({
+      id,
+      operator: {
+        operatorSlug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 0, 1: 0 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    });
+    scenario.tracks[0] = createTrack('track:perlica:zhuang-combo', perlica.slug);
+    scenario.tracks[1] = createTrack('track:zhuang-fangyi:combo', zhuangFangyi.slug);
+    scenario.battle.controlSwitches = [
+      { id: 'switch:zhuang-fangyi', frame: 30, trackIndex: 1 },
+    ];
+    let nextId = 0;
+    const ids = { allocate: (kind: string) => `${kind}:zhuang-combo:${++nextId}` };
+    let placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids,
+    }).scenario;
+    placed = placeSkillGroup({
+      scenario: placed,
+      trackIndex: 1,
+      operator: zhuangFangyi,
+      skillGroupKey: 'finisher',
+      startFrame: 40,
+      ids,
+    }).scenario;
+    placed = placeSkillGroup({
+      scenario: placed,
+      trackIndex: 1,
+      operator: zhuangFangyi,
+      skillGroupKey: 'comboSkill',
+      startFrame: 81,
+      ids,
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 150,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ComboWindowOpened',
+        sourceId: 'track:zhuang-fangyi:combo',
+      }),
+    );
+    expect(result.receiptEntries).not.toContainEqual(
+      expect.objectContaining({
+        event: 'ComboWindowUnavailableAtStart',
+        sourceId: 'track:zhuang-fangyi:combo',
+      }),
+    );
+  });
+
+  it('opens Zhuang Fangyi combo window after the controlled fifth basic attack hits Perlica infliction', () => {
+    const scenario = createEmptyScenario(
+      'scenario:zhuang-fangyi:perlica-infliction-basic-attack-combo',
+      '附件排轴：佩丽卡电磁附着接庄方宜第五段普攻连携回归',
+    );
+    scenario.battle.prepFrames = 67;
+    scenario.battle.durationFrames = 900;
+    scenario.tracks[0] = {
+      id: 'track:next-sample:2',
+      operator: {
+        operatorSlug: zhuangFangyi.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 2 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: ([
+        ['skillCast:next-sample:6', 'basicAttack1', 11],
+        ['skillCast:next-sample:7', 'basicAttack2', 26],
+        ['skillCast:next-sample:8', 'basicAttack3', 41],
+        ['skillCast:next-sample:9', 'basicAttack4', 67],
+        ['skillCast:next-sample:10', 'basicAttack5', 84],
+      ] as const).map(([id, skillKey, startFrame]): SkillCastDocument => ({
+        id,
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'basicAttack',
+          skillKey,
+          action: 'basicAttack',
+        },
+        placement: { startFrame },
+      })).concat({
+        id: 'skillCast:next-sample:12',
+        source: {
+          kind: 'operatorSkill' as const,
+          skillGroupKey: 'comboSkill',
+          skillKey: 'comboSkill',
+          action: 'comboSkill' as const,
+        },
+        placement: { startFrame: 147 },
+      }),
+    };
+    scenario.tracks[1] = {
+      id: 'track:next-sample:3',
+      operator: {
+        operatorSlug: perlica.slug,
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: { 0: 2, 1: 1 },
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [
+        {
+          id: 'skillCast:next-sample:11',
+          source: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: 'battleSkill',
+            action: 'battleSkill',
+          },
+          placement: { startFrame: 41 },
+        },
+      ],
+    };
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario,
+      endFrame: 240,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(100).fill(1)),
+      probabilitySamples: new ExplicitProbabilitySampleSource(Array(100).fill(1)),
+      elementalInflictionDocument: elementalAttachments,
+      spellInflictionSettings: skillSettings,
+      compoundStatusFactories,
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      options: {
+        index: nextGameDataRepository,
+        resources: {
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecoveryPauseDuration: 1.5,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          ultimateEnergySystemUnlocked: true,
+        },
+      },
+    });
+
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ComboWindowOpened',
+        sourceId: 'track:next-sample:2',
+      }),
+    );
+    expect(result.receiptEntries).not.toContainEqual(
+      expect.objectContaining({
+        event: 'ComboWindowUnavailableAtStart',
+        sourceId: 'track:next-sample:2',
+      }),
+    );
+    const opened = result.receiptEntries.find(
+      entry =>
+        entry.event === 'ComboWindowOpened' && entry.sourceId === 'track:next-sample:2',
+    );
+    expect(opened?.frame).toBe(103);
+    const consumed = result.receiptEntries.find(
+      entry =>
+        entry.event === 'ComboWindowConsumed' && entry.sourceId === 'track:next-sample:2',
+    );
+    expect(consumed?.frame).toBe(147);
   });
 
   it('binds Rossi native combo conditions to combo 2 without borrowing combo 3 cooldown', () => {

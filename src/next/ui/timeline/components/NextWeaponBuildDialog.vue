@@ -24,7 +24,6 @@ import type { WeaponInstanceViewModel } from '../loadoutBuildViewModel';
 import { resolveMaxWeaponTraitLevels } from '../../../application/editor/loadoutBuildFactory';
 
 const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly NextWeaponLevel[];
-const ABSOLUTE_MAX_TRAIT_LEVEL = 9;
 type WeaponTraitKey = 'skill1' | 'skill2' | 'skill3';
 
 const props = defineProps<{
@@ -77,8 +76,8 @@ const canTune = computed(() => {
   return level !== undefined && level !== 1 && level !== 90;
 });
 
-const traitKeys = computed<readonly WeaponTraitKey[]>(() =>
-  (props.weapon?.definition.traits ?? []).map(trait => trait.key).filter(isWeaponTraitKey),
+const traitKeys = computed<readonly string[]>(() =>
+  (props.weapon?.definition.traits ?? []).map(trait => trait.key),
 );
 
 function isWeaponTraitKey(value: string): value is WeaponTraitKey {
@@ -99,17 +98,17 @@ function currentBounds(): Record<WeaponTraitKey, WeaponTraitLevelBounds> | null 
   return weapon && level ? boundsFor(level, weapon.tuned, weapon.potential) : null;
 }
 
-function traitIndex(key: WeaponTraitKey): number {
+function traitIndex(key: string): number {
   return props.weapon?.definition.traits.findIndex(trait => trait.key === key) ?? -1;
 }
 
-function traitLevel(key: WeaponTraitKey): number {
+function traitLevel(key: string): number {
   const index = traitIndex(key);
   return index < 0 ? 1 : (props.weapon?.traitLevels[index] ?? 1);
 }
 
-function traitBounds(key: WeaponTraitKey): WeaponTraitLevelBounds {
-  const bounds = currentBounds()?.[key];
+function traitBounds(key: string): WeaponTraitLevelBounds {
+  const bounds = isWeaponTraitKey(key) ? currentBounds()?.[key] : undefined;
   if (bounds) return bounds;
   const index = traitIndex(key);
   const levelCount = index < 0 ? 1 : (props.weapon?.definition.traits[index]?.levelCount ?? 1);
@@ -162,7 +161,7 @@ function setPotential(potential: number): void {
   });
 }
 
-function setTraitLevel(key: WeaponTraitKey, selectedLevel: number): void {
+function setTraitLevel(key: string, selectedLevel: number): void {
   const weapon = props.weapon;
   const index = traitIndex(key);
   const bounds = traitBounds(key);
@@ -174,7 +173,7 @@ function setTraitLevel(key: WeaponTraitKey, selectedLevel: number): void {
   emitChange({ traitLevels });
 }
 
-function slotClass(key: WeaponTraitKey, level: number): string {
+function slotClass(key: string, level: number): string {
   const bounds = traitBounds(key);
   if (level <= bounds.min) return 'slot-base';
   if (level <= traitLevel(key)) return 'slot-active';
@@ -182,16 +181,23 @@ function slotClass(key: WeaponTraitKey, level: number): string {
   return 'slot-locked';
 }
 
-function traitName(key: WeaponTraitKey): string {
+function traitName(key: string): string {
   const weapon = props.weapon;
+  if (!isWeaponTraitKey(key)) return key;
   if (!weapon) return t(`armory.weapon.${key}`);
   return getWeaponSkillName(weaponTextSlug.value, key, locale.value, t(`armory.weapon.${key}`));
 }
 
-function traitDescription(key: WeaponTraitKey): string {
+function traitDescription(key: string): string {
   const weapon = props.weapon;
-  if (!weapon) return '';
+  if (!weapon || !isWeaponTraitKey(key)) return '';
   return getWeaponSkillDescription(weaponTextSlug.value, key, locale.value, traitLevel(key)) ?? '';
+}
+
+function traitDisplayLevels(key: string): readonly number[] {
+  const index = traitIndex(key);
+  const count = index < 0 ? 1 : (props.weapon?.definition.traits[index]?.levelCount ?? 1);
+  return Array.from({ length: Math.max(1, count) }, (_, level) => level + 1);
 }
 
 function tuningLabel(): string {
@@ -315,7 +321,7 @@ function maxOut(): void {
               <div class="skill-bar-area">
                 <div class="skill-slots">
                   <button
-                    v-for="level in ABSOLUTE_MAX_TRAIT_LEVEL"
+                    v-for="level in traitDisplayLevels(key)"
                     :key="level"
                     class="skill-slot"
                     :class="slotClass(key, level)"

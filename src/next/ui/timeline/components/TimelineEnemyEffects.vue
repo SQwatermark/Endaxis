@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * 敌人效果面板（对齐旧版 ResourceMonitor 的敌人状态区样式）：
- * 附着 = 元素图标框 + 层数角标 + 45 度条纹时长条；爆发/反应 = 图标标记。
+ * 可见 Buff = 原生图标框 + 层数角标 + 45 度条纹时长条；爆发/反应消费 = 图标标记。
  * 坐标与资源曲线同一体系（准备区偏移 + 每帧像素 + 轨道头宽度，跟随时间轴滚动）。
  */
 import { computed } from 'vue';
@@ -12,8 +12,12 @@ import type { CombatStatusIndicator } from '../../../core/projection/combatStatu
 import type { EnemyCombatHudSnapshot as EnemyCombatHudSnapshotModel } from '../../../core/projection/combatHudSnapshot';
 import CombatStatusIconStrip from './CombatStatusIconStrip.vue';
 import EnemyCombatHudSnapshot from './EnemyCombatHudSnapshot.vue';
+import { resolveBuffDisplayName } from '../buffDisplayName';
+import { commonBuffPresentationNameKeys } from '../../../data/buffs/generated/commonBuffPresentationNames.generated';
+import { resolveSimpleBuffModifierDisplayName } from '../buffDisplayName';
+import type { BuffDetailTarget } from '../buffDetail';
 
-const { t } = useI18n();
+const { t, te } = useI18n();
 
 const props = defineProps<{
   viz: EnemyEffectViz;
@@ -40,25 +44,25 @@ const props = defineProps<{
     recovering: string;
     brokenEndWindow: string;
   };
+  sourceName?: (source: {
+    readonly sourceId?: string;
+    readonly sourceActionId?: string;
+  }) => string | undefined;
+}>();
+const emit = defineEmits<{
+  'open-buff-detail': [target: BuffDetailTarget];
 }>();
 
 const ICON_SIZE = 20;
 const ICON_TOP = 2;
 const MARKER_TOP = 3;
 
-const ELEMENT_ICONS: Readonly<Record<string, string>> = {
-  heat: '/icons/icon_element_heat.webp',
-  electric: '/icons/icon_element_electric.webp',
-  cryo: '/icons/icon_element_cryo.webp',
-  nature: '/icons/icon_element_nature.webp',
-};
-
-const ELEMENT_COLORS: Readonly<Record<string, string>> = {
+const ELEMENT_COLORS = {
   heat: '#ff5a5f',
   electric: '#ffec3d',
   cryo: '#69c0ff',
   nature: '#52c41a',
-};
+} as const satisfies Readonly<Record<string, string>>;
 
 const BURST_ICONS: Readonly<Record<string, string>> = {
   Fire: '/icons/icon_burst_fusion_fire.webp',
@@ -72,10 +76,36 @@ const REACTION_ICONS: Readonly<Record<string, string>> = {
   corrosion: '/icons/icon_battle_debuff_corrupt.webp',
 };
 
-const REACTION_COLORS: Readonly<Record<string, string>> = {
+const REACTION_COLORS = {
   electrification: '#ffec3d',
   corrosion: '#52c41a',
+} as const satisfies Readonly<Record<string, string>>;
+
+const REACTION_BUFF_IDS: Readonly<Record<string, keyof typeof commonBuffPresentationNameKeys>> = {
+  electrification: 'buff_common_pulse_pulse_conduct_triggered_do',
+  corrosion: 'buff_common_natural_natural_corrupt_do',
 };
+
+/** 原生可见 Buff 是持续状态的唯一 UI 身份；这里只补元素配色，不创造第二条状态段。 */
+const SPECIAL_BUFF_COLORS: Readonly<Record<string, string>> = {
+  buff_common_energy_shard_attached_fire: ELEMENT_COLORS.heat,
+  buff_common_energy_shard_attached_pulse: ELEMENT_COLORS.electric,
+  buff_common_energy_shard_attached_cryst: ELEMENT_COLORS.cryo,
+  buff_common_energy_shard_attached_natural: ELEMENT_COLORS.nature,
+  buff_common_pulse_pulse_conduct_triggered_do: REACTION_COLORS.electrification,
+  buff_common_natural_natural_corrupt_do: REACTION_COLORS.corrosion,
+};
+
+function configuredNameKey(
+  buffId: keyof typeof commonBuffPresentationNameKeys | undefined,
+): string | undefined {
+  return buffId === undefined ? undefined : commonBuffPresentationNameKeys[buffId];
+}
+
+function effectName(nameKey: string | undefined, fallback: string): string {
+  const key = nameKey === undefined ? '' : `effects.name.${nameKey}`;
+  return key !== '' && te(key) ? t(key) : fallback;
+}
 
 function pointX(frame: number): number {
   return props.trackHeaderWidth + (frame + props.prepFrames) * props.pxPerFrame - props.scrollLeft;
@@ -87,90 +117,76 @@ function clamp(value: number, minimum: number, maximum: number): number {
 
 const width = computed(() => Math.max(1, props.trackHeaderWidth + props.timelineWidth));
 
-/** 附着与反应段共用旧版紧凑分行；互不重叠的持续段复用同一行。 */
-const segments = computed(() => {
-  const laneEnds: number[] = [];
-  return [...props.viz.segments]
-    .sort((left, right) => left.startFrame - right.startFrame || left.endFrame - right.endFrame)
-    .map(segment => {
-      let lane = laneEnds.findIndex(endFrame => endFrame <= segment.startFrame);
-      if (lane < 0) lane = laneEnds.length;
-      laneEnds[lane] = segment.endFrame;
-      const left = pointX(segment.startFrame);
-      const right = pointX(segment.endFrame);
-      const isAttachment = segment.kind === 'attachment';
-      const identity = isAttachment ? segment.element : segment.reaction;
-      const stacks = isAttachment ? segment.layers : segment.level;
-      return {
-        key: `${segment.kind}:${identity}:${segment.startFrame}`,
-        title: isAttachment
-          ? `${identity} · ${t('nextTimeline.effect.layers', { stacks })}`
-          : `${props.labels.reaction} ${identity} Lv${stacks}`,
-        icon: isAttachment
-          ? (ELEMENT_ICONS[identity] ?? '/icons/default_icon.webp')
-          : (REACTION_ICONS[identity] ?? '/icons/default_icon.webp'),
-        color: isAttachment
-          ? (ELEMENT_COLORS[identity] ?? '#596a7a')
-          : (REACTION_COLORS[identity] ?? '#596a7a'),
-        left,
-        top: ICON_TOP + lane * 22,
-        barWidthPx: Math.max(0, right - left - ICON_SIZE - 2),
-        stacks,
-        lane,
-      };
-    });
-});
-
-const effectLaneCount = computed(() =>
-  Math.max(0, ...segments.value.map(segment => segment.lane + 1)),
-);
-
 /** 爆发/反应标记：小图标框，hover 显示说明。 */
 const markers = computed(() =>
-  props.viz.markers
-    .filter(marker => marker.kind !== 'reactionApplied')
-    .map(marker => {
-      const icon =
-        marker.kind === 'burst'
-          ? (BURST_ICONS[marker.burstType ?? ''] ?? '/icons/default_icon.webp')
-          : (REACTION_ICONS[marker.reaction ?? ''] ?? '/icons/default_icon.webp');
-      const title =
-        marker.kind === 'burst'
-          ? `${props.labels.burst} ${marker.burstType ?? ''}`
-          : marker.kind === 'reactionApplied'
-            ? `${props.labels.reaction} ${marker.reaction ?? ''} Lv${marker.level ?? 0}`
-            : `${props.labels.reactionConsumed} ${marker.reaction ?? ''}`;
-      return {
-        key: `${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
-        icon,
-        x: clamp(pointX(marker.frame) - ICON_SIZE / 2, 0, width.value - ICON_SIZE),
-        title,
-      };
-    }),
+  props.viz.markers.map(marker => {
+    const icon =
+      marker.kind === 'burst'
+        ? (BURST_ICONS[marker.burstType ?? ''] ?? '/icons/default_icon.webp')
+        : (REACTION_ICONS[marker.reaction ?? ''] ?? '/icons/default_icon.webp');
+    const title =
+      marker.kind === 'burst'
+        ? `${props.labels.burst} ${marker.burstType ?? ''}`
+        : `${props.labels.reactionConsumed} ${effectName(configuredNameKey(REACTION_BUFF_IDS[marker.reaction ?? '']), marker.reaction ?? '')}`;
+    return {
+      key: `${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
+      icon,
+      x: clamp(pointX(marker.frame) - ICON_SIZE / 2, 0, width.value - ICON_SIZE),
+      title,
+    };
+  }),
 );
 
-const buffLaneOffset = effectLaneCount;
 const buffs = computed(() =>
   props.buffs.map(buff => {
     const left = pointX(buff.startFrame);
     const right = pointX(buff.endFrame);
+    const sourceName = props.sourceName?.(buff);
+    const modifierSummary = resolveSimpleBuffModifierDisplayName(
+      {
+        attribute: buff.simpleModifierAttribute,
+        slot: buff.simpleModifierSlot,
+        value: buff.simpleModifierValue,
+      },
+      { t, te },
+    );
+    const title = resolveBuffDisplayName(
+      buff.buffId,
+      { t, te },
+      {
+        attribute: buff.simpleModifierAttribute,
+        slot: buff.simpleModifierSlot,
+        value: buff.simpleModifierValue,
+      },
+      sourceName,
+    );
+    const icon = buff.iconPath ?? (buff.iconId ? `/icons/${buff.iconId}.webp` : null);
     return {
       ...buff,
       key: `${buff.buffId}:${buff.instanceId}:${buff.startFrame}`,
-      icon: buff.iconPath ?? (buff.iconId ? `/icons/${buff.iconId}.webp` : null),
+      icon,
       left,
-      top: ICON_TOP + (buff.lane + buffLaneOffset.value) * 22,
+      top: ICON_TOP + buff.lane * 22,
       barWidthPx: Math.max(0, right - left - ICON_SIZE - 2),
+      color: SPECIAL_BUFF_COLORS[buff.buffId],
+      title,
+      detail: {
+        title,
+        buffId: buff.buffId,
+        targetId: buff.targetId,
+        ...(sourceName === undefined ? {} : { sourceName }),
+        startFrame: buff.startFrame,
+        endFrame: buff.endFrame,
+        layers: buff.layers,
+        icon,
+        ...(modifierSummary === undefined ? {} : { modifierSummary }),
+      } satisfies BuffDetailTarget,
     };
   }),
 );
 
 const rowCount = computed(() =>
-  Math.max(
-    effectLaneCount.value,
-    props.viz.markers.length > 0 ? 1 : 0,
-    ...buffs.value.map(buff => buff.lane + buffLaneOffset.value + 1),
-  ),
+  Math.max(props.viz.markers.length > 0 ? 1 : 0, ...buffs.value.map(buff => buff.lane + 1)),
 );
 const height = computed(() => Math.max(90, rowCount.value * 22 + 2));
 </script>
@@ -190,44 +206,24 @@ const height = computed(() => Math.max(90, rowCount.value * 22 + 2));
       :indicators="statusIndicators"
       slot="headBarCommon"
       :frame="cursorFrame"
+      :source-name="sourceName"
+      @open-detail="emit('open-buff-detail', $event)"
     />
     <CombatStatusIconStrip
       class="enemy-status-strip enemy-status-strip--attached"
       :indicators="statusIndicators"
       slot="headBarAttached"
       :frame="cursorFrame"
+      :source-name="sourceName"
+      @open-detail="emit('open-buff-detail', $event)"
     />
     <div
-      v-if="
-        segments.length === 0 &&
-        markers.length === 0 &&
-        buffs.length === 0 &&
-        statusIndicators.length === 0
-      "
+      v-if="markers.length === 0 && buffs.length === 0 && statusIndicators.length === 0"
       class="enemy-effects__empty"
     >
       —
     </div>
     <template v-else>
-      <div
-        v-for="segment in segments"
-        :key="segment.key"
-        class="attachment-item"
-        :style="{ left: `${segment.left}px`, top: `${segment.top}px` }"
-        :title="segment.title"
-      >
-        <span class="anomaly-icon-box">
-          <img :src="segment.icon" class="anomaly-icon" alt="" />
-          <span v-if="segment.stacks > 1" class="anomaly-stacks">{{ segment.stacks }}</span>
-        </span>
-        <span
-          v-if="segment.barWidthPx > 0"
-          class="anomaly-duration-bar"
-          :style="{ width: `${segment.barWidthPx}px`, backgroundColor: segment.color }"
-        >
-          <span class="striped-bg"></span>
-        </span>
-      </div>
       <span
         v-for="marker in markers"
         :key="marker.key"
@@ -242,9 +238,16 @@ const height = computed(() => Math.max(90, rowCount.value * 22 + 2));
         :key="buff.key"
         class="attachment-item"
         :style="{ left: `${buff.left}px`, top: `${buff.top}px` }"
-        :title="buff.buffId"
+        :title="buff.title"
       >
-        <span class="anomaly-icon-box">
+        <span
+          class="anomaly-icon-box is-clickable"
+          role="button"
+          tabindex="0"
+          @click.stop="emit('open-buff-detail', buff.detail)"
+          @keydown.enter.stop.prevent="emit('open-buff-detail', buff.detail)"
+          @keydown.space.stop.prevent="emit('open-buff-detail', buff.detail)"
+        >
           <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
           <span v-else class="buff-fallback">+</span>
           <span v-if="buff.layers > 1" class="anomaly-stacks">{{ buff.layers }}</span>
@@ -252,7 +255,10 @@ const height = computed(() => Math.max(90, rowCount.value * 22 + 2));
         <span
           v-if="buff.barWidthPx > 0"
           class="anomaly-duration-bar generic-buff-bar"
-          :style="{ width: `${buff.barWidthPx}px` }"
+          :style="{
+            width: `${buff.barWidthPx}px`,
+            ...(buff.color === undefined ? {} : { backgroundColor: buff.color }),
+          }"
         >
           <span class="striped-bg"></span>
         </span>
@@ -328,6 +334,10 @@ const height = computed(() => Math.max(90, rowCount.value * 22 + 2));
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 22%),
     0 4px 12px rgb(0 0 0 / 46%);
+}
+
+.anomaly-icon-box.is-clickable {
+  cursor: pointer;
 }
 
 .anomaly-icon {

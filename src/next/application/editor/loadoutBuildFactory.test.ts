@@ -8,6 +8,8 @@ import {
   createDefaultGearInstance,
   createDefaultOperatorInstance,
   createDefaultWeaponInstance,
+  resolveGearArtificingLevels,
+  resolveMaxGearArtificingLevels,
 } from './loadoutBuildFactory';
 
 describe('loadoutBuildFactory', () => {
@@ -63,6 +65,40 @@ describe('loadoutBuildFactory', () => {
       traitLevels: [9, 9],
     });
     expect(createDefaultGearInstance(gear, 3).artificingLevels).toEqual([3, 3]);
+  });
+
+  it('装备精锻按每条词条自己的 0 基档位上限解析', () => {
+    const gear: GearDefinition = {
+      slug: 'custom-gear',
+      slotType: 'gloves',
+      levelRequirement: 70,
+      baseDefense: 1,
+      traits: [
+        { key: 'single', levelCount: 1 },
+        { key: 'four-levels', levelCount: 4 },
+        { key: 'six-levels', levelCount: 6 },
+      ],
+    };
+
+    expect(resolveGearArtificingLevels(gear, 3)).toEqual([0, 3, 3]);
+    expect(resolveGearArtificingLevels(gear, 99)).toEqual([0, 3, 5]);
+    expect(resolveMaxGearArtificingLevels(gear)).toEqual([0, 3, 5]);
+    expect(createDefaultGearInstance(gear, 99).artificingLevels).toEqual([0, 3, 5]);
+  });
+
+  it('非原生三槽身份的自定义武器词条直接使用定义级数', () => {
+    const weapon: WeaponDefinition = {
+      slug: 'custom-weapon',
+      rarity: 6,
+      weaponType: 'sword',
+      baseAttackAtLevelNodes: [1, 2, 3, 4, 5, 6],
+      traits: [
+        { key: 'skill1', levelCount: 12 },
+        { key: 'custom-passive', levelCount: 12 },
+      ],
+    };
+
+    expect(createDefaultWeaponInstance(weapon).traitLevels).toEqual([9, 12]);
   });
 
   it('沿用旧版低星满潜和显式默认潜能策略', () => {

@@ -1,5 +1,24 @@
 <script setup lang="ts">
 import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
+import type {
+  HealModifierDefinition,
+  PoiseModifierDefinition,
+} from '../../../../../packages/game-data-contract/src/modifiers';
+import type {
+  BuffDuration,
+  BuffPriority,
+  BuffTimeClock,
+  CombatBuffDefinitionAttributeModifier,
+  CombatBuffDefinitionDamageModifier,
+  CombatBuffPresentation,
+  CombatBuffChildPresentation,
+  SkillBuffSlotReplacement,
+  BuffShieldDefinition,
+  BuffKeywordEnhancementDefinition,
+  BuffSustainedProtectionDefinition,
+  CombatBuffSemanticRole,
+  CombatBuffSpellBurstDefinition,
+} from '../../../../../packages/game-data-contract/src/buffs';
 
 /**
  * Buff 施加步骤的参数编辑器。
@@ -13,6 +32,7 @@ import {
   BUFF_APPLICATION_TARGETS,
   COMBAT_TARGETS,
   type ActionSequenceDefinition,
+  type ActionBlackboardValue,
   type ActionValueOperand,
   type BuffApplicationTarget,
   type CombatStepDefinition,
@@ -23,8 +43,35 @@ import {
 } from '../../../core/game-data/operatorDefinition';
 import { BUFF_STACKING_TYPES, type BuffStackingType } from '../../../core/combat/buffs/combatBuffs';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
+import {
+  setBuffDefinitionPresentation as replaceBuffDefinitionPresentation,
+  setBuffDefinitionChildPresentations as replaceBuffDefinitionChildPresentations,
+  setBuffDefinitionPriority,
+  setBuffDefinitionScalar as replaceBuffDefinitionScalar,
+  setBuffDefinitionBlackboard as replaceBuffDefinitionBlackboard,
+  setBuffDefinitionAttributeModifiers as replaceBuffDefinitionAttributeModifiers,
+  setBuffDefinitionDamageModifiers as replaceBuffDefinitionDamageModifiers,
+  setBuffDefinitionSkillSlotReplacements as replaceBuffDefinitionSkillSlotReplacements,
+  setBuffDefinitionHealModifiers as replaceBuffDefinitionHealModifiers,
+  setBuffDefinitionPoiseModifiers as replaceBuffDefinitionPoiseModifiers,
+  setBuffDefinitionShields as replaceBuffDefinitionShields,
+  setBuffDefinitionKeywordEnhancements as replaceBuffDefinitionKeywordEnhancements,
+  setBuffDefinitionAdvancedProperties as replaceBuffDefinitionAdvancedProperties,
+} from '../buffDefinitionEditorCommands';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
+import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
+import BuffBlackboardEditor from './BuffBlackboardEditor.vue';
+import BuffAttributeModifierEditor from './BuffAttributeModifierEditor.vue';
+import BuffDamageModifierEditor from './BuffDamageModifierEditor.vue';
+import CombatBuffPresentationEditor from './CombatBuffPresentationEditor.vue';
+import CombatBuffChildPresentationsEditor from './CombatBuffChildPresentationsEditor.vue';
+import BuffSkillSlotReplacementEditor from './BuffSkillSlotReplacementEditor.vue';
+import BuffHealModifierEditor from './BuffHealModifierEditor.vue';
+import BuffPoiseModifierEditor from './BuffPoiseModifierEditor.vue';
+import BuffShieldEditor from './BuffShieldEditor.vue';
+import BuffKeywordEnhancementEditor from './BuffKeywordEnhancementEditor.vue';
+import BuffAdvancedPropertiesEditor from './BuffAdvancedPropertiesEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
@@ -76,19 +123,6 @@ const assignments = computed(() =>
   Object.entries(props.step.parameters.blackboardAssignments ?? {}).map(
     ([key, value]) => [key, toEditableOperand(value)] as const,
   ),
-);
-const presentation = computed(() => props.step.parameters.definition?.presentation);
-const failedIconPath = ref('');
-const previewIconPath = computed(() => {
-  const iconPath = presentation.value?.iconPath;
-  return iconPath !== undefined && iconPath !== failedIconPath.value ? iconPath : '';
-});
-
-watch(
-  () => presentation.value?.iconPath,
-  () => {
-    failedIconPath.value = '';
-  },
 );
 const operandLabels = () => ({
   constant: t('nextTimeline.skillEditing.operandConstant'),
@@ -145,19 +179,16 @@ function setDefinitionText(field: 'stackingKey', event: Event): void {
   setDefinition(next);
 }
 
-function setIconPath(event: Event): void {
+function setDefinitionPresentation(presentation: CombatBuffPresentation | undefined): void {
   const definition = props.step.parameters.definition;
   if (definition === undefined) return;
-  const iconPath = (event.target as HTMLInputElement).value.trim();
-  const next = { ...definition };
-  if (iconPath === '') {
-    if (definition.presentation !== undefined) {
-      const { iconPath: _removedIconPath, ...remainingPresentation } = definition.presentation;
-      if (Object.keys(remainingPresentation).length === 0) delete next.presentation;
-      else next.presentation = remainingPresentation;
-    }
-  } else next.presentation = { ...definition.presentation, iconPath };
-  setDefinition(next);
+  setDefinition(replaceBuffDefinitionPresentation(definition, presentation));
+}
+
+function setDefinitionChildPresentations(children: readonly CombatBuffChildPresentation[]): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(replaceBuffDefinitionChildPresentations(definition, children));
 }
 
 function setStackingType(event: Event): void {
@@ -168,21 +199,120 @@ function setStackingType(event: Event): void {
   setDefinition({ ...definition, stackingType });
 }
 
-function setDefinitionNumber(
+function setDefinitionScalar(
   field: 'durationSeconds' | 'triggerIntervalSeconds' | 'maxStackCount' | 'maxTriggerCount',
-  event: Event,
+  value: BuffDuration | undefined,
 ): void {
   const definition = props.step.parameters.definition;
   if (definition === undefined) return;
-  const raw = (event.target as HTMLInputElement).value;
+  setDefinition(replaceBuffDefinitionScalar(definition, field, value));
+}
+
+function setPriority(value: BuffDuration | undefined): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(setBuffDefinitionPriority(definition, value));
+}
+
+function setPriorityNegate(event: Event): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined || typeof definition.priority !== 'object') return;
+  const priority: BuffPriority = {
+    blackboardKey: definition.priority.blackboardKey,
+    ...((event.target as HTMLInputElement).checked ? { negate: true } : {}),
+  };
+  setDefinition({ ...definition, priority });
+}
+
+function setTimeClock(event: Event): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  const value = (event.target as HTMLSelectElement).value as BuffTimeClock | '';
   const next = { ...definition };
-  if (raw === '') delete next[field];
-  else {
-    const value = Number(raw);
-    if (!Number.isFinite(value) || value < 0) return;
-    next[field] = value;
-  }
+  if (value === '') delete next.timeClock;
+  else next.timeClock = value;
   setDefinition(next);
+}
+
+function setWaitFirstTriggerInterval(event: Event): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  const value = (event.target as HTMLSelectElement).value;
+  const next = { ...definition };
+  if (value === '') delete next.waitFirstTriggerInterval;
+  else next.waitFirstTriggerInterval = value === 'true';
+  setDefinition(next);
+}
+
+function setDefinitionBlackboard(
+  blackboard: Readonly<Record<string, ActionBlackboardValue>>,
+): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(replaceBuffDefinitionBlackboard(definition, blackboard));
+}
+
+function setDefinitionAttributeModifiers(
+  modifiers: readonly CombatBuffDefinitionAttributeModifier[],
+): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(replaceBuffDefinitionAttributeModifiers(definition, modifiers));
+}
+
+function setDefinitionDamageModifiers(
+  modifiers: readonly CombatBuffDefinitionDamageModifier[],
+): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(replaceBuffDefinitionDamageModifiers(definition, modifiers));
+}
+
+function setDefinitionSkillSlotReplacements(
+  replacements: readonly SkillBuffSlotReplacement[],
+): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(replaceBuffDefinitionSkillSlotReplacements(definition, replacements));
+}
+
+function setDefinitionHealModifiers(modifiers: readonly HealModifierDefinition[]): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(replaceBuffDefinitionHealModifiers(definition, modifiers));
+}
+
+function setDefinitionPoiseModifiers(modifiers: readonly PoiseModifierDefinition[]): void {
+  const definition = props.step.parameters.definition;
+  if (!definition) return;
+  setDefinition(replaceBuffDefinitionPoiseModifiers(definition, modifiers));
+}
+
+function setDefinitionShields(shields: readonly BuffShieldDefinition[]): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(replaceBuffDefinitionShields(definition, shields));
+}
+
+function setDefinitionKeywordEnhancements(
+  enhancements: readonly BuffKeywordEnhancementDefinition[],
+): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(replaceBuffDefinitionKeywordEnhancements(definition, enhancements));
+}
+
+function setDefinitionAdvancedProperty(
+  field: 'sustainedProtection' | 'role' | 'spellBurst',
+  value:
+    | BuffSustainedProtectionDefinition
+    | CombatBuffSemanticRole
+    | CombatBuffSpellBurstDefinition
+    | undefined,
+): void {
+  const definition = props.step.parameters.definition;
+  if (definition === undefined) return;
+  setDefinition(replaceBuffDefinitionAdvancedProperties(definition, { [field]: value ?? null }));
 }
 
 function setDefinitionTags(field: 'applyTags' | 'extendTags', tags: readonly GameplayTag[]): void {
@@ -487,6 +617,30 @@ function removeAssignment(key: string): void {
         />
       </label>
       <label>
+        <EditorFieldLabel label="时间域" />
+        <select :value="step.parameters.definition.timeClock ?? ''" @change="setTimeClock">
+          <option value="">默认（省略）</option>
+          <option value="default">default</option>
+          <option value="global">global</option>
+          <option value="self">self</option>
+        </select>
+      </label>
+      <label>
+        <EditorFieldLabel label="首次触发前等待间隔" />
+        <select
+          :value="
+            step.parameters.definition.waitFirstTriggerInterval === undefined
+              ? ''
+              : String(step.parameters.definition.waitFirstTriggerInterval)
+          "
+          @change="setWaitFirstTriggerInterval"
+        >
+          <option value="">未设置</option>
+          <option value="true">是</option>
+          <option value="false">否</option>
+        </select>
+      </label>
+      <label>
         <EditorFieldLabel
           :label="t('nextTimeline.skillEditing.buffApplyTags')"
           :help="t('nextTimeline.skillEditing.fieldHelp.buffApplyTags')"
@@ -508,92 +662,117 @@ function removeAssignment(key: string): void {
           @update="setDefinitionTags('extendTags', $event)"
         />
       </label>
-      <label class="buff-presentation-editor">
-        <EditorFieldLabel
-          :label="t('nextTimeline.skillEditing.buffIconPath')"
-          :help="t('nextTimeline.skillEditing.fieldHelp.buffIconPath')"
-        />
-        <span class="buff-presentation-editor__content">
-          <span class="buff-icon-preview" :class="{ 'is-hidden': presentation?.visible === false }">
-            <img
-              v-if="previewIconPath"
-              :src="previewIconPath"
-              :alt="
-                presentation?.iconId ??
-                (typeof step.parameters.buffId === 'string'
-                  ? step.parameters.buffId
-                  : step.parameters.buffId.blackboardKey)
-              "
-              @error="failedIconPath = previewIconPath"
+      <label>
+        <EditorFieldLabel label="优先级" />
+        <span class="buff-priority-editor">
+          <BuffDefinitionScalarEditor
+            :value="step.parameters.definition.priority"
+            @update="setPriority"
+          />
+          <label v-if="typeof step.parameters.definition.priority === 'object'">
+            <input
+              type="checkbox"
+              :checked="step.parameters.definition.priority.negate === true"
+              @change="setPriorityNegate"
             />
-            <span v-else class="buff-icon-preview__fallback">BUFF</span>
-          </span>
-          <span class="buff-presentation-editor__fields">
-            <input type="text" :value="presentation?.iconPath ?? ''" @input="setIconPath" />
-            <small v-if="presentation?.iconId">
-              <code>{{ presentation.iconId }}</code>
-              <span v-if="presentation.visible === false"> · hidden</span>
-            </small>
-          </span>
+            取反
+          </label>
         </span>
       </label>
       <label>
         <EditorFieldLabel :label="t('nextTimeline.skillEditing.durationSeconds')" />
-        <input
-          type="number"
-          min="0"
-          step="0.01"
-          :value="
-            typeof step.parameters.definition.durationSeconds === 'number'
-              ? step.parameters.definition.durationSeconds
-              : ''
-          "
-          @input="setDefinitionNumber('durationSeconds', $event)"
+        <BuffDefinitionScalarEditor
+          :value="step.parameters.definition.durationSeconds"
+          :minimum="0"
+          @update="setDefinitionScalar('durationSeconds', $event)"
         />
       </label>
       <label>
         <EditorFieldLabel :label="t('nextTimeline.skillEditing.maxStacks')" />
-        <input
-          type="number"
-          min="0"
-          step="1"
-          :value="
-            typeof step.parameters.definition.maxStackCount === 'number'
-              ? step.parameters.definition.maxStackCount
-              : ''
-          "
-          @input="setDefinitionNumber('maxStackCount', $event)"
+        <BuffDefinitionScalarEditor
+          :value="step.parameters.definition.maxStackCount"
+          integer
+          :minimum="0"
+          @update="setDefinitionScalar('maxStackCount', $event)"
         />
       </label>
       <label>
         <EditorFieldLabel :label="t('nextTimeline.skillEditing.buffTriggerInterval')" />
-        <input
-          type="number"
-          min="0"
-          step="0.01"
-          :value="
-            typeof step.parameters.definition.triggerIntervalSeconds === 'number'
-              ? step.parameters.definition.triggerIntervalSeconds
-              : ''
-          "
-          @input="setDefinitionNumber('triggerIntervalSeconds', $event)"
+        <BuffDefinitionScalarEditor
+          :value="step.parameters.definition.triggerIntervalSeconds"
+          :minimum="0"
+          @update="setDefinitionScalar('triggerIntervalSeconds', $event)"
         />
       </label>
       <label>
         <EditorFieldLabel :label="t('nextTimeline.skillEditing.buffMaxTriggerCount')" />
-        <input
-          type="number"
-          min="0"
-          step="1"
-          :value="
-            typeof step.parameters.definition.maxTriggerCount === 'number'
-              ? step.parameters.definition.maxTriggerCount
-              : ''
-          "
-          @input="setDefinitionNumber('maxTriggerCount', $event)"
+        <BuffDefinitionScalarEditor
+          :value="step.parameters.definition.maxTriggerCount"
+          integer
+          :minimum="-1"
+          @update="setDefinitionScalar('maxTriggerCount', $event)"
         />
       </label>
     </div>
+    <CombatBuffPresentationEditor
+      v-if="step.parameters.definition"
+      :presentation="step.parameters.definition.presentation"
+      @update="setDefinitionPresentation"
+    />
+    <CombatBuffChildPresentationsEditor
+      v-if="step.parameters.definition"
+      :children="step.parameters.definition.childPresentations ?? []"
+      @update="setDefinitionChildPresentations"
+    />
+    <BuffBlackboardEditor
+      v-if="step.parameters.definition"
+      :blackboard="step.parameters.definition.blackboard ?? {}"
+      @update="setDefinitionBlackboard"
+    />
+    <BuffAttributeModifierEditor
+      v-if="step.parameters.definition"
+      :modifiers="step.parameters.definition.attributeModifiers ?? []"
+      @update="setDefinitionAttributeModifiers"
+    />
+    <BuffDamageModifierEditor
+      v-if="step.parameters.definition"
+      :modifiers="step.parameters.definition.damageModifiers ?? []"
+      @update="setDefinitionDamageModifiers"
+    />
+    <BuffSkillSlotReplacementEditor
+      v-if="step.parameters.definition"
+      :replacements="step.parameters.definition.skillSlotReplacements ?? []"
+      @update="setDefinitionSkillSlotReplacements"
+    />
+    <BuffHealModifierEditor
+      v-if="step.parameters.definition"
+      :modifiers="step.parameters.definition.healModifiers ?? []"
+      @update="setDefinitionHealModifiers"
+    />
+    <BuffPoiseModifierEditor
+      v-if="step.parameters.definition"
+      :modifiers="step.parameters.definition.poiseModifiers ?? []"
+      @update="setDefinitionPoiseModifiers"
+    />
+    <BuffShieldEditor
+      v-if="step.parameters.definition"
+      :shields="step.parameters.definition.shields ?? []"
+      @update="setDefinitionShields"
+    />
+    <BuffKeywordEnhancementEditor
+      v-if="step.parameters.definition"
+      :enhancements="step.parameters.definition.keywordEnhancements ?? []"
+      @update="setDefinitionKeywordEnhancements"
+    />
+    <BuffAdvancedPropertiesEditor
+      v-if="step.parameters.definition"
+      :sustained-protection="step.parameters.definition.sustainedProtection"
+      :role="step.parameters.definition.role"
+      :spell-burst="step.parameters.definition.spellBurst"
+      @update-sustained-protection="setDefinitionAdvancedProperty('sustainedProtection', $event)"
+      @update-role="setDefinitionAdvancedProperty('role', $event)"
+      @update-spell-burst="setDefinitionAdvancedProperty('spellBurst', $event)"
+    />
   </fieldset>
 
   <fieldset v-if="step.parameters.definition && !inspectorOnly" class="buff-lifecycle">
@@ -695,57 +874,6 @@ function removeAssignment(key: string): void {
   grid-template-columns: minmax(110px, 150px) minmax(0, 1fr);
   align-items: center;
   gap: 10px;
-}
-
-.buff-definition__grid .buff-presentation-editor {
-  grid-column: 1 / -1;
-}
-
-.buff-presentation-editor__content {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: 38px minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
-}
-
-.buff-presentation-editor__fields {
-  min-width: 0;
-  display: grid;
-  gap: 4px;
-}
-
-.buff-presentation-editor__fields small {
-  min-width: 0;
-  overflow-wrap: anywhere;
-  color: var(--ea-fg-muted);
-}
-
-.buff-icon-preview {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-  overflow: hidden;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-fill-input, #16161a);
-}
-
-.buff-icon-preview.is-hidden {
-  opacity: 0.42;
-}
-
-.buff-icon-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.buff-icon-preview__fallback {
-  color: var(--ea-fg-muted);
-  font-size: 8px;
-  letter-spacing: 0.04em;
 }
 
 .buff-lifecycle__tabs {

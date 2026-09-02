@@ -22,6 +22,7 @@ import {
   getProjectDefinitionLibrary,
   replaceProjectGearTemplateDefinition,
   replaceProjectGearSetTemplateDefinition,
+  replaceProjectOperatorTemplateDefinition,
   replaceProjectWeaponTemplateDefinition,
   switchTrackToCompatibleGearTemplate,
   switchTrackToCompatibleOperatorTemplate,
@@ -172,14 +173,16 @@ describe('projectDefinitionLibrary', () => {
       weaponSlug: 'project:weapon:1',
     });
 
-    const projectWithScenario = { ...project, scenarios: [next] };
+    const secondScenario = structuredClone(next);
+    secondScenario.id = 'scenario:second';
+    secondScenario.tracks[0]!.id = 'track:weapon:second';
+    const projectWithScenario = { ...project, scenarios: [next, secondScenario] };
     const replacement = {
       ...custom,
       displayName: '调整后的武器',
-      traits: custom.traits.map((trait, index) => ({
-        ...trait,
-        levelCount: index === 0 ? 2 : trait.levelCount,
-      })),
+      traits: custom.traits.map((trait, index) =>
+        index === 0 ? { key: trait.key, levelCount: 2 } : trait,
+      ),
     };
     const replaced = replaceProjectWeaponTemplateDefinition(
       projectWithScenario,
@@ -189,6 +192,9 @@ describe('projectDefinitionLibrary', () => {
 
     expect(getProjectDefinitionLibrary(replaced).weapons[custom.slug]?.name).toBe('调整后的武器');
     expect(replaced.scenarios[0]?.tracks[0]?.weapon?.traitLevels[0]).toBe(2);
+    expect(replaced.scenarios[1]?.tracks[0]?.weapon?.traitLevels[0]).toBe(2);
+    expect(projectWithScenario.scenarios[0]?.tracks[0]?.weapon?.traitLevels[0]).toBe(9);
+    expect(projectWithScenario.scenarios[1]?.tracks[0]?.weapon?.traitLevels[0]).toBe(9);
   });
 
   it('derives, switches and replaces a project gear template across referencing slots', () => {
@@ -221,13 +227,16 @@ describe('projectDefinitionLibrary', () => {
     const replacement = {
       ...custom,
       displayName: '调整后的装备',
-      traits: custom.traits.map((trait, index) => ({
-        ...trait,
-        levelCount: index === 0 ? 2 : trait.levelCount,
-      })),
+      traits: custom.traits.map((trait, index) =>
+        index === 0 ? { key: trait.key, levelCount: 2 } : trait,
+      ),
     };
+    const secondScenario = structuredClone(switched);
+    secondScenario.id = 'scenario:gear:second';
+    secondScenario.tracks[0]!.id = 'track:gear:second';
+    const projectWithScenarios = { ...project, scenarios: [switched, secondScenario] };
     const replaced = replaceProjectGearTemplateDefinition(
-      { ...project, scenarios: [switched] },
+      projectWithScenarios,
       custom.slug,
       replacement,
     );
@@ -236,6 +245,9 @@ describe('projectDefinitionLibrary', () => {
     expect(replacedGear?.gearSlug).toBe(custom.slug);
     expect(replacedGear?.artificingLevels[0]).toBe(1);
     expect(replacedGear?.artificingLevels).toHaveLength(custom.traits.length);
+    expect(replaced.scenarios[1]?.tracks[0]?.gears.armor?.artificingLevels[0]).toBe(1);
+    expect(projectWithScenarios.scenarios[0]?.tracks[0]?.gears.armor?.artificingLevels[0]).toBe(3);
+    expect(projectWithScenarios.scenarios[1]?.tracks[0]?.gears.armor?.artificingLevels[0]).toBe(3);
     expect(getProjectDefinitionLibrary(replaced).gears[custom.slug]?.name).toBe('调整后的装备');
   });
 
@@ -261,6 +273,70 @@ describe('projectDefinitionLibrary', () => {
       definition: { slug: custom.slug, displayName: '调整后的套装' },
     });
     expect(replaced.scenarios).toBe(project.scenarios);
+  });
+
+  it('rejects invalid equipment definitions before they can enter project history', () => {
+    const emptyProject = createEmptyProject({
+      createdWith: 'test',
+      gameDataRevision: 'definitions:test',
+    });
+    const weapon = sharedWeaponDefinitions[0]!;
+    expect(() =>
+      deriveProjectWeaponTemplate(emptyProject, {
+        id: 'project:weapon:invalid-source',
+        name: '非法来源武器',
+        baseTemplateId: weapon.slug,
+        definition: { ...weapon, baseAttackAtLevelNodes: [] },
+      }),
+    ).toThrow(/invalid project weapon definition/);
+    const weaponProject = deriveProjectWeaponTemplate(emptyProject, {
+      id: 'project:weapon:invalid-guard',
+      name: '武器校验边界',
+      baseTemplateId: weapon.slug,
+      definition: weapon,
+    });
+    const customWeapon =
+      getProjectDefinitionLibrary(weaponProject).weapons['project:weapon:invalid-guard']!
+        .definition;
+    expect(() =>
+      replaceProjectWeaponTemplateDefinition(weaponProject, customWeapon.slug, {
+        ...customWeapon,
+        baseAttackAtLevelNodes: [],
+      }),
+    ).toThrow(/invalid project weapon definition/);
+
+    const gear = sharedGearDefinitions[0]!;
+    const gearProject = deriveProjectGearTemplate(emptyProject, {
+      id: 'project:gear:invalid-guard',
+      name: '装备校验边界',
+      baseTemplateId: gear.slug,
+      definition: gear,
+    });
+    const customGear =
+      getProjectDefinitionLibrary(gearProject).gears['project:gear:invalid-guard']!.definition;
+    expect(() =>
+      replaceProjectGearTemplateDefinition(gearProject, customGear.slug, {
+        ...customGear,
+        baseDefense: -1,
+      }),
+    ).toThrow(/invalid project gear definition/);
+
+    const gearSet = sharedGearSetDefinitions[0]!;
+    const gearSetProject = deriveProjectGearSetTemplate(emptyProject, {
+      id: 'project:gearSet:invalid-guard',
+      name: '套装校验边界',
+      baseTemplateId: gearSet.slug,
+      definition: gearSet,
+    });
+    const customGearSet =
+      getProjectDefinitionLibrary(gearSetProject).gearSets['project:gearSet:invalid-guard']!
+        .definition;
+    expect(() =>
+      replaceProjectGearSetTemplateDefinition(gearSetProject, customGearSet.slug, {
+        ...customGearSet,
+        initializationBlackboard: { invalid: [] },
+      }),
+    ).toThrow(/invalid project gear set definition/);
   });
 
   it('switches a track to a freshly derived compatible template without changing casts', () => {
@@ -294,6 +370,58 @@ describe('projectDefinitionLibrary', () => {
     expect(next.tracks[0]!.operator?.operatorSlug).toBe(custom.slug);
     expect(next.tracks[0]!.skillCasts).toEqual(scenario.tracks[0]!.skillCasts);
     expect(next.tracks[0]!.skillCasts).toBe(scenario.tracks[0]!.skillCasts);
+  });
+
+  it('atomically replaces an operator definition only while every placed skill remains valid', () => {
+    const templateId = 'project:operator:replace-guard';
+    let project = deriveProjectOperatorTemplate(
+      createEmptyProject({ createdWith: 'test', gameDataRevision: 'definitions:test' }),
+      {
+        id: templateId,
+        name: '干员替换边界',
+        baseTemplateId: perlica.slug,
+        definition: perlica,
+      },
+    );
+    const definition = getProjectDefinitionLibrary(project).operators[templateId]!.definition;
+    const battleGroup = definition.skillGroups.find(group => group.key === 'battleSkill')!;
+    const battleSkill = Array.isArray(battleGroup.skills)
+      ? battleGroup.skills[0]!
+      : battleGroup.skills;
+    const scenario = createEmptyScenario('operator-replace', 'Operator replace');
+    scenario.tracks[0] = {
+      id: 'track:operator-replace',
+      operator: operatorInstance(templateId),
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [
+        {
+          id: 'cast:operator-replace',
+          source: {
+            kind: 'operatorSkill',
+            skillGroupKey: battleGroup.key,
+            skillKey: battleSkill.key,
+          },
+          placement: { startFrame: 30 },
+        },
+      ],
+    };
+    project = { ...project, scenarios: [scenario], activeScenarioId: scenario.id };
+
+    const replaced = replaceProjectOperatorTemplateDefinition(project, templateId, {
+      ...definition,
+      displayName: '已修改干员',
+    });
+    expect(getProjectDefinitionLibrary(replaced).operators[templateId]?.name).toBe('已修改干员');
+    expect(replaced.scenarios).toBe(project.scenarios);
+
+    expect(() =>
+      replaceProjectOperatorTemplateDefinition(project, templateId, {
+        ...definition,
+        skillGroups: definition.skillGroups.filter(group => group.key !== battleGroup.key),
+      }),
+    ).toThrow(/cannot preserve cast 'cast:operator-replace'/);
   });
 
   it('round-trips project templates and resolves their instances through base-data validation', () => {

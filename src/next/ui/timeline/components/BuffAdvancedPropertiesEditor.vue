@@ -1,0 +1,327 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import type {
+  BuffDuration,
+  BuffSustainedProtectionDefinition,
+  CombatBuffSemanticRole,
+  CombatBuffSpellBurstDefinition,
+} from '../../../../../packages/game-data-contract/src/buffs';
+import {
+  DAMAGE_TYPES,
+  INFLICTION_ELEMENTS,
+  type DamageType,
+  type InflictionElement,
+} from '../../../../../packages/game-data-contract/src/primitives';
+import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
+
+const props = defineProps<{
+  sustainedProtection?: BuffSustainedProtectionDefinition;
+  role?: CombatBuffSemanticRole;
+  spellBurst?: CombatBuffSpellBurstDefinition;
+}>();
+const emit = defineEmits<{
+  updateSustainedProtection: [value: BuffSustainedProtectionDefinition | undefined];
+  updateRole: [value: CombatBuffSemanticRole | undefined];
+  updateSpellBurst: [value: CombatBuffSpellBurstDefinition | undefined];
+}>();
+const collapsed = ref(true);
+function roleKind(role: CombatBuffSemanticRole | undefined): CombatBuffSemanticRole['kind'] {
+  return role?.kind ?? 'elementalAttachment';
+}
+function createRole(kind: CombatBuffSemanticRole['kind']): CombatBuffSemanticRole {
+  return kind === 'elementalAttachment' || kind === 'elementalBurst'
+    ? { kind, element: 'heat' }
+    : { kind, consumedElement: 'heat', incomingElement: 'electric' };
+}
+function finiteNumber(event: Event): number | undefined {
+  const value = Number((event.target as HTMLInputElement).value);
+  return Number.isFinite(value) ? value : undefined;
+}
+function setSustainedProtectionScalar(
+  field: 'superArmor' | 'impactResistance',
+  value: BuffDuration | undefined,
+): void {
+  if (value === undefined || !props.sustainedProtection) return;
+  emit('updateSustainedProtection', { ...props.sustainedProtection, [field]: value });
+}
+</script>
+
+<template>
+  <section class="advanced-editor">
+    <header>
+      <button type="button" @click="collapsed = !collapsed">
+        {{ collapsed ? '▸' : '▾' }} 高级原生语义
+      </button>
+    </header>
+    <div v-if="!collapsed" class="advanced-content">
+      <fieldset>
+        <legend>
+          <label
+            ><input
+              type="checkbox"
+              :checked="sustainedProtection !== undefined"
+              @change="
+                emit(
+                  'updateSustainedProtection',
+                  ($event.target as HTMLInputElement).checked
+                    ? { target: 'owner', superArmor: 0, impactResistance: 0 }
+                    : undefined,
+                )
+              "
+            />持续保护</label
+          >
+        </legend>
+        <template v-if="sustainedProtection"
+          ><label
+            ><span>目标</span
+            ><select
+              :value="sustainedProtection.target"
+              @change="
+                emit('updateSustainedProtection', {
+                  ...sustainedProtection,
+                  target: ($event.target as HTMLSelectElement).value as 'owner' | 'buffSource',
+                })
+              "
+            >
+              <option value="owner">owner</option>
+              <option value="buffSource">buffSource</option>
+            </select></label
+          ><label
+            ><span>霸体</span
+            ><BuffDefinitionScalarEditor
+              :value="sustainedProtection.superArmor"
+              @update="setSustainedProtectionScalar('superArmor', $event)" /></label
+          ><label
+            ><span>冲击抗性</span
+            ><BuffDefinitionScalarEditor
+              :value="sustainedProtection.impactResistance"
+              @update="setSustainedProtectionScalar('impactResistance', $event)" /></label
+        ></template>
+      </fieldset>
+      <fieldset>
+        <legend>
+          <label
+            ><input
+              type="checkbox"
+              :checked="role !== undefined"
+              @change="
+                emit(
+                  'updateRole',
+                  ($event.target as HTMLInputElement).checked
+                    ? createRole('elementalAttachment')
+                    : undefined,
+                )
+              "
+            />语义角色</label
+          >
+        </legend>
+        <template v-if="role"
+          ><label
+            ><span>角色类型</span
+            ><select
+              :value="roleKind(role)"
+              @change="
+                emit(
+                  'updateRole',
+                  createRole(
+                    ($event.target as HTMLSelectElement).value as CombatBuffSemanticRole['kind'],
+                  ),
+                )
+              "
+            >
+              <option value="elementalAttachment">elementalAttachment</option>
+              <option value="elementalBurst">elementalBurst</option>
+              <option value="compoundStatus">compoundStatus</option>
+            </select></label
+          >
+          <label v-if="role.kind === 'elementalAttachment' || role.kind === 'elementalBurst'"
+            ><span>元素</span
+            ><select
+              :value="role.element"
+              @change="
+                emit('updateRole', {
+                  ...role,
+                  element: ($event.target as HTMLSelectElement).value as InflictionElement,
+                })
+              "
+            >
+              <option v-for="element in INFLICTION_ELEMENTS" :key="element" :value="element">
+                {{ element }}
+              </option>
+            </select></label
+          >
+          <template v-else
+            ><label
+              ><span>已消费元素</span
+              ><select
+                :value="role.consumedElement"
+                @change="
+                  emit('updateRole', {
+                    ...role,
+                    consumedElement: ($event.target as HTMLSelectElement)
+                      .value as InflictionElement,
+                  })
+                "
+              >
+                <option v-for="element in INFLICTION_ELEMENTS" :key="element" :value="element">
+                  {{ element }}
+                </option>
+              </select></label
+            ><label
+              ><span>输入元素</span
+              ><select
+                :value="role.incomingElement"
+                @change="
+                  emit('updateRole', {
+                    ...role,
+                    incomingElement: ($event.target as HTMLSelectElement)
+                      .value as InflictionElement,
+                  })
+                "
+              >
+                <option v-for="element in INFLICTION_ELEMENTS" :key="element" :value="element">
+                  {{ element }}
+                </option>
+              </select></label
+            ></template
+          >
+        </template>
+      </fieldset>
+      <fieldset>
+        <legend>
+          <label
+            ><input
+              type="checkbox"
+              :checked="spellBurst !== undefined"
+              @change="
+                emit(
+                  'updateSpellBurst',
+                  ($event.target as HTMLInputElement).checked
+                    ? {
+                        burstType: '',
+                        damageType: 'physical',
+                        skillSettingDataKey: '',
+                        skillSettingColumn: 1,
+                        atkScaleBase: 0,
+                      }
+                    : undefined,
+                )
+              "
+            />法术爆发参数</label
+          >
+        </legend>
+        <template v-if="spellBurst"
+          ><label
+            ><span>爆发类型</span
+            ><input
+              type="text"
+              :value="spellBurst.burstType"
+              @input="
+                emit('updateSpellBurst', {
+                  ...spellBurst,
+                  burstType: ($event.target as HTMLInputElement).value,
+                })
+              " /></label
+          ><label
+            ><span>伤害类型</span
+            ><select
+              :value="spellBurst.damageType"
+              @change="
+                emit('updateSpellBurst', {
+                  ...spellBurst,
+                  damageType: ($event.target as HTMLSelectElement).value as DamageType,
+                })
+              "
+            >
+              <option v-for="damageType in DAMAGE_TYPES" :key="damageType" :value="damageType">
+                {{ damageType }}
+              </option>
+            </select></label
+          ><label
+            ><span>SkillSetting 数据键</span
+            ><input
+              type="text"
+              :value="spellBurst.skillSettingDataKey"
+              @input="
+                emit('updateSpellBurst', {
+                  ...spellBurst,
+                  skillSettingDataKey: ($event.target as HTMLInputElement).value,
+                })
+              " /></label
+          ><label
+            ><span>列号（1 基）</span
+            ><input
+              type="number"
+              min="1"
+              step="1"
+              :value="spellBurst.skillSettingColumn"
+              @input="
+                finiteNumber($event) !== undefined &&
+                emit('updateSpellBurst', {
+                  ...spellBurst,
+                  skillSettingColumn: Math.max(1, Math.trunc(finiteNumber($event)!)),
+                })
+              " /></label
+          ><label
+            ><span>基础倍率证据</span
+            ><input
+              type="number"
+              step="0.01"
+              :value="spellBurst.atkScaleBase"
+              @input="
+                finiteNumber($event) !== undefined &&
+                emit('updateSpellBurst', { ...spellBurst, atkScaleBase: finiteNumber($event)! })
+              " /></label
+        ></template>
+      </fieldset>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.advanced-editor {
+  margin-top: 12px;
+  border-top: 1px solid var(--ea-border-soft);
+  padding-top: 10px;
+}
+.advanced-editor > header button {
+  width: 100%;
+  text-align: left;
+}
+.advanced-editor button,
+.advanced-editor input,
+.advanced-editor select {
+  min-width: 0;
+  height: 30px;
+  box-sizing: border-box;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-input, #16161a);
+  color: var(--ea-fg);
+}
+.advanced-content {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.advanced-content fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  border: 1px solid var(--ea-border-soft);
+}
+.advanced-content legend label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.advanced-content legend input {
+  width: 15px;
+  height: 15px;
+}
+.advanced-content fieldset > label {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+</style>

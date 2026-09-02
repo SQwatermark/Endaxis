@@ -7,9 +7,11 @@ import type {
   EquipmentModifierDefinition,
   EquipmentPanelStat,
   EquipmentAbilityEvent,
+  EquipmentDamageScaleTarget,
 } from '../../../core/game-data/equipmentDefinition';
 import {
   EQUIPMENT_ABILITY_EVENTS,
+  EQUIPMENT_DAMAGE_SCALE_TARGETS,
   EQUIPMENT_PANEL_STATS,
 } from '../../../core/game-data/equipmentDefinition';
 import {
@@ -121,6 +123,9 @@ const selectedCondition = computed(() =>
 );
 const initializationBlackboardEntries = computed(() =>
   Object.entries(props.contribution.initializationBlackboard ?? {}),
+);
+const handlerBlackboardEntries = computed(() =>
+  Object.entries(selectedHandler.value?.blackboard ?? {}),
 );
 
 watch(
@@ -450,6 +455,69 @@ function removeInitializationBlackboardEntry(key: string): void {
   commit(next);
 }
 
+function setHandlerPriority(event: Event): void {
+  const handler = selectedHandler.value;
+  if (handler === null) return;
+  const raw = (event.target as HTMLInputElement).value.trim();
+  if (raw === '') {
+    const { priority: _priority, ...next } = handler;
+    replaceSelected(next);
+    return;
+  }
+  const priority = Number(raw);
+  if (Number.isFinite(priority)) replaceSelected({ ...handler, priority });
+}
+
+function addHandlerBlackboardEntry(): void {
+  const handler = selectedHandler.value;
+  if (handler === null) return;
+  const blackboard = { ...(handler.blackboard ?? {}) };
+  let index = 1;
+  while (`custom_${index}` in blackboard) index += 1;
+  blackboard[`custom_${index}`] = 0;
+  replaceSelected({ ...handler, blackboard });
+}
+
+function renameHandlerBlackboardEntry(oldKey: string, event: Event): void {
+  const handler = selectedHandler.value;
+  if (handler === null) return;
+  const key = (event.target as HTMLInputElement).value.trim();
+  if (key === '' || key === oldKey || key in (handler.blackboard ?? {})) return;
+  const blackboard = Object.fromEntries(
+    handlerBlackboardEntries.value.map(([entryKey, value]) => [
+      entryKey === oldKey ? key : entryKey,
+      value,
+    ]),
+  );
+  replaceSelected({ ...handler, blackboard });
+}
+
+function updateHandlerBlackboardValue(key: string, event: Event): void {
+  const handler = selectedHandler.value;
+  if (handler === null) return;
+  const tokens = (event.target as HTMLInputElement).value.split(',').map(value => value.trim());
+  const values = tokens.map(Number);
+  if (tokens.some(value => value === '') || values.some(value => !Number.isFinite(value))) return;
+  replaceSelected({
+    ...handler,
+    blackboard: {
+      ...(handler.blackboard ?? {}),
+      [key]: values.length === 1 ? values[0]! : values,
+    },
+  });
+}
+
+function removeHandlerBlackboardEntry(key: string): void {
+  const handler = selectedHandler.value;
+  if (handler === null) return;
+  const blackboard = { ...(handler.blackboard ?? {}) };
+  delete blackboard[key];
+  if (Object.keys(blackboard).length === 0) {
+    const { blackboard: _blackboard, ...next } = handler;
+    replaceSelected(next);
+  } else replaceSelected({ ...handler, blackboard });
+}
+
 function saveBuffDefinitions(
   definitions: EquipmentContributionDefinition['buffDefinitions'],
 ): void {
@@ -474,6 +542,25 @@ function setModifierOperation(operation: 'flat' | 'percent'): void {
 function setModifierPanelStat(stat: EquipmentPanelStat): void {
   const modifier = selectedModifier.value;
   if (modifier?.kind === 'panelStat') replaceSelected({ ...modifier, stat });
+}
+
+function setModifierDamageScaleTarget(target: EquipmentDamageScaleTarget): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind === 'damageScale') replaceSelected({ ...modifier, target });
+}
+
+function setModifierDamageScaleSlot(slot: '' | 'baseAddition' | 'addition'): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind !== 'damageScale') return;
+  if (slot === '') {
+    const { slot: _slot, ...next } = modifier;
+    replaceSelected(next);
+  } else replaceSelected({ ...modifier, slot });
+}
+
+function setModifierHealingTarget(target: 'output' | 'taken'): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind === 'staticHealingIncrease') replaceSelected({ ...modifier, target });
 }
 
 function selectedDamageTypes(modifier: EquipmentModifierDefinition): readonly DamageType[] {
@@ -520,6 +607,22 @@ function toggleSkillType(skillType: SkillType): void {
     clearSkillTypeFilter();
     return;
   }
+  replaceSelected({ ...modifier, skillTypes: next.length === 1 ? next[0]! : next });
+}
+
+function selectedCooldownSkillTypes(modifier: EquipmentModifierDefinition): readonly SkillType[] {
+  if (modifier.kind !== 'skillCooldownMultiplier') return [];
+  return typeof modifier.skillTypes === 'string' ? [modifier.skillTypes] : modifier.skillTypes;
+}
+
+function toggleCooldownSkillType(skillType: SkillType): void {
+  const modifier = selectedModifier.value;
+  if (modifier?.kind !== 'skillCooldownMultiplier') return;
+  const current = selectedCooldownSkillTypes(modifier);
+  const next = current.includes(skillType)
+    ? current.filter(value => value !== skillType)
+    : [...current, skillType];
+  if (next.length === 0) return;
   replaceSelected({ ...modifier, skillTypes: next.length === 1 ? next[0]! : next });
 }
 </script>
@@ -616,7 +719,7 @@ function toggleSkillType(skillType: SkillType): void {
             </option>
           </select>
         </label>
-        <template v-else>
+        <template v-else-if="selectedModifier.kind === 'damageBonus'">
           <fieldset>
             <legend>伤害类型（至少一项）</legend>
             <button
@@ -649,6 +752,68 @@ function toggleSkillType(skillType: SkillType): void {
             </button>
           </fieldset>
         </template>
+        <div v-else-if="selectedModifier.kind === 'damageScale'" class="field-grid">
+          <label
+            ><span>倍率目标</span
+            ><select
+              :value="selectedModifier.target"
+              @change="
+                setModifierDamageScaleTarget(
+                  ($event.target as HTMLSelectElement).value as EquipmentDamageScaleTarget,
+                )
+              "
+            >
+              <option
+                v-for="target in EQUIPMENT_DAMAGE_SCALE_TARGETS"
+                :key="target"
+                :value="target"
+              >
+                {{ target }}
+              </option>
+            </select></label
+          >
+          <label
+            ><span>公式槽</span
+            ><select
+              :value="selectedModifier.slot ?? ''"
+              @change="
+                setModifierDamageScaleSlot(
+                  ($event.target as HTMLSelectElement).value as '' | 'baseAddition' | 'addition',
+                )
+              "
+            >
+              <option value="">省略（兼容 BaseAddition）</option>
+              <option value="baseAddition">baseAddition</option>
+              <option value="addition">addition</option>
+            </select></label
+          >
+        </div>
+        <label v-else-if="selectedModifier.kind === 'staticHealingIncrease'"
+          ><span>治疗目标</span
+          ><select
+            :value="selectedModifier.target"
+            @change="
+              setModifierHealingTarget(
+                ($event.target as HTMLSelectElement).value as 'output' | 'taken',
+              )
+            "
+          >
+            <option value="output">output</option>
+            <option value="taken">taken</option>
+          </select></label
+        >
+        <fieldset v-else-if="selectedModifier.kind === 'skillCooldownMultiplier'">
+          <legend>技能类型（至少一项）</legend>
+          <button
+            v-for="skillType in SKILL_TYPES"
+            :key="skillType"
+            class="filter-chip"
+            :class="{ active: selectedCooldownSkillTypes(selectedModifier).includes(skillType) }"
+            @click="toggleCooldownSkillType(skillType)"
+          >
+            {{ skillType }}
+          </button>
+        </fieldset>
         <label>
           <span>等级值</span>
           <input :value="levelValuesText(selectedModifier.value)" @change="parseLevelValues" />
@@ -677,6 +842,14 @@ function toggleSkillType(skillType: SkillType): void {
             "
           />
         </label>
+        <label>
+          <span>原生优先级（留空表示省略）</span>
+          <input
+            type="number"
+            :value="selectedHandler.priority ?? ''"
+            @change="setHandlerPriority"
+          />
+        </label>
         <label v-if="selectedHandler.abilityEvent !== undefined">
           <span>AbilitySystem 事件</span>
           <select
@@ -698,6 +871,31 @@ function toggleSkillType(skillType: SkillType): void {
           :event="selectedHandler.event"
           @update="replaceSelected({ ...selectedHandler, event: $event })"
         />
+        <fieldset>
+          <legend>事件动作黑板（按词条等级解析）</legend>
+          <div
+            v-for="([key, value], index) in handlerBlackboardEntries"
+            :key="`${key}:${index}`"
+            class="blackboard-row"
+          >
+            <input
+              :value="key"
+              aria-label="事件黑板键"
+              @change="renameHandlerBlackboardEntry(key, $event)"
+            />
+            <input
+              :value="levelValuesText(value)"
+              aria-label="事件黑板逐级值"
+              @change="updateHandlerBlackboardValue(key, $event)"
+            />
+            <button aria-label="删除事件黑板值" @click="removeHandlerBlackboardEntry(key)">
+              ×
+            </button>
+          </div>
+          <button class="section-action" @click="addHandlerBlackboardEntry">
+            ＋ 添加事件黑板值
+          </button>
+        </fieldset>
         <p class="hint">响应条件与动作序列作为子节点显示在画布中；右侧只编辑当前层。</p>
       </template>
       <CombatStepEditor

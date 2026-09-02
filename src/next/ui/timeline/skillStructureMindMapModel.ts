@@ -12,6 +12,7 @@ import type {
   SkillGlobalBuffDefinition,
 } from '../../core/game-data/operatorDefinition';
 import type { EquipmentContributionDefinition } from '../../core/game-data/equipmentDefinition';
+import { structureRecordEntryPath } from './skillStructureEditorCommands';
 
 export type SkillStructureEditorSection = 'overview' | 'blackboard' | 'availability' | number;
 
@@ -1017,33 +1018,78 @@ export function buildAbilityEntityStructureMindMap(
   abilityEntityId: string,
   definition: AbilityEntityDefinition,
 ): SkillStructureNode {
-  const childSkill = definition.childSkill;
-  const sequenceNodes =
-    childSkill?.scheduledSequences.map((sequence, index) => {
+  function childSkillNode(
+    childSkill: AbilityEntityChildSkillDefinition,
+    sourcePath: string,
+    id: string,
+    relationToParent: 'port' | 'member',
+    sequenceIdRoot = id,
+  ): SkillStructureNode {
+    const sequenceNodes = childSkill.scheduledSequences.map((sequence, index) => {
       const node = sequenceNode(
         sequence.sequence,
-        `entity:sequence:${index}`,
+        `${sequenceIdRoot}:sequence:${index}`,
         `子序列 ${index + 1}`,
-        `childSkill.scheduledSequences[${index}].sequence`,
+        `${sourcePath}.scheduledSequences[${index}].sequence`,
         `第 ${sequence.startFrame}–${sequence.endFrame ?? '∞'} 帧 · ${sequence.sequence.steps.length} 个直属步骤`,
         index,
       );
       return {
         ...node,
-        sourcePath: `childSkill.scheduledSequences[${index}]`,
+        sourcePath: `${sourcePath}.scheduledSequences[${index}]`,
         payloadKind: 'scheduledSequence' as const,
       };
-    }) ?? [];
+    });
+    return {
+      id,
+      label: childSkill.skillId,
+      kind: '实体子技能',
+      summary: `${sequenceNodes.length} 条子序列`,
+      sourcePath,
+      details: { 黑板参数数: Object.keys(childSkill.blackboard ?? {}).length },
+      editorSection: 'overview',
+      children: sequenceNodes,
+      canAddChild: 'sequence',
+      acceptsChildKind: 'scheduledSequence',
+      payloadKind: 'childSkill',
+      relationToParent,
+      canDelete: true,
+      canCopy: false,
+      canMove: false,
+    };
+  }
+  const legacyChildNode =
+    definition.childSkill === undefined
+      ? undefined
+      : childSkillNode(definition.childSkill, 'childSkill', 'entity:child-skill', 'port', 'entity');
+  const namedChildNodes = Object.entries(definition.childSkills ?? {}).map(
+    ([skillId, childSkill], index) =>
+      childSkillNode(
+        childSkill,
+        structureRecordEntryPath('childSkills', skillId),
+        `entity:named-child-skill:${index}`,
+        'member',
+      ),
+  );
+  const childNodes = [
+    ...(legacyChildNode === undefined ? [] : [legacyChildNode]),
+    ...namedChildNodes,
+  ];
+  const sequenceCount = childNodes.reduce((total, node) => total + node.children.length, 0);
   return {
     id: 'entity',
     label: abilityEntityId,
     kind: '能力实体',
     summary:
       definition.lifetime.kind === 'limited'
-        ? `${definition.lifetime.durationSeconds}s · ${sequenceNodes.length} 条子序列`
-        : `无限生命周期 · ${sequenceNodes.length} 条子序列`,
+        ? `${definition.lifetime.durationSeconds}s · ${childNodes.length} 个子技能 · ${sequenceCount} 条子序列`
+        : `无限生命周期 · ${childNodes.length} 个子技能 · ${sequenceCount} 条子序列`,
     sourcePath: '',
-    details: { 生命周期: definition.lifetime.kind, 子序列数: sequenceNodes.length },
+    details: {
+      生命周期: definition.lifetime.kind,
+      子技能数: childNodes.length,
+      子序列数: sequenceCount,
+    },
     editorSection: 'overview',
     children: [
       {
@@ -1060,26 +1106,10 @@ export function buildAbilityEntityStructureMindMap(
         children: [],
         relationToParent: 'port',
       },
-      ...(childSkill === undefined
-        ? []
-        : [
-            {
-              id: 'entity:child-skill',
-              label: childSkill.skillId,
-              kind: '实体子技能',
-              summary: `${sequenceNodes.length} 条子序列`,
-              sourcePath: 'childSkill',
-              details: { 黑板参数数: Object.keys(childSkill.blackboard ?? {}).length },
-              editorSection: 'overview' as const,
-              children: sequenceNodes,
-              canAddChild: 'sequence' as const,
-              acceptsChildKind: 'scheduledSequence' as const,
-              relationToParent: 'port' as const,
-            },
-          ]),
+      ...childNodes,
     ],
-    ...(childSkill === undefined ? { canAddChild: 'childSkill' as const } : {}),
-    ...(childSkill === undefined ? { acceptsChildKind: 'childSkill' as const } : {}),
+    ...(definition.childSkill === undefined ? { canAddChild: 'childSkill' as const } : {}),
+    ...(definition.childSkill === undefined ? { acceptsChildKind: 'childSkill' as const } : {}),
   };
 }
 

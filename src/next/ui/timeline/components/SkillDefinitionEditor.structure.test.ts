@@ -17,6 +17,20 @@ import globalBuffChildInspectorSource from './GlobalBuffChildInspector.vue?raw';
 import inlineAbilityEntityChildSkillInspectorSource from './InlineAbilityEntityChildSkillInspector.vue?raw';
 import structuredControlStepEditorSource from './StructuredControlStepEditor.vue?raw';
 import buffStepEditorSource from './BuffStepEditor.vue?raw';
+import buffBlackboardEditorSource from './BuffBlackboardEditor.vue?raw';
+import buffAttributeModifierEditorSource from './BuffAttributeModifierEditor.vue?raw';
+import buffDamageModifierEditorSource from './BuffDamageModifierEditor.vue?raw';
+import buffDamageModifierConditionEditorSource from './BuffDamageModifierConditionEditor.vue?raw';
+import combatBuffPresentationEditorSource from './CombatBuffPresentationEditor.vue?raw';
+import combatBuffChildPresentationsEditorSource from './CombatBuffChildPresentationsEditor.vue?raw';
+import buffSkillSlotReplacementEditorSource from './BuffSkillSlotReplacementEditor.vue?raw';
+import buffHealModifierEditorSource from './BuffHealModifierEditor.vue?raw';
+import buffShieldEditorSource from './BuffShieldEditor.vue?raw';
+import buffKeywordEnhancementEditorSource from './BuffKeywordEnhancementEditor.vue?raw';
+import buffAdvancedPropertiesEditorSource from './BuffAdvancedPropertiesEditor.vue?raw';
+import buffPoiseModifierEditorSource from './BuffPoiseModifierEditor.vue?raw';
+import buffPoiseModifierConditionEditorSource from './BuffPoiseModifierConditionEditor.vue?raw';
+import buffDefinitionEditorCommandsSource from '../buffDefinitionEditorCommands.ts?raw';
 import abilityEntityStepEditorSource from './AbilityEntityStepEditor.vue?raw';
 import abilityEntityGraphEditorSource from './AbilityEntityDefinitionGraphEditor.vue?raw';
 import buffGraphEditorSource from './BuffDefinitionGraphEditor.vue?raw';
@@ -39,6 +53,18 @@ import en from '../../../../i18n/locales/en.json';
 import ru from '../../../../i18n/locales/ru.json';
 
 describe('SkillDefinitionEditor structure', () => {
+  it('Buff 根定义的高级原生语义和韧性修正均有契约专用编辑器', () => {
+    expect(buffStepEditorSource).toContain('BuffAdvancedPropertiesEditor');
+    expect(buffStepEditorSource).toContain('BuffPoiseModifierEditor');
+    for (const field of ['sustainedProtection', 'role', 'spellBurst']) {
+      expect(buffAdvancedPropertiesEditorSource).toContain(field);
+    }
+    for (const kind of ['casterControlled', 'eventDamageTagsMatch', 'all']) {
+      expect(buffPoiseModifierConditionEditorSource).toContain(kind);
+    }
+    expect(buffPoiseModifierEditorSource).toContain('modifyPoiseScalar');
+    expect(buffPoiseModifierEditorSource).toContain('beforeCalculation');
+  });
   it('edits the explicit enhancement Buff identity from known Buff candidates', () => {
     expect(editorSource).toContain('view.enhancementStateBuffIdChanged');
     expect(editorSource).toContain('skill-enhancement-state-buff-ids');
@@ -119,11 +145,93 @@ describe('SkillDefinitionEditor structure', () => {
   });
 
   it('Buff Inspector 渲染图标且清空路径时保留其余原生展示身份', () => {
-    expect(buffStepEditorSource).toContain('class="buff-icon-preview"');
-    expect(buffStepEditorSource).toContain(':src="previewIconPath"');
-    expect(buffStepEditorSource).toContain('presentation?.iconId');
-    expect(buffStepEditorSource).toContain('remainingPresentation');
-    expect(buffStepEditorSource).not.toContain("if (iconPath === '') delete next.presentation");
+    expect(buffStepEditorSource).toContain('CombatBuffPresentationEditor');
+    expect(buffStepEditorSource).toContain('CombatBuffChildPresentationsEditor');
+    expect(combatBuffPresentationEditorSource).toContain('class="presentation-icon"');
+    expect(combatBuffPresentationEditorSource).toContain(':src="previewIconPath"');
+    expect(combatBuffPresentationEditorSource).toContain('presentation?.iconId');
+    expect(buffDefinitionEditorCommandsSource).toContain('delete presentation[field]');
+    expect(buffDefinitionEditorCommandsSource).toContain('delete next.presentation');
+    expect(combatBuffChildPresentationsEditorSource).toContain('child.presentation');
+  });
+
+  it('Buff 初始黑板保留字符串、数字和 null 三种公共契约值', () => {
+    expect(buffStepEditorSource).toContain('BuffBlackboardEditor');
+    expect(buffBlackboardEditorSource).toContain("kind === 'number' ? 0");
+    expect(buffBlackboardEditorSource).toContain("kind === 'string' ? '' : null");
+    expect(buffBlackboardEditorSource).not.toContain('SkillBlackboardEditor');
+  });
+
+  it('Buff 属性和伤害修正器直接消费公共协议，不复用技能条件', () => {
+    expect(buffStepEditorSource).toContain('BuffAttributeModifierEditor');
+    expect(buffStepEditorSource).toContain('BuffDamageModifierEditor');
+    expect(buffAttributeModifierEditorSource).toContain('ATTRIBUTE_MODIFIER_SLOTS');
+    expect(buffDamageModifierEditorSource).toContain('DAMAGE_SCALE_ZONES');
+    expect(buffDamageModifierEditorSource).toContain('BuffDamageModifierConditionEditor');
+    expect(buffDamageModifierEditorSource).not.toContain('CombatConditionEditor');
+    for (const kind of [
+      'entityTagMatch',
+      'casterControlled',
+      'buffIdCountCompare',
+      'eventDamageTagsMatch',
+      'eventDamageFeaturesMatch',
+      'eventDamageTypesMatch',
+      'targetHealthCompare',
+      'targetPoiseCompare',
+      'sourceSkillCastMatch',
+      'buffBlackboardCompare',
+      'not',
+      'all',
+      'any',
+    ]) {
+      expect(buffDamageModifierConditionEditorSource).toContain(`'${kind}'`);
+    }
+    expect(buffDamageModifierConditionEditorSource).toContain('<BuffDamageModifierConditionEditor');
+  });
+
+  it('Buff 技能槽替换保持原生四字段和数组顺序', () => {
+    expect(buffStepEditorSource).toContain('BuffSkillSlotReplacementEditor');
+    for (const field of [
+      'skillGroupKey',
+      'targetSkillKey',
+      'revertedSkillKey',
+      'inheritOriginSkillCooldownProgress',
+    ]) {
+      expect(buffSkillSlotReplacementEditorSource).toContain(field);
+    }
+    expect(buffSkillSlotReplacementEditorSource).toContain('move(index, -1)');
+    expect(buffSkillSlotReplacementEditorSource).toContain('move(index, 1)');
+  });
+
+  it('Buff 治疗修正使用独立条件和处理器协议', () => {
+    expect(buffStepEditorSource).toContain('BuffHealModifierEditor');
+    for (const kind of [
+      'targetHealthCompare',
+      'buffBlackboardCompare',
+      'healTagsMatch',
+      'modifyCalculationResult',
+      'modifyHealingIncrease',
+    ]) {
+      expect(buffHealModifierEditorSource).toContain(kind);
+    }
+    expect(buffHealModifierEditorSource).not.toContain('CombatConditionEditor');
+  });
+
+  it('Buff 护盾保留直接值、属性公式和分伤害类型吸收', () => {
+    expect(buffStepEditorSource).toContain('BuffShieldEditor');
+    expect(buffShieldEditorSource).toContain("kind === 'attribute'");
+    expect(buffShieldEditorSource).toContain('attributeSource');
+    expect(buffShieldEditorSource).toContain('damageAbsorptions');
+    expect(buffShieldEditorSource).toContain('absorbAllDamageWhenConsumed');
+    expect(buffShieldEditorSource).toContain('replaceHitEffect');
+  });
+
+  it('Buff 关键词强化完整保留触发 ID、操作、目标键与动态值', () => {
+    expect(buffStepEditorSource).toContain('BuffKeywordEnhancementEditor');
+    for (const field of ['triggerBuffIds', 'operation', 'targetKey', 'initialValue']) {
+      expect(buffKeywordEnhancementEditorSource).toContain(field);
+    }
+    expect(buffKeywordEnhancementEditorSource).toContain('enhancement.value');
   });
 
   it('正式导图贯通拖放与本地结构剪贴板，并提供可见粘贴入口', () => {

@@ -7,14 +7,23 @@ import {
   type CombatStatusIndicator,
 } from '../../../core/projection/combatStatusIndicators';
 import { resolveBuffDisplayName } from '../buffDisplayName';
+import { resolveSimpleBuffModifierDisplayName } from '../buffDisplayName';
+import type { BuffDetailTarget } from '../buffDetail';
 
 const props = defineProps<{
   indicators: readonly CombatStatusIndicator[];
   slot: CombatStatusDisplaySlot;
   frame: number;
+  sourceName?: (source: {
+    readonly sourceId?: string;
+    readonly sourceActionId?: string;
+  }) => string | undefined;
 }>();
 
 const { t, te } = useI18n({ useScope: 'global' });
+const emit = defineEmits<{
+  'open-detail': [target: BuffDetailTarget];
+}>();
 
 const items = computed(() =>
   props.indicators
@@ -25,13 +34,45 @@ const items = computed(() =>
         indicator.hasFiniteLifetime === true && duration > 0
           ? Math.max(0, Math.min(1, (indicator.endFrame - props.frame) / duration))
           : null;
+      const sourceName = props.sourceName?.(indicator);
+      const modifierSummary = resolveSimpleBuffModifierDisplayName(
+        {
+          attribute: indicator.simpleModifierAttribute,
+          slot: indicator.simpleModifierSlot,
+          value: indicator.simpleModifierValue,
+        },
+        { t, te },
+      );
+      const title = resolveBuffDisplayName(
+        indicator.buffId,
+        { t, te },
+        {
+          attribute: indicator.simpleModifierAttribute,
+          slot: indicator.simpleModifierSlot,
+          value: indicator.simpleModifierValue,
+        },
+        sourceName,
+      );
+      const icon =
+        indicator.iconPath ?? (indicator.iconId ? `/icons/${indicator.iconId}.webp` : null);
       return {
         ...indicator,
         key: `${indicator.targetId}:${indicator.buffId}:${indicator.instanceId}`,
-        title: resolveBuffDisplayName(indicator.nameKey, indicator.buffId, { t, te }),
-        icon: indicator.iconPath ?? (indicator.iconId ? `/icons/${indicator.iconId}.webp` : null),
+        title,
+        icon,
         style: combatStatusIconStyle(indicator, props.slot),
         remainingRatio,
+        detail: {
+          title,
+          buffId: indicator.buffId,
+          targetId: indicator.targetId,
+          ...(sourceName === undefined ? {} : { sourceName }),
+          startFrame: indicator.startFrame,
+          endFrame: indicator.endFrame,
+          layers: indicator.layers,
+          icon,
+          ...(modifierSummary === undefined ? {} : { modifierSummary }),
+        } satisfies BuffDetailTarget,
       };
     }),
 );
@@ -45,6 +86,11 @@ const items = computed(() =>
       class="combat-status-icon"
       :class="[`is-${item.style.toLowerCase()}`, { 'has-warning': item.showWarningBackground }]"
       :title="item.title"
+      role="button"
+      tabindex="0"
+      @click.stop="emit('open-detail', item.detail)"
+      @keydown.enter.stop.prevent="emit('open-detail', item.detail)"
+      @keydown.space.stop.prevent="emit('open-detail', item.detail)"
     >
       <img v-if="item.icon" :src="item.icon" alt="" />
       <span v-else class="combat-status-icon__fallback">+</span>
@@ -79,6 +125,7 @@ const items = computed(() =>
   border-radius: 2px;
   background: #3d4045;
   box-shadow: 0 1px 2px rgb(0 0 0 / 55%);
+  cursor: pointer;
 }
 
 .combat-status-icon.is-attached {

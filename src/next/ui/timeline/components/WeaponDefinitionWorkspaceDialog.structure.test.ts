@@ -13,6 +13,17 @@ describe('WeaponDefinitionWorkspaceDialog structure', () => {
     expect(buildDialogSource).toContain("'edit-definition': []");
   });
 
+  it('定义保存等待场景 watcher 标脏后只启动一份新模拟', () => {
+    expect(timelineEditorSource).toContain('function refreshSimulationAfterDefinitionChange()');
+    expect(timelineEditorSource).toContain('void nextTick(simulateNow)');
+    expect(timelineEditorSource).toMatch(
+      /function saveWeaponDefinition[\s\S]*?refreshSimulationAfterDefinitionChange\(\);[\s\S]*?function resetWeaponDefinition/,
+    );
+    expect(timelineEditorSource).toMatch(
+      /function restoreEditorHistory[\s\S]*?refreshSimulationAfterDefinitionChange\(\);[\s\S]*?return true/,
+    );
+  });
+
   it('edits validated weapon layers without exposing raw JSON', () => {
     expect(workspaceSource).toContain('validateWeaponDefinition');
     expect(workspaceSource).toContain('baseAttackAtLevelNodes');

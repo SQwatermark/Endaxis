@@ -14,6 +14,7 @@ import {
   SKILL_TYPES,
   type CombatStepDefinition,
   type OperatorAbilityEntityDefinitions,
+  type OperatorBuffDefinitions,
   type OperatorDefinition,
   type OperatorUpgradeDefinition,
   type UpgradeModifierDefinition,
@@ -21,7 +22,7 @@ import {
   type SkillGroupDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import { listOperatorSkillDefinitionBindings } from '../../../core/game-data/operatorSkillDefinitions';
-import { validateSkillDefinition } from '../../../core/game-data/validateSkillDefinition';
+import { validateOperatorDefinition } from '../../../core/game-data/validateOperatorDefinition';
 import type { ValidationIssue } from '../../../core/project/validation';
 import {
   collectOperatorDefinitionReferences,
@@ -53,12 +54,20 @@ const ATTRIBUTE_LABELS: Readonly<Record<keyof OperatorDefinition['attributes'], 
 };
 const TRUST_ATTRIBUTE_OPTIONS = [...OPERATOR_ATTRIBUTES, 'main', 'secondary'] as const;
 
+interface RequiredSkillReference {
+  readonly skillGroupKey: string;
+  readonly skillKey: string;
+  readonly castId: string;
+}
+
 const props = defineProps<{
   visible: boolean;
   baseDefinition: OperatorDefinition;
   customDefinition?: OperatorDefinition;
   commonAbilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
+  commonBuffDefinitions?: OperatorBuffDefinitions;
   skillLevel: number;
+  requiredSkillReferences?: readonly RequiredSkillReference[];
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
@@ -135,20 +144,41 @@ const filteredGroups = computed(() =>
 const filteredBuffIds = computed(() =>
   buffIds.value.filter(id => id.toLocaleLowerCase().includes(normalizedObjectSearch.value)),
 );
-const draftIssues = computed<readonly ValidationIssue[]>(() =>
-  listOperatorSkillDefinitionBindings(draft.value).flatMap(({ group, skill, origin, variant }) => {
-    const groupIndex = draft.value.skillGroups.indexOf(group);
-    const path =
-      origin === 'base'
-        ? `skillGroups[${groupIndex}].skills`
-        : origin === 'variant'
-          ? `skillGroups[${groupIndex}].variants[${group.variants?.indexOf(variant!) ?? -1}].skills`
-          : origin === 'replacement'
-            ? `skillGroups[${groupIndex}].replacementSkills`
-            : `skillGroups[${groupIndex}].routedReplacementSkills`;
-    return validateSkillDefinition(skill, `${path}['${skill.key}']`);
-  }),
-);
+const draftIssues = computed<readonly ValidationIssue[]>(() => {
+  const bindings = listOperatorSkillDefinitionBindings(draft.value);
+  const issues = validateOperatorDefinition(draft.value);
+  const identities = new Set(bindings.map(({ group, skill }) => `${group.key}\u0000${skill.key}`));
+  for (const alias of draft.value.skillAliases ?? []) {
+    identities.add(`${alias.from[0]}\u0000${alias.from[1]}`);
+  }
+  for (const reference of props.requiredSkillReferences ?? []) {
+    const identity = `${reference.skillGroupKey}\u0000${reference.skillKey}`;
+    if (identities.has(identity)) continue;
+    issues.push({
+      path: 'skillGroups',
+      message: `轴上技能块 '${reference.castId}' 仍引用 ${reference.skillGroupKey}/${reference.skillKey}`,
+    });
+  }
+  const references = collectOperatorDefinitionReferences(draft.value);
+  const knownBuffIds = new Set([
+    ...Object.keys(props.commonBuffDefinitions ?? {}),
+    ...Object.keys(draft.value.buffDefinitions ?? {}),
+  ]);
+  const knownEntityIds = new Set([
+    ...Object.keys(props.commonAbilityEntityDefinitions ?? {}),
+    ...Object.keys(draft.value.abilityEntityDefinitions ?? {}),
+  ]);
+  for (const reference of references) {
+    const known =
+      reference.kind === 'buff' ? knownBuffIds.has(reference.id) : knownEntityIds.has(reference.id);
+    if (known) continue;
+    issues.push({
+      path: reference.path,
+      message: `引用了不存在的${reference.kind === 'buff' ? ' Buff' : '能力实体'} '${reference.id}'`,
+    });
+  }
+  return issues;
+});
 const selectedUpgrades = computed(() => draft.value[progressionKind.value]);
 const selectedUpgrade = computed(() => selectedUpgrades.value[selectedUpgradeIndex.value]);
 const entityBlackboardEntries = computed(() => Object.entries(draft.value.entityBlackboard ?? {}));
@@ -673,9 +703,25 @@ function revealDefinitionReference(reference: OperatorDefinitionReference): void
     objectSearch.value = reference.ownerId;
     return;
   }
-  section.value = 'entities';
-  referencedEntityId.value = reference.ownerId;
-  showEntityEditor.value = true;
+  if (reference.ownerKind === 'entity') {
+    section.value = 'entities';
+    referencedEntityId.value = reference.ownerId;
+    showEntityEditor.value = true;
+    return;
+  }
+  if (reference.ownerKind === 'upgrade') {
+    section.value = 'progression';
+    const [collection, key] = reference.ownerId.split('/', 2);
+    progressionKind.value = collection === 'potentials' ? 'potentials' : 'talents';
+    selectedUpgradeIndex.value = Math.max(
+      0,
+      draft.value[progressionKind.value].findIndex(upgrade => upgrade.key === key),
+    );
+    return;
+  }
+  section.value = 'runtime';
+  if (reference.ownerKind === 'comboCondition') showComboEditor.value = true;
+  else showRuntimeBehaviorEditor.value = true;
 }
 
 function revealEntityDefinitionReference(reference: OperatorDefinitionReference): void {
@@ -723,11 +769,11 @@ function selectSection(value: Section): void {
 }
 
 function revealIssue(issue: ValidationIssue): void {
-  const match = /^skillGroups\[(\d+)\]\.skills\[(\d+)\]/.exec(issue.path);
+  const match = /^\$?\.?skillGroups\[(\d+)\]/.exec(issue.path);
   if (match === null) return;
   section.value = 'skills';
   selectedGroupIndex.value = Number(match[1]);
-  selectedSkillIndex.value = Number(match[2]);
+  selectedSkillIndex.value = 0;
   showProblems.value = false;
 }
 
@@ -1521,7 +1567,7 @@ function openReferencedDefinition(reference: {
         </button>
         <button
           class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
-          :disabled="!isDirty"
+          :disabled="!isDirty || draftIssues.length > 0"
           @click="save"
         >
           保存干员定义

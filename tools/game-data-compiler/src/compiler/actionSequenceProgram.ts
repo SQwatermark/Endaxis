@@ -20,6 +20,8 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
   readonly canOmitTerminalCondition?: (condition: TCondition) => boolean;
   /** 来源已证明纯读取时，先投影其控制的末端；末端为空就无需建立条件的运行模型。 */
   readonly canOmitUnusedCondition?: (node: NativeActionNodeSource<TLeaf>) => boolean;
+  /** 投影后已成为无副作用常量的守卫可直接选择可达末端；返回 undefined 表示仍需运行时求值。 */
+  readonly evaluateCondition?: (condition: TCondition) => boolean | undefined;
   /** 返回值被 Switch/资格判断等外层消费；统一禁止删除决定该结果的尾守卫。 */
   readonly resultIsConsumed?: boolean;
   readonly combineConditions: (conditions: readonly TCondition[]) => TCondition;
@@ -168,6 +170,8 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     if (condition === null) {
       throw new Error(`${first!.sourcePath}: NotNextCheckAction must precede a condition`);
     }
+    const staticValue = options.evaluateCondition?.(condition);
+    if (!options.resultIsConsumed && staticValue !== undefined) return staticValue ? [] : body;
     return !options.resultIsConsumed &&
       body.length === 0 &&
       options.canOmitTerminalCondition?.(condition) === true
@@ -189,6 +193,8 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   const condition = options.compileCondition(first!, state);
   if (condition !== null) {
     const body = guardedBody ?? compileActionNodePrograms(rest, options, state);
+    const staticValue = options.evaluateCondition?.(condition);
+    if (!options.resultIsConsumed && staticValue !== undefined) return staticValue ? body : [];
     return !options.resultIsConsumed &&
       body.length === 0 &&
       options.canOmitTerminalCondition?.(condition) === true

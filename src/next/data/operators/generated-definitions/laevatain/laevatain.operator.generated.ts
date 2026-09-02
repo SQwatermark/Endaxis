@@ -286,19 +286,14 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
                 { atk_scale: 0, duration: 0 },
                 true,
                 sequence(
-                  branch(
-                    { kind: 'all', conditions: [] },
-                    sequence(
-                      step(
-                        'dealDamage',
-                        {
-                          damageType: 'heat',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['normalAttack'],
-                        },
-                        'chr_0016_laevat_attack4:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0',
-                      ),
-                    ),
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'heat',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0016_laevat_attack4:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0',
                   ),
                 ),
                 undefined,
@@ -324,19 +319,14 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
                 { atk_scale: 0, duration: 0 },
                 true,
                 sequence(
-                  branch(
-                    { kind: 'all', conditions: [] },
-                    sequence(
-                      step(
-                        'dealDamage',
-                        {
-                          damageType: 'heat',
-                          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                          tags: ['normalAttack'],
-                        },
-                        'chr_0016_laevat_attack4:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0',
-                      ),
-                    ),
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'heat',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0016_laevat_attack4:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0',
                   ),
                 ),
                 undefined,

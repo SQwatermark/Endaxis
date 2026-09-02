@@ -13,12 +13,11 @@ describe('Next timeline enemy effect retention', () => {
     expect(projection).toContain('projectEnemyEffectViz(current.receiptEntries, current.frame)');
   });
 
-  it('renders reaction applications as duration segments instead of duplicate point markers', () => {
-    expect(enemyEffectsSource).toContain("segment.kind === 'attachment'");
-    expect(enemyEffectsSource).toContain('REACTION_ICONS[identity]');
-    expect(enemyEffectsSource).toContain("marker.kind !== 'reactionApplied'");
-    expect(enemyEffectsSource).toContain('segment.barWidthPx');
-    expect(enemyEffectsSource).toContain("t('nextTimeline.effect.layers', { stacks })");
-    expect(enemyEffectsSource).not.toContain('${stacks} 层');
+  it('uses native visible Buff instances as the sole duration-segment identity', () => {
+    expect(enemyEffectsSource).toContain('props.buffs.map');
+    expect(enemyEffectsSource).toContain('SPECIAL_BUFF_COLORS[buff.buffId]');
+    expect(enemyEffectsSource).toContain('buff.instanceId');
+    expect(enemyEffectsSource).not.toContain('props.viz.segments');
+    expect(enemyEffectsSource).not.toContain("marker.kind !== 'reactionApplied'");
   });
 });

@@ -16,10 +16,35 @@ export function cloneStructureValue<T>(value: T): T {
 
 function tokens(path: string): readonly PathToken[] {
   const result: PathToken[] = [];
-  for (const match of path.matchAll(/([A-Za-z][A-Za-z0-9]*)|\[(\d+)\]/g)) {
-    result.push(match[1] ?? Number(match[2]));
+  let offset = 0;
+  while (offset < path.length) {
+    if (path[offset] === '.') {
+      offset += 1;
+      continue;
+    }
+    const tail = path.slice(offset);
+    const property = /^[A-Za-z_$][A-Za-z0-9_$]*/.exec(tail);
+    if (property !== null) {
+      result.push(property[0]);
+      offset += property[0].length;
+      continue;
+    }
+    const bracket = /^\[(\d+|"(?:\\.|[^"\\])*")\]/.exec(tail);
+    if (bracket !== null) {
+      result.push(
+        bracket[1]!.startsWith('"') ? (JSON.parse(bracket[1]!) as string) : Number(bracket[1]),
+      );
+      offset += bracket[0].length;
+      continue;
+    }
+    throw new TypeError(`invalid structure path at '${path.slice(offset)}' in '${path}'`);
   }
   return result;
+}
+
+/** 为原生 ID 等任意字符串键生成不会与结构字段混淆的稳定路径。 */
+export function structureRecordEntryPath(recordPath: string, key: string): string {
+  return `${recordPath}[${JSON.stringify(key)}]`;
 }
 
 function valueAtPath(root: unknown, path: string): unknown {
