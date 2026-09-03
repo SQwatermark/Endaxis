@@ -6,6 +6,8 @@ import { planGearDefinitions } from '../scripts/generateGearDefinitions.ts';
 import { loadSourceCatalog } from '../scripts/downloadGameDataSources.ts';
 import { verifyGameDataSnapshot } from '../scripts/verifyGameDataSnapshot.ts';
 import { readGameplayTagPaths } from '../scripts/readGameplayTagPaths.ts';
+import { generateGameplayTagCatalog } from '../scripts/generateGameplayTagCatalog.ts';
+import { readGameplayTagConfigSetExport } from '../scripts/readGameplayTagConfigSetExport.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import type {
   GearSetDefinition,
@@ -44,7 +46,7 @@ it('全局冷却编辑器工厂输出通过公共定义校验', () => {
   ).toEqual([]);
 });
 
-// 显式实机审计入口：只消费已复验的来源，标签仍显式使用基线，绝不宣称全资源空目录重建通过。
+// 新重建报告必须消费本批标签并复验；历史定位报告保留显式基线路径，不能冒充同批证明。
 const reportPath = process.env.ENDAXIS_GEAR_SET_REBUILD_REPORT;
 if (reportPath) {
   const report = JSON.parse(await fs.readFile(reportPath, 'utf8'));
@@ -57,6 +59,26 @@ if (reportPath) {
     report.stages.find((s: { id: string }) => s.id === 'sources')?.detail.snapshotSha256
   )
     throw new Error('source snapshot changed');
+  const tagStage = report.stages.find((s: { id: string }) => s.id === 'gameplay-tags');
+  let tagCatalog = 'src/next/data/combat/gameplayTagCatalog.generated.ts';
+  if (tagStage) {
+    if (tagStage.status !== 'passed') throw new Error('candidate GameplayTag export did not pass');
+    const sourceSet = readGameplayTagConfigSetExport(tagStage.detail.manifestPath);
+    if (sourceSet.sourceSha256 !== tagStage.detail.sourceSha256)
+      throw new Error('candidate GameplayTag source changed');
+    tagCatalog = path.join(
+      report.candidateRoot,
+      'src/next/data/combat/gameplayTagCatalog.generated.ts',
+    );
+    await generateGameplayTagCatalog({
+      dump: tagStage.detail.manifestPath,
+      output: tagCatalog,
+      sourceRoot: undefined,
+      sourceSet: true,
+      allowNewSource: true,
+      check: true,
+    });
+  }
   const read = async (relative: string) =>
     JSON.parse(await fs.readFile(path.join(report.sourceRoot, relative), 'utf8'));
   const collection = async (name: string) =>
@@ -73,9 +95,7 @@ if (reportPath) {
     await collection('SkillData'),
     await read('TableCfg-current/SkillPatchTable.json'),
     await collection('BuffData'),
-    new GameplayTagRegistry(
-      readGameplayTagPaths('src/next/data/combat/gameplayTagCatalog.generated.ts'),
-    ),
+    new GameplayTagRegistry(readGameplayTagPaths(tagCatalog)),
   );
   if (batch.diagnostics.some(d => d.status === 'blocked'))
     throw new Error(JSON.stringify(batch.diagnostics));

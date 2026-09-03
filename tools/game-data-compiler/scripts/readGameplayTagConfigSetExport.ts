@@ -20,6 +20,8 @@ import { compileGameplayTagConfigSetSource } from '../src/compiler/gameplayTagCa
 export function readGameplayTagConfigSetExport(manifestPath: string, sourceRoot?: string) {
   const root =
     sourceRoot === undefined ? path.dirname(path.resolve(manifestPath)) : path.resolve(sourceRoot);
+  if (path.resolve(fs.realpathSync(root)) !== root)
+    throw new Error('source directory contains a link');
   const manifestBytes = fs.readFileSync(manifestPath);
   const manifest = requireRecord(JSON.parse(manifestBytes.toString('utf8')), manifestPath);
   requireExactFields(
@@ -39,6 +41,7 @@ export function readGameplayTagConfigSetExport(manifestPath: string, sourceRoot?
     const resolved = path.resolve(root, file);
     const relative = path.relative(root, resolved);
     if (
+      !/^[a-zA-Z0-9_./-]+$/.test(file) ||
       path.isAbsolute(file) ||
       relative === '..' ||
       relative.startsWith(`..${path.sep}`) ||
@@ -46,6 +49,8 @@ export function readGameplayTagConfigSetExport(manifestPath: string, sourceRoot?
     ) {
       throw new Error(`${label}: export file escapes source directory`);
     }
+    if (path.resolve(fs.realpathSync(resolved)) !== resolved)
+      throw new Error(`${label}: export file contains a link`);
     const bytes = fs.readFileSync(resolved);
     if (
       !/^[0-9a-f]{64}$/.test(expected) ||

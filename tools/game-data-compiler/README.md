@@ -72,6 +72,19 @@ Remove-Item Env:ENDAXIS_GAME_DATA_REBUILD_REPORT
 电磁不触发、同帧冷却、三个独立 20 秒实例及首个爆发伤害差分。正式目录未发布，完整重建入口
 仍等待同批标签等输入。证据与复跑命令见[新套装研究记录](../../docs/research/spellburst-gear-set-2026-09-03.md)。
 
+### 完整标签与套装自动重建（2026-09-03 后续）
+
+```powershell
+npm run rebuild:game-data -- --source-root tmp/game-data-rebuild/run-dYAF19/sources --unity-worker D:/Projects/vfs-index-browser/unity-worker/src/Vfs.UnityWorker/bin/Release/net9.0-windows/Vfs.UnityWorker.exe
+```
+
+显式 worker 路径支持 exe/dll。`exportGameplayTagConfigSet.ts` 只编排 VFS 通用导出能力，按
+当前逻辑目录发现成员并严格连接 PPtr/CAB，不复制旧成员名单或产物。AKEDB 无配置才补 VFS；
+所有输入/请求/审计均在本次 tmp 下。当前恢复 6956 条路径及 179/67/37 全局预定义，生成全部
+24 套套装；完整命令仍因武器 `OnBuffEnhanceChanged` 未接入而失败，不发布部分武器。
+无 worker 时明确阻塞，不隐式使用正式标签。前文保留的是阶段历史。
+来源、重复路径处理和证据边界见[新版标签重建](../../docs/research/gameplay-tag-refresh-2026-09-03.md)。
+
 ### 各领域独立入口
 
 根 `scripts/` 已清空。当前游戏数据工具统一位于本目录：

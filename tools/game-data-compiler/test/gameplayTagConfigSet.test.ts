@@ -82,6 +82,23 @@ function fixture() {
 }
 
 describe('GameplayTagConfigSet 引用闭包', () => {
+  it('保留新版单配置内部重复路径，由配置集投影计数去重而非误报来源损坏', () => {
+    const source = parseGameplayTagConfigDumpSource(
+      bytes(
+        'vector _keyData Array Array int size = 3 string data = "NPC/AvatarMesh/Actor/liino" string data = "NPC/AvatarMesh/Actor/liino" string data = ""',
+      ),
+      'current-client',
+    );
+    expect(source.paths).toHaveLength(3);
+    const result = compileGameplayTagConfigSetSource(
+      [{ fileId: 0, pathId: '1' }],
+      'CAB',
+      [],
+      [{ sourceFile: 'CAB', pathId: '1', source }],
+    );
+    expect(result.catalog.paths).toEqual(['NPC/AvatarMesh/Actor/liino']);
+    expect(result).toMatchObject({ duplicatePathCount: 1, emptyPathCount: 1 });
+  });
   it('Operator 来源审计可以消费完整路径目录，不能同时混入单配置 dump', () => {
     const base = [
       '--manifest',
@@ -187,6 +204,7 @@ describe('GameplayTagConfigSet 引用闭包', () => {
     'partial',
     'hash',
     'escape',
+    'ads',
     'extra-field',
   ] as const)('拒绝不完整或伪配的导出：%s', change => {
     const f = fixture();
@@ -197,9 +215,22 @@ describe('GameplayTagConfigSet 引用闭包', () => {
     if (change === 'partial') first.complete = false;
     if (change === 'hash') fs.appendFileSync(path.join(f.root, 'a.txt'), 'corrupt');
     if (change === 'escape') first.dump.file = '../outside.txt';
+    if (change === 'ads') first.dump.file = 'a.txt:stream';
     if (change === 'extra-field') Object.assign(first, { guess: true });
     f.write();
     expect(() => readGameplayTagConfigSetExport(f.manifestPath)).toThrow();
+  });
+  it('拒绝相对路径经链接离开来源目录', () => {
+    const f = fixture();
+    const outside = fixture();
+    fs.symlinkSync(
+      outside.root,
+      path.join(f.root, 'linked'),
+      process.platform === 'win32' ? 'junction' : 'dir',
+    );
+    f.manifest.configs[0]!.dump.file = 'linked/a.txt';
+    f.write();
+    expect(() => readGameplayTagConfigSetExport(f.manifestPath)).toThrow('link');
   });
   it('拒绝多余对象和重复配置引用，不以目录扫描结果代替引用闭包', () => {
     const object = { sourceFile: 'CAB', pathId: '1', source: { paths: ['Tag'] } };

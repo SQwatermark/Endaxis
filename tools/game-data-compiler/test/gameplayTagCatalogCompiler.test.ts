@@ -23,21 +23,21 @@ vector _keyData
     expect(catalog.definitions.map(value => value.id)).toEqual([-2062165986, -142617929]);
   });
 
-  it('拒绝数量不符和重复路径', () => {
+  it('拒绝数量不符，原样保留重复来源供完整配置集投影处理', () => {
     expect(() =>
       parseGameplayTagConfigDumpSource(
         new TextEncoder().encode('vector _keyData Array Array int size = 2 string data = "A"'),
         'fixture.dump',
       ),
     ).toThrow(/expected 2 tag paths/);
-    expect(() =>
+    expect(
       parseGameplayTagConfigDumpSource(
         new TextEncoder().encode(
           'vector _keyData Array Array int size = 2 string data = "A" string data = "A"',
         ),
         'fixture.dump',
       ),
-    ).toThrow(/duplicate paths/);
+    ).toEqual({ paths: ['A', 'A'] });
   });
 
   it('确定性渲染版本化模块并保留来源哈希', () => {

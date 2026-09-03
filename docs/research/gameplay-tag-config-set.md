@@ -40,7 +40,8 @@ fileId=0 才引用当前 SerializedFile；Int64 pathId 全程用十进制字符�
 - `data_tag_earmorph_emotion` 的活动列表为空，是合法来源，不能因没有条目报截断。
 - `data_tag_earmorph_avatar` 第 29 条是空串，来源层保留；原生 UTF-8 CRC-32 对空串为 0，
   `GameplayTag.IsValid` 为 false。Endaxis 投影明确统计后不输出这条无效标签，不发明占位路径。
-- 跨配置重复路径按首次出现顺序去重；同配置内部仍要求字典路径唯一。
+- 跨配置重复路径按首次出现顺序去重；单配置内部唯一要求已在 2026-09-03 修正：新版活动列表
+  实际存在重复项，来源层保留，配置集投影统一统计/去重，见[新版自动重建](gameplay-tag-refresh-2026-09-03.md)。
 - `obsoletes` 不属于活动 `_keyData`。不能拿它补齐缺失活动记录，也不能用 slice 隐藏超额活动项。
 - 读取、连接和输出分别负责数量/编码校验、引用闭包、路径及 CRC 冲突校验。
 

@@ -1,5 +1,5 @@
 export interface GameplayTagConfigDumpSource {
-  /** 来源可包含空串；它对应无效标签，只有投影阶段可以明确省略。 */
+  /** 来源保留空串和重复项；空串无效，完整配置集投影负责显式计数/去重。 */
   readonly paths: readonly string[];
 }
 
@@ -28,9 +28,6 @@ export function parseGameplayTagConfigDumpSource(
   const paths = [...tail.matchAll(/string data = "([^"]*)"/g)].map(match => match[1]!);
   if (paths.length !== expectedCount) {
     throw new Error(`${sourcePath}: expected ${expectedCount} tag paths, found ${paths.length}`);
-  }
-  if (new Set(paths).size !== paths.length) {
-    throw new Error(`${sourcePath}: GameplayTagConfig contains duplicate paths`);
   }
   return { paths };
 }

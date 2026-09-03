@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import {
   compileGameplayTagCatalogSource,
@@ -12,38 +13,49 @@ import { readGameplayTagConfigSetExport } from './readGameplayTagConfigSetExport
 
 const EXPECTED_DUMP_SHA256 = '3758bb1f10764ce9d1bda9ef5200d77b3fe93ea59dbd0e09f196c18221019cf8';
 const EXPECTED_SET_SHA256 = '5d6901da5e6139aafbc88f8c71de4de50563fbbb0db69c3de7f258ba92d4789a';
-const args = parseArguments(process.argv.slice(2));
-const bytes = new Uint8Array(await fs.readFile(args.dump));
-const sha256 = createHash('sha256').update(bytes).digest('hex');
-if (
-  sha256 !== (args.sourceSet ? EXPECTED_SET_SHA256 : EXPECTED_DUMP_SHA256) &&
-  !args.allowNewSource
-) {
-  throw new Error(
-    `unexpected GameplayTagConfig dump SHA-256 ${sha256}; ` +
-      'audit the new source before passing --allow-new-source',
-  );
-}
-const completeSet = args.sourceSet
-  ? readGameplayTagConfigSetExport(args.dump, args.sourceRoot)
-  : undefined;
-const catalog =
-  completeSet?.catalog ??
-  compileGameplayTagCatalogSource(parseGameplayTagConfigDumpSource(bytes, args.dump));
-const content = renderGameplayTagCatalogModule(catalog, sha256);
-if (args.check) {
-  const existing = await fs.readFile(args.output, 'utf8');
-  if (existing !== content) {
-    throw new Error(`${args.output}: generated GameplayTag catalog is stale`);
+export async function generateGameplayTagCatalog(args: ReturnType<typeof parseArguments>) {
+  const bytes = new Uint8Array(await fs.readFile(args.dump));
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  if (
+    sha256 !== (args.sourceSet ? EXPECTED_SET_SHA256 : EXPECTED_DUMP_SHA256) &&
+    !args.allowNewSource
+  ) {
+    throw new Error(
+      `unexpected GameplayTagConfig dump SHA-256 ${sha256}; ` +
+        'audit the new source before passing --allow-new-source',
+    );
   }
-} else {
-  await writeAtomicBytes(args.output, new TextEncoder().encode(content));
+  const completeSet = args.sourceSet
+    ? readGameplayTagConfigSetExport(args.dump, args.sourceRoot)
+    : undefined;
+  const catalog =
+    completeSet?.catalog ??
+    compileGameplayTagCatalogSource(parseGameplayTagConfigDumpSource(bytes, args.dump));
+  const content = renderGameplayTagCatalogModule(catalog, sha256);
+  if (args.check) {
+    const existing = await fs.readFile(args.output, 'utf8');
+    if (existing !== content) {
+      throw new Error(`${args.output}: generated GameplayTag catalog is stale`);
+    }
+  } else {
+    await writeAtomicBytes(args.output, new TextEncoder().encode(content));
+  }
+  return {
+    pathCount: catalog.paths.length,
+    sourceSha256: sha256,
+    ...(completeSet
+      ? {
+          configCount: completeSet.configCount,
+          emptyPathCount: completeSet.emptyPathCount,
+          duplicatePathCount: completeSet.duplicatePathCount,
+        }
+      : {}),
+  };
 }
-process.stdout.write(`GameplayTag paths: ${catalog.paths.length}\n`);
-if (completeSet)
-  process.stdout.write(
-    `configs: ${completeSet.configCount}; invalid empty entries: ${completeSet.emptyPathCount}; duplicate paths: ${completeSet.duplicatePathCount}\n`,
-  );
+
+if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
+  console.log(await generateGameplayTagCatalog(parseArguments(process.argv.slice(2))));
+}
 
 function parseArguments(values: readonly string[]) {
   const positional: string[] = [];

@@ -84,6 +84,10 @@ describe('从无产物工作树重建装备候选', () => {
       tablesOnly: false,
       cdn: 'https://data.akedata.wiki',
     });
+    expect(parseRebuildArguments(['--unity-worker', 'worker.exe']).unityWorker).toBe(
+      path.resolve('worker.exe'),
+    );
+    expect(() => parseRebuildArguments(['--unity-worker'])).toThrow('missing');
     for (const values of [
       ['--publish'],
       ['--source-mode', 'vfs-only'],
@@ -107,6 +111,7 @@ describe('从无产物工作树重建装备候选', () => {
     expect(report.stages.find(s => s.id === 'source-coverage')).toMatchObject({
       status: 'blocked',
     });
+    expect(report.stages.find(s => s.id === 'gameplay-tags')).toMatchObject({ status: 'blocked' });
     const gear = report.stages.find(s => s.id === 'gears');
     expect(gear).toMatchObject({
       status: 'passed',

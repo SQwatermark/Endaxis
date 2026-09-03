@@ -8,6 +8,11 @@ import {
 } from './downloadGameDataSources.ts';
 import { DEFAULT_CDN, DEFAULT_VFS_BASE } from './gameDataProviders.ts';
 import { generateGearDefinitions } from './generateGearDefinitions.ts';
+import { generateGearSetDefinitions } from './generateGearSetDefinitions.ts';
+import { generateWeaponDefinitions } from './generateWeaponDefinitions.ts';
+import { exportGameplayTagConfigSet } from './exportGameplayTagConfigSet.ts';
+import { generateGameplayTagCatalog } from './generateGameplayTagCatalog.ts';
+import { generateGameplayTagPredefine } from './generateGameplayTagPredefine.ts';
 import { verifyGameDataSnapshot } from './verifyGameDataSnapshot.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 
@@ -20,6 +25,8 @@ export interface RebuildArguments {
   readonly vfsBase: string;
   readonly workers: number;
   readonly tablesOnly: boolean;
+  /** 显式本机 VFS 通用 worker，不执行 HTTP 响应中的命令。 */
+  readonly unityWorker?: string;
 }
 
 /** 游戏派生产物不等于整个 src/next/data 或 public；混合文件不能直接登记为可删除目录。 */
@@ -38,13 +45,14 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
   {
     id: 'weapons',
     outputs: ['src/next/data/equipment/generated-weapons'],
-    blocker: '需要同批完整 GameplayTag 目录，以及 SkillData/BuffData；不能隐式读取正式标签目录。',
+    blocker:
+      '完整标签和被动来源已可同次任务编译；当前新版 wpn_funnel_0020 被 OnBuffEnhanceChanged 阻断，必须补齐实际事件广播与效果回归后才能发布。',
   },
   {
     id: 'gear-sets',
     outputs: ['src/next/data/equipment/generated-gear-sets'],
     blocker:
-      '需要同批 GameplayTag 和被动闭包；套装生成已遍历来源全部身份，任一身份未闭合须阻止整批发布。',
+      '同次任务完整标签与被动闭包已可生成全部套装；仍需整批模拟门禁、来源版本核对和正式发布。',
   },
   {
     id: 'global-catalogs',
@@ -54,7 +62,7 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
       'src/next/data/combat/hitStopCurveCatalog.generated.ts',
     ],
     blocker:
-      '全局配置/完整标签配置集/HUD prefab 等仍有离线精确导出依赖，须接入本批资源清单；TimeDilation 等混合文件先分离代码与游戏数据。',
+      '完整标签配置集与预定义表已可自动导出转换；其他全局配置/HUD prefab 仍待接入。VFS worker 需显式配置；TimeDilation 等混合文件先分离代码与游戏数据。',
   },
   {
     id: 'template-evidence',
@@ -181,6 +189,118 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         ),
       };
     });
+    if (!args.tablesOnly && missingRequestedInputs.length === 0 && args.unityWorker) {
+      const tags = path.join(candidateRoot, 'src/next/data/combat/gameplayTagCatalog.generated.ts');
+      const tagRoot = path.join(runRoot, 'unity-sources', 'GameplayTagConfigSet');
+      const tagsOkay = await stage('gameplay-tags', async () => {
+        const exported = await exportGameplayTagConfigSet({
+          output: tagRoot,
+          vfsBase: args.vfsBase,
+          cdn: args.cdn,
+          version: snapshot!.version,
+          unityWorker: args.unityWorker!,
+        });
+        const input = {
+          dump: exported.manifestPath,
+          output: tags,
+          sourceSet: true,
+          sourceRoot: tagRoot,
+          allowNewSource: true,
+          check: false,
+        };
+        const generated = await generateGameplayTagCatalog(input);
+        await generateGameplayTagCatalog({ ...input, check: true });
+        return {
+          ...exported,
+          ...generated,
+          deterministicCheck: 'passed',
+          note: '同次任务补取完整配置集；VFS 客户端与 AKEDB 版本一致性仍未证明，非发布许可。',
+        };
+      });
+      if (tagsOkay) {
+        await stage('gameplay-tag-predefine', async () => {
+          const params = [
+            path.join(sourceRoot, 'GameplayConfig/GameplayTagPredefineTable.json'),
+            path.join(candidateRoot, 'src/next/data/combat/gameplayTagPredefine.generated.ts'),
+            snapshot!.version,
+            tags,
+          ] as const;
+          const generated = await generateGameplayTagPredefine(...params);
+          await generateGameplayTagPredefine(...params, true);
+          return { ...generated, deterministicCheck: 'passed' };
+        });
+        await stage('gear-sets', async () => {
+          const relative = 'src/next/data/equipment/generated-gear-sets';
+          const input = {
+            tablesDirectory: path.join(sourceRoot, 'TableCfg-current'),
+            skillDataDirectory: path.join(sourceRoot, 'SkillData'),
+            buffDataDirectory: path.join(sourceRoot, 'BuffData'),
+            gameplayTagCatalog: tags,
+            outputDirectory: path.join(candidateRoot, relative),
+            check: false,
+          };
+          const generated = await generateGearSetDefinitions(input);
+          await generateGearSetDefinitions({ ...input, check: true });
+          return {
+            ...generated,
+            deterministicCheck: 'passed',
+            comparison: await compareCandidateFiles(
+              path.join(root, relative),
+              input.outputDirectory,
+            ),
+          };
+        });
+        await stage('weapons', async () => {
+          const relative = 'src/next/data/equipment/generated-weapons';
+          const input = {
+            tables: path.join(sourceRoot, 'TableCfg-current'),
+            skillData: path.join(sourceRoot, 'SkillData'),
+            buffData: path.join(sourceRoot, 'BuffData'),
+            gameplayTagCatalog: tags,
+            output: path.join(candidateRoot, relative),
+            auditOutput: path.join(runRoot, 'audit', 'weapons'),
+            check: false,
+          };
+          const generated = await generateWeaponDefinitions(input);
+          await generateWeaponDefinitions({ ...input, check: true });
+          return {
+            ...generated,
+            deterministicCheck: 'passed',
+            comparison: await compareCandidateFiles(path.join(root, relative), input.output),
+          };
+        });
+        await stage('gameplay-tags-after-generation', async () => {
+          const detail = requireRecord(
+            stages.find(item => item.id === 'gameplay-tags')!.detail,
+            'GameplayTag stage',
+          );
+          const verified = await generateGameplayTagCatalog({
+            dump: path.join(tagRoot, 'source-set.json'),
+            output: tags,
+            sourceSet: true,
+            sourceRoot: tagRoot,
+            allowNewSource: true,
+            check: true,
+          });
+          if (verified.sourceSha256 !== detail.sourceSha256)
+            throw new Error('GameplayTag source set changed during generation');
+          return verified;
+        });
+      } else {
+        for (const id of ['gameplay-tag-predefine', 'gear-sets', 'weapons'])
+          stages.push({
+            id,
+            status: 'blocked',
+            detail: '完整 GameplayTag 配置集未通过，不借正式目录补齐。',
+          });
+      }
+    } else if (!args.tablesOnly) {
+      stages.push({
+        id: 'gameplay-tags',
+        status: 'blocked',
+        detail: '需要完整来源快照及显式 --unity-worker；不会使用旧标签目录。',
+      });
+    }
     await stage('sources-after-generation', async () => {
       const after = await verifyGameDataSnapshot(
         sourceRoot,
@@ -302,7 +422,14 @@ async function readJson(file: string): Promise<unknown> {
 export function parseRebuildArguments(values: readonly string[]): RebuildArguments {
   const entries = new Map<string, string>();
   let tablesOnly = false;
-  const allowed = new Set(['--source-root', '--version', '--cdn', '--vfs-base', '--workers']);
+  const allowed = new Set([
+    '--source-root',
+    '--version',
+    '--cdn',
+    '--vfs-base',
+    '--workers',
+    '--unity-worker',
+  ]);
   for (let i = 0; i < values.length; i++) {
     const flag = values[i]!;
     if (flag === '--tables-only' && !tablesOnly) {
@@ -327,6 +454,9 @@ export function parseRebuildArguments(values: readonly string[]): RebuildArgumen
     vfsBase: entries.get('--vfs-base') ?? DEFAULT_VFS_BASE,
     workers,
     tablesOnly,
+    ...(entries.has('--unity-worker')
+      ? { unityWorker: path.resolve(entries.get('--unity-worker')!) }
+      : {}),
   };
 }
 
