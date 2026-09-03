@@ -13,8 +13,89 @@ import {
 import { collectBuffSpawnedAbilityEntityContextKeys } from '../src/compiler/standardStumpBuffClosure.ts';
 import type { NativeSequenceSource } from '../src/source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
+import { buffHasNoAffixIdentityWriter } from '../src/compiler/buffCastIdentityProof.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('没有 affix 写入的 Buff 事件按自身来源施法限定计数', () => {
+    const source = sourceFixture();
+    const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const condition = sequence.actions[0]!;
+    const limited: BuffRuntimeSource = {
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: [
+          {
+            event: 'OnBeforeCastSkill',
+            actions: [
+              {
+                ...sequence,
+                actions: [
+                  {
+                    ...condition,
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'condition',
+                        action: {
+                          kind: 'buffStack',
+                          sourceType: 'CheckBuffStackNumAdvanced',
+                          targetSource: 'Owner',
+                          targetGroupKey: '',
+                          buffCheckType: 'Id',
+                          buffIds: ['buff_seal'],
+                          tagQueryType: 'hasAny',
+                          buffTagIds: [],
+                          countType: 'BuffCount',
+                          comparison: 'LT',
+                          value: { value: 1, blackboardKey: null, levelValues: null },
+                          limitSkillCastId: true,
+                        },
+                      },
+                    },
+                  },
+                  sequence.actions[1]!,
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+    expect(buffHasNoAffixIdentityWriter(limited)).toBe(true);
+    const compiled = compileBuffRuntimeDefinitionSource(limited);
+    expect(JSON.stringify(compiled.abilityEventResponses)).toContain('"sameSourceSkillCast":true');
+
+    // Even a disabled writer in a modifier-owned nested program invalidates
+    // the whole-definition proof, not only the sequence being compiled.
+    const withWriter: BuffRuntimeSource = {
+      ...limited,
+      damageModifiers: [
+        {
+          enabledSide: 'Attacker',
+          processors: [],
+          condition: {
+            ...sequence,
+            actions: [
+              {
+                ...condition,
+                metadata: { ...condition.metadata, enabled: false },
+                body: {
+                  kind: 'leaf',
+                  value: { family: 'skillAffix', action: { kind: 'skillAffix' } },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    expect(buffHasNoAffixIdentityWriter(withWriter)).toBe(false);
+    expect(() => compileBuffRuntimeDefinitionSource(withWriter)).toThrow(
+      'unsupported event target Buff count condition',
+    );
+  });
+
   it('防御方修正的 Target 不能误读为敌人失衡值', () => {
     const source = sourceFixture();
     const seed = source.graph.abilityEvents[0]!.actions[0]!;

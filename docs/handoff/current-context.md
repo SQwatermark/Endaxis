@@ -19,7 +19,31 @@
 
 ### 2026-09-03：恢复 AKEDB 优先、VFS 补缺（覆盖下方历史 VFS-only 路线）
 
-#### 提交交接检查点
+#### 2026-09-04 最新检查点：诀接通，候选 29/30
+
+- 本节覆盖下方历史 28/30 检查点；来源仍是 AKEDB 优先、VFS 补缺。正式 pin、生成定义、图片
+  均未改动，页面不会因此提前获得候选数据。
+- 复刻库先补齐限定 Id 计数：执行 Buff 的非零 affix 优先、否则普通来源；候选 Buff 按普通
+  来源编号过滤并累加增强层数。显式零编号仍过滤；不能拿事件编号或候选 affix 替代。
+  当前快照 RVAs、版本限制、复现命令见 combat-spec `docs/skill-affix-identity-2026-09-04.md`。
+- 编译器新增完整 Buff IR 的无 affix 写入证明，覆盖叶子私有回调、修正器子程序；残留禁用写入
+  也保守拒绝。仅给保留 Buff 来源的 ability-event 回调授权已有 sameSourceSkillCast 投影，
+  不推广到会替换来源的 ignite 回调。诀的印记监听符合此证明，没有写角色特判或删除守卫。
+- 实际重跑 `tmp/operator-refresh-20260903/plan-current.ts`：**29/30**，剩余秋栗的
+  `buff_common_affixes_skillimbue_atk` 条件写入 real_imbue_scale；其完整生产接线尚未完成。
+- 放轴发现诀终结技的 `restrictUltimateEnergyRecovery` 被准入检查漏收；该步骤已有装配的
+  资源执行器，现补准入及申请限制/允许标签/结束清空/恢复/重复结束回归，未改变资源机制。
+- 同目录 `current-smoke.test.ts` 在内存中直接消费候选，29 名/300 个技能 × P0/P5，
+  **600 次模拟 + 29 份契约 = 629/629**；复刻库聚焦 **132/132**，另一个旧资产依赖测试
+  `ParsesRealZhuangfySwordCountBuff` 因本地资产根缺失仍失败，不宣称复刻库全绿。
+- Endaxis 编译器与 Next 合跑 **446 文件 / 5705 项**通过，Next、compiler、production
+  类型检查通过。候选继续使用旧投射物黑板、
+  TimeDilation、GlobalBuff、SkillSetting，是诊断性混合输入，不是同批完整重建/精确数值认证。
+- 下一阶段：秋栗有副作用修正条件与 SkillAffix 真实创建/引用生命周期接线 → 同批派生目录
+  和 pin 审计 → 完整新旧对象差分、重复印记/事件顺序/Buff 时钟的真实轴回归 → 正式发布。
+  不重新研究已闭环的公共 Sequence/黑板语义；临时快照与报告不提交。
+
+#### 历史提交交接检查点（28/30）
 
 - 当前新版进度为 **28/30 整名候选编译**；页面仍使用 `3b187292` 恢复的正式定义，
   不能把本文开头的旧版 30/30 正式覆盖与新版进度混读。

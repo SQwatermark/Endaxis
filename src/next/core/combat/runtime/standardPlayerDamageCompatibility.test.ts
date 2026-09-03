@@ -89,6 +89,27 @@ function compatibilityInput(
 }
 
 describe('standardPlayerDamageCompatibility', () => {
+  it('admits ultimate recovery restrictions handled by the assembled resource executor', () => {
+    expect(
+      inspectStandardPlayerDamageCompatibility(
+        compatibilityInput(
+          operator({
+            steps: [
+              {
+                kind: 'restrictUltimateEnergyRecovery',
+                parameters: {
+                  target: 'caster',
+                  allowedRecoveryTags: [],
+                  clearUltimateEnergyOnEnd: true,
+                },
+              },
+            ],
+          }),
+        ),
+      ),
+    ).toEqual([]);
+  });
+
   it('已内嵌配置列可执行；强化列仍要求来源面板', () => {
     const sequence = (enhanced: boolean): ResolvedActionSequence => ({
       steps: [

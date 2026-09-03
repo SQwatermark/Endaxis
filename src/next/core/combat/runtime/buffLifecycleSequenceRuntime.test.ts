@@ -10,8 +10,96 @@ import {
 import type { CombatOperationExecutor } from './skillRuntime';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
+import { BuffOperationExecutor } from './buffOperationExecutor';
 
 describe('attachBuffLifecycleSequences', () => {
+  it('limited counts in Buff events retain Buff provenance, not event or candidate affix identity', () => {
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    const cast = (id: number) => ({
+      skillCastId: id,
+      originSkillId: 'skill',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 0,
+    });
+    const seal = { id: 'seal', stackingType: 'unlimited' as const };
+    const matching = container.add(seal, 'operator', { skillCastInfo: cast(42) })!;
+    matching.recordBuffAffixSkillCastId(99);
+    container.add(seal, 'operator', { skillCastInfo: cast(99) })!.recordBuffAffixSkillCastId(42);
+    container.add(seal, 'operator', { skillCastInfo: cast(42) })!.finish('other');
+    let handle: ((payload: unknown) => void) | undefined;
+    let reached = 0;
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'listener', stackingType: 'unique' },
+      {},
+      () =>
+        new BuffOperationExecutor({
+          sourceId: 'operator',
+          resolveTarget: () => container,
+          resolveEventTarget: () => container,
+          delegate: {
+            execute: () => {
+              reached++;
+              return true;
+            },
+            evaluate: () => false,
+          },
+        }),
+      undefined,
+      [
+        {
+          event: 'beforeCastSkill',
+          priority: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'buffIdStackCompare',
+                    target: 'buffOwner',
+                    buffIds: ['seal'],
+                    sameSourceSkillCast: true,
+                    operator: 'equal',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'setContextFlag',
+                      parameters: {
+                        flag: 'matched',
+                        value: true,
+                        target: 'caster',
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+      (_event, _priority, callback) => {
+        handle = callback;
+        return { dispose: () => undefined };
+      },
+    );
+    container.add(definition, 'operator', { skillCastInfo: cast(42) });
+    const event = {
+      sourceId: 'operator',
+      targetId: 'operator',
+      skillType: 'battleSkill',
+      skillId: 'later-skill',
+      skillCastId: 99,
+    };
+    handle!(event);
+    expect(reached).toBe(1);
+    matching.finish('other');
+    handle!(event);
+    expect(reached).toBe(1);
+  });
+
   it('normalizes a custom AbilitySystem event without inventing skill provenance', () => {
     expect(
       normalizeAbilityEventPayload('customAbilityEvent', {

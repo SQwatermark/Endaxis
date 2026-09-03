@@ -134,7 +134,8 @@ export interface CombatActionProjectionContextSource {
   readonly fixedHittableTargetCount?: number;
   /**
    * 当前动作环境的普通 SkillCastInfo 已被来源链证明就是需要过滤的来源施法。
-   * 仅此标记允许把 limitSkillCastId 投影为 sameSourceSkillCast；Buff affix 环境不得冒用。
+   * 仅此标记允许把 limitSkillCastId 投影为 sameSourceSkillCast；Buff 必须证明完整
+   * 定义没有 affix 写入，且当前回调保留普通来源编号，不能把普通来源冒充非零 affix。
    */
   readonly actionEnvironmentSkillCastInfoIsSourceCast?: boolean;
   /**

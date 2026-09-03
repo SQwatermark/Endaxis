@@ -21,6 +21,58 @@ function findSkill(key: string): SkillDefinition {
 }
 
 describe('SkillResourceOperationExecutor', () => {
+  it('installs and ends an action-owned ultimate recovery restriction', () => {
+    const resources = new CombatResources({
+      sp: 0,
+      maxSp: 300,
+      returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'arcane',
+          ultimateEnergy: 20,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          allowedUltimateEnergyRecoveryTags: null,
+        },
+      ],
+    });
+    const receipt = new CombatReceiptCollector();
+    const operations = new SkillResourceOperationExecutor({
+      sourceOperatorId: 'arcane',
+      sourceActionId: 'ultimate',
+      clock: new CombatClock(),
+      resources,
+      receipt,
+      getNonReturnedSpCost: () => 0,
+      finisherSpRecovery: 0,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+    const step = {
+      kind: 'restrictUltimateEnergyRecovery' as const,
+      parameters: {
+        target: 'caster' as const,
+        allowedRecoveryTags: ['Test/Allowed'],
+        clearUltimateEnergyOnEnd: true,
+      },
+    };
+    expect(operations.execute(step)).toBe(true);
+    expect(resources.changeUltimateEnergy('arcane', 5).applied).toBe(false);
+    expect(
+      resources.changeUltimateEnergy('arcane', 5, { recoveryTag: 'Test/Allowed' }).applied,
+    ).toBe(true);
+    operations.end(step);
+    expect(resources.getUltimateEnergy('arcane')).toBe(0);
+    expect(receipt.entries).toHaveLength(1);
+    expect(resources.changeUltimateEnergy('arcane', 5).applied).toBe(true);
+    operations.end(step);
+    expect(resources.getUltimateEnergy('arcane')).toBe(5);
+    expect(receipt.entries).toHaveLength(1);
+  });
+
   it('uses the enemy finisher recovery and power-attack gain efficiency', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();

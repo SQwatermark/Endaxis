@@ -1,4 +1,5 @@
 import { projectGameplayTags } from './combatProjectionCommon.ts';
+import { buffHasNoAffixIdentityWriter } from './buffCastIdentityProof.ts';
 import { projectPureDamageModifierCondition } from './damageModifierConditionProjection.ts';
 import {
   compileResolvedAttributeModifierSource,
@@ -491,6 +492,13 @@ export function compileBuffRuntimeDefinitionSource(
       // 保持严格失败；这里仅是纯表现事件的前置证明，不吞正式编译错误。
     }
   }
+  // Ability-event callbacks retain the Buff's ordinary cast info; event cast
+  // info is a separate value. Do not extend this proof to ignite callbacks,
+  // whose execution context can replace ordinary cast provenance.
+  const abilityEventProjectionContext = {
+    ...projectionContextOverrides,
+    actionEnvironmentSkillCastInfoIsSourceCast: buffHasNoAffixIdentityWriter(source),
+  };
   const abilityEventResponses = compileAbilityEventPrograms(
     source.graph.abilityEvents.map(event => ({
       abilityEvent: event.event,
@@ -506,7 +514,7 @@ export function compileBuffRuntimeDefinitionSource(
           ? compileSkillSpGainSequence(
               sequence,
               visualOnlyIds,
-              { ...BUFF_ACTION_CONTEXT, ...projectionContextOverrides },
+              { ...BUFF_ACTION_CONTEXT, ...abilityEventProjectionContext },
               extensions,
             )
           : compileLinearSequence(
@@ -520,13 +528,13 @@ export function compileBuffRuntimeDefinitionSource(
                 ? {
                     ...BUFF_BEFORE_ADDED_CONTEXT,
                     abilityEntityQueries,
-                    ...projectionContextOverrides,
+                    ...abilityEventProjectionContext,
                   }
                 : abilityEvent === 'OnBeforeTakeDamage'
                   ? {
                       ...BUFF_BEFORE_TAKE_DAMAGE_CONTEXT,
                       abilityEntityQueries,
-                      ...projectionContextOverrides,
+                      ...abilityEventProjectionContext,
                     }
                   : (abilityEvent === 'OnOutputDamage' ||
                         abilityEvent === 'OnBeforeOutputDamage' ||
@@ -538,12 +546,12 @@ export function compileBuffRuntimeDefinitionSource(
                         // 条件与动态标签筛选，但无需把已知身份降级成不可投影的 eventTarget。
                         actionTargetTarget: 'enemy' as const,
                         abilityEntityQueries,
-                        ...projectionContextOverrides,
+                        ...abilityEventProjectionContext,
                       }
                     : {
                         ...BUFF_ACTION_CONTEXT,
                         abilityEntityQueries,
-                        ...projectionContextOverrides,
+                        ...abilityEventProjectionContext,
                       },
               extensions,
             ),

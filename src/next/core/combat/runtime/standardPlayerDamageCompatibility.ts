@@ -394,6 +394,7 @@ function inspectSequence(
       case 'createAbilityEntityTimedMarker':
       case 'gainSquadUltimateEnergyFromSkillCost':
       case 'gainFinisherSp':
+      case 'restrictUltimateEnergyRecovery':
       case 'openComboWindow':
       case 'changeSkillSlot':
       case 'changePlayerActionMode':
