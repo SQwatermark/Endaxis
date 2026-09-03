@@ -1,6 +1,7 @@
 import {
   requireBoolean,
   requireExactFields,
+  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
   requireString,
@@ -54,14 +55,16 @@ export function parseSkillSlotReplacementActionSource(
     ]),
     path,
   );
-  const skillSlot = requireNonEmptyString(action.skillSlot, `${path}.skillSlot`);
-  if (!['NormalSkill', 'ComboSkill', 'UltimateSkill'].includes(skillSlot)) {
-    throw new Error(`${path}.skillSlot: unsupported value ${JSON.stringify(skillSlot)}`);
-  }
-  const lifetime = requireNonEmptyString(action.lifeTimeType, `${path}.lifeTimeType`);
-  if (!['SpecificTime', 'Infinite', 'FinishByAction'].includes(lifetime)) {
-    throw new Error(`${path}.lifeTimeType: unsupported value ${JSON.stringify(lifetime)}`);
-  }
+  const skillSlot = requireNativeEnum(
+    action.skillSlot,
+    ['NormalSkill', 'ComboSkill', 'UltimateSkill'] as const,
+    `${path}.skillSlot`,
+  );
+  const lifetime = requireNativeEnum(
+    action.lifeTimeType,
+    ['SpecificTime', 'Infinite', 'FinishByAction'] as const,
+    `${path}.lifeTimeType`,
+  );
   return {
     kind: 'skillSlotReplacement',
     skillSource: parseTargetReferenceSource(action.skillSource, `${path}.skillSource`),

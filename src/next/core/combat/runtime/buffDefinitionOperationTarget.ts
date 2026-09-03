@@ -90,6 +90,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       targetId: this.ownerId,
       buffId: request.buffId,
       sourceId: request.sourceId,
+      isExtra: request.isExtra === true,
       buffTags: definition.applyTags ?? [],
       skillCastInfo: request.skillCastInfo ?? null,
     };

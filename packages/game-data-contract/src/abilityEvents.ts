@@ -8,6 +8,9 @@
 export const ABILITY_EVENTS = [
   'enterFight',
   'ownerHpZero',
+  'ownerDead',
+  'ownerSwitchedToCenter',
+  'ownerSwitchedToGuard',
   'abilityEntitySpawned',
   'abilityEntityFinished',
   'beforeTakeDamage',
@@ -38,6 +41,7 @@ export const ABILITY_EVENTS = [
   'beforeCastSkill',
   'afterSkillApplyCost',
   'skillEnd',
+  'pendingComboSkillsCleared',
   'beforeOutputBuff',
   'beforeAddedBuff',
   'outputBuff',
@@ -50,6 +54,10 @@ export const ABILITY_EVENTS = [
   'afterKillEntity',
   'buffConsumed',
   'buffAbsorbed',
+  'buffEnhanceChanged',
+  'squadTakeDamage',
+  'deckAttributesChanged',
+  'trulyExitFight',
   'skillSpGained',
 ] as const;
 

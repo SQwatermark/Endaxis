@@ -18,15 +18,19 @@ export function compileGameplayTagCatalogSource(
   source: GameplayTagConfigDumpSource,
 ): CompiledGameplayTagCatalogSource {
   source.paths.forEach(assertGameplayTag);
-  const definitions = source.paths.map(path => ({ id: gameplayTagIdFromPath(path), path }));
-  const ids = new Set<number>();
+  const paths = [...new Set(source.paths)];
+  const definitions = paths.map(path => ({ id: gameplayTagIdFromPath(path), path }));
+  const ids = new Map<number, string>();
   for (const definition of definitions) {
-    if (ids.has(definition.id)) {
-      throw new Error(`GameplayTagConfig CRC-32 collision at ${JSON.stringify(definition.path)}`);
+    const priorPath = ids.get(definition.id);
+    if (priorPath !== undefined && priorPath !== definition.path) {
+      throw new Error(
+        `GameplayTagConfig CRC-32 collision between ${JSON.stringify(priorPath)} and ${JSON.stringify(definition.path)}`,
+      );
     }
-    ids.add(definition.id);
+    ids.set(definition.id, definition.path);
   }
-  return { paths: [...source.paths], definitions };
+  return { paths, definitions };
 }
 
 /** 来源连接器的输入，不是新的标签协议；身份来自 worker 对象元数据及 CAB 外部表。 */

@@ -36,6 +36,7 @@ export type OperatorRuntimeAttribute =
   | 'Atk'
   | 'Def'
   | 'PhysicalAndSpellInflictionEnhance'
+  | 'NormalAttackRange'
   | 'AtbCostAddition'
   | 'ComboSkillCooldownRecoveryScalar'
   | 'KeywordSpeedUpScalar'
@@ -80,6 +81,9 @@ export function createOperatorAttackAttributes(
   result.define('PhysicalAndSpellInflictionEnhance', input.artsIntensity ?? 0, {
     minimum: 0,
   });
+  // VFS AttributeMetaTable[12]：默认 1，且没有原生上下限。固定零距离模型不消费
+  // 射程，但仍必须承载技能 Buff 对该属性的修改，不能因“距离恒为 0”丢失原始状态。
+  result.define('NormalAttackRange', 1, {});
   for (const attribute of Object.keys(
     ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
   ) as OperatorAttribute[]) {

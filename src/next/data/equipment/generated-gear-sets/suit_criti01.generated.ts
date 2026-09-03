@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'criticalRate',
-      value: 0.05,
+      value: 0.05000000074505806,
     },
   ],
   buffDefinitions: {
@@ -70,9 +70,7 @@ const definition = {
     buff_equipsuit_critsuitatk_01: {
       stackingType: 'enhanceAndRefresh',
       priority: 0,
-      maxStackCount: {
-        blackboardKey: 'max_stack',
-      },
+      maxStackCount: 5,
       durationSeconds: {
         blackboardKey: 'duration',
       },
@@ -82,6 +80,7 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -183,6 +182,7 @@ const definition = {
         iconPath: '/icons/icon_battle_crit_rate_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -229,11 +229,11 @@ const definition = {
           blackboardAssignments: {
             atk_up: {
               kind: 'constant',
-              value: 0.05,
+              value: 0.05000000074505806,
             },
             crit_up: {
               kind: 'constant',
-              value: 0.05,
+              value: 0.05000000074505806,
             },
             duration: {
               kind: 'constant',
@@ -241,7 +241,7 @@ const definition = {
             },
             crit_up2: {
               kind: 'constant',
-              value: 0.05,
+              value: 0.05000000074505806,
             },
             max_stack: {
               kind: 'constant',

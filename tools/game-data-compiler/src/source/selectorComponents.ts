@@ -3,9 +3,11 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
+  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
   requireString,
+  requireStringOrInteger,
 } from './primitives.ts';
 import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
 import {
@@ -25,7 +27,27 @@ export interface PriorityBuffFilterSource {
 
 /** PriorityFilter 的完整序列化载荷；来源层只保存事实，不声称每种排序已能执行。 */
 export interface PriorityFilterSource {
-  readonly filterType: string;
+  readonly filterType:
+    | 'All'
+    | 'DistanceFromOwnerAsc'
+    | 'DistanceFromOwnerDes'
+    | 'DistanceFromCenterAsc'
+    | 'DistanceFromCenterDes'
+    | 'DistanceFromMainCharAsc'
+    | 'DistanceFromMainCharDes'
+    | 'CurHpAsc'
+    | 'CurHpDes'
+    | 'CurHpRatioAsc'
+    | 'CurHpRatioDes'
+    | 'BuffStackNumAsc'
+    | 'BuffStackNumDes'
+    | 'ScreenPosLeftToRight'
+    | 'ScreenPosRightToLeft'
+    | 'ScreenPosTopToBottom'
+    | 'ScreenPosBottomToTop'
+    | 'ScreenPosClosestToCenter'
+    | 'ScreenPosClosestToCenterHorizontal';
+  readonly processTargetType: string | number;
   readonly onlyReserveMaxPriorityTargets: boolean;
   readonly limitMaxNum: boolean;
   readonly maxNum: number;
@@ -33,6 +55,7 @@ export interface PriorityFilterSource {
 }
 
 export interface ShuffleTargetSource {
+  readonly processTargetType: 'Targets' | 'HittableTargets';
   readonly targetNumLimit: IntegerScalarSource;
 }
 
@@ -46,14 +69,11 @@ export interface DistanceValidatorSource {
 export function selectorComponentName(value: unknown, path: string): string {
   const item = requireRecord(value, path);
   const typeName = requireString(item.$type, `${path}.$type`);
-  const parts = (typeName.split(',', 1)[0] ?? '').split('+');
-  const componentName = parts.at(-2) ?? '';
+  const qualifiedName = typeName.split(',', 1)[0] ?? '';
+  const parts = qualifiedName.includes('+') ? qualifiedName.split('+') : qualifiedName.split('.');
   const dataTypeName = parts.at(-1) ?? '';
-  if (
-    parts.length < 3 ||
-    !componentName ||
-    (dataTypeName !== 'Data' && dataTypeName !== `${componentName}Data`)
-  ) {
+  const componentName = parts.at(-2) ?? '';
+  if (!componentName || (dataTypeName !== 'Data' && dataTypeName !== `${componentName}Data`)) {
     throw new Error(`${path}.$type: unsupported selector type ${JSON.stringify(typeName)}`);
   }
   return componentName;
@@ -75,6 +95,7 @@ export function parsePriorityFilterSources(value: unknown, path: string): Priori
           'limitMaxNum',
           'maxNum',
           'buffFilterSettings',
+          ...('processTargetType' in processor ? ['processTargetType'] : []),
         ]),
         filterPath,
       );
@@ -97,7 +118,36 @@ export function parsePriorityFilterSources(value: unknown, path: string): Priori
         `${filterPath}.buffFilterSettings.buffSettings`,
       );
       return {
-        filterType: requireNonEmptyString(processor.filterType, `${filterPath}.filterType`),
+        // FilterUtils.FilterType 在当前 IL2CPP 中按下列顺序声明；历史 JSON 也保留同名值。
+        filterType: requireNativeEnum(
+          processor.filterType,
+          [
+            'All',
+            'DistanceFromOwnerAsc',
+            'DistanceFromOwnerDes',
+            'DistanceFromCenterAsc',
+            'DistanceFromCenterDes',
+            'DistanceFromMainCharAsc',
+            'DistanceFromMainCharDes',
+            'CurHpAsc',
+            'CurHpDes',
+            'CurHpRatioAsc',
+            'CurHpRatioDes',
+            'BuffStackNumAsc',
+            'BuffStackNumDes',
+            'ScreenPosLeftToRight',
+            'ScreenPosRightToLeft',
+            'ScreenPosTopToBottom',
+            'ScreenPosBottomToTop',
+            'ScreenPosClosestToCenter',
+            'ScreenPosClosestToCenterHorizontal',
+          ] as const,
+          `${filterPath}.filterType`,
+        ),
+        processTargetType:
+          'processTargetType' in processor
+            ? requireStringOrInteger(processor.processTargetType, `${filterPath}.processTargetType`)
+            : 0,
         onlyReserveMaxPriorityTargets: requireBoolean(
           processor.onlyReserveMaxPriorityTargets,
           `${filterPath}.onlyReserveMaxPriorityTargets`,
@@ -105,8 +155,9 @@ export function parsePriorityFilterSources(value: unknown, path: string): Priori
         limitMaxNum: requireBoolean(processor.limitMaxNum, `${filterPath}.limitMaxNum`),
         maxNum: requireInteger(processor.maxNum, `${filterPath}.maxNum`),
         buffFilter: {
-          checkType: requireNonEmptyString(
+          checkType: requireNativeEnum(
             rawBuffSettings.checkType,
+            ['Id', 'Tag'] as const,
             `${filterPath}.buffFilterSettings.buffSettings.checkType`,
           ),
           buffIds: requireArray(
@@ -122,8 +173,9 @@ export function parsePriorityFilterSources(value: unknown, path: string): Priori
             rawBuffSettings.tagQuery,
             `${filterPath}.buffFilterSettings.buffSettings.tagQuery`,
           ),
-          stackCountType: requireNonEmptyString(
+          stackCountType: requireNativeEnum(
             rawBuffFilter.buffStackNumType,
+            ['BuffCount', 'BuffIdCount'] as const,
             `${filterPath}.buffFilterSettings.buffStackNumType`,
           ),
         },
@@ -136,8 +188,18 @@ export function parsePriorityFilterSources(value: unknown, path: string): Priori
 export function parseShuffleTargetSources(value: unknown, path: string): ShuffleTargetSource[] {
   return matchingComponents(value, path, 'ShuffleTarget').map(
     ({ component: processor, path: shufflePath }) => {
-      requireExactFields(processor, new Set(['$type', 'targetNumLimit']), shufflePath);
+      const expectedFields = new Set(['$type', 'targetNumLimit']);
+      if ('processTargetType' in processor) expectedFields.add('processTargetType');
+      requireExactFields(processor, expectedFields, shufflePath);
       return {
+        processTargetType:
+          'processTargetType' in processor
+            ? requireNativeEnum(
+                processor.processTargetType,
+                ['Targets', 'HittableTargets'] as const,
+                `${shufflePath}.processTargetType`,
+              )
+            : 'Targets',
         targetNumLimit: parseIntegerScalarSource(
           processor.targetNumLimit,
           `${shufflePath}.targetNumLimit`,
@@ -171,7 +233,11 @@ export function parseDistanceValidatorSources(
             `${validatorPath}.value`,
             inheritedBlackboard,
           ),
-          compareType: requireNonEmptyString(validator.compareType, `${validatorPath}.compareType`),
+          compareType: requireNativeEnum(
+            validator.compareType,
+            ['LT', 'LE', 'GT', 'GE', 'Equals'] as const,
+            `${validatorPath}.compareType`,
+          ),
           clampToXZ: requireBoolean(validator.clampToXZ, `${validatorPath}.clampToXZ`),
         },
       ];

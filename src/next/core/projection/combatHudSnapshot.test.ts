@@ -369,5 +369,51 @@ describe('projectCombatHudSnapshot', () => {
         ],
       ).operators[0]?.passiveUi,
     ).toMatchObject({ kind: 'buffProgress', mode: 'normal', ratio: 0.5 });
+
+    expect(
+      project(
+        5,
+        [
+          {
+            sequence: 0,
+            frame: 2,
+            time: 2 / 30,
+            event: 'BuffApplied',
+            targetId: 'track:1',
+            data: { buffId: 'arrow-battle', instanceId: 9, layers: 1 },
+          },
+          {
+            sequence: 1,
+            frame: 4,
+            time: 4 / 30,
+            event: 'BuffEnhanceChanged',
+            targetId: 'track:1',
+            data: { buffId: 'arrow-battle', instanceId: 9, layers: 3 },
+          },
+        ],
+        [],
+        undefined,
+        [
+          {
+            operatorId: 'track:1',
+            definition: {
+              kind: 'buffCounters',
+              appearance: 'typhoeaQuiver',
+              counters: [
+                { key: 'arrows', buffIds: ['arrow-out', 'arrow-battle'], maximum: 4 },
+                { key: 'points', buffIds: ['points'], maximum: 8 },
+              ],
+            },
+          },
+        ],
+      ).operators[0]?.passiveUi,
+    ).toEqual({
+      kind: 'buffCounters',
+      appearance: 'typhoeaQuiver',
+      counters: [
+        { key: 'arrows', value: 3, maximum: 4 },
+        { key: 'points', value: 0, maximum: 8 },
+      ],
+    });
   });
 });

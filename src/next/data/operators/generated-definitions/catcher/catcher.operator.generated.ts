@@ -54,7 +54,7 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.15 },
+                    durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -82,9 +82,9 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -98,7 +98,11 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
+    atk_scale: [
+      0.349999994039536, 0.389999985694885, 0.419999986886978, 0.46000000834465, 0.490000009536743,
+      0.529999971389771, 0.560000002384186, 0.600000023841858, 0.629999995231628, 0.670000016689301,
+      0.730000019073486, 0.790000021457672,
+    ],
     env_dmg: 20,
   },
 );
@@ -167,9 +171,9 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -183,7 +187,11 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.39, 0.42, 0.46, 0.5, 0.54, 0.58, 0.62, 0.65, 0.69, 0.74, 0.8, 0.87],
+    atk_scale: [
+      0.389999985694885, 0.419999986886978, 0.46000000834465, 0.5, 0.540000021457672,
+      0.579999983310699, 0.620000004768372, 0.649999976158142, 0.689999997615814, 0.740000009536743,
+      0.800000011920929, 0.870000004768372,
+    ],
     env_dmg: 20,
   },
 );
@@ -227,7 +235,7 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -261,7 +269,11 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.54, 0.59, 0.65, 0.7, 0.76, 0.81, 0.86, 0.92, 0.97, 1.04, 1.12, 1.22],
+    atk_scale: [
+      0.540000021457672, 0.589999973773956, 0.649999976158142, 0.699999988079071, 0.759999990463257,
+      0.810000002384186, 0.860000014305115, 0.920000016689301, 0.970000028610229, 1.03999996185303,
+      1.12000000476837, 1.22000002861023,
+    ],
     env_dmg: 20,
   },
 );
@@ -309,7 +321,7 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.4 },
+                    durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -337,9 +349,9 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -353,7 +365,11 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 25,
-    atk_scale: [0.71, 0.78, 0.85, 0.92, 0.99, 1.07, 1.14, 1.21, 1.28, 1.37, 1.47, 1.6],
+    atk_scale: [
+      0.709999978542328, 0.779999971389771, 0.850000023841858, 0.920000016689301, 0.990000009536743,
+      1.07000005245209, 1.13999998569489, 1.21000003814697, 1.27999997138977, 1.37000000476837,
+      1.47000002861023, 1.60000002384186,
+    ],
     atk_scale2: 0.5,
     env_dmg: 40,
     poise: 22,
@@ -387,7 +403,7 @@ export const catcherFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.4,
+              calculationMultiplier: 0.400000005960464,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0020_meurs_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -405,7 +421,7 @@ export const catcherFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.6,
+              calculationMultiplier: 0.600000023841858,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0020_meurs_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -415,7 +431,7 @@ export const catcherFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.3 },
+                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -458,7 +474,12 @@ export const catcherFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  {
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+  },
 );
 
 export const catcherPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -505,7 +526,11 @@ export const catcherPlungingAttack: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
     env_dmg: 20,
   },
 );
@@ -708,7 +733,7 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
+                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -719,7 +744,7 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
                 targetTriggerIntervalSeconds: 0,
               },
@@ -733,7 +758,7 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.7 },
+            durationSeconds: { kind: 'constant', value: 0.699999988079071 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -741,29 +766,29 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
               keys: [
                 {
                   time: 0,
-                  value: 0.3,
+                  value: 0.300000011920929,
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
                   inWeight: 0,
-                  outWeight: 0.333333343,
+                  outWeight: 0.333333343267441,
                 },
                 {
                   time: 0.5,
-                  value: 0.3,
+                  value: 0.300000011920929,
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
-                  inWeight: 0.333333343,
-                  outWeight: 0.333333343,
+                  inWeight: 0.333333343267441,
+                  outWeight: 0.333333343267441,
                 },
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 4.596606,
-                  outTangent: 4.596606,
+                  inTangent: 4.59660577774048,
+                  outTangent: 4.59660577774048,
                   weightedMode: 0,
-                  inWeight: 0.0243593454,
+                  inWeight: 0.0243593454360962,
                   outWeight: 0,
                 },
               ],
@@ -782,11 +807,15 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb_return_base: 30,
-    atk_scale: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4],
+    atk_scale: [
+      1.77999997138977, 1.96000003814697, 2.13000011444092, 2.30999994277954, 2.49000000953674,
+      2.67000007629395, 2.84999990463257, 3.01999998092651, 3.20000004768372, 3.42000007629395,
+      3.69000005722046, 4,
+    ],
     is_cam: 1,
     poise: 20,
     potential5_atb: 0,
-    taken_dmg: 0.9,
+    taken_dmg: 0.899999976158142,
     weak_duration: 8,
     weak_scale: -0.2,
   },
@@ -821,7 +850,7 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.4 },
+            durationSeconds: { kind: 'constant', value: 0.400000005960464 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -861,7 +890,7 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.2 },
+                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'meurs_comboskill2' },
@@ -949,7 +978,7 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.567000031 },
+            durationSeconds: { kind: 'constant', value: 0.567000031471252 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -968,8 +997,16 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [0.25, 0.27, 0.3, 0.32, 0.34, 0.37, 0.39, 0.42, 0.44, 0.47, 0.51, 0.55],
-    atk_scale_1: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
+    atk_scale: [
+      0.25, 0.270000010728836, 0.300000011920929, 0.319999992847443, 0.340000003576279,
+      0.370000004768372, 0.389999985694885, 0.419999986886978, 0.439999997615814, 0.469999998807907,
+      0.509999990463257, 0.550000011920929,
+    ],
+    atk_scale_1: [
+      1, 1.10000002384186, 1.20000004768372, 1.29999995231628, 1.39999997615814, 1.5,
+      1.60000002384186, 1.70000004768372, 1.79999995231628, 1.92999994754791, 2.07999992370605,
+      2.25,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     input_angle: 0,
@@ -978,10 +1015,14 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
     poise: 10,
     potential3_duration: 0,
     shield_base: [360, 432, 504, 576, 612, 648, 684, 720, 756, 774, 792, 810],
-    shield_def_rate: [2.25, 2.7, 3.15, 3.6, 3.825, 4.05, 4.275, 4.5, 4.725, 4.84, 4.95, 5.06],
+    shield_def_rate: [
+      2.25, 2.70000004768372, 3.15000009536743, 3.59999990463257, 3.82500004768372,
+      4.05000019073486, 4.27500009536743, 4.5, 4.72499990463257, 4.84000015258789, 4.94999980926514,
+      5.05999994277954,
+    ],
     shield_duration: 10,
     usp: 10,
-    trigger_hp_ratio: 0.4,
+    trigger_hp_ratio: 0.400000005960464,
   },
 );
 
@@ -1049,7 +1090,7 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.2 },
+            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1075,7 +1116,7 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.2 },
+            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1109,7 +1150,7 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.4 },
+            durationSeconds: { kind: 'constant', value: 0.400000005960464 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1134,6 +1175,7 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0020_meurs_talent_shockwave',
                 childSkillId: 'chr_0020_meurs_talent_shockwave',
                 inheritActionBlackboard: true,
+                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
               }),
             ),
@@ -1172,16 +1214,31 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [0.89, 0.98, 1.07, 1.16, 1.25, 1.34, 1.43, 1.51, 1.6, 1.72, 1.85, 2],
-    atk_scale_1: [1.2, 1.32, 1.44, 1.56, 1.68, 1.8, 1.92, 2.04, 2.16, 2.31, 2.49, 2.7],
-    atk_scale_2: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
+    atk_scale: [
+      0.889999985694885, 0.980000019073486, 1.07000005245209, 1.1599999666214, 1.25,
+      1.3400000333786, 1.42999994754791, 1.50999999046326, 1.60000002384186, 1.72000002861023,
+      1.85000002384186, 2,
+    ],
+    atk_scale_1: [
+      1.20000004768372, 1.32000005245209, 1.44000005722046, 1.55999994277954, 1.67999994754791,
+      1.79999995231628, 1.91999995708466, 2.03999996185303, 2.16000008583069, 2.30999994277954,
+      2.49000000953674, 2.70000004768372,
+    ],
+    atk_scale_2: [
+      1.77999997138977, 1.96000003814697, 2.13000011444092, 2.30999994277954, 2.49000000953674,
+      2.67000007629395, 2.83999991416931, 3.01999998092651, 3.20000004768372, 3.42000007629395,
+      3.69000005722046, 4,
+    ],
     atk_scale_shockwave: 0.45,
     knockdown_time: 2,
     poise: 5,
     poise1: 10,
     talent_1: 0,
     weak_duration: 8,
-    weak_scale: [0.2, 0.2, 0.2, 0.2, 0.2, 0.25, 0.25, 0.25, 0.25, 0.3, 0.3, 0.3],
+    weak_scale: [
+      0.200000002980232, 0.200000002980232, 0.200000002980232, 0.200000002980232, 0.200000002980232,
+      0.25, 0.25, 0.25, 0.25, 0.300000011920929, 0.300000011920929, 0.300000011920929,
+    ],
     poise_display: 20,
   },
 );
@@ -1324,7 +1381,7 @@ export default {
           buffId: 'buff_chr_0020_meurs_talent_0',
           target: 'caster',
           inheritSourceSkillCastInfo: false,
-          blackboardAssignments: { rate: [1, 1.2] },
+          blackboardAssignments: { rate: [1, 1.20000004768372] },
         }),
       ),
     },
@@ -1344,7 +1401,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale_shockwave',
           operation: 'assign',
-          value: [0.3, 0.45],
+          value: [0.300000011920929, 0.449999988079071],
         },
       ],
     },
@@ -1394,7 +1451,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.9,
+          multiplier: 0.899999976158142,
         },
       ],
     },
@@ -1424,6 +1481,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_def_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1564,7 +1622,7 @@ export default {
       stackingType: 'unique',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 0.4,
+      durationSeconds: 0.400000005960464,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -1577,7 +1635,7 @@ export default {
       stackingType: 'unique',
       priority: 0,
       maxStackCount: 0,
-      triggerIntervalSeconds: 0.1,
+      triggerIntervalSeconds: 0.100000001490116,
       waitFirstTriggerInterval: false,
       maxTriggerCount: 99999,
       applyTags: [],

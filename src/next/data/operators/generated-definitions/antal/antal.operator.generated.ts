@@ -98,7 +98,14 @@ export const antalBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.23, 0.25, 0.28, 0.3, 0.32, 0.35, 0.37, 0.39, 0.41, 0.44, 0.48, 0.52] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.230000004172325, 0.25, 0.280000001192093, 0.300000011920929, 0.319999992847443,
+      0.349999994039536, 0.370000004768372, 0.389999985694885, 0.409999996423721, 0.439999997615814,
+      0.479999989271164, 0.519999980926514,
+    ],
+  },
 );
 
 export const antalBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -189,8 +196,16 @@ export const antalBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
-    display_atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
+    atk_scale: [
+      0.280000001192093, 0.310000002384186, 0.340000003576279, 0.360000014305115, 0.389999985694885,
+      0.419999986886978, 0.449999988079071, 0.479999989271164, 0.5, 0.540000021457672,
+      0.579999983310699, 0.629999995231628,
+    ],
+    display_atk_scale: [
+      0.280000001192093, 0.310000002384186, 0.340000003576279, 0.360000014305115, 0.389999985694885,
+      0.419999986886978, 0.449999988079071, 0.479999989271164, 0.5, 0.540000021457672,
+      0.579999983310699, 0.629999995231628,
+    ],
   },
 );
 
@@ -344,7 +359,14 @@ export const antalBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.340000003576279, 0.370000004768372, 0.409999996423721, 0.439999997615814, 0.479999989271164,
+      0.509999990463257, 0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142,
+      0.709999978542328, 0.769999980926514,
+    ],
+  },
 );
 
 export const antalBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -557,7 +579,11 @@ export const antalBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 15,
-    atk_scale: [0.51, 0.56, 0.61, 0.66, 0.71, 0.77, 0.82, 0.87, 0.92, 0.98, 1.06, 1.15],
+    atk_scale: [
+      0.509999990463257, 0.560000002384186, 0.610000014305115, 0.660000026226044, 0.709999978542328,
+      0.769999980926514, 0.819999992847443, 0.870000004768372, 0.920000016689301, 0.980000019073486,
+      1.05999994277954, 1.14999997615814,
+    ],
     poise: 15,
   },
 );
@@ -599,7 +625,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'electric',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.06,
+                      calculationMultiplier: 0.0599999986588955,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0023_antal_power_attack:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
@@ -660,7 +686,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'electric',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.06,
+                      calculationMultiplier: 0.0599999986588955,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0023_antal_power_attack:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
@@ -721,7 +747,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'electric',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.06,
+                      calculationMultiplier: 0.0599999986588955,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0023_antal_power_attack:/scheduledSequences/2/sequence/steps/0/body/steps/0/body/steps/0',
@@ -782,7 +808,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'electric',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.06,
+                      calculationMultiplier: 0.0599999986588955,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0023_antal_power_attack:/scheduledSequences/3/sequence/steps/0/body/steps/0/body/steps/0',
@@ -843,7 +869,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'electric',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.06,
+                      calculationMultiplier: 0.0599999986588955,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0023_antal_power_attack:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/0',
@@ -904,7 +930,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'electric',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.7,
+                      calculationMultiplier: 0.699999988079071,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0023_antal_power_attack:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/0',
@@ -926,7 +952,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.3667 },
+            durationSeconds: { kind: 'constant', value: 0.366699993610382 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -952,7 +978,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_damage_immune_medium',
+            buffId: 'buff_common_full_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -967,7 +993,10 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
   },
   {
     addition_vertical: 0,
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     input_angle: 0,
@@ -1018,7 +1047,14 @@ export const antalPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const antalBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -1083,7 +1119,7 @@ export const antalBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.1 },
+            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1100,7 +1136,11 @@ export const antalBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    atk_scale: [0.89, 0.98, 1.07, 1.16, 1.24, 1.33, 1.42, 1.51, 1.6, 1.71, 1.85, 2],
+    atk_scale: [
+      0.889999985694885, 0.980000019073486, 1.07000005245209, 1.1599999666214, 1.24000000953674,
+      1.33000004291534, 1.41999995708466, 1.50999999046326, 1.60000002384186, 1.71000003814697,
+      1.85000002384186, 2,
+    ],
     atk_scale_2: 0,
     cam_angle: 0,
     cam_duration: 0,
@@ -1114,7 +1154,11 @@ export const antalBattleSkill: SkillDefinition = withSkillBlackboard(
     potential_3_atb: 0,
     potential_5: 0,
     potential_5_rate: 0,
-    rate: [0.05, 0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.1],
+    rate: [
+      0.0500000007450581, 0.0500000007450581, 0.0599999986588955, 0.0599999986588955,
+      0.0700000002980232, 0.0700000002980232, 0.0799999982118607, 0.0799999982118607,
+      0.0799999982118607, 0.0900000035762787, 0.0900000035762787, 0.100000001490116,
+    ],
     select_radius: 10,
   },
 );
@@ -1171,6 +1215,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                               iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                               showInHeadBarCommon: false,
                               showInHeadBarAttached: true,
+                              showDirectlyInHeadBuff: false,
                               showInSquadIcon: false,
                               onlyShowForMainCharacter: false,
                               blinkInMainCharHpBar: false,
@@ -1353,6 +1398,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                               iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                               showInHeadBarCommon: false,
                               showInHeadBarAttached: true,
+                              showDirectlyInHeadBuff: false,
                               showInSquadIcon: false,
                               onlyShowForMainCharacter: false,
                               blinkInMainCharHpBar: false,
@@ -1479,7 +1525,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                             priority: 0,
                             maxStackCount: 1,
                             durationSeconds: { blackboardKey: 'duration' },
-                            triggerIntervalSeconds: 0.1,
+                            triggerIntervalSeconds: 0.100000001490116,
                             waitFirstTriggerInterval: true,
                             maxTriggerCount: 1,
                             presentation: {
@@ -1488,6 +1534,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                               iconPath: '/icons/airborne.webp',
                               showInHeadBarCommon: false,
                               showInHeadBarAttached: false,
+                              showDirectlyInHeadBuff: false,
                               showInSquadIcon: false,
                               onlyShowForMainCharacter: false,
                               blinkInMainCharHpBar: false,
@@ -1659,6 +1706,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                               iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                               showInHeadBarCommon: false,
                               showInHeadBarAttached: true,
+                              showDirectlyInHeadBuff: false,
                               showInSquadIcon: false,
                               onlyShowForMainCharacter: false,
                               blinkInMainCharHpBar: false,
@@ -1794,6 +1842,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                               iconPath: '/icons/knockback.webp',
                               showInHeadBarCommon: false,
                               showInHeadBarAttached: false,
+                              showDirectlyInHeadBuff: false,
                               showInSquadIcon: false,
                               onlyShowForMainCharacter: false,
                               blinkInMainCharHpBar: false,
@@ -1940,7 +1989,10 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                             sequence: sequence(
                                               step('startTimeDilation', {
                                                 scope: 'entity',
-                                                durationSeconds: { kind: 'constant', value: 0.1 },
+                                                durationSeconds: {
+                                                  kind: 'constant',
+                                                  value: 0.100000001490116,
+                                                },
                                                 slot: 'TimeDilation/Layer/Entity/HitStop',
                                                 priority: 15,
                                                 curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1954,7 +2006,10 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                             sequence: sequence(
                                               step('startTimeDilation', {
                                                 scope: 'entity',
-                                                durationSeconds: { kind: 'constant', value: 0.1 },
+                                                durationSeconds: {
+                                                  kind: 'constant',
+                                                  value: 0.100000001490116,
+                                                },
                                                 slot: 'TimeDilation/Layer/Entity/HitStop',
                                                 priority: 10,
                                                 curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1996,7 +2051,10 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                             sequence: sequence(
                                               step('startTimeDilation', {
                                                 scope: 'entity',
-                                                durationSeconds: { kind: 'constant', value: 0.65 },
+                                                durationSeconds: {
+                                                  kind: 'constant',
+                                                  value: 0.649999976158142,
+                                                },
                                                 slot: 'TimeDilation/Layer/Entity/HitStop',
                                                 priority: 20,
                                                 curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -2085,7 +2143,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.2 },
+            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -2100,7 +2158,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.667 },
+            durationSeconds: { kind: 'constant', value: 0.666999995708466 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2120,7 +2178,11 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [1.51, 1.66, 1.81, 1.96, 2.11, 2.27, 2.42, 2.57, 2.72, 2.91, 3.13, 3.4],
+    atk_scale: [
+      1.50999999046326, 1.6599999666214, 1.80999994277954, 1.96000003814697, 2.10999989509583,
+      2.26999998092651, 2.42000007629395, 2.5699999332428, 2.72000002861023, 2.91000008583069,
+      3.13000011444092, 3.40000009536743,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     count: 0,
@@ -2243,7 +2305,11 @@ export const antalUltimate: SkillDefinition = withSkillBlackboard(
     healvalue: 500,
     multiplier: 3,
     radius: 1,
-    rate: [0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.2],
+    rate: [
+      0.0799999982118607, 0.0900000035762787, 0.100000001490116, 0.109999999403954,
+      0.119999997317791, 0.129999995231628, 0.140000000596046, 0.150000005960464, 0.159999996423721,
+      0.170000001788139, 0.180000007152557, 0.200000002980232,
+    ],
     talent_1: 0,
   },
 );
@@ -2396,7 +2462,7 @@ export default {
           blackboardAssignments: {
             healvalue: [72, 108],
             cd: { kind: 'constant', value: 30 },
-            multiplier: [0.6, 0.9],
+            multiplier: [0.600000023841858, 0.899999976158142],
           },
         }),
       ),
@@ -2411,8 +2477,8 @@ export default {
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
             healvalue: [27, 45],
-            probability: { kind: 'constant', value: 0.3 },
-            heal_scale: [0.23, 0.38],
+            probability: { kind: 'constant', value: 0.300000011920929 },
+            heal_scale: [0.230000004172325, 0.379999995231628],
           },
         }),
       ),
@@ -2428,7 +2494,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'rate',
           operation: 'multiply',
-          value: 1.1,
+          value: 1.10000002384186,
         },
       ],
     },
@@ -2440,7 +2506,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.9,
+          multiplier: 0.899999976158142,
         },
       ],
     },
@@ -2495,7 +2561,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'potential_5_rate',
           operation: 'add',
-          value: 0.04,
+          value: 0.0399999991059303,
         },
       ],
     },
@@ -2574,6 +2640,7 @@ export default {
         iconPath: '/icons/icon_battle_antal_buff.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -2683,6 +2750,7 @@ export default {
             buffId: 'buff_chr_0023_antal_talent_1_heal_trigger',
             target: 'party',
             finishByAction: true,
+            inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               healvalue: { kind: 'blackboard', key: 'healvalue' },
               cd: { kind: 'blackboard', key: 'cd' },
@@ -2696,7 +2764,7 @@ export default {
       stackingType: 'stack',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 0.1,
+      durationSeconds: 0.100000001490116,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -2800,7 +2868,9 @@ export default {
                           target: 'buffSource',
                           source: 'buffSource',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: { duration: { kind: 'constant', value: 0.01 } },
+                          blackboardAssignments: {
+                            duration: { kind: 'constant', value: 0.00999999977648258 },
+                          },
                         }),
                         step('heal', {
                           target: 'buffOwner',
@@ -2831,6 +2901,7 @@ export default {
         iconPath: '/icons/icon_battle_affix_fire_enhance.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -2863,6 +2934,7 @@ export default {
         iconPath: '/icons/icon_battle_affix_pulse_enhance.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

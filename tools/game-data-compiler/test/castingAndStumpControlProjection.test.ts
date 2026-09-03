@@ -444,16 +444,14 @@ describe('施法输入限制与木桩物理控制投影', () => {
       steps: [],
       state: new Map(),
     });
+    const onlySuccessSource = structuredClone(source);
+    (
+      onlySuccessSource.action as {
+        returnTrueWhen: 'Always' | 'OnlySuccess';
+      }
+    ).returnTrueWhen = 'OnlySuccess';
     expect(() =>
-      compileBuffLeafNode(
-        node({
-          ...source,
-          action: { ...source.action, returnTrueWhen: 'OnlySuccess' },
-        } as ReturnType<typeof parseKnownNativeActionLeafSource>),
-        new Set(),
-        new Map(),
-        ACTIVE_SKILL_CONTEXT,
-      ),
+      compileBuffLeafNode(node(onlySuccessSource), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
     ).toThrow('unsupported LaunchUpward stump projection');
   });
 
@@ -465,8 +463,10 @@ describe('施法输入限制与木桩物理控制投影', () => {
       finderTargetObjectType: 'Normal',
       finderCheckAlive: false,
       validatorTypes: [],
+      distanceValidators: [],
       postProcessorTypes: [],
       priorityFilters: [],
+      shuffleTargets: [],
     };
     expect(isStaticSingleEnemyTargetGroup(hitBox as never)).toBe(true);
     expect(isStaticSingleEnemyTargetGroup({ ...hitBox, finderCheckAlive: null } as never)).toBe(
@@ -491,6 +491,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
       finderTargetObjectType: 'Normal',
       finderCheckAlive: true,
       validatorTypes: [],
+      distanceValidators: [],
       postProcessorTypes: ['PriorityFilter'],
       priorityFilters: [
         {
@@ -506,6 +507,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
           },
         },
       ],
+      shuffleTargets: [],
     };
     expect(isStaticSingleEnemyTargetGroup(hitBox as never)).toBe(true);
     expect(
@@ -1363,6 +1365,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
             abilityEntityId: 'abilityentity_fixture',
             childSkillId: 'fixture_skill',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           },
         },
@@ -1502,6 +1505,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
             abilityEntityId: 'abilityentity_fixture_owner',
             childSkillId: 'fixture_skill',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           },
         },
@@ -1523,6 +1527,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
             abilityEntityId: 'abilityentity_fixture_owner',
             childSkillId: 'fixture_skill',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           },
         },
@@ -1542,6 +1547,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
               abilityEntityId: 'abilityentity_fixture_owner',
               childSkillId: 'fixture_skill',
               inheritActionBlackboard: true,
+              inheritSourceSkillCastInfo: true,
               dieWhenSourceDies: false,
               finishByAction: true,
             },
@@ -1572,6 +1578,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
             abilityEntityId: 'abilityentity_fixture_owner',
             childSkillId: 'fixture_skill',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           },
         },
@@ -1600,6 +1607,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
               abilityEntityId: 'abilityentity_fixture_owner',
               childSkillId: 'fixture_skill',
               inheritActionBlackboard: true,
+              inheritSourceSkillCastInfo: true,
               dieWhenSourceDies: false,
               target: 'enemy',
             },
@@ -1621,7 +1629,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
       compileBuffLeafNode(node(blowOff('OnlyDead')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
     ).toEqual({ steps: [], state: new Map() });
     expect(() =>
-      compileBuffLeafNode(node(blowOff('NotDead')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+      compileBuffLeafNode(node(blowOff('OnlyAlive')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
     ).toThrow('live-target BlowOffEnemy physical infliction');
   });
 

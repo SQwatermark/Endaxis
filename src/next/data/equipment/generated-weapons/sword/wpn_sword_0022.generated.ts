@@ -49,6 +49,7 @@ const definition = {
             "iconPath": "/icons/icon_battle_buff_wpn_sword_0022.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
+            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -111,9 +112,7 @@ const definition = {
         "buff_wpn_sword_0022_layer": {
           "stackingType": "stack",
           "priority": 0,
-          "maxStackCount": {
-            "blackboardKey": "max_stack"
-          },
+          "maxStackCount": 2,
           "triggerIntervalSeconds": 0,
           "waitFirstTriggerInterval": true,
           "maxTriggerCount": 1,
@@ -123,6 +122,7 @@ const definition = {
             "iconPath": "/icons/icon_battle_buff_wpn_sword_0022.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
+            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -176,15 +176,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "criticalRate",
           "value": [
-            0.025,
-            0.045,
-            0.065,
-            0.085,
-            0.105,
+            0.02500000037252903,
+            0.04500000178813934,
+            0.06499999761581421,
+            0.08500000089406967,
+            0.10499999672174454,
             0.125,
-            0.145,
-            0.165,
-            0.195
+            0.14499999582767487,
+            0.16500000655651093,
+            0.19499999284744263
           ]
         }
       ]
@@ -197,15 +197,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "attackPercent",
           "value": [
-            0.16,
-            0.192,
-            0.224,
-            0.256,
-            0.288,
-            0.32,
-            0.352,
-            0.384,
-            0.448
+            0.1599999964237213,
+            0.19200000166893005,
+            0.2240000069141388,
+            0.25600001215934753,
+            0.2879999876022339,
+            0.3199999928474426,
+            0.35199999809265137,
+            0.3840000033378601,
+            0.4480000138282776
           ]
         }
       ],
@@ -216,37 +216,37 @@ const definition = {
           "priority": 0,
           "blackboard": {
             "atk_up": [
-              0.16,
-              0.192,
-              0.224,
-              0.256,
-              0.288,
-              0.32,
-              0.352,
-              0.384,
-              0.448
+              0.1599999964237213,
+              0.19200000166893005,
+              0.2240000069141388,
+              0.25600001215934753,
+              0.2879999876022339,
+              0.3199999928474426,
+              0.35199999809265137,
+              0.3840000033378601,
+              0.4480000138282776
             ],
             "dmg_up": [
-              0.01,
-              0.012,
-              0.014,
-              0.016,
-              0.018,
-              0.02,
-              0.022,
-              0.024,
-              0.028
+              0.009999999776482582,
+              0.012000000104308128,
+              0.014000000432133675,
+              0.01600000075995922,
+              0.017999999225139618,
+              0.019999999552965164,
+              0.02199999988079071,
+              0.024000000208616257,
+              0.02800000086426735
             ],
             "dmg_up2": [
-              0.24,
-              0.288,
-              0.336,
-              0.384,
-              0.432,
-              0.48,
-              0.528,
-              0.576,
-              0.672
+              0.23999999463558197,
+              0.2879999876022339,
+              0.335999995470047,
+              0.3840000033378601,
+              0.4320000112056732,
+              0.47999998927116394,
+              0.527999997138977,
+              0.5759999752044678,
+              0.671999990940094
             ],
             "duration": [
               20,

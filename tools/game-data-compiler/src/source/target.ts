@@ -3,11 +3,53 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
-  requireNonEmptyString,
+  requireNativeEnum,
   requireNumber,
   requireRecord,
   requireString,
 } from './primitives.ts';
+
+const NATIVE_TARGET_SOURCES = [
+  'Target',
+  'Source',
+  'Context',
+  'InstantSearch',
+  'Owner',
+  'MainCharacter',
+  'MainTarget',
+] as const;
+const NATIVE_ACTION_TARGET_TYPES = [
+  'ActionSource',
+  'ActionOwner',
+  'InputTarget',
+  'CurrentTarget',
+  'ContextTarget',
+  'MainCharacter',
+] as const;
+export const NATIVE_DIRECTIONS = [
+  'SourceForward',
+  'TargetForward',
+  'SourceToTarget',
+  'TargetToSource',
+  'CameraForward',
+] as const;
+const HIT_BOX_FACTION_TARGETS = ['Ally', 'Anti'] as const;
+const HIT_BOX_TARGET_OBJECT_TYPES = new Map([
+  [1, 'Normal'],
+  [2, 'Interactive'],
+  [4, 'NoInteractive'],
+] as const);
+
+export function parseNativeTargetSource(value: unknown, path: string): string {
+  // 历史 Unity JSON 把技能宿主写成 SkillOwner；当前 TargetSource 数值枚举已不含该项。
+  if (value === 'SkillOwner' || value === 'Group') return value;
+  return requireNativeEnum(value, NATIVE_TARGET_SOURCES, path);
+}
+
+export function parseNativeActionTargetType(value: unknown, path: string): string {
+  return requireNativeEnum(value, NATIVE_ACTION_TARGET_TYPES, path);
+}
+
 import {
   NATIVE_GAMEPLAY_TAG_QUERY_NAMES,
   parseTagQuerySource,
@@ -91,6 +133,7 @@ export interface SelectorSummarySource {
   readonly excludeTargets: readonly {
     readonly targetSource: string;
     readonly targetGroupKey: string;
+    readonly processTargetType: string | null;
   }[];
 }
 
@@ -152,6 +195,7 @@ const TARGET_FIELDS = new Set([
 
 const KNOWN_FINDERS = new Set([
   'AbilityEntityTargetFinder',
+  'AllEnemyFinder',
   'CharacterTeamFinder',
   'FixedPointFinder',
   'GodEntityFinder',
@@ -167,11 +211,13 @@ const KNOWN_FINDERS = new Set([
   'SmartTargetFinder',
   'SnapPointFinder',
   'SourceFinder',
+  'TyphoeaArcherySelectedFinder',
 ]);
 const KNOWN_VALIDATORS = new Set([
   'DistanceValidator',
   'ExcludeOwnerValidator',
   'HittableObjectValidator',
+  'InScreenValidator',
   'MainCharacterValidator',
   'SkillCastIdValidator',
   'TagValidator',
@@ -191,7 +237,7 @@ export function parseTargetReferenceSource(value: unknown, path: string): Target
   const target = requireRecord(value, path);
   requireExactFields(target, TARGET_FIELDS, path);
 
-  const targetSource = requireNonEmptyString(target.targetSource, `${path}.targetSource`);
+  const targetSource = parseNativeTargetSource(target.targetSource, `${path}.targetSource`);
   const selectorData = target.selectorData;
   const selectorPath = `${path}.selectorData`;
   const summary = parseSelectorSummarySource(
@@ -204,18 +250,30 @@ export function parseTargetReferenceSource(value: unknown, path: string): Target
   return {
     targetSource,
     targetGroupKey: requireString(target.targetGroupKey, `${path}.targetGroupKey`),
-    selectorOwner: requireNonEmptyString(target.selectorOwner, `${path}.selectorOwner`),
+    selectorOwner: requireNativeEnum(
+      target.selectorOwner,
+      NATIVE_ACTION_TARGET_TYPES,
+      `${path}.selectorOwner`,
+    ),
     ownerContextKey: requireString(target.ownerContextKey, `${path}.ownerContextKey`),
-    centerType: requireNonEmptyString(target.centerType, `${path}.centerType`),
+    centerType: requireNativeEnum(
+      target.centerType,
+      NATIVE_ACTION_TARGET_TYPES,
+      `${path}.centerType`,
+    ),
     centerContextKey: requireString(target.centerContextKey, `${path}.centerContextKey`),
     centerToGround: requireBoolean(target.centerToGround, `${path}.centerToGround`),
-    target: requireNonEmptyString(target.target, `${path}.target`),
+    target: requireNativeEnum(target.target, NATIVE_ACTION_TARGET_TYPES, `${path}.target`),
     targetContextKey: requireString(target.targetContextKey, `${path}.targetContextKey`),
     enableAdvancedDirection: requireBoolean(
       target.enableAdvancedDirection,
       `${path}.enableAdvancedDirection`,
     ),
-    selectorDirection: requireNonEmptyString(target.selectorDirection, `${path}.selectorDirection`),
+    selectorDirection: requireNativeEnum(
+      target.selectorDirection,
+      NATIVE_DIRECTIONS,
+      `${path}.selectorDirection`,
+    ),
     finderType: summary.finderType,
     ...(summary.finderFactionTarget === null
       ? {}
@@ -268,25 +326,32 @@ export function parseSelectorSummarySource(
   let finderPointBlackboardKeys: string[] = [];
   let finderRandomPointCount: SelectorSummarySource['finderRandomPointCount'] = null;
   let finderFixedPoint: FixedPointFinderSource | null = null;
-  if ('finderData' in selector) {
+  if ('finderData' in selector && selector.finderData !== null) {
     const finder = requireRecord(selector.finderData, `${path}.finderData`);
     finderType = selectorComponentName(finder, `${path}.finderData`);
     if (!KNOWN_FINDERS.has(finderType)) {
       throw new Error(`${path}.finderData: unsupported finder ${JSON.stringify(finderType)}`);
     }
-    if (finderType === 'GodEntityFinder' || finderType === 'AbilityEntityTargetFinder') {
-      // 两类 1.4.4 Data 都没有配置字段：前者读取 BattleManager 的全局 GodEntity，
-      // 后者复制 selector owner 所属 AbilityEntity 控制器保存的目标句柄。
+    if (
+      finderType === 'GodEntityFinder' ||
+      finderType === 'AbilityEntityTargetFinder' ||
+      finderType === 'AllEnemyFinder' ||
+      finderType === 'TyphoeaArcherySelectedFinder'
+    ) {
+      // 这些 Data 都没有配置字段。TyphoeaArcherySelectedFinder 读取弓箭瞄准系统已选目标；
+      // 固定唯一敌人模型中的集合折叠仍留到公共投影层，不在来源解析时替换其身份。
       requireExactFields(finder, new Set(['$type']), `${path}.finderData`);
     } else if (finderType === 'FixedPointFinder') {
       finderFixedPoint = parseFixedPointFinderSource(finder, `${path}.finderData`);
     } else if (finderType === 'HitBoxFinder') {
-      finderFactionTarget = requireNonEmptyString(
+      finderFactionTarget = requireNativeEnum(
         finder.factionTarget,
+        HIT_BOX_FACTION_TARGETS,
         `${path}.finderData.factionTarget`,
       );
-      finderTargetObjectType = requireNonEmptyString(
+      finderTargetObjectType = requireNativeEnum(
         finder.targetObjectType,
+        HIT_BOX_TARGET_OBJECT_TYPES,
         `${path}.finderData.targetObjectType`,
       );
       finderCheckAlive = requireBoolean(finder.checkAlive, `${path}.finderData.checkAlive`);
@@ -294,13 +359,21 @@ export function parseSelectorSummarySource(
         finder.autoSetTargetFaction,
         `${path}.finderData.autoSetTargetFaction`,
       );
-      if (
-        typeof finder.targetFactionType !== 'string' &&
-        typeof finder.targetFactionType !== 'number'
-      ) {
-        throw new Error(`${path}.finderData.targetFactionType: expected enum name or number`);
-      }
-      finderTargetFactionType = finder.targetFactionType;
+      finderTargetFactionType = requireNativeEnum(
+        finder.targetFactionType,
+        new Map([
+          [0, 'None'],
+          [4, 'Good'],
+          [8, 'Bad'],
+          [12, 'Good, Bad'],
+          [20, 'Good, Neutral'],
+          [24, 'Bad, Neutral'],
+          [28, 'Good, Bad, Neutral'],
+          [30, 'Unknown, Good, Bad, Neutral'],
+          [31, 'Invalid, Unknown, Good, Bad, Neutral'],
+        ] as const),
+        `${path}.finderData.targetFactionType`,
+      );
     } else if (finderType === 'ShapeFinder' || finderType === 'InteractiveShapeFinder') {
       finderShape = parseShapeFinderSource(finder, `${path}.finderData`);
     } else if (finderType === 'OwnerPartsFinder') {
@@ -328,6 +401,7 @@ export function parseSelectorSummarySource(
           'minRadius',
           'angle',
           'useExtraJitter',
+          ...('extent2D' in finder ? ['extent2D'] : []),
           'snapToNavMesh',
         ]),
         `${path}.finderData`,
@@ -361,6 +435,17 @@ export function parseSelectorSummarySource(
         new Set(['x', 'y', 'z']),
         `${path}.finderData.localPlaneRotationEulers`,
       );
+      const extentNumbers =
+        'extent2D' in finder
+          ? (() => {
+              const extent = requireRecord(finder.extent2D, `${path}.finderData.extent2D`);
+              requireExactFields(extent, new Set(['x', 'y']), `${path}.finderData.extent2D`);
+              return [
+                parseNumber(extent.x, `${path}.finderData.extent2D.x`),
+                parseNumber(extent.y, `${path}.finderData.extent2D.y`),
+              ];
+            })()
+          : [];
       const geometryNumbers = [
         parseNumber(eulers.x, `${path}.finderData.localPlaneRotationEulers.x`),
         parseNumber(eulers.y, `${path}.finderData.localPlaneRotationEulers.y`),
@@ -368,16 +453,21 @@ export function parseSelectorSummarySource(
         parseNumber(finder.radius, `${path}.finderData.radius`),
         parseNumber(finder.minRadius, `${path}.finderData.minRadius`),
         parseNumber(finder.angle, `${path}.finderData.angle`),
+        ...extentNumbers,
       ];
       finderPointBlackboardKeys = [finderRandomPointCount, ...geometryNumbers].flatMap(number =>
         number.blackboardKey === null ? [] : [number.blackboardKey],
       );
-      requireNonEmptyString(finder.shape, `${path}.finderData.shape`);
+      requireNativeEnum(
+        finder.shape,
+        ['Circle', 'Sector', 'Rect', 'SphereSurface'] as const,
+        `${path}.finderData.shape`,
+      );
       requireBoolean(finder.useExtraJitter, `${path}.finderData.useExtraJitter`);
       requireBoolean(finder.snapToNavMesh, `${path}.finderData.snapToNavMesh`);
     }
   } else if (finderRequired) {
-    throw new Error(`${path}.finderData: expected object`);
+    throw new Error(`${path}.finderData: expected finder for InstantSearch target`);
   }
 
   const validatorTypes = parseKnownComponents(
@@ -416,12 +506,33 @@ export function parseSelectorSummarySource(
     const processorPath = `${path}.postProcessorData[${index}]`;
     const processor = requireRecord(rawProcessor, processorPath);
     if (selectorComponentName(processor, processorPath) !== 'ExcludeTarget') return [];
-    requireExactFields(processor, new Set(['$type', 'excludedTargetSettings']), processorPath);
+    requireExactFields(
+      processor,
+      new Set([
+        '$type',
+        'excludedTargetSettings',
+        ...('processTargetType' in processor ? ['processTargetType'] : []),
+      ]),
+      processorPath,
+    );
     const excluded = parseTargetReferenceSource(
       processor.excludedTargetSettings,
       `${processorPath}.excludedTargetSettings`,
     );
-    return [{ targetSource: excluded.targetSource, targetGroupKey: excluded.targetGroupKey }];
+    return [
+      {
+        targetSource: excluded.targetSource,
+        targetGroupKey: excluded.targetGroupKey,
+        processTargetType:
+          'processTargetType' in processor
+            ? requireNativeEnum(
+                processor.processTargetType,
+                ['Targets', 'HittableTargets'] as const,
+                `${processorPath}.processTargetType`,
+              )
+            : null,
+      },
+    ];
   });
   return {
     finderType,
@@ -575,9 +686,17 @@ function parseShapeFinderSource(finder: Record<string, unknown>, path: string): 
       `${path}.autoSetTargetFaction`,
     ),
     containsUnmarkable: requireBoolean(finder.containsUnMarkable, `${path}.containsUnMarkable`),
-    factionTarget: requireNonEmptyString(finder.factionTarget, `${path}.factionTarget`),
+    factionTarget: requireNativeEnum(
+      finder.factionTarget,
+      HIT_BOX_FACTION_TARGETS,
+      `${path}.factionTarget`,
+    ),
     targetFactionType,
-    shape: requireNonEmptyString(shape._shape, `${shapePath}._shape`),
+    shape: requireNativeEnum(
+      shape._shape,
+      ['Box', 'Capsule', 'Sphere'] as const,
+      `${shapePath}._shape`,
+    ),
     rotationOffset: parseVector3(shape._rotationOffset, `${shapePath}._rotationOffset`),
     useExtentKey: requireBoolean(shape._useExtentKey, `${shapePath}._useExtentKey`),
     extent: parseVector3(shape._extent, `${shapePath}._extent`),
@@ -637,19 +756,24 @@ export function parseSpawnedEntitySelectorIdentitySource(
 ): SpawnedEntitySelectorIdentitySource {
   const selector = requireRecord(value, path);
   let spawnedObjectType: string | null = null;
-  if ('finderData' in selector) {
+  if ('finderData' in selector && selector.finderData !== null) {
     const finder = requireRecord(selector.finderData, `${path}.finderData`);
     if (selectorComponentName(finder, `${path}.finderData`) === 'OwnerSpawnedEntityFinder') {
       requireExactFields(finder, new Set(['$type', 'spawnedObjectType']), `${path}.finderData`);
       const rawObjectType = finder.spawnedObjectType;
-      if (rawObjectType === 0) {
+      if (rawObjectType === -1) {
+        spawnedObjectType = 'All';
+      } else if (rawObjectType === 0) {
         // ObjectType 没有命名零成员；反编译证据表明零掩码不会命中子实体。
         spawnedObjectType = '0';
+      } else if (rawObjectType === 512) {
+        // ObjectType.AbilityEntity；当前 VFS 数值与历史命名快照逐项对照一致。
+        spawnedObjectType = 'AbilityEntity';
       } else if (typeof rawObjectType === 'string' && rawObjectType.length > 0) {
         spawnedObjectType = rawObjectType;
       } else {
         throw new Error(
-          `${path}.finderData.spawnedObjectType: expected named ObjectType or numeric 0`,
+          `${path}.finderData.spawnedObjectType: expected named ObjectType or audited numeric mask`,
         );
       }
     }
@@ -665,10 +789,11 @@ export function parseSpawnedEntitySelectorIdentitySource(
     const queryPath = `${validatorPath}.query`;
     const query = requireRecord(validator.query, queryPath);
     requireExactFields(query, new Set(['queryType', 'tags']), queryPath);
-    const queryType = requireString(query.queryType, `${queryPath}.queryType`);
-    if (!(NATIVE_GAMEPLAY_TAG_QUERY_NAMES as readonly string[]).includes(queryType)) {
-      throw new Error(`${queryPath}.queryType: unsupported value ${JSON.stringify(queryType)}`);
-    }
+    const queryType = requireNativeEnum(
+      query.queryType,
+      NATIVE_GAMEPLAY_TAG_QUERY_NAMES,
+      `${queryPath}.queryType`,
+    );
     const tags = requireArray(query.tags, `${queryPath}.tags`).map((rawTag, tagIndex) => {
       const tagPath = `${queryPath}.tags[${tagIndex}]`;
       const tag = requireRecord(rawTag, tagPath);

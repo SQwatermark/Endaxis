@@ -7,16 +7,14 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'attackPercent',
-      value: 0.1,
+      value: 0.10000000149011612,
     },
   ],
   buffDefinitions: {
     buff_equipsuit_expend_spell01: {
       stackingType: 'unlimited',
       priority: 0,
-      maxStackCount: {
-        blackboardKey: 'max_stack',
-      },
+      maxStackCount: 1,
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
@@ -97,9 +95,7 @@ const definition = {
     buff_equipsuit_expend_spelldamage: {
       stackingType: 'stack',
       priority: 0,
-      maxStackCount: {
-        blackboardKey: 'max_stack',
-      },
+      maxStackCount: 1,
       durationSeconds: {
         blackboardKey: 'duration',
       },
@@ -112,6 +108,7 @@ const definition = {
         iconPath: '/icons/icon_battle_spell_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -167,7 +164,7 @@ const definition = {
           blackboardAssignments: {
             spell_dmg_up: {
               kind: 'constant',
-              value: 0.15,
+              value: 0.15000000596046448,
             },
             max_stack: {
               kind: 'constant',

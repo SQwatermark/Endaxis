@@ -27,6 +27,9 @@ import {
   isPartyInstantSearch,
   isUniqueEnemyMainTargetInstantSearch,
   isUniqueEnemyHitBoxInstantSearch,
+  isPlainActionTarget,
+  isPlainOwnerTarget,
+  isPlainTargetReference,
   actionValueOperand,
 } from './combatProjectionCommon.ts';
 import { gameplayTagIdFromPath } from '../source/nativeGameplayTags.ts';
@@ -265,9 +268,14 @@ export function compileActionNode(
   if (node.body.value.family === 'customAbilityEvent') {
     const action = node.body.value.action;
     const sourceIsCaster =
-      action.eventSource.targetSource === 'Source' &&
+      ((action.eventSource.targetSource === 'Source' && context.actionSourceTarget === 'caster') ||
+        (action.eventSource.targetSource === 'Owner' &&
+          context.actionOwnerTarget === 'buffOwner' &&
+          context.fixedBuffOwnerTarget === 'caster')) &&
       action.eventSource.targetGroupKey === '' &&
-      context.actionSourceTarget === 'caster';
+      action.eventSource.finderType === null &&
+      action.eventSource.validatorTypes.length === 0 &&
+      action.eventSource.postProcessorTypes.length === 0;
     const sourceIsActionOwnerAbilityEntity =
       action.eventSource.targetSource === 'Owner' &&
       action.eventSource.targetGroupKey === '' &&
@@ -275,9 +283,14 @@ export function compileActionNode(
         (context.actionOwnerTarget === 'buffOwner' &&
           context.fixedBuffOwnerTarget === 'currentAbilityEntity'));
     const targetIsCaster =
-      action.targets.targetSource === 'Source' &&
+      ((action.targets.targetSource === 'Source' && context.actionSourceTarget === 'caster') ||
+        (action.targets.targetSource === 'Owner' &&
+          context.actionOwnerTarget === 'buffOwner' &&
+          context.fixedBuffOwnerTarget === 'caster')) &&
       action.targets.targetGroupKey === '' &&
-      context.actionSourceTarget === 'caster';
+      action.targets.finderType === null &&
+      action.targets.validatorTypes.length === 0 &&
+      action.targets.postProcessorTypes.length === 0;
     if (
       (!sourceIsCaster && !sourceIsActionOwnerAbilityEntity) ||
       !targetIsCaster ||
@@ -335,6 +348,9 @@ export function compileActionNode(
       (action.target.targetSource === 'Context' &&
         action.target.targetGroupKey !== '' &&
         context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true) ||
+      (context.actionTargetTarget === 'enemy' && isPlainActionTarget(action.target)) ||
+      (context.actionTargetTarget === 'enemy' &&
+        isUniqueEnemyMainTargetInstantSearch(action.target)) ||
       // AbilityActionUtils.GetTargetsView 的 MainTarget 分支直接读取 BattleManager 主目标，
       // 不消费 TargetSettings 中残留的命名组或 selector。固定唯一木桩模型下其身份就是 enemy。
       action.target.targetSource === 'MainTarget';
@@ -794,8 +810,11 @@ export function compileActionNode(
           ? action.coefficient.levelValues
           : null;
     if (
-      action.source.targetSource !== 'Source' ||
-      action.source.targetGroupKey !== '' ||
+      !(
+        (action.source.targetSource === 'Source' && action.source.targetGroupKey === '') ||
+        (isPlainOwnerTarget(action.source) &&
+          requireActionOwnerProjection(context, node.sourcePath) === 'caster')
+      ) ||
       coefficient === null
     )
       throw new Error(`${node.sourcePath}: unsupported ObtainUspInNormalSkill projection`);
@@ -811,6 +830,18 @@ export function compileActionNode(
     if (damageAction.units.length === 0 && damageAction.hitEnvironment && damageAction.alwaysNext) {
       // 来源层已确认 hitEnvData 只描述环境命中特效。没有 DamageUnit 且始终继续的动作
       // 不会修改唯一木桩的数值或控制后续流程，Next 无场景交互后端时可安全省略。
+      return [];
+    }
+    const projectedDamageTarget =
+      damageAction.target.targetSource === 'Context' && damageAction.target.targetGroupKey !== ''
+        ? partyTargetGroups.get(damageAction.target.targetGroupKey)
+        : undefined;
+    if (projectedDamageTarget === 'empty') {
+      if (!damageAction.alwaysNext) {
+        throw new Error(
+          `${node.sourcePath}: empty damage target requires alwaysNext in the fixed-stump projection`,
+        );
+      }
       return [];
     }
     const targetsProjectedEnemyContext =
@@ -852,6 +883,14 @@ export function compileActionNode(
           ? ('unavailable' as const)
           : context.actionOwnerTarget,
       actionSourceTarget: 'caster' as const,
+      ...(targetsProjectedEnemyContext
+        ? {
+            staticEnemyTargetGroupKeys: new Set([
+              ...(context.staticEnemyTargetGroupKeys ?? []),
+              damageAction.target.targetGroupKey,
+            ]),
+          }
+        : {}),
     } as const;
     return [
       damageAction.units.length === 1 && damageAction.units[0]?.attributeType === 'Poise'
@@ -1302,6 +1341,7 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'spatialMeasurement') {
     const action = node.body.value.action;
+    if (context.combatInvisiblePresentationBlackboardKeys?.has(action.outputKey)) return [];
     if (
       !isProvenSpatialMeasurementEndpoint(action.source, partyTargetGroups, context) ||
       !isProvenSpatialMeasurementEndpoint(action.target, partyTargetGroups, context)
@@ -1380,6 +1420,7 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'blackboardCalculation') {
     const action = node.body.value.action;
+    if (context.combatInvisiblePresentationBlackboardKeys?.has(action.key)) return [];
     const operation = ACTION_VALUE_OPERATIONS[action.operation];
     if (
       (operation !== 'add' && operation !== 'multiply' && operation !== 'divide') ||
@@ -1459,12 +1500,12 @@ export function compileActionNode(
   if (node.body.value.family === 'finisherSpGain') {
     const action = node.body.value.action;
     const targetIsProvenEnemy =
-      (action.target.targetGroupKey === '' && context.actionTargetTarget === 'enemy') ||
-      (action.target.targetGroupKey.length > 0 &&
+      (action.target.targetSource === 'Target' && context.actionTargetTarget === 'enemy') ||
+      (action.target.targetSource === 'Context' &&
+        action.target.targetGroupKey.length > 0 &&
         context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
     if (
       action.source.targetSource !== 'Source' ||
-      action.target.targetSource !== 'Target' ||
       action.source.targetGroupKey !== '' ||
       context.actionSourceTarget !== 'caster' ||
       !targetIsProvenEnemy
@@ -1731,7 +1772,11 @@ export function compileActionNode(
   // Endaxis 的固定木桩空间模型中朝向不改变目标集合或数值；来源层仍完整保留动作载荷。
   if (node.body.value.family === 'spatial') return [];
   // 木桩不会主动攻击玩家；霸体只影响受击控制，暂不进入可见伤害/资源账本。
-  if (node.body.value.family === 'selfDefense') return [];
+  if (node.body.value.family === 'selfDefense') {
+    // 标准场景没有敌人主动行为，也不会向干员结算入伤。超甲和伤害标签免疫都只改变
+    // 干员作为受击方时的结果；严格保留来源 IR 后在这一场景边界显式消去。
+    return [];
+  }
   if (node.body.value.family === 'projectileControl') {
     const action = node.body.value.action;
     if (
@@ -1797,36 +1842,6 @@ export function compileActionNode(
   // Buff 顶层换槽仍由 Buff 定义装配器单独处理，故无扩展时保持来源审计但不重复执行。
   if (node.body.value.family === 'skillSlotReplacement') return [];
   throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
-}
-
-function isPlainTargetReference(
-  target: TargetReferenceSource,
-  targetSource: string,
-  targetGroupKey: string,
-): boolean {
-  return (
-    target.targetSource === targetSource &&
-    target.targetGroupKey === targetGroupKey &&
-    target.selectorOwner === 'ActionOwner' &&
-    target.ownerContextKey === '' &&
-    target.centerType === 'ActionSource' &&
-    target.centerContextKey === '' &&
-    !target.centerToGround &&
-    target.target === 'ActionSource' &&
-    target.targetContextKey === '' &&
-    !target.enableAdvancedDirection &&
-    target.selectorDirection === 'SourceForward' &&
-    target.finderType === null &&
-    target.finderShape === null &&
-    target.finderOwnerPartsQuery === null &&
-    target.validatorTypes.length === 0 &&
-    target.postProcessorTypes.length === 0 &&
-    target.priorityFilters.length === 0 &&
-    target.shuffleTargets.length === 0 &&
-    target.distanceValidators.length === 0 &&
-    target.finderSpawnedObjectType === null &&
-    target.validatorTagQueries.length === 0
-  );
 }
 
 function isMainEnemySearch(target: TargetReferenceSource): boolean {
@@ -1915,9 +1930,6 @@ function compileBuffApplication(
     )
   )
     throw new Error(`${sourcePath}: unaudited receiving Buff event target`);
-  if (action.isExtra) {
-    throw new Error(`${sourcePath}: unsupported CreateBuff lifecycle options`);
-  }
   if (
     action.overrideBuffIconDuration &&
     !(
@@ -2060,6 +2072,7 @@ function compileBuffApplication(
         parameters: {
           buffId: entry.readIdFromBlackboard ? { blackboardKey: entry.buffIdKey } : entry.buffId,
           target,
+          ...(action.isExtra ? { isExtra: true } : {}),
           ...(source === undefined ? {} : { source }),
           ...(action.count.blackboardKey === null && action.count.value === 1
             ? {}
@@ -2101,10 +2114,14 @@ function compileBuffApplication(
   ];
 }
 
-const ACTION_VALUE_OPERATIONS: Readonly<Record<string, 'assign' | 'add' | 'multiply' | 'divide'>> =
-  {
-    Assign: 'assign',
-    Add: 'add',
-    Multiply: 'multiply',
-    Divide: 'divide',
-  };
+const ACTION_VALUE_OPERATIONS: Readonly<
+  Record<string, 'assign' | 'add' | 'multiply' | 'divide' | 'floor' | 'ceil' | 'roundToInt'>
+> = {
+  Assign: 'assign',
+  Add: 'add',
+  Multiply: 'multiply',
+  Divide: 'divide',
+  Floor: 'floor',
+  Ceil: 'ceil',
+  RoundToInt: 'roundToInt',
+};

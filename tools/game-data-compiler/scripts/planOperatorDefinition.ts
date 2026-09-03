@@ -11,11 +11,13 @@ import { assembleOperatorDefinition } from '../src/domains/operator/definition.t
 import { renderOperatorDefinitionSource } from '../src/domains/operator/definitionSourceRenderer.ts';
 import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
 import {
+  NATIVE_COST_TYPES,
   requireArray,
   requireExactFields,
   requireNonEmptyString,
   requireNonNegativeInteger,
   requireNumber,
+  requireNativeEnum,
   requireRecord,
 } from '../src/source/primitives.ts';
 import {
@@ -84,7 +86,7 @@ export function planOperatorDefinition(
   const skills = Object.fromEntries(
     entries.map(entry => [
       entry.sourceFile,
-      read(path.join(args.sourceRoot, 'skill-data-cdn', entry.sourceFile)),
+      read(path.join(args.sourceRoot, 'SkillData', entry.sourceFile)),
     ]),
   );
   const foundation = compileOperatorFoundationSource({
@@ -136,7 +138,7 @@ export function planOperatorDefinition(
     Object.fromEntries(
       [...new Set(passiveRequests.map(request => request.skillId))].map(id => [
         id,
-        read(path.join(args.sourceRoot, 'skill-data-cdn', `${id}.json`)),
+        read(path.join(args.sourceRoot, 'SkillData', `${id}.json`)),
       ]),
     ),
     read(args.skillPatchTable),
@@ -244,7 +246,7 @@ export function planOperatorDefinition(
       level: index + 1,
       key: requireNonEmptyString(requireRecord(value, 'potential').key, 'potential.key'),
     })),
-    loadSkill: id => read(path.join(args.sourceRoot, 'skill-data-cdn', `${id}.json`)),
+    loadSkill: id => read(path.join(args.sourceRoot, 'SkillData', `${id}.json`)),
     loadBuff: id => read(path.join(args.buffDataRoot, `${id}.json`)),
     globalBuffCatalog: read(args.globalBuffCatalog),
     skillSettingCatalog: read(args.skillSettingCatalog),
@@ -902,10 +904,15 @@ function planRoutedSkills(
       cost.costValue,
       `${entry.sourceFile}.castData.costData.costValue`,
     );
+    const costType = requireNativeEnum(
+      cost.costType,
+      NATIVE_COST_TYPES,
+      `${entry.sourceFile}.castData.costData.costType`,
+    );
     const cooldownFrames = cooldownSeconds * 30;
     if (
       cast.startCdFrame !== wrapper.costFrame ||
-      cost.costType !== 'Atb' ||
+      costType !== 'Atb' ||
       costValue <= 0 ||
       cooldownSeconds <= 0 ||
       !Number.isInteger(cooldownFrames)

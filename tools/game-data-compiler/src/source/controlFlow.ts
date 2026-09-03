@@ -4,6 +4,7 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
+  requireNativeActionPriority,
   requireNonEmptyString,
   requireNumber,
   requireRecord,
@@ -206,7 +207,7 @@ function parseNativeActionNodeSource<TLeaf>(
     nativeType,
     nativeName,
     enabled: requireBoolean(action.isEnable, `${path}.isEnable`),
-    priorityLevel: requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`),
+    priorityLevel: requireNativeActionPriority(action.priorityLevel, `${path}.priorityLevel`),
     priorityOffset: requireInteger(action.priorityOffset, `${path}.priorityOffset`),
     serverActionIndex: requireInteger(action.serverActionIndex, `${path}.serverActionIndex`),
   };

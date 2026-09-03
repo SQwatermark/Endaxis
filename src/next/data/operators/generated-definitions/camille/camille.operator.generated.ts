@@ -61,7 +61,7 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.04 },
+                durationSeconds: { kind: 'constant', value: 0.0399999991059303 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -100,7 +100,7 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.04 },
+                durationSeconds: { kind: 'constant', value: 0.0399999991059303 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -121,9 +121,21 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale_1: [0.125, 0.138, 0.15, 0.163, 0.175, 0.188, 0.2, 0.213, 0.225, 0.241, 0.259, 0.281],
-    atk_scale_2: [0.125, 0.138, 0.15, 0.163, 0.175, 0.188, 0.2, 0.213, 0.225, 0.241, 0.259, 0.281],
-    display_atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56],
+    atk_scale_1: [
+      0.125, 0.137999996542931, 0.150000005960464, 0.163000002503395, 0.174999997019768,
+      0.187999993562698, 0.200000002980232, 0.212999999523163, 0.224999994039536, 0.24099999666214,
+      0.25900000333786, 0.28099998831749,
+    ],
+    atk_scale_2: [
+      0.125, 0.137999996542931, 0.150000005960464, 0.163000002503395, 0.174999997019768,
+      0.187999993562698, 0.200000002980232, 0.212999999523163, 0.224999994039536, 0.24099999666214,
+      0.25900000333786, 0.28099998831749,
+    ],
+    display_atk_scale: [
+      0.25, 0.280000001192093, 0.300000011920929, 0.330000013113022, 0.349999994039536,
+      0.379999995231628, 0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164,
+      0.519999980926514, 0.560000002384186,
+    ],
   },
 );
 
@@ -174,7 +186,7 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.033 },
+                durationSeconds: { kind: 'constant', value: 0.0329999998211861 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -213,7 +225,7 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.033 },
+                durationSeconds: { kind: 'constant', value: 0.0329999998211861 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -234,9 +246,21 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale_1: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.193, 0.208, 0.225],
-    atk_scale_2: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.193, 0.208, 0.225],
-    display_atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.385, 0.415, 0.45],
+    atk_scale_1: [
+      0.100000001490116, 0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046,
+      0.150000005960464, 0.159999996423721, 0.170000001788139, 0.180000007152557, 0.193000003695488,
+      0.208000004291534, 0.224999994039536,
+    ],
+    atk_scale_2: [
+      0.100000001490116, 0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046,
+      0.150000005960464, 0.159999996423721, 0.170000001788139, 0.180000007152557, 0.193000003695488,
+      0.208000004291534, 0.224999994039536,
+    ],
+    display_atk_scale: [
+      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
+      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.384999990463257,
+      0.41499999165535, 0.449999988079071,
+    ],
   },
 );
 
@@ -289,7 +313,7 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
                   }),
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.04 },
+                    durationSeconds: { kind: 'constant', value: 0.0399999991059303 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_normal_attack' },
@@ -304,9 +328,9 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 4,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -320,8 +344,16 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.075, 0.083, 0.09, 0.098, 0.105, 0.113, 0.12, 0.128, 0.135, 0.144, 0.156, 0.169],
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+    atk_scale: [
+      0.0750000029802322, 0.0829999968409538, 0.0900000035762787, 0.0979999974370003,
+      0.104999996721745, 0.112999998033047, 0.119999997317791, 0.128000006079674, 0.135000005364418,
+      0.143999993801117, 0.156000003218651, 0.168999999761581,
+    ],
+    display_atk_scale: [
+      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
+      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
+      0.620000004768372, 0.680000007152557,
+    ],
   },
 );
 
@@ -561,10 +593,20 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale_1: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.385, 0.415, 0.45],
-    atk_scale_2: [0.02, 0.022, 0.024, 0.026, 0.028, 0.03, 0.032, 0.034, 0.036, 0.039, 0.042, 0.045],
+    atk_scale_1: [
+      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
+      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.384999990463257,
+      0.41499999165535, 0.449999988079071,
+    ],
+    atk_scale_2: [
+      0.0199999995529652, 0.0219999998807907, 0.0240000002086163, 0.0260000005364418,
+      0.0280000008642673, 0.0299999993294477, 0.0320000015199184, 0.034000001847744,
+      0.0359999984502792, 0.0390000008046627, 0.0419999994337559, 0.0450000017881393,
+    ],
     display_atk_scale: [
-      0.34, 0.374, 0.408, 0.442, 0.476, 0.51, 0.544, 0.578, 0.612, 0.655, 0.706, 0.765,
+      0.340000003576279, 0.374000012874603, 0.407999992370605, 0.44200000166893, 0.476000010967255,
+      0.509999990463257, 0.544000029563904, 0.578000009059906, 0.611999988555908, 0.654999971389771,
+      0.705999970436096, 0.764999985694885,
     ],
   },
 );
@@ -624,7 +666,7 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.08 },
+            durationSeconds: { kind: 'constant', value: 0.0799999982118607 },
             slot: 'TimeDilation/Layer/Entity/Frozen',
             priority: 50,
             curve: {
@@ -632,20 +674,20 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
               keys: [
                 {
                   time: 0,
-                  value: 0.2,
-                  inTangent: 0.6,
-                  outTangent: 0.6,
+                  value: 0.200000002980232,
+                  inTangent: 0.600000023841858,
+                  outTangent: 0.600000023841858,
                   weightedMode: 0,
                   inWeight: 0,
-                  outWeight: 0.333333343,
+                  outWeight: 0.333333343267441,
                 },
                 {
                   time: 1,
-                  value: 0.8,
-                  inTangent: 0.6,
-                  outTangent: 0.6,
+                  value: 0.800000011920929,
+                  inTangent: 0.600000023841858,
+                  outTangent: 0.600000023841858,
                   weightedMode: 0,
-                  inWeight: 0.333333343,
+                  inWeight: 0.333333343267441,
                   outWeight: 0,
                 },
               ],
@@ -663,7 +705,11 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 20,
-    atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.13],
+    atk_scale: [
+      0.5, 0.550000011920929, 0.600000023841858, 0.649999976158142, 0.699999988079071, 0.75,
+      0.800000011920929, 0.850000023841858, 0.899999976158142, 0.959999978542328, 1.03999996185303,
+      1.12999999523163,
+    ],
     poise: 18,
   },
 );
@@ -699,7 +745,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'heat',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.65,
+              calculationMultiplier: 0.649999976158142,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0033_camille_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -709,7 +755,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.3 },
+                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                 slot: 'TimeDilation/Layer/Entity/VisualAdjust',
                 priority: 10,
                 curve: {
@@ -765,7 +811,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'heat',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.05,
+                      calculationMultiplier: 0.0500000007450581,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0033_camille_power_attack:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
@@ -800,7 +846,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'heat',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.05,
+                      calculationMultiplier: 0.0500000007450581,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0033_camille_power_attack:/scheduledSequences/2/sequence/steps/0/body/steps/0/body/steps/0',
@@ -835,7 +881,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'heat',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.05,
+                      calculationMultiplier: 0.0500000007450581,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0033_camille_power_attack:/scheduledSequences/3/sequence/steps/0/body/steps/0/body/steps/0',
@@ -870,7 +916,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'heat',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.05,
+                      calculationMultiplier: 0.0500000007450581,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0033_camille_power_attack:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/0',
@@ -905,7 +951,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'heat',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.05,
+                      calculationMultiplier: 0.0500000007450581,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0033_camille_power_attack:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/0',
@@ -940,7 +986,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'heat',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.05,
+                      calculationMultiplier: 0.0500000007450581,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0033_camille_power_attack:/scheduledSequences/6/sequence/steps/0/body/steps/0/body/steps/0',
@@ -975,7 +1021,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'heat',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.05,
+                      calculationMultiplier: 0.0500000007450581,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0033_camille_power_attack:/scheduledSequences/7/sequence/steps/0/body/steps/0/body/steps/0',
@@ -999,7 +1045,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
+                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                 slot: 'TimeDilation/Layer/Entity/VisualAdjust',
                 priority: 50,
                 curve: {
@@ -1109,8 +1155,14 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'breakingAttack',
   },
   {
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    display_atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+    display_atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
   },
 );
 
@@ -1160,8 +1212,16 @@ export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    display_atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+    display_atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
   },
 );
 
@@ -1221,6 +1281,7 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
                         abilityEntityId: 'abilityentity_chr_0033_camille_normal_skill',
                         childSkillId: 'chr_0033_camille_normal_skill_abilityrange_first',
                         inheritActionBlackboard: true,
+                        inheritSourceSkillCastInfo: true,
                         dieWhenSourceDies: false,
                         target: 'enemy',
                         saveToContextKey: 'Camille_Bat',
@@ -1243,7 +1304,7 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
                       }),
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.15 },
+                        durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: { kind: 'named', key: 'common' },
@@ -1272,15 +1333,31 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb_obtain: 0,
-    atk_scale: [0.89, 0.98, 1.07, 1.16, 1.25, 1.34, 1.43, 1.51, 1.6, 1.72, 1.85, 2],
-    bat_atk_scale: [0.45, 0.49, 0.54, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.93, 1],
+    atk_scale: [
+      0.889999985694885, 0.980000019073486, 1.07000005245209, 1.1599999666214, 1.25,
+      1.3400000333786, 1.42999994754791, 1.50999999046326, 1.60000002384186, 1.72000002861023,
+      1.85000002384186, 2,
+    ],
+    bat_atk_scale: [
+      0.449999988079071, 0.490000009536743, 0.540000021457672, 0.579999983310699, 0.620000004768372,
+      0.670000016689301, 0.709999978542328, 0.759999990463257, 0.800000011920929, 0.860000014305115,
+      0.930000007152557, 1,
+    ],
     bat_duration: 45,
     cam_angle: 0,
     cam_duration: 0,
     input_angle: 0,
     poise: 10,
-    vulnerable_scale: [0.05, 0.05, 0.05, 0.055, 0.055, 0.055, 0.06, 0.06, 0.06, 0.065, 0.065, 0.07],
-    weak_scale: [0.05, 0.05, 0.05, 0.055, 0.055, 0.055, 0.06, 0.06, 0.06, 0.065, 0.065, 0.07],
+    vulnerable_scale: [
+      0.0500000007450581, 0.0500000007450581, 0.0500000007450581, 0.0549999997019768,
+      0.0549999997019768, 0.0549999997019768, 0.0599999986588955, 0.0599999986588955,
+      0.0599999986588955, 0.0649999976158142, 0.0649999976158142, 0.0700000002980232,
+    ],
+    weak_scale: [
+      0.0500000007450581, 0.0500000007450581, 0.0500000007450581, 0.0549999997019768,
+      0.0549999997019768, 0.0549999997019768, 0.0599999986588955, 0.0599999986588955,
+      0.0599999986588955, 0.0649999976158142, 0.0649999976158142, 0.0700000002980232,
+    ],
   },
 );
 
@@ -1318,7 +1395,7 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.900000036 },
+            durationSeconds: { kind: 'constant', value: 0.900000035762787 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1364,7 +1441,7 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.06 },
+                    durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'common' },
@@ -1379,9 +1456,9 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1422,7 +1499,7 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'common' },
@@ -1437,9 +1514,9 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1466,7 +1543,7 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'common' },
@@ -1481,9 +1558,9 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1557,17 +1634,17 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
+                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
                   kind: 'inline',
                   keys: [
                     {
-                      time: -0.000869751,
-                      value: 0.2992066,
-                      inTangent: 0.02832832,
-                      outTangent: 0.02832832,
+                      time: -0.0008697509765625,
+                      value: 0.299206614494324,
+                      inTangent: 0.0283283200114965,
+                      outTangent: 0.0283283200114965,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -1575,8 +1652,8 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 2.332526,
-                      outTangent: 2.332526,
+                      inTangent: 2.33252596855164,
+                      outTangent: 2.33252596855164,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -1611,9 +1688,9 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1633,10 +1710,26 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
     atk_scale_1_1: 0.1,
     atk_scale_1_2: 0.1,
     atk_scale_1_3: 0.1,
-    atk_scale_2_1: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_scale_2_2: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_scale_2_3: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_scale_2_4: [1.42, 1.57, 1.71, 1.85, 1.99, 2.14, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
+    atk_scale_2_1: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
+      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
+    atk_scale_2_2: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
+      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
+    atk_scale_2_3: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
+      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
+    atk_scale_2_4: [
+      1.41999995708466, 1.57000005245209, 1.71000003814697, 1.85000002384186, 1.99000000953674,
+      2.14000010490417, 2.27999997138977, 2.42000007629395, 2.55999994277954, 2.74000000953674,
+      2.95000004768372, 3.20000004768372,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     combo_duration: 15,
@@ -1651,7 +1744,10 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
     talent_0: 0,
     usp: 10,
     usp_gained: 0,
-    display_atk_scale_2: [2.22, 2.44, 2.67, 2.89, 3.11, 3.33, 3.56, 3.78, 4, 4.28, 4.61, 5],
+    display_atk_scale_2: [
+      2.22000002861023, 2.44000005722046, 2.67000007629395, 2.89000010490417, 3.10999989509583,
+      3.32999992370605, 3.55999994277954, 3.77999997138977, 4, 4.28000020980835, 4.6100001335144, 5,
+    ],
     display_poise_ex: 20,
   },
 );
@@ -1679,7 +1775,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.6 },
+            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1710,7 +1806,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.06 },
+                    durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'common' },
@@ -1725,9 +1821,9 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1754,7 +1850,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'common' },
@@ -1769,9 +1865,9 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1860,7 +1956,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.08 },
+                    durationSeconds: { kind: 'constant', value: 0.0799999982118607 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1896,9 +1992,9 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1915,9 +2011,21 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
   {
     atb: [16, 16, 16, 16, 16, 16, 18, 18, 18, 20, 20, 20],
     atb_ex: 15,
-    atk_scale_1_1: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_scale_1_2: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_scale_1_3: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+    atk_scale_1_1: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
+      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
+    atk_scale_1_2: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
+      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
+    atk_scale_1_3: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
     atk_scale_2_1: 0.1,
     atk_scale_2_2: 0.1,
     atk_scale_2_3: 0.1,
@@ -1936,7 +2044,10 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
     talent_0: 0,
     usp: 10,
     usp_gained: 0,
-    display_atk_scale: [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
+    display_atk_scale: [
+      1.33000004291534, 1.47000002861023, 1.60000002384186, 1.73000001907349, 1.86000001430511, 2,
+      2.13000011444092, 2.25999999046326, 2.40000009536743, 2.55999994277954, 2.75999999046326, 3,
+    ],
   },
 );
 
@@ -1974,7 +2085,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.900000036 },
+            durationSeconds: { kind: 'constant', value: 0.900000035762787 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2020,7 +2131,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.06 },
+                    durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'common' },
@@ -2035,9 +2146,9 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -2078,7 +2189,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'common' },
@@ -2093,9 +2204,9 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -2122,7 +2233,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'common' },
@@ -2137,9 +2248,9 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -2213,17 +2324,17 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
+                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
                   kind: 'inline',
                   keys: [
                     {
-                      time: -0.000869751,
-                      value: 0.2992066,
-                      inTangent: 0.02832832,
-                      outTangent: 0.02832832,
+                      time: -0.0008697509765625,
+                      value: 0.299206614494324,
+                      inTangent: 0.0283283200114965,
+                      outTangent: 0.0283283200114965,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -2231,8 +2342,8 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 2.332526,
-                      outTangent: 2.332526,
+                      inTangent: 2.33252596855164,
+                      outTangent: 2.33252596855164,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -2267,9 +2378,9 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -2287,10 +2398,26 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
     atk_scale_1_1: 0.1,
     atk_scale_1_2: 0.1,
     atk_scale_1_3: 0.1,
-    atk_scale_2_1: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_scale_2_2: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_scale_2_3: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_scale_2_4: [1.42, 1.57, 1.71, 1.85, 1.99, 2.14, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
+    atk_scale_2_1: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
+      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
+    atk_scale_2_2: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
+      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
+    atk_scale_2_3: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
+      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
+    atk_scale_2_4: [
+      1.41999995708466, 1.57000005245209, 1.71000003814697, 1.85000002384186, 1.99000000953674,
+      2.14000010490417, 2.27999997138977, 2.42000007629395, 2.55999994277954, 2.74000000953674,
+      2.95000004768372, 3.20000004768372,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     combo_duration: 15,
@@ -2305,7 +2432,10 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
     talent_0: 0,
     usp: 10,
     usp_gained: 0,
-    display_atk_scale_2: [2.22, 2.44, 2.67, 2.89, 3.11, 3.33, 3.56, 3.78, 4, 4.28, 4.61, 5],
+    display_atk_scale_2: [
+      2.22000002861023, 2.44000005722046, 2.67000007629395, 2.89000010490417, 3.10999989509583,
+      3.32999992370605, 3.55999994277954, 3.77999997138977, 4, 4.28000020980835, 4.6100001335144, 5,
+    ],
     display_poise_ex: 20,
   },
 );
@@ -2337,7 +2467,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 2.77 },
+            durationSeconds: { kind: 'constant', value: 2.76999998092651 },
             slot: 'unassigned',
             priority: 100,
             curve: {
@@ -2350,7 +2480,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
                   outTangent: 0,
                   weightedMode: 0,
                   inWeight: 0,
-                  outWeight: 0.333333343,
+                  outWeight: 0.333333343267441,
                 },
                 {
                   time: 1,
@@ -2358,7 +2488,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
-                  inWeight: 0.333333343,
+                  inWeight: 0.333333343267441,
                   outWeight: 0,
                 },
               ],
@@ -2388,9 +2518,9 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 7,
-                targetTriggerIntervalSeconds: 0.05,
+                targetTriggerIntervalSeconds: 0.0500000007450581,
               },
             },
           ),
@@ -2416,7 +2546,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
                 targetTriggerIntervalSeconds: -1,
               },
@@ -2483,10 +2613,10 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
                   kind: 'inline',
                   keys: [
                     {
-                      time: -0.000869751,
-                      value: 0.2992066,
-                      inTangent: 0.02832832,
-                      outTangent: 0.02832832,
+                      time: -0.0008697509765625,
+                      value: 0.299206614494324,
+                      inTangent: 0.0283283200114965,
+                      outTangent: 0.0283283200114965,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -2494,8 +2624,8 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 2.332526,
-                      outTangent: 2.332526,
+                      inTangent: 2.33252596855164,
+                      outTangent: 2.33252596855164,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -2509,7 +2639,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
                 targetTriggerIntervalSeconds: -1,
               },
@@ -2551,14 +2681,27 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: [32, 32, 32, 32, 32, 32, 32, 32, 36, 36, 36, 40],
-    atk_scale_1: [0.178, 0.196, 0.213, 0.231, 0.249, 0.267, 0.284, 0.302, 0.32, 0.342, 0.369, 0.4],
-    atk_scale_2: [0.533, 0.587, 0.64, 0.693, 0.747, 0.8, 0.853, 0.907, 0.96, 1.027, 1.106, 1.2],
+    atk_scale_1: [
+      0.178000003099442, 0.195999994874001, 0.212999999523163, 0.231000006198883, 0.248999997973442,
+      0.266999989748001, 0.284000009298325, 0.301999986171722, 0.319999992847443, 0.342000007629395,
+      0.368999987840652, 0.400000005960464,
+    ],
+    atk_scale_2: [
+      0.532999992370605, 0.587000012397766, 0.639999985694885, 0.693000018596649, 0.746999979019165,
+      0.800000011920929, 0.852999985218048, 0.907000005245209, 0.959999978542328, 1.02699995040894,
+      1.10599994659424, 1.20000004768372,
+    ],
     atk_scale_3: [
-      0.889, 0.978, 1.067, 1.156, 1.245, 1.334, 1.423, 1.512, 1.601, 1.712, 1.845, 2.001,
+      0.888999998569489, 0.977999985218048, 1.06700003147125, 1.15600001811981, 1.24500000476837,
+      1.33399999141693, 1.42299997806549, 1.51199996471405, 1.60099995136261, 1.71200001239777,
+      1.84500002861023, 2.00099992752075,
     ],
     duration: 15,
     poise: 15,
-    display_atk_scale: [2.667, 2.933, 3.2, 3.467, 3.733, 4, 4.267, 4.533, 4.8, 5.133, 5.533, 6],
+    display_atk_scale: [
+      2.66700005531311, 2.93300008773804, 3.20000004768372, 3.46700000762939, 3.73300004005432, 4,
+      4.26700019836426, 4.53299999237061, 4.80000019073486, 5.13299989700317, 5.53299999237061, 6,
+    ],
   },
 );
 
@@ -2722,7 +2865,7 @@ export default {
           skillKey: 'comboSkill1',
           blackboardKey: 'heal_sub_multi',
           operation: 'assign',
-          value: [0.15, 0.3],
+          value: [0.150000005960464, 0.300000011920929],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2754,7 +2897,7 @@ export default {
           skillKey: 'comboSkill2',
           blackboardKey: 'heal_sub_multi',
           operation: 'assign',
-          value: [0.15, 0.3],
+          value: [0.150000005960464, 0.300000011920929],
         },
       ],
     },
@@ -2764,7 +2907,11 @@ export default {
       passiveSkills: [
         {
           key: 'chr_0033_camille_passive_talent1',
-          blackboard: { atk_up: [0.02, 0.04], duration: [40, 40], teammate_rate: [0.25, 0.25] },
+          blackboard: {
+            atk_up: [0.0199999995529652, 0.0399999991059303],
+            duration: [40, 40],
+            teammate_rate: [0.25, 0.25],
+          },
           enableSequence: sequence(
             step('listenForCombatEvents', {
               responses: [
@@ -2854,7 +3001,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'weak_scale',
           operation: 'add',
-          value: 0.05,
+          value: 0.0500000007450581,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2862,7 +3009,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'vulnerable_scale',
           operation: 'add',
-          value: 0.05,
+          value: 0.0500000007450581,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2898,7 +3045,7 @@ export default {
           skillKey: 'comboSkill1',
           blackboardKey: 'atk_scale_1_1',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2906,7 +3053,7 @@ export default {
           skillKey: 'comboSkill1',
           blackboardKey: 'atk_scale_1_2',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2914,7 +3061,7 @@ export default {
           skillKey: 'comboSkill1',
           blackboardKey: 'atk_scale_1_3',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2922,7 +3069,7 @@ export default {
           skillKey: 'comboSkill2',
           blackboardKey: 'atk_scale_2_1',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2930,7 +3077,7 @@ export default {
           skillKey: 'comboSkill2',
           blackboardKey: 'atk_scale_2_2',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2938,7 +3085,7 @@ export default {
           skillKey: 'comboSkill2',
           blackboardKey: 'atk_scale_2_3',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2946,7 +3093,7 @@ export default {
           skillKey: 'comboSkill2',
           blackboardKey: 'atk_scale_2_4',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2954,7 +3101,7 @@ export default {
           skillKey: 'comboSkill1',
           blackboardKey: 'atb',
           operation: 'multiply',
-          value: 1.15,
+          value: 1.14999997615814,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2962,7 +3109,7 @@ export default {
           skillKey: 'comboSkill2',
           blackboardKey: 'atb',
           operation: 'multiply',
-          value: 1.15,
+          value: 1.14999997615814,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2970,7 +3117,7 @@ export default {
           skillKey: 'comboSkill2',
           blackboardKey: 'atb_ex',
           operation: 'multiply',
-          value: 1.15,
+          value: 1.14999997615814,
         },
       ],
     },
@@ -2982,7 +3129,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
       ],
     },
@@ -2995,7 +3142,7 @@ export default {
           passiveSkillKey: 'chr_0033_camille_passive_talent1',
           blackboardKey: 'atk_up',
           operation: 'add',
-          value: 0.06,
+          value: 0.0599999986588955,
         },
       ],
     },
@@ -3010,8 +3157,8 @@ export default {
     buff_chr_0033_camille_cast_combo2: {
       stackingType: 'unique',
       priority: 0,
-      maxStackCount: { blackboardKey: 'hit_cntmax' },
-      durationSeconds: 0.1,
+      maxStackCount: 1,
+      durationSeconds: 0.100000001490116,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -3038,6 +3185,7 @@ export default {
         iconPath: '/icons/icon_battle_camille_normal_skill_bat.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3072,7 +3220,7 @@ export default {
       stackingType: 'stack',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 0.1,
+      durationSeconds: 0.100000001490116,
       applyTags: [],
       extendTags: [],
       blackboard: { atk_scale: 0.1, poise: 10, remain_time: 0 },
@@ -3104,6 +3252,7 @@ export default {
         iconPath: '/icons/icon_battle_camille_normal_skill_bat.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3157,7 +3306,7 @@ export default {
     },
     buff_chr_0033_camille_normal_skill_weak_child: {
       stackingType: 'refresh',
-      priority: { blackboardKey: 'rate' },
+      priority: 0,
       maxStackCount: 0,
       durationSeconds: { blackboardKey: 'duration' },
       applyTags: [],
@@ -3168,7 +3317,7 @@ export default {
     buff_chr_0033_camille_talent1_atkup: {
       stackingType: 'stack',
       priority: 1,
-      maxStackCount: { blackboardKey: 'max_stack' },
+      maxStackCount: 3,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
@@ -3176,6 +3325,7 @@ export default {
         iconPath: '/icons/icon_battle_fire_dmg_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3214,6 +3364,7 @@ export default {
         iconPath: '/icons/icon_battle_camille_ult_state.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3272,7 +3423,7 @@ export default {
     buff_chr_0033_camille_ult_hit: {
       stackingType: 'unique',
       priority: 1,
-      maxStackCount: { blackboardKey: 'max_stack' },
+      maxStackCount: 3,
       durationSeconds: 1,
       applyTags: [],
       extendTags: [],

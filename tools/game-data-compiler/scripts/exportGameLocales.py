@@ -1,35 +1,24 @@
 """
-Export Endaxis game locale files from AKEDB CDN TableCfg data.
+Export Endaxis game locale files from the local VFS source snapshot.
 
-This script intentionally fails fast when AKEDB introduces an unknown rich-text
+This script intentionally fails fast when current VFS data introduces an unknown rich-text
 tag, image asset, placeholder expression, or blackboard shape. Silent data loss
 is worse than a failed export: generated locale JSON is used by UI tooltips.
 
 Typical usage:
     python3 tools/game-data-compiler/scripts/exportGameLocales.py
-    python3 tools/game-data-compiler/scripts/exportGameLocales.py --refresh-cache
+    npm run download:game-data:sources -- --tables-only
     python3 tools/game-data-compiler/scripts/exportGameLocales.py --output /tmp/game-locales
 """
 
 import argparse
 import ast
 import copy
-import hashlib
 import json
 import os
 import re
-import time
-from urllib.request import Request, urlopen
 
 TEXT_TABLE = {}
-DEFAULT_CDN_BASE = 'https://data.akedata.wiki'
-FETCH_CACHE_DIR = os.path.join(os.path.expanduser('~'), '.cache', 'endaxis-export-game-locales')
-USER_AGENT = 'Endaxis-export-game-locales/1.0'
-FETCH_TIMEOUT = 120
-FETCH_RETRIES = 3
-REMOTE_BASE = DEFAULT_CDN_BASE
-USE_FETCH_CACHE = True
-REFRESH_FETCH_CACHE = False
 BATTLE_RICH_TEXT_PREFIX = 'ba.'
 EXCLUDED_CHAR_IDS = {'chr_0002_endminm', 'chr_0003_endminf'}
 LOCALE_EXPORTS = [('CN', 'zh'), ('EN', 'en')]
@@ -39,8 +28,9 @@ RICH_TEXT_IMAGE_TAG_RE = re.compile(r'<image="([^"]+)"(?:\s+scale=[0-9.]+)?>')
 PLACEHOLDER_RE = re.compile(r'\{([^}]+)\}')
 GEAR_ICON_SUIT_RE = re.compile(r'icon:\s*[\'"]/equipment/([^/]+)/')
 GEAR_SET_SLUG_RE = re.compile(r'setSlug:\s*[\'"]([^\'"]+)[\'"]')
-WEAPON_ICON_ID_RE = re.compile(
-    r'icon:\s*[\'"][^\'"]*/(wpn_[A-Za-z0-9]+_[0-9]+)\.[A-Za-z0-9]+[\'"]'
+WEAPON_PRESENTATION_ENTRY_RE = re.compile(
+    r"^\s*(wpn_[A-Za-z0-9]+_[0-9]+):\s*'([^']+)',\s*$",
+    re.MULTILINE,
 )
 WEAPON_PREFIX_ALIASES = [
     ('wpn_claym_', 'wpn_greatsword_'),
@@ -166,7 +156,7 @@ PARAM_TYPE_MAP = {
     '1': 'CostValue',
     '2': 'CoolDown',
     '3': 'MaxChargeTime',
-    # AKEDB renders this as a condition-specific combo-skill cooldown adjustment.
+    # The native table renders this as a condition-specific combo-skill cooldown adjustment.
     '4': 'ConditionalComboCoolDown',
 }
 
@@ -211,81 +201,9 @@ ENDAXIS_ICON_PATH_MAP = {
 }
 
 
-# ─── Remote AKEDB loading ────────────────────────────────────────────────────
-
-def configure_remote(base_url, use_cache=True, refresh_cache=False):
-    global REMOTE_BASE, USE_FETCH_CACHE, REFRESH_FETCH_CACHE
-    REMOTE_BASE = base_url.rstrip('/')
-    USE_FETCH_CACHE = use_cache
-    REFRESH_FETCH_CACHE = refresh_cache
-    os.makedirs(FETCH_CACHE_DIR, exist_ok=True)
-
-
-def format_size(size):
-    if size < 1024:
-        return f'{size}B'
-    if size < 1024 * 1024:
-        return f'{size / 1024:.1f}KB'
-    return f'{size / (1024 * 1024):.1f}MB'
-
-
-def remote_url(path):
-    return f'{REMOTE_BASE}/{path.lstrip("/")}'
-
-
-def cache_path_for_url(url):
-    name = hashlib.sha256(url.encode('utf-8')).hexdigest()[:32]
-    return os.path.join(FETCH_CACHE_DIR, name)
-
-
-def fetch_remote_bytes(path, label=None, use_cache=True):
-    url = path if path.startswith(('http://', 'https://')) else remote_url(path)
-    label = label or path
-    cache_file = cache_path_for_url(url)
-    cache_enabled = USE_FETCH_CACHE and use_cache and not REFRESH_FETCH_CACHE
-
-    if cache_enabled and os.path.exists(cache_file):
-        size = os.path.getsize(cache_file)
-        print(f'  [cache] {label} ({format_size(size)})')
-        with open(cache_file, 'rb') as f:
-            return f.read()
-
-    last_error = None
-    for attempt in range(1, FETCH_RETRIES + 1):
-        try:
-            print(f'  [fetch] {label} ...', end='', flush=True)
-            request = Request(url, headers={'User-Agent': USER_AGENT})
-            with urlopen(request, timeout=FETCH_TIMEOUT) as response:
-                data = response.read()
-            print(f' {format_size(len(data))}')
-            if USE_FETCH_CACHE and use_cache:
-                tmp_file = f'{cache_file}.tmp'
-                with open(tmp_file, 'wb') as f:
-                    f.write(data)
-                os.replace(tmp_file, cache_file)
-            return data
-        except Exception as exc:
-            last_error = exc
-            print(f' failed ({exc})')
-            if attempt < FETCH_RETRIES:
-                time.sleep(attempt * 2)
-
-    raise RuntimeError(f'failed to fetch {label} from {url}') from last_error
-
-
-def fetch_remote_json(path, label=None, use_cache=True):
-    data = fetch_remote_bytes(path, label=label, use_cache=use_cache)
-    try:
-        return json.loads(data)
-    except json.JSONDecodeError as exc:
-        raise ValueError(f'failed to parse JSON from {label or path}: {exc}') from exc
-
+# ─── Local VFS snapshot loading ──────────────────────────────────────────────────
 
 def load_json(path):
-    if path.startswith(('http://', 'https://')):
-        return fetch_remote_json(path, label=path, use_cache=True)
-    if not os.path.isabs(path):
-        return fetch_remote_json(path, label=path, use_cache=True)
     if not os.path.exists(path):
         return {}
     with open(path, 'r', encoding='utf-8') as f:
@@ -514,7 +432,7 @@ def format_placeholder_value(result, fmt, context):
 
 
 def evaluate_placeholder_expression(expr, lower_values, context):
-    """Evaluate AKEDB numeric placeholders with a small arithmetic-only AST."""
+    """Evaluate native numeric placeholders with a small arithmetic-only AST."""
 
     def visit(node):
         if isinstance(node, ast.Expression):
@@ -979,7 +897,7 @@ def export_battle_terms(table_dir, locale='CN'):
 
 
 def build_existing_gear_set_slug_map(repo_root):
-    """Map AKEDB suit IDs to Endaxis gear set slugs from existing gear piece sheets."""
+    """Map native suit IDs to Endaxis gear set slugs from current gear pieces."""
     gearpieces_dir = os.path.join(repo_root, 'src', 'data', 'gearpieces')
     suit_slug_map = {}
     if not os.path.isdir(gearpieces_dir):
@@ -1024,39 +942,38 @@ def expand_weapon_id_aliases(weapon_id):
 
 
 def build_existing_weapon_icon_slug_map(repo_root):
-    """Map local weapon icon IDs to Endaxis weapon slugs from existing weapon sheets."""
-    weapons_dir = os.path.join(repo_root, 'src', 'data', 'weapons')
+    """Map current native weapon presentation IDs to Endaxis slugs."""
+    catalog_path = os.path.join(
+        repo_root,
+        'src',
+        'next',
+        'data',
+        'equipment',
+        'weaponPresentationSlugs.ts',
+    )
     icon_slug_map = {}
-    if not os.path.isdir(weapons_dir):
+    if not os.path.isfile(catalog_path):
         return icon_slug_map
 
-    for root, _, files in os.walk(weapons_dir):
-        for filename in files:
-            if not filename.endswith('.ts'):
-                continue
-            path = os.path.join(root, filename)
-            with open(path, 'r', encoding='utf-8') as f:
-                source = f.read()
-            icon_match = WEAPON_ICON_ID_RE.search(source)
-            if not icon_match:
-                continue
-            slug = filename[:-3]
-            for icon_id in expand_weapon_id_aliases(icon_match.group(1)):
-                existing = icon_slug_map.get(icon_id)
-                if existing and existing != slug:
-                    data_error(
-                        f'weapon slug map {path}',
-                        f'conflicting weapon icon slug for {icon_id}: {existing!r} vs {slug!r}',
-                    )
-                icon_slug_map[icon_id] = slug
+    with open(catalog_path, 'r', encoding='utf-8') as f:
+        source = f.read()
+    for native_id, slug in WEAPON_PRESENTATION_ENTRY_RE.findall(source):
+        for icon_id in expand_weapon_id_aliases(native_id):
+            existing = icon_slug_map.get(icon_id)
+            if existing and existing != slug:
+                data_error(
+                    f'weapon slug map {catalog_path}',
+                    f'conflicting weapon icon slug for {icon_id}: {existing!r} vs {slug!r}',
+                )
+            icon_slug_map[icon_id] = slug
 
     return icon_slug_map
 
 
 def build_existing_weapon_slug_map(repo_root, item_table=None):
-    """Map AKEDB weapon IDs to Endaxis weapon slugs.
+    """Map current VFS weapon IDs to Endaxis weapon slugs.
 
-    Endaxis sheets store the rendered icon path. Most AKEDB weapon IDs match
+    Most native weapon IDs match
     their ItemTable iconId, but a few do not; for example 爆破单元 and 骑士精神
     intentionally swap icon IDs. Resolve local icon IDs through ItemTable first
     so skill descriptions follow the actual weapon row instead of the image ID.
@@ -1289,7 +1206,7 @@ def merge_weapon_skill_text(old_skill, generated_skill):
 
 
 def export_weapons(table_dir, locale='CN', weapon_slug_map=None, old_data=None):
-    """Merge AKEDB weapon skill descriptions into the existing weapon locale file."""
+    """Merge current VFS weapon skill descriptions into the locale file."""
     load_text_table(table_dir, locale)
 
     weapon_slug_map = weapon_slug_map or {}
@@ -1438,8 +1355,8 @@ def export_gearsets(table_dir, locale='CN', suit_slug_map=None, old_data=None):
 def merge_old_order_and_subskills(operators, old_data):
     """Keep existing operator order and manually maintained fields.
 
-    `subSkills` currently has no AKEDB exporter and is copied as-is. `forms`
-    is copied only as a fallback: generated form labels should win when AKEDB
+    `subSkills` currently has no VFS exporter and is copied as-is. `forms`
+    is copied only as a fallback: generated form labels should win when VFS
     provides them, otherwise stale old labels could mask updated game data.
     """
     if not old_data:
@@ -1493,13 +1410,13 @@ def order_combat_skills(operators):
 
 def parse_args(repo_root):
     parser = argparse.ArgumentParser(
-        description='Export Endaxis game locale files from the AKEDB CDN.',
+        description='Export Endaxis game locale files from a local VFS source snapshot.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             'Examples:\n'
             '  python3 tools/game-data-compiler/scripts/exportGameLocales.py\n'
-            '  python3 tools/game-data-compiler/scripts/exportGameLocales.py --refresh-cache\n'
-            '  python3 tools/game-data-compiler/scripts/exportGameLocales.py --version latest --output /tmp/game-locales\n'
+            '  npm run download:game-data:sources -- --tables-only\n'
+            '  python3 tools/game-data-compiler/scripts/exportGameLocales.py --output /tmp/game-locales\n'
         ),
     )
     parser.add_argument(
@@ -1508,24 +1425,9 @@ def parse_args(repo_root):
         help='Output directory for game locale JSON files. Defaults to src/i18n/game-locales.',
     )
     parser.add_argument(
-        '--base-url',
-        default=DEFAULT_CDN_BASE,
-        help=f'AKEDB data CDN base URL. Defaults to {DEFAULT_CDN_BASE}.',
-    )
-    parser.add_argument(
-        '--version',
-        default='latest',
-        help='AKEDB manifest version id to export, or latest. Defaults to latest.',
-    )
-    parser.add_argument(
-        '--no-cache',
-        action='store_true',
-        help='Disable the local download cache for TableCfg files.',
-    )
-    parser.add_argument(
-        '--refresh-cache',
-        action='store_true',
-        help='Refetch TableCfg files and overwrite existing cached copies.',
+        '--source-dir',
+        default=os.path.join(repo_root, 'tmp', 'game-data-sources', 'TableCfg-current'),
+        help='Directory produced by download:game-data:sources.',
     )
     parser.add_argument(
         '--icon-source-manifest',
@@ -1561,22 +1463,6 @@ def write_icon_source_manifest(output_path):
     )
 
 
-def select_manifest_version(manifest, version_id):
-    versions = manifest.get('versions')
-    if not isinstance(versions, list):
-        raise ValueError('AKEDB manifest missing versions list')
-
-    selected_id = manifest.get('latest') if version_id == 'latest' else version_id
-    for version in versions:
-        if version.get('id') == selected_id:
-            table_cfg_path = version.get('tableCfgPath')
-            if not table_cfg_path:
-                raise ValueError(f'AKEDB manifest version {selected_id} missing tableCfgPath')
-            return version
-
-    raise ValueError(f'AKEDB manifest version not found: {selected_id}')
-
-
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     repo_root = os.path.abspath(os.path.join(script_dir, '..', '..', '..'))
@@ -1590,18 +1476,14 @@ def main():
         return
 
     output_base = os.path.abspath(args.output)
-    configure_remote(args.base_url, use_cache=not args.no_cache, refresh_cache=args.refresh_cache)
-
-    print('Loading AKEDB manifest')
-    manifest = fetch_remote_json('manifest.json', label='manifest.json', use_cache=False)
-    version = select_manifest_version(manifest, args.version)
-    table_dir = version['tableCfgPath']
-    print(
-        'Using AKEDB '
-        f'{version.get("id", args.version)} '
-        f'(game {version.get("gameVersion", "?")}, hotfix {version.get("hotfixVersion", "?")})'
-    )
-    print(f'TableCfg: {remote_url(table_dir)}')
+    table_dir = os.path.abspath(args.source_dir)
+    required_tables = ['CharacterTable.json', 'ItemTable.json', 'I18nTextTable_CN.json', 'I18nTextTable_EN.json']
+    missing_tables = [name for name in required_tables if not os.path.isfile(os.path.join(table_dir, name))]
+    if missing_tables:
+        raise ValueError(
+            f'VFS source snapshot is incomplete at {table_dir}: missing {", ".join(missing_tables)}'
+        )
+    print(f'VFS TableCfg: {table_dir}')
     print(f'Output: {output_base}')
     print(f'Previous locale files: {default_output_base}')
     gear_set_slug_map = build_existing_gear_set_slug_map(repo_root)

@@ -70,7 +70,14 @@ export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.100000001490116, 0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046,
+      0.150000005960464, 0.159999996423721, 0.170000001788139, 0.180000007152557, 0.189999997615814,
+      0.209999993443489, 0.230000004172325,
+    ],
+  },
 );
 
 export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -130,7 +137,14 @@ export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.129999995231628, 0.140000000596046, 0.150000005960464, 0.159999996423721, 0.180000007152557,
+      0.189999997615814, 0.200000002980232, 0.209999993443489, 0.230000004172325, 0.239999994635582,
+      0.259999990463257, 0.280000001192093,
+    ],
+  },
 );
 
 export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -232,8 +246,16 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.13, 0.14, 0.16, 0.17, 0.18, 0.2, 0.21, 0.22, 0.23, 0.25, 0.27, 0.29],
-    display_atk_scale: [0.26, 0.29, 0.31, 0.34, 0.36, 0.39, 0.42, 0.44, 0.47, 0.5, 0.54, 0.59],
+    atk_scale: [
+      0.129999995231628, 0.140000000596046, 0.159999996423721, 0.170000001788139, 0.180000007152557,
+      0.200000002980232, 0.209999993443489, 0.219999998807907, 0.230000004172325, 0.25,
+      0.270000010728836, 0.28999999165535,
+    ],
+    display_atk_scale: [
+      0.259999990463257, 0.28999999165535, 0.310000002384186, 0.340000003576279, 0.360000014305115,
+      0.389999985694885, 0.419999986886978, 0.439999997615814, 0.469999998807907, 0.5,
+      0.540000021457672, 0.589999973773956,
+    ],
   },
 );
 
@@ -297,9 +319,9 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 3,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -313,8 +335,16 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.12, 0.13, 0.14, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25, 0.27],
-    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
+    atk_scale: [
+      0.119999997317791, 0.129999995231628, 0.140000000596046, 0.159999996423721, 0.170000001788139,
+      0.180000007152557, 0.189999997615814, 0.200000002980232, 0.219999998807907, 0.230000004172325,
+      0.25, 0.270000010728836,
+    ],
+    display_atk_scale: [
+      0.360000014305115, 0.400000005960464, 0.430000007152557, 0.469999998807907, 0.5,
+      0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142, 0.689999997615814,
+      0.75, 0.810000002384186,
+    ],
   },
 );
 
@@ -380,7 +410,7 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.167 },
+                durationSeconds: { kind: 'constant', value: 0.166999995708466 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -401,7 +431,11 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 17,
-    atk_scale: [0.48, 0.52, 0.57, 0.62, 0.67, 0.71, 0.76, 0.81, 0.86, 0.91, 0.99, 1.07],
+    atk_scale: [
+      0.479999989271164, 0.519999980926514, 0.569999992847443, 0.620000004768372, 0.670000016689301,
+      0.709999978542328, 0.759999990463257, 0.810000002384186, 0.860000014305115, 0.910000026226044,
+      0.990000009536743, 1.07000005245209,
+    ],
     poise: 16,
   },
 );
@@ -433,7 +467,7 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.05,
+              calculationMultiplier: 0.0500000007450581,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0007_ikut_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -450,7 +484,7 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.05,
+              calculationMultiplier: 0.0500000007450581,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0007_ikut_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -467,7 +501,7 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.9,
+              calculationMultiplier: 0.899999976158142,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0007_ikut_power_attack:/scheduledSequences/2/sequence/steps/0',
@@ -481,7 +515,7 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.2667 },
+            durationSeconds: { kind: 'constant', value: 0.266699999570847 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -495,7 +529,7 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_damage_immune_medium',
+            buffId: 'buff_common_full_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -520,7 +554,12 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  {
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+  },
 );
 
 export const arclightPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -572,7 +611,14 @@ export const arclightPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -605,7 +651,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.066 },
+            durationSeconds: { kind: 'constant', value: 0.0659999996423721 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -631,7 +677,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.2 },
+            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -657,7 +703,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.066 },
+            durationSeconds: { kind: 'constant', value: 0.0659999996423721 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -683,7 +729,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.066 },
+            durationSeconds: { kind: 'constant', value: 0.0659999996423721 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -696,6 +742,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         136,
         sequence(
+          step('mergeContextTargets', { saveToContextKey: 'tar', sources: [] }),
           branch(
             {
               kind: 'entityTagMatch',
@@ -743,23 +790,13 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise2' },
                 },
-                'chr_0007_ikut_normal_skill:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/2',
+                'chr_0007_ikut_normal_skill:/scheduledSequences/4/sequence/steps/1/whenTrue/steps/2',
               ),
               step('modifyActionValue', {
                 key: 'thirdhit',
                 operation: 'assign',
                 value: { kind: 'constant', value: 1 },
               }),
-              step(
-                'dealDamage',
-                {
-                  damageType: 'physical',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  tags: ['normalSkill'],
-                  features: ['canBreakWeakness'],
-                },
-                'chr_0007_ikut_normal_skill:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/4',
-              ),
               step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
               step('finishBuffsByTag', {
                 target: 'enemy',
@@ -778,17 +815,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise2' },
                 },
-                'chr_0007_ikut_normal_skill:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/0',
-              ),
-              step(
-                'dealDamage',
-                {
-                  damageType: 'physical',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  tags: ['normalSkill'],
-                  features: ['canBreakWeakness'],
-                },
-                'chr_0007_ikut_normal_skill:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/1',
+                'chr_0007_ikut_normal_skill:/scheduledSequences/4/sequence/steps/1/whenFalse/steps/0',
               ),
               step('applyBuff', {
                 buffId: 'buff_common_obtain_ultimate_sp',
@@ -814,7 +841,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.6 },
+                durationSeconds: { kind: 'constant', value: 0.600000023841858 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -822,36 +849,36 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                   keys: [
                     {
                       time: 0,
-                      value: 0.2,
-                      inTangent: -3.063443,
-                      outTangent: -3.063443,
+                      value: 0.200000002980232,
+                      inTangent: -3.06344294548035,
+                      outTangent: -3.06344294548035,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.05224372,
-                      value: 0.03995434,
-                      inTangent: -0.110653,
-                      outTangent: -0.110653,
+                      time: 0.0522437207400799,
+                      value: 0.0399543382227421,
+                      inTangent: -0.11065299808979,
+                      outTangent: -0.11065299808979,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.425575,
-                      value: 0.03096347,
-                      inTangent: 0.04099823,
-                      outTangent: 0.04099823,
+                      time: 0.425574988126755,
+                      value: 0.0309634692966938,
+                      inTangent: 0.0409982316195965,
+                      outTangent: 0.0409982316195965,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.7615593,
-                      value: 0.2709492,
-                      inTangent: 0.9447426,
-                      outTangent: 0.9447426,
+                      time: 0.761559307575226,
+                      value: 0.270949214696884,
+                      inTangent: 0.944742619991302,
+                      outTangent: 0.944742619991302,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -859,8 +886,8 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 0.5,
-                      inTangent: 0.7728162,
-                      outTangent: 0.7728162,
+                      inTangent: 0.772816181182861,
+                      outTangent: 0.772816181182861,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -925,8 +952,16 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: [30, 30, 30, 30, 30, 35, 35, 35, 35, 35, 35, 40],
-    atk_scale: [0.45, 0.5, 0.54, 0.59, 0.63, 0.68, 0.72, 0.77, 0.81, 0.87, 0.93, 1.01],
-    atk_scale2: [1.8, 1.98, 2.16, 2.34, 2.52, 2.7, 2.88, 3.06, 3.24, 3.47, 3.74, 4.05],
+    atk_scale: [
+      0.449999988079071, 0.5, 0.540000021457672, 0.589999973773956, 0.629999995231628,
+      0.680000007152557, 0.720000028610229, 0.769999980926514, 0.810000002384186, 0.870000004768372,
+      0.930000007152557, 1.00999999046326,
+    ],
+    atk_scale2: [
+      1.79999995231628, 1.98000001907349, 2.16000008583069, 2.33999991416931, 2.51999998092651,
+      2.70000004768372, 2.88000011444092, 3.05999994277954, 3.24000000953674, 3.47000002861023,
+      3.74000000953674, 4.05000019073486,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     count: 0,
@@ -1006,6 +1041,7 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0007_ikut_ultimate_skill',
             childSkillId: 'chr_0007_ikut_ultimate_skill_abentity',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -1019,8 +1055,16 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale1: [1.56, 1.71, 1.87, 2.02, 2.18, 2.34, 2.49, 2.65, 2.8, 3, 3.23, 3.5],
-    atk_scale2: [2.44, 2.69, 2.93, 3.18, 3.42, 3.67, 3.91, 4.15, 4.4, 4.7, 5.07, 5.5],
+    atk_scale1: [
+      1.55999994277954, 1.71000003814697, 1.87000000476837, 2.01999998092651, 2.1800000667572,
+      2.33999991416931, 2.49000000953674, 2.65000009536743, 2.79999995231628, 3, 3.23000001907349,
+      3.5,
+    ],
+    atk_scale2: [
+      2.44000005722046, 2.69000005722046, 2.9300000667572, 3.1800000667572, 3.42000007629395,
+      3.67000007629395, 3.91000008583069, 4.15000009536743, 4.40000009536743, 4.69999980926514,
+      5.07000017166138, 5.5,
+    ],
     isWall: 0,
     poise1: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
     poise2: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
@@ -1054,7 +1098,7 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
             finishByAction: false,
             ignoredTargets: ['caster'],
             ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
-            influenceSkillCooldownSeconds: { kind: 'constant', value: 0.4 },
+            influenceSkillCooldownSeconds: { kind: 'constant', value: 0.400000005960464 },
           }),
         ),
         12,
@@ -1094,7 +1138,7 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.133 },
+            durationSeconds: { kind: 'constant', value: 0.133000001311302 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1125,7 +1169,7 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.133 },
+            durationSeconds: { kind: 'constant', value: 0.133000001311302 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1160,7 +1204,11 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: [8, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10],
-    atk_scale: [0.52, 0.57, 0.62, 0.67, 0.73, 0.78, 0.83, 0.88, 0.93, 1, 1.07, 1.17],
+    atk_scale: [
+      0.519999980926514, 0.569999992847443, 0.620000004768372, 0.670000016689301, 0.730000019073486,
+      0.779999971389771, 0.829999983310699, 0.879999995231628, 0.930000007152557, 1,
+      1.07000005245209, 1.16999995708466,
+    ],
     atk_up: 0,
     cam_angle: 0,
     cam_duration: 0,
@@ -1173,7 +1221,11 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
     owner_mainchar_distance: 0,
     poise: 5,
     usp: 5,
-    display_atk_scale: [1.55, 1.71, 1.86, 2.02, 2.18, 2.33, 2.49, 2.64, 2.8, 2.99, 3.22, 3.5],
+    display_atk_scale: [
+      1.54999995231628, 1.71000003814697, 1.86000001430511, 2.01999998092651, 2.1800000667572,
+      2.32999992370605, 2.49000000953674, 2.64000010490417, 2.79999995231628, 2.99000000953674,
+      3.22000002861023, 3.5,
+    ],
   },
 );
 
@@ -1317,7 +1369,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'pulse_up',
           operation: 'add',
-          value: [0.0005, 0.0008],
+          value: [0.000500000023748726, 0.0007999999797903],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1336,7 +1388,7 @@ export default {
           buffId: 'buff_chr_0007_ikut_talent_2',
           target: 'caster',
           inheritSourceSkillCastInfo: false,
-          blackboardAssignments: { prob: [0.3, 0.5] },
+          blackboardAssignments: { prob: [0.300000011920929, 0.5] },
         }),
       ),
     },
@@ -1372,7 +1424,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'pulse_up',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
       ],
     },
@@ -1384,7 +1436,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
       ],
     },
@@ -1421,6 +1473,7 @@ export default {
         iconPath: '/icons/icon_battle_pulse_dmg_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1476,6 +1529,7 @@ export default {
         iconPath: '/icons/icon_battle_ikut_talent_1.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

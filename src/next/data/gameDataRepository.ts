@@ -45,6 +45,7 @@ import {
   rossi,
   snowshine,
   tangtang,
+  typhoeus,
   wulfgard,
   xaihi,
   yvonne,
@@ -58,10 +59,7 @@ import {
 } from './equipment';
 import { legacyEnemyDefinitions } from './adapters/legacyEnemyDefinitionAdapter';
 import { commonBuffDefinitions } from './buffs/commonDefinitions';
-import {
-  nextWeaponDefinitions,
-  nextWeaponRegistration,
-} from './equipment/nextWeaponDefinitions';
+import { nextWeaponDefinitions, nextWeaponRegistration } from './equipment/nextWeaponDefinitions';
 
 /** 项目始终使用随当前 Endaxis 发布的唯一最新定义库。 */
 export const NEXT_GAME_DATA_REVISION = 'endaxis-next-definitions-latest';
@@ -199,6 +197,7 @@ export const nextGameDataRepository = createGameDataRepository({
     avywenna,
     catcher,
     ardelia,
+    typhoeus,
   ],
   weapons: nextWeaponDefinitions,
   weaponAliases: nextWeaponRegistration.aliases,

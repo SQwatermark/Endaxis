@@ -16,7 +16,7 @@
 - `scripts/auditGearSetSourceClosure.ts`、`auditGearSetStaticDefinitions.ts`：套装来源闭包与静态候选审计；
 - `scripts/exportReferencedGameIcons.ts`：扫描正式运行引用，只补缺漏地导出 WebP；`--overwrite` 覆盖，
   `--dry-run` 只审计，`--prune` 删除引用闭包外的受管游戏资源；
-- `scripts/exportGameLocales.py`：AKEDB 本地化和富文本图标来源导出；图标入口会调用它生成临时 manifest；
+- `scripts/exportGameLocales.py`：VFS 本地化和富文本图标来源导出；图标入口会调用它生成临时 manifest；
 - `scripts/generateOperatorPassiveUiPrefabCatalog.ts`：从 VFS 对象快照识别角色专属 HUD prefab 的
   `UICharPassive*` 组件，并生成模拟所需的窄语义目录；
 - `config/gearSetIdentities.json`：已闭合并进入正式库的套装身份；
@@ -111,13 +111,13 @@ Assign 的目的键不算读取，但赋值保留；本轮没有启动通用黑�
 
 ### 全局标签预定义配置的下载与生成
 
-`akedb-sources.json.jsonFiles` 维护 Endaxis 需要的精确全局 JSON，不依赖 combat-spec 选择资源，
-也不要求 AKEDB 当前集合索引已经列出它。`--json-file` 只能选择清单内资源，不刷新其他表/集合；
+`vfs-sources.json.jsonFiles` 维护 Endaxis 需要的精确全局 JSON，不依赖 combat-spec 选择资源。
+`--json-file` 只能选择清单内资源，不刷新其他表/集合；
 单文件来源保存为相邻 `.provenance.json`，不覆盖整批下载账本。全量下载包含这些配置，
 `--tables-only` 不包含；两种选择开关不能同时使用。
 
 ```powershell
-npm run download:game-data:sources -- --json-file GameplayConfig/GameplayTagPredefineTable.json --vfs-fallback tmp/vfs-tag-predefine-fallback
+npm run download:game-data:sources -- --json-file GameplayConfig/GameplayTagPredefineTable.json
 npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/next/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/next/data/combat/gameplayTagCatalog.generated.ts
 npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/next/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/next/data/combat/gameplayTagCatalog.generated.ts --check
 ```
@@ -133,12 +133,12 @@ npm run generate:game-data:gameplay-tags -- tools/game-data-compiler/gameplay-ta
 在输出前验证；漏件、半截导出或未知 ID 仍严格失败。下载器尚未自动编排这 27 个 Unity 对象
 及 CABMap，本次使用既有 VFS 通用能力的离线精确导出，不宣称新增了 HTTP 配置集接口。
 
-本轮 CDN 返回 404。fallback 目录的相对路径必须为 `GameplayConfig/GameplayTagPredefineTable.json`。
-实际文件来自台式机 VFS 既有 `tools/extract_indexed_file.py` 的精确记录 694613，逻辑路径
+这份历史样本来自台式机 VFS 既有 `tools/extract_indexed_file.py` 的精确记录 694613，逻辑路径
 `JsonData/Data/Json/GameplayConfig/GameplayTagPredefineTable.json`；40,260 字节，SHA-256
 `c87176401ac351c74cd75b92bb9a2f48c70ba5f4062bb004f5f07d848328e3d5`。
 记录 ID 属于本次索引，不是跨版本稳定身份；换数据源先核对逻辑路径与哈希。
-当前 VFS HTTP 兼容路由未开放 GameplayConfig，本轮使用离线同构导出；不要写成 HTTP 已可用。
+当前生产下载已由 `vfs-sources.json` 经 `/api/endaxis-data` 获取同类精确逻辑资源；缺失时应扩展
+自维护 VFS 的索引/导出能力，不接第三方下载兜底。
 
 `source/gameplayTagPredefineTable.ts` 保留原生三个字典；缓存查询的数字枚举和动作 JSON 的名称
 分开严格读取，标签都检查 Int32。`compiler/gameplayTagPredefine.ts` 通过同版本来源目录解析为路径，
@@ -545,7 +545,7 @@ npm run generate:game-data:operator-active-skills -- --complete `
 - 角色模板携带的实体黑板和原生连携条件通过 manifest 的 `runtimeTemplate` 显式接入：`sourceFile`
   必须位于 `source-root` 内，`sourceSha256` 固定原始 Unity 对象身份，`skillGroupKey` 必须是实际连携组；
   角色 ID、原生连携 SkillData ID、RID 类型与字段、标签路径及黑板启用状态均由公共解析器校验。
-  这类 CharacterTemplate 工件来自 VFS/解包，不属于 AKEDB 下载闭包；缺文件时生成应失败，不能回退
+  这类 CharacterTemplate 工件来自 VFS 引用闭包；缺文件时生成应失败，不能回退
   已生成 TS。Arcane 当前约定路径为
   `CharacterData/chr_0032_lizhiyan.runtime-template.json`，源 SHA-256 为
   `33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc`。
@@ -571,7 +571,7 @@ npm run generate:game-data:operator-active-skills -- --complete `
 证据优先级固定如下：
 
 1. `combat-spec` 中由反编译代码确认的原生类型、字段和运行行为；
-2. AKEDB、游戏解包文件及其他可追溯的原生导出数据；
+2. 由自维护 vfs-index-browser 从同版本 Effective VFS 导出的可追溯原生数据；
 3. 可重复的游戏内实验，仅用于补足静态证据无法回答的问题；
 4. 旧版 Endaxis 只可帮助定位文件和提出待验证问题，不能证明游戏行为。
 
@@ -933,41 +933,31 @@ npm run type-check:game-data
 npm run test:game-data
 ```
 
-固定版本输入统一由 `npm run download:game-data:sources` 获取，所需资源只在本目录的
-`akedb-sources.json` 声明一次；下载器、审计和正式生成不得各自维护近似清单。装备与武器正式编译要求
-`WeaponUpgradeTemplateTable`、`EquipTable` 与其余 TableCfg 来自同一个 manifest 版本，不能把本地
-AKEDatabase 工作树中的当前文件混入版本化快照。默认输出位于 Endaxis 自己的
+当前版本输入统一由 `npm run download:game-data:sources` 从本机 vfs-index-browser 获取，
+所需资源只在 `vfs-sources.json` 声明一次；下载器、审计和正式生成不得各自维护近似清单。
+表、SkillData、BuffData、ProjectileData、AbilityEntityData 和本地化表均来自同一次 VFS 快照。默认输出位于 Endaxis 自己的
 `tmp/game-data-sources`，不得提交；`combat-spec` 只提供反编译证据，不能充当资源清单、下载器配置或
 生成输入的隐式提供者。
 
-下载器按单个逻辑资源执行固定优先级：先请求 AKEDB CDN；资源不存在、内容不是合法 JSON 或请求失败时，
-才请求可选的 vfs-index-browser fallback。`--vfs-fallback` 可以是本地兼容目录，也可以是
-`http(s)://.../api/akedb-compatible` 基址。两种提供者使用同一逻辑路径：
+下载器只接受 vfs-index-browser 的 `X-Endaxis-Source` 响应身份，并对每个文件记录字节数和 SHA-256。
+它不会退回 AKEDB、邻接目录或旧快照。逻辑路径为：
 
 ```text
-TableCfg-<version>/<TableName>.json
+TableCfg-current/<TableName>.json
 SkillData/manifest.json
 SkillData/<file>.json
 BuffData/manifest.json
 BuffData/<file>.json
 ```
 
-AKEDB 已提供集合清单时，基础下载只对其中明确列出的同名资源逐文件 fallback，不把 VFS 整个集合
-合并进来；否则会把当前 Operator 根无关的敌人、关卡资源混进版本快照。只有 AKEDB 完全没有该集合
-清单时，才使用 VFS manifest 建立基础集合。额外的子 Skill、Buff、Projectile 和 AbilityEntity 由
-领域闭包命令按精确 ID 获取。输出目录的 `akedb-source-provenance.json` 逐文件记录实际提供者，避免把
-混合来源误称为纯 AKEDB 快照。这里的
-“同构”指逻辑路径和解码后的 JSON 数据结构可由同一 source 读取器消费，不要求空白、字段排列或曲线的
-历史/当前序列化外形逐字节相同；读取器若支持多个已证实外形，仍必须投影为同一个源 IR。
-如果 AKEDB manifest 尚未登记请求版本，下载器使用显式 `--version` 或清单默认版本构造 VFS 逻辑路径，
-该版本的 TableCfg 全部由 fallback 提供；不会要求 vfs-index-browser 伪造 AKEDB manifest。
+集合 manifest 由 VFS 的 Effective 逻辑文件直接建立；下载器全量获取声明的集合，再由领域审计认定实际引用闭包。
+输出目录的 `vfs-source-provenance.json` 对整批文件生成稳定快照哈希。
 
 示例：
 
 ```sh
-npm run download:game-data:sources -- --version 1.4.4@9433094-12
-npm run download:game-data:sources -- --vfs-fallback http://desktop:8765/api/akedb-compatible
-npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:8765/api/akedb-compatible
+npm run download:game-data:sources -- --workers 8
+npm run download:game-data:sources -- --tables-only --workers 4
 ```
 
 ## 10. 迁移顺序
@@ -1246,12 +1236,9 @@ npm run audit:game-data:operators -- --manifest tools/game-data-compiler/config/
   --tables <TableCfg目录>
 ```
 
-资源下载器的正式资源目录由 `akedb-sources.json` 独立维护。TableCfg、SkillData 和 BuffData
-优先来自 AKEDB；下载完 SkillData/BuffData 后，下载器会递归收集其中实际出现的
-`projectileId`、`abilityEntityId`，再批量关闭 ProjectileData / AbilityEntityData 引用集合。
-AKEDB 的 `asset-sync-index.json` 如果将来提供同名文件仍优先使用；当前 Unity 模板由
-vfs-index-browser 的同构端点精确导出。不得把 combat-spec 工件目录重新接成下载来源，也不得
-逐个在 Operator 配置中手写模板清单。
+资源下载器的正式资源目录由 `vfs-sources.json` 独立维护。TableCfg、四类 JSON 集合、
+GameplayTag 预定义与 I18n 文本都由 vfs-index-browser 的 Effective 逻辑资源精确导出。
+不得把 combat-spec 工件目录、AKEDB 或旧快照重新接成下载来源，也不得逐个在 Operator 配置中手写模板清单。
 
 ProjectileData 目前提供已解码 `ProjectileComponentData`；AbilityEntityData 只提供已由
 反编译和样本共同证实的 `AbilityEntityTemplateData` 逻辑前缀。引用闭包能据此证明模板身份存在，

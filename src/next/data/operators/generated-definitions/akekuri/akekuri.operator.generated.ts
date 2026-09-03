@@ -44,7 +44,7 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.08 },
+                durationSeconds: { kind: 'constant', value: 0.0799999982118607 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -63,7 +63,14 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
+      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.389999985694885,
+      0.419999986886978, 0.449999988079071,
+    ],
+  },
 );
 
 export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -143,7 +150,7 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.08 },
+                durationSeconds: { kind: 'constant', value: 0.0799999982118607 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -164,9 +171,21 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28],
-    atk_scale_2: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
+    atk_scale: [
+      0.129999995231628, 0.140000000596046, 0.150000005960464, 0.159999996423721, 0.180000007152557,
+      0.189999997615814, 0.200000002980232, 0.209999993443489, 0.230000004172325, 0.239999994635582,
+      0.259999990463257, 0.280000001192093,
+    ],
+    atk_scale_2: [
+      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
+      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
+      0.310000002384186, 0.340000003576279,
+    ],
+    display_atk_scale: [
+      0.280000001192093, 0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885,
+      0.409999996423721, 0.439999997615814, 0.469999998807907, 0.5, 0.529999971389771,
+      0.569999992847443, 0.620000004768372,
+    ],
   },
 );
 
@@ -217,7 +236,7 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -236,7 +255,14 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978, 0.46000000834465,
+      0.490000009536743, 0.519999980926514, 0.550000011920929, 0.589999973773956, 0.629999995231628,
+      0.670000016689301, 0.730000019073486,
+    ],
+  },
 );
 
 export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -293,7 +319,7 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.02 },
+                durationSeconds: { kind: 'constant', value: 0.0199999995529652 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -334,7 +360,7 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.35 },
+                durationSeconds: { kind: 'constant', value: 0.349999994039536 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -355,9 +381,17 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 19,
-    atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
+    atk_scale: [
+      0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489, 0.230000004172325,
+      0.25, 0.259999990463257, 0.280000001192093, 0.300000011920929, 0.319999992847443,
+      0.340000003576279, 0.370000004768372,
+    ],
     poise: 17,
-    display_atk_scale: [0.5, 0.54, 0.59, 0.64, 0.69, 0.74, 0.79, 0.84, 0.89, 0.95, 1.03, 1.11],
+    display_atk_scale: [
+      0.5, 0.540000021457672, 0.589999973773956, 0.639999985694885, 0.689999997615814,
+      0.740000009536743, 0.790000021457672, 0.839999973773956, 0.889999985694885, 0.949999988079071,
+      1.02999997138977, 1.11000001430511,
+    ],
   },
 );
 
@@ -388,7 +422,7 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.2,
+              calculationMultiplier: 0.200000002980232,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0019_karin_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -398,7 +432,7 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.16 },
+                durationSeconds: { kind: 'constant', value: 0.159999996423721 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -421,7 +455,7 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.8,
+              calculationMultiplier: 0.800000011920929,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0019_karin_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -440,7 +474,7 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.35 },
+            durationSeconds: { kind: 'constant', value: 0.349999994039536 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'common' },
@@ -454,7 +488,7 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_damage_immune_medium',
+            buffId: 'buff_common_full_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -479,7 +513,12 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  {
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+  },
 );
 
 export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -526,7 +565,14 @@ export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -555,7 +601,7 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.2 },
+            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -573,7 +619,11 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
+    atk_scale: [
+      1.41999995708466, 1.55999994277954, 1.71000003814697, 1.85000002384186, 1.99000000953674,
+      2.13000011444092, 2.27999997138977, 2.42000007629395, 2.55999994277954, 2.74000000953674,
+      2.95000004768372, 3.20000004768372,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     input_angle: 0,
@@ -943,7 +993,7 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
+                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1010,7 +1060,7 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
+                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1035,7 +1085,7 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.6 },
+            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1055,7 +1105,11 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atb: 7.5,
     atb_up: 1,
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     count: 0,
@@ -1176,7 +1230,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'sub_ratio',
           operation: 'assign',
-          value: [0.01, 0.015],
+          value: [0.00999999977648258, 0.0149999996647239],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1210,7 +1264,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'imbue_scale',
           operation: 'assign',
-          value: 0.2,
+          value: 0.200000002980232,
         },
       ],
     },
@@ -1225,7 +1279,7 @@ export default {
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
-            atk_up: { kind: 'constant', value: 0.1 },
+            atk_up: { kind: 'constant', value: 0.100000001490116 },
             duration: { kind: 'constant', value: 10 },
             max_stack: { kind: 'constant', value: 5 },
           },
@@ -1256,7 +1310,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk',
           operation: 'assign',
-          value: 0.1,
+          value: 0.100000001490116,
         },
       ],
     },
@@ -1268,7 +1322,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.9,
+          multiplier: 0.899999976158142,
         },
       ],
     },
@@ -1337,6 +1391,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1370,6 +1425,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

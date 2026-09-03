@@ -737,8 +737,13 @@ export function normalizeAbilityEventPayload(
   if (
     event === 'enterFight' ||
     event === 'ownerHpZero' ||
+    event === 'ownerDead' ||
+    event === 'ownerSwitchedToCenter' ||
+    event === 'ownerSwitchedToGuard' ||
     event === 'abilityEntitySpawned' ||
-    event === 'abilityEntityFinished'
+    event === 'abilityEntityFinished' ||
+    event === 'buffEnhanceChanged' ||
+    event === 'pendingComboSkillsCleared'
   ) {
     return {
       kind: 'abilityLifecycle',
@@ -828,6 +833,9 @@ export function normalizeAbilityEventPayload(
         ? {}
         : { damageType: source.damageType as CombatAbilityDamageEvent['damageType'] }),
       tags: source.tags as CombatAbilityDamageEvent['tags'],
+      gameplayTags: (source.gameplayTags ?? []) as NonNullable<
+        CombatAbilityDamageEvent['gameplayTags']
+      >,
       features: source.features as CombatAbilityDamageEvent['features'],
     };
   }
@@ -1024,6 +1032,9 @@ export function normalizeAbilityEventPayload(
       ? {}
       : { damageType: source.damageType as CombatAbilityDamageEvent['damageType'] }),
     tags: source.tags as CombatAbilityDamageEvent['tags'],
+    gameplayTags: (source.gameplayTags ?? []) as NonNullable<
+      CombatAbilityDamageEvent['gameplayTags']
+    >,
     features: source.features as CombatAbilityDamageEvent['features'],
   };
 }

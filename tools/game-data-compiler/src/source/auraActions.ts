@@ -7,6 +7,7 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
+  requireNativeEnum,
   requireNonEmptyString,
   requireNumber,
   requireRecord,
@@ -20,6 +21,7 @@ import {
   parseBuffApplicationActionSource,
 } from './buffActions.ts';
 import type { TargetReferenceSource } from './target.ts';
+import { parseObjectTypeMask } from './objectType.ts';
 
 export interface GlobalPartyAuraBuffInputSource {
   readonly buffId: string;
@@ -71,7 +73,7 @@ export interface DirectRangedAuraActionSource<TLeaf> {
   readonly actionOnEnter: NativeSequenceSource<TLeaf>;
 }
 
-const ACTION_FIELDS = new Set([
+const LEGACY_ACTION_FIELDS = new Set([
   '$type',
   'isEnable',
   'priorityLevel',
@@ -99,26 +101,49 @@ const ACTION_FIELDS = new Set([
   'actionWhenExitAura',
 ]);
 
+const CURRENT_ACTION_FIELDS = new Set([
+  ...[...LEGACY_ACTION_FIELDS].filter(field => field !== 'm_auraTypeWarning'),
+  'filterFactionSource',
+  'limitInfluenceAngle',
+  'influenceAngle',
+  'influenceDirection',
+  'influenceDirectionAngleOffset',
+  'limitInfluenceHeight',
+  'maxInfluenceHeight',
+]);
+
+const NATIVE_AURA_TYPES = ['RangedAura', 'GlobalAura'] as const;
+const NATIVE_ACTION_TARGET_TYPES = [
+  'ActionSource',
+  'ActionOwner',
+  'InputTarget',
+  'CurrentTarget',
+  'ContextTarget',
+  'MainCharacter',
+] as const;
+const NATIVE_FACTION_TARGETS = ['Ally', 'Anti'] as const;
+
 export function parseGlobalPartyAuraActionSource(
   value: unknown,
   path: string,
 ): GlobalPartyAuraActionSource {
   const action = requireRecord(value, path);
-  requireExactFields(action, ACTION_FIELDS, path);
-  requireExpected(action.auraType, 'GlobalAura', `${path}.auraType`);
+  parseAuraSchemaExtension(action, path);
+  requireExpected(
+    requireNativeEnum(action.auraType, NATIVE_AURA_TYPES, `${path}.auraType`),
+    'GlobalAura',
+    `${path}.auraType`,
+  );
   const root = parseTargetReferenceSource(action.auraRoot, `${path}.auraRoot`);
   if (root.targetSource !== 'Owner' || root.targetGroupKey !== '') {
     throw new Error(`${path}.auraRoot: expected plain Owner`);
   }
   const fixedWhenStart = requireBoolean(action.fixedWhenStart, `${path}.fixedWhenStart`);
-  const targetObjectType = requireNonEmptyString(
-    action.targetObjectType,
-    `${path}.targetObjectType`,
-  );
+  const targetObjectType = parseObjectTypeMask(action.targetObjectType, `${path}.targetObjectType`);
   const target =
-    targetObjectType === 'Character'
+    targetObjectType === 8
       ? 'party'
-      : targetObjectType === 'Enemy' || targetObjectType === 'EnemyAll'
+      : targetObjectType === 16 || targetObjectType === 16400
         ? 'enemy'
         : null;
   if (target === null)
@@ -131,7 +156,7 @@ export function parseGlobalPartyAuraActionSource(
   requireExpected(action.excludeColliderOptions, 0, `${path}.excludeColliderOptions`);
   const filter = requireRecord(action.targetFilter, `${path}.targetFilter`);
   if (target === 'party' && filter.autoSetTargetFaction === false) {
-    parseFixedGoodCharacterFilter(filter, `${path}.targetFilter`, new Set([-65522, 'Character']));
+    parseFixedGoodCharacterFilter(filter, `${path}.targetFilter`, new Set([-65522, 8]));
   } else {
     parseGlobalFilter(filter, `${path}.targetFilter`, target === 'party' ? 'Ally' : 'Anti');
   }
@@ -141,7 +166,11 @@ export function parseGlobalPartyAuraActionSource(
   // max=1 的限次在可见 Buff/治疗结果上等价；字段仍严格要求为布尔值。
   requireBoolean(action.limitInfluenceCountPerTarget, `${path}.limitInfluenceCountPerTarget`);
   requireExpected(action.maxInfluenceCountPerTarget, 1, `${path}.maxInfluenceCountPerTarget`);
-  const buffSource = requireNonEmptyString(action.buffSource, `${path}.buffSource`);
+  const buffSource = requireNativeEnum(
+    action.buffSource,
+    NATIVE_ACTION_TARGET_TYPES,
+    `${path}.buffSource`,
+  );
   if (buffSource !== 'ActionOwner' && buffSource !== 'ActionSource') {
     throw new Error(`${path}.buffSource: unsupported value ${JSON.stringify(buffSource)}`);
   }
@@ -177,8 +206,12 @@ export function parseDirectRangedAuraActionSource<TLeaf>(
   parseSequence: (value: unknown, path: string) => NativeSequenceSource<TLeaf>,
 ): DirectRangedAuraActionSource<TLeaf> | GlobalPartyAuraActionSource {
   const action = requireRecord(value, path);
-  requireExactFields(action, ACTION_FIELDS, path);
-  requireExpected(action.auraType, 'RangedAura', `${path}.auraType`);
+  parseAuraSchemaExtension(action, path);
+  requireExpected(
+    requireNativeEnum(action.auraType, NATIVE_AURA_TYPES, `${path}.auraType`),
+    'RangedAura',
+    `${path}.auraType`,
+  );
   const root = parseTargetReferenceSource(action.auraRoot, `${path}.auraRoot`);
   if (root.targetSource !== 'Owner' || root.targetGroupKey !== '') {
     throw new Error(`${path}.auraRoot: expected plain Owner`);
@@ -188,17 +221,25 @@ export function parseDirectRangedAuraActionSource<TLeaf>(
   requireExpected(action.excludeColliderOptions, 0, `${path}.excludeColliderOptions`);
   const filter = requireRecord(action.targetFilter, `${path}.targetFilter`);
   const rangedBuffs = parseAuraBuffInputs(action.buffInput, `${path}.buffInput`, false);
-  const autoEnemyTarget = filter.autoSetTargetFaction === true && filter.factionTarget === 'Anti';
-  const autoPartyTarget = filter.autoSetTargetFaction === true && filter.factionTarget === 'Ally';
+  const factionTarget = requireNativeEnum(
+    filter.factionTarget,
+    NATIVE_FACTION_TARGETS,
+    `${path}.targetFilter.factionTarget`,
+  );
+  const factionType = nativeFactionTypeName(
+    filter.targetFactionType,
+    `${path}.targetFilter.targetFactionType`,
+  );
+  const autoEnemyTarget = filter.autoSetTargetFaction === true && factionTarget === 'Anti';
+  const autoPartyTarget = filter.autoSetTargetFaction === true && factionTarget === 'Ally';
   if (
     rangedBuffs.length > 0 &&
     (autoEnemyTarget ||
       autoPartyTarget ||
-      (filter.autoSetTargetFaction === false &&
-        (filter.targetFactionType === 'Good' || filter.targetFactionType === 'Bad')))
+      (filter.autoSetTargetFaction === false && (factionType === 'Good' || factionType === 'Bad')))
   ) {
     requireExpected(action.targetObjectType, 0, `${path}.targetObjectType`);
-    const target = autoEnemyTarget || filter.targetFactionType === 'Bad' ? 'enemy' : 'party';
+    const target = autoEnemyTarget || factionType === 'Bad' ? 'enemy' : 'party';
     let includesAlliedNonCharacters = false;
     if (autoEnemyTarget) {
       parseGlobalFilter(filter, `${path}.targetFilter`, 'Anti');
@@ -210,7 +251,7 @@ export function parseDirectRangedAuraActionSource<TLeaf>(
         parseFixedGoodAllFilter(filter, `${path}.targetFilter`);
         includesAlliedNonCharacters = true;
       } else {
-        parseFixedGoodCharacterFilter(filter, `${path}.targetFilter`, new Set(['Character']));
+        parseFixedGoodCharacterFilter(filter, `${path}.targetFilter`, new Set([8]));
       }
     } else parseFixedEnemyFilter(filter, `${path}.targetFilter`);
     const excludeOwner = requireBoolean(action.excludeOwner, `${path}.excludeOwner`);
@@ -218,7 +259,11 @@ export function parseDirectRangedAuraActionSource<TLeaf>(
     // 固定零距离且没有移动/重入：每个目标只触发一次进入，max=1 的限次不会再截断结果。
     requireBoolean(action.limitInfluenceCountPerTarget, `${path}.limitInfluenceCountPerTarget`);
     requireExpected(action.maxInfluenceCountPerTarget, 1, `${path}.maxInfluenceCountPerTarget`);
-    const buffSource = requireNonEmptyString(action.buffSource, `${path}.buffSource`);
+    const buffSource = requireNativeEnum(
+      action.buffSource,
+      NATIVE_ACTION_TARGET_TYPES,
+      `${path}.buffSource`,
+    );
     if (buffSource !== 'ActionOwner' && buffSource !== 'ActionSource') {
       throw new Error(`${path}.buffSource: unsupported value ${JSON.stringify(buffSource)}`);
     }
@@ -267,7 +312,11 @@ export function parseDirectRangedAuraActionSource<TLeaf>(
   requireExpected(action.includeUnmarkable, false, `${path}.includeUnmarkable`);
   requireBoolean(action.limitInfluenceCountPerTarget, `${path}.limitInfluenceCountPerTarget`);
   requireExpected(action.maxInfluenceCountPerTarget, 1, `${path}.maxInfluenceCountPerTarget`);
-  requireExpected(action.buffSource, 'ActionSource', `${path}.buffSource`);
+  requireExpected(
+    requireNativeEnum(action.buffSource, NATIVE_ACTION_TARGET_TYPES, `${path}.buffSource`),
+    'ActionSource',
+    `${path}.buffSource`,
+  );
   if (parseAuraBuffInputs(action.buffInput, `${path}.buffInput`, false).length !== 0) {
     throw new Error(`${path}.buffInput: expected empty array`);
   }
@@ -287,6 +336,117 @@ export function parseDirectRangedAuraActionSource<TLeaf>(
     ...(directTarget === 'enemy' ? { targetGroupKey: [...targetGroupKeys][0]! } : {}),
     actionOnEnter,
   };
+}
+
+function parseAuraSchemaExtension(action: Record<string, unknown>, path: string): void {
+  const isCurrent = Object.hasOwn(action, 'filterFactionSource');
+  requireExactFields(action, isCurrent ? CURRENT_ACTION_FIELDS : LEGACY_ACTION_FIELDS, path);
+  if (!isCurrent) return;
+
+  const factionSource = parseTargetReferenceSource(
+    action.filterFactionSource,
+    `${path}.filterFactionSource`,
+  );
+  requirePlainAuraTarget(factionSource, 'Source', `${path}.filterFactionSource`);
+
+  const limitAngle = requireBoolean(action.limitInfluenceAngle, `${path}.limitInfluenceAngle`);
+  const influenceAngle = parseAuraBlackboardDouble(action.influenceAngle, `${path}.influenceAngle`);
+  const angleOffset = parseAuraBlackboardDouble(
+    action.influenceDirectionAngleOffset,
+    `${path}.influenceDirectionAngleOffset`,
+  );
+  const limitHeight = requireBoolean(action.limitInfluenceHeight, `${path}.limitInfluenceHeight`);
+  const maxHeight = parseAuraBlackboardDouble(
+    action.maxInfluenceHeight,
+    `${path}.maxInfluenceHeight`,
+  );
+  parseAuraDirection(action.influenceDirection, `${path}.influenceDirection`);
+
+  // Endaxis 把所有对象放在同一点：高度差为 0，Unity 对零位移向量的夹角也归为 0。
+  // 因而合法的正角度/非负高度不会改变候选集合；仍完整校验新版本载荷，避免误吞未来变体。
+  if (limitAngle && (!(influenceAngle.value > 0) || influenceAngle.value > 360)) {
+    throw new Error(`${path}.influenceAngle: zero-distance projection requires angle in (0, 360]`);
+  }
+  if (limitHeight && maxHeight.value < 0) {
+    throw new Error(`${path}.maxInfluenceHeight: expected non-negative height`);
+  }
+  if (angleOffset.value < -360 || angleOffset.value > 360) {
+    throw new Error(`${path}.influenceDirectionAngleOffset: expected value in [-360, 360]`);
+  }
+}
+
+function parseAuraBlackboardDouble(
+  value: unknown,
+  path: string,
+): { value: number; blackboardKey: string | null } {
+  const scalar = requireRecord(value, path);
+  requireExactFields(scalar, new Set(['value', 'useBlackboardKey', 'blackboardKey']), path);
+  const useBlackboardKey = requireBoolean(scalar.useBlackboardKey, `${path}.useBlackboardKey`);
+  const blackboardKey = requireString(scalar.blackboardKey, `${path}.blackboardKey`);
+  if (useBlackboardKey !== blackboardKey.length > 0) {
+    throw new Error(`${path}: blackboard key presence must match useBlackboardKey`);
+  }
+  return {
+    value: requireNumber(scalar.value, `${path}.value`),
+    blackboardKey: useBlackboardKey ? blackboardKey : null,
+  };
+}
+
+function parseAuraDirection(value: unknown, path: string): void {
+  const direction = requireRecord(value, path);
+  requireExactFields(
+    direction,
+    new Set([
+      'directionType',
+      'source',
+      'target',
+      'sourceMountPoint',
+      'targetMountPoint',
+      'customSourceAndTarget',
+      'clampToXZ',
+      'invertDirection',
+    ]),
+    path,
+  );
+  requireNativeEnum(
+    direction.directionType,
+    [
+      'SourceForward',
+      'TargetForward',
+      'SourceToTarget',
+      'TargetToSource',
+      'CameraForward',
+      'SameAsSourceMountPointDir',
+    ] as const,
+    `${path}.directionType`,
+  );
+  const custom = requireBoolean(direction.customSourceAndTarget, `${path}.customSourceAndTarget`);
+  if (custom) {
+    parseTargetReferenceSource(direction.source, `${path}.source`);
+    parseTargetReferenceSource(direction.target, `${path}.target`);
+  } else if (direction.source !== null || direction.target !== null) {
+    throw new Error(`${path}: source and target must be null when customSourceAndTarget is false`);
+  }
+  requireInteger(direction.sourceMountPoint, `${path}.sourceMountPoint`);
+  requireInteger(direction.targetMountPoint, `${path}.targetMountPoint`);
+  requireBoolean(direction.clampToXZ, `${path}.clampToXZ`);
+  requireBoolean(direction.invertDirection, `${path}.invertDirection`);
+}
+
+function nativeFactionTypeName(value: unknown, path: string): string {
+  if (typeof value === 'string' && value.length > 0) return value;
+  const names = new Map([
+    [0, 'None'],
+    [4, 'Good'],
+    [8, 'Bad'],
+    [12, 'Good, Bad'],
+    [20, 'Good, Neutral'],
+    [24, 'Bad, Neutral'],
+    [28, 'Good, Bad, Neutral'],
+    [30, 'Unknown, Good, Bad, Neutral'],
+    [31, 'Invalid, Unknown, Good, Bad, Neutral'],
+  ] as const);
+  return requireNativeEnum(value, names, path);
 }
 
 function parseFixedGoodCharacterFilter(
@@ -314,10 +474,18 @@ function parseFixedGoodCharacterFilter(
   // 存活，因此两种取值的目标集合相同；仍校验字段类型，不能把其他筛选位一并省略。
   requireBoolean(filter.checkAlive, `${path}.checkAlive`);
   requireExpected(filter.autoSetTargetFaction, false, `${path}.autoSetTargetFaction`);
-  requireExpected(filter.factionTarget, 'Anti', `${path}.factionTarget`);
-  requireExpected(filter.targetFactionType, 'Good', `${path}.targetFactionType`);
+  requireExpected(
+    requireNativeEnum(filter.factionTarget, NATIVE_FACTION_TARGETS, `${path}.factionTarget`),
+    'Anti',
+    `${path}.factionTarget`,
+  );
+  requireExpected(
+    nativeFactionTypeName(filter.targetFactionType, `${path}.targetFactionType`),
+    'Good',
+    `${path}.targetFactionType`,
+  );
   requireExpected(filter.filterObjectType, true, `${path}.filterObjectType`);
-  if (!allowedObjectTypes.has(filter.objectType)) {
+  if (!allowedObjectTypes.has(parseObjectTypeMask(filter.objectType, `${path}.objectType`))) {
     throw new Error(`${path}.objectType: unsupported Good-character mask`);
   }
   requireExpected(filter.filterSlot, false, `${path}.filterSlot`);
@@ -346,10 +514,22 @@ function parseFixedEnemyFilter(filter: Record<string, unknown>, path: string): v
   );
   requireBoolean(filter.checkAlive, `${path}.checkAlive`);
   requireExpected(filter.autoSetTargetFaction, false, `${path}.autoSetTargetFaction`);
-  requireExpected(filter.factionTarget, 'Anti', `${path}.factionTarget`);
-  requireExpected(filter.targetFactionType, 'Bad', `${path}.targetFactionType`);
+  requireExpected(
+    requireNativeEnum(filter.factionTarget, NATIVE_FACTION_TARGETS, `${path}.factionTarget`),
+    'Anti',
+    `${path}.factionTarget`,
+  );
+  requireExpected(
+    nativeFactionTypeName(filter.targetFactionType, `${path}.targetFactionType`),
+    'Bad',
+    `${path}.targetFactionType`,
+  );
   requireExpected(filter.filterObjectType, false, `${path}.filterObjectType`);
-  requireExpected(filter.objectType, 'All', `${path}.objectType`);
+  requireExpected(
+    parseObjectTypeMask(filter.objectType, `${path}.objectType`),
+    -1,
+    `${path}.objectType`,
+  );
   requireExpected(filter.filterSlot, false, `${path}.filterSlot`);
   requireExpected(filter.slotIndex, 0, `${path}.slotIndex`);
   requireExpected(filter.filterGameplayTag, false, `${path}.filterGameplayTag`);
@@ -376,10 +556,22 @@ function parseFixedGoodAllFilter(filter: Record<string, unknown>, path: string):
   );
   requireBoolean(filter.checkAlive, `${path}.checkAlive`);
   requireExpected(filter.autoSetTargetFaction, false, `${path}.autoSetTargetFaction`);
-  requireExpected(filter.factionTarget, 'Anti', `${path}.factionTarget`);
-  requireExpected(filter.targetFactionType, 'Good', `${path}.targetFactionType`);
+  requireExpected(
+    requireNativeEnum(filter.factionTarget, NATIVE_FACTION_TARGETS, `${path}.factionTarget`),
+    'Anti',
+    `${path}.factionTarget`,
+  );
+  requireExpected(
+    nativeFactionTypeName(filter.targetFactionType, `${path}.targetFactionType`),
+    'Good',
+    `${path}.targetFactionType`,
+  );
   requireExpected(filter.filterObjectType, false, `${path}.filterObjectType`);
-  requireExpected(filter.objectType, 'All', `${path}.objectType`);
+  requireExpected(
+    parseObjectTypeMask(filter.objectType, `${path}.objectType`),
+    -1,
+    `${path}.objectType`,
+  );
   requireExpected(filter.filterSlot, false, `${path}.filterSlot`);
   requireExpected(filter.slotIndex, 0, `${path}.slotIndex`);
   requireExpected(filter.filterGameplayTag, false, `${path}.filterGameplayTag`);
@@ -547,8 +739,8 @@ export function parseAuraReferenceActionSource(
   path: string,
 ): AuraReferenceActionSource {
   const action = requireRecord(value, path);
-  requireExactFields(action, ACTION_FIELDS, path);
-  requireNonEmptyString(action.auraType, `${path}.auraType`);
+  parseAuraSchemaExtension(action, path);
+  requireNativeEnum(action.auraType, NATIVE_AURA_TYPES, `${path}.auraType`);
   const buffs = parseAuraBuffInputs(action.buffInput, `${path}.buffInput`, false);
   const exitBuffs = parseAuraExitAction(
     action.actionWhenExitAura,
@@ -615,16 +807,24 @@ function parseGlobalFilter(value: unknown, path: string, expectedFaction: string
   // Fixed stump simulation has no dead operator/enemy candidates, so this filter is inert.
   requireBoolean(filter.checkAlive, `${path}.checkAlive`);
   requireExpected(filter.autoSetTargetFaction, true, `${path}.autoSetTargetFaction`);
-  requireExpected(filter.factionTarget, expectedFaction, `${path}.factionTarget`);
-  const factionType = filter.targetFactionType;
+  requireExpected(
+    requireNativeEnum(filter.factionTarget, NATIVE_FACTION_TARGETS, `${path}.factionTarget`),
+    expectedFaction,
+    `${path}.factionTarget`,
+  );
+  const factionType = nativeFactionTypeName(filter.targetFactionType, `${path}.targetFactionType`);
   const expectedFactionType = expectedFaction === 'Anti' ? 'Bad' : 'Good';
-  if (factionType !== 0 && factionType !== expectedFactionType) {
+  if (factionType !== 'None' && factionType !== expectedFactionType) {
     throw new Error(
       `${path}.targetFactionType: expected 0 or ${JSON.stringify(expectedFactionType)}`,
     );
   }
   requireExpected(filter.filterObjectType, false, `${path}.filterObjectType`);
-  requireExpected(filter.objectType, 'All', `${path}.objectType`);
+  requireExpected(
+    parseObjectTypeMask(filter.objectType, `${path}.objectType`),
+    -1,
+    `${path}.objectType`,
+  );
   requireExpected(filter.filterSlot, false, `${path}.filterSlot`);
   requireExpected(filter.slotIndex, 0, `${path}.slotIndex`);
   requireExpected(filter.filterGameplayTag, false, `${path}.filterGameplayTag`);
@@ -656,7 +856,11 @@ export function parseFiniteRangedShape(value: unknown, path: string): string[] {
     ]),
     path,
   );
-  const shapeType = requireString(shape._shape, `${path}._shape`);
+  const shapeType = requireNativeEnum(
+    shape._shape,
+    ['Box', 'Capsule', 'Sphere'] as const,
+    `${path}._shape`,
+  );
   if (shapeType !== 'Box' && shapeType !== 'Sphere' && shapeType !== 'Capsule') {
     throw new Error(`${path}._shape: unsupported value ${JSON.stringify(shapeType)}`);
   }
@@ -723,32 +927,36 @@ function parseIconDurationSource(
   active = true,
 ): { durationSourceType: 'AbilityEntity' | 'TimedMarker'; timedMarkerId: string } {
   const source = requireRecord(value, path);
+  const hasLegacyHints = Object.hasOwn(source, 'm_abilityEntityTypeInfo');
   requireExactFields(
     source,
-    new Set([
-      'm_abilityEntityTypeInfo',
-      'm_timedMarkerInfo',
-      'durationSourceType',
-      'timedMarkerId',
-    ]),
+    hasLegacyHints
+      ? new Set([
+          'm_abilityEntityTypeInfo',
+          'm_timedMarkerInfo',
+          'durationSourceType',
+          'timedMarkerId',
+        ])
+      : new Set(['durationSourceType', 'timedMarkerId']),
     path,
   );
-  requireString(source.m_abilityEntityTypeInfo, `${path}.m_abilityEntityTypeInfo`);
-  requireString(source.m_timedMarkerInfo, `${path}.m_timedMarkerInfo`);
-  if (
-    source.durationSourceType !== 'AbilityEntity' &&
-    source.durationSourceType !== 'TimedMarker'
-  ) {
-    throw new Error(`${path}.durationSourceType: unsupported value`);
+  if (hasLegacyHints) {
+    requireString(source.m_abilityEntityTypeInfo, `${path}.m_abilityEntityTypeInfo`);
+    requireString(source.m_timedMarkerInfo, `${path}.m_timedMarkerInfo`);
   }
+  const durationSourceType = requireNativeEnum(
+    source.durationSourceType,
+    ['AbilityEntity', 'TimedMarker'] as const,
+    `${path}.durationSourceType`,
+  );
   const timedMarkerId = requireString(source.timedMarkerId, `${path}.timedMarkerId`);
   // overrideBuffIconDuration=false 时原生不会读取这份编辑器配置；导出样本可能保留
   // TimedMarker + 空 id 的默认组合。字段形状仍校验，但仅对启用分支施加语义约束。
-  if (active && source.durationSourceType === 'TimedMarker' && timedMarkerId.length === 0)
+  if (active && durationSourceType === 'TimedMarker' && timedMarkerId.length === 0)
     throw new Error(`${path}.timedMarkerId: expected non-empty TimedMarker id`);
-  if (active && source.durationSourceType === 'AbilityEntity' && timedMarkerId.length > 0)
+  if (active && durationSourceType === 'AbilityEntity' && timedMarkerId.length > 0)
     throw new Error(`${path}.timedMarkerId: expected empty AbilityEntity marker id`);
-  return { durationSourceType: source.durationSourceType, timedMarkerId };
+  return { durationSourceType, timedMarkerId };
 }
 
 function parseEmptySequence(value: unknown, path: string): void {

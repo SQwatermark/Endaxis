@@ -99,9 +99,13 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
+  requireNativeEnum,
   requireNonEmptyString,
+  requireNumber,
   requireRecord,
+  requireString,
 } from './primitives.ts';
+import { parseNativeAbilityEventName, type NativeAbilityEventName } from './abilityEvent.ts';
 import {
   parseDebugPrintActionSource,
   parseCameraPresentationActionSource,
@@ -140,6 +144,8 @@ import {
   parseAnimatorAimOffsetActionSource,
   parseTryToTeleportSquadActionSource,
   parseMarkCanDashActionSource,
+  parseTyphoeaTargetSelectionActionSource,
+  parseShowTyphoeaHudHintActionSource,
   type DebugPrintActionSource,
   type CameraPresentationActionSource,
   type EffectActionSource,
@@ -236,7 +242,9 @@ import {
   type ComboPendingActionSource,
 } from './comboPendingActions.ts';
 import {
+  parseSetDamageTagImmuneRuleActionSource,
   parseSetSuperArmorActionSource,
+  type SetDamageTagImmuneRuleActionSource,
   type SetSuperArmorActionSource,
 } from './selfDefenseActions.ts';
 import {
@@ -321,8 +329,10 @@ const CONDITION_ACTION_NAMES = new Set([
   'CompareFloat',
   'CompareString',
   'CheckMainCharacterCondition',
+  'CheckComboSkillPending',
   'CheckProfession',
   'CheckDistanceCondition',
+  'CheckDungeonCategory',
   'CheckEntityNum',
   'CheckBuffStackNum',
   'CheckBuffStackNumAdvanced',
@@ -333,6 +343,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'Probablity',
   'CheckSkillType',
   'CheckSkillId',
+  'CheckSkillInterruptReason',
   'CheckOriginSkillType',
   'CheckObtainAtbType',
   'CheckTargetsEqual',
@@ -341,6 +352,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckObjectTypeMatch',
   'CheckDamageType',
   'CheckDamageTypeMask',
+  'CheckDamageTag',
   'CheckSpellInflictionType',
   'CheckPhysicalInflictionType',
   'CompareDeckAttr',
@@ -452,10 +464,21 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'castingControl'; readonly action: ChannelingCastingActionSource }
   | { readonly family: 'timelineControl'; readonly action: InterruptCurrentSkillActionSource }
   | { readonly family: 'timelineRead'; readonly action: StoreCurrentSkillExecuteFrameActionSource }
+  | {
+      readonly family: 'movementInputRead';
+      readonly action: { readonly kind: 'saveMoveAxisAngle'; readonly key: string };
+    }
+  | {
+      readonly family: 'skillCastInheritance';
+      readonly action: { readonly kind: 'inheritNormalAttackSkillCastInfo' };
+    }
   | { readonly family: 'eventPayload'; readonly action: SaveAtbObtainValueActionSource }
   | { readonly family: 'globalBuff'; readonly action: GlobalBuffActionSource }
   | { readonly family: 'skillSetting'; readonly action: SkillSettingReadActionSource }
-  | { readonly family: 'selfDefense'; readonly action: SetSuperArmorActionSource }
+  | {
+      readonly family: 'selfDefense';
+      readonly action: SetSuperArmorActionSource | SetDamageTagImmuneRuleActionSource;
+    }
   | { readonly family: 'projectileControl'; readonly action: ClearProjectileActionSource }
   | {
       readonly family: 'animationTiming';
@@ -542,6 +565,17 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'interrupt'; readonly action: InterruptActionSource }
   | { readonly family: 'stumpControl'; readonly action: StumpControlActionSource }
   | { readonly family: 'projectile'; readonly action: ProjectileLaunchActionSource }
+  | {
+      readonly family: 'physicsCast';
+      readonly action: {
+        readonly kind: 'physicsCast';
+        readonly hitPositionTargetGroupKey: string;
+        readonly hitDistanceBlackboardKey: string;
+        readonly outputTargetGroupKeys: readonly string[];
+        readonly whenHit: NativeSequenceSource<KnownNativeActionLeafSource>;
+        readonly whenMiss: NativeSequenceSource<KnownNativeActionLeafSource>;
+      };
+    }
   | { readonly family: 'abilityEntity'; readonly action: AbilityEntitySpawnActionSource }
   | {
       readonly family: 'abilityEntityDuration';
@@ -561,7 +595,7 @@ export type KnownNativeActionLeafSource =
       readonly action: {
         readonly kind: 'eventListener';
         readonly events: readonly {
-          readonly abilityEvent: string | number;
+          readonly abilityEvent: NativeAbilityEventName;
           readonly actions: readonly NativeSequenceSource<KnownNativeActionLeafSource>[];
         }[];
       };
@@ -920,6 +954,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'presentation',
         action: parseSetStrafeModeActionSource(value, path),
       };
+    case 'TyphoeaArcheryTargetSelect':
+      return {
+        family: 'presentation',
+        action: parseTyphoeaTargetSelectionActionSource(value, path, inheritedBlackboard),
+      };
     case 'OverrideMultiDashLimit':
       return {
         family: 'presentation',
@@ -1114,10 +1153,10 @@ export function tryParseKnownNativeActionLeafSource(
           const eventPath = `${path}.abilityActionMap[${eventIndex}]`;
           const event = requireRecord(rawEvent, eventPath);
           requireExactFields(event, new Set(['abilityEvent', 'actions']), eventPath);
-          const abilityEvent =
-            typeof event.abilityEvent === 'string'
-              ? requireNonEmptyString(event.abilityEvent, `${eventPath}.abilityEvent`)
-              : requireInteger(event.abilityEvent, `${eventPath}.abilityEvent`);
+          const abilityEvent = parseNativeAbilityEventName(
+            event.abilityEvent,
+            `${eventPath}.abilityEvent`,
+          );
           return {
             abilityEvent,
             actions: requireArray(event.actions, `${eventPath}.actions`).map(
@@ -1225,7 +1264,11 @@ export function tryParseKnownNativeActionLeafSource(
         action:
           scope === 'referenceClosure'
             ? parseAuraReferenceActionSource(value, path)
-            : requireRecord(value, path).auraType === 'RangedAura'
+            : requireNativeEnum(
+                  requireRecord(value, path).auraType,
+                  ['RangedAura', 'GlobalAura'] as const,
+                  `${path}.auraType`,
+                ) === 'RangedAura'
               ? parseDirectRangedAuraActionSource(value, path, (sequence, sequencePath) =>
                   parseKnownNativeActionSequenceSource(sequence, sequencePath, inheritedBlackboard),
                 )
@@ -1342,6 +1385,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'presentation',
         action: parseLiinoUiEventActionSource(value, path, inheritedBlackboard),
       };
+    case 'ShowTyphoeaHudHint':
+      return {
+        family: 'presentation',
+        action: parseShowTyphoeaHudHintActionSource(value, path),
+      };
     case 'ComboAction':
       return {
         family: 'presentation',
@@ -1452,6 +1500,41 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'timelineRead',
         action: parseStoreCurrentSkillExecuteFrameActionSource(value, path),
       };
+    case 'SaveMoveAxisAngle':
+      requireExactFields(
+        action,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'key',
+        ]),
+        path,
+      );
+      return {
+        family: 'movementInputRead',
+        action: {
+          kind: 'saveMoveAxisAngle',
+          key: requireString(action.key, `${path}.key`),
+        },
+      };
+    case 'SetDamageTagImmuneRule':
+      return {
+        family: 'selfDefense',
+        action: parseSetDamageTagImmuneRuleActionSource(value, path),
+      };
+    case 'MarkInheritSkillCastIdOnNormalAttack':
+      requireExactFields(
+        action,
+        new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+        path,
+      );
+      return {
+        family: 'skillCastInheritance',
+        action: { kind: 'inheritNormalAttackSkillCastInfo' },
+      };
     case 'CreateGlobalBuffAction':
       return {
         family: 'globalBuff',
@@ -1494,6 +1577,11 @@ export function tryParseKnownNativeActionLeafSource(
       };
     case 'LaunchProjectile':
       return { family: 'projectile', action: parseProjectileLaunchActionSource(value, path) };
+    case 'PhysicsCastAction':
+      return {
+        family: 'physicsCast',
+        action: parsePhysicsCastActionSource(action, path, inheritedBlackboard),
+      };
     case 'SpawnAbilityEntity':
       return {
         family: 'abilityEntity',
@@ -1514,6 +1602,152 @@ export function tryParseKnownNativeActionLeafSource(
     default:
       return null;
   }
+}
+
+function parsePhysicsCastScalarVector3(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): void {
+  const vector = requireRecord(value, path);
+  requireExactFields(vector, new Set(['x', 'y', 'z']), path);
+  for (const axis of ['x', 'y', 'z'] as const)
+    parseScalarSource(vector[axis], `${path}.${axis}`, inheritedBlackboard);
+}
+
+function parsePhysicsCastActionSource(
+  action: Record<string, unknown>,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): Extract<KnownNativeActionLeafSource, { family: 'physicsCast' }>['action'] {
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'sourceSettings',
+      'targetSettings',
+      'pointDirType',
+      'sourceForwardData',
+      'sourceToTargetData',
+      'maxDistance',
+      'sphereRadius',
+      'layerMask',
+      'queryTriggerInteraction',
+      'hitPositionTargetGroupKey',
+      'hitDistanceBlackboardKey',
+      'needTick',
+      'tickInterval',
+      'stopTickWhenHit',
+      'succeedActions',
+      'failActions',
+    ]),
+    path,
+  );
+  parseTargetReferenceSource(action.sourceSettings, `${path}.sourceSettings`);
+  parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
+  requireInteger(action.pointDirType, `${path}.pointDirType`);
+  parseScalarSource(action.maxDistance, `${path}.maxDistance`, inheritedBlackboard);
+  parseScalarSource(action.sphereRadius, `${path}.sphereRadius`, inheritedBlackboard);
+  const layerMask = requireRecord(action.layerMask, `${path}.layerMask`);
+  requireExactFields(layerMask, new Set(['m_Mask']), `${path}.layerMask`);
+  requireInteger(layerMask.m_Mask, `${path}.layerMask.m_Mask`);
+  requireInteger(action.queryTriggerInteraction, `${path}.queryTriggerInteraction`);
+  requireBoolean(action.needTick, `${path}.needTick`);
+  requireNumber(action.tickInterval, `${path}.tickInterval`);
+  requireBoolean(action.stopTickWhenHit, `${path}.stopTickWhenHit`);
+
+  const sourceForward = requireRecord(action.sourceForwardData, `${path}.sourceForwardData`);
+  requireExactFields(
+    sourceForward,
+    new Set([
+      'mountPoint',
+      'directionSubType',
+      'offsetForwardDirectionType',
+      'startPosOffset',
+      'rayLocalRotationEuler',
+    ]),
+    `${path}.sourceForwardData`,
+  );
+  requireInteger(sourceForward.mountPoint, `${path}.sourceForwardData.mountPoint`);
+  requireInteger(sourceForward.directionSubType, `${path}.sourceForwardData.directionSubType`);
+  requireInteger(
+    sourceForward.offsetForwardDirectionType,
+    `${path}.sourceForwardData.offsetForwardDirectionType`,
+  );
+  parsePhysicsCastScalarVector3(
+    sourceForward.startPosOffset,
+    `${path}.sourceForwardData.startPosOffset`,
+    inheritedBlackboard,
+  );
+  parsePhysicsCastScalarVector3(
+    sourceForward.rayLocalRotationEuler,
+    `${path}.sourceForwardData.rayLocalRotationEuler`,
+    inheritedBlackboard,
+  );
+
+  const sourceToTarget = requireRecord(action.sourceToTargetData, `${path}.sourceToTargetData`);
+  requireExactFields(
+    sourceToTarget,
+    new Set([
+      'sourceMountPoint',
+      'targetMountPoint',
+      'offsetForwardDirectionType',
+      'startPosOffset',
+      'endPosOffset',
+      'rayLocalRotationEuler',
+    ]),
+    `${path}.sourceToTargetData`,
+  );
+  requireInteger(sourceToTarget.sourceMountPoint, `${path}.sourceToTargetData.sourceMountPoint`);
+  requireInteger(sourceToTarget.targetMountPoint, `${path}.sourceToTargetData.targetMountPoint`);
+  requireInteger(
+    sourceToTarget.offsetForwardDirectionType,
+    `${path}.sourceToTargetData.offsetForwardDirectionType`,
+  );
+  for (const field of ['startPosOffset', 'endPosOffset', 'rayLocalRotationEuler'] as const)
+    parsePhysicsCastScalarVector3(
+      sourceToTarget[field],
+      `${path}.sourceToTargetData.${field}`,
+      inheritedBlackboard,
+    );
+
+  const whenHit = parseKnownNativeActionSequenceSource(
+    action.succeedActions,
+    `${path}.succeedActions`,
+    inheritedBlackboard,
+  );
+  const whenMiss = parseKnownNativeActionSequenceSource(
+    action.failActions,
+    `${path}.failActions`,
+    inheritedBlackboard,
+  );
+  const outputTargetGroupKeys = new Set<string>();
+  const hitPositionTargetGroupKey = requireString(
+    action.hitPositionTargetGroupKey,
+    `${path}.hitPositionTargetGroupKey`,
+  );
+  if (hitPositionTargetGroupKey !== '') outputTargetGroupKeys.add(hitPositionTargetGroupKey);
+  for (const sequence of [whenHit, whenMiss]) {
+    for (const node of collectNativeActionNodes(sequence)) {
+      if (node.body.kind === 'leaf' && node.body.value.family === 'targetGroup')
+        outputTargetGroupKeys.add(node.body.value.action.targetGroupKey);
+    }
+  }
+  return {
+    kind: 'physicsCast',
+    hitPositionTargetGroupKey,
+    hitDistanceBlackboardKey: requireString(
+      action.hitDistanceBlackboardKey,
+      `${path}.hitDistanceBlackboardKey`,
+    ),
+    outputTargetGroupKeys: [...outputTargetGroupKeys],
+    whenHit,
+    whenMiss,
+  };
 }
 
 function isPlainTargetReference(

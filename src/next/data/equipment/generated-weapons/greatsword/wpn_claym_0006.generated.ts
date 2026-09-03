@@ -80,6 +80,7 @@ const definition = {
             "iconPath": "/icons/icon_battle_weapon_heal_skill_ready.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
+            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -125,15 +126,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "healthPercent",
           "value": [
-            0.1,
-            0.18,
-            0.26,
-            0.34,
-            0.42,
+            0.10000000149011612,
+            0.18000000715255737,
+            0.25999999046325684,
+            0.3400000035762787,
+            0.41999998688697815,
             0.5,
-            0.58,
-            0.66,
-            0.78
+            0.5799999833106995,
+            0.6600000262260437,
+            0.7799999713897705
           ]
         }
       ]
@@ -146,15 +147,15 @@ const definition = {
           "kind": "staticHealingIncrease",
           "target": "output",
           "value": [
-            0.1,
-            0.12,
-            0.14,
-            0.16,
-            0.18,
-            0.2,
-            0.22,
-            0.24,
-            0.28
+            0.10000000149011612,
+            0.11999999731779099,
+            0.14000000059604645,
+            0.1599999964237213,
+            0.18000000715255737,
+            0.20000000298023224,
+            0.2199999988079071,
+            0.23999999463558197,
+            0.2800000011920929
           ]
         }
       ],

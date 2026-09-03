@@ -579,7 +579,7 @@ describe('registered generated operators', () => {
         frame: 45,
         sourceId: 'track:avywenna:ultimate',
         data: expect.objectContaining({
-          abilityEntityId: 'abilityentity_chr_0012_avywen_ultimate_skill',
+          abilityEntityId: 'abilityentity_chr_0012_avywen_ultimate_skill_lance',
         }),
       }),
     );
@@ -3253,9 +3253,7 @@ describe('registered generated operators', () => {
     });
     scenario.tracks[0] = createTrack('track:perlica:zhuang-combo', perlica.slug);
     scenario.tracks[1] = createTrack('track:zhuang-fangyi:combo', zhuangFangyi.slug);
-    scenario.battle.controlSwitches = [
-      { id: 'switch:zhuang-fangyi', frame: 30, trackIndex: 1 },
-    ];
+    scenario.battle.controlSwitches = [{ id: 'switch:zhuang-fangyi', frame: 30, trackIndex: 1 }];
     let nextId = 0;
     const ids = { allocate: (kind: string) => `${kind}:zhuang-combo:${++nextId}` };
     let placed = placeSkillGroup({
@@ -3339,31 +3337,35 @@ describe('registered generated operators', () => {
       weapon: null,
       gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
       initialState: { ultimateEnergy: 0 },
-      skillCasts: ([
-        ['skillCast:next-sample:6', 'basicAttack1', 11],
-        ['skillCast:next-sample:7', 'basicAttack2', 26],
-        ['skillCast:next-sample:8', 'basicAttack3', 41],
-        ['skillCast:next-sample:9', 'basicAttack4', 67],
-        ['skillCast:next-sample:10', 'basicAttack5', 84],
-      ] as const).map(([id, skillKey, startFrame]): SkillCastDocument => ({
-        id,
-        source: {
-          kind: 'operatorSkill',
-          skillGroupKey: 'basicAttack',
-          skillKey,
-          action: 'basicAttack',
-        },
-        placement: { startFrame },
-      })).concat({
-        id: 'skillCast:next-sample:12',
-        source: {
-          kind: 'operatorSkill' as const,
-          skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill',
-          action: 'comboSkill' as const,
-        },
-        placement: { startFrame: 147 },
-      }),
+      skillCasts: (
+        [
+          ['skillCast:next-sample:6', 'basicAttack1', 11],
+          ['skillCast:next-sample:7', 'basicAttack2', 26],
+          ['skillCast:next-sample:8', 'basicAttack3', 41],
+          ['skillCast:next-sample:9', 'basicAttack4', 67],
+          ['skillCast:next-sample:10', 'basicAttack5', 84],
+        ] as const
+      )
+        .map(([id, skillKey, startFrame]): SkillCastDocument => ({
+          id,
+          source: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'basicAttack',
+            skillKey,
+            action: 'basicAttack',
+          },
+          placement: { startFrame },
+        }))
+        .concat({
+          id: 'skillCast:next-sample:12',
+          source: {
+            kind: 'operatorSkill' as const,
+            skillGroupKey: 'comboSkill',
+            skillKey: 'comboSkill',
+            action: 'comboSkill' as const,
+          },
+          placement: { startFrame: 147 },
+        }),
     };
     scenario.tracks[1] = {
       id: 'track:next-sample:3',
@@ -3430,13 +3432,11 @@ describe('registered generated operators', () => {
       }),
     );
     const opened = result.receiptEntries.find(
-      entry =>
-        entry.event === 'ComboWindowOpened' && entry.sourceId === 'track:next-sample:2',
+      entry => entry.event === 'ComboWindowOpened' && entry.sourceId === 'track:next-sample:2',
     );
     expect(opened?.frame).toBe(103);
     const consumed = result.receiptEntries.find(
-      entry =>
-        entry.event === 'ComboWindowConsumed' && entry.sourceId === 'track:next-sample:2',
+      entry => entry.event === 'ComboWindowConsumed' && entry.sourceId === 'track:next-sample:2',
     );
     expect(consumed?.frame).toBe(147);
   });

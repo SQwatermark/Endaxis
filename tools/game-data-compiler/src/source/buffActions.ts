@@ -2,10 +2,29 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
+  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
   requireString,
 } from './primitives.ts';
+
+const NATIVE_ACTION_TARGET_TYPES = [
+  'ActionSource',
+  'ActionOwner',
+  'InputTarget',
+  'CurrentTarget',
+  'ContextTarget',
+  'MainCharacter',
+] as const;
+const NATIVE_BUFF_IGNITE_TYPES = new Map([
+  [1, 'PhysicalStatus'],
+  [2, 'EnergyShardByFire'],
+  [3, 'EnergyShardByPulse'],
+  [4, 'EnergyShardByCryst'],
+  [5, 'EnergyShardByNatural'],
+  [6, 'EndminUlt'],
+  [7, 'NoGuard'],
+] as const);
 import {
   parseBlackboardAssignmentsSource,
   type BlackboardAssignmentSource,
@@ -50,7 +69,11 @@ export function parseBuffIgniteActionSource(value: unknown, path: string): BuffI
     kind: 'buffIgnite',
     source: parseTargetReferenceSource(action.igniteSource, `${path}.igniteSource`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    igniteType: requireNonEmptyString(action.igniteType, `${path}.igniteType`),
+    igniteType: requireNativeEnum(
+      action.igniteType,
+      NATIVE_BUFF_IGNITE_TYPES,
+      `${path}.igniteType`,
+    ),
     successTargetContextKey: requireString(
       action.successTargetContextKey,
       `${path}.successTargetContextKey`,
@@ -226,7 +249,11 @@ export function parseBuffApplicationActionSource(
     buffs: parseBuffEntries(action.buffs, `${path}.buffs`),
     count: parseScalarSource(action.count, `${path}.count`, inheritedBlackboard),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    buffSource: requireNonEmptyString(action.buffSource, `${path}.buffSource`),
+    buffSource: requireNativeEnum(
+      action.buffSource,
+      NATIVE_ACTION_TARGET_TYPES,
+      `${path}.buffSource`,
+    ),
     contextKey: requireString(action.contextKey, `${path}.contextKey`),
     autoFinishByAction: requireBoolean(action.autoFinishByAction, `${path}.autoFinishByAction`),
     inheritSkillIds: requireArray(action.inheritSkillIdList, `${path}.inheritSkillIdList`).map(
@@ -363,7 +390,11 @@ export function parseBuffFindSettingsSource(value: unknown, path: string): BuffF
   const settings = requireRecord(value, path);
   requireExactFields(settings, new Set(['checkType', 'buffIdList', 'tagQuery']), path);
   return {
-    checkType: requireNonEmptyString(settings.checkType, `${path}.checkType`),
+    checkType: requireNativeEnum(
+      settings.checkType,
+      ['Id', 'Tag', 'Environment', 'Context'] as const,
+      `${path}.checkType`,
+    ),
     buffIds: requireArray(settings.buffIdList, `${path}.buffIdList`).map((item, index) =>
       requireString(item, `${path}.buffIdList[${index}]`),
     ),
@@ -397,22 +428,28 @@ function parseBuffEntries(value: unknown, path: string): BuffApplicationEntrySou
 
 function parseBuffIconDuration(value: unknown, path: string): BuffIconDurationSource {
   const source = requireRecord(value, path);
+  const hasLegacyHints = Object.hasOwn(source, 'm_abilityEntityTypeInfo');
   requireExactFields(
     source,
-    new Set([
-      'm_abilityEntityTypeInfo',
-      'm_timedMarkerInfo',
-      'durationSourceType',
-      'timedMarkerId',
-    ]),
+    hasLegacyHints
+      ? new Set([
+          'm_abilityEntityTypeInfo',
+          'm_timedMarkerInfo',
+          'durationSourceType',
+          'timedMarkerId',
+        ])
+      : new Set(['durationSourceType', 'timedMarkerId']),
     path,
   );
   // 两个 m_ 字段是原生编辑器说明文本，不进入战斗 IR，但仍校验其序列化类型。
-  requireString(source.m_abilityEntityTypeInfo, `${path}.m_abilityEntityTypeInfo`);
-  requireString(source.m_timedMarkerInfo, `${path}.m_timedMarkerInfo`);
+  if (hasLegacyHints) {
+    requireString(source.m_abilityEntityTypeInfo, `${path}.m_abilityEntityTypeInfo`);
+    requireString(source.m_timedMarkerInfo, `${path}.m_timedMarkerInfo`);
+  }
   return {
-    durationSourceType: requireNonEmptyString(
+    durationSourceType: requireNativeEnum(
       source.durationSourceType,
+      ['AbilityEntity', 'TimedMarker'] as const,
       `${path}.durationSourceType`,
     ),
     timedMarkerId: requireString(source.timedMarkerId, `${path}.timedMarkerId`),

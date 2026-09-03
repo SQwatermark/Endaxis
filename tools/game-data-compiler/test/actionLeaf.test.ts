@@ -63,6 +63,25 @@ function rayCastEffectFixture(overrides: Record<string, unknown> = {}) {
 }
 
 describe('公共 Action 叶子分派', () => {
+  it('严格解析普通攻击来源施法继承标记', () => {
+    const action = {
+      ...META,
+      priorityLevel: 0,
+      $type: 'Beyond.Gameplay.Core.MarkInheritSkillCastIdOnNormalAttack.Data',
+    };
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.inheritNormalAttack', {})).toEqual({
+      family: 'skillCastInheritance',
+      action: { kind: 'inheritNormalAttackSkillCastInfo' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...action, guessedField: true },
+        'fixture.inheritNormalAttack.changed',
+        {},
+      ),
+    ).toThrow('unexpected fields');
+  });
+
   it('保留 RayCastEffectAction 写出的命中目标组与位置组', () => {
     expect(
       parseKnownNativeActionLeafSource(rayCastEffectFixture(), 'fixture.ray', {}),

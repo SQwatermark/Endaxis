@@ -7,6 +7,10 @@
 const OMITTED_CASTER_BUFF_ABILITY_EVENT_REASONS: Readonly<Record<string, string>> = {
   OnCharBeforeTakeSpellInfliction:
     'the fixed passive-enemy scenario has no incoming operator spell-infliction source or external marker',
+  OnAfterCharacterTakeBlowOff:
+    'the fixed passive-enemy scenario has no incoming character blow-off source or external marker',
+  OnSkillInterrupted:
+    'timeline skill transitions only produce CastNextSkill interruption, which this native cleanup listener explicitly excludes',
   OnOwnerHpZero:
     'operator HP cannot reach zero without player damage in the fixed passive-enemy scenario',
   OnOwnerDead:
@@ -26,11 +30,14 @@ export function standardStumpBuffAbilityEventOmissionReason(
   event: string | number,
   owner?: 'caster' | 'enemy' | 'currentAbilityEntity',
 ): string | null {
-  if (event === 'OnTrulyExitFight')
+  const nativeEvent =
+    typeof event === 'number'
+      ? nativeAbilityEventName(event, 'buff ability event omission policy')
+      : event;
+  if (nativeEvent === 'OnTrulyExitFight')
     return 'fixed timeline does not leave combat before the simulation ends';
-  if (typeof event !== 'string') return null;
-  if (owner === 'caster') return OMITTED_CASTER_BUFF_ABILITY_EVENT_REASONS[event] ?? null;
-  if (owner === 'enemy') return OMITTED_ENEMY_BUFF_ABILITY_EVENT_REASONS[event] ?? null;
+  if (owner === 'caster') return OMITTED_CASTER_BUFF_ABILITY_EVENT_REASONS[nativeEvent] ?? null;
+  if (owner === 'enemy') return OMITTED_ENEMY_BUFF_ABILITY_EVENT_REASONS[nativeEvent] ?? null;
   return null;
 }
 
@@ -56,3 +63,4 @@ export function evaluateStandardStumpFullHealthComparison(
       throw new Error(`unsupported current HP ratio comparison ${JSON.stringify(comparison)}`);
   }
 }
+import { nativeAbilityEventName } from './abilityEventProjection.ts';

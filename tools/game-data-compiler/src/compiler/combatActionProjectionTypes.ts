@@ -46,6 +46,7 @@ export type CompiledBuffConditionSource =
   | Condition<'constant'>
   | Condition<
       | 'casterControlled'
+      | 'pendingComboSkillPresent'
       | 'characterTypeIn'
       | 'operatorRoleIn'
       | 'currentBuffStackCompare'
@@ -62,6 +63,7 @@ export type CompiledBuffConditionSource =
       | 'contextTargetBuffIdStackCompare'
       | 'abilityEntityRemainingDurationCompare'
       | 'actionValueCompare'
+      | 'buffBlackboardCompare'
       | 'eventOverheal'
       | 'eventSkillCastMatchesBuffSource'
       | 'eventSkillIdIn'
@@ -89,25 +91,25 @@ export type CompiledBuffConditionSource =
       readonly target:
         'caster' | 'controlledOperator' | 'contextTarget' | 'currentTarget' | 'enemy';
     })
-  | Condition<'eventDamageTagsMatch' | 'eventDamageFeaturesMatch'>
+  | Condition<'eventDamageTagsMatch' | 'eventDamageGameplayTagsMatch' | 'eventDamageFeaturesMatch'>
   | (Condition<'eventSpGainMatch'> & {
       readonly sources?: readonly ['skill'];
       readonly gainKinds?: readonly ['gain'];
     })
   | (Condition<'eventSkillTypeIn'> & {
       readonly skillTypes: readonly (
-        'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'
+        'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'finisher'
       )[];
     })
   | (Condition<'currentSkillTypeIn'> & {
       readonly target: 'caster' | 'buffOwner';
       readonly skillTypes: readonly (
-        'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'
+        'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'finisher'
       )[];
     })
   | (Condition<'originSkillTypeIn'> & {
       readonly skillTypes: readonly (
-        'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'
+        'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'finisher'
       )[];
     })
   | (Condition<'timedMarkerPresent'> & { readonly target: MarkerTarget })
@@ -180,6 +182,7 @@ type DamageParameters = Pick<
   | 'calculationAttribute'
   | 'calculationAddition'
   | 'tags'
+  | 'gameplayTags'
   | 'features'
   | 'stagger'
   | 'staggerMultiplier'
@@ -206,6 +209,10 @@ type DamageParameters = Pick<
     | 'normalSkill'
     | 'ultimateSkill'
     | 'comboSkill'
+    | 'fireBurst'
+    | 'cryoBurst'
+    | 'electricBurst'
+    | 'natureBurst'
     | 'fireAbnormal'
     | 'cryoAbnormal'
   )[];
@@ -301,6 +308,7 @@ export type CompiledBuffStepSource =
           Parameters<'spawnAbilityEntity'>,
           | 'childSkillId'
           | 'inheritActionBlackboard'
+          | 'inheritSourceSkillCastInfo'
           | 'target'
           | 'overrideDurationSeconds'
           | 'saveToContextKey'
@@ -311,6 +319,7 @@ export type CompiledBuffStepSource =
   | Step<'setAbilityEntityRemainingDuration'>
   | Step<'finishCurrentAbilityEntity'>
   | Step<'finishActionOwnerAbilityEntity'>
+  | Step<'inheritNormalAttackSkillCastInfo'>
   | Step<
       'jumpTimeline',
       Pick<Parameters<'jumpTimeline'>, 'destinationFrame'> & {
@@ -380,12 +389,7 @@ export type CompiledBuffStepSource =
     >
   | Step<'readEventBuffBlackboard'>
   | Step<'readBuffBlackboard'>
-  | Step<
-      'modifyActionValue',
-      Parameters<'modifyActionValue'> & {
-        readonly operation: 'assign' | 'add' | 'multiply' | 'divide';
-      }
-    >
+  | Step<'modifyActionValue'>
   | Step<
       'storeSourceAttributeValue',
       Parameters<'storeSourceAttributeValue'> & {

@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'attackPercent',
-      value: 0.08,
+      value: 0.07999999821186066,
     },
   ],
   buffDefinitions: {
@@ -123,6 +123,7 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -162,9 +163,7 @@ const definition = {
     buff_equipsuit_poisedmg_01_damagebuff: {
       stackingType: 'enhanceAndRefresh',
       priority: 0,
-      maxStackCount: {
-        blackboardKey: 'max_stack',
-      },
+      maxStackCount: 4,
       durationSeconds: {
         blackboardKey: 'duration',
       },
@@ -174,6 +173,7 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -222,11 +222,11 @@ const definition = {
           blackboardAssignments: {
             atk_up: {
               kind: 'constant',
-              value: 0.08,
+              value: 0.07999999821186066,
             },
             phy_dmg_up: {
               kind: 'constant',
-              value: 0.08,
+              value: 0.07999999821186066,
             },
             duration: {
               kind: 'constant',
@@ -238,7 +238,7 @@ const definition = {
             },
             phy_dmg_up2: {
               kind: 'constant',
-              value: 0.16,
+              value: 0.1599999964237213,
             },
             duration2: {
               kind: 'constant',

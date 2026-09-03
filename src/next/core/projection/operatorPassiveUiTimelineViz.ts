@@ -35,6 +35,21 @@ export type OperatorPassiveUiTimelineSegment =
       readonly mode: 'normal' | 'ultimate';
       readonly buffId: string;
       readonly instanceId: number;
+    }
+  | {
+      readonly kind: 'buffCounter';
+      readonly appearance: Extract<
+        OperatorPassiveUiDefinition,
+        { kind: 'buffCounters' }
+      >['appearance'];
+      readonly operatorId: string;
+      readonly startFrame: number;
+      readonly endFrame: number;
+      readonly counterKey: string;
+      readonly buffId: string;
+      readonly instanceId: number;
+      readonly value: number;
+      readonly maximum: number;
     };
 
 export type PositionedOperatorPassiveUiTimelineSegment = OperatorPassiveUiTimelineSegment & {
@@ -159,6 +174,72 @@ function projectBuffProgressSegments(
   return segments;
 }
 
+function projectBuffCounterSegments(
+  entries: readonly CombatReceiptEntry[],
+  endFrame: number,
+  source: OperatorPassiveUiTimelineSource & {
+    readonly definition: Extract<OperatorPassiveUiDefinition, { readonly kind: 'buffCounters' }>;
+  },
+): readonly OperatorPassiveUiTimelineSegment[] {
+  type OpenSegment = Extract<OperatorPassiveUiTimelineSegment, { readonly kind: 'buffCounter' }>;
+  const segments: OperatorPassiveUiTimelineSegment[] = [];
+  for (const counter of source.definition.counters) {
+    let open: OpenSegment | null = null;
+    const close = (frame: number): void => {
+      if (open !== null && frame > open.startFrame) segments.push({ ...open, endFrame: frame });
+      open = null;
+    };
+    for (const entry of entries) {
+      if (entry.frame > endFrame || entry.targetId !== source.operatorId) continue;
+      const buffId = stringData(entry.data, 'buffId');
+      const instanceId = numberData(entry.data, 'instanceId');
+      if (buffId === undefined || instanceId === undefined || !counter.buffIds.includes(buffId)) {
+        continue;
+      }
+      const active = open as OpenSegment | null;
+      if (entry.event === 'BuffApplied') {
+        close(entry.frame);
+        open = {
+          kind: 'buffCounter',
+          appearance: source.definition.appearance,
+          operatorId: source.operatorId,
+          startFrame: entry.frame,
+          endFrame,
+          counterKey: counter.key,
+          buffId,
+          instanceId,
+          value: Math.min(
+            counter.maximum,
+            Math.max(0, Math.round(numberData(entry.data, 'layers') ?? 1)),
+          ),
+          maximum: counter.maximum,
+        };
+      } else if (entry.event === 'BuffEnhanceChanged' && active?.instanceId === instanceId) {
+        const value = numberData(entry.data, 'layers');
+        if (value !== undefined && value !== active.value) {
+          close(entry.frame);
+          open = {
+            kind: 'buffCounter',
+            appearance: source.definition.appearance,
+            operatorId: source.operatorId,
+            startFrame: entry.frame,
+            endFrame,
+            counterKey: counter.key,
+            buffId,
+            instanceId,
+            value: Math.min(counter.maximum, Math.max(0, Math.round(value))),
+            maximum: counter.maximum,
+          };
+        }
+      } else if (entry.event === 'BuffFinished' && active?.instanceId === instanceId) {
+        close(entry.frame);
+      }
+    }
+    close(endFrame);
+  }
+  return segments;
+}
+
 export function projectOperatorPassiveUiTimelineViz(
   entries: readonly CombatReceiptEntry[],
   endFrame: number,
@@ -173,10 +254,15 @@ export function projectOperatorPassiveUiTimelineViz(
           ...source,
           definition: source.definition,
         })
-      : projectBuffProgressSegments(entries, endFrame, {
-          ...source,
-          definition: source.definition,
-        }),
+      : source.definition.kind === 'buffProgress'
+        ? projectBuffProgressSegments(entries, endFrame, {
+            ...source,
+            definition: source.definition,
+          })
+        : projectBuffCounterSegments(entries, endFrame, {
+            ...source,
+            definition: source.definition,
+          }),
   );
 }
 

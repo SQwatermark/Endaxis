@@ -230,6 +230,7 @@ describe('原生查询 → Context → 逐能力实体动作的公共投影', ()
                   dieWhenSourceDies: false,
                   forceSyncInit: false,
                   dieOnEnd: false,
+                  allowMultipleInputTargets: false,
                 },
               },
             },
@@ -423,7 +424,8 @@ describe('原生查询 → Context → 逐能力实体动作的公共投影', ()
       excludesOwner: false,
       priorityFilters: [
         {
-          filterType: 'DistanceFromCenterAsc',
+          filterType: 'DistanceFromCenterAsc' as const,
+          processTargetType: 'Targets' as const,
           onlyReserveMaxPriorityTargets: false,
           limitMaxNum: true,
           maxNum: 1,

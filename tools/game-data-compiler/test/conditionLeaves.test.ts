@@ -11,6 +11,23 @@ const CONDITION_META = {
 } as const;
 
 describe('公共条件叶子 IR', () => {
+  it('严格保留 CheckDamageTag 的四态查询与原生标签 ID', () => {
+    expect(
+      parseConditionLeafSource(
+        condition('CheckDamageTag', {
+          queryType: 0,
+          tags: [{ tagId: 1208750764 }, { tagId: 959424907 }],
+        }),
+        'fixture.damageTag',
+        {},
+      ),
+    ).toMatchObject({
+      kind: 'damageGameplayTag',
+      queryType: 'hasAny',
+      tagIds: [1208750764, 959424907],
+    });
+  });
+
   it('严格保留 OnObtainAtb 的获取类型与方式筛选', () => {
     expect(
       parseConditionLeafSource(

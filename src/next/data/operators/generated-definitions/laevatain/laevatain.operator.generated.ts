@@ -54,7 +54,7 @@ export const laevatainBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.033 },
+                durationSeconds: { kind: 'constant', value: 0.0329999998211861 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -73,7 +73,14 @@ export const laevatainBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.159999996423721, 0.180000007152557, 0.189999997615814, 0.209999993443489, 0.219999998807907,
+      0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535, 0.310000002384186,
+      0.330000013113022, 0.360000014305115,
+    ],
+  },
 );
 
 export const laevatainBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -156,7 +163,7 @@ export const laevatainBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.08 },
+                durationSeconds: { kind: 'constant', value: 0.0799999982118607 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -177,8 +184,16 @@ export const laevatainBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.12, 0.13, 0.14, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25, 0.27],
-    display_atk_scale: [0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54],
+    atk_scale: [
+      0.119999997317791, 0.129999995231628, 0.140000000596046, 0.159999996423721, 0.170000001788139,
+      0.180000007152557, 0.189999997615814, 0.200000002980232, 0.219999998807907, 0.230000004172325,
+      0.25, 0.270000010728836,
+    ],
+    display_atk_scale: [
+      0.239999994635582, 0.259999990463257, 0.28999999165535, 0.310000002384186, 0.340000003576279,
+      0.360000014305115, 0.379999995231628, 0.409999996423721, 0.430000007152557, 0.46000000834465,
+      0.5, 0.540000021457672,
+    ],
   },
 );
 
@@ -229,7 +244,7 @@ export const laevatainBasicAttack3: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.05 },
+                durationSeconds: { kind: 'constant', value: 0.0500000007450581 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -248,7 +263,14 @@ export const laevatainBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.25, 0.280000001192093, 0.300000011920929, 0.330000013113022, 0.349999994039536,
+      0.379999995231628, 0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164,
+      0.519999980926514, 0.560000002384186,
+    ],
+  },
 );
 
 export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -293,7 +315,7 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0016_laevat_attack4:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0',
+                    'chr_0016_laevat_attack4:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                 ),
                 undefined,
@@ -326,7 +348,7 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                     },
-                    'chr_0016_laevat_attack4:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0/whenTrue/steps/0',
+                    'chr_0016_laevat_attack4:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                 ),
                 undefined,
@@ -356,7 +378,7 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.05 },
+                durationSeconds: { kind: 'constant', value: 0.0500000007450581 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -390,8 +412,16 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.13, 0.14, 0.16, 0.17, 0.18, 0.2, 0.21, 0.22, 0.23, 0.25, 0.27, 0.29],
-    display_atk_scale: [0.39, 0.43, 0.47, 0.51, 0.55, 0.59, 0.62, 0.66, 0.7, 0.75, 0.81, 0.88],
+    atk_scale: [
+      0.129999995231628, 0.140000000596046, 0.159999996423721, 0.170000001788139, 0.180000007152557,
+      0.200000002980232, 0.209999993443489, 0.219999998807907, 0.230000004172325, 0.25,
+      0.270000010728836, 0.28999999165535,
+    ],
+    display_atk_scale: [
+      0.389999985694885, 0.430000007152557, 0.469999998807907, 0.509999990463257, 0.550000011920929,
+      0.589999973773956, 0.620000004768372, 0.660000026226044, 0.699999988079071, 0.75,
+      0.810000002384186, 0.879999995231628,
+    ],
   },
 );
 
@@ -435,9 +465,9 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -489,7 +519,7 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.2 },
+                        durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: { kind: 'named', key: 'char_normal_attack' },
@@ -521,9 +551,9 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -537,10 +567,18 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 20,
-    atk_scale: [0.27, 0.29, 0.32, 0.34, 0.37, 0.4, 0.42, 0.45, 0.48, 0.51, 0.55, 0.6],
+    atk_scale: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.340000003576279, 0.370000004768372,
+      0.400000005960464, 0.419999986886978, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
     count: 0,
     poise: 18,
-    display_atk_scale: [0.53, 0.58, 0.64, 0.69, 0.74, 0.8, 0.85, 0.9, 0.95, 1.02, 1.1, 1.19],
+    display_atk_scale: [
+      0.529999971389771, 0.579999983310699, 0.639999985694885, 0.689999997615814, 0.740000009536743,
+      0.800000011920929, 0.850000023841858, 0.899999976158142, 0.949999988079071, 1.01999998092651,
+      1.10000002384186, 1.19000005722046,
+    ],
   },
 );
 
@@ -615,7 +653,7 @@ export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
                           }),
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.05 },
+                            durationSeconds: { kind: 'constant', value: 0.0500000007450581 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -647,9 +685,9 @@ export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -663,7 +701,11 @@ export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.65, 0.71, 0.78, 0.84, 0.91, 0.97, 1.04, 1.1, 1.17, 1.25, 1.34, 1.46],
+    atk_scale: [
+      0.649999976158142, 0.709999978542328, 0.779999971389771, 0.839999973773956, 0.910000026226044,
+      0.970000028610229, 1.03999996185303, 1.10000002384186, 1.16999995708466, 1.25,
+      1.3400000333786, 1.46000003814697,
+    ],
     ratio: 1,
     stopped: 0,
   },
@@ -740,7 +782,7 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
                           }),
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.05 },
+                            durationSeconds: { kind: 'constant', value: 0.0500000007450581 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -772,9 +814,9 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -821,7 +863,7 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
                           }),
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.05 },
+                            durationSeconds: { kind: 'constant', value: 0.0500000007450581 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -853,9 +895,9 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -869,11 +911,19 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91],
+    atk_scale: [
+      0.409999996423721, 0.449999988079071, 0.490000009536743, 0.529999971389771, 0.569999992847443,
+      0.610000014305115, 0.649999976158142, 0.689999997615814, 0.730000019073486, 0.779999971389771,
+      0.839999973773956, 0.910000026226044,
+    ],
     ratio: 1,
     stopped1: 0,
     stopped2: 0,
-    display_atk_scale: [0.81, 0.89, 0.97, 1.05, 1.13, 1.22, 1.3, 1.38, 1.46, 1.56, 1.68, 1.82],
+    display_atk_scale: [
+      0.810000002384186, 0.889999985694885, 0.970000028610229, 1.04999995231628, 1.12999999523163,
+      1.22000002861023, 1.29999995231628, 1.37999999523163, 1.46000003814697, 1.55999994277954,
+      1.67999994754791, 1.82000005245209,
+    ],
   },
 );
 
@@ -949,7 +999,7 @@ export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
                           }),
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.12 },
+                            durationSeconds: { kind: 'constant', value: 0.119999997317791 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -981,9 +1031,9 @@ export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -997,7 +1047,11 @@ export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [1.15, 1.27, 1.39, 1.5, 1.62, 1.73, 1.85, 1.96, 2.08, 2.22, 2.4, 2.6],
+    atk_scale: [
+      1.14999997615814, 1.26999998092651, 1.38999998569489, 1.5, 1.62000000476837, 1.73000001907349,
+      1.85000002384186, 1.96000003814697, 2.07999992370605, 2.22000002861023, 2.40000009536743,
+      2.59999990463257,
+    ],
     ratio: 1,
     stopped: 0,
   },
@@ -1052,9 +1106,9 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1076,34 +1130,6 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
                   staggerOnlyWhenCasterControlled: true,
                 },
                 'chr_0016_laevat_ult_attack4:/scheduledSequences/1/sequence/steps/0/body/steps/0',
-              ),
-              branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit' },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                  ],
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'hit',
-                    operation: 'assign',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
               ),
               branch(
                 { kind: 'casterControlled' },
@@ -1163,9 +1189,9 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1179,12 +1205,20 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 22,
-    atk_scale: [1.01, 1.11, 1.22, 1.32, 1.42, 1.52, 1.62, 1.72, 1.82, 1.95, 2.1, 2.28],
+    atk_scale: [
+      1.00999999046326, 1.11000001430511, 1.22000002861023, 1.32000005245209, 1.41999995708466,
+      1.51999998092651, 1.62000000476837, 1.72000002861023, 1.82000005245209, 1.95000004768372,
+      2.09999990463257, 2.27999997138977,
+    ],
     hit: 0,
     poise: 24,
     ratio: 1,
     stopped: 0,
-    display_atk_scale: [2.03, 2.23, 2.43, 2.63, 2.84, 3.04, 3.24, 3.44, 3.65, 3.9, 4.2, 4.56],
+    display_atk_scale: [
+      2.02999997138977, 2.23000001907349, 2.4300000667572, 2.63000011444092, 2.83999991416931,
+      3.03999996185303, 3.24000000953674, 3.44000005722046, 3.65000009536743, 3.90000009536743,
+      4.19999980926514, 4.55999994277954,
+    ],
   },
 );
 
@@ -1215,7 +1249,7 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'heat',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.2,
+              calculationMultiplier: 0.200000002980232,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0016_laevat_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -1225,7 +1259,7 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1256,7 +1290,7 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'heat',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.8,
+              calculationMultiplier: 0.800000011920929,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0016_laevat_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -1269,7 +1303,7 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.45 },
+            durationSeconds: { kind: 'constant', value: 0.449999988079071 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1278,26 +1312,26 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
                 {
                   time: 0,
                   value: 1,
-                  inTangent: -2.315953,
-                  outTangent: -2.315953,
+                  inTangent: -2.31595301628113,
+                  outTangent: -2.31595301628113,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.3436488,
-                  value: 0.2041256,
-                  inTangent: -0.6439322,
-                  outTangent: 0.0176236,
+                  time: 0.343648791313171,
+                  value: 0.204125598073006,
+                  inTangent: -0.643932223320007,
+                  outTangent: 0.0176235996186733,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.8204471,
-                  value: 0.3652225,
-                  inTangent: 0.4345389,
-                  outTangent: 2.729132,
+                  time: 0.820447087287903,
+                  value: 0.36522251367569,
+                  inTangent: 0.434538900852203,
+                  outTangent: 2.72913193702698,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1305,8 +1339,8 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 3.535323,
-                  outTangent: 3.535323,
+                  inTangent: 3.53532290458679,
+                  outTangent: 3.53532290458679,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1349,7 +1383,10 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'breakingAttack',
   },
   {
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     extra_dmg: 1,
@@ -1407,7 +1444,14 @@ export const laevatainPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -1471,6 +1515,7 @@ export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0016_laevat_normal_skill',
             childSkillId: 'chr_0016_laevat_normal_skill_abilityentity',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             saveToContextKey: 'ball',
           }),
@@ -1485,7 +1530,6 @@ export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
             operation: 'multiply',
             value: { kind: 'blackboard', key: 'ratio' },
           }),
-          forEachContextTarget('ball', sequence(step('finishCurrentAbilityEntity', {}))),
           step('finishBuffsById', {
             target: 'caster',
             buffIds: ['buff_chr_0016_laevat_energy'],
@@ -1536,11 +1580,11 @@ export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise_extra' },
                 },
-                'chr_0016_laevat_normal_skill:/scheduledSequences/5/sequence/steps/3/body/steps/3',
+                'chr_0016_laevat_normal_skill:/scheduledSequences/5/sequence/steps/2/body/steps/3',
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.35 },
+                durationSeconds: { kind: 'constant', value: 0.349999994039536 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1567,14 +1611,19 @@ export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
         ),
         105,
+      ),
+      scheduled(
+        105,
+        sequence(forEachContextTarget('ball', sequence(step('finishCurrentAbilityEntity', {})))),
+        109,
       ),
     ],
     costs: [{ resource: 'sp', value: 100 }],
@@ -1584,9 +1633,21 @@ export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.62, 0.68, 0.75, 0.81, 0.87, 0.93, 0.99, 1.06, 1.12, 1.2, 1.29, 1.4],
-    atk_scale_2: [0.06, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14],
-    atk_scale_3: [3.42, 3.76, 4.1, 4.45, 4.79, 5.13, 5.47, 5.81, 6.16, 6.58, 7.1, 7.7],
+    atk_scale: [
+      0.620000004768372, 0.680000007152557, 0.75, 0.810000002384186, 0.870000004768372,
+      0.930000007152557, 0.990000009536743, 1.05999994277954, 1.12000000476837, 1.20000004768372,
+      1.28999996185303, 1.39999997615814,
+    ],
+    atk_scale_2: [
+      0.0599999986588955, 0.0700000002980232, 0.0799999982118607, 0.0799999982118607,
+      0.0900000035762787, 0.0900000035762787, 0.100000001490116, 0.109999999403954,
+      0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046,
+    ],
+    atk_scale_3: [
+      3.42000007629395, 3.75999999046326, 4.09999990463257, 4.44999980926514, 4.78999996185303,
+      5.13000011444092, 5.46999979019165, 5.80999994277954, 6.15999984741211, 6.57999992370605,
+      7.09999990463257, 7.69999980926514,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     consumed_fire_count: 0,
@@ -1672,35 +1733,6 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
         sequence(
           repeatEachTick(
             sequence(
-              branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'enemy',
-                      buffIds: ['buff_common_energy_shard_attached_fire'],
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 1 },
-                    },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'triggered_burning' },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                  ],
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'triggered_burning',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
               step(
                 'dealDamage',
                 {
@@ -1710,11 +1742,11 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise' },
                 },
-                'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/4/sequence/steps/0/body/steps/1',
+                'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/4/sequence/steps/0/body/steps/0',
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1746,9 +1778,9 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1760,35 +1792,6 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
         sequence(
           repeatEachTick(
             sequence(
-              branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'enemy',
-                      buffIds: ['buff_common_energy_shard_attached_fire'],
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 1 },
-                    },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'triggered_burning' },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                  ],
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'triggered_burning',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
               step(
                 'dealDamage',
                 {
@@ -1798,7 +1801,7 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise' },
                 },
-                'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/5/sequence/steps/0/body/steps/1',
+                'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/5/sequence/steps/0/body/steps/0',
               ),
               step('startTimeDilation', {
                 scope: 'entity',
@@ -1829,9 +1832,9 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1908,7 +1911,7 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.65 },
+                    durationSeconds: { kind: 'constant', value: 0.649999976158142 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1921,9 +1924,9 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1950,9 +1953,20 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
   },
   {
     atb: 0,
-    atk_scale: [1.47, 1.61, 1.76, 1.91, 2.05, 2.2, 2.35, 2.49, 2.64, 2.82, 3.04, 3.3],
-    atk_scale_2: [1.64, 1.81, 1.97, 2.14, 2.3, 2.47, 2.63, 2.79, 2.96, 3.16, 3.41, 3.7],
-    atk_scale_3: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+    atk_scale: [
+      1.47000002861023, 1.61000001430511, 1.75999999046326, 1.9099999666214, 2.04999995231628,
+      2.20000004768372, 2.34999990463257, 2.49000000953674, 2.64000010490417, 2.8199999332428,
+      3.03999996185303, 3.29999995231628,
+    ],
+    atk_scale_2: [
+      1.63999998569489, 1.80999994277954, 1.97000002861023, 2.14000010490417, 2.29999995231628,
+      2.47000002861023, 2.63000011444092, 2.78999996185303, 2.96000003814697, 3.16000008583069,
+      3.41000008583069, 3.70000004768372,
+    ],
+    atk_scale_3: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     consumed_fire_count: 0,
@@ -2077,7 +2091,11 @@ export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
   },
   {
     angle: 120,
-    atk_scale: [2.7, 2.97, 3.24, 3.51, 3.78, 4.05, 4.32, 4.59, 4.86, 5.2, 5.6, 6.08],
+    atk_scale: [
+      2.70000004768372, 2.97000002861023, 3.24000000953674, 3.50999999046326, 3.77999997138977,
+      4.05000019073486, 4.32000017166138, 4.59000015258789, 4.8600001335144, 5.19999980926514,
+      5.59999990463257, 6.07999992370605,
+    ],
     height: 4,
     radius: 5,
     count: 4,
@@ -2148,7 +2166,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                         blackboardAssignments: {
                           atk_scale: { kind: 'blackboard', key: 'atk_scale' },
                           poise: { kind: 'blackboard', key: 'poise' },
-                          trigger: { kind: 'constant', value: 0.7 },
+                          trigger: { kind: 'constant', value: 0.699999988079071 },
                         },
                       }),
                     ),
@@ -2163,7 +2181,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                         blackboardAssignments: {
                           atk_scale: { kind: 'blackboard', key: 'atk_scale' },
                           poise: { kind: 'blackboard', key: 'poise' },
-                          trigger: { kind: 'constant', value: 0.65 },
+                          trigger: { kind: 'constant', value: 0.649999976158142 },
                         },
                       }),
                     ),
@@ -2178,7 +2196,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                         blackboardAssignments: {
                           atk_scale: { kind: 'blackboard', key: 'atk_scale' },
                           poise: { kind: 'blackboard', key: 'poise' },
-                          trigger: { kind: 'constant', value: 0.6 },
+                          trigger: { kind: 'constant', value: 0.600000023841858 },
                         },
                       }),
                     ),
@@ -2193,7 +2211,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                         blackboardAssignments: {
                           atk_scale: { kind: 'blackboard', key: 'atk_scale' },
                           poise: { kind: 'blackboard', key: 'poise' },
-                          trigger: { kind: 'constant', value: 0.55 },
+                          trigger: { kind: 'constant', value: 0.550000011920929 },
                         },
                       }),
                     ),
@@ -2208,7 +2226,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                         blackboardAssignments: {
                           atk_scale: { kind: 'blackboard', key: 'atk_scale' },
                           poise: { kind: 'blackboard', key: 'poise' },
-                          trigger: { kind: 'constant', value: 0.55 },
+                          trigger: { kind: 'constant', value: 0.550000011920929 },
                         },
                       }),
                     ),
@@ -2243,13 +2261,17 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
                     buffId: 'buff_chr_0016_laevat_show_weapon',
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: { duration: { kind: 'constant', value: 0.1 } },
+                    blackboardAssignments: {
+                      duration: { kind: 'constant', value: 0.100000001490116 },
+                    },
                   }),
                   step('applyBuff', {
                     buffId: 'buff_chr_0016_laevat_ult_end',
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: { duration: { kind: 'constant', value: 0.1 } },
+                    blackboardAssignments: {
+                      duration: { kind: 'constant', value: 0.100000001490116 },
+                    },
                   }),
                 ),
               ),
@@ -2257,7 +2279,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: false,
-                triggerIntervalSeconds: 0.1,
+                triggerIntervalSeconds: 0.100000001490116,
                 maxCountPerTarget: -1,
                 targetTriggerIntervalSeconds: 0,
               },
@@ -2337,7 +2359,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.6 },
+            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2356,7 +2378,11 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4],
+    atk_scale: [
+      2.40000009536743, 2.64000010490417, 2.88000011444092, 3.11999988555908, 3.35999989509583,
+      3.59999990463257, 3.83999991416931, 4.07999992370605, 4.32000017166138, 4.61999988555908,
+      4.98000001907349, 5.40000009536743,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     count: 0,
@@ -2544,12 +2570,12 @@ export default {
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
-            hp_threshold: { kind: 'constant', value: 0.4 },
-            heal_max_hp: { kind: 'constant', value: 0.05 },
-            shelter: { kind: 'constant', value: 0.9 },
+            hp_threshold: { kind: 'constant', value: 0.400000005960464 },
+            heal_max_hp: { kind: 'constant', value: 0.0500000007450581 },
+            shelter: { kind: 'constant', value: 0.899999976158142 },
             duration: [4, 8],
             cd: { kind: 'constant', value: 120 },
-            shelter_real: { kind: 'constant', value: 0.9 },
+            shelter_real: { kind: 'constant', value: 0.899999976158142 },
           },
         }),
       ),
@@ -2582,7 +2608,7 @@ export default {
           skillKey: 'battleSkillDuringUltimate',
           blackboardKey: 'ratio',
           operation: 'assign',
-          value: 1.2,
+          value: 1.20000004768372,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2590,7 +2616,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'ratio',
           operation: 'assign',
-          value: 1.2,
+          value: 1.20000004768372,
         },
       ],
     },
@@ -2648,7 +2674,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
       ],
     },
@@ -2662,7 +2688,7 @@ export default {
           skillKey: 'ultimateAttack1',
           blackboardKey: 'ratio',
           operation: 'assign',
-          value: 1.2,
+          value: 1.20000004768372,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2670,7 +2696,7 @@ export default {
           skillKey: 'ultimateAttack2',
           blackboardKey: 'ratio',
           operation: 'assign',
-          value: 1.2,
+          value: 1.20000004768372,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2678,7 +2704,7 @@ export default {
           skillKey: 'ultimateAttack3',
           blackboardKey: 'ratio',
           operation: 'assign',
-          value: 1.2,
+          value: 1.20000004768372,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2686,7 +2712,7 @@ export default {
           skillKey: 'ultimateAttack4',
           blackboardKey: 'ratio',
           operation: 'assign',
-          value: 1.2,
+          value: 1.20000004768372,
         },
       ],
       initializationSequence: sequence(
@@ -2744,7 +2770,7 @@ export default {
       priority: 0,
       maxStackCount: 1,
       durationSeconds: 2,
-      triggerIntervalSeconds: 0.7,
+      triggerIntervalSeconds: 0.699999988079071,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
       applyTags: [],
@@ -2864,7 +2890,7 @@ export default {
           sequence(
             step('startTimeDilation', {
               scope: 'entity',
-              durationSeconds: { kind: 'constant', value: 0.2 },
+              durationSeconds: { kind: 'constant', value: 0.200000002980232 },
               slot: 'TimeDilation/Layer/Entity/HitStop',
               priority: 10,
               curve: { kind: 'named', key: 'char_normal_attack' },
@@ -2975,7 +3001,7 @@ export default {
     buff_chr_0016_laevat_energy: {
       stackingType: 'enhance',
       priority: 0,
-      maxStackCount: { blackboardKey: 'max_stack' },
+      maxStackCount: 5,
       applyTags: [],
       extendTags: [],
       blackboard: {
@@ -3127,6 +3153,7 @@ export default {
         iconPath: '/icons/icon_battle_laevat_potential_1.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3187,6 +3214,7 @@ export default {
                 buffId: 'buff_chr_0016_laevat_passive_enemy',
                 target: 'enemy',
                 finishByAction: true,
+                inheritSourceSkillCastInfo: true,
               }),
             ),
           },
@@ -3205,6 +3233,7 @@ export default {
                 buffId: 'buff_chr_0016_laevat_passive_teammate',
                 target: 'party',
                 finishByAction: true,
+                inheritSourceSkillCastInfo: true,
                 blackboardAssignments: { max_stack: { kind: 'blackboard', key: 'max_stack' } },
               }),
             ),
@@ -3231,7 +3260,7 @@ export default {
       attributeModifiers: [],
       abilityEventResponses: [
         {
-          event: 'outputDamage',
+          event: 'beforeOutputDamage',
           priority: 0,
           sequence: sequence(
             branch(
@@ -3288,11 +3317,6 @@ export default {
                                 }),
                               ),
                             ),
-                            step('modifyActionValue', {
-                              key: 'distance',
-                              operation: 'assign',
-                              value: { kind: 'constant', value: 0 },
-                            }),
                             forEachContextTarget(
                               'fire_inflicted',
                               sequence(
@@ -3699,6 +3723,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3886,6 +3911,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

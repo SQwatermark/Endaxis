@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { auditGameplayTagReferences } from '../src/audits/gameplayTagReferences.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
-import { writeAtomicBytes } from './downloadAkedbSources.ts';
+import { writeAtomicBytes } from './downloadVfsSources.ts';
 
 // 参数仅选择盘点范围；不会自动添加根动作支持或改写任何游戏定义。
 const directories: string[] = [];

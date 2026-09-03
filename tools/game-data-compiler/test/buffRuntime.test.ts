@@ -4,6 +4,65 @@ import { parseBuffRuntimeSource, compileBuffRuntimeDefinitionSource } from '../s
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 describe('Buff 运行时公共来源', () => {
+  it('只为当前非正静态上限的优先队列资产恢复已声明的动态层数', () => {
+    const repaired = parseBuffRuntimeSource(
+      buffFixture({
+        blackboard: [{ key: 'max_stack', valueDouble: 4, valueStr: '', isDynamic: false }],
+        stackingSettings: stackingFixture({
+          stackingType: 'HighPriorityWithMaxStack',
+          useMaxStackCntKey: false,
+          maxStackCntKey: 'max_stack',
+          maxStackCnt: 0,
+        }),
+      }),
+      'BuffData.buff_non_positive_priority_limit',
+    );
+    const staticLimit = parseBuffRuntimeSource(
+      buffFixture({
+        blackboard: [{ key: 'max_stack', valueDouble: 9, valueStr: '', isDynamic: false }],
+        stackingSettings: stackingFixture({
+          stackingType: 'HighPriorityWithMaxStack',
+          useMaxStackCntKey: false,
+          maxStackCntKey: 'max_stack',
+          maxStackCnt: 2,
+        }),
+      }),
+      'BuffData.buff_positive_priority_limit',
+    );
+
+    expect(repaired.lifecycle.maxStackCount).toEqual({
+      value: 0,
+      blackboardKey: 'max_stack',
+      levelValues: 4,
+    });
+    expect(staticLimit.lifecycle.maxStackCount).toEqual({
+      value: 2,
+      blackboardKey: null,
+      levelValues: null,
+    });
+  });
+
+  it('将未声明的数字优先级占位保留为静态优先级', () => {
+    const parsed = parseBuffRuntimeSource(
+      buffFixture({
+        stackingSettings: stackingFixture({
+          stackingType: 'HighPriorityWithMaxStack',
+          usePriorityKey: true,
+          priorityKey: '3',
+          priority: 1,
+          maxStackCnt: 3,
+        }),
+      }),
+      'BuffData.buff_numeric_priority_placeholder',
+    );
+
+    expect(parsed.lifecycle.priority).toEqual({
+      value: 1,
+      blackboardKey: null,
+      levelValues: null,
+    });
+  });
+
   it('保留生命周期、图标、属性修正和可执行技能类型条件', () => {
     const parsed = parseBuffRuntimeSource(
       buffFixture({
@@ -125,6 +184,29 @@ describe('Buff 运行时公共来源', () => {
     );
     expect(compiled.blackboard).toEqual({ duration: 5 });
     expect(compiled.durationSeconds).toEqual({ blackboardKey: 'duration' });
+  });
+
+  it('保留原生 Buff 添加冷却及其绕过检查标记', () => {
+    const source = parseBuffRuntimeSource(
+      buffFixture({
+        hasAddingCooldown: true,
+        addingCooldown: scalarFixture(0.2),
+        ignoreCooldownWhenAdding: true,
+      }),
+      'BuffData.buff_with_adding_cooldown',
+    );
+
+    expect(source.lifecycle.addingCooldown).toEqual({
+      value: 0.2,
+      blackboardKey: null,
+      levelValues: null,
+    });
+    expect(source.lifecycle.ignoreCooldownWhenAdding).toBe(true);
+    expect(
+      compileBuffRuntimeDefinitionSource(source, undefined, undefined, undefined, undefined, {
+        gameplayTagRegistry: fixtureGameplayTagRegistry,
+      }),
+    ).toMatchObject({ addingCooldownSeconds: 0.2, ignoreAddingCooldown: true });
   });
 
   it('does not silently discard unsupported modifier payloads', () => {

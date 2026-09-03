@@ -72,7 +72,14 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.25, 0.280000001192093, 0.300000011920929, 0.330000013113022, 0.349999994039536,
+      0.379999995231628, 0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164,
+      0.519999980926514, 0.560000002384186,
+    ],
+  },
 );
 
 export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -137,8 +144,16 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73],
-    display_atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73],
+    atk_scale: [
+      0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978, 0.46000000834465,
+      0.490000009536743, 0.519999980926514, 0.550000011920929, 0.589999973773956, 0.629999995231628,
+      0.670000016689301, 0.730000019073486,
+    ],
+    display_atk_scale: [
+      0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978, 0.46000000834465,
+      0.490000009536743, 0.519999980926514, 0.550000011920929, 0.589999973773956, 0.629999995231628,
+      0.670000016689301, 0.730000019073486,
+    ],
   },
 );
 
@@ -213,7 +228,7 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
                           step('changeResourceByActionValue', {
                             resource: 'sp',
                             amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 0.3333333 },
+                            coefficient: { kind: 'constant', value: 0.333333313465118 },
                             recipient: 'team',
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -240,7 +255,14 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.26, 0.28, 0.31, 0.33, 0.36, 0.38, 0.41, 0.43, 0.46, 0.49, 0.53, 0.57] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.259999990463257, 0.280000001192093, 0.310000002384186, 0.330000013113022, 0.360000014305115,
+      0.379999995231628, 0.409999996423721, 0.430000007152557, 0.46000000834465, 0.490000009536743,
+      0.529999971389771, 0.569999992847443,
+    ],
+  },
 );
 
 export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -336,7 +358,7 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.06 },
+            durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'slow' },
@@ -353,9 +375,17 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 15,
-    atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
+    atk_scale: [
+      0.600000023841858, 0.660000026226044, 0.720000028610229, 0.779999971389771, 0.839999973773956,
+      0.899999976158142, 0.959999978542328, 1.01999998092651, 1.08000004291534, 1.1599999666214,
+      1.25, 1.35000002384186,
+    ],
     attack_poise: 15,
-    display_atk_scale: [1.8, 1.98, 2.16, 2.34, 2.52, 2.7, 2.88, 3.06, 3.24, 3.47, 3.74, 4.05],
+    display_atk_scale: [
+      1.79999995231628, 1.98000001907349, 2.16000008583069, 2.33999991416931, 2.51999998092651,
+      2.70000004768372, 2.88000011444092, 3.05999994277954, 3.24000000953674, 3.47000002861023,
+      3.74000000953674, 4.05000019073486,
+    ],
   },
 );
 
@@ -452,7 +482,7 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.06 },
+            durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'slow' },
@@ -469,9 +499,17 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 15,
-    atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
+    atk_scale: [
+      0.600000023841858, 0.660000026226044, 0.720000028610229, 0.779999971389771, 0.839999973773956,
+      0.899999976158142, 0.959999978542328, 1.01999998092651, 1.08000004291534, 1.1599999666214,
+      1.25, 1.35000002384186,
+    ],
     attack_poise: 15,
-    display_atk_scale: [1.8, 1.98, 2.16, 2.34, 2.52, 2.7, 2.88, 3.06, 3.24, 3.47, 3.74, 4.05],
+    display_atk_scale: [
+      1.79999995231628, 1.98000001907349, 2.16000008583069, 2.33999991416931, 2.51999998092651,
+      2.70000004768372, 2.88000011444092, 3.05999994277954, 3.24000000953674, 3.47000002861023,
+      3.74000000953674, 4.05000019073486,
+    ],
   },
 );
 
@@ -519,7 +557,7 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.12 },
+                durationSeconds: { kind: 'constant', value: 0.119999997317791 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -580,7 +618,12 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  {
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+  },
 );
 
 export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -627,7 +670,11 @@ export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
     cd: 15,
     dmg_scale: 2.5,
     poise: 5,
@@ -684,6 +731,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                     abilityEntityId: 'abilityentity_chr_0022_bounda_normal_skill',
                     childSkillId: 'chr_0022_bounda_normal_skill_abilityrange',
                     inheritActionBlackboard: true,
+                    inheritSourceSkillCastInfo: true,
                     dieWhenSourceDies: false,
                     target: 'enemy',
                   }),
@@ -692,7 +740,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                     blackboardAssignments: {
-                      duration: { kind: 'constant', value: 3.1 },
+                      duration: { kind: 'constant', value: 3.09999990463257 },
                       rate: { kind: 'blackboard', key: 'move_speed_scalar' },
                     },
                   }),
@@ -712,7 +760,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.1 },
+            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'slow' },
@@ -729,8 +777,12 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    atk_scale: [1.87, 2.06, 2.24, 2.43, 2.62, 2.8, 2.99, 3.18, 3.36, 3.6, 3.88, 4.2],
-    boom_up: 0.3,
+    atk_scale: [
+      1.87000000476837, 2.05999994277954, 2.24000000953674, 2.4300000667572, 2.61999988555908,
+      2.79999995231628, 2.99000000953674, 3.1800000667572, 3.35999989509583, 3.59999990463257,
+      3.88000011444092, 4.19999980926514,
+    ],
+    boom_up: 0.300000011920929,
     cam_angle: 0,
     cam_duration: 0,
     consume_cnt: 0,
@@ -738,7 +790,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
     duration_potential: 0,
     gained_atb: 0,
     input_angle: 0,
-    move_speed_scalar: 0.3,
+    move_speed_scalar: 0.300000011920929,
     poise: 10,
     potential_lv: 0,
   },
@@ -1008,11 +1060,27 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale1: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
-    atk_scale2: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
-    atk_scale3: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
-    atk_scale4: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
-    boom_up: 0.3,
+    atk_scale1: [
+      1.11000001430511, 1.22000002861023, 1.33000004291534, 1.44000005722046, 1.55999994277954,
+      1.66999995708466, 1.77999997138977, 1.88999998569489, 2, 2.14000010490417, 2.30999994277954,
+      2.5,
+    ],
+    atk_scale2: [
+      1.11000001430511, 1.22000002861023, 1.33000004291534, 1.44000005722046, 1.55999994277954,
+      1.66999995708466, 1.77999997138977, 1.88999998569489, 2, 2.14000010490417, 2.30999994277954,
+      2.5,
+    ],
+    atk_scale3: [
+      1.11000001430511, 1.22000002861023, 1.33000004291534, 1.44000005722046, 1.55999994277954,
+      1.66999995708466, 1.77999997138977, 1.88999998569489, 2, 2.14000010490417, 2.30999994277954,
+      2.5,
+    ],
+    atk_scale4: [
+      1.11000001430511, 1.22000002861023, 1.33000004291534, 1.44000005722046, 1.55999994277954,
+      1.66999995708466, 1.77999997138977, 1.88999998569489, 2, 2.14000010490417, 2.30999994277954,
+      2.5,
+    ],
+    boom_up: 0.300000011920929,
     duration: 12,
     ex_usp_up: 0.3,
     has_potential4: 0,
@@ -1098,7 +1166,7 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.3 },
+            durationSeconds: { kind: 'constant', value: 0.300000011920929 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'slow' },
@@ -1124,7 +1192,7 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.33 },
+                    durationSeconds: { kind: 'constant', value: 0.330000013113022 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'bounda_power_attack' },
@@ -1143,7 +1211,7 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.533 },
+            durationSeconds: { kind: 'constant', value: 0.532999992370605 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1163,12 +1231,31 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 10,
-    atk_scale: [1.69, 1.86, 2.03, 2.2, 2.37, 2.54, 2.7, 2.87, 3.04, 3.25, 3.51, 3.8],
+    atk_scale: [
+      1.69000005722046, 1.86000001430511, 2.02999997138977, 2.20000004768372, 2.36999988555908,
+      2.53999996185303, 2.70000004768372, 2.86999988555908, 3.03999996185303, 3.25,
+      3.50999999046326, 3.79999995231628,
+    ],
     atk_scale_add: 1.5,
-    atk_scale_add_1: [0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 1, 1.2, 1.2],
-    atk_scale_add_2: [0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2, 2.4, 2.4],
-    atk_scale_add_3: [1.05, 1.2, 1.35, 1.5, 1.65, 1.8, 1.95, 2.1, 2.25, 2.6, 3.2, 3.2],
-    atk_scale_add_4: [1.33, 1.5, 1.67, 1.83, 2, 2.18, 2.35, 2.52, 2.69, 3.33, 4.15, 4.15],
+    atk_scale_add_1: [
+      0.400000005960464, 0.449999988079071, 0.5, 0.550000011920929, 0.600000023841858,
+      0.649999976158142, 0.699999988079071, 0.75, 0.800000011920929, 1, 1.20000004768372,
+      1.20000004768372,
+    ],
+    atk_scale_add_2: [
+      0.800000011920929, 0.899999976158142, 1, 1.10000002384186, 1.20000004768372, 1.29999995231628,
+      1.39999997615814, 1.5, 1.60000002384186, 2, 2.40000009536743, 2.40000009536743,
+    ],
+    atk_scale_add_3: [
+      1.04999995231628, 1.20000004768372, 1.35000002384186, 1.5, 1.64999997615814, 1.79999995231628,
+      1.95000004768372, 2.09999990463257, 2.25, 2.59999990463257, 3.20000004768372,
+      3.20000004768372,
+    ],
+    atk_scale_add_4: [
+      1.33000004291534, 1.5, 1.66999995708466, 1.83000004291534, 2, 2.1800000667572,
+      2.34999990463257, 2.51999998092651, 2.69000005722046, 3.32999992370605, 4.15000009536743,
+      4.15000009536743,
+    ],
     atk_scale_potential5: 1.3,
     cam_angle: 0,
     cam_angle2: 0,
@@ -1333,7 +1420,7 @@ export default {
       passiveSkills: [
         {
           key: 'chr_0022_bounda_talent_1',
-          blackboard: { dmg_up: [0.1, 0.2] },
+          blackboard: { dmg_up: [0.100000001490116, 0.200000002980232] },
           enableSequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0022_bounda_talent_1',
@@ -1351,7 +1438,11 @@ export default {
       passiveSkills: [
         {
           key: 'chr_0022_bounda_talent_2',
-          blackboard: { atk_up: [0.1, 0.2], duration: [10, 10], probability: [0.2, 0.2] },
+          blackboard: {
+            atk_up: [0.100000001490116, 0.200000002980232],
+            duration: [10, 10],
+            probability: [0.200000002980232, 0.200000002980232],
+          },
           enableSequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0022_bounda_talent_2',
@@ -1386,7 +1477,7 @@ export default {
           passiveSkillKey: 'chr_0022_bounda_talent_2',
           blackboardKey: 'probability',
           operation: 'add',
-          value: 0.1,
+          value: 0.100000001490116,
         },
       ],
     },
@@ -1418,7 +1509,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.9,
+          multiplier: 0.899999976158142,
         },
       ],
     },
@@ -1582,7 +1673,9 @@ export default {
                           target: 'buffSource',
                           source: 'buffSource',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: { duration: { kind: 'constant', value: 0.01 } },
+                          blackboardAssignments: {
+                            duration: { kind: 'constant', value: 0.00999999977648258 },
+                          },
                         }),
                         step('applyBuff', {
                           buffId: 'buff_chr_0022_bounda_talent_2_atkup',
@@ -1628,7 +1721,9 @@ export default {
                           target: 'buffSource',
                           source: 'buffSource',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: { duration: { kind: 'constant', value: 0.01 } },
+                          blackboardAssignments: {
+                            duration: { kind: 'constant', value: 0.00999999977648258 },
+                          },
                         }),
                         step('applyBuff', {
                           buffId: 'buff_chr_0022_bounda_talent_2_atkup',
@@ -1674,7 +1769,9 @@ export default {
                           target: 'buffSource',
                           source: 'buffSource',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: { duration: { kind: 'constant', value: 0.01 } },
+                          blackboardAssignments: {
+                            duration: { kind: 'constant', value: 0.00999999977648258 },
+                          },
                         }),
                         step('applyBuff', {
                           buffId: 'buff_chr_0022_bounda_talent_2_atkup',
@@ -1720,7 +1817,9 @@ export default {
                           target: 'buffSource',
                           source: 'buffSource',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: { duration: { kind: 'constant', value: 0.01 } },
+                          blackboardAssignments: {
+                            duration: { kind: 'constant', value: 0.00999999977648258 },
+                          },
                         }),
                         step('applyBuff', {
                           buffId: 'buff_chr_0022_bounda_talent_2_atkup',
@@ -1753,6 +1852,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1780,7 +1880,7 @@ export default {
       stackingType: 'stack',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 0.2,
+      durationSeconds: 0.200000002980232,
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
@@ -1885,7 +1985,7 @@ export default {
                     {
                       side: 'attacker',
                       zone: 'product',
-                      addition: { kind: 'constant', value: 0.3 },
+                      addition: { kind: 'constant', value: 0.300000011920929 },
                     },
                   ],
                   stagger: { kind: 'blackboard', key: 'poise' },

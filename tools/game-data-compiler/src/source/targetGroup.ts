@@ -3,15 +3,18 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
+  requireNativeEnum,
   requireNonEmptyString,
   requireNonNegativeInteger,
   requireNumber,
   requireRecord,
   requireString,
+  requireStringOrInteger,
 } from './primitives.ts';
 import {
   parseSelectorSummarySource,
   parseSpawnedEntitySelectorIdentitySource,
+  parseNativeActionTargetType,
   parseTargetReferenceSource,
   type ShapeFinderSource,
   type TargetReferenceSource,
@@ -64,6 +67,7 @@ export interface TargetGroupInputSource {
   readonly excludeTargets?: readonly {
     readonly targetSource: string;
     readonly targetGroupKey: string;
+    readonly processTargetType: string | null;
   }[];
 }
 
@@ -97,6 +101,9 @@ export interface TargetGroupWriteSource {
   readonly validatorTypes: readonly string[];
   readonly postProcessorTypes: readonly string[];
   readonly inputTargets: readonly TargetGroupInputSource[];
+  /** MergeTargetAction 是否把可命中包装器按实体合并；其他生产器为 null。 */
+  /** Added by current game data; historical snapshots omit it. */
+  readonly mergeHittableTargets?: boolean | null;
   readonly intervalSeconds: number | null;
   readonly finderSpawnedObjectType: string | null;
   readonly validatorTagQueries: ReadonlyArray<readonly [string, readonly number[]]>;
@@ -108,6 +115,7 @@ export interface TargetGroupWriteSource {
   readonly excludeTargets?: readonly {
     readonly targetSource: string;
     readonly targetGroupKey: string;
+    readonly processTargetType: string | null;
   }[];
   readonly finderFixedPointSnapToNavmesh: boolean | null;
   readonly center: string | null;
@@ -155,8 +163,8 @@ export interface TargetPostProcessorSource {
     /** customSourceAndTarget=false 时原生数据可不序列化这两个覆盖引用。 */
     readonly source: TargetReferenceSource | null;
     readonly target: TargetReferenceSource | null;
-    readonly sourceMountPoint: string;
-    readonly targetMountPoint: string;
+    readonly sourceMountPoint: string | number;
+    readonly targetMountPoint: string | number;
     readonly customSourceAndTarget: boolean;
     readonly clampToXZ: boolean;
     readonly invertDirection: boolean;
@@ -397,10 +405,14 @@ function parseTargetPostProcessorAction(
     `${directionPath}.customSourceAndTarget`,
   );
   const directionSource = hasDirectionSource
-    ? parseTargetReferenceSource(direction.source, `${directionPath}.source`)
+    ? direction.source === null
+      ? null
+      : parseTargetReferenceSource(direction.source, `${directionPath}.source`)
     : null;
   const directionTarget = hasDirectionTarget
-    ? parseTargetReferenceSource(direction.target, `${directionPath}.target`)
+    ? direction.target === null
+      ? null
+      : parseTargetReferenceSource(direction.target, `${directionPath}.target`)
     : null;
   if (customSourceAndTarget && (directionSource === null || directionTarget === null)) {
     throw new Error(`${directionPath}: custom source and target references are required`);
@@ -436,6 +448,10 @@ function parseTargetPostProcessorAction(
     priorityFilters: summary.priorityFilters,
     shuffleTargets: summary.shuffleTargets,
     distanceValidators: summary.distanceValidators,
+    ...(summary.targetContainsParents.length === 0
+      ? {}
+      : { targetContainsParents: summary.targetContainsParents }),
+    ...(summary.excludeTargets.length === 0 ? {} : { excludeTargets: summary.excludeTargets }),
     center: center.targetSource,
     centerContextKey: center.targetGroupKey,
     selectorOwner: source.targetSource,
@@ -445,17 +461,25 @@ function parseTargetPostProcessorAction(
       center,
       source,
       direction: {
-        directionType: requireNonEmptyString(
+        directionType: requireNativeEnum(
           direction.directionType,
+          [
+            'SourceForward',
+            'TargetForward',
+            'SourceToTarget',
+            'TargetToSource',
+            'CameraForward',
+            'SameAsSourceMountPointDir',
+          ] as const,
           `${directionPath}.directionType`,
         ),
         source: directionSource,
         target: directionTarget,
-        sourceMountPoint: requireNonEmptyString(
+        sourceMountPoint: requireStringOrInteger(
           direction.sourceMountPoint,
           `${directionPath}.sourceMountPoint`,
         ),
-        targetMountPoint: requireNonEmptyString(
+        targetMountPoint: requireStringOrInteger(
           direction.targetMountPoint,
           `${directionPath}.targetMountPoint`,
         ),
@@ -475,35 +499,26 @@ function parseConvertToTargetContextAction(
   path: string,
 ): TargetGroupActionSource {
   requireExactFields(action, CONVERT_FIELDS, path);
-  const operation = requireNonEmptyString(action.operationType, `${path}.operationType`);
-  if (
-    operation !== 'None' &&
-    operation !== 'ConvertEntityToPosition' &&
-    operation !== 'ConvertEntityToSlot' &&
-    operation !== 'ExcludeTarget'
-  )
-    throw new Error(`${path}.operationType: unsupported operation ${JSON.stringify(operation)}`);
-  const translateOperation = requireNonEmptyString(
+  const operation = requireNativeEnum(
+    action.operationType,
+    new Map([
+      [0, 'None'],
+      [1, 'ConvertEntityToPosition'],
+      [3, 'ExcludeTarget'],
+      [4, 'ConvertEntityToSlot'],
+    ] as const),
+    `${path}.operationType`,
+  );
+  const translateOperation = requireNativeEnum(
     action.translateOperation,
+    ['Rotate180DegAroundRef', 'RotateAroundRefCW'] as const,
     `${path}.translateOperation`,
   );
-  if (!['Rotate180DegAroundRef', 'RotateAroundRefCW'].includes(translateOperation))
-    throw new Error(
-      `${path}.translateOperation: unsupported operation ${JSON.stringify(translateOperation)}`,
-    );
-  const translationRef = requireNonEmptyString(action.translationRef, `${path}.translationRef`);
-  const excludeTarget = requireNonEmptyString(action.excludeTarget, `${path}.excludeTarget`);
-  for (const [key, value] of [
-    ['translationRef', translationRef],
-    ['excludeTarget', excludeTarget],
-  ] as const) {
-    if (
-      !['ActionSource', 'ActionOwner', 'InputTarget', 'CurrentTarget', 'ContextTarget'].includes(
-        value,
-      )
-    )
-      throw new Error(`${path}.${key}: unsupported target ${JSON.stringify(value)}`);
-  }
+  const translationRef = parseNativeActionTargetType(
+    action.translationRef,
+    `${path}.translationRef`,
+  );
+  const excludeTarget = parseNativeActionTargetType(action.excludeTarget, `${path}.excludeTarget`);
 
   const sourcePath = `${path}.convertFrom`;
   const source = parseTargetReferenceSource(action.convertFrom, sourcePath);
@@ -664,14 +679,14 @@ function parseFindTargetAction(
       : { targetContainsParents: summary.targetContainsParents }),
     ...(summary.excludeTargets.length === 0 ? {} : { excludeTargets: summary.excludeTargets }),
     finderFixedPointSnapToNavmesh,
-    center: requireString(action.center, `${path}.center`),
+    center: parseNativeActionTargetType(action.center, `${path}.center`),
     centerContextKey: requireString(action.centerContextKey, `${path}.centerContextKey`),
-    selectorOwner: requireString(action.selectorOwner, `${path}.selectorOwner`),
+    selectorOwner: parseNativeActionTargetType(action.selectorOwner, `${path}.selectorOwner`),
     selectorOwnerContextKey: requireString(
       action.selectorOwnerContextKey,
       `${path}.selectorOwnerContextKey`,
     ),
-    directionTarget: requireString(action.target, `${path}.target`),
+    directionTarget: parseNativeActionTargetType(action.target, `${path}.target`),
     directionContextKey: requireString(action.contextKey, `${path}.contextKey`),
     characterTeamSelection: parseCharacterTeamSelection(selector, selectorPath),
     excludesCurrentTarget: selectorExcludesPlainCurrentTarget(selector, selectorPath),
@@ -696,7 +711,9 @@ function parseMergeTargetAction(
   action: Record<string, unknown>,
   path: string,
 ): TargetGroupActionSource {
-  requireExactFields(action, MERGE_FIELDS, path);
+  const fields = new Set(MERGE_FIELDS);
+  if (Object.hasOwn(action, 'mergeHittableTargets')) fields.add('mergeHittableTargets');
+  requireExactFields(action, fields, path);
   const targetGroupKey = requireNonEmptyString(action.targetGroupKey, `${path}.targetGroupKey`);
   const inputTargets = requireArray(action.targets, `${path}.targets`).map((rawTarget, index) => {
     const targetPath = `${path}.targets[${index}]`;
@@ -730,7 +747,12 @@ function parseMergeTargetAction(
         : { targetContainsParents: summary.targetContainsParents }),
     } satisfies TargetGroupInputSource;
   });
-  return createBaseAction('MergeTargetAction', targetGroupKey, inputTargets);
+  return {
+    ...createBaseAction('MergeTargetAction', targetGroupKey, inputTargets),
+    mergeHittableTargets: Object.hasOwn(action, 'mergeHittableTargets')
+      ? requireBoolean(action.mergeHittableTargets, `${path}.mergeHittableTargets`)
+      : false,
+  };
 }
 
 function parsePickTargetAction(
@@ -793,6 +815,7 @@ function createBaseAction(
     validatorTypes: [],
     postProcessorTypes: [],
     inputTargets,
+    mergeHittableTargets: null,
     intervalSeconds: null,
     finderSpawnedObjectType: null,
     validatorTagQueries: [],
@@ -859,8 +882,15 @@ function parseSmartTargetSelection(
   if (useRangeKey && rangeKey.length === 0)
     throw new Error(`${rangePath}.blackboardKey: expected non-empty string`);
   return {
-    strategy: requireNonEmptyString(
+    strategy: requireNativeEnum(
       setting.smartTargetSelectStrategy,
+      [
+        'SelectComboSkillTarget',
+        'SelectComboSkillTrigger',
+        'SelectByBuff',
+        'SelectByTag',
+        'SelectByBuffStackNum',
+      ] as const,
       `${settingPath}.smartTargetSelectStrategy`,
     ),
     buffIds: requireArray(setting.smartTargetBuffIds, `${settingPath}.smartTargetBuffIds`).map(
@@ -875,7 +905,11 @@ function parseSmartTargetSelection(
       setting.smartTargetTagQuery,
       `${settingPath}.smartTargetTagQuery`,
     ),
-    buffFindCheckType: requireNonEmptyString(find.checkType, `${findPath}.checkType`),
+    buffFindCheckType: requireNativeEnum(
+      find.checkType,
+      ['Id', 'Tag'] as const,
+      `${findPath}.checkType`,
+    ),
     buffFindIds: requireArray(find.buffIdList, `${findPath}.buffIdList`).map((id, index) =>
       requireNonEmptyString(id, `${findPath}.buffIdList[${index}]`),
     ),

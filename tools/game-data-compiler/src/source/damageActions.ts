@@ -1,9 +1,11 @@
 import { parseNativeCalculationSource, type NativeCalculationSource } from './calculation.ts';
 import {
+  NATIVE_COST_TYPES,
   nativeActionName,
   requireArray,
   requireBoolean,
   requireExactFields,
+  requireNativeEnum,
   requireNonEmptyString,
   requireNonNegativeInteger,
   requireNumber,
@@ -17,6 +19,7 @@ import {
   type ModifyAttributeTypeSource,
 } from './attributeModifiers.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
+import { parseTagIdsSource } from './tagQuery.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
 const ACTION_META_FIELDS = [
@@ -58,6 +61,14 @@ const DAMAGE_UNIT_BASE_FIELDS = [
   'alwaysEndCoalition',
   'updatePositionOnCoalition',
 ];
+const NATIVE_ACTION_TARGET_TYPES = [
+  'ActionSource',
+  'ActionOwner',
+  'InputTarget',
+  'CurrentTarget',
+  'ContextTarget',
+  'MainCharacter',
+] as const;
 
 export interface DamageCostSource {
   readonly costType: string;
@@ -83,6 +94,8 @@ export type DamageProcessorSource =
 
 export interface DamageUnitSource {
   readonly damageType: string;
+  /** 原生 DamagePack 携带的 GameplayTag 身份；公开语义投影必须经同版本标签目录。 */
+  readonly damageTagIds?: readonly number[];
   readonly attributeType: string;
   readonly simpleCalculation: boolean;
   readonly attackScale: ScalarSource;
@@ -146,7 +159,7 @@ export function parseDamageActionSource(
   return {
     kind: 'damage',
     alwaysNext: requireBoolean(action.alwaysNext, `${path}.alwaysNext`),
-    attacker: requireNonEmptyString(action.attacker, `${path}.attacker`),
+    attacker: requireNativeEnum(action.attacker, NATIVE_ACTION_TARGET_TYPES, `${path}.attacker`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
     effectSource: parseTargetReferenceSource(action.effectSource, `${path}.effectSource`),
     hitEnvironment: requireBoolean(action.hitEnvironment, `${path}.hitEnvironment`),
@@ -165,22 +178,24 @@ export function parseDamageUnitSource(
   const expectedFields = new Set(DAMAGE_UNIT_BASE_FIELDS);
   if ('atkCalculation' in unit) expectedFields.add('atkCalculation');
   if ('poiseCalculation' in unit) expectedFields.add('poiseCalculation');
+  if ('damageTags' in unit) expectedFields.add('damageTags');
   requireExactFields(unit, expectedFields, path);
   // 两个字段是完整表现配置；只校验对象存在。
   requireRecord(unit.effectData, `${path}.effectData`);
   requireRecord(unit.hitSoundData, `${path}.hitSoundData`);
-  const attributeType = requireNonEmptyString(
+  const attributeType = requireNativeEnum(
     unit.damageAttributeType,
+    ['Hp', 'Poise'] as const,
     `${path}.damageAttributeType`,
   );
   const simpleCalculation = requireBoolean(unit.simpleCalculation, `${path}.simpleCalculation`);
-  if ('poiseCalculation' in unit && attributeType === 'Hp') {
+  if ('poiseCalculation' in unit && unit.poiseCalculation !== null && attributeType === 'Hp') {
     // combat-spec: DamageAction._ProcessDamage branches on damageAttributeType at
     // 0x0353FFE5. The Hp branch never reads the +0x68 poiseCalculation field, but
     // real data may still serialize an inactive calculation object (Gilberta battle skill).
     requireRecord(unit.poiseCalculation, `${path}.poiseCalculation`);
   }
-  if ('atkCalculation' in unit && attributeType === 'Poise') {
+  if ('atkCalculation' in unit && unit.atkCalculation !== null && attributeType === 'Poise') {
     // The Poise branch reads poiseCalculation directly after damageAttributeType
     // dispatch; simpleCalculation and atkCalculation belong to the inactive Hp path.
     requireRecord(unit.atkCalculation, `${path}.atkCalculation`);
@@ -196,7 +211,13 @@ export function parseDamageUnitSource(
     requireBoolean(unit[field], `${path}.${field}`);
   }
   return {
-    damageType: requireNonEmptyString(unit.damageType, `${path}.damageType`),
+    damageType: requireNativeEnum(
+      unit.damageType,
+      ['Physical', 'Real', 'Fire', 'Pulse', 'Cryst', 'LifeDrain', 'Natural', 'Ether'] as const,
+      `${path}.damageType`,
+    ),
+    damageTagIds:
+      'damageTags' in unit ? parseTagIdsSource(unit.damageTags, `${path}.damageTags`) : [],
     attributeType,
     simpleCalculation,
     attackScale: parseScalarSource(unit.atkScale, `${path}.atkScale`, inheritedBlackboard),
@@ -233,8 +254,13 @@ export function parseDamageUnitSource(
       `${path}.damageProcessors`,
       inheritedBlackboard,
     ),
-    ignoreDamageImmuneLevel: requireNonEmptyString(
+    ignoreDamageImmuneLevel: requireNativeEnum(
       unit.ignoreDamageImmuneLevel,
+      new Map([
+        [-1, 'None'],
+        [18, 'IgnoreDodgeImmune'],
+        [19, 'IgnoreSkillImmune'],
+      ] as const),
       `${path}.ignoreDamageImmuneLevel`,
     ),
     ignorePoiseImmune: requireBoolean(unit.ignorePoiseImmune, `${path}.ignorePoiseImmune`),
@@ -249,8 +275,9 @@ export function parseDamageUnitSource(
       unit.enablePoiseBreakTimeDilation,
       `${path}.enablePoiseBreakTimeDilation`,
     ),
-    visualImportance: requireNonEmptyString(
+    visualImportance: requireNativeEnum(
       unit.damageVisualImportance,
+      ['Level0', 'Level1', 'Hidden'] as const,
       `${path}.damageVisualImportance`,
     ),
     visualCoalitionEnabled: requireBoolean(
@@ -279,7 +306,7 @@ function parseDamageCosts(value: unknown, path: string): DamageCostSource[] {
     const cost = requireRecord(rawCost, costPath);
     requireExactFields(cost, new Set(['costType', 'costValue', 'atbValueThreshold']), costPath);
     return {
-      costType: requireNonEmptyString(cost.costType, `${costPath}.costType`),
+      costType: requireNativeEnum(cost.costType, NATIVE_COST_TYPES, `${costPath}.costType`),
       costValue: requireNumber(cost.costValue, `${costPath}.costValue`),
       atbValueThreshold: requireNumber(cost.atbValueThreshold, `${costPath}.atbValueThreshold`),
     };
@@ -314,8 +341,9 @@ export function parseDamageProcessors(
       );
       return {
         kind: 'instantAttributeModifier',
-        targetSide: requireNonEmptyString(
+        targetSide: requireNativeEnum(
           processor.modifyTargetSide,
+          ['Attacker', 'Defender'] as const,
           `${processorPath}.modifyTargetSide`,
         ),
         modifyAttributeType: parsedModifier.modifyAttributeType,
@@ -332,7 +360,11 @@ export function parseDamageProcessors(
       );
       return {
         kind: 'damageScale',
-        side: requireNonEmptyString(processor.side, `${processorPath}.side`),
+        side: requireNativeEnum(
+          processor.side,
+          ['Attacker', 'Defender'] as const,
+          `${processorPath}.side`,
+        ),
         zoneName: requireNonEmptyString(processor.zoneName, `${processorPath}.zoneName`),
         addition: parseScalarSource(
           processor.addition,

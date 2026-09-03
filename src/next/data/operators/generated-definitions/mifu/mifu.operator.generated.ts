@@ -79,7 +79,7 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.06 },
+                            durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -93,7 +93,7 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.06 },
+                            durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -107,7 +107,7 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.1 },
+                            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -121,7 +121,7 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.1 },
+                            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -135,7 +135,7 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.1 },
+                            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -154,9 +154,9 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -254,7 +254,11 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.34, 0.37, 0.41, 0.44, 0.47, 0.51, 0.54, 0.57, 0.61, 0.65, 0.7, 0.76],
+    atk_scale: [
+      0.340000003576279, 0.370000004768372, 0.409999996423721, 0.439999997615814, 0.469999998807907,
+      0.509999990463257, 0.540000021457672, 0.569999992847443, 0.610000014305115, 0.649999976158142,
+      0.699999988079071, 0.759999990463257,
+    ],
     hit_target: 0,
     hitstop_times: 0,
   },
@@ -301,7 +305,7 @@ export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.03 },
+                    durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: {
@@ -338,9 +342,9 @@ export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -366,7 +370,7 @@ export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -381,9 +385,9 @@ export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -397,9 +401,21 @@ export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale1: [0.13, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.3],
-    atk_scale2: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56],
-    display_atk_scale: [0.38, 0.42, 0.46, 0.5, 0.54, 0.57, 0.61, 0.65, 0.69, 0.74, 0.79, 0.86],
+    atk_scale1: [
+      0.129999995231628, 0.150000005960464, 0.159999996423721, 0.170000001788139, 0.189999997615814,
+      0.200000002980232, 0.209999993443489, 0.230000004172325, 0.239999994635582, 0.259999990463257,
+      0.270000010728836, 0.300000011920929,
+    ],
+    atk_scale2: [
+      0.25, 0.280000001192093, 0.300000011920929, 0.330000013113022, 0.349999994039536,
+      0.379999995231628, 0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164,
+      0.519999980926514, 0.560000002384186,
+    ],
+    display_atk_scale: [
+      0.379999995231628, 0.419999986886978, 0.46000000834465, 0.5, 0.540000021457672,
+      0.569999992847443, 0.610000014305115, 0.649999976158142, 0.689999997615814, 0.740000009536743,
+      0.790000021457672, 0.860000014305115,
+    ],
   },
 );
 
@@ -453,9 +469,9 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -506,7 +522,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.03 },
+                            durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -520,7 +536,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.03 },
+                            durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -534,7 +550,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.1 },
+                            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -548,7 +564,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.1 },
+                            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -562,7 +578,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.1 },
+                            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -581,9 +597,9 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -634,7 +650,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.2 },
+                            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -648,7 +664,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.15 },
+                            durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -662,7 +678,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.15 },
+                            durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -676,7 +692,7 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
                         sequence: sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.03 },
+                            durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -695,9 +711,9 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -991,11 +1007,23 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale1: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    atk_scale2: [0.31, 0.34, 0.37, 0.4, 0.43, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.69],
+    atk_scale1: [
+      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
+      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
+      0.310000002384186, 0.340000003576279,
+    ],
+    atk_scale2: [
+      0.310000002384186, 0.340000003576279, 0.370000004768372, 0.400000005960464, 0.430000007152557,
+      0.46000000834465, 0.490000009536743, 0.519999980926514, 0.550000011920929, 0.589999973773956,
+      0.629999995231628, 0.689999997615814,
+    ],
     hit_target: 0,
     hitstop_times: 0,
-    display_atk_scale: [0.61, 0.67, 0.73, 0.79, 0.85, 0.91, 0.97, 1.03, 1.09, 1.16, 1.26, 1.36],
+    display_atk_scale: [
+      0.610000014305115, 0.670000016689301, 0.730000019073486, 0.790000021457672, 0.850000023841858,
+      0.910000026226044, 0.970000028610229, 1.02999997138977, 1.0900000333786, 1.1599999666214,
+      1.25999999046326, 1.36000001430511,
+    ],
   },
 );
 
@@ -1040,7 +1068,7 @@ export const mifuBasicAttack4: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.03 },
+                    durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1055,9 +1083,9 @@ export const mifuBasicAttack4: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1083,7 +1111,7 @@ export const mifuBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
+                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -1134,10 +1162,22 @@ export const mifuBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 28,
-    atk_scale1: [0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11],
-    atk_scale2: [0.72, 0.79, 0.86, 0.93, 1, 1.07, 1.14, 1.22, 1.29, 1.38, 1.48, 1.61],
+    atk_scale1: [
+      0.0500000007450581, 0.0599999986588955, 0.0599999986588955, 0.0700000002980232,
+      0.0700000002980232, 0.0799999982118607, 0.0799999982118607, 0.0900000035762787,
+      0.0900000035762787, 0.100000001490116, 0.100000001490116, 0.109999999403954,
+    ],
+    atk_scale2: [
+      0.720000028610229, 0.790000021457672, 0.860000014305115, 0.930000007152557, 1,
+      1.07000005245209, 1.13999998569489, 1.22000002861023, 1.28999996185303, 1.37999999523163,
+      1.48000001907349, 1.61000001430511,
+    ],
     poise: 25,
-    display_atk_scale: [0.77, 0.84, 0.92, 0.99, 1.07, 1.15, 1.22, 1.3, 1.38, 1.47, 1.59, 1.72],
+    display_atk_scale: [
+      0.769999980926514, 0.839999973773956, 0.920000016689301, 0.990000009536743, 1.07000005245209,
+      1.14999997615814, 1.22000002861023, 1.29999995231628, 1.37999999523163, 1.47000002861023,
+      1.5900000333786, 1.72000002861023,
+    ],
   },
 );
 
@@ -1195,7 +1235,14 @@ export const mifuPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const mifuFinisher: SkillDefinition = withSkillBlackboard(
@@ -1226,7 +1273,7 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.15 },
+            durationSeconds: { kind: 'constant', value: 0.150000005960464 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1242,7 +1289,7 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.7471619,
+                  time: 0.74716192483902,
                   value: 0,
                   inTangent: 0,
                   outTangent: 0,
@@ -1276,7 +1323,7 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.3,
+              calculationMultiplier: 0.300000011920929,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0031_mifu_powerattack:/scheduledSequences/1/sequence/steps/0',
@@ -1293,14 +1340,14 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.2,
+              calculationMultiplier: 0.200000002980232,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0031_mifu_powerattack:/scheduledSequences/2/sequence/steps/0',
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.03 },
+            durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1316,10 +1363,10 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.8024494,
+                  time: 0.802449405193329,
                   value: 0,
                   inTangent: 0,
-                  outTangent: 2.530997,
+                  outTangent: 2.53099703788757,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1327,8 +1374,8 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 5.061995,
-                  outTangent: 5.061995,
+                  inTangent: 5.06199502944946,
+                  outTangent: 5.06199502944946,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1357,7 +1404,7 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.23 },
+            durationSeconds: { kind: 'constant', value: 0.230000004172325 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1373,10 +1420,10 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.7007455,
+                  time: 0.700745522975922,
                   value: 0,
                   inTangent: 0,
-                  outTangent: 1.670819,
+                  outTangent: 1.67081904411316,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1384,8 +1431,8 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 3.341638,
-                  outTangent: 3.341638,
+                  inTangent: 3.34163808822632,
+                  outTangent: 3.34163808822632,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1403,7 +1450,7 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_damage_immune_medium',
+            buffId: 'buff_common_full_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1442,7 +1489,10 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
     atk_scale2: 0.58,
     atk_scale3: 0.58,
     ifrightside: 0,
@@ -1638,7 +1688,11 @@ export const mifuBattleSkill1: SkillDefinition = withSkillBlackboard(
   },
   {
     angle: 120,
-    atk_scale: [0.67, 0.73, 0.8, 0.87, 0.93, 1, 1.07, 1.13, 1.2, 1.28, 1.38, 1.5],
+    atk_scale: [
+      0.670000016689301, 0.730000019073486, 0.800000011920929, 0.870000004768372, 0.930000007152557,
+      1, 1.07000005245209, 1.12999999523163, 1.20000004768372, 1.27999997138977, 1.37999999523163,
+      1.5,
+    ],
     buff_duration: 0,
     cam_angle: 0,
     cam_duration: 3.41,
@@ -1658,7 +1712,11 @@ export const mifuBattleSkill1: SkillDefinition = withSkillBlackboard(
     usp_everyone: 0,
     usp_self: 0,
     will_additive: 0,
-    display_atk_scale: [0.67, 0.73, 0.8, 0.87, 0.93, 1, 1.07, 1.13, 1.2, 1.28, 1.38, 1.5],
+    display_atk_scale: [
+      0.670000016689301, 0.730000019073486, 0.800000011920929, 0.870000004768372, 0.930000007152557,
+      1, 1.07000005245209, 1.12999999523163, 1.20000004768372, 1.27999997138977, 1.37999999523163,
+      1.5,
+    ],
   },
 );
 
@@ -1763,7 +1821,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.03 },
+                durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -1779,7 +1837,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.1,
+                      time: 0.100000001490116,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -1788,7 +1846,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.7465571,
+                      time: 0.746557116508484,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -1799,7 +1857,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 3.945662,
+                      inTangent: 3.94566202163696,
                       outTangent: 0,
                       weightedMode: 0,
                       inWeight: 0,
@@ -1838,7 +1896,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.03 },
+                durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -1854,7 +1912,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.1,
+                      time: 0.100000001490116,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -1863,7 +1921,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.7465571,
+                      time: 0.746557116508484,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -1874,7 +1932,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 3.945662,
+                      inTangent: 3.94566202163696,
                       outTangent: 0,
                       weightedMode: 0,
                       inWeight: 0,
@@ -1913,23 +1971,6 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                       buffTags: ['Skill/Character/Common/NoGuard'],
                     },
                   }),
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'stack' },
-                      operator: 'greater',
-                      right: { kind: 'blackboard', key: 'maxstack' },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'maxstack',
-                        operation: 'assign',
-                        value: { kind: 'blackboard', key: 'stack' },
-                      }),
-                    ),
-                    undefined,
-                    { alwaysNext: true },
-                  ),
                 ),
               ),
               step('applyPhysicalInfliction', {
@@ -1948,6 +1989,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                     iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                     showInHeadBarCommon: false,
                     showInHeadBarAttached: true,
+                    showDirectlyInHeadBuff: false,
                     showInSquadIcon: false,
                     onlyShowForMainCharacter: false,
                     blinkInMainCharHpBar: false,
@@ -2075,6 +2117,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                     iconPath: '/icons/knockback.webp',
                     showInHeadBarCommon: false,
                     showInHeadBarAttached: false,
+                    showDirectlyInHeadBuff: false,
                     showInSquadIcon: false,
                     onlyShowForMainCharacter: false,
                     blinkInMainCharHpBar: false,
@@ -2221,7 +2264,10 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                                   sequence: sequence(
                                     step('startTimeDilation', {
                                       scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.1 },
+                                      durationSeconds: {
+                                        kind: 'constant',
+                                        value: 0.100000001490116,
+                                      },
                                       slot: 'TimeDilation/Layer/Entity/HitStop',
                                       priority: 15,
                                       curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -2235,7 +2281,10 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                                   sequence: sequence(
                                     step('startTimeDilation', {
                                       scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.1 },
+                                      durationSeconds: {
+                                        kind: 'constant',
+                                        value: 0.100000001490116,
+                                      },
                                       slot: 'TimeDilation/Layer/Entity/HitStop',
                                       priority: 10,
                                       curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -2277,7 +2326,10 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                                   sequence: sequence(
                                     step('startTimeDilation', {
                                       scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.65 },
+                                      durationSeconds: {
+                                        kind: 'constant',
+                                        value: 0.649999976158142,
+                                      },
                                       slot: 'TimeDilation/Layer/Entity/HitStop',
                                       priority: 20,
                                       curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -2297,23 +2349,6 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                 damageMultiplier: { kind: 'constant', value: 1 },
                 ignoreHitEffect: true,
               }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'maxstack' },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 3 },
-                },
-                sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0031_mifu_normalskill_3',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
               step(
                 'dealDamage',
                 {
@@ -2323,11 +2358,11 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise' },
                 },
-                'chr_0031_mifu_normalskill_2:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/3',
+                'chr_0031_mifu_normalskill_2:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/2',
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.12 },
+                durationSeconds: { kind: 'constant', value: 0.119999997317791 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -2343,7 +2378,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.1,
+                      time: 0.100000001490116,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -2352,7 +2387,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.7465571,
+                      time: 0.746557116508484,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -2363,7 +2398,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 3.945662,
+                      inTangent: 3.94566202163696,
                       outTangent: 0,
                       weightedMode: 0,
                       inWeight: 0,
@@ -2402,7 +2437,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                   outTangent: 0,
                   weightedMode: 0,
                   inWeight: 0,
-                  outWeight: 0.333333343,
+                  outWeight: 0.333333343267441,
                 },
                 {
                   time: 1,
@@ -2410,7 +2445,7 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
-                  inWeight: 0.333333343,
+                  inWeight: 0.333333343267441,
                   outWeight: 0,
                 },
               ],
@@ -2420,6 +2455,18 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
           }),
         ),
         15,
+      ),
+      scheduled(
+        22,
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0031_mifu_listen_crush',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+            finishByAction: true,
+          }),
+        ),
+        27,
       ),
     ],
     smartTarget: 'enemy',
@@ -2431,8 +2478,16 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
   {
     angle: 120,
     atk_heal: 0,
-    atk_scale: [0.27, 0.3, 0.32, 0.35, 0.38, 0.41, 0.43, 0.46, 0.49, 0.52, 0.56, 0.61],
-    atk_scale2: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.68, 0.73, 0.79],
+    atk_scale: [
+      0.270000010728836, 0.300000011920929, 0.319999992847443, 0.349999994039536, 0.379999995231628,
+      0.409999996423721, 0.430000007152557, 0.46000000834465, 0.490000009536743, 0.519999980926514,
+      0.560000002384186, 0.610000014305115,
+    ],
+    atk_scale2: [
+      0.349999994039536, 0.389999985694885, 0.419999986886978, 0.46000000834465, 0.490000009536743,
+      0.529999971389771, 0.560000002384186, 0.600000023841858, 0.629999995231628, 0.680000007152557,
+      0.730000019073486, 0.790000021457672,
+    ],
     cam_angle: 0,
     cam_duration: 3.41,
     duration: 2,
@@ -2449,7 +2504,11 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
     stack: 4,
     usp_everyone: 0,
     usp_self: 0,
-    display_atk_scale: [0.89, 0.98, 1.07, 1.16, 1.25, 1.34, 1.43, 1.51, 1.6, 1.72, 1.85, 2],
+    display_atk_scale: [
+      0.889999985694885, 0.980000019073486, 1.07000005245209, 1.1599999666214, 1.25,
+      1.3400000333786, 1.42999994754791, 1.50999999046326, 1.60000002384186, 1.72000002861023,
+      1.85000002384186, 2,
+    ],
     display_poise: 5,
   },
 );
@@ -2526,7 +2585,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.2 },
+                    durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: {
@@ -2559,7 +2618,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.16 },
+                    durationSeconds: { kind: 'constant', value: 0.159999996423721 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: {
@@ -2608,7 +2667,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.08888 },
+                durationSeconds: { kind: 'constant', value: 0.0888800024986267 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -2624,7 +2683,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.7513477,
+                      time: 0.751347720623016,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -2650,7 +2709,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06666 },
+                durationSeconds: { kind: 'constant', value: 0.06666000187397 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -2666,7 +2725,7 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.7513477,
+                      time: 0.751347720623016,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -2841,7 +2900,10 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
   },
   {
     anglestack: 0,
-    atk_scale: [4, 4.16, 4.32, 4.48, 4.64, 4.8, 4.96, 5.12, 5.28, 5.48, 5.72, 6],
+    atk_scale: [
+      4, 4.15999984741211, 4.32000017166138, 4.48000001907349, 4.6399998664856, 4.80000019073486,
+      4.96000003814697, 5.11999988555908, 5.28000020980835, 5.48000001907349, 5.71999979019165, 6,
+    ],
     atk_scale_runtime: 0,
     cam_angle: 0,
     cam_duration: 3.41,
@@ -2947,6 +3009,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                     iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                     showInHeadBarCommon: false,
                     showInHeadBarAttached: true,
+                    showDirectlyInHeadBuff: false,
                     showInSquadIcon: false,
                     onlyShowForMainCharacter: false,
                     blinkInMainCharHpBar: false,
@@ -3065,7 +3128,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                   priority: 0,
                   maxStackCount: 1,
                   durationSeconds: { blackboardKey: 'duration' },
-                  triggerIntervalSeconds: 0.1,
+                  triggerIntervalSeconds: 0.100000001490116,
                   waitFirstTriggerInterval: true,
                   maxTriggerCount: 1,
                   presentation: {
@@ -3074,6 +3137,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                     iconPath: '/icons/airborne.webp',
                     showInHeadBarCommon: false,
                     showInHeadBarAttached: false,
+                    showDirectlyInHeadBuff: false,
                     showInSquadIcon: false,
                     onlyShowForMainCharacter: false,
                     blinkInMainCharHpBar: false,
@@ -3204,8 +3268,8 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                     ),
                   },
                 },
-                duration: { kind: 'constant', value: 0.8 },
-                height: { kind: 'constant', value: 1.2 },
+                duration: { kind: 'constant', value: 0.800000011920929 },
+                height: { kind: 'constant', value: 1.20000004768372 },
                 speedFactorMultiplier: 1,
                 force: true,
                 targetFilter: 'aliveOnly',
@@ -3223,7 +3287,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.12 },
+                durationSeconds: { kind: 'constant', value: 0.119999997317791 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -3239,7 +3303,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.1,
+                      time: 0.100000001490116,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -3248,10 +3312,10 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.596829,
+                      time: 0.596828997135162,
                       value: 0,
                       inTangent: 0,
-                      outTangent: 2.480337,
+                      outTangent: 2.48033690452576,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -3259,8 +3323,8 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: -0.5423906,
-                      outTangent: -0.5423906,
+                      inTangent: -0.542390584945679,
+                      outTangent: -0.542390584945679,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -3298,7 +3362,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -3314,7 +3378,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.1,
+                      time: 0.100000001490116,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -3323,7 +3387,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.7465571,
+                      time: 0.746557116508484,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -3366,7 +3430,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.3 },
+            durationSeconds: { kind: 'constant', value: 0.300000011920929 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -3376,25 +3440,25 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                   time: 0,
                   value: 1,
                   inTangent: 0,
-                  outTangent: -3.065404,
+                  outTangent: -3.06540393829346,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.3262213,
+                  time: 0.326221287250519,
                   value: 0,
-                  inTangent: -0.1830944,
+                  inTangent: -0.183094397187233,
                   outTangent: 0,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.7465571,
+                  time: 0.746557116508484,
                   value: 0,
                   inTangent: 0,
-                  outTangent: -0.5801874,
+                  outTangent: -0.580187380313873,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -3402,7 +3466,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 3.945662,
+                  inTangent: 3.94566202163696,
                   outTangent: 0,
                   weightedMode: 0,
                   inWeight: 0,
@@ -3447,8 +3511,16 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [0.9, 0.99, 1.08, 1.17, 1.26, 1.35, 1.44, 1.53, 1.62, 1.73, 1.87, 2.03],
-    atk_scale2: [2.21, 2.43, 2.65, 2.87, 3.09, 3.31, 3.54, 3.76, 3.98, 4.25, 4.58, 4.97],
+    atk_scale: [
+      0.899999976158142, 0.990000009536743, 1.08000004291534, 1.16999995708466, 1.25999999046326,
+      1.35000002384186, 1.44000005722046, 1.52999997138977, 1.62000000476837, 1.73000001907349,
+      1.87000000476837, 2.02999997138977,
+    ],
+    atk_scale2: [
+      2.21000003814697, 2.4300000667572, 2.65000009536743, 2.86999988555908, 3.08999991416931,
+      3.30999994277954, 3.53999996185303, 3.75999999046326, 3.98000001907349, 4.25,
+      4.57999992370605, 4.96999979019165,
+    ],
     duration: 15,
     extraattack: 0,
     FinalShield: 0,
@@ -3458,7 +3530,11 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
     potential_5: 0,
     rate: 0.1,
     shelter: 0,
-    display_atk_scale: [3.11, 3.42, 3.73, 4.04, 4.35, 4.66, 4.98, 5.29, 5.6, 5.99, 6.45, 7],
+    display_atk_scale: [
+      3.10999989509583, 3.42000007629395, 3.73000001907349, 4.03999996185303, 4.34999990463257,
+      4.65999984741211, 4.98000001907349, 5.28999996185303, 5.59999990463257, 5.98999977111816,
+      6.44999980926514, 7,
+    ],
     display_poise: 20,
     poise: 0,
   },
@@ -3655,7 +3731,7 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
+                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -3671,7 +3747,7 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.7500001,
+                      time: 0.75000011920929,
                       value: 0,
                       inTangent: 0,
                       outTangent: 0,
@@ -3721,7 +3797,7 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -3768,7 +3844,7 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
+                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -3784,10 +3860,10 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.7,
+                      time: 0.699999988079071,
                       value: 0,
                       inTangent: 0,
-                      outTangent: 2.481606,
+                      outTangent: 2.48160600662231,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -3795,8 +3871,8 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 3.333333,
-                      outTangent: 3.333333,
+                      inTangent: 3.33333301544189,
+                      outTangent: 3.33333301544189,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -3892,7 +3968,7 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.36666 },
+            durationSeconds: { kind: 'constant', value: 0.366659998893738 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -3911,8 +3987,16 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale1: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
-    atk_scale2: [0.51, 0.56, 0.61, 0.66, 0.71, 0.77, 0.82, 0.87, 0.92, 0.98, 1.06, 1.15],
+    atk_scale1: [
+      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
+      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
+      0.620000004768372, 0.680000007152557,
+    ],
+    atk_scale2: [
+      0.509999990463257, 0.560000002384186, 0.610000014305115, 0.660000026226044, 0.709999978542328,
+      0.769999980926514, 0.819999992847443, 0.870000004768372, 0.920000016689301, 0.980000019073486,
+      1.05999994277954, 1.14999997615814,
+    ],
     distance: 0,
     duration: 16,
     extra_effect: 0,
@@ -3927,14 +4011,18 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
     potential: 0,
     potential_addattack_duration: 0,
     potential_addattack_effect: 0,
-    rate: 0.05,
+    rate: 0.0500000007450581,
     talent: 0,
     talent_shield_cd: 0,
     talent_shield_duration: 0,
     talent_shield_hppercent: 0,
     talent_shield_maxhp: 0,
     usp: 10,
-    display_atk_scale: [1.11, 1.22, 1.33, 1.44, 1.55, 1.67, 1.78, 1.89, 2, 2.14, 2.3, 2.5],
+    display_atk_scale: [
+      1.11000001430511, 1.22000002861023, 1.33000004291534, 1.44000005722046, 1.54999995231628,
+      1.66999995708466, 1.77999997138977, 1.88999998569489, 2, 2.14000010490417, 2.29999995231628,
+      2.5,
+    ],
     __endaxis_native_skill_has_hit: 0,
   },
 );
@@ -4067,7 +4155,7 @@ export default {
           skillKey: 'battleSkill3',
           blackboardKey: 'crushmultiadd_talent',
           operation: 'assign',
-          value: [0.1, 0.2],
+          value: [0.100000001490116, 0.200000002980232],
         },
       ],
     },
@@ -4087,7 +4175,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'talent_shield_hppercent',
           operation: 'assign',
-          value: [0.15, 0.3],
+          value: [0.150000005960464, 0.300000011920929],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4123,7 +4211,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'extra_effect',
           operation: 'assign',
-          value: 0.05,
+          value: 0.0500000007450581,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4173,7 +4261,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'potential_addattack_effect',
           operation: 'assign',
-          value: 0.06,
+          value: 0.0599999986588955,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4192,7 +4280,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
       ],
     },
@@ -4213,7 +4301,7 @@ export default {
           skillKey: 'battleSkill1',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.1,
+          value: 1.10000002384186,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4221,7 +4309,7 @@ export default {
           skillKey: 'battleSkill2',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.1,
+          value: 1.10000002384186,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4229,7 +4317,7 @@ export default {
           skillKey: 'battleSkill2',
           blackboardKey: 'atk_scale2',
           operation: 'multiply',
-          value: 1.1,
+          value: 1.10000002384186,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4237,7 +4325,7 @@ export default {
           skillKey: 'battleSkill3',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.1,
+          value: 1.10000002384186,
         },
       ],
     },
@@ -4254,6 +4342,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_def_down.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4284,6 +4373,72 @@ export default {
       blackboard: {},
       attributeModifiers: [],
     },
+    buff_chr_0031_mifu_listen_crush: {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 1,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: 1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+      abilityEventResponses: [
+        {
+          event: 'beforeOutputPhysicalInfliction',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              { kind: 'eventPhysicalInflictionTypeIn', types: ['crush'] },
+              sequence(
+                branch(
+                  { kind: 'originSkillTypeIn', skillTypes: ['battleSkill'] },
+                  sequence(
+                    branch(
+                      {
+                        kind: 'not',
+                        condition: {
+                          kind: 'timedMarkerPresent',
+                          target: 'caster',
+                          markerId: 'buff_chr_0031_mifu_listen_crush',
+                        },
+                      },
+                      sequence(
+                        branch(
+                          {
+                            kind: 'buffStackCompare',
+                            target: 'actionInputTarget',
+                            tagQueryType: 'hasAny',
+                            buffTags: ['Skill/Character/Common/NoGuard'],
+                            operator: 'greaterOrEqual',
+                            value: { kind: 'constant', value: 3 },
+                          },
+                          sequence(
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0031_mifu_normalskill_3',
+                              target: 'buffOwner',
+                              source: 'buffOwner',
+                              inheritSourceSkillCastInfo: true,
+                            }),
+                            step('createTimedMarker', {
+                              target: 'caster',
+                              markerId: 'buff_chr_0031_mifu_listen_crush',
+                              durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                              autoFinishByAction: false,
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        },
+      ],
+    },
     buff_chr_0031_mifu_normalskill_2: {
       stackingType: 'stack',
       priority: 0,
@@ -4295,6 +4450,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_def_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4366,6 +4522,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_def_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4440,6 +4597,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4474,6 +4632,7 @@ export default {
         iconPath: '/icons/icon_battle_shield.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4518,6 +4677,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_def_down.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

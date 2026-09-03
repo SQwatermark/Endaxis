@@ -51,7 +51,7 @@ export const aleshBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
+                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -78,7 +78,14 @@ export const aleshBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.18, 0.19, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.180000007152557, 0.189999997615814, 0.209999993443489, 0.230000004172325, 0.25,
+      0.259999990463257, 0.280000001192093, 0.300000011920929, 0.319999992847443, 0.340000003576279,
+      0.360000014305115, 0.389999985694885,
+    ],
+  },
 );
 
 export const aleshBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -120,7 +127,7 @@ export const aleshBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.03 },
+                durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -155,7 +162,7 @@ export const aleshBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
+                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -172,7 +179,14 @@ export const aleshBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.100000001490116, 0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046,
+      0.150000005960464, 0.159999996423721, 0.170000001788139, 0.180000007152557, 0.189999997615814,
+      0.209999993443489, 0.230000004172325,
+    ],
+  },
 );
 
 export const aleshBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -210,7 +224,7 @@ export const aleshBasicAttack3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.12 },
+                durationSeconds: { kind: 'constant', value: 0.119999997317791 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -257,7 +271,14 @@ export const aleshBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.280000001192093, 0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885,
+      0.409999996423721, 0.439999997615814, 0.469999998807907, 0.5, 0.529999971389771,
+      0.569999992847443, 0.620000004768372,
+    ],
+  },
 );
 
 export const aleshBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -299,7 +320,7 @@ export const aleshBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.12 },
+                durationSeconds: { kind: 'constant', value: 0.119999997317791 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -326,7 +347,14 @@ export const aleshBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.280000001192093, 0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885,
+      0.409999996423721, 0.439999997615814, 0.469999998807907, 0.5, 0.529999971389771,
+      0.569999992847443, 0.620000004768372,
+    ],
+  },
 );
 
 export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -370,7 +398,7 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.2 },
+                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_zero' },
@@ -403,7 +431,7 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.2 },
+                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -432,9 +460,17 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 19,
-    atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
+    atk_scale: [
+      0.280000001192093, 0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885,
+      0.409999996423721, 0.439999997615814, 0.469999998807907, 0.5, 0.529999971389771,
+      0.569999992847443, 0.620000004768372,
+    ],
     poise: 17,
-    atk_scale_display: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
+    atk_scale_display: [
+      0.550000011920929, 0.610000014305115, 0.660000026226044, 0.720000028610229, 0.769999980926514,
+      0.829999983310699, 0.879999995231628, 0.939999997615814, 0.990000009536743, 1.05999994277954,
+      1.13999998569489, 1.24000000953674,
+    ],
   },
 );
 
@@ -475,7 +511,7 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.2 },
+                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_zero' },
@@ -519,7 +555,7 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.3 },
+            durationSeconds: { kind: 'constant', value: 0.300000011920929 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -545,7 +581,7 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.12 },
+                    durationSeconds: { kind: 'constant', value: 0.119999997317791 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -590,10 +626,21 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: 4,
-    atk_scale1: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    atk_scale2: [3.2, 3.52, 3.84, 4.16, 4.48, 4.8, 5.12, 5.44, 5.76, 6.16, 6.64, 7.2],
+    atk_scale1: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+    atk_scale2: [
+      3.20000004768372, 3.51999998092651, 3.83999991416931, 4.15999984741211, 4.48000001907349,
+      4.80000019073486, 5.11999988555908, 5.44000005722046, 5.76000022888184, 6.15999984741211,
+      6.6399998664856, 7.19999980926514,
+    ],
     camera: 0,
-    atk_scale_display: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+    atk_scale_display: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
   },
 );
 
@@ -641,7 +688,14 @@ export const aleshPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -688,9 +742,9 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -872,7 +926,7 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.3 },
+                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -883,9 +937,9 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -954,9 +1008,9 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -975,7 +1029,10 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
     atb_2: [20, 20, 20, 20, 20, 20, 20, 20, 20, 25, 25, 25],
     atb_3: [30, 30, 30, 30, 30, 30, 30, 30, 30, 35, 35, 35],
     atb_4: [40, 40, 40, 40, 40, 40, 40, 40, 40, 45, 45, 45],
-    atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
+    atk_scale: [
+      2, 2.20000004768372, 2.40000009536743, 2.59999990463257, 2.79999995231628, 3,
+      3.20000004768372, 3.40000009536743, 3.59999990463257, 3.84999990463257, 4.15000009536743, 4.5,
+    ],
     blow_off_distance: 2,
     cam_angle: 0,
     cam_duration: 0,
@@ -1089,7 +1146,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.95 },
+                durationSeconds: { kind: 'constant', value: 0.949999988079071 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'deepfin_combo2' },
@@ -1100,7 +1157,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.3 },
+                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'deepfin_combo2' },
@@ -1132,7 +1189,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.95 },
+                durationSeconds: { kind: 'constant', value: 0.949999988079071 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'deepfin_combo2' },
@@ -1143,7 +1200,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.3 },
+                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'deepfin_combo2' },
@@ -1300,10 +1357,26 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atb: [10, 10, 10, 10, 10, 12, 12, 12, 12, 13, 13, 15],
     atb_sp: 10,
-    atk_scale_1: [0.33, 0.37, 0.4, 0.43, 0.47, 0.5, 0.53, 0.57, 0.6, 0.64, 0.69, 0.75],
-    atk_scale_1ex: [0.53, 0.59, 0.64, 0.69, 0.75, 0.8, 0.85, 0.91, 0.96, 1.03, 1.11, 1.2],
-    atk_scale_2: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
-    atk_scale_2ex: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
+    atk_scale_1: [
+      0.330000013113022, 0.370000004768372, 0.400000005960464, 0.430000007152557, 0.469999998807907,
+      0.5, 0.529999971389771, 0.569999992847443, 0.600000023841858, 0.639999985694885,
+      0.689999997615814, 0.75,
+    ],
+    atk_scale_1ex: [
+      0.529999971389771, 0.589999973773956, 0.639999985694885, 0.689999997615814, 0.75,
+      0.800000011920929, 0.850000023841858, 0.910000026226044, 0.959999978542328, 1.02999997138977,
+      1.11000001430511, 1.20000004768372,
+    ],
+    atk_scale_2: [
+      1, 1.10000002384186, 1.20000004768372, 1.29999995231628, 1.39999997615814, 1.5,
+      1.60000002384186, 1.70000004768372, 1.79999995231628, 1.92999994754791, 2.07999992370605,
+      2.25,
+    ],
+    atk_scale_2ex: [
+      1.60000002384186, 1.75999999046326, 1.91999995708466, 2.07999992370605, 2.24000000953674,
+      2.40000009536743, 2.55999994277954, 2.72000002861023, 2.88000011444092, 3.07999992370605,
+      3.3199999332428, 3.59999990463257,
+    ],
     atk_scale_trigger: 2,
     atk_up: 0.15,
     camera: 0,
@@ -1313,13 +1386,20 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
     owner_mainchar_distance: 0,
     poise: 10,
     potential_3: 0,
-    prob: 0.1,
+    prob: 0.100000001490116,
     prob_add: 0,
     prob_max: 0,
     rate: 10,
     usp_normal: 10,
-    atk_scale_display: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
-    atk_scale_display_ex: [2.13, 2.35, 2.56, 2.77, 2.99, 3.2, 3.41, 3.63, 3.84, 4.11, 4.43, 4.8],
+    atk_scale_display: [
+      1.33000004291534, 1.47000002861023, 1.60000002384186, 1.73000001907349, 1.87000000476837, 2,
+      2.13000011444092, 2.26999998092651, 2.40000009536743, 2.5699999332428, 2.76999998092651, 3,
+    ],
+    atk_scale_display_ex: [
+      2.13000011444092, 2.34999990463257, 2.55999994277954, 2.76999998092651, 2.99000000953674,
+      3.20000004768372, 3.41000008583069, 3.63000011444092, 3.83999991416931, 4.1100001335144,
+      4.42999982833862, 4.80000019073486,
+    ],
   },
 );
 
@@ -1431,9 +1511,9 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1493,7 +1573,7 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
+                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'deepfin_ult' },
@@ -1540,7 +1620,11 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
     atb: [20, 20, 20, 20, 20, 20, 20, 20, 20, 25, 25, 25],
     atb_max: 100,
     atb_up: [12, 12, 12, 12, 12, 12, 12, 12, 12, 15, 15, 15],
-    atk_scale: [4.36, 4.79, 5.23, 5.66, 6.1, 6.53, 6.97, 7.41, 7.84, 8.39, 9.04, 9.8],
+    atk_scale: [
+      4.3600001335144, 4.78999996185303, 5.23000001907349, 5.65999984741211, 6.09999990463257,
+      6.53000020980835, 6.96999979019165, 7.40999984741211, 7.84000015258789, 8.39000034332275,
+      9.03999996185303, 9.80000019073486,
+    ],
     atk_up: 1.5,
     height: 4,
     hp_tar: 0.5,
@@ -1692,14 +1776,14 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'prob_add',
           operation: 'assign',
-          value: [0.002, 0.005],
+          value: [0.0020000000949949, 0.00499999988824129],
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'prob_max',
           operation: 'assign',
-          value: [0.3, 0.3],
+          value: [0.300000011920929, 0.300000011920929],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1756,7 +1840,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_up',
           operation: 'assign',
-          value: 0.15,
+          value: 0.150000005960464,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1775,7 +1859,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
       ],
     },
@@ -1823,14 +1907,14 @@ export default {
           sequence(
             step('startTimeDilation', {
               scope: 'global',
-              durationSeconds: { kind: 'constant', value: 0.63 },
+              durationSeconds: { kind: 'constant', value: 0.629999995231628 },
               slot: 'unassigned',
               priority: 30,
               curve: { kind: 'named', key: 'ComboSkill' },
               finishByAction: false,
               ignoredTargets: ['caster'],
               ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
-              influenceSkillCooldownSeconds: { kind: 'constant', value: 0.3 },
+              influenceSkillCooldownSeconds: { kind: 'constant', value: 0.300000011920929 },
             }),
           ),
           16,
@@ -1848,6 +1932,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

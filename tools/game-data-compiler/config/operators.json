@@ -6051,6 +6051,265 @@
       }
     },
     {
+      "slug": "typhoeus",
+      "exportName": "typhoeusGeneratedSource",
+      "gameId": "TYPHOEUS",
+      "charId": "chr_0034_typhoea",
+      "runtimeReplacementSkillKeys": ["battleSkillLoop", "battleSkillEnd", "comboSkillFloating"],
+      "talents": [
+        {
+          "index": 0,
+          "key": "talent1",
+          "compile": "skillBlackboardPatchAndAttachedBuff"
+        },
+        {
+          "index": 1,
+          "key": "talent2",
+          "compile": "attachedBuff"
+        }
+      ],
+      "potentials": [
+        {
+          "key": "potential1",
+          "compile": "skillBlackboardPatchAndAttachedBuff"
+        },
+        {
+          "key": "potential2",
+          "compile": "staticAttributes"
+        },
+        {
+          "key": "potential3",
+          "compile": "skillCooldownAndBlackboardPatch"
+        },
+        {
+          "key": "potential4",
+          "compile": "skillCooldown"
+        },
+        {
+          "key": "potential5",
+          "compile": "skillBlackboardPatch"
+        }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
+          ],
+          "variants": [
+            {
+              "key": "floatingBasicAttack",
+              "levelSource": "battleSkill",
+              "nativeGroupType": 1,
+              "libraryPresentation": "enhanced",
+              "skillKeys": [
+                "floatingAttack1",
+                "floatingAttack2",
+                "floatingAttack3",
+                "floatingAttack4",
+                "floatingAttack5"
+              ]
+            }
+          ]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "replacementPlacements": {
+            "battleSkillLoop": "standard",
+            "battleSkillEnd": "standard"
+          },
+          "skillKeys": ["battleSkill", "battleSkillLoop", "battleSkillEnd"]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "replacementPlacements": {
+            "comboSkillFloating": "enhanced"
+          },
+          "skillKeys": ["comboSkill", "comboSkillFloating"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["ultimate"]
+        }
+      ],
+      "skills": [
+        {
+          "key": "basicAttack1",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack1.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack2",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack2.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack3",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack3.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack4",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack4.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "basicAttack5",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack5.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"]
+          }
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_power_attack.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "powerAttack"]
+          }
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_plunging_attack_end.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "plungingAttack"]
+          }
+        },
+        {
+          "key": "floatingAttack1",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack1.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "floatingAttack2",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack2.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "floatingAttack3",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack3.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "floatingAttack4",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack4.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalAttack"] }
+        },
+        {
+          "key": "floatingAttack5",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack5.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"]
+          }
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_normal_skill_floating_start.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"] }
+        },
+        {
+          "key": "battleSkillLoop",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_normal_skill_floating_loop.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"] }
+        },
+        {
+          "key": "battleSkillEnd",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_normal_skill_floating_end.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["normalSkill"] }
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "source": "chr_0034_typhoea_combo_skill.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["comboSkill"] }
+        },
+        {
+          "key": "comboSkillFloating",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "source": "chr_0034_typhoea_combo_skillfloating.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["comboSkill"] }
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "source": "chr_0034_typhoea_ultimate_skillfloating.json",
+          "compile": { "kind": "resolvedSequence", "tags": ["ultimateSkill"] }
+        }
+      ],
+      "runtimeTemplate": {
+        "sourceFile": "CharacterData/chr_0034_typhoea.runtime-template.json",
+        "sourceSha256": "64d9d63835862dc42a3a1c15d9ac745ed124195a11ea2b49a044419c6a318e58",
+        "sourceCharacterId": "chr_0034_typhoea",
+        "comboSkillGroupKey": "comboSkill"
+      }
+    },
+    {
       "slug": "liino",
       "exportName": "liinoGeneratedSource",
       "gameId": "LIINO",

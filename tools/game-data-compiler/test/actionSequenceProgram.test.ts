@@ -228,6 +228,21 @@ describe('公共 Action 序列控制流投影', () => {
     });
   });
 
+  it('来源场景已证明守卫为假时，不编译不可达子树', () => {
+    const base = options();
+    expect(
+      compileActionSequenceProgram(sequence([leaf('?no-move'), leaf('unsupported')]), {
+        ...base,
+        canOmitUnusedCondition: node => node.body.kind === 'leaf' && node.body.value === '?no-move',
+        selectGuardResult: node =>
+          node.body.kind === 'leaf' && node.body.value === '?no-move' ? false : undefined,
+        compileLeaf: () => {
+          throw new Error('unreachable leaf must not be compiled');
+        },
+      }),
+    ).toEqual({ steps: [] });
+  });
+
   it('NotNextCheckAction 只反转下一条件并保持后续短路体', () => {
     const negate: NativeActionNodeSource<string> = {
       metadata,

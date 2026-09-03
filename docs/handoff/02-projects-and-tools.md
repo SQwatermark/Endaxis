@@ -26,14 +26,16 @@ Endaxis 是最终面向用户的应用。它不负责直接解密游戏文件，
 - `docs/research`：具体机制和生成覆盖率证据；
 - `docs/handoff`：跨项目交接总览。
 
-## 2. AKEDatabase 与 AKEDB CDN
+## 2. AKEDatabase 与 AKEDB CDN（历史对照）
 
 - 本地参考前端：`C:\Users\sqwat\Projects\zmd\AKEDatabase`
 - 仓库：`https://github.com/NagiYume/AKEDatabase.git`
 - CDN：`https://data.akedata.wiki`
 - 当前本地参考版本：`31c3b875`，README 标注含 Baker 模块。
 
-AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用于当前导出的结构化数据已迁移到 CDN。克隆仓库主要用于研究：
+AKEDatabase 是一个浏览和解释终末地数据的前端项目。它及其 CDN 现只用于对照历史命名、
+展示规则和已有研究结论，不得作为 Endaxis 生产生成的数据源、fallback 或版本更新节奏的限制。
+克隆仓库可用于研究：
 
 - TableCfg 和 v3 数据的请求路径；
 - 干员、武器、装备、敌人、技能和 Buff 的字段映射；
@@ -47,7 +49,8 @@ AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用�
 - `/public/Json/BuffData/manifest.json`：BuffData 文件清单；
 - TableCfg 及本地化文件由清单和版本路由决定具体路径。
 
-边界：AKEDB 是高价值静态数据源，但不是客户端完整运行时。某个技能可能只有 CharacterTable、SkillPatch 和 BuffData，没有根 SkillData；客户端通用代码、热更逻辑和帧执行顺序也不一定能从它单独证明。
+边界：AKEDB 不是当前数据事实源。它不能补齐、覆盖或掩盖 VFS 的缺失；如果 VFS 未能导出
+当前客户端数据，应修复我们自己维护的索引、解码或导出链路。
 
 ## 3. vfs-index-browser
 
@@ -56,7 +59,9 @@ AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用�
 - 2026-08-28 核对提交：`21b88d1 fix(projectile): decode native block layer values`
 - 远程服务历史端口：`8765`
 
-这是独立的本地游戏文件浏览与研究平台，不属于 Endaxis 页面。它的核心目标是：只要机器安装了游戏，就能按逻辑路径浏览、按需提取、预览和下载资源，而不依赖远程 CDN。
+这是我们自己维护的本地游戏文件浏览与研究平台，也是 Endaxis 游戏数据的唯一生产事实源。
+只要机器安装了游戏，就应能按逻辑路径浏览、提取、解码和导出当前 Effective 资源，更新速度和覆盖范围
+不受第三方 CDN 限制。
 
 它将资源读取拆为三层：
 

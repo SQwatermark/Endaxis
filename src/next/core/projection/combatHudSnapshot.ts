@@ -65,6 +65,18 @@ export type CombatHudPassiveUiSnapshot =
       readonly buffId: string;
       readonly instanceId: number;
       readonly ratio: number | null;
+    }
+  | {
+      readonly kind: 'buffCounters';
+      readonly appearance: Extract<
+        OperatorPassiveUiDefinition,
+        { kind: 'buffCounters' }
+      >['appearance'];
+      readonly counters: readonly {
+        readonly key: string;
+        readonly value: number;
+        readonly maximum: number;
+      }[];
     };
 
 export interface CombatHudHpProgressSnapshot {
@@ -517,6 +529,46 @@ function passiveUiSnapshotsAtFrame(
         value,
         maximum: definition.maximum,
         active: definition.activeAt !== undefined && value >= definition.activeAt,
+      });
+      continue;
+    }
+    if (definition.kind === 'buffCounters') {
+      const counters = definition.counters.map(counter => {
+        let value = 0;
+        let activeInstanceId: number | null = null;
+        for (const entry of entries) {
+          if (entry.frame > frame || entry.targetId !== operatorId) continue;
+          const buffId = stringData(entry.data, 'buffId');
+          const instanceId = numberData(entry.data, 'instanceId');
+          if (buffId === undefined || !counter.buffIds.includes(buffId)) continue;
+          if (entry.event === 'BuffApplied' && instanceId !== undefined) {
+            activeInstanceId = instanceId;
+            value = numberData(entry.data, 'layers') ?? 1;
+          } else if (
+            entry.event === 'BuffEnhanceChanged' &&
+            instanceId !== undefined &&
+            activeInstanceId === instanceId
+          ) {
+            value = numberData(entry.data, 'layers') ?? value;
+          } else if (
+            entry.event === 'BuffFinished' &&
+            instanceId !== undefined &&
+            activeInstanceId === instanceId
+          ) {
+            activeInstanceId = null;
+            value = 0;
+          }
+        }
+        return {
+          key: counter.key,
+          value: Math.min(counter.maximum, Math.max(0, Math.round(value))),
+          maximum: counter.maximum,
+        };
+      });
+      result.set(operatorId, {
+        kind: 'buffCounters',
+        appearance: definition.appearance,
+        counters,
       });
       continue;
     }

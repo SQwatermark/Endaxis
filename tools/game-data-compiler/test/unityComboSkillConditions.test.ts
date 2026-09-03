@@ -20,6 +20,56 @@ function parse(fixture = unityComboConditionFixture()) {
 }
 
 describe('Unity RID 条件适配', () => {
+  it('把原生 Pending 连携存在检查投影为施法者的场景级候选条件', () => {
+    const fixture = unityComboConditionFixture();
+    const sample = Object.values(fixture.references)[0]!;
+    const owner = structuredClone(sample.data.target) as Record<string, unknown>;
+    owner.targetSource = 4;
+    owner.targetGroupKey = '';
+    const rid = '8993780178464276549';
+    const source = parseUnityComboSkillConditionsSource(
+      [
+        {
+          comboSkillEvent: 121,
+          comboSkillConditionImmediately: false,
+          comboSkillCheckAction: {
+            onlyExecuteWhenSourceIsMainChar: false,
+            onlyExecuteWhenSourceIsGuard: false,
+            actionData: [rid],
+          },
+        },
+      ],
+      {
+        [rid]: {
+          rid,
+          class: 'CheckComboSkillPending/Data',
+          namespace: 'Beyond.Gameplay.Core',
+          assembly: 'Gameplay.Beyond',
+          decodeStatus: 'complete',
+          data: {
+            isEnable: true,
+            priorityLevel: 0,
+            priorityOffset: 0,
+            serverActionIndex: 1000,
+            owner,
+          },
+        },
+      },
+      'character.combo',
+    );
+
+    expect(source.conditions[0]!.sequence.actions[0]).toMatchObject({
+      body: { value: { action: { kind: 'comboSkillPending', owner: { targetSource: 'Owner' } } } },
+    });
+    expect(compilePendingComboConditionSource(source.conditions[0]!, projection)).toMatchObject({
+      sequence: {
+        steps: [
+          { kind: 'conditional', parameters: { condition: { kind: 'pendingComboSkillPresent' } } },
+        ],
+      },
+    });
+  });
+
   it('新增四类 RID 叶子只规范化序列化形状，并统一进入公共 Condition 编译', () => {
     const target = structuredClone(
       unityComboConditionFixture().references['2708501211437859822']!.data.target,

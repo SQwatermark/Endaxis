@@ -8,19 +8,19 @@ const definition = {
       kind: 'damageScale',
       target: 'comboSkill',
       slot: 'baseAddition',
-      value: 0.2,
+      value: 0.20000000298023224,
     },
     {
       kind: 'damageScale',
       target: 'battleSkill',
       slot: 'baseAddition',
-      value: 0.2,
+      value: 0.20000000298023224,
     },
     {
       kind: 'damageScale',
       target: 'ultimate',
       slot: 'baseAddition',
-      value: 0.2,
+      value: 0.20000000298023224,
     },
   ],
   buffDefinitions: {
@@ -308,6 +308,7 @@ const definition = {
         iconPath: '/icons/icon_battle_spell_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -382,7 +383,7 @@ const definition = {
             },
             spell_dmg_up: {
               kind: 'constant',
-              value: 0.35,
+              value: 0.3499999940395355,
             },
             duration: {
               kind: 'constant',

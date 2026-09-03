@@ -1,5 +1,7 @@
 export type SourceRecord = Record<string, unknown>;
 
+export const NATIVE_COST_TYPES = ['UltimateSp', 'Atb'] as const;
+
 /** 严格读取原生对象；数组不能冒充带字段的数据对象。 */
 export function requireRecord(value: unknown, path: string): SourceRecord {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
@@ -34,6 +36,13 @@ export function requireString(value: unknown, path: string): string {
     throw new Error(`${path}: expected string`);
   }
   return value;
+}
+
+/** 原生枚举在 VFS 中是整数、历史 Unity JSON 中可能是名称；仅保留载荷时使用。 */
+export function requireStringOrInteger(value: unknown, path: string): string | number {
+  return typeof value === 'number'
+    ? requireInteger(value, path)
+    : requireNonEmptyString(value, path);
 }
 
 export function requireNonEmptyString(value: unknown, path: string): string {
@@ -73,10 +82,61 @@ export function requireInteger(value: unknown, path: string): number {
   return value;
 }
 
+/**
+ * 读取游戏原生枚举。VFS 的 MemoryPack 解码结果保留底层整数，历史 JSON
+ * 快照则可能已经把同一值格式化为枚举名；转换器在来源边界统一二者。
+ *
+ * 这里只接受调用方提供的、已有当前版本证据的 value -> name 映射，不根据
+ * 字段名或直觉猜测枚举语义。连续枚举可以直接传名字数组；存在空洞时传 Map。
+ */
+export function requireNativeEnum<const Name extends string>(
+  value: unknown,
+  names: readonly Name[] | ReadonlyMap<number, Name>,
+  path: string,
+): Name {
+  const map: ReadonlyMap<number, Name> | null =
+    names instanceof Map ? (names as ReadonlyMap<number, Name>) : null;
+  const list: readonly Name[] | null = map === null ? (names as readonly Name[]) : null;
+  if (typeof value === 'string') {
+    const knownNames: readonly Name[] = list ?? [...map!.values()];
+    if (knownNames.includes(value as Name)) return value as Name;
+    throw new Error(`${path}: unknown native enum name ${JSON.stringify(value)}`);
+  }
+  if (typeof value !== 'number' || !Number.isInteger(value)) {
+    throw new Error(`${path}: expected native enum name or integer`);
+  }
+  const name = list === null ? map!.get(value) : list[value];
+  if (name === undefined) throw new Error(`${path}: unknown native enum value ${value}`);
+  return name;
+}
+
+const ACTION_PRIORITY_BY_VALUE = new Map([
+  [-1, 'High'],
+  [0, 'Default'],
+  [1, 'Low'],
+] as const);
+
+/** AbilityActionData.Priority：原生以 Default=0 为中心，High/Low 分居两侧。 */
+export function requireNativeActionPriority(value: unknown, path: string): string {
+  return requireNativeEnum(value, ACTION_PRIORITY_BY_VALUE, path);
+}
+
 export function nativeActionName(typeName: string): string {
   // 原生导出的类型可能同时包含命名空间、嵌套类型和程序集名。
   const qualifiedName = typeName.split(',', 1)[0] ?? '';
-  const unqualifiedName = qualifiedName.split('.').at(-1) ?? '';
+  const segments = qualifiedName.split('.');
+  const unqualifiedName = segments.at(-1) ?? '';
+  // VFS schema 从 wrapper owner 还原嵌套 Data 时使用 `Outer.Data`，而 Unity/旧
+  // JSON 导出写成 `Outer+Data`；二者均指向同一个动作类型 Outer。
+  if (segments.length >= 2) {
+    const ownerName = segments.at(-2) ?? '';
+    if (
+      unqualifiedName === 'Data' ||
+      unqualifiedName === `${ownerName}Data` ||
+      (ownerName.endsWith('Action') && unqualifiedName.endsWith('Data'))
+    )
+      return ownerName;
+  }
   return unqualifiedName.split('+', 1)[0] ?? '';
 }
 

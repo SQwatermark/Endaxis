@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'attackPercent',
-      value: 0.15,
+      value: 0.15000000596046448,
     },
   ],
   buffDefinitions: {
@@ -73,9 +73,7 @@ const definition = {
     buff_equipsuit_attrisuitup_01: {
       stackingType: 'stack',
       priority: 0,
-      maxStackCount: {
-        blackboardKey: 'max_stack',
-      },
+      maxStackCount: 2,
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
@@ -85,6 +83,7 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -263,11 +262,11 @@ const definition = {
           blackboardAssignments: {
             atk_up: {
               kind: 'constant',
-              value: 0.15,
+              value: 0.15000000596046448,
             },
             dmg_up: {
               kind: 'constant',
-              value: 0.3,
+              value: 0.30000001192092896,
             },
             max_stack: {
               kind: 'constant',

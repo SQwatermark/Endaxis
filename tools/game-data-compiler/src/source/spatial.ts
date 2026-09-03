@@ -1,19 +1,24 @@
 import {
   requireBoolean,
   requireExactFields,
-  requireNonEmptyString,
+  requireNativeEnum,
   requireNumber,
   requireRecord,
+  requireStringOrInteger,
 } from './primitives.ts';
-import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import {
+  NATIVE_DIRECTIONS,
+  parseTargetReferenceSource,
+  type TargetReferenceSource,
+} from './target.ts';
 
 export type Vector3Source = readonly [number, number, number];
 export type QuaternionSource = readonly [number, number, number, number];
 
 export interface AdvancedDirectionSource {
   readonly directionType: string;
-  readonly sourceMountPoint: string;
-  readonly targetMountPoint: string;
+  readonly sourceMountPoint: string | number;
+  readonly targetMountPoint: string | number;
   readonly customSourceAndTarget: boolean;
   readonly clampToXZ: boolean;
   readonly invertDirection: boolean;
@@ -67,16 +72,32 @@ export function parseAdvancedDirectionSource(
   }
   requireExactFields(direction, fields, path);
   return {
-    directionType: requireNonEmptyString(direction.directionType, `${path}.directionType`),
-    sourceMountPoint: requireNonEmptyString(direction.sourceMountPoint, `${path}.sourceMountPoint`),
-    targetMountPoint: requireNonEmptyString(direction.targetMountPoint, `${path}.targetMountPoint`),
+    directionType: requireNativeEnum(
+      direction.directionType,
+      NATIVE_DIRECTIONS,
+      `${path}.directionType`,
+    ),
+    sourceMountPoint: requireStringOrInteger(
+      direction.sourceMountPoint,
+      `${path}.sourceMountPoint`,
+    ),
+    targetMountPoint: requireStringOrInteger(
+      direction.targetMountPoint,
+      `${path}.targetMountPoint`,
+    ),
     customSourceAndTarget: requireBoolean(
       direction.customSourceAndTarget,
       `${path}.customSourceAndTarget`,
     ),
     clampToXZ: requireBoolean(direction.clampToXZ, `${path}.clampToXZ`),
     invertDirection: requireBoolean(direction.invertDirection, `${path}.invertDirection`),
-    source: hasSource ? parseTargetReferenceSource(direction.source, `${path}.source`) : null,
-    target: hasTarget ? parseTargetReferenceSource(direction.target, `${path}.target`) : null,
+    source:
+      hasSource && direction.source !== null
+        ? parseTargetReferenceSource(direction.source, `${path}.source`)
+        : null,
+    target:
+      hasTarget && direction.target !== null
+        ? parseTargetReferenceSource(direction.target, `${path}.target`)
+        : null,
   };
 }

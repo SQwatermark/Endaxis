@@ -24,9 +24,11 @@ import {
   isControlledOperatorInstantSearch,
   isOwnerSpawnedAbilityEntityInstantSearch,
   isStaticSingleEnemyOwnerAllyTargetGroup,
+  isStaticExplicitBadFactionEnemyTargetGroup,
   isStaticSingleEnemyTargetGroup,
   isCurrentTargetRestrictedSingleEnemyTargetGroup,
   isZeroSpaceSingleEnemySmartTargetGroup,
+  isTyphoeaSelectedSingleEnemyTargetGroup,
   zeroDistanceValidatorsAlwaysPass,
   requireActionOwnerProjection,
   actionValueOperand,
@@ -70,6 +72,47 @@ export function compileBuffLeafNode(
 } {
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: expected an action leaf`);
+  }
+  if (node.body.value.family === 'physicsCast') {
+    const action = node.body.value.action;
+    const branchNodes = [action.whenHit, action.whenMiss].flatMap(sequence =>
+      sequence.actions.filter(child => child.metadata.enabled),
+    );
+    const branchesOnlyWriteUnusedFixedPoints = branchNodes.every(child => {
+      if (child.body.kind !== 'leaf' || child.body.value.family !== 'targetGroup') return false;
+      const write = child.body.value.action;
+      return (
+        write.producerType === 'FindTargetAction' &&
+        write.finderType === 'FixedPointFinder' &&
+        write.validatorTypes.length === 0 &&
+        write.postProcessorTypes.length === 0 &&
+        context.unconsumedTargetGroupKeys?.has(write.targetGroupKey) === true
+      );
+    });
+    if (
+      action.hitDistanceBlackboardKey === '' &&
+      action.outputTargetGroupKeys.length > 0 &&
+      action.outputTargetGroupKeys.every(
+        key => context.unconsumedTargetGroupKeys?.has(key) === true,
+      ) &&
+      branchesOnlyWriteUnusedFixedPoints
+    ) {
+      // PhysicsCast 只探测地形并把命中点或回退点写入 Context。当前形状的全部输出都没有
+      // 任何后续消费者；它既不选择伤害分支，也不写黑板，因此对标准木桩结果不可见。
+      return { steps: [], state: partyTargetGroups };
+    }
+    throw new Error(`${node.sourcePath}: unsupported combat-visible PhysicsCastAction`);
+  }
+  if (node.body.value.family === 'movementInputRead') {
+    throw new Error(
+      `${node.sourcePath}: SaveMoveAxisAngle requires explicit raw move-axis simulation input`,
+    );
+  }
+  if (node.body.value.family === 'skillCastInheritance') {
+    return {
+      steps: [{ kind: 'inheritNormalAttackSkillCastInfo', parameters: {} }],
+      state: partyTargetGroups,
+    };
   }
   if (node.body.value.family === 'skillSlotReplacement') {
     const compile = extensions.compileSkillSlotReplacement;
@@ -119,8 +162,7 @@ export function compileBuffLeafNode(
       action.moveType !== 'PointToPoint' ||
       (!plainOwnerSource && !contextSpatialSource) ||
       !fixedPointTarget ||
-      action.useFaction ||
-      !action.autoSetTargetFaction ||
+      (!action.useFaction && !action.autoSetTargetFaction) ||
       action.containsUnMarkable ||
       action.factionTarget !== 'Anti' ||
       action.rayMaxLength <= 0 ||
@@ -253,6 +295,18 @@ export function compileBuffLeafNode(
         state: partyTargetGroups,
       };
     }
+    if (action.owner.targetSource === 'Context' && action.owner.targetGroupKey !== '') {
+      throw new Error(
+        `${node.sourcePath}: unsupported FinishOwner Context group ${JSON.stringify({
+          targetGroupKey: action.owner.targetGroupKey,
+          inferredType: partyTargetGroups.get(action.owner.targetGroupKey) ?? null,
+          staticAbilityEntity:
+            context.staticAbilityEntityTargetGroupKeys?.has(action.owner.targetGroupKey) ?? false,
+          presentationOnly:
+            context.presentationOnlyTargetGroupKeys?.has(action.owner.targetGroupKey) ?? false,
+        })}`,
+      );
+    }
     return {
       steps: [projectFinishOwner(action, context, node.sourcePath)],
       state: partyTargetGroups,
@@ -260,6 +314,10 @@ export function compileBuffLeafNode(
   }
   if (node.body.value.family === 'projectile') {
     const target = node.body.value.action.target;
+    const projectedTargetGroup =
+      target.targetSource === 'Context' && target.targetGroupKey !== ''
+        ? partyTargetGroups.get(target.targetGroupKey)
+        : undefined;
     if (
       target.targetSource === 'Context' &&
       target.targetGroupKey !== '' &&
@@ -270,7 +328,23 @@ export function compileBuffLeafNode(
     const compile = extensions.compileProjectileLaunch;
     if (compile === undefined)
       throw new Error(`${node.sourcePath}: projectile launch projection is unavailable`);
-    const compiled = compile(node.body.value.action, node.sourcePath, context);
+    const compiled = compile(
+      node.body.value.action,
+      node.sourcePath,
+      projectedTargetGroup === 'enemy'
+        ? {
+            ...context,
+            staticEnemyTargetGroupKeys: new Set([
+              ...(context.staticEnemyTargetGroupKeys ?? []),
+              target.targetGroupKey,
+            ]),
+            staticZeroSpaceTargetGroupKeys: new Set([
+              ...(context.staticZeroSpaceTargetGroupKeys ?? []),
+              target.targetGroupKey,
+            ]),
+          }
+        : context,
+    );
     const repeatCount =
       target.targetSource === 'Context' && target.targetGroupKey !== ''
         ? context.dynamicSpatialPointCounts?.get(target.targetGroupKey)
@@ -373,6 +447,10 @@ export function compileBuffLeafNode(
       action.sourceType === 'ActionSource' ||
       (action.sourceType === 'ActionOwner' &&
         (requireActionOwnerProjection(context, node.sourcePath) === 'caster' ||
+          // Next 的能力实体 Source 统一保留最终干员归属；实体子技能中的
+          // ActionOwner 是当前实体，但沿 Source 链回溯仍是同一干员。当前生成动作
+          // 不以 Source 身份决定存活（dieWhenSourceDies 另行保留），可投影为 caster。
+          context.actionOwnerTarget === 'currentAbilityEntity' ||
           (context.actionOwnerTarget === 'buffOwner' &&
             context.fixedBuffOwnerTarget === 'caster')));
     const targetIsEnemy =
@@ -431,7 +509,7 @@ export function compileBuffLeafNode(
           assignment.stringValue === '',
       );
     const assignmentShapeMatches = action.assignEntityBlackboard
-      ? action.assignments.length > 0 && action.assignments.every(item => item.targetKey !== '')
+      ? action.assignments.every(item => item.targetKey !== '')
       : disabledAssignmentsArePlaceholders;
     const enabledAssignments = action.assignEntityBlackboard ? action.assignments : [];
     const assignments = projectBuffAssignments(enabledAssignments, node.sourcePath);
@@ -449,8 +527,7 @@ export function compileBuffLeafNode(
       action.checkNavmeshAreaName ||
       action.forbiddenAreaNames.length !== 0 ||
       !assignmentShapeMatches ||
-      action.saveToContext !== (action.contextKey !== '') ||
-      !action.inheritSourceSkillCastId
+      action.saveToContext !== (action.contextKey !== '')
     )
       throw new Error(
         `${node.sourcePath}: unsupported AbilityEntity spawn projection ` +
@@ -496,7 +573,8 @@ export function compileBuffLeafNode(
       parameters: {
         abilityEntityId: action.abilityEntityId,
         ...(action.skillId.length === 0 ? {} : { childSkillId: action.skillId }),
-        inheritActionBlackboard: true,
+        inheritActionBlackboard: action.assignBlackboard,
+        inheritSourceSkillCastInfo: action.inheritSourceSkillCastId,
         dieWhenSourceDies: action.dieWhenSourceDies,
         ...(action.dieOnEnd ? { finishByAction: true } : {}),
         ...(targetIsEnemy
@@ -608,6 +686,12 @@ export function compileBuffLeafNode(
   }
   if (node.body.value.family === 'interrupt') {
     const action = node.body.value.action;
+    if (
+      action.defender.targetSource === 'Context' &&
+      partyTargetGroups.get(action.defender.targetGroupKey) === 'empty'
+    ) {
+      return { steps: [], state: partyTargetGroups };
+    }
     const defenderIsEnemy =
       (action.defender.targetSource === 'Target' &&
         (context.actionTargetTarget === 'enemy' ||
@@ -838,6 +922,9 @@ export function compileBuffLeafNode(
       (action.target.targetSource === 'Context' &&
         (context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true ||
           partyTargetGroups.get(action.target.targetGroupKey) === 'enemy'));
+    const targetIsEmpty =
+      action.target.targetSource === 'Context' &&
+      partyTargetGroups.get(action.target.targetGroupKey) === 'empty';
     const sourceIsKnownStatic =
       (action.source.targetSource === 'Source' && context.actionSourceTarget === 'caster') ||
       (action.source.targetSource === 'Owner' &&
@@ -847,6 +934,7 @@ export function compileBuffLeafNode(
     // 受击表现、拉拽、推退和 BlowOffAction 只改变目标的动画/空间状态；固定木桩的距离恒为零，
     // 因而其空间来源点不进入任何可见账本。BlowOffEnemy 属于独立物理异常链，
     // 仍保留来源身份和死亡过滤的严格门槛。
+    if (targetIsEmpty) return { steps: [], state: partyTargetGroups };
     if ((!sourceIsKnownStatic && action.kind === 'blowOffEnemy') || !targetIsEnemy)
       throw new Error(`${node.sourcePath}: unsupported static-enemy control projection`);
     if (action.kind === 'blowOffEnemy' && action.deadOption !== 'OnlyDead')
@@ -1370,6 +1458,22 @@ export function compileBuffLeafNode(
       nextGroups.set(write.targetGroupKey, 'enemy');
       return { steps: [], state: nextGroups };
     }
+    if (context.actionTargetTarget === 'enemy' && isTyphoeaSelectedSingleEnemyTargetGroup(write)) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'enemy');
+      return {
+        steps: [
+          {
+            kind: 'mergeContextTargets',
+            parameters: {
+              saveToContextKey: write.targetGroupKey,
+              sources: [{ kind: 'target', target: 'enemy' }],
+            },
+          },
+        ],
+        state: nextGroups,
+      };
+    }
     if (
       context.actionTargetTarget === 'enemy' &&
       write.producerType === 'FindTargetAction' &&
@@ -1567,8 +1671,10 @@ export function compileBuffLeafNode(
       write.inputTargets[0]!.targetGroupKey !== '' &&
       (context.staticAbilityEntityTargetGroupKeys?.has(write.inputTargets[0]!.targetGroupKey) ===
         true ||
+        context.staticEnemyTargetGroupKeys?.has(write.inputTargets[0]!.targetGroupKey) === true ||
         partyTargetGroups.get(write.inputTargets[0]!.targetGroupKey) === 'abilityEntity' ||
-        partyTargetGroups.get(write.inputTargets[0]!.targetGroupKey) === 'spatialPoint') &&
+        partyTargetGroups.get(write.inputTargets[0]!.targetGroupKey) === 'spatialPoint' ||
+        partyTargetGroups.get(write.inputTargets[0]!.targetGroupKey) === 'enemy') &&
       write.pickIndexValue !== null
     ) {
       const sourceContextKey = write.inputTargets[0]!.targetGroupKey;
@@ -1576,7 +1682,9 @@ export function compileBuffLeafNode(
         partyTargetGroups.get(sourceContextKey) ??
         (context.staticAbilityEntityTargetGroupKeys?.has(sourceContextKey)
           ? 'abilityEntity'
-          : undefined);
+          : context.staticEnemyTargetGroupKeys?.has(sourceContextKey)
+            ? 'enemy'
+            : undefined);
       if (sourceKind === undefined) {
         throw new Error(`${node.sourcePath}: missing PickTarget source identity`);
       }
@@ -1975,6 +2083,7 @@ export function compileBuffLeafNode(
     }
     if (
       ((isStaticSingleEnemyTargetGroup(write) ||
+        isStaticExplicitBadFactionEnemyTargetGroup(write) ||
         isCurrentTargetRestrictedSingleEnemyTargetGroup(write)) &&
         (context.actionTargetTarget === 'enemy' ||
           context.fixedBuffOwnerTarget === 'caster' ||
@@ -1986,6 +2095,39 @@ export function compileBuffLeafNode(
       return { steps: [], state: nextGroups };
     }
     if (context.actionTargetTarget === 'enemy' && isEmptyStaticEnemyExclusionTargetGroup(write)) {
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'empty');
+      return {
+        steps: [
+          {
+            kind: 'mergeContextTargets',
+            parameters: { saveToContextKey: write.targetGroupKey, sources: [] },
+          },
+        ],
+        state: nextGroups,
+      };
+    }
+    if (
+      context.actionTargetTarget === 'enemy' &&
+      write.producerType === 'FindTargetAction' &&
+      write.finderType === 'HitBoxFinder' &&
+      write.finderFactionTarget === 'Anti' &&
+      write.finderTargetObjectType === 'Normal' &&
+      write.finderCheckAlive !== null &&
+      write.validatorTypes.length === 0 &&
+      write.postProcessorTypes.length === 1 &&
+      write.postProcessorTypes[0] === 'ExcludeTarget' &&
+      write.excludeTargets?.length === 1 &&
+      write.excludeTargets[0]!.targetSource === 'Context' &&
+      write.excludeTargets[0]!.targetGroupKey !== '' &&
+      context.staticEnemyTargetGroupKeys?.has(write.excludeTargets[0]!.targetGroupKey) === true &&
+      (write.excludeTargets[0]!.processTargetType === null ||
+        write.excludeTargets[0]!.processTargetType === 'Targets') &&
+      write.priorityFilters.length === 0 &&
+      write.shuffleTargets.length === 0 &&
+      write.distanceValidators.length === 0
+    ) {
+      // 固定木桩候选集仅有唯一敌人，排除另一个已经证明为该木桩的 Context 后恒为空。
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, 'empty');
       return {
@@ -2075,6 +2217,75 @@ export function compileBuffLeafNode(
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, partyKind);
       return { steps: [], state: nextGroups };
+    }
+    if (
+      write.producerType === 'TargetPostProcessorAction' &&
+      write.inputTargets.length === 1 &&
+      write.inputTargets[0]!.targetSource === 'Context' &&
+      write.inputTargets[0]!.targetGroupKey !== '' &&
+      (partyTargetGroups.get(write.inputTargets[0]!.targetGroupKey) === 'enemy' ||
+        context.staticEnemyTargetGroupKeys?.has(write.inputTargets[0]!.targetGroupKey) === true) &&
+      context.actionTargetTarget === 'enemy' &&
+      write.validatorTypes.length === 0 &&
+      write.postProcessorTypes.length === 1 &&
+      write.postProcessorTypes[0] === 'ExcludeTarget' &&
+      write.excludeTargets?.length === 1 &&
+      write.excludeTargets[0]!.targetSource === 'Target' &&
+      write.excludeTargets[0]!.targetGroupKey === '' &&
+      (write.excludeTargets[0]!.processTargetType === null ||
+        write.excludeTargets[0]!.processTargetType === 'Targets') &&
+      write.priorityFilters.length === 0 &&
+      write.shuffleTargets.length === 0 &&
+      write.distanceValidators.length === 0
+    ) {
+      // 候选组和动作输入 Target 都已分别证明为同一唯一木桩；原生 ExcludeTarget
+      // 会将唯一成员移除。保留空 Context 身份，使随后 alwaysNext DamageAction 成为无操作。
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'empty');
+      return {
+        steps: [
+          {
+            kind: 'mergeContextTargets',
+            parameters: { saveToContextKey: write.targetGroupKey, sources: [] },
+          },
+        ],
+        state: nextGroups,
+      };
+    }
+    if (
+      write.producerType === 'TargetPostProcessorAction' &&
+      write.inputTargets.length === 1 &&
+      write.inputTargets[0]!.targetSource === 'Context' &&
+      write.inputTargets[0]!.targetGroupKey !== '' &&
+      (partyTargetGroups.get(write.inputTargets[0]!.targetGroupKey) === 'enemy' ||
+        context.staticEnemyTargetGroupKeys?.has(write.inputTargets[0]!.targetGroupKey) === true) &&
+      write.validatorTypes.length === 0 &&
+      write.postProcessorTypes.every(type => type === 'PriorityFilter') &&
+      write.priorityFilters.length === write.postProcessorTypes.length &&
+      write.priorityFilters.every(filter => !filter.limitMaxNum || filter.maxNum >= 1) &&
+      write.shuffleTargets.length === 0 &&
+      write.distanceValidators.length === 0
+    ) {
+      // TargetPostProcessor copies the already-proven candidate group, then only orders it
+      // and optionally keeps at least one entry. With Endaxis' unique enemy, neither priority
+      // nor distance ordering can change or remove that identity.
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'enemy');
+      return {
+        steps: [
+          {
+            kind: 'mergeContextTargets',
+            parameters: {
+              saveToContextKey: write.targetGroupKey,
+              // 静态敌人闭包已经证明输入只能是唯一木桩。该输入也可能来自
+              // HitBox/投射物回调参数，而不是 ActionGraph 内显式写入的 Context；
+              // 直接保存稳定敌人身份，避免把外部调用参数误当成运行时持久组。
+              sources: [{ kind: 'target', target: 'enemy' }],
+            },
+          },
+        ],
+        state: nextGroups,
+      };
     }
     if (context.actionTargetTarget === 'currentAbilityEntity')
       throw new Error(`${node.sourcePath}: unaudited AbilityEntity target group`);

@@ -17,6 +17,7 @@ import {
   ACTION_VALUE_OPERATIONS,
   BUFF_APPLICATION_TARGETS,
   BUFF_APPLICATION_SOURCES,
+  BUFF_ABILITY_EVENTS,
   BUFF_SINGLE_TARGETS,
   COMBAT_CONDITION_KINDS,
   COMBAT_RESOURCES,
@@ -64,6 +65,7 @@ export interface SkillDefinitionValidationIssue {
 
 const STEP_KINDS = new Set<string>(COMBAT_STEP_KINDS);
 const CONDITION_KINDS = new Set<string>(COMBAT_CONDITION_KINDS);
+const BUFF_ABILITY_EVENTS_SET = new Set<string>(BUFF_ABILITY_EVENTS);
 const ENEMY_RANKS_SET = new Set<string>(ENEMY_RANKS);
 const DAMAGE_TYPES_SET = new Set<string>(DAMAGE_TYPES);
 const DAMAGE_TAGS_SET = new Set<string>(DAMAGE_TAGS);
@@ -618,11 +620,32 @@ function validateCombatCondition(
     case 'probability':
       validateActionValueOperand(record.probability, `${path}.probability`, out);
       break;
+    case 'pendingComboSkillPresent':
+      break;
     case 'actionValueCompare':
       validateActionValueOperand(record.left, `${path}.left`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.right, `${path}.right`, out);
       break;
+    case 'buffBlackboardCompare': {
+      requireEnum(record, 'target', BUFF_CONDITION_TARGETS_SET, path, out);
+      const query = asRecord(record.query, `${path}.query`, out);
+      if (query !== null) {
+        const queryKind = requireEnum(query, 'kind', new Set(['id', 'tag']), `${path}.query`, out);
+        if (queryKind === 'id') {
+          validateNonEmptyStringArray(query.buffIds, `${path}.query.buffIds`, out);
+        } else if (queryKind === 'tag') {
+          requireEnum(query, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.query`, out);
+          validateGameplayTags(query.buffTags, `${path}.query.buffTags`, out);
+        }
+      }
+      requireString(record, 'desiredKey', path, out);
+      requireString(record, 'outputKey', path, out);
+      requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
+      validateActionValueOperand(record.value, `${path}.value`, out);
+      requireEnum(record, 'buffValueSide', new Set(['left', 'right']), path, out);
+      break;
+    }
     case 'contextTargetCountCompare':
       requireString(record, 'contextKey', path, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
@@ -751,6 +774,10 @@ function validateCombatCondition(
       requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
       validateDamageTags(record.tags, `${path}.tags`, out);
       break;
+    case 'eventDamageGameplayTagsMatch':
+      requireEnum(record, 'match', TAG_QUERY_TYPES_SET, path, out);
+      validateGameplayTags(record.tags, `${path}.tags`, out);
+      break;
     case 'eventDamageFeaturesMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
       validateDamageFeatures(record.features, `${path}.features`, out);
@@ -792,6 +819,10 @@ function validateCombatCondition(
       if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
       break;
     }
+    case 'eventCustomAbilityNameMatch':
+      requireString(record, 'eventName', path, out);
+      if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
+      break;
     case 'currentSkillTypeIn':
       if (record.target !== 'caster' && record.target !== 'buffOwner') {
         push(out, `${path}.target`, "expected 'caster' or 'buffOwner'");
@@ -1304,6 +1335,7 @@ function validateCombatStep(
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
     case 'finishActionOwnerAbilityEntity':
+    case 'inheritNormalAttackSkillCastInfo':
       break;
     case 'startCurrentAbilityEntityChildSkill':
       validateAbilityEntityChildSkill(parameters.childSkill, `${path}.parameters.childSkill`, out);
@@ -1514,6 +1546,9 @@ function validateCombatStep(
         }
       }
       validateDamageTags(parameters.tags, `${path}.parameters.tags`, out, false);
+      if (parameters.gameplayTags !== undefined) {
+        validateGameplayTags(parameters.gameplayTags, `${path}.parameters.gameplayTags`, out);
+      }
       if (parameters.features !== undefined) {
         validateDamageFeatures(parameters.features, `${path}.parameters.features`, out);
       }
@@ -1604,6 +1639,9 @@ function validateCombatStep(
       requireEnum(parameters, 'damageType', DAMAGE_TYPES_SET, `${path}.parameters`, out);
       validateLevelValuesOrActionValueOperand(parameters.value, `${path}.parameters.value`, out);
       validateDamageTags(parameters.tags, `${path}.parameters.tags`, out, false);
+      if (parameters.gameplayTags !== undefined) {
+        validateGameplayTags(parameters.gameplayTags, `${path}.parameters.gameplayTags`, out);
+      }
       if (parameters.features !== undefined) {
         validateDamageFeatures(parameters.features, `${path}.parameters.features`, out);
       }
@@ -1797,38 +1835,8 @@ function validateCombatStep(
                     }
                   }
                   if (
-                    response.event !== 'enterFight' &&
-                    response.event !== 'ownerHpZero' &&
-                    response.event !== 'beforeTakeDamage' &&
-                    response.event !== 'beforeCalculateDamage' &&
-                    response.event !== 'beforeTakePhysicalInfliction' &&
-                    response.event !== 'beforeOutputPhysicalInfliction' &&
-                    response.event !== 'afterOutputPhysicalInfliction' &&
-                    response.event !== 'beforeOutputKnockDown' &&
-                    response.event !== 'afterOutputKnockDown' &&
-                    response.event !== 'beforeOutputInfliction' &&
-                    response.event !== 'beforeOutputSpellBurst' &&
-                    response.event !== 'beforeTakeSpellInfliction' &&
-                    response.event !== 'beforeTakeInfliction' &&
-                    response.event !== 'takeDamage' &&
-                    response.event !== 'takeCriticalDamage' &&
-                    response.event !== 'outputDamage' &&
-                    response.event !== 'outputCriticalDamage' &&
-                    response.event !== 'outputKnockDown' &&
-                    response.event !== 'outputHeal' &&
-                    response.event !== 'receiveHeal' &&
-                    response.event !== 'poiseZero' &&
-                    response.event !== 'beforeCastSkill' &&
-                    response.event !== 'skillEnd' &&
-                    response.event !== 'beforeOutputBuff' &&
-                    response.event !== 'beforeAddedBuff' &&
-                    response.event !== 'outputBuff' &&
-                    response.event !== 'addedBuff' &&
-                    response.event !== 'finishedBuff' &&
-                    response.event !== 'afterOutputWeaknessTriggered' &&
-                    response.event !== 'afterKillEntity' &&
-                    response.event !== 'buffConsumed' &&
-                    response.event !== 'skillSpGained'
+                    typeof response.event !== 'string' ||
+                    !BUFF_ABILITY_EVENTS_SET.has(response.event)
                   ) {
                     push(out, `${responsePath}.event`, 'unsupported Buff ability event');
                   }
@@ -1935,6 +1943,7 @@ function validateCombatStep(
                       'visible',
                       'showInHeadBarCommon',
                       'showInHeadBarAttached',
+                      'showDirectlyInHeadBuff',
                       'showInSquadIcon',
                       'onlyShowForMainCharacter',
                       'blinkInMainCharHpBar',
@@ -1986,6 +1995,7 @@ function validateCombatStep(
                   'visible',
                   'showInHeadBarCommon',
                   'showInHeadBarAttached',
+                  'showDirectlyInHeadBuff',
                   'showInSquadIcon',
                   'onlyShowForMainCharacter',
                   'blinkInMainCharHpBar',

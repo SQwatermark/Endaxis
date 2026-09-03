@@ -122,6 +122,8 @@ export interface BuffAppliedEvent {
   readonly targetId: string;
   readonly buffId: string;
   readonly sourceId: string;
+  /** CreateBuffAction 提供；其它 Buff 工厂尚未全部把同名原生字段接入此公共事件。 */
+  readonly isExtra?: boolean;
   readonly buffTags: readonly GameplayTag[];
   /** AddBuffContext 使用本次施加请求的来源，不能从接收者/监听器反推。 */
   readonly skillCastInfo?: CombatSkillCastInfo | null;
@@ -147,6 +149,7 @@ export interface BuffApplicationRequest {
   /** 缺少表示旧式外部定义引用；内联技能步骤必须携带。 */
   readonly definition?: ResolvedSkillBuffDefinition;
   readonly sourceId: string;
+  readonly isExtra?: boolean;
   /** 后代定义继续从该 AbilitySystem 的目录解析。 */
   readonly definitionOwnerId?: string;
   readonly sourceActionId?: string;
@@ -445,6 +448,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             : undefined;
         return {
           buffId,
+          ...(step.parameters.isExtra ? { isExtra: true } : {}),
           ...(definition === undefined ? {} : { definition }),
           sourceId:
             step.parameters.source === undefined
@@ -952,6 +956,23 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     condition: Parameters<CombatOperationExecutor['evaluate']>[0],
     context?: Parameters<CombatOperationExecutor['evaluate']>[1],
   ): boolean {
+    if (condition.kind === 'buffBlackboardCompare') {
+      if (context === undefined) {
+        throw new Error('buffBlackboardCompare requires a combat operation context');
+      }
+      const target = this.#resolveSingleTarget(condition.target, context);
+      const buff =
+        condition.query.kind === 'tag'
+          ? target.findFirstByTags(condition.query.buffTags, condition.query.tagQueryType)
+          : target.findFirstByIds(condition.query.buffIds);
+      if (buff === undefined) return false;
+      const buffValue = buff.blackboard.getNumber(condition.desiredKey) ?? 0;
+      context.blackboard.assignDynamic(condition.outputKey, buffValue);
+      const otherValue = resolveActionValueOperand(condition.value, context.blackboard);
+      return condition.buffValueSide === 'left'
+        ? compareCombatNumbers(buffValue, otherValue, condition.operator)
+        : compareCombatNumbers(otherValue, buffValue, condition.operator);
+    }
     if (condition.kind === 'contextTargetBuffStackCompare') {
       if (context?.targetContext === undefined)
         throw new Error('context Buff count requires a combat target context');

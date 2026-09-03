@@ -45,7 +45,7 @@
   },
   "aethertech": {
     "setName": "Æthertech",
-    "description": "3-piece set effect: Wearer's ATK <@ba.vup>+8%</>. \nAfter the wearer applies <#ba.noguard>Vulnerability</>, the wearer gains <@ba.pd>Physical DMG</> <@ba.vup>+8%</> for 15.0s. This effect can reach 4 stacks. If the target already has 4 stack(s) of <#ba.noguard>Vulnerability</>, the wearer gains an additional Physical DMG <@ba.vup>+16%</> for 10.0s. This effect cannot stack."
+    "description": "3-piece set effect: Wearer's ATK <@ba.vup>+8%</>.\nAfter the wearer applies <#ba.noguard>Vulnerability</>, the wearer gains <@ba.pd>Physical DMG Dealt</> <@ba.vup>+8%</> for 15.0s. This effect can reach 4 stacks. If the target has 4 stacks of <#ba.noguard>Vulnerability</>, the wearer gains an additional <@ba.pd>Physical DMG Dealt</> <@ba.vup>+16%</> for 10.0s. This effect cannot stack."
   },
   "pulser-labs": {
     "setName": "Pulser Labs",
@@ -53,7 +53,7 @@
   },
   "eternal-xiranite": {
     "setName": "Eternal Xiranite",
-    "description": "3-piece set effect: Wearer's HP <@ba.vup>+1000.0</>.\nAfter the wearer applies <#ba.enhance>Amp</>, <#ba.guard>Protected</>, <#ba.vulnerable>Susceptibility</>, or <#ba.weak>Weakened</>, other teammates gain DMG Dealt <@ba.vup>+16%</> for 15.0s. This effect cannot stack."
+    "description": "3-piece set effect: Wearer's HP <@ba.vup>+1000.0</>.\nAfter the wearer applies <#ba.enhance>Amp</>, <#ba.guard>Protection</>, <#ba.vulnerable>Susceptibility</>, or <#ba.weak>Weakness</>, other teammates gain DMG Dealt <@ba.vup>+16%</> for 15.0s. This effect cannot stack."
   },
   "roving-msgr": {
     "setName": "Roving MSGR",
@@ -95,5 +95,9 @@
   "aic-fieldwork": {
     "setName": "AIC Fieldwork",
     "description": "3-piece set effect: Wearer gains DMG Dealt <@ba.vup>+20%</> for all types of DMG, <@ba.vup>10%</> DMG Reduction against all types of DMG, and Ultimate Gain Efficiency <@ba.vup>+10%</>."
+  },
+  "spellburst": {
+    "setName": "Deep Rampart",
+    "description": "3-piece set effect: Wearer's Arts DMG Dealt <@ba.vup>+16%</>.\nWhen the wearer applies <#ba.naturalburst>Nature Burst</> or <#ba.crystburst>Cryo Burst</>, the wearer gains Arts Intensity <@ba.vup>+16</> for 20.0s. Max stacks for this effect: 3.0. Duration of each stack is counted separately. Effect only triggers once every 0.1s."
   }
 }

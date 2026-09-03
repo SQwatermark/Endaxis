@@ -1,13 +1,15 @@
 import {
   requireExactFields,
   requireBoolean,
-  requireNonEmptyString,
+  requireNativeEnum,
   requireRecord,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 
 export type ElementalInflictionTypeSource = 'Fire' | 'Pulse' | 'Cryst' | 'Natural';
+const ELEMENTAL_INFLICTION_TYPES = ['Fire', 'Pulse', 'Cryst', 'Natural'] as const;
+const SPELL_ABNORMAL_TYPES = [...ELEMENTAL_INFLICTION_TYPES, 'Burst'] as const;
 
 export interface ElementalInflictionActionSource {
   readonly kind: 'elementalInfliction';
@@ -67,10 +69,12 @@ export function parseTriggerSpellBurstEventSource(
     ]),
     path,
   );
-  const element = requireNonEmptyString(action.spellBurstType, `${path}.spellBurstType`);
-  if (!['Fire', 'Pulse', 'Cryst', 'Natural'].includes(element))
-    throw new Error(`${path}.spellBurstType: unsupported element ${JSON.stringify(element)}`);
-  return { kind: 'triggerSpellBurstEvent', element: element as ElementalInflictionTypeSource };
+  const element = requireNativeEnum(
+    action.spellBurstType,
+    ELEMENTAL_INFLICTION_TYPES,
+    `${path}.spellBurstType`,
+  );
+  return { kind: 'triggerSpellBurstEvent', element };
 }
 
 /** OnBuffAfterTryEnhanced 发布 ON_SPELL_INFLICTION(31)；动作本身不改变附着层数。 */
@@ -84,10 +88,8 @@ export function parseSpellInflictionStartedEventSource(
     new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex', 'type']),
     path,
   );
-  const element = requireNonEmptyString(action.type, `${path}.type`);
-  if (!['Fire', 'Pulse', 'Cryst', 'Natural', 'Burst'].includes(element))
-    throw new Error(`${path}.type: unsupported element ${JSON.stringify(element)}`);
-  return { kind: 'spellInflictionStartedEvent', element: element as ElementalInflictionTypeSource };
+  const element = requireNativeEnum(action.type, ELEMENTAL_INFLICTION_TYPES, `${path}.type`);
+  return { kind: 'spellInflictionStartedEvent', element };
 }
 
 export function parseForceTriggerWeaknessEventSource(
@@ -134,13 +136,15 @@ export function parseSpellAbnormalLifecycleEventSource(
     ]),
     path,
   );
-  const element = requireNonEmptyString(action.abnormalType, `${path}.abnormalType`);
-  if (!['Fire', 'Pulse', 'Cryst', 'Natural', 'Burst'].includes(element))
-    throw new Error(`${path}.abnormalType: unsupported element ${JSON.stringify(element)}`);
+  const element = requireNativeEnum(
+    action.abnormalType,
+    SPELL_ABNORMAL_TYPES,
+    `${path}.abnormalType`,
+  );
   return {
     kind: 'spellAbnormalLifecycleEvent',
     isStart: requireBoolean(action.isStart, `${path}.isStart`),
-    abnormalType: element as ElementalInflictionTypeSource | 'Burst',
+    abnormalType: element,
   };
 }
 
@@ -168,17 +172,16 @@ export function parseForcedElementalStatusActionSource(
     ]),
     path,
   );
-  const statusElement = requireNonEmptyString(action.spellStatusType, `${path}.spellStatusType`);
-  if (!['Fire', 'Pulse', 'Cryst', 'Natural'].includes(statusElement)) {
-    throw new Error(
-      `${path}.spellStatusType: unsupported element ${JSON.stringify(statusElement)}`,
-    );
-  }
+  const statusElement = requireNativeEnum(
+    action.spellStatusType,
+    ELEMENTAL_INFLICTION_TYPES,
+    `${path}.spellStatusType`,
+  );
   return {
     kind: 'forcedElementalStatus',
     source: parseTargetReferenceSource(action.source, `${path}.source`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
-    statusElement: statusElement as ElementalInflictionTypeSource,
+    statusElement,
     consumedLayers: parseScalarSource(
       action.consumedLayer,
       `${path}.consumedLayer`,
@@ -218,16 +221,16 @@ export function parseElementalInflictionActionSource(
     ]),
     path,
   );
-  const element = requireNonEmptyString(action.inflictionType, `${path}.inflictionType`);
-  if (!['Fire', 'Pulse', 'Cryst', 'Natural'].includes(element))
-    throw new Error(
-      `${path}.inflictionType: unsupported elemental infliction ${JSON.stringify(element)}`,
-    );
+  const element = requireNativeEnum(
+    action.inflictionType,
+    ELEMENTAL_INFLICTION_TYPES,
+    `${path}.inflictionType`,
+  );
   return {
     kind: 'elementalInfliction',
     source: parseTargetReferenceSource(action.source, `${path}.source`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
-    element: element as ElementalInflictionTypeSource,
+    element,
     isExtra: requireBoolean(action.isExtra, `${path}.isExtra`),
   };
 }

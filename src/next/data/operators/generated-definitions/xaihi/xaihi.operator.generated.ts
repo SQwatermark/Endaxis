@@ -106,8 +106,16 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    atk_scale: [
+      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
+      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
+      0.310000002384186, 0.340000003576279,
+    ],
+    display_atk_scale: [
+      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
+      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
+      0.310000002384186, 0.340000003576279,
+    ],
   },
 );
 
@@ -204,8 +212,16 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
-    display_atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
+    atk_scale: [
+      0.159999996423721, 0.180000007152557, 0.189999997615814, 0.209999993443489, 0.219999998807907,
+      0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535, 0.310000002384186,
+      0.330000013113022, 0.360000014305115,
+    ],
+    display_atk_scale: [
+      0.159999996423721, 0.180000007152557, 0.189999997615814, 0.209999993443489, 0.219999998807907,
+      0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535, 0.310000002384186,
+      0.330000013113022, 0.360000014305115,
+    ],
   },
 );
 
@@ -302,8 +318,16 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47],
-    display_atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47],
+    atk_scale: [
+      0.209999993443489, 0.230000004172325, 0.25, 0.270000010728836, 0.28999999165535,
+      0.319999992847443, 0.340000003576279, 0.360000014305115, 0.379999995231628, 0.400000005960464,
+      0.439999997615814, 0.469999998807907,
+    ],
+    display_atk_scale: [
+      0.209999993443489, 0.230000004172325, 0.25, 0.270000010728836, 0.28999999165535,
+      0.319999992847443, 0.340000003576279, 0.360000014305115, 0.379999995231628, 0.400000005960464,
+      0.439999997615814, 0.469999998807907,
+    ],
   },
 );
 
@@ -464,8 +488,16 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
-    display_atk_scale: [0.33, 0.36, 0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.59, 0.64, 0.68, 0.74],
+    atk_scale: [
+      0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489, 0.230000004172325,
+      0.25, 0.259999990463257, 0.280000001192093, 0.300000011920929, 0.319999992847443,
+      0.340000003576279, 0.370000004768372,
+    ],
+    display_atk_scale: [
+      0.330000013113022, 0.360000014305115, 0.400000005960464, 0.430000007152557, 0.46000000834465,
+      0.5, 0.529999971389771, 0.560000002384186, 0.589999973773956, 0.639999985694885,
+      0.680000007152557, 0.740000009536743,
+    ],
   },
 );
 
@@ -541,9 +573,17 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 15,
-    atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
+    atk_scale: [
+      0.550000011920929, 0.610000014305115, 0.660000026226044, 0.720000028610229, 0.769999980926514,
+      0.829999983310699, 0.879999995231628, 0.939999997615814, 0.990000009536743, 1.05999994277954,
+      1.13999998569489, 1.24000000953674,
+    ],
     poise: 15,
-    display_atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
+    display_atk_scale: [
+      0.550000011920929, 0.610000014305115, 0.660000026226044, 0.720000028610229, 0.769999980926514,
+      0.829999983310699, 0.879999995231628, 0.939999997615814, 0.990000009536743, 1.05999994277954,
+      1.13999998569489, 1.24000000953674,
+    ],
   },
 );
 
@@ -573,7 +613,7 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.2 },
+                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'common' },
@@ -635,7 +675,10 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'breakingAttack',
   },
   {
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     input_angle: 0,
@@ -684,7 +727,14 @@ export const xaihiPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -765,18 +815,29 @@ export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atb: 0,
     atk_scale: 0.1,
-    atk_up: [0.09, 0.09, 0.09, 0.09, 0.09, 0.11, 0.11, 0.11, 0.13, 0.13, 0.13, 0.15],
+    atk_up: [
+      0.0900000035762787, 0.0900000035762787, 0.0900000035762787, 0.0900000035762787,
+      0.0900000035762787, 0.109999999403954, 0.109999999403954, 0.109999999403954,
+      0.129999995231628, 0.129999995231628, 0.129999995231628, 0.150000005960464,
+    ],
     buff_duration: 25,
     cam_angle: 0,
     cam_duration: 0,
     consume_cnt: 0,
     duration: 20,
-    heal_value: [144, 172.8, 201.6, 230.4, 244.8, 259.2, 273.6, 288, 302.4, 309.6, 316.8, 324],
+    heal_value: [
+      144, 172.800003051758, 201.600006103516, 230.399993896484, 244.800003051758, 259.200012207031,
+      273.600006103516, 288, 302.399993896484, 309.600006103516, 316.799987792969, 324,
+    ],
     input_angle: 0,
     potential_1: 0,
     select_radius: 10,
     usp: 0,
-    will_up: [0.336, 0.4, 0.47, 0.54, 0.57, 0.6, 0.64, 0.67, 0.71, 0.72, 0.74, 0.76],
+    will_up: [
+      0.335999995470047, 0.400000005960464, 0.469999998807907, 0.540000021457672, 0.569999992847443,
+      0.600000023841858, 0.639999985694885, 0.670000016689301, 0.709999978542328, 0.720000028610229,
+      0.740000009536743, 0.759999990463257,
+    ],
   },
 );
 
@@ -811,6 +872,8 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
             saveToContextKey: 'ball',
             abilityEntityIds: [
               'abilityentity_chr_0011_seraph_normal_skill',
+              'abilityentity_chr_0011_seraph_normal_skill_02',
+              'abilityentity_chr_0011_seraph_normal_skill_03',
               'abilityentity_chr_0011_seraph_normal_skill_buff',
               'abilityentity_chr_0027_tangtang_normal_skill_02_02',
             ],
@@ -906,7 +969,7 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                       ),
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.2 },
+                        durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1012,7 +1075,7 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
                       ),
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.2 },
+                        durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1058,14 +1121,14 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.900000036 },
+            durationSeconds: { kind: 'constant', value: 0.900000035762787 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
             finishByAction: false,
             ignoredTargets: ['caster'],
             ignoredAbilityEntityTargets: [{ kind: 'ownerSpawned' }],
-            influenceSkillCooldownSeconds: { kind: 'constant', value: 0.4 },
+            influenceSkillCooldownSeconds: { kind: 'constant', value: 0.400000005960464 },
           }),
         ),
         24,
@@ -1077,7 +1140,10 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
+    atk_scale: [
+      2, 2.20000004768372, 2.40000009536743, 2.59999990463257, 2.79999995231628, 3,
+      3.20000004768372, 3.40000009536743, 3.59999990463257, 3.84999990463257, 4.15000009536743, 4.5,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     count: 0,
@@ -1186,15 +1252,24 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: 1.5,
-    atk_up: [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.22, 0.24],
+    atk_up: [
+      0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046, 0.150000005960464,
+      0.159999996423721, 0.170000001788139, 0.180000007152557, 0.189999997615814, 0.209999993443489,
+      0.219999998807907, 0.239999994635582,
+    ],
     duration: 12,
     exist_talent_2: 0,
     heal_value: 0,
     radius: 1,
-    wisd_max: [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.36],
+    wisd_max: [
+      0.300000011920929, 0.300000011920929, 0.300000011920929, 0.300000011920929, 0.300000011920929,
+      0.300000011920929, 0.300000011920929, 0.300000011920929, 0.300000011920929, 0.300000011920929,
+      0.300000011920929, 0.360000014305115,
+    ],
     wisd_up: [
-      0.00014, 0.00015, 0.00016, 0.00018, 0.00019, 0.0002, 0.00022, 0.00023, 0.00024, 0.00026,
-      0.00028, 0.0003,
+      0.00014000000373926, 0.000150000007124618, 0.00015999999595806, 0.000180000002728775,
+      0.000190000006114133, 0.000199999994947575, 0.00022000000171829, 0.000230000005103648,
+      0.00023999999393709, 0.000260000000707805, 0.00028000000747852, 0.000300000014249235,
     ],
   },
 );
@@ -1290,7 +1365,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'cryst_up',
           operation: 'assign',
-          value: [0.07, 0.1],
+          value: [0.0700000002980232, 0.100000001490116],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1325,7 +1400,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'atk_up',
           operation: 'add',
-          value: 0.05,
+          value: 0.0500000007450581,
         },
       ],
     },
@@ -1337,7 +1412,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.9,
+          multiplier: 0.899999976158142,
         },
       ],
     },
@@ -1371,21 +1446,21 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_up',
           operation: 'multiply',
-          value: 1.1,
+          value: 1.10000002384186,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'wisd_up',
           operation: 'multiply',
-          value: 1.1,
+          value: 1.10000002384186,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'wisd_max',
           operation: 'multiply',
-          value: 1.1,
+          value: 1.10000002384186,
         },
       ],
     },
@@ -1659,7 +1734,7 @@ export default {
       attributeModifiers: [],
       abilityEventResponses: [
         {
-          event: 'outputDamage',
+          event: 'beforeOutputDamage',
           priority: 0,
           sequence: sequence(
             branch(
@@ -1728,7 +1803,7 @@ export default {
                             step('createTimedMarker', {
                               target: 'buffOwner',
                               markerId: 'buff_chr_0011_seraph_normal_skill_heal',
-                              durationSeconds: { kind: 'constant', value: 0.3 },
+                              durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                               autoFinishByAction: false,
                             }),
                           ),
@@ -1792,6 +1867,7 @@ export default {
             abilityEntityId: 'abilityentity_chr_0011_seraph_normal_skill',
             childSkillId: 'chr_0011_seraph_normal_skill_abentity_onfield',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
           branch(
@@ -1817,6 +1893,7 @@ export default {
         iconPath: '/icons/icon_battle_cryst_taken_up.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1863,6 +1940,7 @@ export default {
         iconPath: '/icons/icon_battle_affix_cryst_enhance.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1895,6 +1973,7 @@ export default {
         iconPath: '/icons/icon_battle_affix_natural_enhance.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

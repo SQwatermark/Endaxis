@@ -54,7 +54,7 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.08 },
+                    durationSeconds: { kind: 'constant', value: 0.0799999982118607 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_normal_attack' },
@@ -82,9 +82,9 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -98,7 +98,11 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.28, 0.31, 0.34, 0.37, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.63],
+    atk_scale: [
+      0.280000001192093, 0.310000002384186, 0.340000003576279, 0.370000004768372, 0.389999985694885,
+      0.419999986886978, 0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672,
+      0.579999983310699, 0.629999995231628,
+    ],
     env_dmg: 20,
   },
 );
@@ -142,7 +146,7 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.08 },
+                durationSeconds: { kind: 'constant', value: 0.0799999982118607 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -171,7 +175,11 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75],
+    atk_scale: [
+      0.340000003576279, 0.370000004768372, 0.400000005960464, 0.439999997615814, 0.469999998807907,
+      0.5, 0.540000021457672, 0.569999992847443, 0.600000023841858, 0.639999985694885,
+      0.699999988079071, 0.75,
+    ],
     env_dmg: 20,
   },
 );
@@ -217,7 +225,7 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.1 },
+                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_normal_attack' },
@@ -245,9 +253,9 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -271,7 +279,7 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_zero' },
@@ -305,11 +313,23 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.38],
-    atk_scale_2: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75],
+    atk_scale: [
+      0.170000001788139, 0.180000007152557, 0.200000002980232, 0.219999998807907, 0.230000004172325,
+      0.25, 0.270000010728836, 0.280000001192093, 0.300000011920929, 0.319999992847443,
+      0.349999994039536, 0.379999995231628,
+    ],
+    atk_scale_2: [
+      0.340000003576279, 0.370000004768372, 0.400000005960464, 0.439999997615814, 0.469999998807907,
+      0.5, 0.540000021457672, 0.569999992847443, 0.600000023841858, 0.639999985694885,
+      0.699999988079071, 0.75,
+    ],
     env_dmg: 5,
     env_dmg2: 15,
-    display_atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.97, 1.04, 1.13],
+    display_atk_scale: [
+      0.5, 0.550000011920929, 0.600000023841858, 0.649999976158142, 0.699999988079071, 0.75,
+      0.800000011920929, 0.850000023841858, 0.899999976158142, 0.970000028610229, 1.03999996185303,
+      1.12999999523163,
+    ],
   },
 );
 
@@ -354,7 +374,7 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
+                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -383,7 +403,11 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 21,
-    atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.03, 1.09, 1.16, 1.25, 1.36],
+    atk_scale: [
+      0.600000023841858, 0.660000026226044, 0.720000028610229, 0.779999971389771, 0.839999973773956,
+      0.899999976158142, 0.959999978542328, 1.02999997138977, 1.0900000333786, 1.1599999666214,
+      1.25, 1.36000001430511,
+    ],
     env_dmg: 50,
     poise: 20,
     talent_heal: 0,
@@ -417,14 +441,14 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.4,
+              calculationMultiplier: 0.400000005960464,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0018_dapan_power_attack:/scheduledSequences/0/sequence/steps/0',
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.15 },
+            durationSeconds: { kind: 'constant', value: 0.150000005960464 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -443,14 +467,14 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.6,
+              calculationMultiplier: 0.600000023841858,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0018_dapan_power_attack:/scheduledSequences/1/sequence/steps/0',
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.4 },
+            durationSeconds: { kind: 'constant', value: 0.400000005960464 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -490,7 +514,13 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atb: 0, atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  {
+    atb: 0,
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+  },
 );
 
 export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -542,7 +572,14 @@ export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -574,7 +611,7 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.1 },
+            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -603,6 +640,7 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: true,
+                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -717,7 +755,7 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
               priority: 0,
               maxStackCount: 1,
               durationSeconds: { blackboardKey: 'duration' },
-              triggerIntervalSeconds: 0.1,
+              triggerIntervalSeconds: 0.100000001490116,
               waitFirstTriggerInterval: true,
               maxTriggerCount: 1,
               presentation: {
@@ -726,6 +764,7 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/airborne.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: false,
+                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -853,7 +892,7 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
               },
             },
             duration: { kind: 'blackboard', key: 'airborne_duration' },
-            height: { kind: 'constant', value: 2.1 },
+            height: { kind: 'constant', value: 2.09999990463257 },
             speedFactorMultiplier: 3,
             force: false,
             targetFilter: 'aliveOnly',
@@ -917,7 +956,7 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.3 },
+            durationSeconds: { kind: 'constant', value: 0.300000011920929 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -935,15 +974,26 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    airborne_duration: 1.8,
-    atk_scale: [1.15, 1.27, 1.38, 1.5, 1.61, 1.73, 1.84, 1.96, 2.07, 2.22, 2.39, 2.59],
-    atk_scale_pre: [0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.29, 0.31, 0.32, 0.35, 0.37, 0.41],
+    airborne_duration: 1.79999995231628,
+    atk_scale: [
+      1.14999997615814, 1.26999998092651, 1.37999999523163, 1.5, 1.61000001430511, 1.73000001907349,
+      1.8400000333786, 1.96000003814697, 2.0699999332428, 2.22000002861023, 2.39000010490417,
+      2.58999991416931,
+    ],
+    atk_scale_pre: [
+      0.180000007152557, 0.200000002980232, 0.219999998807907, 0.230000004172325, 0.25,
+      0.270000010728836, 0.28999999165535, 0.310000002384186, 0.319999992847443, 0.349999994039536,
+      0.370000004768372, 0.409999996423721,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     input_angle: 0,
     poise: 10,
     potential_5_interval: 0,
-    display_atk_scale: [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
+    display_atk_scale: [
+      1.33000004291534, 1.47000002861023, 1.60000002384186, 1.73000001907349, 1.86000001430511, 2,
+      2.13000011444092, 2.25999999046326, 2.40000009536743, 2.55999994277954, 2.75999999046326, 3,
+    ],
   },
 );
 
@@ -999,6 +1049,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: true,
+                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1113,7 +1164,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
               priority: 0,
               maxStackCount: 1,
               durationSeconds: { blackboardKey: 'duration' },
-              triggerIntervalSeconds: 0.1,
+              triggerIntervalSeconds: 0.100000001490116,
               waitFirstTriggerInterval: true,
               maxTriggerCount: 1,
               presentation: {
@@ -1122,6 +1173,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/airborne.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: false,
+                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1275,7 +1327,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.034 },
+                durationSeconds: { kind: 'constant', value: 0.034000001847744 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 15,
                 curve: { kind: 'named', key: 'RESETto1' },
@@ -1286,9 +1338,9 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 8,
-                targetTriggerIntervalSeconds: 0.13,
+                targetTriggerIntervalSeconds: 0.129999995231628,
               },
             },
           ),
@@ -1345,7 +1397,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.1 },
+            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1360,7 +1412,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 1.2 },
+            durationSeconds: { kind: 'constant', value: 1.20000004768372 },
             slot: 'unassigned',
             priority: 100,
             curve: {
@@ -1373,7 +1425,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                   outTangent: 0,
                   weightedMode: 0,
                   inWeight: 0,
-                  outWeight: 0.333333343,
+                  outWeight: 0.333333343267441,
                 },
                 {
                   time: 1,
@@ -1381,7 +1433,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
-                  inWeight: 0.333333343,
+                  inWeight: 0.333333343267441,
                   outWeight: 0,
                 },
               ],
@@ -1412,8 +1464,16 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale_end: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
-    atk_scale_loop: [0.22, 0.24, 0.26, 0.29, 0.31, 0.33, 0.35, 0.37, 0.4, 0.42, 0.46, 0.5],
+    atk_scale_end: [
+      1.77999997138977, 1.96000003814697, 2.13000011444092, 2.30999994277954, 2.49000000953674,
+      2.67000007629395, 2.83999991416931, 3.01999998092651, 3.20000004768372, 3.42000007629395,
+      3.69000005722046, 4,
+    ],
+    atk_scale_loop: [
+      0.219999998807907, 0.239999994635582, 0.259999990463257, 0.28999999165535, 0.310000002384186,
+      0.330000013113022, 0.349999994039536, 0.370000004768372, 0.400000005960464, 0.419999986886978,
+      0.46000000834465, 0.5,
+    ],
     potential_1_dmg_up: 0,
     potential_1_duration: 0,
     select_radius: 4,
@@ -1465,6 +1525,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                     iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                     showInHeadBarCommon: false,
                     showInHeadBarAttached: true,
+                    showDirectlyInHeadBuff: false,
                     showInSquadIcon: false,
                     onlyShowForMainCharacter: false,
                     blinkInMainCharHpBar: false,
@@ -1592,6 +1653,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                     iconPath: '/icons/knockback.webp',
                     showInHeadBarCommon: false,
                     showInHeadBarAttached: false,
+                    showDirectlyInHeadBuff: false,
                     showInSquadIcon: false,
                     onlyShowForMainCharacter: false,
                     blinkInMainCharHpBar: false,
@@ -1738,7 +1800,10 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                                   sequence: sequence(
                                     step('startTimeDilation', {
                                       scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.1 },
+                                      durationSeconds: {
+                                        kind: 'constant',
+                                        value: 0.100000001490116,
+                                      },
                                       slot: 'TimeDilation/Layer/Entity/HitStop',
                                       priority: 15,
                                       curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1752,7 +1817,10 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                                   sequence: sequence(
                                     step('startTimeDilation', {
                                       scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.1 },
+                                      durationSeconds: {
+                                        kind: 'constant',
+                                        value: 0.100000001490116,
+                                      },
                                       slot: 'TimeDilation/Layer/Entity/HitStop',
                                       priority: 10,
                                       curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1794,7 +1862,10 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
                                   sequence: sequence(
                                     step('startTimeDilation', {
                                       scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.65 },
+                                      durationSeconds: {
+                                        kind: 'constant',
+                                        value: 0.649999976158142,
+                                      },
                                       slot: 'TimeDilation/Layer/Entity/HitStop',
                                       priority: 20,
                                       curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1827,7 +1898,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
+                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 50,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1850,7 +1921,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.6 },
+            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1869,10 +1940,17 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [2.89, 3.18, 3.47, 3.75, 4.04, 4.33, 4.62, 4.91, 5.2, 5.56, 5.99, 6.5],
+    atk_scale: [
+      2.89000010490417, 3.1800000667572, 3.47000002861023, 3.75, 4.03999996185303, 4.32999992370605,
+      4.61999988555908, 4.90999984741211, 5.19999980926514, 5.55999994277954, 5.98999977111816, 6.5,
+    ],
     cam_angle: 0,
     cam_duration: 0,
-    crush_multi: [1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.15, 1.15, 1.15, 1.2],
+    crush_multi: [
+      1.10000002384186, 1.10000002384186, 1.10000002384186, 1.10000002384186, 1.10000002384186,
+      1.10000002384186, 1.10000002384186, 1.10000002384186, 1.14999997615814, 1.14999997615814,
+      1.14999997615814, 1.20000004768372,
+    ],
     input_angle: 0,
     owner_mainchar_alpha: 0,
     owner_mainchar_distance: 0,
@@ -1995,7 +2073,7 @@ export default {
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
-            dmg_up: [0.04, 0.06],
+            dmg_up: [0.0399999991059303, 0.0599999986588955],
             stack: { kind: 'constant', value: 4 },
             duration: { kind: 'constant', value: 10 },
           },
@@ -2032,7 +2110,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'talent_1_cd_reduce',
           operation: 'assign',
-          value: [0.4, 0.4],
+          value: [0.400000005960464, 0.400000005960464],
         },
       ],
     },
@@ -2047,7 +2125,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'potential_1_dmg_up',
           operation: 'assign',
-          value: 0.3,
+          value: 0.300000011920929,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2094,7 +2172,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
       ],
     },
@@ -2160,7 +2238,7 @@ export default {
     buff_chr_0018_dapan_talent_0_dmg_up: {
       stackingType: 'enhanceAndRefresh',
       priority: 0,
-      maxStackCount: { blackboardKey: 'stack' },
+      maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
@@ -2168,6 +2246,7 @@ export default {
         iconPath: '/icons/icon_battle_physical_dmg_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -2243,7 +2322,7 @@ export default {
     buff_chr_0018_dapan_talent_1_preparation: {
       stackingType: 'enhanceAndRefresh',
       priority: 0,
-      maxStackCount: { blackboardKey: 'max_stack' },
+      maxStackCount: 2,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
@@ -2251,6 +2330,7 @@ export default {
         iconPath: '/icons/icon_battle_dapan_buff.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

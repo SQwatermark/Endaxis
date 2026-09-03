@@ -19,7 +19,7 @@ import {
   type CompiledActionBlackboardScopeSource,
   type ProjectileCallbackInvocationSource,
 } from './projectileCallbackScopes.ts';
-import { isStaticSingleEnemyTargetGroup } from './combatProjectionCommon.ts';
+import { discoverStaticEnemyTargetGroupKeys } from './staticEnemyTargetGroupClosure.ts';
 import {
   collectPresentationOnlyBlackboardKeys,
   isPresentationOnlyActionSequence,
@@ -246,11 +246,11 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
     if (
       enabled.length === 2 &&
       enabled.some(item => item.event === 'block') &&
-      enabled.some(item => item.event === 'hit') &&
-      enabled[0]!.skillId === enabled[1]!.skillId
+      enabled.some(item => item.event === 'hit')
     ) {
-      // combat-spec 已闭环首 Tick 顺序为 collision(hit) → move/block；零距离唯一木桩
-      // 先命中并以 maxHitCount=1 结束该投射物，因此同路由的 block 是未到达备选。
+      // combat-spec 已闭环首 Tick 顺序为 collision(hit) → move/block。标准木桩场景不建模
+      // 墙地或其它主动阻挡物，零距离唯一敌人先触发 hit；block 即使配置为另一子技能也不可达。
+      // 投射物是否继续存活、能否重复命中仍由下方严格首击形状检查约束。
       return [
         compileZeroDistanceFirstTickHitProjectileSource({
           sourcePath,
@@ -413,14 +413,25 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
     // 第二 tick 先 Reach 并因 finishOnReach 结束，早于普通 collision。
     allowTwoSegmentReachBeforeRepeatHit: true,
   });
+  // ProjectileComponent 的 hit 子技能由碰撞回调携带命中目标调用。其 ActionGraph 中没有
+  // 生产者的 Context 组不是普通技能的持久组，而是这次回调的输入目标快照；既然上方
+  // 已证明首 Tick 命中唯一木桩，这些组也严格归约为该敌人。
+  const callbackInputEnemyGroups = collectUnwrittenContextTargetGroupKeys(input.hitGraph);
+  const hitContext: CombatActionProjectionContextSource = {
+    ...input.callbackContext,
+    staticEnemyTargetGroupKeys: new Set([
+      ...(input.callbackContext.staticEnemyTargetGroupKeys ?? []),
+      ...callbackInputEnemyGroups,
+    ]),
+  };
   const hit = compileImmediateProjectileCallbackSkillSource({
     graph: input.hitGraph,
-    context: input.callbackContext,
+    context: hitContext,
     visualOnlyIds: input.visualOnlyIds,
     extensions: input.callbackExtensions,
     allowIndependentDelayedBlackboardReads: runtime.hitOnReach,
   });
-  scheduleDelayedProjectileCallbackSource(hit, input.callbackContext, sourcePath, launch);
+  scheduleDelayedProjectileCallbackSource(hit, hitContext, sourcePath, launch);
   return compileSynchronousProjectileCallbackScopesSource({
     sourcePath,
     launch,
@@ -430,6 +441,49 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
     // 证明同步 hit 路由，不要求另造一个空模板目录项。
     allowMissingEntityBlackboardEvidence: true,
   });
+}
+
+/** 找出只由原生回调调用参数提供、未由回调 ActionGraph 自己写入的命名 Context。 */
+function collectUnwrittenContextTargetGroupKeys(
+  graph: SkillActionGraphSource<KnownNativeActionLeafSource>,
+): ReadonlySet<string> {
+  const firstAccess = new Map<string, 'read' | 'write'>();
+  const collectReads = (value: unknown): void => {
+    if (Array.isArray(value)) {
+      value.forEach(collectReads);
+      return;
+    }
+    if (value === null || typeof value !== 'object') return;
+    const record = value as Readonly<Record<string, unknown>>;
+    if (
+      record.targetSource === 'Context' &&
+      typeof record.targetGroupKey === 'string' &&
+      record.targetGroupKey.length > 0
+    ) {
+      if (!firstAccess.has(record.targetGroupKey)) firstAccess.set(record.targetGroupKey, 'read');
+    }
+    Object.values(record).forEach(collectReads);
+  };
+  const timelines = [...graph.actionGroup.timelineActions].sort(
+    (left, right) => left.startFrame - right.startFrame,
+  );
+  for (const timeline of timelines) {
+    for (const node of collectNativeActionNodes(timeline.sequence)) {
+      collectReads(node.body);
+      if (node.body.kind !== 'leaf') continue;
+      const leaf = node.body.value;
+      const writtenKeys =
+        leaf.family === 'targetGroup'
+          ? [leaf.action.targetGroupKey]
+          : leaf.family === 'physicsCast'
+            ? leaf.action.outputTargetGroupKeys
+            : [];
+      for (const key of writtenKeys) {
+        if (!firstAccess.has(key)) firstAccess.set(key, 'write');
+      }
+    }
+  }
+  return new Set([...firstAccess].filter(([, access]) => access === 'read').map(([key]) => key));
 }
 
 function wrapProjectileHitWithGameplayTagFilter(
@@ -523,26 +577,13 @@ export function compileImmediateProjectileCallbackSkillSource(input: {
   const { graph, context, visualOnlyIds = new Set(), extensions = {} } = input;
   if (graph.actionGroup.passiveEvents.length > 0)
     throw new Error(`${graph.skillId}: projectile callback passive events are unsupported`);
-  const discoveredEnemyGroups = graph.actionGroup.timelineActions.flatMap(timeline =>
-    collectNativeActionNodes(timeline.sequence)
-      .filter(
-        node =>
-          node.body.kind === 'leaf' &&
-          node.body.value.family === 'targetGroup' &&
-          isStaticSingleEnemyTargetGroup(node.body.value.action),
-      )
-      .map(node =>
-        node.body.kind === 'leaf' && node.body.value.family === 'targetGroup'
-          ? node.body.value.action.targetGroupKey
-          : '',
-      ),
+  const discoveredEnemyGroups = discoverStaticEnemyTargetGroupKeys(
+    graph,
+    context.staticEnemyTargetGroupKeys ?? new Set(),
   );
   const callbackContext: CombatActionProjectionContextSource = {
     ...context,
-    staticEnemyTargetGroupKeys: new Set([
-      ...(context.staticEnemyTargetGroupKeys ?? []),
-      ...discoveredEnemyGroups,
-    ]),
+    staticEnemyTargetGroupKeys: new Set([...discoveredEnemyGroups]),
   };
   let delayedSequencesNeedFreshScope = false;
   const timelines = graph.actionGroup.timelineActions.map((timeline, index) => {
@@ -1008,8 +1049,8 @@ function isPlainZeroSpaceFixedPoint(
       context.dynamicSpatialPointCounts?.has(target.targetGroupKey) === true);
   const instantPointAnchoredToCaster =
     target.targetSource === 'InstantSearch' &&
-    context.actionSourceTarget === 'caster' &&
-    target.selectorOwner === 'ActionSource' &&
+    ((context.actionSourceTarget === 'caster' && target.selectorOwner === 'ActionSource') ||
+      (context.actionOwnerTarget === 'caster' && target.selectorOwner === 'ActionOwner')) &&
     target.ownerContextKey === '' &&
     target.centerType === 'ActionSource' &&
     target.centerContextKey === '' &&
@@ -1073,7 +1114,9 @@ function isPlainZeroSpaceFixedPoint(
       instantPointAnchoredToCaster ||
       directTargetIsProvenZeroSpace ||
       contextTargetIsProvenZeroSpace) &&
-    (contextTargetIsProvenZeroSpace || target.targetGroupKey === '') &&
+    (contextTargetIsProvenZeroSpace ||
+      instantPointAnchoredToCaster ||
+      target.targetGroupKey === '') &&
     target.finderType === 'FixedPointFinder' &&
     fixedPoint !== undefined &&
     !fixedPoint.snapToNavmesh &&

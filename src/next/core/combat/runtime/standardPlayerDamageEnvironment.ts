@@ -151,6 +151,9 @@ export type StandardPlayerDamageEvent =
   | KnockDownAbilityEvent
   | 'enterFight'
   | 'ownerHpZero'
+  | 'ownerDead'
+  | 'ownerSwitchedToCenter'
+  | 'ownerSwitchedToGuard'
   | 'abilityEntitySpawned'
   | 'abilityEntityFinished'
   | 'beforeDamageAction'
@@ -183,6 +186,7 @@ export type StandardPlayerDamageEvent =
   | 'beforeCastSkill'
   | 'afterSkillApplyCost'
   | 'skillEnd'
+  | 'pendingComboSkillsCleared'
   | 'beforeOutputBuff'
   | 'beforeAddedBuff'
   | 'outputBuff'
@@ -191,6 +195,7 @@ export type StandardPlayerDamageEvent =
   | 'buffEndsEarly'
   | 'buffConsumed'
   | 'buffAbsorbed'
+  | 'buffEnhanceChanged'
   | 'afterOutputWeaknessTriggered'
   | 'weaknessSet'
   | 'customAbilityEvent';
@@ -281,6 +286,7 @@ export class StandardPlayerDamageEnvironment {
       null,
       undefined,
       (buff, reason) => this.#recordBuffFinished(buff, reason),
+      (buff, sourceId) => this.#recordOwnedBuffEnhanceChanged('enemy', buff, sourceId),
     );
     this.#enemyBuffRuntime = new BuffDefinitionOperationTarget(
       this.#enemyBuffs,
@@ -344,6 +350,7 @@ export class StandardPlayerDamageEnvironment {
           null,
           entityBlackboard,
           (buff, reason) => this.#recordOwnedBuffFinished(entityId, buff, reason),
+          (buff, sourceId) => this.#recordOwnedBuffEnhanceChanged(entityId, buff, sourceId),
         );
         container.addEntityTags(bornTags);
         return new BuffDefinitionOperationTarget(
@@ -542,6 +549,7 @@ export class StandardPlayerDamageEnvironment {
             kind: 'enemyDefeated',
             sourceOperatorId: operatorId,
             tags: payload.tags,
+            gameplayTags: payload.gameplayTags,
             features: payload.features,
           });
           return;
@@ -557,6 +565,7 @@ export class StandardPlayerDamageEnvironment {
           kind: 'damageTagHit',
           sourceOperatorId: operatorId,
           tags: step.parameters.tags,
+          gameplayTags: step.parameters.gameplayTags ?? [],
           features: step.parameters.features ?? [],
         });
         if (program !== undefined && program.skillGroupKey.length > 0) {
@@ -932,6 +941,7 @@ export class StandardPlayerDamageEnvironment {
         null,
         undefined,
         (buff, reason) => this.#recordOwnedBuffFinished(operatorId, buff, reason),
+        (buff, sourceId) => this.#recordOwnedBuffEnhanceChanged(operatorId, buff, sourceId),
       );
       runtime = new BuffDefinitionOperationTarget(
         container,
@@ -1281,6 +1291,7 @@ export class StandardPlayerDamageEnvironment {
       targetId: 'enemy',
       damageType: payload.damageType,
       tags: payload.tags,
+      gameplayTags: [],
       features: payload.features,
       result: damage,
       target: this.enemyVitals,
@@ -1528,6 +1539,35 @@ export class StandardPlayerDamageEnvironment {
         reason,
       });
     }
+  }
+
+  /** 原生层数变化既是事件，也是 HUD/时间轴需要的离散事实。 */
+  #recordOwnedBuffEnhanceChanged(
+    ownerId: string,
+    buff: CombatBuff<string>,
+    sourceId: string,
+  ): void {
+    if (this.#clock === null || this.#receipt === null) {
+      throw new Error(`Buff on '${ownerId}' changed before the environment was bound to a battle`);
+    }
+    this.#receipt.record({
+      frame: this.#clock.frame,
+      time: this.#clock.time,
+      event: 'BuffEnhanceChanged',
+      sourceId,
+      targetId: ownerId,
+      data: {
+        buffId: buff.definition.id,
+        instanceId: buff.instanceId,
+        layers: buff.enhanceCount,
+      },
+    });
+    this.#emit(ownerId, 'buffEnhanceChanged', {
+      sourceId,
+      targetId: ownerId,
+      buffId: buff.definition.id,
+      enhanceCount: buff.enhanceCount,
+    });
   }
 
   #buffContainer(

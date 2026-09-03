@@ -1,6 +1,7 @@
 import {
   requireArray,
   requireExactFields,
+  requireNativeEnum,
   requireNonEmptyString,
   requireNonNegativeInteger,
   requireNumber,
@@ -56,7 +57,7 @@ export function parseCharacterTeamSelection(
     const exclusionPath = `${path}.postProcessorData[0]`;
     const exclusion = requireRecord(processors[0], exclusionPath);
     if (selectorComponentName(exclusion, exclusionPath) !== 'ExcludeTarget') return null;
-    requireExactFields(exclusion, new Set(['$type', 'excludedTargetSettings']), exclusionPath);
+    requireExcludeTargetShape(exclusion, exclusionPath);
     excludedTarget = parseTargetReferenceSource(
       exclusion.excludedTargetSettings,
       `${exclusionPath}.excludedTargetSettings`,
@@ -66,27 +67,20 @@ export function parseCharacterTeamSelection(
   const priorityPath = `${path}.postProcessorData[${priorityIndex}]`;
   const priority = requireRecord(processors[priorityIndex], priorityPath);
   if (selectorComponentName(priority, priorityPath) !== 'PriorityFilter') return null;
-  requireExactFields(
-    priority,
-    new Set([
-      '$type',
-      'filterType',
-      'onlyReserveMaxPriorityTargets',
-      'limitMaxNum',
-      'maxNum',
-      'buffFilterSettings',
-    ]),
-    priorityPath,
-  );
+  const parsedPriorityFilters = parsePriorityFilterSources(selector, path);
+  if (parsedPriorityFilters.length !== 1) return null;
+  const parsedPriority = parsedPriorityFilters[0]!;
   if (
-    priority.filterType !== 'CurHpRatioAsc' ||
-    priority.onlyReserveMaxPriorityTargets !== false ||
-    priority.limitMaxNum !== true ||
-    priority.maxNum !== 1
+    parsedPriority.filterType !== 'CurHpRatioAsc' ||
+    parsedPriority.onlyReserveMaxPriorityTargets !== false ||
+    parsedPriority.limitMaxNum !== true ||
+    parsedPriority.maxNum !== 1 ||
+    parsedPriority.buffFilter.checkType !== 'Id' ||
+    parsedPriority.buffFilter.buffIds.length !== 0 ||
+    parsedPriority.buffFilter.tagQuery.queryType !== 'hasAny' ||
+    parsedPriority.buffFilter.tagQuery.tagIds.length !== 0 ||
+    parsedPriority.buffFilter.stackCountType !== 'BuffCount'
   ) {
-    return null;
-  }
-  if (!isEmptyBuffCountFilter(priority.buffFilterSettings, `${priorityPath}.buffFilterSettings`)) {
     return null;
   }
   return { kind: 'lowestHealthRatioOperator', excludedTarget };
@@ -186,7 +180,7 @@ function selectorExcludesPlainTarget(
     const processorPath = `${path}.postProcessorData[${index}]`;
     const processor = requireRecord(processors[index], processorPath);
     if (selectorComponentName(processor, processorPath) !== 'ExcludeTarget') continue;
-    requireExactFields(processor, new Set(['$type', 'excludedTargetSettings']), processorPath);
+    requireExcludeTargetShape(processor, processorPath);
     const excluded = parseTargetReferenceSource(
       processor.excludedTargetSettings,
       `${processorPath}.excludedTargetSettings`,
@@ -208,6 +202,26 @@ function isPlainTarget(
     target.validatorTypes.length === 0 &&
     target.postProcessorTypes.length === 0
   );
+}
+
+function requireExcludeTargetShape(processor: Record<string, unknown>, path: string): void {
+  const hasProcessTargetType = 'processTargetType' in processor;
+  requireExactFields(
+    processor,
+    new Set([
+      '$type',
+      'excludedTargetSettings',
+      ...(hasProcessTargetType ? ['processTargetType'] : []),
+    ]),
+    path,
+  );
+  if (hasProcessTargetType) {
+    requireNativeEnum(
+      processor.processTargetType,
+      ['Targets', 'HittableTargets'] as const,
+      `${path}.processTargetType`,
+    );
+  }
 }
 
 function matchingProcessors(
@@ -234,26 +248,4 @@ function constantScalar(value: unknown, path: string): number {
     throw new Error(`${path}: blackboard scalar is not yet supported`);
   }
   return requireNumber(scalar.value, `${path}.value`);
-}
-
-function isEmptyBuffCountFilter(value: unknown, path: string): boolean {
-  const filter = requireRecord(value, path);
-  requireExactFields(filter, new Set(['buffSettings', 'buffStackNumType']), path);
-  const settings = requireRecord(filter.buffSettings, `${path}.buffSettings`);
-  requireExactFields(
-    settings,
-    new Set(['checkType', 'buffIdList', 'tagQuery']),
-    `${path}.buffSettings`,
-  );
-  const tagQuery = requireRecord(settings.tagQuery, `${path}.buffSettings.tagQuery`);
-  requireExactFields(tagQuery, new Set(['queryType', 'tags']), `${path}.buffSettings.tagQuery`);
-  return (
-    settings.checkType === 'Id' &&
-    Array.isArray(settings.buffIdList) &&
-    settings.buffIdList.length === 0 &&
-    tagQuery.queryType === 'HasAny' &&
-    Array.isArray(tagQuery.tags) &&
-    tagQuery.tags.length === 0 &&
-    filter.buffStackNumType === 'BuffCount'
-  );
 }

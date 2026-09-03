@@ -54,9 +54,9 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.1,
+                targetTriggerIntervalSeconds: 0.100000001490116,
               },
             },
           ),
@@ -81,9 +81,9 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.1,
+                targetTriggerIntervalSeconds: 0.100000001490116,
               },
             },
           ),
@@ -102,9 +102,9 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.1,
+                targetTriggerIntervalSeconds: 0.100000001490116,
               },
             },
           ),
@@ -118,8 +118,16 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.062, 0.069, 0.075, 0.081, 0.087, 0.094, 0.1, 0.106, 0.112, 0.12, 0.129, 0.14],
-    display_atk_scale: [0.19, 0.21, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42],
+    atk_scale: [
+      0.061999998986721, 0.0689999982714653, 0.0750000029802322, 0.0810000002384186,
+      0.0869999974966049, 0.0939999967813492, 0.100000001490116, 0.105999998748302,
+      0.112000003457069, 0.119999997317791, 0.12899999320507, 0.140000000596046,
+    ],
+    display_atk_scale: [
+      0.189999997615814, 0.209999993443489, 0.219999998807907, 0.239999994635582, 0.259999990463257,
+      0.280000001192093, 0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115,
+      0.389999985694885, 0.419999986886978,
+    ],
   },
 );
 
@@ -188,7 +196,7 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -223,7 +231,7 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -242,12 +250,20 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.071, 0.078, 0.085, 0.092, 0.099, 0.107, 0.114, 0.121, 0.128, 0.137, 0.147, 0.16],
+    atk_scale: [
+      0.0710000023245811, 0.0780000016093254, 0.0850000008940697, 0.0920000001788139,
+      0.0989999994635582, 0.10700000077486, 0.114000000059605, 0.120999999344349, 0.128000006079674,
+      0.136999994516373, 0.146999999880791, 0.159999996423721,
+    ],
     poise: 0,
     rand_offset_x: 0,
     rand_offset_y: 0,
     rand_scale: 0,
-    display_atk_scale: [0.21, 0.23, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.41, 0.44, 0.48],
+    display_atk_scale: [
+      0.209999993443489, 0.230000004172325, 0.259999990463257, 0.280000001192093, 0.300000011920929,
+      0.319999992847443, 0.340000003576279, 0.360000014305115, 0.379999995231628, 0.409999996423721,
+      0.439999997615814, 0.479999989271164,
+    ],
   },
 );
 
@@ -296,7 +312,7 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -331,7 +347,7 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -350,9 +366,17 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.38],
+    atk_scale: [
+      0.170000001788139, 0.180000007152557, 0.200000002980232, 0.219999998807907, 0.230000004172325,
+      0.25, 0.270000010728836, 0.280000001192093, 0.300000011920929, 0.319999992847443,
+      0.349999994039536, 0.379999995231628,
+    ],
     poise: 0,
-    display_atk_scale: [0.33, 0.37, 0.4, 0.43, 0.47, 0.5, 0.53, 0.57, 0.6, 0.64, 0.69, 0.75],
+    display_atk_scale: [
+      0.330000013113022, 0.370000004768372, 0.400000005960464, 0.430000007152557, 0.469999998807907,
+      0.5, 0.529999971389771, 0.569999992847443, 0.600000023841858, 0.639999985694885,
+      0.689999997615814, 0.75,
+    ],
   },
 );
 
@@ -526,7 +550,7 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
                       step('createTimedMarker', {
                         target: 'caster',
                         markerId: 'lizhiyan_attack4',
-                        durationSeconds: { kind: 'constant', value: 0.1 },
+                        durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                         autoFinishByAction: false,
                       }),
                     ),
@@ -545,8 +569,16 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.045, 0.049, 0.053, 0.058, 0.062, 0.067, 0.071, 0.076, 0.08, 0.086, 0.092, 0.1],
-    display_atk_scale: [0.36, 0.39, 0.43, 0.46, 0.5, 0.53, 0.57, 0.61, 0.64, 0.69, 0.74, 0.8],
+    atk_scale: [
+      0.0450000017881393, 0.0489999987185001, 0.0529999993741512, 0.0579999983310699,
+      0.061999998986721, 0.0670000016689301, 0.0710000023245811, 0.0759999975562096,
+      0.0799999982118607, 0.0860000029206276, 0.0920000001788139, 0.100000001490116,
+    ],
+    display_atk_scale: [
+      0.360000014305115, 0.389999985694885, 0.430000007152557, 0.46000000834465, 0.5,
+      0.529999971389771, 0.569999992847443, 0.610000014305115, 0.639999985694885, 0.689999997615814,
+      0.740000009536743, 0.800000011920929,
+    ],
     poise: 0,
   },
 );
@@ -623,7 +655,7 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -631,16 +663,16 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
                   keys: [
                     {
                       time: 0,
-                      value: 0.6,
-                      inTangent: -7.07589,
-                      outTangent: -7.07589,
+                      value: 0.600000023841858,
+                      inTangent: -7.0758900642395,
+                      outTangent: -7.0758900642395,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.15,
-                      value: 0.03,
+                      time: 0.150000005960464,
+                      value: 0.0299999993294477,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -649,18 +681,18 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
                     },
                     {
                       time: 0.5,
-                      value: 0.1,
-                      inTangent: 0.4752959,
-                      outTangent: 0.4752959,
+                      value: 0.100000001490116,
+                      inTangent: 0.475295901298523,
+                      outTangent: 0.475295901298523,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
                       time: 1,
-                      value: 0.8,
-                      inTangent: 2.06752,
-                      outTangent: 2.06752,
+                      value: 0.800000011920929,
+                      inTangent: 2.06751990318298,
+                      outTangent: 2.06751990318298,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -705,7 +737,7 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
                       step('createTimedMarker', {
                         target: 'caster',
                         markerId: 'lizhiyan_attack5',
-                        durationSeconds: { kind: 'constant', value: 0.1 },
+                        durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                         autoFinishByAction: false,
                       }),
                     ),
@@ -724,14 +756,22 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 17,
-    atk_scale: [0.47, 0.52, 0.56, 0.61, 0.66, 0.71, 0.75, 0.8, 0.85, 0.9, 0.98, 1.06],
+    atk_scale: [
+      0.469999998807907, 0.519999980926514, 0.560000002384186, 0.610000014305115, 0.660000026226044,
+      0.709999978542328, 0.75, 0.800000011920929, 0.850000023841858, 0.899999976158142,
+      0.980000019073486, 1.05999994277954,
+    ],
     finish_angle1: 20,
     finish_angle2: 160,
     isHitbyMain: 0,
     poise: 17,
     start_angle1: 60,
     start_angle2: 120,
-    display_atk_scale: [0.47, 0.52, 0.56, 0.61, 0.66, 0.71, 0.75, 0.8, 0.85, 0.9, 0.98, 1.06],
+    display_atk_scale: [
+      0.469999998807907, 0.519999980926514, 0.560000002384186, 0.610000014305115, 0.660000026226044,
+      0.709999978542328, 0.75, 0.800000011920929, 0.850000023841858, 0.899999976158142,
+      0.980000019073486, 1.05999994277954,
+    ],
   },
 );
 
@@ -762,7 +802,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.1,
+              calculationMultiplier: 0.100000001490116,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0032_lizhiyan_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -779,7 +819,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.1,
+              calculationMultiplier: 0.100000001490116,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0032_lizhiyan_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -796,7 +836,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.1,
+              calculationMultiplier: 0.100000001490116,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0032_lizhiyan_power_attack:/scheduledSequences/2/sequence/steps/0',
@@ -821,7 +861,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
           step('gainFinisherSp', { factor: 1, recipient: 'team' }),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.55 },
+            durationSeconds: { kind: 'constant', value: 0.550000011920929 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -837,8 +877,8 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.07,
-                  value: 0.01,
+                  time: 0.0700000002980232,
+                  value: 0.00999999977648258,
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
@@ -846,19 +886,19 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.898291,
-                  value: 0.1031128,
-                  inTangent: 0.03048408,
-                  outTangent: 0.03048408,
+                  time: 0.898290991783142,
+                  value: 0.103112801909447,
+                  inTangent: 0.0304840803146362,
+                  outTangent: 0.0304840803146362,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
                   time: 1,
-                  value: 0.3,
-                  inTangent: 2.232943,
-                  outTangent: 2.232943,
+                  value: 0.300000011920929,
+                  inTangent: 2.23294305801392,
+                  outTangent: 2.23294305801392,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -882,7 +922,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
                   damageType: 'nature',
                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                   calculation: 'breakingAttack',
-                  calculationMultiplier: 0.1,
+                  calculationMultiplier: 0.100000001490116,
                   tags: ['normalAttack', 'powerAttack'],
                 },
                 'chr_0032_lizhiyan_power_attack:/scheduledSequences/4/sequence/steps/0/body/steps/0',
@@ -891,9 +931,9 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 2,
-                targetTriggerIntervalSeconds: 0.067,
+                targetTriggerIntervalSeconds: 0.0670000016689301,
               },
             },
           ),
@@ -916,7 +956,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_damage_immune_medium',
+            buffId: 'buff_common_full_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -943,7 +983,10 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 8,
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
     cnt: 0,
     dmg_up: 0,
     poise: 20,
@@ -999,7 +1042,14 @@ export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -1033,6 +1083,7 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_normal_skill',
             childSkillId: 'chr_0032_lizhiyan_normal_skill_abilityrange2',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'constant', value: 7 },
             blackboardAssignments: {
@@ -1051,8 +1102,14 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: 2.85,
-    atk_scale_will: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
-    atk_scale_wisd: [2.22, 2.45, 2.67, 2.89, 3.11, 3.33, 3.56, 3.78, 4, 4.28, 4.61, 5],
+    atk_scale_will: [
+      1.33000004291534, 1.47000002861023, 1.60000002384186, 1.73000001907349, 1.87000000476837, 2,
+      2.13000011444092, 2.26999998092651, 2.40000009536743, 2.5699999332428, 2.76999998092651, 3,
+    ],
+    atk_scale_wisd: [
+      2.22000002861023, 2.45000004768372, 2.67000007629395, 2.89000010490417, 3.10999989509583,
+      3.32999992370605, 3.55999994277954, 3.77999997138977, 4, 4.28000020980835, 4.6100001335144, 5,
+    ],
     atk_scale_wisd_ratio: 1.5,
     cam_angle: 0,
     cam_duration: 0,
@@ -1099,7 +1156,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                 key: 'trigger_time',
                 operation: 'add',
                 left: { kind: 'blackboard', key: 'duration_final' },
-                right: { kind: 'constant', value: -0.633 },
+                right: { kind: 'constant', value: -0.5 },
               }),
               branch(
                 {
@@ -1183,7 +1240,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                 key: 'trigger_time',
                 operation: 'add',
                 left: { kind: 'blackboard', key: 'duration_final' },
-                right: { kind: 'constant', value: -0.633 },
+                right: { kind: 'constant', value: -0.5 },
               }),
               branch(
                 {
@@ -1260,7 +1317,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.033 },
+            durationSeconds: { kind: 'constant', value: 0.0329999998211861 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'RESETto1' },
@@ -1286,6 +1343,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
                 childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
                 inheritActionBlackboard: true,
+                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
                 overrideDurationSeconds: { kind: 'constant', value: 40 },
                 saveToContextKey: 'bunshin1',
@@ -1300,6 +1358,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
                 childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
                 inheritActionBlackboard: true,
+                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
                 overrideDurationSeconds: { kind: 'constant', value: 40 },
                 saveToContextKey: 'bunshin2',
@@ -1314,6 +1373,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
                 childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
                 inheritActionBlackboard: true,
+                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
                 overrideDurationSeconds: { kind: 'constant', value: 40 },
                 saveToContextKey: 'bunshin3',
@@ -1328,6 +1388,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
                 childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
                 inheritActionBlackboard: true,
+                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
                 overrideDurationSeconds: { kind: 'constant', value: 40 },
                 saveToContextKey: 'bunshin4',
@@ -1373,7 +1434,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
             ),
           ),
         ),
-        12,
+        10,
       ),
       scheduled(
         9,
@@ -1424,7 +1485,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
             key: 'duration_total',
             operation: 'add',
             left: { kind: 'blackboard', key: 'duration_final' },
-            right: { kind: 'constant', value: 0.067 },
+            right: { kind: 'constant', value: 0.0670000016689301 },
           }),
         ),
         12,
@@ -1461,7 +1522,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.6 },
+            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1481,10 +1542,26 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb_return_wisd: [28, 28, 28, 28, 28, 28, 28, 28, 28, 30, 30, 30],
-    atk_scale_boom: [0.53, 0.59, 0.64, 0.69, 0.75, 0.8, 0.85, 0.91, 0.96, 1.03, 1.11, 1.2],
-    atk_scale_laser1: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_scale_laser2: [1.15, 1.27, 1.38, 1.5, 1.62, 1.73, 1.85, 1.96, 2.08, 2.22, 2.39, 2.6],
-    atk_scale_touch: [0.35, 0.39, 0.42, 0.46, 0.5, 0.53, 0.57, 0.6, 0.64, 0.68, 0.73, 0.8],
+    atk_scale_boom: [
+      0.529999971389771, 0.589999973773956, 0.639999985694885, 0.689999997615814, 0.75,
+      0.800000011920929, 0.850000023841858, 0.910000026226044, 0.959999978542328, 1.02999997138977,
+      1.11000001430511, 1.20000004768372,
+    ],
+    atk_scale_laser1: [
+      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
+      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
+      0.550000011920929, 0.600000023841858,
+    ],
+    atk_scale_laser2: [
+      1.14999997615814, 1.26999998092651, 1.37999999523163, 1.5, 1.62000000476837, 1.73000001907349,
+      1.85000002384186, 1.96000003814697, 2.07999992370605, 2.22000002861023, 2.39000010490417,
+      2.59999990463257,
+    ],
+    atk_scale_touch: [
+      0.349999994039536, 0.389999985694885, 0.419999986886978, 0.46000000834465, 0.5,
+      0.529999971389771, 0.569999992847443, 0.600000023841858, 0.639999985694885, 0.680000007152557,
+      0.730000019073486, 0.800000011920929,
+    ],
     atk_scale_wisd_ratio: 5,
     cd_reduce: 0,
     consumed_layer: 0,
@@ -1497,7 +1574,11 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     duration_seal2: 0,
     duration_total: 0,
     duration_will: 6,
-    max_spell_vul_will: [0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.075, 0.075, 0.075, 0.08],
+    max_spell_vul_will: [
+      0.0700000002980232, 0.0700000002980232, 0.0700000002980232, 0.0700000002980232,
+      0.0700000002980232, 0.0700000002980232, 0.0700000002980232, 0.0700000002980232,
+      0.0750000029802322, 0.0750000029802322, 0.0750000029802322, 0.0799999982118607,
+    ],
     owner_mainchar_alpha: 0,
     owner_mainchar_distance: 0,
     poise_boom: 5,
@@ -1506,13 +1587,14 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     radius: 5.67,
     rate: 0.4,
     rate_final: 0,
-    rate_pre: 0.04,
-    spell_vul_per_will: 0.000125,
+    rate_pre: 0.0399999991059303,
+    spell_vul_per_will: 0.000125000005937181,
     trigger_time: 0,
     usp: 10,
     will: 0,
     display_atk_scale_laser_wisd: [
-      2.22, 2.44, 2.66, 2.89, 3.11, 3.33, 3.55, 3.77, 4, 4.27, 4.61, 5,
+      2.22000002861023, 2.44000005722046, 2.66000008583069, 2.89000010490417, 3.10999989509583,
+      3.32999992370605, 3.54999995231628, 3.76999998092651, 4, 4.26999998092651, 4.6100001335144, 5,
     ],
     display_max_spell_vul_will: [560, 560, 560, 560, 560, 560, 560, 560, 600, 600, 600, 640],
     duration_wisd: 2,
@@ -1601,12 +1683,14 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill',
             childSkillId: 'chr_0032_lizhiyan_ultimate_skill_abilityrange',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
           }),
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 0 } },
@@ -1614,6 +1698,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 1 } },
@@ -1621,6 +1706,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 2 } },
@@ -1628,6 +1714,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 3 } },
@@ -1635,6 +1722,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 4 } },
@@ -1642,6 +1730,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 5 } },
@@ -1649,6 +1738,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 6 } },
@@ -1656,6 +1746,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration_aura' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 7 } },
@@ -1705,6 +1796,17 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
           }),
         ),
         50,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('restrictUltimateEnergyRecovery', {
+            target: 'caster',
+            allowedRecoveryTags: ['Skill/Character/chr_0032_lizhiyan/special_usp'],
+            clearUltimateEnergyOnEnd: false,
+          }),
+        ),
+        47,
       ),
       scheduled(
         47,
@@ -1933,7 +2035,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0032_lizhiyan_ultimate_skill:/scheduledSequences/7/sequence/steps/2',
+            'chr_0032_lizhiyan_ultimate_skill:/scheduledSequences/8/sequence/steps/2',
           ),
         ),
         47,
@@ -1959,9 +2061,21 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    atk_scale_laser: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.41, 0.45],
-    atk_scale_laser_will: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.41, 0.45],
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+    atk_scale_laser: [
+      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
+      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.379999995231628,
+      0.409999996423721, 0.449999988079071,
+    ],
+    atk_scale_laser_will: [
+      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
+      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.379999995231628,
+      0.409999996423721, 0.449999988079071,
+    ],
     count: 1,
     duration: 20,
     duration_aura: 60,
@@ -1977,9 +2091,15 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     spell_vul_rate_per_will: 0,
     spell_vul_rate_potential: 0,
     will: 0,
-    display_atk_scale_laser: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
+    display_atk_scale_laser: [
+      1.60000002384186, 1.75999999046326, 1.91999995708466, 2.07999992370605, 2.24000000953674,
+      2.40000009536743, 2.55999994277954, 2.72000002861023, 2.88000011444092, 3.07999992370605,
+      3.3199999332428, 3.59999990463257,
+    ],
     display_atk_scale_laser_will: [
-      1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6,
+      1.60000002384186, 1.75999999046326, 1.91999995708466, 2.07999992370605, 2.24000000953674,
+      2.40000009536743, 2.55999994277954, 2.72000002861023, 2.88000011444092, 3.07999992370605,
+      3.3199999332428, 3.59999990463257,
     ],
     laser_count: 8,
   },
@@ -2293,7 +2413,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
+                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 15,
                 curve: {
@@ -2301,36 +2421,36 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                   keys: [
                     {
                       time: 0,
-                      value: 0.7,
-                      inTangent: -6.591719,
-                      outTangent: -6.591719,
+                      value: 0.699999988079071,
+                      inTangent: -6.59171915054321,
+                      outTangent: -6.59171915054321,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.1,
-                      value: 0.015,
-                      inTangent: 0.03159265,
-                      outTangent: 0.03159265,
+                      time: 0.100000001490116,
+                      value: 0.0149999996647239,
+                      inTangent: 0.0315926484763622,
+                      outTangent: 0.0315926484763622,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.7484403,
-                      value: 0.1815591,
-                      inTangent: 0.9312042,
-                      outTangent: 0.9312042,
+                      time: 0.748440325260162,
+                      value: 0.181559100747108,
+                      inTangent: 0.931204199790955,
+                      outTangent: 0.931204199790955,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
                       time: 1,
-                      value: 0.7,
-                      inTangent: 2.428422,
-                      outTangent: 2.428422,
+                      value: 0.699999988079071,
+                      inTangent: 2.42842197418213,
+                      outTangent: 2.42842197418213,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -2424,8 +2544,16 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    atk_scale: [6.4, 7.04, 7.68, 8.32, 8.96, 9.6, 10.24, 10.88, 11.52, 12.32, 13.28, 14.4],
-    atk_scale_will: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
+    atk_scale: [
+      6.40000009536743, 7.03999996185303, 7.67999982833862, 8.31999969482422, 8.96000003814697,
+      9.60000038146973, 10.2399997711182, 10.8800001144409, 11.5200004577637, 12.3199996948242,
+      13.2799997329712, 14.3999996185303,
+    ],
+    atk_scale_will: [
+      1.60000002384186, 1.75999999046326, 1.91999995708466, 2.07999992370605, 2.24000000953674,
+      2.40000009536743, 2.55999994277954, 2.72000002861023, 2.88000011444092, 3.07999992370605,
+      3.3199999332428, 3.59999990463257,
+    ],
     cd_minus: 0,
     duration_vul: 0,
     enhance_rate: 0,
@@ -2682,10 +2810,10 @@ export default {
           key: 'chr_0032_lizhiyan_talent1',
           blackboard: {
             duration: [10, 10],
-            enhance_rate: [0, 0.24],
+            enhance_rate: [0, 0.239999994635582],
             lv: [1, 2],
-            spell_vul_rate: [0, 0.128],
-            spell_vul_rate_per_will: [0, 0.0002],
+            spell_vul_rate: [0, 0.128000006079674],
+            spell_vul_rate_per_will: [0, 0.000199999994947575],
             spell_vul_rate_potential: [0, 0],
           },
           enableSequence: sequence(
@@ -2711,7 +2839,11 @@ export default {
       levels: 2,
       modifiers: [
         { kind: 'addReactionDuration', reaction: 'corrosion', seconds: [5, 10] },
-        { kind: 'addReactionEffectiveness', reaction: 'corrosion', value: [0.05, 0.1] },
+        {
+          kind: 'addReactionEffectiveness',
+          reaction: 'corrosion',
+          value: [0.0500000007450581, 0.100000001490116],
+        },
       ],
     },
   ],
@@ -2725,28 +2857,28 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale_touch',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale_boom',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale_laser1',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale_laser2',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2766,7 +2898,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'rate_pre',
           operation: 'add',
-          value: 0.06,
+          value: 0.0599999986588955,
           condition: {
             kind: 'deckAttributeCompare',
             left: 'intellect',
@@ -2790,7 +2922,7 @@ export default {
       levels: 1,
       modifiers: [
         { kind: 'addReactionDuration', reaction: 'corrosion', seconds: 5 },
-        { kind: 'addReactionEffectiveness', reaction: 'corrosion', value: 0.2 },
+        { kind: 'addReactionEffectiveness', reaction: 'corrosion', value: 0.200000002980232 },
       ],
     },
     {
@@ -2802,14 +2934,14 @@ export default {
           skillGroupKey: 'ultimate',
           skillKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
         {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           skillKey: 'arcana',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
       ],
     },
@@ -2822,14 +2954,14 @@ export default {
           passiveSkillKey: 'chr_0032_lizhiyan_talent1',
           blackboardKey: 'enhance_rate',
           operation: 'add',
-          value: 0.16,
+          value: 0.159999996423721,
         },
         {
           kind: 'patchPassiveBlackboard',
           passiveSkillKey: 'chr_0032_lizhiyan_talent1',
           blackboardKey: 'spell_vul_rate_potential',
           operation: 'add',
-          value: 0.07,
+          value: 0.0700000002980232,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2837,7 +2969,7 @@ export default {
           skillKey: 'arcana',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.3,
+          value: 1.29999995231628,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2845,7 +2977,7 @@ export default {
           skillKey: 'arcana',
           blackboardKey: 'cd_minus',
           operation: 'add',
-          value: 0.3,
+          value: 0.300000011920929,
         },
       ],
     },
@@ -2937,6 +3069,19 @@ export default {
         ),
       },
     },
+    buff_chr_0032_lizhiyan_combo_skill_seal_atb: {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 1,
+      durationSeconds: 0.100000001490116,
+      triggerIntervalSeconds: 0,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: -1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+    },
     buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener: {
       stackingType: 'unique',
       priority: 0,
@@ -2959,37 +3104,65 @@ export default {
           priority: 0,
           sequence: sequence(
             branch(
-              { kind: 'actionInputTargetIdentityMatch', other: 'actionSource', operator: 'equal' },
+              {
+                kind: 'buffIdStackCompare',
+                target: 'buffOwner',
+                buffIds: ['buff_chr_0032_lizhiyan_combo_skill_seal2'],
+                operator: 'less',
+                value: { kind: 'constant', value: 1 },
+                sameSourceSkillCast: true,
+              },
               sequence(
                 branch(
-                  { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalSkill'] },
+                  {
+                    kind: 'buffIdStackCompare',
+                    target: 'buffOwner',
+                    buffIds: ['buff_chr_0032_lizhiyan_combo_skill_seal_atb'],
+                    operator: 'less',
+                    value: { kind: 'constant', value: 1 },
+                    sameSourceSkillCast: true,
+                  },
                   sequence(
-                    step('changeResourceByActionValue', {
-                      resource: 'sp',
-                      amount: { kind: 'blackboard', key: 'atb_return_wisd' },
-                      coefficient: { kind: 'constant', value: 1 },
-                      recipient: 'team',
-                      spGainKind: 'refund',
-                      spGainSource: 'default',
-                    }),
-                    step(
-                      'dealDamage',
+                    branch(
                       {
-                        damageType: 'nature',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_early_finish' },
-                        tags: ['comboSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: { kind: 'blackboard', key: 'poise_early_finish' },
+                        kind: 'actionInputTargetIdentityMatch',
+                        other: 'actionSource',
+                        operator: 'equal',
                       },
-                      'buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener:/abilityEventResponses/0/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                      sequence(
+                        branch(
+                          { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalSkill'] },
+                          sequence(
+                            step('changeResourceByActionValue', {
+                              resource: 'sp',
+                              amount: { kind: 'blackboard', key: 'atb_return_wisd' },
+                              coefficient: { kind: 'constant', value: 1 },
+                              recipient: 'team',
+                              spGainKind: 'refund',
+                              spGainSource: 'default',
+                            }),
+                            step(
+                              'dealDamage',
+                              {
+                                damageType: 'nature',
+                                attackScale: { kind: 'blackboard', key: 'atk_scale_early_finish' },
+                                tags: ['comboSkill'],
+                                features: ['canBreakWeakness'],
+                                stagger: { kind: 'blackboard', key: 'poise_early_finish' },
+                              },
+                              'buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener:/abilityEventResponses/0/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                            ),
+                            step('createTimedMarker', {
+                              target: 'buffSource',
+                              markerId: 'lizhiyan_combo_hit',
+                              durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                              autoFinishByAction: false,
+                            }),
+                            step('finishCurrentBuff', { reason: 'early' }),
+                          ),
+                        ),
+                      ),
                     ),
-                    step('createTimedMarker', {
-                      target: 'buffSource',
-                      markerId: 'lizhiyan_combo_hit',
-                      durationSeconds: { kind: 'constant', value: 0.1 },
-                      autoFinishByAction: false,
-                    }),
-                    step('finishCurrentBuff', { reason: 'early' }),
                   ),
                 ),
               ),
@@ -3038,7 +3211,7 @@ export default {
             step('createTimedMarker', {
               target: 'caster',
               markerId: 'lizhiyan_combo_hit',
-              durationSeconds: { kind: 'constant', value: 0.1 },
+              durationSeconds: { kind: 'constant', value: 0.100000001490116 },
               autoFinishByAction: false,
             }),
           ),
@@ -3054,7 +3227,7 @@ export default {
             }),
             step('startTimeDilation', {
               scope: 'entity',
-              durationSeconds: { kind: 'constant', value: 0.55 },
+              durationSeconds: { kind: 'constant', value: 0.550000011920929 },
               slot: 'TimeDilation/Layer/Entity/HitStop',
               priority: 15,
               curve: {
@@ -3063,35 +3236,35 @@ export default {
                   {
                     time: 0,
                     value: 0.5,
-                    inTangent: -6.042728,
-                    outTangent: -6.042728,
+                    inTangent: -6.04272794723511,
+                    outTangent: -6.04272794723511,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
                   },
                   {
-                    time: 0.1,
-                    value: 0.015,
-                    inTangent: 0.03159265,
-                    outTangent: 0.03159265,
+                    time: 0.100000001490116,
+                    value: 0.0149999996647239,
+                    inTangent: 0.0315926484763622,
+                    outTangent: 0.0315926484763622,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
                   },
                   {
-                    time: 0.85,
-                    value: 0.18,
-                    inTangent: 0.5393099,
-                    outTangent: 0.5393099,
+                    time: 0.850000023841858,
+                    value: 0.180000007152557,
+                    inTangent: 0.539309918880463,
+                    outTangent: 0.539309918880463,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
                   },
                   {
                     time: 1,
-                    value: 0.7,
-                    inTangent: 4.793082,
-                    outTangent: 4.793082,
+                    value: 0.699999988079071,
+                    inTangent: 4.79308223724365,
+                    outTangent: 4.79308223724365,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
@@ -3154,6 +3327,7 @@ export default {
             step('spawnAbilityEntity', {
               abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill_place',
               inheritActionBlackboard: true,
+              inheritSourceSkillCastInfo: true,
               dieWhenSourceDies: false,
               overrideDurationSeconds: { kind: 'constant', value: 2 },
               saveToContextKey: 'laser_root',
@@ -3242,7 +3416,7 @@ export default {
             step('createTimedMarker', {
               target: 'caster',
               markerId: 'lizhiyan_combo_hit',
-              durationSeconds: { kind: 'constant', value: 0.1 },
+              durationSeconds: { kind: 'constant', value: 0.100000001490116 },
               autoFinishByAction: false,
             }),
           ),
@@ -3269,7 +3443,7 @@ export default {
             }),
             step('startTimeDilation', {
               scope: 'entity',
-              durationSeconds: { kind: 'constant', value: 0.55 },
+              durationSeconds: { kind: 'constant', value: 0.550000011920929 },
               slot: 'TimeDilation/Layer/Entity/HitStop',
               priority: 15,
               curve: {
@@ -3277,36 +3451,36 @@ export default {
                 keys: [
                   {
                     time: 0,
-                    value: 0.6,
-                    inTangent: -5.656393,
-                    outTangent: -5.656393,
+                    value: 0.600000023841858,
+                    inTangent: -5.65639305114746,
+                    outTangent: -5.65639305114746,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
                   },
                   {
-                    time: 0.1,
-                    value: 0.015,
-                    inTangent: 0.03159265,
-                    outTangent: 0.03159265,
+                    time: 0.100000001490116,
+                    value: 0.0149999996647239,
+                    inTangent: 0.0315926484763622,
+                    outTangent: 0.0315926484763622,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
                   },
                   {
-                    time: 0.85,
-                    value: 0.18,
-                    inTangent: 0.5393099,
-                    outTangent: 0.5393099,
+                    time: 0.850000023841858,
+                    value: 0.180000007152557,
+                    inTangent: 0.539309918880463,
+                    outTangent: 0.539309918880463,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
                   },
                   {
                     time: 1,
-                    value: 0.7,
-                    inTangent: 4.793082,
-                    outTangent: 4.793082,
+                    value: 0.699999988079071,
+                    inTangent: 4.79308223724365,
+                    outTangent: 4.79308223724365,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
@@ -3319,7 +3493,7 @@ export default {
             }),
             step('startTimeDilation', {
               scope: 'entity',
-              durationSeconds: { kind: 'constant', value: 0.55 },
+              durationSeconds: { kind: 'constant', value: 0.550000011920929 },
               slot: 'TimeDilation/Layer/Entity/HitStop',
               priority: 15,
               curve: {
@@ -3327,36 +3501,36 @@ export default {
                 keys: [
                   {
                     time: 0,
-                    value: 0.6,
-                    inTangent: -5.656393,
-                    outTangent: -5.656393,
+                    value: 0.600000023841858,
+                    inTangent: -5.65639305114746,
+                    outTangent: -5.65639305114746,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
                   },
                   {
-                    time: 0.1,
-                    value: 0.015,
-                    inTangent: 0.03159265,
-                    outTangent: 0.03159265,
+                    time: 0.100000001490116,
+                    value: 0.0149999996647239,
+                    inTangent: 0.0315926484763622,
+                    outTangent: 0.0315926484763622,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
                   },
                   {
-                    time: 0.85,
-                    value: 0.18,
-                    inTangent: 0.5393099,
-                    outTangent: 0.5393099,
+                    time: 0.850000023841858,
+                    value: 0.180000007152557,
+                    inTangent: 0.539309918880463,
+                    outTangent: 0.539309918880463,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
                   },
                   {
                     time: 1,
-                    value: 0.7,
-                    inTangent: 4.793082,
-                    outTangent: 4.793082,
+                    value: 0.699999988079071,
+                    inTangent: 4.79308223724365,
+                    outTangent: 4.79308223724365,
                     weightedMode: 0,
                     inWeight: 0,
                     outWeight: 0,
@@ -3622,7 +3796,7 @@ export default {
               sequence(
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.2 },
+                  durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 10,
                   curve: { kind: 'named', key: 'char_normal_attack' },
@@ -3642,7 +3816,7 @@ export default {
               key: 'duration_effect',
               operation: 'add',
               left: { kind: 'blackboard', key: 'duration_final' },
-              right: { kind: 'constant', value: -0.2 },
+              right: { kind: 'constant', value: -0.200000002980232 },
             }),
           ),
           3,
@@ -3660,6 +3834,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_lizhiyan_combo_seal.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3731,6 +3906,12 @@ export default {
                           },
                           'buff_chr_0032_lizhiyan_combo_skill_seal2:/abilityEventResponses/0/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
                         ),
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_atb',
+                          target: 'buffOwner',
+                          source: 'buffSource',
+                          inheritSourceSkillCastInfo: true,
+                        }),
                         step('finishBuffsById', {
                           target: 'buffOwner',
                           buffIds: [
@@ -3761,6 +3942,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_lizhiyan_combo_vulnerable.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3832,6 +4014,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_lizhiyan_combo_vulnerable.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3969,6 +4152,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_lizhiyan_combo_vulnerable.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4097,8 +4281,9 @@ export default {
                         step('spawnAbilityEntity', {
                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_death',
                           inheritActionBlackboard: true,
+                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
-                          overrideDurationSeconds: { kind: 'constant', value: 0.2 },
+                          overrideDurationSeconds: { kind: 'constant', value: 0.200000002980232 },
                           saveToContextKey: 'ult_death',
                         }),
                         forEachContextTarget(
@@ -4176,7 +4361,7 @@ export default {
                                 step('createTimedMarker', {
                                   target: 'buffSource',
                                   markerId: 'chr_0032_lizhiyan_ultimate_count',
-                                  durationSeconds: { kind: 'constant', value: 0.4 },
+                                  durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                                   autoFinishByAction: false,
                                 }),
                                 step('modifyActionValue', {
@@ -4203,6 +4388,7 @@ export default {
                                       abilityEntityId:
                                         'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',
                                       inheritActionBlackboard: true,
+                                      inheritSourceSkillCastInfo: true,
                                       dieWhenSourceDies: false,
                                       saveToContextKey: 'laser_target1',
                                     }),
@@ -4248,6 +4434,7 @@ export default {
                                           abilityEntityId:
                                             'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',
                                           inheritActionBlackboard: true,
+                                          inheritSourceSkillCastInfo: true,
                                           dieWhenSourceDies: false,
                                           saveToContextKey: 'laser_target2',
                                         }),
@@ -4392,6 +4579,7 @@ export default {
                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
                   childSkillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
                   inheritActionBlackboard: true,
+                  inheritSourceSkillCastInfo: true,
                   dieWhenSourceDies: false,
                   target: 'currentAbilityEntity',
                 }),
@@ -4415,6 +4603,7 @@ export default {
                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
                   childSkillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
                   inheritActionBlackboard: true,
+                  inheritSourceSkillCastInfo: true,
                   dieWhenSourceDies: false,
                   target: 'currentAbilityEntity',
                 }),
@@ -4438,6 +4627,7 @@ export default {
                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
                   childSkillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
                   inheritActionBlackboard: true,
+                  inheritSourceSkillCastInfo: true,
                   dieWhenSourceDies: false,
                   target: 'currentAbilityEntity',
                 }),
@@ -4461,6 +4651,7 @@ export default {
                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
                   childSkillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
                   inheritActionBlackboard: true,
+                  inheritSourceSkillCastInfo: true,
                   dieWhenSourceDies: false,
                   target: 'currentAbilityEntity',
                 }),
@@ -4555,6 +4746,7 @@ export default {
                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
                   childSkillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
                   inheritActionBlackboard: true,
+                  inheritSourceSkillCastInfo: true,
                   dieWhenSourceDies: false,
                   target: 'currentAbilityEntity',
                 }),
@@ -4578,6 +4770,7 @@ export default {
                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
                   childSkillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
                   inheritActionBlackboard: true,
+                  inheritSourceSkillCastInfo: true,
                   dieWhenSourceDies: false,
                   target: 'currentAbilityEntity',
                 }),
@@ -4601,6 +4794,7 @@ export default {
                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
                   childSkillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
                   inheritActionBlackboard: true,
+                  inheritSourceSkillCastInfo: true,
                   dieWhenSourceDies: false,
                   target: 'currentAbilityEntity',
                 }),
@@ -4624,6 +4818,7 @@ export default {
                   abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser',
                   childSkillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
                   inheritActionBlackboard: true,
+                  inheritSourceSkillCastInfo: true,
                   dieWhenSourceDies: false,
                   target: 'currentAbilityEntity',
                 }),
@@ -4681,6 +4876,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_ult_laser.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4879,6 +5075,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_ult_skill.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -5068,8 +5265,8 @@ export default {
       stackingType: 'stack',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 0.1,
-      triggerIntervalSeconds: 0.033,
+      durationSeconds: 0.100000001490116,
+      triggerIntervalSeconds: 0.0329999998211861,
       waitFirstTriggerInterval: false,
       maxTriggerCount: 1,
       applyTags: [],
@@ -5100,7 +5297,7 @@ export default {
                   step('createTimedMarker', {
                     target: 'caster',
                     markerId: 'chr_0032_lizhiyan_ultimate_count',
-                    durationSeconds: { kind: 'constant', value: 0.4 },
+                    durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                     autoFinishByAction: false,
                   }),
                   step('findOwnerSpawnedAbilityEntities', {
@@ -5120,6 +5317,7 @@ export default {
                         abilityEntityId:
                           'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',
                         inheritActionBlackboard: true,
+                        inheritSourceSkillCastInfo: true,
                         dieWhenSourceDies: false,
                         saveToContextKey: 'laser_target1',
                       }),
@@ -5160,6 +5358,7 @@ export default {
                             abilityEntityId:
                               'abilityentity_chr_0032_lizhiyan_ultimate_skill_laser_target',
                             inheritActionBlackboard: true,
+                            inheritSourceSkillCastInfo: true,
                             dieWhenSourceDies: false,
                             saveToContextKey: 'laser_target2',
                           }),
@@ -5208,7 +5407,7 @@ export default {
     buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener: {
       stackingType: 'unique',
       priority: 0,
-      maxStackCount: 1,
+      maxStackCount: 3,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -5284,6 +5483,20 @@ export default {
             scheduled(
               0,
               sequence(
+                repeatEachTick(sequence(), {
+                  nativeChanneling: {
+                    executeEachFrame: true,
+                    triggerIntervalSeconds: 0.0329999998211861,
+                    maxCountPerTarget: -1,
+                    targetTriggerIntervalSeconds: 0.0329999998211861,
+                  },
+                }),
+              ),
+              15,
+            ),
+            scheduled(
+              0,
+              sequence(
                 branch(
                   {
                     kind: 'not',
@@ -5316,7 +5529,7 @@ export default {
                         step('createTimedMarker', {
                           target: 'caster',
                           markerId: 'lizhiyan_combo_end_not_finish',
-                          durationSeconds: { kind: 'constant', value: 0.1 },
+                          durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                           autoFinishByAction: false,
                         }),
                       ),
@@ -5348,12 +5561,12 @@ export default {
                         features: ['canBreakWeakness'],
                         stagger: { kind: 'blackboard', key: 'poise_boom' },
                       },
-                      'abilityentity_chr_0032_lizhiyan_combo_skill:chr_032_lizhiyan_combo_skill_abilityentity_seal|chr_0032_lizhiyan_combo_skill_abilityentity_end|chr_0032_lizhiyan_combo_skill_abilityentity_seal_again:/childSkills/chr_0032_lizhiyan_combo_skill_abilityentity_end/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0',
+                      'abilityentity_chr_0032_lizhiyan_combo_skill:chr_032_lizhiyan_combo_skill_abilityentity_seal|chr_0032_lizhiyan_combo_skill_abilityentity_end|chr_0032_lizhiyan_combo_skill_abilityentity_seal_again:/childSkills/chr_0032_lizhiyan_combo_skill_abilityentity_end/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0',
                     ),
                     step('createTimedMarker', {
                       target: 'caster',
                       markerId: 'lizhiyan_combo_hit',
-                      durationSeconds: { kind: 'constant', value: 0.1 },
+                      durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                       autoFinishByAction: false,
                     }),
                   ),
@@ -5362,7 +5575,7 @@ export default {
                 ),
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.3 },
+                  durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 15,
                   curve: {
@@ -5371,35 +5584,35 @@ export default {
                       {
                         time: 0,
                         value: 1,
-                        inTangent: -14.14286,
-                        outTangent: -14.14286,
+                        inTangent: -14.1428604125977,
+                        outTangent: -14.1428604125977,
                         weightedMode: 0,
                         inWeight: 0,
                         outWeight: 0,
                       },
                       {
-                        time: 0.07,
-                        value: 0.01,
-                        inTangent: 0.03159265,
-                        outTangent: 0.03159265,
+                        time: 0.0700000002980232,
+                        value: 0.00999999977648258,
+                        inTangent: 0.0315926484763622,
+                        outTangent: 0.0315926484763622,
                         weightedMode: 0,
                         inWeight: 0,
                         outWeight: 0,
                       },
                       {
-                        time: 0.9385403,
-                        value: 0.1655021,
-                        inTangent: 0.5255258,
-                        outTangent: 0.5255258,
+                        time: 0.938540279865265,
+                        value: 0.165502101182938,
+                        inTangent: 0.525525808334351,
+                        outTangent: 0.525525808334351,
                         weightedMode: 0,
                         inWeight: 0,
                         outWeight: 0,
                       },
                       {
                         time: 1,
-                        value: 0.3,
-                        inTangent: 3.249784,
-                        outTangent: 3.249784,
+                        value: 0.300000011920929,
+                        inTangent: 3.24978399276733,
+                        outTangent: 3.24978399276733,
                         weightedMode: 0,
                         inWeight: 0,
                         outWeight: 0,
@@ -5563,6 +5776,7 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill_death',
                           childSkillId: 'chr_0032_lizhiyan_combo_skill_abilityentity_death_move',
                           inheritActionBlackboard: true,
+                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'enemy',
                           saveToContextKey: 'death',
@@ -5643,7 +5857,7 @@ export default {
                         step('createTimedMarker', {
                           target: 'caster',
                           markerId: 'lizhiyan_combo_finisher',
-                          durationSeconds: { kind: 'constant', value: 0.1 },
+                          durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                           autoFinishByAction: false,
                         }),
                       ),
@@ -5671,7 +5885,7 @@ export default {
                     step('createTimedMarker', {
                       target: 'caster',
                       markerId: 'lizhiyan_combo_vul',
-                      durationSeconds: { kind: 'constant', value: 0.1 },
+                      durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                       autoFinishByAction: false,
                     }),
                     step('applyBuff', {
@@ -5729,7 +5943,7 @@ export default {
               step('modifyActionValue', {
                 key: 'radius',
                 operation: 'add',
-                value: { kind: 'constant', value: 0.67 },
+                value: { kind: 'constant', value: 0.670000016689301 },
               }),
             ),
             3,
@@ -5737,29 +5951,7 @@ export default {
           scheduled(
             20,
             sequence(
-              forEachTarget(
-                'enemy',
-                sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'effect_count' },
-                      operator: 'less',
-                      right: { kind: 'blackboard', key: 'max_effect_count' },
-                    },
-                    sequence(
-                      step('calculateActionValue', {
-                        key: 'effect_count',
-                        operation: 'add',
-                        left: { kind: 'blackboard', key: 'effect_count' },
-                        right: { kind: 'constant', value: 1 },
-                      }),
-                    ),
-                    undefined,
-                    { alwaysNext: true },
-                  ),
-                ),
-              ),
+              forEachTarget('enemy', sequence()),
               step('applyElementalInfliction', { element: 'nature', isExtra: false }),
               branch(
                 {
@@ -5798,7 +5990,7 @@ export default {
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
+                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -5807,15 +5999,15 @@ export default {
                     {
                       time: 0,
                       value: 1,
-                      inTangent: -14.14286,
-                      outTangent: -14.14286,
+                      inTangent: -14.1428604125977,
+                      outTangent: -14.1428604125977,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.07,
-                      value: 0.01,
+                      time: 0.0700000002980232,
+                      value: 0.00999999977648258,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -5824,7 +6016,7 @@ export default {
                     },
                     {
                       time: 1,
-                      value: 0.1,
+                      value: 0.100000001490116,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -5993,7 +6185,7 @@ export default {
                   step('createTimedMarker', {
                     target: 'caster',
                     markerId: 'lizhiyan_ult_laser_hit1',
-                    durationSeconds: { kind: 'constant', value: 0.8 },
+                    durationSeconds: { kind: 'constant', value: 0.800000011920929 },
                     autoFinishByAction: false,
                   }),
                 ),
@@ -6011,7 +6203,7 @@ export default {
                       step('createTimedMarker', {
                         target: 'caster',
                         markerId: 'lizhiyan_ult_laser_hit2',
-                        durationSeconds: { kind: 'constant', value: 0.8 },
+                        durationSeconds: { kind: 'constant', value: 0.800000011920929 },
                         autoFinishByAction: false,
                       }),
                     ),
@@ -6029,7 +6221,7 @@ export default {
                           step('createTimedMarker', {
                             target: 'caster',
                             markerId: 'lizhiyan_ult_laser_hit3',
-                            durationSeconds: { kind: 'constant', value: 0.8 },
+                            durationSeconds: { kind: 'constant', value: 0.800000011920929 },
                             autoFinishByAction: false,
                           }),
                         ),

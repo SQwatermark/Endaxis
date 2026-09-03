@@ -45,9 +45,9 @@ const knownFailures: Readonly<Record<string, string>> = {};
 
 describe('所有正式干员技能逐项放置与模拟', () => {
   it('覆盖默认仓库中的每个干员和每个基础/变体技能', () => {
-    expect(nextGameDataRepository.getOperators()).toHaveLength(30);
-    // 310 个声明技能中，庄方宜 ultimateEnd 是技能内部收尾，不对应玩家可主动放置的动作。
-    expect(cases).toHaveLength(309);
+    expect(nextGameDataRepository.getOperators()).toHaveLength(31);
+    // 328 个声明技能中，庄方宜 ultimateEnd 是技能内部收尾，不对应玩家可主动放置的动作。
+    expect(cases).toHaveLength(327);
     expect(Object.keys(knownFailures)).toHaveLength(0);
     expect(
       new Set(

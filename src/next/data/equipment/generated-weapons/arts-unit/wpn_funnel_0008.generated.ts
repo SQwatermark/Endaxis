@@ -38,9 +38,7 @@ const definition = {
       "buffDefinitions": {
         "buff_wpn_funnel_0008_magic_damage_taken_up": {
           "stackingType": "highPriority",
-          "priority": {
-            "blackboardKey": "lv"
-          },
+          "priority": 0,
           "maxStackCount": 0,
           "durationSeconds": {
             "blackboardKey": "duration"
@@ -54,6 +52,7 @@ const definition = {
             "iconPath": "/icons/icon_battle_spell_taken_up.webp",
             "showInHeadBarCommon": true,
             "showInHeadBarAttached": false,
+            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": false,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -139,15 +138,15 @@ const definition = {
           "attribute": "secondary",
           "operation": "percent",
           "value": [
-            0.1,
-            0.12,
-            0.14,
-            0.16,
-            0.18,
-            0.2,
-            0.22,
-            0.24,
-            0.28
+            0.10000000149011612,
+            0.11999999731779099,
+            0.14000000059604645,
+            0.1599999964237213,
+            0.18000000715255737,
+            0.20000000298023224,
+            0.2199999988079071,
+            0.23999999463558197,
+            0.2800000011920929
           ]
         }
       ],
@@ -180,26 +179,26 @@ const definition = {
               9
             ],
             "second_attr_up": [
-              0.1,
-              0.12,
-              0.14,
-              0.16,
-              0.18,
-              0.2,
-              0.22,
-              0.24,
-              0.28
+              0.10000000149011612,
+              0.11999999731779099,
+              0.14000000059604645,
+              0.1599999964237213,
+              0.18000000715255737,
+              0.20000000298023224,
+              0.2199999988079071,
+              0.23999999463558197,
+              0.2800000011920929
             ],
             "spell_damage_taken_up": [
-              0.09,
-              0.108,
-              0.126,
-              0.144,
-              0.162,
-              0.18,
-              0.198,
-              0.216,
-              0.252
+              0.09000000357627869,
+              0.1080000028014183,
+              0.12600000202655792,
+              0.14399999380111694,
+              0.16200000047683716,
+              0.18000000715255737,
+              0.1979999989271164,
+              0.2160000056028366,
+              0.25200000405311584
             ]
           },
           "sequence": {

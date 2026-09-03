@@ -1297,6 +1297,92 @@ describe('CombatBuffContainer', () => {
     expect(order).toEqual(['before:1', 'changed:2', 'after:2', 'before:2', 'after:2']);
   });
 
+  it('grows timed enhance layers, catches up intervals, and remains active at the cap', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.timed-growing',
+      stackingType: 'timedGrowingEnhance',
+      durationSeconds: 3,
+      maxStackCount: 4,
+    };
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+
+    container.tick(2);
+    expect(buff.enhanceCount).toBe(1);
+    expect(buff.remainingDuration).toBe(1);
+
+    container.tick(1);
+    expect(buff.enhanceCount).toBe(2);
+    expect(buff.remainingDuration).toBe(3);
+
+    container.tick(7);
+    expect(buff.enhanceCount).toBe(4);
+    expect(buff.remainingDuration).toBe(3);
+    expect(buff.isFinished).toBe(false);
+  });
+
+  it('resets timed enhance duration only on the external application reaching its cap', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.timed-growing.external',
+      stackingType: 'timedGrowingEnhance',
+      durationSeconds: 3,
+      maxStackCount: 3,
+    };
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+
+    container.tick(1);
+    expect(container.add(definition, 'operator')).toBe(buff);
+    expect(buff.enhanceCount).toBe(2);
+    expect(buff.remainingDuration).toBe(2);
+
+    expect(container.add(definition, 'operator')).toBe(buff);
+    expect(buff.enhanceCount).toBe(3);
+    expect(buff.remainingDuration).toBe(3);
+
+    container.tick(1);
+    expect(container.add(definition, 'operator')).toBe(buff);
+    expect(buff.enhanceCount).toBe(3);
+    expect(buff.remainingDuration).toBe(2);
+  });
+
+  it('blocks repeated Buff additions until the owner-local adding cooldown expires', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.adding-cooldown',
+      stackingType: 'unlimited',
+      addingCooldownSeconds: 0.2,
+    };
+
+    expect(container.add(definition, 'operator')).not.toBeNull();
+    expect(container.add(definition, 'operator')).toBeNull();
+    container.tick(0.19);
+    expect(container.add(definition, 'operator')).toBeNull();
+    container.tick(0.01);
+    expect(container.add(definition, 'operator')).not.toBeNull();
+  });
+
+  it('can bypass an existing adding cooldown while restarting its marker', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    const container = new CombatBuffContainer('operator', attributes);
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.adding-cooldown-bypass',
+      stackingType: 'unlimited',
+      addingCooldownSeconds: 0.2,
+    };
+
+    expect(container.add(definition, 'operator')).not.toBeNull();
+    container.tick(0.1);
+    expect(container.add({ ...definition, ignoreAddingCooldown: true }, 'operator')).not.toBeNull();
+    container.tick(0.11);
+    expect(container.add(definition, 'operator')).toBeNull();
+    container.tick(0.09);
+    expect(container.add(definition, 'operator')).not.toBeNull();
+  });
+
   it('enhances before overwriting duration and keeps the existing instance inputs', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);

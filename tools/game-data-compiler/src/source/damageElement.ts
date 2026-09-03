@@ -1,4 +1,5 @@
 import type { DamageElement } from '../../../../packages/game-data-contract/src/primitives.ts';
+import { requireNativeEnum } from './primitives.ts';
 
 // 兼容旧名；归一输出的身份由独立契约定义，原生枚举及别名仍保留在本模块。
 export type { DamageElement as ProjectedDamageElementSource } from '../../../../packages/game-data-contract/src/primitives.ts';
@@ -9,9 +10,13 @@ export type NativeDamageElementSource = (typeof NATIVE_DAMAGE_ELEMENTS)[number];
 
 /** 严格读取原生元素身份；兼容名只归一到同一个原生语义，不在来源层使用 Next 名称。 */
 export function parseNativeDamageElementSource(
-  value: string,
+  value: unknown,
   path: string,
 ): NativeDamageElementSource {
+  if (typeof value === 'number') return requireNativeEnum(value, NATIVE_DAMAGE_ELEMENTS, path);
+  if (typeof value !== 'string') {
+    throw new Error(`${path}: expected native damage element name or integer`);
+  }
   const result = NATIVE_DAMAGE_ELEMENT_ALIASES[value];
   if (result === undefined) {
     throw new Error(`${path}: unsupported native damage element ${JSON.stringify(value)}`);
@@ -34,7 +39,7 @@ const NATIVE_DAMAGE_ELEMENT_ALIASES: Readonly<Record<string, NativeDamageElement
  * 将多个原生 schema 共用的元素身份归一为稳定来源 IR 身份。
  * 条件来源与行为编译器共同复用这里，避免来源层反向依赖 compiler 或各写一份映射。
  */
-export function projectNativeDamageElement(value: string, path: string): DamageElement {
+export function projectNativeDamageElement(value: unknown, path: string): DamageElement {
   return PROJECTED_NATIVE_DAMAGE_ELEMENTS[parseNativeDamageElementSource(value, path)];
 }
 

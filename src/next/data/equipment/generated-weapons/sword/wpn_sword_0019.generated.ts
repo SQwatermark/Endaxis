@@ -39,9 +39,7 @@ const definition = {
         "buff_wpn_sword_0019_up": {
           "stackingType": "highPriorityWithMaxStack",
           "priority": 1,
-          "maxStackCount": {
-            "blackboardKey": "max_stack"
-          },
+          "maxStackCount": 3,
           "durationSeconds": {
             "blackboardKey": "duration"
           },
@@ -54,6 +52,7 @@ const definition = {
             "iconPath": "/icons/icon_battle_buff_atk_up.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
+            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -108,15 +107,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "attackPercent",
           "value": [
-            0.04,
-            0.072,
-            0.104,
-            0.136,
-            0.168,
-            0.2,
-            0.232,
-            0.264,
-            0.312
+            0.03999999910593033,
+            0.07199999690055847,
+            0.10400000214576721,
+            0.13600000739097595,
+            0.1679999977350235,
+            0.20000000298023224,
+            0.23199999332427979,
+            0.2639999985694885,
+            0.31200000643730164
           ]
         }
       ]
@@ -130,15 +129,15 @@ const definition = {
           "attribute": "secondary",
           "operation": "percent",
           "value": [
-            0.05,
-            0.06,
-            0.07,
-            0.08,
-            0.09,
-            0.1,
-            0.11,
-            0.12,
-            0.14
+            0.05000000074505806,
+            0.05999999865889549,
+            0.07000000029802322,
+            0.07999999821186066,
+            0.09000000357627869,
+            0.10000000149011612,
+            0.10999999940395355,
+            0.11999999731779099,
+            0.14000000059604645
           ]
         }
       ],
@@ -151,15 +150,15 @@ const definition = {
           "priority": 0,
           "blackboard": {
             "dmg_up": [
-              0.03,
-              0.036,
-              0.042,
-              0.048,
-              0.054,
-              0.06,
-              0.066,
-              0.072,
-              0.084
+              0.029999999329447746,
+              0.035999998450279236,
+              0.041999999433755875,
+              0.04800000041723251,
+              0.05400000140070915,
+              0.05999999865889549,
+              0.06599999964237213,
+              0.07199999690055847,
+              0.08399999886751175
             ],
             "duration": [
               20,
@@ -184,15 +183,15 @@ const definition = {
               3
             ],
             "second_attr_up": [
-              0.05,
-              0.06,
-              0.07,
-              0.08,
-              0.09,
-              0.1,
-              0.11,
-              0.12,
-              0.14
+              0.05000000074505806,
+              0.05999999865889549,
+              0.07000000029802322,
+              0.07999999821186066,
+              0.09000000357627869,
+              0.10000000149011612,
+              0.10999999940395355,
+              0.11999999731779099,
+              0.14000000059604645
             ]
           },
           "sequence": {

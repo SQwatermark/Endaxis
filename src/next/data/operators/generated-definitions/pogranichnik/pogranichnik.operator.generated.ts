@@ -60,7 +60,7 @@ export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
+                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -79,7 +79,14 @@ export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.23, 0.25, 0.28, 0.3, 0.32, 0.35, 0.37, 0.39, 0.41, 0.44, 0.48, 0.52] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.230000004172325, 0.25, 0.280000001192093, 0.300000011920929, 0.319999992847443,
+      0.349999994039536, 0.370000004768372, 0.389999985694885, 0.409999996423721, 0.439999997615814,
+      0.479999989271164, 0.519999980926514,
+    ],
+  },
 );
 
 export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -129,7 +136,7 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.02 },
+                durationSeconds: { kind: 'constant', value: 0.0199999995529652 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -168,7 +175,7 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
+                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -189,8 +196,16 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.14, 0.15, 0.17, 0.18, 0.2, 0.21, 0.22, 0.24, 0.25, 0.27, 0.29, 0.32],
-    display_atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
+    atk_scale: [
+      0.140000000596046, 0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232,
+      0.209999993443489, 0.219999998807907, 0.239999994635582, 0.25, 0.270000010728836,
+      0.28999999165535, 0.319999992847443,
+    ],
+    display_atk_scale: [
+      0.280000001192093, 0.310000002384186, 0.340000003576279, 0.360000014305115, 0.389999985694885,
+      0.419999986886978, 0.449999988079071, 0.479999989271164, 0.5, 0.540000021457672,
+      0.579999983310699, 0.629999995231628,
+    ],
   },
 );
 
@@ -243,7 +258,7 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.04 },
+                durationSeconds: { kind: 'constant', value: 0.0399999991059303 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -284,7 +299,7 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -305,9 +320,17 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
+    atk_scale: [
+      0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489, 0.230000004172325,
+      0.25, 0.259999990463257, 0.280000001192093, 0.300000011920929, 0.319999992847443,
+      0.340000003576279, 0.370000004768372,
+    ],
     poise: 0,
-    display_atk_scale: [0.33, 0.36, 0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.59, 0.64, 0.68, 0.74],
+    display_atk_scale: [
+      0.330000013113022, 0.360000014305115, 0.400000005960464, 0.430000007152557, 0.46000000834465,
+      0.5, 0.529999971389771, 0.560000002384186, 0.589999973773956, 0.639999985694885,
+      0.680000007152557, 0.740000009536743,
+    ],
   },
 );
 
@@ -353,7 +376,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -385,7 +408,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -417,7 +440,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -449,7 +472,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -481,7 +504,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -512,7 +535,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -520,27 +543,27 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
                   keys: [
                     {
                       time: 0,
-                      value: 0.3,
-                      inTangent: -11.12636,
-                      outTangent: -11.12636,
+                      value: 0.300000011920929,
+                      inTangent: -11.1263599395752,
+                      outTangent: -11.1263599395752,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.05082683,
-                      value: 0.06,
-                      inTangent: -0.8463666,
-                      outTangent: 0.1598016,
+                      time: 0.0508268289268017,
+                      value: 0.0599999986588955,
+                      inTangent: -0.846366584300995,
+                      outTangent: 0.159801602363586,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.5199714,
-                      value: 0.2766429,
-                      inTangent: 0.9066172,
-                      outTangent: 0.9066172,
+                      time: 0.519971370697021,
+                      value: 0.276642888784409,
+                      inTangent: 0.906617224216461,
+                      outTangent: 0.906617224216461,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -548,8 +571,8 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 2.363477,
-                      outTangent: 2.363477,
+                      inTangent: 2.36347699165344,
+                      outTangent: 2.36347699165344,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -586,7 +609,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
               step('changeResourceByActionValue', {
                 resource: 'sp',
                 amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.167 },
+                coefficient: { kind: 'constant', value: 0.166999995708466 },
                 recipient: 'team',
                 spGainKind: 'gain',
                 spGainSource: 'normalAttack',
@@ -605,9 +628,17 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.06, 0.07, 0.08, 0.08, 0.09, 0.1, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14],
+    atk_scale: [
+      0.0599999986588955, 0.0700000002980232, 0.0799999982118607, 0.0799999982118607,
+      0.0900000035762787, 0.100000001490116, 0.100000001490116, 0.109999999403954,
+      0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046,
+    ],
     poise: 0,
-    display_atk_scale: [0.38, 0.42, 0.46, 0.5, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.79, 0.86],
+    display_atk_scale: [
+      0.379999995231628, 0.419999986886978, 0.46000000834465, 0.5, 0.529999971389771,
+      0.569999992847443, 0.610000014305115, 0.649999976158142, 0.689999997615814, 0.730000019073486,
+      0.790000021457672, 0.860000014305115,
+    ],
   },
 );
 
@@ -683,7 +714,7 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.35 },
+                durationSeconds: { kind: 'constant', value: 0.349999994039536 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -704,7 +735,11 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 20,
-    atk_scale: [0.43, 0.47, 0.52, 0.56, 0.6, 0.65, 0.69, 0.73, 0.77, 0.83, 0.89, 0.97],
+    atk_scale: [
+      0.430000007152557, 0.469999998807907, 0.519999980926514, 0.560000002384186, 0.600000023841858,
+      0.649999976158142, 0.689999997615814, 0.730000019073486, 0.769999980926514, 0.829999983310699,
+      0.889999985694885, 0.970000028610229,
+    ],
     isHitbyMain: 0,
     poise: 18,
   },
@@ -737,7 +772,7 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.1,
+              calculationMultiplier: 0.100000001490116,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0029_pograni_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -747,7 +782,7 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
+                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -770,7 +805,7 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.1,
+              calculationMultiplier: 0.100000001490116,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0029_pograni_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -780,7 +815,7 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -803,7 +838,7 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.8,
+              calculationMultiplier: 0.800000011920929,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0029_pograni_power_attack:/scheduledSequences/2/sequence/steps/0',
@@ -833,7 +868,7 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.55 },
+                    durationSeconds: { kind: 'constant', value: 0.550000011920929 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -851,7 +886,7 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_damage_immune_medium',
+            buffId: 'buff_common_full_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -876,7 +911,12 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  {
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+  },
 );
 
 export const pogranichnikPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -923,7 +963,14 @@ export const pogranichnikPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -986,9 +1033,9 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1073,7 +1120,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.15 },
+            durationSeconds: { kind: 'constant', value: 0.150000005960464 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1102,6 +1149,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: true,
+                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1262,7 +1310,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.4 },
+            durationSeconds: { kind: 'constant', value: 0.400000005960464 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1278,17 +1326,17 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.15,
+                  time: 0.150000005960464,
                   value: 1,
                   inTangent: Number.POSITIVE_INFINITY,
-                  outTangent: -4.930326,
+                  outTangent: -4.93032598495483,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.2077375,
-                  value: 0.02,
+                  time: 0.207737505435944,
+                  value: 0.0199999995529652,
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
@@ -1296,8 +1344,8 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.6975113,
-                  value: 0.02,
+                  time: 0.697511315345764,
+                  value: 0.0199999995529652,
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
@@ -1307,8 +1355,8 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 4.753838,
-                  outTangent: 4.753838,
+                  inTangent: 4.75383806228638,
+                  outTangent: 4.75383806228638,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1344,8 +1392,16 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
     atb2: [10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 15, 15],
     atb3: [20, 20, 20, 20, 20, 20, 20, 20, 20, 25, 25, 25],
     atb4: [30, 30, 30, 30, 30, 30, 30, 30, 30, 35, 35, 35],
-    atk_scale: [0.86, 0.94, 1.03, 1.11, 1.2, 1.28, 1.37, 1.45, 1.54, 1.65, 1.77, 1.92],
-    atk_scale2: [1.06, 1.16, 1.27, 1.37, 1.48, 1.58, 1.69, 1.8, 1.9, 2.03, 2.19, 2.38],
+    atk_scale: [
+      0.860000014305115, 0.939999997615814, 1.02999997138977, 1.11000001430511, 1.20000004768372,
+      1.27999997138977, 1.37000000476837, 1.45000004768372, 1.53999996185303, 1.64999997615814,
+      1.76999998092651, 1.91999995708466,
+    ],
+    atk_scale2: [
+      1.05999994277954, 1.1599999666214, 1.26999998092651, 1.37000000476837, 1.48000001907349,
+      1.58000004291534, 1.69000005722046, 1.79999995231628, 1.89999997615814, 2.02999997138977,
+      2.19000005722046, 2.38000011444092,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     has_potential1: 0,
@@ -1639,7 +1695,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.133 },
+            durationSeconds: { kind: 'constant', value: 0.133000001311302 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1685,7 +1741,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.133 },
+            durationSeconds: { kind: 'constant', value: 0.133000001311302 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1725,7 +1781,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.6 },
+            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1733,27 +1789,27 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
               keys: [
                 {
                   time: 0,
-                  value: 0.45,
-                  inTangent: -7.146868,
-                  outTangent: -7.146868,
+                  value: 0.449999988079071,
+                  inTangent: -7.14686822891235,
+                  outTangent: -7.14686822891235,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.08,
-                  value: 0.05,
-                  inTangent: 0.0647267,
-                  outTangent: 0.0647267,
+                  time: 0.0799999982118607,
+                  value: 0.0500000007450581,
+                  inTangent: 0.0647267028689384,
+                  outTangent: 0.0647267028689384,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.4542674,
-                  value: 0.08,
-                  inTangent: 0.09682205,
-                  outTangent: 0.857443,
+                  time: 0.454267412424088,
+                  value: 0.0799999982118607,
+                  inTangent: 0.096822053194046,
+                  outTangent: 0.85744297504425,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1761,8 +1817,8 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 2.77354,
-                  outTangent: 2.77354,
+                  inTangent: 2.77354001998901,
+                  outTangent: 2.77354001998901,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1805,7 +1861,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.133 },
+            durationSeconds: { kind: 'constant', value: 0.133000001311302 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1851,7 +1907,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.133 },
+            durationSeconds: { kind: 'constant', value: 0.133000001311302 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1891,7 +1947,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.6 },
+            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1899,27 +1955,27 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
               keys: [
                 {
                   time: 0,
-                  value: 0.45,
-                  inTangent: -7.146868,
-                  outTangent: -7.146868,
+                  value: 0.449999988079071,
+                  inTangent: -7.14686822891235,
+                  outTangent: -7.14686822891235,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.08,
-                  value: 0.05,
-                  inTangent: 0.0647267,
-                  outTangent: 0.0647267,
+                  time: 0.0799999982118607,
+                  value: 0.0500000007450581,
+                  inTangent: 0.0647267028689384,
+                  outTangent: 0.0647267028689384,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.4542674,
-                  value: 0.08,
-                  inTangent: 0.09682205,
-                  outTangent: 0.857443,
+                  time: 0.454267412424088,
+                  value: 0.0799999982118607,
+                  inTangent: 0.096822053194046,
+                  outTangent: 0.85744297504425,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1927,8 +1983,8 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 2.77354,
-                  outTangent: 2.77354,
+                  inTangent: 2.77354001998901,
+                  outTangent: 2.77354001998901,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1971,7 +2027,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.133 },
+            durationSeconds: { kind: 'constant', value: 0.133000001311302 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -2017,7 +2073,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.133 },
+            durationSeconds: { kind: 'constant', value: 0.133000001311302 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -2057,7 +2113,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.133 },
+            durationSeconds: { kind: 'constant', value: 0.133000001311302 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -2078,7 +2134,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.8 },
+            durationSeconds: { kind: 'constant', value: 0.800000011920929 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2094,7 +2150,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.8 },
+            durationSeconds: { kind: 'constant', value: 0.800000011920929 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2110,7 +2166,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.700000048 },
+            durationSeconds: { kind: 'constant', value: 0.700000047683716 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2126,7 +2182,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.73300004 },
+            durationSeconds: { kind: 'constant', value: 0.733000040054321 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2150,10 +2206,26 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
     atb2: 7,
     atb3: 13,
     atb4: 23,
-    atk_scale: [0.42, 0.46, 0.5, 0.55, 0.59, 0.63, 0.67, 0.71, 0.76, 0.81, 0.87, 0.95],
-    atk_scale2: [0.54, 0.59, 0.65, 0.7, 0.76, 0.81, 0.86, 0.92, 0.97, 1.04, 1.12, 1.22],
-    atk_scale3: [0.66, 0.73, 0.79, 0.86, 0.92, 0.99, 1.06, 1.12, 1.19, 1.27, 1.37, 1.49],
-    atk_scale4: [1.32, 1.45, 1.58, 1.72, 1.85, 1.98, 2.11, 2.24, 2.38, 2.54, 2.74, 2.97],
+    atk_scale: [
+      0.419999986886978, 0.46000000834465, 0.5, 0.550000011920929, 0.589999973773956,
+      0.629999995231628, 0.670000016689301, 0.709999978542328, 0.759999990463257, 0.810000002384186,
+      0.870000004768372, 0.949999988079071,
+    ],
+    atk_scale2: [
+      0.540000021457672, 0.589999973773956, 0.649999976158142, 0.699999988079071, 0.759999990463257,
+      0.810000002384186, 0.860000014305115, 0.920000016689301, 0.970000028610229, 1.03999996185303,
+      1.12000000476837, 1.22000002861023,
+    ],
+    atk_scale3: [
+      0.660000026226044, 0.730000019073486, 0.790000021457672, 0.860000014305115, 0.920000016689301,
+      0.990000009536743, 1.05999994277954, 1.12000000476837, 1.19000005722046, 1.26999998092651,
+      1.37000000476837, 1.49000000953674,
+    ],
+    atk_scale4: [
+      1.32000005245209, 1.45000004768372, 1.58000004291534, 1.72000002861023, 1.85000002384186,
+      1.98000001907349, 2.10999989509583, 2.24000000953674, 2.38000011444092, 2.53999996185303,
+      2.74000000953674, 2.97000002861023,
+    ],
     calc_atb1: 0,
     calc_atb2: 0,
     calc_atb3: 0,
@@ -2221,6 +2293,7 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
             childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             saveToContextKey: 'ae1',
@@ -2229,6 +2302,7 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
             childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             saveToContextKey: 'ae2',
@@ -2237,6 +2311,7 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
             childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             saveToContextKey: 'ae3',
@@ -2245,6 +2320,7 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
             childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity',
             inheritActionBlackboard: true,
+            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             saveToContextKey: 'ae4',
@@ -2339,9 +2415,19 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
     angle: 120,
     atb_final: [30, 30, 30, 30, 30, 30, 30, 30, 30, 40, 40, 40],
     atb_trigger: [7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 10, 10, 10],
-    atk_scale_final: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
-    atk_scale_rush: [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
-    atk_scale_trigger: [0.45, 0.49, 0.53, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.92, 1],
+    atk_scale_final: [
+      2, 2.20000004768372, 2.40000009536743, 2.59999990463257, 2.79999995231628, 3,
+      3.20000004768372, 3.40000009536743, 3.59999990463257, 3.84999990463257, 4.15000009536743, 4.5,
+    ],
+    atk_scale_rush: [
+      1.33000004291534, 1.47000002861023, 1.60000002384186, 1.73000001907349, 1.86000001430511, 2,
+      2.13000011444092, 2.25999999046326, 2.40000009536743, 2.55999994277954, 2.75999999046326, 3,
+    ],
+    atk_scale_trigger: [
+      0.449999988079071, 0.490000009536743, 0.529999971389771, 0.579999983310699, 0.620000004768372,
+      0.670000016689301, 0.709999978542328, 0.759999990463257, 0.800000011920929, 0.860000014305115,
+      0.920000016689301, 1,
+    ],
     center_radius: 6,
     duration: 30,
     height: 4,
@@ -2552,7 +2638,7 @@ export default {
           key: 'chr_0029_pograni_talent1',
           blackboard: {
             atb_gain: [80, 80],
-            atk_up: [0.04, 0.08],
+            atk_up: [0.0399999991059303, 0.0799999982118607],
             duration: [20, 20],
             max_stack_owner: [3, 3],
             max_stack_team: [3, 3],
@@ -2699,7 +2785,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
       ],
     },
@@ -2713,7 +2799,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atb_ratio',
           operation: 'assign',
-          value: 1.2,
+          value: 1.20000004768372,
         },
       ],
     },
@@ -2771,6 +2857,7 @@ export default {
         iconPath: '/icons/icon_battle_pograni_talent_1.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -2802,7 +2889,7 @@ export default {
     buff_chr_0029_pograni_talent1_exist: {
       stackingType: 'unique',
       priority: 0,
-      maxStackCount: { blackboardKey: 'max_stack' },
+      maxStackCount: -1,
       applyTags: [],
       extendTags: [],
       blackboard: { atk_up: 0, max_stack_owner: 5, max_stack_team: 3, physpell_up: 0 },
@@ -2811,7 +2898,7 @@ export default {
     buff_chr_0029_pograni_talent2: {
       stackingType: 'unique',
       priority: 0,
-      maxStackCount: { blackboardKey: 'max_stack' },
+      maxStackCount: -1,
       applyTags: [],
       extendTags: [],
       blackboard: { duration: 20 },
@@ -2853,6 +2940,7 @@ export default {
             target: 'enemy',
             source: 'buffOwner',
             finishByAction: true,
+            inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               duration: { kind: 'blackboard', key: 'duration' },
               atk_scale_trigger: { kind: 'blackboard', key: 'atk_scale_trigger' },
@@ -3075,6 +3163,7 @@ export default {
                       abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
                       childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_attack2',
                       inheritActionBlackboard: true,
+                      inheritSourceSkillCastInfo: true,
                       dieWhenSourceDies: false,
                       target: 'enemy',
                     }),
@@ -3367,6 +3456,7 @@ export default {
                               abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
                               childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_attack2',
                               inheritActionBlackboard: true,
+                              inheritSourceSkillCastInfo: true,
                               dieWhenSourceDies: false,
                               target: 'enemy',
                             }),
@@ -3481,6 +3571,7 @@ export default {
         iconPath: '/icons/icon_battle_pograni_buff.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3506,7 +3597,7 @@ export default {
       stackingType: 'unique',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 1.2,
+      durationSeconds: 1.20000004768372,
       applyTags: [],
       extendTags: [],
       blackboard: { atb_final: 0, atk_scale_final: 0, count: 4, duration: 20, poise_final: 0 },
@@ -3519,6 +3610,7 @@ export default {
               abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
               childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_finish4',
               inheritActionBlackboard: true,
+              inheritSourceSkillCastInfo: true,
               dieWhenSourceDies: false,
               target: 'enemy',
             }),
@@ -3532,6 +3624,7 @@ export default {
               abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
               childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_finish4',
               inheritActionBlackboard: true,
+              inheritSourceSkillCastInfo: true,
               dieWhenSourceDies: false,
               target: 'enemy',
             }),
@@ -3545,6 +3638,7 @@ export default {
               abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
               childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_finish4',
               inheritActionBlackboard: true,
+              inheritSourceSkillCastInfo: true,
               dieWhenSourceDies: false,
               target: 'enemy',
             }),
@@ -3558,6 +3652,7 @@ export default {
               abilityEntityId: 'abilityentity_chr_0029_pograni_ultimate_skill',
               childSkillId: 'chr_0029_pograni_ultimate_skill_abilityentity_finish4',
               inheritActionBlackboard: true,
+              inheritSourceSkillCastInfo: true,
               dieWhenSourceDies: false,
               target: 'enemy',
             }),
@@ -3740,7 +3835,7 @@ export default {
                 ),
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.2 },
+                  durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 10,
                   curve: { kind: 'named', key: 'char_normal_attack' },
@@ -3773,7 +3868,7 @@ export default {
                 ),
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.2 },
+                  durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 10,
                   curve: { kind: 'named', key: 'char_normal_attack' },
@@ -3806,7 +3901,7 @@ export default {
                 ),
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.2 },
+                  durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 10,
                   curve: { kind: 'named', key: 'char_normal_attack' },
@@ -3839,7 +3934,7 @@ export default {
                 ),
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.2 },
+                  durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 10,
                   curve: { kind: 'named', key: 'char_normal_attack' },
@@ -3855,7 +3950,7 @@ export default {
               sequence(
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 30,
                   curve: {
@@ -3863,29 +3958,29 @@ export default {
                     keys: [
                       {
                         time: 0,
-                        value: 0.3,
-                        inTangent: -11.5167389,
-                        outTangent: -11.5167389,
+                        value: 0.300000011920929,
+                        inTangent: -11.5167388916016,
+                        outTangent: -11.5167388916016,
                         weightedMode: 2,
                         inWeight: 0,
-                        outWeight: 0.318046421,
+                        outWeight: 0.318046420812607,
                       },
                       {
-                        time: 0.05494036,
-                        value: 0.04303966,
-                        inTangent: 0.115633719,
-                        outTangent: 0.115633719,
+                        time: 0.0549403615295887,
+                        value: 0.0430396609008312,
+                        inTangent: 0.115633718669415,
+                        outTangent: 0.115633718669415,
                         weightedMode: 1,
-                        inWeight: 0.333333343,
-                        outWeight: 0.6580062,
+                        inWeight: 0.333333343267441,
+                        outWeight: 0.658006191253662,
                       },
                       {
                         time: 1,
                         value: 1,
-                        inTangent: 4.71006632,
-                        outTangent: 4.71006632,
+                        inTangent: 4.71006631851196,
+                        outTangent: 4.71006631851196,
                         weightedMode: 1,
-                        inWeight: 0.2407477,
+                        inWeight: 0.240747705101967,
                         outWeight: 0,
                       },
                     ],
@@ -3902,7 +3997,7 @@ export default {
               sequence(
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 30,
                   curve: {
@@ -3910,29 +4005,29 @@ export default {
                     keys: [
                       {
                         time: 0,
-                        value: 0.3,
-                        inTangent: -11.5167389,
-                        outTangent: -11.5167389,
+                        value: 0.300000011920929,
+                        inTangent: -11.5167388916016,
+                        outTangent: -11.5167388916016,
                         weightedMode: 2,
                         inWeight: 0,
-                        outWeight: 0.318046421,
+                        outWeight: 0.318046420812607,
                       },
                       {
-                        time: 0.05494036,
-                        value: 0.04303966,
-                        inTangent: 0.115633719,
-                        outTangent: 0.115633719,
+                        time: 0.0549403615295887,
+                        value: 0.0430396609008312,
+                        inTangent: 0.115633718669415,
+                        outTangent: 0.115633718669415,
                         weightedMode: 1,
-                        inWeight: 0.333333343,
-                        outWeight: 0.6580062,
+                        inWeight: 0.333333343267441,
+                        outWeight: 0.658006191253662,
                       },
                       {
                         time: 1,
                         value: 1,
-                        inTangent: 4.71006632,
-                        outTangent: 4.71006632,
+                        inTangent: 4.71006631851196,
+                        outTangent: 4.71006631851196,
                         weightedMode: 1,
-                        inWeight: 0.2407477,
+                        inWeight: 0.240747705101967,
                         outWeight: 0,
                       },
                     ],
@@ -3949,7 +4044,7 @@ export default {
               sequence(
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 30,
                   curve: {
@@ -3957,29 +4052,29 @@ export default {
                     keys: [
                       {
                         time: 0,
-                        value: 0.3,
-                        inTangent: -11.5167389,
-                        outTangent: -11.5167389,
+                        value: 0.300000011920929,
+                        inTangent: -11.5167388916016,
+                        outTangent: -11.5167388916016,
                         weightedMode: 2,
                         inWeight: 0,
-                        outWeight: 0.318046421,
+                        outWeight: 0.318046420812607,
                       },
                       {
-                        time: 0.05494036,
-                        value: 0.04303966,
-                        inTangent: 0.115633719,
-                        outTangent: 0.115633719,
+                        time: 0.0549403615295887,
+                        value: 0.0430396609008312,
+                        inTangent: 0.115633718669415,
+                        outTangent: 0.115633718669415,
                         weightedMode: 1,
-                        inWeight: 0.333333343,
-                        outWeight: 0.6580062,
+                        inWeight: 0.333333343267441,
+                        outWeight: 0.658006191253662,
                       },
                       {
                         time: 1,
                         value: 1,
-                        inTangent: 4.71006632,
-                        outTangent: 4.71006632,
+                        inTangent: 4.71006631851196,
+                        outTangent: 4.71006631851196,
                         weightedMode: 1,
-                        inWeight: 0.2407477,
+                        inWeight: 0.240747705101967,
                         outWeight: 0,
                       },
                     ],
@@ -3996,7 +4091,7 @@ export default {
               sequence(
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 30,
                   curve: {
@@ -4004,29 +4099,29 @@ export default {
                     keys: [
                       {
                         time: 0,
-                        value: 0.3,
-                        inTangent: -11.5167389,
-                        outTangent: -11.5167389,
+                        value: 0.300000011920929,
+                        inTangent: -11.5167388916016,
+                        outTangent: -11.5167388916016,
                         weightedMode: 2,
                         inWeight: 0,
-                        outWeight: 0.318046421,
+                        outWeight: 0.318046420812607,
                       },
                       {
-                        time: 0.05494036,
-                        value: 0.04303966,
-                        inTangent: 0.115633719,
-                        outTangent: 0.115633719,
+                        time: 0.0549403615295887,
+                        value: 0.0430396609008312,
+                        inTangent: 0.115633718669415,
+                        outTangent: 0.115633718669415,
                         weightedMode: 1,
-                        inWeight: 0.333333343,
-                        outWeight: 0.6580062,
+                        inWeight: 0.333333343267441,
+                        outWeight: 0.658006191253662,
                       },
                       {
                         time: 1,
                         value: 1,
-                        inTangent: 4.71006632,
-                        outTangent: 4.71006632,
+                        inTangent: 4.71006631851196,
+                        outTangent: 4.71006631851196,
                         weightedMode: 1,
-                        inWeight: 0.2407477,
+                        inWeight: 0.240747705101967,
                         outWeight: 0,
                       },
                     ],
@@ -4089,7 +4184,7 @@ export default {
                     step('createTimedMarker', {
                       target: 'caster',
                       markerId: 'chr_0029_pograni_ultimate_finalhit',
-                      durationSeconds: { kind: 'constant', value: 0.1 },
+                      durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                       autoFinishByAction: false,
                     }),
                     step(
@@ -4115,7 +4210,7 @@ export default {
               sequence(
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.4 },
+                  durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 30,
                   curve: {
@@ -4123,29 +4218,29 @@ export default {
                     keys: [
                       {
                         time: 0,
-                        value: 0.3,
-                        inTangent: -11.5167389,
-                        outTangent: -11.5167389,
+                        value: 0.300000011920929,
+                        inTangent: -11.5167388916016,
+                        outTangent: -11.5167388916016,
                         weightedMode: 2,
                         inWeight: 0,
-                        outWeight: 0.318046421,
+                        outWeight: 0.318046420812607,
                       },
                       {
-                        time: 0.05,
-                        value: 0.01,
-                        inTangent: 0.15876019,
-                        outTangent: 0.0561449826,
+                        time: 0.0500000007450581,
+                        value: 0.00999999977648258,
+                        inTangent: 0.158760190010071,
+                        outTangent: 0.0561449825763702,
                         weightedMode: 3,
-                        inWeight: 0.333333343,
-                        outWeight: 0.73591876,
+                        inWeight: 0.333333343267441,
+                        outWeight: 0.735918760299683,
                       },
                       {
                         time: 1,
                         value: 1,
-                        inTangent: 3.72562432,
-                        outTangent: 3.72562432,
+                        inTangent: 3.72562432289124,
+                        outTangent: 3.72562432289124,
                         weightedMode: 1,
-                        inWeight: 0.306914866,
+                        inWeight: 0.306914865970612,
                         outWeight: 0,
                       },
                     ],

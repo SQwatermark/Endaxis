@@ -60,7 +60,7 @@ export const endministratorBasicAttack1: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
+                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -81,7 +81,11 @@ export const endministratorBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51],
+    atk_scale: [
+      0.230000004172325, 0.25, 0.270000010728836, 0.28999999165535, 0.319999992847443,
+      0.340000003576279, 0.360000014305115, 0.389999985694885, 0.409999996423721, 0.439999997615814,
+      0.469999998807907, 0.509999990463257,
+    ],
     poise: 0,
   },
 );
@@ -133,7 +137,7 @@ export const endministratorBasicAttack2: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
+                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -154,7 +158,11 @@ export const endministratorBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.27, 0.3, 0.32, 0.35, 0.38, 0.41, 0.43, 0.46, 0.49, 0.52, 0.56, 0.61],
+    atk_scale: [
+      0.270000010728836, 0.300000011920929, 0.319999992847443, 0.349999994039536, 0.379999995231628,
+      0.409999996423721, 0.430000007152557, 0.46000000834465, 0.490000009536743, 0.519999980926514,
+      0.560000002384186, 0.610000014305115,
+    ],
     poise: 0,
   },
 );
@@ -208,7 +216,7 @@ export const endministratorBasicAttack3: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.04 },
+                durationSeconds: { kind: 'constant', value: 0.0399999991059303 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -249,7 +257,7 @@ export const endministratorBasicAttack3: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -270,9 +278,17 @@ export const endministratorBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    atk_scale: [
+      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
+      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
+      0.310000002384186, 0.340000003576279,
+    ],
     poise: 0,
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.63, 0.68],
+    display_atk_scale: [
+      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
+      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
+      0.629999995231628, 0.680000007152557,
+    ],
   },
 );
 
@@ -323,7 +339,7 @@ export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.03 },
+                durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -362,7 +378,7 @@ export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.03 },
+                durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -401,7 +417,7 @@ export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
+                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -440,7 +456,7 @@ export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.02 },
+                durationSeconds: { kind: 'constant', value: 0.0199999995529652 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'endminf_stone' },
@@ -461,9 +477,17 @@ export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19],
+    atk_scale: [
+      0.0900000035762787, 0.100000001490116, 0.100000001490116, 0.109999999403954,
+      0.119999997317791, 0.129999995231628, 0.140000000596046, 0.150000005960464, 0.159999996423721,
+      0.170000001788139, 0.180000007152557, 0.189999997615814,
+    ],
     poise: 0,
-    display_atk_scale: [0.35, 0.38, 0.41, 0.45, 0.48, 0.52, 0.55, 0.59, 0.62, 0.67, 0.72, 0.78],
+    display_atk_scale: [
+      0.349999994039536, 0.379999995231628, 0.409999996423721, 0.449999988079071, 0.479999989271164,
+      0.519999980926514, 0.550000011920929, 0.589999973773956, 0.620000004768372, 0.670000016689301,
+      0.720000028610229, 0.779999971389771,
+    ],
   },
 );
 
@@ -527,6 +551,11 @@ export const endministratorBasicAttack5: SkillDefinition = withSkillBlackboard(
         19,
       ),
       scheduled(
+        18,
+        sequence(step('mergeContextTargets', { saveToContextKey: 'tar', sources: [] })),
+        19,
+      ),
+      scheduled(
         19,
         sequence(
           branch(
@@ -539,7 +568,7 @@ export const endministratorBasicAttack5: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.3 },
+                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -571,7 +600,11 @@ export const endministratorBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 20,
-    atk_scale: [0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.77, 0.83, 0.9],
+    atk_scale: [
+      0.400000005960464, 0.439999997615814, 0.479999989271164, 0.519999980926514, 0.560000002384186,
+      0.600000023841858, 0.639999985694885, 0.680000007152557, 0.720000028610229, 0.769999980926514,
+      0.829999983310699, 0.899999976158142,
+    ],
     isHitbyMain: 0,
     poise: 18,
   },
@@ -604,7 +637,7 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.1,
+              calculationMultiplier: 0.100000001490116,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0003_endminf_power_attack2:/scheduledSequences/0/sequence/steps/0',
@@ -636,7 +669,7 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.9,
+              calculationMultiplier: 0.899999976158142,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0003_endminf_power_attack2:/scheduledSequences/1/sequence/steps/0',
@@ -666,7 +699,7 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.4 },
+                    durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -696,7 +729,7 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.12 },
+                    durationSeconds: { kind: 'constant', value: 0.119999997317791 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_normal_attack' },
@@ -714,7 +747,7 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_damage_immune_medium',
+            buffId: 'buff_common_full_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -739,7 +772,12 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  {
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+  },
 );
 
 export const endministratorPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -786,7 +824,14 @@ export const endministratorPlungingAttack: SkillDefinition = withSkillBlackboard
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -866,6 +911,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: true,
+                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -1001,6 +1047,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/knockback.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: false,
+                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -1147,7 +1194,10 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                           sequence: sequence(
                                             step('startTimeDilation', {
                                               scope: 'entity',
-                                              durationSeconds: { kind: 'constant', value: 0.1 },
+                                              durationSeconds: {
+                                                kind: 'constant',
+                                                value: 0.100000001490116,
+                                              },
                                               slot: 'TimeDilation/Layer/Entity/HitStop',
                                               priority: 15,
                                               curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1161,7 +1211,10 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                           sequence: sequence(
                                             step('startTimeDilation', {
                                               scope: 'entity',
-                                              durationSeconds: { kind: 'constant', value: 0.1 },
+                                              durationSeconds: {
+                                                kind: 'constant',
+                                                value: 0.100000001490116,
+                                              },
                                               slot: 'TimeDilation/Layer/Entity/HitStop',
                                               priority: 10,
                                               curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1203,7 +1256,10 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                           sequence: sequence(
                                             step('startTimeDilation', {
                                               scope: 'entity',
-                                              durationSeconds: { kind: 'constant', value: 0.65 },
+                                              durationSeconds: {
+                                                kind: 'constant',
+                                                value: 0.649999976158142,
+                                              },
                                               slot: 'TimeDilation/Layer/Entity/HitStop',
                                               priority: 20,
                                               curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1257,7 +1313,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                         sequence(
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.36 },
+                            durationSeconds: { kind: 'constant', value: 0.360000014305115 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: {
@@ -1265,16 +1321,16 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                               keys: [
                                 {
                                   time: 0,
-                                  value: 0.4,
-                                  inTangent: -4.16987,
-                                  outTangent: -4.16987,
+                                  value: 0.400000005960464,
+                                  inTangent: -4.16986989974976,
+                                  outTangent: -4.16986989974976,
                                   weightedMode: 0,
                                   inWeight: 0,
                                   outWeight: 0,
                                 },
                                 {
-                                  time: 0.15,
-                                  value: 0.05,
+                                  time: 0.150000005960464,
+                                  value: 0.0500000007450581,
                                   inTangent: 0,
                                   outTangent: 0,
                                   weightedMode: 0,
@@ -1282,10 +1338,10 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                   outWeight: 0,
                                 },
                                 {
-                                  time: 0.4844323,
-                                  value: 0.07220779,
-                                  inTangent: 0.1940728,
-                                  outTangent: 0.1940728,
+                                  time: 0.484432309865952,
+                                  value: 0.0722077935934067,
+                                  inTangent: 0.194072797894478,
+                                  outTangent: 0.194072797894478,
                                   weightedMode: 0,
                                   inWeight: 0,
                                   outWeight: 0,
@@ -1293,8 +1349,8 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                 {
                                   time: 1,
                                   value: 1,
-                                  inTangent: 3.032697,
-                                  outTangent: 3.032697,
+                                  inTangent: 3.03269696235657,
+                                  outTangent: 3.03269696235657,
                                   weightedMode: 0,
                                   inWeight: 0,
                                   outWeight: 0,
@@ -1333,6 +1389,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: true,
+                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -1465,6 +1522,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/knockback.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: false,
+                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -1611,7 +1669,10 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                       sequence: sequence(
                                         step('startTimeDilation', {
                                           scope: 'entity',
-                                          durationSeconds: { kind: 'constant', value: 0.1 },
+                                          durationSeconds: {
+                                            kind: 'constant',
+                                            value: 0.100000001490116,
+                                          },
                                           slot: 'TimeDilation/Layer/Entity/HitStop',
                                           priority: 15,
                                           curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1625,7 +1686,10 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                       sequence: sequence(
                                         step('startTimeDilation', {
                                           scope: 'entity',
-                                          durationSeconds: { kind: 'constant', value: 0.1 },
+                                          durationSeconds: {
+                                            kind: 'constant',
+                                            value: 0.100000001490116,
+                                          },
                                           slot: 'TimeDilation/Layer/Entity/HitStop',
                                           priority: 10,
                                           curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1667,7 +1731,10 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                                       sequence: sequence(
                                         step('startTimeDilation', {
                                           scope: 'entity',
-                                          durationSeconds: { kind: 'constant', value: 0.65 },
+                                          durationSeconds: {
+                                            kind: 'constant',
+                                            value: 0.649999976158142,
+                                          },
                                           slot: 'TimeDilation/Layer/Entity/HitStop',
                                           priority: 20,
                                           curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1708,7 +1775,7 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.36 },
+                        durationSeconds: { kind: 'constant', value: 0.360000014305115 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: {
@@ -1716,16 +1783,16 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                           keys: [
                             {
                               time: 0,
-                              value: 0.4,
-                              inTangent: -4.16987,
-                              outTangent: -4.16987,
+                              value: 0.400000005960464,
+                              inTangent: -4.16986989974976,
+                              outTangent: -4.16986989974976,
                               weightedMode: 0,
                               inWeight: 0,
                               outWeight: 0,
                             },
                             {
-                              time: 0.15,
-                              value: 0.05,
+                              time: 0.150000005960464,
+                              value: 0.0500000007450581,
                               inTangent: 0,
                               outTangent: 0,
                               weightedMode: 0,
@@ -1733,10 +1800,10 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                               outWeight: 0,
                             },
                             {
-                              time: 0.4844323,
-                              value: 0.07220779,
-                              inTangent: 0.1940728,
-                              outTangent: 0.1940728,
+                              time: 0.484432309865952,
+                              value: 0.0722077935934067,
+                              inTangent: 0.194072797894478,
+                              outTangent: 0.194072797894478,
                               weightedMode: 0,
                               inWeight: 0,
                               outWeight: 0,
@@ -1744,8 +1811,8 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
                             {
                               time: 1,
                               value: 1,
-                              inTangent: 3.032697,
-                              outTangent: 3.032697,
+                              inTangent: 3.03269696235657,
+                              outTangent: 3.03269696235657,
                               weightedMode: 0,
                               inWeight: 0,
                               outWeight: 0,
@@ -1771,9 +1838,9 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
+                triggerIntervalSeconds: 0.0329999998211861,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
+                targetTriggerIntervalSeconds: 0.0329999998211861,
               },
             },
           ),
@@ -1835,7 +1902,11 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb_return: 0,
-    atk_scale: [1.56, 1.71, 1.87, 2.02, 2.18, 2.34, 2.49, 2.65, 2.8, 3, 3.23, 3.5],
+    atk_scale: [
+      1.55999994277954, 1.71000003814697, 1.87000000476837, 2.01999998092651, 2.1800000667572,
+      2.33999991416931, 2.49000000953674, 2.65000009536743, 2.79999995231628, 3, 3.23000001907349,
+      3.5,
+    ],
     blow_off_distance: 2,
     cam_angle: 0,
     cam_duration: 0,
@@ -2019,9 +2090,16 @@ export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
   },
   {
     angle: 130,
-    atk_scale: [3.56, 3.91, 4.27, 4.62, 4.98, 5.33, 5.69, 6.04, 6.4, 6.84, 7.38, 8],
+    atk_scale: [
+      3.55999994277954, 3.91000008583069, 4.26999998092651, 4.61999988555908, 4.98000001907349,
+      5.32999992370605, 5.69000005722046, 6.03999996185303, 6.40000009536743, 6.84000015258789,
+      7.38000011444092, 8,
+    ],
     height: 4,
-    originum_ult_break_scale: [2.67, 2.94, 3.2, 3.47, 3.74, 4, 4.27, 4.54, 4.8, 5.14, 5.54, 6],
+    originum_ult_break_scale: [
+      2.67000007629395, 2.94000005722046, 3.20000004768372, 3.47000002861023, 3.74000000953674, 4,
+      4.26999998092651, 4.53999996185303, 4.80000019073486, 5.1399998664856, 5.53999996185303, 6,
+    ],
     poise: 25,
     radius: 5,
   },
@@ -2087,7 +2165,7 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.2 },
+            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -2108,7 +2186,7 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.867000043 },
+            durationSeconds: { kind: 'constant', value: 0.867000043392181 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2128,7 +2206,7 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 30,
                 curve: {
@@ -2136,18 +2214,18 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
                   keys: [
                     {
                       time: 0,
-                      value: 0.05,
-                      inTangent: 0.000489342,
-                      outTangent: 0.000489342,
+                      value: 0.0500000007450581,
+                      inTangent: 0.000489342026412487,
+                      outTangent: 0.000489342026412487,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.6112276,
-                      value: 0.03604198,
-                      inTangent: 0.3674083,
-                      outTangent: 0.3674083,
+                      time: 0.611227571964264,
+                      value: 0.0360419787466526,
+                      inTangent: 0.36740830540657,
+                      outTangent: 0.36740830540657,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -2155,8 +2233,8 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 4.44,
-                      outTangent: 4.44,
+                      inTangent: 4.44000005722046,
+                      outTangent: 4.44000005722046,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -2180,11 +2258,22 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [0.45, 0.49, 0.54, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.93, 1],
-    atk_scale_trigger: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
+    atk_scale: [
+      0.449999988079071, 0.490000009536743, 0.540000021457672, 0.579999983310699, 0.620000004768372,
+      0.670000016689301, 0.709999978542328, 0.759999990463257, 0.800000011920929, 0.860000014305115,
+      0.930000007152557, 1,
+    ],
+    atk_scale_trigger: [
+      1.77999997138977, 1.96000003814697, 2.13000011444092, 2.30999994277954, 2.49000000953674,
+      2.67000007629395, 2.83999991416931, 3.01999998092651, 3.20000004768372, 3.42000007629395,
+      3.69000005722046, 4,
+    ],
     duration: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4.5, 4.5, 5],
     main_distance: 0,
-    originum_ult_break_scale: [2.67, 2.94, 3.2, 3.47, 3.74, 4, 4.27, 4.54, 4.8, 5.14, 5.54, 6],
+    originum_ult_break_scale: [
+      2.67000007629395, 2.94000005722046, 3.20000004768372, 3.47000002861023, 3.74000000953674, 4,
+      4.26999998092651, 4.53999996185303, 4.80000019073486, 5.1399998664856, 5.53999996185303, 6,
+    ],
     owner_mainchar_alpha: 0,
     owner_mainchar_distance: 0,
     poise: 10,
@@ -2322,7 +2411,10 @@ export default {
           buffId: 'buff_chr_0003_endminf_talent_1',
           target: 'caster',
           inheritSourceSkillCastInfo: false,
-          blackboardAssignments: { atk_up: [0.15, 0.3], duration: { kind: 'constant', value: 15 } },
+          blackboardAssignments: {
+            atk_up: [0.150000005960464, 0.300000011920929],
+            duration: { kind: 'constant', value: 15 },
+          },
         }),
       ),
     },
@@ -2332,7 +2424,7 @@ export default {
       passiveSkills: [
         {
           key: 'chr_0003_endminf_talent_0',
-          blackboard: { dmg: [0.1, 0.2] },
+          blackboard: { dmg: [0.100000001490116, 0.200000002980232] },
           enableSequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0003_endminf_talent_0_aura',
@@ -2387,7 +2479,6 @@ export default {
       levels: 1,
       modifiers: [
         { kind: 'modifyBasePanelStat', stat: 'health', operation: 'percent', value: 0.1 },
-        { kind: 'addBuildAttribute', attributes: ['agility'], value: 25 },
       ],
     },
     {
@@ -2471,7 +2562,7 @@ export default {
       stackingType: 'unlimited',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 0.1,
+      durationSeconds: 0.100000001490116,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -2526,6 +2617,7 @@ export default {
             buffId: 'buff_chr_0003_endminf_talent_0',
             target: 'party',
             finishByAction: true,
+            inheritSourceSkillCastInfo: true,
             blackboardAssignments: { dmg: { kind: 'blackboard', key: 'dmg' } },
           }),
         ),
@@ -2551,6 +2643,7 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
+        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

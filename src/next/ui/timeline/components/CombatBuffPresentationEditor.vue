@@ -11,6 +11,7 @@ type BooleanPresentationField = {
 const BOOLEAN_FIELDS = [
   'visible',
   'showInHeadBarCommon',
+  'showDirectlyInHeadBuff',
   'showInHeadBarAttached',
   'showInSquadIcon',
   'onlyShowForMainCharacter',
@@ -28,6 +29,7 @@ const BOOLEAN_FIELDS = [
 const BOOLEAN_LABELS: Readonly<Record<BooleanPresentationField, string>> = {
   visible: '显示图标',
   showInHeadBarCommon: '头顶栏通用区',
+  showDirectlyInHeadBuff: '直接显示于头顶 Buff',
   showInHeadBarAttached: '头顶栏附加区',
   showInSquadIcon: '队伍头像区',
   onlyShowForMainCharacter: '仅主控显示',

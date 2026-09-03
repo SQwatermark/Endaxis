@@ -4,7 +4,7 @@ import type { ScalarSource } from '../source/scalar.ts';
 import type { CompiledBuffNumberSource } from './buffProjectionTypes.ts';
 import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
 import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
-import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
+import { gameplayTagIdFromPath, type GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from './abilityEntityCatalog.ts';
 import type { GlobalBuffActionSource } from '../source/globalBuffActions.ts';
 import type { SkillSettingReadActionSource } from '../source/skillSettingActions.ts';
@@ -32,10 +32,14 @@ export type ProjectedTargetGroup =
   | 'empty'
   | 'spatialPoint';
 
-export function isPlainOwnerTarget(target: TargetReferenceSource): boolean {
+export function isPlainTargetReference(
+  target: TargetReferenceSource,
+  targetSource: string,
+  targetGroupKey = '',
+): boolean {
   return (
-    target.targetSource === 'Owner' &&
-    target.targetGroupKey === '' &&
+    target.targetSource === targetSource &&
+    target.targetGroupKey === targetGroupKey &&
     target.selectorOwner === 'ActionOwner' &&
     target.ownerContextKey === '' &&
     target.centerType === 'ActionSource' &&
@@ -56,6 +60,15 @@ export function isPlainOwnerTarget(target: TargetReferenceSource): boolean {
     target.finderSpawnedObjectType === null &&
     target.validatorTagQueries.length === 0
   );
+}
+
+export function isPlainOwnerTarget(target: TargetReferenceSource): boolean {
+  return isPlainTargetReference(target, 'Owner');
+}
+
+/** 无 finder、validator 或方向改写的原生 Action Target。 */
+export function isPlainActionTarget(target: TargetReferenceSource): boolean {
+  return isPlainTargetReference(target, 'Target');
 }
 
 /** 原生动作身份由宿主及事件方向共同投影，不能把物理事件来源一律当作 ActionSource。 */
@@ -101,12 +114,16 @@ export interface CombatActionProjectionContextSource {
     string,
     'caster' | 'enemy' | 'eventTarget' | 'buffOwner' | 'buffSource' | 'currentAbilityEntity'
   >;
+  /** 当前调度段开始前由更早的无条件写入留下的 Context 类型。 */
+  readonly initialTargetGroups?: ReadonlyMap<string, ProjectedTargetGroup>;
   /** 已由完整图证明恒为空的命名目标组。 */
   readonly staticEmptyTargetGroupKeys?: ReadonlySet<string>;
   /** 运行时可为空、但任一成员都已证明只能是唯一木桩的命名目标组。 */
   readonly singleEnemyTargetGroupKeys?: ReadonlySet<string>;
   /** 跨时间段可证明只含固定敌人或固定空间点的 Context；仅用于零空间锚点，不代表实体身份。 */
   readonly staticZeroSpaceTargetGroupKeys?: ReadonlySet<string>;
+  /** 每次写入都只可能产生唯一敌人或固定空间点；实体成员因而必然是该敌人。 */
+  readonly enemyOrFixedPointTargetGroupKeys?: ReadonlySet<string>;
   /** RandomPointFinder 命名空间点组的原生 pointNum；只折叠几何，不折叠回调次数。 */
   readonly dynamicSpatialPointCounts?: ReadonlyMap<string, ActionValueOperand>;
   /** 完整主动技能中仅由 SpawnAbilityEntity 写入的 Context；集合可为空，但成员身份固定。 */
@@ -120,6 +137,11 @@ export interface CombatActionProjectionContextSource {
   readonly combatInvisiblePresentationBlackboardKeys?: ReadonlySet<string>;
   /** 完整主动技能图中是否存在启用且非纯表现的动画事件监听器；未提供时不得假定倍率无战斗影响。 */
   readonly enabledAnimationEventListenerPresent?: boolean;
+  /**
+   * 当前技能操作是否同时带有玩家移动输入。未声明表示场景没有证明，不能自行选分支。
+   * Endaxis 的轴上技能操作目前不表达移动操作，主动技能入口会显式传 false。
+   */
+  readonly fixedMoveInput?: boolean;
   /**
    * 完整 Buff 闭包已把旧版 ShowComboRingQte 的输入窗口投影为定时 Buff，并保留了
    * triggeredAction 写入的 Owner 动态黑板键。主动技能只能用这些键识别同一 QTE
@@ -204,8 +226,49 @@ export function requireActionOwnerProjection(
 export function isStaticSingleEnemyTargetGroup(write: TargetGroupActionSource): boolean {
   return (
     isSingleEnemyFinder(write) &&
-    write.validatorTypes.length === 0 &&
+    spatialValidatorsAlwaysPass(write) &&
     postProcessingKeepsSingleEnemy(write)
+  );
+}
+
+/**
+ * Typhoeus 的专用 Finder 读取此前由弓箭瞄准系统选中的目标，再用 Locked 标签复核并按
+ * 屏幕位置排序。标准木桩只有一个敌人，且对应 TargetSelect 动作已证明会选中并标记它；
+ * 非限量排序无法改变身份。严格锁定完整载荷，避免把任意 TagValidator 吞成选中成功。
+ */
+export function isTyphoeaSelectedSingleEnemyTargetGroup(write: TargetGroupActionSource): boolean {
+  const query = write.validatorTagQueries[0];
+  const priority = write.priorityFilters[0];
+  return (
+    write.producerType === 'FindTargetAction' &&
+    write.finderType === 'TyphoeaArcherySelectedFinder' &&
+    write.validatorTypes.length === 1 &&
+    write.validatorTypes[0] === 'TagValidator' &&
+    write.validatorTagQueries.length === 1 &&
+    query?.[0] === 'HasAny' &&
+    query[1].length === 1 &&
+    query[1][0] === gameplayTagIdFromPath('Skill/Character/chr_0034_typhoea/Locked') &&
+    write.postProcessorTypes.length === 1 &&
+    write.postProcessorTypes[0] === 'PriorityFilter' &&
+    write.priorityFilters.length === 1 &&
+    (priority?.filterType === 'ScreenPosLeftToRight' ||
+      priority?.filterType === 'ScreenPosRightToLeft' ||
+      priority?.filterType === 'ScreenPosClosestToCenter') &&
+    priority.processTargetType === 0 &&
+    !priority.onlyReserveMaxPriorityTargets &&
+    !priority.limitMaxNum &&
+    priority.maxNum === 0 &&
+    priority.buffFilter.checkType === 'Id' &&
+    priority.buffFilter.buffIds.length === 0 &&
+    priority.buffFilter.tagQuery.queryType === 'hasAny' &&
+    priority.buffFilter.tagQuery.tagIds.length === 0 &&
+    priority.buffFilter.stackCountType === 'BuffCount' &&
+    write.shuffleTargets.length === 0 &&
+    write.distanceValidators.length === 0 &&
+    write.center === 'ActionSource' &&
+    write.centerContextKey === '' &&
+    write.selectorOwner === 'ActionOwner' &&
+    write.selectorOwnerContextKey === ''
   );
 }
 
@@ -345,22 +408,36 @@ export function isZeroSpaceSingleEnemySmartTargetGroup(write: TargetGroupActionS
   );
 }
 
-/** 固定模型中距离恒为 0；只折叠已证明阈值在全部等级都非负的 `distance <= threshold`。 */
+/** 固定模型中距离恒为 0；只折叠全部等级严格满足的 `0 <= threshold` / `0 < threshold`。 */
 export function zeroDistanceValidatorsAlwaysPass(write: TargetGroupActionSource): boolean {
   const distanceTypeCount = write.validatorTypes.filter(
     type => type === 'DistanceValidator',
   ).length;
   if (distanceTypeCount !== write.distanceValidators.length) return false;
   return write.distanceValidators.every(distance => {
-    if (distance.compareType !== 'LE') return false;
     const levelValues =
       distance.threshold.blackboardKey === null
         ? [distance.threshold.value]
         : distance.threshold.levelValues;
     const values =
       levelValues === null ? null : typeof levelValues === 'number' ? [levelValues] : levelValues;
-    return values !== null && values.length > 0 && values.every(value => value >= 0);
+    if (values === null || values.length === 0) return false;
+    if (distance.compareType === 'LE') return values.every(value => value >= 0);
+    if (distance.compareType === 'LT') return values.every(value => value > 0);
+    return false;
   });
+}
+
+/**
+ * 标准木桩没有镜头/屏幕空间，且所有实体共点；InScreen 因而与非负阈值的距离校验一样
+ * 不会删掉唯一敌人。这里仍拒绝任何其它 validator，避免把业务条件误当成空间简化。
+ */
+function spatialValidatorsAlwaysPass(write: TargetGroupActionSource): boolean {
+  return (
+    write.validatorTypes.every(
+      type => type === 'InScreenValidator' || type === 'DistanceValidator',
+    ) && zeroDistanceValidatorsAlwaysPass(write)
+  );
 }
 
 function isSingleEnemyFinder(write: TargetGroupActionSource): boolean {
@@ -369,6 +446,8 @@ function isSingleEnemyFinder(write: TargetGroupActionSource): boolean {
       write.producerType === 'ContinuousFindTargetAction' ||
       write.producerType === 'ConvertToTargetContext') &&
     (write.finderType === 'MainTargetFinder' ||
+      write.finderType === 'AllEnemyFinder' ||
+      write.finderType === 'TyphoeaArcherySelectedFinder' ||
       (write.finderType === 'HitBoxFinder' &&
         write.finderFactionTarget === 'Anti' &&
         (write.finderTargetObjectType === 'Normal' ||

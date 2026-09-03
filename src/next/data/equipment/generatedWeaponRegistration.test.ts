@@ -12,7 +12,7 @@ describe('generated weapon registration', () => {
       weaponPresentationSlugByAsset,
     );
 
-    expect(result.definitions).toHaveLength(77);
+    expect(result.definitions).toHaveLength(79);
     expect(Object.keys(result.aliases)).toHaveLength(77);
     expect(result.missingPresentationAssets).toEqual([]);
     for (const definition of result.definitions) {

@@ -16,12 +16,28 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
     node: NativeActionNodeSource<TLeaf>,
     state: TState,
   ) => TCondition | null;
+  /**
+   * 某些原生条件由相邻的读取动作和判断动作共同组成。领域适配器可将其原子化为一个
+   * 公共条件，既保留读取失败=false，也避免把读取失败错误地变成外层序列中止。
+   */
+  readonly compileConditionNodePrefix?: (
+    nodes: readonly NativeActionNodeSource<TLeaf>[],
+    state: TState,
+  ) => { readonly condition: TCondition; readonly consumedNodeCount: number } | null;
   /** 只有已证明无副作用且结果不被消费的尾条件才可删；缺省保留求值。 */
   readonly canOmitTerminalCondition?: (condition: TCondition) => boolean;
   /** 来源已证明纯读取时，先投影其控制的末端；末端为空就无需建立条件的运行模型。 */
   readonly canOmitUnusedCondition?: (node: NativeActionNodeSource<TLeaf>) => boolean;
   /** 投影后已成为无副作用常量的守卫可直接选择可达末端；返回 undefined 表示仍需运行时求值。 */
   readonly evaluateCondition?: (condition: TCondition) => boolean | undefined;
+  /**
+   * 场景已在来源层证明普通守卫真值时，可在编译其受控子树前剪枝。
+   * 这与 evaluateCondition 分开：后者要求先把条件投影成运行时协议。
+   */
+  readonly selectGuardResult?: (
+    node: NativeActionNodeSource<TLeaf>,
+    state: TState,
+  ) => boolean | undefined;
   /** 返回值被 Switch/资格判断等外层消费；统一禁止删除决定该结果的尾守卫。 */
   readonly resultIsConsumed?: boolean;
   readonly combineConditions: (conditions: readonly TCondition[]) => TCondition;
@@ -184,6 +200,12 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
           }),
         ];
   }
+  if (!options.resultIsConsumed && options.canOmitUnusedCondition?.(first!) === true) {
+    const selectedGuard = options.selectGuardResult?.(first!, state);
+    if (selectedGuard !== undefined) {
+      return selectedGuard ? compileActionNodePrograms(rest, options, state) : [];
+    }
+  }
   // 纯守卫不写编译期状态，故其后续动作可以先投影；不能对普通写入动作倒序执行。
   const guardedBody =
     options.canOmitUnusedCondition?.(first!) === true
@@ -250,6 +272,19 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     const branchConditions: TCondition[] = [];
     for (let index = 0; index < conditionNodes.length; index += 1) {
       const child = conditionNodes[index]!;
+      const prefix =
+        options.compileConditionNodePrefix?.(conditionNodes.slice(index), state) ?? null;
+      if (prefix !== null) {
+        if (
+          prefix.consumedNodeCount <= 0 ||
+          prefix.consumedNodeCount > conditionNodes.length - index
+        ) {
+          throw new Error('compileConditionNodePrefix returned an invalid consumedNodeCount');
+        }
+        branchConditions.push(prefix.condition);
+        index += prefix.consumedNodeCount - 1;
+        continue;
+      }
       if (child.body.kind === 'negateNextResult') {
         const next = conditionNodes[index + 1];
         if (next === undefined)

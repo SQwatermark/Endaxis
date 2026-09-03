@@ -11,6 +11,7 @@ import {
   actionValueOperand,
   DAMAGE_TYPES,
   COMPARISON_OPERATORS,
+  isPlainTargetReference,
 } from './combatProjectionCommon.ts';
 import { compileTargetReferenceAbilityEntityQuerySource } from './abilityEntityQuery.ts';
 
@@ -76,6 +77,12 @@ function compileConditionLeaf(
   targetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
 ): CompiledBuffConditionSource {
   if (condition.kind === 'constant') return { kind: 'constant', value: condition.value };
+  if (condition.kind === 'moveInput') {
+    if (context.fixedMoveInput === undefined) {
+      throw new Error(`${sourcePath}: CheckHasMoveInput requires an explicit scene input`);
+    }
+    return { kind: 'constant', value: context.fixedMoveInput };
+  }
   // 主动动作/命中回调没有 Buff 事件环境；只有已验收的条件可使用显式木桩 Target。
   if (
     context.actionTargetTarget === 'enemy' &&
@@ -83,10 +90,12 @@ function compileConditionLeaf(
       'floatCompare',
       'buffStack',
       'mainOperator',
+      'comboSkillPending',
       'poise',
       'any',
       'entityCount',
       'squadInFight',
+      'dungeonCategory',
       'probability',
       'distance',
       'health',
@@ -105,6 +114,7 @@ function compileConditionLeaf(
       'skillHasHit',
       // OnOutputDamage 的装饰标签来自事件伤害包，不会把固定 enemy Target 当作普通动作输入。
       'damageDecorateMask',
+      'damageGameplayTag',
       'originSkillType',
       'profession',
     ].includes(condition.kind)
@@ -406,10 +416,27 @@ function compileConditionLeaf(
     // 正式时间轴只在已绑定 Battle 的模拟中执行；未绑定环境会在运行入口先失败。
     return {
       kind: 'actionValueCompare',
-      left: { kind: 'constant', value: 1 },
+      left: { kind: 'constant', value: condition.inverted ? 0 : 1 },
       operator: 'equal',
       right: { kind: 'constant', value: 1 },
     };
+  }
+  if (condition.kind === 'dungeonCategory') {
+    if (condition.needDetailedConfig) {
+      throw new Error(`${sourcePath}: detailed dungeon category requires a simulation input`);
+    }
+    // combat-spec：副本配置就绪后，非详细形式直接返回 true，列表和反转字段均不参与判断。
+    // 正式时间轴只在已装配完成的战斗场景中执行。
+    return { kind: 'constant', value: true };
+  }
+  if (condition.kind === 'comboSkillPending') {
+    if (
+      context.actionOwnerTarget !== 'caster' ||
+      !isPlainTargetReference(condition.owner, 'Owner')
+    ) {
+      throw new Error(`${sourcePath}: unsupported CheckComboSkillPending owner`);
+    }
+    return { kind: 'pendingComboSkillPresent' };
   }
   if (
     context.restrictEventSourceTargetProjection === true &&
@@ -573,7 +600,16 @@ function compileConditionLeaf(
                       ? ('contextTarget' as const)
                       : null;
     if (target === null || operator === undefined) {
-      throw new Error(`${sourcePath}: unsupported health condition target`);
+      throw new Error(
+        `${sourcePath}: unsupported health condition target ` +
+          JSON.stringify({
+            targetSource: condition.targetSource,
+            targetGroupKey: condition.targetGroupKey,
+            actionTargetTarget: context.actionTargetTarget,
+            fixedBuffOwnerTarget: context.fixedBuffOwnerTarget,
+            fixedBuffSourceTarget: context.fixedBuffSourceTarget,
+          }),
+      );
     }
     return {
       kind: 'healthCompare',
@@ -625,16 +661,13 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'customAbilityEvent') {
-    if (
-      condition.eventName.blackboardKey !== null ||
-      condition.eventName.value.length === 0 ||
-      condition.savedParamKey !== ''
-    ) {
+    if (condition.eventName.blackboardKey !== null || condition.eventName.value.length === 0) {
       throw new Error(`${sourcePath}: unsupported dynamic custom ability event check`);
     }
     return {
       kind: 'eventCustomAbilityNameMatch',
       eventName: condition.eventName.value,
+      ...(condition.savedParamKey === '' ? {} : { outputKey: condition.savedParamKey }),
     };
   }
   if (condition.kind === 'skillId') {
@@ -753,6 +786,32 @@ function compileConditionLeaf(
     ) {
       throw new Error(`${sourcePath}: unsupported Context target count condition`);
     }
+    const projectedTargetGroup =
+      targetGroups.get(condition.targetGroupKey) ??
+      (context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey) === true
+        ? 'enemy'
+        : undefined);
+    const projectedNonEmptyZeroSpaceGroup =
+      context.enemyOrFixedPointTargetGroupKeys?.has(condition.targetGroupKey) === true;
+    if (
+      projectedTargetGroup === 'enemy' ||
+      projectedTargetGroup === 'empty' ||
+      projectedNonEmptyZeroSpaceGroup
+    ) {
+      // 已严格归约为唯一木桩或空集合时，直接保留数量比较语义。部分原生 Context
+      // 来自 HitBox/投射物回调的调用参数，并不由 ActionGraph 内的写步骤创建；把证明
+      // 留成运行时命名组读取会制造一个实际上不存在的初始化责任。
+      return {
+        kind: 'actionValueCompare',
+        left: {
+          kind: 'constant',
+          value: projectedTargetGroup === 'enemy' || projectedNonEmptyZeroSpaceGroup ? 1 : 0,
+        },
+        operator,
+        right: { kind: 'constant', value: condition.minimumCount },
+        ...(condition.storeKey === '' ? {} : { outputKey: condition.storeKey }),
+      };
+    }
     return {
       kind: 'contextTargetCountCompare',
       contextKey: condition.targetGroupKey,
@@ -823,6 +882,13 @@ function compileConditionLeaf(
   }
   if (condition.kind === 'damageType') {
     return { kind: 'eventDamageTypeIn', damageTypes: [condition.damageType] };
+  }
+  if (condition.kind === 'damageGameplayTag') {
+    return {
+      kind: 'eventDamageGameplayTagsMatch',
+      match: condition.queryType,
+      tags: projectGameplayTags(condition.tagIds, context, sourcePath),
+    };
   }
   if (condition.kind === 'damageDecorateMask') {
     const match = {
@@ -1064,6 +1130,16 @@ function compileConditionLeaf(
     }
     const isEventInputReference = (target: typeof first) =>
       target.targetSource === 'Target' && isPlainReference(target);
+    const isControlledOperatorSearch = (target: typeof first) =>
+      target.targetSource === 'InstantSearch' &&
+      target.targetGroupKey === '' &&
+      target.finderType === 'CharacterTeamFinder' &&
+      target.validatorTypes.length === 1 &&
+      target.validatorTypes[0] === 'MainCharacterValidator' &&
+      target.postProcessorTypes.length === 0 &&
+      target.priorityFilters.length === 0 &&
+      target.shuffleTargets.length === 0 &&
+      target.distanceValidators.length === 0;
     const contextIdentityOther = (
       target: typeof first,
       other: typeof first,
@@ -1072,12 +1148,13 @@ function compileConditionLeaf(
         target.targetSource !== 'Context' ||
         target.targetGroupKey === '' ||
         !isPlainReference(target) ||
-        !isPlainReference(other)
+        (!isPlainReference(other) && !isControlledOperatorSearch(other))
       )
         return null;
       if (other.targetSource === 'Source') return 'actionSource';
       if (other.targetSource === 'Owner') return 'actionOwner';
-      if (other.targetSource === 'MainCharacter') return 'controlledOperator';
+      if (other.targetSource === 'MainCharacter' || isControlledOperatorSearch(other))
+        return 'controlledOperator';
       return null;
     };
     const contextOther = contextIdentityOther(first, second) ?? contextIdentityOther(second, first);
@@ -1110,16 +1187,6 @@ function compileConditionLeaf(
         return { kind: 'actionInputTargetIdentityMatch', other, operator: 'equal' };
       }
     }
-    const isControlledOperatorSearch = (target: typeof first) =>
-      target.targetSource === 'InstantSearch' &&
-      target.targetGroupKey === '' &&
-      target.finderType === 'CharacterTeamFinder' &&
-      target.validatorTypes.length === 1 &&
-      target.validatorTypes[0] === 'MainCharacterValidator' &&
-      target.postProcessorTypes.length === 0 &&
-      target.priorityFilters.length === 0 &&
-      target.shuffleTargets.length === 0 &&
-      target.distanceValidators.length === 0;
     if (
       (isEventInputReference(first) && isControlledOperatorSearch(second)) ||
       (isEventInputReference(second) && isControlledOperatorSearch(first))
@@ -1630,9 +1697,11 @@ const SKILL_TYPES: Readonly<Record<string, 'battleSkill' | 'comboSkill' | 'ultim
 function mapNativeSkillTypes(
   nativeSkillTypes: readonly string[],
   attackTypeMask: string | number | undefined,
-): readonly ('basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate')[] {
+): readonly (
+  'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'finisher'
+)[] {
   const output = new Set<
-    'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'
+    'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'finisher'
   >();
   for (const skillType of nativeSkillTypes) {
     // Next 不把原生 ExtraActiveSkill 猜成处决技；没有该原生类型的运行时实例可命中。
@@ -1642,6 +1711,11 @@ function mapNativeSkillTypes(
       if ((bits & 1) !== 0) output.add('basicAttack');
       // 时间轴上的下落攻击技能是原生 PlungingAttackEnd；Start 只负责起跳且不单独落轴。
       if ((bits & 4) !== 0) output.add('plungingAttack');
+      continue;
+    }
+    // 原生 BreakingAttack 是对可处决目标执行的独立 SkillType；公共技能语义为 finisher。
+    if (skillType === 'BreakingAttack') {
+      output.add('finisher');
       continue;
     }
     const mapped = SKILL_TYPES[skillType];

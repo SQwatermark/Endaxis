@@ -1,8 +1,8 @@
 import {
-  requireArray,
   requireBoolean,
   requireExactFields,
   requireInteger,
+  requireNativeEnum,
   requireNumber,
   requireRecord,
   requireString,
@@ -14,6 +14,12 @@ import {
   type TimeDilationCurveKeySource,
 } from './timeDilationActions.ts';
 import { parseAdvancedDirectionSource, type AdvancedDirectionSource } from './spatial.ts';
+import {
+  parseDeadOption,
+  parseReturnTrueWhen,
+  type AbilityActionReturnTrueMethodSource,
+  type ControlledStateDeadOptionSource,
+} from './physicalInflictionActions.ts';
 
 export interface StaticEnemyControlActionSource {
   readonly kind: 'enemyHurtAnimation' | 'pull' | 'pushBack';
@@ -36,22 +42,22 @@ export interface BlowOffEnemyActionSource {
   readonly kind: 'blowOffEnemy';
   readonly source: TargetReferenceSource;
   readonly target: TargetReferenceSource;
-  readonly deadOption: string;
+  readonly deadOption: ControlledStateDeadOptionSource;
 }
 
 export interface BlowOffActionSource {
   readonly kind: 'blowOff';
   readonly source: TargetReferenceSource;
   readonly target: TargetReferenceSource;
-  readonly deadOption: string;
+  readonly deadOption: ControlledStateDeadOptionSource;
 }
 
 export interface TakeDownActionSource {
   readonly kind: 'takeDown';
   readonly source: TargetReferenceSource;
   readonly target: TargetReferenceSource;
-  readonly deadOption: string;
-  readonly returnTrueWhen: string;
+  readonly deadOption: ControlledStateDeadOptionSource;
+  readonly returnTrueWhen: AbilityActionReturnTrueMethodSource;
 }
 
 export interface LaunchUpwardActionSource {
@@ -66,8 +72,8 @@ export interface LaunchUpwardActionSource {
   /** 原生特效配置只保留为来源证据，不进入木桩数值投影。 */
   readonly airborneEffect: Readonly<Record<string, unknown>>;
   readonly immobilizedTime: number;
-  readonly deadOption: string;
-  readonly returnTrueWhen: string;
+  readonly deadOption: ControlledStateDeadOptionSource;
+  readonly returnTrueWhen: AbilityActionReturnTrueMethodSource;
 }
 
 export type StumpControlActionSource =
@@ -110,8 +116,8 @@ export function parseTakeDownActionSource(
     kind: 'takeDown',
     source: parseTargetReferenceSource(action.source, `${path}.source`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    deadOption: requireString(action.deadOption, `${path}.deadOption`),
-    returnTrueWhen: requireString(action.returnTrueWhen, `${path}.returnTrueWhen`),
+    deadOption: parseDeadOption(action.deadOption, `${path}.deadOption`),
+    returnTrueWhen: parseReturnTrueWhen(action.returnTrueWhen, `${path}.returnTrueWhen`),
   };
 }
 
@@ -165,8 +171,8 @@ export function parseLaunchUpwardActionSource(
     faceDirection: parseAdvancedDirectionSource(action.faceDirection, `${path}.faceDirection`),
     airborneEffect: requireRecord(action.airborneEffect, `${path}.airborneEffect`),
     immobilizedTime: requireNumber(action.immobilizedTime, `${path}.immobilizedTime`),
-    deadOption: requireString(action.deadOption, `${path}.deadOption`),
-    returnTrueWhen: requireString(action.returnTrueWhen, `${path}.returnTrueWhen`),
+    deadOption: parseDeadOption(action.deadOption, `${path}.deadOption`),
+    returnTrueWhen: parseReturnTrueWhen(action.returnTrueWhen, `${path}.returnTrueWhen`),
   };
 }
 
@@ -219,6 +225,7 @@ export function parsePullActionSource(value: unknown, path: string): StumpContro
     action,
     new Set([
       ...META,
+      ...('alwaysNext' in action ? ['alwaysNext'] : []),
       'targetSettings',
       'pullSpeedUseBb',
       'pullSpeed',
@@ -236,6 +243,7 @@ export function parsePullActionSource(value: unknown, path: string): StumpContro
     ]),
     path,
   );
+  if ('alwaysNext' in action) requireBoolean(action.alwaysNext, `${path}.alwaysNext`);
   return {
     kind: 'pull',
     source: parseTargetReferenceSource(action.destination, `${path}.destination`),
@@ -286,7 +294,17 @@ export function parsePushBackActionSource(
     requireBoolean(action[key], `${path}.${key}`);
   parseTimeDilationCurveKeys(action.distanceCurve, `${path}.distanceCurve`, true);
   parseTimeDilationCurveKeys(action.customCurve, `${path}.customCurve`, true);
-  requireString(action.pushBackDirection, `${path}.pushBackDirection`);
+  requireNativeEnum(
+    action.pushBackDirection,
+    [
+      'SourceForward',
+      'TargetForward',
+      'SourceToTarget',
+      'TargetToSource',
+      'CameraForward',
+    ] as const,
+    `${path}.pushBackDirection`,
+  );
   requireString(action.curveTemplate, `${path}.curveTemplate`);
   return {
     kind: 'pushBack',
@@ -342,7 +360,7 @@ export function parseBlowOffEnemyActionSource(
       `${path}.attackerTargetSettings`,
     ),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    deadOption: requireString(action.deadOption, `${path}.deadOption`),
+    deadOption: parseDeadOption(action.deadOption, `${path}.deadOption`),
   };
 }
 
@@ -392,7 +410,7 @@ export function parseBlowOffActionSource(
       `${path}.attackerTargetSettings`,
     ),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    deadOption: requireString(action.deadOption, `${path}.deadOption`),
+    deadOption: parseDeadOption(action.deadOption, `${path}.deadOption`),
   };
 }
 
@@ -416,11 +434,15 @@ export function parseTargetHitStopActionSource(
     ]),
     path,
   );
-  const affectType = requireString(action.affectType, `${path}.affectType`);
+  const affectType = requireNativeEnum(
+    action.affectType,
+    ['OnlyAttacker', 'OnlyTarget', 'Both'] as const,
+    `${path}.affectType`,
+  );
   if (!['OnlyAttacker', 'OnlyTarget', 'Both'].includes(affectType))
     throw new Error(`${path}.affectType: unsupported hit-stop target set ${affectType}`);
   const useDirectCurve = requireBoolean(action.useDirectCurve, `${path}.useDirectCurve`);
-  const directCurve = requireArray(action.directCurve, `${path}.directCurve`);
+  const directCurve = parseTimeDilationCurveKeys(action.directCurve, `${path}.directCurve`, true);
   const curveKey = requireString(action.curveKey, `${path}.curveKey`);
   // useDirectCurve 是真正的来源选择器；未选中的槽位允许保留序列化残值。
   // 全量 SkillData 同时存在 named+非空 direct 与 direct+非空 named 两类形状，
@@ -438,9 +460,7 @@ export function parseTargetHitStopActionSource(
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     affectType,
     curveKey,
-    directCurveKeys: useDirectCurve
-      ? parseTimeDilationCurveKeys(directCurve, `${path}.directCurve`, true)
-      : [],
+    directCurveKeys: useDirectCurve ? directCurve : [],
     durationSeconds: duration,
     priorityTagId: requireInteger(priority.tagId, `${path}.timeDilationPriority.tagId`),
   };

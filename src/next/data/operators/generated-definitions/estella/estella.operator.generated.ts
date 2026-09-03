@@ -52,7 +52,7 @@ export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.08 },
+                durationSeconds: { kind: 'constant', value: 0.0799999982118607 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -84,7 +84,14 @@ export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.25, 0.280000001192093, 0.300000011920929, 0.330000013113022, 0.349999994039536,
+      0.379999995231628, 0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164,
+      0.519999980926514, 0.560000002384186,
+    ],
+  },
 );
 
 export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -126,7 +133,7 @@ export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.16 },
+                durationSeconds: { kind: 'constant', value: 0.159999996423721 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -158,7 +165,14 @@ export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
+      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
+      0.620000004768372, 0.680000007152557,
+    ],
+  },
 );
 
 export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -200,7 +214,7 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
+                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -244,7 +258,7 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -278,9 +292,21 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    atk_scale2: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
-    display_atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
+    atk_scale: [
+      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
+      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
+      0.310000002384186, 0.340000003576279,
+    ],
+    atk_scale2: [
+      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
+      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.389999985694885,
+      0.419999986886978, 0.449999988079071,
+    ],
+    display_atk_scale: [
+      0.349999994039536, 0.389999985694885, 0.419999986886978, 0.46000000834465, 0.490000009536743,
+      0.529999971389771, 0.560000002384186, 0.600000023841858, 0.629999995231628, 0.670000016689301,
+      0.730000019073486, 0.790000021457672,
+    ],
   },
 );
 
@@ -325,7 +351,7 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.38 },
+                durationSeconds: { kind: 'constant', value: 0.379999995231628 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -359,7 +385,11 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 19,
-    atk_scale: [0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.77, 0.83, 0.9],
+    atk_scale: [
+      0.400000005960464, 0.439999997615814, 0.479999989271164, 0.519999980926514, 0.560000002384186,
+      0.600000023841858, 0.639999985694885, 0.680000007152557, 0.720000028610229, 0.769999980926514,
+      0.829999983310699, 0.899999976158142,
+    ],
     atk_scale_2: 0,
     poise: 17,
   },
@@ -391,7 +421,7 @@ export const estellaFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
+                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'white_power' },
@@ -432,7 +462,7 @@ export const estellaFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_damage_immune_medium',
+            buffId: 'buff_common_full_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -457,7 +487,12 @@ export const estellaFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  {
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+  },
 );
 
 export const estellaPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -509,7 +544,14 @@ export const estellaPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -597,7 +639,7 @@ export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
                           step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                           step('startTimeDilation', {
                             scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.05 },
+                            durationSeconds: { kind: 'constant', value: 0.0500000007450581 },
                             slot: 'TimeDilation/Layer/Entity/HitStop',
                             priority: 10,
                             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -677,7 +719,11 @@ export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [1.56, 1.71, 1.87, 2.02, 2.18, 2.34, 2.49, 2.65, 2.8, 3, 3.23, 3.5],
+    atk_scale: [
+      1.55999994277954, 1.71000003814697, 1.87000000476837, 2.01999998092651, 2.1800000667572,
+      2.33999991416931, 2.49000000953674, 2.65000009536743, 2.79999995231628, 3, 3.23000001907349,
+      3.5,
+    ],
     blow_off_distance: 2,
     cam_angle: 0,
     cam_duration: 0,
@@ -777,6 +823,7 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: true,
+                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -900,7 +947,7 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
                       priority: 0,
                       maxStackCount: 1,
                       durationSeconds: { blackboardKey: 'duration' },
-                      triggerIntervalSeconds: 0.1,
+                      triggerIntervalSeconds: 0.100000001490116,
                       waitFirstTriggerInterval: true,
                       maxTriggerCount: 1,
                       presentation: {
@@ -909,6 +956,7 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/airborne.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: false,
+                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -1094,7 +1142,11 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [4.89, 5.38, 5.86, 6.35, 6.84, 7.33, 7.82, 8.31, 8.8, 9.41, 10.14, 11],
+    atk_scale: [
+      4.8899998664856, 5.38000011444092, 5.8600001335144, 6.34999990463257, 6.84000015258789,
+      7.32999992370605, 7.82000017166138, 8.3100004196167, 8.80000019073486, 9.40999984741211,
+      10.1400003433228, 11,
+    ],
     atk_scale_total: 0,
     dmg_up: 0.5,
     dmg_up_total: 0,
@@ -1169,6 +1221,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: true,
+                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -1295,7 +1348,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                           priority: 0,
                           maxStackCount: 1,
                           durationSeconds: { blackboardKey: 'duration' },
-                          triggerIntervalSeconds: 0.1,
+                          triggerIntervalSeconds: 0.100000001490116,
                           waitFirstTriggerInterval: true,
                           maxTriggerCount: 1,
                           presentation: {
@@ -1304,6 +1357,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/airborne.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: false,
+                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -1479,6 +1533,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: true,
+                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -1605,7 +1660,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                           priority: 0,
                           maxStackCount: 1,
                           durationSeconds: { blackboardKey: 'duration' },
-                          triggerIntervalSeconds: 0.1,
+                          triggerIntervalSeconds: 0.100000001490116,
                           waitFirstTriggerInterval: true,
                           maxTriggerCount: 1,
                           presentation: {
@@ -1614,6 +1669,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/airborne.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: false,
+                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -1783,6 +1839,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: true,
+                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -1906,7 +1963,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                       priority: 0,
                       maxStackCount: 1,
                       durationSeconds: { blackboardKey: 'duration' },
-                      triggerIntervalSeconds: 0.1,
+                      triggerIntervalSeconds: 0.100000001490116,
                       waitFirstTriggerInterval: true,
                       maxTriggerCount: 1,
                       presentation: {
@@ -1915,6 +1972,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/airborne.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: false,
+                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -2093,7 +2151,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.4 },
+                    durationSeconds: { kind: 'constant', value: 0.400000005960464 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'whiten_combo' },
@@ -2104,7 +2162,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.3 },
+                    durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'whiten_combo' },
@@ -2124,7 +2182,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.6 },
+            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2143,8 +2201,16 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
-    atk_scale2: [2.8, 3.08, 3.36, 3.64, 3.92, 4.2, 4.48, 4.76, 5.04, 5.39, 5.81, 6.3],
+    atk_scale: [
+      1.60000002384186, 1.75999999046326, 1.91999995708466, 2.07999992370605, 2.24000000953674,
+      2.40000009536743, 2.55999994277954, 2.72000002861023, 2.88000011444092, 3.07999992370605,
+      3.3199999332428, 3.59999990463257,
+    ],
+    atk_scale2: [
+      2.79999995231628, 3.07999992370605, 3.35999989509583, 3.64000010490417, 3.92000007629395,
+      4.19999980926514, 4.48000001907349, 4.76000022888184, 5.03999996185303, 5.3899998664856,
+      5.80999994277954, 6.30000019073486,
+    ],
     cam_angle: 0,
     cam_duration: 0,
     cd_reduction: 0,
@@ -2155,7 +2221,11 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
     owner_mainchar_alpha: 0,
     owner_mainchar_distance: 0,
     poise: 10,
-    rate: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.15, 0.15, 0.15],
+    rate: [
+      0.100000001490116, 0.100000001490116, 0.100000001490116, 0.100000001490116, 0.100000001490116,
+      0.100000001490116, 0.100000001490116, 0.100000001490116, 0.100000001490116, 0.150000005960464,
+      0.150000005960464, 0.150000005960464,
+    ],
     rate_plus: -0.1,
     usp: 10,
   },
@@ -2274,7 +2344,7 @@ export default {
           buffId: 'buff_chr_0021_whiten_talent_1',
           target: 'caster',
           inheritSourceSkillCastInfo: false,
-          blackboardAssignments: { dmg_down: [-0.1, -0.2] },
+          blackboardAssignments: { dmg_down: [-0.100000001490116, -0.200000002980232] },
         }),
       ),
     },
@@ -2308,7 +2378,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.9,
+          multiplier: 0.899999976158142,
         },
       ],
     },
@@ -2328,7 +2398,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'dmg_up',
           operation: 'assign',
-          value: 0.4,
+          value: 0.400000005960464,
         },
       ],
     },
@@ -2393,6 +2463,7 @@ export default {
             target: 'enemy',
             source: 'buffOwner',
             finishByAction: true,
+            inheritSourceSkillCastInfo: true,
             blackboardAssignments: {
               usp: { kind: 'blackboard', key: 'usp' },
               cd: { kind: 'blackboard', key: 'cd' },

@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'ultimateEnergyGainEfficiency',
-      value: 0.2,
+      value: 0.20000000298023224,
     },
   ],
   buffDefinitions: {
@@ -129,7 +129,7 @@ const definition = {
           blackboardAssignments: {
             ultimate_gain_up: {
               kind: 'constant',
-              value: 0.2,
+              value: 0.20000000298023224,
             },
             atb_recover: {
               kind: 'constant',

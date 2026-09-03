@@ -22,11 +22,15 @@ import { type AbilityEvent } from './abilityEvents.ts';
 export const BUFF_ABILITY_EVENTS = [
   'enterFight',
   'ownerHpZero',
+  'ownerDead',
+  'ownerSwitchedToCenter',
+  'ownerSwitchedToGuard',
   'abilityEntitySpawned',
   'abilityEntityFinished',
   'beforeTakeDamage',
   'beforeCalculateDamage',
   'beforeDamageAction',
+  'beforeOutputDamage',
   'beforeTakePhysicalInfliction',
   'beforeOutputPhysicalInfliction',
   'afterOutputPhysicalInfliction',
@@ -47,6 +51,7 @@ export const BUFF_ABILITY_EVENTS = [
   'beforeCastSkill',
   'afterSkillApplyCost',
   'skillEnd',
+  'pendingComboSkillsCleared',
   'beforeOutputBuff',
   'beforeAddedBuff',
   'outputBuff',
@@ -174,6 +179,7 @@ export const BUFF_STACKING_TYPES = [
   'overwriteDuration',
   'enhanceAndOverwriteDuration',
   'highPriorityWithMaxStack',
+  'timedGrowingEnhance',
 ] as const;
 
 /** 同身份 Buff 再次添加时采用的原生叠加策略。 */
@@ -234,6 +240,7 @@ export interface CombatBuffPresentation {
   readonly visible?: boolean;
   readonly showInHeadBarCommon?: boolean;
   readonly showInHeadBarAttached?: boolean;
+  readonly showDirectlyInHeadBuff?: boolean;
   readonly showInSquadIcon?: boolean;
   readonly onlyShowForMainCharacter?: boolean;
   readonly blinkInMainCharHpBar?: boolean;
@@ -443,6 +450,10 @@ export type BuffDefinitionProperties = {
   readonly stackingKey?: string;
   readonly priority?: BuffPriority;
   readonly durationSeconds?: BuffDuration;
+  /** 同一所属实体再次添加该 Buff 前必须等待的原生 TimedMarker 时长。 */
+  readonly addingCooldownSeconds?: BuffDuration;
+  /** 跳过已有添加冷却检查；本次成功路径仍会重新写入冷却 marker。 */
+  readonly ignoreAddingCooldown?: boolean;
   readonly triggerIntervalSeconds?: BuffDuration;
   readonly waitFirstTriggerInterval?: boolean;
   readonly maxTriggerCount?: BuffTriggerCount;

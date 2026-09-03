@@ -48,6 +48,7 @@ export const BUFF_PRESENTATION_EDITOR_COVERAGE = {
   visible: 'editable',
   showInHeadBarCommon: 'editable',
   showInHeadBarAttached: 'editable',
+  showDirectlyInHeadBuff: 'editable',
   showInSquadIcon: 'editable',
   onlyShowForMainCharacter: 'editable',
   blinkInMainCharHpBar: 'editable',

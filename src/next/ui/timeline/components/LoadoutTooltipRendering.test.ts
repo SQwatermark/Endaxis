@@ -3,7 +3,7 @@ import { createSSRApp, h, type Component } from 'vue';
 import { renderToString } from '@vue/server-renderer';
 import { i18n, setLocale } from '@/i18n';
 import { getGearPiece } from '@/data';
-import { bedazzlingNightDebut } from '../../../data/equipment/akedbWeaponDefinitions';
+import { nextGameDataRepository } from '../../../data/gameDataRepository';
 import {
   getGearPieceGameName,
   getOperatorPotentialDescription,
@@ -46,13 +46,15 @@ describe('构筑 tooltip 渲染', () => {
   });
 
   it('曜夜选择 tooltip 按潜能状态渲染正确等级和值', async () => {
+    const bedazzlingNightDebut = nextGameDataRepository.getWeapon('bedazzling-night-debut');
+    expect(bedazzlingNightDebut).not.toBeNull();
     const normalHtml = await renderComponent(NextWeaponSelectionTooltip, {
-      weapon: bedazzlingNightDebut,
+      weapon: bedazzlingNightDebut!,
       name: '曜夜的首演',
       fullPotential: false,
     });
     const fullHtml = await renderComponent(NextWeaponSelectionTooltip, {
-      weapon: bedazzlingNightDebut,
+      weapon: bedazzlingNightDebut!,
       name: '曜夜的首演',
       fullPotential: true,
     });

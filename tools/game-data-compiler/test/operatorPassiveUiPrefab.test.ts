@@ -49,6 +49,33 @@ describe('operator passive UI prefab component projection', () => {
     });
   });
 
+  it('keeps Typhoea arrow and point counters bound to their native Buff identities', () => {
+    expect(
+      compileOperatorPassiveUiPrefabComponent(
+        {
+          componentType: 'UICharPassiveTyphoea',
+          arrowBuffId: 'buff_arrow_out_of_fight',
+          battleArrowBuffId: 'buff_arrow_in_battle',
+          pointBuffId: 'buff_arrow_points',
+          arrowCount: 4,
+          pointCount: 8,
+        },
+        'fixture.typhoea',
+      ),
+    ).toEqual({
+      kind: 'buffCounters',
+      appearance: 'typhoeaQuiver',
+      counters: [
+        {
+          key: 'arrows',
+          buffIds: ['buff_arrow_out_of_fight', 'buff_arrow_in_battle'],
+          maximum: 4,
+        },
+        { key: 'points', buffIds: ['buff_arrow_points'], maximum: 8 },
+      ],
+    });
+  });
+
   it('rejects malformed state bounds rather than guessing a visual state', () => {
     expect(() =>
       compileOperatorPassiveUiPrefabComponent(

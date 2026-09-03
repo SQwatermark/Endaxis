@@ -1,9 +1,9 @@
 import {
   requireBoolean,
   requireExactFields,
+  requireNativeEnum,
   requireNumber,
   requireRecord,
-  requireString,
 } from './primitives.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseAdvancedDirectionSource, type AdvancedDirectionSource } from './spatial.ts';
@@ -246,21 +246,17 @@ export function parseKnockDownActionSource(
   };
 }
 
-function parseDeadOption(value: unknown, path: string): ControlledStateDeadOptionSource {
-  const result = requireString(value, path);
-  if (result !== 'AllValid' && result !== 'OnlyAlive' && result !== 'OnlyDead')
-    throw new Error(`${path}: unsupported ControlledStateDeadOption ${result}`);
-  return result;
+export function parseDeadOption(value: unknown, path: string): ControlledStateDeadOptionSource {
+  return requireNativeEnum(value, ['AllValid', 'OnlyAlive', 'OnlyDead'] as const, path);
 }
 
-function parseReturnTrueWhen(value: unknown, path: string): AbilityActionReturnTrueMethodSource {
-  const result = requireString(value, path);
-  if (
-    result !== 'Always' &&
-    result !== 'BothSuccessAndInterrupted' &&
-    result !== 'OnlySuccess' &&
-    result !== 'OnlyInterrupted'
-  )
-    throw new Error(`${path}: unsupported ReturnTrueMethod ${result}`);
-  return result;
+export function parseReturnTrueWhen(
+  value: unknown,
+  path: string,
+): AbilityActionReturnTrueMethodSource {
+  return requireNativeEnum(
+    value,
+    ['Always', 'BothSuccessAndInterrupted', 'OnlySuccess', 'OnlyInterrupted'] as const,
+    path,
+  );
 }

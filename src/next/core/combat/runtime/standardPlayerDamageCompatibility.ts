@@ -101,6 +101,7 @@ function inspectCondition(
     case 'abilityEntityTimedMarkerPresent':
     case 'elementalReactionActive':
     case 'casterControlled':
+    case 'pendingComboSkillPresent':
     case 'characterTypeIn':
     case 'operatorRoleIn':
     case 'enemyRankIn':
@@ -113,6 +114,7 @@ function inspectCondition(
     case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':
     case 'eventDamageTagsMatch':
+    case 'eventDamageGameplayTagsMatch':
     case 'eventDamageFeaturesMatch':
     case 'eventDamageTypeIn':
     case 'eventHealTagsMatch':
@@ -135,6 +137,7 @@ function inspectCondition(
     case 'eventBuffEndedEarly':
     case 'buffStackCompare':
     case 'buffTagIdCountCompare':
+    case 'buffBlackboardCompare':
     case 'currentBuffStackCompare':
     case 'buffIdStackCompare':
     case 'entityTagMatch':
@@ -181,6 +184,7 @@ function inspectSequence(
       case 'setAbilityEntityRemainingDuration':
       case 'finishCurrentAbilityEntity':
       case 'finishCurrentAbilityEntityWhenSourceDies':
+      case 'inheritNormalAttackSkillCastInfo':
       case 'startCurrentAbilityEntityChildSkill':
       case 'startCurrentAbilityEntityChildSkillById':
         return;
@@ -391,6 +395,7 @@ function inspectSequence(
       case 'createAbilityEntityTimedMarker':
       case 'gainSquadUltimateEnergyFromSkillCost':
       case 'gainFinisherSp':
+      case 'restrictUltimateEnergyRecovery':
       case 'openComboWindow':
       case 'changeSkillSlot':
       case 'changePlayerActionMode':

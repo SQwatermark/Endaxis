@@ -67,7 +67,7 @@ import {
   ATTRIBUTE_MODIFIER_SLOTS,
   attributeModifierValues,
 } from '../attributes/combatAttributes';
-import type { DamageModifierCondition } from '../damage/damageModifiers';
+import type { DamageModifierCondition, DamageModifierNumber } from '../damage/damageModifiers';
 import { DAMAGE_SCALE_SIDES, DAMAGE_SCALE_ZONES } from '../damage/damageScale';
 import { DAMAGE_MODIFIER_SIDES } from '../damage/playerDamageContext';
 import type { HealModifierDefinition } from '../heal/healModifiers';
@@ -299,6 +299,8 @@ export function parseCombatBuffDefinitionEntry(
     'priority',
     'maxStackCount',
     'durationSeconds',
+    'addingCooldownSeconds',
+    'ignoreAddingCooldown',
     'triggerIntervalSeconds',
     'waitFirstTriggerInterval',
     'maxTriggerCount',
@@ -335,6 +337,8 @@ export function parseCombatBuffDefinitionEntry(
     ...parseOptionalPriority(entry, path),
     ...parseOptionalNonNegativeInteger(entry, 'maxStackCount', path),
     ...parseOptionalScalar(entry, 'durationSeconds', path),
+    ...parseOptionalScalar(entry, 'addingCooldownSeconds', path),
+    ...parseOptionalBoolean(entry, 'ignoreAddingCooldown', path),
     ...parseOptionalScalar(entry, 'triggerIntervalSeconds', path),
     ...parseOptionalBoolean(entry, 'waitFirstTriggerInterval', path),
     ...parseOptionalTriggerCount(entry, path),
@@ -390,6 +394,7 @@ function parseOptionalPresentation(
     'visible',
     'showInHeadBarCommon',
     'showInHeadBarAttached',
+    'showDirectlyInHeadBuff',
     'showInSquadIcon',
     'onlyShowForMainCharacter',
     'iconStyleInSquad',
@@ -405,6 +410,7 @@ function parseOptionalPresentation(
       | 'visible'
       | 'showInHeadBarCommon'
       | 'showInHeadBarAttached'
+      | 'showDirectlyInHeadBuff'
       | 'showInSquadIcon'
       | 'onlyShowForMainCharacter',
   ) =>
@@ -429,6 +435,7 @@ function parseOptionalPresentation(
       ...optionalBoolean('visible'),
       ...optionalBoolean('showInHeadBarCommon'),
       ...optionalBoolean('showInHeadBarAttached'),
+      ...optionalBoolean('showDirectlyInHeadBuff'),
       ...optionalBoolean('showInSquadIcon'),
       ...optionalBoolean('onlyShowForMainCharacter'),
       ...optionalString('iconStyleInSquad'),
@@ -974,7 +981,7 @@ function parseDamageModifierProcessor(
   const processor = requireObject(input, path);
   if (processor.kind === 'damageScale') {
     requireOnlyKeys(processor, path, ['kind', 'side', 'zone', 'addition']);
-    const addition = parseDefinitionNumberOperand(processor.addition, `${path}.addition`);
+    const addition = parseDamageModifierNumberOperand(processor.addition, `${path}.addition`);
     return {
       kind: 'damageScale',
       side: requireEnum(processor.side, DAMAGE_SCALE_SIDES, `${path}.side`),
@@ -1008,6 +1015,17 @@ function parseDamageModifierProcessor(
     };
   }
   throw new Error(`${path}.kind: unsupported damage processor '${String(processor.kind)}'`);
+}
+
+function parseDamageModifierNumberOperand(input: unknown, path: string): DamageModifierNumber {
+  if (typeof input === 'number' && Number.isFinite(input)) return input;
+  const reference = requireObject(input, path);
+  requireOnlyKeys(reference, path, ['blackboardKey', 'multiplier']);
+  const blackboardKey = requireNonEmptyString(reference.blackboardKey, `${path}.blackboardKey`);
+  if (reference.multiplier === undefined) return { blackboardKey };
+  if (typeof reference.multiplier !== 'number' || !Number.isFinite(reference.multiplier))
+    throw new Error(`${path}.multiplier: expected finite number`);
+  return { blackboardKey, multiplier: reference.multiplier };
 }
 
 function parseOptionalSpellBurst(
@@ -1365,7 +1383,7 @@ function parseOptionalTriggerCount(
 
 function parseOptionalScalar(
   entry: Readonly<Record<string, unknown>>,
-  key: 'durationSeconds' | 'triggerIntervalSeconds',
+  key: 'durationSeconds' | 'triggerIntervalSeconds' | 'addingCooldownSeconds',
   path: string,
 ): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   const value = entry[key];
@@ -1457,7 +1475,7 @@ function parseOptionalString(
 
 function parseOptionalBoolean(
   entry: Readonly<Record<string, unknown>>,
-  key: 'waitFirstTriggerInterval',
+  key: 'waitFirstTriggerInterval' | 'ignoreAddingCooldown',
   path: string,
 ): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   if (entry[key] === undefined) return {};

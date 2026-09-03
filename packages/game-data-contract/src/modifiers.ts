@@ -77,7 +77,8 @@ export const DAMAGE_TARGET_HEALTH_TYPES = ['none', 'normal', 'independent'] as c
 export type DamageTargetHealthType = (typeof DAMAGE_TARGET_HEALTH_TYPES)[number];
 
 /** 伤害处理器中的动态数值可直接取常量，也可读取所属 Buff 实例的黑板。 */
-export type DamageModifierNumber = number | { readonly blackboardKey: string };
+export type DamageModifierNumber =
+  number | { readonly blackboardKey: string; readonly multiplier?: number };
 
 /** 战斗装配层负责使用统一条件系统判断当前伤害修正是否成立。 */
 export type DamageModifierExternalCondition =

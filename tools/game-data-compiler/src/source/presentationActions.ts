@@ -3,15 +3,35 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
+  requireNativeEnum,
   requireNonEmptyString,
   requireNumber,
   requireRecord,
   requireString,
+  requireStringOrInteger,
   nativeActionName,
 } from './primitives.ts';
+
+const CAMERA_BLEND_STYLES = [
+  'Cut',
+  'EaseInOut',
+  'EaseIn',
+  'EaseOut',
+  'HardIn',
+  'HardOut',
+  'Linear',
+  'Custom',
+] as const;
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
-import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
+import {
+  parseIntegerScalarSource,
+  parseScalarSource,
+  type BlackboardLevelValues,
+  type ScalarSource,
+} from './scalar.ts';
+import { parseTagQuerySource } from './tagQuery.ts';
 import { parseTimeDilationCurveKeys } from './timeDilationActions.ts';
+import { parseNativeSkillType } from './operatorRuntimeTemplate.ts';
 import {
   parseBuffApplicationActionSource,
   parseAdvancedBuffFinishActionSource,
@@ -31,11 +51,11 @@ export interface PlaySoundActionSource {
   readonly jumpToWhenPlayMilliseconds: number;
   readonly useTemporaryEmitter: boolean;
   readonly target: TargetReferenceSource;
-  readonly mountPoint: string;
+  readonly mountPoint: string | number;
   readonly followMountPoint: boolean;
   readonly useWeaponMountPoint: boolean;
   readonly weaponIndex: number;
-  readonly weaponMountPoint: string;
+  readonly weaponMountPoint: string | number;
   readonly useTimeDilationPauseAndSeek: boolean;
   readonly timeDilationPauseThreshold: number;
   readonly timeDilationSeekThreshold: number;
@@ -118,6 +138,7 @@ export interface CameraPresentationActionSource {
     | 'specificLayerChangeNoop'
     | 'forceTargetInFightOmitted'
     | 'interruptHenshinListenerOmitted'
+    | 'incomingControlTagListenerOmitted'
     | 'cutsceneCleanupListenerOmitted'
     | 'strafeMode'
     | 'dashLimit'
@@ -126,12 +147,38 @@ export interface CameraPresentationActionSource {
     | 'passiveUiValue'
     | 'animatorAimOffset'
     | 'squadTeleportOmitted'
-    | 'dashWindowOmitted';
+    | 'dashWindowOmitted'
+    | 'typhoeaTargetSelectionOmitted'
+    | 'typhoeaHudHint';
   readonly readBlackboardKeys?: readonly string[];
   readonly target?: TargetReferenceSource;
   readonly sourceSkillId?: string;
   readonly nativeSkillType?: import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType;
   readonly value?: ScalarSource;
+}
+
+/** Typhoeus 专属 HUD 只读取两个 Buff 来刷新箭矢/能量提示，不改变战斗状态。 */
+export function parseShowTyphoeaHudHintActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'arrowBuffId',
+      'energyBuffId',
+    ]),
+    path,
+  );
+  requireNonEmptyString(action.arrowBuffId, `${path}.arrowBuffId`);
+  requireNonEmptyString(action.energyBuffId, `${path}.energyBuffId`);
+  return { kind: 'typhoeaHudHint' };
 }
 
 /** 只驱动 Animator 的瞄准偏移层；完整校验字段后在无表现模拟中省略。 */
@@ -163,7 +210,11 @@ export function parseAnimatorAimOffsetActionSource(
     ]),
     path,
   );
-  requireNonEmptyString(action.aimOffsetType, `${path}.aimOffsetType`);
+  requireNativeEnum(
+    action.aimOffsetType,
+    ['None', 'HeadToTarget', 'StrafeMovement'] as const,
+    `${path}.aimOffsetType`,
+  );
   requireInteger(action.aimXParam, `${path}.aimXParam`);
   requireInteger(action.aimYParam, `${path}.aimYParam`);
   requireNonEmptyString(action.layerName, `${path}.layerName`);
@@ -208,10 +259,7 @@ export function parseMarkCanDashActionSource(
   return { kind: 'dashWindowOmitted' };
 }
 
-/**
- * 1.4.4 ChangeSpecificLayerAction 的两个空 LayerMask 都会被 _GetLayer 解析为 -1，
- * ExecuteInternal 随即成功返回，不写入目标 GameObject.layer。
- */
+/** ChangeSpecificLayerAction 只修改表现对象的 Unity Layer，不进入战斗模拟。 */
 export function parseNoopSpecificLayerChangeActionSource(
   value: unknown,
   path: string,
@@ -234,8 +282,16 @@ export function parseNoopSpecificLayerChangeActionSource(
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
   const originLayerMask = requireRecord(action.originLayerMask, `${path}.originLayerMask`);
   const targetLayerMask = requireRecord(action.targetLayerMask, `${path}.targetLayerMask`);
-  requireExactFields(originLayerMask, new Set(), `${path}.originLayerMask`);
-  requireExactFields(targetLayerMask, new Set(), `${path}.targetLayerMask`);
+  for (const [mask, maskPath] of [
+    [originLayerMask, `${path}.originLayerMask`],
+    [targetLayerMask, `${path}.targetLayerMask`],
+  ] as const) {
+    // 历史 JSON 导出丢失了 Unity LayerMask 的内部字段；VFS 保留真实 m_Mask。
+    const expectedFields = new Set<string>();
+    if ('m_Mask' in mask) expectedFields.add('m_Mask');
+    requireExactFields(mask, expectedFields, maskPath);
+    if ('m_Mask' in mask) requireInteger(mask.m_Mask, `${maskPath}.m_Mask`);
+  }
   return { kind: 'specificLayerChangeNoop' };
 }
 
@@ -292,16 +348,39 @@ export function parseInterruptHenshinTagListenerActionSource(
     ]),
     path,
   );
+  const listenerType = requireNativeEnum(
+    action.listenerType,
+    ['PredefinedQuery', 'CustomQuery'] as const,
+    `${path}.listenerType`,
+  );
+  const predefinedQuery =
+    action.predefinedQuery === 1200
+      ? 'InterruptHenshin'
+      : requireNativeEnum(
+          action.predefinedQuery,
+          [
+            'None',
+            'InPull',
+            'CantSwitchToCenter',
+            'CantMainCharSwitched',
+            'CantCastAnySkill',
+            'InSilence',
+            'InDisarmed',
+            'InImmobilized',
+          ] as const,
+          `${path}.predefinedQuery`,
+        );
   if (
-    action.listenerType === 'CustomQuery' &&
-    action.predefinedQuery === 'None' &&
+    listenerType === 'CustomQuery' &&
+    predefinedQuery === 'None' &&
     requireBoolean(action.executeOnMatch, `${path}.executeOnMatch`)
   ) {
     return parseCutsceneCleanupTagListener(action, path, inheritedBlackboard);
   }
+  const isSupportedIncomingControlQuery = predefinedQuery === 'InImmobilized';
   if (
-    requireString(action.listenerType, `${path}.listenerType`) !== 'PredefinedQuery' ||
-    requireString(action.predefinedQuery, `${path}.predefinedQuery`) !== 'InterruptHenshin' ||
+    listenerType !== 'PredefinedQuery' ||
+    (predefinedQuery !== 'InterruptHenshin' && !isSupportedIncomingControlQuery) ||
     !requireBoolean(action.executeOnMatch, `${path}.executeOnMatch`)
   ) {
     throw new Error(`${path}: unsupported TagQueryListener projection`);
@@ -309,10 +388,14 @@ export function parseInterruptHenshinTagListenerActionSource(
   const customQuery = requireRecord(action.customQuery, `${path}.customQuery`);
   requireExactFields(customQuery, new Set(['queryType', 'tags']), `${path}.customQuery`);
   if (
-    requireString(customQuery.queryType, `${path}.customQuery.queryType`) !== 'HasAny' ||
+    requireNativeEnum(
+      customQuery.queryType,
+      ['HasAny', 'HasAll', 'HasNone'] as const,
+      `${path}.customQuery.queryType`,
+    ) !== 'HasAny' ||
     requireArray(customQuery.tags, `${path}.customQuery.tags`).length !== 0
   ) {
-    throw new Error(`${path}: InterruptHenshin listener must have an empty custom query`);
+    throw new Error(`${path}: predefined tag listener must have an empty custom query`);
   }
   const sequence = requireRecord(action.executeAction, `${path}.executeAction`);
   requireExactFields(
@@ -333,7 +416,7 @@ export function parseInterruptHenshinTagListenerActionSource(
     throw new Error(`${path}: guarded InterruptHenshin listener is unsupported`);
   }
   const children = requireArray(sequence.actionData, `${path}.executeAction.actionData`);
-  if (children.length !== 1) throw new Error(`${path}: expected one InterruptHenshin action`);
+  if (children.length !== 1) throw new Error(`${path}: expected one tag-listener action`);
   const finish = parseAdvancedBuffFinishActionSource(
     children[0],
     `${path}.executeAction.actionData[0]`,
@@ -355,9 +438,13 @@ export function parseInterruptHenshinTagListenerActionSource(
     !isPlainTargetReference(finish.buffSource, 'Source') ||
     !isPlainTargetReference(finish.finishSource, 'Source')
   ) {
-    throw new Error(`${path}: unsupported InterruptHenshin finish action`);
+    throw new Error(`${path}: unsupported tag-listener finish action`);
   }
-  return { kind: 'interruptHenshinListenerOmitted' };
+  return {
+    kind: isSupportedIncomingControlQuery
+      ? 'incomingControlTagListenerOmitted'
+      : 'interruptHenshinListenerOmitted',
+  };
 }
 
 /**
@@ -377,7 +464,11 @@ function parseCutsceneCleanupTagListener(
     return requireInteger(tag.tagId, `${path}.customQuery.tags[${index}].tagId`);
   });
   if (
-    query.queryType !== 'HasAny' ||
+    requireNativeEnum(
+      query.queryType,
+      ['HasAny', 'HasAll', 'HasNone'] as const,
+      `${path}.customQuery.queryType`,
+    ) !== 'HasAny' ||
     tags.length !== 2 ||
     !tags.includes(1105446346) ||
     !tags.includes(507365453)
@@ -449,9 +540,15 @@ function parseCutsceneCleanupTagListener(
 }
 
 /** 角色横移/步态/镜头锁定只改变移动表现；字段仍需完整读取。 */
-export function parseSetStrafeModeActionSource(
+/**
+ * 提丰瞄准期间把候选敌人交给 BattleManager 持续筛选并挂标记 Buff；OnEnd 清除标记。
+ * 固定木桩模型只有一个始终可选的敌人，空间/屏幕优先级不会改变伤害目标，因此严格读取
+ * 完整配置后把这项选择器作为表现与选敌基础设施省略。
+ */
+export function parseTyphoeaTargetSelectionActionSource(
   value: unknown,
   path: string,
+  inheritedBlackboard: BlackboardLevelValues,
 ): CameraPresentationActionSource {
   const action = requireRecord(value, path);
   requireExactFields(
@@ -462,19 +559,115 @@ export function parseSetStrafeModeActionSource(
       'priorityLevel',
       'priorityOffset',
       'serverActionIndex',
-      'strafeTarget',
-      'limitGait',
-      'minGait',
-      'maxGait',
-      'lockToCamera',
+      'markBuff',
+      'targetNum',
+      'fullScreen',
+      'lockRegionHalfHeight',
+      'lockRegionRatio',
+      'maxLockDistanceFromCamera',
+      'smartPrioritySelect',
     ]),
     path,
   );
+  const markPath = `${path}.markBuff`;
+  const mark = requireRecord(action.markBuff, markPath);
+  requireExactFields(
+    mark,
+    new Set(['buffId', 'readIdFromBlackboard', 'buffIdKey', 'assignBlackboard', 'assignItems']),
+    markPath,
+  );
+  requireNonEmptyString(mark.buffId, `${markPath}.buffId`);
+  if (requireBoolean(mark.readIdFromBlackboard, `${markPath}.readIdFromBlackboard`))
+    throw new Error(`${markPath}.readIdFromBlackboard: dynamic target mark is unsupported`);
+  if (requireString(mark.buffIdKey, `${markPath}.buffIdKey`) !== '')
+    throw new Error(`${markPath}.buffIdKey: expected empty string`);
+  if (requireBoolean(mark.assignBlackboard, `${markPath}.assignBlackboard`))
+    throw new Error(`${markPath}.assignBlackboard: target mark assignments are unsupported`);
+  if (requireArray(mark.assignItems, `${markPath}.assignItems`).length !== 0)
+    throw new Error(`${markPath}.assignItems: expected empty array`);
+
+  parseIntegerScalarSource(action.targetNum, `${path}.targetNum`);
+  requireBoolean(action.fullScreen, `${path}.fullScreen`);
+  parseScalarSource(
+    action.lockRegionHalfHeight,
+    `${path}.lockRegionHalfHeight`,
+    inheritedBlackboard,
+  );
+  parseScalarSource(action.lockRegionRatio, `${path}.lockRegionRatio`, inheritedBlackboard);
+  parseScalarSource(
+    action.maxLockDistanceFromCamera,
+    `${path}.maxLockDistanceFromCamera`,
+    inheritedBlackboard,
+  );
+
+  const selectPath = `${path}.smartPrioritySelect`;
+  const select = requireRecord(action.smartPrioritySelect, selectPath);
+  requireExactFields(
+    select,
+    new Set([
+      'smartTargetSelectStrategy',
+      'smartTargetBuffIds',
+      'smartTargetTagQuery',
+      'smartTargetBuffFindSettings',
+    ]),
+    selectPath,
+  );
+  requireNativeEnum(
+    select.smartTargetSelectStrategy,
+    [
+      'SelectComboSkillTarget',
+      'SelectComboSkillTrigger',
+      'SelectByBuff',
+      'SelectByTag',
+      'SelectByBuffStackNum',
+    ] as const,
+    `${selectPath}.smartTargetSelectStrategy`,
+  );
+  requireArray(select.smartTargetBuffIds, `${selectPath}.smartTargetBuffIds`).forEach(
+    (item, index) => {
+      const itemPath = `${selectPath}.smartTargetBuffIds[${index}]`;
+      const entry = requireRecord(item, itemPath);
+      requireExactFields(entry, new Set(['buffId']), itemPath);
+      requireNonEmptyString(entry.buffId, `${itemPath}.buffId`);
+    },
+  );
+  parseTagQuerySource(select.smartTargetTagQuery, `${selectPath}.smartTargetTagQuery`);
+  const findPath = `${selectPath}.smartTargetBuffFindSettings`;
+  const find = requireRecord(select.smartTargetBuffFindSettings, findPath);
+  requireExactFields(find, new Set(['checkType', 'buffIdList', 'tagQuery']), findPath);
+  requireNativeEnum(find.checkType, ['Id', 'Tag'] as const, `${findPath}.checkType`);
+  requireArray(find.buffIdList, `${findPath}.buffIdList`).forEach((id, index) =>
+    requireNonEmptyString(id, `${findPath}.buffIdList[${index}]`),
+  );
+  parseTagQuerySource(find.tagQuery, `${findPath}.tagQuery`);
+  return { kind: 'typhoeaTargetSelectionOmitted' };
+}
+
+export function parseSetStrafeModeActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  const expectedFields = new Set([
+    '$type',
+    'isEnable',
+    'priorityLevel',
+    'priorityOffset',
+    'serverActionIndex',
+    'strafeTarget',
+    'limitGait',
+    'minGait',
+    'maxGait',
+    'lockToCamera',
+  ]);
+  if ('yawOffset' in action) expectedFields.add('yawOffset');
+  requireExactFields(action, expectedFields, path);
   parseTargetReferenceSource(action.strafeTarget, `${path}.strafeTarget`);
   requireBoolean(action.limitGait, `${path}.limitGait`);
-  requireString(action.minGait, `${path}.minGait`);
-  requireString(action.maxGait, `${path}.maxGait`);
+  requireNativeEnum(action.minGait, ['Walk', 'Run', 'Sprint'] as const, `${path}.minGait`);
+  requireNativeEnum(action.maxGait, ['Walk', 'Run', 'Sprint'] as const, `${path}.maxGait`);
   requireBoolean(action.lockToCamera, `${path}.lockToCamera`);
+  if ('yawOffset' in action) requireNumber(action.yawOffset, `${path}.yawOffset`);
   return { kind: 'strafeMode' };
 }
 
@@ -565,22 +758,7 @@ export function parseSkillTypeMutationSource(
   ) {
     throw new Error(`${path}: unsupported ChangeSkillType projection`);
   }
-  const nativeSkillTypeByName: Readonly<
-    Record<string, import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType>
-  > = {
-    PassiveSkill: 'passiveSkill',
-    Attack: 'attack',
-    BreakingAttack: 'breakingAttack',
-    NormalSkill: 'normalSkill',
-    AttachSkill: 'attachSkill',
-    Dodge: 'dodge',
-    ComboSkill: 'comboSkill',
-    UltimateSkill: 'ultimateSkill',
-    ExtraActiveSkill: 'extraActiveSkill',
-  };
-  const nativeSkillType =
-    nativeSkillTypeByName[requireString(action.skillType, `${path}.skillType`)];
-  if (nativeSkillType === undefined) throw new Error(`${path}.skillType: unsupported SkillType`);
+  const nativeSkillType = parseNativeSkillType(action.skillType, `${path}.skillType`);
   return {
     kind: 'skillTypeMutation' as const,
     target,
@@ -655,7 +833,15 @@ export function parseLiinoUiEventActionSource(
     new Set([...ACTION_META_FIELDS, 'liinoEvent', 'speed', 'scale']),
     path,
   );
-  requireNonEmptyString(action.liinoEvent, `${path}.liinoEvent`);
+  const liinoEventPath = `${path}.liinoEvent`;
+  if (!(
+    (typeof action.liinoEvent === 'number' &&
+      Number.isInteger(action.liinoEvent) &&
+      [0, 1, 2, 4, 5, 6].includes(action.liinoEvent)) ||
+    (typeof action.liinoEvent === 'string' &&
+      ['Show', 'BigLike', 'Like', 'Call', 'RandomLike', 'Close'].includes(action.liinoEvent))
+  ))
+    throw new Error(`${liinoEventPath}: unsupported Liino UI event`);
   const speed = parseScalarSource(action.speed, `${path}.speed`, inheritedBlackboard);
   const scale = parseScalarSource(action.scale, `${path}.scale`, inheritedBlackboard);
   return {
@@ -712,12 +898,12 @@ export function parseIgniteBuffTextActionSource(
     path,
   );
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
-  requireString(action.mountPoint, `${path}.mountPoint`);
+  parseMountPoint(action.mountPoint, `${path}.mountPoint`);
   const offset = requireRecord(action.offset, `${path}.offset`);
   requireExactFields(offset, new Set(['x', 'y']), `${path}.offset`);
   requireNumber(offset.x, `${path}.offset.x`);
   requireNumber(offset.y, `${path}.offset.y`);
-  requireString(action.energyShardType, `${path}.energyShardType`);
+  parseMountPoint(action.energyShardType, `${path}.energyShardType`);
   requireString(action.textId, `${path}.textId`);
   requireBoolean(action.showOnSquadIcon, `${path}.showOnSquadIcon`);
   requireBoolean(action.forceMainBody, `${path}.forceMainBody`);
@@ -743,7 +929,7 @@ export function parseImmuneTextActionSource(
     path,
   );
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
-  requireString(action.mountPoint, `${path}.mountPoint`);
+  parseMountPoint(action.mountPoint, `${path}.mountPoint`);
   const offset = requireRecord(action.offset, `${path}.offset`);
   requireExactFields(offset, new Set(['x', 'y']), `${path}.offset`);
   requireNumber(offset.x, `${path}.offset.x`);
@@ -789,8 +975,28 @@ export function parseShowHideActorActionSource(
     path,
   );
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
-  requireString(action.showHideType, `${path}.showHideType`);
-  requireString(action.modelPartEnum, `${path}.modelPartEnum`);
+  requireNativeEnum(
+    action.showHideType,
+    ['All', 'OnlyModel', 'OnlyEffect', 'ModelPart', 'AllBattle'] as const,
+    `${path}.showHideType`,
+  );
+  requireNativeEnum(
+    action.modelPartEnum,
+    [
+      'None',
+      'MeshGroup1',
+      'MeshGroup2',
+      'MeshGroup3',
+      'MeshGroup4',
+      'MeshGroup5',
+      'MeshGroup6',
+      'MeshGroup7',
+      'MeshGroup8',
+      'MeshGroup9',
+      'MeshGroup10',
+    ] as const,
+    `${path}.modelPartEnum`,
+  );
   requireBoolean(action.isShow, `${path}.isShow`);
   requireBoolean(action.affectInit, `${path}.affectInit`);
   requireBoolean(action.revertOnRelease, `${path}.revertOnRelease`);
@@ -816,9 +1022,9 @@ export function parseModifyWeaponMountPointActionSource(
   );
   requireInteger(action.weaponIndex, `${path}.weaponIndex`);
   requireBoolean(action.overrideIdleMountPoint, `${path}.overrideIdleMountPoint`);
-  requireString(action.idleMountPoint, `${path}.idleMountPoint`);
+  requireStringOrInteger(action.idleMountPoint, `${path}.idleMountPoint`);
   requireBoolean(action.overrideFightMountPoint, `${path}.overrideFightMountPoint`);
-  requireString(action.fightMountPoint, `${path}.fightMountPoint`);
+  requireStringOrInteger(action.fightMountPoint, `${path}.fightMountPoint`);
   return { kind: 'weaponMountPoint' };
 }
 
@@ -861,7 +1067,7 @@ function parseAnimatorParameterAction(value: unknown, path: string): void {
     path,
   );
   requireInteger(action.animatorParam, `${path}.animatorParam`);
-  requireString(action.paramType, `${path}.paramType`);
+  requireStringOrInteger(action.paramType, `${path}.paramType`);
   requireBoolean(action.boolValue, `${path}.boolValue`);
   requireInteger(action.intValue, `${path}.intValue`);
   requireNumber(action.floatValue, `${path}.floatValue`);
@@ -950,7 +1156,11 @@ export function parseAnimatedCameraActionSource(
     'verticalInheritType',
     'zoomScaleInheritType',
   ] as const)
-    requireString(action[key], `${path}.${key}`);
+    requireNativeEnum(
+      action[key],
+      ['PreviousLevelCamera', 'CurrentAnimatedCamera', 'Custom'] as const,
+      `${path}.${key}`,
+    );
   for (const key of [
     'fitByCameraPos',
     'followPosition',
@@ -1028,13 +1238,21 @@ export function parseVoiceTriggerActionSource(
       '_triggerKey',
       '_speakerType',
       '_canInterruptTimeMs',
+      ...('_jumpToWhenPlayMs' in action
+        ? ['_jumpToWhenPlayMs', '_seekFadeInMs', '_responseQuestIdKey']
+        : []),
       'targetSettings',
     ]),
     path,
   );
   requireString(action._triggerKey, `${path}._triggerKey`);
-  requireString(action._speakerType, `${path}._speakerType`);
+  requireStringOrInteger(action._speakerType, `${path}._speakerType`);
   requireInteger(action._canInterruptTimeMs, `${path}._canInterruptTimeMs`);
+  if ('_jumpToWhenPlayMs' in action) {
+    requireInteger(action._jumpToWhenPlayMs, `${path}._jumpToWhenPlayMs`);
+    requireInteger(action._seekFadeInMs, `${path}._seekFadeInMs`);
+    requireString(action._responseQuestIdKey, `${path}._responseQuestIdKey`);
+  }
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
   return { kind: 'voiceTrigger' };
 }
@@ -1080,9 +1298,13 @@ export function parseCameraRotateActionSource(
     inheritedBlackboard,
   );
   const duration = parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard);
-  requireString(action.blendStyle, `${path}.blendStyle`);
+  requireNativeEnum(action.blendStyle, CAMERA_BLEND_STYLES, `${path}.blendStyle`);
   parseTimeDilationCurveKeys(action.customCurve, `${path}.customCurve`);
-  requireString(action.inputConflictStrategy, `${path}.inputConflictStrategy`);
+  requireNativeEnum(
+    action.inputConflictStrategy,
+    ['Additive'] as const,
+    `${path}.inputConflictStrategy`,
+  );
   return {
     kind: 'cameraRotate',
     readBlackboardKeys: [totalAngle.blackboardKey, duration.blackboardKey].filter(
@@ -1142,8 +1364,8 @@ export function parseOverrideCameraFollowActionSource(
     parseScalarSource(action.blendOutTime, `${path}.blendOutTime`, inheritedBlackboard),
     parseScalarSource(action.ccsPriority, `${path}.ccsPriority`, inheritedBlackboard),
   ];
-  requireString(action.blendInStyle, `${path}.blendInStyle`);
-  requireString(action.blendOutStyle, `${path}.blendOutStyle`);
+  requireNativeEnum(action.blendInStyle, CAMERA_BLEND_STYLES, `${path}.blendInStyle`);
+  requireNativeEnum(action.blendOutStyle, CAMERA_BLEND_STYLES, `${path}.blendOutStyle`);
   return {
     kind: 'overrideCameraFollow',
     readBlackboardKeys: values
@@ -1159,12 +1381,21 @@ export function parseTemporaryUnlockActionSource(
   const action = requireRecord(value, path);
   requireExactFields(
     action,
-    new Set([...ACTION_META_FIELDS, 'compareTarget', 'targetSettings', 'disableLockAimPriority']),
+    new Set([
+      ...ACTION_META_FIELDS,
+      'compareTarget',
+      'targetSettings',
+      'disableLockAimPriority',
+      ...('blockManualLock' in action ? ['blockManualLock'] : []),
+    ]),
     path,
   );
   requireBoolean(action.compareTarget, `${path}.compareTarget`);
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
   requireNumber(action.disableLockAimPriority, `${path}.disableLockAimPriority`);
+  if ('blockManualLock' in action) {
+    requireBoolean(action.blockManualLock, `${path}.blockManualLock`);
+  }
   return { kind: 'temporaryUnlock' };
 }
 
@@ -1271,10 +1502,10 @@ export function parseLockCameraAimActionSource(
     'overrideLookAt2Offset',
   ] as const)
     requireBoolean(action[key], `${path}.${key}`);
-  requireString(action.blendInStyle, `${path}.blendInStyle`);
-  requireString(action.blendOutStyle, `${path}.blendOutStyle`);
-  requireString(action.mountPoint1, `${path}.mountPoint1`);
-  requireString(action.mountPoint2, `${path}.mountPoint2`);
+  requireNativeEnum(action.blendInStyle, CAMERA_BLEND_STYLES, `${path}.blendInStyle`);
+  requireNativeEnum(action.blendOutStyle, CAMERA_BLEND_STYLES, `${path}.blendOutStyle`);
+  parseMountPoint(action.mountPoint1, `${path}.mountPoint1`);
+  parseMountPoint(action.mountPoint2, `${path}.mountPoint2`);
   parseTimeDilationCurveKeys(action.blendInCustomCurve, `${path}.blendInCustomCurve`);
   parseTimeDilationCurveKeys(action.blendOutCustomCurve, `${path}.blendOutCustomCurve`);
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
@@ -1626,6 +1857,7 @@ export function parseEffectActionSource(value: unknown, path: string): EffectAct
       'isTargetMainCharacterActive',
       'isShowBigEffect',
       'bigEffectName',
+      ...(Object.hasOwn(action, 'bigEffectTarget') ? ['bigEffectTarget'] : []),
       'playOnHittableObjects',
       'effectActionCfg',
       'saveEffectIdToBlackboard',
@@ -1700,11 +1932,11 @@ export function parsePlaySoundActionSource(value: unknown, path: string): PlaySo
     ),
     useTemporaryEmitter: requireBoolean(action._useTempEmitter, `${path}._useTempEmitter`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    mountPoint: requireString(action.mountPoint, `${path}.mountPoint`),
+    mountPoint: parseMountPoint(action.mountPoint, `${path}.mountPoint`),
     followMountPoint: requireBoolean(action.followMountPoint, `${path}.followMountPoint`),
     useWeaponMountPoint: requireBoolean(action.useWeaponMountPoint, `${path}.useWeaponMountPoint`),
     weaponIndex: requireInteger(action.weaponIndex, `${path}.weaponIndex`),
-    weaponMountPoint: requireString(action.weaponMountPoint, `${path}.weaponMountPoint`),
+    weaponMountPoint: parseMountPoint(action.weaponMountPoint, `${path}.weaponMountPoint`),
     useTimeDilationPauseAndSeek: requireBoolean(
       action.useTimeDilationPauseAndSeek,
       `${path}.useTimeDilationPauseAndSeek`,
@@ -1728,6 +1960,10 @@ export function parsePlaySoundActionSource(value: unknown, path: string): PlaySo
   };
 }
 
+function parseMountPoint(value: unknown, path: string): string | number {
+  return typeof value === 'number' ? requireInteger(value, path) : requireString(value, path);
+}
+
 /** 1.4.4 原生 fallback 直接返回 true，不读取 bbKey；完整保存载荷，见 combat-spec/docs/combo-condition-leaves.md。 */
 export function parseDebugPrintActionSource(value: unknown, path: string): DebugPrintActionSource {
   const action = requireRecord(value, path);
@@ -1748,7 +1984,15 @@ export function parseDebugPrintActionSource(value: unknown, path: string): Debug
     path,
   );
   const color = requireRecord(action.color, `${path}.color`);
-  requireExactFields(color, new Set(['r', 'g', 'b', 'a']), `${path}.color`);
+  const vectorLayout = Object.hasOwn(color, 'x');
+  requireExactFields(
+    color,
+    vectorLayout ? new Set(['x', 'y', 'z', 'w']) : new Set(['r', 'g', 'b', 'a']),
+    `${path}.color`,
+  );
+  const colorFields = vectorLayout
+    ? { r: 'x', g: 'y', b: 'z', a: 'w' }
+    : { r: 'r', g: 'g', b: 'b', a: 'a' };
   return {
     kind: 'debugPrint',
     logType:
@@ -1757,10 +2001,10 @@ export function parseDebugPrintActionSource(value: unknown, path: string): Debug
         : requireString(action.logType, `${path}.logType`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     color: {
-      r: requireNumber(color.r, `${path}.color.r`),
-      g: requireNumber(color.g, `${path}.color.g`),
-      b: requireNumber(color.b, `${path}.color.b`),
-      a: requireNumber(color.a, `${path}.color.a`),
+      r: requireNumber(color[colorFields.r], `${path}.color.${colorFields.r}`),
+      g: requireNumber(color[colorFields.g], `${path}.color.${colorFields.g}`),
+      b: requireNumber(color[colorFields.b], `${path}.color.${colorFields.b}`),
+      a: requireNumber(color[colorFields.a], `${path}.color.${colorFields.a}`),
     },
     blackboardKey: requireString(action.bbKey, `${path}.bbKey`),
     identifier: requireString(action.identifier, `${path}.identifier`),

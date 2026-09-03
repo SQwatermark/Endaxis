@@ -26,6 +26,7 @@ import {
   rossi,
   snowshine,
   tangtang,
+  typhoeus,
   wulfgard,
   xaihi,
   yvonne,
@@ -42,10 +43,7 @@ import {
   NEXT_GAME_DATA_REVISION,
   nextGameDataRepository,
 } from './gameDataRepository';
-import {
-  nextWeaponDefinitions,
-  nextWeaponRegistration,
-} from './equipment/nextWeaponDefinitions';
+import { nextWeaponDefinitions, nextWeaponRegistration } from './equipment/nextWeaponDefinitions';
 
 describe('gameDataRepository', () => {
   it('exposes the explicit definition revision', () => {
@@ -85,6 +83,7 @@ describe('gameDataRepository', () => {
       avywenna,
       catcher,
       ardelia,
+      typhoeus,
     ]);
     expect(nextGameDataRepository.getOperator(perlica.slug)).toBe(perlica);
     expect(nextGameDataRepository.getOperator(alesh.slug)).toBe(alesh);
@@ -116,6 +115,7 @@ describe('gameDataRepository', () => {
     expect(nextGameDataRepository.getOperator(avywenna.slug)).toBe(avywenna);
     expect(nextGameDataRepository.getOperator(catcher.slug)).toBe(catcher);
     expect(nextGameDataRepository.getOperator(ardelia.slug)).toBe(ardelia);
+    expect(nextGameDataRepository.getOperator(typhoeus.slug)).toBe(typhoeus);
     expect(nextGameDataRepository.getOperator('missing')).toBeNull();
   });
 
@@ -133,7 +133,7 @@ describe('gameDataRepository', () => {
     );
     expect(nextGameDataRepository.getGear(xiranflowAliasTarget!)?.slug).toBe(xiranflowAliasTarget);
     expect(nextGameDataRepository.getGearSet('aic-fieldwork')).not.toBeNull();
-    expect(nextGameDataRepository.getWeapons()).toHaveLength(77);
+    expect(nextGameDataRepository.getWeapons()).toHaveLength(79);
     expect(nextGameDataRepository.getGearSet('xiranflow')).not.toBeNull();
     expect(nextGameDataRepository.getWeapon('missing')).toBeNull();
     expect(nextGameDataRepository.getGear('missing')).toBeNull();

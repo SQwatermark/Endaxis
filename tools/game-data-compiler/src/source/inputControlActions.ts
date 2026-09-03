@@ -2,6 +2,7 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
+  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
   requireString,
@@ -98,7 +99,11 @@ export function parseComboCacheActionSource(
       requireBoolean(row.clearOffsetTargetSkillIdOnEnd, `${rowPath}.clearOffsetTargetSkillIdOnEnd`);
       requireBoolean(row.overrideCacheTime, `${rowPath}.overrideCacheTime`);
       return {
-        commandType: requireNonEmptyString(row.cmdType, `${rowPath}.cmdType`),
+        commandType: requireNativeEnum(
+          row.cmdType,
+          ['Attack', 'Dash', 'Jump', 'NormalSkill', 'ComboSkill', 'UltimateSkill'] as const,
+          `${rowPath}.cmdType`,
+        ),
         // 原生 ComboCache 映射允许用空串表示该命令没有直接技能路由；
         // Endaxis 不执行客户端输入缓存，但来源层仍须保留这个占位事实。
         skillId: requireString(row.skillId, `${rowPath}.skillId`),

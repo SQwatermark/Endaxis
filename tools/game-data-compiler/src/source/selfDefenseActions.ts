@@ -6,12 +6,45 @@ import {
   requireString,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
 
 export interface SetSuperArmorActionSource {
   readonly kind: 'setSuperArmor';
   readonly target: TargetReferenceSource;
   readonly superArmorValue: number;
   readonly impactResistance: number;
+}
+
+export interface SetDamageTagImmuneRuleActionSource {
+  readonly kind: 'setDamageTagImmuneRule';
+  readonly target: TargetReferenceSource;
+  readonly immuneQuery: TagQuerySource;
+}
+
+/** 原生在目标 AbilitySystem 上登记一条伤害标签免疫规则，并在动作 End 时撤销。 */
+export function parseSetDamageTagImmuneRuleActionSource(
+  value: unknown,
+  path: string,
+): SetDamageTagImmuneRuleActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'immuneQuery',
+      'target',
+    ]),
+    path,
+  );
+  return {
+    kind: 'setDamageTagImmuneRule',
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    immuneQuery: parseTagQuerySource(action.immuneQuery, `${path}.immuneQuery`),
+  };
 }
 
 /** 防受击控制数据先保留证据；木桩无主动攻击，当前后端没有玩家受击事件。 */

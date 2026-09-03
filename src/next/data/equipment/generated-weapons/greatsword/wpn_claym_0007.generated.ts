@@ -39,9 +39,7 @@ const definition = {
         "buff_wpn_claym_0007_valid": {
           "stackingType": "unlimited",
           "priority": 0,
-          "maxStackCount": {
-            "blackboardKey": "max_stack"
-          },
+          "maxStackCount": 0,
           "durationSeconds": {
             "blackboardKey": "duration"
           },
@@ -54,6 +52,7 @@ const definition = {
             "iconPath": "/icons/icon_battle_shield.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
+            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -108,15 +107,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "healthPercent",
           "value": [
-            0.1,
-            0.18,
-            0.26,
-            0.34,
-            0.42,
+            0.10000000149011612,
+            0.18000000715255737,
+            0.25999999046325684,
+            0.3400000035762787,
+            0.41999998688697815,
             0.5,
-            0.58,
-            0.66,
-            0.78
+            0.5799999833106995,
+            0.6600000262260437,
+            0.7799999713897705
           ]
         }
       ]
@@ -154,26 +153,26 @@ const definition = {
               15
             ],
             "hp_ratio": [
-              0.07,
-              0.084,
-              0.098,
-              0.112,
-              0.126,
-              0.14,
-              0.154,
-              0.168,
-              0.196
+              0.07000000029802322,
+              0.08399999886751175,
+              0.09799999743700027,
+              0.1120000034570694,
+              0.12600000202655792,
+              0.14000000059604645,
+              0.15399999916553497,
+              0.1679999977350235,
+              0.19599999487400055
             ],
             "shield_up": [
-              0.24,
-              0.288,
-              0.336,
-              0.384,
-              0.432,
-              0.48,
-              0.528,
-              0.576,
-              0.672
+              0.23999999463558197,
+              0.2879999876022339,
+              0.335999995470047,
+              0.3840000033378601,
+              0.4320000112056732,
+              0.47999998927116394,
+              0.527999997138977,
+              0.5759999752044678,
+              0.671999990940094
             ]
           },
           "sequence": {

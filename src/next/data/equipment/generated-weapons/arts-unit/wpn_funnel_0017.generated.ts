@@ -39,9 +39,7 @@ const definition = {
         "buff_wpn_funnel_0017_layer": {
           "stackingType": "stack",
           "priority": 0,
-          "maxStackCount": {
-            "blackboardKey": "max_stack"
-          },
+          "maxStackCount": 2,
           "durationSeconds": {
             "blackboardKey": "duration"
           },
@@ -54,6 +52,7 @@ const definition = {
             "iconPath": "/icons/icon_battle_pulse_dmg_up.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
+            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -102,15 +101,15 @@ const definition = {
           "target": "electric",
           "slot": "baseAddition",
           "value": [
-            0.055555556,
-            0.1,
-            0.14444445,
-            0.18888889,
-            0.23333333,
-            0.2777778,
-            0.32222223,
-            0.36666667,
-            0.43333334
+            0.0555555559694767,
+            0.10000000149011612,
+            0.14444445073604584,
+            0.18888889253139496,
+            0.23333333432674408,
+            0.2777777910232544,
+            0.3222222328186035,
+            0.36666667461395264,
+            0.4333333373069763
           ]
         }
       ]
@@ -123,15 +122,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "attackPercent",
           "value": [
-            0.07,
-            0.084,
-            0.098,
-            0.112,
-            0.126,
-            0.14,
-            0.154,
-            0.168,
-            0.196
+            0.07000000029802322,
+            0.08399999886751175,
+            0.09799999743700027,
+            0.1120000034570694,
+            0.12600000202655792,
+            0.14000000059604645,
+            0.15399999916553497,
+            0.1679999977350235,
+            0.19599999487400055
           ]
         }
       ],
@@ -142,15 +141,15 @@ const definition = {
           "priority": 0,
           "blackboard": {
             "atk_up": [
-              0.07,
-              0.084,
-              0.098,
-              0.112,
-              0.126,
-              0.14,
-              0.154,
-              0.168,
-              0.196
+              0.07000000029802322,
+              0.08399999886751175,
+              0.09799999743700027,
+              0.1120000034570694,
+              0.12600000202655792,
+              0.14000000059604645,
+              0.15399999916553497,
+              0.1679999977350235,
+              0.19599999487400055
             ],
             "duration": [
               30,
@@ -175,15 +174,15 @@ const definition = {
               3
             ],
             "pulse_dmg_up2": [
-              0.055,
-              0.066,
-              0.077,
-              0.088,
-              0.099,
-              0.11,
-              0.121,
-              0.132,
-              0.154
+              0.054999999701976776,
+              0.06599999964237213,
+              0.07699999958276749,
+              0.08799999952316284,
+              0.0989999994635582,
+              0.10999999940395355,
+              0.12099999934434891,
+              0.13199999928474426,
+              0.15399999916553497
             ]
           },
           "sequence": {
@@ -245,7 +244,7 @@ const definition = {
                               "markerId": "sk_wpn_funnel_0017",
                               "durationSeconds": {
                                 "kind": "constant",
-                                "value": 0.1
+                                "value": 0.10000000149011612
                               },
                               "autoFinishByAction": false
                             }

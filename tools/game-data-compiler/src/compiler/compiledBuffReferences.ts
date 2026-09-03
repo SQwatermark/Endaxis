@@ -116,6 +116,7 @@ export interface CompiledBuffApplicationReference {
   readonly target: string;
   readonly source?: string;
   readonly capturedTargetGroups?: CompiledBuffCapturedTargetGroupsSource;
+  readonly inheritSourceSkillCastInfo?: boolean;
 }
 
 export function collectCompiledBuffApplications(
@@ -164,6 +165,8 @@ export function collectCompiledBuffApplications(
       if (typeof target !== 'string' || target.length === 0)
         throw new Error('compiled applyBuff step has an invalid target');
       const source = (parameters as Record<string, unknown>).source;
+      const inheritSourceSkillCastInfo =
+        (parameters as Record<string, unknown>).inheritSourceSkillCastInfo === true;
       const capturedTargetGroups = (
         parameters as {
           readonly [COMPILED_BUFF_CAPTURED_TARGET_GROUPS]?: CompiledBuffCapturedTargetGroupsSource;
@@ -173,6 +176,7 @@ export function collectCompiledBuffApplications(
         buffId,
         target,
         ...(typeof source === 'string' ? { source } : {}),
+        ...(inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
         ...(capturedTargetGroups === undefined ? {} : { capturedTargetGroups }),
       });
       const onActionEndBuffs = (parameters as Record<string, unknown>).onActionEndBuffs;

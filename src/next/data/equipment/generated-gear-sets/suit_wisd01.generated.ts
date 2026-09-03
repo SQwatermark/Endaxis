@@ -66,7 +66,7 @@ const definition = {
           blackboardAssignments: {
             spell_dmg_up: {
               kind: 'constant',
-              value: 0.2,
+              value: 0.20000000298023224,
             },
           },
         },

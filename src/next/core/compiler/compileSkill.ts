@@ -127,6 +127,7 @@ function resolveStep(
     case 'finishCurrentAbilityEntity':
     case 'finishActionOwnerAbilityEntity':
     case 'finishCurrentAbilityEntityWhenSourceDies':
+    case 'inheritNormalAttackSkillCastInfo':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'startCurrentAbilityEntityChildSkill':
       return {

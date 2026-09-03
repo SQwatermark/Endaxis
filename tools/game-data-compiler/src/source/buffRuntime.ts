@@ -19,6 +19,8 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
+  requireNativeActionPriority,
+  requireNativeEnum,
   requireNonEmptyString,
   requireNumber,
   requireRecord,
@@ -45,6 +47,7 @@ export const BUFF_STACKING_TYPES = [
   'OverwriteDuration',
   'EnhanceAndOverwriteDuration',
   'HighPriorityWithMaxStack',
+  'TimedGrowingEnhance',
 ] as const;
 export type BuffStackingTypeSource = (typeof BUFF_STACKING_TYPES)[number];
 
@@ -53,6 +56,8 @@ export interface BuffPresentationSource {
   readonly spritePath: string;
   readonly showInHeadBarCommon: boolean;
   readonly showInHeadBarAttached: boolean;
+  /** Current VFS snapshots expose this flag; historical fixtures omit it. */
+  readonly showDirectlyInHeadBuff?: boolean;
   readonly showInSquadIcon: boolean;
   readonly onlyShowForMainCharacter: boolean;
   readonly blinkInMainCharHpBar: boolean;
@@ -72,12 +77,49 @@ export interface BuffPresentationSource {
   readonly orderPriorityEnum: string;
 }
 
+const BUFF_ICON_STYLES = [
+  'Default',
+  'Attached',
+  'LifeTime',
+  'NoLifeTime',
+  'SpellAbnormal',
+] as const;
+const DAMAGE_TYPES = [
+  'Physical',
+  'Real',
+  'Fire',
+  'Pulse',
+  'Cryst',
+  'LifeDrain',
+  'Natural',
+  'Ether',
+] as const;
+const SPELL_INFLICTION_ON_CHAR_TYPES = ['Fire', 'Pulse', 'Cryst', 'Natural', 'Enum'] as const;
+const DAMAGE_SCALE_SIDES = ['Attacker', 'Defender'] as const;
+
+function parseDamageScaleSide(value: unknown, path: string): string {
+  // Historical decoded snapshots named the heal-specific endpoints directly.
+  if (value === 'Healer' || value === 'HealReceiver') return value;
+  return requireNativeEnum(value, DAMAGE_SCALE_SIDES, path);
+}
+const BUFF_ORDER_PRIORITY_BY_VALUE = new Map([
+  [100, 'CommonCharBuff'],
+  [110, 'CommonCharDebuff'],
+  [120, 'KeywordBuff'],
+  [130, 'KeywordDebuff'],
+  [150, 'AttachedAndAbnormal'],
+  [180, 'AttentionBuff'],
+  [200, 'AttentionDebuff'],
+] as const);
+
 export interface BuffLifecycleSource {
   readonly lifeType: 'Limited' | 'Infinity';
   readonly duration: ScalarSource;
   readonly triggerInterval: ScalarSource;
   readonly waitFirstTriggerInterval: boolean;
   readonly maxTriggerCount: ScalarSource;
+  readonly addingCooldown: ScalarSource | null;
+  readonly ignoreCooldownWhenAdding: boolean;
   readonly stackingIdentifierType: 'Id' | 'StackingKey';
   readonly stackingType: BuffStackingTypeSource;
   readonly stackingKey: string;
@@ -193,7 +235,7 @@ export function parseBuffRuntimeSource(
   };
   const graph = parseKnownNativeBuffActionGraphSource(value, sourcePath, localBlackboard);
 
-  validatePassiveFlags(root, sourcePath, localBlackboard);
+  const passiveSettings = parsePassiveSettings(root, sourcePath, localBlackboard);
   const unsupportedPayloads = [...unsupportedArray(root, sourcePath, 'globalModifier')];
 
   const stacking = requireRecord(root.stackingSettings, `${sourcePath}.stackingSettings`);
@@ -219,6 +261,16 @@ export function parseBuffRuntimeSource(
     stacking.stackEffects,
     `${sourcePath}.stackingSettings.stackEffects`,
   );
+  const stackingType = requireOneOf(
+    stacking.stackingType,
+    BUFF_STACKING_TYPES,
+    `${sourcePath}.stackingSettings.stackingType`,
+  );
+  const stackingIdentifierType = requireOneOf(
+    stacking.identifierType,
+    ['Id', 'StackingKey'],
+    `${sourcePath}.stackingSettings.identifierType`,
+  );
 
   return {
     graph,
@@ -240,24 +292,18 @@ export function parseBuffRuntimeSource(
         `${sourcePath}.maxTriggerCnt`,
         localBlackboard,
       ),
-      stackingIdentifierType: requireOneOf(
-        stacking.identifierType,
-        ['Id', 'StackingKey'],
-        `${sourcePath}.stackingSettings.identifierType`,
-      ),
-      stackingType: requireOneOf(
-        stacking.stackingType,
-        BUFF_STACKING_TYPES,
-        `${sourcePath}.stackingSettings.stackingType`,
-      ),
+      addingCooldown: passiveSettings.addingCooldown,
+      ignoreCooldownWhenAdding: passiveSettings.ignoreCooldownWhenAdding,
+      stackingIdentifierType,
+      stackingType,
       stackingKey: requireString(
         stacking.stackingKey,
         `${sourcePath}.stackingSettings.stackingKey`,
       ),
-      priority: scalarFromToggle(
-        stacking.usePriorityKey,
-        stacking.priorityKey,
-        stacking.priority,
+      priority: parseBuffPriorityScalar(
+        stacking,
+        stackingType,
+        stackingIdentifierType,
         `${sourcePath}.stackingSettings.priority`,
         localBlackboard,
       ),
@@ -265,10 +311,9 @@ export function parseBuffRuntimeSource(
         stacking.negatePriority,
         `${sourcePath}.stackingSettings.negatePriority`,
       ),
-      maxStackCount: scalarFromToggle(
-        stacking.useMaxStackCntKey,
-        stacking.maxStackCntKey,
-        stacking.maxStackCnt,
+      maxStackCount: parseBuffMaxStackCountScalar(
+        stacking,
+        stackingType,
         `${sourcePath}.stackingSettings.maxStackCnt`,
         localBlackboard,
       ),
@@ -334,9 +379,12 @@ function parseBuffShields(
     );
     const calculationPath = `${itemPath}.valueCalculation`;
     const calculation = requireRecord(item.valueCalculation, calculationPath);
-    const calculationType = requireNonEmptyString(calculation.$type, `${calculationPath}.$type`);
+    const calculationType = requireNonEmptyString(
+      calculation.$type,
+      `${calculationPath}.$type`,
+    ).split(',', 1)[0]!;
     let shieldValue: BuffShieldSource['value'];
-    if (calculationType === 'Beyond.Gameplay.Core.DefiniteValueCalculation, Gameplay.Beyond') {
+    if (calculationType === 'Beyond.Gameplay.Core.DefiniteValueCalculation') {
       requireExactFields(
         calculation,
         new Set(['$type', 'value', 'applyScale', 'valueScale']),
@@ -356,9 +404,7 @@ function parseBuffShields(
           inheritedBlackboard,
         ),
       };
-    } else if (
-      calculationType === 'Beyond.Gameplay.Core.MultiplyAttributeCalculation, Gameplay.Beyond'
-    ) {
+    } else if (calculationType === 'Beyond.Gameplay.Core.MultiplyAttributeCalculation') {
       requireExactFields(
         calculation,
         new Set(['$type', 'valueSource', 'attributeType', 'multiplier', 'addition']),
@@ -366,8 +412,9 @@ function parseBuffShields(
       );
       shieldValue = {
         kind: 'attribute',
-        valueSource: requireNonEmptyString(
+        valueSource: requireNativeEnum(
           calculation.valueSource,
+          ['AttackerOrHealer', 'Target'] as const,
           `${calculationPath}.valueSource`,
         ),
         attributeType: parseAttributeTypeName(
@@ -404,8 +451,18 @@ function parseBuffShields(
             absorptionPath,
           );
           return {
-            damageType: requireNonEmptyString(
+            damageType: requireNativeEnum(
               absorption.damageType,
+              [
+                'Physical',
+                'Real',
+                'Fire',
+                'Pulse',
+                'Cryst',
+                'LifeDrain',
+                'Natural',
+                'Ether',
+              ] as const,
               `${absorptionPath}.damageType`,
             ),
             ratio: parseScalarSource(
@@ -430,7 +487,11 @@ function parseBuffShields(
         item.removeBuffWhenConsume,
         `${itemPath}.removeBuffWhenConsume`,
       ),
-      priority: requireNonEmptyString(item.priority, `${itemPath}.priority`),
+      priority: requireNativeEnum(
+        item.priority,
+        ['Normal', 'PrioritizeConsume'] as const,
+        `${itemPath}.priority`,
+      ),
       replaceHitEffect: requireBoolean(item.replaceHitEffect, `${itemPath}.replaceHitEffect`),
     };
   });
@@ -454,16 +515,20 @@ function parseBuffPoiseModifiers(
           new Set(['$type', 'modifyTargetSide', 'modifier']),
           processorPath,
         );
-        const type = requireNonEmptyString(processor.$type, `${processorPath}.$type`);
-        if (type !== 'Beyond.Gameplay.Core.InstantModifyAttributeForPoise, Gameplay.Beyond') {
+        const type = requireNonEmptyString(processor.$type, `${processorPath}.$type`).split(
+          ',',
+          1,
+        )[0]!;
+        if (type !== 'Beyond.Gameplay.Core.InstantModifyAttributeForPoise') {
           throw new Error(
             `${processorPath}.$type: unsupported poise processor ${JSON.stringify(type)}`,
           );
         }
         return {
           kind: 'instantAttribute' as const,
-          modifyTargetSide: requireNonEmptyString(
+          modifyTargetSide: requireNativeEnum(
             processor.modifyTargetSide,
+            DAMAGE_SCALE_SIDES,
             `${processorPath}.modifyTargetSide`,
           ),
           modifier: parseGameplayAttributeModifierEntrySource(
@@ -475,7 +540,7 @@ function parseBuffPoiseModifiers(
       },
     );
     return {
-      enabledSide: requireNonEmptyString(item.enableSide, `${itemPath}.enableSide`),
+      enabledSide: parseDamageScaleSide(item.enableSide, `${itemPath}.enableSide`),
       condition: parseNativeSequenceSource(
         item.condition,
         `${itemPath}.condition`,
@@ -500,16 +565,22 @@ function parseBuffHealModifiers(
       (rawProcessor, processorIndex) => {
         const processorPath = `${itemPath}.healProcessors[${processorIndex}]`;
         const processor = requireRecord(rawProcessor, processorPath);
-        const type = requireNonEmptyString(processor.$type, `${processorPath}.$type`);
-        if (type === 'Beyond.Gameplay.Core.ModifyHealCalcResult, Gameplay.Beyond') {
+        const type = requireNonEmptyString(processor.$type, `${processorPath}.$type`).split(
+          ',',
+          1,
+        )[0]!;
+        if (type === 'Beyond.Gameplay.Core.ModifyHealCalcResult') {
           requireExactFields(
             processor,
             new Set(['$type', 'modifyType', 'baseMultiplier', 'multiplierCnt']),
             processorPath,
           );
           if (
-            requireNonEmptyString(processor.modifyType, `${processorPath}.modifyType`) !==
-            'Multiply'
+            requireNativeEnum(
+              processor.modifyType,
+              ['Multiply'] as const,
+              `${processorPath}.modifyType`,
+            ) !== 'Multiply'
           )
             throw new Error(`${processorPath}.modifyType: expected "Multiply"`);
           return {
@@ -531,14 +602,15 @@ function parseBuffHealModifiers(
           new Set(['$type', 'modifyTargetSide', 'modifier']),
           processorPath,
         );
-        if (type !== 'Beyond.Gameplay.Core.InstantModifyAttributeForHeal, Gameplay.Beyond')
+        if (type !== 'Beyond.Gameplay.Core.InstantModifyAttributeForHeal')
           throw new Error(
             `${processorPath}.$type: unsupported heal processor ${JSON.stringify(type)}`,
           );
         return {
           kind: 'instantAttribute' as const,
-          modifyTargetSide: requireNonEmptyString(
+          modifyTargetSide: requireNativeEnum(
             processor.modifyTargetSide,
+            DAMAGE_SCALE_SIDES,
             `${processorPath}.modifyTargetSide`,
           ),
           modifier: parseGameplayAttributeModifierEntrySource(
@@ -550,7 +622,7 @@ function parseBuffHealModifiers(
       },
     );
     return {
-      enabledSide: requireNonEmptyString(item.enableSide, `${itemPath}.enableSide`),
+      enabledSide: parseDamageScaleSide(item.enableSide, `${itemPath}.enableSide`),
       condition: parseNativeSequenceSource(
         item.condition,
         `${itemPath}.condition`,
@@ -572,7 +644,7 @@ function parseBuffDamageModifiers(
     const item = requireRecord(raw, itemPath);
     requireExactFields(item, new Set(['enableSide', 'condition', 'damageProcessors']), itemPath);
     return {
-      enabledSide: requireNonEmptyString(item.enableSide, `${itemPath}.enableSide`),
+      enabledSide: parseDamageScaleSide(item.enableSide, `${itemPath}.enableSide`),
       condition: parseNativeSequenceSource(
         item.condition,
         `${itemPath}.condition`,
@@ -593,12 +665,14 @@ function parsePresentation(
   sourcePath: string,
 ): BuffPresentationSource {
   const icon = requireRecord(root.iconConfig, `${sourcePath}.iconConfig`);
+  const hasDirectHeadBuffFlag = 'showDirectlyInHeadBuff' in icon;
   requireExactFields(
     icon,
     new Set([
       '_spritePath',
       'showInHeadBarCommon',
       'showInHeadBarAttached',
+      ...(hasDirectHeadBuffFlag ? ['showDirectlyInHeadBuff'] : []),
       'showInSquadIcon',
       'onlyShowForMainCharacter',
       'blinkInMainCharHpBar',
@@ -637,6 +711,12 @@ function parsePresentation(
       icon.showInHeadBarAttached,
       `${sourcePath}.iconConfig.showInHeadBarAttached`,
     ),
+    showDirectlyInHeadBuff: hasDirectHeadBuffFlag
+      ? requireBoolean(
+          icon.showDirectlyInHeadBuff,
+          `${sourcePath}.iconConfig.showDirectlyInHeadBuff`,
+        )
+      : false,
     showInSquadIcon: requireBoolean(
       icon.showInSquadIcon,
       `${sourcePath}.iconConfig.showInSquadIcon`,
@@ -681,16 +761,19 @@ function parsePresentation(
       icon.hasCharHpBarVfxType,
       `${sourcePath}.iconConfig.hasCharHpBarVfxType`,
     ),
-    charHpBarVfxType: requireNonEmptyString(
+    charHpBarVfxType: requireNativeEnum(
       icon.charHpBarVfxType,
+      SPELL_INFLICTION_ON_CHAR_TYPES,
       `${sourcePath}.iconConfig.charHpBarVfxType`,
     ),
-    iconStyleInSquad: requireNonEmptyString(
+    iconStyleInSquad: requireNativeEnum(
       icon.iconStyleInSquad,
+      BUFF_ICON_STYLES,
       `${sourcePath}.iconConfig.iconStyleInSquad`,
     ),
-    abnormalColorType: requireNonEmptyString(
+    abnormalColorType: requireNativeEnum(
       icon.abnormalColorType,
+      DAMAGE_TYPES,
       `${sourcePath}.iconConfig.abnormalColorType`,
     ),
     orderUseDirectoryValue: requireBoolean(
@@ -701,29 +784,38 @@ function parsePresentation(
       order.priorityValue,
       `${sourcePath}.iconConfig._orderPriorityConfig.priorityValue`,
     ),
-    orderPriorityEnum: requireNonEmptyString(
+    orderPriorityEnum: requireNativeEnum(
       order.priorityEnum,
+      BUFF_ORDER_PRIORITY_BY_VALUE,
       `${sourcePath}.iconConfig._orderPriorityConfig.priorityEnum`,
     ),
   };
 }
 
-function validatePassiveFlags(
+function parsePassiveSettings(
   root: Record<string, unknown>,
   sourcePath: string,
   inheritedBlackboard: BlackboardLevelValues,
-): void {
-  for (const field of ['ignoreTagImmune', 'finishOnRepatriate', 'ignoreCooldownWhenAdding']) {
+): { addingCooldown: ScalarSource | null; ignoreCooldownWhenAdding: boolean } {
+  for (const field of ['ignoreTagImmune', 'finishOnRepatriate']) {
     requireBoolean(root[field], `${sourcePath}.${field}`);
   }
+  const ignoreCooldownWhenAdding = requireBoolean(
+    root.ignoreCooldownWhenAdding,
+    `${sourcePath}.ignoreCooldownWhenAdding`,
+  );
   const hasAddingCooldown = requireBoolean(
     root.hasAddingCooldown,
     `${sourcePath}.hasAddingCooldown`,
   );
   if (hasAddingCooldown) {
-    // combat-spec 目前同样只开放 false；不能验证完字段后再静默丢掉真实加 Buff 冷却。
-    parseScalarSource(root.addingCooldown, `${sourcePath}.addingCooldown`, inheritedBlackboard);
-    throw new Error(`${sourcePath}.hasAddingCooldown: enabled Buff adding cooldown is unsupported`);
+    const addingCooldown = parseScalarSource(
+      root.addingCooldown,
+      `${sourcePath}.addingCooldown`,
+      inheritedBlackboard,
+    );
+    validateDispelConfig(root, sourcePath);
+    return { addingCooldown, ignoreCooldownWhenAdding };
   }
   // 关闭槽在 1.4.4 中存在 useBlackboardKey=true + 空 key 的序列化脏值；
   // 结构仍须严格，禁用值则不应被提升成运行时黑板依赖。
@@ -736,6 +828,11 @@ function validatePassiveFlags(
   requireBoolean(addingCooldown.useBlackboardKey, `${sourcePath}.addingCooldown.useBlackboardKey`);
   requireNumber(addingCooldown.value, `${sourcePath}.addingCooldown.value`);
   requireString(addingCooldown.blackboardKey, `${sourcePath}.addingCooldown.blackboardKey`);
+  validateDispelConfig(root, sourcePath);
+  return { addingCooldown: null, ignoreCooldownWhenAdding };
+}
+
+function validateDispelConfig(root: Record<string, unknown>, sourcePath: string): void {
   const dispel = requireRecord(root.dispelConfig, `${sourcePath}.dispelConfig`);
   requireExactFields(
     dispel,
@@ -743,7 +840,11 @@ function validatePassiveFlags(
     `${sourcePath}.dispelConfig`,
   );
   requireBoolean(dispel.canBeDispelled, `${sourcePath}.dispelConfig.canBeDispelled`);
-  requireNonEmptyString(dispel.dispelledLevel, `${sourcePath}.dispelConfig.dispelledLevel`);
+  requireNativeEnum(
+    dispel.dispelledLevel,
+    ['Default'] as const,
+    `${sourcePath}.dispelConfig.dispelledLevel`,
+  );
 }
 
 function unsupportedArray(
@@ -775,31 +876,29 @@ function parsePresentationStackEffects(
     actions.forEach((rawAction, actionIndex) => {
       const actionPath = `${effectPath}.effectActions[${actionIndex}]`;
       const action = requireRecord(rawAction, actionPath);
-      requireExactFields(
-        action,
-        new Set([
-          'isEnable',
-          'priorityLevel',
-          'priorityOffset',
-          'serverActionIndex',
-          'targetSettings',
-          'effectSource',
-          'useGuardLodSourceOverride',
-          'guardLodSource',
-          'isMainCharacterActive',
-          'isTargetMainCharacterActive',
-          'isShowBigEffect',
-          'bigEffectName',
-          'playOnHittableObjects',
-          'effectActionCfg',
-          'forceMainBody',
-          'saveEffectIdToBlackboard',
-          'isCreateWithSourceModelActive',
-        ]),
-        actionPath,
-      );
+      const actionFields = new Set([
+        'isEnable',
+        'priorityLevel',
+        'priorityOffset',
+        'serverActionIndex',
+        'targetSettings',
+        'effectSource',
+        'useGuardLodSourceOverride',
+        'guardLodSource',
+        'isMainCharacterActive',
+        'isTargetMainCharacterActive',
+        'isShowBigEffect',
+        'bigEffectName',
+        'playOnHittableObjects',
+        'effectActionCfg',
+        'forceMainBody',
+        'saveEffectIdToBlackboard',
+        'isCreateWithSourceModelActive',
+      ]);
+      if (Object.hasOwn(action, 'bigEffectTarget')) actionFields.add('bigEffectTarget');
+      requireExactFields(action, actionFields, actionPath);
       requireBoolean(action.isEnable, `${actionPath}.isEnable`);
-      requireNonEmptyString(action.priorityLevel, `${actionPath}.priorityLevel`);
+      requireNativeActionPriority(action.priorityLevel, `${actionPath}.priorityLevel`);
       requireNumber(action.priorityOffset, `${actionPath}.priorityOffset`);
       requireInteger(action.serverActionIndex, `${actionPath}.serverActionIndex`);
       requireRecord(action.targetSettings, `${actionPath}.targetSettings`);
@@ -817,6 +916,8 @@ function parsePresentationStackEffects(
         requireBoolean(action[field], `${actionPath}.${field}`);
       }
       requireString(action.bigEffectName, `${actionPath}.bigEffectName`);
+      if (Object.hasOwn(action, 'bigEffectTarget'))
+        requireRecord(action.bigEffectTarget, `${actionPath}.bigEffectTarget`);
       requireString(action.saveEffectIdToBlackboard, `${actionPath}.saveEffectIdToBlackboard`);
       requireRecord(action.effectActionCfg, `${actionPath}.effectActionCfg`);
     });
@@ -846,13 +947,84 @@ function scalarFromToggle(
   return parseScalarSource({ useBlackboardKey, blackboardKey, value }, path, inheritedBlackboard);
 }
 
+function parseBuffPriorityScalar(
+  stacking: Record<string, unknown>,
+  stackingType: BuffStackingTypeSource,
+  stackingIdentifierType: 'Id' | 'StackingKey',
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): ScalarSource {
+  if (stackingType === 'HighPriority' || stackingType === 'HighPriorityWithMaxStack') {
+    if (
+      stacking.usePriorityKey === true &&
+      (stacking.priorityKey === '' ||
+        (typeof stacking.priorityKey === 'string' &&
+          /^\d+$/.test(stacking.priorityKey) &&
+          !Object.hasOwn(inheritedBlackboard, stacking.priorityKey))) &&
+      stackingIdentifierType === 'Id'
+    ) {
+      // 当前正式数据存在两个 Id 优先队列 Buff 启用了不可读取的优先级键：一个空串，
+      // 一个未声明的编辑器数字占位。旧版本对照均关闭该开关，当前实例也没有任何
+      // 施加路径为这些键赋值；原生缺键无法形成有意义的动态排序。保留静态 priority，
+      // 但不把普通的非空黑板键或 StackingKey 分组降级。
+      return scalarFromToggle(false, '', stacking.priority, path, inheritedBlackboard);
+    }
+    return scalarFromToggle(
+      stacking.usePriorityKey,
+      stacking.priorityKey,
+      stacking.priority,
+      path,
+      inheritedBlackboard,
+    );
+  }
+  // 原生 Buff._LoadPriority 只为两类 priority stacking 读取动态键。其他类型中的
+  // usePriorityKey/priorityKey 是未消费的编辑器残留，不能因此制造黑板依赖。
+  requireBoolean(stacking.usePriorityKey, `${path}.useBlackboardKey`);
+  requireString(stacking.priorityKey, `${path}.blackboardKey`);
+  return scalarFromToggle(false, '', stacking.priority, path, inheritedBlackboard);
+}
+
+function parseBuffMaxStackCountScalar(
+  stacking: Record<string, unknown>,
+  stackingType: BuffStackingTypeSource,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): ScalarSource {
+  const useKey = requireBoolean(stacking.useMaxStackCntKey, `${path}.useBlackboardKey`);
+  const key = requireString(stacking.maxStackCntKey, `${path}.blackboardKey`);
+  const value = requireNumber(stacking.maxStackCnt, `${path}.value`);
+
+  if (
+    !useKey &&
+    stackingType === 'HighPriorityWithMaxStack' &&
+    value <= 0 &&
+    key !== '' &&
+    Object.hasOwn(inheritedBlackboard, key)
+  ) {
+    // 当前 VFS 的 11 个 HighPriorityWithMaxStack Buff 全部关闭了动态上限开关，
+    // 但其中三个伤害相关配置的静态上限为 0/-1，且技能/装备施加链明确向该键传入
+    // 3/4/5 层上限，本地化也声明相同层数。当前原生 fallback 按静态值会让三项效果
+    // 全部失活，IFix patch 又未覆盖相关入口。这是当前内容资产与客户端 fallback 的
+    // 已记录冲突；这里只对“非正静态值 + 已声明动态键”的精确形状采用内容上限，
+    // 不改变其余八个使用正静态上限的同类 Buff。
+    return parseScalarSource(
+      { useBlackboardKey: true, blackboardKey: key, value },
+      path,
+      inheritedBlackboard,
+    );
+  }
+
+  return parseScalarSource(
+    { useBlackboardKey: useKey, blackboardKey: key, value },
+    path,
+    inheritedBlackboard,
+  );
+}
+
 function requireOneOf<const T extends readonly string[]>(
   value: unknown,
   options: T,
   path: string,
 ): T[number] {
-  const name = requireNonEmptyString(value, path);
-  if (!(options as readonly string[]).includes(name))
-    throw new Error(`${path}: unsupported value ${JSON.stringify(name)}`);
-  return name as T[number];
+  return requireNativeEnum(value, options, path);
 }

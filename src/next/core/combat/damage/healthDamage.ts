@@ -3,6 +3,7 @@
  * 只能在承伤事件完成后的正确阶段调用，避免提前改变后续监听器看到的生命值。
  */
 import type { DamageFeature, DamageTag, DamageType } from '../../game-data/operatorDefinition';
+import type { GameplayTag } from '../../../../../packages/game-data-contract/src/gameplayTags';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from '../runtime/combatClock';
 import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
@@ -35,6 +36,7 @@ export interface HealthDamageEventPayload {
   readonly targetId: string;
   readonly damageType: DamageType;
   readonly tags: readonly DamageTag[];
+  readonly gameplayTags?: readonly GameplayTag[];
   readonly features: readonly DamageFeature[];
   readonly result: PlayerActiveDamageResult;
 }
@@ -88,6 +90,7 @@ export interface ExecuteHealthDamageInput {
   readonly targetId: string;
   readonly damageType: DamageType;
   readonly tags: readonly DamageTag[];
+  readonly gameplayTags?: readonly GameplayTag[];
   readonly features?: readonly DamageFeature[];
   readonly result: PlayerActiveDamageResult;
   /** 伤害详情使用的公式冻结值；只记录已参与本次结算的标量，不在投影层重算规则。 */
@@ -120,6 +123,7 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     targetId: input.targetId,
     damageType: input.damageType,
     tags: input.tags,
+    gameplayTags: input.gameplayTags ?? [],
     features: input.features ?? [],
     result: input.result,
   };

@@ -2,6 +2,7 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
+  requireNativeEnum,
   requireNonEmptyString,
   requireNumber,
   requireRecord,
@@ -57,13 +58,11 @@ export function parseBlackboardAssignmentsSource(
     }
     if (targetKey) seenKeys.add(targetKey);
 
-    const valueType = requireNonEmptyString(
+    const valueType = requireNativeEnum(
       assignment.directValueType,
+      ['Numeric', 'String'] as const,
       `${assignmentPath}.directValueType`,
     );
-    if (valueType !== 'Numeric' && valueType !== 'String') {
-      throw new Error(`${assignmentPath}.directValueType: unsupported value ${valueType}`);
-    }
     const useDirectValue = requireBoolean(
       assignment.useDirectValue,
       `${assignmentPath}.useDirectValue`,

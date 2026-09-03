@@ -1,4 +1,8 @@
 import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents.ts';
+import {
+  parseNativeAbilityEventName,
+  type NativeAbilityEventName,
+} from '../source/abilityEvent.ts';
 
 /**
  * 原生 AbilityEvent 到公共数据契约的唯一身份映射。
@@ -9,6 +13,9 @@ import type { AbilityEvent } from '../../../../packages/game-data-contract/src/a
  */
 const NATIVE_ABILITY_EVENT_NAMES = {
   OnOwnerHpZero: 'ownerHpZero',
+  OnOwnerDead: 'ownerDead',
+  OnOwnerSwitchToCenter: 'ownerSwitchedToCenter',
+  OnOwnerSwitchToGuard: 'ownerSwitchedToGuard',
   OnCustomAbilityEvent: 'customAbilityEvent',
   OnEnterFight: 'enterFight',
   OnAddedBuff: 'addedBuff',
@@ -17,6 +24,7 @@ const NATIVE_ABILITY_EVENT_NAMES = {
   OnPoiseZero: 'poiseZero',
   OnBeforeCastSkill: 'beforeCastSkill',
   OnSkillEnd: 'skillEnd',
+  OnRemoveAllPendingComboSkill: 'pendingComboSkillsCleared',
   OnBeforeOutputKnockDown: 'beforeOutputKnockDown',
   OnAfterOutputKnockDown: 'afterOutputKnockDown',
   OnTakeCriticalDamage: 'takeCriticalDamage',
@@ -44,6 +52,10 @@ const NATIVE_ABILITY_EVENT_NAMES = {
   OnBeforeOutputBuff: 'beforeOutputBuff',
   OnConsumeBuff: 'buffConsumed',
   OnAbsorbBuff: 'buffAbsorbed',
+  OnBuffEnhanceChanged: 'buffEnhanceChanged',
+  OnSquadTakeDamage: 'squadTakeDamage',
+  OnCharDeckAttrChanged: 'deckAttributesChanged',
+  OnTrulyExitFight: 'trulyExitFight',
   OnAfterKillEntity: 'afterKillEntity',
   OnPoiseKnotBreak: 'poiseKnotBreak',
   OnAbilityEntitySpawned: 'abilityEntitySpawned',
@@ -52,66 +64,21 @@ const NATIVE_ABILITY_EVENT_NAMES = {
   OnBeforeOutputDamage: 'beforeOutputDamage',
   OnBeforeOutputPhysicalInfliction: 'beforeOutputPhysicalInfliction',
   OnAfterOutputPhysicalInfliction: 'afterOutputPhysicalInfliction',
-} as const satisfies Readonly<Record<string, AbilityEvent>>;
-
-const NATIVE_ABILITY_EVENT_IDS = {
-  1: 'OnOwnerHpZero',
-  5: 'OnCustomAbilityEvent',
-  6: 'OnEnterFight',
-  9: 'OnAddedBuff',
-  12: 'OnTakeDamage',
-  13: 'OnOutputDamage',
-  21: 'OnPoiseZero',
-  30: 'OnBeforeCastSkill',
-  31: 'OnSkillEnd',
-  40: 'OnBeforeOutputKnockDown',
-  41: 'OnAfterOutputKnockDown',
-  43: 'OnTakeCriticalDamage',
-  44: 'OnOutputCriticalDamage',
-  45: 'OnReceiveHeal',
-  50: 'OnOutputHeal',
-  59: 'OnBeforeTakePhysicalInfliction',
-  60: 'OnAfterTakePhysicalInfliction',
-  101: 'OnBeforeTakeDamage',
-  102: 'OnOutputBuff',
-  104: 'OnBeforeDamageAction',
-  121: 'OnEnemyBeforeTakeSpellInfliction',
-  122: 'OnCharBeforeTakeSpellInfliction',
-  126: 'OnCharBeforeOutputSpellInfliction',
-  127: 'OnCharBeforeOutputSpellBurst',
-  129: 'OnCharAfterOutputSpellInfliction',
-  130: 'OnEnemyAfterTakeSpellInfliction',
-  141: 'OnAfterOutputWeaknessTriggered',
-  151: 'OnSetWeakness',
-  142: 'OnObtainAtb',
-  143: 'OnAfterSkillApplyCost',
-  203: 'OnFinishedBuff',
-  204: 'OnBuffEndsEarly',
-  205: 'OnBeforeAddedBuff',
-  206: 'OnBeforeOutputBuff',
-  208: 'OnConsumeBuff',
-  211: 'OnAbsorbBuff',
-  222: 'OnAfterKillEntity',
-  241: 'OnPoiseKnotBreak',
-  261: 'OnAbilityEntitySpawned',
-  262: 'OnAbilityEntityFinished',
-  301: 'OnBeforeCalculateDamage',
-  302: 'OnBeforeOutputDamage',
-  401: 'OnBeforeOutputPhysicalInfliction',
-  402: 'OnAfterOutputPhysicalInfliction',
-} as const satisfies Readonly<Record<number, keyof typeof NATIVE_ABILITY_EVENT_NAMES>>;
+} as const satisfies Readonly<Partial<Record<NativeAbilityEventName, AbilityEvent>>>;
 
 export function projectAbilityEvent(event: string | number, sourcePath: string): AbilityEvent {
-  const nativeName =
-    typeof event === 'number'
-      ? NATIVE_ABILITY_EVENT_IDS[event as keyof typeof NATIVE_ABILITY_EVENT_IDS]
-      : event;
+  const nativeName = nativeAbilityEventName(event, sourcePath);
   const projected =
-    nativeName === undefined
-      ? undefined
-      : NATIVE_ABILITY_EVENT_NAMES[nativeName as keyof typeof NATIVE_ABILITY_EVENT_NAMES];
+    NATIVE_ABILITY_EVENT_NAMES[nativeName as keyof typeof NATIVE_ABILITY_EVENT_NAMES];
   if (projected === undefined) {
     throw new Error(`${sourcePath}: unsupported ability event ${JSON.stringify(event)}`);
   }
   return projected;
+}
+
+export function nativeAbilityEventName(
+  event: string | number,
+  sourcePath: string,
+): NativeAbilityEventName {
+  return parseNativeAbilityEventName(event, sourcePath);
 }

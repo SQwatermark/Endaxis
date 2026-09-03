@@ -50,8 +50,18 @@ type CompiledBuffDamageConditionLeaf =
   | (Extract<DamageModifierCondition, { readonly kind: 'eventDamageTagsMatch' }> & {
       readonly match: 'hasAny' | 'hasAll';
       readonly tags: readonly (
-        'normalSkill' | 'comboSkill' | 'ultimateSkill' | 'normalAttackLastCombo'
+        | 'normalSkill'
+        | 'comboSkill'
+        | 'ultimateSkill'
+        | 'normalAttackLastCombo'
+        | 'fireBurst'
+        | 'cryoBurst'
+        | 'electricBurst'
+        | 'natureBurst'
       )[];
+    })
+  | (Extract<DamageModifierCondition, { readonly kind: 'eventDamageFeaturesMatch' }> & {
+      readonly match: 'hasAny' | 'hasAll';
     })
   | (Extract<
       DamageModifierCondition,
@@ -60,15 +70,16 @@ type CompiledBuffDamageConditionLeaf =
       readonly target: 'caster' | 'enemy';
     });
 
+type CompiledBuffDamageCondition =
+  | CompiledBuffDamageConditionLeaf
+  | { readonly kind: 'not'; readonly condition: CompiledBuffDamageCondition }
+  | { readonly kind: 'all' | 'any'; readonly conditions: readonly CompiledBuffDamageCondition[] };
+
 export interface CompiledBuffDamageModifierSource extends Pick<
   CombatBuffDefinitionDamageModifier,
   'enabledSide'
 > {
-  readonly condition?:
-    | CompiledBuffDamageConditionLeaf
-    | (Extract<DamageModifierCondition, { readonly kind: 'all' }> & {
-        readonly conditions: readonly CompiledBuffDamageConditionLeaf[];
-      });
+  readonly condition?: CompiledBuffDamageCondition;
   readonly processors: readonly Extract<
     CombatBuffDefinitionDamageProcessor,
     { readonly kind: 'damageScale' | 'instantAttribute' }
@@ -158,6 +169,7 @@ export type CompiledBuffDefinitionSource = Pick<
         | 'skillEnd'
         | 'beforeCalculateDamage'
         | 'beforeDamageAction'
+        | 'beforeOutputDamage'
         | 'beforeTakeDamage'
         | 'beforeTakePhysicalInfliction'
         | 'takeDamage'
@@ -186,6 +198,7 @@ export type CompiledBuffDefinitionSource = Pick<
         | 'afterKillEntity'
         | 'buffConsumed'
         | 'enterFight'
+        | 'ownerDead'
         | 'abilityEntitySpawned'
         | 'abilityEntityFinished'
         | 'skillSpGained'

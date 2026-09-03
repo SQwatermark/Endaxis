@@ -18,7 +18,10 @@ import {
   compileSkillSpGainActionSequenceSource,
 } from '../../compiler/buffRuntimeProjection.ts';
 import { compileAbilityEventPrograms } from '../../compiler/abilityEventProgram.ts';
-import { projectAbilityEvent } from '../../compiler/abilityEventProjection.ts';
+import {
+  nativeAbilityEventName,
+  projectAbilityEvent,
+} from '../../compiler/abilityEventProjection.ts';
 import { compileStandardStumpBuffClosure } from '../../compiler/standardStumpBuffClosure.ts';
 import { evaluateStandardStumpFullHealthComparison } from '../../compiler/standardStumpScenarioPolicy.ts';
 import type { BuildDefinitionDiagnosticSource } from '../../compiler/formalBuildDefinition.ts';
@@ -243,12 +246,44 @@ function compileWeaponEventHandlers(
   const blackboard = compileWeaponEventBlackboard(dependency);
   const events = dependency.actionGraph.actionGroup.passiveEvents;
   const omittedEvents = new Set<string | number>();
-  if (events.some(event => event.abilityEvent === 'OnCharDeckAttrChanged')) {
+  if (
+    events.some(
+      (event, index) =>
+        nativeAbilityEventName(
+          event.abilityEvent,
+          `${dependency.weaponId}.${dependency.traitKey}.actionGraph.passiveEventActions[${index}].abilityEvent`,
+        ) === 'OnCharDeckAttrChanged',
+    )
+  ) {
     // Deck 快照只在构筑刷新时变化；固定战斗把该事件响应编译进开战前初始化程序。
-    omittedEvents.add('OnCharDeckAttrChanged');
+    for (const event of events) {
+      if (
+        nativeAbilityEventName(
+          event.abilityEvent,
+          `${dependency.weaponId}.${dependency.traitKey}`,
+        ) === 'OnCharDeckAttrChanged'
+      )
+        omittedEvents.add(event.abilityEvent);
+    }
   }
-  if (events.some(event => event.abilityEvent === 'OnSquadTakeDamage')) {
-    omittedEvents.add('OnSquadTakeDamage');
+  if (
+    events.some(
+      event =>
+        nativeAbilityEventName(
+          event.abilityEvent,
+          `${dependency.weaponId}.${dependency.traitKey}`,
+        ) === 'OnSquadTakeDamage',
+    )
+  ) {
+    for (const event of events) {
+      if (
+        nativeAbilityEventName(
+          event.abilityEvent,
+          `${dependency.weaponId}.${dependency.traitKey}`,
+        ) === 'OnSquadTakeDamage'
+      )
+        omittedEvents.add(event.abilityEvent);
+    }
     diagnostics.push({
       status: 'scenario-omitted',
       sourcePath: `${dependency.weaponId}.${dependency.traitKey}.actionGraph.passiveEventActions`,
@@ -298,7 +333,9 @@ function compileWeaponDeckInitialization(
   const events = dependency.actionGraph.actionGroup.passiveEvents;
   const programs = compileAbilityEventPrograms(events, {
     sourcePath: `${dependency.weaponId}.${dependency.traitKey}.actionGraph.passiveEventActions`,
-    omitEvent: event => event !== 'OnCharDeckAttrChanged',
+    omitEvent: event =>
+      nativeAbilityEventName(event, `${dependency.weaponId}.${dependency.traitKey}`) !==
+      'OnCharDeckAttrChanged',
     mapEvent: (_event, _sourcePath) => 'deckAttributesChanged' as const,
     compileSequence: sequence =>
       compileCombatActionSequenceSource(sequence, {
@@ -322,14 +359,12 @@ function projectWeaponAbilityEvent(
 ):
   | { readonly event: CompiledWeaponSemanticEventSource }
   | { readonly abilityEvent: EquipmentAbilityEvent } {
-  if (typeof event !== 'string') {
-    throw new Error(`${sourcePath}: unnamed numeric weapon AbilityEvent is unsupported`);
-  }
-  if (event === 'OnConsumeBuff') return { event: { kind: 'buffConsumed' } };
-  if (event === 'OnObtainAtb') {
+  const nativeEvent = nativeAbilityEventName(event, sourcePath);
+  if (nativeEvent === 'OnConsumeBuff') return { event: { kind: 'buffConsumed' } };
+  if (nativeEvent === 'OnObtainAtb') {
     return { event: { kind: 'spGained' } };
   }
-  if (event === 'OnAfterOutputPhysicalInfliction') {
+  if (nativeEvent === 'OnAfterOutputPhysicalInfliction') {
     return {
       event: {
         kind: 'physicalInflictionApplied',
@@ -338,7 +373,7 @@ function projectWeaponAbilityEvent(
       },
     };
   }
-  return { abilityEvent: projectAbilityEvent(event, sourcePath) as EquipmentAbilityEvent };
+  return { abilityEvent: projectAbilityEvent(nativeEvent, sourcePath) as EquipmentAbilityEvent };
 }
 
 function compileWeaponEventBlackboard(

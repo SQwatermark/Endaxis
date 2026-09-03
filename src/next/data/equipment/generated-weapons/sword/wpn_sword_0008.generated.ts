@@ -52,6 +52,7 @@ const definition = {
             "iconPath": "/icons/icon_battle_buff_atk_up.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
+            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -99,15 +100,15 @@ const definition = {
           "target": "physical",
           "slot": "baseAddition",
           "value": [
-            0.033333335,
-            0.06,
-            0.086666666,
-            0.11333334,
-            0.14,
-            0.16666667,
-            0.19333333,
-            0.22,
-            0.26
+            0.03333333507180214,
+            0.05999999865889549,
+            0.08666666597127914,
+            0.1133333370089531,
+            0.14000000059604645,
+            0.1666666716337204,
+            0.19333332777023315,
+            0.2199999988079071,
+            0.25999999046325684
           ]
         }
       ]
@@ -123,15 +124,15 @@ const definition = {
           "priority": 0,
           "blackboard": {
             "atk_up": [
-              0.12,
-              0.144,
-              0.168,
-              0.192,
-              0.216,
-              0.24,
-              0.264,
-              0.288,
-              0.336
+              0.11999999731779099,
+              0.14399999380111694,
+              0.1679999977350235,
+              0.19200000166893005,
+              0.2160000056028366,
+              0.23999999463558197,
+              0.2639999985694885,
+              0.2879999876022339,
+              0.335999995470047
             ],
             "duration": [
               20,

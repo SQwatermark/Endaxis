@@ -1,6 +1,9 @@
 import {
+  NATIVE_COST_TYPES,
   requireBoolean,
   requireExactFields,
+  requireInteger,
+  requireNativeEnum,
   requireNonEmptyString,
   requireNonNegativeInteger,
   requireRecord,
@@ -97,6 +100,7 @@ export function parseResourceGainActionSource(
       'ignoreUspGainScalar',
       'atbSourceType',
       'atbGainMethod',
+      ...(Object.hasOwn(action, 'useAtbGainTag') ? ['useAtbGainTag', 'atbGainTag'] : []),
       'playObtainAtbEffect',
       'playObtainAtbAudio',
       'costValue',
@@ -107,22 +111,33 @@ export function parseResourceGainActionSource(
     ]),
     path,
   );
-  const resource = { UltimateSp: 'ultimateEnergy', Atb: 'sp' }[String(action.costType)] as
+  const nativeCostType = requireNativeEnum(action.costType, NATIVE_COST_TYPES, `${path}.costType`);
+  const resource = { UltimateSp: 'ultimateEnergy', Atb: 'sp' }[nativeCostType] as
     'ultimateEnergy' | 'sp' | undefined;
   if (!resource)
     throw new Error(`${path}.costType: unsupported value ${JSON.stringify(action.costType)}`);
+  const nativeSpGainSource = requireNativeEnum(
+    action.atbSourceType,
+    ['Default', 'NormalAttack', 'PowerAttack', 'Skill'] as const,
+    `${path}.atbSourceType`,
+  );
   const spGainSource = {
     Default: 'default',
     NormalAttack: 'normalAttack',
     PowerAttack: 'powerAttack',
     Skill: 'skill',
-  }[String(action.atbSourceType)] as ResourceGainActionSource['spGainSource'] | undefined;
+  }[nativeSpGainSource] as ResourceGainActionSource['spGainSource'] | undefined;
   if (!spGainSource) {
     throw new Error(
       `${path}.atbSourceType: unsupported value ${JSON.stringify(action.atbSourceType)}`,
     );
   }
-  const spGainKind = { Gain: 'gain', Return: 'refund' }[String(action.atbGainMethod)] as
+  const nativeSpGainKind = requireNativeEnum(
+    action.atbGainMethod,
+    ['Gain', 'Return'] as const,
+    `${path}.atbGainMethod`,
+  );
+  const spGainKind = { Gain: 'gain', Return: 'refund' }[nativeSpGainKind] as
     'gain' | 'refund' | undefined;
   if (!spGainKind) {
     throw new Error(
@@ -131,6 +146,12 @@ export function parseResourceGainActionSource(
   }
   const recoveryTag = requireRecord(action.uspRecoverTag, `${path}.uspRecoverTag`);
   requireExactFields(recoveryTag, new Set(['tagId']), `${path}.uspRecoverTag`);
+  if (Object.hasOwn(action, 'useAtbGainTag')) {
+    requireBoolean(action.useAtbGainTag, `${path}.useAtbGainTag`);
+    const atbGainTag = requireRecord(action.atbGainTag, `${path}.atbGainTag`);
+    requireExactFields(atbGainTag, new Set(['tagId']), `${path}.atbGainTag`);
+    requireNonNegativeInteger(atbGainTag.tagId, `${path}.atbGainTag.tagId`);
+  }
   return {
     kind: 'resourceGain',
     resource,
@@ -243,20 +264,34 @@ export function parseSkillCooldownMutationActionSource(
     path,
   );
   const useSkillType = requireBoolean(action.useSkillType, `${path}.useSkillType`);
+  const nativeSkillType =
+    typeof action.skillTypeMask === 'number'
+      ? new Map<number, string>([
+          [0, 'None'],
+          [2, 'Attack'],
+          [4, 'BreakingAttack'],
+          [8, 'NormalSkill'],
+          [16, 'AttachSkill'],
+          [32, 'Dodge'],
+          [64, 'ComboSkill'],
+          [128, 'UltimateSkill'],
+          [256, 'ExtraActiveSkill'],
+        ]).get(requireInteger(action.skillTypeMask, `${path}.skillTypeMask`))
+      : String(action.skillTypeMask);
   const skillType = {
     NormalAttack: 'basicAttack',
+    Attack: 'basicAttack',
     NormalSkill: 'battleSkill',
     ComboSkill: 'comboSkill',
     UltimateSkill: 'ultimate',
     BreakingAttack: 'finisher',
-  }[String(action.skillTypeMask)] as
+  }[nativeSkillType ?? ''] as
     'basicAttack' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'finisher' | undefined;
-  const functionType = String(action.functionType);
-  if (functionType !== 'Set' && functionType !== 'Reduce') {
-    throw new Error(
-      `${path}.functionType: unsupported value ${JSON.stringify(action.functionType)}`,
-    );
-  }
+  const functionType = requireNativeEnum(
+    action.functionType,
+    ['Reduce', 'Set'] as const,
+    `${path}.functionType`,
+  );
   return {
     kind: 'skillCooldownMutation',
     target: parseTargetReferenceSource(action.target, `${path}.target`),

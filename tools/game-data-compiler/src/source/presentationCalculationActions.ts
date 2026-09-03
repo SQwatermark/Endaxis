@@ -3,6 +3,7 @@ import {
   requireExactFields,
   requireNonEmptyString,
   requireRecord,
+  requireStringOrInteger,
 } from './primitives.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
@@ -26,7 +27,7 @@ export type PresentationCalculationActionSource =
   | {
       readonly kind: 'saveCameraAngle';
       readonly target: TargetReferenceSource;
-      readonly mountPoint: string;
+      readonly mountPoint: string | number;
       readonly outputKeys: readonly string[];
     };
 
@@ -67,7 +68,7 @@ export function parseSaveCameraAngleActionSource(
   return {
     kind: 'saveCameraAngle',
     target: parseTargetReferenceSource(action.target, `${path}.target`),
-    mountPoint: requireNonEmptyString(action.mountPoint, `${path}.mountPoint`),
+    mountPoint: requireStringOrInteger(action.mountPoint, `${path}.mountPoint`),
     outputKeys,
   };
 }
@@ -95,8 +96,8 @@ export function parseSaveTwoDirectionAngleActionSource(
     ]),
     path,
   );
-  requireNonEmptyString(action.dir1DirectionType, `${path}.dir1DirectionType`);
-  requireNonEmptyString(action.dir2DirectionType, `${path}.dir2DirectionType`);
+  requireStringOrInteger(action.dir1DirectionType, `${path}.dir1DirectionType`);
+  requireStringOrInteger(action.dir2DirectionType, `${path}.dir2DirectionType`);
   return {
     kind: 'saveTwoDirectionAngle',
     sources: [

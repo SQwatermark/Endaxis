@@ -72,6 +72,7 @@ export function compileStandardStumpBuffClosure(
     string,
     CompiledBuffCapturedTargetGroupsSource
   > = new Map(),
+  sourceSkillCastInfoRootIds: ReadonlySet<string> = new Set(),
 ): CompiledStandardStumpBuffClosure {
   const buffData =
     typeof buffDataValue === 'function'
@@ -92,12 +93,15 @@ export function compileStandardStumpBuffClosure(
     owners: buffOwnerTargets,
     sources: buffSourceTargets,
     capturedTargetGroups: buffCapturedTargetGroups,
+    sourceSkillCastInfo: buffSourceSkillCastInfoIds,
   } = propagateBuffTargets(
     sources,
     rootBuffOwnerTargets,
     rootBuffSourceTargets,
     globalBuffCatalog,
     rootBuffCapturedTargetGroups,
+    new Set(rootBuffIds),
+    sourceSkillCastInfoRootIds,
   );
   const keywordOverrideChildIds = new Set(
     [...sources.values()].flatMap(source =>
@@ -266,6 +270,9 @@ export function compileStandardStumpBuffClosure(
           ...(buffSourceTargets.has(buffId)
             ? { fixedBuffSourceTarget: buffSourceTargets.get(buffId)! }
             : {}),
+          ...(buffSourceSkillCastInfoIds.has(buffId)
+            ? { actionEnvironmentSkillCastInfoIsSourceCast: true }
+            : {}),
           ...(buffCapturedTargetGroups.get(buffId)?.enemyKeys.length
             ? {
                 staticEnemyTargetGroupKeys: new Set(
@@ -354,6 +361,8 @@ function propagateBuffTargets(
   sourceSeeds: ReadonlyMap<string, 'caster' | 'enemy' | 'currentAbilityEntity'>,
   globalBuffCatalog?: GlobalBuffTemplateCatalogSource,
   capturedTargetGroupSeeds: ReadonlyMap<string, CompiledBuffCapturedTargetGroupsSource> = new Map(),
+  rootBuffIds: ReadonlySet<string> = new Set(),
+  sourceSkillCastInfoRootIds: ReadonlySet<string> = new Set(),
 ) {
   type Target = 'caster' | 'enemy' | 'currentAbilityEntity';
   const owners = new Map(ownerSeeds);
@@ -614,5 +623,39 @@ function propagateBuffTargets(
       }
     }
   }
-  return { owners, sources: sourceTargets, capturedTargetGroups };
+  // `limitSkillCastId` compares the observed Buff with the current action environment's
+  // source cast. That identity only survives a CreateBuff edge when the native action
+  // explicitly requests `inheritSourceSkillCastInfo`. Compute a greatest fixed point:
+  // every externally installed root and every reachable producer path must preserve it.
+  // This is deliberately stricter than merely finding one preserving path.
+  const sourceSkillCastInfo = new Set(sources.keys());
+  for (const rootId of rootBuffIds)
+    if (!sourceSkillCastInfoRootIds.has(rootId)) sourceSkillCastInfo.delete(rootId);
+  let provenanceChanged = true;
+  while (provenanceChanged) {
+    provenanceChanged = false;
+    for (const [id, source] of sources) {
+      for (const node of buffActionNodes(source)) {
+        if (
+          !node.metadata.enabled ||
+          node.body.kind !== 'leaf' ||
+          node.body.value.family !== 'buffApplication'
+        )
+          continue;
+        const action = node.body.value.action;
+        for (const entry of action.buffs) {
+          if (entry.readIdFromBlackboard || entry.buffId === '' || !sources.has(entry.buffId))
+            continue;
+          if (action.inheritSourceSkillCastInfo && sourceSkillCastInfo.has(id)) continue;
+          if (sourceSkillCastInfo.delete(entry.buffId)) provenanceChanged = true;
+        }
+      }
+    }
+  }
+  return {
+    owners,
+    sources: sourceTargets,
+    capturedTargetGroups,
+    sourceSkillCastInfo,
+  };
 }

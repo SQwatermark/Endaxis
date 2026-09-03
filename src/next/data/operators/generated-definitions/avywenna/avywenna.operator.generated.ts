@@ -53,7 +53,7 @@ export const avywennaBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
+                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -85,7 +85,14 @@ export const avywennaBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489, 0.230000004172325,
+      0.25, 0.259999990463257, 0.280000001192093, 0.300000011920929, 0.319999992847443,
+      0.340000003576279, 0.370000004768372,
+    ],
+  },
 );
 
 export const avywennaBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -127,7 +134,7 @@ export const avywennaBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.07 },
+                durationSeconds: { kind: 'constant', value: 0.0700000002980232 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -159,7 +166,14 @@ export const avywennaBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37, 0.39, 0.41, 0.45, 0.48] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093, 0.300000011920929,
+      0.319999992847443, 0.340000003576279, 0.370000004768372, 0.389999985694885, 0.409999996423721,
+      0.449999988079071, 0.479999989271164,
+    ],
+  },
 );
 
 export const avywennaBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -224,7 +238,14 @@ export const avywennaBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.31, 0.33, 0.35, 0.37, 0.39, 0.43, 0.46] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.209999993443489, 0.230000004172325, 0.25, 0.270000010728836, 0.28999999165535,
+      0.310000002384186, 0.330000013113022, 0.349999994039536, 0.370000004768372, 0.389999985694885,
+      0.430000007152557, 0.46000000834465,
+    ],
+  },
 );
 
 export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -266,7 +287,7 @@ export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.05 },
+                durationSeconds: { kind: 'constant', value: 0.0500000007450581 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -310,7 +331,7 @@ export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.22 },
+                durationSeconds: { kind: 'constant', value: 0.219999998807907 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -344,9 +365,21 @@ export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23],
-    atk_scale_2: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+    atk_scale: [
+      0.100000001490116, 0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046,
+      0.150000005960464, 0.159999996423721, 0.170000001788139, 0.180000007152557, 0.189999997615814,
+      0.209999993443489, 0.230000004172325,
+    ],
+    atk_scale_2: [
+      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
+      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.389999985694885,
+      0.419999986886978, 0.449999988079071,
+    ],
+    display_atk_scale: [
+      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
+      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
+      0.620000004768372, 0.680000007152557,
+    ],
   },
 );
 
@@ -391,7 +424,7 @@ export const avywennaBasicAttack5: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.3 },
+                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -420,7 +453,11 @@ export const avywennaBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 19,
-    atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.13],
+    atk_scale: [
+      0.5, 0.550000011920929, 0.600000023841858, 0.649999976158142, 0.699999988079071, 0.75,
+      0.800000011920929, 0.850000023841858, 0.899999976158142, 0.959999978542328, 1.03999996185303,
+      1.12999999523163,
+    ],
     poise: 17,
   },
 );
@@ -452,7 +489,7 @@ export const avywennaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.3,
+              calculationMultiplier: 0.300000011920929,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0012_avywen_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -475,7 +512,7 @@ export const avywennaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.2,
+              calculationMultiplier: 0.200000002980232,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0012_avywen_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -485,7 +522,7 @@ export const avywennaFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
+                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -577,7 +614,12 @@ export const avywennaFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  {
+    atk_scale: [
+      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
+      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
+    ],
+  },
 );
 
 export const avywennaPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -634,7 +676,14 @@ export const avywennaPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  {
+    atb: 0,
+    atk_scale: [
+      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
+      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
+      1.6599999666214, 1.79999995231628,
+    ],
+  },
 );
 
 export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -658,7 +707,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
             saveToContextKey: 'lances',
             abilityEntityIds: [
               'abilityentity_chr_0012_avywen_combo_skill_lance',
-              'abilityentity_chr_0012_avywen_ultimate_skill',
+              'abilityentity_chr_0012_avywen_ultimate_skill_lance',
             ],
           }),
           branch(
@@ -713,7 +762,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
+                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -734,7 +783,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
             saveToContextKey: 'lances',
             abilityEntityIds: [
               'abilityentity_chr_0012_avywen_combo_skill_lance',
-              'abilityentity_chr_0012_avywen_ultimate_skill',
+              'abilityentity_chr_0012_avywen_ultimate_skill_lance',
             ],
           }),
           branch(
@@ -895,7 +944,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                             sequence(
                               step('startTimeDilation', {
                                 scope: 'global',
-                                durationSeconds: { kind: 'constant', value: 0.2 },
+                                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                                 slot: 'TimeDilation/Layer/Entity/HitStop',
                                 priority: 10,
                                 curve: {
@@ -903,18 +952,18 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                                   keys: [
                                     {
                                       time: 0,
-                                      value: 0.2,
-                                      inTangent: 0.04379496,
-                                      outTangent: 0.04379496,
+                                      value: 0.200000002980232,
+                                      inTangent: 0.0437949597835541,
+                                      outTangent: 0.0437949597835541,
                                       weightedMode: 0,
                                       inWeight: 0,
                                       outWeight: 0,
                                     },
                                     {
-                                      time: 0.8847446,
-                                      value: 0.2387474,
-                                      inTangent: 0.04379496,
-                                      outTangent: 6.604918,
+                                      time: 0.884744584560394,
+                                      value: 0.238747403025627,
+                                      inTangent: 0.0437949597835541,
+                                      outTangent: 6.60491800308228,
                                       weightedMode: 0,
                                       inWeight: 0,
                                       outWeight: 0,
@@ -922,8 +971,8 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                                     {
                                       time: 1,
                                       value: 1,
-                                      inTangent: 6.604918,
-                                      outTangent: 6.604918,
+                                      inTangent: 6.60491800308228,
+                                      outTangent: 6.60491800308228,
                                       weightedMode: 0,
                                       inWeight: 0,
                                       outWeight: 0,
@@ -982,7 +1031,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('findOwnerSpawnedAbilityEntities', {
             saveToContextKey: 'UltiLances',
-            abilityEntityIds: ['abilityentity_chr_0012_avywen_ultimate_skill'],
+            abilityEntityIds: ['abilityentity_chr_0012_avywen_ultimate_skill_lance'],
           }),
           branch(
             {
@@ -1092,7 +1141,10 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                                       ),
                                       step('startTimeDilation', {
                                         scope: 'entity',
-                                        durationSeconds: { kind: 'constant', value: 0.4 },
+                                        durationSeconds: {
+                                          kind: 'constant',
+                                          value: 0.400000005960464,
+                                        },
                                         slot: 'TimeDilation/Layer/Entity/HitStop',
                                         priority: 10,
                                         curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1117,7 +1169,10 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                                       ),
                                       step('startTimeDilation', {
                                         scope: 'entity',
-                                        durationSeconds: { kind: 'constant', value: 0.4 },
+                                        durationSeconds: {
+                                          kind: 'constant',
+                                          value: 0.400000005960464,
+                                        },
                                         slot: 'TimeDilation/Layer/Entity/HitStop',
                                         priority: 10,
                                         curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1140,7 +1195,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                             sequence(
                               step('startTimeDilation', {
                                 scope: 'global',
-                                durationSeconds: { kind: 'constant', value: 0.2 },
+                                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
                                 slot: 'TimeDilation/Layer/Entity/HitStop',
                                 priority: 10,
                                 curve: {
@@ -1148,18 +1203,18 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                                   keys: [
                                     {
                                       time: 0,
-                                      value: 0.2,
-                                      inTangent: 0.04379496,
-                                      outTangent: 0.04379496,
+                                      value: 0.200000002980232,
+                                      inTangent: 0.0437949597835541,
+                                      outTangent: 0.0437949597835541,
                                       weightedMode: 0,
                                       inWeight: 0,
                                       outWeight: 0,
                                     },
                                     {
-                                      time: 0.8847446,
-                                      value: 0.2387474,
-                                      inTangent: 0.04379496,
-                                      outTangent: 6.604918,
+                                      time: 0.884744584560394,
+                                      value: 0.238747403025627,
+                                      inTangent: 0.0437949597835541,
+                                      outTangent: 6.60491800308228,
                                       weightedMode: 0,
                                       inWeight: 0,
                                       outWeight: 0,
@@ -1167,8 +1222,8 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
                                     {
                                       time: 1,
                                       value: 1,
-                                      inTangent: 6.604918,
-                                      outTangent: 6.604918,
+                                      inTangent: 6.60491800308228,
+                                      outTangent: 6.60491800308228,
                                       weightedMode: 0,
                                       inWeight: 0,
                                       outWeight: 0,
@@ -1229,9 +1284,21 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    atk_scale: [0.67, 0.73, 0.8, 0.87, 0.93, 1, 1.07, 1.13, 1.2, 1.28, 1.38, 1.5],
-    atk_scale_lance: [0.75, 0.82, 0.9, 0.97, 1.04, 1.12, 1.19, 1.27, 1.34, 1.44, 1.55, 1.68],
-    atk_scale_lance_ult: [1.92, 2.11, 2.3, 2.5, 2.69, 2.88, 3.07, 3.26, 3.46, 3.7, 3.98, 4.32],
+    atk_scale: [
+      0.670000016689301, 0.730000019073486, 0.800000011920929, 0.870000004768372, 0.930000007152557,
+      1, 1.07000005245209, 1.12999999523163, 1.20000004768372, 1.27999997138977, 1.37999999523163,
+      1.5,
+    ],
+    atk_scale_lance: [
+      0.75, 0.819999992847443, 0.899999976158142, 0.970000028610229, 1.03999996185303,
+      1.12000000476837, 1.19000005722046, 1.26999998092651, 1.3400000333786, 1.44000005722046,
+      1.54999995231628, 1.67999994754791,
+    ],
+    atk_scale_lance_ult: [
+      1.91999995708466, 2.10999989509583, 2.29999995231628, 2.5, 2.69000005722046, 2.88000011444092,
+      3.0699999332428, 3.25999999046326, 3.46000003814697, 3.70000004768372, 3.98000001907349,
+      4.32000017166138,
+    ],
     cam_angle: 0,
     cam_duration: 0.3,
     input_angle: 0,
@@ -1275,6 +1342,7 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
                     abilityEntityId: 'abilityentity_chr_0012_avywen_combo_skill_lance',
                     childSkillId: 'chr_0012_avywen_combo_skill_lance',
                     inheritActionBlackboard: true,
+                    inheritSourceSkillCastInfo: true,
                     dieWhenSourceDies: false,
                   }),
                 ),
@@ -1350,7 +1418,11 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [1.69, 1.86, 2.03, 2.19, 2.36, 2.53, 2.7, 2.87, 3.04, 3.25, 3.5, 3.8],
+    atk_scale: [
+      1.69000005722046, 1.86000001430511, 2.02999997138977, 2.19000005722046, 2.35999989509583,
+      2.52999997138977, 2.70000004768372, 2.86999988555908, 3.03999996185303, 3.25, 3.5,
+      3.79999995231628,
+    ],
     atk_scale_lance_back: 1,
     cam_angle: 0,
     cam_duration: 0,
@@ -1450,9 +1522,10 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
                 true,
                 sequence(
                   step('spawnAbilityEntity', {
-                    abilityEntityId: 'abilityentity_chr_0012_avywen_ultimate_skill',
+                    abilityEntityId: 'abilityentity_chr_0012_avywen_ultimate_skill_lance',
                     childSkillId: 'chr_0012_avywen_ultimate_skill_lance',
                     inheritActionBlackboard: true,
+                    inheritSourceSkillCastInfo: true,
                     dieWhenSourceDies: false,
                   }),
                 ),
@@ -1546,7 +1619,11 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [4.22, 4.64, 5.07, 5.49, 5.91, 6.33, 6.75, 7.18, 7.6, 8.13, 8.76, 9.5],
+    atk_scale: [
+      4.21999979019165, 4.6399998664856, 5.07000017166138, 5.48999977111816, 5.90999984741211,
+      6.32999992370605, 6.75, 7.17999982833862, 7.59999990463257, 8.13000011444092,
+      8.76000022888184, 9.5,
+    ],
     atk_scale_ulti_lance_back: 1,
     poise: [15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20],
     poise_lance: 0,
@@ -1557,7 +1634,11 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
     talent0_usp: 0,
     lance_duration_ult: 30,
     pulse_resist_down_duration: [5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8],
-    pulse_resist_down_rate: [0.3, 0.32, 0.32, 0.32, 0.32, 0.34, 0.34, 0.34, 0.34, 0.36, 0.38, 0.4],
+    pulse_resist_down_rate: [
+      0.300000011920929, 0.319999992847443, 0.319999992847443, 0.319999992847443, 0.319999992847443,
+      0.340000003576279, 0.340000003576279, 0.340000003576279, 0.340000003576279, 0.360000014305115,
+      0.379999995231628, 0.400000005960464,
+    ],
   },
 );
 
@@ -1728,7 +1809,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'pulse_vul_rate',
           operation: 'assign',
-          value: [0.06, 0.1],
+          value: [0.0599999986588955, 0.100000001490116],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1804,7 +1885,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.85,
+          multiplier: 0.850000023841858,
         },
       ],
     },
@@ -1817,7 +1898,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'potential_5_rate',
           operation: 'assign',
-          value: 1.15,
+          value: 1.14999997615814,
         },
       ],
     },
@@ -1837,7 +1918,7 @@ export default {
       stackingType: 'unique',
       priority: 1,
       maxStackCount: 1,
-      durationSeconds: 0.3,
+      durationSeconds: 0.300000011920929,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -1948,7 +2029,7 @@ export default {
         ],
       },
     },
-    abilityentity_chr_0012_avywen_ultimate_skill: {
+    abilityentity_chr_0012_avywen_ultimate_skill_lance: {
       bornTags: [
         'Immune/Damage',
         'SelectCategory/Unmarkable',

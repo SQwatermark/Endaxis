@@ -3,6 +3,7 @@ import type { ScalarSource } from '../source/scalar.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
 import { projectNativeDamageElement } from '../source/damageElement.ts';
 import type { DamageModifierSide } from '../../../../packages/game-data-contract/src/modifiers.ts';
+import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import {
   compileResolvedAttributeModifierSource,
   projectCombatRuntimeAttributeKey,
@@ -33,6 +34,7 @@ export function compileEventTargetSimpleDamageOperationSource(
     readonly actionSourceTarget: 'caster';
     readonly fixedBuffOwnerTarget?: 'caster' | 'enemy' | 'currentAbilityEntity';
     readonly staticEnemyTargetGroupKeys?: ReadonlySet<string>;
+    readonly gameplayTagRegistry?: GameplayTagRegistry;
   } = { actionOwnerTarget: 'caster', actionSourceTarget: 'caster' },
 ): CompiledSimpleDamageOperationSource {
   requireDamageCasterOwner(action, context, sourcePath);
@@ -231,6 +233,10 @@ export function compileEventTargetSimpleDamageOperationSource(
   const knockDown = Math.floor(mask / 65536) % 2 === 1;
   const dashAttack = Math.floor(mask / 131072) % 2 === 1;
   const normalAttackLastCombo = Math.floor(mask / 2097152) % 2 === 1;
+  const fireBurst = Math.floor(mask / 4194304) % 2 === 1;
+  const cryoBurst = Math.floor(mask / 8388608) % 2 === 1;
+  const electricBurst = Math.floor(mask / 16777216) % 2 === 1;
+  const natureBurst = Math.floor(mask / 33554432) % 2 === 1;
   const burning = Math.floor(mask / 67108864) % 2 === 1;
   const shatter = Math.floor(mask / 134217728) % 2 === 1;
   const dot = Math.floor(mask / 268435456) % 2 === 1;
@@ -253,7 +259,11 @@ export function compileEventTargetSimpleDamageOperationSource(
       (airborne ? 32768 : 0) -
       (knockDown ? 65536 : 0) -
       (dashAttack ? 131072 : 0) -
-      (normalAttackLastCombo ? 2097152 : 0) !==
+      (normalAttackLastCombo ? 2097152 : 0) -
+      (fireBurst ? 4194304 : 0) -
+      (cryoBurst ? 8388608 : 0) -
+      (electricBurst ? 16777216 : 0) -
+      (natureBurst ? 33554432 : 0) !==
       (burning ? 67108864 : 0) +
         (shatter ? 134217728 : 0) +
         (dot ? 268435456 : 0) +
@@ -265,6 +275,15 @@ export function compileEventTargetSimpleDamageOperationSource(
   }
   const staggerCalculation =
     poiseUnit === undefined ? undefined : compileSimplePoiseOperand(poiseUnit, sourcePath, 1);
+  const gameplayTags = (unit.damageTagIds ?? []).map((id, index) => {
+    const registry = context.gameplayTagRegistry;
+    if (registry === undefined) {
+      throw new Error(
+        `${sourcePath}.units[0].damageTags[${index}]: GameplayTag registry is unavailable`,
+      );
+    }
+    return registry.resolve(id, `${sourcePath}.units[0].damageTags[${index}]`);
+  });
   return {
     kind: 'dealDamage',
     parameters: {
@@ -295,9 +314,14 @@ export function compileEventTargetSimpleDamageOperationSource(
         ...(normalSkill ? (['normalSkill'] as const) : []),
         ...(ultimateSkill ? (['ultimateSkill'] as const) : []),
         ...(comboSkill ? (['comboSkill'] as const) : []),
+        ...(fireBurst ? (['fireBurst'] as const) : []),
+        ...(cryoBurst ? (['cryoBurst'] as const) : []),
+        ...(electricBurst ? (['electricBurst'] as const) : []),
+        ...(natureBurst ? (['natureBurst'] as const) : []),
         ...(burning ? (['fireAbnormal'] as const) : []),
         ...(shatter ? (['cryoAbnormal'] as const) : []),
       ],
+      ...(gameplayTags.length === 0 ? {} : { gameplayTags }),
       ...(canBreakWeakness || dot || remainArea || physicalInfliction || shatter || talentDamage
         ? {
             features: [

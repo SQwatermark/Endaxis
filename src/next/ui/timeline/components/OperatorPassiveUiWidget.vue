@@ -41,6 +41,8 @@ const nativeSize = computed(() => {
       return { width: 44, height: 36 };
     case 'liinoMusic':
       return { width: 68, height: 60 };
+    case 'typhoeaQuiver':
+      return { width: 72, height: 24 };
   }
 });
 
@@ -166,6 +168,17 @@ const arcanePartColor = (part: 1 | 2) => {
         </template>
       </template>
 
+      <template v-else-if="appearance === 'typhoeaQuiver'">
+        <span class="typhoea-counter">
+          <span
+            v-for="index in maximum"
+            :key="index"
+            class="typhoea-counter__slot"
+            :class="{ 'is-filled': index <= value }"
+          />
+        </span>
+      </template>
+
       <template v-else>
         <img class="liino-ring" src="/next/passive-ui/liino-bg.png" alt="" />
         <img class="liino-deco" src="/next/passive-ui/liino-deco.png" alt="" />
@@ -220,6 +233,25 @@ const arcanePartColor = (part: 1 | 2) => {
   left: 0;
   display: block;
   transform-origin: left top;
+}
+
+.typhoea-counter {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: 3px;
+}
+
+.typhoea-counter__slot {
+  width: 6px;
+  height: 14px;
+  border: 1px solid rgb(144 148 154);
+  background: rgb(65 68 73);
+  transform: skewX(-12deg);
+}
+
+.typhoea-counter__slot.is-filled {
+  background: rgb(235 239 243);
 }
 
 .operator-passive-widget img,

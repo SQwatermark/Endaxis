@@ -52,4 +52,19 @@ describe('ComboWindowOperationExecutor', () => {
       nextSkillKey: 'enhancedComboSkill',
     });
   });
+
+  it('checks native pending candidate existence without forwarding or applying cast gates', () => {
+    const delegate: CombatOperationExecutor = {
+      execute: vi.fn(() => true),
+      evaluate: vi.fn(() => false),
+    };
+    const windows = new ComboWindowRuntime(new CombatClock(), new CombatReceiptCollector());
+    const executor = new ComboWindowOperationExecutor('typhoeus', windows, delegate);
+    const condition = { kind: 'pendingComboSkillPresent' } as const;
+
+    expect(executor.evaluate(condition)).toBe(false);
+    windows.open('typhoeus', 'comboSkill');
+    expect(executor.evaluate(condition)).toBe(true);
+    expect(delegate.evaluate).not.toHaveBeenCalled();
+  });
 });

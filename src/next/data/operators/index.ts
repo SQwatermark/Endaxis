@@ -32,3 +32,4 @@ export { avywenna } from './avywenna';
 export { catcher } from './catcher';
 export { ardelia } from './ardelia';
 export { liino } from './liino';
+export { typhoeus } from './typhoeus';
