@@ -100,6 +100,20 @@ CharGrowthTable。明细保存于本次 `audit/operator-refresh.json`，不读�
 新干员的 Pending 检查及 `trigger` 与主控角色身份比较均走公共条件解析与模拟，不做干员特例。
 研究、复验结果与当前网络阻塞见[干员刷新检查点](../../docs/research/operator-template-refresh-2026-09-03.md)。
 
+同日后续：庄方宜的内部结束技能原本已正确列入 `runtimeReplacementSkillKeys`，误报来自技能库
+审计漏读该字段。生成器、技能库/闭包/Unity 引用审计现共用领域读取器；正式干员配置未改，
+当前技能库 **30/30** 通过。结束技能继续隐藏，不会变成强化终结技。
+
+`--ability-entity-catalog` 现在可直接指定当前 `AbilityEntityData` **目录**，严格检查各文件字段和
+文件名/gameId 身份；旧证据 JSON 仅在显式指定时读取，不自动补缺。两条输入路径进入同一个公共
+模板解析器，整名回归对象一致。统一重建新增 `ability-entity-templates` 阶段，已实际校验 215 份
+当前模板，不再生成聚合中间文件；仍不代表子技能/组件闭包完成。
+
+新快照 + 当前能力实体 + 当前标签、但保留旧投射物黑板/TimeDilation/GlobalBuff/SkillSetting 的
+**定位性**全干员规划为 28/30；诀和秋栗分别阻塞在有效施法身份过滤、带黑板副作用的伤害修正条件。
+28 名的 289 个可放置技能分别按潜能 0/5 单放上轴，578 次模拟及 28 个定义检查全部通过。
+这是独立技能无异常门禁，不是伤害数值精确验证、所有分支覆盖或同批完整重建许可。
+
 ### 各领域独立入口
 
 根 `scripts/` 已清空。当前游戏数据工具统一位于本目录：
@@ -751,7 +765,7 @@ npm run generate:game-data:operator-active-skills -- --complete `
   --table-root tmp/game-data-sources/TableCfg-current `
   --skill-patch-table tmp/game-data-sources/TableCfg-current/SkillPatchTable.json `
   --buff-data-root tmp/game-data-sources/BuffData `
-  --ability-entity-catalog src/next/data/ability-entities/ability-entity-templates-1.4.4.json `
+  --ability-entity-catalog tmp/game-data-sources/AbilityEntityData `
   --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json `
   --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts `
   --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts `

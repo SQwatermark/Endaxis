@@ -94,6 +94,23 @@ export interface OperatorSkillGroupValidationOptions {
   readonly runtimeReplacementSkillKeys?: readonly string[];
 }
 
+/** 生成与各类审计共用同一读取边界，避免内部技能等例外只在某个入口生效。 */
+export function parseOperatorSkillGroupValidationOptions(
+  value: unknown,
+  sourcePath: string,
+): OperatorSkillGroupValidationOptions {
+  const row = requireRecord(value, sourcePath);
+  const read = (key: keyof OperatorSkillGroupValidationOptions) =>
+    row[key] === undefined ? undefined : distinctStrings(row[key], `${sourcePath}.${key}`);
+  return {
+    routingOnlyNativeSkillIds: read('routingOnlyNativeSkillIds'),
+    simulationEquivalentNativeSkillIds: read('simulationEquivalentNativeSkillIds'),
+    basePassiveSkillIds: read('basePassiveSkillIds'),
+    routedSkillKeys: read('routedSkillKeys'),
+    runtimeReplacementSkillKeys: read('runtimeReplacementSkillKeys'),
+  };
+}
+
 /** 按 combat-spec 的相同字段边界严格读取原生技能等级组。 */
 export function parseNativeOperatorSkillGroupSources(
   tableValue: unknown,

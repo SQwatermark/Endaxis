@@ -3,6 +3,7 @@ import path from 'node:path';
 import { format, resolveConfig } from 'prettier';
 import { compileOperatorFoundationSource } from '../src/domains/operator/sourceClosure.ts';
 import { parseOperatorProductIdentitySource } from '../src/domains/operator/productIdentity.ts';
+import { parseOperatorSkillGroupValidationOptions } from '../src/domains/operator/skillGroups.ts';
 import {
   parseOperatorActiveSkillEntries,
   type OperatorActiveSkillEntrySource,
@@ -70,11 +71,9 @@ export function planOperatorDefinition(
   if (matches.length !== 1) throw new Error(`expected one operator ${args.slug}`);
   const row = matches[0]!;
   const entries = parseOperatorActiveSkillEntries(row.skills, `${args.slug}.skills`);
-  const basePassiveSkillIds =
-    optionalStrings(row.basePassiveSkillIds, `${args.slug}.basePassiveSkillIds`) ?? [];
-  const runtimeReplacementSkillKeys =
-    optionalStrings(row.runtimeReplacementSkillKeys, `${args.slug}.runtimeReplacementSkillKeys`) ??
-    [];
+  const skillGroupValidationOptions = parseOperatorSkillGroupValidationOptions(row, args.slug);
+  const basePassiveSkillIds = skillGroupValidationOptions.basePassiveSkillIds ?? [];
+  const runtimeReplacementSkillKeys = skillGroupValidationOptions.runtimeReplacementSkillKeys ?? [];
   const playerActionRouting = parsePlayerActionRouting(
     row.skillSlots,
     row.playerActionRoutes,
@@ -98,19 +97,7 @@ export function planOperatorDefinition(
     characterPotentialTable: read(path.join(args.tableRoot, 'CharacterPotentialTable.json')),
     potentialTalentEffectTable: read(path.join(args.tableRoot, 'PotentialTalentEffectTable.json')),
     skillConditionTable: read(path.join(args.tableRoot, 'SkillConditionTable.json')),
-    skillGroupValidationOptions: {
-      routingOnlyNativeSkillIds: optionalStrings(
-        row.routingOnlyNativeSkillIds,
-        `${args.slug}.routingOnlyNativeSkillIds`,
-      ),
-      simulationEquivalentNativeSkillIds: optionalStrings(
-        row.simulationEquivalentNativeSkillIds,
-        `${args.slug}.simulationEquivalentNativeSkillIds`,
-      ),
-      basePassiveSkillIds,
-      routedSkillKeys: optionalStrings(row.routedSkillKeys, `${args.slug}.routedSkillKeys`),
-      runtimeReplacementSkillKeys,
-    },
+    skillGroupValidationOptions,
   });
   const compileSkillSlotReplacement = createActiveSkillSlotReplacementProjection(
     foundation.skillLibrary.activeSkills.entries,

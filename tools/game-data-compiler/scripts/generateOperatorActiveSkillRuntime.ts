@@ -1,4 +1,4 @@
-import { selectNativeAbilityEntityTemplateFields } from '../src/source/abilityEntity.ts';
+import { readAbilityEntityTemplates } from './readAbilityEntityTemplates.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 export { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import fs from 'node:fs';
@@ -6,7 +6,6 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';
-import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
 import { collectBuffRuntimeClosure } from '../src/compiler/buffReferenceClosure.ts';
 import { parseBlackboardDataPairs } from '../src/source/blackboard.ts';
@@ -59,6 +58,7 @@ export interface OperatorActiveSkillRuntimeArguments {
   readonly preserveBuffIds?: readonly string[];
   /** 仅供已显式审计的内部/替换技能；它们可能不在 SkillPatchTable 养成等级组中。 */
   readonly allowMissingSkillPatch?: boolean;
+  /** 当前原始 AbilityEntityData 目录；仍允许显式指定旧证据文件用于基线回归。 */
   readonly abilityEntityCatalog: string;
   readonly projectileBlackboardCatalog: string;
   readonly gameplayTagCatalog: string;
@@ -304,17 +304,7 @@ export function planOperatorActiveSkillRuntime(
           ] as const,
       ),
   );
-  const abilityEvidence = readJson(args.abilityEntityCatalog) as {
-    templates: Record<string, Record<string, unknown>>;
-  };
-  const abilityCatalog = compileAbilityEntityTemplateCatalogSource(
-    Object.fromEntries(
-      Object.entries(abilityEvidence.templates).map(([id, raw]) => [
-        id,
-        selectNativeAbilityEntityTemplateFields(raw),
-      ]),
-    ),
-  );
+  const abilityCatalog = readAbilityEntityTemplates(args.abilityEntityCatalog);
   const registry = new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog));
   const priorities = readTimeDilationPriorities(args.timeDilationCatalog);
   const resolveTimeDilationPriority = (tagId: number, actionPath: string) => {

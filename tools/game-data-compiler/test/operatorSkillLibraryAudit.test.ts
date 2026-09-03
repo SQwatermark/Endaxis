@@ -2,8 +2,40 @@ import { describe, expect, it } from 'vitest';
 
 import { auditOperatorSkillLibraries, auditOperatorSourceClosures } from '../src/index.ts';
 import { activeSkillFixture } from './sourceFixtures.ts';
+import { parseOperatorSkillGroupValidationOptions } from '../src/domains/operator/skillGroups.ts';
 
 describe('Operator 技能库批量审计', () => {
+  it('内部运行技能例外与正式生成共用读取器；不再误报等级组外的已声明技能', () => {
+    const base = operator('internal', 'chr_internal', 'exit.json');
+    base.skills.push({ ...base.skills[0]!, key: 'main', source: 'main.json' });
+    base.skillGroups[0]!.skillKeys.push('main');
+    const run = (extra: object) =>
+      auditOperatorSkillLibraries(
+        { operators: [{ ...base, ...extra }] },
+        {
+          'exit.json': activeSkillFixture('native_exit'),
+          'main.json': activeSkillFixture('native_main'),
+        },
+        {},
+        { chr_internal: { skillGroupMap: { normal: nativeGroup('normal', ['native_main']) } } },
+      );
+    expect(run({}).blockedCount).toBe(1);
+    expect(run({ runtimeReplacementSkillKeys: ['basic'] }).supportedCount).toBe(1);
+    expect(run({ runtimeReplacementSkillKeys: ['unknown'] }).entries[0]!.error).toContain(
+      'unknown IDs',
+    );
+    expect(run({ runtimeReplacementSkillKeys: ['basic', 'basic'] }).entries[0]!.error).toContain(
+      'distinct',
+    );
+    const values = {
+      routingOnlyNativeSkillIds: ['route'],
+      simulationEquivalentNativeSkillIds: ['equivalent'],
+      basePassiveSkillIds: ['passive'],
+      routedSkillKeys: ['routed'],
+      runtimeReplacementSkillKeys: ['internal'],
+    };
+    expect(parseOperatorSkillGroupValidationOptions(values, 'operator')).toEqual(values);
+  });
   it('继续审计后续干员，并分别报告 supported 与 blocked', () => {
     const report = auditOperatorSkillLibraries(
       {

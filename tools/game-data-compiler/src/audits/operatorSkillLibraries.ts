@@ -1,6 +1,6 @@
 import { requireArray, requireNonEmptyString, requireRecord } from '../source/primitives.ts';
 import { compileOperatorSkillLibrarySource } from '../domains/operator/skillLibrary.ts';
-import type { OperatorSkillGroupValidationOptions } from '../domains/operator/skillGroups.ts';
+import { parseOperatorSkillGroupValidationOptions } from '../domains/operator/skillGroups.ts';
 import { compileOperatorSourceClosure } from '../domains/operator/sourceClosure.ts';
 import { resolveOperatorSourceClosure } from '../domains/operator/sourceClosure.ts';
 import { parseOperatorProductIdentitySource } from '../domains/operator/productIdentity.ts';
@@ -117,7 +117,7 @@ export function auditOperatorSkillLibraries(
           skillDataBySourceFile,
           skillPatchTable,
           charGrowthTable,
-          validationOptions: parseValidationOptions(operator, path),
+          validationOptions: parseOperatorSkillGroupValidationOptions(operator, path),
         });
         return {
           slug,
@@ -190,7 +190,7 @@ export function auditOperatorSourceClosures(
           characterPotentialTable: input.characterPotentialTable,
           potentialTalentEffectTable: input.potentialTalentEffectTable,
           skillConditionTable: input.skillConditionTable,
-          skillGroupValidationOptions: parseValidationOptions(operator, path),
+          skillGroupValidationOptions: parseOperatorSkillGroupValidationOptions(operator, path),
         });
         return {
           slug,
@@ -274,7 +274,7 @@ export function planOperatorUnityTemplateReferences(
       characterPotentialTable: input.characterPotentialTable,
       potentialTalentEffectTable: input.potentialTalentEffectTable,
       skillConditionTable: input.skillConditionTable,
-      skillGroupValidationOptions: parseValidationOptions(operator, operatorPath),
+      skillGroupValidationOptions: parseOperatorSkillGroupValidationOptions(operator, operatorPath),
     });
     for (const missing of result.definitionClosure.missing) {
       const kind = missing.reference.kind;
@@ -339,32 +339,4 @@ export function planOperatorUnityTemplateReferences(
     projectiles: materialize(references.projectile),
     abilityEntities: materialize(references.abilityEntity),
   };
-}
-
-function parseValidationOptions(
-  operator: ReturnType<typeof requireRecord>,
-  path: string,
-): OperatorSkillGroupValidationOptions {
-  return {
-    routingOnlyNativeSkillIds: optionalStrings(
-      operator.routingOnlyNativeSkillIds,
-      `${path}.routingOnlyNativeSkillIds`,
-    ),
-    simulationEquivalentNativeSkillIds: optionalStrings(
-      operator.simulationEquivalentNativeSkillIds,
-      `${path}.simulationEquivalentNativeSkillIds`,
-    ),
-    basePassiveSkillIds: optionalStrings(
-      operator.basePassiveSkillIds,
-      `${path}.basePassiveSkillIds`,
-    ),
-    routedSkillKeys: optionalStrings(operator.routedSkillKeys, `${path}.routedSkillKeys`),
-  };
-}
-
-function optionalStrings(value: unknown, path: string): string[] | undefined {
-  if (value === undefined) return undefined;
-  return requireArray(value, path).map((item, index) =>
-    requireNonEmptyString(item, `${path}[${index}]`),
-  );
 }

@@ -229,6 +229,14 @@ afterAll(() => {
 });
 
 describe('原始整名候选：不依赖旧 Operator 补空', () => {
+  it('直接使用本次 AbilityEntityData，完整干员对象与显式基线目录一致', () => {
+    const current = planOperatorDefinition({
+      ...args,
+      abilityEntityCatalog: path.join(sourceRoot, 'AbilityEntityData'),
+    });
+    expect(current.operator).toEqual(candidate.operator);
+    expect(current.commonBuffDefinitions).toEqual(candidate.commonBuffDefinitions);
+  });
   it('正式注册消费整名产物，异地原始快照重建 --check 一致', async () => {
     expect(avywenna).toEqual({
       ...candidate.operator,

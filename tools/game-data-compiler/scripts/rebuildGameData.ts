@@ -17,6 +17,7 @@ import { verifyGameDataSnapshot } from './verifyGameDataSnapshot.ts';
 import { auditOperatorTemplateRefresh } from '../src/audits/operatorTemplateRefresh.ts';
 import { auditOperatorSkillLibraries } from '../src/audits/operatorSkillLibraries.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
+import { readAbilityEntityTemplates } from './readAbilityEntityTemplates.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
@@ -71,7 +72,7 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
     id: 'template-evidence',
     outputs: [],
     blocker:
-      '能力实体聚合目录、投射物 EntityBB、GlobalBuff、SkillSetting 的旧 JSON 仍是生成输入；须由同批来源重建或直接读取原始集合，不能复制旧证据充数。',
+      '能力实体已能直接读取本次 AbilityEntityData；投射物 EntityBB、GlobalBuff、SkillSetting 的旧 JSON 仍待换成同批来源，不能复制旧证据充数。',
   },
   {
     id: 'legacy-presentation-and-enemies',
@@ -192,6 +193,16 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         ),
       };
     });
+    if (!args.tablesOnly && missingRequestedInputs.length === 0) {
+      await stage('ability-entity-templates', async () => {
+        const catalog = readAbilityEntityTemplates(path.join(sourceRoot, 'AbilityEntityData'));
+        return {
+          templateCount: catalog.templates.length,
+          source: 'current-snapshot/AbilityEntityData',
+          note: '严格模板前缀及身份索引通过；不代表组件/子技能闭包或模拟通过，不生成聚合中间文件。',
+        };
+      });
+    }
     if (!args.tablesOnly && missingRequestedInputs.length === 0 && args.unityWorker) {
       const tags = path.join(candidateRoot, 'src/next/data/combat/gameplayTagCatalog.generated.ts');
       const tagRoot = path.join(runRoot, 'unity-sources', 'GameplayTagConfigSet');

@@ -57,3 +57,53 @@ Endaxis 回归覆盖 JSON/RID 共用解析、错误目标拒绝、Pending 生命
    需要同轴比较，不以源哈希或格式变化代替效果结论。
 4. 新干员尚未正式配置或完整模拟；按四类技能原生路由安排技能库，不能仅按 ID 后缀猜技能连段。
    全武器仍有 `wpn_funnel_0020` 的 `OnBuffEnhanceChanged` 阻塞，不能漏记但也不能盖过干员刷新。
+
+## 同日后续：30 名技能库通过，28 名候选逐技能试算通过
+
+前述庄方宜阻塞已定位为**审计误报**：现有 manifest 本来就声明了
+`runtimeReplacementSkillKeys: [enhancedBattleSkill, enhancedComboSkill, ultimateEnd]`，并将
+ultimateEnd 标为 internal。当前 `buff_chr_0030_zhuangfy_ult_base` 的结束回调仍先执行
+ChangeSkillType(AttachSkill) 再 CastSkill；见复刻库 `docs/change-skill-type-action.md`。
+不改 manifest，不增删玩家技能。领域新增共用的 `parseOperatorSkillGroupValidationOptions`，
+生成器和技能库/闭包/Unity 引用审计全部使用它，覆盖例外、未知键和重复键回归；重新检查 **30/30**。
+
+主动技能规划现在直接接受 AbilityEntityData 目录。当前 **215/215** 份前缀严格解析成功；
+保留文件名与 gameId 对应、未知字段拒绝，不对当前原始文件套用旧容器的字段裁剪。
+旧聚合证据仍可显式传入供已有基线回归，但缺件不回退。艾维文娜完整定义与公共 Buff 回归确认
+两条来源路径生成相同对象。统一命令本轮无 worker 的本地复验为 `run-gDilAd`：
+来源、装备、能力实体前缀和生成后来源复验通过；标签缺显式 worker 仍阻塞，未发布。
+
+### 全干员定位性规划
+
+本机 `tmp/operator-refresh-20260903/plan-current.ts` 先复验 6230 项来源，再核对角色身份、只在
+临时 manifest 更新 30 个模板 pin，调用正式 `planOperatorDefinition`，最后复验输入不变。
+没有修改正式 pin。结果 `tmp/operator-refresh-20260903/current-plans/report.json`：
+
+- 28 名完整规划成功，包括庄方宜、洛茜、赛希、别礼、莱万汀和梨诺；
+- 诀：`buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener` 的两个同次施法过滤。
+  复刻库 `save-buff-stack-num-advanced.md` 已明确普通 SkillCastInfo 不等于 Buff affix 环境的有效
+  施法编号，因此不能直接给 Buff 设置 `actionEnvironmentSkillCastInfoIsSourceCast=true` 绕过；
+- 秋栗：`buff_common_affixes_skillimbue_atk.damageModifier[0].condition` 在两个检查后执行 IfElse，
+  根据伤害 mask 256 将 `real_imbue_scale` 写为 `imbue_scale * 1.5` 或 `imbue_scale`，随后
+  DamageScaleProcessor 读取该键。条件树不是纯谓词，不能丢掉写入或只保留最终布尔值。
+
+仍显式使用旧投射物 EntityBB、TimeDilation、GlobalBuff 和 SkillSetting；标签是此前复验候选。
+报告明确 `diagnostic-mixed-dependencies`、published=false，不能称同版本全重建成功。
+
+### 独立上轴门禁
+
+本机 `current-smoke.test.ts` 直接重新调用规划器取得内存对象，以技能库公共放置枚举器列出全部
+可放置技能（不把 internal 技能变成玩家操作）。28 名共 289 项，每项潜能 0/5、技能等级 12、
+天赋点满、无武器装备、初始终结技能量 0、唯一高血量木桩，独立放置并运行 1050 帧。
+使用产品 ScenarioSimulationService，资源不足/形态不匹配仍沿产品强制施放与告警规则执行。
+**578 次模拟 + 28 份定义检查 = 606/606**，结果 `current-smoke-result.json`。
+
+注意：不得把普通 JSON 序列化后的 candidate.json 当作可模拟候选；Unity 阶梯曲线的 Infinity
+切线会被 JSON.stringify 写成 null。初次诊断因此出现骏卫曲线字段校验失败，直接消费规划对象后
+通过，无须修改游戏数据。正式 TS 生成通路不经过此有损中转。
+
+本轮没有执行数值差分、强化状态组合轴、所有随机分支、装备或新干员 Typhoeus 的完整模拟。
+旧干员的时钟/事件顺序等差异仍需专题断言，不能由单放成功推导为数值完全正确。
+
+2026-09-04 收尾：编译器全量 140 文件 / 1580 项、compiler/production 类型检查通过。
+本轮未改本体运行逻辑、正式生成资源、combat-spec 或 VFS；临时输入、候选与模拟报告均不入 Git。
