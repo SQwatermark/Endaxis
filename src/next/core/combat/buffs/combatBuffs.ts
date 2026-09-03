@@ -231,6 +231,18 @@ export class CombatBuff<Key extends string> {
   readonly definitionOwnerId: string;
   /** 来源施法在创建瞬间的快照，不随后续技能扣费变化。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
+  #affixSkillCastId = 0;
+  /** 原生独立运行时状态：只有显式记录才写入，不从 Buff 普通来源编号继承。 */
+  get affixSkillCastId(): number {
+    return this.#affixSkillCastId;
+  }
+
+  recordBuffAffixSkillCastId(skillCastId: number): void {
+    if (!Number.isSafeInteger(skillCastId) || skillCastId < 0 || skillCastId > 0xffffffff) {
+      throw new Error('Buff affix skill cast identity must be a UInt32');
+    }
+    this.#affixSkillCastId = skillCastId;
+  }
   readonly finishParentGlobalBuff: ((reason: 'early' | 'other') => boolean) | null;
   readonly getSourceAttributeValue: ((attribute: string) => number) | null;
   #attributeModifiers: readonly CombatAttributeModifier<Key>[];

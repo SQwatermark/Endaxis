@@ -185,3 +185,28 @@ AKEDB 主源策略不变，完整重建及发布仍未完成。
 affix 字段读写核实来源；当前 C# SkillAffixAction 也只是 FillSkillCastInfo + OnSkillEnd 的
 直接技能寿命子集，不能用它自行证明所有 affix 身份等价。来源闭环后接公共数据字段、严格校验、
 公共/内联 Buff 编译及编辑器，再开放秋栗整名生成与实际组合轴验证。
+
+## 2026-09-04 后续：原生 affix 身份读写与复刻库修正
+
+已从台式机 `D:/Projects/vfs-index-browser/tmp/il2cpp-current` 找到较新原生快照。
+原始二进制 SHA-256 为
+`a7d3f59a4d78a581a71f2fcaa72d55379185e6d2cdd049af857e18542c61a1b1`，
+模块大小 `0xF7CC000`。分析报告为本仓库忽略目录中的 `affix-current-analysis.json` 与
+`affix-consumers-current-analysis.json`；完整方法、指令地址、来源指纹和复验命令统一维护在
+combat-spec `docs/skill-affix-identity-2026-09-04.md`。
+
+结论：SkillAffixAction 捕获**动作持有者当前处理技能**，写入 Buff 独立 affix 编号；处理技能
+getter 先选临时处理技能，否则当前技能。普通 Buff 来源编号并不因此改变，子 Buff 也不会仅因
+普通来源相同自动获得 affix。CheckSkillCastId 的 Buff 分支禁止 affix=0 回退；相对地，
+CheckBuffStackNumAdvanced 的 Buff 环境有效编号选择明确允许 affix=0 时回退普通来源。
+因此两种判断不能共用一个“总是优先非零否则来源”的隐式辅助逻辑。
+
+先修复 C#，相关 **83/83**；Next 加独立实例状态并让已存在的显式条件端口在测试中绑定该状态，
+全量 **4107/4107**、编译器 **1594/1594**、Next 类型检查通过。没有新增第二套动作解析器，
+没有用来源编号默认填充 affix，也没有开放正式生成字段。28/30 仍为上一轮混合依赖规划检查点。
+
+当前 native 比历史 1.4.4 还多 pending-skill-request 引用衔接，DamagePackData 的来源也已变成
+actionEnvironment；不能只照搬原先直接技能寿命子集。下一轮应接真实 Buff 创建/当前处理技能
+上下文及可见伤害所需引用链，再接公共程序字段、严格解析、公共/内联编译与导图；不可重新研究
+已经完成的条件/黑板执行。当前快照静态类型文件曾被复用，所检地址/布局吻合不等于已验证最新
+AKEDB/VFS/IFix 完整同版本。所有这些变化都未发布成正式生成资源。

@@ -119,6 +119,7 @@ const snapshots: PlayerDamageAttributeSnapshots = {
 function fixture(
   options: {
     getAffix?: () => number | null;
+    bindBuffAffix?: boolean;
     emptyProcessors?: boolean;
     missingValue?: boolean;
   } = {},
@@ -167,7 +168,9 @@ function fixture(
       },
     );
     return createDamageModifierConditionProgram(sourceProgram(), runtime, {
-      getBuffAffixSkillCastId: options.getAffix,
+      getBuffAffixSkillCastId: options.bindBuffAffix
+        ? () => buff.affixSkillCastId
+        : options.getAffix,
       resolveInputTarget: resolveTarget,
     });
   });
@@ -229,6 +232,48 @@ function fixture(
 }
 
 describe('Buff 同步伤害条件程序', () => {
+  it('从实例读取独立 affix 状态，普通来源相同也不能通过未登记门禁', () => {
+    const f = fixture({ bindBuffAffix: true });
+    expect(f.buff.affixSkillCastId).toBe(0);
+    f.pack(['normalSkill'], 999).applyModifiers('afterCalculation');
+    expect(f.buff.blackboard.getNumber('real_imbue_scale')).toBe(9);
+    f.buff.recordBuffAffixSkillCastId(42);
+    const damage = f.pack(['normalSkill']);
+    damage.setCalculationResult(100);
+    expect(damage.resolveFinalAttackValue()).toBe(175);
+    expect(f.buff.skillCastInfo?.skillCastId).toBe(999);
+
+    const other = f.add();
+    expect(other.affixSkillCastId).toBe(0);
+    f.buff.recordBuffAffixSkillCastId(43);
+    f.buff.blackboard.assign({ real_imbue_scale: 9 });
+    f.pack(['normalSkill'], 42).applyModifiers('afterCalculation');
+    expect(f.buff.blackboard.getNumber('real_imbue_scale')).toBe(9);
+    f.buff.finish('other');
+    // 原生 Action.OnEnd 不清这个字段；新 Buff（原生池 Reset）才从 0 开始。
+    expect(f.buff.affixSkillCastId).toBe(43);
+    expect(f.add().affixSkillCastId).toBe(0);
+  });
+
+  it.each([-1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, 0x100000000])(
+    '记录非法 affix %s 时保留原值',
+    value => {
+      const f = fixture({ bindBuffAffix: true });
+      f.buff.recordBuffAffixSkillCastId(42);
+      expect(() => f.buff.recordBuffAffixSkillCastId(value)).toThrow('UInt32');
+      expect(f.buff.affixSkillCastId).toBe(42);
+    },
+  );
+
+  it('affix 编号接受 UInt32 边界和显式清零，不影响普通来源', () => {
+    const f = fixture({ bindBuffAffix: true });
+    f.buff.recordBuffAffixSkillCastId(0xffffffff);
+    expect(f.buff.affixSkillCastId).toBe(0xffffffff);
+    f.buff.recordBuffAffixSkillCastId(0);
+    expect(f.buff.affixSkillCastId).toBe(0);
+    expect(f.buff.skillCastInfo?.skillCastId).toBe(999);
+  });
+
   it('防御方条件绑定攻击者 InputTarget，结束后不覆盖 Buff 原环境', () => {
     const original: CombatOperationContext = {
       blackboard: new ActionBlackboard(),

@@ -5984,3 +5984,24 @@ comboSkillConditions -> 公共事件/条件动作运行时` 一条权威路径�
 - 下一步：先核实 SkillAffixAction 对 Buff.affixSkillCastId 的写入、继承/清理和直接技能来源链，
   需要时先补复刻库；再把公共 ActionSequence 数据接到上述宿主，同时覆盖公共 Buff、内联 Buff
   校验/编译与编辑器。不要重新实现本轮已完成的计算执行层。诀的有效编号计数和全量重建其余缺口不变。
+
+### 2026-09-04：affix 编号来源已实查并纠正复刻库
+
+- 找到台式机 VFS `tmp/il2cpp-current` 已保存的较新运行时快照，无需启动/注入游戏。
+  详细哈希、RVA、复验命令见 combat-spec `docs/skill-affix-identity-2026-09-04.md`。
+  仅证明所检原生分支；静态 dump 曾复用，不能据此声称与 AKEDB 1.5.3 / VFS / IFix 严格同版本。
+- 原生 SkillAffixAction 读持有者 curProcessingSkill（临时处理技能优先，否则 curSkill），显式
+  写 Buff.affixSkillCastId；不是复制 Buff 普通 SkillCastInfo。Buff.Reset 清零；输出 Buff 回调
+  追踪普通来源相同且 affix=0 的 Buff 生命周期，但不自动向它写 affix 编号。
+- 先修复 combat-spec：独立 Buff 字段/记录方法、处理技能 getter、SkillAffixAction 来源与持有者
+  事件作用域、伤害条件编号读取。真实装备 Buff 测试也改为实际启动技能；相关 **83/83** 通过。
+- Next 加入独立运行时 Buff 字段与 UInt32 校验，条件程序可通过现有显式 getter 读实例；测试证明
+  普通来源 999 不等于 affix 42、未登记不匹配、实例隔离、结束保留/新建清零。未自动给所有 Buff
+  填普通来源编号，未将状态加入游戏定义/存档，旧纯条件来源路径仍未迁移。
+- 全量 Next **305 文件 / 4107 项**、编译器 **141 文件 / 1594 项**、Next 类型检查通过。
+  未重跑全名候选规划/606 上轴检查，仍保留 **28/30、旧全局依赖混合的诊断检查点**；不宣称秋栗
+  已转换完成。正式 pin、生成物、旧版不变，tmp 仍忽略。本批本地提交，不推送。
+- 下一步：按新证据接真实创建上下文与延长引用，再打通条件程序公共数据/编译/校验/导图编辑。
+  较新快照还新增 pending skill request 引用，并将 DamagePackData 来源改成 actionEnvironment；
+  应沿具体调用链核实，不能照搬旧“只等初始技能结束”。诀的 limitSkillCastId 在 Buff 环境中
+  确认为 affix 非零优先、否则普通来源，**但被计数 Buff 的过滤/完整来源绑定尚未接通**，门禁不放开。
