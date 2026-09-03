@@ -38,7 +38,9 @@ const definition = {
       "buffDefinitions": {
         "buff_wpn_funnel_0010_atk_up": {
           "stackingType": "highPriority",
-          "priority": 0,
+          "priority": {
+            "blackboardKey": "lv"
+          },
           "maxStackCount": 0,
           "durationSeconds": {
             "blackboardKey": "duration"
@@ -52,7 +54,6 @@ const definition = {
             "iconPath": "/icons/icon_battle_buff_atk_up.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
-            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -100,15 +101,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "healthPercent",
           "value": [
-            0.10000000149011612,
-            0.18000000715255737,
-            0.25999999046325684,
-            0.3400000035762787,
-            0.41999998688697815,
+            0.1,
+            0.18,
+            0.26,
+            0.34,
+            0.42,
             0.5,
-            0.5799999833106995,
-            0.6600000262260437,
-            0.7799999713897705
+            0.58,
+            0.66,
+            0.78
           ]
         }
       ]
@@ -121,15 +122,15 @@ const definition = {
           "kind": "staticHealingIncrease",
           "target": "output",
           "value": [
-            0.10000000149011612,
-            0.11999999731779099,
-            0.14000000059604645,
-            0.1599999964237213,
-            0.18000000715255737,
-            0.20000000298023224,
-            0.2199999988079071,
-            0.23999999463558197,
-            0.2800000011920929
+            0.1,
+            0.12,
+            0.14,
+            0.16,
+            0.18,
+            0.2,
+            0.22,
+            0.24,
+            0.28
           ]
         }
       ],
@@ -140,15 +141,15 @@ const definition = {
           "priority": 0,
           "blackboard": {
             "atk_up": [
-              0.09000000357627869,
-              0.1080000028014183,
-              0.12600000202655792,
-              0.14399999380111694,
-              0.16200000047683716,
-              0.18000000715255737,
-              0.1979999989271164,
-              0.2160000056028366,
-              0.25200000405311584
+              0.09,
+              0.108,
+              0.126,
+              0.144,
+              0.162,
+              0.18,
+              0.198,
+              0.216,
+              0.252
             ],
             "duration": [
               15,
@@ -162,15 +163,15 @@ const definition = {
               15
             ],
             "heal_up": [
-              0.10000000149011612,
-              0.11999999731779099,
-              0.14000000059604645,
-              0.1599999964237213,
-              0.18000000715255737,
-              0.20000000298023224,
-              0.2199999988079071,
-              0.23999999463558197,
-              0.2800000011920929
+              0.1,
+              0.12,
+              0.14,
+              0.16,
+              0.18,
+              0.2,
+              0.22,
+              0.24,
+              0.28
             ],
             "lv": [
               1,

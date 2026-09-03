@@ -43,7 +43,6 @@ const ABILITY_ENTITY_TEMPLATE_FIELDS = new Set([
  */
 export interface NativeAbilityEntityTemplateSource {
   readonly gameId: string;
-  readonly name?: string;
   readonly factionNativeValue: number;
   readonly bornTagIds: readonly number[];
   readonly lifeTypeNativeValue: number;
@@ -64,10 +63,9 @@ export interface NativeAbilityEntityTemplateSource {
 /** 旧模板证据容器还带资产索引和引用审计；在进入严格原生模板解析前剥离这些容器字段。 */
 export function selectNativeAbilityEntityTemplateFields(value: unknown): Record<string, unknown> {
   const record = requireRecord(value, 'AbilityEntityTemplateEvidence');
-  return Object.fromEntries([
-    ...[...ABILITY_ENTITY_TEMPLATE_FIELDS].map(field => [field, record[field]] as const),
-    ...(Object.hasOwn(record, 'name') ? ([['name', record.name]] as const) : []),
-  ]);
+  return Object.fromEntries(
+    [...ABILITY_ENTITY_TEMPLATE_FIELDS].map(field => [field, record[field]]),
+  );
 }
 
 export function parseNativeAbilityEntityTemplateSource(
@@ -75,16 +73,9 @@ export function parseNativeAbilityEntityTemplateSource(
   sourcePath: string,
 ): NativeAbilityEntityTemplateSource {
   const root = requireRecord(value, sourcePath);
-  requireExactFields(
-    root,
-    new Set([...ABILITY_ENTITY_TEMPLATE_FIELDS, ...(Object.hasOwn(root, 'name') ? ['name'] : [])]),
-    sourcePath,
-  );
+  requireExactFields(root, ABILITY_ENTITY_TEMPLATE_FIELDS, sourcePath);
   return {
     gameId: requireNonEmptyString(root.gameId, `${sourcePath}.gameId`),
-    ...(Object.hasOwn(root, 'name')
-      ? { name: requireNonEmptyString(root.name, `${sourcePath}.name`) }
-      : {}),
     factionNativeValue: requireInteger(root.factionNativeValue, `${sourcePath}.factionNativeValue`),
     bornTagIds: requireArray(root.bornTagIds, `${sourcePath}.bornTagIds`).map((tag, index) => {
       const tagPath = `${sourcePath}.bornTagIds[${index}]`;

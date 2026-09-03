@@ -214,15 +214,19 @@ type LevelValues = number | readonly number[];
 
 ### 7.2 原生资源获取边界
 
-Endaxis 游戏数据编译器自己维护 `vfs-sources.json`，声明需要的 TableCfg 和原生集合。
-`vfs-index-browser` 是我们自己维护的唯一生产事实源：它必须从本机当前 Effective VFS
-完整建索、解码并导出 source 层可消费的 JSON。`combat-spec` 证明同版本原生类型和运行语义，
-不作为资源清单或生成输入目录。
+Endaxis 游戏数据编译器自己维护 `akedb-sources.json`，它是所需 TableCfg、SkillData 与 BuffData
+集合的唯一清单。`combat-spec` 只证明原生类型和运行语义，不参与资源发现，也不是 Endaxis 的默认
+生成输入目录。
 
-下载器只接受带 `X-Endaxis-Source: vfs-index-browser` 身份的返回，并逐文件记录逻辑路径、
-字节数和 SHA-256 provenance。不存在 AKEDB、邻接目录或旧快照 fallback。领域额外依赖由
-Endaxis 闭包按精确 ID 获取；VFS 解码不完或缺件必须失败关闭，然后修复我们自己的索引、
-解码或导出链路，不能用第三方数据掩盖问题。
+下载器按每个逻辑资源先查 AKEDB CDN，再查可选的 vfs-index-browser 兼容提供者。两端对外统一为
+`TableCfg-<version>/<name>.json` 和 `<collection>/<file>.json`；集合另有 `manifest.json`。AKEDB 已有
+集合清单时，只对其中明确资源逐文件 fallback，不合并 VFS 的额外成员；AKEDB 完全缺少该集合时才
+使用 VFS 清单。领域额外依赖由 Endaxis 闭包按精确 ID 获取。vfs-index-browser 只负责把本机
+Effective VFS 文件完整解码成 source 层可消费的 JSON，不拥有 Endaxis 的资源清单，也不读取
+combat-spec 决定导出范围。
+
+所有输出逐文件记录 provider、实际来源、字节数和 SHA-256 provenance。混合来源是明确、可审计的快照，不能伪装成纯 AKEDB
+版本；fallback 解码不完整必须失败关闭，不能用预览截断内容继续生成。
 
 ## 8. Mechanic 扩展
 
@@ -336,8 +340,8 @@ i18n 原则：
 
 ## Unity 模板的引用闭包下载
 
-Unity 模板也由 VFS 事实源导出。Endaxis 在自己的资源目录中声明需求，并采用引用闭包下载：
-先批量取得 SkillData/BuffData，再按原始字段收集 `projectileId` 与
+Unity 模板集合不在当前 AKEDB shared JSON 索引中。Endaxis 仍在自己的资源目录中声明需求，
+但采用引用闭包下载：先批量取得 SkillData/BuffData，再按原始字段收集 `projectileId` 与
 `abilityEntityId`，最后批量请求 ProjectileData/AbilityEntityData。vfs-index-browser 对这两类资源
 提供与集合下载器同构的 `manifest.json` 和单文件 URL，并通过精确 manifest asset path、bundle、
 AnimeStudio raw/JSON 导出完成解码。combat-spec 只提供字段与布局证据，不决定下载文件，也不是

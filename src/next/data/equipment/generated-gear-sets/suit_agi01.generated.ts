@@ -45,7 +45,7 @@ const definition = {
           blackboardAssignments: {
             phy_dmg_up: {
               kind: 'constant',
-              value: 0.20000000298023224,
+              value: 0.2,
             },
           },
         },

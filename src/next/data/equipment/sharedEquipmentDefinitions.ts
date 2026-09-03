@@ -17,6 +17,7 @@ import {
   type SharedEquipmentAdaptationIssue,
   type SharedEquipmentAdaptationResult,
 } from './adaptSharedEquipment';
+import { akedbWeaponDefinitions } from './akedbWeaponDefinitions';
 import { generatedGearDefinitions } from './generated/index.generated';
 import { generatedGearSetDefinitions } from './generated-gear-sets/index.generated';
 import { registerGeneratedGearDefinitions } from './generatedGearRegistration';
@@ -102,6 +103,7 @@ const gearSetEntries = adaptDirectory(
 
 export const sharedWeaponDefinitions: readonly WeaponDefinition[] = Object.freeze([
   ...weaponEntries.definitions,
+  ...akedbWeaponDefinitions,
 ]);
 export const sharedGearDefinitions: readonly GearDefinition[] = gearEntries.definitions;
 /**
@@ -128,6 +130,15 @@ export const sharedEquipmentAdaptationIssues: readonly SharedEquipmentAdaptation
 const supportByIdentity = new Map(
   [
     ...weaponEntries.support,
+    ...akedbWeaponDefinitions.map(
+      definition =>
+        ({
+          sourceKind: 'weapon',
+          slug: definition.slug,
+          completeness: 'complete',
+          issues: [],
+        }) satisfies SharedEquipmentSupport,
+    ),
     ...gearEntries.support,
     ...gearSetEntries.support,
     ...generatedGearSetDefinitions.map(

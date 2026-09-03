@@ -37,7 +37,6 @@ import {
   rossi,
   snowshine,
   tangtang,
-  typhoeus,
   wulfgard,
   xaihi,
   yvonne,
@@ -73,7 +72,6 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [catcher, 9],
   [ardelia, 9],
   [liino, 12],
-  [typhoeus, 18],
 ];
 
 function hasUpgradeBehavior(
@@ -115,26 +113,21 @@ describe('新增的完整技能转换干员', () => {
       missingCapabilities: [],
     });
     expect(ardelia.buffDefinitions?.buff_chr_0025_ardelia_normal_skill_vulnerable).toBeDefined();
-    const vulnerablePatch = ardelia.potentials[0]?.modifiers?.find(
-      modifier =>
-        modifier.kind === 'patchSkillBlackboard' &&
-        modifier.skillGroupKey === 'battleSkill' &&
-        modifier.blackboardKey === 'rate_vul_base',
+    expect(ardelia.potentials[0]?.modifiers).toContainEqual(
+      expect.objectContaining({
+        kind: 'patchSkillBlackboard',
+        skillGroupKey: 'battleSkill',
+        blackboardKey: 'rate_vul_base',
+        operation: 'add',
+        value: 0.08,
+      }),
     );
-    expect(vulnerablePatch).toMatchObject({
-      kind: 'patchSkillBlackboard',
-      operation: 'add',
-    });
-    expect(vulnerablePatch?.value).toBeCloseTo(0.08);
-    expect(ardelia.potentials[4]?.modifiers).toContainEqual(
-      expect.objectContaining({ kind: 'addSkillCooldownFrames', frames: -60 }),
+    expect(ardelia.potentials[4]?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: 'addSkillCooldownFrames', frames: -60 }),
+        expect.objectContaining({ blackboardKey: 'potential5_dmg_rate', value: 1.2 }),
+      ]),
     );
-    const potentialFiveDamagePatch = ardelia.potentials[4]?.modifiers?.find(
-      modifier =>
-        modifier.kind === 'patchSkillBlackboard' &&
-        modifier.blackboardKey === 'potential5_dmg_rate',
-    );
-    expect(potentialFiveDamagePatch?.value).toBeCloseTo(1.2);
   });
 
   it('Catcher 保留意志换防御、属性护盾与防御倍率追加伤害', () => {
@@ -183,10 +176,7 @@ describe('新增的完整技能转换干员', () => {
     const damageSteps = finisher!.scheduledSequences.flatMap(item =>
       item.sequence.steps.filter(step => step.kind === 'dealDamage'),
     );
-    expect(damageSteps).toHaveLength(3);
-    damageSteps.forEach((step, index) => {
-      expect(step.parameters.calculationMultiplier).toBeCloseTo([0.3, 0.2, 0.5][index]!);
-    });
+    expect(damageSteps.map(step => step.parameters.calculationMultiplier)).toEqual([0.3, 0.2, 0.5]);
     const firstSequence = finisher!.scheduledSequences.find(item => item.startFrame === 27);
     expect(firstSequence?.sequence.steps).toMatchObject([
       { kind: 'dealDamage', parameters: { calculation: 'breakingAttack' } },

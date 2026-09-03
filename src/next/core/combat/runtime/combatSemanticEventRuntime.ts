@@ -77,7 +77,6 @@ export type CombatSemanticEvent =
       readonly kind: 'damageTagHit';
       readonly sourceOperatorId: string;
       readonly tags: readonly DamageTag[];
-      readonly gameplayTags?: readonly GameplayTag[];
       readonly features?: readonly DamageFeature[];
     }
   | {
@@ -133,7 +132,6 @@ export type CombatSemanticEvent =
       readonly kind: 'enemyDefeated';
       readonly sourceOperatorId: string;
       readonly tags: readonly DamageTag[];
-      readonly gameplayTags?: readonly GameplayTag[];
       readonly features?: readonly DamageFeature[];
     }
   | {

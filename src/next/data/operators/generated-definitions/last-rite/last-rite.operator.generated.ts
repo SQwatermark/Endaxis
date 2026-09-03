@@ -53,7 +53,7 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+                durationSeconds: { kind: 'constant', value: 0.2 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -87,11 +87,7 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
-      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
-      0.620000004768372, 0.680000007152557,
-    ],
+    atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
     env_dmg: 20,
   },
 );
@@ -135,7 +131,7 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0670000016689301 },
+                durationSeconds: { kind: 'constant', value: 0.067 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -174,7 +170,7 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0670000016689301 },
+                durationSeconds: { kind: 'constant', value: 0.067 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -203,17 +199,9 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.280000001192093, 0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885,
-      0.409999996423721, 0.439999997615814, 0.469999998807907, 0.5, 0.529999971389771,
-      0.569999992847443, 0.620000004768372,
-    ],
+    atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
     env_dmg: 12.5,
-    display_atk_scale: [
-      0.550000011920929, 0.610000014305115, 0.660000026226044, 0.720000028610229, 0.769999980926514,
-      0.829999983310699, 0.879999995231628, 0.939999997615814, 0.990000009536743, 1.05999994277954,
-      1.13999998569489, 1.24000000953674,
-    ],
+    display_atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
   },
 );
 
@@ -256,7 +244,7 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                durationSeconds: { kind: 'constant', value: 0.1 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -301,7 +289,7 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                durationSeconds: { kind: 'constant', value: 0.4 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -309,27 +297,27 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
                   keys: [
                     {
                       time: 0,
-                      value: 0.300000011920929,
-                      inTangent: 0.190734192728996,
-                      outTangent: 0.190734192728996,
+                      value: 0.3,
+                      inTangent: 0.1907342,
+                      outTangent: 0.1907342,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
                       time: 0.5,
-                      value: 0.0299999993294477,
-                      inTangent: 0.00859098788350821,
-                      outTangent: 0.280000001192093,
+                      value: 0.03,
+                      inTangent: 0.008590988,
+                      outTangent: 0.28,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
                       time: 0.75,
-                      value: 0.100000001490116,
-                      inTangent: 0.417890787124634,
-                      outTangent: 0.44814470410347,
+                      value: 0.1,
+                      inTangent: 0.4178908,
+                      outTangent: 0.4481447,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -337,8 +325,8 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 0.5,
-                      inTangent: 3.01925206184387,
-                      outTangent: 3.01925206184387,
+                      inTangent: 3.019252,
+                      outTangent: 3.019252,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -362,17 +350,9 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.340000003576279, 0.370000004768372, 0.409999996423721, 0.439999997615814, 0.479999989271164,
-      0.509999990463257, 0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142,
-      0.709999978542328, 0.769999980926514,
-    ],
+    atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77],
     env_dmg: 10,
-    display_atk_scale: [
-      0.680000007152557, 0.75, 0.819999992847443, 0.879999995231628, 0.949999988079071,
-      1.01999998092651, 1.0900000333786, 1.1599999666214, 1.22000002861023, 1.30999994277954,
-      1.4099999666214, 1.52999997138977,
-    ],
+    display_atk_scale: [0.68, 0.75, 0.82, 0.88, 0.95, 1.02, 1.09, 1.16, 1.22, 1.31, 1.41, 1.53],
   },
 );
 
@@ -498,7 +478,7 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
+                durationSeconds: { kind: 'constant', value: 0.3 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -506,18 +486,18 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
                   keys: [
                     {
                       time: 0,
-                      value: 0.300000011920929,
-                      inTangent: -0.956214010715485,
-                      outTangent: -0.956214010715485,
+                      value: 0.3,
+                      inTangent: -0.956214,
+                      outTangent: -0.956214,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.193415403366089,
-                      value: 0.115053497254848,
-                      inTangent: -0.549428403377533,
-                      outTangent: -0.549428403377533,
+                      time: 0.1934154,
+                      value: 0.1150535,
+                      inTangent: -0.5494284,
+                      outTangent: -0.5494284,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -525,8 +505,8 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 0,
-                      inTangent: -0.142642796039581,
-                      outTangent: -0.142642796039581,
+                      inTangent: -0.1426428,
+                      outTangent: -0.1426428,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -550,11 +530,7 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 30,
-    atk_scale: [
-      0.899999976158142, 0.990000009536743, 1.08000004291534, 1.16999995708466, 1.25999999046326,
-      1.35000002384186, 1.44000005722046, 1.52999997138977, 1.62000000476837, 1.73000001907349,
-      1.87000000476837, 2.02999997138977,
-    ],
+    atk_scale: [0.9, 0.99, 1.08, 1.17, 1.26, 1.35, 1.44, 1.53, 1.62, 1.73, 1.87, 2.03],
     atk_scale2: 0.2,
     env_dmg: 35,
     isBuffed: 0,
@@ -588,7 +564,7 @@ export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+                durationSeconds: { kind: 'constant', value: 0.2 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'common' },
@@ -636,7 +612,7 @@ export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_full_immune_medium',
+            buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -649,12 +625,7 @@ export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const lastRitePlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -701,11 +672,7 @@ export const lastRitePlungingAttack: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
+    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
     env_dmg: 20,
   },
 );
@@ -894,11 +861,7 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 30,
-    atk_scale: [
-      1.41999995708466, 1.55999994277954, 1.71000003814697, 1.85000002384186, 1.99000000953674,
-      2.13000011444092, 2.27999997138977, 2.42000007629395, 2.55999994277954, 2.74000000953674,
-      2.95000004768372, 3.20000004768372,
-    ],
+    atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
     atk_scale_2: 0,
     atk_up: 0.2,
     cam_angle: 0,
@@ -1041,9 +1004,9 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -1103,9 +1066,9 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -1165,9 +1128,9 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -1179,7 +1142,7 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+            durationSeconds: { kind: 'constant', value: 0.1 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1213,16 +1176,8 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [
-      1.77999997138977, 1.96000003814697, 2.13000011444092, 2.30999994277954, 2.49000000953674,
-      2.67000007629395, 2.83999991416931, 3.01999998092651, 3.20000004768372, 3.42000007629395,
-      3.69000005722046, 4,
-    ],
-    atk_scale2: [
-      3.55999994277954, 3.91000008583069, 4.26999998092651, 4.61999988555908, 4.98000001907349,
-      5.32999992370605, 5.69000005722046, 6.03999996185303, 6.40000009536743, 6.84000015258789,
-      7.38000011444092, 8,
-    ],
+    atk_scale: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
+    atk_scale2: [3.56, 3.91, 4.27, 4.62, 4.98, 5.33, 5.69, 6.04, 6.4, 6.84, 7.38, 8],
     owner_mainchar_alpha: 0,
     owner_mainchar_distance: 0,
     poise1: 5,
@@ -1422,7 +1377,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.333000004291534 },
+            durationSeconds: { kind: 'constant', value: 0.333 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1437,7 +1392,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
+            durationSeconds: { kind: 'constant', value: 0.6 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1457,21 +1412,9 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.709999978542328, 0.779999971389771, 0.850000023841858, 0.920000016689301, 0.990000009536743,
-      1.07000005245209, 1.13999998569489, 1.21000003814697, 1.27999997138977, 1.37000000476837,
-      1.47000002861023, 1.60000002384186,
-    ],
-    atk_scale2: [
-      0.709999978542328, 0.779999971389771, 0.850000023841858, 0.920000016689301, 0.990000009536743,
-      1.07000005245209, 1.13999998569489, 1.21000003814697, 1.27999997138977, 1.37000000476837,
-      1.47000002861023, 1.60000002384186,
-    ],
-    atk_scale3: [
-      1.07000005245209, 1.16999995708466, 1.27999997138977, 1.38999998569489, 1.49000000953674,
-      1.60000002384186, 1.71000003814697, 1.80999994277954, 1.91999995708466, 2.04999995231628,
-      2.21000003814697, 2.40000009536743,
-    ],
+    atk_scale: [0.71, 0.78, 0.85, 0.92, 0.99, 1.07, 1.14, 1.21, 1.28, 1.37, 1.47, 1.6],
+    atk_scale2: [0.71, 0.78, 0.85, 0.92, 0.99, 1.07, 1.14, 1.21, 1.28, 1.37, 1.47, 1.6],
+    atk_scale3: [1.07, 1.17, 1.28, 1.39, 1.49, 1.6, 1.71, 1.81, 1.92, 2.05, 2.21, 2.4],
     cam_angle: 0,
     cam_duration: 0,
     count: 3,
@@ -1605,7 +1548,7 @@ export default {
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
-            crystal_up: [0.0199999995529652, 0.0399999991059303],
+            crystal_up: [0.02, 0.04],
             duration: { kind: 'constant', value: 15 },
           },
         }),
@@ -1627,7 +1570,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'rate',
           operation: 'assign',
-          value: [1.20000004768372, 1.5],
+          value: [1.2, 1.5],
         },
       ],
     },
@@ -1642,7 +1585,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'atk_up',
           operation: 'assign',
-          value: 0.200000002980232,
+          value: 0.2,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1677,35 +1620,35 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale2',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale3',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale2',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
       ],
     },
@@ -1717,7 +1660,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -1737,7 +1680,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
       ],
     },
@@ -1800,7 +1743,6 @@ export default {
         iconPath: '/icons/icon_battle_lastrite_buff.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: true,
         blinkInMainCharHpBar: false,
@@ -1849,7 +1791,7 @@ export default {
       ],
       abilityEventResponses: [
         {
-          event: 'beforeOutputDamage',
+          event: 'outputDamage',
           priority: 0,
           sequence: sequence(
             branch(
@@ -1891,7 +1833,7 @@ export default {
           ),
         },
         {
-          event: 'beforeOutputDamage',
+          event: 'outputDamage',
           priority: 0,
           sequence: sequence(
             branch(
@@ -1969,7 +1911,7 @@ export default {
                             step('createTimedMarker', {
                               target: 'buffOwner',
                               markerId: 'buff_chr_0026_lastrite_normal_skill_marker',
-                              durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                              durationSeconds: { kind: 'constant', value: 0.1 },
                               autoFinishByAction: false,
                             }),
                           ),
@@ -2154,7 +2096,7 @@ export default {
             step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
             step('startTimeDilation', {
               scope: 'entity',
-              durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+              durationSeconds: { kind: 'constant', value: 0.2 },
               slot: 'TimeDilation/Layer/Entity/HitStop',
               priority: 10,
               curve: { kind: 'named', key: 'char_hard_stop' },
@@ -2208,7 +2150,7 @@ export default {
             step('applyElementalInfliction', { element: 'cryo', isExtra: false }),
             step('startTimeDilation', {
               scope: 'entity',
-              durationSeconds: { kind: 'constant', value: 0.330000013113022 },
+              durationSeconds: { kind: 'constant', value: 0.33 },
               slot: 'TimeDilation/Layer/Entity/HitStop',
               priority: 10,
               curve: {
@@ -2396,7 +2338,7 @@ export default {
     },
     buff_chr_0026_lastrite_talent_1_vul: {
       stackingType: 'highPriority',
-      priority: 10,
+      priority: { blackboardKey: 'crystal_vul' },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       applyTags: [],

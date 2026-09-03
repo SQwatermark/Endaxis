@@ -528,16 +528,15 @@ export function compileBuffRuntimeDefinitionSource(
                       ...projectionContextOverrides,
                     }
                   : (abilityEvent === 'OnOutputDamage' ||
-                        abilityEvent === 'OnBeforeOutputDamage' ||
                         abilityEvent === 'OnBeforeDamageAction') &&
                       contextOverrides.fixedBuffOwnerTarget === 'caster'
                     ? {
                         ...BUFF_ACTION_CONTEXT,
                         // 固定木桩场景中干员输出伤害的受击目标只能是唯一敌人。保留事件
                         // 条件与动态标签筛选，但无需把已知身份降级成不可投影的 eventTarget。
+                        actionTargetTarget: 'enemy' as const,
                         abilityEntityQueries,
                         ...projectionContextOverrides,
-                        actionTargetTarget: 'enemy' as const,
                       }
                     : {
                         ...BUFF_ACTION_CONTEXT,
@@ -732,18 +731,9 @@ export function compileBuffRuntimeDefinitionSource(
             ...(source.lifecycle.negatePriority ? { negate: true as const } : {}),
           },
     maxStackCount: scalarOperand(source.lifecycle.maxStackCount),
-    ...(source.lifecycle.lifeType === 'Limited' ||
-    source.lifecycle.stackingType === 'TimedGrowingEnhance'
+    ...(source.lifecycle.lifeType === 'Limited'
       ? { durationSeconds: scalarOperand(source.lifecycle.duration) }
       : {}),
-    ...(source.lifecycle.addingCooldown === null
-      ? {}
-      : {
-          addingCooldownSeconds: scalarOperand(source.lifecycle.addingCooldown),
-          ...(source.lifecycle.ignoreCooldownWhenAdding
-            ? { ignoreAddingCooldown: true as const }
-            : {}),
-        }),
     ...(source.lifecycle.triggerInterval.value < 0 &&
     source.lifecycle.triggerInterval.blackboardKey === null
       ? {}
@@ -880,17 +870,7 @@ function compileBuffDamageModifiers(
     // 空 processor 列表在原生数据中确实存在（例如莱万汀满能量图标 Buff），无论条件
     // 是否成立都不会修改伤害。来源层仍严格解析全部字段，运行投影只去掉这个恒等项。
     if (modifier.processors.length === 0) return [];
-    const conditionalScale = parseConditionalDamageScalePrelude(modifier.condition);
-    const condition = compileDamageModifierCondition(
-      conditionalScale === null
-        ? modifier.condition
-        : {
-            ...modifier.condition,
-            actions: modifier.condition.actions.filter(node => node !== conditionalScale.node),
-          },
-      index,
-      context,
-    );
+    const condition = compileDamageModifierCondition(modifier.condition, index, context);
     const enabledSide = DAMAGE_MODIFIER_SIDES[modifier.enabledSide];
     if (enabledSide === undefined) {
       throw new Error(
@@ -931,115 +911,9 @@ function compileBuffDamageModifiers(
         attributeTiming: 'runtime' as const,
       };
     });
-    if (conditionalScale === null)
-      return [{ enabledSide, ...(condition === undefined ? {} : { condition }), processors }];
-    const branchCondition = compileDamageModifierCondition(
-      conditionalScale.node.body.condition,
-      index,
-      context,
-    );
-    if (branchCondition === undefined)
-      throw new Error(`${conditionalScale.node.sourcePath}: expected a non-empty branch condition`);
-    const rewriteProcessors = (multiplier: number) =>
-      processors.map(processor =>
-        processor.kind === 'damageScale' &&
-        typeof processor.addition !== 'number' &&
-        processor.addition.blackboardKey === conditionalScale.outputKey
-          ? {
-              ...processor,
-              addition: {
-                blackboardKey: conditionalScale.inputKey,
-                ...(multiplier === 1 ? {} : { multiplier }),
-              },
-            }
-          : processor,
-      );
-    if (
-      !processors.some(
-        processor =>
-          processor.kind === 'damageScale' &&
-          typeof processor.addition !== 'number' &&
-          processor.addition.blackboardKey === conditionalScale.outputKey,
-      )
-    )
-      throw new Error(`${conditionalScale.node.sourcePath}: computed damage scale is not consumed`);
-    const combine = (
-      branch: NonNullable<CompiledBuffDamageModifierSource['condition']>,
-    ): NonNullable<CompiledBuffDamageModifierSource['condition']> =>
-      condition === undefined ? branch : { kind: 'all', conditions: [condition, branch] };
-    return [
-      {
-        enabledSide,
-        condition: combine(branchCondition),
-        processors: rewriteProcessors(conditionalScale.trueMultiplier),
-      },
-      {
-        enabledSide,
-        condition: combine({ kind: 'not', condition: branchCondition }),
-        processors: rewriteProcessors(1),
-      },
-    ];
+    return [{ enabledSide, ...(condition === undefined ? {} : { condition }), processors }];
   });
   return modifiers.length === 0 ? {} : { damageModifiers: modifiers };
-}
-
-function parseConditionalDamageScalePrelude(
-  source: NativeSequenceSource<KnownNativeActionLeafSource>,
-): {
-  readonly node: NativeActionNodeSource<KnownNativeActionLeafSource> & {
-    readonly body: Extract<
-      NativeActionNodeSource<KnownNativeActionLeafSource>['body'],
-      { readonly kind: 'ifElse' }
-    >;
-  };
-  readonly inputKey: string;
-  readonly outputKey: string;
-  readonly trueMultiplier: number;
-} | null {
-  const branches = source.actions.filter(
-    (
-      node,
-    ): node is NativeActionNodeSource<KnownNativeActionLeafSource> & {
-      readonly body: Extract<
-        NativeActionNodeSource<KnownNativeActionLeafSource>['body'],
-        { readonly kind: 'ifElse' }
-      >;
-    } => node.metadata.enabled && node.body.kind === 'ifElse',
-  );
-  if (branches.length === 0) return null;
-  if (branches.length !== 1) throw new Error('damage modifier has multiple calculation branches');
-  const node = branches[0]!;
-  const trueNodes = node.body.whenTrue.actions.filter(item => item.metadata.enabled);
-  const falseNodes = node.body.whenFalse.actions.filter(item => item.metadata.enabled);
-  if (
-    trueNodes.length !== 1 ||
-    falseNodes.length !== 1 ||
-    trueNodes[0]!.body.kind !== 'leaf' ||
-    trueNodes[0]!.body.value.family !== 'blackboardCalculation' ||
-    falseNodes[0]!.body.kind !== 'leaf' ||
-    falseNodes[0]!.body.value.family !== 'blackboardMutation'
-  )
-    throw new Error(`${node.sourcePath}: unsupported damage modifier calculation branch`);
-  const whenTrue = trueNodes[0]!.body.value.action;
-  const whenFalse = falseNodes[0]!.body.value.action;
-  const inputKey = whenTrue.left.blackboardKey;
-  if (
-    whenTrue.operation !== 'Multiply' ||
-    inputKey === null ||
-    whenTrue.right.blackboardKey !== null ||
-    whenTrue.addend !== null ||
-    whenFalse.operation !== 'Assign' ||
-    !whenFalse.directValue ||
-    whenFalse.value.blackboardKey !== inputKey ||
-    whenFalse.key !== whenTrue.key
-  )
-    throw new Error(`${node.sourcePath}: unsupported damage modifier calculation formula`);
-  return {
-    node,
-    inputKey,
-    outputKey: whenTrue.key,
-    trueMultiplier: whenTrue.right.value,
-  };
 }
 
 function compileBuffHealModifiers(
@@ -1050,9 +924,9 @@ function compileBuffHealModifiers(
 } {
   const modifiers = source.healModifiers.map((modifier, modifierIndex) => {
     const enabledSide =
-      modifier.enabledSide === 'Healer' || modifier.enabledSide === 'Attacker'
+      modifier.enabledSide === 'Healer'
         ? ('healer' as const)
-        : modifier.enabledSide === 'HealReceiver' || modifier.enabledSide === 'Defender'
+        : modifier.enabledSide === 'HealReceiver'
           ? ('receiver' as const)
           : null;
     if (enabledSide === null) {
@@ -1449,53 +1323,21 @@ function compileDamageModifierCondition(
         condition.kind === 'damageDecorateMask' &&
         (condition.checkType === 'HasAny' || condition.checkType === 'HasAll')
       ) {
-        const has = (bit: number) => Math.floor(condition.mask / bit) % 2 === 1;
         const tags = [
-          ...(has(256) ? (['normalSkill'] as const) : []),
-          ...(has(512) ? (['ultimateSkill'] as const) : []),
-          ...(has(8192) ? (['comboSkill'] as const) : []),
-          ...(has(2097152) ? (['normalAttackLastCombo'] as const) : []),
-          ...(has(4194304) ? (['fireBurst'] as const) : []),
-          ...(has(8388608) ? (['cryoBurst'] as const) : []),
-          ...(has(16777216) ? (['electricBurst'] as const) : []),
-          ...(has(33554432) ? (['natureBurst'] as const) : []),
+          ...(condition.mask & 256 ? (['normalSkill'] as const) : []),
+          ...(condition.mask & 512 ? (['ultimateSkill'] as const) : []),
+          ...(condition.mask & 8192 ? (['comboSkill'] as const) : []),
+          ...(condition.mask & 2097152 ? (['normalAttackLastCombo'] as const) : []),
         ];
-        const features = [
-          ...(has(4096) ? (['canBreakWeakness'] as const) : []),
-          ...(has(16384) ? (['crush'] as const) : []),
-          ...(has(32768) ? (['airborne'] as const) : []),
-          ...(has(65536) ? (['knockDown'] as const) : []),
-          ...(has(134217728) ? (['shatter'] as const) : []),
-          ...(has(268435456) ? (['dot'] as const) : []),
-          ...(has(536870912) ? (['remainArea'] as const) : []),
-          ...(has(1073741824) ? (['physicalInfliction'] as const) : []),
-          ...(has(2147483648) ? (['talentDamage'] as const) : []),
-        ];
-        const knownBits = [
-          256, 512, 4096, 8192, 16384, 32768, 65536, 2097152, 4194304, 8388608, 16777216, 33554432,
-          134217728, 268435456, 536870912, 1073741824, 2147483648,
-        ];
-        if (
-          tags.length + features.length === 0 ||
-          !Number.isSafeInteger(condition.mask) ||
-          condition.mask < 0 ||
-          condition.mask - knownBits.reduce((sum, bit) => sum + (has(bit) ? bit : 0), 0) !== 0
-        ) {
+        const knownMask = 256 | 512 | 8192 | 2097152;
+        if (tags.length === 0 || (condition.mask & ~knownMask) !== 0) {
           throw new Error(`${node.sourcePath}: unsupported damage decorate mask ${condition.mask}`);
         }
-        const match = condition.checkType === 'HasAny' ? ('hasAny' as const) : ('hasAll' as const);
-        const projected = [
-          ...(tags.length === 0 ? [] : [{ kind: 'eventDamageTagsMatch' as const, match, tags }]),
-          ...(features.length === 0
-            ? []
-            : [{ kind: 'eventDamageFeaturesMatch' as const, match, features }]),
-        ];
-        return projected.length === 1
-          ? projected[0]!
-          : {
-              kind: condition.checkType === 'HasAny' ? ('any' as const) : ('all' as const),
-              conditions: projected,
-            };
+        return {
+          kind: 'eventDamageTagsMatch' as const,
+          match: condition.checkType === 'HasAny' ? ('hasAny' as const) : ('hasAll' as const),
+          tags,
+        };
       }
       throw new Error(
         `${node.sourcePath}: unsupported damage modifier condition ${condition.kind}`,
@@ -1680,59 +1522,10 @@ function createBuffSequenceProjection(
         ...[...(context.dynamicSpatialPointCounts?.keys() ?? [])].map(
           key => [key, 'spatialPoint'] as const,
         ),
-        ...(context.initialTargetGroups ?? []),
       ]),
     compileCondition: (node, targetGroups) => compileEventCondition(node, context, targetGroups),
-    compileConditionNodePrefix: (nodes, targetGroups) => {
-      const [readNode, compareNode] = nodes;
-      if (
-        readNode?.body.kind !== 'leaf' ||
-        readNode.body.value.family !== 'buffBlackboardRead' ||
-        compareNode?.body.kind !== 'leaf' ||
-        compareNode.body.value.family !== 'condition' ||
-        compareNode.body.value.action.kind !== 'floatCompare'
-      ) {
-        return null;
-      }
-      const read = compileLeaf(readNode, targetGroups);
-      if (read.steps.length !== 1 || read.steps[0]?.kind !== 'readBuffBlackboard') {
-        throw new Error(`${readNode.sourcePath}: Buff blackboard condition read must be atomic`);
-      }
-      const comparison = compileEventCondition(compareNode, context, read.state);
-      if (comparison?.kind !== 'actionValueCompare') {
-        throw new Error(`${compareNode.sourcePath}: expected a float comparison`);
-      }
-      const outputKey = read.steps[0].parameters.outputKey;
-      const leftIsRead = comparison.left.kind === 'blackboard' && comparison.left.key === outputKey;
-      const rightIsRead =
-        comparison.right.kind === 'blackboard' && comparison.right.key === outputKey;
-      if (leftIsRead === rightIsRead) {
-        throw new Error(
-          `${compareNode.sourcePath}: comparison must consume the preceding Buff blackboard read exactly once`,
-        );
-      }
-      return {
-        condition: {
-          kind: 'buffBlackboardCompare',
-          target: read.steps[0].parameters.target,
-          query: read.steps[0].parameters.query,
-          desiredKey: read.steps[0].parameters.desiredKey,
-          outputKey,
-          operator: comparison.operator,
-          value: leftIsRead ? comparison.right : comparison.left,
-          buffValueSide: leftIsRead ? 'left' : 'right',
-        },
-        consumedNodeCount: 2,
-      };
-    },
     canOmitTerminalCondition: canOmitUnusedCompiledCondition,
     canOmitUnusedCondition: canOmitUnusedNativeCondition,
-    selectGuardResult: node =>
-      node.body.kind === 'leaf' &&
-      node.body.value.family === 'condition' &&
-      node.body.value.action.kind === 'moveInput'
-        ? context.fixedMoveInput
-        : undefined,
     evaluateCondition: condition => {
       if (condition.kind === 'constant') return condition.value;
       if (condition.kind === 'all' && condition.conditions.length === 0) return true;
@@ -2096,36 +1889,6 @@ function createBuffSequenceProjection(
         !node.body.action.onlyExecuteWhenSourceIsMainCharacter &&
         !node.body.action.onlyExecuteWhenSourceIsGuard
       ) {
-        const loopContext: CombatActionProjectionContextSource = {
-          ...context,
-          actionTargetTarget: 'enemy',
-        };
-        const body = compileActionSequenceProgram(node.body.action, {
-          ...createBuffSequenceProjection(visualOnlyIds, loopContext, extensions),
-          initialState: () => partyTargetGroups,
-        });
-        return {
-          steps: [
-            {
-              kind: 'forEachContextTarget',
-              parameters: { contextKey: node.body.target.targetGroupKey },
-              body,
-            },
-          ],
-          state: partyTargetGroups,
-        };
-      }
-      if (
-        node.body.target.targetSource === 'Context' &&
-        context.enemyOrFixedPointTargetGroupKeys?.has(node.body.target.targetGroupKey) === true &&
-        node.body.target.finderType === null &&
-        node.body.target.validatorTypes.length === 0 &&
-        node.body.target.postProcessorTypes.length === 0 &&
-        !node.body.action.onlyExecuteWhenSourceIsMainCharacter &&
-        !node.body.action.onlyExecuteWhenSourceIsGuard
-      ) {
-        // 该组的非实体分支是与木桩共点的 FixedPoint。此循环通常受 EntityNum 守卫；
-        // 即使直接迭代，已支持的投射物后端也只会把共点发射压缩为唯一木桩命中。
         const loopContext: CombatActionProjectionContextSource = {
           ...context,
           actionTargetTarget: 'enemy',
@@ -2511,17 +2274,13 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
   const nodes = sequences.flatMap(sequence => collectNativeActionNodes(sequence));
   const leafNodes = nodes.filter(node => node.body.kind === 'leaf');
   const candidates = new Set(
-    leafNodes.flatMap(node => {
-      if (node.body.kind !== 'leaf') return [];
-      const leaf = node.body.value;
-      if (leaf.family === 'blackboardMutation' && leaf.action.directValue) return [leaf.action.key];
-      if (leaf.family === 'blackboardCalculation') return [leaf.action.key];
-      if (leaf.family === 'spatialMeasurement') return [leaf.action.outputKey];
-      if (leaf.family !== 'presentationCalculation') return [];
-      return leaf.action.kind === 'saveCameraAngle'
-        ? [...leaf.action.outputKeys]
-        : [leaf.action.outputKey];
-    }),
+    leafNodes.flatMap(node =>
+      node.body.kind === 'leaf' &&
+      node.body.value.family === 'blackboardMutation' &&
+      node.body.value.action.directValue
+        ? [node.body.value.action.key]
+        : [],
+    ),
   );
   let candidateSetChanged = true;
   while (candidateSetChanged) {
@@ -2546,19 +2305,9 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
           branchNodes.every(
             child =>
               (child.body.kind === 'ifElse' && child.body.alwaysNext) ||
-              // collectNativeActionNodes 同时返回结构节点及其后代；ForEach 本身不读写
-              // 黑板，是否纯表现由后代逐项判定。
-              child.body.kind === 'forEach' ||
               (child.body.kind === 'leaf' &&
                 (child.body.value.family === 'condition' ||
                   child.body.value.family === 'presentationCalculation' ||
-                  (child.body.value.family === 'blackboardMutation' &&
-                    child.body.value.action.directValue &&
-                    candidates.has(child.body.value.action.key)) ||
-                  (child.body.value.family === 'blackboardCalculation' &&
-                    candidates.has(child.body.value.action.key)) ||
-                  (child.body.value.family === 'spatialMeasurement' &&
-                    candidates.has(child.body.value.action.outputKey)) ||
                   isCombatInvisiblePresentationLeaf(child))),
           )
         );
@@ -2595,15 +2344,6 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
               node.body.value.action.directValue &&
               node.body.value.action.value.blackboardKey === key &&
               candidates.has(node.body.value.action.key)) ||
-            (node.body.value.family === 'blackboardCalculation' &&
-              node.body.value.action.key === key &&
-              [
-                node.body.value.action.left.blackboardKey,
-                node.body.value.action.right.blackboardKey,
-                node.body.value.action.addend?.blackboardKey ?? null,
-              ].every(inputKey => inputKey === null || candidates.has(inputKey))) ||
-            (node.body.value.family === 'spatialMeasurement' &&
-              node.body.value.action.outputKey === key) ||
             node.body.value.family === 'presentationCalculation' ||
             isCombatInvisiblePresentationLeaf(node) ||
             (node.body.value.family === 'condition' && presentationConditionNodes.has(node)))
@@ -3147,7 +2887,6 @@ function compilePresentation(source: BuffPresentationSource): CompiledBuffPresen
       : { iconId: source.spritePath, iconPath: `/icons/${source.spritePath}.webp` }),
     showInHeadBarCommon: source.showInHeadBarCommon,
     showInHeadBarAttached: source.showInHeadBarAttached,
-    showDirectlyInHeadBuff: source.showDirectlyInHeadBuff ?? false,
     showInSquadIcon: source.showInSquadIcon,
     onlyShowForMainCharacter: source.onlyShowForMainCharacter,
     blinkInMainCharHpBar: source.blinkInMainCharHpBar,
@@ -3210,7 +2949,6 @@ const STACKING_TYPES: Record<BuffStackingTypeSource, BuffStackingType> = {
   OverwriteDuration: 'overwriteDuration',
   EnhanceAndOverwriteDuration: 'enhanceAndOverwriteDuration',
   HighPriorityWithMaxStack: 'highPriorityWithMaxStack',
-  TimedGrowingEnhance: 'timedGrowingEnhance',
 };
 
 const DAMAGE_MODIFIER_SIDES: Readonly<Record<string, DamageModifierSide>> = {

@@ -14,7 +14,7 @@ import {
 } from '../src/compiler/projectileRuntimeProjection.ts';
 import { parseProjectileLaunchActionSource } from '../src/source/referenceActions.ts';
 import { parseProjectileRuntimeSource } from '../src/source/projectileRuntime.ts';
-import { GameplayTagRegistry, gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';
+import { gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';
 import {
   makeReturnProjection,
   parseReturnSequence,
@@ -30,24 +30,6 @@ function damageSource(index = 0) {
 }
 
 describe('公共回调伤害投影', () => {
-  it('把 DamageUnit 的原生 GameplayTag ID 解析为路径并保留到伤害步骤', () => {
-    const path = 'Damage/TyphoeaSkill/FloatingHit_Weak';
-    const source = damageSource();
-    const operation = compileEventTargetSimpleDamageOperationSource(
-      {
-        ...source,
-        units: [{ ...source.units[0]!, damageTagIds: [gameplayTagIdFromPath(path)] }],
-      },
-      'typhoeus.damage',
-      {
-        actionOwnerTarget: 'caster',
-        actionSourceTarget: 'caster',
-        gameplayTagRegistry: new GameplayTagRegistry([path]),
-      },
-    );
-    expect(operation.parameters.gameplayTags).toEqual([path]);
-  });
-
   it('HP 单元中序列化但未启用的失衡计算不产生额外失衡伤害', () => {
     const source = damageSource();
     const withInactivePoiseCalculation = {

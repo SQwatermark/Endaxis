@@ -53,11 +53,6 @@ function isPresentationActionNode(
       presentationOnlyBlackboardKeys.has(body.value.action.key)
     )
       return true;
-    if (
-      body.value.family === 'spatialMeasurement' &&
-      presentationOnlyBlackboardKeys.has(body.value.action.outputKey)
-    )
-      return true;
     if (body.value.family === 'animationEventListener') {
       return body.value.action.actionOnEvent.actions.every(child =>
         isPresentationActionNode(child, presentationOnlyBlackboardKeys, true),
@@ -67,11 +62,6 @@ function isPresentationActionNode(
       body.value.family === 'presentation' ||
       body.value.family === 'presentationCalculation' ||
       body.value.family === 'spatial'
-    );
-  }
-  if (body.kind === 'forEach') {
-    return body.action.actions.every(child =>
-      isPresentationActionNode(child, presentationOnlyBlackboardKeys, true),
     );
   }
   if (body.kind !== 'ifElse') return false;
@@ -101,69 +91,6 @@ export function isPresentationOnlyActionSequence(
 }
 
 /**
- * Typhoeus 浮游攻击用候选敌人位置决定自动转向镜头。子图虽然包含 Find/Pick、计数、
- * ForEach 与临时黑板运算，但最终只到 CameraRotate/DebugPrint；没有伤害、Buff、资源、
- * 实体或时间步骤。严格限制其专用 Context/黑板键，避免把普通目标选择误删。
- */
-export function isTyphoeaCameraSteeringSequence(
-  sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
-): boolean {
-  const targetKeys = new Set(['all_tar', 'tar_front', 'tar_surrund', 'tar_turn']);
-  const valueKeys = new Set([
-    'enemy_forward_num',
-    'enemy_turn_distance',
-    'camera_rotate_angle',
-    'is_enemy_rightside',
-    'turn_angle_ratio',
-  ]);
-  const nodes = collectNativeActionNodes(sequence).filter(node => node.metadata.enabled);
-  const hasCameraOutput = nodes.some(
-    node =>
-      node.body.kind === 'leaf' &&
-      node.body.value.family === 'presentation' &&
-      node.body.value.action.kind === 'cameraRotate',
-  );
-  const hasSteeringAngle = nodes.some(
-    node =>
-      node.body.kind === 'leaf' &&
-      node.body.value.family === 'presentationCalculation' &&
-      node.body.value.action.kind === 'saveTwoDirectionAngle' &&
-      node.body.value.action.outputKey === 'enemy_turn_distance',
-  );
-  const hasCameraValueAdjustment = nodes.some(
-    node =>
-      node.body.kind === 'leaf' &&
-      node.body.value.family === 'blackboardCalculation' &&
-      node.body.value.action.key === 'camera_rotate_angle',
-  );
-  if (!hasCameraOutput || (!hasSteeringAngle && !hasCameraValueAdjustment)) return false;
-  return nodes.every(node => {
-    const body = node.body;
-    if (body.kind === 'ifElse' || body.kind === 'forEach') return true;
-    if (body.kind !== 'leaf') return false;
-    const leaf = body.value;
-    if (
-      leaf.family === 'presentation' ||
-      leaf.family === 'presentationCalculation' ||
-      leaf.family === 'spatialMeasurement'
-    )
-      return true;
-    if (leaf.family === 'condition')
-      return ['mainOperator', 'entityCount', 'floatCompare'].includes(leaf.action.kind);
-    if (leaf.family === 'targetGroup') {
-      return (
-        targetKeys.has(leaf.action.targetGroupKey) &&
-        (leaf.action.producerType === 'FindTargetAction' ||
-          leaf.action.producerType === 'PickTargetAction')
-      );
-    }
-    if (leaf.family === 'blackboardMutation' || leaf.family === 'blackboardCalculation')
-      return valueKeys.has(leaf.action.key);
-    return false;
-  });
-}
-
-/**
  * 只把“写入和所有跨时间线消费者均属于纯表现控制树”的动作黑板键判为可删除。
  * 从全部写入键开始反复收缩；一个候选依赖后来被判为战斗键时，依赖它的整棵树也会在下一轮退出。
  */
@@ -173,17 +100,13 @@ export function collectPresentationOnlyBlackboardKeys(
   const timelines = graph.actionGroup.timelineActions.map(item => item.sequence);
   const candidates = new Set(
     timelines.flatMap(sequence =>
-      collectNativeActionNodes(sequence).flatMap(node => {
-        if (node.body.kind !== 'leaf') return [];
-        const leaf = node.body.value;
-        if (leaf.family === 'blackboardMutation' || leaf.family === 'blackboardCalculation')
-          return [leaf.action.key];
-        if (leaf.family === 'spatialMeasurement') return [leaf.action.outputKey];
-        if (leaf.family !== 'presentationCalculation') return [];
-        return leaf.action.kind === 'saveCameraAngle'
-          ? [...leaf.action.outputKeys]
-          : [leaf.action.outputKey];
-      }),
+      collectNativeActionNodes(sequence).flatMap(node =>
+        node.body.kind === 'leaf' &&
+        (node.body.value.family === 'blackboardMutation' ||
+          node.body.value.family === 'blackboardCalculation')
+          ? [node.body.value.action.key]
+          : [],
+      ),
     ),
   );
   let changed: boolean;
@@ -218,69 +141,39 @@ export function collectCombatInvisibleRandomBlackboardKeys(
   const nodes = graph.actionGroup.timelineActions
     .flatMap(timeline => collectNativeActionNodes(timeline.sequence))
     .filter(node => node.body.kind === 'leaf');
-  const randomKeys = new Set(
+  const candidates = new Set(
     nodes.flatMap(node =>
       node.body.kind === 'leaf' && node.body.value.family === 'randomBlackboard'
         ? [node.body.value.action.targetKey]
         : [],
     ),
   );
-  const candidates = new Set([
-    ...randomKeys,
-    ...nodes.flatMap(node =>
-      node.body.kind === 'leaf' && node.body.value.family === 'blackboardCalculation'
-        ? [node.body.value.action.key]
-        : [],
-    ),
-  ]);
-  let changed: boolean;
-  do {
-    changed = false;
-    for (const key of candidates) {
-      const safe = nodes.every(node => {
-        const occurrences = countExactString(node.body, key);
-        if (occurrences === 0) return true;
-        if (
-          node.body.kind === 'leaf' &&
-          node.body.value.family === 'randomBlackboard' &&
-          node.body.value.action.targetKey === key
-        ) {
-          return occurrences === 1;
-        }
-        if (
-          node.body.kind === 'leaf' &&
-          node.body.value.family === 'blackboardCalculation' &&
-          candidates.has(node.body.value.action.key)
-        ) {
+  for (const key of candidates) {
+    const safe = nodes.every(node => {
+      const occurrences = countExactString(node.body, key);
+      if (occurrences === 0) return true;
+      if (
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'randomBlackboard' &&
+        node.body.value.action.targetKey === key
+      ) {
+        return occurrences === 1;
+      }
+      if (node.body.kind === 'leaf' && node.body.value.family === 'targetGroup') {
+        const action = node.body.value.action;
+        const pointOccurrences =
+          action.finderType === 'PointFinder'
+            ? (action.finderPointBlackboardKeys ?? []).filter(value => value === key).length
+            : 0;
+        if (pointOccurrences > 0 && pointOccurrences === occurrences) {
           return true;
         }
-        if (node.body.kind === 'leaf' && node.body.value.family === 'targetGroup') {
-          const action = node.body.value.action;
-          const pointOccurrences =
-            action.finderType === 'PointFinder'
-              ? (action.finderPointBlackboardKeys ?? []).filter(value => value === key).length
-              : 0;
-          if (pointOccurrences > 0 && pointOccurrences === occurrences) return true;
-        }
-        if (node.body.kind === 'leaf' && node.body.value.family === 'projectile') {
-          const launchAssignmentOccurrences = node.body.value.action.assignments.filter(
-            assignment => assignment.inputValueKey === key,
-          ).length;
-          // 标准模型把投射物移动压缩为共点目标上的同步首次命中；只流入实体初始化赋值的
-          // 随机数因此不会改变命中、回调或伤害。其它任何同节点读取仍会让候选退出。
-          if (launchAssignmentOccurrences > 0 && launchAssignmentOccurrences === occurrences) {
-            return true;
-          }
-        }
-        return false;
-      });
-      if (!safe) {
-        candidates.delete(key);
-        changed = true;
       }
-    }
-  } while (changed);
-  return new Set([...randomKeys].filter(key => candidates.has(key)));
+      return false;
+    });
+    if (!safe) candidates.delete(key);
+  }
+  return candidates;
 }
 
 function countExactString(value: unknown, expected: string): number {
@@ -555,13 +448,9 @@ export function collectUnconsumedTargetGroups(
   );
   const keys = new Set(
     nodes.flatMap(node =>
-      node.body.kind !== 'leaf'
-        ? []
-        : node.body.value.family === 'targetGroup'
-          ? [node.body.value.action.targetGroupKey]
-          : node.body.value.family === 'physicsCast'
-            ? node.body.value.action.outputTargetGroupKeys
-            : [],
+      node.body.kind === 'leaf' && node.body.value.family === 'targetGroup'
+        ? [node.body.value.action.targetGroupKey]
+        : [],
     ),
   );
   for (const key of keys) {
@@ -569,11 +458,6 @@ export function collectUnconsumedTargetGroups(
       const occurrences = countExactString(node.body, key);
       if (occurrences === 0) return true;
       if (node.body.kind !== 'leaf') return false;
-      if (
-        node.body.value.family === 'physicsCast' &&
-        node.body.value.action.outputTargetGroupKeys.includes(key)
-      )
-        return true;
       return (
         node.body.value.family === 'targetGroup' &&
         node.body.value.action.targetGroupKey === key &&
@@ -582,30 +466,5 @@ export function collectUnconsumedTargetGroups(
     });
     if (!onlyProducerWrites) keys.delete(key);
   }
-  // PhysicsCast 的结果在动作执行时覆盖同名 Context；此前时间线对旧值的读取不属于消费者。
-  // 这里补上严格的顺序判断，只要该次写入之后再无读取，就把其局部命中/回退点视为未消费。
-  nodes.forEach((node, producerIndex) => {
-    if (node.body.kind !== 'leaf' || node.body.value.family !== 'physicsCast') return;
-    for (const key of node.body.value.action.outputTargetGroupKeys) {
-      const hasLaterConsumer = nodes.slice(producerIndex + 1).some(candidate => {
-        const occurrences = countExactString(candidate.body, key);
-        if (occurrences === 0) return false;
-        if (candidate.body.kind !== 'leaf') return true;
-        if (
-          candidate.body.value.family === 'targetGroup' &&
-          candidate.body.value.action.targetGroupKey === key &&
-          occurrences === 1
-        )
-          return false;
-        if (
-          candidate.body.value.family === 'physicsCast' &&
-          candidate.body.value.action.outputTargetGroupKeys.includes(key)
-        )
-          return false;
-        return true;
-      });
-      if (!hasLaterConsumer) keys.add(key);
-    }
-  });
   return keys;
 }

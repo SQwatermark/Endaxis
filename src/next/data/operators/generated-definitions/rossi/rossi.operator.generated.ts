@@ -62,7 +62,7 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
+                durationSeconds: { kind: 'constant', value: 0.03 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -81,14 +81,7 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.270000010728836, 0.300000011920929, 0.319999992847443, 0.349999994039536, 0.379999995231628,
-      0.409999996423721, 0.430000007152557, 0.46000000834465, 0.490000009536743, 0.519999980926514,
-      0.560000002384186, 0.610000014305115,
-    ],
-  },
+  { atb: 0, atk_scale: [0.27, 0.3, 0.32, 0.35, 0.38, 0.41, 0.43, 0.46, 0.49, 0.52, 0.56, 0.61] },
 );
 
 export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -136,7 +129,7 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
+                durationSeconds: { kind: 'constant', value: 0.03 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -167,7 +160,7 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
+                durationSeconds: { kind: 'constant', value: 0.06 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -188,11 +181,7 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.319999992847443, 0.349999994039536, 0.379999995231628, 0.409999996423721, 0.439999997615814,
-      0.469999998807907, 0.5, 0.540000021457672, 0.569999992847443, 0.610000014305115,
-      0.649999976158142, 0.709999978542328,
-    ],
+    atk_scale: [0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.5, 0.54, 0.57, 0.61, 0.65, 0.71],
     poise: 0,
   },
 );
@@ -244,7 +233,7 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0299999993294477 },
+                durationSeconds: { kind: 'constant', value: 0.03 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -285,7 +274,7 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
               }),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
+                durationSeconds: { kind: 'constant', value: 0.06 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -306,11 +295,7 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.340000003576279, 0.370000004768372, 0.409999996423721, 0.439999997615814, 0.479999989271164,
-      0.509999990463257, 0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142,
-      0.709999978542328, 0.769999980926514,
-    ],
+    atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77],
     poise: 0,
   },
 );
@@ -363,7 +348,7 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
             key: 'atk_scale',
             operation: 'multiply',
             left: { kind: 'blackboard', key: 'atk_scale' },
-            right: { kind: 'constant', value: 0.200000002980232 },
+            right: { kind: 'constant', value: 0.2 },
           }),
           step(
             'dealDamage',
@@ -676,11 +661,7 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.409999996423721, 0.449999988079071, 0.490000009536743, 0.529999971389771, 0.569999992847443,
-      0.610000014305115, 0.649999976158142, 0.689999997615814, 0.730000019073486, 0.779999971389771,
-      0.839999973773956, 0.910000026226044,
-    ],
+    atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91],
     poise: 0,
   },
 );
@@ -788,8 +769,8 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
                   kind: 'inline',
                   keys: [
                     {
-                      time: 0.00292397406883538,
-                      value: 0.200000002980232,
+                      time: 0.002923974,
+                      value: 0.2,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -797,8 +778,8 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.124178200960159,
-                      value: 0.100000001490116,
+                      time: 0.1241782,
+                      value: 0.1,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -807,7 +788,7 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
                     },
                     {
                       time: 0.5,
-                      value: 0.100000001490116,
+                      value: 0.1,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -816,7 +797,7 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
                     },
                     {
                       time: 1,
-                      value: 0.200000002980232,
+                      value: 0.2,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -842,11 +823,7 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 21,
-    atk_scale: [
-      0.5, 0.550000011920929, 0.600000023841858, 0.649999976158142, 0.699999988079071, 0.75,
-      0.800000011920929, 0.850000023841858, 0.899999976158142, 0.959999978542328, 1.03999996185303,
-      1.12999999523163,
-    ],
+    atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.13],
     isHitbyMain: 0,
     poise: 18,
   },
@@ -880,7 +857,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'physical',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.100000001490116,
+                      calculationMultiplier: 0.1,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0028_wulfa_power_attack:/scheduledSequences/0/sequence/steps/0/body/steps/0/whenTrue/steps/0',
@@ -890,7 +867,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
+                        durationSeconds: { kind: 'constant', value: 0.06 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: { kind: 'named', key: 'char_normal_attack' },
@@ -915,9 +892,9 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -943,7 +920,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
                       damageType: 'physical',
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       calculation: 'breakingAttack',
-                      calculationMultiplier: 0.100000001490116,
+                      calculationMultiplier: 0.1,
                       tags: ['normalAttack', 'powerAttack'],
                     },
                     'chr_0028_wulfa_power_attack:/scheduledSequences/1/sequence/steps/0/body/steps/0/whenTrue/steps/0',
@@ -953,7 +930,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
+                        durationSeconds: { kind: 'constant', value: 0.06 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: { kind: 'named', key: 'char_normal_attack' },
@@ -978,9 +955,9 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -997,7 +974,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.800000011920929,
+              calculationMultiplier: 0.8,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0028_wulfa_power_attack:/scheduledSequences/2/sequence/steps/1',
@@ -1010,7 +987,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.449999988079071 },
+            durationSeconds: { kind: 'constant', value: 0.45 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1018,7 +995,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
               keys: [
                 {
                   time: 0,
-                  value: 0.0500000007450581,
+                  value: 0.05,
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
@@ -1026,8 +1003,8 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.100000001490116,
-                  value: 0.0500000007450581,
+                  time: 0.1,
+                  value: 0.05,
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
@@ -1035,10 +1012,10 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.593569815158844,
-                  value: 0.0500000007450581,
-                  inTangent: -0.0204695295542479,
-                  outTangent: -0.0204695295542479,
+                  time: 0.5935698,
+                  value: 0.05,
+                  inTangent: -0.02046953,
+                  outTangent: -0.02046953,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1046,8 +1023,8 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 3.48396492004395,
-                  outTangent: 3.48396492004395,
+                  inTangent: 3.483965,
+                  outTangent: 3.483965,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1112,12 +1089,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const rossiPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -1164,14 +1136,7 @@ export const rossiPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -1212,7 +1177,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             key: 'atk_scale_once',
             operation: 'multiply',
             left: { kind: 'blackboard', key: 'atk_scale_1' },
-            right: { kind: 'constant', value: 0.300000011920929 },
+            right: { kind: 'constant', value: 0.3 },
           }),
           repeatEachTick(
             sequence(
@@ -1235,9 +1200,9 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -1251,7 +1216,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             key: 'atk_scale_once',
             operation: 'multiply',
             left: { kind: 'blackboard', key: 'atk_scale_1' },
-            right: { kind: 'constant', value: 0.300000011920929 },
+            right: { kind: 'constant', value: 0.3 },
           }),
           repeatEachTick(
             sequence(
@@ -1274,9 +1239,9 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -1290,7 +1255,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             key: 'atk_scale_once',
             operation: 'multiply',
             left: { kind: 'blackboard', key: 'atk_scale_1' },
-            right: { kind: 'constant', value: 0.400000005960464 },
+            right: { kind: 'constant', value: 0.4 },
           }),
           step('modifyActionValue', {
             key: 'trigger',
@@ -1323,7 +1288,6 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: true,
-                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -1447,7 +1411,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       priority: 0,
                       maxStackCount: 1,
                       durationSeconds: { blackboardKey: 'duration' },
-                      triggerIntervalSeconds: 0.100000001490116,
+                      triggerIntervalSeconds: 0.1,
                       waitFirstTriggerInterval: true,
                       maxTriggerCount: 1,
                       presentation: {
@@ -1456,7 +1420,6 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/airborne.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: false,
-                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -1587,7 +1550,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         ),
                       },
                     },
-                    duration: { kind: 'constant', value: 1.20000004768372 },
+                    duration: { kind: 'constant', value: 1.2 },
                     height: { kind: 'constant', value: 1.5 },
                     speedFactorMultiplier: 1,
                     force: false,
@@ -1620,7 +1583,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.150000005960464 },
+                        durationSeconds: { kind: 'constant', value: 0.15 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: {
@@ -1628,7 +1591,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                           keys: [
                             {
                               time: 0,
-                              value: 0.0500000007450581,
+                              value: 0.05,
                               inTangent: 0,
                               outTangent: 0,
                               weightedMode: 0,
@@ -1636,8 +1599,8 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                               outWeight: 0,
                             },
                             {
-                              time: 0.100000001490116,
-                              value: 0.0500000007450581,
+                              time: 0.1,
+                              value: 0.05,
                               inTangent: 0,
                               outTangent: 0,
                               weightedMode: 0,
@@ -1645,10 +1608,10 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                               outWeight: 0,
                             },
                             {
-                              time: 0.738919615745544,
-                              value: 0.0547380782663822,
-                              inTangent: 0.021058140322566,
-                              outTangent: 0.021058140322566,
+                              time: 0.7389196,
+                              value: 0.05473808,
+                              inTangent: 0.02105814,
+                              outTangent: 0.02105814,
                               weightedMode: 0,
                               inWeight: 0,
                               outWeight: 0,
@@ -1689,7 +1652,6 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: true,
-                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -1813,7 +1775,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       priority: 0,
                       maxStackCount: 1,
                       durationSeconds: { blackboardKey: 'duration' },
-                      triggerIntervalSeconds: 0.100000001490116,
+                      triggerIntervalSeconds: 0.1,
                       waitFirstTriggerInterval: true,
                       maxTriggerCount: 1,
                       presentation: {
@@ -1822,7 +1784,6 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         iconPath: '/icons/airborne.webp',
                         showInHeadBarCommon: false,
                         showInHeadBarAttached: false,
-                        showDirectlyInHeadBuff: false,
                         showInSquadIcon: false,
                         onlyShowForMainCharacter: false,
                         blinkInMainCharHpBar: false,
@@ -1953,7 +1914,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                         ),
                       },
                     },
-                    duration: { kind: 'constant', value: 1.20000004768372 },
+                    duration: { kind: 'constant', value: 1.2 },
                     height: { kind: 'constant', value: 1.5 },
                     speedFactorMultiplier: 1,
                     force: false,
@@ -1986,7 +1947,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                     sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.150000005960464 },
+                        durationSeconds: { kind: 'constant', value: 0.15 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: {
@@ -1994,7 +1955,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                           keys: [
                             {
                               time: 0,
-                              value: 0.0500000007450581,
+                              value: 0.05,
                               inTangent: 0,
                               outTangent: 0,
                               weightedMode: 0,
@@ -2002,8 +1963,8 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                               outWeight: 0,
                             },
                             {
-                              time: 0.100000001490116,
-                              value: 0.0500000007450581,
+                              time: 0.1,
+                              value: 0.05,
                               inTangent: 0,
                               outTangent: 0,
                               weightedMode: 0,
@@ -2011,10 +1972,10 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                               outWeight: 0,
                             },
                             {
-                              time: 0.738919615745544,
-                              value: 0.0547380782663822,
-                              inTangent: 0.021058140322566,
-                              outTangent: 0.021058140322566,
+                              time: 0.7389196,
+                              value: 0.05473808,
+                              inTangent: 0.02105814,
+                              outTangent: 0.02105814,
                               weightedMode: 0,
                               inWeight: 0,
                               outWeight: 0,
@@ -2044,9 +2005,9 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -2474,9 +2435,9 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                     {
                       nativeChanneling: {
                         executeEachFrame: true,
-                        triggerIntervalSeconds: 0.0329999998211861,
+                        triggerIntervalSeconds: 0.033,
                         maxCountPerTarget: 1,
-                        targetTriggerIntervalSeconds: 0.0329999998211861,
+                        targetTriggerIntervalSeconds: 0.033,
                       },
                     },
                   ),
@@ -2960,9 +2921,9 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                     {
                       nativeChanneling: {
                         executeEachFrame: true,
-                        triggerIntervalSeconds: 0.0329999998211861,
+                        triggerIntervalSeconds: 0.033,
                         maxCountPerTarget: 1,
-                        targetTriggerIntervalSeconds: 0.0329999998211861,
+                        targetTriggerIntervalSeconds: 0.033,
                       },
                     },
                   ),
@@ -3467,9 +3428,9 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                     {
                       nativeChanneling: {
                         executeEachFrame: true,
-                        triggerIntervalSeconds: 0.0329999998211861,
+                        triggerIntervalSeconds: 0.033,
                         maxCountPerTarget: 1,
-                        targetTriggerIntervalSeconds: 0.0329999998211861,
+                        targetTriggerIntervalSeconds: 0.033,
                       },
                     },
                   ),
@@ -3947,9 +3908,9 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                     {
                       nativeChanneling: {
                         executeEachFrame: true,
-                        triggerIntervalSeconds: 0.0329999998211861,
+                        triggerIntervalSeconds: 0.033,
                         maxCountPerTarget: 1,
-                        targetTriggerIntervalSeconds: 0.0329999998211861,
+                        targetTriggerIntervalSeconds: 0.033,
                       },
                     },
                   ),
@@ -4086,7 +4047,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
               kind: 'actionValueCompare',
               left: { kind: 'blackboard', key: 'FollowAttackTrigger' },
               operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 0.899999976158142 },
+              right: { kind: 'constant', value: 0.9 },
             },
           }),
         ),
@@ -4138,22 +4099,10 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb_return: 10,
-    atk_scale_1: [
-      0.850000023841858, 0.939999997615814, 1.01999998092651, 1.11000001430511, 1.19000005722046,
-      1.27999997138977, 1.37000000476837, 1.45000004768372, 1.53999996185303, 1.63999998569489,
-      1.76999998092651, 1.91999995708466,
-    ],
+    atk_scale_1: [0.85, 0.94, 1.02, 1.11, 1.19, 1.28, 1.37, 1.45, 1.54, 1.64, 1.77, 1.92],
     atk_scale_2: 0.6,
-    atk_scale_3: [
-      1.27999997138977, 1.4099999666214, 1.52999997138977, 1.6599999666214, 1.78999996185303,
-      1.91999995708466, 2.03999996185303, 2.17000007629395, 2.29999995231628, 2.46000003814697,
-      2.65000009536743, 2.88000011444092,
-    ],
-    atk_scale_bleed: [
-      0.360000014305115, 0.400000005960464, 0.430000007152557, 0.469999998807907, 0.5,
-      0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142, 0.689999997615814,
-      0.75, 0.810000002384186,
-    ],
+    atk_scale_3: [1.28, 1.41, 1.53, 1.66, 1.79, 1.92, 2.04, 2.17, 2.3, 2.46, 2.65, 2.88],
+    atk_scale_bleed: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
     atk_scale_once: 0,
     bleed_critical_damage_interval: 2,
     bleed_critical_damage_scale: 1,
@@ -4182,11 +4131,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
     trigger: 0,
     ups_1: 15,
     usp_2: 10,
-    display_atk_scale_1: [
-      0.850000023841858, 0.939999997615814, 1.01999998092651, 1.11000001430511, 1.19000005722046,
-      1.27999997138977, 1.37000000476837, 1.45000004768372, 1.53999996185303, 1.63999998569489,
-      1.76999998092651, 1.91999995708466,
-    ],
+    display_atk_scale_1: [0.85, 0.94, 1.02, 1.11, 1.19, 1.28, 1.37, 1.45, 1.54, 1.64, 1.77, 1.92],
     usp_1: 15,
   },
 );
@@ -4218,7 +4163,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 key: 'atk_scale_once',
                 operation: 'multiply',
                 left: { kind: 'blackboard', key: 'atk_scale' },
-                right: { kind: 'constant', value: 0.349999994039536 },
+                right: { kind: 'constant', value: 0.35 },
               }),
               step('calculateActionValue', {
                 key: 'poise_once',
@@ -4266,7 +4211,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.239999994635582 },
+                    durationSeconds: { kind: 'constant', value: 0.24 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: {
@@ -4274,7 +4219,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                       keys: [
                         {
                           time: 0,
-                          value: 0.0500000007450581,
+                          value: 0.05,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -4282,8 +4227,8 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                           outWeight: 0,
                         },
                         {
-                          time: 0.699999988079071,
-                          value: 0.0500000007450581,
+                          time: 0.7,
+                          value: 0.05,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -4292,7 +4237,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                         },
                         {
                           time: 1,
-                          value: 0.0750000029802322,
+                          value: 0.075,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -4312,9 +4257,9 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -4330,7 +4275,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 key: 'atk_scale_once',
                 operation: 'multiply',
                 left: { kind: 'blackboard', key: 'atk_scale' },
-                right: { kind: 'constant', value: 0.349999994039536 },
+                right: { kind: 'constant', value: 0.35 },
               }),
               step('calculateActionValue', {
                 key: 'poise_once',
@@ -4354,7 +4299,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 key: 'atk_scale_once',
                 operation: 'multiply',
                 left: { kind: 'blackboard', key: 'atk_scale' },
-                right: { kind: 'constant', value: 0.100000001490116 },
+                right: { kind: 'constant', value: 0.1 },
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0028_wulfa_combo_2_damagewait',
@@ -4364,7 +4309,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                   atk_scale: { kind: 'blackboard', key: 'atk_scale_once' },
                   trigger_times: { kind: 'constant', value: 3 },
                   damage_interval: { kind: 'constant', value: 0.125 },
-                  duration: { kind: 'constant', value: 0.300000011920929 },
+                  duration: { kind: 'constant', value: 0.3 },
                 },
               }),
               step('calculateActionValue', {
@@ -4377,9 +4322,9 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -4592,7 +4537,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.633000016212463 },
+            durationSeconds: { kind: 'constant', value: 0.633 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -4624,11 +4569,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
   },
   {
     alpha: 0,
-    atk_scale: [
-      0.670000016689301, 0.730000019073486, 0.800000011920929, 0.870000004768372, 0.930000007152557,
-      1, 1.07000005245209, 1.12999999523163, 1.20000004768372, 1.27999997138977, 1.37999999523163,
-      1.5,
-    ],
+    atk_scale: [0.67, 0.73, 0.8, 0.87, 0.93, 1, 1.07, 1.13, 1.2, 1.28, 1.38, 1.5],
     atk_scale_once: 0.01,
     cam_angle: 0,
     cam_duration: 0,
@@ -4645,15 +4586,8 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
     time_succeed: 0.4,
     timing_success: 0,
     usp: 10,
-    display_atk_scale_2_f: [
-      0.670000016689301, 0.730000019073486, 0.800000011920929, 0.870000004768372, 0.930000007152557,
-      1, 1.07000005245209, 1.12999999523163, 1.20000004768372, 1.27999997138977, 1.37999999523163,
-      1.5,
-    ],
-    display_atk_scale_2_s: [
-      1.33000004291534, 1.47000002861023, 1.60000002384186, 1.73000001907349, 1.87000000476837, 2,
-      2.13000011444092, 2.26999998092651, 2.40000009536743, 2.5699999332428, 2.76999998092651, 3,
-    ],
+    display_atk_scale_2_f: [0.67, 0.73, 0.8, 0.87, 0.93, 1, 1.07, 1.13, 1.2, 1.28, 1.38, 1.5],
+    display_atk_scale_2_s: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
     display_crit_increase_duration: 15,
     display_crit_increase_rate: 0.25,
     display_poise_2_f: 5,
@@ -4693,7 +4627,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                    durationSeconds: { kind: 'constant', value: 0.4 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 50,
                     curve: {
@@ -4709,8 +4643,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           outWeight: 0,
                         },
                         {
-                          time: 0.200000002980232,
-                          value: 0.0299999993294477,
+                          time: 0.2,
+                          value: 0.03,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -4719,7 +4653,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                         },
                         {
                           time: 0.75,
-                          value: 0.0299999993294477,
+                          value: 0.03,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -4729,8 +4663,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                         {
                           time: 1,
                           value: 1,
-                          inTangent: 0.149662002921104,
-                          outTangent: 0.149662002921104,
+                          inTangent: 0.149662,
+                          outTangent: 0.149662,
                           weightedMode: 0,
                           inWeight: 0,
                           outWeight: 0,
@@ -4748,9 +4682,9 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -4936,9 +4870,9 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -4984,7 +4918,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: true,
-                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -5111,7 +5044,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           priority: 0,
                           maxStackCount: 1,
                           durationSeconds: { blackboardKey: 'duration' },
-                          triggerIntervalSeconds: 0.100000001490116,
+                          triggerIntervalSeconds: 0.1,
                           waitFirstTriggerInterval: true,
                           maxTriggerCount: 1,
                           presentation: {
@@ -5120,7 +5053,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/airborne.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: false,
-                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -5340,9 +5272,9 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -5598,9 +5530,9 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -5646,7 +5578,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: true,
-                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -5773,7 +5704,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           priority: 0,
                           maxStackCount: 1,
                           durationSeconds: { blackboardKey: 'duration' },
-                          triggerIntervalSeconds: 0.100000001490116,
+                          triggerIntervalSeconds: 0.1,
                           waitFirstTriggerInterval: true,
                           maxTriggerCount: 1,
                           presentation: {
@@ -5782,7 +5713,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             iconPath: '/icons/airborne.webp',
                             showInHeadBarCommon: false,
                             showInHeadBarAttached: false,
-                            showDirectlyInHeadBuff: false,
                             showInSquadIcon: false,
                             onlyShowForMainCharacter: false,
                             blinkInMainCharHpBar: false,
@@ -5956,7 +5886,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                    durationSeconds: { kind: 'constant', value: 0.4 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 50,
                     curve: {
@@ -5972,8 +5902,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           outWeight: 0,
                         },
                         {
-                          time: 0.200000002980232,
-                          value: 0.0299999993294477,
+                          time: 0.2,
+                          value: 0.03,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -5982,7 +5912,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                         },
                         {
                           time: 0.75,
-                          value: 0.0299999993294477,
+                          value: 0.03,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -5992,8 +5922,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                         {
                           time: 1,
                           value: 1,
-                          inTangent: 0.149662002921104,
-                          outTangent: 0.149662002921104,
+                          inTangent: 0.149662,
+                          outTangent: 0.149662,
                           weightedMode: 0,
                           inWeight: 0,
                           outWeight: 0,
@@ -6011,9 +5941,9 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -6086,9 +6016,9 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -6129,7 +6059,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'global',
-                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                durationSeconds: { kind: 'constant', value: 0.4 },
                 slot: 'unassigned',
                 priority: 50,
                 curve: {
@@ -6137,7 +6067,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                   keys: [
                     {
                       time: 0,
-                      value: 0.00999999977648258,
+                      value: 0.01,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -6145,8 +6075,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.100000001490116,
-                      value: 0.00999999977648258,
+                      time: 0.1,
+                      value: 0.01,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -6154,8 +6084,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.800000011920929,
-                      value: 0.00999999977648258,
+                      time: 0.8,
+                      value: 0.01,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -6164,7 +6094,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     },
                     {
                       time: 1,
-                      value: 0.00999999977648258,
+                      value: 0.01,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -6305,7 +6235,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.633000016212463 },
+            durationSeconds: { kind: 'constant', value: 0.633 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -6321,7 +6251,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.633000016212463 },
+            durationSeconds: { kind: 'constant', value: 0.633 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -6452,37 +6382,19 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
   },
   {
     alpha: 0,
-    atk_scale_f: [
-      1.33000004291534, 1.47000002861023, 1.60000002384186, 1.73000001907349, 1.87000000476837, 2,
-      2.13000011444092, 2.26999998092651, 2.40000009536743, 2.5699999332428, 2.76999998092651, 3,
-    ],
+    atk_scale_f: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
     atk_scale_once: 0,
-    atk_scale_s: [
-      1.33000004291534, 1.47000002861023, 1.60000002384186, 1.73000001907349, 1.87000000476837, 2,
-      2.13000011444092, 2.26999998092651, 2.40000009536743, 2.5699999332428, 2.76999998092651, 3,
-    ],
+    atk_scale_s: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
     buff_stack: 0,
     cam_angle: 0,
     cam_duration: 0,
     cam_shoulderoffset_X: 0,
     can_trigger_combo: 0,
     count: 0,
-    crit_damage_increase_rate: [
-      0.300000011920929, 0.300000011920929, 0.300000011920929, 0.340000003576279, 0.340000003576279,
-      0.340000003576279, 0.379999995231628, 0.379999995231628, 0.419999986886978, 0.419999986886978,
-      0.46000000834465, 0.5,
-    ],
+    crit_damage_increase_rate: [0.3, 0.3, 0.3, 0.34, 0.34, 0.34, 0.38, 0.38, 0.42, 0.42, 0.46, 0.5],
     crit_increase_duration: 15,
-    crit_increase_rate: [
-      0.150000005960464, 0.150000005960464, 0.150000005960464, 0.170000001788139, 0.170000001788139,
-      0.170000001788139, 0.189999997615814, 0.189999997615814, 0.209999993443489, 0.209999993443489,
-      0.230000004172325, 0.25,
-    ],
-    damage_add: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
+    crit_increase_rate: [0.15, 0.15, 0.15, 0.17, 0.17, 0.17, 0.19, 0.19, 0.21, 0.21, 0.23, 0.25],
+    damage_add: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
     distance: 0,
     input_angle: 0,
     obsorb_no_guard: 0,
@@ -6553,9 +6465,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
                         finishByAction: true,
-                        blackboardAssignments: {
-                          duration: { kind: 'constant', value: 3.09996891021729 },
-                        },
+                        blackboardAssignments: { duration: { kind: 'constant', value: 3.099969 } },
                       }),
                     ),
                     undefined,
@@ -6597,9 +6507,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
                         finishByAction: true,
-                        blackboardAssignments: {
-                          duration: { kind: 'constant', value: 2.86666393280029 },
-                        },
+                        blackboardAssignments: { duration: { kind: 'constant', value: 2.866664 } },
                       }),
                     ),
                     undefined,
@@ -6654,9 +6562,9 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -6725,9 +6633,9 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -6747,7 +6655,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.319999992847443 },
+                durationSeconds: { kind: 'constant', value: 0.32 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 50,
                 curve: {
@@ -6755,7 +6663,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
                   keys: [
                     {
                       time: 0,
-                      value: 0.0500000007450581,
+                      value: 0.05,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -6763,8 +6671,8 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
                       outWeight: 0,
                     },
                     {
-                      time: 0.600000023841858,
-                      value: 0.0500000007450581,
+                      time: 0.6,
+                      value: 0.05,
                       inTangent: 0,
                       outTangent: 0,
                       weightedMode: 0,
@@ -6773,9 +6681,9 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
                     },
                     {
                       time: 1,
-                      value: 0.600000023841858,
-                      inTangent: 1.8651419878006,
-                      outTangent: 1.8651419878006,
+                      value: 0.6,
+                      inTangent: 1.865142,
+                      outTangent: 1.865142,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -7501,9 +7409,9 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
           repeatEachTick(sequence(), {
             nativeChanneling: {
               executeEachFrame: true,
-              triggerIntervalSeconds: 0.0329999998211861,
+              triggerIntervalSeconds: 0.033,
               maxCountPerTarget: -1,
-              targetTriggerIntervalSeconds: 0.033330000936985,
+              targetTriggerIntervalSeconds: 0.03333,
             },
           }),
         ),
@@ -7526,28 +7434,13 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
     AnimScale_Gear_2: 0.75,
     AnimScale_Gear_3: 0.8,
     AnimScale_Gear_4: 1,
-    atk_scale_1: [
-      0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046, 0.150000005960464,
-      0.159999996423721, 0.170000001788139, 0.180000007152557, 0.189999997615814, 0.209999993443489,
-      0.219999998807907, 0.239999994635582,
-    ],
-    atk_scale_2: [
-      1.11000001430511, 1.22000002861023, 1.33000004291534, 1.44000005722046, 1.55999994277954,
-      1.66999995708466, 1.77999997138977, 1.88999998569489, 2, 2.14000010490417, 2.30999994277954,
-      2.5,
-    ],
-    atk_scale_3: [
-      3.32999992370605, 3.67000007629395, 4, 4.32999992370605, 4.67000007629395, 5,
-      5.34000015258789, 5.67000007629395, 6, 6.42000007629395, 6.92000007629395, 7.5,
-    ],
-    atk_scale_crit_fire: [
-      0.140000000596046, 0.150000005960464, 0.159999996423721, 0.180000007152557, 0.189999997615814,
-      0.200000002980232, 0.219999998807907, 0.230000004172325, 0.239999994635582, 0.259999990463257,
-      0.280000001192093, 0.300000011920929,
-    ],
+    atk_scale_1: [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.22, 0.24],
+    atk_scale_2: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
+    atk_scale_3: [3.33, 3.67, 4, 4.33, 4.67, 5, 5.34, 5.67, 6, 6.42, 6.92, 7.5],
+    atk_scale_crit_fire: [0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.22, 0.23, 0.24, 0.26, 0.28, 0.3],
     camera_blocked: 0,
     CapeBuffStack: 0,
-    crit_damage_up_to_bleed: 0.600000023841858,
+    crit_damage_up_to_bleed: 0.6,
     float_temp: 1,
     gear: 4,
     height: 4,
@@ -7564,9 +7457,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
     random_num: 0,
     display_atk_scale_1_max: [2.75, 3, 3.25, 3.5, 3.75, 4, 4.25, 4.5, 4.75, 5.25, 5.5, 6],
     display_atk_scale_1_min: [
-      1.27999997138977, 1.4099999666214, 1.53999996185303, 1.6599999666214, 1.78999996185303,
-      1.91999995708466, 2.04999995231628, 2.1800000667572, 2.29999995231628, 2.46000003814697,
-      2.66000008583069, 2.88000011444092,
+      1.28, 1.41, 1.54, 1.66, 1.79, 1.92, 2.05, 2.18, 2.3, 2.46, 2.66, 2.88,
     ],
   },
 );
@@ -7756,7 +7647,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'atk_scale_bleed',
           operation: 'assign',
-          value: [0.25, 0.300000011920929],
+          value: [0.25, 0.3],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7770,7 +7661,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'damage_up',
           operation: 'assign',
-          value: [0.0599999986588955, 0.119999997317791],
+          value: [0.06, 0.12],
         },
       ],
     },
@@ -7801,7 +7692,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'bleed_critical_damage_scale',
           operation: 'assign',
-          value: [0.119999997317791, 0.239999994635582],
+          value: [0.12, 0.24],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7815,7 +7706,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'heal_scale',
           operation: 'assign',
-          value: [0.0399999991059303, 0.0799999982118607],
+          value: [0.04, 0.08],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7844,14 +7735,14 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'atk_scale_1',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
           blackboardKey: 'atk_scale_3',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7859,7 +7750,7 @@ export default {
           skillKey: 'comboSkill2',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7867,7 +7758,7 @@ export default {
           skillKey: 'comboSkill3',
           blackboardKey: 'atk_scale_s',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7875,7 +7766,7 @@ export default {
           skillKey: 'comboSkill3',
           blackboardKey: 'atk_scale_f',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7883,7 +7774,7 @@ export default {
           skillKey: 'comboSkill3',
           blackboardKey: 'damage_add',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7911,7 +7802,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'bleed_critical_damage_scale',
           operation: 'add',
-          value: 0.0799999982118607,
+          value: 0.08,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7925,7 +7816,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'heal_scale',
           operation: 'add',
-          value: 0.0399999991059303,
+          value: 0.04,
         },
       ],
     },
@@ -7937,7 +7828,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -7950,7 +7841,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'potential_5_damage_scale',
           operation: 'assign',
-          value: 1.10000002384186,
+          value: 1.1,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -7964,7 +7855,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'potential_5_critical_damage',
           operation: 'assign',
-          value: 0.300000011920929,
+          value: 0.3,
         },
       ],
     },
@@ -8013,9 +7904,7 @@ export default {
                   'buff_chr_0028_wulfa_combo_2_damage:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -8114,8 +8003,7 @@ export default {
                 step('spawnAbilityEntity', {
                   abilityEntityId: 'abilityentity_chr_0028_wulfa_combo_qte_timing',
                   childSkillId: 'chr_0028_wulfa_absorb_entity_effect_1',
-                  inheritActionBlackboard: false,
-                  inheritSourceSkillCastInfo: true,
+                  inheritActionBlackboard: true,
                   dieWhenSourceDies: false,
                 }),
               ),
@@ -8144,8 +8032,7 @@ export default {
                 step('spawnAbilityEntity', {
                   abilityEntityId: 'abilityentity_chr_0028_wulfa_combo_qte_timing',
                   childSkillId: 'chr_0028_wulfa_absorb_entity_effect_2',
-                  inheritActionBlackboard: false,
-                  inheritSourceSkillCastInfo: true,
+                  inheritActionBlackboard: true,
                   dieWhenSourceDies: false,
                 }),
               ),
@@ -8161,7 +8048,7 @@ export default {
               target: 'buffOwner',
               source: 'buffSource',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: { duration: { kind: 'constant', value: 0.200000002980232 } },
+              blackboardAssignments: { duration: { kind: 'constant', value: 0.2 } },
             }),
             step('finishBuffsById', {
               target: 'buffOwner',
@@ -8250,7 +8137,6 @@ export default {
         iconPath: '/icons/icon_battle_crit_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -8379,13 +8265,13 @@ export default {
       triggerIntervalSeconds: { blackboardKey: 'damage_interval' },
       waitFirstTriggerInterval: false,
       maxTriggerCount: -1,
+      timeClock: 'global',
       presentation: {
         visible: true,
         iconId: 'icon_battle_buff_wulfa_blood',
         iconPath: '/icons/icon_battle_buff_wulfa_blood.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -8462,9 +8348,7 @@ export default {
                   'buff_chr_0028_wulfa_normal_bleed:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -8729,9 +8613,7 @@ export default {
                   'buff_chr_0028_wulfa_normal_bleed_effect:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -8792,9 +8674,7 @@ export default {
                   'buff_chr_0028_wulfa_normal_defup:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -8838,9 +8718,7 @@ export default {
                   'buff_chr_0028_wulfa_normal_smarttarget:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -8904,9 +8782,7 @@ export default {
                   'buff_chr_0028_wulfa_tut_comboskill_failure:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -8940,9 +8816,7 @@ export default {
                   'buff_chr_0028_wulfa_tut_comboskill_finish:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -8976,9 +8850,7 @@ export default {
                   'buff_chr_0028_wulfa_tut_comboskill_success:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -9012,9 +8884,7 @@ export default {
                   'buff_chr_0028_wulfa_tut_normalskill_failure:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -9048,9 +8918,7 @@ export default {
                   'buff_chr_0028_wulfa_tut_normalskill_success:/scheduledSequences/0/sequence/steps/0/body/steps/0',
                 ),
               ),
-              {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.100000001490116 },
-              },
+              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
             ),
           ),
           20,
@@ -9136,15 +9004,15 @@ export default {
               sequence(
                 step('startTimeDilation', {
                   scope: 'global',
-                  durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                  durationSeconds: { kind: 'constant', value: 0.4 },
                   slot: 'unassigned',
                   priority: 50,
                   curve: {
                     kind: 'inline',
                     keys: [
                       {
-                        time: -0.0116959102451801,
-                        value: 1.01995003223419,
+                        time: -0.01169591,
+                        value: 1.01995,
                         inTangent: 0,
                         outTangent: 0,
                         weightedMode: 0,
@@ -9152,8 +9020,8 @@ export default {
                         outWeight: 0,
                       },
                       {
-                        time: 0.251462012529373,
-                        value: 0.400000005960464,
+                        time: 0.251462,
+                        value: 0.4,
                         inTangent: 0,
                         outTangent: 0,
                         weightedMode: 0,
@@ -9161,8 +9029,8 @@ export default {
                         outWeight: 0,
                       },
                       {
-                        time: 0.485380113124847,
-                        value: 0.400000005960464,
+                        time: 0.4853801,
+                        value: 0.4,
                         inTangent: 0,
                         outTangent: 0,
                         weightedMode: 0,

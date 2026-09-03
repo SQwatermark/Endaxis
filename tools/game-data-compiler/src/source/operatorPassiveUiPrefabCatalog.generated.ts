@@ -23,14 +23,6 @@ export const OPERATOR_PASSIVE_UI_COMPONENT_BY_PREFAB = {
     fullCount: 2,
     stateCounts: [0, 1, 2],
   },
-  OverlayInfoNodeTyphoea: {
-    componentType: 'UICharPassiveTyphoea',
-    arrowBuffId: 'buff_chr_0034_typhoea_passive_arrowrecover_exitfight',
-    battleArrowBuffId: 'buff_chr_0034_typhoea_normal_skill_arrow_num',
-    pointBuffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy',
-    arrowCount: 4,
-    pointCount: 8,
-  },
   OverlayInfoNodeZhuangfy: {
     componentType: 'UICharPassiveZhuangfy',
     fullCount: 9,

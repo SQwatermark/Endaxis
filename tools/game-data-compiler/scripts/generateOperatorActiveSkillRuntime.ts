@@ -27,7 +27,6 @@ import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDef
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
 import { collectCombatInvisibleBuffClosureIds } from '../src/compiler/combatInvisibleBuffClosure.ts';
 import {
-  collectCompiledBuffApplications,
   collectCompiledBuffCapturedTargetGroups,
   collectCompiledBuffIds,
   collectCompiledPhysicalInflictionBuffIds,
@@ -123,7 +122,7 @@ function loadProjectileCallbackClosure(
     for (const callback of launches[index]!.callbacks) {
       if (!callback.enabled || callbackGraphs.has(callback.skillId)) continue;
       const id = callback.skillId;
-      const value = readJson(path.resolve(sourceRoot, 'SkillData', `${id}.json`));
+      const value = readJson(path.resolve(sourceRoot, 'skill-data-cdn', `${id}.json`));
       assertNoUnprojectedSkillRootEffects(value, `SkillData.${id}`);
       const callbackPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
       const prepared = prepareSkillDefinitionInputSource(value, id, callbackPatch);
@@ -232,7 +231,7 @@ export function prepareProjectileProjection(
 export function planOperatorActiveSkillRuntime(
   args: Omit<OperatorActiveSkillRuntimeArguments, 'check'>,
 ): PlannedOperatorActiveSkillRuntime {
-  const sourcePath = path.resolve(args.sourceRoot, 'SkillData', args.sourceFile);
+  const sourcePath = path.resolve(args.sourceRoot, 'skill-data-cdn', args.sourceFile);
   const sourceText = fs.readFileSync(sourcePath, 'utf8');
   const source = JSON.parse(sourceText);
   const skillId = String(source.skillId ?? '');
@@ -305,7 +304,9 @@ export function planOperatorActiveSkillRuntime(
           ] as const,
       ),
   );
-  const abilityEvidence = readAbilityEntityEvidence(args.abilityEntityCatalog);
+  const abilityEvidence = readJson(args.abilityEntityCatalog) as {
+    templates: Record<string, Record<string, unknown>>;
+  };
   const abilityCatalog = compileAbilityEntityTemplateCatalogSource(
     Object.fromEntries(
       Object.entries(abilityEvidence.templates).map(([id, raw]) => [
@@ -338,7 +339,7 @@ export function planOperatorActiveSkillRuntime(
   while (pendingAbilitySkillIds.length > 0) {
     const id = pendingAbilitySkillIds.shift()!;
     if (abilityChildGraphs.has(id)) continue;
-    const value = readJson(path.resolve(args.sourceRoot, 'SkillData', `${id}.json`));
+    const value = readJson(path.resolve(args.sourceRoot, 'skill-data-cdn', `${id}.json`));
     const childPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
     const childPrepared = prepareSkillDefinitionInputSource(value, id, childPatch);
     const child = parseKnownSkillActionGraphSource(value, id, childPrepared.blackboard.values);
@@ -500,8 +501,6 @@ export function planOperatorActiveSkillRuntime(
       actionOwnerTarget: 'unavailable',
       actionSourceTarget: 'caster',
       actionTargetTarget: 'enemy',
-      // 轴上放置表达一次技能操作，不同时表达方向移动；原生方向派生守卫因此走基准段。
-      fixedMoveInput: false,
       fixedHittableTargetCount: 0,
     },
     callbackExtensions: {
@@ -526,10 +525,6 @@ export function planOperatorActiveSkillRuntime(
       actionSourceTarget: 'caster',
       actionTargetTarget: 'enemy',
       fixedHittableTargetCount: 0,
-      // Endaxis 的标准排轴操作不携带角色移动输入。显式固定为“未移动”，让
-      // CheckHasMoveInput 按原生短路规则排除其后的 SaveMoveAxisAngle 与方向动画分支；
-      // 这不是把未知角度猜成 0，未来若引入移动操作应由场景输入覆盖这一边界。
-      fixedMoveInput: false,
       abilityEntityQueries: { catalog: abilityCatalog, gameplayTagRegistry: registry },
       syntheticComboQteTriggerBlackboardKeys,
     },
@@ -565,7 +560,6 @@ export function planOperatorActiveSkillRuntime(
     ]),
   ].sort();
   const switchToBuffIds = collectCompiledBuffIds(definition.switchToBuffCast);
-  const compiledBuffApplications = collectCompiledBuffApplications(definition);
   const buffData = loadBuffClosureSources(buffClosureRoots, args.buffDataRoot, globalBuffCatalog);
   const buffClosure = compileStandardStumpBuffClosure(
     buffClosureRoots,
@@ -584,14 +578,6 @@ export function planOperatorActiveSkillRuntime(
     new Map(buffClosureRoots.map(id => [id, 'caster'] as const)),
     new Set(),
     collectCompiledBuffCapturedTargetGroups(definition),
-    new Set(
-      [...new Set(compiledBuffApplications.map(item => item.buffId))].filter(buffId => {
-        const producers = compiledBuffApplications.filter(item => item.buffId === buffId);
-        return (
-          producers.length > 0 && producers.every(item => item.inheritSourceSkillCastInfo === true)
-        );
-      }),
-    ),
   );
   const blockedBuffs = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blockedBuffs.length > 0)
@@ -700,30 +686,6 @@ function readOwnedSiblingFiles(
 
 function readJson(file: string): unknown {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
-}
-
-function readAbilityEntityEvidence(source: string): {
-  readonly templates: Record<string, Record<string, unknown>>;
-} {
-  if (!fs.statSync(source).isDirectory())
-    return readJson(source) as { templates: Record<string, Record<string, unknown>> };
-  const templates: Record<string, Record<string, unknown>> = {};
-  for (const name of fs
-    .readdirSync(source)
-    .filter(name => name.endsWith('.json'))
-    .sort()) {
-    const file = path.resolve(source, name);
-    const value = readJson(file);
-    if (value === null || typeof value !== 'object' || Array.isArray(value))
-      throw new Error(`${file}: expected AbilityEntityData object`);
-    const record = value as Record<string, unknown>;
-    if (typeof record.gameId !== 'string' || record.gameId.length === 0)
-      throw new Error(`${file}.gameId: expected non-empty string`);
-    if (templates[record.gameId] !== undefined)
-      throw new Error(`${source}: duplicate AbilityEntityData ${JSON.stringify(record.gameId)}`);
-    templates[record.gameId] = record;
-  }
-  return { templates };
 }
 
 function loadBuffClosureSources(

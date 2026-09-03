@@ -38,7 +38,9 @@ const definition = {
       "buffDefinitions": {
         "buff_wpn_funnel_0004_up": {
           "stackingType": "highPriorityWithMaxStack",
-          "priority": 0,
+          "priority": {
+            "blackboardKey": "dmg_up"
+          },
           "maxStackCount": 1,
           "durationSeconds": {
             "blackboardKey": "duration"
@@ -52,7 +54,6 @@ const definition = {
             "iconPath": "/icons/icon_battle_buff_atk_up.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
-            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -107,15 +108,15 @@ const definition = {
           "target": "electric",
           "slot": "baseAddition",
           "value": [
-            0.04444444552063942,
-            0.07999999821186066,
-            0.11555555462837219,
-            0.15111111104488373,
-            0.18666666746139526,
-            0.2222222238779068,
-            0.25777778029441833,
-            0.2933333218097687,
-            0.3466666638851166
+            0.044444446,
+            0.08,
+            0.115555555,
+            0.15111111,
+            0.18666667,
+            0.22222222,
+            0.25777778,
+            0.29333332,
+            0.34666666
           ]
         }
       ]
@@ -147,15 +148,15 @@ const definition = {
           "priority": 0,
           "blackboard": {
             "dmg_up": [
-              0.07999999821186066,
-              0.09600000083446503,
-              0.1120000034570694,
-              0.12800000607967377,
-              0.14399999380111694,
-              0.1599999964237213,
-              0.17599999904632568,
-              0.19200000166893005,
-              0.2240000069141388
+              0.08,
+              0.096,
+              0.112,
+              0.128,
+              0.144,
+              0.16,
+              0.176,
+              0.192,
+              0.224
             ],
             "duration": [
               15,

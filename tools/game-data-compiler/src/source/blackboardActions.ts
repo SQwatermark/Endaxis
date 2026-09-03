@@ -1,23 +1,12 @@
 import {
   requireBoolean,
   requireExactFields,
-  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
 } from './primitives.ts';
-
-const NATIVE_BLACKBOARD_OPERATIONS = [
-  'Assign',
-  'Add',
-  'Multiply',
-  'Divide',
-  'Floor',
-  'Ceil',
-  'RoundToInt',
-] as const;
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
-import { parseAttributeTypeName, type AttributeTypeSource } from './attributeModifiers.ts';
+import { ATTRIBUTE_TYPES, type AttributeTypeSource } from './attributeModifiers.ts';
 
 const ACTION_META_FIELDS = [
   '$type',
@@ -87,11 +76,7 @@ export function parseRandomBlackboardActionSource(
   );
   return {
     kind: 'randomBlackboardWrite',
-    randomType: requireNativeEnum(
-      action.randomType,
-      ['Int', 'Float'] as const,
-      `${path}.randomType`,
-    ),
+    randomType: requireNonEmptyString(action.randomType, `${path}.randomType`),
     minimum: parseScalarSource(action.minValue, `${path}.minValue`, inheritedBlackboard),
     maximum: parseScalarSource(action.maxValue, `${path}.maxValue`, inheritedBlackboard),
     targetKey: requireNonEmptyString(action.targetBlackboardKey, `${path}.targetBlackboardKey`),
@@ -124,19 +109,20 @@ export function parseAttributeSnapshotActionSource(
   return {
     kind: 'attributeSnapshot',
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    primaryAttributeType: requireNativeEnum(
+    primaryAttributeType: requireKnownString(
       action.primaryAttributeType,
-      new Map([
-        [0, 'Specific'],
-        [2, 'Sub'],
-      ] as const),
       `${path}.primaryAttributeType`,
+      ['Specific', 'Sub'],
     ),
-    attributeType: parseAttributeTypeName(action.attributeType, `${path}.attributeType`),
-    storeAttributeType: requireNativeEnum(
+    attributeType: requireKnownString(
+      action.attributeType,
+      `${path}.attributeType`,
+      ATTRIBUTE_TYPES,
+    ),
+    storeAttributeType: requireKnownString(
       action.storeAttributeType,
-      ['BaseNonConverted', 'FinalNonConverted'] as const,
       `${path}.storeAttributeType`,
+      ['BaseNonConverted', 'FinalNonConverted'],
     ),
     useFloor: requireBoolean(action.useFloor, `${path}.useFloor`),
     divisor: parseScalarSource(action.divisorValue, `${path}.divisorValue`, inheritedBlackboard),
@@ -148,6 +134,18 @@ export function parseAttributeSnapshotActionSource(
     baseValue: parseScalarSource(action.baseValue, `${path}.baseValue`, inheritedBlackboard),
     outputKey: requireNonEmptyString(action.key, `${path}.key`),
   };
+}
+
+function requireKnownString<const T extends string>(
+  value: unknown,
+  path: string,
+  known: readonly T[],
+): T {
+  const text = requireNonEmptyString(value, path);
+  if (!known.includes(text as T)) {
+    throw new Error(`${path}: unsupported value ${JSON.stringify(text)}`);
+  }
+  return text as T;
 }
 
 /** 完整读取 SimpleCalcBBAction；调度帧仍由外层时间轴节点负责。 */
@@ -193,22 +191,14 @@ export function parseBlackboardMutationActionSource(
   return {
     kind: 'blackboardMutation',
     key: requireNonEmptyString(action.key, `${path}.key`),
-    operation: requireNativeEnum(
-      action.operation,
-      NATIVE_BLACKBOARD_OPERATIONS,
-      `${path}.operation`,
-    ),
+    operation: requireNonEmptyString(action.operation, `${path}.operation`),
     value: parseScalarSource(action.value, `${path}.value`, inheritedBlackboard),
     directValue: requireBoolean(action.directValue, `${path}.directValue`),
     calculationTarget: parseTargetReferenceSource(
       action.calculationTarget,
       `${path}.calculationTarget`,
     ),
-    calculationType: requireNativeEnum(
-      action.calculateType,
-      ['HpRatio'] as const,
-      `${path}.calculateType`,
-    ),
+    calculationType: requireNonEmptyString(action.calculateType, `${path}.calculateType`),
   };
 }
 
@@ -221,11 +211,7 @@ export function parseBlackboardCalculationPayloadSource(
   const action = requireRecord(value, path);
   return {
     key: requireNonEmptyString(action.key, `${path}.key`),
-    operation: requireNativeEnum(
-      action.operation,
-      NATIVE_BLACKBOARD_OPERATIONS,
-      `${path}.operation`,
-    ),
+    operation: requireNonEmptyString(action.operation, `${path}.operation`),
     left: parseScalarSource(action.value1, `${path}.value1`, inheritedBlackboard),
     right: parseScalarSource(action.value2, `${path}.value2`, inheritedBlackboard),
     addend: null,
@@ -247,11 +233,7 @@ export function parseBlackboardMutationPayloadSource(
   }
   return {
     key: requireNonEmptyString(action.key, `${path}.key`),
-    operation: requireNativeEnum(
-      action.operation,
-      NATIVE_BLACKBOARD_OPERATIONS,
-      `${path}.operation`,
-    ),
+    operation: requireNonEmptyString(action.operation, `${path}.operation`),
     value: parseScalarSource(action.value, `${path}.value`, inheritedBlackboard),
   };
 }

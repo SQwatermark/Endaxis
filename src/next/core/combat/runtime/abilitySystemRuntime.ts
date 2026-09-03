@@ -614,9 +614,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
       readonly skipApplyCost: boolean;
       readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
     },
-    resolveSkillSlot = true,
   ): void {
-    const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
+    const skill = this.#requireSkill(skillId, castId);
     if (skill.prepareDeferredCast === undefined) {
       throw new Error(`skill '${skillId}' cannot receive a deferred cast request`);
     }

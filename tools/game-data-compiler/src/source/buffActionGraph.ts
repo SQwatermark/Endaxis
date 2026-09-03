@@ -5,7 +5,6 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
-  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
 } from './primitives.ts';
@@ -20,7 +19,6 @@ import {
   type ReferenceAwareActionLeafSource,
 } from './referenceGraph.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
-import { parseNativeAbilityEventName } from './abilityEvent.ts';
 import {
   parseSkillTimelineActionSource,
   type SkillActionGraphSource,
@@ -167,19 +165,7 @@ function parseBuffActionGraphSource<TLeaf>(
           eventPath,
         );
         return {
-          igniteType: requireNativeEnum(
-            event.igniteType,
-            new Map([
-              [1, 'PhysicalStatus'],
-              [2, 'EnergyShardByFire'],
-              [3, 'EnergyShardByPulse'],
-              [4, 'EnergyShardByCryst'],
-              [5, 'EnergyShardByNatural'],
-              [6, 'EndminUlt'],
-              [7, 'NoGuard'],
-            ] as const),
-            `${eventPath}.igniteType`,
-          ),
+          igniteType: requireNonEmptyString(event.igniteType, `${eventPath}.igniteType`),
           finishAfterIgnited: requireBoolean(
             event.finishAfterIgnited,
             `${eventPath}.finishAfterIgnited`,
@@ -220,49 +206,21 @@ function parseNamedEvents<TLeaf>(
   eventField: 'buffEvent' | 'abilityEvent',
   parseSequence: (value: unknown, path: string) => NativeSequenceSource<TLeaf>,
 ): BuffNamedActionEventSource<TLeaf>[] {
-  return requireArray(value, path).flatMap((rawEvent, index) => {
+  return requireArray(value, path).map((rawEvent, index) => {
     const eventPath = `${path}[${index}]`;
     const event = requireRecord(rawEvent, eventPath);
     requireExactFields(event, new Set([eventField, 'actions']), eventPath);
-    const actions = parseEventSequences(event.actions, `${eventPath}.actions`, parseSequence);
-    // 当前 VFS 数据会序列化 Event.None + 空 actions 的占位项；它没有注册或执行语义。
-    if (eventField === 'abilityEvent' && event[eventField] === 0 && actions.length === 0) return [];
-    return [
-      {
-        event:
-          eventField === 'buffEvent'
-            ? parseBuffEventIdentity(event[eventField], `${eventPath}.${eventField}`)
-            : parseEventIdentity(event[eventField], `${eventPath}.${eventField}`),
-        actions,
-      },
-    ];
+    return {
+      event: parseEventIdentity(event[eventField], `${eventPath}.${eventField}`),
+      actions: parseEventSequences(event.actions, `${eventPath}.actions`, parseSequence),
+    };
   });
 }
 
-function parseBuffEventIdentity(value: unknown, path: string): string {
-  if (typeof value === 'string') return requireNonEmptyString(value, path);
-  const names = [
-    'OnBuffStart',
-    'OnBuffTrigger',
-    'OnBuffFinish',
-    'OnBuffEnable',
-    'OnBuffDisable',
-    'DuringBuffEnable',
-    'OnBuffEnhanceChanged',
-    'OnBuffAfterTryEnhanced',
-    'OnBuffBeforeTryEnhanced',
-    'OnBuffDispelled',
-    'OnBuffFinishedEarlyInterrupted',
-    'OnBuffReleased',
-  ] as const;
-  const index = requireInteger(value, path);
-  const name = names[index];
-  if (name === undefined) throw new Error(`${path}: unknown Buff.Event value ${index}`);
-  return name;
-}
-
-function parseEventIdentity(value: unknown, path: string): string {
-  return parseNativeAbilityEventName(value, path);
+function parseEventIdentity(value: unknown, path: string): string | number {
+  return typeof value === 'string'
+    ? requireNonEmptyString(value, path)
+    : requireInteger(value, path);
 }
 
 function parseEventSequences<TLeaf>(

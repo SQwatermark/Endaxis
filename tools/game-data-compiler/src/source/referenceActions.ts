@@ -7,11 +7,9 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
-  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
   requireString,
-  requireStringOrInteger,
 } from './primitives.ts';
 import {
   parseScalarSource,
@@ -28,21 +26,7 @@ import {
   type QuaternionSource,
   type Vector3Source,
 } from './spatial.ts';
-import {
-  parseNativeActionTargetType,
-  parseTargetReferenceSource,
-  type TargetReferenceSource,
-} from './target.ts';
-
-const ABILITY_ENTITY_BORN_ROTATIONS = [
-  'Default',
-  'SelfToActionOwner',
-  'SelfToActionSource',
-  'SourceForward',
-  'CameraForward',
-  'SelfToContextTarget',
-  'SourceForwardXYZ',
-] as const;
+import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
 const ACTION_META_FIELDS = [
   '$type',
@@ -74,22 +58,19 @@ export interface ProjectileLaunchActionSource {
   readonly assignEntityBlackboard: boolean;
   readonly assignments: readonly BlackboardAssignmentSource[];
   readonly emitPosition: TargetReferenceSource;
-  readonly emitMountPoint: string | number;
+  readonly emitMountPoint: string;
   readonly useWeaponMountPoint: boolean;
   readonly weaponIndex: number;
-  readonly weaponMountPoint: string | number;
+  readonly weaponMountPoint: string;
   readonly overrideEmitBone: boolean;
   readonly emitPositionFixedOffset: Vector3Source;
-  readonly emitPositionForwardMode: string | number;
+  readonly emitPositionForwardMode: string;
   readonly emitPositionRandomOffset: Vector3Source;
   readonly target: TargetReferenceSource;
-  readonly targetFilterMode: string | number;
-  readonly targetFilter: TargetReferenceSource;
-  readonly alsoLaunchToHittableTarget: boolean;
   readonly overrideHitBone: boolean;
-  readonly hitMountPoint: string | number;
+  readonly hitMountPoint: string;
   readonly hitBoneFixedOffset: Vector3Source;
-  readonly hitBoneForwardMode: string | number;
+  readonly hitBoneForwardMode: string;
   readonly hitBoneRandomOffset: Vector3Source;
   readonly presetPoints: readonly ProjectilePresetPointSource[];
   readonly callbacks: readonly ProjectileSkillCallbackSource[];
@@ -102,11 +83,10 @@ export interface AbilityEntitySpawnActionSource {
   readonly sourceType: string;
   readonly sourceContextKey: string;
   readonly setTarget: boolean;
-  readonly allowMultipleInputTargets: boolean;
   /** 即使 setTarget=false，也保留序列化目标，不能伪装成字段不存在。 */
   readonly target: TargetReferenceSource;
   readonly bornAt: TargetReferenceSource;
-  readonly bornMountPoint: string | number;
+  readonly bornMountPoint: string;
   readonly bornPositionOffset: Vector3Source;
   readonly checkNavmeshAreaName: boolean;
   readonly forbiddenAreaNames: readonly string[];
@@ -220,12 +200,9 @@ export function parseAbilityEntityDurationMutationActionSource(
     kind: 'abilityEntityDurationMutation',
     setMultipleTargets: requireBoolean(action.setMultipleTarget, `${path}.setMultipleTarget`),
     target: parseAbilityEntityDurationTargetSource(action.targetSettings, `${path}.targetSettings`),
-    actionTargetType: parseNativeActionTargetType(
-      action.actionTargetType,
-      `${path}.actionTargetType`,
-    ),
+    actionTargetType: requireNonEmptyString(action.actionTargetType, `${path}.actionTargetType`),
     targetContextKey: requireString(action.targetContextKey, `${path}.targetContextKey`),
-    operation: requireNativeEnum(action.operation, ['Assign'] as const, `${path}.operation`),
+    operation: requireNonEmptyString(action.operation, `${path}.operation`),
     value: parseScalarSource(action.value, `${path}.value`, inheritedBlackboard),
   };
 }
@@ -265,9 +242,6 @@ export function parseProjectileLaunchActionSource(
       'emitPosOffsetForward',
       'emitPosRandomOffset',
       'targetSettings',
-      ...('targetFilterMode' in action
-        ? ['targetFilterMode', 'targetFilterSettings', 'alsoLaunchToHittableTarget']
-        : []),
       'overrideHitBone',
       'hitMountPoint',
       'hitBoneFixedOffset',
@@ -318,16 +292,16 @@ export function parseProjectileLaunchActionSource(
       enabled: assignEntityBlackboard,
     }),
     emitPosition: parseTargetReferenceSource(action.emitPos, `${path}.emitPos`),
-    emitMountPoint: requireStringOrInteger(action.emitMountPoint, `${path}.emitMountPoint`),
+    emitMountPoint: requireNonEmptyString(action.emitMountPoint, `${path}.emitMountPoint`),
     useWeaponMountPoint: requireBoolean(action.useWeaponMp, `${path}.useWeaponMp`),
     weaponIndex: requireInteger(action.weaponIndex, `${path}.weaponIndex`),
-    weaponMountPoint: requireStringOrInteger(action.weaponMp, `${path}.weaponMp`),
+    weaponMountPoint: requireNonEmptyString(action.weaponMp, `${path}.weaponMp`),
     overrideEmitBone: requireBoolean(action.overrideEmitBone, `${path}.overrideEmitBone`),
     emitPositionFixedOffset: parseVector3Source(
       action.emitPosFixedOffset,
       `${path}.emitPosFixedOffset`,
     ),
-    emitPositionForwardMode: requireStringOrInteger(
+    emitPositionForwardMode: requireNonEmptyString(
       action.emitPosOffsetForward,
       `${path}.emitPosOffsetForward`,
     ),
@@ -336,22 +310,10 @@ export function parseProjectileLaunchActionSource(
       `${path}.emitPosRandomOffset`,
     ),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    targetFilterMode:
-      'targetFilterMode' in action
-        ? requireStringOrInteger(action.targetFilterMode, `${path}.targetFilterMode`)
-        : 0,
-    targetFilter:
-      'targetFilterSettings' in action
-        ? parseTargetReferenceSource(action.targetFilterSettings, `${path}.targetFilterSettings`)
-        : parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    alsoLaunchToHittableTarget:
-      'alsoLaunchToHittableTarget' in action
-        ? requireBoolean(action.alsoLaunchToHittableTarget, `${path}.alsoLaunchToHittableTarget`)
-        : false,
     overrideHitBone: requireBoolean(action.overrideHitBone, `${path}.overrideHitBone`),
-    hitMountPoint: requireStringOrInteger(action.hitMountPoint, `${path}.hitMountPoint`),
+    hitMountPoint: requireNonEmptyString(action.hitMountPoint, `${path}.hitMountPoint`),
     hitBoneFixedOffset: parseVector3Source(action.hitBoneFixedOffset, `${path}.hitBoneFixedOffset`),
-    hitBoneForwardMode: requireStringOrInteger(
+    hitBoneForwardMode: requireNonEmptyString(
       action.hitBoneOffsetForward,
       `${path}.hitBoneOffsetForward`,
     ),
@@ -382,7 +344,6 @@ export function parseAbilityEntitySpawnActionSource(
       'abilityEntitySourceContextKey',
       'setAbilityEntityTarget',
       'abilityEntityTarget',
-      ...('allowMultiInputTarget' in action ? ['allowMultiInputTarget'] : []),
       'bornAt',
       'bornMountPoint',
       'bornPosOffset',
@@ -421,22 +382,15 @@ export function parseAbilityEntitySpawnActionSource(
     kind: 'abilityEntitySpawn',
     abilityEntityId: requireNonEmptyString(action.abilityEntityId, `${path}.abilityEntityId`),
     setSource: requireBoolean(action.setAbilityEntitySource, `${path}.setAbilityEntitySource`),
-    sourceType: parseNativeActionTargetType(
-      action.abilityEntitySource,
-      `${path}.abilityEntitySource`,
-    ),
+    sourceType: requireNonEmptyString(action.abilityEntitySource, `${path}.abilityEntitySource`),
     sourceContextKey: requireString(
       action.abilityEntitySourceContextKey,
       `${path}.abilityEntitySourceContextKey`,
     ),
     setTarget: requireBoolean(action.setAbilityEntityTarget, `${path}.setAbilityEntityTarget`),
-    allowMultipleInputTargets:
-      'allowMultiInputTarget' in action
-        ? requireBoolean(action.allowMultiInputTarget, `${path}.allowMultiInputTarget`)
-        : false,
     target: parseTargetReferenceSource(action.abilityEntityTarget, `${path}.abilityEntityTarget`),
     bornAt: parseTargetReferenceSource(action.bornAt, `${path}.bornAt`),
-    bornMountPoint: requireStringOrInteger(action.bornMountPoint, `${path}.bornMountPoint`),
+    bornMountPoint: requireNonEmptyString(action.bornMountPoint, `${path}.bornMountPoint`),
     bornPositionOffset: parseVector3Source(action.bornPosOffset, `${path}.bornPosOffset`),
     checkNavmeshAreaName: requireBoolean(
       action.checkNavmeshAreaName,
@@ -453,11 +407,7 @@ export function parseAbilityEntitySpawnActionSource(
       action.yRotateFromBoneToCurPos,
       `${path}.yRotateFromBoneToCurPos`,
     ),
-    bornRotation: requireNativeEnum(
-      action.bornRotation,
-      ABILITY_ENTITY_BORN_ROTATIONS,
-      `${path}.bornRotation`,
-    ),
+    bornRotation: requireNonEmptyString(action.bornRotation, `${path}.bornRotation`),
     bornRotationContextTarget: requireString(
       action.bornRotationContextTarget,
       `${path}.bornRotationContextTarget`,
@@ -511,17 +461,9 @@ export function parseSkillCastActionSource(value: unknown, path: string): SkillC
       'skillId',
       'skipApplyCost',
       'inheritSourceSkillCastId',
-      ...('interruptCurSkillOnlyWhenTargetCastable' in action
-        ? ['interruptCurSkillOnlyWhenTargetCastable']
-        : []),
     ]),
     path,
   );
-  if ('interruptCurSkillOnlyWhenTargetCastable' in action)
-    requireBoolean(
-      action.interruptCurSkillOnlyWhenTargetCastable,
-      `${path}.interruptCurSkillOnlyWhenTargetCastable`,
-    );
   return {
     kind: 'skillCast',
     caster: parseTargetReferenceSource(action.caster, `${path}.caster`),

@@ -175,9 +175,7 @@ function passiveFixture(): Record<string, unknown> {
     attackRangeType: 'Default',
     blackboard: [],
     buffs: [{ buffId: 'buff_fixture', assignBlackboard: false, assignItems: [] }],
-    buffInputBase: null,
     canCastInAir: false,
-    canCastInWater: false,
     canDummyCast: false,
     canMove: false,
     cardAttributeModifier: {

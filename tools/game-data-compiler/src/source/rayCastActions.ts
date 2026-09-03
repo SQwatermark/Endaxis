@@ -3,8 +3,6 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
-  requireInteger,
-  requireNativeEnum,
   requireNonEmptyString,
   requireNumber,
   requireRecord,
@@ -90,15 +88,8 @@ export function parseRayCastTargetGroupActionSource(
   requireRecord(action.rayEffect, `${path}.rayEffect`);
   requireRecord(action.rayHitEffect, `${path}.rayHitEffect`);
   requireRecord(action.hitEffectLayers, `${path}.hitEffectLayers`);
-  for (const field of ['hitLoopSoundEvent', 'hitEndSoundEvent'] as const) {
-    const sound = action[field];
-    if (typeof sound === 'number') {
-      if (requireInteger(sound, `${path}.${field}`) !== 0)
-        throw new Error(`${path}.${field}: unsupported non-zero AudioId`);
-    } else {
-      requireRecord(sound, `${path}.${field}`);
-    }
-  }
+  requireRecord(action.hitLoopSoundEvent, `${path}.hitLoopSoundEvent`);
+  requireRecord(action.hitEndSoundEvent, `${path}.hitEndSoundEvent`);
   requireRecord(action.startPosOffset, `${path}.startPosOffset`);
   requireRecord(action.mountPointRayData, `${path}.mountPointRayData`);
   requireRecord(action.curveRayData, `${path}.curveRayData`);
@@ -110,18 +101,7 @@ export function parseRayCastTargetGroupActionSource(
     targetGroupKey: requireNonEmptyString(action.targetGroupKey, `${path}.targetGroupKey`),
     hitPosGroupKey: requireNonEmptyString(action.hitPosGroupKey, `${path}.hitPosGroupKey`),
     saveAllHitTargets: requireBoolean(action.saveAllHitTargets, `${path}.saveAllHitTargets`),
-    moveType:
-      typeof action.moveType === 'number'
-        ? (new Map([
-            [1, 'StraightLine'],
-            [2, 'MountPoint'],
-            [3, 'Curve'],
-            [4, 'PointToPoint'],
-          ]).get(requireInteger(action.moveType, `${path}.moveType`)) ??
-          (() => {
-            throw new Error(`${path}.moveType: unsupported value ${action.moveType}`);
-          })())
-        : requireNonEmptyString(action.moveType, `${path}.moveType`),
+    moveType: requireNonEmptyString(action.moveType, `${path}.moveType`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
     source: parseTargetReferenceSource(action.sourceSettings, `${path}.sourceSettings`),
     useFaction: requireBoolean(action.useFaction, `${path}.useFaction`),
@@ -130,11 +110,7 @@ export function parseRayCastTargetGroupActionSource(
       `${path}.autoSetTargetFaction`,
     ),
     containsUnMarkable: requireBoolean(action.containsUnMarkable, `${path}.containsUnMarkable`),
-    factionTarget: requireNativeEnum(
-      action.factionTarget,
-      ['Ally', 'Anti'] as const,
-      `${path}.factionTarget`,
-    ),
+    factionTarget: requireNonEmptyString(action.factionTarget, `${path}.factionTarget`),
     targetFactionType: requireNumber(action.targetFactionType, `${path}.targetFactionType`),
     rayMaxLength: requireNumber(action.rayMaxLength, `${path}.rayMaxLength`),
     rayRadius: requireNumber(action.rayRadius, `${path}.rayRadius`),

@@ -541,12 +541,11 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     registerRootBuffOwner(buffId, 'caster');
     registerRootBuffSource(buffId, 'caster');
   }
-  const compiledBuffApplications = collectCompiledBuffApplications([
+  for (const application of collectCompiledBuffApplications([
     ...input.activeSkills.map(item => item.definition),
     compiledAbilityEntityDefinitions,
     input.comboSkillConditions ?? [],
-  ]);
-  for (const application of compiledBuffApplications) {
+  ])) {
     // 编译后的 `caster` 在 Buff 生命周期中绑定实际 Buff 宿主。所有干员集合目标都会
     // 为每个命中的干员各建一份实例，因此其固定宿主种类同样是 operator/caster；
     // 这不表示原施法者独占该 Buff，也不会丢掉运行时逐实例 owner 身份。
@@ -600,14 +599,6 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       compiledAbilityEntityDefinitions,
       input.comboSkillConditions ?? [],
     ]),
-    new Set(
-      [...new Set(compiledBuffApplications.map(item => item.buffId))].filter(buffId => {
-        const producers = compiledBuffApplications.filter(item => item.buffId === buffId);
-        return (
-          producers.length > 0 && producers.every(item => item.inheritSourceSkillCastInfo === true)
-        );
-      }),
-    ),
   );
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);
@@ -1048,14 +1039,12 @@ function compileOperatorBuffSkillSlotReplacements(
           if (node.body.kind !== 'leaf' || node.body.value.family !== 'skillSlotReplacement') {
             continue;
           }
-          // 禁用动作已经由来源 parser 完整校验，但原生不会执行，不能据其残留生命周期
-          // 合成技能槽替换，也不应让它阻断同一 Buff 的有效替换定义。
-          if (!node.metadata.enabled) continue;
           const action = node.body.value.action;
           const restoredSkillKey = skillKeyByNativeId.get(action.targetSkillId);
           const isDirectComboRestore =
             event.event === 'OnBuffFinish' &&
             directNodes.has(node) &&
+            node.metadata.enabled &&
             isPlainBuffSkillSlotTarget(action.skillSource) &&
             action.skillSlot === 'ComboSkill' &&
             action.lifetime === 'Infinite' &&
@@ -1076,6 +1065,7 @@ function compileOperatorBuffSkillSlotReplacements(
             );
           }
           if (
+            !node.metadata.enabled ||
             !isPlainBuffSkillSlotTarget(action.skillSource) ||
             action.lifetime !== 'FinishByAction'
           ) {

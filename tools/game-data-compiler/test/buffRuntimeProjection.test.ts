@@ -13,110 +13,6 @@ import {
 import { collectBuffSpawnedAbilityEntityContextKeys } from '../src/compiler/standardStumpBuffClosure.ts';
 
 describe('公共 Buff 运行时投影', () => {
-  it('把条件序列中的 Buff 黑板读取与紧随比较原子化', () => {
-    const metadata = {
-      nativeType: 'Example.Action+Data, Example',
-      nativeName: 'Action',
-      enabled: true,
-      priorityLevel: 'Default',
-      priorityOffset: 0,
-      serverActionIndex: 0,
-    } as const;
-    const scalar = (value: number, blackboardKey: string | null = null) => ({
-      value,
-      blackboardKey,
-      levelValues: null,
-    });
-    const condition = compileCombatActionSequenceSource(
-      {
-        onlyExecuteWhenSourceIsMainCharacter: false,
-        onlyExecuteWhenSourceIsGuard: false,
-        actions: [
-          {
-            sourcePath: 'SkillData.ifBuffValue',
-            metadata,
-            body: {
-              kind: 'ifElse',
-              condition: {
-                onlyExecuteWhenSourceIsMainCharacter: false,
-                onlyExecuteWhenSourceIsGuard: false,
-                actions: [
-                  {
-                    sourcePath: 'SkillData.ifBuffValue.read',
-                    metadata,
-                    body: {
-                      kind: 'leaf',
-                      value: {
-                        family: 'buffBlackboardRead',
-                        action: {
-                          kind: 'buffBlackboardRead',
-                          target: { targetSource: 'Owner', targetGroupKey: '' },
-                          settings: {
-                            checkType: 'Id',
-                            buffIds: ['buff.arrow-recovery'],
-                            tagQuery: { queryType: 'hasAny', tagIds: [] },
-                          },
-                          desiredKey: 'truly_exit_fight',
-                          outputKey: 'truly_exit_fight',
-                        },
-                      },
-                    },
-                  },
-                  {
-                    sourcePath: 'SkillData.ifBuffValue.compare',
-                    metadata,
-                    body: {
-                      kind: 'leaf',
-                      value: {
-                        family: 'condition',
-                        action: {
-                          kind: 'floatCompare',
-                          sourceType: 'CompareFloat',
-                          comparison: 'LE',
-                          left: scalar(0, 'truly_exit_fight'),
-                          right: scalar(0.5),
-                        },
-                      },
-                    },
-                  },
-                ],
-              },
-              whenTrue: { actions: [] },
-              whenFalse: { actions: [] },
-              alwaysNext: true,
-            },
-          },
-        ],
-      } as never,
-      {
-        gameplayTagRegistry: fixtureGameplayTagRegistry,
-        actionOwnerTarget: 'caster',
-        actionSourceTarget: 'caster',
-        actionTargetTarget: 'enemy',
-      },
-    );
-
-    expect(condition.steps).toEqual([
-      {
-        kind: 'conditional',
-        parameters: {
-          condition: {
-            kind: 'buffBlackboardCompare',
-            target: 'caster',
-            query: { kind: 'id', buffIds: ['buff.arrow-recovery'] },
-            desiredKey: 'truly_exit_fight',
-            outputKey: 'truly_exit_fight',
-            operator: 'lessOrEqual',
-            value: { kind: 'constant', value: 0.5 },
-            buffValueSide: 'left',
-          },
-          alwaysNext: true,
-        },
-        whenTrue: { steps: [] },
-      },
-    ]);
-  });
-
   it('把 Buff 动作内创建并保存的 AbilityEntity Context 保留为实体目标证据', () => {
     const source = sourceFixture();
     const event = source.graph.abilityEvents[0]!;
@@ -3795,8 +3691,6 @@ function sourceFixture(): BuffRuntimeSource {
       triggerInterval: { value: -1, blackboardKey: null, levelValues: null },
       waitFirstTriggerInterval: false,
       maxTriggerCount: { value: -1, blackboardKey: null, levelValues: null },
-      addingCooldown: null,
-      ignoreCooldownWhenAdding: false,
       stackingIdentifierType: 'Id',
       stackingType: 'Unique',
       stackingKey: '',

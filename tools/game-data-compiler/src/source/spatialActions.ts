@@ -1,16 +1,11 @@
 import {
-  nativeActionName,
-  requireArray,
   requireBoolean,
   requireExactFields,
   requireInteger,
-  requireNativeActionPriority,
-  requireNativeEnum,
   requireNonEmptyString,
   requireNumber,
   requireRecord,
   requireString,
-  requireStringOrInteger,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseScalarSource, type ScalarSource } from './scalar.ts';
@@ -56,7 +51,7 @@ export function parseAdditionalBattleShapeActionSource(
     path,
   );
   requireBoolean(action.isEnable, `${path}.isEnable`);
-  requireNativeActionPriority(action.priorityLevel, `${path}.priorityLevel`);
+  requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
   requireInteger(action.priorityOffset, `${path}.priorityOffset`);
   requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
   const durationSeconds = requireNumber(action.duration, `${path}.duration`);
@@ -82,7 +77,7 @@ export function parseAdditionalBattleShapeActionSource(
 
 export interface SelfRotateActionSource {
   readonly kind: 'selfRotate';
-  readonly rotateType: string | number;
+  readonly rotateType: string;
   readonly target: TargetReferenceSource;
   readonly rootMotion: boolean;
   readonly immediateRotate: boolean;
@@ -117,7 +112,7 @@ export interface ReceiveMoveInputActionSource {
 
 export interface MoveToActionSource {
   readonly kind: 'moveTo';
-  readonly moveType: string | number;
+  readonly moveType: string;
   readonly totalTime: ScalarSource;
   readonly target: TargetReferenceSource;
   readonly updateMoveTarget: boolean;
@@ -129,7 +124,7 @@ export interface CustomRootMotionActionSource {
   readonly kind: 'customRootMotion';
   readonly target: TargetReferenceSource;
   readonly animationKey: string;
-  readonly rootMotionCurveMask: string | number;
+  readonly rootMotionCurveMask: string;
   readonly updateDirection: boolean;
   readonly startOffsetFrame: number;
 }
@@ -138,7 +133,7 @@ export interface SnapToTargetWithRangeActionSource {
   readonly kind: 'snapToTargetWithRange';
   readonly target: TargetReferenceSource;
   readonly radius: ScalarSource;
-  readonly moveType: string | number;
+  readonly moveType: string;
   readonly needRotate: boolean;
   readonly totalTime: number;
 }
@@ -153,8 +148,8 @@ export interface SaveTargetDistanceActionSource {
 export interface BoneAttachActionSource {
   readonly kind: 'boneAttach';
   readonly target: TargetReferenceSource;
-  readonly anchorSlot: string | number;
-  readonly subSlot: string | number;
+  readonly anchorSlot: string;
+  readonly subSlot: string;
   readonly isAddRotation: boolean;
   readonly rotateAnchor: 'Owner' | 'Target' | 'AnchorSlot' | 'SubSlot';
   readonly rotateAngles: readonly [number, number, number];
@@ -215,14 +210,14 @@ export function parseSelfRotateActionSource(value: unknown, path: string): SelfR
   requireString(action.rootMotionAnimKey, `${path}.rootMotionAnimKey`);
   requireNumber(action.rootMotionStartFrame, `${path}.rootMotionStartFrame`);
   requireBoolean(action.isRootMotionScale, `${path}.isRootMotionScale`);
-  requireStringOrInteger(action.rootMotionDirectionType, `${path}.rootMotionDirectionType`);
+  requireNonEmptyString(action.rootMotionDirectionType, `${path}.rootMotionDirectionType`);
   requireBoolean(action.overrideRotateRate, `${path}.overrideRotateRate`);
   requireNumber(action.rotateRate, `${path}.rotateRate`);
-  requireStringOrInteger(action.rotateDirType, `${path}.rotateDirType`);
+  requireNonEmptyString(action.rotateDirType, `${path}.rotateDirType`);
   requireBoolean(action.ignoreImmobilized, `${path}.ignoreImmobilized`);
   return {
     kind: 'selfRotate',
-    rotateType: requireStringOrInteger(action.rotateType, `${path}.rotateType`),
+    rotateType: requireNonEmptyString(action.rotateType, `${path}.rotateType`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
     rootMotion: requireBoolean(action.rootMotion, `${path}.rootMotion`),
     immediateRotate: requireBoolean(action.immediateRotate, `${path}.immediateRotate`),
@@ -252,7 +247,6 @@ export function parseTeleportActionSource(
       'maxDistance',
       'ignoreNavmeshLink',
       'snapToFloor',
-      ...('actionOnTargetPointInvalid' in action ? ['actionOnTargetPointInvalid'] : []),
     ]),
     path,
   );
@@ -266,48 +260,11 @@ export function parseTeleportActionSource(
   requireNumber(action.maxDistance, `${path}.maxDistance`);
   requireBoolean(action.ignoreNavmeshLink, `${path}.ignoreNavmeshLink`);
   requireBoolean(action.snapToFloor, `${path}.snapToFloor`);
-  if ('actionOnTargetPointInvalid' in action) {
-    parseTeleportInvalidFallback(
-      action.actionOnTargetPointInvalid,
-      `${path}.actionOnTargetPointInvalid`,
-      inheritedBlackboard,
-    );
-  }
   return {
     kind: 'teleport',
     target: parseTargetReferenceSource(action.teleportTo, `${path}.teleportTo`),
     radius: parseScalarSource(action.radius, `${path}.radius`, inheritedBlackboard),
   };
-}
-
-function parseTeleportInvalidFallback(
-  value: unknown,
-  path: string,
-  inheritedBlackboard: BlackboardLevelValues,
-): void {
-  const sequence = requireRecord(value, path);
-  requireExactFields(
-    sequence,
-    new Set(['actionData', 'onlyExecuteWhenSourceIsGuard', 'onlyExecuteWhenSourceIsMainChar']),
-    path,
-  );
-  requireBoolean(sequence.onlyExecuteWhenSourceIsGuard, `${path}.onlyExecuteWhenSourceIsGuard`);
-  requireBoolean(
-    sequence.onlyExecuteWhenSourceIsMainChar,
-    `${path}.onlyExecuteWhenSourceIsMainChar`,
-  );
-  requireArray(sequence.actionData, `${path}.actionData`).forEach((rawAction, index) => {
-    const actionPath = `${path}.actionData[${index}]`;
-    const action = requireRecord(rawAction, actionPath);
-    const type = nativeActionName(requireString(action.$type, `${actionPath}.$type`));
-    if (type === 'TeleportPosSelectAction') {
-      parseTeleportPositionSelectionActionSource(action, actionPath, inheritedBlackboard);
-    } else if (type === 'TeleportAction') {
-      parseTeleportActionSource(action, actionPath, inheritedBlackboard);
-    } else {
-      throw new Error(`${actionPath}.$type: unsupported teleport fallback action ${type}`);
-    }
-  });
 }
 
 /**
@@ -361,11 +318,11 @@ export function parseTeleportPositionSelectionActionSource(
   );
   const ranged = requireRecord(action.rangedData, `${path}.rangedData`);
   requireExactFields(ranged, new Set(['forwardDistance']), `${path}.rangedData`);
-  const teleportType = requireNativeEnum(
-    action.teleportType,
-    ['FixedDistance', 'Ranged'] as const,
-    `${path}.teleportType`,
-  );
+  const teleportType = requireNonEmptyString(action.teleportType, `${path}.teleportType`);
+  if (teleportType !== 'FixedDistance' && teleportType !== 'Ranged')
+    throw new Error(
+      `${path}.teleportType: unsupported teleport position selection ${JSON.stringify(teleportType)}`,
+    );
   return {
     kind: 'teleportPositionSelection',
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
@@ -412,9 +369,6 @@ export function parseReceiveMoveInputActionSource(
       'speed',
       'speedCurve',
       'speedScale',
-      ...('combineRootMotion' in action ? ['combineRootMotion'] : []),
-      ...('inputAlongRMScale' in action ? ['inputAlongRMScale'] : []),
-      ...('rootMotionScale' in action ? ['rootMotionScale'] : []),
       'faceToMoveDir',
       'overrideRotateSpeed',
       'disableCliffCheck',
@@ -429,17 +383,7 @@ export function parseReceiveMoveInputActionSource(
   parseScalarSource(action.speedScale, `${path}.speedScale`, inheritedBlackboard);
   parseScalarSource(action.rotateSpeed, `${path}.rotateSpeed`, inheritedBlackboard);
   parseTimeDilationCurveKeys(action.speedCurve, `${path}.speedCurve`, true);
-  requireNativeEnum(
-    action.speedType,
-    ['FixSpeed', 'SpeedCurve', 'CurrentSpeed'] as const,
-    `${path}.speedType`,
-  );
-  if ('combineRootMotion' in action)
-    requireBoolean(action.combineRootMotion, `${path}.combineRootMotion`);
-  if ('inputAlongRMScale' in action)
-    parseScalarSource(action.inputAlongRMScale, `${path}.inputAlongRMScale`, inheritedBlackboard);
-  if ('rootMotionScale' in action)
-    parseScalarSource(action.rootMotionScale, `${path}.rootMotionScale`, inheritedBlackboard);
+  requireNonEmptyString(action.speedType, `${path}.speedType`);
   requireBoolean(action.faceToMoveDir, `${path}.faceToMoveDir`);
   requireBoolean(action.overrideRotateSpeed, `${path}.overrideRotateSpeed`);
   requireBoolean(action.disableCliffCheck, `${path}.disableCliffCheck`);
@@ -461,16 +405,8 @@ export function parseReceiveMoveInputActionSource(
     ]),
     `${path}.teammateParam`,
   );
-  requireNativeEnum(
-    teammate.inputDirection,
-    ['BasedCamForward'] as const,
-    `${path}.teammateParam.inputDirection`,
-  );
-  requireNativeEnum(
-    teammate.speedType,
-    ['FixSpeed', 'SpeedCurve', 'CurrentSpeed'] as const,
-    `${path}.teammateParam.speedType`,
-  );
+  requireNonEmptyString(teammate.inputDirection, `${path}.teammateParam.inputDirection`);
+  requireNonEmptyString(teammate.speedType, `${path}.teammateParam.speedType`);
   parseScalarSource(teammate.speed, `${path}.teammateParam.speed`, inheritedBlackboard);
   parseTimeDilationCurveKeys(teammate.speedCurve, `${path}.teammateParam.speedCurve`, true);
   parseScalarSource(teammate.speedScale, `${path}.teammateParam.speedScale`, inheritedBlackboard);
@@ -481,11 +417,7 @@ export function parseReceiveMoveInputActionSource(
   return {
     kind: 'receiveMoveInput',
     duration: parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard),
-    inputDirection: requireNativeEnum(
-      action.inputDirection,
-      ['BasedCamForward'] as const,
-      `${path}.inputDirection`,
-    ),
+    inputDirection: requireNonEmptyString(action.inputDirection, `${path}.inputDirection`),
   };
 }
 
@@ -510,7 +442,6 @@ export function parseMoveToActionSource(
       'moveType',
       'totalTime',
       'updateMoveTarget',
-      ...('updateLatestMainCharacter' in action ? ['updateLatestMainCharacter'] : []),
       'directionType',
       'target',
       'fixAngle',
@@ -520,7 +451,6 @@ export function parseMoveToActionSource(
       'blockRadius',
       'enableMaxDistanceCheckWhenMoveBack',
       'maxDistanceWhenMoveBack',
-      ...('manualTick' in action ? ['manualTick'] : []),
       'useExtraBlockRadiusForInt',
       'extraRadiusForInt',
       'counterClockwise',
@@ -535,7 +465,6 @@ export function parseMoveToActionSource(
       'autoScaled',
       'rootMotionScale',
       'dontClampDirToXZ',
-      ...('dontClampFaceToMoveDirToXZ' in action ? ['dontClampFaceToMoveDirToXZ'] : []),
       'enableXAxisMove',
       'xAxisSpeed',
       'enableYAxisMove',
@@ -586,44 +515,21 @@ export function parseMoveToActionSource(
     'overrideStepOffset',
   ] as const)
     requireBoolean(action[key], `${path}.${key}`);
-  if ('manualTick' in action) requireBoolean(action.manualTick, `${path}.manualTick`);
-  if ('updateLatestMainCharacter' in action)
-    requireBoolean(action.updateLatestMainCharacter, `${path}.updateLatestMainCharacter`);
-  if ('dontClampFaceToMoveDirToXZ' in action)
-    requireBoolean(action.dontClampFaceToMoveDirToXZ, `${path}.dontClampFaceToMoveDirToXZ`);
-  requireNativeEnum(
-    action.fixDirectionType,
-    [
-      'SourceForward',
-      'TargetForward',
-      'SourceToTarget',
-      'TargetToSource',
-      'CameraForward',
-      'SameAsSourceMountPointDir',
-    ] as const,
-    `${path}.fixDirectionType`,
-  );
+  requireNonEmptyString(action.fixDirectionType, `${path}.fixDirectionType`);
   requireString(action.rootMotionAnimKey, `${path}.rootMotionAnimKey`);
   requireInteger(action.startOffsetFrame, `${path}.startOffsetFrame`);
   requireNumber(action.moveDirYRotateSpeed, `${path}.moveDirYRotateSpeed`);
   requireNumber(action.stepOffset, `${path}.stepOffset`);
-  parseLayerMask(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
+  const ignoredLayers = requireRecord(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
+  requireExactFields(ignoredLayers, new Set(), `${path}.ignoreCollisionLayer`);
   return {
     kind: 'moveTo',
-    moveType: requireStringOrInteger(action.moveType, `${path}.moveType`),
+    moveType: requireNonEmptyString(action.moveType, `${path}.moveType`),
     totalTime: parseScalarSource(action.totalTime, `${path}.totalTime`, inheritedBlackboard),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     updateMoveTarget: requireBoolean(action.updateMoveTarget, `${path}.updateMoveTarget`),
-    directionType: requireNativeEnum(
-      action.directionType,
-      ['UseTargetSettings', 'OwnerForward'] as const,
-      `${path}.directionType`,
-    ),
-    speedType: requireNativeEnum(
-      action.speedType,
-      ['FixedSpeed', 'SpeedCurve', 'RootMotion', 'AutoFixSpeed'] as const,
-      `${path}.speedType`,
-    ),
+    directionType: requireNonEmptyString(action.directionType, `${path}.directionType`),
+    speedType: requireNonEmptyString(action.speedType, `${path}.speedType`),
   };
 }
 
@@ -649,7 +555,6 @@ export function parseCustomRootMotionActionSource(
       'moveTo',
       'animKey',
       'rootMotionCurveMask',
-      ...('manualTick' in action ? ['manualTick'] : []),
       'scaleX',
       'scaleY',
       'enableScaleZWithDistanceCurve',
@@ -689,26 +594,19 @@ export function parseCustomRootMotionActionSource(
     'ignoreAllCollision',
   ] as const)
     requireBoolean(action[key], `${path}.${key}`);
-  if ('manualTick' in action) requireBoolean(action.manualTick, `${path}.manualTick`);
-  parseLayerMask(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
+  const ignoredLayers = requireRecord(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
+  requireExactFields(ignoredLayers, new Set(), `${path}.ignoreCollisionLayer`);
   return {
     kind: 'customRootMotion',
     target: parseTargetReferenceSource(action.moveTo, `${path}.moveTo`),
     animationKey: requireString(action.animKey, `${path}.animKey`),
-    rootMotionCurveMask: requireStringOrInteger(
+    rootMotionCurveMask: requireNonEmptyString(
       action.rootMotionCurveMask,
       `${path}.rootMotionCurveMask`,
     ),
     updateDirection: requireBoolean(action.updateDir, `${path}.updateDir`),
     startOffsetFrame: requireInteger(action.startOffsetFrame, `${path}.startOffsetFrame`),
   };
-}
-
-function parseLayerMask(value: unknown, path: string): void {
-  const mask = requireRecord(value, path);
-  const hasNativeMask = Object.hasOwn(mask, 'm_Mask');
-  requireExactFields(mask, new Set(hasNativeMask ? ['m_Mask'] : []), path);
-  if (hasNativeMask) requireInteger(mask.m_Mask, `${path}.m_Mask`);
 }
 
 /**
@@ -754,12 +652,12 @@ export function parseSnapToTargetWithRangeActionSource(
   parseTimeDilationCurveKeys(action.positionCurve, `${path}.positionCurve`, true);
   requireString(action.rootMotionAnimKey, `${path}.rootMotionAnimKey`);
   requireNumber(action.rootMotionMaxDistance, `${path}.rootMotionMaxDistance`);
-  requireStringOrInteger(action.chargePriority, `${path}.chargePriority`);
+  requireNonEmptyString(action.chargePriority, `${path}.chargePriority`);
   return {
     kind: 'snapToTargetWithRange',
     target: parseTargetReferenceSource(action.moveTo, `${path}.moveTo`),
     radius: parseScalarSource(action.radius, `${path}.radius`, inheritedBlackboard),
-    moveType: requireStringOrInteger(action.moveType, `${path}.moveType`),
+    moveType: requireNonEmptyString(action.moveType, `${path}.moveType`),
     needRotate: requireBoolean(action.needRotate, `${path}.needRotate`),
     totalTime: requireNumber(action.totalTime, `${path}.totalTime`),
   };
@@ -823,19 +721,12 @@ export function parseBoneAttachActionSource(value: unknown, path: string): BoneA
     path,
   );
   requireBoolean(action.isEnable, `${path}.isEnable`);
-  requireNativeActionPriority(action.priorityLevel, `${path}.priorityLevel`);
+  requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
   requireInteger(action.priorityOffset, `${path}.priorityOffset`);
   requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
-  const rotateAnchor = requireNativeEnum(
-    action.rotateAnchor,
-    new Map([
-      [1, 'Owner'],
-      [2, 'Target'],
-      [3, 'AnchorSlot'],
-      [4, 'SubSlot'],
-    ] as const),
-    `${path}.rotateAnchor`,
-  );
+  const rotateAnchor = requireNonEmptyString(action.rotateAnchor, `${path}.rotateAnchor`);
+  if (!['Owner', 'Target', 'AnchorSlot', 'SubSlot'].includes(rotateAnchor))
+    throw new Error(`${path}.rotateAnchor: unsupported value ${rotateAnchor}`);
   const rotateAngles = parseNumberVector3(action.rotateAngles, `${path}.rotateAngles`);
   const lerpTimeSeconds = requireNumber(action.lerpTime, `${path}.lerpTime`);
   if (!Number.isFinite(lerpTimeSeconds) || lerpTimeSeconds < 0)
@@ -843,8 +734,8 @@ export function parseBoneAttachActionSource(value: unknown, path: string): BoneA
   return {
     kind: 'boneAttach',
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    anchorSlot: requireStringOrInteger(action.anchorSlot, `${path}.anchorSlot`),
-    subSlot: requireStringOrInteger(action.subSlot, `${path}.subSlot`),
+    anchorSlot: requireNonEmptyString(action.anchorSlot, `${path}.anchorSlot`),
+    subSlot: requireNonEmptyString(action.subSlot, `${path}.subSlot`),
     isAddRotation: requireBoolean(action.isAddRotation, `${path}.isAddRotation`),
     rotateAnchor: rotateAnchor as BoneAttachActionSource['rotateAnchor'],
     rotateAngles: [rotateAngles.x, rotateAngles.y, rotateAngles.z],
@@ -885,9 +776,8 @@ export function parseSkillAiMoveActionSource(
     ]),
     path,
   );
-  const moveTargetType = requireNativeEnum(
+  const moveTargetType = requireNonEmptyString(
     action.skillMoveTargetType,
-    ['EnemyCenter', 'SelectTarget', 'TargetInOutRange'] as const,
     `${path}.skillMoveTargetType`,
   );
   if (!['EnemyCenter', 'SelectTarget', 'TargetInOutRange'].includes(moveTargetType)) {
@@ -960,11 +850,7 @@ function parseMoveSubSpeed(
     new Set(['speedType', 'fixedSpeed', 'speedCurve', 'rootMotionAnimKey', 'rootMotionScale']),
     path,
   );
-  requireNativeEnum(
-    speed.speedType,
-    ['FixedSpeed', 'SpeedCurve', 'RootMotion', 'AutoFixSpeed'] as const,
-    `${path}.speedType`,
-  );
+  requireNonEmptyString(speed.speedType, `${path}.speedType`);
   parseScalarSource(speed.fixedSpeed, `${path}.fixedSpeed`, inheritedBlackboard);
   parseTimeDilationCurveKeys(speed.speedCurve, `${path}.speedCurve`, true);
   requireString(speed.rootMotionAnimKey, `${path}.rootMotionAnimKey`);

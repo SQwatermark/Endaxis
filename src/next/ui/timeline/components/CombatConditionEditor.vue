@@ -61,9 +61,7 @@ const operandLabels = () => ({
 const conditionKindLabel = (kind: CombatConditionKind): string =>
   kind === 'enemyRankIn' ? 'Enemy rank' : t(`nextTimeline.skillEditing.conditionKinds.${kind}`);
 const isLeafWithoutParameters = computed(() =>
-  ['combatActive', 'singleEnemyPresent', 'casterControlled', 'pendingComboSkillPresent'].includes(
-    props.condition.kind,
-  ),
+  ['combatActive', 'singleEnemyPresent', 'casterControlled'].includes(props.condition.kind),
 );
 
 function setKind(event: Event): void {
@@ -244,8 +242,6 @@ function setGameplayTags(values: readonly GameplayTag[]): void {
     emit('update', { ...props.condition, tags: values });
   else if (props.condition.kind === 'contextTargetEntityTagMatch')
     emit('update', { ...props.condition, tags: values });
-  else if (props.condition.kind === 'eventDamageGameplayTagsMatch')
-    emit('update', { ...props.condition, tags: values });
   else if (props.condition.kind === 'eventBuffTagsMatch')
     emit('update', { ...props.condition, buffTags: values });
   else if (props.condition.kind === 'eventTargetBuffCountCompare')
@@ -346,11 +342,6 @@ function setObjectTypeMask(event: Event): void {
 }
 
 function setEventTagMatch(event: Event): void {
-  if (props.condition.kind === 'eventDamageGameplayTagsMatch') {
-    const match = (event.target as HTMLSelectElement).value as (typeof TAG_QUERY_TYPES)[number];
-    if (TAG_QUERY_TYPES.includes(match)) emit('update', { ...props.condition, match });
-    return;
-  }
   if (
     props.condition.kind !== 'eventDamageTagsMatch' &&
     props.condition.kind !== 'eventDamageFeaturesMatch'
@@ -1063,25 +1054,6 @@ function removeChild(index: number): void {
           />{{ t(`nextTimeline.skillEditing.damageTagNames.${tag}`) }}</label
         >
       </fieldset>
-    </template>
-
-    <template v-if="condition.kind === 'eventDamageGameplayTagsMatch'">
-      <label class="condition-editor__field"
-        ><EditorFieldLabel
-          :label="t('nextTimeline.skillEditing.tagQueryType')"
-          :help="t('nextTimeline.skillEditing.fieldHelp.eventDamageTags')"
-        /><select :value="condition.match" @change="setEventTagMatch">
-          <option v-for="type in TAG_QUERY_TYPES" :key="type" :value="type">
-            {{ t(`nextTimeline.skillEditing.tagQueryTypes.${type}`) }}
-          </option>
-        </select></label
-      >
-      <label class="condition-editor__field"
-        ><EditorFieldLabel
-          :label="t('nextTimeline.skillEditing.buffTags')"
-          :help="t('nextTimeline.skillEditing.fieldHelp.eventDamageTags')"
-        /><GameplayTagsEditor :tags="condition.tags" @update="setGameplayTags" />
-      </label>
     </template>
 
     <label v-if="condition.kind === 'eventBuffIdMatch'" class="condition-editor__field">

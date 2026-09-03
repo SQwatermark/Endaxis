@@ -65,7 +65,7 @@ export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
                 { lifetime: 'execution', alwaysNext: true },
               ),
             ),
-            undefined,
+            {},
             { lifetime: 'execution' },
           ),
         ),
@@ -98,7 +98,7 @@ export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
                 { lifetime: 'execution', alwaysNext: true },
               ),
             ),
-            undefined,
+            {},
             { lifetime: 'execution' },
           ),
         ),
@@ -111,18 +111,10 @@ export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.0799999982118607, 0.0900000035762787, 0.100000001490116, 0.100000001490116,
-      0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046, 0.140000000596046,
-      0.150000005960464, 0.170000001788139, 0.180000007152557,
-    ],
+    atk_scale: [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
     atk_scale_sword: 0.2,
     sword_dist: 0,
-    display_atk_scale: [
-      0.159999996423721, 0.180000007152557, 0.189999997615814, 0.209999993443489, 0.219999998807907,
-      0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535, 0.310000002384186,
-      0.330000013113022, 0.360000014305115,
-    ],
+    display_atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
   },
 );
 
@@ -255,7 +247,6 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack2',
             childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -267,22 +258,10 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'attack',
   },
   {
-    atk_scale: [
-      0.0399999991059303, 0.0399999991059303, 0.0399999991059303, 0.0500000007450581,
-      0.0500000007450581, 0.0500000007450581, 0.0599999986588955, 0.0599999986588955,
-      0.0599999986588955, 0.0700000002980232, 0.0700000002980232, 0.0799999982118607,
-    ],
-    atk_scale_sword: [
-      0.0500000007450581, 0.0599999986588955, 0.0599999986588955, 0.0700000002980232,
-      0.0700000002980232, 0.0799999982118607, 0.0799999982118607, 0.0900000035762787,
-      0.0900000035762787, 0.100000001490116, 0.100000001490116, 0.109999999403954,
-    ],
+    atk_scale: [0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08],
+    atk_scale_sword: [0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11],
     sword_dist: 0,
-    display_atk_scale: [
-      0.239999994635582, 0.259999990463257, 0.28999999165535, 0.310000002384186, 0.340000003576279,
-      0.360000014305115, 0.379999995231628, 0.409999996423721, 0.430000007152557, 0.46000000834465,
-      0.5, 0.540000021457672,
-    ],
+    display_atk_scale: [0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54],
   },
 );
 
@@ -481,17 +460,9 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale_sword: [
-      0.0799999982118607, 0.0900000035762787, 0.100000001490116, 0.100000001490116,
-      0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046, 0.140000000596046,
-      0.150000005960464, 0.170000001788139, 0.180000007152557,
-    ],
+    atk_scale_sword: [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
     sword_dist: 0,
-    display_atk_scale: [
-      0.319999992847443, 0.349999994039536, 0.389999985694885, 0.419999986886978, 0.449999988079071,
-      0.479999989271164, 0.519999980926514, 0.550000011920929, 0.579999983310699, 0.620000004768372,
-      0.670000016689301, 0.720000028610229,
-    ],
+    display_atk_scale: [0.32, 0.35, 0.39, 0.42, 0.45, 0.48, 0.52, 0.55, 0.58, 0.62, 0.67, 0.72],
   },
 );
 
@@ -524,7 +495,6 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack2',
             childSkillId: 'chr_0030_zhuangfy_attack2_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -536,16 +506,8 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'attack',
   },
   {
-    atk_scale: [
-      0.109999999403954, 0.119999997317791, 0.140000000596046, 0.150000005960464, 0.159999996423721,
-      0.170000001788139, 0.180000007152557, 0.189999997615814, 0.200000002980232, 0.219999998807907,
-      0.230000004172325, 0.25,
-    ],
-    display_atk_scale: [
-      0.449999988079071, 0.5, 0.540000021457672, 0.589999973773956, 0.629999995231628,
-      0.680000007152557, 0.720000028610229, 0.769999980926514, 0.810000002384186, 0.870000004768372,
-      0.930000007152557, 1.00999999046326,
-    ],
+    atk_scale: [0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25],
+    display_atk_scale: [0.45, 0.5, 0.54, 0.59, 0.63, 0.68, 0.72, 0.77, 0.81, 0.87, 0.93, 1.01],
   },
 );
 
@@ -578,7 +540,6 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack5',
             childSkillId: 'chr_0030_zhuangfy_attack5_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
           }),
@@ -592,11 +553,7 @@ export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 18,
-    atk_scale: [
-      0.479999989271164, 0.529999971389771, 0.579999983310699, 0.620000004768372, 0.670000016689301,
-      0.720000028610229, 0.769999980926514, 0.819999992847443, 0.860000014305115, 0.920000016689301,
-      1, 1.08000004291534,
-    ],
+    atk_scale: [0.48, 0.53, 0.58, 0.62, 0.67, 0.72, 0.77, 0.82, 0.86, 0.92, 1, 1.08],
     poise: 18,
   },
 );
@@ -632,7 +589,7 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'electric',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.100000001490116,
+              calculationMultiplier: 0.1,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0030_zhuangfy_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -649,7 +606,7 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'electric',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.899999976158142,
+              calculationMultiplier: 0.9,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0030_zhuangfy_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -657,7 +614,7 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
           step('gainFinisherSp', { factor: 1, recipient: 'team' }),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+            durationSeconds: { kind: 'constant', value: 0.4 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -671,7 +628,7 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_full_immune_medium',
+            buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -696,12 +653,7 @@ export const zhuangFangyiFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const zhuangFangyiPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -801,14 +753,7 @@ export const zhuangFangyiPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -855,10 +800,7 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('findOwnerSpawnedAbilityEntities', {
             saveToContextKey: 'swordsForExtend',
-            abilityEntityIds: [
-              'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
-              'abilityentity_chr_0030_zhuangfy_normal_skill_sword_ult',
-            ],
+            abilityEntityIds: ['abilityentity_chr_0030_zhuangfy_normal_skill_sword'],
           }),
           forEachContextTarget(
             'swordsForExtend',
@@ -1007,7 +949,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                             saveToContextKey: 'swords',
                             abilityEntityIds: [
                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
-                              'abilityentity_chr_0030_zhuangfy_normal_skill_sword_ult',
                             ],
                           }),
                           branch(
@@ -1050,7 +991,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                                           'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                         childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                         inheritActionBlackboard: true,
-                                        inheritSourceSkillCastInfo: true,
                                         dieWhenSourceDies: true,
                                         blackboardAssignments: {
                                           EntityBB_swordDuration: {
@@ -1070,7 +1010,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                                           'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                         childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                         inheritActionBlackboard: true,
-                                        inheritSourceSkillCastInfo: true,
                                         dieWhenSourceDies: true,
                                         blackboardAssignments: {
                                           EntityBB_swordDuration: {
@@ -1102,7 +1041,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                                           'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                         childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                         inheritActionBlackboard: true,
-                                        inheritSourceSkillCastInfo: true,
                                         dieWhenSourceDies: true,
                                         blackboardAssignments: {
                                           EntityBB_swordDuration: {
@@ -1122,7 +1060,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                                           'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                         childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                         inheritActionBlackboard: true,
-                                        inheritSourceSkillCastInfo: true,
                                         dieWhenSourceDies: true,
                                         blackboardAssignments: {
                                           EntityBB_swordDuration: {
@@ -1212,7 +1149,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                             saveToContextKey: 'swords',
                             abilityEntityIds: [
                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
-                              'abilityentity_chr_0030_zhuangfy_normal_skill_sword_ult',
                             ],
                           }),
                           branch(
@@ -1255,7 +1191,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                                           'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                         childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                         inheritActionBlackboard: true,
-                                        inheritSourceSkillCastInfo: true,
                                         dieWhenSourceDies: true,
                                         blackboardAssignments: {
                                           EntityBB_swordDuration: {
@@ -1275,7 +1210,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                                           'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                         childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                         inheritActionBlackboard: true,
-                                        inheritSourceSkillCastInfo: true,
                                         dieWhenSourceDies: true,
                                         blackboardAssignments: {
                                           EntityBB_swordDuration: {
@@ -1307,7 +1241,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                                           'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                         childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                         inheritActionBlackboard: true,
-                                        inheritSourceSkillCastInfo: true,
                                         dieWhenSourceDies: true,
                                         blackboardAssignments: {
                                           EntityBB_swordDuration: {
@@ -1327,7 +1260,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                                           'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                         childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                         inheritActionBlackboard: true,
-                                        inheritSourceSkillCastInfo: true,
                                         dieWhenSourceDies: true,
                                         blackboardAssignments: {
                                           EntityBB_swordDuration: {
@@ -1389,7 +1321,7 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
               step('calculateActionValue', {
                 key: 'swordTriggerInterval',
                 operation: 'add',
-                left: { kind: 'constant', value: 0.300000011920929 },
+                left: { kind: 'constant', value: 0.3 },
                 right: { kind: 'blackboard', key: 'swordTriggerInterval' },
               }),
               step('calculateActionValue', {
@@ -1444,7 +1376,7 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                       keys: [
                         {
                           time: 0,
-                          value: 0.00999999977648258,
+                          value: 0.01,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -1452,8 +1384,8 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                           outWeight: 0,
                         },
                         {
-                          time: 0.770478487014771,
-                          value: 0.00999999977648258,
+                          time: 0.7704785,
+                          value: 0.01,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -1463,8 +1395,8 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                         {
                           time: 1,
                           value: 1,
-                          inTangent: 4.31332111358643,
-                          outTangent: 4.31332111358643,
+                          inTangent: 4.313321,
+                          outTangent: 4.313321,
                           weightedMode: 0,
                           inWeight: 0,
                           outWeight: 0,
@@ -1516,7 +1448,7 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                       keys: [
                         {
                           time: 0,
-                          value: 0.00999999977648258,
+                          value: 0.01,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -1524,8 +1456,8 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                           outWeight: 0,
                         },
                         {
-                          time: 0.770478487014771,
-                          value: 0.00999999977648258,
+                          time: 0.7704785,
+                          value: 0.01,
                           inTangent: 0,
                           outTangent: 0,
                           weightedMode: 0,
@@ -1535,8 +1467,8 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
                         {
                           time: 1,
                           value: 1,
-                          inTangent: 4.31332111358643,
-                          outTangent: 4.31332111358643,
+                          inTangent: 4.313321,
+                          outTangent: 4.313321,
                           weightedMode: 0,
                           inWeight: 0,
                           outWeight: 0,
@@ -1583,17 +1515,9 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb_return: 0,
-    atk_scale: [
-      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
-      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.389999985694885,
-      0.419999986886978, 0.449999988079071,
-    ],
+    atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
     atk_up_final: 0,
-    atk_up_per_conduct: [
-      0.0299999993294477, 0.0399999991059303, 0.0399999991059303, 0.0399999991059303,
-      0.0500000007450581, 0.0500000007450581, 0.0500000007450581, 0.0599999986588955,
-      0.0599999986588955, 0.0700000002980232, 0.0799999982118607, 0.0900000035762787,
-    ],
+    atk_up_per_conduct: [0.03, 0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.07, 0.08, 0.09],
     cam_angle: 0,
     conductCnt: 0,
     final_rate: 6,
@@ -1639,10 +1563,7 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
         sequence(
           step('findOwnerSpawnedAbilityEntities', {
             saveToContextKey: 'swordsForExtend',
-            abilityEntityIds: [
-              'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
-              'abilityentity_chr_0030_zhuangfy_normal_skill_sword_ult',
-            ],
+            abilityEntityIds: ['abilityentity_chr_0030_zhuangfy_normal_skill_sword'],
           }),
           forEachContextTarget(
             'swordsForExtend',
@@ -1721,7 +1642,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                 saveToContextKey: 'swords',
                                 abilityEntityIds: [
                                   'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
-                                  'abilityentity_chr_0030_zhuangfy_normal_skill_sword_ult',
                                 ],
                               }),
                               branch(
@@ -1764,7 +1684,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -1784,7 +1703,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -1816,7 +1734,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -1836,7 +1753,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -1900,7 +1816,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                 saveToContextKey: 'swords',
                                 abilityEntityIds: [
                                   'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
-                                  'abilityentity_chr_0030_zhuangfy_normal_skill_sword_ult',
                                 ],
                               }),
                               branch(
@@ -1943,7 +1858,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -1963,7 +1877,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -1995,7 +1908,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2015,7 +1927,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2157,7 +2068,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                 saveToContextKey: 'swords',
                                 abilityEntityIds: [
                                   'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
-                                  'abilityentity_chr_0030_zhuangfy_normal_skill_sword_ult',
                                 ],
                               }),
                               branch(
@@ -2200,7 +2110,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2220,7 +2129,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2252,7 +2160,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2272,7 +2179,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2367,7 +2273,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                 saveToContextKey: 'swords',
                                 abilityEntityIds: [
                                   'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
-                                  'abilityentity_chr_0030_zhuangfy_normal_skill_sword_ult',
                                 ],
                               }),
                               branch(
@@ -2410,7 +2315,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2430,7 +2334,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2462,7 +2365,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2482,7 +2384,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
                                               'abilityentity_chr_0030_zhuangfy_normal_skill_sword',
                                             childSkillId: 'chr_0030_zhuangfy_normal_skill_sword',
                                             inheritActionBlackboard: true,
-                                            inheritSourceSkillCastInfo: true,
                                             dieWhenSourceDies: true,
                                             blackboardAssignments: {
                                               EntityBB_swordDuration: {
@@ -2546,7 +2447,6 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_normal_skill_ult',
             childSkillId: 'chr_0030_zhuangfy_normal_skill_ult_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: true,
             blackboardAssignments: {
               EntityBB_SwordNum: { kind: 'blackboard', key: 'EntityBB_SwordNum' },
@@ -2614,17 +2514,9 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
   },
   {
     atb_return: 0,
-    atk_scale: [
-      0.360000014305115, 0.400000005960464, 0.430000007152557, 0.469999998807907, 0.5,
-      0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142, 0.689999997615814,
-      0.75, 0.810000002384186,
-    ],
+    atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
     atk_up_final: 0,
-    atk_up_per_conduct: [
-      0.0799999982118607, 0.0900000035762787, 0.100000001490116, 0.109999999403954,
-      0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046, 0.150000005960464,
-      0.159999996423721, 0.170000001788139, 0.180000007152557,
-    ],
+    atk_up_per_conduct: [0.08, 0.09, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18],
     cam_angle: 0,
     conductCnt: 0,
     final_rate: 6,
@@ -2671,7 +2563,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
+            durationSeconds: { kind: 'constant', value: 0.6 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2780,7 +2672,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
           }),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.300000011920929 },
+            durationSeconds: { kind: 'constant', value: 0.3 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -2816,11 +2708,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [
-      1.60000002384186, 1.75999999046326, 1.91999995708466, 2.07999992370605, 2.24000000953674,
-      2.40000009536743, 2.55999994277954, 2.72000002861023, 2.88000011444092, 3.07999992370605,
-      3.3199999332428, 3.59999990463257,
-    ],
+    atk_scale: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
     conductCnt: 0,
     consumedInflict: 0,
     inflictCnt: 0,
@@ -2860,7 +2748,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
+            durationSeconds: { kind: 'constant', value: 0.6 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2969,7 +2857,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
           }),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.300000011920929 },
+            durationSeconds: { kind: 'constant', value: 0.3 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -3050,11 +2938,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
     nativeSkillType: 'normalSkill',
   },
   {
-    atk_scale: [
-      2.40000009536743, 2.64000010490417, 2.88000011444092, 3.11999988555908, 3.35999989509583,
-      3.59999990463257, 3.83999991416931, 4.07999992370605, 4.32000017166138, 4.61999988555908,
-      4.98000001907349, 5.40000009536743,
-    ],
+    atk_scale: [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4],
     conductCnt: 0,
     consumedInflict: 0,
     inflictCnt: 0,
@@ -3079,10 +2963,9 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_ult_mirror',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: true,
             finishByAction: true,
-            overrideDurationSeconds: { kind: 'constant', value: 0.829999983310699 },
+            overrideDurationSeconds: { kind: 'constant', value: 0.83 },
             saveToContextKey: 'ult_postmodel_mirror',
           }),
           branch(
@@ -3117,10 +3000,9 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_ult',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: true,
             finishByAction: true,
-            overrideDurationSeconds: { kind: 'constant', value: 2.70000004768372 },
+            overrideDurationSeconds: { kind: 'constant', value: 2.7 },
             saveToContextKey: 'ult_postmodel',
           }),
         ),
@@ -3259,7 +3141,6 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack_ult',
             childSkillId: 'chr_0030_zhuangfy_attack1_ult_1_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
@@ -3279,7 +3160,6 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack_ult',
             childSkillId: 'chr_0030_zhuangfy_attack1_ult_2_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
@@ -3294,7 +3174,6 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack_ult',
             childSkillId: 'chr_0030_zhuangfy_attack1_ult_3_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
@@ -3309,7 +3188,6 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack_ult',
             childSkillId: 'chr_0030_zhuangfy_attack1_ult_4_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
@@ -3324,11 +3202,7 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
   },
   {
     atb: 0,
-    atk_scale: [
-      0.670000016689301, 0.730000019073486, 0.800000011920929, 0.860000014305115, 0.930000007152557,
-      1, 1.05999994277954, 1.12999999523163, 1.20000004768372, 1.27999997138977, 1.37999999523163,
-      1.5,
-    ],
+    atk_scale: [0.67, 0.73, 0.8, 0.86, 0.93, 1, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5],
     sword_dist: 0,
     target_in_range: 0,
   },
@@ -3364,7 +3238,6 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack_ult',
             childSkillId: 'chr_0030_zhuangfy_attack1_ult_1_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
@@ -3384,7 +3257,6 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack_ult',
             childSkillId: 'chr_0030_zhuangfy_attack1_ult_2_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
@@ -3399,7 +3271,6 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack_ult',
             childSkillId: 'chr_0030_zhuangfy_attack1_ult_3_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
@@ -3414,7 +3285,6 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack_ult',
             childSkillId: 'chr_0030_zhuangfy_attack1_ult_4_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
@@ -3435,11 +3305,7 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
     nativeSkillType: 'attack',
   },
   {
-    atk_scale: [
-      0.939999997615814, 1.02999997138977, 1.12000000476837, 1.22000002861023, 1.30999994277954,
-      1.39999997615814, 1.5, 1.5900000333786, 1.67999994754791, 1.79999995231628, 1.94000005722046,
-      2.09999990463257,
-    ],
+    atk_scale: [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1],
     sword_dist: 0,
     target_in_range: 0,
   },
@@ -3474,7 +3340,6 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_attack3_ult',
             childSkillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
             saveToContextKey: 'thunder',
@@ -3514,10 +3379,7 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
   },
   {
     atb: 20,
-    atk_scale: [
-      1.3400000333786, 1.47000002861023, 1.60000002384186, 1.74000000953674, 1.87000000476837, 2,
-      2.14000010490417, 2.26999998092651, 2.40000009536743, 2.5699999332428, 2.76999998092651, 3,
-    ],
+    atk_scale: [1.34, 1.47, 1.6, 1.74, 1.87, 2, 2.14, 2.27, 2.4, 2.57, 2.77, 3],
     poise: 18,
     thunderIndex: 0,
   },
@@ -3750,11 +3612,7 @@ export default {
       passiveSkills: [
         {
           key: 'chr_0030_zhuangfy_talent1',
-          blackboard: {
-            base_rate: [0.0900000035762787, 0.180000007152557],
-            duration: [5, 5],
-            enhance_rate: [0.00999999977648258, 0.0199999995529652],
-          },
+          blackboard: { base_rate: [0.09, 0.18], duration: [5, 5], enhance_rate: [0.01, 0.02] },
           enableSequence: sequence(
             step('listenForCombatEvents', {
               responses: [
@@ -3794,10 +3652,10 @@ export default {
         {
           key: 'chr_0030_zhuangfy_talent2',
           blackboard: {
-            base_rate: [0.0900000035762787, 0.0900000035762787],
+            base_rate: [0.09, 0.09],
             duration: [99, 99],
-            heal: [0.0900000035762787, 0.180000007152557],
-            sword_rate: [0.00999999977648258, 0.00999999977648258],
+            heal: [0.09, 0.18],
+            sword_rate: [0.01, 0.01],
           },
           enableSequence: sequence(),
         },
@@ -3815,7 +3673,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -3823,7 +3681,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'atk_up_per_conduct',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -3831,7 +3689,7 @@ export default {
           skillKey: 'enhancedBattleSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -3839,7 +3697,7 @@ export default {
           skillKey: 'enhancedBattleSkill',
           blackboardKey: 'atk_up_per_conduct',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
       ],
       initializationSequence: sequence(
@@ -3905,7 +3763,7 @@ export default {
           skillGroupKey: 'ultimate',
           skillKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -3948,7 +3806,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4080,7 +3937,7 @@ export default {
             }),
             step('startTimeDilation', {
               scope: 'entity',
-              durationSeconds: { kind: 'constant', value: 0.300000011920929 },
+              durationSeconds: { kind: 'constant', value: 0.3 },
               slot: 'TimeDilation/Layer/Entity/HitStop',
               priority: 10,
               curve: { kind: 'named', key: 'char_normal_attack' },
@@ -4096,7 +3953,7 @@ export default {
       stackingType: 'stack',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 0.200000002980232,
+      durationSeconds: 0.2,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -4207,7 +4064,6 @@ export default {
           step('spawnAbilityEntity', {
             abilityEntityId: 'abilityentity_chr_0030_zhuangfy_normal_skill_fake_target',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -4217,7 +4073,7 @@ export default {
       stackingType: 'unique',
       priority: 0,
       maxStackCount: 1,
-      triggerIntervalSeconds: 0.0299999993294477,
+      triggerIntervalSeconds: 0.03,
       waitFirstTriggerInterval: false,
       maxTriggerCount: -1,
       applyTags: [],
@@ -4387,7 +4243,7 @@ export default {
                 step('createTimedMarker', {
                   target: 'caster',
                   markerId: 'skillEnd',
-                  durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                  durationSeconds: { kind: 'constant', value: 0.1 },
                   autoFinishByAction: false,
                 }),
               ),
@@ -4582,7 +4438,7 @@ export default {
                           sequence(
                             step('startTimeDilation', {
                               scope: 'entity',
-                              durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                              durationSeconds: { kind: 'constant', value: 0.4 },
                               slot: 'TimeDilation/Layer/Entity/HitStop',
                               priority: 10,
                               curve: { kind: 'named', key: 'char_hard_stop' },
@@ -4608,8 +4464,8 @@ export default {
     buff_chr_0030_zhuangfy_talent1: {
       stackingType: 'unlimited',
       priority: 1,
-      maxStackCount: 3,
-      durationSeconds: 0.100000001490116,
+      maxStackCount: { blackboardKey: 'max_stack' },
+      durationSeconds: 0.1,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -4649,8 +4505,8 @@ export default {
     buff_chr_0030_zhuangfy_talent1_mark: {
       stackingType: 'unlimited',
       priority: 1,
-      maxStackCount: 3,
-      durationSeconds: 0.100000001490116,
+      maxStackCount: { blackboardKey: 'max_stack' },
+      durationSeconds: 0.1,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -4667,7 +4523,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4757,7 +4612,6 @@ export default {
         iconPath: '/icons/icon_battle_zhuangfy_debuff_01.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -4861,12 +4715,7 @@ export default {
                     { alwaysNext: true },
                   ),
                 ),
-                {
-                  nativeTickInterval: {
-                    executeEachFrame: false,
-                    intervalSeconds: 0.100000001490116,
-                  },
-                },
+                { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
               ),
             ),
             16,
@@ -4906,7 +4755,7 @@ export default {
                     sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                        durationSeconds: { kind: 'constant', value: 0.1 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: { kind: 'named', key: 'char_hard_stop' },
@@ -4920,9 +4769,9 @@ export default {
                 {
                   nativeChanneling: {
                     executeEachFrame: true,
-                    triggerIntervalSeconds: 0.0329999998211861,
+                    triggerIntervalSeconds: 0.033,
                     maxCountPerTarget: 1,
-                    targetTriggerIntervalSeconds: 0.270000010728836,
+                    targetTriggerIntervalSeconds: 0.27,
                   },
                 },
               ),
@@ -5100,7 +4949,7 @@ export default {
                         step('createTimedMarker', {
                           target: 'enemy',
                           markerId: { blackboardKey: 'EntityBB_hitedMark' },
-                          durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                          durationSeconds: { kind: 'constant', value: 0.4 },
                           autoFinishByAction: false,
                         }),
                       ),
@@ -5145,7 +4994,7 @@ export default {
                         step('createTimedMarker', {
                           target: 'enemy',
                           markerId: { blackboardKey: 'EntityBB_hitedMark' },
-                          durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                          durationSeconds: { kind: 'constant', value: 0.4 },
                           autoFinishByAction: false,
                         }),
                       ),
@@ -5190,7 +5039,7 @@ export default {
                         step('createTimedMarker', {
                           target: 'enemy',
                           markerId: { blackboardKey: 'EntityBB_hitedMark' },
-                          durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                          durationSeconds: { kind: 'constant', value: 0.4 },
                           autoFinishByAction: false,
                         }),
                       ),
@@ -5235,7 +5084,7 @@ export default {
                         step('createTimedMarker', {
                           target: 'enemy',
                           markerId: { blackboardKey: 'EntityBB_hitedMark' },
-                          durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                          durationSeconds: { kind: 'constant', value: 0.4 },
                           autoFinishByAction: false,
                         }),
                       ),
@@ -5277,9 +5126,9 @@ export default {
                 {
                   nativeChanneling: {
                     executeEachFrame: true,
-                    triggerIntervalSeconds: 0.0329999998211861,
+                    triggerIntervalSeconds: 0.033,
                     maxCountPerTarget: 1,
-                    targetTriggerIntervalSeconds: 0.0329999998211861,
+                    targetTriggerIntervalSeconds: 0.033,
                   },
                 },
               ),
@@ -5452,12 +5301,7 @@ export default {
                     { alwaysNext: true },
                   ),
                 ),
-                {
-                  nativeTickInterval: {
-                    executeEachFrame: false,
-                    intervalSeconds: 0.200000002980232,
-                  },
-                },
+                { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.2 } },
               ),
             ),
             64,
@@ -5493,7 +5337,7 @@ export default {
                   ),
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                    durationSeconds: { kind: 'constant', value: 0.4 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -5510,7 +5354,7 @@ export default {
             12,
             sequence(
               repeatEachTick(sequence(), {
-                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.200000002980232 },
+                nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.2 },
               }),
             ),
             64,
@@ -5538,12 +5382,7 @@ export default {
                     { alwaysNext: true },
                   ),
                 ),
-                {
-                  nativeTickInterval: {
-                    executeEachFrame: false,
-                    intervalSeconds: 0.200000002980232,
-                  },
-                },
+                { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.2 } },
               ),
             ),
             64,
@@ -5563,12 +5402,7 @@ export default {
                     count: { kind: 'constant', value: 1 },
                   }),
                 ),
-                {
-                  nativeTickInterval: {
-                    executeEachFrame: false,
-                    intervalSeconds: 0.200000002980232,
-                  },
-                },
+                { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.2 } },
               ),
             ),
             64,
@@ -5588,12 +5422,7 @@ export default {
                     count: { kind: 'constant', value: 3 },
                   }),
                 ),
-                {
-                  nativeTickInterval: {
-                    executeEachFrame: false,
-                    intervalSeconds: 0.200000002980232,
-                  },
-                },
+                { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.2 } },
               ),
             ),
             71,
@@ -5604,7 +5433,7 @@ export default {
               step('createTimedMarker', {
                 target: 'caster',
                 markerId: 'skillEnd',
-                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                durationSeconds: { kind: 'constant', value: 0.1 },
                 autoFinishByAction: false,
               }),
             ),

@@ -3,7 +3,7 @@ import type { OperatorBuffDefinitions } from '../../../core/game-data/operatorDe
 import { branch, sequence, step } from '../../operators/definitionHelpers';
 
 export const commonBuffDefinitions = Object.freeze({
-  buff_common_damage_immune_ult_skill: {
+  buff_common_damage_immune_medium: {
     stackingType: 'unlimited',
     priority: 0,
     maxStackCount: 0,
@@ -17,19 +17,12 @@ export const commonBuffDefinitions = Object.freeze({
     blackboard: { duration: 9999 },
     attributeModifiers: [],
   },
-  buff_common_full_immune_medium: {
+  buff_common_damage_immune_ult_skill: {
     stackingType: 'unlimited',
     priority: 0,
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [
-      'Immune/Stunned',
-      'Immune/Frozen',
-      'Immune/Airborne',
-      'Immune/KnockDown',
-      'Immune/KnockBack',
-      'Immune/Pull',
-      'Immune/Poise',
       'Status/DodgeDamageImmune',
       'Status/SkillDamageImmune',
       'Immune/SpellInflictOnChar/All',
@@ -135,7 +128,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_conduct.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -265,7 +257,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_shelter: {
     stackingType: 'highPriority',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: ['Skill/Character/Common/Affixes/Shelter'],
@@ -301,7 +293,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_shelter_default_child: {
     stackingType: 'highPriority',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     presentation: {
@@ -310,7 +302,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_shelter.webp',
       showInHeadBarCommon: false,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -412,7 +403,7 @@ export const commonBuffDefinitions = Object.freeze({
               sequence: sequence(
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                  durationSeconds: { kind: 'constant', value: 0.1 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 15,
                   curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -426,7 +417,7 @@ export const commonBuffDefinitions = Object.freeze({
               sequence: sequence(
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                  durationSeconds: { kind: 'constant', value: 0.1 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 10,
                   curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -468,7 +459,7 @@ export const commonBuffDefinitions = Object.freeze({
               sequence: sequence(
                 step('startTimeDilation', {
                   scope: 'entity',
-                  durationSeconds: { kind: 'constant', value: 0.649999976158142 },
+                  durationSeconds: { kind: 'constant', value: 0.65 },
                   slot: 'TimeDilation/Layer/Entity/HitStop',
                   priority: 20,
                   curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -607,7 +598,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
       showInHeadBarCommon: false,
       showInHeadBarAttached: true,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -776,7 +766,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_burning.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -876,7 +865,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_enhance_fire: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: ['Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceFire'],
@@ -912,7 +901,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_enhance_pulse: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: ['Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhancePulse'],
@@ -948,7 +937,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_fire: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [
@@ -988,7 +977,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_pulse: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [
@@ -1042,7 +1031,7 @@ export const commonBuffDefinitions = Object.freeze({
     priority: 0,
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
-    triggerIntervalSeconds: 0.100000001490116,
+    triggerIntervalSeconds: 0.1,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 1,
     presentation: {
@@ -1051,7 +1040,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/airborne.webp',
       showInHeadBarCommon: false,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -1189,7 +1177,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/knockback.webp',
       showInHeadBarCommon: false,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -1324,7 +1311,7 @@ export const commonBuffDefinitions = Object.freeze({
                     sequence: sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                        durationSeconds: { kind: 'constant', value: 0.1 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 15,
                         curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1338,7 +1325,7 @@ export const commonBuffDefinitions = Object.freeze({
                     sequence: sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                        durationSeconds: { kind: 'constant', value: 0.1 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 10,
                         curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1380,7 +1367,7 @@ export const commonBuffDefinitions = Object.freeze({
                     sequence: sequence(
                       step('startTimeDilation', {
                         scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.649999976158142 },
+                        durationSeconds: { kind: 'constant', value: 0.65 },
                         slot: 'TimeDilation/Layer/Entity/HitStop',
                         priority: 20,
                         curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1412,7 +1399,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_fracture.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -1576,7 +1562,7 @@ export const commonBuffDefinitions = Object.freeze({
                 sequence: sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                    durationSeconds: { kind: 'constant', value: 0.1 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 15,
                     curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1590,7 +1576,7 @@ export const commonBuffDefinitions = Object.freeze({
                 sequence: sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                    durationSeconds: { kind: 'constant', value: 0.1 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1632,7 +1618,7 @@ export const commonBuffDefinitions = Object.freeze({
                 sequence: sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.649999976158142 },
+                    durationSeconds: { kind: 'constant', value: 0.65 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 20,
                     curve: { kind: 'named', key: 'interrupt_weakness' },
@@ -1740,7 +1726,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_frozen.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -1839,7 +1824,7 @@ export const commonBuffDefinitions = Object.freeze({
                 outTangent: 0,
                 weightedMode: 0,
                 inWeight: 0,
-                outWeight: 0.333333343267441,
+                outWeight: 0.333333343,
               },
               {
                 time: 1,
@@ -1847,7 +1832,7 @@ export const commonBuffDefinitions = Object.freeze({
                 inTangent: 0,
                 outTangent: 0,
                 weightedMode: 0,
-                inWeight: 0.333333343267441,
+                inWeight: 0.333333343,
                 outWeight: 0,
               },
             ],
@@ -1880,9 +1865,30 @@ export const commonBuffDefinitions = Object.freeze({
       ),
     },
   },
-  buff_common_affixes_enhance_crystal: {
+  buff_common_full_immune_medium: {
     stackingType: 'unlimited',
     priority: 0,
+    maxStackCount: 0,
+    durationSeconds: { blackboardKey: 'duration' },
+    applyTags: [
+      'Immune/Stunned',
+      'Immune/Frozen',
+      'Immune/Airborne',
+      'Immune/KnockDown',
+      'Immune/KnockBack',
+      'Immune/Pull',
+      'Immune/Poise',
+      'Status/DodgeDamageImmune',
+      'Status/SkillDamageImmune',
+      'Immune/SpellInflictOnChar/All',
+    ],
+    extendTags: [],
+    blackboard: { duration: 9999 },
+    attributeModifiers: [],
+  },
+  buff_common_affixes_enhance_crystal: {
+    stackingType: 'unlimited',
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: ['Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceCryst'],
@@ -1918,7 +1924,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_enhance_natural: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: ['Skill/Character/Common/Affixes/Enhance/EnhanceSpell/EnhanceNatural'],
@@ -1954,7 +1960,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_enhance_spell: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [
@@ -2012,7 +2018,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_enhance_spell_default_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     presentation: {
@@ -2021,7 +2027,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_spell_enhance.webp',
       showInHeadBarCommon: false,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -2080,7 +2085,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_pulse_default_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     presentation: {
@@ -2089,7 +2094,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_pulse_vulnerable.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -2113,7 +2117,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_weak: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate', negate: true },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: ['Skill/Character/Common/Affixes/Weak'],
@@ -2149,7 +2153,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_weak_default_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate', negate: true },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     presentation: {
@@ -2158,7 +2162,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_weak.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -2182,7 +2185,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_physical: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [
@@ -2221,7 +2224,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_spell: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [
@@ -2292,7 +2295,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_corrupt.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -2551,7 +2553,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_enhance_pulse_default_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     presentation: {
@@ -2560,7 +2562,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_pulse_enhance.webp',
       showInHeadBarCommon: false,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -2584,7 +2585,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_crystal: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [
@@ -2624,7 +2625,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_crystal_lizhiyan_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [],
@@ -2634,7 +2635,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_natural: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [
@@ -2674,7 +2675,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_natural_lizhiyan_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     applyTags: [],
@@ -2682,23 +2683,9 @@ export const commonBuffDefinitions = Object.freeze({
     blackboard: { duration: 0, rate: 0.2 },
     attributeModifiers: [],
   },
-  buff_common_damage_immune_medium: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: { blackboardKey: 'duration' },
-    applyTags: [
-      'Status/DodgeDamageImmune',
-      'Status/SkillDamageImmune',
-      'Immune/SpellInflictOnChar/All',
-    ],
-    extendTags: [],
-    blackboard: { duration: 9999 },
-    attributeModifiers: [],
-  },
   buff_common_affixes_slow: {
     stackingType: 'highPriority',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
     triggerIntervalSeconds: 0,
@@ -2729,7 +2716,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_slow_default_child: {
     stackingType: 'highPriority',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
     triggerIntervalSeconds: 0,
@@ -2741,7 +2728,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_slow.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -2765,7 +2751,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_spell_default_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     presentation: {
@@ -2774,7 +2760,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_spell_vulnerable.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -2798,7 +2783,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_physical_default_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     presentation: {
@@ -2807,7 +2792,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_physical_vulnerable.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -2831,14 +2815,14 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_combo_trigger: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'imbue_scale', negate: true },
     maxStackCount: 99,
     triggerIntervalSeconds: 0,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 1,
     applyTags: [],
     extendTags: [],
-    blackboard: { count: 0, imbue_scale: 0 },
+    blackboard: { imbue_scale: 0 },
     attributeModifiers: [],
     abilityEventResponses: [
       {
@@ -2848,20 +2832,6 @@ export const commonBuffDefinitions = Object.freeze({
           branch(
             { kind: 'eventSkillTypeIn', skillTypes: ['battleSkill', 'ultimate'] },
             sequence(
-              step('readBuffStackCount', {
-                target: 'buffOwner',
-                outputKey: 'count',
-                query: { kind: 'id', buffIds: ['buff_common_affixes_combo_trigger'] },
-              }),
-              step('readSkillSettingData', {
-                items: [
-                  {
-                    values: [0.2, 0.15, 0.1333, 0.125],
-                    column: { kind: 'blackboard', key: 'count' },
-                    storeKey: 'imbue_scale',
-                  },
-                ],
-              }),
               step('applyBuff', {
                 buffId: 'buff_common_affixes_skillimbue',
                 target: 'buffOwner',
@@ -2878,14 +2848,14 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_skillimbue: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'imbue_scale', negate: true },
     maxStackCount: 4,
     triggerIntervalSeconds: 0,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 1,
     applyTags: ['Skill/Character/Common/Affixes/skillimbue'],
     extendTags: [],
-    blackboard: { duration: 0, imbue_scale: 0.3 },
+    blackboard: { duration: 0, imbue_scale: 0.3, trigger_num: 0 },
     attributeModifiers: [],
     lifecycleSequences: {
       enable: sequence(
@@ -2895,7 +2865,6 @@ export const commonBuffDefinitions = Object.freeze({
           source: 'buffSource',
           inheritSourceSkillCastInfo: true,
           finishByAction: true,
-          blackboardAssignments: { imbue_scale: { kind: 'blackboard', key: 'imbue_scale' } },
         }),
       ),
     },
@@ -2914,14 +2883,14 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_skillimbue_atk: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'imbue_scale', negate: true },
     maxStackCount: 4,
     triggerIntervalSeconds: 0,
     waitFirstTriggerInterval: true,
     maxTriggerCount: 1,
     applyTags: [],
     extendTags: [],
-    blackboard: { count: 0, imbue_scale: 0, real_imbue_scale: 0 },
+    blackboard: { count: 0, imbue_scale: 0 },
     attributeModifiers: [],
     damageModifiers: [
       {
@@ -2929,48 +2898,11 @@ export const commonBuffDefinitions = Object.freeze({
         condition: {
           kind: 'all',
           conditions: [
+            { kind: 'sourceSkillCastMatch' },
             {
-              kind: 'all',
-              conditions: [
-                { kind: 'sourceSkillCastMatch' },
-                {
-                  kind: 'eventDamageTagsMatch',
-                  match: 'hasAny',
-                  tags: ['normalSkill', 'ultimateSkill'],
-                },
-              ],
-            },
-            { kind: 'eventDamageTagsMatch', match: 'hasAny', tags: ['normalSkill'] },
-          ],
-        },
-        processors: [
-          {
-            kind: 'damageScale',
-            side: 'attacker',
-            zone: 'combo',
-            addition: { blackboardKey: 'imbue_scale', multiplier: 1.5 },
-          },
-        ],
-      },
-      {
-        enabledSide: 'attacker',
-        condition: {
-          kind: 'all',
-          conditions: [
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'sourceSkillCastMatch' },
-                {
-                  kind: 'eventDamageTagsMatch',
-                  match: 'hasAny',
-                  tags: ['normalSkill', 'ultimateSkill'],
-                },
-              ],
-            },
-            {
-              kind: 'not',
-              condition: { kind: 'eventDamageTagsMatch', match: 'hasAny', tags: ['normalSkill'] },
+              kind: 'eventDamageTagsMatch',
+              match: 'hasAny',
+              tags: ['normalSkill', 'ultimateSkill'],
             },
           ],
         },
@@ -2986,6 +2918,55 @@ export const commonBuffDefinitions = Object.freeze({
     ],
     abilityEventResponses: [
       {
+        event: 'beforeCalculateDamage',
+        priority: 0,
+        sequence: sequence(
+          step('readBuffStackCount', {
+            target: 'buffOwner',
+            outputKey: 'count',
+            query: { kind: 'id', buffIds: ['buff_common_affixes_skillimbue_atk'] },
+          }),
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'count' },
+              operator: 'greater',
+              right: { kind: 'constant', value: 4 },
+            },
+            sequence(
+              step('modifyActionValue', {
+                key: 'count',
+                operation: 'assign',
+                value: { kind: 'constant', value: 4 },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+          step('readSkillSettingData', {
+            items: [
+              {
+                values: [0.2, 0.15, 0.1333, 0.125],
+                column: { kind: 'blackboard', key: 'count' },
+                storeKey: 'imbue_scale',
+              },
+            ],
+          }),
+          branch(
+            { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalSkill'] },
+            sequence(
+              step('modifyActionValue', {
+                key: 'imbue_scale',
+                operation: 'multiply',
+                value: { kind: 'constant', value: 1.5 },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+      },
+      {
         event: 'skillEnd',
         priority: 0,
         sequence: sequence(
@@ -2999,7 +2980,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_speedup: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate', negate: true },
     maxStackCount: 1,
     durationSeconds: { blackboardKey: 'duration' },
     triggerIntervalSeconds: 0,
@@ -3042,7 +3023,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_skill_endmin_debuff.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: false,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -3094,7 +3074,7 @@ export const commonBuffDefinitions = Object.freeze({
                     outTangent: 0,
                     weightedMode: 0,
                     inWeight: 0,
-                    outWeight: 0.333333343267441,
+                    outWeight: 0.333333343,
                   },
                   {
                     time: 1,
@@ -3102,7 +3082,7 @@ export const commonBuffDefinitions = Object.freeze({
                     inTangent: 0,
                     outTangent: 0,
                     weightedMode: 0,
-                    inWeight: 0.333333343267441,
+                    inWeight: 0.333333343,
                     outWeight: 0,
                   },
                 ],
@@ -3492,7 +3472,7 @@ export const commonBuffDefinitions = Object.freeze({
   },
   buff_common_affixes_vulnerable_crystal_default_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     presentation: {
@@ -3501,7 +3481,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_cryst_vulnerable.webp',
       showInHeadBarCommon: true,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,
@@ -3523,76 +3502,9 @@ export const commonBuffDefinitions = Object.freeze({
     blackboard: { duration: 0, rate: 0.2 },
     attributeModifiers: [],
   },
-  buff_common_natural_natural_triggered_typhoea: {
-    stackingType: 'unlimited',
-    priority: 0,
-    maxStackCount: 0,
-    durationSeconds: 5,
-    triggerIntervalSeconds: 0.349999994039536,
-    waitFirstTriggerInterval: true,
-    maxTriggerCount: 1,
-    applyTags: ['Skill/Character/Common/SpellBurst/NaturalBurst'],
-    extendTags: [],
-    blackboard: { atk_scale: 0, consume_natural: 0, damage_enhence: 1, duration: 20 },
-    attributeModifiers: [],
-    lifecycleSequences: {
-      trigger: sequence(
-        {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            scopeKey: 'native-buff-callback:0',
-            lifetime: 'execution',
-            alwaysNext: true,
-            shareParentBlackboard: true,
-            initialValues: {},
-            inheritParent: true,
-          },
-          body: sequence(step('triggerSpellBurst', { burstType: 'Natural' })),
-        },
-        {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            scopeKey: 'native-buff-callback:1',
-            lifetime: 'execution',
-            alwaysNext: true,
-            shareParentBlackboard: true,
-            initialValues: {},
-            inheritParent: true,
-          },
-          body: sequence(
-            step('readSkillSettingData', {
-              items: [
-                {
-                  values: [1.6, 1.6, 1.6, 1.6],
-                  column: { kind: 'constant', value: 1 },
-                  storeKey: 'atk_scale',
-                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
-                },
-              ],
-            }),
-            step('calculateActionValue', {
-              key: 'atk_scale',
-              operation: 'multiply',
-              left: { kind: 'blackboard', key: 'atk_scale' },
-              right: { kind: 'blackboard', key: 'damage_enhence' },
-            }),
-            step(
-              'dealDamage',
-              {
-                damageType: 'nature',
-                attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                tags: ['natureBurst'],
-              },
-              'buff_common_natural_natural_triggered_typhoea:/lifecycleSequences/trigger/steps/1/body/steps/2',
-            ),
-          ),
-        },
-      ),
-    },
-  },
   buff_common_affixes_enhance_natural_default_child: {
     stackingType: 'unlimited',
-    priority: 0,
+    priority: { blackboardKey: 'rate' },
     maxStackCount: 0,
     durationSeconds: { blackboardKey: 'duration' },
     presentation: {
@@ -3601,7 +3513,6 @@ export const commonBuffDefinitions = Object.freeze({
       iconPath: '/icons/icon_battle_affix_natural_enhance.webp',
       showInHeadBarCommon: false,
       showInHeadBarAttached: false,
-      showDirectlyInHeadBuff: false,
       showInSquadIcon: true,
       onlyShowForMainCharacter: false,
       blinkInMainCharHpBar: false,

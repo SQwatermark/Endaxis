@@ -106,16 +106,8 @@ export const chenQianyuBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.100000001490116, 0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046,
-      0.150000005960464, 0.159999996423721, 0.170000001788139, 0.180000007152557, 0.189999997615814,
-      0.209999993443489, 0.230000004172325,
-    ],
-    display_atk_scale: [
-      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
-      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.389999985694885,
-      0.419999986886978, 0.449999988079071,
-    ],
+    atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23],
+    display_atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
   },
 );
 
@@ -176,14 +168,7 @@ export const chenQianyuBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.239999994635582, 0.259999990463257, 0.28999999165535, 0.310000002384186, 0.340000003576279,
-      0.360000014305115, 0.379999995231628, 0.409999996423721, 0.430000007152557, 0.46000000834465,
-      0.5, 0.540000021457672,
-    ],
-  },
+  { atb: 0, atk_scale: [0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54] },
 );
 
 export const chenQianyuBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -280,16 +265,8 @@ export const chenQianyuBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.129999995231628, 0.150000005960464, 0.159999996423721, 0.170000001788139, 0.189999997615814,
-      0.200000002980232, 0.209999993443489, 0.230000004172325, 0.239999994635582, 0.259999990463257,
-      0.280000001192093, 0.300000011920929,
-    ],
-    display_atk_scale: [
-      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.379999995231628,
-      0.400000005960464, 0.430000007152557, 0.46000000834465, 0.479999989271164, 0.519999980926514,
-      0.560000002384186, 0.600000023841858,
-    ],
+    atk_scale: [0.13, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28, 0.3],
+    display_atk_scale: [0.27, 0.29, 0.32, 0.35, 0.38, 0.4, 0.43, 0.46, 0.48, 0.52, 0.56, 0.6],
   },
 );
 
@@ -387,16 +364,8 @@ export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
-      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
-      0.310000002384186, 0.340000003576279,
-    ],
-    display_atk_scale: [
-      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
-      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
-      0.620000004768372, 0.680000007152557,
-    ],
+    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
   },
 );
 
@@ -443,7 +412,7 @@ export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                    durationSeconds: { kind: 'constant', value: 0.1 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -481,9 +450,9 @@ export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -497,11 +466,7 @@ export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 18,
-    atk_scale: [
-      0.400000005960464, 0.439999997615814, 0.479999989271164, 0.519999980926514, 0.560000002384186,
-      0.600000023841858, 0.639999985694885, 0.680000007152557, 0.720000028610229, 0.769999980926514,
-      0.829999983310699, 0.899999976158142,
-    ],
+    atk_scale: [0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.77, 0.83, 0.9],
     hit: 0,
     poise: 16,
   },
@@ -534,7 +499,7 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.800000011920929,
+              calculationMultiplier: 0.8,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0005_chen_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -556,7 +521,7 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
+                durationSeconds: { kind: 'constant', value: 0.3 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'common' },
@@ -579,7 +544,7 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.200000002980232,
+              calculationMultiplier: 0.2,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0005_chen_power_attack:/scheduledSequences/2/sequence/steps/0',
@@ -595,7 +560,7 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+                durationSeconds: { kind: 'constant', value: 0.2 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'common' },
@@ -613,7 +578,7 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_full_immune_medium',
+            buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -638,12 +603,7 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const chenQianyuPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -688,14 +648,7 @@ export const chenQianyuPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -740,7 +693,6 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: true,
-                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -855,7 +807,7 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
               priority: 0,
               maxStackCount: 1,
               durationSeconds: { blackboardKey: 'duration' },
-              triggerIntervalSeconds: 0.100000001490116,
+              triggerIntervalSeconds: 0.1,
               waitFirstTriggerInterval: true,
               maxTriggerCount: 1,
               presentation: {
@@ -864,7 +816,6 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/airborne.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: false,
-                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1011,7 +962,7 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+            durationSeconds: { kind: 'constant', value: 0.2 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1034,7 +985,6 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: true,
-                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1149,7 +1099,7 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
               priority: 0,
               maxStackCount: 1,
               durationSeconds: { blackboardKey: 'duration' },
-              triggerIntervalSeconds: 0.100000001490116,
+              triggerIntervalSeconds: 0.1,
               waitFirstTriggerInterval: true,
               maxTriggerCount: 1,
               presentation: {
@@ -1158,7 +1108,6 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/airborne.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: false,
-                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1306,11 +1255,7 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
     airborne: 0,
     airborne_coefficient: 0,
     airborne_initial: [1, 1, 1, 1, 1, 1.5, 1.5, 1.5, 2, 2, 2, 2.5],
-    atk_scale: [
-      1.69000005722046, 1.86000001430511, 2.02999997138977, 2.19000005722046, 2.35999989509583,
-      2.52999997138977, 2.70000004768372, 2.86999988555908, 3.03999996185303, 3.25, 3.5,
-      3.79999995231628,
-    ],
+    atk_scale: [1.69, 1.86, 2.03, 2.19, 2.36, 2.53, 2.7, 2.87, 3.04, 3.25, 3.5, 3.8],
     cam_angle: 0,
     cam_duration: 0,
     input_angle: 0,
@@ -1362,7 +1307,6 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: true,
-                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1477,7 +1421,7 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
               priority: 0,
               maxStackCount: 1,
               durationSeconds: { blackboardKey: 'duration' },
-              triggerIntervalSeconds: 0.100000001490116,
+              triggerIntervalSeconds: 0.1,
               waitFirstTriggerInterval: true,
               maxTriggerCount: 1,
               presentation: {
@@ -1486,7 +1430,6 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/airborne.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: false,
-                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1640,7 +1583,7 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                durationSeconds: { kind: 'constant', value: 0.1 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1670,7 +1613,7 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.633000016212463 },
+            durationSeconds: { kind: 'constant', value: 0.633 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1689,11 +1632,7 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     alpha: 0,
-    atk_scale: [
-      1.20000004768372, 1.32000005245209, 1.44000005722046, 1.55999994277954, 1.67999994754791,
-      1.79999995231628, 1.91999995708466, 2.03999996185303, 2.16000008583069, 2.30999994277954,
-      2.49000000953674, 2.70000004768372,
-    ],
+    atk_scale: [1.2, 1.32, 1.44, 1.56, 1.68, 1.8, 1.92, 2.04, 2.16, 2.31, 2.49, 2.7],
     cam_angle: 0,
     cam_duration: 0,
     cd_reduction: 0,
@@ -1886,7 +1825,7 @@ export const chenQianyuUltimate: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.300000011920929 },
+            durationSeconds: { kind: 'constant', value: 0.3 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1916,16 +1855,8 @@ export const chenQianyuUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale1: [
-      0.360000014305115, 0.400000005960464, 0.430000007152557, 0.469999998807907, 0.5,
-      0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142, 0.689999997615814,
-      0.75, 0.810000002384186,
-    ],
-    atk_scale2: [
-      4.55000019073486, 5, 5.44999980926514, 5.90999984741211, 6.3600001335144, 6.82000017166138,
-      7.26999998092651, 7.73000001907349, 8.18000030517578, 8.75, 9.43000030517578,
-      10.2299995422363,
-    ],
+    atk_scale1: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
+    atk_scale2: [4.55, 5, 5.45, 5.91, 6.36, 6.82, 7.27, 7.73, 8.18, 8.75, 9.43, 10.23],
     extra_dmg: 1,
     phy_up: 0,
     poise_final: 20,
@@ -2056,7 +1987,7 @@ export default {
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
-            atk: [0.0399999991059303, 0.0799999982118607],
+            atk: [0.04, 0.08],
             duration: { kind: 'constant', value: 10 },
             max_stack: { kind: 'constant', value: 5 },
           },
@@ -2086,7 +2017,7 @@ export default {
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
-            extra_dmg: { kind: 'constant', value: 0.200000002980232 },
+            extra_dmg: { kind: 'constant', value: 0.2 },
             hp_remain: { kind: 'constant', value: 0.5 },
           },
         }),
@@ -2109,28 +2040,28 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale1',
           operation: 'multiply',
-          value: 1.10000002384186,
+          value: 1.1,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale2',
           operation: 'multiply',
-          value: 1.10000002384186,
+          value: 1.1,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.10000002384186,
+          value: 1.1,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.10000002384186,
+          value: 1.1,
         },
       ],
     },
@@ -2142,7 +2073,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -2279,7 +2210,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

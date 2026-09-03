@@ -138,16 +138,8 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
-      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
-      0.310000002384186, 0.340000003576279,
-    ],
-    display_atk_scale: [
-      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
-      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
-      0.620000004768372, 0.680000007152557,
-    ],
+    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
   },
 );
 
@@ -276,16 +268,8 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.180000007152557, 0.189999997615814, 0.209999993443489, 0.230000004172325, 0.25,
-      0.259999990463257, 0.280000001192093, 0.300000011920929, 0.319999992847443, 0.340000003576279,
-      0.360000014305115, 0.389999985694885,
-    ],
-    display_atk_scale: [
-      0.349999994039536, 0.389999985694885, 0.419999986886978, 0.46000000834465, 0.490000009536743,
-      0.529999971389771, 0.560000002384186, 0.600000023841858, 0.629999995231628, 0.670000016689301,
-      0.730000019073486, 0.790000021457672,
-    ],
+    atk_scale: [0.18, 0.19, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39],
+    display_atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
   },
 );
 
@@ -339,7 +323,7 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
                         amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 0.333333313465118 },
+                        coefficient: { kind: 'constant', value: 0.3333333 },
                         recipient: 'team',
                         spGainKind: 'gain',
                         spGainSource: 'normalAttack',
@@ -387,7 +371,7 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
                         amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 0.333333313465118 },
+                        coefficient: { kind: 'constant', value: 0.3333333 },
                         recipient: 'team',
                         spGainKind: 'gain',
                         spGainSource: 'normalAttack',
@@ -435,7 +419,7 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
                         amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 0.333333313465118 },
+                        coefficient: { kind: 'constant', value: 0.3333333 },
                         recipient: 'team',
                         spGainKind: 'gain',
                         spGainSource: 'normalAttack',
@@ -462,16 +446,8 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.189999997615814, 0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257,
-      0.280000001192093, 0.300000011920929, 0.310000002384186, 0.330000013113022, 0.360000014305115,
-      0.379999995231628, 0.419999986886978,
-    ],
-    display_atk_scale: [
-      0.560000002384186, 0.610000014305115, 0.670000016689301, 0.720000028610229, 0.779999971389771,
-      0.829999983310699, 0.889999985694885, 0.939999997615814, 1, 1.07000005245209,
-      1.14999997615814, 1.25,
-    ],
+    atk_scale: [0.19, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.31, 0.33, 0.36, 0.38, 0.42],
+    display_atk_scale: [0.56, 0.61, 0.67, 0.72, 0.78, 0.83, 0.89, 0.94, 1, 1.07, 1.15, 1.25],
   },
 );
 
@@ -541,11 +517,7 @@ export const wulfgardBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 18,
-    atk_scale: [
-      0.680000007152557, 0.740000009536743, 0.810000002384186, 0.879999995231628, 0.949999988079071,
-      1.00999999046326, 1.08000004291534, 1.14999997615814, 1.22000002861023, 1.29999995231628,
-      1.39999997615814, 1.51999998092651,
-    ],
+    atk_scale: [0.68, 0.74, 0.81, 0.88, 0.95, 1.01, 1.08, 1.15, 1.22, 1.3, 1.4, 1.52],
     poise: 18,
   },
 );
@@ -599,7 +571,7 @@ export const wulfgardFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0700000002980232 },
+                durationSeconds: { kind: 'constant', value: 0.07 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -617,7 +589,7 @@ export const wulfgardFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_full_immune_medium',
+            buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -642,12 +614,7 @@ export const wulfgardFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const wulfgardPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -684,14 +651,7 @@ export const wulfgardPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -1135,21 +1095,9 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     add: 0,
-    atk_scale: [
-      0.340000003576279, 0.370000004768372, 0.409999996423721, 0.439999997615814, 0.479999989271164,
-      0.509999990463257, 0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142,
-      0.709999978542328, 0.769999980926514,
-    ],
-    atk_scale_plus: [
-      3.77999997138977, 4.15000009536743, 4.53000020980835, 4.90999984741211, 5.28999996185303,
-      5.65999984741211, 6.03999996185303, 6.42000007629395, 6.80000019073486, 7.26999998092651,
-      7.84000015258789, 8.5,
-    ],
-    atk_scale_plus_fail: [
-      0.360000014305115, 0.400000005960464, 0.430000007152557, 0.469999998807907, 0.5,
-      0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142, 0.689999997615814,
-      0.75, 0.810000002384186,
-    ],
+    atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77],
+    atk_scale_plus: [3.78, 4.15, 4.53, 4.91, 5.29, 5.66, 6.04, 6.42, 6.8, 7.27, 7.84, 8.5],
+    atk_scale_plus_fail: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
     cam_angle: 0,
     cam_duration: 0,
     consume_cnt: 0,
@@ -1157,7 +1105,7 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
     input_angle: 0,
     poise_extra_bullet: 5,
     poise_extra_bullet_fail: 0,
-    poise_first_bullet: 1.66999995708466,
+    poise_first_bullet: 1.67,
     potential_2: 0,
     potential_3: 0,
     potential_skillpower: 0,
@@ -1166,11 +1114,7 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
     SpellInflict: 0,
     talent2: 0,
     teammate_percent: 0,
-    display_atk_scale: [
-      1.01999998092651, 1.12000000476837, 1.22000002861023, 1.33000004291534, 1.42999994754791,
-      1.52999997138977, 1.62999999523163, 1.74000000953674, 1.8400000333786, 1.96000003814697,
-      2.11999988555908, 2.29999995231628,
-    ],
+    display_atk_scale: [1.02, 1.12, 1.22, 1.33, 1.43, 1.53, 1.63, 1.74, 1.84, 1.96, 2.12, 2.3],
     poise_first_bullet_display: 5,
   },
 );
@@ -1206,7 +1150,6 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
                     abilityEntityId: 'abilityentity_chr_0006_wolfgd_combo_skill',
                     childSkillId: 'chr_0006_wolfgd_combo_skill_abilityrange',
                     inheritActionBlackboard: true,
-                    inheritSourceSkillCastInfo: true,
                     dieWhenSourceDies: false,
                   }),
                 ),
@@ -1225,7 +1168,7 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
+            durationSeconds: { kind: 'constant', value: 0.6 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1244,11 +1187,7 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [
-      0.600000023841858, 0.660000026226044, 0.720000028610229, 0.779999971389771, 0.839999973773956,
-      0.899999976158142, 0.959999978542328, 1.01999998092651, 1.08000004291534, 1.1599999666214,
-      1.25, 1.35000002384186,
-    ],
+    atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
     cam_angle: 0,
     cam_duration: 0,
     count: 0,
@@ -1418,9 +1357,9 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: false,
-                triggerIntervalSeconds: 0.200000002980232,
+                triggerIntervalSeconds: 0.2,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.200000002980232,
+                targetTriggerIntervalSeconds: 0.2,
               },
             },
           ),
@@ -1460,11 +1399,7 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
   {
     angle: 360,
     atk_duration: 10,
-    atk_scale: [
-      0.319999992847443, 0.349999994039536, 0.379999995231628, 0.419999986886978, 0.449999988079071,
-      0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699, 0.620000004768372,
-      0.660000026226044, 0.720000028610229,
-    ],
+    atk_scale: [0.32, 0.35, 0.38, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.66, 0.72],
     atk_scale_plus: 0,
     atk_up: 0,
     CamAngle: 0,
@@ -1474,11 +1409,7 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
     potential_5: 0,
     potential_lv: 0,
     radius: 5,
-    display_atk_scale: [
-      1.60000002384186, 1.75999999046326, 1.91999995708466, 2.07999992370605, 2.24000000953674,
-      2.40000009536743, 2.55999994277954, 2.72000002861023, 2.88000011444092, 3.07999992370605,
-      3.3199999332428, 3.59999990463257,
-    ],
+    display_atk_scale: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
     poise_display: 15,
   },
 );
@@ -1585,10 +1516,7 @@ export default {
           buffId: 'buff_chr_0006_wolfgd_talent_0',
           target: 'caster',
           inheritSourceSkillCastInfo: false,
-          blackboardAssignments: {
-            add: [0.200000002980232, 0.300000011920929],
-            duration: { kind: 'constant', value: 10 },
-          },
+          blackboardAssignments: { add: [0.2, 0.3], duration: { kind: 'constant', value: 10 } },
         }),
       ),
     },
@@ -1670,7 +1598,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -1742,7 +1670,6 @@ export default {
         iconPath: '/icons/icon_battle_wolfgd_talent_1.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

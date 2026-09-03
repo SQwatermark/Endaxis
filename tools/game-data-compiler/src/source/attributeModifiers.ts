@@ -2,7 +2,7 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
-  requireNativeEnum,
+  requireNonEmptyString,
   requireRecord,
 } from './primitives.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
@@ -23,20 +23,6 @@ export const MODIFIER_TYPES = [
   'Enum',
 ] as const;
 export type ModifierTypeSource = (typeof MODIFIER_TYPES)[number];
-
-/** ModifierType 的原生数值 2 未使用，后续成员因此不能按数组下标读取。 */
-const MODIFIER_TYPE_BY_VALUE = new Map<number, ModifierTypeSource>([
-  [0, 'Addition'],
-  [1, 'Multiplier'],
-  [3, 'FinalAddition'],
-  [4, 'FinalMultiplier'],
-  [5, 'BaseAddition'],
-  [6, 'BaseMultiplier'],
-  [7, 'BaseFinalAddition'],
-  [8, 'BaseFinalMultiplier'],
-  [9, 'None'],
-  [10, 'Enum'],
-]);
 
 /** Beyond.GEnums.AttributeType 的 1.4.4 数字顺序；索引就是原生枚举值。 */
 export const ATTRIBUTE_TYPES = [
@@ -213,21 +199,17 @@ export function parseGameplayAttributeModifierEntrySource(
     path,
   );
   return {
-    modifyAttributeType: requireNativeEnum(
+    modifyAttributeType: requireEnumName(
       modifier.modifyAttributeType,
       MODIFY_ATTRIBUTE_TYPES,
       `${path}.modifyAttributeType`,
     ),
-    attributeType: requireNativeEnum(
+    attributeType: requireEnumName(
       modifier.attributeType,
       ATTRIBUTE_TYPES,
       `${path}.attributeType`,
     ),
-    formulaItem: requireNativeEnum(
-      modifier.formulaItem,
-      MODIFIER_TYPE_BY_VALUE,
-      `${path}.formulaItem`,
-    ),
+    formulaItem: requireEnumName(modifier.formulaItem, MODIFIER_TYPES, `${path}.formulaItem`),
     parameter: parseScalarSource(modifier.param, `${path}.param`, inheritedBlackboard),
   };
 }
@@ -244,7 +226,7 @@ export function parseAttributeTypeValue(value: unknown, path: string): Attribute
 }
 
 export function parseAttributeTypeName(value: unknown, path: string): AttributeTypeSource {
-  return requireNativeEnum(value, ATTRIBUTE_TYPES, path);
+  return requireEnumName(value, ATTRIBUTE_TYPES, path);
 }
 
 /** ModifierType 的原生数值 2 未使用，因此不能直接用数组索引。 */
@@ -252,7 +234,18 @@ export function parseModifierTypeValue(value: unknown, path: string): ModifierTy
   if (typeof value !== 'number' || !Number.isInteger(value)) {
     throw new Error(`${path}: expected integer enum value`);
   }
-  const name = MODIFIER_TYPE_BY_VALUE.get(value);
+  const name = new Map<number, ModifierTypeSource>([
+    [0, 'Addition'],
+    [1, 'Multiplier'],
+    [3, 'FinalAddition'],
+    [4, 'FinalMultiplier'],
+    [5, 'BaseAddition'],
+    [6, 'BaseMultiplier'],
+    [7, 'BaseFinalAddition'],
+    [8, 'BaseFinalMultiplier'],
+    [9, 'None'],
+    [10, 'Enum'],
+  ]).get(value);
   if (name === undefined) {
     throw new Error(`${path}: unknown ModifierType value ${value}`);
   }
@@ -272,4 +265,16 @@ function requireEnumValue<const T extends readonly string[]>(
     throw new Error(`${path}: unknown enum value ${value}`);
   }
   return name;
+}
+
+function requireEnumName<const T extends readonly string[]>(
+  value: unknown,
+  names: T,
+  path: string,
+): T[number] {
+  const name = requireNonEmptyString(value, path);
+  if (!names.includes(name)) {
+    throw new Error(`${path}: unknown enum name ${JSON.stringify(name)}`);
+  }
+  return name as T[number];
 }

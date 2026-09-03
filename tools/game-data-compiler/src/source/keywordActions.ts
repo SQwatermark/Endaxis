@@ -2,7 +2,6 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
-  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
 } from './primitives.ts';
@@ -36,15 +35,6 @@ const ENHANCED_CARRIERS = {
   Crystal: 'buff_common_affixes_enhance_crystal',
   Pulse: 'buff_common_affixes_enhance_pulse',
 } as const;
-const NATIVE_KEYWORD_SUB_TYPES = new Map([
-  [0, 'All'],
-  [1, 'Spell'],
-  [2, 'Physical'],
-  [3, 'Natural'],
-  [4, 'Fire'],
-  [5, 'Crystal'],
-  [6, 'Pulse'],
-] as const);
 
 const RECOVERED_KEYWORD_CARRIER_IDS = new Set<string>([
   ...Object.values(VULNERABLE_CARRIERS),
@@ -182,7 +172,7 @@ function parseKeywordBuffActionSource(
   const subType =
     keyword === 'Shelter' || keyword === 'Slow' || keyword === 'Speedup' || keyword === 'Weak'
       ? null
-      : requireNativeEnum(action.subType, NATIVE_KEYWORD_SUB_TYPES, `${path}.subType`);
+      : requireNonEmptyString(action.subType, `${path}.subType`);
   if (subType !== null && !Object.hasOwn(VULNERABLE_CARRIERS, subType))
     throw new Error(`${path}.subType: unsupported keyword subtype ${JSON.stringify(subType)}`);
   const identity =
@@ -218,11 +208,7 @@ function parseKeywordBuffActionSource(
       const itemPath = `${path}.enhancingList[${index}]`;
       const item = requireRecord(raw, itemPath);
       requireExactFields(item, new Set(['buffIds', 'operationType', 'value']), itemPath);
-      const operation = requireNativeEnum(
-        item.operationType,
-        ['Assign', 'Add', 'Multiply'] as const,
-        `${itemPath}.operationType`,
-      );
+      const operation = requireNonEmptyString(item.operationType, `${itemPath}.operationType`);
       if (operation !== 'Assign' && operation !== 'Add' && operation !== 'Multiply')
         throw new Error(
           `${itemPath}.operationType: unsupported keyword enhancement ${JSON.stringify(operation)}`,

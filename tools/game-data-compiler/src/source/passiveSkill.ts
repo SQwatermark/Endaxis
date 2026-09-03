@@ -3,7 +3,7 @@ import {
   requireArray,
   requireExactFields,
   requireInteger,
-  requireNativeEnum,
+  requireNonEmptyString,
   requireRecord,
 } from './primitives.ts';
 import {
@@ -28,9 +28,6 @@ export interface PassiveSkillToggleBuffSource {
   readonly buffs: readonly SkillBuffInstallSource[];
 }
 
-const SKILL_CAST_TYPES = ['Active', 'Passive'] as const;
-const PASSIVE_SKILL_TYPES = ['AddBuff', 'ToggleBuff'] as const;
-
 /**
  * 领域无关的原生被动 SkillData。它不说明被动属于干员天赋、潜能、武器或装备，
  * 也不在来源层把 AddBuff/ToggleBuff 投影成 Endaxis 安装策略。
@@ -54,12 +51,11 @@ export function parseNativePassiveSkillSource(
   inheritedBlackboard: BlackboardLevelValues,
 ): NativePassiveSkillSource {
   const root = requireRecord(value, sourcePath);
-  if (requireNativeEnum(root.castType, SKILL_CAST_TYPES, `${sourcePath}.castType`) !== 'Passive') {
+  if (root.castType !== 'Passive') {
     throw new Error(`${sourcePath}.castType: expected "Passive"`);
   }
-  const passiveType = requireNativeEnum(
+  const passiveType = requireNonEmptyString(
     root.passiveSkillType,
-    PASSIVE_SKILL_TYPES,
     `${sourcePath}.passiveSkillType`,
   );
   const definition = parseSkillDefinitionReferenceSource(value, sourcePath, inheritedBlackboard);

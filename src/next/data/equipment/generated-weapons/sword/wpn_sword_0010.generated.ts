@@ -161,7 +161,7 @@ const definition = {
                                   "markerId": "wpn_sword_0010",
                                   "durationSeconds": {
                                     "kind": "constant",
-                                    "value": 0.10000000149011612
+                                    "value": 0.1
                                   },
                                   "autoFinishByAction": false
                                 }
@@ -180,7 +180,9 @@ const definition = {
         "buff_wpn_sword_0010_valid": {
           "stackingType": "stack",
           "priority": 0,
-          "maxStackCount": 0,
+          "maxStackCount": {
+            "blackboardKey": "max_stack"
+          },
           "durationSeconds": {
             "blackboardKey": "duration"
           },
@@ -193,7 +195,6 @@ const definition = {
             "iconPath": "/icons/icon_battle_buff_atk_up.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
-            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -249,15 +250,15 @@ const definition = {
           "target": "heat",
           "slot": "baseAddition",
           "value": [
-            0.0555555559694767,
-            0.10000000149011612,
-            0.14444445073604584,
-            0.18888889253139496,
-            0.23333333432674408,
-            0.2777777910232544,
-            0.3222222328186035,
-            0.36666667461395264,
-            0.4333333373069763
+            0.055555556,
+            0.1,
+            0.14444445,
+            0.18888889,
+            0.23333333,
+            0.2777778,
+            0.32222223,
+            0.36666667,
+            0.43333334
           ]
         }
       ]
@@ -270,29 +271,29 @@ const definition = {
           "kind": "panelStat",
           "stat": "attackPercent",
           "value": [
-            0.07000000029802322,
-            0.08399999886751175,
-            0.09799999743700027,
-            0.1120000034570694,
-            0.12600000202655792,
-            0.14000000059604645,
-            0.15399999916553497,
-            0.1679999977350235,
-            0.19599999487400055
+            0.07,
+            0.084,
+            0.098,
+            0.112,
+            0.126,
+            0.14,
+            0.154,
+            0.168,
+            0.196
           ]
         }
       ],
       "initializationBlackboard": {
         "install_0_dmg_up": [
-          0.07999999821186066,
-          0.09600000083446503,
-          0.1120000034570694,
-          0.12800000607967377,
-          0.14399999380111694,
-          0.1599999964237213,
-          0.17599999904632568,
-          0.19200000166893005,
-          0.2240000069141388
+          0.08,
+          0.096,
+          0.112,
+          0.128,
+          0.144,
+          0.16,
+          0.176,
+          0.192,
+          0.224
         ],
         "install_0_duration": [
           20,

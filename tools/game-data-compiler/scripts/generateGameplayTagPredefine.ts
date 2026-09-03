@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import type { GameplayTagPredefineDocument } from '../../../packages/game-data-contract/src/gameplayTags.ts';
 import { parseGameplayTagPredefineTableSource } from '../src/source/gameplayTagPredefineTable.ts';
 import { compileGameplayTagPredefine } from '../src/compiler/gameplayTagPredefine.ts';
-import { writeAtomicBytes } from './downloadVfsSources.ts';
+import { writeAtomicBytes } from './downloadAkedbSources.ts';
 
 /** 输入必须是 Endaxis 下载器管理的原始表；只负责转换，不隐式寻找 combat-spec 或旧生成数据。 */
 export async function generateGameplayTagPredefine(

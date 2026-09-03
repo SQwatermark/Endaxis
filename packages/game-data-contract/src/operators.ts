@@ -280,12 +280,7 @@ export interface OperatorEntityBlackboardInitializerDefinition {
 
 /** 原生角色专属 HUD 的可读外观身份；纹理路径和动画参数仍由 UI 资产层维护。 */
 export type OperatorPassiveUiAppearance =
-  | 'tangtangDroplets'
-  | 'laevatainCounter'
-  | 'zhuangFangyiThunder'
-  | 'arcaneSigils'
-  | 'liinoMusic'
-  | 'typhoeaQuiver';
+  'tangtangDroplets' | 'laevatainCounter' | 'zhuangFangyiThunder' | 'arcaneSigils' | 'liinoMusic';
 
 /** 原生角色专属 HUD 的稳定状态源与原生 prefab 外观身份。 */
 export type OperatorPassiveUiDefinition =
@@ -301,16 +296,6 @@ export type OperatorPassiveUiDefinition =
       readonly appearance: Extract<OperatorPassiveUiAppearance, 'liinoMusic'>;
       readonly normalBuffId: string;
       readonly ultimateBuffId: string;
-    }
-  | {
-      readonly kind: 'buffCounters';
-      readonly appearance: Extract<OperatorPassiveUiAppearance, 'typhoeaQuiver'>;
-      readonly counters: readonly {
-        readonly key: string;
-        /** 同一视觉计数在战斗内外可能由不同原生 Buff 承载。 */
-        readonly buffIds: readonly string[];
-        readonly maximum: number;
-      }[];
     };
 
 /** 原生角色常驻条件；独立于技能块，也不复用旧手写语义连携规则。 */

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
-import { writeAtomicBytes } from './downloadVfsSources.ts';
+import { writeAtomicBytes } from './downloadAkedbSources.ts';
 
 /** 来源目录留给转换器；运行时仅加载可读标签与具名寿命，不再导入原生模板。 */
 export async function generateAbilityEntityTemplateCatalog(
@@ -14,7 +14,14 @@ export async function generateAbilityEntityTemplateCatalog(
   output: string,
   check = false,
 ) {
-  const evidence = readAbilityEntitySources(input);
+  const evidence = JSON.parse(fs.readFileSync(input, 'utf8'));
+  if (
+    evidence.format !== 'EndaxisLogicalAbilityEntityTemplateEvidence' ||
+    evidence.spatialModel !== 'zero-distance-all-instances-single-enemy'
+  )
+    throw new Error('不支持的能力实体来源目录');
+  if (evidence.lifeTypeNativeValues.limited !== 0 || evidence.lifeTypeNativeValues.infinite !== 1)
+    throw new Error('能力实体寿命枚举与已核实来源不一致');
   const registry = new GameplayTagRegistry(readGameplayTagPaths(catalog));
   const templates = compileAbilityEntityTemplateCatalogSource(
     Object.fromEntries(
@@ -43,39 +50,6 @@ export async function generateAbilityEntityTemplateCatalog(
     if (fs.readFileSync(output, 'utf8').replaceAll('\r\n', '\n') !== content)
       throw new Error('能力实体路径目录已过期');
   } else await writeAtomicBytes(output, new TextEncoder().encode(content));
-}
-
-function readAbilityEntitySources(input: string): {
-  readonly templates: Record<string, Record<string, unknown>>;
-  readonly unresolvedReferences: Record<string, unknown>;
-} {
-  if (!fs.statSync(input).isDirectory()) {
-    const evidence = JSON.parse(fs.readFileSync(input, 'utf8'));
-    if (
-      evidence.format !== 'EndaxisLogicalAbilityEntityTemplateEvidence' ||
-      evidence.spatialModel !== 'zero-distance-all-instances-single-enemy'
-    )
-      throw new Error('不支持的能力实体来源目录');
-    if (evidence.lifeTypeNativeValues.limited !== 0 || evidence.lifeTypeNativeValues.infinite !== 1)
-      throw new Error('能力实体寿命枚举与已核实来源不一致');
-    return evidence;
-  }
-  const templates: Record<string, Record<string, unknown>> = {};
-  for (const name of fs
-    .readdirSync(input)
-    .filter(name => name.endsWith('.json'))
-    .sort()) {
-    const file = path.resolve(input, name);
-    const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
-    if (raw === null || typeof raw !== 'object' || Array.isArray(raw))
-      throw new Error(`${file}: expected AbilityEntityData object`);
-    if (typeof raw.gameId !== 'string' || raw.gameId.length === 0)
-      throw new Error(`${file}.gameId: expected non-empty string`);
-    if (templates[raw.gameId] !== undefined)
-      throw new Error(`${input}: duplicate AbilityEntityData ${JSON.stringify(raw.gameId)}`);
-    templates[raw.gameId] = raw;
-  }
-  return { templates, unresolvedReferences: {} };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

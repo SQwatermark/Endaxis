@@ -4,7 +4,6 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
-  requireNativeEnum,
   requireNonEmptyString,
   requireNonNegativeInteger,
   requireNumber,
@@ -21,17 +20,12 @@ import {
 } from './scalar.ts';
 import { parseCharacterTeamSelection, type CharacterTeamSelectionSource } from './selectorFacts.ts';
 import { parseTagQuerySource, type TagQueryType } from './tagQuery.ts';
-import {
-  parseNativeTargetSource,
-  parseTargetReferenceSource,
-  type TargetReferenceSource,
-} from './target.ts';
+import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import type {
   DamageElement,
   OperatorRole,
   PhysicalInflictionType,
 } from '../../../../packages/game-data-contract/src/primitives.ts';
-import { PHYSICAL_INFLICTION_TYPES } from '../../../../packages/game-data-contract/src/primitives.ts';
 import {
   parseCheckCustomAbilityEventSource,
   type CheckCustomAbilityEventSource,
@@ -52,13 +46,7 @@ function parseAttackTypeMaskSource(value: unknown, path: string): AttackTypeMask
 export type NativeConditionSource =
   | (ConditionIdentity & { readonly kind: 'constant'; readonly value: boolean })
   | (ConditionIdentity & CheckCustomAbilityEventSource)
-  | (ConditionIdentity & { readonly kind: 'squadInFight'; readonly inverted: boolean })
-  | (ConditionIdentity & {
-      readonly kind: 'dungeonCategory';
-      readonly categories: readonly string[];
-      readonly needDetailedConfig: boolean;
-      readonly returnTrueWhenInList: boolean;
-    })
+  | (ConditionIdentity & { readonly kind: 'squadInFight' })
   | (ConditionIdentity & {
       /** 只表示玩家当前是否有移动输入；来源动作无额外字段或写黑板副作用。 */
       readonly kind: 'moveInput';
@@ -97,11 +85,6 @@ export type NativeConditionSource =
       readonly targetGroupKey: string;
     })
   | (ConditionIdentity & {
-      /** 查询 owner 首目标在 BattleManager 中是否至少有一个 PendingComboSkill 候选。 */
-      readonly kind: 'comboSkillPending';
-      readonly owner: TargetReferenceSource;
-    })
-  | (ConditionIdentity & {
       readonly kind: 'profession';
       readonly target: TargetReferenceSource;
       readonly roles: readonly OperatorRole[];
@@ -132,11 +115,6 @@ export type NativeConditionSource =
       readonly targetSource: string;
       readonly targetGroupKey: string;
       readonly tagQueryType: TagQueryType;
-      readonly tagIds: readonly number[];
-    })
-  | (ConditionIdentity & {
-      readonly kind: 'damageGameplayTag';
-      readonly queryType: TagQueryType;
       readonly tagIds: readonly number[];
     })
   | (ConditionIdentity & {
@@ -175,11 +153,6 @@ export type NativeConditionSource =
       readonly kind: 'originSkillType';
       readonly skillTypes: readonly string[];
       readonly attackTypeMask: AttackTypeMaskSource;
-    })
-  | (ConditionIdentity & {
-      /** OnSkillInterrupted 事件中的原生中断原因白名单。 */
-      readonly kind: 'skillInterruptReason';
-      readonly reasons: readonly string[];
     })
   | (ConditionIdentity & {
       /** OnObtainAtb 事件携带的原始获取类型与方式筛选。 */
@@ -417,9 +390,8 @@ export function parseConditionLeafSource(
       return {
         kind: 'comboCameraAlphaSetting',
         sourceType,
-        desiredSetting: requireNativeEnum(
+        desiredSetting: requireNonEmptyString(
           condition.desiredAlphaSetting,
-          ['Weak', 'Strong'] as const,
           `${path}.desiredAlphaSetting`,
         ),
       };
@@ -436,47 +408,15 @@ export function parseConditionLeafSource(
         ]),
         path,
       );
-      return {
-        kind: 'squadInFight',
-        sourceType,
-        inverted: requireBoolean(condition.invertCondition, `${path}.invertCondition`),
-      };
-    case 'CheckDungeonCategory':
-      requireExactFields(
-        condition,
-        new Set([
-          '$type',
-          'isEnable',
-          'priorityLevel',
-          'priorityOffset',
-          'serverActionIndex',
-          'dungeonCategoryList',
-          'needDetailedConfig',
-          'returnTrueWhenInList',
-        ]),
-        path,
-      );
-      return {
-        kind: 'dungeonCategory',
-        sourceType,
-        categories: requireArray(condition.dungeonCategoryList, `${path}.dungeonCategoryList`).map(
-          (item, index) => requireNonEmptyString(item, `${path}.dungeonCategoryList[${index}]`),
-        ),
-        needDetailedConfig: requireBoolean(
-          condition.needDetailedConfig,
-          `${path}.needDetailedConfig`,
-        ),
-        returnTrueWhenInList: requireBoolean(
-          condition.returnTrueWhenInList,
-          `${path}.returnTrueWhenInList`,
-        ),
-      };
+      if (requireBoolean(condition.invertCondition, `${path}.invertCondition`))
+        throw new Error(`${path}.invertCondition: inverted squad battle condition is unsupported`);
+      return { kind: 'squadInFight', sourceType };
     case 'CheckCurHpRatio':
       requireExactFields(condition, new Set(['$type', 'compareType', 'value']), path);
       return {
         kind: 'currentHpRatio',
         sourceType,
-        comparison: parseNativeComparison(condition.compareType, `${path}.compareType`),
+        comparison: requireNonEmptyString(condition.compareType, `${path}.compareType`),
         value: parseScalarSource(condition.value, `${path}.value`, inheritedBlackboard),
       };
     case 'OrConditionAction':
@@ -485,7 +425,7 @@ export function parseConditionLeafSource(
       return {
         kind: 'floatCompare',
         sourceType,
-        comparison: parseNativeComparison(condition.compare, `${path}.compare`),
+        comparison: requireNonEmptyString(condition.compare, `${path}.compare`),
         left: parseScalarSource(condition.valueA, `${path}.valueA`, inheritedBlackboard),
         right: parseScalarSource(condition.valueB, `${path}.valueB`, inheritedBlackboard),
       };
@@ -511,24 +451,6 @@ export function parseConditionLeafSource(
       };
     case 'CheckMainCharacterCondition':
       return parseMainOperator(condition, path, sourceType);
-    case 'CheckComboSkillPending':
-      requireExactFields(
-        condition,
-        new Set([
-          '$type',
-          'isEnable',
-          'priorityLevel',
-          'priorityOffset',
-          'serverActionIndex',
-          'owner',
-        ]),
-        path,
-      );
-      return {
-        kind: 'comboSkillPending',
-        sourceType,
-        owner: parseTargetReferenceSource(condition.owner, `${path}.owner`),
-      };
     case 'CheckProfession': {
       requireExactFields(
         condition,
@@ -543,10 +465,12 @@ export function parseConditionLeafSource(
         ]),
         path,
       );
-      const roles = parseProfessionRoles(
+      const roles = requireNonEmptyString(
         condition.professionCategories,
         `${path}.professionCategories`,
-      );
+      )
+        .split(',')
+        .map(value => projectProfessionRole(value.trim(), `${path}.professionCategories`));
       if (new Set(roles).size !== roles.length) {
         throw new Error(`${path}.professionCategories: duplicate profession category`);
       }
@@ -624,22 +548,7 @@ export function parseConditionLeafSource(
           `${path}.mustBeforeExclusiveTime`,
         ),
         skillTypes: requireArray(condition.skillTypeList, `${path}.skillTypeList`).map(
-          (item, index) =>
-            requireNativeEnum(
-              item,
-              new Map([
-                [-1, 'PassiveSkill'],
-                [0, 'Attack'],
-                [1, 'BreakingAttack'],
-                [2, 'NormalSkill'],
-                [3, 'AttachSkill'],
-                [5, 'Dodge'],
-                [6, 'ComboSkill'],
-                [7, 'UltimateSkill'],
-                [8, 'ExtraActiveSkill'],
-              ] as const),
-              `${path}.skillTypeList[${index}]`,
-            ),
+          (item, index) => requireString(item, `${path}.skillTypeList[${index}]`),
         ),
         attackTypeMask: parseAttackTypeMaskSource(
           condition.attackTypeMask,
@@ -666,39 +575,6 @@ export function parseConditionLeafSource(
           parseStringScalarSource(item, `${path}.skillIdList[${index}]`),
         ),
       };
-    case 'CheckSkillInterruptReason':
-      requireExactFields(
-        condition,
-        new Set([
-          '$type',
-          'isEnable',
-          'priorityLevel',
-          'priorityOffset',
-          'serverActionIndex',
-          'reasonList',
-        ]),
-        path,
-      );
-      return {
-        kind: 'skillInterruptReason',
-        sourceType,
-        reasons: requireArray(condition.reasonList, `${path}.reasonList`).map((reason, index) =>
-          requireNativeEnum(
-            reason,
-            [
-              'Default',
-              'EnterFreeState',
-              'AiManual',
-              'Mud',
-              'DetachSkill',
-              'InterruptAction',
-              'Dash',
-              'CastNextSkill',
-            ] as const,
-            `${path}.reasonList[${index}]`,
-          ),
-        ),
-      };
     case 'CheckOriginSkillType':
       requireExactFields(
         condition,
@@ -717,22 +593,7 @@ export function parseConditionLeafSource(
         kind: 'originSkillType',
         sourceType,
         skillTypes: requireArray(condition.skillTypeList, `${path}.skillTypeList`).map(
-          (item, index) =>
-            requireNativeEnum(
-              item,
-              new Map([
-                [-1, 'PassiveSkill'],
-                [0, 'Attack'],
-                [1, 'BreakingAttack'],
-                [2, 'NormalSkill'],
-                [3, 'AttachSkill'],
-                [5, 'Dodge'],
-                [6, 'ComboSkill'],
-                [7, 'UltimateSkill'],
-                [8, 'ExtraActiveSkill'],
-              ] as const),
-              `${path}.skillTypeList[${index}]`,
-            ),
+          (item, index) => requireString(item, `${path}.skillTypeList[${index}]`),
         ),
         attackTypeMask: parseAttackTypeMaskSource(
           condition.attackTypeMask,
@@ -760,21 +621,11 @@ export function parseConditionLeafSource(
         sourceType,
         checkObtainType: requireBoolean(condition.checkObtainType, `${path}.checkObtainType`),
         obtainTypes: requireArray(condition.obtainTypeList, `${path}.obtainTypeList`).map(
-          (item, index) =>
-            requireNativeEnum(
-              item,
-              ['Default', 'NormalAttack', 'PowerAttack', 'Skill'] as const,
-              `${path}.obtainTypeList[${index}]`,
-            ),
+          (item, index) => requireString(item, `${path}.obtainTypeList[${index}]`),
         ),
         checkObtainMethod: requireBoolean(condition.checkObtainMethod, `${path}.checkObtainMethod`),
         obtainMethods: requireArray(condition.obtainMethodList, `${path}.obtainMethodList`).map(
-          (item, index) =>
-            requireNativeEnum(
-              item,
-              ['Gain', 'Return'] as const,
-              `${path}.obtainMethodList[${index}]`,
-            ),
+          (item, index) => requireString(item, `${path}.obtainMethodList[${index}]`),
         ),
       };
     case 'CheckTargetsEqual':
@@ -848,31 +699,6 @@ export function parseConditionLeafSource(
     }
     case 'CheckDamageType':
       return parseDamageType(condition, path, sourceType);
-    case 'CheckDamageTag': {
-      requireExactFields(
-        condition,
-        new Set([
-          '$type',
-          'isEnable',
-          'priorityLevel',
-          'priorityOffset',
-          'serverActionIndex',
-          'queryType',
-          'tags',
-        ]),
-        path,
-      );
-      const query = parseTagQuerySource(
-        { queryType: condition.queryType, tags: condition.tags },
-        path,
-      );
-      return {
-        kind: 'damageGameplayTag',
-        sourceType,
-        queryType: query.queryType,
-        tagIds: query.tagIds,
-      };
-    }
     case 'CheckDamageTypeMask': {
       requireExactFields(
         condition,
@@ -886,25 +712,10 @@ export function parseConditionLeafSource(
         ]),
         path,
       );
-      const nativeDamageTypes = [
-        'Physical',
-        'Real',
-        'Fire',
-        'Pulse',
-        'Cryst',
-        'LifeDrain',
-        'Natural',
-        'Ether',
-      ] as const;
-      const damageTypes =
-        typeof condition.damageTypeMask === 'number'
-          ? nativeDamageTypes.filter(
-              (_, index) => ((condition.damageTypeMask as number) & (1 << index)) !== 0,
-            )
-          : requireNonEmptyString(condition.damageTypeMask, `${path}.damageTypeMask`)
-              .split(',')
-              .map(item => item.trim())
-              .filter(Boolean);
+      const damageTypes = requireNonEmptyString(condition.damageTypeMask, `${path}.damageTypeMask`)
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
       if (damageTypes.length === 0) throw new Error(`${path}.damageTypeMask: empty mask`);
       return { kind: 'damageTypeMask', sourceType, damageTypes };
     }
@@ -924,7 +735,7 @@ export function parseConditionLeafSource(
         kind: 'abilityEntityDuration',
         sourceType,
         target: parseTargetReferenceSource(condition.abilityEntity, `${path}.abilityEntity`),
-        comparison: parseNativeComparison(condition.compareType, `${path}.compareType`),
+        comparison: requireNonEmptyString(condition.compareType, `${path}.compareType`),
         value: parseScalarSource(condition.value, `${path}.value`, inheritedBlackboard),
         saveCurrentDuration: requireBoolean(condition.saveCurDuration, `${path}.saveCurDuration`),
         outputKey: requireString(condition.bbKey, `${path}.bbKey`),
@@ -933,11 +744,7 @@ export function parseConditionLeafSource(
       return {
         kind: 'damageDecorateMask',
         sourceType,
-        checkType: requireNativeEnum(
-          condition.checkType,
-          ['Exact', 'HasAny', 'HasAll', 'ExceptAny', 'ExceptAll'] as const,
-          `${path}.checkType`,
-        ),
+        checkType: requireNonEmptyString(condition.checkType, `${path}.checkType`),
         mask: requireNonNegativeInteger(condition.mask, `${path}.mask`),
       };
     case 'CheckHealTag': {
@@ -974,7 +781,7 @@ export function parseConditionLeafSource(
       return {
         kind: 'consumeBuffLayer',
         sourceType,
-        comparison: parseNativeComparison(condition.compareType, `${path}.compareType`),
+        comparison: requireNonEmptyString(condition.compareType, `${path}.compareType`),
         value: parseScalarSource(condition.num, `${path}.num`, inheritedBlackboard),
         outputKey: requireString(condition.storeKey, `${path}.storeKey`),
       };
@@ -983,7 +790,7 @@ export function parseConditionLeafSource(
       return {
         kind: 'globalCooldown',
         sourceType,
-        targetSource: parseNativeTargetSource(target.targetSource, `${path}.target.targetSource`),
+        targetSource: requireNonEmptyString(target.targetSource, `${path}.target.targetSource`),
         targetGroupKey: requireString(target.targetGroupKey, `${path}.target.targetGroupKey`),
         buffId: requireNonEmptyString(condition.buffId, `${path}.buffId`),
       };
@@ -1022,11 +829,7 @@ export function parseConditionLeafSource(
         sourceType,
         origin: parseTargetReferenceSource(condition.origin, `${path}.origin`),
         target: parseTargetReferenceSource(condition.target, `${path}.target`),
-        angleType: requireNativeEnum(
-          condition.angleType,
-          ['TargetForward', 'TargetBackward'] as const,
-          `${path}.angleType`,
-        ),
+        angleType: requireNonEmptyString(condition.angleType, `${path}.angleType`),
         angle: parseScalarSource(condition.angle, `${path}.angle`, inheritedBlackboard),
       };
     case 'CheckPoiseValue':
@@ -1038,7 +841,7 @@ export function parseConditionLeafSource(
           condition.returnValueIfDontHavePoise,
           `${path}.returnValueIfDontHavePoise`,
         ),
-        comparison: parseNativeComparison(condition.compare, `${path}.compare`),
+        comparison: requireNonEmptyString(condition.compare, `${path}.compare`),
         value: parseScalarSource(condition.value, `${path}.value`, inheritedBlackboard),
       };
     default:
@@ -1060,56 +863,10 @@ function projectProfessionRole(value: string, path: string): OperatorRole {
   return role;
 }
 
-function parseProfessionRoles(value: unknown, path: string): OperatorRole[] {
-  if (typeof value === 'string')
-    return requireNonEmptyString(value, path)
-      .split(',')
-      .map(item => projectProfessionRole(item.trim(), path));
-  const mask = requireInteger(value, path);
-  // ProfessionCategory is a flags enum. The omitted bits are legacy professions
-  // that do not belong to Endfield's six-role contract and must not be silently folded.
-  const flags = [
-    [1, 'guard'],
-    [4, 'defender'],
-    [16, 'supporter'],
-    [32, 'caster'],
-    [128, 'vanguard'],
-    [256, 'striker'],
-  ] as const satisfies readonly (readonly [number, OperatorRole])[];
-  const knownMask = flags.reduce((result, [flag]) => result | flag, 0);
-  if (mask <= 0 || (mask & ~knownMask) !== 0)
-    throw new Error(`${path}: unsupported ProfessionCategory mask ${mask}`);
-  return flags.flatMap(([flag, role]) => ((mask & flag) !== 0 ? [role] : []));
-}
-
-function parseNativeComparison(value: unknown, path: string): string {
-  if (typeof value === 'string') {
-    const historicalAliases: Readonly<Record<string, string>> = {
-      EQ: 'Equals',
-      Greater: 'GT',
-      Less: 'LT',
-      GreaterOrEqual: 'GE',
-      LessOrEqual: 'LE',
-    };
-    if (historicalAliases[value] !== undefined) return historicalAliases[value];
-    if (['Equals', 'EqualTo', 'GT', 'LT', 'GE', 'LE'].includes(value)) {
-      return value === 'EqualTo' ? 'Equals' : value;
-    }
-    throw new Error(`${path}: unknown comparison ${JSON.stringify(value)}`);
-  }
-  // Beyond.Gameplay.Core.CompareType：LT=0, LE=1, GT=2, GE=3, Equals=4。
-  return requireNativeEnum(value, ['LT', 'LE', 'GT', 'GE', 'Equals'] as const, path);
-}
-
 function parsePhysicalInflictionMask(
   value: unknown,
   path: string,
 ): readonly PhysicalInflictionType[] {
-  if (typeof value === 'number') {
-    if (!Number.isInteger(value) || value < 0 || value > 15)
-      throw new Error(`${path}: unsupported physical infliction mask ${value}`);
-    return PHYSICAL_INFLICTION_TYPES.filter((_, index) => (value & (1 << index)) !== 0);
-  }
   const names = requireNonEmptyString(value, path)
     .split(',')
     .map(item => item.trim());
@@ -1135,7 +892,7 @@ function parseMainOperator(
   return {
     kind: 'mainOperator',
     sourceType,
-    targetSource: parseNativeTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
   };
 }
@@ -1154,10 +911,10 @@ function parseEntityCount(
     kind: 'entityCount',
     sourceType,
     ...(parsedTarget === undefined ? {} : { target: parsedTarget }),
-    targetSource: parseNativeTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
     minimumCount: requireInteger(condition.minNum, `${path}.minNum`),
-    comparison: parseNativeComparison(condition.compareType, `${path}.compareType`),
+    comparison: requireNonEmptyString(condition.compareType, `${path}.compareType`),
     containsHittableTarget: requireBoolean(
       condition.containsHittableTarget,
       `${path}.containsHittableTarget`,
@@ -1204,11 +961,7 @@ function parseAdvancedBuffStack(
     settings.buffIds,
     settings.tagQueryType,
     settings.buffTagIds,
-    requireNativeEnum(
-      condition.buffStackNumType,
-      ['BuffCount', 'BuffIdCount'] as const,
-      `${path}.buffStackNumType`,
-    ),
+    requireNonEmptyString(condition.buffStackNumType, `${path}.buffStackNumType`),
     requireBoolean(condition.limitSkillCastId, `${path}.limitSkillCastId`),
   );
 }
@@ -1229,11 +982,7 @@ function parseTagBuffStack(
     [],
     query.queryType,
     query.tagIds,
-    requireNativeEnum(
-      condition.buffStackNumType,
-      ['BuffCount', 'BuffIdCount'] as const,
-      `${path}.buffStackNumType`,
-    ),
+    requireNonEmptyString(condition.buffStackNumType, `${path}.buffStackNumType`),
     false,
   );
 }
@@ -1254,14 +1003,14 @@ function createBuffStack(
   return {
     kind: 'buffStack',
     sourceType,
-    targetSource: parseNativeTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
     buffCheckType,
     buffIds,
     tagQueryType,
     buffTagIds,
     countType,
-    comparison: parseNativeComparison(condition.compareType, `${path}.compareType`),
+    comparison: requireNonEmptyString(condition.compareType, `${path}.compareType`),
     value: parseScalarSource(condition.value, `${path}.value`, inheritedBlackboard),
     limitSkillCastId,
   };
@@ -1277,7 +1026,7 @@ function parseEntityTag(
   return {
     kind: 'entityTag',
     sourceType,
-    targetSource: parseNativeTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
     tagQueryType: query.queryType,
     tagIds: query.tagIds,
@@ -1293,7 +1042,7 @@ function parseTimedMarker(
   return {
     kind: 'timedMarker',
     sourceType,
-    targetSource: parseNativeTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
     markerId: requireString(condition.id, `${path}.id`),
     blackboardKey: requireString(condition.blackboardKey, `${path}.blackboardKey`),
@@ -1312,13 +1061,13 @@ function parseHealth(
   inheritedBlackboard: BlackboardLevelValues,
 ): NativeConditionSource {
   const target = requireRecord(condition.hpOwner, `${path}.hpOwner`);
-  const targetSource = parseNativeTargetSource(target.targetSource, `${path}.hpOwner.targetSource`);
+  const targetSource = requireNonEmptyString(target.targetSource, `${path}.hpOwner.targetSource`);
   return {
     kind: 'health',
     sourceType,
     targetSource,
     targetGroupKey: requireString(target.targetGroupKey, `${path}.hpOwner.targetGroupKey`),
-    comparison: parseNativeComparison(condition.compare, `${path}.compare`),
+    comparison: requireNonEmptyString(condition.compare, `${path}.compare`),
     isRatio: requireBoolean(condition.isRatio, `${path}.isRatio`),
     value: parseScalarSource(condition.value, `${path}.value`, inheritedBlackboard),
     characterTeamSelection:
@@ -1381,11 +1130,7 @@ function parseDamageType(
   path: string,
   sourceType: string,
 ): NativeConditionSource {
-  const nativeType = requireNativeEnum(
-    condition.damageType,
-    ['Physical', 'Real', 'Fire', 'Pulse', 'Cryst', 'LifeDrain', 'Natural', 'Ether'] as const,
-    `${path}.damageType`,
-  );
+  const nativeType = requireNonEmptyString(condition.damageType, `${path}.damageType`);
   const damageType = projectNativeDamageElement(nativeType, `${path}.damageType`);
   return { kind: 'damageType', sourceType, damageType };
 }
@@ -1439,18 +1184,10 @@ function parseDeckAttribute(
     sourceType,
     targetSource: target.targetSource,
     targetGroupKey: target.targetGroupKey,
-    leftAttribute: requireNativeEnum(
-      condition.lhsType,
-      ['Str', 'Agi', 'Wisd', 'Will', 'Blackboard'] as const,
-      `${path}.lhsType`,
-    ),
+    leftAttribute: requireNonEmptyString(condition.lhsType, `${path}.lhsType`),
     leftValue: parseScalarSource(condition.lhsValue, `${path}.lhsValue`, inheritedBlackboard),
-    comparison: parseNativeComparison(condition.compare, `${path}.compare`),
-    rightAttribute: requireNativeEnum(
-      condition.rhsType,
-      ['Str', 'Agi', 'Wisd', 'Will', 'Blackboard'] as const,
-      `${path}.rhsType`,
-    ),
+    comparison: requireNonEmptyString(condition.compare, `${path}.compare`),
+    rightAttribute: requireNonEmptyString(condition.rhsType, `${path}.rhsType`),
     rightValue: parseScalarSource(condition.rhsValue, `${path}.rhsValue`, inheritedBlackboard),
   };
 }
@@ -1460,11 +1197,7 @@ function parseContextBuff(
   path: string,
   sourceType: string,
 ): NativeConditionSource {
-  const checkType = requireNativeEnum(
-    condition.checkType,
-    ['Id', 'Tag'] as const,
-    `${path}.checkType`,
-  );
+  const checkType = requireNonEmptyString(condition.checkType, `${path}.checkType`);
   const rawBuffIds = requireArray(condition.buffIdList, `${path}.buffIdList`);
   const blackboardKey = requireString(condition.blackboardKey, `${path}.blackboardKey`);
   let matcher: Extract<NativeConditionSource, { readonly kind: 'contextBuff' }>['matcher'];
@@ -1484,7 +1217,8 @@ function parseContextBuff(
     // 原生 checkType 是判别字段；Tag 分支忽略 buffIdList 中的序列化残留。
     rawBuffIds.forEach((rawBuff, index) => {
       const buffPath = `${path}.buffIdList[${index}]`;
-      requireRecord(rawBuff, buffPath);
+      const buff = requireRecord(rawBuff, buffPath);
+      requireString(buff.buffId, `${buffPath}.buffId`);
     });
     const query = parseTagQuerySource(condition.query, `${path}.query`);
     matcher = { kind: 'tag', queryType: query.queryType, buffTagIds: query.tagIds };
@@ -1522,11 +1256,7 @@ function parseAdvancedContextBuff(
     ]),
     path,
   );
-  const checkType = requireNativeEnum(
-    condition.checkType,
-    ['Id', 'Tag'] as const,
-    `${path}.checkType`,
-  );
+  const checkType = requireNonEmptyString(condition.checkType, `${path}.checkType`);
   const buffIdList = requireArray(condition.buffIdList, `${path}.buffIdList`);
   const parseId = (rawValue: unknown, index: number) => {
     const idPath = `${path}.buffIdList[${index}]`;
@@ -1594,7 +1324,7 @@ function parseScalarTargetCondition(
     kind,
     sourceType,
     target: parseTargetReferenceSource(condition[targetField], `${path}.${targetField}`),
-    comparison: parseNativeComparison(condition[comparisonField], `${path}.${comparisonField}`),
+    comparison: requireNonEmptyString(condition[comparisonField], `${path}.${comparisonField}`),
     value: parseScalarSource(condition.value, `${path}.value`, inheritedBlackboard),
   };
 }
@@ -1610,33 +1340,17 @@ function parseTwoDirectionAngle(
     sourceType,
     dir1Source: parseTargetReferenceSource(condition.dir1Source, `${path}.dir1Source`),
     dir1Target: parseTargetReferenceSource(condition.dir1Target, `${path}.dir1Target`),
-    dir1DirectionType: requireNativeEnum(
+    dir1DirectionType: requireNonEmptyString(
       condition.dir1DirectionType,
-      [
-        'SourceForward',
-        'TargetForward',
-        'SourceToTarget',
-        'TargetToSource',
-        'CameraForward',
-        'SameAsSourceMountPointDir',
-      ] as const,
       `${path}.dir1DirectionType`,
     ),
     dir2Source: parseTargetReferenceSource(condition.dir2Source, `${path}.dir2Source`),
     dir2Target: parseTargetReferenceSource(condition.dir2Target, `${path}.dir2Target`),
-    dir2DirectionType: requireNativeEnum(
+    dir2DirectionType: requireNonEmptyString(
       condition.dir2DirectionType,
-      [
-        'SourceForward',
-        'TargetForward',
-        'SourceToTarget',
-        'TargetToSource',
-        'CameraForward',
-        'SameAsSourceMountPointDir',
-      ] as const,
       `${path}.dir2DirectionType`,
     ),
-    comparison: parseNativeComparison(condition.compareType, `${path}.compareType`),
+    comparison: requireNonEmptyString(condition.compareType, `${path}.compareType`),
     value: parseScalarSource(condition.value, `${path}.value`, inheritedBlackboard),
   };
 }
@@ -1656,11 +1370,7 @@ export function parseBuffFindSettings(
     .filter(Boolean);
   const query = parseTagQuerySource(settings.tagQuery, `${path}.tagQuery`);
   return {
-    checkType: requireNativeEnum(
-      settings.checkType,
-      ['Id', 'Tag', 'Environment', 'Context'] as const,
-      `${path}.checkType`,
-    ),
+    checkType: requireNonEmptyString(settings.checkType, `${path}.checkType`),
     buffIds,
     tagQueryType: query.queryType,
     buffTagIds: query.tagIds,

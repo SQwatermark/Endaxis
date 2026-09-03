@@ -98,9 +98,9 @@ describe('正式原生连携条件结构与绑定', () => {
     expect(compiled?.initialValues).not.toBe(entry.initialValues);
     expect(Object.isFrozen(compiled?.initialValues)).toBe(true);
   });
-  it.each(['missing', 'battleSkill'])('引用 %s 可保存编辑草稿，但编译场景时严格拒绝', skillKey => {
+  it.each(['missing', 'battleSkill'])('引用 %s 在项目定义入口和编译入口均严格拒绝', skillKey => {
     const condition = { ...entry, skillKey };
-    expect(parseProjectDocument(serializeProjectDocument(project(condition))).ok).toBe(true);
+    expect(() => project(condition)).toThrow("unknown combo skill");
     expect(() =>
       compileOperatorComboSkillConditions({ ...perlica, comboSkillConditions: [condition] }, build),
     ).toThrow('must resolve to exactly one combo skill');

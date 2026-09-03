@@ -170,7 +170,7 @@ function parseArguments(argv: readonly string[]): Arguments {
   let refreshRichText = false;
   let prune = false;
   let vfsBaseUrl = 'http://127.0.0.1:8765';
-  let gameDataSourceRoot = path.join(PROJECT_ROOT, 'tmp', 'game-data-sources');
+  let gameDataSourceRoot = path.join(PROJECT_ROOT, 'tmp', 'akedb-next-latest');
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]!;
     if (argument === '--overwrite') overwrite = true;

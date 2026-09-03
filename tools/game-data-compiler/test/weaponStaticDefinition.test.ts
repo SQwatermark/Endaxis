@@ -307,9 +307,7 @@ function passiveFixture(): Record<string, unknown> {
         ],
       },
     ],
-    buffInputBase: null,
     canCastInAir: false,
-    canCastInWater: false,
     canDummyCast: false,
     canMove: false,
     cardAttributeModifier: {

@@ -4,7 +4,7 @@ import {
   parseHitStopCurveCatalogDumpSource,
   renderHitStopCurveCatalogModule,
 } from '../src/source/hitStopCurveCatalog.ts';
-import { writeAtomicBytes } from './downloadVfsSources.ts';
+import { writeAtomicBytes } from './downloadAkedbSources.ts';
 
 const args = parseArguments(process.argv.slice(2));
 const response = await fetch(args.sourceUrl);

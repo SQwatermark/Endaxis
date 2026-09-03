@@ -38,7 +38,9 @@ const definition = {
       "buffDefinitions": {
         "buff_wpn_pistol_0012_natural": {
           "stackingType": "highPriority",
-          "priority": 1,
+          "priority": {
+            "blackboardKey": "nature_dmg_up_mult"
+          },
           "maxStackCount": 1,
           "durationSeconds": {
             "blackboardKey": "duration"
@@ -52,7 +54,6 @@ const definition = {
             "iconPath": "/icons/icon_battle_natural_dmg_up.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
-            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -99,15 +100,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "ultimateEnergyGainEfficiency",
           "value": [
-            0.0476190485060215,
-            0.08571428805589676,
-            0.12380952388048172,
-            0.16190476715564728,
-            0.20000000298023224,
-            0.2380952388048172,
-            0.27619048953056335,
-            0.3142857253551483,
-            0.37142857909202576
+            0.04761905,
+            0.08571429,
+            0.123809524,
+            0.16190477,
+            0.2,
+            0.23809524,
+            0.2761905,
+            0.31428573,
+            0.37142858
           ]
         }
       ]
@@ -120,15 +121,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "attackPercent",
           "value": [
-            0.05000000074505806,
-            0.05999999865889549,
-            0.07000000029802322,
-            0.07999999821186066,
-            0.09000000357627869,
-            0.10000000149011612,
-            0.10999999940395355,
-            0.11999999731779099,
-            0.14000000059604645
+            0.05,
+            0.06,
+            0.07,
+            0.08,
+            0.09,
+            0.1,
+            0.11,
+            0.12,
+            0.14
           ]
         }
       ],
@@ -141,15 +142,15 @@ const definition = {
           "priority": 0,
           "blackboard": {
             "atk_up": [
-              0.05000000074505806,
-              0.05999999865889549,
-              0.07000000029802322,
-              0.07999999821186066,
-              0.09000000357627869,
-              0.10000000149011612,
-              0.10999999940395355,
-              0.11999999731779099,
-              0.14000000059604645
+              0.05,
+              0.06,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.11,
+              0.12,
+              0.14
             ],
             "duration": [
               20,
@@ -163,15 +164,15 @@ const definition = {
               20
             ],
             "nature_dmg_up_mult": [
-              0.05000000074505806,
-              0.05999999865889549,
-              0.07000000029802322,
-              0.07999999821186066,
-              0.09000000357627869,
-              0.10000000149011612,
-              0.10999999940395355,
-              0.11999999731779099,
-              0.14000000059604645
+              0.05,
+              0.06,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.11,
+              0.12,
+              0.14
             ]
           },
           "sequence": {

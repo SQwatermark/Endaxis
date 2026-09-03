@@ -2,9 +2,9 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
-  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
+  requireString,
 } from './primitives.ts';
 import { parseScalarSource, type ScalarSource } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
@@ -61,16 +61,6 @@ export function parseClearProjectileActionSource(
         requireNonEmptyString(projectileId, `${path}.projectileIdList[${index}]`),
     ),
     playFinishEffect: requireBoolean(action.playFinishEffect, `${path}.playFinishEffect`),
-    finishAction: requireNativeEnum(
-      action.finishAction,
-      [
-        'NotCastSkill',
-        'CastHitSkill',
-        'CastBlockSkill',
-        'CastReachSkill',
-        'CastFinishSkill',
-      ] as const,
-      `${path}.finishAction`,
-    ),
+    finishAction: requireString(action.finishAction, `${path}.finishAction`),
   };
 }

@@ -52,7 +52,6 @@ const definition = {
             "iconPath": "/icons/icon_battle_buff_atk_up.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
-            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -99,15 +98,15 @@ const definition = {
           "kind": "panelStat",
           "stat": "healthPercent",
           "value": [
-            0.05999999865889549,
-            0.1080000028014183,
-            0.15600000321865082,
-            0.20399999618530273,
-            0.25200000405311584,
-            0.30000001192092896,
-            0.3479999899864197,
-            0.3959999978542328,
-            0.46799999475479126
+            0.06,
+            0.108,
+            0.156,
+            0.204,
+            0.252,
+            0.3,
+            0.348,
+            0.396,
+            0.468
           ]
         }
       ]
@@ -123,15 +122,15 @@ const definition = {
           "priority": 0,
           "blackboard": {
             "atk_up": [
-              0.11999999731779099,
-              0.14399999380111694,
-              0.1679999977350235,
-              0.19200000166893005,
-              0.2160000056028366,
-              0.23999999463558197,
-              0.2639999985694885,
-              0.2879999876022339,
-              0.335999995470047
+              0.12,
+              0.144,
+              0.168,
+              0.192,
+              0.216,
+              0.24,
+              0.264,
+              0.288,
+              0.336
             ],
             "duration": [
               10,

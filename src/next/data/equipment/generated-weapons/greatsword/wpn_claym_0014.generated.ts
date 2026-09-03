@@ -38,7 +38,9 @@ const definition = {
       "buffDefinitions": {
         "buff_wpn_claym_0014_pdi_up": {
           "stackingType": "highPriority",
-          "priority": 0,
+          "priority": {
+            "blackboardKey": "phy_dmg_up_mult"
+          },
           "maxStackCount": 2,
           "durationSeconds": {
             "blackboardKey": "duration"
@@ -52,7 +54,6 @@ const definition = {
             "iconPath": "/icons/icon_battle_physical_dmg_up.webp",
             "showInHeadBarCommon": false,
             "showInHeadBarAttached": false,
-            "showDirectlyInHeadBuff": false,
             "showInSquadIcon": true,
             "onlyShowForMainCharacter": false,
             "blinkInMainCharHpBar": false,
@@ -152,15 +153,15 @@ const definition = {
               20
             ],
             "phy_dmg_up_mult": [
-              0.05000000074505806,
-              0.05999999865889549,
-              0.07000000029802322,
-              0.07999999821186066,
-              0.09000000357627869,
-              0.10000000149011612,
-              0.10999999940395355,
-              0.11999999731779099,
-              0.14000000059604645
+              0.05,
+              0.06,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.11,
+              0.12,
+              0.14
             ],
             "phy_spell_up": [
               10,

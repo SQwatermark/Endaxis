@@ -53,7 +53,6 @@ export class ComboWindowRuntime implements FrameRuntime {
     readonly clock: CombatClock,
     readonly receipt: CombatReceiptSink,
     operatorOrder: readonly string[] = [],
-    readonly onAllPendingRemoved?: (operatorId: string) => void,
   ) {
     operatorOrder.forEach((operatorId, index) => this.#operatorOrder.set(operatorId, index));
   }
@@ -66,11 +65,6 @@ export class ComboWindowRuntime implements FrameRuntime {
   /** 当前应最先处理的干员记录中的候选。 */
   get first(): PendingComboWindow | undefined {
     return this.#orderedRecords()[0]?.candidates.at(-1);
-  }
-
-  /** 对应原生 HasPendingComboSkill：只检查候选存在，不执行当前连携技能的施放门禁。 */
-  hasPendingFor(operatorId: string): boolean {
-    return (this.#records.get(operatorId)?.candidates.length ?? 0) > 0;
   }
 
   open(
@@ -168,7 +162,6 @@ export class ComboWindowRuntime implements FrameRuntime {
       return { consumed: false, reason: 'skillStageMismatch', expected: candidate };
     }
     this.#records.delete(operatorId);
-    this.onAllPendingRemoved?.(operatorId);
     this.receipt.record({
       frame: this.clock.frame,
       time: this.clock.time,
@@ -211,10 +204,7 @@ export class ComboWindowRuntime implements FrameRuntime {
           data: { windowSequence: window.sequence, nextSkillKey: window.nextSkillKey },
         });
       }
-      if (record.candidates.length === 0) {
-        this.#records.delete(record.operatorId);
-        this.onAllPendingRemoved?.(record.operatorId);
-      }
+      if (record.candidates.length === 0) this.#records.delete(record.operatorId);
     }
   }
 

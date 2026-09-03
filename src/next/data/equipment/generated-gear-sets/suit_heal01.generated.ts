@@ -7,13 +7,15 @@ const definition = {
     {
       kind: 'staticHealingIncrease',
       target: 'output',
-      value: 0.20000000298023224,
+      value: 0.2,
     },
   ],
   buffDefinitions: {
     buff_common_dmgtk_down_equip_1: {
       stackingType: 'highPriority',
-      priority: 0,
+      priority: {
+        blackboardKey: 'priority',
+      },
       maxStackCount: 1,
       durationSeconds: {
         blackboardKey: 'duration',
@@ -27,7 +29,6 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_def_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -219,11 +220,11 @@ const definition = {
           blackboardAssignments: {
             dmg_taken_down: {
               kind: 'constant',
-              value: 0.8500000238418579,
+              value: 0.85,
             },
             dmg_taken_down2: {
               kind: 'constant',
-              value: 0.699999988079071,
+              value: 0.7,
             },
             duration: {
               kind: 'constant',

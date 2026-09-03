@@ -1,12 +1,12 @@
 import { parseNativeCalculationSource, type NativeCalculationSource } from './calculation.ts';
-import { requireArray, requireExactFields, requireRecord } from './primitives.ts';
-import type { BlackboardLevelValues } from './scalar.ts';
 import {
-  parseNativeActionTargetType,
-  parseTargetReferenceSource,
-  type TargetReferenceSource,
-} from './target.ts';
-import { projectNativeDamageElement } from './damageElement.ts';
+  requireArray,
+  requireExactFields,
+  requireNonEmptyString,
+  requireRecord,
+} from './primitives.ts';
+import type { BlackboardLevelValues } from './scalar.ts';
+import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
 export interface BreakInteractiveActionSource {
   readonly kind: 'breakInteractive';
@@ -43,8 +43,8 @@ export function parseBreakInteractiveActionSource(
     throw new Error(`${path}.damageProcessors: interactive damage processors are unsupported`);
   return {
     kind: 'breakInteractive',
-    attacker: parseNativeActionTargetType(action.attacker, `${path}.attacker`),
-    damageType: projectNativeDamageElement(action.damageType, `${path}.damageType`),
+    attacker: requireNonEmptyString(action.attacker, `${path}.attacker`),
+    damageType: requireNonEmptyString(action.damageType, `${path}.damageType`),
     calculation: parseNativeCalculationSource(
       action.atkCalculation,
       `${path}.atkCalculation`,

@@ -24,11 +24,9 @@ import {
   nativeActionName,
   requireArray,
   requireNonEmptyString,
-  requireNativeEnum,
   requireNumber,
   requireRecord,
 } from '../../source/primitives.ts';
-import { parseNativeAbilityEventName } from '../../source/abilityEvent.ts';
 
 interface PlannedPassiveSkill {
   readonly key: string;
@@ -430,14 +428,7 @@ function projectCollectedBuffReactionPassive(
   const application = skill.startupBuffs[0]!;
   if (!application.assignBlackboard) return undefined;
   const root = requireRecord(loadBuff(application.buffId), `BuffData.${application.buffId}`);
-  if (
-    requireNativeEnum(
-      root.lifeType,
-      ['Limited', 'Infinity'] as const,
-      `BuffData.${application.buffId}.lifeType`,
-    ) !== 'Infinity'
-  )
-    return undefined;
+  if (root.lifeType !== 'Infinity') return undefined;
   for (const field of [
     'attributeModifier',
     'damageModifier',
@@ -468,13 +459,7 @@ function projectCollectedBuffReactionPassive(
   );
   if (events.length !== 1) return undefined;
   const event = requireRecord(events[0], `BuffData.${application.buffId}.abilityEventAction[0]`);
-  if (
-    parseNativeAbilityEventName(
-      event.abilityEvent,
-      `BuffData.${application.buffId}.abilityEventAction[0].abilityEvent`,
-    ) !== 'OnCollectOutputBuffBbValue'
-  )
-    return undefined;
+  if (event.abilityEvent !== 'OnCollectOutputBuffBbValue') return undefined;
   const sequences = requireArray(
     event.actions,
     `BuffData.${application.buffId}.abilityEventAction[0].actions`,
@@ -494,24 +479,12 @@ function projectCollectedBuffReactionPassive(
     nativeActionName(
       requireNonEmptyString(condition.$type, `BuffData.${application.buffId}.condition.$type`),
     ) !== 'CheckBuffIdInContextAdvanced' ||
-    requireNativeEnum(
-      condition.checkType,
-      ['Id', 'Tag'] as const,
-      `BuffData.${application.buffId}.condition.checkType`,
-    ) !== 'Tag'
+    condition.checkType !== 'Tag'
   )
     return undefined;
   const query = requireRecord(condition.query, `BuffData.${application.buffId}.condition.query`);
   const tags = requireArray(query.tags, `BuffData.${application.buffId}.condition.query.tags`);
-  if (
-    requireNativeEnum(
-      query.queryType,
-      ['HasAny', 'HasAll', 'HasNone'] as const,
-      `BuffData.${application.buffId}.condition.query.queryType`,
-    ) !== 'HasAny' ||
-    tags.length !== 1
-  )
-    return undefined;
+  if (query.queryType !== 'HasAny' || tags.length !== 1) return undefined;
   const tag = requireRecord(tags[0], `BuffData.${application.buffId}.condition.query.tags[0]`);
   const tagId = requireNumber(
     tag.tagId,

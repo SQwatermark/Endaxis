@@ -3,12 +3,7 @@ import {
   type DefinitionReferenceSource,
   type ReferenceAwareActionLeafSource,
 } from './referenceGraph.ts';
-import {
-  requireNativeEnum,
-  requireNonEmptyString,
-  requireNonNegativeInteger,
-  requireRecord,
-} from './primitives.ts';
+import { requireNonEmptyString, requireNonNegativeInteger, requireRecord } from './primitives.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import type { SkillActionGraphSource } from './skillActionGraph.ts';
 import {
@@ -24,8 +19,6 @@ export interface NativeActiveSkillSource {
   readonly actionGraph: SkillActionGraphSource<ReferenceAwareActionLeafSource>;
   readonly references: readonly DefinitionReferenceSource[];
 }
-
-const SKILL_CAST_TYPES = ['Active', 'Passive'] as const;
 
 /** 已证实的施法元数据切片，不冒充完整 SkillData/动作图读取。 */
 export function parseSkillCastMetadataSource(value: unknown, sourcePath: string) {
@@ -48,7 +41,7 @@ export function parseNativeActiveSkillSource(
   inheritedBlackboard: BlackboardLevelValues,
 ): NativeActiveSkillSource {
   const root = requireRecord(value, sourcePath);
-  const castType = requireNativeEnum(root.castType, SKILL_CAST_TYPES, `${sourcePath}.castType`);
+  const castType = requireNonEmptyString(root.castType, `${sourcePath}.castType`);
   if (castType === 'Passive') {
     throw new Error(`${sourcePath}.castType: passive SkillData must use the passive compiler`);
   }

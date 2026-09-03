@@ -29,6 +29,9 @@ export function parseGameplayTagConfigDumpSource(
   if (paths.length !== expectedCount) {
     throw new Error(`${sourcePath}: expected ${expectedCount} tag paths, found ${paths.length}`);
   }
+  if (new Set(paths).size !== paths.length) {
+    throw new Error(`${sourcePath}: GameplayTagConfig contains duplicate paths`);
+  }
   return { paths };
 }
 

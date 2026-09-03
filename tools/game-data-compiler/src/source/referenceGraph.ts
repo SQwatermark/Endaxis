@@ -4,7 +4,6 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
-  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
 } from './primitives.ts';
@@ -19,9 +18,6 @@ import {
 export type DefinitionReferenceKind =
   'buff' | 'skill' | 'abilityEntity' | 'projectile' | 'globalBuff';
 export type DefinitionReferenceState = 'active' | 'inactive' | 'dynamic' | 'empty';
-
-const SKILL_CAST_TYPES = ['Active', 'Passive'] as const;
-const PASSIVE_SKILL_TYPES = ['AddBuff', 'ToggleBuff'] as const;
 
 export interface DefinitionReferenceSource {
   readonly kind: DefinitionReferenceKind;
@@ -100,15 +96,9 @@ export function collectSkillRootBuffReferences(
 ): DefinitionReferenceSource[] {
   const root = requireRecord(value, sourcePath);
   const output: DefinitionReferenceSource[] = [];
-  const castType = requireNativeEnum(root.castType, SKILL_CAST_TYPES, `${sourcePath}.castType`);
-  const passiveSkillType = requireNativeEnum(
-    root.passiveSkillType,
-    PASSIVE_SKILL_TYPES,
-    `${sourcePath}.passiveSkillType`,
-  );
   // ToggleBuffPassiveSkill.DoEnable 覆盖普通 Skill.DoEnable，只读取 +0xD8 toggleBuffs，
   // 不读取 +0xD0 buffs；该字段中的公共 spirit Buff 是死引用，不得进入闭包。
-  if (!(castType === 'Passive' && passiveSkillType === 'ToggleBuff')) {
+  if (!(root.castType === 'Passive' && root.passiveSkillType === 'ToggleBuff')) {
     collectRootBuffEntries(root.buffs, `${sourcePath}.buffs`, 'attached', output);
   } else {
     requireArray(root.buffs, `${sourcePath}.buffs`);
@@ -116,7 +106,7 @@ export function collectSkillRootBuffReferences(
   const toggleBuffs = requireArray(root.toggleBuffs, `${sourcePath}.toggleBuffs`);
   // Skill.Create 只在 Passive + ToggleBuff 时创建会读取 toggleBuffs 的运行时子类。
   // 其他被动定义中的同名字段是无效序列化残留，不得形成假的 Buff 依赖。
-  if (castType === 'Passive' && passiveSkillType === 'ToggleBuff') {
+  if (root.castType === 'Passive' && root.passiveSkillType === 'ToggleBuff') {
     toggleBuffs.forEach((rawGroup, groupIndex) => {
       const groupPath = `${sourcePath}.toggleBuffs[${groupIndex}]`;
       const group = requireRecord(rawGroup, groupPath);

@@ -105,10 +105,6 @@ import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRunt
 import { CustomAbilityEventOperationExecutor } from './customAbilityEventOperationExecutor';
 import { SkillCastOperationExecutor } from './skillCastOperationExecutor';
 import { ProjectileFinishCallbackRuntime } from './projectileFinishCallbackRuntime';
-import {
-  SkillCastInheritanceOperationExecutor,
-  type NormalAttackSkillCastInheritanceHandle,
-} from './skillCastInheritanceOperationExecutor';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -325,7 +321,6 @@ export interface CombatRuntimeAssemblyOptions {
       | 'beforeCastSkill'
       | 'afterSkillApplyCost'
       | 'skillEnd'
-      | 'pendingComboSkillsCleared'
       | 'ownerHpZero'
       | 'abilityEntitySpawned'
       | 'abilityEntityFinished'
@@ -466,14 +461,6 @@ export class CombatRuntimeAssembly {
   readonly #enemyTimedMarkers = new TimedMarkerContainer('enemy', this.clock);
   readonly #operatorTimedMarkers = new Map<string, TimedMarkerContainer>();
   readonly #skillCastIds = new SkillCastIdAllocator();
-  /** 原生每名干员至多保留首个普通攻击施法来源登记。 */
-  readonly #normalAttackSkillCastInheritance = new Map<
-    string,
-    {
-      readonly token: object;
-      readonly skillCastInfo: import('./skillCastInfo').CombatSkillCastInfo;
-    }
-  >();
   /** 原生 ChangeSkillAction 每槽只允许一个有效句柄；新句柄会先结束旧句柄。 */
   readonly #activeSkillSlotReplacementHandles = new Map<string, { readonly finish: () => void }>();
   /** 同一干员同一技能的所有放置块共用一份冷却事实。 */
@@ -601,11 +588,6 @@ export class CombatRuntimeAssembly {
       this.clock,
       this.receipt,
       options.operators.map(operator => operator.operatorId),
-      operatorId =>
-        options.emitAbilityEvent?.(operatorId, 'pendingComboSkillsCleared', {
-          sourceId: operatorId,
-          targetId: operatorId,
-        }),
     );
     if (options.enemyBuffRuntime.ownerId !== 'enemy') {
       throw new Error(`enemy Buff runtime owner must be 'enemy'`);
@@ -1257,25 +1239,8 @@ export class CombatRuntimeAssembly {
     resolveSkillSlot = true,
   ): void {
     const ability = this.#requireAbilitySystem(operatorId);
-    const requestedProgram = this.#skillPrograms.get(
-      `${operatorId}\u0000${ability.resolveSkillId(skillId, castId, resolveSkillSlot)}\u0000${castId ?? ''}`,
-    );
-    const effectiveInheritedSkillCastInfo =
-      inheritedSkillCastInfo ??
-      (requestedProgram?.skillType === 'basicAttack'
-        ? this.#normalAttackSkillCastInheritance.get(operatorId)?.skillCastInfo
-        : undefined);
-    const skillCastId =
-      effectiveInheritedSkillCastInfo?.skillCastId ?? this.#skillCastIds.allocate();
+    const skillCastId = inheritedSkillCastInfo?.skillCastId ?? this.#skillCastIds.allocate();
     ability.prepareSkillCastId(skillId, castId, skillCastId, resolveSkillSlot);
-    if (effectiveInheritedSkillCastInfo !== undefined) {
-      ability.prepareDeferredCast(
-        skillId,
-        castId,
-        { skipApplyCost: false, inheritedSkillCastInfo: effectiveInheritedSkillCastInfo },
-        resolveSkillSlot,
-      );
-    }
     const resolvedSkillId = ability.resolveSkillId(skillId, castId, resolveSkillSlot);
     const program = this.#skillPrograms.get(
       `${operatorId}\u0000${resolvedSkillId}\u0000${castId ?? ''}`,
@@ -1338,7 +1303,7 @@ export class CombatRuntimeAssembly {
         skillType: program.skillType,
         skillId: program.sourceSkillId ?? program.skillId,
         skillCastId,
-        skillCastInfo: effectiveInheritedSkillCastInfo ?? {
+        skillCastInfo: inheritedSkillCastInfo ?? {
           skillCastId,
           originSkillId: program.skillId,
           originSkillType: program.skillType,
@@ -1968,11 +1933,6 @@ export class CombatRuntimeAssembly {
         this.#setSkillCooldowns(operatorId, skill, frames, 'absoluteFrames'),
       delegate: semanticOutputDelegate,
     });
-    const skillCastInheritanceDelegate = new SkillCastInheritanceOperationExecutor(
-      (ownerId, skillCastInfo) =>
-        this.#registerNormalAttackSkillCastInheritance(ownerId, skillCastInfo),
-      cooldownDelegate,
-    );
     const baseDelegate = new SkillSlotOperationExecutor({
       changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
         this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
@@ -1981,7 +1941,7 @@ export class CombatRuntimeAssembly {
         this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId),
       changeNativeSkillType: (skillKey, nativeSkillType) =>
         this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
-      delegate: skillCastInheritanceDelegate,
+      delegate: cooldownDelegate,
     });
     const deferredSkillCasts = new SkillCastOperationExecutor({
       request: request => this.requestPostNativeSkillCast(operatorId, request),
@@ -2243,11 +2203,6 @@ export class CombatRuntimeAssembly {
         this.#setSkillCooldowns(operatorId, skill, frames, 'absoluteFrames'),
       delegate: semanticOutputOperations,
     });
-    const skillCastInheritanceOperations = new SkillCastInheritanceOperationExecutor(
-      (ownerId, skillCastInfo) =>
-        this.#registerNormalAttackSkillCastInheritance(ownerId, skillCastInfo),
-      cooldownOperations,
-    );
     const slotOperations = new SkillSlotOperationExecutor({
       changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
         this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
@@ -2256,7 +2211,7 @@ export class CombatRuntimeAssembly {
         this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId),
       changeNativeSkillType: (skillKey, nativeSkillType) =>
         this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
-      delegate: skillCastInheritanceOperations,
+      delegate: cooldownOperations,
     });
     const deferredSkillCasts = new SkillCastOperationExecutor({
       request: request => this.requestPostNativeSkillCast(operatorId, request),
@@ -2499,33 +2454,6 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
     });
-  }
-
-  #registerNormalAttackSkillCastInheritance(
-    operatorId: string,
-    skillCastInfo: import('./skillCastInfo').CombatSkillCastInfo,
-  ): NormalAttackSkillCastInheritanceHandle {
-    if (!this.#abilitySystems.has(operatorId)) {
-      throw new Error(
-        `normal-attack skill-cast inheritance owner '${operatorId}' is not a combat operator`,
-      );
-    }
-    const token = {};
-    if (!this.#normalAttackSkillCastInheritance.has(operatorId)) {
-      this.#normalAttackSkillCastInheritance.set(operatorId, {
-        token,
-        skillCastInfo: { ...skillCastInfo },
-      });
-    }
-    let active = true;
-    return {
-      finish: () => {
-        if (!active) return;
-        active = false;
-        const current = this.#normalAttackSkillCastInheritance.get(operatorId);
-        if (current?.token === token) this.#normalAttackSkillCastInheritance.delete(operatorId);
-      },
-    };
   }
 
   #requireAbilitySystem(operatorId: string): AbilitySystemRuntime {

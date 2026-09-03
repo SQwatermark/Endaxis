@@ -12,13 +12,13 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
+  requireInteger,
   requireNonEmptyString,
   requireNonNegativeInteger,
   requireNumber,
   requireRecord,
   requireString,
 } from './primitives.ts';
-import { parseNativeAbilityEventName } from './abilityEvent.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 
 const SKILL_DATA_FIELDS = new Set([
@@ -26,10 +26,8 @@ const SKILL_DATA_FIELDS = new Set([
   'aiExclusiveFrame',
   'attackRangeType',
   'blackboard',
-  'buffInputBase',
   'buffs',
   'canCastInAir',
-  'canCastInWater',
   'canDummyCast',
   'canMove',
   'cardAttributeModifier',
@@ -116,11 +114,7 @@ export function parseSkillActionGraphSource<TLeaf>(
   parseLeaf: NativeLeafParser<TLeaf>,
 ): SkillActionGraphSource<TLeaf> {
   const root = requireRecord(value, sourcePath);
-  const expectedFields = new Set(SKILL_DATA_FIELDS);
-  for (const currentOnlyField of ['buffInputBase', 'canCastInWater']) {
-    if (!(currentOnlyField in root)) expectedFields.delete(currentOnlyField);
-  }
-  requireExactFields(root, expectedFields, sourcePath);
+  requireExactFields(root, SKILL_DATA_FIELDS, sourcePath);
   return {
     skillId: requireNonEmptyString(root.skillId, `${sourcePath}.skillId`),
     level: requireNonNegativeInteger(root.level, `${sourcePath}.level`),
@@ -228,9 +222,9 @@ function parsePassiveEvent<TLeaf>(
   requireExactFields(event, new Set(['abilityEvent', 'actions']), path);
   const rawAbilityEvent = event.abilityEvent;
   const abilityEvent =
-    rawAbilityEvent === 0
-      ? 0
-      : parseNativeAbilityEventName(rawAbilityEvent, `${path}.abilityEvent`);
+    typeof rawAbilityEvent === 'string'
+      ? requireNonEmptyString(rawAbilityEvent, `${path}.abilityEvent`)
+      : requireInteger(rawAbilityEvent, `${path}.abilityEvent`);
   return {
     abilityEvent,
     actions: requireArray(event.actions, `${path}.actions`).map((action, index) =>

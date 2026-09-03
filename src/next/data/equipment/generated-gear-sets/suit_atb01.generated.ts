@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'skillCooldownMultiplier',
       skillTypes: 'comboSkill',
-      value: 0.8500000238418579,
+      value: 0.85,
     },
   ],
   buffDefinitions: {
@@ -88,7 +88,6 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -144,7 +143,7 @@ const definition = {
           blackboardAssignments: {
             dmg_up: {
               kind: 'constant',
-              value: 0.1599999964237213,
+              value: 0.16,
             },
             duration: {
               kind: 'constant',
@@ -156,7 +155,7 @@ const definition = {
             },
             comboskill_cooldown: {
               kind: 'constant',
-              value: 0.8500000238418579,
+              value: 0.85,
             },
           },
         },

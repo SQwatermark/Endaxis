@@ -2,7 +2,7 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
-  requireNativeEnum,
+  requireNonEmptyString,
   requireRecord,
   requireString,
 } from './primitives.ts';
@@ -71,23 +71,8 @@ export function parseHealActionSource(
   return {
     kind: 'heal',
     alwaysNext: requireBoolean(action.alwaysNext, `${path}.alwaysNext`),
-    healType: requireNativeEnum(
-      action.healType,
-      ['Normal', 'Medical'] as const,
-      `${path}.healType`,
-    ),
-    healer: requireNativeEnum(
-      action.healer,
-      [
-        'ActionSource',
-        'ActionOwner',
-        'InputTarget',
-        'CurrentTarget',
-        'ContextTarget',
-        'MainCharacter',
-      ] as const,
-      `${path}.healer`,
-    ),
+    healType: requireNonEmptyString(action.healType, `${path}.healType`),
+    healer: requireNonEmptyString(action.healer, `${path}.healer`),
     contextKey: requireString(action.contextKey, `${path}.contextKey`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     calculation: parseNativeCalculationSource(

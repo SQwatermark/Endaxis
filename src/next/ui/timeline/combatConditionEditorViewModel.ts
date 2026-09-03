@@ -17,8 +17,6 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind };
     case 'casterControlled':
       return { kind };
-    case 'pendingComboSkillPresent':
-      return { kind };
     case 'characterTypeIn':
       return { kind, target: 'caster', characterTypes: ['physical'] };
     case 'operatorRoleIn':
@@ -65,17 +63,6 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
         left: { kind: 'constant', value: 0 },
         operator: 'equal',
         right: { kind: 'constant', value: 0 },
-      };
-    case 'buffBlackboardCompare':
-      return {
-        kind,
-        target: 'caster',
-        query: { kind: 'id', buffIds: ['custom-buff'] },
-        desiredKey: 'value',
-        outputKey: 'value',
-        operator: 'greater',
-        value: { kind: 'constant', value: 0 },
-        buffValueSide: 'left',
       };
     case 'probability':
       return { kind, probability: { kind: 'constant', value: 0.5 } };
@@ -149,8 +136,6 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, markerId: 'custom-marker' };
     case 'eventDamageTagsMatch':
       return { kind, match: 'hasAny', tags: ['normalSkill'] };
-    case 'eventDamageGameplayTagsMatch':
-      return { kind, match: 'hasAny', tags: ['Damage/Custom'] };
     case 'eventDamageFeaturesMatch':
       return { kind, match: 'hasAny', features: ['canBreakWeakness'] };
     case 'eventDamageTypeIn':

@@ -7,7 +7,7 @@ const definition = {
     {
       kind: 'panelStat',
       stat: 'attackPercent',
-      value: 0.07999999821186066,
+      value: 0.08,
     },
   ],
   buffDefinitions: {
@@ -202,7 +202,9 @@ const definition = {
     },
     buff_equipsuit_crush_fracture_physicdamage: {
       stackingType: 'highPriority',
-      priority: 0,
+      priority: {
+        blackboardKey: 'priority',
+      },
       maxStackCount: 0,
       durationSeconds: {
         blackboardKey: 'duration',
@@ -216,7 +218,6 @@ const definition = {
         iconPath: '/icons/icon_battle_physical_dmg_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -265,7 +266,7 @@ const definition = {
           blackboardAssignments: {
             phy_dmg_up_perstack: {
               kind: 'constant',
-              value: 0.05999999865889549,
+              value: 0.06,
             },
             duration: {
               kind: 'constant',

@@ -8,19 +8,19 @@ const definition = {
       kind: 'damageScale',
       target: 'battleSkill',
       slot: 'baseAddition',
-      value: 0.23999999463558197,
+      value: 0.24,
     },
     {
       kind: 'damageScale',
       target: 'comboSkill',
       slot: 'baseAddition',
-      value: 0.23999999463558197,
+      value: 0.24,
     },
     {
       kind: 'damageScale',
       target: 'ultimate',
       slot: 'baseAddition',
-      value: 0.23999999463558197,
+      value: 0.24,
     },
   ],
   buffDefinitions: {
@@ -178,7 +178,6 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -231,7 +230,6 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -284,7 +282,6 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -332,11 +329,11 @@ const definition = {
           blackboardAssignments: {
             dmg_up: {
               kind: 'constant',
-              value: 0.23999999463558197,
+              value: 0.24,
             },
             atk_up: {
               kind: 'constant',
-              value: 0.05000000074505806,
+              value: 0.05,
             },
             duration: {
               kind: 'constant',

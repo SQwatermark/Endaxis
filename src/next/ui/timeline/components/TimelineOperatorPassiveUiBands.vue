@@ -22,7 +22,7 @@ const items = computed(() =>
     const left = (segment.startFrame + props.prepFrames) * props.pxPerFrame;
     const right = (segment.endFrame + props.prepFrames) * props.pxPerFrame;
     const title =
-      segment.kind === 'numeric' || segment.kind === 'buffCounter'
+      segment.kind === 'numeric'
         ? `${segment.value} / ${segment.maximum}`
         : `${segment.mode}: ${segment.buffId}`;
     return {
@@ -30,9 +30,7 @@ const items = computed(() =>
       key:
         segment.kind === 'numeric'
           ? `${segment.operatorId}:numeric:${segment.startFrame}:${segment.value}`
-          : segment.kind === 'buffCounter'
-            ? `${segment.operatorId}:${segment.counterKey}:${segment.instanceId}:${segment.startFrame}:${segment.value}`
-            : `${segment.operatorId}:${segment.buffId}:${segment.instanceId}:${segment.startFrame}`,
+          : `${segment.operatorId}:${segment.buffId}:${segment.instanceId}:${segment.startFrame}`,
       title,
       left,
       top: props.actionTop - UPPER_OFFSET_FROM_ACTION - segment.lane * LANE_PITCH,
@@ -55,16 +53,14 @@ const items = computed(() =>
       :top="item.top"
       :width="item.width"
       :title="item.title"
-      :count="item.kind === 'numeric' || item.kind === 'buffCounter' ? item.value : null"
+      :count="item.kind === 'numeric' ? item.value : null"
       :active="item.kind === 'numeric' && item.active"
     >
       <template #content>
         <OperatorPassiveUiWidget
           :appearance="item.appearance"
-          :value="item.kind === 'numeric' || item.kind === 'buffCounter' ? item.value : undefined"
-          :maximum="
-            item.kind === 'numeric' || item.kind === 'buffCounter' ? item.maximum : undefined
-          "
+          :value="item.kind === 'numeric' ? item.value : undefined"
+          :maximum="item.kind === 'numeric' ? item.maximum : undefined"
           :active="item.kind === 'numeric' && item.active"
           :mode="item.kind === 'buffProgress' ? item.mode : undefined"
           :height="16"

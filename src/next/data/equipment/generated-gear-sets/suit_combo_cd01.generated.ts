@@ -7,14 +7,16 @@ const definition = {
     {
       kind: 'skillCooldownMultiplier',
       skillTypes: 'comboSkill',
-      value: 0.8500000238418579,
+      value: 0.85,
     },
   ],
   buffDefinitions: {
     buff_equipsuit_combo_cd01: {
       stackingType: 'unlimited',
       priority: 0,
-      maxStackCount: 1,
+      maxStackCount: {
+        blackboardKey: 'max_stack',
+      },
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
       maxTriggerCount: 1,
@@ -77,7 +79,9 @@ const definition = {
     buff_equipsuit_combo_cd01_spellup: {
       stackingType: 'stack',
       priority: 0,
-      maxStackCount: 1,
+      maxStackCount: {
+        blackboardKey: 'max_stack',
+      },
       durationSeconds: {
         blackboardKey: 'duration',
       },
@@ -90,7 +94,6 @@ const definition = {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -153,7 +156,7 @@ const definition = {
           blackboardAssignments: {
             spell_up: {
               kind: 'constant',
-              value: 0.20000000298023224,
+              value: 0.2,
             },
             max_stack: {
               kind: 'constant',

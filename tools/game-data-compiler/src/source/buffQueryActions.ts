@@ -4,7 +4,6 @@ import {
   nativeActionName,
   requireExactFields,
   requireBoolean,
-  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
   requireString,
@@ -160,11 +159,7 @@ export function parseBuffDurationMutationActionSource(
     kind: 'buffDurationMutation',
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
     settings: parseBuffFindSettingsSource(action.buffSettings, `${path}.buffSettings`),
-    operation: requireNativeEnum(
-      action.operationType,
-      ['Assign', 'Add', 'Multiply', 'Divide', 'Floor', 'Ceil', 'RoundToInt'] as const,
-      `${path}.operationType`,
-    ),
+    operation: requireNonEmptyString(action.operationType, `${path}.operationType`),
     value: parseScalarSource(action.value, `${path}.value`, inheritedBlackboard),
     isFinishedEarly: requireBoolean(action.isFinishedEarly, `${path}.isFinishedEarly`),
   };
@@ -244,11 +239,7 @@ export function parseBuffStackReadActionSource(
     buffIds: settings.buffIds,
     tagQueryType: settings.tagQueryType,
     buffTagIds: settings.buffTagIds,
-    countType: requireNativeEnum(
-      action.buffStackNumType,
-      ['BuffCount', 'BuffIdCount'] as const,
-      `${path}.buffStackNumType`,
-    ),
+    countType: requireNonEmptyString(action.buffStackNumType, `${path}.buffStackNumType`),
     limitSkillCastId: requireBoolean(action.limitSkillCastId, `${path}.limitSkillCastId`),
     outputKey: requireNonEmptyString(action.key, `${path}.key`),
   };
@@ -287,11 +278,7 @@ export function parseTaggedBuffStackReadActionSource(
     buffIds: [],
     tagQueryType: tagQuery.queryType,
     buffTagIds: tagQuery.tagIds,
-    countType: requireNativeEnum(
-      action.buffStackNumType,
-      ['BuffCount', 'BuffIdCount'] as const,
-      `${path}.buffStackNumType`,
-    ),
+    countType: requireNonEmptyString(action.buffStackNumType, `${path}.buffStackNumType`),
     limitSkillCastId: false,
     outputKey: requireNonEmptyString(action.key, `${path}.key`),
   };

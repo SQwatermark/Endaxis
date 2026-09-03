@@ -97,17 +97,6 @@ const nativeSkillTypes = new Map<number, NativeSkillType>([
   [7, 'ultimateSkill'],
   [8, 'extraActiveSkill'],
 ]);
-const nativeSkillTypeNames = {
-  PassiveSkill: 'passiveSkill',
-  Attack: 'attack',
-  BreakingAttack: 'breakingAttack',
-  NormalSkill: 'normalSkill',
-  AttachSkill: 'attachSkill',
-  Dodge: 'dodge',
-  ComboSkill: 'comboSkill',
-  UltimateSkill: 'ultimateSkill',
-  ExtraActiveSkill: 'extraActiveSkill',
-} as const satisfies Readonly<Record<string, NativeSkillType>>;
 
 const playerInputByBattleCommand = new Map<number, PlayerSkillInput>([
   [0, 'basicAttack'],
@@ -148,13 +137,10 @@ function parseCommandMapping(value: unknown, path: string) {
   return result;
 }
 
-export function parseNativeSkillType(value: unknown, path: string): NativeSkillType {
-  const result =
-    typeof value === 'string'
-      ? nativeSkillTypeNames[value as keyof typeof nativeSkillTypeNames]
-      : nativeSkillTypes.get(requireInteger(value, path));
-  if (result === undefined)
-    throw new Error(`${path}: unsupported native SkillType ${JSON.stringify(value)}`);
+function parseNativeSkillType(value: unknown, path: string): NativeSkillType {
+  const numeric = requireInteger(value, path);
+  const result = nativeSkillTypes.get(numeric);
+  if (result === undefined) throw new Error(`${path}: unsupported native SkillType ${numeric}`);
   return result;
 }
 

@@ -2006,48 +2006,6 @@ describe('BuffOperationExecutor', () => {
     expect(blackboard.getNumber('output')).toBe(7);
   });
 
-  it('evaluates a Buff blackboard comparison atomically and treats a missing Buff as false', () => {
-    const target = new CombatBuffContainer(
-      'caster',
-      new CombatAttributeSet(),
-      new GameplayTagRegistry([]),
-    );
-    target.add(
-      {
-        id: 'arrow-recovery',
-        stackingType: 'unlimited',
-        blackboard: { truly_exit_fight: 0.25 },
-      },
-      'operator',
-    );
-    const blackboard = new ActionBlackboard({ result: 9 });
-    const executor = new BuffOperationExecutor({
-      sourceId: 'operator',
-      resolveTarget: () => target,
-      delegate,
-    });
-    const condition = {
-      kind: 'buffBlackboardCompare' as const,
-      target: 'caster' as const,
-      query: { kind: 'id' as const, buffIds: ['arrow-recovery'] },
-      desiredKey: 'truly_exit_fight',
-      outputKey: 'result',
-      operator: 'lessOrEqual' as const,
-      value: { kind: 'constant' as const, value: 0.5 },
-      buffValueSide: 'left' as const,
-    };
-
-    expect(executor.evaluate(condition, { blackboard })).toBe(true);
-    expect(blackboard.getNumber('result')).toBe(0.25);
-    expect(
-      executor.evaluate(
-        { ...condition, query: { kind: 'id', buffIds: ['missing'] } },
-        { blackboard },
-      ),
-    ).toBe(false);
-    expect(blackboard.getNumber('result')).toBe(0.25);
-  });
-
   it('finishes every matching active buff with the configured reason', () => {
     const path = 'buff/status/conduct';
     const otherPath = 'buff/status/other';

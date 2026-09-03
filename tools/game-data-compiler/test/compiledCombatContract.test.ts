@@ -235,7 +235,7 @@ it('契约派生仍保留条件种类、目标和递归子树的支持边界', (
   expectTypeOf<{
     kind: 'eventSkillTypeIn';
     skillTypes: readonly ['finisher'];
-  }>().toExtend<CompiledBuffConditionSource>();
+  }>().not.toExtend<CompiledBuffConditionSource>();
   expectTypeOf<{
     kind: 'not';
     condition: { kind: 'combatActive' };
@@ -258,7 +258,7 @@ it('动作窄子集只纳入已证明的实体曲线，不扩张等级列或未�
     Extract<ProjectedParameters<'startTimeDilation'>, { scope: 'entity' }>['curve']['kind']
   >().toEqualTypeOf<'inline' | 'named'>();
   expectTypeOf<ProjectedParameters<'modifyActionValue'>['operation']>().toEqualTypeOf<
-    'assign' | 'add' | 'multiply' | 'divide' | 'floor' | 'ceil' | 'roundToInt'
+    'assign' | 'add' | 'multiply' | 'divide'
   >();
   expectTypeOf<
     ProjectedParameters<'gainSquadUltimateEnergyFromSkillCost'>['coefficient']

@@ -71,16 +71,7 @@ export function projectFinishOwner(
     action.owner.postProcessorTypes.length
   )
     throw new Error(
-      `${sourcePath}: unsupported FinishOwner target; expected an AbilityEntity-backed Owner ${JSON.stringify(
-        {
-          actionOwnerTarget: context.actionOwnerTarget,
-          targetSource: action.owner.targetSource,
-          targetGroupKey: action.owner.targetGroupKey,
-          finderType: action.owner.finderType,
-          validatorTypes: action.owner.validatorTypes,
-          postProcessorTypes: action.owner.postProcessorTypes,
-        },
-      )}`,
+      `${sourcePath}: unsupported FinishOwner target; expected an AbilityEntity-backed Owner`,
     );
   if (context.actionOwnerTarget === 'currentAbilityEntity') {
     // 子技能内层 ForEach 会临时覆盖 currentTarget；ActionOwner 身份必须保存在独立端口。

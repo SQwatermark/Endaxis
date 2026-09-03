@@ -43,9 +43,6 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
     condition: Parameters<CombatOperationExecutor['evaluate']>[0],
     context?: CombatOperationContext,
   ): boolean {
-    if (condition.kind === 'pendingComboSkillPresent') {
-      return this.windows.hasPendingFor(this.operatorId);
-    }
     return context === undefined
       ? this.delegate.evaluate(condition)
       : this.delegate.evaluate(condition, context);

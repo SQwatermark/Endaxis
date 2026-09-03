@@ -54,7 +54,7 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+                    durationSeconds: { kind: 'constant', value: 0.2 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -69,9 +69,9 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -83,14 +83,7 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.379999995231628, 0.419999986886978, 0.46000000834465, 0.5, 0.540000021457672,
-      0.569999992847443, 0.610000014305115, 0.649999976158142, 0.689999997615814, 0.740000009536743,
-      0.790000021457672, 0.860000014305115,
-    ],
-  },
+  { atb: 0, atk_scale: [0.38, 0.42, 0.46, 0.5, 0.54, 0.57, 0.61, 0.65, 0.69, 0.74, 0.79, 0.86] },
 );
 
 export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -134,7 +127,7 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.259999990463257 },
+                    durationSeconds: { kind: 'constant', value: 0.26 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -149,9 +142,9 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -163,14 +156,7 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.540000021457672, 0.589999973773956, 0.639999985694885, 0.699999988079071, 0.75,
-      0.800000011920929, 0.860000014305115, 0.910000026226044, 0.959999978542328, 1.02999997138977,
-      1.11000001430511, 1.20000004768372,
-    ],
-  },
+  { atb: 0, atk_scale: [0.54, 0.59, 0.64, 0.7, 0.75, 0.8, 0.86, 0.91, 0.96, 1.03, 1.11, 1.2] },
 );
 
 export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -229,9 +215,9 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -243,14 +229,7 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.660000026226044, 0.730000019073486, 0.800000011920929, 0.860000014305115, 0.930000007152557,
-      0.990000009536743, 1.05999994277954, 1.12999999523163, 1.19000005722046, 1.27999997138977,
-      1.37999999523163, 1.49000000953674,
-    ],
-  },
+  { atb: 0, atk_scale: [0.66, 0.73, 0.8, 0.86, 0.93, 0.99, 1.06, 1.13, 1.19, 1.28, 1.38, 1.49] },
 );
 
 export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -283,7 +262,7 @@ export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.300000011920929 },
+                    durationSeconds: { kind: 'constant', value: 0.3 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -311,9 +290,9 @@ export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -327,11 +306,7 @@ export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 28,
-    atk_scale: [
-      0.819999992847443, 0.899999976158142, 0.980000019073486, 1.05999994277954, 1.13999998569489,
-      1.22000002861023, 1.30999994277954, 1.38999998569489, 1.47000002861023, 1.57000005245209,
-      1.69000005722046, 1.8400000333786,
-    ],
+    atk_scale: [0.82, 0.9, 0.98, 1.06, 1.14, 1.22, 1.31, 1.39, 1.47, 1.57, 1.69, 1.84],
     poise: 25,
   },
 );
@@ -363,7 +338,7 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.899999976158142,
+              calculationMultiplier: 0.9,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0009_azrila_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -403,7 +378,7 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.100000001490116,
+              calculationMultiplier: 0.1,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0009_azrila_power_attack:/scheduledSequences/2/sequence/steps/0',
@@ -412,7 +387,7 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+                durationSeconds: { kind: 'constant', value: 0.2 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -423,9 +398,9 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -436,7 +411,7 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_full_immune_medium',
+            buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -461,12 +436,7 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -523,14 +493,7 @@ export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -649,7 +612,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.159999996423721 },
+                durationSeconds: { kind: 'constant', value: 0.16 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -660,9 +623,9 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -744,7 +707,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
           step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+            durationSeconds: { kind: 'constant', value: 0.2 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_hard_stop' },
@@ -773,16 +736,8 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     angle: 120,
-    atk_scale: [
-      0.319999992847443, 0.360000014305115, 0.389999985694885, 0.419999986886978, 0.449999988079071,
-      0.490000009536743, 0.519999980926514, 0.550000011920929, 0.579999983310699, 0.620000004768372,
-      0.670000016689301, 0.730000019073486,
-    ],
-    atk_scale2: [
-      1.4099999666214, 1.54999995231628, 1.69000005722046, 1.83000004291534, 1.97000002861023,
-      2.10999989509583, 2.25999999046326, 2.40000009536743, 2.53999996185303, 2.71000003814697,
-      2.92000007629395, 3.17000007629395,
-    ],
+    atk_scale: [0.32, 0.36, 0.39, 0.42, 0.45, 0.49, 0.52, 0.55, 0.58, 0.62, 0.67, 0.73],
+    atk_scale2: [1.41, 1.55, 1.69, 1.83, 1.97, 2.11, 2.26, 2.4, 2.54, 2.71, 2.92, 3.17],
     buff_duration: 8,
     cam_angle: 0,
     cam_duration: 0,
@@ -801,11 +756,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
     select_radius: 5,
     shelterrate: 0,
     talent1: 0,
-    display_atk_scale: [
-      1.73000001907349, 1.9099999666214, 2.07999992370605, 2.25, 2.4300000667572, 2.59999990463257,
-      2.76999998092651, 2.95000004768372, 3.11999988555908, 3.33999991416931, 3.59999990463257,
-      3.90000009536743,
-    ],
+    display_atk_scale: [1.73, 1.91, 2.08, 2.25, 2.43, 2.6, 2.77, 2.95, 3.12, 3.34, 3.6, 3.9],
     displayextrapoise: 10,
     displaypoise: 10,
   },
@@ -936,11 +887,7 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_reduce_scale: -0.7,
-    atk_scale: [
-      2.89000010490417, 3.1800000667572, 3.47000002861023, 3.75999999046326, 4.03999996185303,
-      4.32999992370605, 4.61999988555908, 4.90999984741211, 5.19999980926514, 5.55999994277954,
-      5.98999977111816, 6.5,
-    ],
+    atk_scale: [2.89, 3.18, 3.47, 3.76, 4.04, 4.33, 4.62, 4.91, 5.2, 5.56, 5.99, 6.5],
     damage_scalar: 0,
     def_reduce_scale: -0.2,
     def_up_scale: 0,
@@ -950,10 +897,7 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
     FinalShield: 0,
     heal_base: 0,
     heal_scale: 2,
-    hp_percent: [
-      0.180000007152557, 0.180000007152557, 0.180000007152557, 0.200000002980232, 0.200000002980232,
-      0.200000002980232, 0.219999998807907, 0.219999998807907, 0.219999998807907, 0.25, 0.25, 0.25,
-    ],
+    hp_percent: [0.18, 0.18, 0.18, 0.2, 0.2, 0.2, 0.22, 0.22, 0.22, 0.25, 0.25, 0.25],
     poise: 25,
     potential_5: 0,
     radius: 5,
@@ -1163,11 +1107,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
   {
     angle: 120,
     atk_heal: 0,
-    atk_scale: [
-      1.01999998092651, 1.12000000476837, 1.22000002861023, 1.33000004291534, 1.42999994754791,
-      1.52999997138977, 1.62999999523163, 1.73000001907349, 1.8400000333786, 1.96000003814697,
-      2.11999988555908, 2.29999995231628,
-    ],
+    atk_scale: [1.02, 1.12, 1.22, 1.33, 1.43, 1.53, 1.63, 1.73, 1.84, 1.96, 2.12, 2.3],
     buff_duration: 0,
     cam_angle: 0,
     cam_duration: 0,
@@ -1192,11 +1132,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
     usp: 10,
     usp_everyone: 0,
     usp_self: 0,
-    will_additive: [
-      0.699999988079071, 0.839999973773956, 0.980000019073486, 1.12000000476837, 1.19000005722046,
-      1.25999999046326, 1.33000004291534, 1.39999997615814, 1.47000002861023, 1.50999999046326,
-      1.53999996185303, 1.58000004291534,
-    ],
+    will_additive: [0.7, 0.84, 0.98, 1.12, 1.19, 1.26, 1.33, 1.4, 1.47, 1.51, 1.54, 1.58],
   },
 );
 
@@ -1319,7 +1255,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'shelterrate',
           operation: 'assign',
-          value: [0.300000011920929, 0.5],
+          value: [0.3, 0.5],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1333,7 +1269,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'shelterrate',
           operation: 'assign',
-          value: [0.300000011920929, 0.5],
+          value: [0.3, 0.5],
         },
       ],
     },
@@ -1343,7 +1279,7 @@ export default {
       passiveSkills: [
         {
           key: 'chr_0009_azrila_talent_2',
-          blackboard: { attack: [0.0599999986588955, 0.0900000035762787], duration: [7, 7] },
+          blackboard: { attack: [0.06, 0.09], duration: [7, 7] },
           enableSequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0009_azrila_talent_2',
@@ -1376,7 +1312,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'extrashelter',
           operation: 'assign',
-          value: 0.200000002980232,
+          value: 0.2,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1397,7 +1333,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'extrashelter',
           operation: 'assign',
-          value: 0.200000002980232,
+          value: 0.2,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1444,7 +1380,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -1457,7 +1393,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'extrashield',
           operation: 'assign',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1471,7 +1407,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'extraattack',
           operation: 'assign',
-          value: 0.100000001490116,
+          value: 0.1,
         },
       ],
     },
@@ -1492,7 +1428,7 @@ export default {
           sequence(
             step('startTimeDilation', {
               scope: 'entity',
-              durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+              durationSeconds: { kind: 'constant', value: 0.2 },
               slot: 'TimeDilation/Layer/Entity/HitStop',
               priority: 100,
               curve: { kind: 'named', key: 'char_hard_stop' },
@@ -1527,7 +1463,6 @@ export default {
         iconPath: '/icons/icon_battle_affix_shelter.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1576,31 +1511,17 @@ export default {
           event: 'takeDamage',
           priority: 0,
           sequence: sequence(
-            branch(
-              { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
-              sequence(
-                branch(
-                  {
-                    kind: 'eventDamageFeaturesMatch',
-                    match: 'exceptAny',
-                    features: ['dot', 'remainArea'],
-                  },
-                  sequence(
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0009_azrila_talent_2_buff',
-                      target: 'buffOwner',
-                      source: 'buffOwner',
-                      inheritSourceSkillCastInfo: true,
-                      asChildBuff: true,
-                      blackboardAssignments: {
-                        attack: { kind: 'blackboard', key: 'attack' },
-                        duration: { kind: 'blackboard', key: 'duration' },
-                      },
-                    }),
-                  ),
-                ),
-              ),
-            ),
+            step('applyBuff', {
+              buffId: 'buff_chr_0009_azrila_talent_2_buff',
+              target: 'buffOwner',
+              source: 'buffOwner',
+              inheritSourceSkillCastInfo: true,
+              asChildBuff: true,
+              blackboardAssignments: {
+                attack: { kind: 'blackboard', key: 'attack' },
+                duration: { kind: 'blackboard', key: 'duration' },
+              },
+            }),
           ),
         },
       ],
@@ -1616,7 +1537,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1650,7 +1570,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1692,7 +1611,6 @@ export default {
         iconPath: '/icons/icon_battle_shield.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

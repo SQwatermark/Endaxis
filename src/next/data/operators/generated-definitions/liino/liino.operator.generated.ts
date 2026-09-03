@@ -6,6 +6,7 @@ import type {
 import {
   branch,
   forEachContextTarget,
+  forEachTarget,
   repeatEachTick,
   scheduled,
   sequence,
@@ -212,7 +213,7 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.150000005960464 },
+            durationSeconds: { kind: 'constant', value: 0.15 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -228,7 +229,7 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.933000028133392 },
+            durationSeconds: { kind: 'constant', value: 0.933 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -428,29 +429,14 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atb_return: 5,
     atb_return_duration: 30,
-    atk_scale: [
-      0.600000023841858, 0.660000026226044, 0.720000028610229, 0.779999971389771, 0.839999973773956,
-      0.899999976158142, 0.959999978542328, 1.01999998092651, 1.08000004291534, 1.1599999666214,
-      1.25, 1.35000002384186,
-    ],
-    atk_scale_2: [
-      1, 1.10000002384186, 1.20000004768372, 1.29999995231628, 1.39999997615814, 1.5,
-      1.60000002384186, 1.70000004768372, 1.79999995231628, 1.92999994754791, 2.07999992370605,
-      2.25,
-    ],
+    atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
+    atk_scale_2: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
     cam_angle: 0,
     cam_duration: 0,
     combo_duration: 0,
     final_heal_value: 0,
-    heal_rate: [
-      72, 86.4000015258789, 100.800003051758, 115.199996948242, 122.400001525879, 129.600006103516,
-      136.800003051758, 144, 151.199996948242, 154.800003051758, 158.399993896484, 162,
-    ],
-    heal_value: [
-      0.170000001788139, 0.200000002980232, 0.239999994635582, 0.270000010728836, 0.28999999165535,
-      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.349999994039536, 0.360000014305115,
-      0.370000004768372, 0.379999995231628,
-    ],
+    heal_rate: [72, 86.4, 100.8, 115.2, 122.4, 129.6, 136.8, 144, 151.2, 154.8, 158.4, 162],
+    heal_value: [0.17, 0.2, 0.24, 0.27, 0.29, 0.3, 0.32, 0.34, 0.35, 0.36, 0.37, 0.38],
     input_angle: 0,
     normal_combo: 0,
     owner_mainchar_alpha: 0,
@@ -462,11 +448,7 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
     time_duration: 0,
     time_ratio: 0,
     usp: 20,
-    display_atk_scale: [
-      1.60000002384186, 1.75999999046326, 1.91999995708466, 2.07999992370605, 2.24000000953674,
-      2.40000009536743, 2.55999994277954, 2.72000002861023, 2.88000011444092, 3.07999992370605,
-      3.3199999332428, 3.59999990463257,
-    ],
+    display_atk_scale: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
   },
 );
 
@@ -509,7 +491,7 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
+                durationSeconds: { kind: 'constant', value: 0.06 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -540,7 +522,7 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0599999986588955 },
+                durationSeconds: { kind: 'constant', value: 0.06 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -561,16 +543,8 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.0939999967813492, 0.103000000119209, 0.112000003457069, 0.122000001370907,
-      0.130999997258186, 0.140000000596046, 0.150000005960464, 0.158999994397163, 0.167999997735023,
-      0.180000007152557, 0.194000005722046, 0.209999993443489,
-    ],
-    display_atk_scale: [
-      0.189999997615814, 0.209999993443489, 0.219999998807907, 0.239999994635582, 0.259999990463257,
-      0.280000001192093, 0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115,
-      0.389999985694885, 0.419999986886978,
-    ],
+    atk_scale: [0.094, 0.103, 0.112, 0.122, 0.131, 0.14, 0.15, 0.159, 0.168, 0.18, 0.194, 0.21],
+    display_atk_scale: [0.19, 0.21, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42],
   },
 );
 
@@ -614,9 +588,9 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 5,
-                targetTriggerIntervalSeconds: 0.0599999986588955,
+                targetTriggerIntervalSeconds: 0.06,
               },
             },
           ),
@@ -630,16 +604,8 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.0540000014007092, 0.0590000003576279, 0.0640000030398369, 0.0700000002980232,
-      0.0750000029802322, 0.0799999982118607, 0.0860000029206276, 0.090999998152256,
-      0.096000000834465, 0.103000000119209, 0.111000001430511, 0.119999997317791,
-    ],
-    display_atk_scale: [
-      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
-      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
-      0.560000002384186, 0.600000023841858,
-    ],
+    atk_scale: [0.054, 0.059, 0.064, 0.07, 0.075, 0.08, 0.086, 0.091, 0.096, 0.103, 0.111, 0.12],
+    display_atk_scale: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.56, 0.6],
   },
 );
 
@@ -1029,21 +995,9 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'attack',
   },
   {
-    atk_scale: [
-      0.219999998807907, 0.239999994635582, 0.259999990463257, 0.28999999165535, 0.310000002384186,
-      0.330000013113022, 0.349999994039536, 0.370000004768372, 0.400000005960464, 0.419999986886978,
-      0.46000000834465, 0.5,
-    ],
-    atk_scale_2: [
-      0.00999999977648258, 0.00999999977648258, 0.00999999977648258, 0.00999999977648258,
-      0.00999999977648258, 0.00999999977648258, 0.00999999977648258, 0.0199999995529652,
-      0.0199999995529652, 0.0199999995529652, 0.0199999995529652, 0.0199999995529652,
-    ],
-    display_atk_scale: [
-      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
-      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
-      0.560000002384186, 0.600000023841858,
-    ],
+    atk_scale: [0.22, 0.24, 0.26, 0.29, 0.31, 0.33, 0.35, 0.37, 0.4, 0.42, 0.46, 0.5],
+    atk_scale_2: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.02, 0.02],
+    display_atk_scale: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.56, 0.6],
   },
 );
 
@@ -1582,16 +1536,8 @@ export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.0359999984502792, 0.0399999991059303, 0.0430000014603138, 0.0469999983906746,
-      0.0500000007450581, 0.0540000014007092, 0.0579999983310699, 0.0610000006854534,
-      0.0649999976158142, 0.0689999982714653, 0.0750000029802322, 0.0810000002384186,
-    ],
-    display_atk_scale: [
-      0.360000014305115, 0.400000005960464, 0.430000007152557, 0.469999998807907, 0.5,
-      0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142, 0.689999997615814,
-      0.75, 0.810000002384186,
-    ],
+    atk_scale: [0.036, 0.04, 0.043, 0.047, 0.05, 0.054, 0.058, 0.061, 0.065, 0.069, 0.075, 0.081],
+    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
   },
 );
 
@@ -1636,7 +1582,7 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                durationSeconds: { kind: 'constant', value: 0.1 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1843,11 +1789,7 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 20,
-    atk_scale: [
-      0.449999988079071, 0.490000009536743, 0.529999971389771, 0.579999983310699, 0.620000004768372,
-      0.670000016689301, 0.709999978542328, 0.759999990463257, 0.800000011920929, 0.860000014305115,
-      0.920000016689301, 1,
-    ],
+    atk_scale: [0.45, 0.49, 0.53, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.92, 1],
     poise: 19,
   },
 );
@@ -1885,7 +1827,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
                   damageType: 'electric',
                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                   calculation: 'breakingAttack',
-                  calculationMultiplier: 0.100000001490116,
+                  calculationMultiplier: 0.1,
                   tags: ['normalAttack', 'powerAttack'],
                 },
                 'chr_0035_liino_power_attack:/scheduledSequences/0/sequence/steps/0/body/steps/0',
@@ -1894,9 +1836,9 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 3,
-                targetTriggerIntervalSeconds: 0.100000001490116,
+                targetTriggerIntervalSeconds: 0.1,
               },
             },
           ),
@@ -1913,7 +1855,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'electric',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.699999988079071,
+              calculationMultiplier: 0.7,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0035_liino_power_attack:/scheduledSequences/1/sequence/steps/1',
@@ -1926,7 +1868,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+            durationSeconds: { kind: 'constant', value: 0.2 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -1941,7 +1883,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.349999994039536 },
+            durationSeconds: { kind: 'constant', value: 0.35 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1957,28 +1899,28 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.300000011920929,
+                  time: 0.3,
                   value: 0.75,
-                  inTangent: -0.0108491703867912,
-                  outTangent: -0.0108491703867912,
+                  inTangent: -0.01084917,
+                  outTangent: -0.01084917,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.455615788698196,
-                  value: 0.4247887134552,
-                  inTangent: -6.50331020355225,
-                  outTangent: -6.50331020355225,
+                  time: 0.4556158,
+                  value: 0.4247887,
+                  inTangent: -6.50331,
+                  outTangent: -6.50331,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
                   time: 0.5,
-                  value: 0.100000001490116,
-                  inTangent: -7.31765794754028,
-                  outTangent: -7.31765794754028,
+                  value: 0.1,
+                  inTangent: -7.317658,
+                  outTangent: -7.317658,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -1995,7 +1937,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_full_immune_medium',
+            buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2170,13 +2112,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atb: 0, atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -2226,9 +2162,9 @@ export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -2391,21 +2327,9 @@ export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.639999985694885, 0.699999988079071, 0.769999980926514, 0.829999983310699, 0.899999976158142,
-      0.959999978542328, 1.01999998092651, 1.0900000333786, 1.14999997615814, 1.23000001907349,
-      1.33000004291534, 1.44000005722046,
-    ],
-    atk_scale_2: [
-      0.159999996423721, 0.180000007152557, 0.189999997615814, 0.209999993443489, 0.219999998807907,
-      0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535, 0.310000002384186,
-      0.330000013113022, 0.360000014305115,
-    ],
-    display_atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
+    atk_scale: [0.64, 0.7, 0.77, 0.83, 0.9, 0.96, 1.02, 1.09, 1.15, 1.23, 1.33, 1.44],
+    atk_scale_2: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
+    display_atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
   },
 );
 
@@ -2533,6 +2457,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
@@ -2542,7 +2467,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                                   features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/3/sequence/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/3/sequence/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -2564,6 +2489,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
@@ -2573,7 +2499,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                                   features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/3/sequence/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/3/sequence/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -2600,7 +2526,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
             true,
             sequence(
               withActionBlackboardScope(
-                'SkillData.chr_0035_liino_normal_skill.actionGroupData.timelineActions[10]._sequenceActionData.actionData[1]:chr_0035_liino_normal_skill_projhit_start_vfx',
+                'SkillData.chr_0035_liino_normal_skill.actionGroupData.timelineActions[10]._sequenceActionData.actionData[1]:chr_0035_liino_normal_skill_projhit_start',
                 { atk_scale: 0.1, hit_cnt: 0, poise: 5 },
                 true,
                 sequence(
@@ -2634,24 +2560,26 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                     },
                     sequence(
                       withActionBlackboardScope(
-                        'chr_0035_liino_normal_skill_projhit_start_vfx.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0035_liino_normal_attack_vfx',
+                        'chr_0035_liino_normal_skill_projhit_start.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0035_liino_normal_attack',
                         {},
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/3/sequence/steps/1/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/3/sequence/steps/1/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -2664,24 +2592,26 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                     ),
                     sequence(
                       withActionBlackboardScope(
-                        'chr_0035_liino_normal_skill_projhit_start_vfx.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:projectile_chr_0035_liino_normal_attack_vfx',
+                        'chr_0035_liino_normal_skill_projhit_start.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:projectile_chr_0035_liino_normal_attack',
                         {},
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/3/sequence/steps/1/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/3/sequence/steps/1/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -2753,19 +2683,21 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx03.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start_vfx03.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -2783,19 +2715,21 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx03.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start_vfx03.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -2861,19 +2795,21 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx04.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start_vfx04.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/4/sequence/steps/1/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/4/sequence/steps/1/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -2891,19 +2827,21 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx04.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start_vfx04.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/4/sequence/steps/1/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/4/sequence/steps/1/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -2975,19 +2913,21 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx02.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start_vfx02.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -3005,19 +2945,21 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx02.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start_vfx02.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -3083,19 +3025,21 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start_vfx.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/5/sequence/steps/1/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/5/sequence/steps/1/body/steps/0/body/steps/1/whenTrue/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -3113,19 +3057,21 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                         true,
                         sequence(
                           withActionBlackboardScope(
-                            'chr_0035_liino_normal_skill_projhit_start_vfx.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit_02',
+                            'chr_0035_liino_normal_skill_projhit_start_vfx.actionGroupData.timelineActions[0]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0035_liino_normal_skill_projhit',
                             { atk_scale: 0.1, hit_cnt: 1, poise: 2 },
                             true,
                             sequence(
+                              forEachTarget('enemy', sequence()),
                               step(
                                 'dealDamage',
                                 {
                                   damageType: 'electric',
                                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                                   tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
                                   stagger: { kind: 'blackboard', key: 'poise' },
                                 },
-                                'chr_0035_liino_normal_skill:/scheduledSequences/5/sequence/steps/1/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/0',
+                                'chr_0035_liino_normal_skill:/scheduledSequences/5/sequence/steps/1/body/steps/0/body/steps/1/whenFalse/steps/0/body/steps/0/body/steps/1',
                               ),
                             ),
                             undefined,
@@ -3252,7 +3198,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
                 right: { kind: 'blackboard', key: 'frame_radio' },
               }),
             ),
-            { nativeTickInterval: { executeEachFrame: true, intervalSeconds: 0.100000001490116 } },
+            { nativeTickInterval: { executeEachFrame: true, intervalSeconds: 0.1 } },
           ),
         ),
         1691,
@@ -3543,40 +3489,17 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb_return: 0,
-    atk_scale: [
-      0.180000007152557, 0.200000002980232, 0.209999993443489, 0.230000004172325, 0.25,
-      0.270000010728836, 0.280000001192093, 0.300000011920929, 0.319999992847443, 0.340000003576279,
-      0.370000004768372, 0.400000005960464,
-    ],
-    atk_scale_2: [
-      0.0900000035762787, 0.100000001490116, 0.109999999403954, 0.109999999403954,
-      0.119999997317791, 0.129999995231628, 0.140000000596046, 0.150000005960464, 0.159999996423721,
-      0.170000001788139, 0.180000007152557, 0.200000002980232,
-    ],
-    atk_scale_3: [
-      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
-      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
-      0.550000011920929, 0.600000023841858,
-    ],
+    atk_scale: [0.18, 0.2, 0.21, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.34, 0.37, 0.4],
+    atk_scale_2: [0.09, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.2],
+    atk_scale_3: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
     atk_trigger: 10,
-    atk_up: [
-      0.0599999986588955, 0.0599999986588955, 0.0599999986588955, 0.0700000002980232,
-      0.0700000002980232, 0.0700000002980232, 0.0799999982118607, 0.0799999982118607,
-      0.0799999982118607, 0.0900000035762787, 0.0900000035762787, 0.100000001490116,
-    ],
+    atk_up: [0.06, 0.06, 0.06, 0.07, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.1],
     cam_angle: 0,
     cam_duration: 0.3,
     finish_duration: 5,
     frame_radio: 30,
-    heal_rate: [
-      18, 21.6000003814697, 25.2000007629395, 28.7999992370605, 30.6000003814697, 32.4000015258789,
-      34.2000007629395, 36, 37.7999992370605, 38.7000007629395, 39.5999984741211, 40.5,
-    ],
-    heal_value: [
-      0.0399999991059303, 0.0500000007450581, 0.0599999986588955, 0.0700000002980232,
-      0.0700000002980232, 0.0799999982118607, 0.0799999982118607, 0.0799999982118607,
-      0.0900000035762787, 0.0900000035762787, 0.0900000035762787, 0.0900000035762787,
-    ],
+    heal_rate: [18, 21.6, 25.2, 28.8, 30.6, 32.4, 34.2, 36, 37.8, 38.7, 39.6, 40.5],
+    heal_value: [0.04, 0.05, 0.06, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.09, 0.09],
     healtaken_rate: 0,
     hit_cnt: 1,
     input_angle: 0,
@@ -3596,16 +3519,8 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
     talent_a: 0,
     talent_b: 0,
     teammate_rate: 0,
-    display_atk_scale: [
-      1.07000005245209, 1.16999995708466, 1.27999997138977, 1.38999998569489, 1.49000000953674,
-      1.60000002384186, 1.70000004768372, 1.80999994277954, 1.91999995708466, 2.04999995231628,
-      2.21000003814697, 2.40000009536743,
-    ],
-    display_atk_scale_2: [
-      0.529999971389771, 0.589999973773956, 0.639999985694885, 0.689999997615814, 0.75,
-      0.800000011920929, 0.850000023841858, 0.910000026226044, 0.959999978542328, 1.02999997138977,
-      1.11000001430511, 1.20000004768372,
-    ],
+    display_atk_scale: [1.07, 1.17, 1.28, 1.39, 1.49, 1.6, 1.7, 1.81, 1.92, 2.05, 2.21, 2.4],
+    display_atk_scale_2: [0.53, 0.59, 0.64, 0.69, 0.75, 0.8, 0.85, 0.91, 0.96, 1.03, 1.11, 1.2],
     display_poise: 3,
   },
 );
@@ -3741,7 +3656,7 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
                 right: { kind: 'blackboard', key: 'frame_radio' },
               }),
             ),
-            { nativeTickInterval: { executeEachFrame: true, intervalSeconds: 0.100000001490116 } },
+            { nativeTickInterval: { executeEachFrame: true, intervalSeconds: 0.1 } },
           ),
         ),
         1801,
@@ -4001,35 +3916,16 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'extraActiveSkill',
   },
   {
-    atk_scale: [
-      0.180000007152557, 0.200000002980232, 0.209999993443489, 0.230000004172325, 0.25,
-      0.270000010728836, 0.280000001192093, 0.300000011920929, 0.319999992847443, 0.340000003576279,
-      0.370000004768372, 0.400000005960464,
-    ],
-    atk_scale_2: [
-      0.0900000035762787, 0.100000001490116, 0.109999999403954, 0.109999999403954,
-      0.119999997317791, 0.129999995231628, 0.140000000596046, 0.150000005960464, 0.159999996423721,
-      0.170000001788139, 0.180000007152557, 0.200000002980232,
-    ],
-    atk_scale_3: [
-      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
-      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164, 0.509999990463257,
-      0.550000011920929, 0.600000023841858,
-    ],
+    atk_scale: [0.18, 0.2, 0.21, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.34, 0.37, 0.4],
+    atk_scale_2: [0.09, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.2],
+    atk_scale_3: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
     atk_trigger: 10,
-    atk_up: 0.0799999982118607,
+    atk_up: 0.08,
     cam_angle: 0,
     cam_duration: 0.3,
     frame_radio: 30,
-    heal_rate: [
-      18, 21.6000003814697, 25.2000007629395, 28.7999992370605, 30.6000003814697, 32.4000015258789,
-      34.2000007629395, 36, 37.7999992370605, 38.7000007629395, 39.5999984741211, 40.5,
-    ],
-    heal_value: [
-      0.0399999991059303, 0.0500000007450581, 0.0599999986588955, 0.0700000002980232,
-      0.0700000002980232, 0.0799999982118607, 0.0799999982118607, 0.0799999982118607,
-      0.0900000035762787, 0.0900000035762787, 0.0900000035762787, 0.0900000035762787,
-    ],
+    heal_rate: [18, 21.6, 25.2, 28.8, 30.6, 32.4, 34.2, 36, 37.8, 38.7, 39.6, 40.5],
+    heal_value: [0.04, 0.05, 0.06, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.09, 0.09],
     hit_cnt: 1,
     input_angle: 0,
     music_atk_ratio: 0.5,
@@ -4047,16 +3943,8 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
     talent_a: 0,
     talent_b: 0,
     teammate_rate: 0,
-    display_atk_scale: [
-      1.07000005245209, 1.16999995708466, 1.27999997138977, 1.38999998569489, 1.49000000953674,
-      1.60000002384186, 1.70000004768372, 1.80999994277954, 1.91999995708466, 2.04999995231628,
-      2.21000003814697, 2.40000009536743,
-    ],
-    display_atk_scale_2: [
-      0.529999971389771, 0.589999973773956, 0.639999985694885, 0.689999997615814, 0.75,
-      0.800000011920929, 0.850000023841858, 0.910000026226044, 0.959999978542328, 1.02999997138977,
-      1.11000001430511, 1.20000004768372,
-    ],
+    display_atk_scale: [1.07, 1.17, 1.28, 1.39, 1.49, 1.6, 1.7, 1.81, 1.92, 2.05, 2.21, 2.4],
+    display_atk_scale_2: [0.53, 0.59, 0.64, 0.69, 0.75, 0.8, 0.85, 0.91, 0.96, 1.03, 1.11, 1.2],
     display_poise: 12,
   },
 );
@@ -4168,7 +4056,6 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0035_liino_ult_skill_projhit',
             childSkillId: 'chr_0035_liino_ultimate_skill_projhit_abilityentity',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'enemy',
           }),
@@ -4503,23 +4390,11 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [
-      0.0700000002980232, 0.0799999982118607, 0.0900000035762787, 0.0900000035762787,
-      0.100000001490116, 0.109999999403954, 0.109999999403954, 0.119999997317791, 0.129999995231628,
-      0.140000000596046, 0.150000005960464, 0.159999996423721,
-    ],
-    atk_scale_2: [
-      2.83999991416931, 3.13000011444092, 3.41000008583069, 3.70000004768372, 3.98000001907349,
-      4.26999998092651, 4.55000019073486, 4.82999992370605, 5.11999988555908, 5.46999979019165,
-      5.90000009536743, 6.40000009536743,
-    ],
-    atk_scale_3: [
-      0.270000010728836, 0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372,
-      0.400000005960464, 0.419999986886978, 0.449999988079071, 0.479999989271164, 0.509999990463257,
-      0.550000011920929, 0.600000023841858,
-    ],
+    atk_scale: [0.07, 0.08, 0.09, 0.09, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16],
+    atk_scale_2: [2.84, 3.13, 3.41, 3.7, 3.98, 4.27, 4.55, 4.83, 5.12, 5.47, 5.9, 6.4],
+    atk_scale_3: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.42, 0.45, 0.48, 0.51, 0.55, 0.6],
     atk_scale_4: 0,
-    atk_up: 0.100000001490116,
+    atk_up: 0.1,
     final_value: 3,
     finish_duration: 0,
     fnlatk_up: 0,
@@ -4539,44 +4414,21 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
     talent_b: 0,
     talent0_usp: 0,
     teammate_rate: 0,
-    ultheal_rate: [
-      36, 43.2000007629395, 50.4000015258789, 57.5999984741211, 61.2000007629395, 64.8000030517578,
-      68.4000015258789, 72, 75.5999984741211, 77.4000015258789, 79.1999969482422, 81,
-    ],
-    ultheal_value: [
-      0.0799999982118607, 0.100000001490116, 0.119999997317791, 0.129999995231628,
-      0.140000000596046, 0.150000005960464, 0.159999996423721, 0.170000001788139, 0.180000007152557,
-      0.180000007152557, 0.180000007152557, 0.189999997615814,
-    ],
+    ultheal_rate: [36, 43.2, 50.4, 57.6, 61.2, 64.8, 68.4, 72, 75.6, 77.4, 79.2, 81],
+    ultheal_value: [0.08, 0.1, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.18, 0.18, 0.19],
     ultheal02_rate: 0,
     ultheal02_value: 0,
-    ultheal03_rate: [
-      324, 388.799987792969, 453.600006103516, 518.400024414063, 550.799987792969, 583.200012207031,
-      615.599975585938, 648, 680.400024414063, 696.599975585938, 712.799987792969, 729,
-    ],
-    ultheal03_value: [
-      0.759999990463257, 0.910000026226044, 1.05999994277954, 1.21000003814697, 1.28999996185303,
-      1.36000001430511, 1.44000005722046, 1.50999999046326, 1.5900000333786, 1.62999999523163,
-      1.6599999666214, 1.70000004768372,
-    ],
+    ultheal03_rate: [324, 388.8, 453.6, 518.4, 550.8, 583.2, 615.6, 648, 680.4, 696.6, 712.8, 729],
+    ultheal03_value: [0.76, 0.91, 1.06, 1.21, 1.29, 1.36, 1.44, 1.51, 1.59, 1.63, 1.66, 1.7],
     ultmusic_atk_ratio: 0.5,
     ultmusic_duration: 15,
     ultmusic_trigger: 1.5,
-    will_max: [
-      0.400000005960464, 0.400000005960464, 0.400000005960464, 0.400000005960464, 0.449999988079071,
-      0.449999988079071, 0.449999988079071, 0.449999988079071, 0.449999988079071, 0.5,
-      0.550000011920929, 0.600000023841858,
-    ],
+    will_max: [0.4, 0.4, 0.4, 0.4, 0.45, 0.45, 0.45, 0.45, 0.45, 0.5, 0.55, 0.6],
     will_up: [
-      0.000180000002728775, 0.000199999994947575, 0.000209999998332933, 0.000230000005103648,
-      0.000250000011874363, 0.000269999989541247, 0.00028000000747852, 0.000300000014249235,
-      0.00031999999191612, 0.000339999998686835, 0.000369999994290993, 0.00039999998989515,
+      0.00018, 0.0002, 0.00021, 0.00023, 0.00025, 0.00027, 0.00028, 0.0003, 0.00032, 0.00034,
+      0.00037, 0.0004,
     ],
-    display_atk_scale: [
-      1.41999995708466, 1.55999994277954, 1.71000003814697, 1.85000002384186, 1.99000000953674,
-      2.13000011444092, 2.27999997138977, 2.42000007629395, 2.55999994277954, 2.74000000953674,
-      2.95000004768372, 3.20000004768372,
-    ],
+    display_atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
   },
 );
 
@@ -4754,7 +4606,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'shelter',
           operation: 'assign',
-          value: [-0.100000001490116, -0.200000002980232],
+          value: [-0.1, -0.2],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4762,7 +4614,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'healtaken_rate',
           operation: 'assign',
-          value: [0.100000001490116, 0.200000002980232],
+          value: [0.1, 0.2],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4784,14 +4636,14 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'shelter',
           operation: 'assign',
-          value: [-0.100000001490116, -0.200000002980232],
+          value: [-0.1, -0.2],
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'healtaken_rate',
           operation: 'assign',
-          value: [0.100000001490116, 0.200000002980232],
+          value: [0.1, 0.2],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4849,14 +4701,14 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'atk_up',
           operation: 'add',
-          value: 0.0599999986588955,
+          value: 0.06,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_up',
           operation: 'add',
-          value: 0.0599999986588955,
+          value: 0.06,
         },
       ],
       initializationSequence: sequence(
@@ -4885,28 +4737,28 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'heal_value',
           operation: 'multiply',
-          value: 1.39999997615814,
+          value: 1.4,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'heal_rate',
           operation: 'multiply',
-          value: 1.39999997615814,
+          value: 1.4,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.39999997615814,
+          value: 1.4,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale_2',
           operation: 'multiply',
-          value: 1.39999997615814,
+          value: 1.4,
         },
       ],
     },
@@ -4918,7 +4770,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -4931,42 +4783,42 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'will_up',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'will_max',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale_2',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale_3',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale_4',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4974,7 +4826,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4982,7 +4834,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'atk_scale_2',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -4990,7 +4842,7 @@ export default {
           skillKey: 'battleSkill',
           blackboardKey: 'atk_scale_3',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
       ],
     },
@@ -4999,7 +4851,7 @@ export default {
     buff_chr_0035_liino_atkup: {
       stackingType: 'highPriority',
       stackingKey: 'liino_atk_up',
-      priority: 0,
+      priority: { blackboardKey: 'atk_up' },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
@@ -5008,7 +4860,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -5035,7 +4886,7 @@ export default {
     buff_chr_0035_liino_atkup_owner: {
       stackingType: 'highPriority',
       stackingKey: 'liino_atk_up',
-      priority: 0,
+      priority: { blackboardKey: 'atk_up' },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
@@ -5044,7 +4895,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -5070,7 +4920,7 @@ export default {
     },
     buff_chr_0035_liino_combo_atb_return: {
       stackingType: 'unlimited',
-      priority: 0,
+      priority: { blackboardKey: 'imbue_scale', negate: true },
       maxStackCount: 99,
       triggerIntervalSeconds: 0,
       waitFirstTriggerInterval: true,
@@ -5081,7 +4931,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_liino_inspire.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -5136,7 +4985,7 @@ export default {
     },
     buff_chr_0035_liino_comboskill_ultskill_hit: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       timeClock: 'global',
@@ -5315,7 +5164,7 @@ export default {
           sequence(
             step('startTimeDilation', {
               scope: 'entity',
-              durationSeconds: { kind: 'constant', value: 0.150000005960464 },
+              durationSeconds: { kind: 'constant', value: 0.15 },
               slot: 'TimeDilation/Layer/Entity/HitStop',
               priority: 30,
               curve: { kind: 'named', key: 'ComboSkill' },
@@ -5331,7 +5180,7 @@ export default {
           sequence(
             step('startTimeDilation', {
               scope: 'global',
-              durationSeconds: { kind: 'constant', value: 0.933300018310547 },
+              durationSeconds: { kind: 'constant', value: 0.9333 },
               slot: 'unassigned',
               priority: 30,
               curve: { kind: 'named', key: 'ComboSkill' },
@@ -5370,7 +5219,7 @@ export default {
     },
     buff_chr_0035_liino_normalskill_music_animation_hitl: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'vfx_music_duration' },
       applyTags: [],
@@ -5587,7 +5436,7 @@ export default {
     },
     buff_chr_0035_liino_normalskill_music_animation_hitr: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'vfx_music_duration' },
       applyTags: [],
@@ -5804,7 +5653,7 @@ export default {
     },
     buff_chr_0035_liino_normalskill_music_cd_uishow: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       applyTags: [],
       extendTags: [],
@@ -5832,7 +5681,7 @@ export default {
     },
     buff_chr_0035_liino_normalskill_music_damage: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'vfx_music_duration' },
       triggerIntervalSeconds: { blackboardKey: 'music_damage_trigger' },
@@ -5991,14 +5840,13 @@ export default {
     },
     buff_chr_0035_liino_normalskill_music_tag: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -6133,7 +5981,7 @@ export default {
     },
     buff_chr_0035_liino_normalskill_spelllnfliction_check: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       applyTags: [],
       extendTags: [],
@@ -6390,7 +6238,7 @@ export default {
     },
     buff_chr_0035_liino_skill_end: {
       stackingType: 'unlimited',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       applyTags: [],
@@ -6423,7 +6271,7 @@ export default {
     buff_chr_0035_liino_spellenhance: {
       stackingType: 'highPriority',
       stackingKey: 'liino_spellenhance',
-      priority: 0,
+      priority: { blackboardKey: 'spellenhance_rate' },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       applyTags: [],
@@ -6459,7 +6307,7 @@ export default {
     },
     buff_chr_0035_liino_talent_shelter: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'shelter', negate: true },
       maxStackCount: 1,
       applyTags: [],
       extendTags: [],
@@ -6483,7 +6331,7 @@ export default {
     },
     buff_chr_0035_liino_talent_shelter_finishtime: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'shelter', negate: true },
       maxStackCount: 1,
       applyTags: [],
       extendTags: [],
@@ -6508,7 +6356,7 @@ export default {
     buff_chr_0035_liino_talent_shelter_finishtime_normalskill: {
       stackingType: 'highPriority',
       stackingKey: 'liino_talent',
-      priority: 0,
+      priority: { blackboardKey: 'shelter', negate: true },
       maxStackCount: 5,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
@@ -6517,7 +6365,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_liino_normalskill_music.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -6558,7 +6405,7 @@ export default {
     buff_chr_0035_liino_talent_shelter_finishtime_ultskill: {
       stackingType: 'highPriority',
       stackingKey: 'liino_talent',
-      priority: 0,
+      priority: { blackboardKey: 'shelter', negate: true },
       maxStackCount: 5,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
@@ -6567,7 +6414,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_liino_ultskill_music.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -6608,7 +6454,7 @@ export default {
     buff_chr_0035_liino_talent_shelter_normalskill: {
       stackingType: 'highPriority',
       stackingKey: 'liino_talent',
-      priority: 0,
+      priority: { blackboardKey: 'shelter', negate: true },
       maxStackCount: 5,
       presentation: {
         visible: true,
@@ -6616,7 +6462,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_liino_normalskill_music.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -6657,7 +6502,7 @@ export default {
     buff_chr_0035_liino_talent_shelter_ultskill: {
       stackingType: 'highPriority',
       stackingKey: 'liino_talent',
-      priority: 0,
+      priority: { blackboardKey: 'shelter', negate: true },
       maxStackCount: 5,
       presentation: {
         visible: true,
@@ -6665,7 +6510,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_liino_ultskill_music.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -6735,7 +6579,7 @@ export default {
     },
     buff_chr_0035_liino_ultskill_end: {
       stackingType: 'unlimited',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       applyTags: [],
@@ -6745,7 +6589,7 @@ export default {
     },
     buff_chr_0035_liino_ultskill_music_damage: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'vfx_music_duration' },
       triggerIntervalSeconds: { blackboardKey: 'music_damage_trigger' },
@@ -6957,14 +6801,13 @@ export default {
     },
     buff_chr_0035_liino_ultskill_music_tag: {
       stackingType: 'stack',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -7105,7 +6948,7 @@ export default {
     },
     buff_chr_0035_liino_ultskill_refrainobtainusp: {
       stackingType: 'unlimited',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       applyTags: [],
       extendTags: [],

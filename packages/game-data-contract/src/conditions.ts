@@ -23,15 +23,6 @@ import {
 /** 条件查询可读取事件 Action Context 的 InputTarget；动作目标集合仍保持严格不变。 */
 export type BuffConditionTarget = BuffSingleTarget | 'actionInputTarget';
 
-/** 按稳定定义身份或 GameplayTag 查找首个有效 Buff；动作读取与条件读取共享同一查询协议。 */
-export type BuffReferenceQuery =
-  | { kind: 'id'; buffIds: readonly string[] }
-  | {
-      kind: 'tag';
-      tagQueryType: GameplayTagQueryType;
-      buffTags: readonly GameplayTag[];
-    };
-
 /**
  * 原生 CheckSkillHasHit 的技能实例内状态键。它不属于导出的游戏黑板数据，
  * 只用于让编译器与运行时共享同一项内部状态约定。
@@ -51,8 +42,6 @@ export type CombatCondition =
   | { kind: 'singleEnemyPresent' }
   /** 当前技能所属干员是否为该帧的主控干员；必须由场景运行时提供主控身份。 */
   | { kind: 'casterControlled' }
-  /** 当前施法者是否至少存在一个尚未过期的原生连携候选；不包含可释放门禁。 */
-  | { kind: 'pendingComboSkillPresent' }
   /** 按 CharacterTable.charTypeId 的一一元素投影筛选施法者或 Buff 持有者。 */
   | {
       kind: 'characterTypeIn';
@@ -106,20 +95,6 @@ export type CombatCondition =
       left: ActionValueOperand;
       operator: ComparisonOperator;
       right: ActionValueOperand;
-    }
-  | {
-      /**
-       * 原生条件序列先读取首个匹配 Buff 的黑板，再以该值参与紧随其后的比较。
-       * 找不到 Buff 时条件为 false；找到时仍把读取值写入动作黑板，保留原生副作用。
-       */
-      kind: 'buffBlackboardCompare';
-      target: BuffConditionTarget;
-      query: BuffReferenceQuery;
-      desiredKey: string;
-      outputKey: string;
-      operator: ComparisonOperator;
-      value: ActionValueOperand;
-      buffValueSide: 'left' | 'right';
     }
   | {
       /** 以原生 RandomUtil.Dice(float) 对动作黑板或常量概率取样。 */
@@ -252,12 +227,6 @@ export type CombatCondition =
       tags: readonly DamageTag[];
     }
   | {
-      /** 精确匹配原生 DamagePack 携带的任意 GameplayTag，不展开父路径。 */
-      kind: 'eventDamageGameplayTagsMatch';
-      match: GameplayTagQueryType;
-      tags: readonly GameplayTag[];
-    }
-  | {
       /** 匹配触发当前响应的伤害行为特征；普通技能步骤没有事件上下文。 */
       kind: 'eventDamageFeaturesMatch';
       match: GameplayTagMatchType;
@@ -285,25 +254,23 @@ export type CombatCondition =
   | {
       /** 匹配触发 Buff 响应的待施放技能类型。 */
       kind: 'eventSkillTypeIn';
-      skillTypes: readonly (SkillType | 'finisher')[];
+      skillTypes: readonly SkillType[];
     }
   | {
       /** 精确匹配当前 OnCustomAbilityEvent 的命名载荷。 */
       kind: 'eventCustomAbilityNameMatch';
       eventName: string;
-      /** 命中后把事件数值参数写入当前动作黑板。 */
-      outputKey?: string;
     }
   | {
       /** 查询目标 AbilitySystem 当前仍在施放的技能类型；不读取事件载荷。 */
       kind: 'currentSkillTypeIn';
       target: 'caster' | 'buffOwner';
-      skillTypes: readonly (SkillType | 'finisher')[];
+      skillTypes: readonly SkillType[];
     }
   | {
       /** 匹配当前事件的来源施法类型；按原生载荷类型读取，不回退到监听 Buff 的来源。 */
       kind: 'originSkillTypeIn';
-      skillTypes: readonly (SkillType | 'finisher')[];
+      skillTypes: readonly SkillType[];
     }
   | {
       /** 当前 Context 目标组是否包含事件目标。 */
@@ -418,7 +385,6 @@ export const COMBAT_CONDITION_KINDS = [
   'combatActive',
   'singleEnemyPresent',
   'casterControlled',
-  'pendingComboSkillPresent',
   'characterTypeIn',
   'operatorRoleIn',
   'enemyRankIn',
@@ -430,7 +396,6 @@ export const COMBAT_CONDITION_KINDS = [
   'poiseCompare',
   'contextFlagEquals',
   'actionValueCompare',
-  'buffBlackboardCompare',
   'probability',
   'contextTargetCountCompare',
   'contextTargetObjectTypeMatch',
@@ -450,7 +415,6 @@ export const COMBAT_CONDITION_KINDS = [
   'timedMarkerPresent',
   'abilityEntityTimedMarkerPresent',
   'eventDamageTagsMatch',
-  'eventDamageGameplayTagsMatch',
   'eventDamageFeaturesMatch',
   'eventDamageTypeIn',
   'eventInflictionElementIn',

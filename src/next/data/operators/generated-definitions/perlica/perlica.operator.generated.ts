@@ -98,14 +98,7 @@ export const perlicaBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.25, 0.280000001192093, 0.310000002384186, 0.330000013113022, 0.360000014305115,
-      0.379999995231628, 0.409999996423721, 0.430000007152557, 0.46000000834465, 0.490000009536743,
-      0.529999971389771, 0.569999992847443,
-    ],
-  },
+  { atb: 0, atk_scale: [0.25, 0.28, 0.31, 0.33, 0.36, 0.38, 0.41, 0.43, 0.46, 0.49, 0.53, 0.57] },
 );
 
 export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -158,7 +151,7 @@ export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
                         amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 0.333333313465118 },
+                        coefficient: { kind: 'constant', value: 0.3333333 },
                         recipient: 'team',
                         spGainKind: 'gain',
                         spGainSource: 'normalAttack',
@@ -206,7 +199,7 @@ export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
                         amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 0.333333313465118 },
+                        coefficient: { kind: 'constant', value: 0.3333333 },
                         recipient: 'team',
                         spGainKind: 'gain',
                         spGainSource: 'normalAttack',
@@ -233,16 +226,8 @@ export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
-      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
-      0.310000002384186, 0.340000003576279,
-    ],
-    display_atk_scale: [
-      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
-      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
-      0.620000004768372, 0.680000007152557,
-    ],
+    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
   },
 );
 
@@ -452,16 +437,8 @@ export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.119999997317791, 0.140000000596046, 0.150000005960464, 0.159999996423721, 0.170000001788139,
-      0.189999997615814, 0.200000002980232, 0.209999993443489, 0.219999998807907, 0.239999994635582,
-      0.259999990463257, 0.280000001192093,
-    ],
-    display_atk_scale: [
-      0.370000004768372, 0.409999996423721, 0.449999988079071, 0.479999989271164, 0.519999980926514,
-      0.560000002384186, 0.589999973773956, 0.629999995231628, 0.670000016689301, 0.709999978542328,
-      0.769999980926514, 0.839999973773956,
-    ],
+    atk_scale: [0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28],
+    display_atk_scale: [0.37, 0.41, 0.45, 0.48, 0.52, 0.56, 0.59, 0.63, 0.67, 0.71, 0.77, 0.84],
   },
 );
 
@@ -555,11 +532,7 @@ export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 15,
-    atk_scale: [
-      0.569999992847443, 0.620000004768372, 0.680000007152557, 0.730000019073486, 0.790000021457672,
-      0.850000023841858, 0.899999976158142, 0.959999978542328, 1.01999998092651, 1.0900000333786,
-      1.16999995708466, 1.26999998092651,
-    ],
+    atk_scale: [0.57, 0.62, 0.68, 0.73, 0.79, 0.85, 0.9, 0.96, 1.02, 1.09, 1.17, 1.27],
     poise: 15,
   },
 );
@@ -623,7 +596,7 @@ export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+                durationSeconds: { kind: 'constant', value: 0.2 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'common' },
@@ -641,7 +614,7 @@ export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_full_immune_medium',
+            buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -668,10 +641,7 @@ export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
   },
   {
     addition_vertical: 0,
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
+    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
     cam_angle: 0,
     cam_duration: 0,
     input_angle: 0,
@@ -722,14 +692,7 @@ export const perlicaPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -782,11 +745,7 @@ export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    atk_scale: [
-      1.77999997138977, 1.96000003814697, 2.13000011444092, 2.30999994277954, 2.49000000953674,
-      2.67000007629395, 2.84999990463257, 3.01999998092651, 3.20000004768372, 3.42000007629395,
-      3.69000005722046, 4,
-    ],
+    atk_scale: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4],
     atk_scale_2: 0,
     cam_angle: 0,
     cam_duration: 0,
@@ -875,7 +834,7 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
                 { lifetime: 'execution', alwaysNext: true },
               ),
             ),
-            { EntityBB_bounced: 0 },
+            undefined,
             { lifetime: 'execution' },
           ),
         ),
@@ -886,7 +845,7 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.833000004291534 },
+            durationSeconds: { kind: 'constant', value: 0.833 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -905,11 +864,7 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
+    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
     cam_angle: 0,
     cam_duration: 0,
     count: 0,
@@ -1009,7 +964,6 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0004_pelica_ultimate_skill',
             childSkillId: 'chr_0004_pelica_ultimate_skill_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -1023,10 +977,7 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [
-      4.44999980926514, 4.8899998664856, 5.34000015258789, 5.78000020980835, 6.21999979019165,
-      6.67000007629395, 7.1100001335144, 7.55999994277954, 8, 8.5600004196167, 9.22999954223633, 10,
-    ],
+    atk_scale: [4.45, 4.89, 5.34, 5.78, 6.22, 6.67, 7.11, 7.56, 8, 8.56, 9.23, 10],
     atk_scale_2: 0,
     crit: 0,
     poise: 20,
@@ -1141,7 +1092,7 @@ export default {
           buffId: 'buff_chr_0004_pelica_talent_0',
           target: 'caster',
           inheritSourceSkillCastInfo: false,
-          blackboardAssignments: { dmg: [0.200000002980232, 0.300000011920929] },
+          blackboardAssignments: { dmg: [0.2, 0.3] },
         }),
       ),
     },
@@ -1181,7 +1132,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -1194,7 +1145,7 @@ export default {
           target: 'caster',
           inheritSourceSkillCastInfo: false,
           blackboardAssignments: {
-            atk_up: { kind: 'constant', value: 0.200000002980232 },
+            atk_up: { kind: 'constant', value: 0.2 },
             atk_duration: { kind: 'constant', value: 5 },
             max_stack: { kind: 'constant', value: 2 },
           },
@@ -1210,7 +1161,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'extra_scaling',
           operation: 'assign',
-          value: 1.33000004291534,
+          value: 1.33,
         },
       ],
     },
@@ -1223,7 +1174,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'crit',
           operation: 'add',
-          value: 0.300000011920929,
+          value: 0.3,
         },
       ],
     },
@@ -1276,7 +1227,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,

@@ -25,6 +25,9 @@ describe('sharedEquipmentDefinitions', () => {
       sharedGearSetDefinitions.some(definition => definition.slug === 'suit_generaltype'),
     ).toBe(true);
     expect(nextGearSetDefinitionRegistration.aliases['aic-fieldwork']).toBe('suit_generaltype');
+    expect(
+      sharedWeaponDefinitions.some(definition => definition.slug === 'bedazzling-night-debut'),
+    ).toBe(true);
     for (const definitions of [
       sharedWeaponDefinitions,
       sharedGearDefinitions,
@@ -32,6 +35,31 @@ describe('sharedEquipmentDefinitions', () => {
     ]) {
       expect(new Set(definitions.map(definition => definition.slug)).size).toBe(definitions.length);
     }
+  });
+
+  it('registers the AKEDB-only Bedazzling Night Debut with its complete heal trigger', () => {
+    const definition = sharedWeaponDefinitions.find(
+      candidate => candidate.slug === 'bedazzling-night-debut',
+    );
+    expect(definition).toBeDefined();
+    expect(definition?.traits).toHaveLength(3);
+    expect(definition?.traits[1]?.modifiers).toEqual([
+      expect.objectContaining({ kind: 'staticHealingIncrease', target: 'output' }),
+    ]);
+    expect(definition?.traits[2]?.eventHandlers?.[0]).toMatchObject({
+      event: { kind: 'operatorHealed', role: 'source' },
+      condition: { kind: 'all' },
+      sequence: {
+        steps: [
+          { kind: 'applyBuff', parameters: { target: 'eventTarget' } },
+          { kind: 'createTimedMarker', parameters: { target: 'eventTarget' } },
+        ],
+      },
+    });
+    expect(getSharedEquipmentSupport('weapon', 'bedazzling-night-debut')).toMatchObject({
+      completeness: 'complete',
+      issues: [],
+    });
   });
 
   it('registers only structurally valid Next definitions', () => {
@@ -53,13 +81,13 @@ describe('sharedEquipmentDefinitions', () => {
     expect(issues).toEqual([]);
   });
 
-  it('replaces matched legacy gear with 258 current native definitions without guessing presentation', () => {
+  it('replaces matched legacy gear with 243 current native definitions without guessing presentation', () => {
     const current = nextGearDefinitions.filter(definition => definition.slug.startsWith('item_'));
     const retainedLegacy = nextGearDefinitions.filter(
       definition => !definition.slug.startsWith('item_'),
     );
 
-    expect(current).toHaveLength(258);
+    expect(current).toHaveLength(243);
     expect(retainedLegacy).toHaveLength(5);
     expect(Object.keys(nextGearDefinitionRegistration.gearAliases)).toHaveLength(237);
     expect(
@@ -69,7 +97,7 @@ describe('sharedEquipmentDefinitions', () => {
       nextGearDefinitionRegistration.issues.filter(
         issue => issue.code === 'missingLegacyPresentation',
       ),
-    ).toHaveLength(21);
+    ).toHaveLength(6);
     expect(
       nextGearDefinitionRegistration.issues.filter(
         issue => issue.code === 'ambiguousLegacyAliases',

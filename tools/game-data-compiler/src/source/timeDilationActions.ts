@@ -3,7 +3,6 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
-  requireNativeEnum,
   requireNumber,
   requireRecord,
   requireString,
@@ -140,7 +139,7 @@ export function parseTimeDilationActionSource(
     ]),
     path,
   );
-  const layer = requireNativeEnum(action.layer, ['Global', 'Entity'] as const, `${path}.layer`);
+  const layer = requireString(action.layer, `${path}.layer`);
   if (layer !== 'Global' && layer !== 'Entity')
     throw new Error(`${path}.layer: unsupported value ${JSON.stringify(layer)}`);
   return {
@@ -211,17 +210,7 @@ export function parseTimeDilationCurveKeys(
   path: string,
   allowSerializedInfinity = false,
 ): TimeDilationCurveKeySource[] {
-  let values: unknown;
-  if (Array.isArray(value)) {
-    values = value;
-  } else {
-    const curve = requireRecord(value, path);
-    requireExactFields(curve, new Set(['keys', 'preWrapMode', 'postWrapMode']), path);
-    requireInteger(curve.preWrapMode, `${path}.preWrapMode`);
-    requireInteger(curve.postWrapMode, `${path}.postWrapMode`);
-    values = curve.keys;
-  }
-  return requireArray(values, `${path}.keys`).map((raw, index) => {
+  return requireArray(value, path).map((raw, index) => {
     const keyPath = `${path}[${index}]`;
     const key = requireRecord(raw, keyPath);
     requireExactFields(
@@ -231,15 +220,12 @@ export function parseTimeDilationCurveKeys(
         'value',
         'inTangent',
         'outTangent',
-        ...(Object.hasOwn(key, 'tangentMode') ? ['tangentMode'] : []),
         'weightedMode',
         'inWeight',
         'outWeight',
       ]),
       keyPath,
     );
-    if (Object.hasOwn(key, 'tangentMode'))
-      requireInteger(key.tangentMode, `${keyPath}.tangentMode`);
     return {
       time: requireNumber(key.time, `${keyPath}.time`),
       value: requireNumber(key.value, `${keyPath}.value`),

@@ -2,7 +2,7 @@ import {
   nativeActionName,
   requireBoolean,
   requireExactFields,
-  requireNativeEnum,
+  requireNonEmptyString,
   requireRecord,
 } from './primitives.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
@@ -76,11 +76,7 @@ export function parseNativeCalculationSource(
       );
       return {
         kind: 'attribute',
-        valueSource: requireNativeEnum(
-          calculation.valueSource,
-          ['AttackerOrHealer', 'Target'] as const,
-          `${path}.valueSource`,
-        ),
+        valueSource: requireNonEmptyString(calculation.valueSource, `${path}.valueSource`),
         attributeType: parseAttributeTypeName(calculation.attributeType, `${path}.attributeType`),
         multiplier: parseScalarSource(
           calculation.multiplier,

@@ -87,7 +87,6 @@ const LEAF_FIELDS: Readonly<Record<string, readonly string[]>> = {
     'blackboardKey',
   ],
   'Beyond.Gameplay.Core.Conditions.CheckMainCharacterCondition/Data': ['checkTarget'],
-  'Beyond.Gameplay.Core.CheckComboSkillPending/Data': ['owner'],
   'Beyond.Gameplay.Core.Conditions.CheckBuffIdInContext/Data': [
     'checkType',
     'buffIdList',
@@ -221,7 +220,6 @@ function normalizeLeaf(
     'calculationTarget',
     'targetSettings',
     'buffOwners',
-    'owner',
   ])
     if (key in data)
       result[key] = normalizeTarget(data[key], references, usedReferences, `${path}.${key}`);

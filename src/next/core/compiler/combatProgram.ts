@@ -106,7 +106,6 @@ export interface ResolvedCombatStepParameters {
   setAbilityEntityRemainingDuration: CombatStepParameters['setAbilityEntityRemainingDuration'];
   finishCurrentAbilityEntity: CombatStepParameters['finishCurrentAbilityEntity'];
   finishActionOwnerAbilityEntity: CombatStepParameters['finishActionOwnerAbilityEntity'];
-  inheritNormalAttackSkillCastInfo: CombatStepParameters['inheritNormalAttackSkillCastInfo'];
   finishCurrentAbilityEntityWhenSourceDies: CombatStepParameters['finishCurrentAbilityEntityWhenSourceDies'];
   startCurrentAbilityEntityChildSkill: {
     readonly childSkill: CompiledAbilityEntityChildSkillProgram;
@@ -154,7 +153,6 @@ export interface ResolvedCombatStepParameters {
     calculationAttribute?: string;
     calculationAddition?: number | ActionValueOperand;
     tags: readonly DamageTag[];
-    gameplayTags?: readonly GameplayTag[];
     features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;
     staggerMultiplier?: number | ActionValueOperand;
@@ -171,7 +169,6 @@ export interface ResolvedCombatStepParameters {
     damageType: DamageType;
     value: number | ActionValueOperand;
     tags: readonly DamageTag[];
-    gameplayTags?: readonly GameplayTag[];
     features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;
     staggerMultiplier?: number | ActionValueOperand;

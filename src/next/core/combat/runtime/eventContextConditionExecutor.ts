@@ -13,10 +13,6 @@ import { compareCombatNumbers } from './numericComparison';
 import { NATIVE_ELEMENT_VALUES } from '../infliction/elementalInfliction';
 
 type EventDamageTagsCondition = Extract<CombatCondition, { kind: 'eventDamageTagsMatch' }>;
-type EventDamageGameplayTagsCondition = Extract<
-  CombatCondition,
-  { kind: 'eventDamageGameplayTagsMatch' }
->;
 type EventDamageFeaturesCondition = Extract<CombatCondition, { kind: 'eventDamageFeaturesMatch' }>;
 
 export class EventContextConditionExecutor implements CombatOperationExecutor {
@@ -55,7 +51,6 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (
       condition.kind !== 'eventDamageTagsMatch' &&
-      condition.kind !== 'eventDamageGameplayTagsMatch' &&
       condition.kind !== 'eventDamageFeaturesMatch' &&
       condition.kind !== 'eventDamageTypeIn' &&
       condition.kind !== 'eventInflictionElementIn' &&
@@ -202,12 +197,9 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       );
     }
     if (condition.kind === 'eventCustomAbilityNameMatch') {
-      if (context.event.kind !== 'abilityCustom' || context.event.eventName !== condition.eventName)
-        return false;
-      if (condition.outputKey !== undefined && condition.outputKey !== '') {
-        context.blackboard.assignDynamic(condition.outputKey, context.event.eventParam);
-      }
-      return true;
+      return (
+        context.event.kind === 'abilityCustom' && context.event.eventName === condition.eventName
+      );
     }
     if (condition.kind === 'eventInflictionElementIn') {
       const event = context.event;
@@ -388,48 +380,25 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         condition.damageTypes.includes(damageEvent.damageType)
       );
     }
-    if (condition.kind === 'eventDamageTagsMatch') {
-      return matchValues(damageEvent.tags, condition.tags, condition.match);
-    }
-    if (condition.kind === 'eventDamageGameplayTagsMatch') {
-      // CheckDamageTag 在查询分派前先拒绝不存在或为空的实际标签列表。
-      return (
-        damageEvent.gameplayTags.length > 0 &&
-        matchValues(damageEvent.gameplayTags, condition.tags, condition.match)
-      );
-    }
-    return matchValues(damageEvent.features, condition.features, condition.match);
+    return condition.kind === 'eventDamageTagsMatch'
+      ? matchValues(damageEvent.tags, condition.tags, condition.match)
+      : matchValues(damageEvent.features, condition.features, condition.match);
   }
 }
 
 function eventDamageProperties(event: NonNullable<CombatOperationContext['event']>): {
   readonly tags: readonly DamageTag[];
-  readonly gameplayTags: readonly GameplayTag[];
   readonly features: readonly DamageFeature[];
   readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
 } | null {
   switch (event.kind) {
     case 'operatorHit':
-      return {
-        tags: event.tags,
-        gameplayTags: [],
-        features: event.features,
-        damageType: event.damageType,
-      };
+      return { tags: event.tags, features: event.features, damageType: event.damageType };
     case 'abilityDamage':
-      return {
-        tags: event.tags,
-        gameplayTags: event.gameplayTags ?? [],
-        features: event.features,
-        damageType: event.damageType,
-      };
+      return { tags: event.tags, features: event.features, damageType: event.damageType };
     case 'damageTagHit':
     case 'enemyDefeated':
-      return {
-        tags: event.tags,
-        gameplayTags: event.gameplayTags ?? [],
-        features: event.features ?? [],
-      };
+      return { tags: event.tags, features: event.features ?? [] };
     default:
       return null;
   }
@@ -438,10 +407,7 @@ function eventDamageProperties(event: NonNullable<CombatOperationContext['event'
 function matchValues<T>(
   actualValues: readonly T[],
   expectedValues: readonly T[],
-  match:
-    | EventDamageTagsCondition['match']
-    | EventDamageGameplayTagsCondition['match']
-    | EventDamageFeaturesCondition['match'],
+  match: EventDamageTagsCondition['match'] | EventDamageFeaturesCondition['match'],
 ): boolean {
   const actual = new Set(actualValues);
   const expected = new Set(expectedValues);

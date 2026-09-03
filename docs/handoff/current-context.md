@@ -5350,29 +5350,3 @@ comboSkillConditions -> 公共事件/条件动作运行时` 一条权威路径�
   `docs/research/combat-hud-state-integration.md`。
 - 本轮定向回归 **5 文件 / 20 项**通过，随后核心敌人投影回归 **2 文件 / 6 项**通过；
   `type-check:next` 与 `git diff --check` 通过。未修改旧版代码，未纳入 `tmp/`。
-
-### 2026-09-03：VFS 自有事实源、IFix 成员审计与当前 Buff 资产冲突
-
-- `vfs-index-browser` 是团队自行维护的当前客户端事实源，不存在等待第三方更新的边界。游戏更新后
-  若 Endaxis 缺数据，应修复本地索引、版本识别、MemoryPack/Unity 解码或引用闭包导出；AKEDB 只可
-  作历史对照，不能参与生产下载或兜底。
-- 从当前 Effective VFS 的 file id `862967` 精确导出
-  `IFixPatchOut/Data/IFixPatchOut/Windows/Gameplay.Beyond.patch.bytes`。新加入 VFS 的静态检查器按
-  InjectFix 二进制方法表确认：当前 Gameplay patch 只替换
-  `NetClientManager.Launch` 与 `MapManager._InitLoader`，没有替换 Buff 最大层数 getter、堆叠组初始化
-  或优先级刷新。当前原生 fallback 的布尔开关语义因此成立，不能再把该缺口归因于未知热修。
-- 当前 VFS 的 11 个 `HighPriorityWithMaxStack` Buff 全部关闭 `useMaxStackCntKey`。其中 8 个有正的
-  静态上限；Pogranichnik 天赋、曜夜的首演和不知归三个伤害相关 Buff 的静态上限是 `-1/0/0`，
-  但动作链分别明确传入动态 `max_stack`，当前本地化也声明最多 3/4/5 层。转换器只对
-  “该 stacking 类型 + 非正静态上限 + 非空且已声明动态键”恢复内容上限，不影响另外 8 个静态
-  样本。`buff_wpn_sword_0019_up` 的未声明数字优先级占位同样按旧版本对照和当前完整施加闭包保留
-  静态优先级；不把数字字符串发明成黑板协议。
-- 79 把武器与 Pogranichnik 已重新生成。生产回归为编译器 10/10、正式干员 48/48、武器模拟
-  180/180，三组合计 238/238；武器/兼容干员两端交叉口径从旧 966 更新为 1034。另修正艾维文娜
-  当前终结技能力实体身份的陈旧断言。收尾同时补齐伤害 GameplayTag 的编译中间协议、能力实体施法
-  继承断言和木桩投影陈旧夹具；相关定向回归最终为 **5 文件 / 362 项**，`type-check:game-data` 通过。
-  vfs-index-browser 的 IFix 解析器回归为 **14/14**。生产输入只认 VFS 自有响应身份，不存在第三方
-  更新速度或覆盖范围造成的等待边界。
-- combat-spec 本批新增动作与条件的定向回归 **29/29** 通过。全量为 **1649/1667** 通过；18 项失败中
-  多数仍硬编码依赖仓库外已移除的 `artifacts/skill-data-cdn` 或旧仓库根判定，另有一项法术爆发事件
-  对象身份断言差异。该历史测试基础设施债务尚未清零，不能将定向通过表述为 combat-spec 全量通过。

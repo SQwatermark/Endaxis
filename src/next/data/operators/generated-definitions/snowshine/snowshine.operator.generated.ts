@@ -53,7 +53,7 @@ export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+                durationSeconds: { kind: 'constant', value: 0.2 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -87,11 +87,7 @@ export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.550000011920929, 0.610000014305115, 0.660000026226044, 0.720000028610229, 0.769999980926514,
-      0.829999983310699, 0.879999995231628, 0.939999997615814, 0.990000009536743, 1.05999994277954,
-      1.13999998569489, 1.24000000953674,
-    ],
+    atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
     env_dmg: 20,
   },
 );
@@ -135,7 +131,7 @@ export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.200000002980232 },
+                durationSeconds: { kind: 'constant', value: 0.2 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -164,11 +160,7 @@ export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.589999973773956, 0.639999985694885, 0.699999988079071, 0.759999990463257, 0.819999992847443,
-      0.879999995231628, 0.939999997615814, 0.990000009536743, 1.04999995231628, 1.12999999523163,
-      1.21000003814697, 1.32000005245209,
-    ],
+    atk_scale: [0.59, 0.64, 0.7, 0.76, 0.82, 0.88, 0.94, 0.99, 1.05, 1.13, 1.21, 1.32],
     env_dmg: 25,
   },
 );
@@ -204,7 +196,7 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
                 key: 'atk_scale1',
                 operation: 'multiply',
                 left: { kind: 'blackboard', key: 'atk_scale' },
-                right: { kind: 'constant', value: 0.400000005960464 },
+                right: { kind: 'constant', value: 0.4 },
               }),
               step(
                 'dealDamage',
@@ -220,7 +212,7 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.150000005960464 },
+                    durationSeconds: { kind: 'constant', value: 0.15 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_hard_stop' },
@@ -235,9 +227,9 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -253,7 +245,7 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
                 key: 'atk_scale2',
                 operation: 'multiply',
                 left: { kind: 'blackboard', key: 'atk_scale' },
-                right: { kind: 'constant', value: 0.600000023841858 },
+                right: { kind: 'constant', value: 0.6 },
               }),
               step(
                 'dealDamage',
@@ -271,7 +263,7 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
                 sequence(
                   step('startTimeDilation', {
                     scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.349999994039536 },
+                    durationSeconds: { kind: 'constant', value: 0.35 },
                     slot: 'TimeDilation/Layer/Entity/HitStop',
                     priority: 10,
                     curve: { kind: 'named', key: 'char_normal_attack' },
@@ -299,9 +291,9 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.0329999998211861,
+                targetTriggerIntervalSeconds: 0.033,
               },
             },
           ),
@@ -315,11 +307,7 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 25,
-    atk_scale: [
-      1, 1.10000002384186, 1.20000004768372, 1.29999995231628, 1.39999997615814, 1.5,
-      1.60000002384186, 1.70000004768372, 1.79999995231628, 1.92999994754791, 2.07999992370605,
-      2.25,
-    ],
+    atk_scale: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
     atk_scale1: 0,
     atk_scale2: 0.8,
     env_dmg: 25,
@@ -366,7 +354,7 @@ export const snowshineFinisher: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.600000023841858 },
+                durationSeconds: { kind: 'constant', value: 0.6 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'auro_power_attack' },
@@ -409,12 +397,7 @@ export const snowshineFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const snowshinePlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -461,11 +444,7 @@ export const snowshinePlungingAttack: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
+    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
     env_dmg: 20,
   },
 );
@@ -694,7 +673,7 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+                durationSeconds: { kind: 'constant', value: 0.4 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -705,7 +684,7 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 1,
                 targetTriggerIntervalSeconds: 0,
               },
@@ -719,7 +698,7 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.699999988079071 },
+            durationSeconds: { kind: 'constant', value: 0.7 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -727,29 +706,29 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
               keys: [
                 {
                   time: 0,
-                  value: 0.300000011920929,
+                  value: 0.3,
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
                   inWeight: 0,
-                  outWeight: 0.333333343267441,
+                  outWeight: 0.333333343,
                 },
                 {
                   time: 0.5,
-                  value: 0.300000011920929,
+                  value: 0.3,
                   inTangent: 0,
                   outTangent: 0,
                   weightedMode: 0,
-                  inWeight: 0.333333343267441,
-                  outWeight: 0.333333343267441,
+                  inWeight: 0.333333343,
+                  outWeight: 0.333333343,
                 },
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 4.59660577774048,
-                  outTangent: 4.59660577774048,
+                  inTangent: 4.596606,
+                  outTangent: 4.596606,
                   weightedMode: 0,
-                  inWeight: 0.0243593454360962,
+                  inWeight: 0.0243593454,
                   outWeight: 0,
                 },
               ],
@@ -780,17 +759,14 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb_return_base: 30,
-    atk_scale: [
-      2, 2.20000004768372, 2.40000009536743, 2.59999990463257, 2.79999995231628, 3,
-      3.20000004768372, 3.40000009536743, 3.59999990463257, 3.84999990463257, 4.15000009536743, 4.5,
-    ],
+    atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
     is_cam: 1,
     poise: 20,
     potential_1: 0,
     potential_5_atb: 0,
     taken_dmg: 0.9,
     talent_2_sup: 0,
-    dmg_reduce: 0.899999976158142,
+    dmg_reduce: 0.9,
   },
 );
 
@@ -852,7 +828,6 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
                         abilityEntityId: 'abilityentity_chr_0014_aurora_combo_skill',
                         childSkillId: 'chr_0014_aurora_combo_skill_abilityrange',
                         inheritActionBlackboard: true,
-                        inheritSourceSkillCastInfo: true,
                         dieWhenSourceDies: false,
                         target: 'enemy',
                       }),
@@ -892,7 +867,6 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
                         abilityEntityId: 'abilityentity_chr_0014_aurora_combo_skill',
                         childSkillId: 'chr_0014_aurora_combo_skill_abilityrange',
                         inheritActionBlackboard: true,
-                        inheritSourceSkillCastInfo: true,
                         dieWhenSourceDies: false,
                         target: 'enemy',
                       }),
@@ -915,7 +889,7 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.532999992370605 },
+            durationSeconds: { kind: 'constant', value: 0.533 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -937,30 +911,18 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
     cam_angle: 0,
     cam_duration: 0,
     duration: 3,
-    heal_scale: [
-      0.219999998807907, 0.270000010728836, 0.310000002384186, 0.360000014305115, 0.379999995231628,
-      0.400000005960464, 0.430000007152557, 0.449999988079071, 0.469999998807907, 0.479999989271164,
-      0.490000009536743, 0.5,
-    ],
-    heal_scale_loop: [
-      0.0599999986588955, 0.0700000002980232, 0.0799999982118607, 0.0900000035762787,
-      0.100000001490116, 0.100000001490116, 0.109999999403954, 0.109999999403954, 0.119999997317791,
-      0.119999997317791, 0.119999997317791, 0.129999995231628,
-    ],
+    heal_scale: [0.22, 0.27, 0.31, 0.36, 0.38, 0.4, 0.43, 0.45, 0.47, 0.48, 0.49, 0.5],
+    heal_scale_loop: [0.06, 0.07, 0.08, 0.09, 0.1, 0.1, 0.11, 0.11, 0.12, 0.12, 0.12, 0.13],
     heal_static_value: [
-      96, 115.199996948242, 134.399993896484, 153.600006103516, 163.199996948242, 172.800003051758,
-      182.399993896484, 192, 201.600006103516, 206.399993896484, 211.199996948242, 216,
+      96, 115.2, 134.4, 153.6, 163.2, 172.8, 182.4, 192, 201.6, 206.4, 211.2, 216,
     ],
-    heal_static_value_loop: [
-      24, 28.7999992370605, 33.5999984741211, 38.4000015258789, 40.7999992370605, 43.2000007629395,
-      45.5999984741211, 48, 50.4000015258789, 51.5999984741211, 52.7999992370605, 54,
-    ],
+    heal_static_value_loop: [24, 28.8, 33.6, 38.4, 40.8, 43.2, 45.6, 48, 50.4, 51.6, 52.8, 54],
     input_angle: 0,
     interval: 0.5,
     owner_mainchar_alpha: 0,
     owner_mainchar_distance: 0,
     usp: 10,
-    trigger_hp_ratio: 0.600000023841858,
+    trigger_hp_ratio: 0.6,
   },
 );
 
@@ -1029,7 +991,6 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0014_aurora_ultimate_skill',
                 childSkillId: 'chr_0014_aurora_ultimate_skill_abilityrange_potential2',
                 inheritActionBlackboard: true,
-                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
               }),
             ),
@@ -1038,7 +999,6 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0014_aurora_ultimate_skill',
                 childSkillId: 'chr_0014_aurora_ultimate_skill_abilityrange',
                 inheritActionBlackboard: true,
-                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
               }),
             ),
@@ -1078,20 +1038,13 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [
-      2, 2.20000004768372, 2.40000009536743, 2.59999990463257, 2.79999995231628, 3,
-      3.20000004768372, 3.40000009536743, 3.59999990463257, 3.84999990463257, 4.15000009536743, 4.5,
-    ],
+    atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
     extra_duration: 0,
     frozen_level: 1,
     poise: [15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20],
     potential_2: 0,
     potential_2_range: 0,
-    atk_scale_loop: [
-      0.28999999165535, 0.319999992847443, 0.349999994039536, 0.370000004768372, 0.400000005960464,
-      0.430000007152557, 0.46000000834465, 0.490000009536743, 0.519999980926514, 0.550000011920929,
-      0.600000023841858, 0.649999976158142,
-    ],
+    atk_scale_loop: [0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.46, 0.49, 0.52, 0.55, 0.6, 0.65],
     duration: 5,
     forst_allow_count: 2,
     interval: 0.5,
@@ -1205,10 +1158,7 @@ export default {
           buffId: 'buff_chr_0014_aurora_talent_0',
           target: 'caster',
           inheritSourceSkillCastInfo: false,
-          blackboardAssignments: {
-            heal_up: [0.150000005960464, 0.25],
-            rate: [0.449999988079071, 0.550000011920929],
-          },
+          blackboardAssignments: { heal_up: [0.15, 0.25], rate: [0.45, 0.55] },
         }),
       ),
     },
@@ -1256,7 +1206,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'potential_2_range',
           operation: 'assign',
-          value: 0.200000002980232,
+          value: 0.2,
         },
       ],
     },
@@ -1300,21 +1250,26 @@ export default {
       stackingType: 'unique',
       priority: 0,
       maxStackCount: 0,
-      durationSeconds: 0.100000001490116,
+      durationSeconds: 0.1,
       applyTags: [],
       extendTags: [],
       blackboard: { heal_scale: 1, heal_static_value: 0 },
       attributeModifiers: [],
       lifecycleSequences: {
         start: sequence(
-          step('heal', {
-            target: 'buffOwner',
-            alwaysNext: true,
-            tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
-            attribute: 'will',
-            multiplier: { kind: 'blackboard', key: 'heal_scale' },
-            addition: { kind: 'blackboard', key: 'heal_static_value' },
-          }),
+          branch(
+            { kind: 'all', conditions: [] },
+            sequence(
+              step('heal', {
+                target: 'buffOwner',
+                alwaysNext: true,
+                tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
+                attribute: 'will',
+                multiplier: { kind: 'blackboard', key: 'heal_scale' },
+                addition: { kind: 'blackboard', key: 'heal_static_value' },
+              }),
+            ),
+          ),
         ),
       },
     },
@@ -1332,14 +1287,19 @@ export default {
       attributeModifiers: [],
       lifecycleSequences: {
         trigger: sequence(
-          step('heal', {
-            target: 'buffOwner',
-            alwaysNext: true,
-            tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
-            attribute: 'will',
-            multiplier: { kind: 'blackboard', key: 'heal_scale_loop' },
-            addition: { kind: 'blackboard', key: 'heal_static_value_loop' },
-          }),
+          branch(
+            { kind: 'all', conditions: [] },
+            sequence(
+              step('heal', {
+                target: 'buffOwner',
+                alwaysNext: true,
+                tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
+                attribute: 'will',
+                multiplier: { kind: 'blackboard', key: 'heal_scale_loop' },
+                addition: { kind: 'blackboard', key: 'heal_static_value_loop' },
+              }),
+            ),
+          ),
         ),
       },
     },
@@ -1514,7 +1474,7 @@ export default {
                       outTangent: -1,
                       weightedMode: 0,
                       inWeight: 0,
-                      outWeight: 0.333333343267441,
+                      outWeight: 0.333333343,
                     },
                     {
                       time: 1,
@@ -1522,7 +1482,7 @@ export default {
                       inTangent: -1,
                       outTangent: -1,
                       weightedMode: 0,
-                      inWeight: 0.333333343267441,
+                      inWeight: 0.333333343,
                       outWeight: 0,
                     },
                   ],
@@ -1586,7 +1546,6 @@ export default {
                 buffId: 'buff_chr_0014_aurora_combo_skill_heal',
                 target: 'partyExceptCaster',
                 finishByAction: true,
-                inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   heal_scale: { kind: 'blackboard', key: 'heal_scale' },
                   heal_static_value: { kind: 'blackboard', key: 'heal_static_value' },
@@ -1602,7 +1561,6 @@ export default {
                 buffId: 'buff_chr_0014_aurora_combo_skill_heal_loop',
                 target: 'partyExceptCaster',
                 finishByAction: true,
-                inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
                   heal_scale_loop: { kind: 'blackboard', key: 'heal_scale_loop' },
                   heal_static_value_loop: { kind: 'blackboard', key: 'heal_static_value_loop' },

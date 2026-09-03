@@ -14,11 +14,6 @@ import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
-function omitSkillCastInfo(context: CombatOperationContext): CombatOperationContext {
-  const { skillCastInfo: _skillCastInfo, ...withoutSkillCastInfo } = context;
-  return withoutSkillCastInfo;
-}
-
 /** 将能力实体 DSL 步骤接到本场战斗唯一的逻辑实例目录。 */
 export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
   readonly #operatorId: string;
@@ -257,8 +252,6 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     };
     const source: RuntimeTargetRef = { kind: 'operator', operatorId: this.#operatorId };
     const childSkill = this.#resolveSpawnChildSkill(definition, parameters.childSkillId);
-    const childContext =
-      parameters.inheritSourceSkillCastInfo === false ? omitSkillCastInfo(context) : context;
     if (childSkill !== undefined && this.#childRuntimeDependencies === undefined) {
       throw new Error('spawnAbilityEntity child skill runtime is not configured');
     }
@@ -294,7 +287,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       },
       ownerId: this.#operatorId,
       source,
-      ...(parameters.inheritSourceSkillCastInfo === false || context.skillCastInfo === undefined
+      ...(context.skillCastInfo === undefined
         ? {}
         : { sourceSkillCastId: context.skillCastInfo.skillCastId }),
       ...(target === undefined ? {} : { target }),
@@ -312,7 +305,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
         ? {}
         : {
             createChildRuntime: (entity, entityBlackboard) =>
-              this.#createChildRuntime(childSkill, entity, entityBlackboard, childContext),
+              this.#createChildRuntime(childSkill, entity, entityBlackboard, context),
           }),
     });
     if (parameters.saveToContextKey !== undefined) {

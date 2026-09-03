@@ -106,16 +106,8 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
-      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
-      0.620000004768372, 0.680000007152557,
-    ],
-    display_atk_scale: [
-      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
-      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
-      0.620000004768372, 0.680000007152557,
-    ],
+    atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
   },
 );
 
@@ -240,16 +232,8 @@ export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.180000007152557, 0.200000002980232, 0.219999998807907, 0.230000004172325, 0.25,
-      0.270000010728836, 0.28999999165535, 0.310000002384186, 0.319999992847443, 0.349999994039536,
-      0.370000004768372, 0.409999996423721,
-    ],
-    display_atk_scale: [
-      0.360000014305115, 0.400000005960464, 0.430000007152557, 0.469999998807907, 0.5,
-      0.540000021457672, 0.579999983310699, 0.610000014305115, 0.649999976158142, 0.689999997615814,
-      0.75, 0.810000002384186,
-    ],
+    atk_scale: [0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.29, 0.31, 0.32, 0.35, 0.37, 0.41],
+    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
   },
 );
 
@@ -317,7 +301,7 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
                           step('changeResourceByActionValue', {
                             resource: 'sp',
                             amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 0.333333313465118 },
+                            coefficient: { kind: 'constant', value: 0.3333333 },
                             recipient: 'team',
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -381,7 +365,7 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
                           step('changeResourceByActionValue', {
                             resource: 'sp',
                             amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 0.333333313465118 },
+                            coefficient: { kind: 'constant', value: 0.3333333 },
                             recipient: 'team',
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -445,7 +429,7 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
                           step('changeResourceByActionValue', {
                             resource: 'sp',
                             amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 0.333333313465118 },
+                            coefficient: { kind: 'constant', value: 0.3333333 },
                             recipient: 'team',
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -474,16 +458,8 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.140000000596046, 0.150000005960464, 0.159999996423721, 0.180000007152557, 0.189999997615814,
-      0.200000002980232, 0.219999998807907, 0.230000004172325, 0.239999994635582, 0.259999990463257,
-      0.280000001192093, 0.300000011920929,
-    ],
-    display_atk_scale: [
-      0.409999996423721, 0.449999988079071, 0.490000009536743, 0.529999971389771, 0.569999992847443,
-      0.610000014305115, 0.649999976158142, 0.689999997615814, 0.730000019073486, 0.779999971389771,
-      0.839999973773956, 0.910000026226044,
-    ],
+    atk_scale: [0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.22, 0.23, 0.24, 0.26, 0.28, 0.3],
+    display_atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91],
   },
 );
 
@@ -529,7 +505,7 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack', 'normalAttackLastCombo'],
                       stagger: { kind: 'blackboard', key: 'poise' },
-                      staggerMultiplier: { kind: 'constant', value: 0.340000003576279 },
+                      staggerMultiplier: { kind: 'constant', value: 0.34 },
                       staggerOnlyWhenCasterControlled: true,
                     },
                     'chr_0013_aglina_attack4:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
@@ -551,7 +527,7 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
                         amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 0.333400011062622 },
+                        coefficient: { kind: 'constant', value: 0.3334 },
                         recipient: 'team',
                         spGainKind: 'gain',
                         spGainSource: 'normalAttack',
@@ -591,7 +567,7 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                       stagger: { kind: 'blackboard', key: 'poise' },
-                      staggerMultiplier: { kind: 'constant', value: 0.330000013113022 },
+                      staggerMultiplier: { kind: 'constant', value: 0.33 },
                       staggerOnlyWhenCasterControlled: true,
                     },
                     'chr_0013_aglina_attack4:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
@@ -613,7 +589,7 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
                         amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 0.333400011062622 },
+                        coefficient: { kind: 'constant', value: 0.3334 },
                         recipient: 'team',
                         spGainKind: 'gain',
                         spGainSource: 'normalAttack',
@@ -653,7 +629,7 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
                       attackScale: { kind: 'blackboard', key: 'atk_scale' },
                       tags: ['normalAttack'],
                       stagger: { kind: 'blackboard', key: 'poise' },
-                      staggerMultiplier: { kind: 'constant', value: 0.330000013113022 },
+                      staggerMultiplier: { kind: 'constant', value: 0.33 },
                       staggerOnlyWhenCasterControlled: true,
                     },
                     'chr_0013_aglina_attack4:/scheduledSequences/2/sequence/steps/0/body/steps/0/body/steps/0',
@@ -675,7 +651,7 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
                         amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 0.333400011062622 },
+                        coefficient: { kind: 'constant', value: 0.3334 },
                         recipient: 'team',
                         spGainKind: 'gain',
                         spGainSource: 'normalAttack',
@@ -702,16 +678,8 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 16,
-    atk_scale: [
-      0.170000001788139, 0.180000007152557, 0.200000002980232, 0.219999998807907, 0.230000004172325,
-      0.25, 0.270000010728836, 0.280000001192093, 0.300000011920929, 0.319999992847443,
-      0.349999994039536, 0.370000004768372,
-    ],
-    display_atk_scale: [
-      0.5, 0.550000011920929, 0.600000023841858, 0.649999976158142, 0.699999988079071, 0.75,
-      0.800000011920929, 0.850000023841858, 0.899999976158142, 0.959999978542328, 1.03999996185303,
-      1.12000000476837,
-    ],
+    atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.37],
+    display_atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.12],
     poise: 16,
   },
 );
@@ -743,7 +711,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.0500000007450581,
+              calculationMultiplier: 0.05,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0013_aglina_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -760,7 +728,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.0500000007450581,
+              calculationMultiplier: 0.05,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0013_aglina_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -777,7 +745,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.0500000007450581,
+              calculationMultiplier: 0.05,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0013_aglina_power_attack:/scheduledSequences/2/sequence/steps/0',
@@ -794,7 +762,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.0500000007450581,
+              calculationMultiplier: 0.05,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0013_aglina_power_attack:/scheduledSequences/3/sequence/steps/0',
@@ -811,7 +779,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.0500000007450581,
+              calculationMultiplier: 0.05,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0013_aglina_power_attack:/scheduledSequences/4/sequence/steps/0',
@@ -828,7 +796,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.0500000007450581,
+              calculationMultiplier: 0.05,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0013_aglina_power_attack:/scheduledSequences/5/sequence/steps/0',
@@ -845,7 +813,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.699999988079071,
+              calculationMultiplier: 0.7,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0013_aglina_power_attack:/scheduledSequences/6/sequence/steps/0',
@@ -884,17 +852,11 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'breakingAttack',
   },
   {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
+    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
     cam_angle: 0,
     cam_duration: 0,
     input_angle: 0,
-    display_atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
+    display_atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
   },
 );
 
@@ -947,14 +909,7 @@ export const gilbertaPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -978,7 +933,6 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0013_aglina_normal_skill',
             childSkillId: 'chr_0013_aglina_normal_skill_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -1085,7 +1039,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
                   target: 'controlledOperator',
                   valueType: 'ratio',
                   operator: 'less',
-                  value: { kind: 'constant', value: 0.990000009536743 },
+                  value: { kind: 'constant', value: 0.99 },
                 },
                 sequence(
                   step('heal', {
@@ -1109,7 +1063,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
                       contextKey: 'CureTarget',
                       valueType: 'ratio',
                       operator: 'less',
-                      value: { kind: 'constant', value: 0.990000009536743 },
+                      value: { kind: 'constant', value: 0.99 },
                     },
                     sequence(
                       step('heal', {
@@ -1151,16 +1105,8 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    atk_scale_explosion: [
-      0.579999983310699, 0.629999995231628, 0.689999997615814, 0.75, 0.810000002384186,
-      0.860000014305115, 0.920000016689301, 0.980000019073486, 1.03999996185303, 1.11000001430511,
-      1.20000004768372, 1.29999995231628,
-    ],
-    atk_scale_pull: [
-      0.239999994635582, 0.270000010728836, 0.28999999165535, 0.319999992847443, 0.340000003576279,
-      0.360000014305115, 0.389999985694885, 0.409999996423721, 0.439999997615814, 0.469999998807907,
-      0.5, 0.550000011920929,
-    ],
+    atk_scale_explosion: [0.58, 0.63, 0.69, 0.75, 0.81, 0.86, 0.92, 0.98, 1.04, 1.11, 1.2, 1.3],
+    atk_scale_pull: [0.24, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.55],
     cam_angle: 0,
     cam_duration: 0,
     heal_const: 0,
@@ -1173,9 +1119,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
     radiusadd_display: 0,
     recovercost: 0,
     display_atk_scale_pull: [
-      0.970000028610229, 1.07000005245209, 1.16999995708466, 1.25999999046326, 1.36000001430511,
-      1.46000003814697, 1.55999994277954, 1.64999997615814, 1.75, 1.87000000476837,
-      2.01999998092651, 2.19000005722046,
+      0.97, 1.07, 1.17, 1.26, 1.36, 1.46, 1.56, 1.65, 1.75, 1.87, 2.02, 2.19,
     ],
   },
 );
@@ -1267,7 +1211,6 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0013_aglina_ultimate_skill',
             childSkillId: 'chr_0013_aglina_ultimate_skill_abilityrange',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             overrideDurationSeconds: { kind: 'blackboard', key: 'duration' },
           }),
@@ -1294,15 +1237,12 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [
-      3.32999992370605, 3.67000007629395, 4, 4.32999992370605, 4.67000007629395, 5,
-      5.34000015258789, 5.67000007629395, 6, 6.42000007629395, 6.92000007629395, 7.5,
-    ],
+    atk_scale: [3.33, 3.67, 4, 4.33, 4.67, 5, 5.34, 5.67, 6, 6.42, 6.92, 7.5],
     damage_scale: 0.5,
     duration: 5,
     final_resistance_scalar: 0,
     final_resistance_scalar_inair: 0,
-    move_speed_scalar: 0.800000011920929,
+    move_speed_scalar: 0.8,
     poise: 20,
     potential_lv: 0,
     potential2: 0,
@@ -1311,18 +1251,12 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
     resistance_scalar: 0,
     resistance_scalar_inair: 0,
     select_radius: 10,
-    spell_vulnerable_perstack: 0.100000001490116,
-    spell_vulnerable_rate: [
-      0.180000007152557, 0.180000007152557, 0.180000007152557, 0.219999998807907, 0.219999998807907,
-      0.219999998807907, 0.259999990463257, 0.259999990463257, 0.259999990463257, 0.300000011920929,
-      0.300000011920929, 0.300000011920929,
-    ],
+    spell_vulnerable_perstack: 0.1,
+    spell_vulnerable_rate: [0.18, 0.18, 0.18, 0.22, 0.22, 0.22, 0.26, 0.26, 0.26, 0.3, 0.3, 0.3],
     wisd_increase: 0,
     wisd_increase_inair: 0,
     spell_vulnerable_4stack: [
-      0.252000004053116, 0.252000004053116, 0.252000004053116, 0.30799999833107, 0.30799999833107,
-      0.30799999833107, 0.363999992609024, 0.363999992609024, 0.363999992609024, 0.419999986886978,
-      0.419999986886978, 0.419999986886978,
+      0.252, 0.252, 0.252, 0.308, 0.308, 0.308, 0.364, 0.364, 0.364, 0.42, 0.42, 0.42,
     ],
   },
 );
@@ -1371,7 +1305,6 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: true,
-                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1486,7 +1419,7 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
               priority: 0,
               maxStackCount: 1,
               durationSeconds: { blackboardKey: 'duration' },
-              triggerIntervalSeconds: 0.100000001490116,
+              triggerIntervalSeconds: 0.1,
               waitFirstTriggerInterval: true,
               maxTriggerCount: 1,
               presentation: {
@@ -1495,7 +1428,6 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                 iconPath: '/icons/airborne.webp',
                 showInHeadBarCommon: false,
                 showInHeadBarAttached: false,
-                showDirectlyInHeadBuff: false,
                 showInSquadIcon: false,
                 onlyShowForMainCharacter: false,
                 blinkInMainCharHpBar: false,
@@ -1665,13 +1597,13 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                   target: 'controlledOperator',
                   valueType: 'ratio',
                   operator: 'less',
-                  value: { kind: 'constant', value: 0.990000009536743 },
+                  value: { kind: 'constant', value: 0.99 },
                 },
                 sequence(
                   step('heal', {
                     target: 'controlledOperator',
                     alwaysNext: true,
-                    tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
+                    tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
                     attribute: 'intellect',
                     multiplier: { kind: 'blackboard', key: 'heal_scale' },
                     addition: { kind: 'blackboard', key: 'heal_const' },
@@ -1689,14 +1621,14 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                       contextKey: 'CureTarget',
                       valueType: 'ratio',
                       operator: 'less',
-                      value: { kind: 'constant', value: 0.990000009536743 },
+                      value: { kind: 'constant', value: 0.99 },
                     },
                     sequence(
                       step('heal', {
                         target: 'contextTarget',
                         contextKey: 'CureTarget',
                         alwaysNext: true,
-                        tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
+                        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
                         attribute: 'intellect',
                         multiplier: { kind: 'blackboard', key: 'heal_scale' },
                         addition: { kind: 'blackboard', key: 'heal_const' },
@@ -1706,7 +1638,7 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                       step('heal', {
                         target: 'controlledOperator',
                         alwaysNext: true,
-                        tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
+                        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
                         attribute: 'intellect',
                         multiplier: { kind: 'blackboard', key: 'heal_scale' },
                         addition: { kind: 'blackboard', key: 'heal_const' },
@@ -1735,7 +1667,7 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
+            durationSeconds: { kind: 'constant', value: 0.6 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1753,11 +1685,7 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [
-      1.39999997615814, 1.53999996185303, 1.67999994754791, 1.82000005245209, 1.96000003814697,
-      2.09999990463257, 2.24000000953674, 2.38000011444092, 2.51999998092651, 2.70000004768372,
-      2.91000008583069, 3.15000009536743,
-    ],
+    atk_scale: [1.4, 1.54, 1.68, 1.82, 1.96, 2.1, 2.24, 2.38, 2.52, 2.7, 2.91, 3.15],
     cam_angle: 0,
     cam_duration: 0,
     damage_taken_scale: 0,
@@ -1882,7 +1810,7 @@ export default {
       passiveSkills: [
         {
           key: 'chr_0013_aglina_talent_0',
-          blackboard: { add: [0.0399999991059303, 0.0700000002980232] },
+          blackboard: { add: [0.04, 0.07] },
           enableSequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0013_aglina_talent_0',
@@ -1903,7 +1831,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'heal_scale',
           operation: 'assign',
-          value: [0.600000023841858, 0.899999976158142],
+          value: [0.6, 0.9],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1917,7 +1845,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'heal_scale',
           operation: 'assign',
-          value: [0.600000023841858, 0.899999976158142],
+          value: [0.6, 0.9],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1946,14 +1874,14 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'radiusadd_display',
           operation: 'assign',
-          value: 0.200000002980232,
+          value: 0.2,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
           blackboardKey: 'radius',
           operation: 'assign',
-          value: 6.30000019073486,
+          value: 6.3,
         },
       ],
     },
@@ -1973,7 +1901,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'potential2_onceadd',
           operation: 'assign',
-          value: 0.100000001490116,
+          value: 0.1,
         },
       ],
     },
@@ -1986,7 +1914,7 @@ export default {
           passiveSkillKey: 'chr_0013_aglina_talent_0',
           blackboardKey: 'add',
           operation: 'add',
-          value: 0.0500000007450581,
+          value: 0.05,
         },
       ],
     },
@@ -1998,7 +1926,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -2012,7 +1940,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.29999995231628,
+          value: 1.3,
         },
       ],
     },
@@ -2022,7 +1950,7 @@ export default {
       stackingType: 'unlimited',
       priority: 0,
       maxStackCount: 1,
-      triggerIntervalSeconds: 0.150000005960464,
+      triggerIntervalSeconds: 0.15,
       waitFirstTriggerInterval: false,
       maxTriggerCount: -1,
       applyTags: [],
@@ -2118,7 +2046,6 @@ export default {
         iconPath: '/icons/icon_battle_buff_def_down.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -2330,7 +2257,7 @@ export default {
               repeatEachTick(sequence(), {
                 nativeChanneling: {
                   executeEachFrame: true,
-                  triggerIntervalSeconds: 0.0329999998211861,
+                  triggerIntervalSeconds: 0.033,
                   maxCountPerTarget: -1,
                   targetTriggerIntervalSeconds: 0,
                 },

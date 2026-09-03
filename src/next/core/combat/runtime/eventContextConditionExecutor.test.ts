@@ -522,56 +522,6 @@ describe('EventContextConditionExecutor', () => {
     ).toBe(expected);
   });
 
-  it.each([
-    ['hasAny', ['Damage/TyphoeaSkill/FloatingHit_Weak'], true],
-    ['hasAll', ['Damage/TyphoeaSkill/FloatingHit_Weak', 'Damage/Other'], false],
-    ['exceptAny', ['Damage/Other'], true],
-    ['exceptAll', ['Damage/TyphoeaSkill/FloatingHit_Weak', 'Damage/Other'], true],
-  ] as const)('evaluates exact damage GameplayTags with %s', (match, tags, expected) => {
-    const executor = new EventContextConditionExecutor(terminal);
-    expect(
-      executor.evaluate(
-        { kind: 'eventDamageGameplayTagsMatch', match, tags },
-        {
-          blackboard: new ActionBlackboard(),
-          event: {
-            kind: 'abilityDamage',
-            event: 'outputDamage',
-            sourceId: 'operator',
-            targetId: 'enemy',
-            tags: [],
-            gameplayTags: ['Damage/TyphoeaSkill/FloatingHit_Weak'],
-            features: [],
-          },
-        },
-      ),
-    ).toBe(expected);
-  });
-
-  it.each(['hasAny', 'hasAll', 'exceptAny', 'exceptAll'] as const)(
-    'preserves native empty actual damage GameplayTags failure for %s',
-    match => {
-      const executor = new EventContextConditionExecutor(terminal);
-      expect(
-        executor.evaluate(
-          { kind: 'eventDamageGameplayTagsMatch', match, tags: ['Damage/Any'] },
-          {
-            blackboard: new ActionBlackboard(),
-            event: {
-              kind: 'abilityDamage',
-              event: 'outputDamage',
-              sourceId: 'operator',
-              targetId: 'enemy',
-              tags: [],
-              gameplayTags: [],
-              features: [],
-            },
-          },
-        ),
-      ).toBe(false);
-    },
-  );
-
   it('rejects use outside an event response and returns false for unrelated events', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const condition = {

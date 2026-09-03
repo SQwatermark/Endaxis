@@ -29,7 +29,6 @@ import {
 import {
   type ActionValueCalculationOperation,
   type ActionValueOperand,
-  type BuffReferenceQuery,
   type ActionValueOperation,
   type CombatCondition,
   type TimeScaleCurveDefinition,
@@ -65,8 +64,6 @@ export interface DealDamageParameters {
   /** MultiplyAttributeCalculation 在属性乘算后追加的固定或黑板值。 */
   calculationAddition?: LevelValues | ActionValueOperand;
   tags: readonly DamageTag[];
-  /** 原生 DamageUnit 写入 DamagePack 的任意 GameplayTag；与伤害分类位独立。 */
-  gameplayTags?: readonly GameplayTag[];
   /** 原生伤害位中与技能分类无关的行为特征。 */
   features?: readonly DamageFeature[];
   /** 同一次命中在生命伤害之后结算的失衡伤害；原生同样允许从动作黑板读取。 */
@@ -105,8 +102,6 @@ export interface DealFixedDamageParameters {
   damageType: DamageType;
   value: LevelValues | ActionValueOperand;
   tags: readonly DamageTag[];
-  /** 原生 DamageUnit 写入 DamagePack 的任意 GameplayTag；与伤害分类位独立。 */
-  gameplayTags?: readonly GameplayTag[];
   /** 原生伤害位中与技能分类无关的行为特征。 */
   features?: readonly DamageFeature[];
   /** 同一次命中在生命伤害之后结算的失衡伤害。 */
@@ -224,8 +219,6 @@ export interface CombatStepParameters {
   finishCurrentAbilityEntity: Record<string, never>;
   /** 结束当前能力实体子技能的 ActionOwner，不受内层 forEach 当前目标覆盖。 */
   finishActionOwnerAbilityEntity: Record<string, never>;
-  /** Buff 存续期间让宿主的普通攻击继承该 Buff 保存的来源施法身份。 */
-  inheritNormalAttackSkillCastInfo: Record<string, never>;
   /** 仅在当前能力实体的来源已经死亡时结束该实体。 */
   finishCurrentAbilityEntityWhenSourceDies: Record<string, never>;
   /** 在当前 Context 迭代目标所指向的既有能力实体上启动一个无施法子技能。 */
@@ -243,8 +236,6 @@ export interface CombatStepParameters {
     definition?: AbilityEntityDefinition;
     /** 原生 assignBlackboard：生成时把当前动作黑板复制为实体黑板初值。 */
     inheritActionBlackboard?: boolean;
-    /** false 时 OnSpawn 使用空 SkillCastInfo，不能把父技能施法实例身份带给实体。 */
-    inheritSourceSkillCastInfo?: boolean;
     /** 从实体模板的具名子技能集合选择本次 Spawn 绑定的原生子技能。 */
     childSkillId?: string;
     /** 生成位置锚点；Buff 局部时间线中的 Owner 是当前 Buff 宿主能力实体。 */
@@ -392,8 +383,6 @@ export interface CombatStepParameters {
     /** 本步骤施加的完整 Buff 蓝图；运行时实例创建后不再被后续同 key 步骤改写。 */
     definition?: SkillBuffDefinition;
     target: BuffApplicationTarget;
-    /** 原生 AddBuffContext.isExtra；供 Buff 添加事件与条件区分额外施加。 */
-    isExtra?: boolean;
     /** 原生 CreateBuffAction 的循环次数；省略时执行一次，正小数按 `int < float` 语义向上取整。 */
     count?: ActionValueOperand;
     /**
@@ -476,7 +465,13 @@ export interface CombatStepParameters {
   /** 按原生 ID 或标签查询目标的首个有效 Buff，并把其数值黑板写入当前动作黑板。 */
   readBuffBlackboard: {
     target: BuffSingleTarget;
-    query: BuffReferenceQuery;
+    query:
+      | { kind: 'id'; buffIds: readonly string[] }
+      | {
+          kind: 'tag';
+          tagQueryType: GameplayTagQueryType;
+          buffTags: readonly GameplayTag[];
+        };
     desiredKey: string;
     outputKey: string;
   };
@@ -834,7 +829,6 @@ export const COMBAT_STEP_KINDS = [
   'finishCurrentAbilityEntity',
   'finishActionOwnerAbilityEntity',
   'finishCurrentAbilityEntityWhenSourceDies',
-  'inheritNormalAttackSkillCastInfo',
   'startCurrentAbilityEntityChildSkill',
   'startCurrentAbilityEntityChildSkillById',
   'spawnAbilityEntity',

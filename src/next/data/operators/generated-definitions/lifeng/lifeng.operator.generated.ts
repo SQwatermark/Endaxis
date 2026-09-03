@@ -51,7 +51,7 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0670000016689301 },
+                durationSeconds: { kind: 'constant', value: 0.067 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -60,17 +60,17 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
                     {
                       time: 0,
                       value: 1,
-                      inTangent: -1.77888894081116,
-                      outTangent: -1.77888894081116,
+                      inTangent: -1.778889,
+                      outTangent: -1.778889,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.505933821201324,
-                      value: 0.100000001490116,
-                      inTangent: 0.0213645696640015,
-                      outTangent: 0.0213645696640015,
+                      time: 0.5059338,
+                      value: 0.1,
+                      inTangent: 0.02136457,
+                      outTangent: 0.02136457,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -78,8 +78,8 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 1.82161796092987,
-                      outTangent: 1.82161796092987,
+                      inTangent: 1.821618,
+                      outTangent: 1.821618,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -126,7 +126,7 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0670000016689301 },
+                durationSeconds: { kind: 'constant', value: 0.067 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -135,17 +135,17 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
                     {
                       time: 0,
                       value: 1,
-                      inTangent: -1.77888894081116,
-                      outTangent: -1.77888894081116,
+                      inTangent: -1.778889,
+                      outTangent: -1.778889,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.505933821201324,
-                      value: 0.100000001490116,
-                      inTangent: 0.0213645696640015,
-                      outTangent: 0.0213645696640015,
+                      time: 0.5059338,
+                      value: 0.1,
+                      inTangent: 0.02136457,
+                      outTangent: 0.02136457,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -153,8 +153,8 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 1.82161796092987,
-                      outTangent: 1.82161796092987,
+                      inTangent: 1.821618,
+                      outTangent: 1.821618,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -191,16 +191,8 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.119999997317791, 0.129999995231628, 0.150000005960464, 0.159999996423721, 0.170000001788139,
-      0.180000007152557, 0.189999997615814, 0.209999993443489, 0.219999998807907, 0.230000004172325,
-      0.25, 0.270000010728836,
-    ],
-    display_atk_scale: [
-      0.239999994635582, 0.270000010728836, 0.28999999165535, 0.319999992847443, 0.340000003576279,
-      0.360000014305115, 0.389999985694885, 0.409999996423721, 0.439999997615814, 0.469999998807907,
-      0.5, 0.550000011920929,
-    ],
+    atk_scale: [0.12, 0.13, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.22, 0.23, 0.25, 0.27],
+    display_atk_scale: [0.24, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.55],
   },
 );
 
@@ -243,7 +235,7 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                durationSeconds: { kind: 'constant', value: 0.1 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -252,17 +244,17 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
                     {
                       time: 0,
                       value: 1,
-                      inTangent: -1.77888894081116,
-                      outTangent: -1.77888894081116,
+                      inTangent: -1.778889,
+                      outTangent: -1.778889,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.505933821201324,
-                      value: 0.100000001490116,
-                      inTangent: 0.0213645696640015,
-                      outTangent: 0.0213645696640015,
+                      time: 0.5059338,
+                      value: 0.1,
+                      inTangent: 0.02136457,
+                      outTangent: 0.02136457,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -270,8 +262,8 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 1.82161796092987,
-                      outTangent: 1.82161796092987,
+                      inTangent: 1.821618,
+                      outTangent: 1.821618,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -306,14 +298,7 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.28999999165535, 0.319999992847443, 0.349999994039536, 0.379999995231628, 0.409999996423721,
-      0.439999997615814, 0.469999998807907, 0.490000009536743, 0.519999980926514, 0.560000002384186,
-      0.600000023841858, 0.649999976158142,
-    ],
-  },
+  { atb: 0, atk_scale: [0.29, 0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.49, 0.52, 0.56, 0.6, 0.65] },
 );
 
 export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -355,7 +340,7 @@ export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.166999995708466 },
+                durationSeconds: { kind: 'constant', value: 0.167 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -389,16 +374,8 @@ export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.349999994039536, 0.389999985694885, 0.419999986886978, 0.46000000834465, 0.490000009536743,
-      0.529999971389771, 0.560000002384186, 0.600000023841858, 0.629999995231628, 0.670000016689301,
-      0.730000019073486, 0.790000021457672,
-    ],
-    display_atk_scale: [
-      0.340000003576279, 0.370000004768372, 0.400000005960464, 0.439999997615814, 0.469999998807907,
-      0.5, 0.540000021457672, 0.569999992847443, 0.600000023841858, 0.639999985694885,
-      0.699999988079071, 0.75,
-    ],
+    atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
+    display_atk_scale: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75],
   },
 );
 
@@ -479,7 +456,7 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.300000011920929 },
+                durationSeconds: { kind: 'constant', value: 0.3 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: {
@@ -488,26 +465,26 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
                     {
                       time: 0,
                       value: 1,
-                      inTangent: -10.3494100570679,
-                      outTangent: -10.3494100570679,
+                      inTangent: -10.34941,
+                      outTangent: -10.34941,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.0607942491769791,
-                      value: 0.370815485715866,
-                      inTangent: -1.72720694541931,
-                      outTangent: -1.72720694541931,
+                      time: 0.06079425,
+                      value: 0.3708155,
+                      inTangent: -1.727207,
+                      outTangent: -1.727207,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
                     },
                     {
-                      time: 0.505933821201324,
-                      value: 0.100000001490116,
-                      inTangent: -0.165814101696014,
-                      outTangent: -0.165814101696014,
+                      time: 0.5059338,
+                      value: 0.1,
+                      inTangent: -0.1658141,
+                      outTangent: -0.1658141,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -515,8 +492,8 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
                     {
                       time: 1,
                       value: 1,
-                      inTangent: 1.82161796092987,
-                      outTangent: 1.82161796092987,
+                      inTangent: 1.821618,
+                      outTangent: 1.821618,
                       weightedMode: 0,
                       inWeight: 0,
                       outWeight: 0,
@@ -548,22 +525,10 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 21,
-    atk_scale: [
-      0.180000007152557, 0.189999997615814, 0.209999993443489, 0.230000004172325, 0.25,
-      0.259999990463257, 0.280000001192093, 0.300000011920929, 0.319999992847443, 0.340000003576279,
-      0.360000014305115, 0.389999985694885,
-    ],
-    atk_scale2: [
-      0.5, 0.550000011920929, 0.600000023841858, 0.649999976158142, 0.699999988079071, 0.75,
-      0.800000011920929, 0.850000023841858, 0.899999976158142, 0.959999978542328, 1.03999996185303,
-      1.12999999523163,
-    ],
+    atk_scale: [0.18, 0.19, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39],
+    atk_scale2: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.13],
     poise: 19,
-    display_atk_scale: [
-      0.680000007152557, 0.740000009536743, 0.810000002384186, 0.879999995231628, 0.949999988079071,
-      1.00999999046326, 1.08000004291534, 1.14999997615814, 1.22000002861023, 1.29999995231628,
-      1.39999997615814, 1.51999998092651,
-    ],
+    display_atk_scale: [0.68, 0.74, 0.81, 0.88, 0.95, 1.01, 1.08, 1.15, 1.22, 1.3, 1.4, 1.52],
   },
 );
 
@@ -594,7 +559,7 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.100000001490116,
+              calculationMultiplier: 0.1,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0015_lifeng_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -611,7 +576,7 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'physical',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.899999976158142,
+              calculationMultiplier: 0.9,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0015_lifeng_power_attack:/scheduledSequences/1/sequence/steps/0',
@@ -625,7 +590,7 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.266699999570847 },
+            durationSeconds: { kind: 'constant', value: 0.2667 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -634,26 +599,26 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
                 {
                   time: 0,
                   value: 1,
-                  inTangent: -4.72513723373413,
-                  outTangent: -4.72513723373413,
+                  inTangent: -4.725137,
+                  outTangent: -4.725137,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.193845793604851,
-                  value: 0.0840520933270454,
-                  inTangent: -0.112137898802757,
-                  outTangent: -0.112137898802757,
+                  time: 0.1938458,
+                  value: 0.08405209,
+                  inTangent: -0.1121379,
+                  outTangent: -0.1121379,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.775428473949432,
-                  value: 0.0639253333210945,
-                  inTangent: 0.0627976730465889,
-                  outTangent: 0.0627976730465889,
+                  time: 0.7754285,
+                  value: 0.06392533,
+                  inTangent: 0.06279767,
+                  outTangent: 0.06279767,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -661,8 +626,8 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 4.1682710647583,
-                  outTangent: 4.1682710647583,
+                  inTangent: 4.168271,
+                  outTangent: 4.168271,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -691,7 +656,7 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('applyBuff', {
-            buffId: 'buff_common_full_immune_medium',
+            buffId: 'buff_common_damage_immune_medium',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -704,12 +669,7 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const lifengPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -761,14 +721,7 @@ export const lifengPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -834,7 +787,7 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+            durationSeconds: { kind: 'constant', value: 0.1 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -859,7 +812,7 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+            durationSeconds: { kind: 'constant', value: 0.1 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -902,26 +855,14 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    atk_scale: [
-      0.379999995231628, 0.419999986886978, 0.46000000834465, 0.5, 0.529999971389771,
-      0.569999992847443, 0.610000014305115, 0.649999976158142, 0.689999997615814, 0.730000019073486,
-      0.790000021457672, 0.860000014305115,
-    ],
-    atk_scale2: [
-      1.19000005722046, 1.30999994277954, 1.42999994754791, 1.54999995231628, 1.66999995708466,
-      1.77999997138977, 1.89999997615814, 2.01999998092651, 2.14000010490417, 2.28999996185303,
-      2.47000002861023, 2.6800000667572,
-    ],
+    atk_scale: [0.38, 0.42, 0.46, 0.5, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.79, 0.86],
+    atk_scale2: [1.19, 1.31, 1.43, 1.55, 1.67, 1.78, 1.9, 2.02, 2.14, 2.29, 2.47, 2.68],
     cam_angle: 0,
     cam_duration: 0,
     duration: 12,
     input_angle: 0,
     num: 0,
-    phy_resist_down: [
-      0.0500000007450581, 0.0500000007450581, 0.0500000007450581, 0.0500000007450581,
-      0.0500000007450581, 0.0700000002980232, 0.0700000002980232, 0.0700000002980232,
-      0.0900000035762787, 0.100000001490116, 0.100000001490116, 0.119999997317791,
-    ],
+    phy_resist_down: [0.05, 0.05, 0.05, 0.05, 0.05, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.12],
     poise: 10,
   },
 );
@@ -989,7 +930,6 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0015_lifeng_ultimate_skill',
             childSkillId: 'chr_0015_lifeng_ultimate_skill_abentity',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -1003,23 +943,12 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale1: [
-      1.77999997138977, 1.96000003814697, 2.13000011444092, 2.30999994277954, 2.49000000953674,
-      2.67000007629395, 2.83999991416931, 3.01999998092651, 3.20000004768372, 3.42000007629395,
-      3.69000005722046, 4,
-    ],
-    atk_scale2: [
-      1.77999997138977, 1.96000003814697, 2.13000011444092, 2.30999994277954, 2.49000000953674,
-      2.67000007629395, 2.83999991416931, 3.01999998092651, 3.20000004768372, 3.42000007629395,
-      3.69000005722046, 4,
-    ],
+    atk_scale1: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
+    atk_scale2: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
     isCombo: 0,
     poise1: 0,
     poise2: 5,
-    atk_scale3: [
-      2.67000007629395, 2.94000005722046, 3.20000004768372, 3.47000002861023, 3.74000000953674, 4,
-      4.26999998092651, 4.53999996185303, 4.80000019073486, 5.1399998664856, 5.53999996185303, 6,
-    ],
+    atk_scale3: [2.67, 2.94, 3.2, 3.47, 3.74, 4, 4.27, 4.54, 4.8, 5.14, 5.54, 6],
     poise: 5,
     poise3: 5,
   },
@@ -1101,7 +1030,7 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.933000028133392 },
+            durationSeconds: { kind: 'constant', value: 0.933 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -1120,15 +1049,8 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [
-      0.469999998807907, 0.509999990463257, 0.560000002384186, 0.610000014305115, 0.649999976158142,
-      0.699999988079071, 0.75, 0.790000021457672, 0.839999973773956, 0.899999976158142,
-      0.970000028610229, 1.04999995231628,
-    ],
-    atk_scale2: [
-      1.66999995708466, 1.83000004291534, 2, 2.17000007629395, 2.32999992370605, 2.5,
-      2.67000007629395, 2.82999992370605, 3, 3.21000003814697, 3.46000003814697, 3.75,
-    ],
+    atk_scale: [0.47, 0.51, 0.56, 0.61, 0.65, 0.7, 0.75, 0.79, 0.84, 0.9, 0.97, 1.05],
+    atk_scale2: [1.67, 1.83, 2, 2.17, 2.33, 2.5, 2.67, 2.83, 3, 3.21, 3.46, 3.75],
     cam_angle: 0,
     cam_duration: 0,
     duration: 20,
@@ -1262,7 +1184,7 @@ export default {
       passiveSkills: [
         {
           key: 'chr_0015_lifeng_talent_1',
-          blackboard: { atk_up: [0.00100000004749745, 0.00150000001303852] },
+          blackboard: { atk_up: [0.001, 0.0015] },
           enableSequence: sequence(
             step('applyBuff', {
               buffId: 'buff_chr_0015_lifeng_talent_1',
@@ -1297,7 +1219,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'phy_resist_down',
           operation: 'add',
-          value: 0.0500000007450581,
+          value: 0.05,
         },
         {
           kind: 'patchSkillBlackboard',
@@ -1327,7 +1249,7 @@ export default {
           passiveSkillKey: 'chr_0015_lifeng_talent_1',
           blackboardKey: 'atk_up',
           operation: 'add',
-          value: 0.000500000023748726,
+          value: 0.0005,
         },
       ],
     },
@@ -1339,7 +1261,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -1465,7 +1387,6 @@ export default {
         iconPath: '/icons/icon_battle_lifeng_potential_5.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1523,7 +1444,6 @@ export default {
         iconPath: '/icons/icon_battle_affix_physical_vulnerable.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -1696,7 +1616,7 @@ export default {
             sequence(
               step('applyKnockDown', {
                 target: 'enemy',
-                duration: { kind: 'constant', value: 2.09999990463257 },
+                duration: { kind: 'constant', value: 2.1 },
                 force: false,
                 isExtra: false,
                 targetFilter: 'aliveOnly',
@@ -1721,7 +1641,7 @@ export default {
             sequence(
               step('applyKnockDown', {
                 target: 'enemy',
-                duration: { kind: 'constant', value: 2.09999990463257 },
+                duration: { kind: 'constant', value: 2.1 },
                 force: false,
                 isExtra: false,
                 targetFilter: 'aliveOnly',

@@ -310,7 +310,6 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         targetId: this.dependencies.targetId,
         damageType: step.parameters.damageType,
         tags: step.parameters.tags,
-        gameplayTags: step.parameters.gameplayTags ?? [],
         features: step.parameters.features ?? [],
         result: damageResult,
         detail: {

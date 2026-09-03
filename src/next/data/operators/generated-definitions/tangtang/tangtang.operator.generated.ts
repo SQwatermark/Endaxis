@@ -75,14 +75,7 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.230000004172325, 0.25, 0.270000010728836, 0.28999999165535, 0.319999992847443,
-      0.340000003576279, 0.360000014305115, 0.389999985694885, 0.409999996423721, 0.439999997615814,
-      0.469999998807907, 0.509999990463257,
-    ],
-  },
+  { atb: 0, atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51] },
 );
 
 export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -211,21 +204,9 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale_1: [
-      0.100000001490116, 0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046,
-      0.150000005960464, 0.159999996423721, 0.170000001788139, 0.180000007152557, 0.189999997615814,
-      0.209999993443489, 0.230000004172325,
-    ],
-    atk_scale_2: [
-      0.150000005960464, 0.170000001788139, 0.180000007152557, 0.200000002980232, 0.209999993443489,
-      0.230000004172325, 0.239999994635582, 0.259999990463257, 0.270000010728836, 0.28999999165535,
-      0.310000002384186, 0.340000003576279,
-    ],
-    display_atk_scale: [
-      0.25, 0.280000001192093, 0.300000011920929, 0.330000013113022, 0.349999994039536,
-      0.379999995231628, 0.400000005960464, 0.430000007152557, 0.449999988079071, 0.479999989271164,
-      0.519999980926514, 0.560000002384186,
-    ],
+    atk_scale_1: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23],
+    atk_scale_2: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    display_atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56],
   },
 );
 
@@ -269,7 +250,7 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: false,
-                triggerIntervalSeconds: 0.0599999986588955,
+                triggerIntervalSeconds: 0.06,
                 maxCountPerTarget: -1,
                 targetTriggerIntervalSeconds: -1,
               },
@@ -417,21 +398,9 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale_1: [
-      0.0500000007450581, 0.0599999986588955, 0.0599999986588955, 0.0700000002980232,
-      0.0700000002980232, 0.0799999982118607, 0.0799999982118607, 0.0900000035762787,
-      0.0900000035762787, 0.100000001490116, 0.100000001490116, 0.109999999403954,
-    ],
-    atk_scale_2: [
-      0.0299999993294477, 0.0299999993294477, 0.0299999993294477, 0.0299999993294477,
-      0.0399999991059303, 0.0399999991059303, 0.0399999991059303, 0.0399999991059303,
-      0.0500000007450581, 0.0500000007450581, 0.0500000007450581, 0.0599999986588955,
-    ],
-    display_atk_scale: [
-      0.349999994039536, 0.389999985694885, 0.419999986886978, 0.46000000834465, 0.490000009536743,
-      0.529999971389771, 0.560000002384186, 0.600000023841858, 0.629999995231628, 0.670000016689301,
-      0.730000019073486, 0.790000021457672,
-    ],
+    atk_scale_1: [0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11],
+    atk_scale_2: [0.03, 0.03, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06],
+    display_atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
   },
 );
 
@@ -504,7 +473,7 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                durationSeconds: { kind: 'constant', value: 0.1 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -525,21 +494,9 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale_1: [
-      0.0799999982118607, 0.0900000035762787, 0.100000001490116, 0.100000001490116,
-      0.109999999403954, 0.119999997317791, 0.129999995231628, 0.140000000596046, 0.140000000596046,
-      0.150000005960464, 0.170000001788139, 0.180000007152557,
-    ],
-    atk_scale_2: [
-      0.209999993443489, 0.230000004172325, 0.25, 0.270000010728836, 0.28999999165535,
-      0.310000002384186, 0.330000013113022, 0.349999994039536, 0.370000004768372, 0.389999985694885,
-      0.430000007152557, 0.46000000834465,
-    ],
-    display_atk_scale: [
-      0.370000004768372, 0.400000005960464, 0.439999997615814, 0.469999998807907, 0.509999990463257,
-      0.550000011920929, 0.579999983310699, 0.620000004768372, 0.660000026226044, 0.699999988079071,
-      0.759999990463257, 0.819999992847443,
-    ],
+    atk_scale_1: [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
+    atk_scale_2: [0.21, 0.23, 0.25, 0.27, 0.29, 0.31, 0.33, 0.35, 0.37, 0.39, 0.43, 0.46],
+    display_atk_scale: [0.37, 0.4, 0.44, 0.47, 0.51, 0.55, 0.58, 0.62, 0.66, 0.7, 0.76, 0.82],
   },
 );
 
@@ -647,11 +604,7 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 18,
-    atk_scale: [
-      0.5, 0.550000011920929, 0.600000023841858, 0.649999976158142, 0.699999988079071, 0.75,
-      0.800000011920929, 0.850000023841858, 0.899999976158142, 0.959999978542328, 1.03999996185303,
-      1.12999999523163,
-    ],
+    atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.13],
     cnt: 0,
     poise: 18,
   },
@@ -675,14 +628,14 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'cryo',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.300000011920929,
+              calculationMultiplier: 0.3,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0027_tangtang_power_attack:/scheduledSequences/0/sequence/steps/0',
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.400000005960464 },
+            durationSeconds: { kind: 'constant', value: 0.4 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -698,19 +651,19 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
                   outWeight: 0,
                 },
                 {
-                  time: 0.100000001490116,
-                  value: 0.017000000923872,
-                  inTangent: -0.0608354993164539,
-                  outTangent: -0.0608354993164539,
+                  time: 0.1,
+                  value: 0.017,
+                  inTangent: -0.0608355,
+                  outTangent: -0.0608355,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
                 },
                 {
-                  time: 0.886093080043793,
-                  value: 0.350385189056396,
-                  inTangent: 1.16000604629517,
-                  outTangent: 1.16000604629517,
+                  time: 0.8860931,
+                  value: 0.3503852,
+                  inTangent: 1.160006,
+                  outTangent: 1.160006,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -718,8 +671,8 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
                 {
                   time: 1,
                   value: 0.5,
-                  inTangent: 1.07961797714233,
-                  outTangent: 1.07961797714233,
+                  inTangent: 1.079618,
+                  outTangent: 1.079618,
                   weightedMode: 0,
                   inWeight: 0,
                   outWeight: 0,
@@ -742,14 +695,14 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'cryo',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.699999988079071,
+              calculationMultiplier: 0.7,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0027_tangtang_power_attack:/scheduledSequences/1/sequence/steps/1',
           ),
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.300000011920929 },
+            durationSeconds: { kind: 'constant', value: 0.3 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: { kind: 'named', key: 'char_normal_attack' },
@@ -788,13 +741,7 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
-  },
+  { atb: 0, atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -826,9 +773,7 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
                 value: { kind: 'constant', value: 1 },
               }),
             ),
-            {
-              nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.0700000002980232 },
-            },
+            { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.07 } },
           ),
         ),
         11,
@@ -840,21 +785,13 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
-      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.389999985694885,
-      0.419999986886978, 0.449999988079071,
-    ],
+    atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
     cd: 15,
     dmg_scale: 2.5,
     hit_cnt: 0,
     poise: 5,
     prob: 0.5,
-    display_atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
+    display_atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
   },
 );
 
@@ -904,7 +841,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.0199999995529652 },
+                durationSeconds: { kind: 'constant', value: 0.02 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -915,9 +852,9 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: true,
-                triggerIntervalSeconds: 0.0329999998211861,
+                triggerIntervalSeconds: 0.033,
                 maxCountPerTarget: 5,
-                targetTriggerIntervalSeconds: 0.0750000029802322,
+                targetTriggerIntervalSeconds: 0.075,
               },
             },
           ),
@@ -1019,7 +956,6 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_move',
                 childSkillId: 'chr_0027_tangtang_normal_skill_abilityentitymove',
                 inheritActionBlackboard: true,
-                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
                 target: 'caster',
                 saveToContextKey: 'normalskill_watermove',
@@ -1040,7 +976,6 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_move',
                 childSkillId: 'chr_0027_tangtang_normal_skill_abilityentitymove',
                 inheritActionBlackboard: true,
-                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
                 target: 'caster',
                 saveToContextKey: 'normalskill_watermove_1',
@@ -1126,11 +1061,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
     atb_return: 20,
     atb_return_02: 40,
     atk_scale_02: 0,
-    atk_scale_1: [
-      0.159999996423721, 0.175999999046326, 0.19200000166893, 0.208000004291534, 0.224000006914139,
-      0.239999994635582, 0.256000012159348, 0.272000014781952, 0.287999987602234, 0.30799999833107,
-      0.331999987363815, 0.360000014305115,
-    ],
+    atk_scale_1: [0.16, 0.176, 0.192, 0.208, 0.224, 0.24, 0.256, 0.272, 0.288, 0.308, 0.332, 0.36],
     cam_angle: 0,
     cam_duration: 0,
     duration: 5,
@@ -1149,14 +1080,10 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
     potential5: 0,
     potential5_duration: 0,
     rate_spellvulnerable: [
-      0.0299999993294477, 0.0299999993294477, 0.0299999993294477, 0.0350000001490116,
-      0.0350000001490116, 0.0350000001490116, 0.0399999991059303, 0.0399999991059303,
-      0.0399999991059303, 0.0450000017881393, 0.0450000017881393, 0.0500000007450581,
+      0.03, 0.03, 0.03, 0.035, 0.035, 0.035, 0.04, 0.04, 0.04, 0.045, 0.045, 0.05,
     ],
     rate_spellvulnerable_02: [
-      0.0599999986588955, 0.0599999986588955, 0.0599999986588955, 0.0700000002980232,
-      0.0700000002980232, 0.0700000002980232, 0.0799999982118607, 0.0799999982118607,
-      0.0799999982118607, 0.0900000035762787, 0.0900000035762787, 0.100000001490116,
+      0.06, 0.06, 0.06, 0.07, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.1,
     ],
     talent2: 0,
     talent2_ultskill: 0,
@@ -1166,15 +1093,8 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
     tornado_usp_01: 0,
     tornado_usp_02: 0,
     water_cnt: 0,
-    display_atk_scale1: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-    display_atk_scale2: [
-      1.33000004291534, 1.47000002861023, 1.60000002384186, 1.74000000953674, 1.87000000476837, 2,
-      2.14000010490417, 2.26999998092651, 2.40000009536743, 2.5699999332428, 2.76999998092651, 3,
-    ],
+    display_atk_scale1: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+    display_atk_scale2: [1.33, 1.47, 1.6, 1.74, 1.87, 2, 2.14, 2.27, 2.4, 2.57, 2.77, 3],
     display_poise: 10,
   },
 );
@@ -1297,7 +1217,6 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0027_tangtang_ultskill',
                 childSkillId: 'chr_0027_tangtang_ultimate_skill_1',
                 inheritActionBlackboard: true,
-                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
               }),
             ),
@@ -1306,7 +1225,6 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
                 abilityEntityId: 'abilityentity_chr_0027_tangtang_ultskill',
                 childSkillId: 'chr_0027_tangtang_ultimate_skill_1',
                 inheritActionBlackboard: true,
-                inheritSourceSkillCastInfo: true,
                 dieWhenSourceDies: false,
               }),
             ),
@@ -1323,21 +1241,9 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale_1: [
-      0.178000003099442, 0.195999994874001, 0.212999999523163, 0.231000006198883, 0.248999997973442,
-      0.266999989748001, 0.284000009298325, 0.301999986171722, 0.319999992847443, 0.342000007629395,
-      0.368999987840652, 0.400000005960464,
-    ],
-    atk_scale_2: [
-      1.77799999713898, 1.9559999704361, 2.1340000629425, 2.31100010871887, 2.48900008201599,
-      2.66700005531311, 2.84500002861023, 3.02300000190735, 3.20000004768372, 3.42300009727478,
-      3.68899989128113, 4,
-    ],
-    atk_scale_3: [
-      3.11100006103516, 3.42199993133545, 3.73399996757507, 4.04500007629395, 4.35599994659424,
-      4.66699981689453, 4.97800016403198, 5.28900003433228, 5.59999990463257, 5.98899984359741,
-      6.45599985122681, 7,
-    ],
+    atk_scale_1: [0.178, 0.196, 0.213, 0.231, 0.249, 0.267, 0.284, 0.302, 0.32, 0.342, 0.369, 0.4],
+    atk_scale_2: [1.778, 1.956, 2.134, 2.311, 2.489, 2.667, 2.845, 3.023, 3.2, 3.423, 3.689, 4],
+    atk_scale_3: [3.111, 3.422, 3.734, 4.045, 4.356, 4.667, 4.978, 5.289, 5.6, 5.989, 6.456, 7],
     dmg_up_water_ult: 0,
     duration: 12,
     duration_spellvulnerable: 0,
@@ -1360,11 +1266,7 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
     tornado_atk_scale01: 0,
     tornado_atk_scale02: 0,
     tornado_atk_scale03: 0,
-    display_atk_scale: [
-      1.41999995708466, 1.55999994277954, 1.71000003814697, 1.85000002384186, 1.99000000953674,
-      2.13000011444092, 2.27999997138977, 2.42000007629395, 2.55999994277954, 2.74000000953674,
-      2.95000004768372, 3.20000004768372,
-    ],
+    display_atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
     display_duration: 4,
   },
 );
@@ -1416,10 +1318,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                     key: 'combowater_cnt',
                     operation: 'assign',
                     value: { kind: 'constant', value: 1 },
-                  }),
-                  step('mergeContextTargets', {
-                    saveToContextKey: 'tar01',
-                    sources: [{ kind: 'target', target: 'enemy' }],
                   }),
                   branch(
                     {
@@ -1475,7 +1373,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                                 'abilityentity_chr_0027_tangtang_comboskill_water',
                                               childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                               inheritActionBlackboard: true,
-                                              inheritSourceSkillCastInfo: true,
                                               dieWhenSourceDies: false,
                                               saveToContextKey: 'water_abilityentity02',
                                             }),
@@ -1569,7 +1466,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                                 'abilityentity_chr_0027_tangtang_comboskill_water',
                                               childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                               inheritActionBlackboard: true,
-                                              inheritSourceSkillCastInfo: true,
                                               dieWhenSourceDies: false,
                                               saveToContextKey: 'water_abilityentity01',
                                             }),
@@ -1639,7 +1535,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                                 'abilityentity_chr_0027_tangtang_comboskill_water',
                                               childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                               inheritActionBlackboard: true,
-                                              inheritSourceSkillCastInfo: true,
                                               dieWhenSourceDies: false,
                                               saveToContextKey: 'water_abilityentity02',
                                             }),
@@ -1733,7 +1628,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                                 'abilityentity_chr_0027_tangtang_comboskill_water',
                                               childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                               inheritActionBlackboard: true,
-                                              inheritSourceSkillCastInfo: true,
                                               dieWhenSourceDies: false,
                                               saveToContextKey: 'water_abilityentity01',
                                             }),
@@ -1813,7 +1707,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                                 'abilityentity_chr_0027_tangtang_comboskill_water',
                                               childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                               inheritActionBlackboard: true,
-                                              inheritSourceSkillCastInfo: true,
                                               dieWhenSourceDies: false,
                                               saveToContextKey: 'water_abilityentity02',
                                             }),
@@ -1907,7 +1800,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                                 'abilityentity_chr_0027_tangtang_comboskill_water',
                                               childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                               inheritActionBlackboard: true,
-                                              inheritSourceSkillCastInfo: true,
                                               dieWhenSourceDies: false,
                                               saveToContextKey: 'water_abilityentity01',
                                             }),
@@ -1977,7 +1869,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                                 'abilityentity_chr_0027_tangtang_comboskill_water',
                                               childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                               inheritActionBlackboard: true,
-                                              inheritSourceSkillCastInfo: true,
                                               dieWhenSourceDies: false,
                                               saveToContextKey: 'water_abilityentity02',
                                             }),
@@ -2071,7 +1962,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                                 'abilityentity_chr_0027_tangtang_comboskill_water',
                                               childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                               inheritActionBlackboard: true,
-                                              inheritSourceSkillCastInfo: true,
                                               dieWhenSourceDies: false,
                                               saveToContextKey: 'water_abilityentity01',
                                             }),
@@ -2147,7 +2037,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                         'abilityentity_chr_0027_tangtang_comboskill_water',
                                       childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                       inheritActionBlackboard: true,
-                                      inheritSourceSkillCastInfo: true,
                                       dieWhenSourceDies: false,
                                       saveToContextKey: 'water_abilityentity02',
                                     }),
@@ -2241,7 +2130,6 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                                         'abilityentity_chr_0027_tangtang_comboskill_water',
                                       childSkillId: 'chr_0027_tangtang_combo_skill_water',
                                       inheritActionBlackboard: true,
-                                      inheritSourceSkillCastInfo: true,
                                       dieWhenSourceDies: false,
                                       saveToContextKey: 'water_abilityentity01',
                                     }),
@@ -2325,7 +2213,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.100000001490116 },
+                durationSeconds: { kind: 'constant', value: 0.1 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_normal_attack' },
@@ -2342,7 +2230,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.867000043392181 },
+            durationSeconds: { kind: 'constant', value: 0.867000043 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2358,7 +2246,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.150000005960464 },
+            durationSeconds: { kind: 'constant', value: 0.15 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2377,11 +2265,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [
-      1.06700003147125, 1.17299997806549, 1.27999997138977, 1.38699996471405, 1.49399995803833,
-      1.60000002384186, 1.70700001716614, 1.81400001049042, 1.91999995708466, 2.05399990081787,
-      2.21399998664856, 2.40000009536743,
-    ],
+    atk_scale: [1.067, 1.173, 1.28, 1.387, 1.494, 1.6, 1.707, 1.814, 1.92, 2.054, 2.214, 2.4],
     cam_angle2: 0,
     cam_duration2: 0,
     combowater_cnt: 0,
@@ -2583,14 +2467,14 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'ratio_speedreduction',
           operation: 'assign',
-          value: [0.200000002980232, 0.400000005960464],
+          value: [0.2, 0.4],
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'ratio_speed',
           operation: 'assign',
-          value: [0.100000001490116, 0.200000002980232],
+          value: [0.1, 0.2],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2631,14 +2515,14 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'dmg_up_water_ult',
           operation: 'assign',
-          value: [0.400000005960464, 0.600000023841858],
+          value: [0.4, 0.6],
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'dmg_up_water_ult',
           operation: 'assign',
-          value: [0.400000005960464, 0.600000023841858],
+          value: [0.4, 0.6],
         },
       ],
     },
@@ -2668,7 +2552,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
       ],
     },
@@ -2696,42 +2580,42 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'rate_spellvulnerable',
           operation: 'add',
-          value: 0.0500000007450581,
+          value: 0.05,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
           blackboardKey: 'rate_spellvulnerable_02',
           operation: 'add',
-          value: 0.0500000007450581,
+          value: 0.05,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'rate_spellvulnerable',
           operation: 'add',
-          value: 0.0500000007450581,
+          value: 0.05,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'rate_spellvulnerable_02',
           operation: 'add',
-          value: 0.0500000007450581,
+          value: 0.05,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
           blackboardKey: 'atk_scale_1',
           operation: 'multiply',
-          value: 1.10000002384186,
+          value: 1.1,
         },
         {
           kind: 'patchPassiveBlackboard',
           passiveSkillKey: 'chr_0027_tangtang_passive_0',
           blackboardKey: 'normalskill_atk_scale01',
           operation: 'multiply',
-          value: 1.10000002384186,
+          value: 1.1,
         },
       ],
     },
@@ -2743,7 +2627,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -2770,35 +2654,35 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale_1',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale_2',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'atk_scale_3',
           operation: 'multiply',
-          value: 1.14999997615814,
+          value: 1.15,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
           blackboardKey: 'dmg_up_water_ult',
           operation: 'add',
-          value: 0.800000011920929,
+          value: 0.8,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
           blackboardKey: 'dmg_up_water_ult',
           operation: 'add',
-          value: 0.800000011920929,
+          value: 0.8,
         },
       ],
     },
@@ -2818,21 +2702,15 @@ export default {
       blackboard: {
         duration_spellvulnerable: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
         normalskill_atk_scale01: [
-          0.111000001430511, 0.122000001370907, 0.133000001311302, 0.144999995827675,
-          0.156000003218651, 0.166999995708466, 0.178000003099442, 0.188999995589256,
-          0.200000002980232, 0.214000001549721, 0.231000006198883, 0.25,
+          0.111, 0.122, 0.133, 0.145, 0.156, 0.167, 0.178, 0.189, 0.2, 0.214, 0.231, 0.25,
         ],
         normalskill_atk_scale02: 0,
         normalskill_atk_scale03: 0,
         rate_spellvulnerable: [
-          0.0299999993294477, 0.0299999993294477, 0.0299999993294477, 0.0350000001490116,
-          0.0350000001490116, 0.0350000001490116, 0.0399999991059303, 0.0399999991059303,
-          0.0399999991059303, 0.0450000017881393, 0.0450000017881393, 0.0500000007450581,
+          0.03, 0.03, 0.03, 0.035, 0.035, 0.035, 0.04, 0.04, 0.04, 0.045, 0.045, 0.05,
         ],
         rate_spellvulnerable_02: [
-          0.0599999986588955, 0.0599999986588955, 0.0599999986588955, 0.0700000002980232,
-          0.0700000002980232, 0.0700000002980232, 0.0799999982118607, 0.0799999982118607,
-          0.0799999982118607, 0.0900000035762787, 0.0900000035762787, 0.100000001490116,
+          0.06, 0.06, 0.06, 0.07, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.1,
         ],
       },
       enableSequence: sequence(
@@ -2861,7 +2739,7 @@ export default {
     buff_chr_0027_tangtang_comboskill_spelllnfliction: {
       stackingType: 'unlimited',
       priority: 0,
-      maxStackCount: 1,
+      maxStackCount: { blackboardKey: 'hit_spelllnflictionmax' },
       durationSeconds: { blackboardKey: 'hit_spellduration' },
       applyTags: [],
       extendTags: [],
@@ -2870,7 +2748,7 @@ export default {
     },
     buff_chr_0027_tangtang_comboskill_waterbuff: {
       stackingType: 'highPriority',
-      priority: 0,
+      priority: { blackboardKey: 'ratio_speed' },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration_waterbuff' },
       presentation: {
@@ -2879,7 +2757,6 @@ export default {
         iconPath: '/icons/icon_battle_tangtang_speedup.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -2926,7 +2803,7 @@ export default {
     },
     buff_chr_0027_tangtang_comboskill_waterbuff_outaura: {
       stackingType: 'highPriority',
-      priority: 0,
+      priority: { blackboardKey: 'ratio_speed' },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration_talent1buff' },
       presentation: {
@@ -2935,7 +2812,6 @@ export default {
         iconPath: '/icons/icon_battle_tangtang_speedup.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3069,7 +2945,7 @@ export default {
     buff_chr_0027_tangtang_normalskill_spellvulnerable: {
       stackingType: 'highPriority',
       priority: { blackboardKey: 'rate_spellvulnerable' },
-      maxStackCount: 1,
+      maxStackCount: { blackboardKey: 'cntmax' },
       durationSeconds: { blackboardKey: 'duration_spellvulnerable' },
       applyTags: [],
       extendTags: [],
@@ -3243,7 +3119,6 @@ export default {
         iconPath: '/icons/icon_battle_tangtang_ultskilldebuff.webp',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3310,7 +3185,6 @@ export default {
         iconPath: '/icons/icon_battle_tangtang_ultskilldebuff.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: false,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3419,7 +3293,6 @@ export default {
                       abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_move',
                       childSkillId: 'chr_0027_tangtang_ult_skill_abilityentitymove',
                       inheritActionBlackboard: true,
-                      inheritSourceSkillCastInfo: true,
                       dieWhenSourceDies: false,
                       target: 'caster',
                       saveToContextKey: 'ultskill_watermove',
@@ -3451,7 +3324,6 @@ export default {
                       abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_move',
                       childSkillId: 'chr_0027_tangtang_ult_skill_abilityentitymove',
                       inheritActionBlackboard: true,
-                      inheritSourceSkillCastInfo: true,
                       dieWhenSourceDies: false,
                       target: 'caster',
                       saveToContextKey: 'ultskill_watermove',
@@ -3528,7 +3400,7 @@ export default {
     buff_chr_0027_tangtang_water: {
       stackingType: 'stack',
       priority: 0,
-      maxStackCount: 1,
+      maxStackCount: { blackboardKey: 'water_stack' },
       durationSeconds: { blackboardKey: 'duration_water' },
       applyTags: [],
       extendTags: [],
@@ -3537,7 +3409,7 @@ export default {
     },
     buff_chr_0027_tangtang_water_icon: {
       stackingType: 'highPriority',
-      priority: 0,
+      priority: { blackboardKey: 'rate', negate: true },
       maxStackCount: 1,
       durationSeconds: { blackboardKey: 'duration' },
       triggerIntervalSeconds: 0,
@@ -3549,7 +3421,6 @@ export default {
         iconPath: '/icons/icon_battle_affix_speedup.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3636,7 +3507,7 @@ export default {
       stackingType: 'unique',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 0.100000001490116,
+      durationSeconds: 0.1,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -3646,7 +3517,7 @@ export default {
       stackingType: 'unique',
       priority: 0,
       maxStackCount: 1,
-      durationSeconds: 0.100000001490116,
+      durationSeconds: 0.1,
       applyTags: [],
       extendTags: [],
       blackboard: {},
@@ -3702,7 +3573,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3710,7 +3580,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_02',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3718,7 +3587,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_03',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3733,7 +3601,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3741,7 +3608,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02_02',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3759,7 +3625,6 @@ export default {
                       abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill',
                       childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit',
                       inheritActionBlackboard: true,
-                      inheritSourceSkillCastInfo: true,
                       dieWhenSourceDies: false,
                       target: 'currentAbilityEntity',
                     }),
@@ -3827,7 +3692,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3835,7 +3699,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_02',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3843,7 +3706,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_03_03',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_2',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3858,7 +3720,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3866,7 +3727,6 @@ export default {
                           abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill_02_02',
                           childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit_1',
                           inheritActionBlackboard: true,
-                          inheritSourceSkillCastInfo: true,
                           dieWhenSourceDies: false,
                           target: 'currentAbilityEntity',
                         }),
@@ -3884,7 +3744,6 @@ export default {
                       abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill',
                       childSkillId: 'chr_0027_tangtang_normal_skill_water_projhit',
                       inheritActionBlackboard: true,
-                      inheritSourceSkillCastInfo: true,
                       dieWhenSourceDies: false,
                       target: 'currentAbilityEntity',
                     }),
@@ -3949,6 +3808,382 @@ export default {
                 saveToContextKey: 'tangtang',
                 abilityEntityIds: ['abilityentity_chr_0027_tangtang_normal_skill_move'],
               }),
+              branch(
+                {
+                  kind: 'abilityEntityTimedMarkerPresent',
+                  markerId: 'tangtang_waterabilityentity01',
+                },
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[0]._sequenceActionData.actionData[2].succeedActions.actionData[0]:projectile_chr_0027_tangtang_waterwake01',
+                    {},
+                    true,
+                    sequence(
+                      withActionBlackboardScope(
+                        'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[0]._sequenceActionData.actionData[2].succeedActions.actionData[0]:chr_0027_tangtang_normal_skill_water_projhit_damage',
+                        {
+                          atb: 0,
+                          atk_scale_1: 0,
+                          atk_scale_2: 0,
+                          dmg_up_water_ult: 0,
+                          duration: 10,
+                          hit_cnt: 5,
+                          hit_cntmax: 20,
+                          hit_duration: 3,
+                          hit_spelllnflictionmax_01: 1,
+                          poise_tornado: 0,
+                          talent2_ultskill: 0,
+                          tornado_atk_scale01: 0,
+                          tornado_atk_scale02: 0,
+                          tornado_atk_scale03: 0,
+                        },
+                        true,
+                        sequence(
+                          branch(
+                            {
+                              kind: 'buffIdStackCompare',
+                              target: 'enemy',
+                              buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                              operator: 'less',
+                              value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                              sameSourceSkillCast: true,
+                            },
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'buffIdStackCompare',
+                                  target: 'enemy',
+                                  buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                                  operator: 'greaterOrEqual',
+                                  value: { kind: 'blackboard', key: 'hit_cnt' },
+                                  sameSourceSkillCast: true,
+                                },
+                                sequence(
+                                  step('applyElementalInfliction', {
+                                    element: 'cryo',
+                                    isExtra: false,
+                                  }),
+                                  step('applyBuff', {
+                                    buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                    target: 'enemy',
+                                    inheritSourceSkillCastInfo: true,
+                                  }),
+                                ),
+                                undefined,
+                                { alwaysNext: true },
+                              ),
+                            ),
+                            undefined,
+                            { alwaysNext: true },
+                          ),
+                          branch(
+                            {
+                              kind: 'actionValueCompare',
+                              left: { kind: 'blackboard', key: 'talent2_ultskill' },
+                              operator: 'greaterOrEqual',
+                              right: { kind: 'constant', value: 1 },
+                            },
+                            sequence(
+                              step(
+                                'dealDamage',
+                                {
+                                  damageType: 'cryo',
+                                  attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                                  takeAttackSnapshot: true,
+                                  tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
+                                  instantDamageScaleModifiers: [
+                                    {
+                                      side: 'attacker',
+                                      zone: 'normal',
+                                      addition: { kind: 'blackboard', key: 'dmg_up_water_ult' },
+                                    },
+                                  ],
+                                  stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                },
+                                'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/0/sequence/steps/1/whenTrue/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0',
+                              ),
+                            ),
+                            sequence(
+                              step(
+                                'dealDamage',
+                                {
+                                  damageType: 'cryo',
+                                  attackScale: { kind: 'blackboard', key: 'tornado_atk_scale01' },
+                                  takeAttackSnapshot: true,
+                                  tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
+                                  stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                },
+                                'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/0/sequence/steps/1/whenTrue/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0',
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                        undefined,
+                        { lifetime: 'execution', alwaysNext: true },
+                      ),
+                    ),
+                    undefined,
+                    { lifetime: 'execution' },
+                  ),
+                ),
+                sequence(
+                  branch(
+                    {
+                      kind: 'abilityEntityTimedMarkerPresent',
+                      markerId: 'tangtang_waterabilityentity02',
+                    },
+                    sequence(
+                      withActionBlackboardScope(
+                        'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[0]._sequenceActionData.actionData[2].failActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0027_tangtang_waterwake01',
+                        {},
+                        true,
+                        sequence(
+                          withActionBlackboardScope(
+                            'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[0]._sequenceActionData.actionData[2].failActions.actionData[0].succeedActions.actionData[0]:chr_0027_tangtang_normal_skill_water_projhit_damage',
+                            {
+                              atb: 0,
+                              atk_scale_1: 0,
+                              atk_scale_2: 0,
+                              dmg_up_water_ult: 0,
+                              duration: 10,
+                              hit_cnt: 5,
+                              hit_cntmax: 20,
+                              hit_duration: 3,
+                              hit_spelllnflictionmax_01: 1,
+                              poise_tornado: 0,
+                              talent2_ultskill: 0,
+                              tornado_atk_scale01: 0,
+                              tornado_atk_scale02: 0,
+                              tornado_atk_scale03: 0,
+                            },
+                            true,
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'buffIdStackCompare',
+                                  target: 'enemy',
+                                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                                  operator: 'less',
+                                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                                  sameSourceSkillCast: true,
+                                },
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'buffIdStackCompare',
+                                      target: 'enemy',
+                                      buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                                      operator: 'greaterOrEqual',
+                                      value: { kind: 'blackboard', key: 'hit_cnt' },
+                                      sameSourceSkillCast: true,
+                                    },
+                                    sequence(
+                                      step('applyElementalInfliction', {
+                                        element: 'cryo',
+                                        isExtra: false,
+                                      }),
+                                      step('applyBuff', {
+                                        buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                        target: 'enemy',
+                                        inheritSourceSkillCastInfo: true,
+                                      }),
+                                    ),
+                                    undefined,
+                                    { alwaysNext: true },
+                                  ),
+                                ),
+                                undefined,
+                                { alwaysNext: true },
+                              ),
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'talent2_ultskill' },
+                                  operator: 'greaterOrEqual',
+                                  right: { kind: 'constant', value: 1 },
+                                },
+                                sequence(
+                                  step(
+                                    'dealDamage',
+                                    {
+                                      damageType: 'cryo',
+                                      attackScale: {
+                                        kind: 'blackboard',
+                                        key: 'tornado_atk_scale01',
+                                      },
+                                      takeAttackSnapshot: true,
+                                      tags: ['normalSkill'],
+                                      features: ['canBreakWeakness'],
+                                      instantDamageScaleModifiers: [
+                                        {
+                                          side: 'attacker',
+                                          zone: 'normal',
+                                          addition: { kind: 'blackboard', key: 'dmg_up_water_ult' },
+                                        },
+                                      ],
+                                      stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                    },
+                                    'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/0/sequence/steps/1/whenFalse/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0',
+                                  ),
+                                ),
+                                sequence(
+                                  step(
+                                    'dealDamage',
+                                    {
+                                      damageType: 'cryo',
+                                      attackScale: {
+                                        kind: 'blackboard',
+                                        key: 'tornado_atk_scale01',
+                                      },
+                                      takeAttackSnapshot: true,
+                                      tags: ['normalSkill'],
+                                      features: ['canBreakWeakness'],
+                                      stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                    },
+                                    'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/0/sequence/steps/1/whenFalse/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0',
+                                  ),
+                                ),
+                                { alwaysNext: true },
+                              ),
+                            ),
+                            undefined,
+                            { lifetime: 'execution', alwaysNext: true },
+                          ),
+                        ),
+                        undefined,
+                        { lifetime: 'execution' },
+                      ),
+                    ),
+                    sequence(
+                      withActionBlackboardScope(
+                        'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[0]._sequenceActionData.actionData[2].failActions.actionData[0].failActions.actionData[0]:projectile_chr_0027_tangtang_waterwake01',
+                        {},
+                        true,
+                        sequence(
+                          withActionBlackboardScope(
+                            'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[0]._sequenceActionData.actionData[2].failActions.actionData[0].failActions.actionData[0]:chr_0027_tangtang_normal_skill_water_projhit_damage',
+                            {
+                              atb: 0,
+                              atk_scale_1: 0,
+                              atk_scale_2: 0,
+                              dmg_up_water_ult: 0,
+                              duration: 10,
+                              hit_cnt: 5,
+                              hit_cntmax: 20,
+                              hit_duration: 3,
+                              hit_spelllnflictionmax_01: 1,
+                              poise_tornado: 0,
+                              talent2_ultskill: 0,
+                              tornado_atk_scale01: 0,
+                              tornado_atk_scale02: 0,
+                              tornado_atk_scale03: 0,
+                            },
+                            true,
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'buffIdStackCompare',
+                                  target: 'enemy',
+                                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                                  operator: 'less',
+                                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                                  sameSourceSkillCast: true,
+                                },
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'buffIdStackCompare',
+                                      target: 'enemy',
+                                      buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                                      operator: 'greaterOrEqual',
+                                      value: { kind: 'blackboard', key: 'hit_cnt' },
+                                      sameSourceSkillCast: true,
+                                    },
+                                    sequence(
+                                      step('applyElementalInfliction', {
+                                        element: 'cryo',
+                                        isExtra: false,
+                                      }),
+                                      step('applyBuff', {
+                                        buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                        target: 'enemy',
+                                        inheritSourceSkillCastInfo: true,
+                                      }),
+                                    ),
+                                    undefined,
+                                    { alwaysNext: true },
+                                  ),
+                                ),
+                                undefined,
+                                { alwaysNext: true },
+                              ),
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'talent2_ultskill' },
+                                  operator: 'greaterOrEqual',
+                                  right: { kind: 'constant', value: 1 },
+                                },
+                                sequence(
+                                  step(
+                                    'dealDamage',
+                                    {
+                                      damageType: 'cryo',
+                                      attackScale: {
+                                        kind: 'blackboard',
+                                        key: 'tornado_atk_scale01',
+                                      },
+                                      takeAttackSnapshot: true,
+                                      tags: ['normalSkill'],
+                                      features: ['canBreakWeakness'],
+                                      instantDamageScaleModifiers: [
+                                        {
+                                          side: 'attacker',
+                                          zone: 'normal',
+                                          addition: { kind: 'blackboard', key: 'dmg_up_water_ult' },
+                                        },
+                                      ],
+                                      stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                    },
+                                    'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/0/sequence/steps/1/whenFalse/steps/0/whenFalse/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0',
+                                  ),
+                                ),
+                                sequence(
+                                  step(
+                                    'dealDamage',
+                                    {
+                                      damageType: 'cryo',
+                                      attackScale: {
+                                        kind: 'blackboard',
+                                        key: 'tornado_atk_scale01',
+                                      },
+                                      takeAttackSnapshot: true,
+                                      tags: ['normalSkill'],
+                                      features: ['canBreakWeakness'],
+                                      stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                    },
+                                    'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/0/sequence/steps/1/whenFalse/steps/0/whenFalse/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0',
+                                  ),
+                                ),
+                                { alwaysNext: true },
+                              ),
+                            ),
+                            undefined,
+                            { lifetime: 'execution', alwaysNext: true },
+                          ),
+                        ),
+                        undefined,
+                        { lifetime: 'execution' },
+                      ),
+                    ),
+                    { alwaysNext: true },
+                  ),
+                ),
+                { alwaysNext: true },
+              ),
               step('finishBuffsById', {
                 target: 'caster',
                 buffIds: ['buff_chr_0027_tangtang_water'],
@@ -3995,6 +4230,406 @@ export default {
                   ],
                 },
                 sequence(
+                  branch(
+                    {
+                      kind: 'abilityEntityTimedMarkerPresent',
+                      markerId: 'tangtang_waterabilityentity01',
+                    },
+                    sequence(
+                      withActionBlackboardScope(
+                        'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[1]._sequenceActionData.actionData[2].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0027_tangtang_waterwake01',
+                        {},
+                        true,
+                        sequence(
+                          withActionBlackboardScope(
+                            'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[1]._sequenceActionData.actionData[2].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0027_tangtang_normal_skill_water_projhit_damage',
+                            {
+                              atb: 0,
+                              atk_scale_1: 0,
+                              atk_scale_2: 0,
+                              dmg_up_water_ult: 0,
+                              duration: 10,
+                              hit_cnt: 5,
+                              hit_cntmax: 20,
+                              hit_duration: 3,
+                              hit_spelllnflictionmax_01: 1,
+                              poise_tornado: 0,
+                              talent2_ultskill: 0,
+                              tornado_atk_scale01: 0,
+                              tornado_atk_scale02: 0,
+                              tornado_atk_scale03: 0,
+                            },
+                            true,
+                            sequence(
+                              branch(
+                                {
+                                  kind: 'buffIdStackCompare',
+                                  target: 'enemy',
+                                  buffIds: ['buff_chr_0027_tangtang_comboskill_spelllnfliction'],
+                                  operator: 'less',
+                                  value: { kind: 'blackboard', key: 'hit_spelllnflictionmax_01' },
+                                  sameSourceSkillCast: true,
+                                },
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'buffIdStackCompare',
+                                      target: 'enemy',
+                                      buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                                      operator: 'greaterOrEqual',
+                                      value: { kind: 'blackboard', key: 'hit_cnt' },
+                                      sameSourceSkillCast: true,
+                                    },
+                                    sequence(
+                                      step('applyElementalInfliction', {
+                                        element: 'cryo',
+                                        isExtra: false,
+                                      }),
+                                      step('applyBuff', {
+                                        buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                        target: 'enemy',
+                                        inheritSourceSkillCastInfo: true,
+                                      }),
+                                    ),
+                                    undefined,
+                                    { alwaysNext: true },
+                                  ),
+                                ),
+                                undefined,
+                                { alwaysNext: true },
+                              ),
+                              branch(
+                                {
+                                  kind: 'actionValueCompare',
+                                  left: { kind: 'blackboard', key: 'talent2_ultskill' },
+                                  operator: 'greaterOrEqual',
+                                  right: { kind: 'constant', value: 1 },
+                                },
+                                sequence(
+                                  step(
+                                    'dealDamage',
+                                    {
+                                      damageType: 'cryo',
+                                      attackScale: {
+                                        kind: 'blackboard',
+                                        key: 'tornado_atk_scale01',
+                                      },
+                                      takeAttackSnapshot: true,
+                                      tags: ['normalSkill'],
+                                      features: ['canBreakWeakness'],
+                                      instantDamageScaleModifiers: [
+                                        {
+                                          side: 'attacker',
+                                          zone: 'normal',
+                                          addition: { kind: 'blackboard', key: 'dmg_up_water_ult' },
+                                        },
+                                      ],
+                                      stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                    },
+                                    'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/1/sequence/steps/1/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0',
+                                  ),
+                                ),
+                                sequence(
+                                  step(
+                                    'dealDamage',
+                                    {
+                                      damageType: 'cryo',
+                                      attackScale: {
+                                        kind: 'blackboard',
+                                        key: 'tornado_atk_scale01',
+                                      },
+                                      takeAttackSnapshot: true,
+                                      tags: ['normalSkill'],
+                                      features: ['canBreakWeakness'],
+                                      stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                    },
+                                    'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/1/sequence/steps/1/whenTrue/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0',
+                                  ),
+                                ),
+                                { alwaysNext: true },
+                              ),
+                            ),
+                            undefined,
+                            { lifetime: 'execution', alwaysNext: true },
+                          ),
+                        ),
+                        undefined,
+                        { lifetime: 'execution' },
+                      ),
+                    ),
+                    sequence(
+                      branch(
+                        {
+                          kind: 'abilityEntityTimedMarkerPresent',
+                          markerId: 'tangtang_waterabilityentity02',
+                        },
+                        sequence(
+                          withActionBlackboardScope(
+                            'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[1]._sequenceActionData.actionData[2].succeedActions.actionData[0].failActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0027_tangtang_waterwake01',
+                            {},
+                            true,
+                            sequence(
+                              withActionBlackboardScope(
+                                'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[1]._sequenceActionData.actionData[2].succeedActions.actionData[0].failActions.actionData[0].succeedActions.actionData[0]:chr_0027_tangtang_normal_skill_water_projhit_damage',
+                                {
+                                  atb: 0,
+                                  atk_scale_1: 0,
+                                  atk_scale_2: 0,
+                                  dmg_up_water_ult: 0,
+                                  duration: 10,
+                                  hit_cnt: 5,
+                                  hit_cntmax: 20,
+                                  hit_duration: 3,
+                                  hit_spelllnflictionmax_01: 1,
+                                  poise_tornado: 0,
+                                  talent2_ultskill: 0,
+                                  tornado_atk_scale01: 0,
+                                  tornado_atk_scale02: 0,
+                                  tornado_atk_scale03: 0,
+                                },
+                                true,
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'buffIdStackCompare',
+                                      target: 'enemy',
+                                      buffIds: [
+                                        'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                      ],
+                                      operator: 'less',
+                                      value: {
+                                        kind: 'blackboard',
+                                        key: 'hit_spelllnflictionmax_01',
+                                      },
+                                      sameSourceSkillCast: true,
+                                    },
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'buffIdStackCompare',
+                                          target: 'enemy',
+                                          buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                                          operator: 'greaterOrEqual',
+                                          value: { kind: 'blackboard', key: 'hit_cnt' },
+                                          sameSourceSkillCast: true,
+                                        },
+                                        sequence(
+                                          step('applyElementalInfliction', {
+                                            element: 'cryo',
+                                            isExtra: false,
+                                          }),
+                                          step('applyBuff', {
+                                            buffId:
+                                              'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                            target: 'enemy',
+                                            inheritSourceSkillCastInfo: true,
+                                          }),
+                                        ),
+                                        undefined,
+                                        { alwaysNext: true },
+                                      ),
+                                    ),
+                                    undefined,
+                                    { alwaysNext: true },
+                                  ),
+                                  branch(
+                                    {
+                                      kind: 'actionValueCompare',
+                                      left: { kind: 'blackboard', key: 'talent2_ultskill' },
+                                      operator: 'greaterOrEqual',
+                                      right: { kind: 'constant', value: 1 },
+                                    },
+                                    sequence(
+                                      step(
+                                        'dealDamage',
+                                        {
+                                          damageType: 'cryo',
+                                          attackScale: {
+                                            kind: 'blackboard',
+                                            key: 'tornado_atk_scale01',
+                                          },
+                                          takeAttackSnapshot: true,
+                                          tags: ['normalSkill'],
+                                          features: ['canBreakWeakness'],
+                                          instantDamageScaleModifiers: [
+                                            {
+                                              side: 'attacker',
+                                              zone: 'normal',
+                                              addition: {
+                                                kind: 'blackboard',
+                                                key: 'dmg_up_water_ult',
+                                              },
+                                            },
+                                          ],
+                                          stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                        },
+                                        'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/1/sequence/steps/1/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0',
+                                      ),
+                                    ),
+                                    sequence(
+                                      step(
+                                        'dealDamage',
+                                        {
+                                          damageType: 'cryo',
+                                          attackScale: {
+                                            kind: 'blackboard',
+                                            key: 'tornado_atk_scale01',
+                                          },
+                                          takeAttackSnapshot: true,
+                                          tags: ['normalSkill'],
+                                          features: ['canBreakWeakness'],
+                                          stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                        },
+                                        'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/1/sequence/steps/1/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0',
+                                      ),
+                                    ),
+                                    { alwaysNext: true },
+                                  ),
+                                ),
+                                undefined,
+                                { lifetime: 'execution', alwaysNext: true },
+                              ),
+                            ),
+                            undefined,
+                            { lifetime: 'execution' },
+                          ),
+                        ),
+                        sequence(
+                          withActionBlackboardScope(
+                            'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[1]._sequenceActionData.actionData[2].succeedActions.actionData[0].failActions.actionData[0].failActions.actionData[0]:projectile_chr_0027_tangtang_waterwake01',
+                            {},
+                            true,
+                            sequence(
+                              withActionBlackboardScope(
+                                'SkillData.chr_0027_tangtang_combo_skill_water.actionGroupData.timelineActions[1]._sequenceActionData.actionData[2].succeedActions.actionData[0].failActions.actionData[0].failActions.actionData[0]:chr_0027_tangtang_normal_skill_water_projhit_damage',
+                                {
+                                  atb: 0,
+                                  atk_scale_1: 0,
+                                  atk_scale_2: 0,
+                                  dmg_up_water_ult: 0,
+                                  duration: 10,
+                                  hit_cnt: 5,
+                                  hit_cntmax: 20,
+                                  hit_duration: 3,
+                                  hit_spelllnflictionmax_01: 1,
+                                  poise_tornado: 0,
+                                  talent2_ultskill: 0,
+                                  tornado_atk_scale01: 0,
+                                  tornado_atk_scale02: 0,
+                                  tornado_atk_scale03: 0,
+                                },
+                                true,
+                                sequence(
+                                  branch(
+                                    {
+                                      kind: 'buffIdStackCompare',
+                                      target: 'enemy',
+                                      buffIds: [
+                                        'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                      ],
+                                      operator: 'less',
+                                      value: {
+                                        kind: 'blackboard',
+                                        key: 'hit_spelllnflictionmax_01',
+                                      },
+                                      sameSourceSkillCast: true,
+                                    },
+                                    sequence(
+                                      branch(
+                                        {
+                                          kind: 'buffIdStackCompare',
+                                          target: 'enemy',
+                                          buffIds: ['buff_chr_0027_tangtang_comboskill_hit'],
+                                          operator: 'greaterOrEqual',
+                                          value: { kind: 'blackboard', key: 'hit_cnt' },
+                                          sameSourceSkillCast: true,
+                                        },
+                                        sequence(
+                                          step('applyElementalInfliction', {
+                                            element: 'cryo',
+                                            isExtra: false,
+                                          }),
+                                          step('applyBuff', {
+                                            buffId:
+                                              'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                                            target: 'enemy',
+                                            inheritSourceSkillCastInfo: true,
+                                          }),
+                                        ),
+                                        undefined,
+                                        { alwaysNext: true },
+                                      ),
+                                    ),
+                                    undefined,
+                                    { alwaysNext: true },
+                                  ),
+                                  branch(
+                                    {
+                                      kind: 'actionValueCompare',
+                                      left: { kind: 'blackboard', key: 'talent2_ultskill' },
+                                      operator: 'greaterOrEqual',
+                                      right: { kind: 'constant', value: 1 },
+                                    },
+                                    sequence(
+                                      step(
+                                        'dealDamage',
+                                        {
+                                          damageType: 'cryo',
+                                          attackScale: {
+                                            kind: 'blackboard',
+                                            key: 'tornado_atk_scale01',
+                                          },
+                                          takeAttackSnapshot: true,
+                                          tags: ['normalSkill'],
+                                          features: ['canBreakWeakness'],
+                                          instantDamageScaleModifiers: [
+                                            {
+                                              side: 'attacker',
+                                              zone: 'normal',
+                                              addition: {
+                                                kind: 'blackboard',
+                                                key: 'dmg_up_water_ult',
+                                              },
+                                            },
+                                          ],
+                                          stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                        },
+                                        'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/1/sequence/steps/1/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0/body/steps/0/body/steps/1/whenTrue/steps/0',
+                                      ),
+                                    ),
+                                    sequence(
+                                      step(
+                                        'dealDamage',
+                                        {
+                                          damageType: 'cryo',
+                                          attackScale: {
+                                            kind: 'blackboard',
+                                            key: 'tornado_atk_scale01',
+                                          },
+                                          takeAttackSnapshot: true,
+                                          tags: ['normalSkill'],
+                                          features: ['canBreakWeakness'],
+                                          stagger: { kind: 'blackboard', key: 'poise_tornado' },
+                                        },
+                                        'abilityentity_chr_0027_tangtang_comboskill_water:chr_0027_tangtang_combo_skill_water:/childSkill/scheduledSequences/1/sequence/steps/1/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0/body/steps/0/body/steps/1/whenFalse/steps/0',
+                                      ),
+                                    ),
+                                    { alwaysNext: true },
+                                  ),
+                                ),
+                                undefined,
+                                { lifetime: 'execution', alwaysNext: true },
+                              ),
+                            ),
+                            undefined,
+                            { lifetime: 'execution' },
+                          ),
+                        ),
+                        { alwaysNext: true },
+                      ),
+                    ),
+                    { alwaysNext: true },
+                  ),
                   step('finishBuffsById', {
                     target: 'caster',
                     buffIds: ['buff_chr_0027_tangtang_water'],
@@ -4189,7 +4824,7 @@ export default {
                 {
                   nativeChanneling: {
                     executeEachFrame: true,
-                    triggerIntervalSeconds: 0.0329999998211861,
+                    triggerIntervalSeconds: 0.033,
                     maxCountPerTarget: 8,
                     targetTriggerIntervalSeconds: 0.5,
                   },
@@ -4233,7 +4868,7 @@ export default {
               ),
               step('startTimeDilation', {
                 scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.150000005960464 },
+                durationSeconds: { kind: 'constant', value: 0.15 },
                 slot: 'TimeDilation/Layer/Entity/HitStop',
                 priority: 10,
                 curve: { kind: 'named', key: 'char_hard_stop' },
@@ -4508,7 +5143,7 @@ export default {
                 {
                   nativeChanneling: {
                     executeEachFrame: false,
-                    triggerIntervalSeconds: 0.259999990463257,
+                    triggerIntervalSeconds: 0.26,
                     maxCountPerTarget: -1,
                     targetTriggerIntervalSeconds: -1,
                   },
@@ -4658,7 +5293,7 @@ export default {
                 {
                   nativeChanneling: {
                     executeEachFrame: false,
-                    triggerIntervalSeconds: 0.259999990463257,
+                    triggerIntervalSeconds: 0.26,
                     maxCountPerTarget: -1,
                     targetTriggerIntervalSeconds: -1,
                   },
@@ -4808,7 +5443,7 @@ export default {
                 {
                   nativeChanneling: {
                     executeEachFrame: false,
-                    triggerIntervalSeconds: 0.259999990463257,
+                    triggerIntervalSeconds: 0.26,
                     maxCountPerTarget: -1,
                     targetTriggerIntervalSeconds: -1,
                   },
@@ -4954,7 +5589,7 @@ export default {
                 {
                   nativeChanneling: {
                     executeEachFrame: false,
-                    triggerIntervalSeconds: 0.259999990463257,
+                    triggerIntervalSeconds: 0.26,
                     maxCountPerTarget: -1,
                     targetTriggerIntervalSeconds: -1,
                   },
@@ -5101,7 +5736,7 @@ export default {
                 {
                   nativeChanneling: {
                     executeEachFrame: false,
-                    triggerIntervalSeconds: 0.259999990463257,
+                    triggerIntervalSeconds: 0.26,
                     maxCountPerTarget: -1,
                     targetTriggerIntervalSeconds: -1,
                   },
@@ -5218,7 +5853,7 @@ export default {
                 {
                   nativeChanneling: {
                     executeEachFrame: false,
-                    triggerIntervalSeconds: 0.259999990463257,
+                    triggerIntervalSeconds: 0.26,
                     maxCountPerTarget: -1,
                     targetTriggerIntervalSeconds: -1,
                   },

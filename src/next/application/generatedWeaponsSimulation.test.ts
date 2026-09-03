@@ -296,10 +296,10 @@ describe('生成武器的正式模拟门禁', () => {
     },
   );
 
-  it('包含全部 79 把候选且不从旧适配定义补行为', () => {
-    expect(candidates).toHaveLength(79);
-    expect(new Set(candidates.map(weapon => weapon.slug)).size).toBe(79);
-    expect(repository.getOperators()).toHaveLength(31);
+  it('包含全部 77 把候选且不从旧适配定义补行为', () => {
+    expect(candidates).toHaveLength(77);
+    expect(new Set(candidates.map(weapon => weapon.slug)).size).toBe(77);
+    expect(repository.getOperators()).toHaveLength(30);
     expect(
       candidates.reduce(
         (count, weapon) =>
@@ -309,7 +309,7 @@ describe('生成武器的正式模拟门禁', () => {
               .length,
         0,
       ),
-    ).toBe(1034);
+    ).toBe(966);
   });
 
   it.each(candidates)('$slug 四类技能生产模拟全部成功，不设置失败豁免', async weapon => {
@@ -350,7 +350,7 @@ describe('生成武器的正式模拟门禁', () => {
         }
       }
     }
-    // 正式诀已安装模板初值与动态条件；1034 场全部必须成功，不再保留失败豁免。
+    // 正式诀已安装模板初值与动态条件；966 场全部必须成功，不再保留失败豁免。
     expect(failures).toEqual([]);
   });
 

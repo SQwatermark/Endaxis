@@ -41,7 +41,7 @@ describe('Next timeline simulation projection retention', () => {
   it('does not independently clear hit projections while the published snapshot is stale', () => {
     const hitProjection = projectionSource(
       'const castHitEffects = computed',
-      '\n/** 敌人效果面板数据',
+      '\n/** 敌人瞬时效果标记',
     );
 
     expect(hitProjection).toContain('const current = simulationRun.value');

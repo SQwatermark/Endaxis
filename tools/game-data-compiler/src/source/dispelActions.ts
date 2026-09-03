@@ -1,9 +1,4 @@
-import {
-  requireBoolean,
-  requireExactFields,
-  requireNativeEnum,
-  requireRecord,
-} from './primitives.ts';
+import { requireBoolean, requireExactFields, requireRecord, requireString } from './primitives.ts';
 import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
@@ -39,7 +34,7 @@ export function parseDispelActionSource(value: unknown, path: string): DispelAct
     kind: 'dispel',
     dispelSource: parseTargetReferenceSource(action.dispelSource, `${path}.dispelSource`),
     dispelTargets: parseTargetReferenceSource(action.dispelTargets, `${path}.dispelTargets`),
-    dispelLevel: requireNativeEnum(action.dispelLevel, ['Default'] as const, `${path}.dispelLevel`),
+    dispelLevel: requireString(action.dispelLevel, `${path}.dispelLevel`),
     checkTag: requireBoolean(action.checkTag, `${path}.checkTag`),
     tagQuery: parseTagQuerySource(action.tagQuery, `${path}.tagQuery`),
   };

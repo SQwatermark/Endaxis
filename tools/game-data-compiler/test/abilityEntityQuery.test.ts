@@ -10,7 +10,6 @@ import {
   parseTargetReferenceSource,
 } from '../src/index.ts';
 import { GameplayTagRegistry, gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';
-import type { PriorityFilterSource } from '../src/source/selectorComponents.ts';
 import {
   abilityEntityFixture,
   activeSkillWithOwnerSpawnedAbilityEntityQueryFixture,
@@ -276,9 +275,7 @@ describe('OwnerSpawned AbilityEntity 公共查询投影', () => {
         {
           ...base,
           postProcessorTypes: ['ShuffleTarget'],
-          shuffleTargets: [
-            { processTargetType: 'Targets', targetNumLimit: { value: -1, blackboardKey: null } },
-          ],
+          shuffleTargets: [{ targetNumLimit: { value: -1, blackboardKey: null } }],
         },
         catalog,
         registry,
@@ -346,12 +343,9 @@ function priorityFilterFixture(
   };
 }
 
-function priorityFilterSource(
-  filterType: PriorityFilterSource['filterType'],
-): PriorityFilterSource {
+function priorityFilterSource(filterType: string) {
   return {
     filterType,
-    processTargetType: 'Targets',
     onlyReserveMaxPriorityTargets: false,
     limitMaxNum: false,
     maxNum: 0,

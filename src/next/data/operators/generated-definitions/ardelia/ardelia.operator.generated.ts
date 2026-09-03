@@ -107,14 +107,7 @@ export const ardeliaBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.300000011920929, 0.330000013113022, 0.360000014305115, 0.389999985694885, 0.419999986886978,
-      0.449999988079071, 0.479999989271164, 0.509999990463257, 0.540000021457672, 0.579999983310699,
-      0.620000004768372, 0.680000007152557,
-    ],
-  },
+  { atb: 0, atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68] },
 );
 
 export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -274,16 +267,8 @@ export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.200000002980232, 0.219999998807907, 0.239999994635582, 0.259999990463257, 0.280000001192093,
-      0.300000011920929, 0.319999992847443, 0.340000003576279, 0.360000014305115, 0.389999985694885,
-      0.419999986886978, 0.449999988079071,
-    ],
-    atk_scale_display: [
-      0.400000005960464, 0.439999997615814, 0.479999989271164, 0.519999980926514, 0.560000002384186,
-      0.600000023841858, 0.639999985694885, 0.680000007152557, 0.720000028610229, 0.769999980926514,
-      0.829999983310699, 0.899999976158142,
-    ],
+    atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
+    atk_scale_display: [0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.77, 0.83, 0.9],
   },
 );
 
@@ -336,10 +321,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/0/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -413,10 +395,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/1/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -490,10 +469,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/2/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -567,10 +543,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/3/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -644,10 +617,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/4/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -721,10 +691,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/5/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -798,10 +765,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/6/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -875,10 +839,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/7/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -952,10 +913,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/8/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -1029,10 +987,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/9/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -1106,10 +1061,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/10/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -1183,10 +1135,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/11/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -1260,10 +1209,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/12/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -1337,10 +1283,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/13/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -1414,10 +1357,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0025_ardelia_attack3:/scheduledSequences/14/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'probability',
-                      probability: { kind: 'constant', value: 0.300000011920929 },
-                    },
+                    { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
                     sequence(),
                     undefined,
                     { alwaysNext: true },
@@ -1471,16 +1411,8 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 0,
-    atk_scale: [
-      0.0399999991059303, 0.0399999991059303, 0.0399999991059303, 0.0500000007450581,
-      0.0500000007450581, 0.0500000007450581, 0.0599999986588955, 0.0599999986588955,
-      0.0599999986588955, 0.0700000002980232, 0.0700000002980232, 0.0799999982118607,
-    ],
-    atk_scale_display: [
-      0.529999971389771, 0.579999983310699, 0.629999995231628, 0.680000007152557, 0.740000009536743,
-      0.790000021457672, 0.839999973773956, 0.889999985694885, 0.949999988079071, 1.00999999046326,
-      1.0900000333786, 1.17999994754791,
-    ],
+    atk_scale: [0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08],
+    atk_scale_display: [0.53, 0.58, 0.63, 0.68, 0.74, 0.79, 0.84, 0.89, 0.95, 1.01, 1.09, 1.18],
   },
 );
 
@@ -1519,7 +1451,6 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
                     abilityEntityId: 'abilityentity_chr_0025_ardelia_attack4',
                     childSkillId: 'chr_0025_ardelia_attack4_sheep',
                     inheritActionBlackboard: true,
-                    inheritSourceSkillCastInfo: true,
                     dieWhenSourceDies: false,
                     target: 'enemy',
                   }),
@@ -1529,7 +1460,6 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
                     abilityEntityId: 'abilityentity_chr_0025_ardelia_attack4',
                     childSkillId: 'chr_0025_ardelia_attack4_sheep',
                     inheritActionBlackboard: true,
-                    inheritSourceSkillCastInfo: true,
                     dieWhenSourceDies: false,
                     target: 'enemy',
                   }),
@@ -1550,7 +1480,6 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0025_ardelia_attack4_end',
             childSkillId: 'chr_0025_ardelia_attack4_end_sheep',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
             target: 'caster',
           }),
@@ -1571,7 +1500,6 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
                     abilityEntityId: 'abilityentity_chr_0025_ardelia_attack4_low',
                     childSkillId: 'chr_0025_ardelia_attack4_sheep',
                     inheritActionBlackboard: true,
-                    inheritSourceSkillCastInfo: true,
                     dieWhenSourceDies: false,
                     target: 'enemy',
                   }),
@@ -1581,7 +1509,6 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
                     abilityEntityId: 'abilityentity_chr_0025_ardelia_attack4_low',
                     childSkillId: 'chr_0025_ardelia_attack4_sheep',
                     inheritActionBlackboard: true,
-                    inheritSourceSkillCastInfo: true,
                     dieWhenSourceDies: false,
                     target: 'enemy',
                   }),
@@ -1613,11 +1540,7 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
   {
     atb: 18,
-    atk_scale: [
-      0.550000011920929, 0.610000014305115, 0.660000026226044, 0.720000028610229, 0.769999980926514,
-      0.829999983310699, 0.879999995231628, 0.939999997615814, 0.990000009536743, 1.05999994277954,
-      1.13999998569489, 1.24000000953674,
-    ],
+    atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
     poise: 18,
   },
 );
@@ -1649,7 +1572,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.100000001490116,
+              calculationMultiplier: 0.1,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0025_ardelia_power_attack:/scheduledSequences/0/sequence/steps/0',
@@ -1668,13 +1591,13 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
                   damageType: 'nature',
                   attackScale: { kind: 'blackboard', key: 'atk_scale' },
                   calculation: 'breakingAttack',
-                  calculationMultiplier: 0.0500000007450581,
+                  calculationMultiplier: 0.05,
                   tags: ['normalAttack', 'powerAttack'],
                 },
                 'chr_0025_ardelia_power_attack:/scheduledSequences/1/sequence/steps/0/body/steps/0',
               ),
             ),
-            { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.109999999403954 } },
+            { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.11 } },
           ),
         ),
         53,
@@ -1688,7 +1611,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
               damageType: 'nature',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
               calculation: 'breakingAttack',
-              calculationMultiplier: 0.400000005960464,
+              calculationMultiplier: 0.4,
               tags: ['normalAttack', 'powerAttack'],
             },
             'chr_0025_ardelia_power_attack:/scheduledSequences/2/sequence/steps/0',
@@ -1703,7 +1626,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
           repeatEachTick(sequence(), {
             nativeChanneling: {
               executeEachFrame: false,
-              triggerIntervalSeconds: 0.100000001490116,
+              triggerIntervalSeconds: 0.1,
               maxCountPerTarget: -1,
               targetTriggerIntervalSeconds: 0,
             },
@@ -1717,7 +1640,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
           repeatEachTick(sequence(), {
             nativeChanneling: {
               executeEachFrame: false,
-              triggerIntervalSeconds: 0.100000001490116,
+              triggerIntervalSeconds: 0.1,
               maxCountPerTarget: -1,
               targetTriggerIntervalSeconds: 0,
             },
@@ -1731,7 +1654,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
           repeatEachTick(sequence(), {
             nativeChanneling: {
               executeEachFrame: false,
-              triggerIntervalSeconds: 0.100000001490116,
+              triggerIntervalSeconds: 0.1,
               maxCountPerTarget: -1,
               targetTriggerIntervalSeconds: 0,
             },
@@ -1744,7 +1667,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.600000023841858 },
+            durationSeconds: { kind: 'constant', value: 0.6 },
             slot: 'TimeDilation/Layer/Entity/HitStop',
             priority: 10,
             curve: {
@@ -1752,30 +1675,30 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
               keys: [
                 {
                   time: 0,
-                  value: 0.400000005960464,
-                  inTangent: -14.1076889038086,
-                  outTangent: -14.1076889038086,
+                  value: 0.4,
+                  inTangent: -14.1076889,
+                  outTangent: -14.1076889,
                   weightedMode: 0,
-                  inWeight: 0.333333343267441,
-                  outWeight: 0.283485949039459,
+                  inWeight: 0.333333343,
+                  outWeight: 0.283485949,
                 },
                 {
-                  time: 0.0500000007450581,
-                  value: 0.00999999977648258,
-                  inTangent: 0.00631965976208448,
-                  outTangent: 0.00631965976208448,
+                  time: 0.05,
+                  value: 0.01,
+                  inTangent: 0.00631965976,
+                  outTangent: 0.00631965976,
                   weightedMode: 2,
-                  inWeight: 0.333333343267441,
-                  outWeight: 0.777102410793304,
+                  inWeight: 0.333333343,
+                  outWeight: 0.7771024,
                 },
                 {
                   time: 1,
                   value: 1,
-                  inTangent: 8.26610946655273,
-                  outTangent: 5.2331748008728,
+                  inTangent: 8.266109,
+                  outTangent: 5.233175,
                   weightedMode: 1,
-                  inWeight: 0.0874526277184486,
-                  outWeight: 0.333333343267441,
+                  inWeight: 0.08745263,
+                  outWeight: 0.333333343,
                 },
               ],
             },
@@ -1815,10 +1738,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'breakingAttack',
   },
   {
-    atk_scale: [
-      4, 4.40000009536743, 4.80000019073486, 5.19999980926514, 5.59999990463257, 6,
-      6.40000009536743, 6.80000019073486, 7.19999980926514, 7.69999980926514, 8.30000019073486, 9,
-    ],
+    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
     atk_scale_loop: 0.1,
     atk_scale_start: 0.5,
   },
@@ -1896,14 +1816,7 @@ export const ardeliaPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [
-      0.800000011920929, 0.879999995231628, 0.959999978542328, 1.03999996185303, 1.12000000476837,
-      1.20000004768372, 1.27999997138977, 1.36000001430511, 1.44000005722046, 1.53999996185303,
-      1.6599999666214, 1.79999995231628,
-    ],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -1995,7 +1908,6 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
                             abilityEntityId: 'abilityentity_chr_0025_ardelia_remain_loop',
                             childSkillId: 'chr_0025_ardelia_remain_loop_sheep',
                             inheritActionBlackboard: true,
-                            inheritSourceSkillCastInfo: true,
                             dieWhenSourceDies: false,
                           }),
                         ),
@@ -2045,7 +1957,6 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
                             abilityEntityId: 'abilityentity_chr_0025_ardelia_remain_loop',
                             childSkillId: 'chr_0025_ardelia_remain_loop_sheep',
                             inheritActionBlackboard: true,
-                            inheritSourceSkillCastInfo: true,
                             dieWhenSourceDies: false,
                           }),
                         ),
@@ -2242,7 +2153,6 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0025_ardelia_normal_skill',
             childSkillId: 'chr_0025_ardelia_normal_skill_sheep',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -2255,7 +2165,6 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0025_ardelia_normal_skill',
             childSkillId: 'chr_0025_ardelia_normal_skill_sheep',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -2294,11 +2203,7 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     additional_def_decrease: 0,
-    atk_scale: [
-      1.41999995708466, 1.55999994277954, 1.71000003814697, 1.85000002384186, 1.99000000953674,
-      2.13000011444092, 2.27999997138977, 2.42000007629395, 2.55999994277954, 2.74000000953674,
-      2.95000004768372, 3.20000004768372,
-    ],
+    atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
     cam_angle: 0,
     def_decrease: 0,
     duration_vul: 30,
@@ -2308,18 +2213,10 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
     poise: 10,
     potential2: 0,
     rate_vul: 0,
-    rate_vul_base: [
-      0.119999997317791, 0.119999997317791, 0.119999997317791, 0.129999995231628, 0.129999995231628,
-      0.129999995231628, 0.140000000596046, 0.140000000596046, 0.159999996423721, 0.170000001788139,
-      0.180000007152557, 0.200000002980232,
-    ],
+    rate_vul_base: [0.12, 0.12, 0.12, 0.13, 0.13, 0.13, 0.14, 0.14, 0.16, 0.17, 0.18, 0.2],
     sheep_num: 0,
     talent1: 0,
-    rate_vul_max: [
-      0.360000014305115, 0.360000014305115, 0.360000014305115, 0.370000004768372, 0.370000004768372,
-      0.370000004768372, 0.379999995231628, 0.379999995231628, 0.400000005960464, 0.409999996423721,
-      0.419999986886978, 0.400000005960464,
-    ],
+    rate_vul_max: [0.36, 0.36, 0.36, 0.37, 0.37, 0.37, 0.38, 0.38, 0.4, 0.41, 0.42, 0.4],
   },
 );
 
@@ -2344,7 +2241,6 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
             abilityEntityId: 'abilityentity_chr_0025_ardelia_combo_skill',
             childSkillId: 'chr_0025_ardelia_combo_skill_sheep',
             inheritActionBlackboard: true,
-            inheritSourceSkillCastInfo: true,
             dieWhenSourceDies: false,
           }),
         ),
@@ -2440,7 +2336,6 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
                     abilityEntityId: 'abilityentity_chr_0025_ardelia_combo_skill_bomb',
                     childSkillId: 'chr_0025_ardelia_combo_skill_bomb',
                     inheritActionBlackboard: true,
-                    inheritSourceSkillCastInfo: true,
                     dieWhenSourceDies: false,
                     target: 'enemy',
                   }),
@@ -2460,7 +2355,7 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('startTimeDilation', {
             scope: 'global',
-            durationSeconds: { kind: 'constant', value: 0.800000011920929 },
+            durationSeconds: { kind: 'constant', value: 0.8 },
             slot: 'unassigned',
             priority: 30,
             curve: { kind: 'named', key: 'ComboSkill' },
@@ -2491,16 +2386,8 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atk_scale: [
-      0.449999988079071, 0.490000009536743, 0.540000021457672, 0.579999983310699, 0.620000004768372,
-      0.670000016689301, 0.709999978542328, 0.759999990463257, 0.800000011920929, 0.860000014305115,
-      0.930000007152557, 1,
-    ],
-    atk_scale_boom: [
-      1.11000001430511, 1.22000002861023, 1.33000004291534, 1.44000005722046, 1.54999995231628,
-      1.66999995708466, 1.77999997138977, 1.88999998569489, 2, 2.14000010490417, 2.29999995231628,
-      2.5,
-    ],
+    atk_scale: [0.45, 0.49, 0.54, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.93, 1],
+    atk_scale_boom: [1.11, 1.22, 1.33, 1.44, 1.55, 1.67, 1.78, 1.89, 2, 2.14, 2.3, 2.5],
     cam_angle: 0,
     cam_duration: 0,
     count: 0,
@@ -2617,7 +2504,6 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
                                 abilityEntityId: 'abilityentity_chr_0025_ardelia_remain_loop',
                                 childSkillId: 'chr_0025_ardelia_remain_loop_sheep',
                                 inheritActionBlackboard: true,
-                                inheritSourceSkillCastInfo: true,
                                 dieWhenSourceDies: false,
                               }),
                             ),
@@ -2670,9 +2556,9 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: false,
-                triggerIntervalSeconds: 0.100000001490116,
+                triggerIntervalSeconds: 0.1,
                 maxCountPerTarget: -1,
-                targetTriggerIntervalSeconds: 0.0299999993294477,
+                targetTriggerIntervalSeconds: 0.03,
               },
             },
           ),
@@ -2721,7 +2607,6 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
                                 abilityEntityId: 'abilityentity_chr_0025_ardelia_remain_loop',
                                 childSkillId: 'chr_0025_ardelia_remain_loop_sheep',
                                 inheritActionBlackboard: true,
-                                inheritSourceSkillCastInfo: true,
                                 dieWhenSourceDies: false,
                               }),
                             ),
@@ -2774,9 +2659,9 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
             {
               nativeChanneling: {
                 executeEachFrame: false,
-                triggerIntervalSeconds: 0.100000001490116,
+                triggerIntervalSeconds: 0.1,
                 maxCountPerTarget: -1,
-                targetTriggerIntervalSeconds: 0.0299999993294477,
+                targetTriggerIntervalSeconds: 0.03,
               },
             },
           ),
@@ -2814,16 +2699,12 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: [
-      0.730000019073486, 0.810000002384186, 0.879999995231628, 0.949999988079071, 1.02999997138977,
-      1.10000002384186, 1.16999995708466, 1.25, 1.32000005245209, 1.4099999666214, 1.51999998092651,
-      1.64999997615814,
-    ],
+    atk_scale: [0.73, 0.81, 0.88, 0.95, 1.03, 1.1, 1.17, 1.25, 1.32, 1.41, 1.52, 1.65],
     atk_scale_2: 0,
-    effect_prob: 0.100000001490116,
+    effect_prob: 0.1,
     heal_scale: 0,
     heal_value: 0,
-    interval: 0.300000011920929,
+    interval: 0.3,
     poise: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
     potential2: 0,
     potential3_duration: 0,
@@ -2954,7 +2835,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'heal_scale',
           operation: 'assign',
-          value: [0.379999995231628, 0.529999971389771, 0.75],
+          value: [0.38, 0.53, 0.75],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2968,7 +2849,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'heal_scale',
           operation: 'assign',
-          value: [0.379999995231628, 0.529999971389771, 0.75],
+          value: [0.38, 0.53, 0.75],
         },
         {
           kind: 'patchSkillBlackboard',
@@ -2989,7 +2870,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'effect_prob',
           operation: 'assign',
-          value: [0.100000001490116, 0.100000001490116, 0.100000001490116],
+          value: [0.1, 0.1, 0.1],
         },
       ],
     },
@@ -3017,7 +2898,7 @@ export default {
           skillGroupKey: 'battleSkill',
           blackboardKey: 'rate_vul_base',
           operation: 'add',
-          value: 0.0799999982118607,
+          value: 0.08,
         },
       ],
     },
@@ -3057,7 +2938,7 @@ export default {
           skillGroupKey: 'ultimate',
           blackboardKey: 'effect_prob',
           operation: 'multiply',
-          value: 1.20000004768372,
+          value: 1.2,
         },
       ],
     },
@@ -3069,7 +2950,7 @@ export default {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
           resource: 'ultimateEnergy',
-          multiplier: 0.850000023841858,
+          multiplier: 0.85,
         },
       ],
     },
@@ -3089,7 +2970,7 @@ export default {
           skillGroupKey: 'comboSkill',
           blackboardKey: 'potential5_dmg_rate',
           operation: 'add',
-          value: 1.20000004768372,
+          value: 1.2,
         },
         { kind: 'addSkillCooldownFrames', skillGroupKey: 'comboSkill', frames: -60 },
       ],
@@ -3099,7 +2980,7 @@ export default {
   buffDefinitions: {
     buff_chr_0025_ardelia_affixes_vulnerable_physic_child: {
       stackingType: 'unlimited',
-      priority: 0,
+      priority: { blackboardKey: 'rate' },
       maxStackCount: 0,
       durationSeconds: { blackboardKey: 'duration' },
       applyTags: [],
@@ -3109,7 +2990,7 @@ export default {
     },
     buff_chr_0025_ardelia_affixes_vulnerable_spell_child: {
       stackingType: 'unlimited',
-      priority: 0,
+      priority: { blackboardKey: 'rate' },
       maxStackCount: 0,
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
@@ -3118,7 +2999,6 @@ export default {
         iconPath: '/icons/icon_battle_affix_vulnerable.webp',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
-        showDirectlyInHeadBuff: false,
         showInSquadIcon: true,
         onlyShowForMainCharacter: false,
         blinkInMainCharHpBar: false,
@@ -3448,7 +3328,7 @@ export default {
                       target: 'currentTarget',
                       valueType: 'ratio',
                       operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 0.990000009536743 },
+                      value: { kind: 'constant', value: 0.99 },
                     },
                     sequence(
                       step('findCharacterTeamTargets', {
@@ -3473,7 +3353,7 @@ export default {
                               contextKey: 'healTar',
                               valueType: 'ratio',
                               operator: 'greaterOrEqual',
-                              value: { kind: 'constant', value: 0.990000009536743 },
+                              value: { kind: 'constant', value: 0.99 },
                             },
                             sequence(
                               step('mergeContextTargets', {
@@ -3777,12 +3657,22 @@ export default {
                 },
                 'abilityentity_chr_0025_ardelia_combo_skill_bomb:chr_0025_ardelia_combo_skill_bomb:/childSkill/scheduledSequences/0/sequence/steps/2',
               ),
-              step('mergeContextTargets', { saveToContextKey: 'tar', sources: [] }),
               step('modifyActionValue', {
                 key: 'atk_scale_boom',
                 operation: 'multiply',
                 value: { kind: 'constant', value: 0.5 },
               }),
+              step(
+                'dealDamage',
+                {
+                  damageType: 'nature',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale_boom' },
+                  tags: ['comboSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: { kind: 'blackboard', key: 'poise' },
+                },
+                'abilityentity_chr_0025_ardelia_combo_skill_bomb:chr_0025_ardelia_combo_skill_bomb:/childSkill/scheduledSequences/0/sequence/steps/4',
+              ),
             ),
             55,
           ),

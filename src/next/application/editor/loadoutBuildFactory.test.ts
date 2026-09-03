@@ -149,8 +149,8 @@ describe('loadoutBuildFactory', () => {
       expect(build.skillLevels, `${operator.slug} 默认技能加点`).toEqual(expectedSkillLevels);
       expect(build.talentStates, `${operator.slug} 默认天赋加点`).toEqual(expectedTalentStates);
     }
-    // 当前 VFS 新增干员可以先完成游戏数据转换；旧版 OperatorSheet 缺席不阻塞注册。
-    expect(missingPresentations, '缺少旧版干员展示身份').toEqual(['liino', 'typhoeus']);
+    // 当前分支没有梨诺的旧版 OperatorSheet；其富文本另由已有主线 i18n 证据覆盖。
+    expect(missingPresentations, '缺少旧版干员展示身份').toEqual(['liino']);
   });
 
   it('所有具备旧版身份的正式武器保持相同的默认潜能与词条上限', () => {
@@ -180,11 +180,7 @@ describe('loadoutBuildFactory', () => {
         traitLevels: expectedTraitLevels,
       });
     }
-    // 当前 VFS 新增武器先保留原生身份，不伪造旧 WeaponSheet 对应项。
-    expect(missingPresentations, '缺少旧版武器展示身份').toEqual([
-      'wpn_funnel_0019',
-      'wpn_funnel_0020',
-      'wpn_lance_0014',
-    ]);
+    // 该武器来自新 AKEDB 静态定义；当前分支没有旧 WeaponSheet，但已有主线 i18n 文本。
+    expect(missingPresentations, '缺少旧版武器展示身份').toEqual(['wpn_lance_0014']);
   });
 });
