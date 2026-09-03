@@ -23,6 +23,7 @@ import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import { createDamageModifierConditionProgram } from './damageModifierSequenceRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type {
@@ -270,6 +271,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
   igniteEventResponses: readonly ResolvedSkillBuffIgniteEventResponse[] = [],
   skillSlotReplacements: readonly SkillBuffSlotReplacement[] = [],
   registerSemanticEventAction?: RegisterBuffSemanticEventAction,
+  damageModifierConditionPrograms: readonly (ResolvedActionSequence | undefined)[] = [],
 ): CombatBuffDefinition<Key> {
   if (definition.actions !== undefined) {
     throw new Error(
@@ -637,7 +639,27 @@ export function attachBuffLifecycleSequences<Key extends string>(
           },
         }),
   };
-  return { ...definition, actions };
+  if (
+    damageModifierConditionPrograms.length !== 0 &&
+    damageModifierConditionPrograms.length !== (definition.damageModifiers?.length ?? 0)
+  ) {
+    throw new Error(`buff '${definition.id}' damage modifier condition programs are misaligned`);
+  }
+  const damageModifiers = definition.damageModifiers?.map((modifier, index) => {
+    const program = damageModifierConditionPrograms[index];
+    if (program === undefined) return modifier;
+    if (modifier.condition !== undefined) {
+      throw new Error(`buff '${definition.id}' damage modifier cannot mix condition forms`);
+    }
+    return {
+      ...modifier,
+      createConditionProgram: (buff: CombatBuff<Key>) =>
+        createDamageModifierConditionProgram(program, runtimeFor(buff), {
+          getBuffAffixSkillCastId: () => buff.affixSkillCastId,
+        }),
+    };
+  });
+  return { ...definition, ...(damageModifiers === undefined ? {} : { damageModifiers }), actions };
 }
 
 function isCommutativeCurrentBuffTimeResponse(

@@ -3,7 +3,7 @@ import type {
   BuffPriority,
   CombatBuffPresentation,
   CombatBuffDefinitionAttributeModifier,
-  CombatBuffDefinitionDamageModifier,
+  SkillBuffDefinitionDamageModifier as CombatBuffDefinitionDamageModifier,
   CombatBuffChildPresentation,
   SkillBuffSlotReplacement,
   BuffShieldDefinition,
@@ -174,10 +174,16 @@ export function setBuffDefinitionAdvancedProperties(
     readonly sustainedProtection?: BuffSustainedProtectionDefinition | null;
     readonly role?: CombatBuffSemanticRole | null;
     readonly spellBurst?: CombatBuffSpellBurstDefinition | null;
+    readonly affixSkillCastIdentity?: 'sourceSkillCast' | null;
   },
 ): SkillBuffDefinition {
   const next = { ...definition };
-  for (const field of ['sustainedProtection', 'role', 'spellBurst'] as const) {
+  for (const field of [
+    'sustainedProtection',
+    'role',
+    'spellBurst',
+    'affixSkillCastIdentity',
+  ] as const) {
     const value = patch[field];
     if (value === undefined) continue;
     if (value === null) delete next[field];

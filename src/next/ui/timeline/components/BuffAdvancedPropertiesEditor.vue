@@ -18,11 +18,13 @@ const props = defineProps<{
   sustainedProtection?: BuffSustainedProtectionDefinition;
   role?: CombatBuffSemanticRole;
   spellBurst?: CombatBuffSpellBurstDefinition;
+  affixSkillCastIdentity?: 'sourceSkillCast';
 }>();
 const emit = defineEmits<{
   updateSustainedProtection: [value: BuffSustainedProtectionDefinition | undefined];
   updateRole: [value: CombatBuffSemanticRole | undefined];
   updateSpellBurst: [value: CombatBuffSpellBurstDefinition | undefined];
+  updateAffixSkillCastIdentity: [value: 'sourceSkillCast' | undefined];
 }>();
 const collapsed = ref(true);
 function roleKind(role: CombatBuffSemanticRole | undefined): CombatBuffSemanticRole['kind'] {
@@ -54,6 +56,23 @@ function setSustainedProtectionScalar(
       </button>
     </header>
     <div v-if="!collapsed" class="advanced-content">
+      <fieldset>
+        <legend>
+          <label>
+            <input
+              type="checkbox"
+              :checked="affixSkillCastIdentity === 'sourceSkillCast'"
+              @change="
+                emit(
+                  'updateAffixSkillCastIdentity',
+                  ($event.target as HTMLInputElement).checked ? 'sourceSkillCast' : undefined,
+                )
+              "
+            />启用时记录来源技能的施法身份（SkillAffix）
+          </label>
+        </legend>
+        <p>供同一次施法限定的伤害条件使用；它不会覆盖 Buff 的普通来源身份。</p>
+      </fieldset>
       <fieldset>
         <legend>
           <label

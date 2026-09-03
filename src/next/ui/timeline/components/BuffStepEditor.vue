@@ -9,7 +9,7 @@ import type {
   BuffPriority,
   BuffTimeClock,
   CombatBuffDefinitionAttributeModifier,
-  CombatBuffDefinitionDamageModifier,
+  SkillBuffDefinitionDamageModifier as CombatBuffDefinitionDamageModifier,
   CombatBuffPresentation,
   CombatBuffChildPresentation,
   SkillBuffSlotReplacement,
@@ -303,11 +303,12 @@ function setDefinitionKeywordEnhancements(
 }
 
 function setDefinitionAdvancedProperty(
-  field: 'sustainedProtection' | 'role' | 'spellBurst',
+  field: 'sustainedProtection' | 'role' | 'spellBurst' | 'affixSkillCastIdentity',
   value:
     | BuffSustainedProtectionDefinition
     | CombatBuffSemanticRole
     | CombatBuffSpellBurstDefinition
+    | 'sourceSkillCast'
     | undefined,
 ): void {
   const definition = props.step.parameters.definition;
@@ -737,6 +738,9 @@ function removeAssignment(key: string): void {
     <BuffDamageModifierEditor
       v-if="step.parameters.definition"
       :modifiers="step.parameters.definition.damageModifiers ?? []"
+      :skill-level="skillLevel"
+      :create-step="createStep"
+      :duplicate-step="duplicateStep"
       @update="setDefinitionDamageModifiers"
     />
     <BuffSkillSlotReplacementEditor
@@ -769,9 +773,13 @@ function removeAssignment(key: string): void {
       :sustained-protection="step.parameters.definition.sustainedProtection"
       :role="step.parameters.definition.role"
       :spell-burst="step.parameters.definition.spellBurst"
+      :affix-skill-cast-identity="step.parameters.definition.affixSkillCastIdentity"
       @update-sustained-protection="setDefinitionAdvancedProperty('sustainedProtection', $event)"
       @update-role="setDefinitionAdvancedProperty('role', $event)"
       @update-spell-burst="setDefinitionAdvancedProperty('spellBurst', $event)"
+      @update-affix-skill-cast-identity="
+        setDefinitionAdvancedProperty('affixSkillCastIdentity', $event)
+      "
     />
   </fieldset>
 

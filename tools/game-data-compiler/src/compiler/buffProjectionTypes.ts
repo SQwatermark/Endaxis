@@ -39,6 +39,7 @@ export interface CompiledBuffDamageModifierSource extends Pick<
   'enabledSide'
 > {
   readonly condition?: DamageModifierCondition;
+  readonly conditionProgram?: CompiledBuffSequenceSource;
   readonly processors: readonly Extract<
     CombatBuffDefinitionDamageProcessor,
     { readonly kind: 'damageScale' | 'instantAttribute' }
@@ -82,6 +83,7 @@ export type CompiledBuffDefinitionSource = Pick<
   | 'triggerIntervalSeconds'
   | 'waitFirstTriggerInterval'
   | 'maxTriggerCount'
+  | 'affixSkillCastIdentity'
 > &
   Required<Pick<SkillBuffDefinition, 'maxStackCount' | 'applyTags' | 'extendTags'>> & {
     readonly priority:

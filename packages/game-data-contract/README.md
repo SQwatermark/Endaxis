@@ -84,6 +84,16 @@ GameplayTag 查询的四种语义也由契约唯一声明；动作、条件、�
 Buff 的公共可序列化属性应独立定义，技能 Buff 和外部 Buff 文档共同组合它；不能从执行器反向裁剪。
 本体原有路径只保留兼容性转导出，不再声明副本；各模块分工以概念归属为准，不按使用者复制定义。
 
+技能内联 Buff 的伤害修正条件有两种互斥表示：纯读取条件使用 `condition`；原生条件本身会同步
+写 Buff 黑板、且该值被同一修正器读取时，使用 `conditionProgram` 保存公共 `ActionSequence`。
+后者只属于 `SkillBuffDefinitionDamageModifier`，外部 `CombatBuffDefinitionDocument` 仍只接受
+轻量条件，不因此获得任意程序执行入口。可表示也不等于可运行：转换器与本体只准入已证明能够在
+单次伤害求值内同步结束的步骤，异步、调度、目标搜索等继续拒绝；两种字段同时出现是无效定义。
+
+`affixSkillCastIdentity: sourceSkillCast` 表示创建技能 Buff 时，把来源技能本次施法编号记录到
+Buff 实例的独立 SkillAffix 身份槽，供明确要求该身份的条件读取。它不是普通来源身份的别名，
+不会覆盖 `SkillCastInfo`，缺少创建施法上下文时必须失败；字段缺省则不写入。
+
 ### GameplayTag 单向边界（2026-08-28）
 
 - 唯一公开类型是 `GameplayTag = string`，内容为可读完整路径。它不是数字品牌、包装对象或需要工厂转换的值。

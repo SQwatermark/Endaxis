@@ -856,10 +856,36 @@ function resolveSkillBuffDefinition(
     lifecycleSequences,
     abilityEventResponses,
     igniteEventResponses,
+    damageModifiers,
     ...fields
   } = definition;
   return {
     ...fields,
+    ...(damageModifiers === undefined
+      ? {}
+      : {
+          damageModifiers: damageModifiers.map((modifier, index) => {
+            const { conditionProgram, ...fields } = modifier;
+            if (conditionProgram !== undefined && modifier.condition !== undefined) {
+              throw new Error(
+                `${path}.damageModifiers[${index}] cannot define both condition and conditionProgram`,
+              );
+            }
+            return {
+              ...fields,
+              ...(conditionProgram === undefined
+                ? {}
+                : {
+                    conditionProgram: compileActionSequence(
+                      conditionProgram,
+                      skillLevel,
+                      `${path}.damageModifiers[${index}].conditionProgram`,
+                      abilityEntities,
+                    ),
+                  }),
+            };
+          }),
+        }),
     ...(scheduledSequences === undefined
       ? {}
       : {

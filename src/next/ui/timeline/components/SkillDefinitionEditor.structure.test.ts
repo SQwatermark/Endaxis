@@ -168,6 +168,8 @@ describe('SkillDefinitionEditor structure', () => {
     expect(buffAttributeModifierEditorSource).toContain('ATTRIBUTE_MODIFIER_SLOTS');
     expect(buffDamageModifierEditorSource).toContain('DAMAGE_SCALE_ZONES');
     expect(buffDamageModifierEditorSource).toContain('BuffDamageModifierConditionEditor');
+    expect(buffDamageModifierEditorSource).toContain('conditionProgram');
+    expect(buffDamageModifierEditorSource).toContain('ActionSequenceEditor');
     expect(buffDamageModifierEditorSource).not.toContain('CombatConditionEditor');
     for (const kind of [
       'entityTagMatch',

@@ -11,6 +11,7 @@ export type BuffDefinitionEditorCoverage =
  * 公共契约每次增删字段时都必须在这里明确选择编辑边界，避免新字段被界面静默忽略。
  */
 export const BUFF_DEFINITION_EDITOR_COVERAGE = {
+  affixSkillCastIdentity: 'editable',
   presentation: 'editable',
   childPresentations: 'editable',
   timeClock: 'editable',

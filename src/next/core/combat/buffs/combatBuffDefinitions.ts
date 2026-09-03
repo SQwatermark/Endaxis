@@ -168,6 +168,7 @@ export class CompiledCombatBuffDefinitions<
     }
     const definition: CombatBuffDefinition<Key> = {
       id: entry.id,
+      affixSkillCastIdentity: entry.affixSkillCastIdentity,
       presentation: entry.presentation,
       childPresentations: entry.childPresentations,
       timeClock: entry.timeClock,
@@ -289,6 +290,7 @@ export function parseCombatBuffDefinitionEntry(
   const entry = requireObject(input, path);
   requireOnlyKeys(entry, path, [
     'id',
+    'affixSkillCastIdentity',
     'presentation',
     'childPresentations',
     'timeClock',
@@ -317,6 +319,15 @@ export function parseCombatBuffDefinitionEntry(
   const stackingType = requireEnum(entry.stackingType, BUFF_STACKING_TYPES, `${path}.stackingType`);
   return {
     id: requireNonEmptyString(entry.id, `${path}.id`),
+    ...(entry.affixSkillCastIdentity === undefined
+      ? {}
+      : {
+          affixSkillCastIdentity: requireEnum(
+            entry.affixSkillCastIdentity,
+            ['sourceSkillCast'] as const,
+            `${path}.affixSkillCastIdentity`,
+          ),
+        }),
     ...parseOptionalPresentation(entry, path),
     ...parseOptionalChildPresentations(entry, path),
     ...(entry.timeClock === undefined
@@ -560,8 +571,8 @@ function parseOptionalDamageModifiers(
       const modifierPath = `${path}.damageModifiers[${index}]`;
       const modifier = requireObject(input, modifierPath);
       requireOnlyKeys(modifier, modifierPath, ['enabledSide', 'condition', 'processors']);
-      if (!Array.isArray(modifier.processors) || modifier.processors.length === 0) {
-        throw new Error(`${modifierPath}.processors: expected non-empty array`);
+      if (!Array.isArray(modifier.processors)) {
+        throw new Error(`${modifierPath}.processors: expected array`);
       }
       return {
         enabledSide: requireEnum(

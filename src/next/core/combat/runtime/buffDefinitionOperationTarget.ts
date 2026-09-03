@@ -187,14 +187,24 @@ export class BuffDefinitionOperationTarget<Key extends string>
       abilityEventResponses,
       igniteEventResponses,
       skillSlotReplacements,
+      damageModifiers,
       ...runtimeDefinition
     } = source;
+    const damageModifierConditionPrograms = damageModifiers?.map(
+      modifier => modifier.conditionProgram,
+    );
+    const staticDamageModifiers = damageModifiers?.map(
+      ({ conditionProgram: _, ...modifier }) => modifier,
+    );
+    const hasDamageModifierConditionPrograms =
+      damageModifierConditionPrograms?.some(program => program !== undefined) === true;
     if (
       (scheduledSequences !== undefined ||
         lifecycleSequences !== undefined ||
         abilityEventResponses !== undefined ||
         igniteEventResponses !== undefined ||
-        skillSlotReplacements !== undefined) &&
+        skillSlotReplacements !== undefined ||
+        hasDamageModifierConditionPrograms) &&
       this.#resolveLifecycleOperations === null
     ) {
       throw new Error(
@@ -207,6 +217,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       abilityEventResponses === undefined &&
       igniteEventResponses === undefined &&
       skillSlotReplacements === undefined &&
+      !hasDamageModifierConditionPrograms &&
       this.definitions.compile === undefined
     ) {
       throw new Error(
@@ -222,6 +233,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     const entry: CombatBuffDefinitionEntry = {
       id,
       ...staticRuntimeDefinition,
+      ...(staticDamageModifiers === undefined ? {} : { damageModifiers: staticDamageModifiers }),
       ...(typeof maxStackCount === 'number' ? { maxStackCount } : {}),
     };
     const compiledBaseDefinition = this.definitions.compile(entry);
@@ -238,7 +250,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
       lifecycleSequences === undefined &&
       abilityEventResponses === undefined &&
       igniteEventResponses === undefined &&
-      skillSlotReplacements === undefined
+      skillSlotReplacements === undefined &&
+      !hasDamageModifierConditionPrograms
         ? baseDefinition
         : attachBuffLifecycleSequences(
             baseDefinition,
@@ -258,6 +271,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
             igniteEventResponses,
             skillSlotReplacements,
             this.#registerSemanticEventAction ?? undefined,
+            damageModifierConditionPrograms,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;

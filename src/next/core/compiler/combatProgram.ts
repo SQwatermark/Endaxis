@@ -68,8 +68,16 @@ export type ResolvedSkillBuffIgniteEventResponse = Omit<
 /** 技能等级已经展开、可用于创建 Buff 实例的内联定义。 */
 export type ResolvedSkillBuffDefinition = Omit<
   SkillBuffDefinition,
-  'scheduledSequences' | 'lifecycleSequences' | 'abilityEventResponses' | 'igniteEventResponses'
+  | 'scheduledSequences'
+  | 'lifecycleSequences'
+  | 'abilityEventResponses'
+  | 'igniteEventResponses'
+  | 'damageModifiers'
 > & {
+  readonly damageModifiers?: readonly (Omit<
+    NonNullable<SkillBuffDefinition['damageModifiers']>[number],
+    'conditionProgram'
+  > & { readonly conditionProgram?: ResolvedActionSequence })[];
   readonly scheduledSequences?: readonly CompiledTimelineAction[];
   readonly lifecycleSequences?: ResolvedSkillBuffLifecycleSequences;
   readonly abilityEventResponses?: readonly ResolvedSkillBuffAbilityEventResponse[];

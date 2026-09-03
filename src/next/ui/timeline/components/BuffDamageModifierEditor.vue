@@ -2,9 +2,14 @@
 import { ref } from 'vue';
 import type {
   BuffDuration,
-  CombatBuffDefinitionDamageModifier,
+  SkillBuffDefinitionDamageModifier as CombatBuffDefinitionDamageModifier,
   CombatBuffDefinitionDamageProcessor,
 } from '../../../../../packages/game-data-contract/src/buffs';
+import type {
+  ActionSequenceDefinition,
+  CombatStepDefinition,
+} from '../../../core/game-data/operatorDefinition';
+import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import {
   ATTRIBUTE_MODIFIER_SLOTS,
   DAMAGE_MODIFIER_SIDES,
@@ -15,8 +20,14 @@ import {
 } from '../../../../../packages/game-data-contract/src/modifiers';
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
 import BuffDamageModifierConditionEditor from './BuffDamageModifierConditionEditor.vue';
+import ActionSequenceEditor from './ActionSequenceEditor.vue';
 
-const props = defineProps<{ modifiers: readonly CombatBuffDefinitionDamageModifier[] }>();
+const props = defineProps<{
+  modifiers: readonly CombatBuffDefinitionDamageModifier[];
+  skillLevel: number;
+  createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
+  duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
+}>();
 const emit = defineEmits<{
   update: [modifiers: readonly CombatBuffDefinitionDamageModifier[]];
 }>();
@@ -87,15 +98,36 @@ function setEnabledSide(
   replaceModifier(index, { ...modifier, enabledSide });
 }
 
-function toggleCondition(
+function setConditionMode(
   index: number,
   modifier: CombatBuffDefinitionDamageModifier,
   event: Event,
 ): void {
   const next = { ...modifier };
-  if ((event.target as HTMLInputElement).checked) next.condition = { kind: 'casterControlled' };
-  else delete next.condition;
+  delete next.condition;
+  delete next.conditionProgram;
+  const mode = (event.target as HTMLSelectElement).value;
+  if (mode === 'condition') next.condition = { kind: 'casterControlled' };
+  else if (mode === 'program') next.conditionProgram = { steps: [] };
   replaceModifier(index, next);
+}
+
+function conditionMode(
+  modifier: CombatBuffDefinitionDamageModifier,
+): 'none' | 'condition' | 'program' {
+  return modifier.conditionProgram !== undefined
+    ? 'program'
+    : modifier.condition !== undefined
+      ? 'condition'
+      : 'none';
+}
+
+function setConditionProgram(
+  index: number,
+  modifier: CombatBuffDefinitionDamageModifier,
+  conditionProgram: ActionSequenceDefinition,
+): void {
+  replaceModifier(index, { ...modifier, condition: undefined, conditionProgram });
 }
 
 function addProcessor(index: number, modifier: CombatBuffDefinitionDamageModifier): void {
@@ -244,18 +276,32 @@ function fullValue(
         </select>
       </label>
       <label class="condition-toggle">
-        <input
-          type="checkbox"
-          :checked="modifier.condition !== undefined"
-          @change="toggleCondition(modifierIndex, modifier, $event)"
-        />
-        <span>启用专用伤害条件</span>
+        <span>条件形式</span>
+        <select
+          :value="conditionMode(modifier)"
+          @change="setConditionMode(modifierIndex, modifier, $event)"
+        >
+          <option value="none">无条件</option>
+          <option value="condition">纯条件树</option>
+          <option value="program">同步条件程序</option>
+        </select>
       </label>
       <BuffDamageModifierConditionEditor
         v-if="modifier.condition"
         :condition="modifier.condition"
         @update="replaceModifier(modifierIndex, { ...modifier, condition: $event })"
       />
+      <section v-if="modifier.conditionProgram" class="condition-program">
+        <p>按顺序判断条件并计算当前 Buff 黑板；序列最终返回值决定是否应用下方处理器。</p>
+        <ActionSequenceEditor
+          v-if="createStep && duplicateStep"
+          :sequence="modifier.conditionProgram"
+          :skill-level="skillLevel"
+          :create-step="createStep"
+          :duplicate-step="duplicateStep"
+          @update="setConditionProgram(modifierIndex, modifier, $event)"
+        />
+      </section>
       <section class="processor-list">
         <header>
           <strong>处理器 {{ modifier.processors.length }}</strong>

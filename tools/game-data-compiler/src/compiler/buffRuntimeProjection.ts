@@ -729,6 +729,7 @@ export function compileBuffRuntimeDefinitionSource(
     source.graph.declaredBlackboard.map(item => [item.key, item.value]),
   );
   return {
+    ...(finishesWithSourceSkill ? { affixSkillCastIdentity: 'sourceSkillCast' as const } : {}),
     stackingType: STACKING_TYPES[source.lifecycle.stackingType],
     ...(source.lifecycle.stackingIdentifierType === 'StackingKey'
       ? { stackingKey: source.lifecycle.stackingKey }
@@ -883,14 +884,15 @@ function compileBuffDamageModifiers(
         `damageModifier[${index}]: unsupported enabled side ${JSON.stringify(modifier.enabledSide)}`,
       );
     }
-    const condition = compileDamageModifierCondition(
+    const conditionSource = compileDamageModifierCondition(
       modifier.condition,
       index,
       context,
       enabledSide,
     );
     // 原生先执行条件再遍历处理器。只有公共序列已证明无副作用，空列表才可省略。
-    if (modifier.processors.length === 0) return [];
+    if (modifier.processors.length === 0 && conditionSource.conditionProgram === undefined)
+      return [];
     const processors = modifier.processors.map((processor, processorIndex) => {
       const processorPath = `damageModifier[${index}].damageProcessors[${processorIndex}]`;
       if (processor.kind === 'damageScale') {
@@ -925,7 +927,7 @@ function compileBuffDamageModifiers(
         attributeTiming: 'runtime' as const,
       };
     });
-    return [{ enabledSide, ...(condition === undefined ? {} : { condition }), processors }];
+    return [{ enabledSide, ...conditionSource, processors }];
   });
   return modifiers.length === 0 ? {} : { damageModifiers: modifiers };
 }
@@ -1207,18 +1209,49 @@ function compileDamageModifierCondition(
     'gameplayTagRegistry' | 'fixedBuffOwnerTarget' | 'fixedBuffSourceTarget'
   >,
   side: DamageModifierSide,
-): CompiledBuffDamageModifierSource['condition'] | undefined {
-  return projectPureDamageModifierCondition(
-    compileCombatConditionSequenceSource(source, {
-      ...context,
-      actionOwnerTarget: 'buffOwner',
-      actionSourceTarget: 'caster',
-      // 原生 Target 是处理侧的对侧，不得把防御方修正的 Target 也当作敌人。
-      actionTargetTarget: side === 'attacker' ? 'enemy' : 'caster',
-      damageModifierContext: true,
-    }),
-    `damageModifier[${modifierIndex}].condition`,
-  );
+): Pick<CompiledBuffDamageModifierSource, 'condition' | 'conditionProgram'> {
+  const program = compileCombatConditionSequenceSource(source, {
+    ...context,
+    actionOwnerTarget: 'buffOwner',
+    actionSourceTarget: 'caster',
+    // 原生 Target 是处理侧的对侧，不得把防御方修正的 Target 也当作敌人。
+    actionTargetTarget: side === 'attacker' ? 'enemy' : 'caster',
+    damageModifierContext: true,
+  });
+  const path = `damageModifier[${modifierIndex}].condition`;
+  try {
+    const condition = projectPureDamageModifierCondition(program, path);
+    return condition === undefined ? {} : { condition };
+  } catch (error) {
+    assertSynchronousDamageModifierConditionProgram(program, path, error);
+    return { conditionProgram: program };
+  }
+}
+
+function assertSynchronousDamageModifierConditionProgram(
+  sequence: CompiledBuffSequenceSource,
+  path: string,
+  originalError: unknown,
+): void {
+  for (const [index, step] of sequence.steps.entries()) {
+    const stepPath = `${path}.steps[${index}]`;
+    if (step.kind === 'conditional') {
+      assertSynchronousDamageModifierConditionProgram(
+        step.whenTrue,
+        `${stepPath}.whenTrue`,
+        originalError,
+      );
+      if (step.whenFalse !== undefined)
+        assertSynchronousDamageModifierConditionProgram(
+          step.whenFalse,
+          `${stepPath}.whenFalse`,
+          originalError,
+        );
+      continue;
+    }
+    if (step.kind !== 'modifyActionValue' && step.kind !== 'calculateActionValue')
+      throw originalError;
+  }
 }
 
 function compileSkillSpGainSequence(

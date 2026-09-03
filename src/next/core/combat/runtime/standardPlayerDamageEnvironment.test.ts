@@ -1103,6 +1103,88 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(taggedDamage).toBeCloseTo(normalDamage * (1.4 / 1.2));
   });
 
+  it('runs an affixed Buff condition program against the current damage before processors', () => {
+    const environment = createEnvironment();
+    const context = createContext();
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const operatorBuffs = environment.runtimeOptions.createOperatorBuffRuntime?.(
+      'operator',
+      context.panel,
+    );
+    if (!(operatorBuffs instanceof BuffDefinitionOperationTarget))
+      throw new Error('missing Buff runtime');
+    const conditionOperations = new ActionBlackboardOperationExecutor(
+      new EventContextConditionExecutor({ execute: () => false, evaluate: () => false }),
+    );
+    operatorBuffs.configureLifecycleOperations(() => conditionOperations);
+    const cast = {
+      skillCastId: 42,
+      originSkillId: 'battleSkill',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 0,
+    };
+    operatorBuffs.apply({
+      buffId: 'buff.effectful-modifier',
+      sourceId: 'operator',
+      blackboardValues: {},
+      skillCastInfo: cast,
+      definition: {
+        stackingType: 'unique',
+        affixSkillCastIdentity: 'sourceSkillCast',
+        blackboard: { imbue_scale: 0.5, real_imbue_scale: 0 },
+        damageModifiers: [
+          {
+            enabledSide: 'attacker',
+            conditionProgram: {
+              steps: [
+                {
+                  kind: 'conditional',
+                  parameters: { condition: { kind: 'eventSkillCastMatchesBuffSource' } },
+                  whenTrue: {
+                    steps: [
+                      {
+                        kind: 'calculateActionValue',
+                        parameters: {
+                          key: 'real_imbue_scale',
+                          operation: 'multiply',
+                          left: { kind: 'blackboard', key: 'imbue_scale' },
+                          right: { kind: 'constant', value: 1.5 },
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+            processors: [
+              {
+                kind: 'damageScale',
+                side: 'attacker',
+                zone: 'combo',
+                addition: { blackboardKey: 'real_imbue_scale' },
+              },
+            ],
+          },
+        ],
+      },
+    });
+    const before = environment.enemyVitals.health;
+    expect(
+      executor.execute(damageStep, { blackboard: new ActionBlackboard(), skillCastInfo: cast }),
+    ).toBe(true);
+    const matchingDamage = before - environment.enemyVitals.health;
+    const beforeOther = environment.enemyVitals.health;
+    expect(
+      executor.execute(damageStep, {
+        blackboard: new ActionBlackboard(),
+        skillCastInfo: { ...cast, skillCastId: 43 },
+      }),
+    ).toBe(true);
+    const otherDamage = beforeOther - environment.enemyVitals.health;
+    expect(matchingDamage).toBeCloseTo(otherDamage * 1.75);
+    expect(operatorBuffs.container.buffs[0]!.affixSkillCastId).toBe(42);
+  });
+
   it('filters defender vulnerability by the current damage type', () => {
     const environment = createEnvironment();
     const context = createContext();

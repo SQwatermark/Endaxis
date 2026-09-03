@@ -118,7 +118,8 @@ export interface SkillBuffSlotReplacement {
   readonly inheritOriginSkillCooldownProgress: boolean;
 }
 
-export type SkillBuffDefinition = BuffDefinitionProperties & {
+export type SkillBuffDefinition = Omit<BuffDefinitionProperties, 'damageModifiers'> & {
+  readonly damageModifiers?: readonly SkillBuffDefinitionDamageModifier[];
   /** 可在施加时从该 Buff 已合并的实例黑板解析。 */
   maxStackCount?: BuffMaxStackCount;
   /** Buff 启用期间按实例局部时钟执行的相对帧时间线。 */
@@ -410,6 +411,12 @@ export interface CombatBuffDefinitionDamageModifier {
   readonly processors: readonly CombatBuffDefinitionDamageProcessor[];
 }
 
+/** Inline/operator Buff modifier that may require ordered, instance-local condition calculation. */
+export type SkillBuffDefinitionDamageModifier = CombatBuffDefinitionDamageModifier & {
+  /** Mutually exclusive with `condition`; the final sequence result gates the processors. */
+  readonly conditionProgram?: ActionSequenceDefinition;
+};
+
 /** 兼容外部 Buff 文档的纯数据条目；编译后的回调不属于此协议。 */
 export interface CombatBuffDefinitionEntry extends BuffDefinitionProperties {
   readonly id: string;
@@ -430,6 +437,11 @@ export interface CombatBuffDefinitionsDocument {
  */
 /** 外部定义中的一项稳定 Buff 定义。 */
 export type BuffDefinitionProperties = {
+  /**
+   * SkillAffix identity captured when this Buff is enabled by its creating skill.
+   * Absent means no affix write; this is independent of ordinary source provenance.
+   */
+  readonly affixSkillCastIdentity?: 'sourceSkillCast';
   /** Buff 的用户可观察图标身份和显示规则；不参与数值计算但不得在编译边界丢失。 */
   readonly presentation?: CombatBuffPresentation;
   readonly childPresentations?: readonly CombatBuffChildPresentation[];

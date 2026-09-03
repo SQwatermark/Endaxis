@@ -1126,6 +1126,42 @@ describe('validateSkillDefinition', () => {
     expect(validateSkillDefinition(skill)).toEqual([]);
   });
 
+  it('rejects mixing a lightweight damage modifier condition with a condition program', () => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'mixed-condition',
+                target: 'caster',
+                definition: {
+                  stackingType: 'unique',
+                  damageModifiers: [
+                    {
+                      enabledSide: 'attacker',
+                      condition: { kind: 'combatActive' },
+                      conditionProgram: { steps: [] },
+                      processors: [],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    expect(validateSkillDefinition(skill)).toContainEqual({
+      path: '$.scheduledSequences[0].sequence.steps[0].parameters.definition.damageModifiers[0]',
+      message: 'cannot define both condition and conditionProgram',
+    });
+  });
+
   it('rejects conditional without whenTrue', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [

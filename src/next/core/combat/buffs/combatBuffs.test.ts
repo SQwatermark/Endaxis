@@ -120,6 +120,29 @@ function createDefinition(
 }
 
 describe('CombatBuffContainer', () => {
+  it('records explicit SkillAffix identity from source cast without changing provenance', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    expect(() =>
+      container.add(
+        { id: 'affix', stackingType: 'unique', affixSkillCastIdentity: 'sourceSkillCast' },
+        'operator',
+      ),
+    ).toThrow('requires source skill cast');
+    const cast = {
+      skillCastId: 42,
+      originSkillId: 'skill',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 0,
+    };
+    const buff = container.add(
+      { id: 'affix', stackingType: 'unique', affixSkillCastIdentity: 'sourceSkillCast' },
+      'operator',
+      { skillCastInfo: cast },
+    )!;
+    expect(buff.affixSkillCastId).toBe(42);
+    expect(buff.skillCastInfo).toEqual(cast);
+  });
+
   it('applies keyword enhancements on the matching Buff add edge without merging sibling rates', () => {
     const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
     const vulnerable = requireAddedBuff(

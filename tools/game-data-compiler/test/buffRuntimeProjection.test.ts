@@ -270,18 +270,35 @@ describe('公共 Buff 运行时投影', () => {
         },
       ],
     };
-    expect(() =>
-      compileBuffRuntimeDefinitionSource({
-        ...source,
-        damageModifiers: [
-          {
-            enabledSide: 'Attacker',
-            condition,
-            processors: [],
-          },
-        ],
-      }),
-    ).toThrow('cannot discard side effects');
+    const result = compileBuffRuntimeDefinitionSource({
+      ...source,
+      damageModifiers: [
+        {
+          enabledSide: 'Attacker',
+          condition,
+          processors: [],
+        },
+      ],
+    });
+    expect(result.damageModifiers).toEqual([
+      {
+        enabledSide: 'attacker',
+        conditionProgram: {
+          steps: [
+            {
+              kind: 'calculateActionValue',
+              parameters: {
+                key: 'real_imbue_scale',
+                operation: 'multiply',
+                left: { kind: 'blackboard', key: 'imbue_scale' },
+                right: { kind: 'constant', value: 1.5 },
+              },
+            },
+          ],
+        },
+        processors: [],
+      },
+    ]);
   });
 
   it('把 Buff 动作内创建并保存的 AbilityEntity Context 保留为实体目标证据', () => {
@@ -1239,6 +1256,44 @@ describe('公共 Buff 运行时投影', () => {
       }
     },
   );
+
+  it('把 DuringBuffEnable 末尾的 SkillAffix 保存为独立身份及来源技能寿命', () => {
+    const source = sourceFixture();
+    const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const template = sequence.actions[0]!;
+    const definition = compileBuffRuntimeDefinitionSource({
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: [],
+        buffEvents: [
+          {
+            event: 'DuringBuffEnable',
+            actions: [
+              {
+                ...sequence,
+                actions: [
+                  {
+                    ...template,
+                    sourcePath: 'BuffData.buff_root.skillAffix',
+                    body: {
+                      kind: 'leaf',
+                      value: { family: 'skillAffix', action: { kind: 'skillAffix' } },
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+    expect(definition.affixSkillCastIdentity).toBe('sourceSkillCast');
+    expect(definition.lifecycleSequences?.enable).toBeUndefined();
+    expect(definition.abilityEventResponses).toEqual([
+      { event: 'skillEnd', priority: 0, sequence: expect.any(Object) },
+    ]);
+  });
 
   it.each(['Target', 'Source'] as const)(
     '主动动作的 %s Buff 目标不需要伪造事件上下文',

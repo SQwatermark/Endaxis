@@ -1728,10 +1728,33 @@ function validateCombatStep(
               maxStackCount,
               ...runtimeDefinition
             } = definition;
+            const runtimeDamageModifiers = Array.isArray(runtimeDefinition.damageModifiers)
+              ? runtimeDefinition.damageModifiers.map((value, index) => {
+                  const modifierPath = `${path}.parameters.definition.damageModifiers[${index}]`;
+                  const modifier = asRecord(value, modifierPath, out);
+                  if (modifier === null || modifier.conditionProgram === undefined) return value;
+                  if (modifier.condition !== undefined) {
+                    out.push({
+                      path: modifierPath,
+                      message: 'cannot define both condition and conditionProgram',
+                    });
+                  }
+                  validateActionSequence(
+                    modifier.conditionProgram,
+                    `${modifierPath}.conditionProgram`,
+                    out,
+                  );
+                  const { conditionProgram: _, ...staticModifier } = modifier;
+                  return staticModifier;
+                })
+              : runtimeDefinition.damageModifiers;
             parseCombatBuffDefinitionEntry(
               {
                 id: buffId,
                 ...runtimeDefinition,
+                ...(runtimeDamageModifiers === undefined
+                  ? {}
+                  : { damageModifiers: runtimeDamageModifiers }),
                 ...(typeof maxStackCount === 'number' ? { maxStackCount } : {}),
               },
               `${path}.parameters.definition`,

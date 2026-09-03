@@ -561,6 +561,17 @@ function inspectBuffDefinition(
       source,
     ),
   );
+  definition.damageModifiers?.forEach((modifier, index) => {
+    if (modifier.conditionProgram !== undefined) {
+      inspectSequence(
+        modifier.conditionProgram,
+        `${path}.damageModifiers[${index}].conditionProgram`,
+        collect,
+        flags,
+        source,
+      );
+    }
+  });
 }
 
 function inspectProgram(

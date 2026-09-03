@@ -167,6 +167,7 @@ export interface BuffLifecycleActions<Key extends string> {
 /** 可复用、不可变的 Buff 定义；实例状态不应写回这里。 */
 export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
+  readonly affixSkillCastIdentity?: 'sourceSkillCast';
   readonly presentation?: CombatBuffPresentation;
   /** 原生关键词载体创建的表现子 Buff，可同时显示多个元素图标。 */
   readonly childPresentations?: readonly CombatBuffChildPresentation[];
@@ -294,6 +295,14 @@ export class CombatBuff<Key extends string> {
     this.sourceActionId = options?.sourceActionId ?? definition.id;
     this.definitionOwnerId = options?.definitionOwnerId ?? sourceId;
     this.skillCastInfo = options?.skillCastInfo === undefined ? null : { ...options.skillCastInfo };
+    if (definition.affixSkillCastIdentity === 'sourceSkillCast') {
+      if (this.skillCastInfo === null) {
+        throw new Error(
+          `buff '${definition.id}' requires source skill cast identity for SkillAffix`,
+        );
+      }
+      this.recordBuffAffixSkillCastId(this.skillCastInfo.skillCastId);
+    }
     this.finishParentGlobalBuff = options?.finishParentGlobalBuff ?? null;
     this.priority = resolveBuffPriority(definition, this.blackboard);
     this.#remainingDuration = resolveBuffDuration(definition, this.blackboard);
