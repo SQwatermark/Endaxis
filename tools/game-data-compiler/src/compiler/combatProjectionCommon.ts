@@ -60,6 +60,8 @@ export function isPlainOwnerTarget(target: TargetReferenceSource): boolean {
 
 /** 原生动作身份由宿主及事件方向共同投影，不能把物理事件来源一律当作 ActionSource。 */
 export interface CombatActionProjectionContextSource {
+  /** 同步伤害修正宿主具有 BeforeApplyDamageModifierContext；不代表发生 AbilitySystem 广播。 */
+  readonly damageModifierContext?: true;
   /** 回调宿主未投影时显式 unavailable；读取 Owner 必须失败，不能借用发射者。 */
   /** 来源侧标签解析；动作、条件、Buff 和时间槽共用，不依赖某个领域宿主。 */
   readonly gameplayTagRegistry?: GameplayTagRegistry;

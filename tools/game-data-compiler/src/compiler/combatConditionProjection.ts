@@ -100,6 +100,10 @@ function compileConditionLeaf(
   // 主动动作/命中回调没有 Buff 事件环境；只有已验收的条件可使用显式木桩 Target。
   if (
     context.actionTargetTarget === 'enemy' &&
+    !(
+      context.damageModifierContext &&
+      ['damageType', 'damageTypeMask', 'skillCastId'].includes(condition.kind)
+    ) &&
     ![
       'floatCompare',
       'buffStack',
@@ -1432,6 +1436,9 @@ function compileConditionLeaf(
     throw new Error(`${sourcePath}: unsupported event target Buff identity condition`);
   }
   if (condition.kind === 'poise') {
+    if (context.damageModifierContext && context.actionTargetTarget !== 'enemy') {
+      throw new Error(`${sourcePath}: damage modifier poise target is not the enemy`);
+    }
     if (condition.target.targetSource !== 'Target' || condition.target.targetGroupKey !== '')
       throw new Error(`${sourcePath}: unsupported poise condition target`);
     const operator = COMPARISON_OPERATORS[condition.comparison];

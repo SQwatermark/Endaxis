@@ -34,41 +34,11 @@ export type CompiledBuffAttributeModifierSource = Pick<
   'attribute' | 'slot' | 'value'
 >;
 
-type CompiledBuffDamageConditionLeaf =
-  | Extract<
-      DamageModifierCondition,
-      {
-        readonly kind:
-          | 'sourceSkillCastMatch'
-          | 'casterControlled'
-          | 'buffBlackboardCompare'
-          | 'eventDamageTypesMatch'
-          | 'targetHealthCompare'
-          | 'targetPoiseCompare';
-      }
-    >
-  | (Extract<DamageModifierCondition, { readonly kind: 'eventDamageTagsMatch' }> & {
-      readonly match: 'hasAny' | 'hasAll';
-      readonly tags: readonly (
-        'normalSkill' | 'comboSkill' | 'ultimateSkill' | 'normalAttackLastCombo'
-      )[];
-    })
-  | (Extract<
-      DamageModifierCondition,
-      { readonly kind: 'entityTagMatch' | 'buffIdCountCompare' }
-    > & {
-      readonly target: 'caster' | 'enemy';
-    });
-
 export interface CompiledBuffDamageModifierSource extends Pick<
   CombatBuffDefinitionDamageModifier,
   'enabledSide'
 > {
-  readonly condition?:
-    | CompiledBuffDamageConditionLeaf
-    | (Extract<DamageModifierCondition, { readonly kind: 'all' }> & {
-        readonly conditions: readonly CompiledBuffDamageConditionLeaf[];
-      });
+  readonly condition?: DamageModifierCondition;
   readonly processors: readonly Extract<
     CombatBuffDefinitionDamageProcessor,
     { readonly kind: 'damageScale' | 'instantAttribute' }

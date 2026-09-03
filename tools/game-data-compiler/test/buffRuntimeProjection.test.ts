@@ -11,8 +11,198 @@ import {
   type TargetReferenceSource,
 } from '../src/index.ts';
 import { collectBuffSpawnedAbilityEntityContextKeys } from '../src/compiler/standardStumpBuffClosure.ts';
+import type { NativeSequenceSource } from '../src/source/controlFlow.ts';
+import type { KnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('防御方修正的 Target 不能误读为敌人失衡值', () => {
+    const source = sourceFixture();
+    const seed = source.graph.abilityEvents[0]!.actions[0]!;
+    expect(() =>
+      compileBuffRuntimeDefinitionSource({
+        ...source,
+        damageModifiers: [
+          {
+            enabledSide: 'Defender',
+            condition: {
+              ...seed,
+              actions: [
+                {
+                  sourcePath: 'modifier.defender.poise',
+                  metadata: seed.actions[0]!.metadata,
+                  body: {
+                    kind: 'leaf',
+                    value: {
+                      family: 'condition',
+                      action: {
+                        kind: 'poise',
+                        sourceType: 'CheckPoiseValue',
+                        target: fixedTarget('Target'),
+                        comparison: 'LE',
+                        returnValueIfMissing: false,
+                        value: { value: 0, blackboardKey: null, levelValues: null },
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+            processors: [
+              {
+                kind: 'damageScale',
+                side: 'Defender',
+                zoneName: 'NormalCalcZone',
+                addition: { value: 0.1, blackboardKey: null, levelValues: null },
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow('damage modifier poise target is not the enemy');
+  });
+
+  it.each([
+    ['HasAny', 'any', 'hasAny'],
+    ['HasAll', 'all', 'hasAll'],
+    ['ExceptAny', 'all', 'exceptAny'],
+    ['ExceptAll', 'any', 'exceptAll'],
+  ] as const)('伤害修正的 %s 混合位掩码复用公共标签/特征转换', (checkType, kind, match) => {
+    const source = sourceFixture();
+    const seed = source.graph.abilityEvents[0]!.actions[0]!;
+    const condition: NativeSequenceSource<KnownNativeActionLeafSource> = {
+      ...seed,
+      actions: [
+        {
+          sourcePath: 'modifier.mask',
+          metadata: seed.actions[0]!.metadata,
+          body: {
+            kind: 'leaf',
+            value: {
+              family: 'condition',
+              action: {
+                kind: 'damageDecorateMask',
+                sourceType: 'CheckDamageDecorateMask',
+                checkType,
+                mask: 256 + 268435456,
+              },
+            },
+          },
+        },
+      ],
+    };
+    const result = compileBuffRuntimeDefinitionSource({
+      ...source,
+      damageModifiers: [
+        {
+          enabledSide: 'Attacker',
+          condition,
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'Attacker',
+              zoneName: 'NormalCalcZone',
+              addition: { value: 0.1, blackboardKey: null, levelValues: null },
+            },
+          ],
+        },
+      ],
+    });
+    expect(result.damageModifiers?.[0]?.condition).toEqual({
+      kind,
+      conditions: [
+        { kind: 'eventDamageTagsMatch', match, tags: ['normalSkill'] },
+        { kind: 'eventDamageFeaturesMatch', match, features: ['dot'] },
+      ],
+    });
+  });
+
+  it('伤害修正的 NotNext 走公共序列控制流，不能当成未支持的独立动作', () => {
+    const source = sourceFixture();
+    const seed = source.graph.abilityEvents[0]!.actions[0]!;
+    const result = compileBuffRuntimeDefinitionSource({
+      ...source,
+      damageModifiers: [
+        {
+          enabledSide: 'Attacker',
+          condition: {
+            ...seed,
+            actions: [
+              {
+                sourcePath: 'modifier.not',
+                metadata: seed.actions[0]!.metadata,
+                body: { kind: 'negateNextResult' },
+              },
+              {
+                sourcePath: 'modifier.cast',
+                metadata: seed.actions[0]!.metadata,
+                body: {
+                  kind: 'leaf',
+                  value: {
+                    family: 'condition',
+                    action: { kind: 'skillCastId', sourceType: 'CheckSkillCastId' },
+                  },
+                },
+              },
+            ],
+          },
+          processors: [
+            {
+              kind: 'damageScale',
+              side: 'Attacker',
+              zoneName: 'NormalCalcZone',
+              addition: { value: 0.1, blackboardKey: null, levelValues: null },
+            },
+          ],
+        },
+      ],
+    });
+    expect(result.damageModifiers?.[0]?.condition).toEqual({
+      kind: 'not',
+      condition: { kind: 'sourceSkillCastMatch' },
+    });
+  });
+
+  it('空处理器列表不能直接丢弃具有黑板副作用的条件', () => {
+    const source = sourceFixture();
+    const seed = source.graph.abilityEvents[0]!.actions[0]!;
+    // 直接复用公共动作源，既不增加原生动作解析器，也不伪装成条件叶子。
+    const condition: NativeSequenceSource<KnownNativeActionLeafSource> = {
+      ...seed,
+      actions: [
+        {
+          sourcePath: 'modifier.write',
+          metadata: seed.actions[0]!.metadata,
+          body: {
+            kind: 'leaf',
+            value: {
+              family: 'blackboardCalculation',
+              action: {
+                kind: 'blackboardCalculation',
+                key: 'real_imbue_scale',
+                operation: 'Multiply',
+                addend: null,
+                left: { value: 0, blackboardKey: 'imbue_scale', levelValues: null },
+                right: { value: 1.5, blackboardKey: null, levelValues: null },
+              },
+            },
+          },
+        },
+      ],
+    };
+    expect(() =>
+      compileBuffRuntimeDefinitionSource({
+        ...source,
+        damageModifiers: [
+          {
+            enabledSide: 'Attacker',
+            condition,
+            processors: [],
+          },
+        ],
+      }),
+    ).toThrow('cannot discard side effects');
+  });
+
   it('把 Buff 动作内创建并保存的 AbilityEntity Context 保留为实体目标证据', () => {
     const source = sourceFixture();
     const event = source.graph.abilityEvents[0]!;

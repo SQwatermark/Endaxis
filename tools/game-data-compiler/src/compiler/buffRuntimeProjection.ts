@@ -1,4 +1,5 @@
 import { projectGameplayTags } from './combatProjectionCommon.ts';
+import { projectPureDamageModifierCondition } from './damageModifierConditionProjection.ts';
 import {
   compileResolvedAttributeModifierSource,
   projectCombatRuntimeAttributeKey,
@@ -868,16 +869,20 @@ function compileBuffDamageModifiers(
   readonly damageModifiers?: readonly CompiledBuffDamageModifierSource[];
 } {
   const modifiers = source.damageModifiers.flatMap((modifier, index) => {
-    // 空 processor 列表在原生数据中确实存在（例如莱万汀满能量图标 Buff），无论条件
-    // 是否成立都不会修改伤害。来源层仍严格解析全部字段，运行投影只去掉这个恒等项。
-    if (modifier.processors.length === 0) return [];
-    const condition = compileDamageModifierCondition(modifier.condition, index, context);
     const enabledSide = DAMAGE_MODIFIER_SIDES[modifier.enabledSide];
     if (enabledSide === undefined) {
       throw new Error(
         `damageModifier[${index}]: unsupported enabled side ${JSON.stringify(modifier.enabledSide)}`,
       );
     }
+    const condition = compileDamageModifierCondition(
+      modifier.condition,
+      index,
+      context,
+      enabledSide,
+    );
+    // 原生先执行条件再遍历处理器。只有公共序列已证明无副作用，空列表才可省略。
+    if (modifier.processors.length === 0) return [];
     const processors = modifier.processors.map((processor, processorIndex) => {
       const processorPath = `damageModifier[${index}].damageProcessors[${processorIndex}]`;
       if (processor.kind === 'damageScale') {
@@ -1191,161 +1196,21 @@ function compileDamageModifierCondition(
   modifierIndex: number,
   context: Pick<
     CombatActionProjectionContextSource,
-    'gameplayTagRegistry' | 'fixedBuffOwnerTarget'
+    'gameplayTagRegistry' | 'fixedBuffOwnerTarget' | 'fixedBuffSourceTarget'
   >,
+  side: DamageModifierSide,
 ): CompiledBuffDamageModifierSource['condition'] | undefined {
-  if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
-    throw new Error(`damageModifier[${modifierIndex}]: root condition filters are unsupported`);
-  }
-  const conditions = source.actions
-    .filter(node => node.metadata.enabled)
-    .map(node => {
-      if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') {
-        throw new Error(`${node.sourcePath}: expected a damage modifier condition`);
-      }
-      const condition = node.body.value.action;
-      if (condition.kind === 'mainOperator') {
-        if (condition.targetSource !== 'Owner' || context.fixedBuffOwnerTarget !== 'caster') {
-          throw new Error(`${node.sourcePath}: unsupported damage modifier main-character target`);
-        }
-        return { kind: 'casterControlled' as const };
-      }
-      if (condition.kind === 'skillCastId') return { kind: 'sourceSkillCastMatch' as const };
-      if (condition.kind === 'floatCompare') {
-        const operator = COMPARISON_OPERATORS[condition.comparison];
-        if (operator === undefined) {
-          throw new Error(`${node.sourcePath}: unsupported damage modifier float comparison`);
-        }
-        return {
-          kind: 'buffBlackboardCompare' as const,
-          left: scalarOperand(condition.left),
-          operator,
-          right: scalarOperand(condition.right),
-        };
-      }
-      if (condition.kind === 'damageType') {
-        return {
-          kind: 'eventDamageTypesMatch' as const,
-          damageTypes: [condition.damageType] as readonly (
-            'physical' | 'true' | 'heat' | 'electric' | 'cryo' | 'lifeDrain' | 'nature' | 'ether'
-          )[],
-        };
-      }
-      if (condition.kind === 'damageTypeMask') {
-        return {
-          kind: 'eventDamageTypesMatch' as const,
-          damageTypes: condition.damageTypes.map(damageType => {
-            const mapped = DAMAGE_TYPES[damageType];
-            if (mapped === undefined) {
-              throw new Error(
-                `${node.sourcePath}: unsupported native damage type ${JSON.stringify(damageType)}`,
-              );
-            }
-            return mapped;
-          }),
-        };
-      }
-      if (condition.kind === 'entityTag') {
-        if (condition.targetSource !== 'Target') {
-          throw new Error(`${node.sourcePath}: unsupported damage modifier entity tag target`);
-        }
-        return {
-          kind: 'entityTagMatch' as const,
-          target: 'enemy' as const,
-          tagQueryType: condition.tagQueryType,
-          tags: projectGameplayTags(condition.tagIds, context, node.sourcePath),
-        };
-      }
-      if (condition.kind === 'buffStack') {
-        const operator = COMPARISON_OPERATORS[condition.comparison];
-        const target =
-          condition.targetSource === 'Target'
-            ? ('enemy' as const)
-            : condition.targetSource === 'Source'
-              ? ('caster' as const)
-              : null;
-        if (
-          target === null ||
-          condition.targetGroupKey !== '' ||
-          condition.buffCheckType !== 'Id' ||
-          condition.buffIds.length === 0 ||
-          condition.buffIds.some(id => id.length === 0) ||
-          condition.buffTagIds.length !== 0 ||
-          condition.countType !== 'BuffCount' ||
-          condition.limitSkillCastId ||
-          operator === undefined
-        ) {
-          throw new Error(`${node.sourcePath}: unsupported damage modifier Buff count condition`);
-        }
-        return {
-          kind: 'buffIdCountCompare' as const,
-          target,
-          buffIds: condition.buffIds,
-          operator,
-          value: scalarOperand(condition.value),
-        };
-      }
-      if (condition.kind === 'poise') {
-        const operator = COMPARISON_OPERATORS[condition.comparison];
-        if (
-          condition.target.targetSource !== 'Target' ||
-          condition.target.targetGroupKey !== '' ||
-          operator === undefined
-        ) {
-          throw new Error(`${node.sourcePath}: unsupported damage modifier poise condition`);
-        }
-        return {
-          kind: 'targetPoiseCompare' as const,
-          target: 'enemy' as const,
-          returnValueIfMissing: condition.returnValueIfMissing,
-          operator,
-          value: scalarOperand(condition.value),
-        };
-      }
-      if (condition.kind === 'health') {
-        const operator = COMPARISON_OPERATORS[condition.comparison];
-        if (
-          condition.targetSource !== 'Target' ||
-          condition.targetGroupKey !== '' ||
-          condition.characterTeamSelection !== null ||
-          operator === undefined
-        ) {
-          throw new Error(`${node.sourcePath}: unsupported damage modifier health condition`);
-        }
-        return {
-          kind: 'targetHealthCompare' as const,
-          target: 'enemy' as const,
-          valueType: condition.isRatio ? ('ratio' as const) : ('current' as const),
-          operator,
-          value: scalarOperand(condition.value),
-        };
-      }
-      if (
-        condition.kind === 'damageDecorateMask' &&
-        (condition.checkType === 'HasAny' || condition.checkType === 'HasAll')
-      ) {
-        const tags = [
-          ...(condition.mask & 256 ? (['normalSkill'] as const) : []),
-          ...(condition.mask & 512 ? (['ultimateSkill'] as const) : []),
-          ...(condition.mask & 8192 ? (['comboSkill'] as const) : []),
-          ...(condition.mask & 2097152 ? (['normalAttackLastCombo'] as const) : []),
-        ];
-        const knownMask = 256 | 512 | 8192 | 2097152;
-        if (tags.length === 0 || (condition.mask & ~knownMask) !== 0) {
-          throw new Error(`${node.sourcePath}: unsupported damage decorate mask ${condition.mask}`);
-        }
-        return {
-          kind: 'eventDamageTagsMatch' as const,
-          match: condition.checkType === 'HasAny' ? ('hasAny' as const) : ('hasAll' as const),
-          tags,
-        };
-      }
-      throw new Error(
-        `${node.sourcePath}: unsupported damage modifier condition ${condition.kind}`,
-      );
-    });
-  if (conditions.length === 0) return undefined;
-  return conditions.length === 1 ? conditions[0] : { kind: 'all', conditions };
+  return projectPureDamageModifierCondition(
+    compileCombatConditionSequenceSource(source, {
+      ...context,
+      actionOwnerTarget: 'buffOwner',
+      actionSourceTarget: 'caster',
+      // 原生 Target 是处理侧的对侧，不得把防御方修正的 Target 也当作敌人。
+      actionTargetTarget: side === 'attacker' ? 'enemy' : 'caster',
+      damageModifierContext: true,
+    }),
+    `damageModifier[${modifierIndex}].condition`,
+  );
 }
 
 function compileSkillSpGainSequence(
@@ -1543,7 +1408,9 @@ function createBuffSequenceProjection(
         initialState: () => state,
       });
       if (callback.steps.length > 0) {
-        throw new Error(`${node.sourcePath}: combat-visible targetPointInvalid callback requires native trigger projection`);
+        throw new Error(
+          `${node.sourcePath}: combat-visible targetPointInvalid callback requires native trigger projection`,
+        );
       }
       // 子树已消去后才检查持有动作；不能因原始回调非空就拒绝或让其无条件执行。
       return compileLeaf({ ...node, body: { kind: 'leaf', value: node.body.value } }, state);

@@ -107,3 +107,43 @@ ChangeSkillType(AttachSkill) 再 CastSkill；见复刻库 `docs/change-skill-typ
 
 2026-09-04 收尾：编译器全量 140 文件 / 1580 项、compiler/production 类型检查通过。
 本轮未改本体运行逻辑、正式生成资源、combat-spec 或 VFS；临时输入、候选与模拟报告均不入 Git。
+
+## 2026-09-04：伤害修正条件公共化检查点
+
+`buffRuntimeProjection.compileDamageModifierCondition` 已不再独立解析原生条件叶子和掩码，
+改用 `compileCombatConditionSequenceSource`，保留整个序列返回值。同步伤害修正上下文显式
+标记为 `damageModifierContext`；它只证明当前伤害包可供条件读取，不是事件广播。
+`damageModifierConditionProjection.ts` 仅把已编译纯程序无损降低为现有运行协议，不包含
+任何原生字段/枚举转换。长期接通统一运行后可去掉这层适配，不应再向它扩展一套黑板动作语言。
+
+已修两个不安全假设：空处理器不代表条件无副作用；防御方 Target 不代表敌人。
+目前纯 Tag/Feature/编号/黑板比较/布尔树可降低，有写入和未接入的上下文语义则严格阻塞。
+秋栗实际诊断现在指向 `calculateActionValue` 需要动作序列运行，不再是 IfElse 无法解析。
+没有新增秋栗专用倍率或配置，没有宣称其转换完成。
+
+复刻库现有 DamageModifier.Apply 已先执行 SequenceAction.ExecuteInstant，再按处理器时机
+执行。其既有 IfElse / SimpleCalc / ModifyDynamic 直接可用，本轮新增 8 项结构性回归；
+连同 DamageProcessorTests 和 ParsedSkillCastIdCondition 共 64 项通过。证据仍是旧版本原生
+控制流与当前来源配置的组合，没有新版本机器码复验；普通 SkillCastInfo 对 affix 的代用边界
+已明确补进复刻库，不能据测试通过放开诀的同次施法过滤。
+
+### 下一切片的具体实现位置
+
+1. 条件程序直接使用公共 ActionSequenceDefinition，不再添加 Modifier 专用 IfElse/写值 DSL。
+   `packages/game-data-contract/src/modifiers.ts` 与 `buffs.ts` 当前只有纯 condition；协议的
+   扩展必须同步覆盖所有 Buff 入口，不以绕过校验的临时回调代替可保存的数据。
+2. 对齐 `compileSkill.ts` / ResolvedSkillBuffDefinition 与 `combatBuffDefinitions.ts`：前者
+   处理内联 Buff 的养成解析，后者处理公共 Buff。不要只接前者导致全局/装备 Buff 失效。
+3. 复用 `buffLifecycleSequenceRuntime.ts` 已有的每实例 CombatActionSequenceRuntime、
+   Buff 黑板和受控操作链；`DamageModifier.apply` 需要消费布尔返回值。临时伤害包 Context
+   要与普通 AbilitySystem event 区分，不发布虚构事件，也不能覆盖 Buff 自身来源施法信息。
+4. 每次 Modifier 调用都先按 side/owner 门控，再执行条件（含 Before/After 两阶段），最后运行
+   processors；保留短路、End/Reset、实例隔离、写入可见性与空处理器行为。动态倍率不能缓存。
+5. CheckSkillCastId 原生预期值是 affixSkillCastId；现有 Next 和 C# 的普通来源编号并不构成
+   全路径等价证据。接线前核实此 Buff 来源，或先补明确 affix 身份端口/来源传播再开放正式生成。
+6. 严格解析、编辑器与公共导图入口一起接，最后用秋栗两分支的实际伤害断言验收；606 次
+   “不报错”仍不能替代此数值测试。诀之后再处理同批剩余全局依赖、新干员与新武器回调。
+
+本轮编译器 141 文件 / 1594 项、compiler/production 类型检查通过；28 名候选的 578 次
+模拟 + 28 份定义检查共 606 项重跑通过。报告仍在上述 tmp 路径；正式 pin/生成物未变，
+AKEDB 主源策略不变，完整重建及发布仍未完成。
