@@ -37,6 +37,7 @@
     "generate:game-data:common-buffs": "node --experimental-strip-types tools/game-data-compiler/scripts/generateCommonBuffDefinitions.ts",
     "plan:game-data:operator-unity-templates": "node --experimental-strip-types tools/game-data-compiler/scripts/planOperatorUnityTemplates.ts",
     "download:game-data:sources": "node --experimental-strip-types tools/game-data-compiler/scripts/downloadGameDataSources.ts",
+    "rebuild:game-data": "node --experimental-strip-types tools/game-data-compiler/scripts/rebuildGameData.ts",
     "generate:game-data:gameplay-tags": "node --experimental-strip-types tools/game-data-compiler/scripts/generateGameplayTagCatalog.ts",
     "generate:game-data:ability-entity-templates": "node --experimental-strip-types tools/game-data-compiler/scripts/generateAbilityEntityTemplateCatalog.ts",
     "generate:game-data:tag-predefine": "node --experimental-strip-types tools/game-data-compiler/scripts/generateGameplayTagPredefine.ts",

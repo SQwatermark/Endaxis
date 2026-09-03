@@ -231,7 +231,7 @@ export async function writeAtomicBytes(output: string, content: Uint8Array): Pro
   await renameWithRetry(temporary, output);
 }
 
-async function writeAtomicJson(output: string, value: unknown): Promise<void> {
+export async function writeAtomicJson(output: string, value: unknown): Promise<void> {
   await writeAtomicBytes(output, new TextEncoder().encode(`${JSON.stringify(value, null, 2)}\n`));
 }
 

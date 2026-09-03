@@ -9,6 +9,66 @@
 
 ## 统一入口（2026-08-30）
 
+### 空目录重建入口第一阶段（2026-09-03）
+
+当前开发主线为**优先适配新版与接入新增内容，最终全部游戏派生资源可从空目录一次重建**。
+仍以 AKEDB 为主、VFS 补缺；不等待 VFS 完整替代 AKEDB，也不借此恢复已回退的错误生成物。
+
+`rebuild:game-data` 已接入来源下载、逐文件/整批哈希复验、身份覆盖检查、单件装备候选生成及
+重跑 `--check`。每次只创建 `tmp/game-data-rebuild/run-*`，候选保留正式相对路径；不会覆盖正式
+定义、图片、旧版代码或项目数据。失败会留报告和下载器自己的 `.partial-*` 供排查。
+
+```powershell
+# 第一条已实际验证：从网络下载当前表，在没有任何候选产物的目录生成全部单件装备。
+npm run rebuild:game-data -- --tables-only
+# 离线重试也必须有下载器的 hybrid provenance，逐项校验，不搜索旧缓存。
+npm run rebuild:game-data -- --source-root tmp/rebuild-tables-20260903 --tables-only
+# 完整目标当前仍未闭合：继续采用 hybrid 全量下载，但报告明确未完成，退出码为 2。
+npm run rebuild:game-data
+```
+
+- `--tables-only` 仅表示表和单件装备切片通过；始终输出 `fullRebuild=false`、`published=false`。
+  完整入口在其他阶段闭合前返回 2；传输/校验/生成错误返回 1。不提供 `--publish` 或正式输出开关。
+- 来源复验拒绝 VFS-only、错版本、路径穿越、重复/漏记/额外文件、链接、字节/大小/哈希变化与清单
+  数量不符。生成后再次复验整批身份。VFS 补件仍明确 `vfsVersionVerified=false`，哈希不证明同版本。
+- 身份检查比较角色/套装表与现有转换配置。未配置角色不自动注册；管理员表现变体、非玩家记录和
+  真正新内容仍须分类。套装固定名单未覆盖的新项不会再在这份报告里静默消失。
+- 套装生成器改为遍历 `EquipSuitTable` 的全部身份，逐项走原有公共静态/运行编译器并收集错误；
+  任一身份未闭合时整批不写盘。`gearSetIdentities.json` 只保留已发布基线身份，不再截断生成范围。
+- 正式装备目录仅在候选生成之后用作可选差异比较；该目录不存在时也能生成。比较只忽略 CRLF/LF，
+  不忽略游戏数值或行为字段。报告保留木桩省略诊断，而不是删除后宣称原生完整。
+- `report.json.remaining` 明确记录后续阻塞：全部领域的同批依赖、全局/模板证据、本地化旧文件、
+  图标扫描、旧展示适配和敌人预设、全量模拟与发布。它不是可执行删除清单；混合目录不能整体清空。
+
+单件装备兼容性可对隔离报告运行：
+
+```powershell
+$env:ENDAXIS_GAME_DATA_REBUILD_REPORT = 'D:\Projects\Endaxis\tmp\game-data-rebuild\run-实际目录\report.json'
+npx vitest run tools/game-data-compiler/test/rebuiltGearCandidate.test.ts --maxWorkers=2
+Remove-Item Env:ENDAXIS_GAME_DATA_REBUILD_REPORT
+```
+
+该门禁重新核对来源和生成文件，逐件验证契约、四种属性的全部主副属性组合以及最低/最高精锻的
+单件上轴伤害模拟。干员与公共规则仍来自可信正式基线，**不是新版套装闭合或全资源空目录模拟证明**。
+不指定环境变量时仅运行一份小型真实装备夹具回归，不依赖本机 `tmp/` 下载。2026-09-03 当前 AKEDB
+`1.5.3@9885010-4` 的 258 件候选通过 **774 项**；旧 243 件定义文本完全不变，新增 15 件，索引更新，
+没有删除条目。套装新身份 `suit_spellburst` 尚未进入正式名单，不能将这 15 件连同未闭合套装直接发布。
+
+本机完整命令也已完成来源下载与装备切片：报告在 `tmp/game-data-rebuild/run-dYAF19/report.json`，
+快照 `3c85bb1596f73d384403bdfe35f576b1ffb00beafcb13fe502fdc8154fd3331c`，共 6,230 项，
+其中 AKEDB 5,511 项、VFS 补件 719 项。它覆盖当前来源清单，不代表所有全局配置、图片/HUD 和
+本地化派生流程已覆盖。重试可传入该次的 `sources` 目录，不需重新下载，仍会完整复验。
+
+用该批 SkillData/BuffData 加**基线标签目录**进行定位性套装试编译，发现新套装
+`buff_equipsuit_spellburst_01.abilityEventAction[0].actions[0].actionData[3]` 的
+`AddGlobalCDTimer`（Owner，0.1 秒）阻塞。该 Buff 来自 AKEDB，不是 VFS 数字枚举误读；
+公共投影在未固定 BuffOwner 时只接受 caster，不能直接把 Owner 强写为 caster 绕过。
+原生全局冷却语义已有 `combat-spec/docs/global-timed-marker.md` 证据，应先核对目标绑定及
+全局标记与普通 TimedMarker 的现有简化，再补统一检查/写入和运行回归。此次诊断未发布任何套装，
+也不能用基线标签冒充同批完整重建。
+
+### 各领域独立入口
+
 根 `scripts/` 已清空。当前游戏数据工具统一位于本目录：
 
 - `scripts/generateWeaponDefinitions.ts`、`generateGearDefinitions.ts`、
