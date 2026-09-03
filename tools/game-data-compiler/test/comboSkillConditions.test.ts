@@ -31,6 +31,39 @@ function parse(value: unknown) {
 }
 
 describe('公共连携条件来源与 Pending 编译', () => {
+  it.each(['Owner', 'Source'])('待释放连携检查复用公共条件解析：%s', targetSource => {
+    const entry = record();
+    entry.comboSkillCheckAction.actionData = [
+      {
+        $type: 'Beyond.Gameplay.Core.CheckComboSkillPending+Data, Gameplay.Beyond',
+        isEnable: true,
+        priorityLevel: 'Default',
+        priorityOffset: 0,
+        serverActionIndex: 1004,
+        owner: targetFixture(targetSource),
+      },
+    ];
+    const source = parse([entry])[0]!;
+    expect(compilePendingComboConditionSource(source, context).sequence.steps[0]).toMatchObject({
+      parameters: { condition: { kind: 'casterComboPending' } },
+    });
+    expect(() =>
+      compilePendingComboConditionSource(source, {
+        ...context,
+        actionOwnerTarget: 'buffOwner',
+        actionSourceTarget: 'buffSource',
+      }),
+    ).toThrow('proven plain caster target');
+    entry.comboSkillCheckAction.actionData = [
+      {
+        ...(entry.comboSkillCheckAction.actionData[0] as object),
+        owner: targetFixture('Context', undefined, 'trigger'),
+      },
+    ];
+    expect(() => compilePendingComboConditionSource(parse([entry])[0]!, context)).toThrow(
+      'proven plain caster target',
+    );
+  });
   it.each([true, false])('定义投影从已审计初值安装局部板（启用=%s），来源单独保留', enabled => {
     const pair = (key: string, valueDouble: number) => ({
       key,

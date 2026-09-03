@@ -352,6 +352,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckBuffIdInContextAdvanced',
   'CheckConsumeBuffLayer',
   'CheckGlobalCDTimerAction',
+  'CheckComboSkillPending',
   'CheckSkillHasHit',
   'CheckSkillCastId',
   'CheckEnemyRank',

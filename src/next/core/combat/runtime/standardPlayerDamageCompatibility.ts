@@ -99,6 +99,7 @@ function inspectCondition(
     case 'ownerSpawnedAbilityEntityPresent':
     case 'timedMarkerPresent':
     case 'globalCooldownPresent':
+    case 'casterComboPending':
     case 'abilityEntityTimedMarkerPresent':
     case 'elementalReactionActive':
     case 'casterControlled':

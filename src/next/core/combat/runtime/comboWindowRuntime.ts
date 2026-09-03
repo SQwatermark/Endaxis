@@ -62,6 +62,11 @@ export class ComboWindowRuntime implements FrameRuntime {
     return this.#orderedRecords().flatMap(record => record.candidates);
   }
 
+  /** 原生 HasPendingComboSkill：只看该角色记录的候选数，不执行释放门禁或检查队首。 */
+  hasPending(operatorId: string): boolean {
+    return (this.#records.get(operatorId)?.candidates.length ?? 0) > 0;
+  }
+
   /** 当前应最先处理的干员记录中的候选。 */
   get first(): PendingComboWindow | undefined {
     return this.#orderedRecords()[0]?.candidates.at(-1);

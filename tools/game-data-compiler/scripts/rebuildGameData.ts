@@ -14,6 +14,9 @@ import { exportGameplayTagConfigSet } from './exportGameplayTagConfigSet.ts';
 import { generateGameplayTagCatalog } from './generateGameplayTagCatalog.ts';
 import { generateGameplayTagPredefine } from './generateGameplayTagPredefine.ts';
 import { verifyGameDataSnapshot } from './verifyGameDataSnapshot.ts';
+import { auditOperatorTemplateRefresh } from '../src/audits/operatorTemplateRefresh.ts';
+import { auditOperatorSkillLibraries } from '../src/audits/operatorSkillLibraries.ts';
+import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
@@ -218,6 +221,29 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         };
       });
       if (tagsOkay) {
+        await stage('operator-refresh', async () => {
+          const detail = await inspectOperatorRefresh(sourceRoot, root, tags);
+          await writeAtomicJson(path.join(runRoot, 'audit', 'operator-refresh.json'), detail);
+          // 保留完整逐项报告；编译前缀通过不能掩盖技能组阻塞或需要审阅的 pin/新增身份。
+          if (
+            detail.templates.blockedCount ||
+            detail.skillLibraries.blockedCount ||
+            detail.templates.changedPinCount ||
+            detail.templates.unconfiguredSourceFiles.length
+          )
+            stages.push({
+              id: 'operator-refresh-review',
+              status: 'blocked',
+              detail: {
+                report: path.join(runRoot, 'audit', 'operator-refresh.json'),
+                templateFailures: detail.templates.blockedCount,
+                skillLibraryFailures: detail.skillLibraries.blockedCount,
+                changedPins: detail.templates.changedPinCount,
+                unconfiguredTemplates: detail.templates.unconfiguredSourceFiles,
+              },
+            });
+          return detail;
+        });
         await stage('gameplay-tag-predefine', async () => {
           const params = [
             path.join(sourceRoot, 'GameplayConfig/GameplayTagPredefineTable.json'),
@@ -287,7 +313,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           return verified;
         });
       } else {
-        for (const id of ['gameplay-tag-predefine', 'gear-sets', 'weapons'])
+        for (const id of ['operator-refresh', 'gameplay-tag-predefine', 'gear-sets', 'weapons'])
           stages.push({
             id,
             status: 'blocked',
@@ -417,6 +443,40 @@ export async function compareCandidateFiles(baseline: string, candidate: string)
 
 async function readJson(file: string): Promise<unknown> {
   return JSON.parse(await fs.readFile(file, 'utf8'));
+}
+
+/** 只读取本次复验过的原始集合；不加载旧生成定义或聚合目录。 */
+export async function inspectOperatorRefresh(
+  sourceRoot: string,
+  projectRoot: string,
+  tags: string,
+) {
+  const collection = async (directory: string) => {
+    const records: Record<string, unknown> = {};
+    for (const file of await fs.readdir(path.join(sourceRoot, directory))) {
+      if (!file.endsWith('.json')) continue;
+      records[directory === 'CharacterData' ? `${directory}/${file}` : file] = await readJson(
+        path.join(sourceRoot, directory, file),
+      );
+    }
+    return records;
+  };
+  const manifest = await readJson(
+    path.join(projectRoot, 'tools/game-data-compiler/config/operators.json'),
+  );
+  return {
+    templates: auditOperatorTemplateRefresh(
+      manifest,
+      await collection('CharacterData'),
+      readGameplayTagPaths(tags),
+    ),
+    skillLibraries: auditOperatorSkillLibraries(
+      manifest,
+      await collection('SkillData'),
+      await readJson(path.join(sourceRoot, 'TableCfg-current/SkillPatchTable.json')),
+      await readJson(path.join(sourceRoot, 'TableCfg-current/CharGrowthTable.json')),
+    ),
+  };
 }
 
 export function parseRebuildArguments(values: readonly string[]): RebuildArguments {

@@ -22,6 +22,7 @@ import {
 import { readActionTarget, readDirectionType, readTargetSource } from './targetEnums.ts';
 const META = ['isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex'];
 const LEAF_FIELDS: Readonly<Record<string, readonly string[]>> = {
+  'Beyond.Gameplay.Core.CheckComboSkillPending/Data': ['owner'],
   'Beyond.Gameplay.Core.Conditions.CheckObjectTypeMatch/Data': ['target', 'objectTypeMask'],
   'Beyond.Gameplay.Core.Conditions.CheckSpellInflictionType/Data': ['mask', 'savedKey'],
   'Beyond.Gameplay.Core.Conditions.CheckBuffStackNumByTag/Data': [
@@ -201,6 +202,7 @@ function normalizeLeaf(
     'calculationTarget',
     'targetSettings',
     'buffOwners',
+    'owner',
   ])
     if (key in data)
       result[key] = normalizeTarget(data[key], references, usedReferences, `${path}.${key}`);
@@ -359,10 +361,7 @@ function normalizeBuffFindSettings(value: unknown, path: string) {
   const settings = requireRecord(value, path);
   requireExactFields(settings, new Set(['checkType', 'buffIdList', 'tagQuery']), path);
   return {
-    checkType: readBuffFindCheckType(
-      settings.checkType,
-      `${path}.checkType`,
-    ),
+    checkType: readBuffFindCheckType(settings.checkType, `${path}.checkType`),
     buffIdList: requireArray(settings.buffIdList, `${path}.buffIdList`).map((value, index) =>
       requireString(value, `${path}.buffIdList[${index}]`),
     ),

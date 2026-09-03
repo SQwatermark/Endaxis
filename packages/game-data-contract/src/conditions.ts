@@ -216,6 +216,10 @@ export type CombatCondition =
       markerId: string;
     }
   | {
+      /** 施放者的原生连携候选列表非空；不检查冷却、队首、当前技能或可释放性。 */
+      kind: 'casterComboPending';
+    }
+  | {
       /** 检查目标能力系统中是否存在仍有效的原生定时标记。 */
       kind: 'timedMarkerPresent';
       target: TimedMarkerTarget;
@@ -421,6 +425,7 @@ export const COMBAT_CONDITION_KINDS = [
   'buffIdStackCompare',
   'timedMarkerPresent',
   'globalCooldownPresent',
+  'casterComboPending',
   'abilityEntityTimedMarkerPresent',
   'eventDamageTagsMatch',
   'eventDamageFeaturesMatch',

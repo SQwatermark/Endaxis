@@ -85,6 +85,21 @@ npm run rebuild:game-data -- --source-root tmp/game-data-rebuild/run-dYAF19/sour
 无 worker 时明确阻塞，不隐式使用正式标签。前文保留的是阶段历史。
 来源、重复路径处理和证据边界见[新版标签重建](../../docs/research/gameplay-tag-refresh-2026-09-03.md)。
 
+### 新旧干员刷新门禁（2026-09-03）
+
+完整标签阶段成功后，统一命令还会运行 `operator-refresh`：尝试当前全部 CharacterData 前缀、
+黑板与连携条件（不只遍历已配置干员），并以原有公共技能库编译器检查全部配置干员的 SkillData /
+CharGrowthTable。明细保存于本次 `audit/operator-refresh.json`，不读取旧生成定义。
+模板 pin 变化与解析失败分别报告，不因 pin 变化跳过新内容，也不自动更新正式 pin。
+需要审阅的变化、缺件、失败及未配置身份另记为 `operator-refresh-review: blocked`；
+`compiled-prefix` 不表示完整技能闭包、完整模板或模拟通过。
+
+当前已复验快照的 32 份模板前缀可全部编译，30 个已配置 pin 均不同；未配置的两份为男管理员表现
+与 Typhoeus，不应注册成两名新干员。30 名技能库中 29 名通过，庄方宜的 `ultimate_skill_end` 已
+不在当前等级组内，但仍在角色主动技能登记中，须核查内部结束技能路由，不能直接删除或改成强化终结技。
+新干员的 Pending 检查及 `trigger` 与主控角色身份比较均走公共条件解析与模拟，不做干员特例。
+研究、复验结果与当前网络阻塞见[干员刷新检查点](../../docs/research/operator-template-refresh-2026-09-03.md)。
+
 ### 各领域独立入口
 
 根 `scripts/` 已清空。当前游戏数据工具统一位于本目录：

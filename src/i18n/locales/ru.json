@@ -1671,6 +1671,7 @@
         "buffIdStackCompare": "Сравнение слоёв Buff по ID",
         "timedMarkerPresent": "Есть временная метка",
         "globalCooldownPresent": "Глобальная перезарядка активна",
+        "casterComboPending": "У персонажа есть ожидающее комбо (без проверки возможности применения)",
         "eventDamageTagsMatch": "Метки урона события",
         "eventDamageFeaturesMatch": "Свойства урона события",
         "elementalInflictionPresent": "Есть стихийное наложение",

@@ -517,6 +517,7 @@ function validateCombatCondition(
     case 'combatActive':
     case 'singleEnemyPresent':
     case 'casterControlled':
+    case 'casterComboPending':
     case 'eventSourceMatchesBuffSource':
     case 'eventSourceMatchesBuffSourceEntitySource':
     case 'eventSourceControlled':

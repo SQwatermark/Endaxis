@@ -20,6 +20,26 @@ function parse(fixture = unityComboConditionFixture()) {
 }
 
 describe('Unity RID 条件适配', () => {
+  it('待释放连携检查规范化 Owner 和空 finder RID，再进入公共条件投影', () => {
+    const fixture = unityComboConditionFixture();
+    const rid = '2708501211437859822';
+    const reference = fixture.references[rid]!;
+    const owner = { ...(reference.data.target as object), targetSource: 4, targetGroupKey: '' };
+    reference.class = 'CheckComboSkillPending/Data';
+    reference.namespace = 'Beyond.Gameplay.Core';
+    reference.data = {
+      isEnable: true,
+      priorityLevel: 0,
+      priorityOffset: 0,
+      serverActionIndex: 1004,
+      owner,
+    };
+    fixture.conditions[0]!.comboSkillCheckAction.actionData = [rid];
+    const source = parse(fixture).conditions[0]!;
+    expect(compilePendingComboConditionSource(source, projection).sequence.steps[0]).toMatchObject({
+      parameters: { condition: { kind: 'casterComboPending' } },
+    });
+  });
   it('新增四类 RID 叶子只规范化序列化形状，并统一进入公共 Condition 编译', () => {
     const target = structuredClone(
       unityComboConditionFixture().references['2708501211437859822']!.data.target,
@@ -198,7 +218,7 @@ describe('Unity RID 条件适配', () => {
     });
   });
 
-  it('零载荷 selector RID 还原为公共 TargetSettings 类型，不在连携层复制目标语义', () => {
+  it.each([0, 2])('零载荷 selector RID 进入公共目标语义，TargetSource=%s', targetSource => {
     const leafRid = '2708501211437858912';
     const finderRid = '2708501211437858915';
     const validatorRid = '2708501211437858916';
@@ -250,7 +270,7 @@ describe('Unity RID 条件适配', () => {
             priorityLevel: 0,
             priorityOffset: 0,
             serverActionIndex: 1001,
-            firstTargetSettings: target(0, 'trigger', {
+            firstTargetSettings: target(targetSource, 'trigger', {
               finderData: '-2',
               validatorData: [],
               postProcessorData: [],
@@ -298,7 +318,10 @@ describe('Unity RID 条件适配', () => {
               value: {
                 action: {
                   kind: 'targetIdentity',
-                  first: { targetSource: 'Target', targetGroupKey: 'trigger' },
+                  first: {
+                    targetSource: targetSource === 0 ? 'Target' : 'Context',
+                    targetGroupKey: 'trigger',
+                  },
                   second: {
                     targetSource: 'InstantSearch',
                     finderType: 'CharacterTeamFinder',
@@ -311,12 +334,32 @@ describe('Unity RID 条件适配', () => {
         ],
       },
     });
-    expect(compilePendingComboConditionSource(source.conditions[0]!, projection)).toMatchObject({
+    const boundProjection = {
+      ...projection,
+      contextTargetGroupTargets: new Map([['trigger', 'eventTarget'] as const]),
+    };
+    if (targetSource === 2)
+      expect(() => compilePendingComboConditionSource(source.conditions[0]!, projection)).toThrow(
+        'target identity sources',
+      );
+    expect(
+      compilePendingComboConditionSource(source.conditions[0]!, boundProjection),
+    ).toMatchObject({
       event: 'beforeTakeDamage',
       sequence: {
         steps: [
           {
-            parameters: { condition: { kind: 'eventSourceControlled' } },
+            parameters: {
+              condition:
+                targetSource === 0
+                  ? { kind: 'eventSourceControlled' }
+                  : {
+                      kind: 'contextTargetIdentityMatch',
+                      contextKey: 'trigger',
+                      other: 'controlledOperator',
+                      operator: 'equal',
+                    },
+            },
           },
         ],
       },

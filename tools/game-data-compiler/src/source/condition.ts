@@ -267,6 +267,10 @@ export type NativeConditionSource =
       readonly buffId: string;
     })
   | (ConditionIdentity & { readonly kind: 'skillHasHit' })
+  | (ConditionIdentity & {
+      readonly kind: 'comboSkillPending';
+      readonly owner: TargetReferenceSource;
+    })
   | (ConditionIdentity & { readonly kind: 'skillCastId' })
   | (ConditionIdentity & {
       readonly kind: 'enemyRank';
@@ -800,6 +804,24 @@ export function parseConditionLeafSource(
     }
     case 'CheckSkillHasHit':
       return { kind: 'skillHasHit', sourceType };
+    case 'CheckComboSkillPending':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'owner',
+        ]),
+        path,
+      );
+      return {
+        kind: 'comboSkillPending',
+        sourceType,
+        owner: parseTargetReferenceSource(condition.owner, `${path}.owner`),
+      };
     case 'CheckSkillCastId':
       requireExactFields(
         condition,

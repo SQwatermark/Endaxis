@@ -5904,3 +5904,22 @@ comboSkillConditions -> 公共事件/条件动作运行时` 一条权威路径�
 - 编译器 139 文件 / 1570 项、两套 compiler 类型检查通过；使用新标签候选的套装模拟 28/28。
   没有发布正式生成物、没有改旧版或 combat-spec/VFS 代码；原始资源、请求/响应、审计都在 tmp。
   完整命令及证据见 `docs/research/gameplay-tag-refresh-2026-09-03.md`。
+
+### 2026-09-03：新旧干员刷新检查接入统一入口
+
+- 用户强调已有干员也有变化。本轮不覆盖正式资源、不更新 pin；`rebuild:game-data` 新增
+  `operator-refresh`，检查全部当前模板及全部已配置技能库，变化/未知身份/失败独立列入报告。
+- 补齐公共 `casterComboPending`（仅候选存在性，不是 canCast），从 JSON/RID 解析、契约、
+  编译到模拟/条件编辑器贯通；复刻库已有语义，ComboSkill 60/60，无需新增特例或重复研究。
+  新干员接着暴露 `trigger` 与主控搜索比较，复用公共身份条件，严格限定已绑定单目标事件。
+- 当前同批快照经前后复验及标签 source-set check：32 份模板已解码前缀/黑板/连携条件全部通过，
+  30 个现有 pin 全部变化，但不能推导成所有干员效果变化。男管理员与 Typhoeus 两份未配置；
+  管理员仍仅使用女版一套技能，Typhoeus 尚未完整生成/注册/模拟。
+- 30 名现有技能库 29 名通过；庄方宜 `ultimate_skill_end` 不在新版等级组，但仍有主动技能登记
+  和 SkillData，需核对内部路由，不能删掉或再叫强化终结技。详情和后续步骤见
+  `docs/research/operator-template-refresh-2026-09-03.md`。
+- 编译器 139 文件 / 1575 项、Next 304 文件 / 4079 项、四套类型检查通过。独立复验报告为
+  `tmp/operator-refresh-20260903/refresh-verified.json`。完整命令重跑 `run-8PfnvM` 的标签获取
+  `fetch failed`，后续正确阻塞，未声称新一轮网络完整重建通过。没有改 combat-spec/VFS 或旧版。
+- 下一轮既要继续同批依赖重建，也要落实旧干员效果回归：洛茜 Buff 时钟、赛希/别礼/莱万汀事件
+  先后、诀施法身份/时长与梨诺投射物回调，不能只补新角色或批量换 pin。既有差异审计仍有效。

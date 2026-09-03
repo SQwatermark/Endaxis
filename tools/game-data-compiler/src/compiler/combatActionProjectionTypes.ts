@@ -45,6 +45,7 @@ type MarkerTarget =
 export type CompiledBuffConditionSource =
   | Condition<'constant'>
   | Condition<'globalCooldownPresent'>
+  | Condition<'casterComboPending'>
   | Condition<
       | 'casterControlled'
       | 'characterTypeIn'

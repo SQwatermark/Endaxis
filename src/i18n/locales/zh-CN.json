@@ -1791,6 +1791,7 @@
         "buffIdStackCompare": "按身份比较 Buff 层数",
         "timedMarkerPresent": "存在定时标记",
         "globalCooldownPresent": "全局冷却尚未结束",
+        "casterComboPending": "施放者存在待释放连携候选（不检查能否释放）",
         "eventDamageTagsMatch": "事件伤害标签匹配",
         "eventDamageFeaturesMatch": "事件伤害特征匹配",
         "elementalInflictionPresent": "存在元素附着",

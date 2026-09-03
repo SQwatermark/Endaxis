@@ -1794,6 +1794,7 @@
         "buffIdStackCompare": "Buff identity stack comparison",
         "timedMarkerPresent": "Timed marker present",
         "globalCooldownPresent": "Global cooldown active",
+        "casterComboPending": "Caster has a pending combo candidate (not a castability check)",
         "eventDamageTagsMatch": "Event damage tags match",
         "eventDamageFeaturesMatch": "Event damage features match",
         "elementalInflictionPresent": "Elemental infliction present",

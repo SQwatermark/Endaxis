@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { parseOperatorRuntimeTemplateSource } from '../src/source/operatorRuntimeTemplate.ts';
 import { unityComboConditionFixture } from './unityComboConditionFixture.ts';
+import { auditOperatorTemplateRefresh } from '../src/audits/operatorTemplateRefresh.ts';
+import { GAMEPLAY_TAG_PATHS } from '../../../src/next/data/combat/gameplayTagCatalog.generated.ts';
 
 const sourceSha256 = '33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc';
 const pair = (key: string, valueDouble = 0) => ({
@@ -91,6 +93,59 @@ function runtimeTemplate() {
 }
 
 describe('角色运行模板来源', () => {
+  it('刷新尝试所有当前模板；变化 pin、未配置身份及单项失败独立列出且不改配置', () => {
+    const existing = runtimeTemplate();
+    const fresh = runtimeTemplate();
+    fresh.data.id = 'chr_new';
+    const manifest = {
+      operators: [
+        {
+          slug: 'known',
+          runtimeTemplate: {
+            sourceFile: 'CharacterData/known.json',
+            sourceCharacterId: existing.data.id,
+            sourceSha256: 'f'.repeat(64),
+          },
+        },
+      ],
+    };
+    const before = structuredClone(manifest);
+    const templates = {
+      'CharacterData/known.json': existing,
+      'CharacterData/new.json': fresh,
+      'CharacterData/broken.json': {},
+    };
+    const report = auditOperatorTemplateRefresh(manifest, templates, GAMEPLAY_TAG_PATHS);
+    expect(report).toMatchObject({
+      sourceCount: 3,
+      configuredCount: 1,
+      compiledPrefixCount: 2,
+      blockedCount: 1,
+      changedPinCount: 1,
+      unconfiguredSourceFiles: ['CharacterData/broken.json', 'CharacterData/new.json'],
+    });
+    expect(manifest).toEqual(before);
+    const missing = auditOperatorTemplateRefresh(manifest, {}, GAMEPLAY_TAG_PATHS);
+    expect(missing).toMatchObject({ sourceCount: 0, blockedCount: 1 });
+    expect(missing.entries[0]).toMatchObject({ configuredSlugs: ['known'], status: 'blocked' });
+    const brokenCondition = runtimeTemplate();
+    brokenCondition.conditionReferences = {};
+    expect(
+      auditOperatorTemplateRefresh(
+        manifest,
+        { 'CharacterData/known.json': brokenCondition },
+        GAMEPLAY_TAG_PATHS,
+      ),
+    ).toMatchObject({ changedPinCount: 1, blockedCount: 1 });
+    fresh.data.id = 'wrong_identity';
+    expect(
+      auditOperatorTemplateRefresh(
+        manifest,
+        { 'CharacterData/known.json': fresh },
+        GAMEPLAY_TAG_PATHS,
+      ).entries[0],
+    ).toMatchObject({ status: 'blocked', error: expect.stringContaining('identity mismatch') });
+  });
   it('从同一固定来源组合角色身份、两层黑板与五条 RID 连携条件', () => {
     const parsed = parseOperatorRuntimeTemplateSource(runtimeTemplate(), 'CharacterData.arcane');
 

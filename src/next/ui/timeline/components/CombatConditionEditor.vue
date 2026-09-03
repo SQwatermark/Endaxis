@@ -62,7 +62,9 @@ const operandLabels = () => ({
 const conditionKindLabel = (kind: CombatConditionKind): string =>
   kind === 'enemyRankIn' ? 'Enemy rank' : t(`nextTimeline.skillEditing.conditionKinds.${kind}`);
 const isLeafWithoutParameters = computed(() =>
-  ['combatActive', 'singleEnemyPresent', 'casterControlled'].includes(props.condition.kind),
+  ['combatActive', 'singleEnemyPresent', 'casterControlled', 'casterComboPending'].includes(
+    props.condition.kind,
+  ),
 );
 
 function setKind(event: Event): void {

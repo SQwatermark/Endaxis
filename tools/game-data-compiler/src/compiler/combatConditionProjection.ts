@@ -1141,6 +1141,28 @@ function compileConditionLeaf(
       target.priorityFilters.length === 0 &&
       target.shuffleTargets.length === 0 &&
       target.distanceValidators.length === 0;
+    const contextControlledSearch =
+      first.targetSource === 'Context' && isControlledOperatorSearch(second)
+        ? first
+        : second.targetSource === 'Context' && isControlledOperatorSearch(first)
+          ? second
+          : undefined;
+    if (
+      contextControlledSearch &&
+      contextControlledSearch.targetGroupKey === 'trigger' &&
+      context.contextTargetGroupTargets?.has('trigger') === true &&
+      isPlainReference(contextControlledSearch)
+    ) {
+      // CharacterTeamFinder + MainCharacterValidator 在当前队伍模型中选择主控角色。
+      // 这里只接已经绑定的单目标事件 trigger；任意/空 Context 列表的原生全组合语义不能
+      // 降成首目标比较。仍读取实际 trigger，不从事件命名猜来源角色。
+      return {
+        kind: 'contextTargetIdentityMatch',
+        contextKey: contextControlledSearch.targetGroupKey,
+        other: 'controlledOperator',
+        operator: 'equal',
+      };
+    }
     if (
       (isEventInputReference(first) && isControlledOperatorSearch(second)) ||
       (isEventInputReference(second) && isControlledOperatorSearch(first))
@@ -1483,6 +1505,26 @@ function compileConditionLeaf(
       kind: 'not',
       condition: { kind: 'globalCooldownPresent', target, markerId: condition.buffId },
     };
+  }
+  if (condition.kind === 'comboSkillPending') {
+    const owner = condition.owner;
+    const target =
+      owner.targetSource === 'Owner'
+        ? requireActionOwnerProjection(context, sourcePath)
+        : owner.targetSource === 'Source'
+          ? context.actionSourceTarget
+          : undefined;
+    if (
+      target !== 'caster' ||
+      owner.targetGroupKey !== '' ||
+      owner.finderType !== null ||
+      owner.validatorTypes.length > 0 ||
+      owner.postProcessorTypes.length > 0
+    )
+      throw new Error(
+        `${sourcePath}: CheckComboSkillPending requires a proven plain caster target`,
+      );
+    return { kind: 'casterComboPending' };
   }
   if (condition.kind === 'skillHasHit') {
     if (context.timelineRange === undefined) {

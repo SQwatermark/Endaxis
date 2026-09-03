@@ -147,6 +147,37 @@ function setup() {
 }
 
 describe('assembly 原生常驻连携条件', () => {
+  it('条件程序可检查本角色 Pending，已有候选时不重复打开，消费后可重新打开', () => {
+    const f = setup();
+    f.owner.comboConditionPrograms = [
+      {
+        ...condition,
+        sequence: {
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: { kind: 'not', condition: { kind: 'casterComboPending' } },
+              },
+              whenTrue: { steps: [] },
+            },
+          ],
+        },
+      },
+    ];
+    const assembly = new CombatRuntimeAssembly({
+      ...f.options,
+      onPendingComboCondition: undefined,
+    });
+    f.emit();
+    expect(assembly.comboWindows.pending).toHaveLength(1);
+    f.emit();
+    expect(assembly.comboWindows.pending).toHaveLength(1);
+    expect(assembly.tryStartSkill('owner', 'combo')).toBe(true);
+    expect(assembly.comboWindows.pending).toHaveLength(0);
+    f.emit();
+    expect(assembly.comboWindows.pending).toHaveLength(1);
+  });
   it('无需外部 Pending 接收方：条件快照进窗口并在第零帧前覆盖，下一次不残留', () => {
     const f = setup();
     const frames: unknown[] = [];
