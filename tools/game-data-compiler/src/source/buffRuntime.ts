@@ -13,6 +13,7 @@ import {
 import type { KnownNativeActionLeafSource } from './actionLeaf.ts';
 import { parseKnownNativeActionLeafSource } from './actionLeaf.ts';
 import { parseDamageProcessors, type DamageProcessorSource } from './damageActions.ts';
+import { parseEffectActionSource } from './presentationActions.ts';
 import { parseNativeSequenceSource, type NativeSequenceSource } from './controlFlow.ts';
 import {
   requireArray,
@@ -599,6 +600,7 @@ function parsePresentation(
       '_spritePath',
       'showInHeadBarCommon',
       'showInHeadBarAttached',
+      ...('showDirectlyInHeadBuff' in icon ? ['showDirectlyInHeadBuff'] : []),
       'showInSquadIcon',
       'onlyShowForMainCharacter',
       'blinkInMainCharHpBar',
@@ -617,6 +619,11 @@ function parsePresentation(
     ]),
     `${sourcePath}.iconConfig`,
   );
+  // 这是新增显示资格，不是闪烁等纯渲染参数；关闭与旧结构等价，开启需先还原原生路由。
+  if ('showDirectlyInHeadBuff' in icon &&
+      requireBoolean(icon.showDirectlyInHeadBuff, `${sourcePath}.iconConfig.showDirectlyInHeadBuff`)) {
+    throw new Error(`${sourcePath}.iconConfig.showDirectlyInHeadBuff: direct head buff display requires native routing projection`);
+  }
   const order = requireRecord(
     icon._orderPriorityConfig,
     `${sourcePath}.iconConfig._orderPriorityConfig`,
@@ -774,51 +781,7 @@ function parsePresentationStackEffects(
     const actions = requireArray(effect.effectActions, `${effectPath}.effectActions`);
     actions.forEach((rawAction, actionIndex) => {
       const actionPath = `${effectPath}.effectActions[${actionIndex}]`;
-      const action = requireRecord(rawAction, actionPath);
-      requireExactFields(
-        action,
-        new Set([
-          'isEnable',
-          'priorityLevel',
-          'priorityOffset',
-          'serverActionIndex',
-          'targetSettings',
-          'effectSource',
-          'useGuardLodSourceOverride',
-          'guardLodSource',
-          'isMainCharacterActive',
-          'isTargetMainCharacterActive',
-          'isShowBigEffect',
-          'bigEffectName',
-          'playOnHittableObjects',
-          'effectActionCfg',
-          'forceMainBody',
-          'saveEffectIdToBlackboard',
-          'isCreateWithSourceModelActive',
-        ]),
-        actionPath,
-      );
-      requireBoolean(action.isEnable, `${actionPath}.isEnable`);
-      requireNonEmptyString(action.priorityLevel, `${actionPath}.priorityLevel`);
-      requireNumber(action.priorityOffset, `${actionPath}.priorityOffset`);
-      requireInteger(action.serverActionIndex, `${actionPath}.serverActionIndex`);
-      requireRecord(action.targetSettings, `${actionPath}.targetSettings`);
-      requireRecord(action.effectSource, `${actionPath}.effectSource`);
-      requireBoolean(action.useGuardLodSourceOverride, `${actionPath}.useGuardLodSourceOverride`);
-      requireRecord(action.guardLodSource, `${actionPath}.guardLodSource`);
-      for (const field of [
-        'isMainCharacterActive',
-        'isTargetMainCharacterActive',
-        'isShowBigEffect',
-        'playOnHittableObjects',
-        'forceMainBody',
-        'isCreateWithSourceModelActive',
-      ]) {
-        requireBoolean(action[field], `${actionPath}.${field}`);
-      }
-      requireString(action.bigEffectName, `${actionPath}.bigEffectName`);
-      requireString(action.saveEffectIdToBlackboard, `${actionPath}.saveEffectIdToBlackboard`);
-      requireRecord(action.effectActionCfg, `${actionPath}.effectActionCfg`);
+      parseEffectActionSource(rawAction, actionPath, 'typedSlot');
     });
     return { actionTypes: actions.map(() => 'EffectAction' as const) };
   });

@@ -36,11 +36,11 @@ interface Arguments {
  * @param args.tables 对应必填 `--tables <目录>`，读取 WeaponBasicTable.json、
  * WeaponUpgradeTemplateTable.json、SkillPatchTable.json、ItemTable.json，分别用于武器条目、
  * 攻击成长、被动技能逐等级补丁及产品资源身份。
- * 示例：`--tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12`。
+ * 示例：`--tables tmp/game-data-sources/TableCfg-current`。
  *
  * @param args.skillData 对应必填 `--skill-data <目录>`，读取武器词条使用的 SkillData。
  * 只扫描目录直属的 .json，每份必须有唯一 skillId；不是表目录，也不是单个 JSON 文件。
- * 示例：`--skill-data tmp/game-data-sources/skill-data-cdn`。
+ * 示例：`--skill-data tmp/game-data-sources/SkillData`。
  *
  * @param args.buffData 对应必填 `--buff-data <目录>`，读取词条依赖的 Buff 定义及行为闭包。
  * 只扫描目录直属的 .json，每份必须有唯一 id；缺失或未支持的依赖会阻断正式生成。
@@ -68,12 +68,12 @@ interface Arguments {
  * @returns definitionCount 是武器数量；fileCount 是正式 TS 文件数量，包含索引、不含审计。
  *
  * @example 终端只读检查（删除末尾 --check 即实际生成）
- * npm run generate:game-data:weapons -- --tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12 --skill-data tmp/game-data-sources/skill-data-cdn --buff-data tmp/game-data-sources/BuffData --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
+ * npm run generate:game-data:weapons -- --tables tmp/game-data-sources/TableCfg-current --skill-data tmp/game-data-sources/SkillData --buff-data tmp/game-data-sources/BuffData --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
  *
  * @example IDE 的 npm 调试配置
  * package.json 选择当前工作树，命令选 run，脚本选 generate:game-data:weapons。
  * “实参”填写以下一行（保留开头的 --，用于 npm 参数转发）：
- * -- --tables tmp/game-data-sources/TableCfg-1.4.4-9433094-12 --skill-data tmp/game-data-sources/skill-data-cdn --buff-data tmp/game-data-sources/BuffData --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
+ * -- --tables tmp/game-data-sources/TableCfg-current --skill-data tmp/game-data-sources/SkillData --buff-data tmp/game-data-sources/BuffData --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts --output src/next/data/equipment/generated-weapons --audit-output tmp/generated-next-weapons --check
  */
 export async function generateWeaponDefinitions(args: Arguments): Promise<{
   readonly definitionCount: number;

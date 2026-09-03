@@ -10,6 +10,23 @@ import {
 import { scalarFixture } from './sourceFixtures.ts';
 
 describe('领域无关的被动 SkillData', () => {
+  it.each([
+    [0, 'AddBuff'],
+    [1, 'ToggleBuff'],
+  ] as const)('整数被动类型 %s 与 %s 的完整结果一致，包括死引用过滤', (number, name) => {
+    const source = passiveFixture();
+    const blackboard = { hp_ratio: [0.5], damage_up: [0.2] };
+    expect(
+      parseNativePassiveSkillSource(
+        { ...source, castType: 1, passiveSkillType: number },
+        'fixture',
+        blackboard,
+      ),
+    ).toEqual(
+      parseNativePassiveSkillSource({ ...source, passiveSkillType: name }, 'fixture', blackboard),
+    );
+  });
+
   it('ToggleBuff 只保留条件 Buff、赋值和事件动作容器', () => {
     const parsed = parseNativePassiveSkillSource(passiveFixture(), 'passive_fixture.json', {
       hp_ratio: [0.5],

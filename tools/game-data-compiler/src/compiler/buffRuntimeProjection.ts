@@ -528,6 +528,7 @@ export function compileBuffRuntimeDefinitionSource(
                       ...projectionContextOverrides,
                     }
                   : (abilityEvent === 'OnOutputDamage' ||
+                        abilityEvent === 'OnBeforeOutputDamage' ||
                         abilityEvent === 'OnBeforeDamageAction') &&
                       contextOverrides.fixedBuffOwnerTarget === 'caster'
                     ? {
@@ -1536,6 +1537,17 @@ function createBuffSequenceProjection(
       conditions.length === 1 ? conditions[0]! : { kind: 'all', conditions },
     negateCondition: condition => ({ kind: 'not', condition }),
     compileLeaf,
+    compileActionWithCallback: (node, state) => {
+      const callback = compileActionSequenceProgram(node.body.callback, {
+        ...createBuffSequenceProjection(visualOnlyIds, context, extensions),
+        initialState: () => state,
+      });
+      if (callback.steps.length > 0) {
+        throw new Error(`${node.sourcePath}: combat-visible targetPointInvalid callback requires native trigger projection`);
+      }
+      // 子树已消去后才检查持有动作；不能因原始回调非空就拒绝或让其无条件执行。
+      return compileLeaf({ ...node, body: { kind: 'leaf', value: node.body.value } }, state);
+    },
     compileNodePrefix: (nodes, partyTargetGroups) => {
       const first = nodes[0]!;
       if (

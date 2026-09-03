@@ -8,6 +8,7 @@ import {
   requireRecord,
 } from './primitives.ts';
 import { parseSkillBuffInstallSources } from './skillBuffInstall.ts';
+import { isToggleBuffSkillSource } from './skillDispatch.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import { parseSkillActionGraphSource, type SkillActionGraphSource } from './skillActionGraph.ts';
 import {
@@ -96,9 +97,10 @@ export function collectSkillRootBuffReferences(
 ): DefinitionReferenceSource[] {
   const root = requireRecord(value, sourcePath);
   const output: DefinitionReferenceSource[] = [];
+  const isToggleBuff = isToggleBuffSkillSource(root, sourcePath);
   // ToggleBuffPassiveSkill.DoEnable 覆盖普通 Skill.DoEnable，只读取 +0xD8 toggleBuffs，
   // 不读取 +0xD0 buffs；该字段中的公共 spirit Buff 是死引用，不得进入闭包。
-  if (!(root.castType === 'Passive' && root.passiveSkillType === 'ToggleBuff')) {
+  if (!isToggleBuff) {
     collectRootBuffEntries(root.buffs, `${sourcePath}.buffs`, 'attached', output);
   } else {
     requireArray(root.buffs, `${sourcePath}.buffs`);
@@ -106,7 +108,7 @@ export function collectSkillRootBuffReferences(
   const toggleBuffs = requireArray(root.toggleBuffs, `${sourcePath}.toggleBuffs`);
   // Skill.Create 只在 Passive + ToggleBuff 时创建会读取 toggleBuffs 的运行时子类。
   // 其他被动定义中的同名字段是无效序列化残留，不得形成假的 Buff 依赖。
-  if (root.castType === 'Passive' && root.passiveSkillType === 'ToggleBuff') {
+  if (isToggleBuff) {
     toggleBuffs.forEach((rawGroup, groupIndex) => {
       const groupPath = `${sourcePath}.toggleBuffs[${groupIndex}]`;
       const group = requireRecord(rawGroup, groupPath);

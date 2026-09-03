@@ -13,6 +13,9 @@ import { parseTimeDilationCurveKeys } from './timeDilationActions.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import { gameplayTagId, type GameplayTagId } from './nativeGameplayTags.ts';
 import { parseFiniteRangedShape } from './auraActions.ts';
+import {
+  readRootMotionDirectionType, readRotateDirectionType, readSelfRotateType,
+} from './spatialEnums.ts';
 
 export interface AdditionalBattleShapeActionSource {
   readonly kind: 'additionalBattleShape';
@@ -210,14 +213,14 @@ export function parseSelfRotateActionSource(value: unknown, path: string): SelfR
   requireString(action.rootMotionAnimKey, `${path}.rootMotionAnimKey`);
   requireNumber(action.rootMotionStartFrame, `${path}.rootMotionStartFrame`);
   requireBoolean(action.isRootMotionScale, `${path}.isRootMotionScale`);
-  requireNonEmptyString(action.rootMotionDirectionType, `${path}.rootMotionDirectionType`);
+  readRootMotionDirectionType(action.rootMotionDirectionType, `${path}.rootMotionDirectionType`);
   requireBoolean(action.overrideRotateRate, `${path}.overrideRotateRate`);
   requireNumber(action.rotateRate, `${path}.rotateRate`);
-  requireNonEmptyString(action.rotateDirType, `${path}.rotateDirType`);
+  readRotateDirectionType(action.rotateDirType, `${path}.rotateDirType`);
   requireBoolean(action.ignoreImmobilized, `${path}.ignoreImmobilized`);
   return {
     kind: 'selfRotate',
-    rotateType: requireNonEmptyString(action.rotateType, `${path}.rotateType`),
+    rotateType: readSelfRotateType(action.rotateType, `${path}.rotateType`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
     rootMotion: requireBoolean(action.rootMotion, `${path}.rootMotion`),
     immediateRotate: requireBoolean(action.immediateRotate, `${path}.immediateRotate`),
@@ -374,6 +377,8 @@ export function parseReceiveMoveInputActionSource(
       'disableCliffCheck',
       'rotateSpeed',
       'recoverWhenLanding',
+      ...('combineRootMotion' in action || 'inputAlongRMScale' in action || 'rootMotionScale' in action
+        ? ['combineRootMotion', 'inputAlongRMScale', 'rootMotionScale'] : []),
       'useTeammateParam',
       'teammateParam',
     ]),
@@ -388,6 +393,12 @@ export function parseReceiveMoveInputActionSource(
   requireBoolean(action.overrideRotateSpeed, `${path}.overrideRotateSpeed`);
   requireBoolean(action.disableCliffCheck, `${path}.disableCliffCheck`);
   requireBoolean(action.recoverWhenLanding, `${path}.recoverWhenLanding`);
+  // 新版将这三个参数交给 ManualMoveInSkillParam；只混合输入位移与根运动，不改技能调度。
+  if ('combineRootMotion' in action) {
+    requireBoolean(action.combineRootMotion, `${path}.combineRootMotion`);
+    parseScalarSource(action.inputAlongRMScale, `${path}.inputAlongRMScale`, inheritedBlackboard);
+    parseScalarSource(action.rootMotionScale, `${path}.rootMotionScale`, inheritedBlackboard);
+  }
   requireBoolean(action.useTeammateParam, `${path}.useTeammateParam`);
   const teammate = requireRecord(action.teammateParam, `${path}.teammateParam`);
   requireExactFields(
@@ -441,7 +452,9 @@ export function parseMoveToActionSource(
       'serverActionIndex',
       'moveType',
       'totalTime',
+      ...('manualTick' in action ? ['manualTick'] : []),
       'updateMoveTarget',
+      ...('updateLatestMainCharacter' in action ? ['updateLatestMainCharacter'] : []),
       'directionType',
       'target',
       'fixAngle',
@@ -455,6 +468,7 @@ export function parseMoveToActionSource(
       'extraRadiusForInt',
       'counterClockwise',
       'faceToMoveDir',
+      ...('dontClampFaceToMoveDirToXZ' in action ? ['dontClampFaceToMoveDirToXZ'] : []),
       'overrideRotateRate',
       'rotateRate',
       'speedType',
@@ -482,6 +496,11 @@ export function parseMoveToActionSource(
     path,
   );
   parseNumberVector3(action.fixAngle, `${path}.fixAngle`);
+  // 新版只增加移动请求更新、追踪目标与朝向开关；原生消费者见 combat-spec/move-to-action。
+  // 不改变伤害目标或外层调度。旧数据可缺省，显式字段仍严格校验，不向运行时添加空间参数。
+  for (const key of ['manualTick', 'updateLatestMainCharacter', 'dontClampFaceToMoveDirToXZ']) {
+    if (key in action) requireBoolean(action[key], `${path}.${key}`);
+  }
   parseScalarVector3(action.fixPosAngle, `${path}.fixPosAngle`, inheritedBlackboard);
   for (const key of [
     'fixPosLength',
@@ -554,6 +573,7 @@ export function parseCustomRootMotionActionSource(
       'serverActionIndex',
       'moveTo',
       'animKey',
+      ...('manualTick' in action ? ['manualTick'] : []),
       'rootMotionCurveMask',
       'scaleX',
       'scaleY',
@@ -574,6 +594,8 @@ export function parseCustomRootMotionActionSource(
     ]),
     path,
   );
+  // manualTick 进入原生 MoveRequest；只影响已省略的位移更新，不代表技能时间轴手动推进。
+  if ('manualTick' in action) requireBoolean(action.manualTick, `${path}.manualTick`);
   for (const key of [
     'scaleX',
     'scaleY',

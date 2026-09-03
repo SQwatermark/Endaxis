@@ -12,6 +12,13 @@ export interface CompiledActionNodeProgram<TStep, TState> {
 
 export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, TState> {
   readonly initialState: () => TState;
+  /** 先投影回调，再决定持有动作是否仍有效；不默认回调发生，也不泄漏其局部编译状态。 */
+  readonly compileActionWithCallback?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'actionWithCallback' }>;
+    },
+    state: TState,
+  ) => CompiledActionNodeProgram<TStep, TState>;
   readonly compileCondition: (
     node: NativeActionNodeSource<TLeaf>,
     state: TState,
@@ -126,16 +133,20 @@ function compileActionSequenceProgramFromState<TLeaf, TCondition, TStep, TState>
   options: CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, TState>,
   state: TState,
 ): CompiledActionSequenceProgram<TStep> {
-  if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
+  const steps = compileActionNodePrograms(
+    source.actions.filter(node => node.metadata.enabled),
+    options,
+    state,
+  );
+  // 根守卫是纯准入条件；先看末端是否还有行为，不能让空子树要求额外运行模型。
+  // 若外层消费返回值，即使没有副作用也必须保留此支持边界。
+  if (
+    (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) &&
+    (steps.length > 0 || options.resultIsConsumed)
+  ) {
     throw new Error(options.rootFilterError);
   }
-  return {
-    steps: compileActionNodePrograms(
-      source.actions.filter(node => node.metadata.enabled),
-      options,
-      state,
-    ),
-  };
+  return { steps };
 }
 
 /** 已完成事件专用前缀解析时，从剩余节点继续使用同一公共控制流。 */
@@ -214,7 +225,16 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     if (options.canOmitIfElse?.(branchNode) === true) {
       return compileActionNodePrograms(rest, options, state);
     }
-    const selectedBranch = options.selectIfElseBranch?.(branchNode, state);
+    let selectedBranch: boolean | undefined;
+    let selectionFailure: { readonly error: unknown } | undefined;
+    try {
+      selectedBranch = options.selectIfElseBranch?.(branchNode, state);
+    } catch (error) {
+      // 静态预选只是优化探测，不得抢在末端投影之前要求空间等条件模型。
+      // 仅在下方证明条件是纯读取且两侧等价/为空时才能舍弃失败；否则原样重新抛出。
+      // 不直接把未知条件判为 true，也不吞掉来源读取或有效子树的错误。
+      selectionFailure = { error };
+    }
     if (selectedBranch !== undefined) {
       if (!first!.body.alwaysNext) {
         throw new Error(`${first!.sourcePath}: statically selected stopping IfElse is unsupported`);
@@ -247,6 +267,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     if (whenTrue.steps.length === 0 && whenFalse.steps.length === 0 && conditionsArePureReads) {
       return compileActionNodePrograms(rest, options, state);
     }
+    if (selectionFailure !== undefined) throw selectionFailure.error;
     const branchConditions: TCondition[] = [];
     for (let index = 0; index < conditionNodes.length; index += 1) {
       const child = conditionNodes[index]!;
@@ -349,6 +370,18 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     if (options.canOmitTogglable?.(togglable) === true) {
       return compileActionNodePrograms(rest, options, state);
     }
+  }
+  if (first!.body.kind === 'actionWithCallback' && options.compileActionWithCallback) {
+    const compiled = options.compileActionWithCallback(
+      first as NativeActionNodeSource<TLeaf> & {
+        readonly body: Extract<
+          NativeActionNodeSource<TLeaf>['body'],
+          { kind: 'actionWithCallback' }
+        >;
+      },
+      state,
+    );
+    return [...compiled.steps, ...compileActionNodePrograms(rest, options, compiled.state)];
   }
   if (first!.body.kind !== 'leaf') {
     throw new Error(options.unsupportedNodeError(first!));

@@ -104,6 +104,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       // 没有第二条回调或外部消费者。Next 不渲染这些原生特效，整次发射可安全省略。
       return [];
     }
+    assertSupportedLaunchTargetControls(launch, sourcePath);
     if (enabled.length === 1 && enabled[0]!.event === 'block') {
       return [
         compileZeroDistanceFirstTickBlockProjectileSource({
@@ -339,6 +340,7 @@ export function compileZeroDistanceFirstTickReachProjectileSource(input: {
   readonly callbackExtensions?: CombatActionProjectionExtensionsSource;
 }): CompiledActionBlackboardScopeSource {
   const { sourcePath, launch, runtime, template } = input;
+  assertSupportedLaunchTargetControls(launch, sourcePath);
   if (runtime.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: ProjectileData identity mismatch`);
   if (!isPlainZeroSpaceFixedPoint(launch.target, input.projectionContext))
@@ -387,6 +389,7 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
   readonly allowGameplayTagFilter?: boolean;
 }): CompiledActionBlackboardScopeSource {
   const { sourcePath, launch, runtime, template } = input;
+  assertSupportedLaunchTargetControls(launch, sourcePath);
   if (runtime.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: ProjectileData identity mismatch`);
   if (
@@ -492,6 +495,7 @@ export function compileZeroDistanceFirstTickBlockProjectileSource(input: {
   readonly callbackExtensions?: CombatActionProjectionExtensionsSource;
 }): CompiledActionBlackboardScopeSource {
   const { sourcePath, launch, runtime, template } = input;
+  assertSupportedLaunchTargetControls(launch, sourcePath);
   if (runtime.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: ProjectileData identity mismatch`);
   assertSupportedFirstTickBlockShape(runtime, sourcePath);
@@ -684,6 +688,7 @@ export function compileZeroDistanceProjectileLaunchFromSources(input: {
   readonly visualOnlyIds?: ReadonlySet<string>;
   readonly callbackExtensions?: CombatActionProjectionExtensionsSource;
 }): CompiledActionBlackboardScopeSource {
+  assertSupportedLaunchTargetControls(input.launch, input.sourcePath);
   const callbackInput = {
     context: input.callbackContext,
     visualOnlyIds: input.visualOnlyIds,
@@ -735,6 +740,7 @@ export function compileZeroDistanceFirstTickProjectileSource(input: {
   readonly reach: ZeroDistanceProjectileCallbackSource;
 }): CompiledActionBlackboardScopeSource {
   const { sourcePath, launch, runtime, template, hit, reach } = input;
+  assertSupportedLaunchTargetControls(launch, sourcePath);
   if (runtime.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: ProjectileData identity mismatch`);
   assertSupportedFirstTickShape(runtime, sourcePath);
@@ -748,6 +754,27 @@ export function compileZeroDistanceFirstTickProjectileSource(input: {
     template,
     invocations,
   });
+}
+
+/**
+ * 新增目标控制会改变命中资格或发射数量，不能由“零距离”自动推出无影响。
+ * None + false 的短路有 combat-spec 原生证据；开启形状在补齐投影前明确拒绝。
+ * 公共扩展先剔除已证明完全无战斗回调的发射，再调用此守卫。
+ */
+function assertSupportedLaunchTargetControls(
+  launch: ProjectileLaunchActionSource,
+  path: string,
+): void {
+  if (launch.targetFilterMode !== 'None') {
+    throw new Error(
+      `${path}.targetFilterMode: projectile target filter ${launch.targetFilterMode} is not modeled`,
+    );
+  }
+  if (launch.alsoLaunchToHittableTarget !== false) {
+    throw new Error(
+      `${path}.alsoLaunchToHittableTarget: additional projectile launches are not modeled`,
+    );
+  }
 }
 
 function assertSupportedFirstTickShape(

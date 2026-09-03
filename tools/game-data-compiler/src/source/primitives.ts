@@ -1,5 +1,17 @@
 export type SourceRecord = Record<string, unknown>;
 
+/** 只依据调用方提供的精确常量表归一化数字/命名枚举；不按序号猜值，也不做字符串强转。 */
+export function requireNativeEnum<T extends string>(
+  value: unknown,
+  values: ReadonlyMap<number, T>,
+  path: string,
+): T {
+  for (const [number, name] of values) {
+    if (value === number || value === name) return name;
+  }
+  throw new Error(`${path}: unknown native enum ${JSON.stringify(value)}`);
+}
+
 /** 严格读取原生对象；数组不能冒充带字段的数据对象。 */
 export function requireRecord(value: unknown, path: string): SourceRecord {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
@@ -76,7 +88,14 @@ export function requireInteger(value: unknown, path: string): number {
 export function nativeActionName(typeName: string): string {
   // 原生导出的类型可能同时包含命名空间、嵌套类型和程序集名。
   const qualifiedName = typeName.split(',', 1)[0] ?? '';
-  const unqualifiedName = qualifiedName.split('.').at(-1) ?? '';
+  const segments = qualifiedName.split('.');
+  const unqualifiedName = segments.at(-1) ?? '';
+  const ownerName = segments.at(-2);
+  // VFS 的 MemoryPack schema 用点连接嵌套载荷，Unity JSON 用加号。
+  // 只归一化已知 Data / OwnerData 形式，不按任意 *Data 后缀推断动作归属。
+  if (ownerName && (unqualifiedName === 'Data' || unqualifiedName === `${ownerName}Data`)) {
+    return ownerName;
+  }
   return unqualifiedName.split('+', 1)[0] ?? '';
 }
 

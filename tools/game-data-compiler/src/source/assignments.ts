@@ -3,10 +3,21 @@ import {
   requireBoolean,
   requireExactFields,
   requireNonEmptyString,
+  requireNativeEnum,
   requireNumber,
   requireRecord,
   requireString,
 } from './primitives.ts';
+
+// 原生 DataPair.ValueType；证据见 combat-spec/docs/buff-assignment-source-encoding.md。
+const VALUE_TYPES = new Map([[0, 'Numeric'], [1, 'String'], [2, 'Any']] as const);
+
+export function readBlackboardAssignmentValueType(value: unknown, path: string) {
+  const result = requireNativeEnum(value, VALUE_TYPES, path);
+  // 枚举有 Any 不等于当前赋值协议已能携带任意对象，保留原有支持边界。
+  if (result === 'Any') throw new Error(`${path}: unsupported value Any`);
+  return result;
+}
 
 /**
  * 原生动作向子对象黑板写值时使用的公共结构。
@@ -57,13 +68,10 @@ export function parseBlackboardAssignmentsSource(
     }
     if (targetKey) seenKeys.add(targetKey);
 
-    const valueType = requireNonEmptyString(
+    const valueType = readBlackboardAssignmentValueType(
       assignment.directValueType,
       `${assignmentPath}.directValueType`,
     );
-    if (valueType !== 'Numeric' && valueType !== 'String') {
-      throw new Error(`${assignmentPath}.directValueType: unsupported value ${valueType}`);
-    }
     const useDirectValue = requireBoolean(
       assignment.useDirectValue,
       `${assignmentPath}.useDirectValue`,

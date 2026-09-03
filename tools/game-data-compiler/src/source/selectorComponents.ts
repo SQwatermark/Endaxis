@@ -7,7 +7,11 @@ import {
   requireRecord,
   requireString,
 } from './primitives.ts';
-import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
+import {
+  parseBuffFindSettingsSource,
+  readBuffStackNumType,
+  type BuffFindSettingsSource,
+} from './buffFindSettings.ts';
 import {
   parseIntegerScalarSource,
   parseScalarSource,
@@ -16,14 +20,11 @@ import {
   type BlackboardLevelValues,
 } from './scalar.ts';
 
-export interface PriorityBuffFilterSource {
-  readonly checkType: string;
-  readonly buffIds: readonly string[];
-  readonly tagQuery: TagQuerySource;
+export interface PriorityBuffFilterSource extends BuffFindSettingsSource {
   readonly stackCountType: string;
 }
 
-/** PriorityFilter 的完整序列化载荷；来源层只保存事实，不声称每种排序已能执行。 */
+/** 普通 Targets 的 PriorityFilter 载荷；不代表 HittableTargets 或每种排序已能执行。 */
 export interface PriorityFilterSource {
   readonly filterType: string;
   readonly onlyReserveMaxPriorityTargets: boolean;
@@ -46,11 +47,13 @@ export interface DistanceValidatorSource {
 export function selectorComponentName(value: unknown, path: string): string {
   const item = requireRecord(value, path);
   const typeName = requireString(item.$type, `${path}.$type`);
-  const parts = (typeName.split(',', 1)[0] ?? '').split('+');
+  // Unity RID 使用 Selector+Finder+Data，VFS MemoryPack 使用 Selector.Finder.Data。
+  const parts = (typeName.split(',', 1)[0] ?? '').split(/[.+]/);
   const componentName = parts.at(-2) ?? '';
   const dataTypeName = parts.at(-1) ?? '';
   if (
     parts.length < 3 ||
+    parts.at(-3) !== 'Selector' ||
     !componentName ||
     (dataTypeName !== 'Data' && dataTypeName !== `${componentName}Data`)
   ) {
@@ -64,79 +67,63 @@ export function selectorComponentName(value: unknown, path: string): string {
  * 只读取 maxNum 会让不同原生过滤器在公共 IR 中错误地“看起来一样”。
  */
 export function parsePriorityFilterSources(value: unknown, path: string): PriorityFilterSource[] {
-  return matchingComponents(value, path, 'PriorityFilter').map(
-    ({ component: processor, path: filterPath }) => {
-      requireExactFields(
-        processor,
-        new Set([
-          '$type',
-          'filterType',
-          'onlyReserveMaxPriorityTargets',
-          'limitMaxNum',
-          'maxNum',
-          'buffFilterSettings',
-        ]),
-        filterPath,
-      );
-      const rawBuffFilter = requireRecord(
-        processor.buffFilterSettings,
-        `${filterPath}.buffFilterSettings`,
-      );
-      requireExactFields(
-        rawBuffFilter,
-        new Set(['buffSettings', 'buffStackNumType']),
-        `${filterPath}.buffFilterSettings`,
-      );
-      const rawBuffSettings = requireRecord(
-        rawBuffFilter.buffSettings,
-        `${filterPath}.buffFilterSettings.buffSettings`,
-      );
-      requireExactFields(
-        rawBuffSettings,
-        new Set(['checkType', 'buffIdList', 'tagQuery']),
-        `${filterPath}.buffFilterSettings.buffSettings`,
-      );
-      return {
-        filterType: requireNonEmptyString(processor.filterType, `${filterPath}.filterType`),
-        onlyReserveMaxPriorityTargets: requireBoolean(
-          processor.onlyReserveMaxPriorityTargets,
-          `${filterPath}.onlyReserveMaxPriorityTargets`,
-        ),
-        limitMaxNum: requireBoolean(processor.limitMaxNum, `${filterPath}.limitMaxNum`),
-        maxNum: requireInteger(processor.maxNum, `${filterPath}.maxNum`),
-        buffFilter: {
-          checkType: requireNonEmptyString(
-            rawBuffSettings.checkType,
-            `${filterPath}.buffFilterSettings.buffSettings.checkType`,
-          ),
-          buffIds: requireArray(
-            rawBuffSettings.buffIdList,
-            `${filterPath}.buffFilterSettings.buffSettings.buffIdList`,
-          ).map((id, index) =>
-            requireNonEmptyString(
-              id,
-              `${filterPath}.buffFilterSettings.buffSettings.buffIdList[${index}]`,
-            ),
-          ),
-          tagQuery: parseTagQuerySource(
-            rawBuffSettings.tagQuery,
-            `${filterPath}.buffFilterSettings.buffSettings.tagQuery`,
-          ),
-          stackCountType: requireNonEmptyString(
-            rawBuffFilter.buffStackNumType,
-            `${filterPath}.buffFilterSettings.buffStackNumType`,
-          ),
-        },
-      };
-    },
+  return matchingComponents(value, path, 'PriorityFilter').map(({ component, path: filterPath }) =>
+    parsePriorityFilterSource(component, filterPath),
   );
+}
+
+/** 所有识别入口共用此解析；旧版隐式 Targets 与新版显式 Targets 使用同一来源结构。 */
+export function parsePriorityFilterSource(
+  value: unknown,
+  filterPath: string,
+): PriorityFilterSource {
+  const processor = requireOrdinaryTargetProcessor(value, filterPath, 'PriorityFilter', [
+    'filterType',
+    'onlyReserveMaxPriorityTargets',
+    'limitMaxNum',
+    'maxNum',
+    'buffFilterSettings',
+  ]);
+  const rawBuffFilter = requireRecord(
+    processor.buffFilterSettings,
+    `${filterPath}.buffFilterSettings`,
+  );
+  requireExactFields(
+    rawBuffFilter,
+    new Set(['buffSettings', 'buffStackNumType']),
+    `${filterPath}.buffFilterSettings`,
+  );
+  const buffSettings = parseBuffFindSettingsSource(
+    rawBuffFilter.buffSettings,
+    `${filterPath}.buffFilterSettings.buffSettings`,
+  );
+  // 保留 PriorityFilter 原有的非空 ID 支持边界；公共来源解析不统一删除空占位。
+  buffSettings.buffIds.forEach((id, index) =>
+    requireNonEmptyString(id, `${filterPath}.buffFilterSettings.buffSettings.buffIdList[${index}]`),
+  );
+  return {
+    filterType: requireNonEmptyString(processor.filterType, `${filterPath}.filterType`),
+    onlyReserveMaxPriorityTargets: requireBoolean(
+      processor.onlyReserveMaxPriorityTargets,
+      `${filterPath}.onlyReserveMaxPriorityTargets`,
+    ),
+    limitMaxNum: requireBoolean(processor.limitMaxNum, `${filterPath}.limitMaxNum`),
+    maxNum: requireInteger(processor.maxNum, `${filterPath}.maxNum`),
+    buffFilter: {
+      ...buffSettings,
+      stackCountType: readBuffStackNumType(
+        rawBuffFilter.buffStackNumType,
+        `${filterPath}.buffFilterSettings.buffStackNumType`,
+      ),
+    },
+  };
 }
 
 /** 严格读取 ShuffleTarget；随机算法属于执行层，这里只保存原生 BlackboardInt 限量值。 */
 export function parseShuffleTargetSources(value: unknown, path: string): ShuffleTargetSource[] {
   return matchingComponents(value, path, 'ShuffleTarget').map(
     ({ component: processor, path: shufflePath }) => {
-      requireExactFields(processor, new Set(['$type', 'targetNumLimit']), shufflePath);
+      requireOrdinaryTargetProcessor(processor, shufflePath, 'ShuffleTarget', ['targetNumLimit']);
       return {
         targetNumLimit: parseIntegerScalarSource(
           processor.targetNumLimit,
@@ -177,6 +164,36 @@ export function parseDistanceValidatorSources(
       ];
     },
   );
+}
+
+/**
+ * 仅供已分别取证的三个后处理器共用普通目标通道校验，不推广到其他同名字段。
+ * 旧结构缺失等价于 Targets；受击列表独立存在，不能以单敌人模型抹掉差异。
+ * 原生依据集中在 combat-spec/docs/selector-pipeline.md 的当前镜像小节。
+ */
+export function requireOrdinaryTargetProcessor(
+  value: unknown,
+  path: string,
+  component: 'PriorityFilter' | 'ExcludeTarget' | 'ShuffleTarget',
+  fields: readonly string[],
+): Record<string, unknown> {
+  const processor = requireRecord(value, path);
+  if (selectorComponentName(processor, path) !== component) {
+    throw new Error(`${path}: expected ${component}`);
+  }
+  requireExactFields(
+    processor,
+    new Set([
+      '$type',
+      ...fields,
+      ...('processTargetType' in processor ? ['processTargetType'] : []),
+    ]),
+    path,
+  );
+  if ('processTargetType' in processor && processor.processTargetType !== 'Targets') {
+    throw new Error(`${path}.processTargetType: only named Targets is supported`);
+  }
+  return processor;
 }
 
 function matchingComponents(

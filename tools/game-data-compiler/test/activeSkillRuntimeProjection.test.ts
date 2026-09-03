@@ -127,7 +127,7 @@ const invalidMainCharacterRay = () =>
     pointToPointRayData: {},
     // Deliberately unsupported: proves main-char filters execute while guard filters do not.
     useFaction: true,
-    autoSetTargetFaction: true,
+    autoSetTargetFaction: false,
     containsUnMarkable: false,
     factionTarget: 'Anti',
     targetFactionType: 0,
@@ -1383,7 +1383,7 @@ describe('主动技能正式时间轴投影', () => {
     });
   });
 
-  it('RandomPointFinder 可以跨 Context 使用已证明零空间中心并保留点数', () => {
+  it.each([false, true])('RandomPointFinder 跨 Context 保留点数（新版二维尺寸=%s）', withExtent => {
     const randomPoint = meta('FindTargetAction', {
       targetGroupKey: 'random-points',
       center: 'ContextTarget',
@@ -1398,6 +1398,7 @@ describe('主动技能正式时间轴投影', () => {
           $type: 'Beyond.Gameplay.Core.Selector+RandomPointFinder+Data, Gameplay.Beyond',
           pointNum: scalarFixture(2),
           shape: 'Sector',
+          ...(withExtent ? { extent2D: { x: scalarFixture(0), y: scalarFixture(0) } } : {}),
           localPlaneRotationEulers: {
             x: scalarFixture(-90),
             y: scalarFixture(0),

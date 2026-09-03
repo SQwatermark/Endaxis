@@ -7,7 +7,7 @@ import {
   parseGameplayTagConfigDumpSource,
   renderGameplayTagCatalogModule,
 } from '../src/index.ts';
-import { writeAtomicBytes } from './downloadAkedbSources.ts';
+import { writeAtomicBytes } from './downloadGameDataSources.ts';
 import { readGameplayTagConfigSetExport } from './readGameplayTagConfigSetExport.ts';
 
 const EXPECTED_DUMP_SHA256 = '3758bb1f10764ce9d1bda9ef5200d77b3fe93ea59dbd0e09f196c18221019cf8';

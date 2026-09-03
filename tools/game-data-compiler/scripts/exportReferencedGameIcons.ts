@@ -1,7 +1,11 @@
 import { spawn } from 'node:child_process';
-import { access, mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { access, copyFile, mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
+import { runConcurrent } from './downloadGameDataSources.ts';
+import { AkedbSnapshot, DEFAULT_CDN, isMissingResource } from './gameDataProviders.ts';
 
 type Candidate = {
   readonly assetIndex: number;
@@ -156,35 +160,65 @@ const PUBLIC_ICON_SOURCE_ALIASES = new Map<
 ]);
 
 type Arguments = {
+  readonly workers: number;
+  readonly sourceMode: 'hybrid' | 'vfs-only';
+  readonly cdn: string;
   readonly overwrite: boolean;
   readonly dryRun: boolean;
   readonly refreshRichText: boolean;
   readonly prune: boolean;
   readonly vfsBaseUrl: string;
   readonly gameDataSourceRoot: string;
+  readonly outputRoot: string;
 };
 
-function parseArguments(argv: readonly string[]): Arguments {
+export function parseArguments(argv: readonly string[]): Arguments {
+  let workers = 6;
+  let sourceMode: 'hybrid' | 'vfs-only' = 'hybrid';
+  let cdn = DEFAULT_CDN;
   let overwrite = false;
   let dryRun = false;
   let refreshRichText = false;
   let prune = false;
   let vfsBaseUrl = 'http://127.0.0.1:8765';
-  let gameDataSourceRoot = path.join(PROJECT_ROOT, 'tmp', 'akedb-next-latest');
+  let gameDataSourceRoot = path.join(PROJECT_ROOT, 'tmp', 'game-data-sources');
+  let outputRoot = PUBLIC_ROOT;
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]!;
-    if (argument === '--overwrite') overwrite = true;
+    if (argument === '--workers') {
+      workers = Number(requireArgumentValue(argv, ++index, argument));
+      if (!Number.isSafeInteger(workers) || workers <= 0)
+        throw new Error('--workers requires a positive integer');
+    } else if (argument === '--overwrite') overwrite = true;
     else if (argument === '--dry-run') dryRun = true;
     else if (argument === '--refresh-rich-text') refreshRichText = true;
     else if (argument === '--skip-rich-text-refresh') refreshRichText = false;
     else if (argument === '--prune') prune = true;
     else if (argument === '--vfs-base-url')
       vfsBaseUrl = requireArgumentValue(argv, ++index, argument);
-    else if (argument === '--game-data-source-root') {
+    else if (argument === '--cdn') cdn = requireArgumentValue(argv, ++index, argument);
+    else if (argument === '--source-mode') {
+      const mode = requireArgumentValue(argv, ++index, argument);
+      if (mode !== 'hybrid' && mode !== 'vfs-only') throw new Error('invalid --source-mode');
+      sourceMode = mode;
+    } else if (argument === '--game-data-source-root') {
       gameDataSourceRoot = path.resolve(requireArgumentValue(argv, ++index, argument));
+    } else if (argument === '--output-root') {
+      outputRoot = path.resolve(requireArgumentValue(argv, ++index, argument));
     } else throw new Error(`unknown argument: ${argument}`);
   }
-  return { overwrite, dryRun, refreshRichText, prune, vfsBaseUrl, gameDataSourceRoot };
+  return {
+    workers,
+    sourceMode,
+    cdn,
+    overwrite,
+    dryRun,
+    refreshRichText,
+    prune,
+    vfsBaseUrl,
+    gameDataSourceRoot,
+    outputRoot,
+  };
 }
 
 function requireArgumentValue(argv: readonly string[], index: number, option: string): string {
@@ -474,53 +508,116 @@ function selectCandidate(reference: IconReference, candidates: readonly Candidat
   );
 }
 
-async function exportReference(reference: IconReference, arguments_: Arguments): Promise<object> {
-  const outputPath = path.join(
-    PUBLIC_ROOT,
-    reference.publicPath.slice(1).replaceAll('/', path.sep),
-  );
+export async function exportReference(
+  reference: IconReference,
+  arguments_: Arguments,
+  snapshot?: AkedbSnapshot,
+) {
+  const relativePath = reference.publicPath.slice(1).replaceAll('/', path.sep);
+  const outputPath = path.resolve(arguments_.outputRoot, relativePath);
+  if (
+    !reference.publicPath.startsWith('/') ||
+    !outputPath.startsWith(path.resolve(arguments_.outputRoot) + path.sep)
+  ) {
+    throw new Error(`unsafe game icon output path: ${reference.publicPath}`);
+  }
   if (reference.localOnly) {
-    if (!(await exists(outputPath)))
+    // 项目占位图不是游戏资源。隔离导出时从正式目录复制，不伪装成 VFS 重导结果。
+    const localPath = path.resolve(PUBLIC_ROOT, relativePath);
+    if (!(await exists(localPath)))
       throw new Error(`${reference.publicPath}: missing project fallback asset`);
+    if (!arguments_.dryRun && localPath !== outputPath) {
+      await mkdir(path.dirname(outputPath), { recursive: true });
+      await copyFile(localPath, outputPath);
+    }
     return { publicPath: reference.publicPath, status: 'kept-local' };
   }
   if (!arguments_.overwrite && (await exists(outputPath))) {
     return { publicPath: reference.publicPath, status: 'skipped-existing' };
   }
-  const candidates = await queryCandidates(arguments_.vfsBaseUrl, reference.sourceNames);
-  const selected = selectCandidate(reference, candidates);
+  const cdn =
+    arguments_.sourceMode === 'hybrid'
+      ? (snapshot ?? (await AkedbSnapshot.load(arguments_.cdn)))
+      : null;
+  const names = new Set(reference.sourceNames.map(name => name.toLowerCase()));
+  const cdnCandidates = cdn
+    ? [...cdn.assets.images.keys()]
+        .filter(p => names.has(path.posix.basename(p).toLowerCase()))
+        .map((p, index) => ({ assetIndex: index, path: p, rawUrl: '' }))
+    : [];
+  let fallbackReason = cdn ? 'not-in-akedb-index' : undefined;
+  if (cdn && cdnCandidates.length > 0) {
+    const selected = selectCandidate(reference, cdnCandidates);
+    if (arguments_.dryRun)
+      return {
+        publicPath: reference.publicPath,
+        status: 'would-export',
+        sourcePath: selected.path,
+        provider: 'akedb',
+        version: cdn.assets.images.get(selected.path)!.version,
+      };
+    try {
+      const resource = await cdn.asset('images', selected.path);
+      return await writeIcon(Buffer.from(resource.content), selected.path, {
+        provider: resource.provider,
+        source: resource.source,
+        version: resource.version,
+      });
+    } catch (error) {
+      if (!isMissingResource(error)) throw error;
+      fallbackReason = 'akedb-http-404';
+    }
+  }
+  const selected = selectCandidate(
+    reference,
+    await queryCandidates(arguments_.vfsBaseUrl, reference.sourceNames),
+  );
+  const identity = { provider: 'vfs-index-browser', version: null, fallbackReason };
   if (arguments_.dryRun) {
-    return { publicPath: reference.publicPath, status: 'would-export', sourcePath: selected.path };
+    return {
+      publicPath: reference.publicPath,
+      status: 'would-export',
+      sourcePath: selected.path,
+      ...identity,
+    };
   }
   const sourceUrl = new URL(selected.rawUrl, arguments_.vfsBaseUrl);
   const response = await fetch(sourceUrl);
   if (!response.ok) throw new Error(`${sourceUrl}: ${response.status} ${await response.text()}`);
   const png = Buffer.from(await response.arrayBuffer());
-  const webp = await sharp(png).webp({ lossless: true, effort: 6 }).toBuffer();
-  await mkdir(path.dirname(outputPath), { recursive: true });
-  await writeFile(outputPath, webp);
-  return {
-    publicPath: reference.publicPath,
-    status: arguments_.overwrite ? 'overwritten' : 'exported-missing',
-    sourcePath: selected.path,
-    sourceBytes: png.length,
-    outputBytes: webp.length,
-  };
+  return await writeIcon(png, selected.path, { ...identity, source: sourceUrl.href });
+
+  async function writeIcon(png: Buffer, sourcePath: string, identity: object) {
+    const webp = await sharp(png).webp({ lossless: true, effort: 6 }).toBuffer();
+    await mkdir(path.dirname(outputPath), { recursive: true });
+    await writeFile(outputPath, webp);
+    return {
+      publicPath: reference.publicPath,
+      status: arguments_.overwrite ? 'overwritten' : 'exported-missing',
+      sourcePath,
+      ...identity,
+      sourceBytes: png.length,
+      outputBytes: webp.length,
+      sourceSha256: createHash('sha256').update(png).digest('hex'),
+      outputSha256: createHash('sha256').update(webp).digest('hex'),
+    };
+  }
 }
 
 async function pruneUnreferencedAssets(
   references: readonly IconReference[],
   dryRun: boolean,
+  outputRoot: string,
 ): Promise<readonly string[]> {
   const retained = new Set(references.map(reference => reference.publicPath.toLowerCase()));
   const managedRoots = ['icons', 'operators', 'weapons', 'equipment'].map(name =>
-    path.join(PUBLIC_ROOT, name),
+    path.join(outputRoot, name),
   );
   const files = (await Promise.all(managedRoots.map(listFiles))).flat();
   const removed: string[] = [];
   for (const filePath of files) {
     if (path.extname(filePath).toLowerCase() !== '.webp') continue;
-    const publicPath = `/${path.relative(PUBLIC_ROOT, filePath).split(path.sep).join('/')}`;
+    const publicPath = `/${path.relative(outputRoot, filePath).split(path.sep).join('/')}`;
     if (retained.has(publicPath.toLowerCase())) continue;
     removed.push(publicPath);
     if (!dryRun) await unlink(filePath);
@@ -533,11 +630,14 @@ async function main(): Promise<void> {
   await mkdir(TMP_ROOT, { recursive: true });
   await runRichTextExporter(arguments_.refreshRichText);
   const references = await buildReferenceClosure(arguments_);
-  const results: object[] = [];
+  const snapshot =
+    arguments_.sourceMode === 'hybrid' ? await AkedbSnapshot.load(arguments_.cdn) : undefined;
+  const results: Array<Awaited<ReturnType<typeof exportReference>>> = [];
   const failures: Array<{ publicPath: string; error: string }> = [];
-  for (const [index, reference] of references.entries()) {
+  // 复用来源下载的有界调度；各图校验独立，账本按资源路径排序而不是按请求完成顺序。
+  await runConcurrent([...references.entries()], arguments_.workers, async ([index, reference]) => {
     try {
-      const result = await exportReference(reference, arguments_);
+      const result = await exportReference(reference, arguments_, snapshot);
       results.push(result);
       console.log(`[${index + 1}/${references.length}] ${reference.publicPath}`);
     } catch (error) {
@@ -545,14 +645,22 @@ async function main(): Promise<void> {
       failures.push({ publicPath: reference.publicPath, error: message });
       console.error(`[${index + 1}/${references.length}] ${message}`);
     }
-  }
+  });
+  results.sort((left, right) => left.publicPath.localeCompare(right.publicPath));
+  failures.sort((left, right) => left.publicPath.localeCompare(right.publicPath));
+  await snapshot?.verifyUnchanged();
   const pruned =
     arguments_.prune && failures.length === 0
-      ? await pruneUnreferencedAssets(references, arguments_.dryRun)
+      ? await pruneUnreferencedAssets(references, arguments_.dryRun, arguments_.outputRoot)
       : [];
   const report = {
     mode: arguments_.overwrite ? 'overwrite' : 'missing-only',
+    sourceMode: arguments_.sourceMode,
+    akedb: snapshot
+      ? { version: snapshot.version, assetRevision: snapshot.revision, evidence: snapshot.evidence }
+      : null,
     dryRun: arguments_.dryRun,
+    outputRoot: arguments_.outputRoot,
     referencedCount: references.length,
     results,
     failures,
@@ -564,7 +672,9 @@ async function main(): Promise<void> {
     throw new Error(`${failures.length} referenced icons could not be exported`);
 }
 
-main().catch(error => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
+  main().catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

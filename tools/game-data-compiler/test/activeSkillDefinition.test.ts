@@ -8,6 +8,19 @@ import {
 import { activeSkillFixture } from './sourceFixtures.ts';
 
 describe('领域无关的主动 SkillData', () => {
+  it('原生整数与命名 castType 编译结果一致，数字 Passive 不得误入主动入口', () => {
+    const source = activeSkillFixture();
+    expect(compileActiveSkillSource({ ...source, castType: 0 }, 'fixture', null)).toEqual(
+      compileActiveSkillSource(source, 'fixture', null),
+    );
+    expect(() => compileActiveSkillSource({ ...source, castType: 1 }, 'fixture', null)).toThrow(
+      'passive SkillData must use the passive compiler',
+    );
+    expect(() => compileActiveSkillSource({ ...source, castType: 2 }, 'fixture', null)).toThrow(
+      'fixture.castType: unknown native enum',
+    );
+  });
+
   it('与被动入口共用黑板和 Patch 合并，并保留普通 Skill 的 castType', () => {
     const patch: SkillPatchSource = {
       levels: [1, 2],

@@ -3,6 +3,7 @@ import {
   requireBoolean,
   requireExactFields,
   requireNonEmptyString,
+  requireNativeEnum,
   requireRecord,
   requireString,
 } from './primitives.ts';
@@ -11,8 +12,11 @@ import {
   type BlackboardAssignmentSource,
 } from './assignments.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
-import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
+import { parseTagQuerySource } from './tagQuery.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { readActionTarget } from './targetEnums.ts';
+import { parseBuffFindSettingsSource, type BuffFindSettingsSource } from './buffFindSettings.ts';
+export { parseBuffFindSettingsSource, type BuffFindSettingsSource } from './buffFindSettings.ts';
 
 const ACTION_META_FIELDS = [
   '$type',
@@ -146,13 +150,6 @@ export function parseBuffInheritanceActionSource(
   };
 }
 
-export interface BuffFindSettingsSource {
-  readonly checkType: string;
-  /** 保留原数组中的空占位，是否参与查询由后续原生语义投影决定。 */
-  readonly buffIds: readonly string[];
-  readonly tagQuery: TagQuerySource;
-}
-
 /** ExtendBuffAction：在动作区间内阻止首次解析出的既有 Buff 结束。 */
 export interface BuffHoldActionSource {
   readonly kind: 'buffHold';
@@ -226,7 +223,7 @@ export function parseBuffApplicationActionSource(
     buffs: parseBuffEntries(action.buffs, `${path}.buffs`),
     count: parseScalarSource(action.count, `${path}.count`, inheritedBlackboard),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    buffSource: requireNonEmptyString(action.buffSource, `${path}.buffSource`),
+    buffSource: readActionTarget(action.buffSource, `${path}.buffSource`),
     contextKey: requireString(action.contextKey, `${path}.contextKey`),
     autoFinishByAction: requireBoolean(action.autoFinishByAction, `${path}.autoFinishByAction`),
     inheritSkillIds: requireArray(action.inheritSkillIdList, `${path}.inheritSkillIdList`).map(
@@ -359,18 +356,6 @@ export function parseTaggedBuffFinishActionSource(
   };
 }
 
-export function parseBuffFindSettingsSource(value: unknown, path: string): BuffFindSettingsSource {
-  const settings = requireRecord(value, path);
-  requireExactFields(settings, new Set(['checkType', 'buffIdList', 'tagQuery']), path);
-  return {
-    checkType: requireNonEmptyString(settings.checkType, `${path}.checkType`),
-    buffIds: requireArray(settings.buffIdList, `${path}.buffIdList`).map((item, index) =>
-      requireString(item, `${path}.buffIdList[${index}]`),
-    ),
-    tagQuery: parseTagQuerySource(settings.tagQuery, `${path}.tagQuery`),
-  };
-}
-
 function parseBuffEntries(value: unknown, path: string): BuffApplicationEntrySource[] {
   return requireArray(value, path).map((rawEntry, index) => {
     const entryPath = `${path}[${index}]`;
@@ -395,24 +380,31 @@ function parseBuffEntries(value: unknown, path: string): BuffApplicationEntrySou
   });
 }
 
-function parseBuffIconDuration(value: unknown, path: string): BuffIconDurationSource {
+const BUFF_ICON_DURATION_SOURCES = new Map([[0, 'AbilityEntity'], [1, 'TimedMarker']] as const);
+
+export function parseBuffIconDuration(value: unknown, path: string): BuffIconDurationSource {
   const source = requireRecord(value, path);
+  // MemoryPack 仅序列化两个公开字段；旧 JSON 还附带两个私有说明字段。
+  // 只接受这两种已核对布局，不为缺失说明补造文字，也不泛化为任意可选字段。
+  const hasEditorHints = 'm_abilityEntityTypeInfo' in source || 'm_timedMarkerInfo' in source;
   requireExactFields(
     source,
     new Set([
-      'm_abilityEntityTypeInfo',
-      'm_timedMarkerInfo',
+      ...(hasEditorHints ? ['m_abilityEntityTypeInfo', 'm_timedMarkerInfo'] : []),
       'durationSourceType',
       'timedMarkerId',
     ]),
     path,
   );
   // 两个 m_ 字段是原生编辑器说明文本，不进入战斗 IR，但仍校验其序列化类型。
-  requireString(source.m_abilityEntityTypeInfo, `${path}.m_abilityEntityTypeInfo`);
-  requireString(source.m_timedMarkerInfo, `${path}.m_timedMarkerInfo`);
+  if (hasEditorHints) {
+    requireString(source.m_abilityEntityTypeInfo, `${path}.m_abilityEntityTypeInfo`);
+    requireString(source.m_timedMarkerInfo, `${path}.m_timedMarkerInfo`);
+  }
   return {
-    durationSourceType: requireNonEmptyString(
+    durationSourceType: requireNativeEnum(
       source.durationSourceType,
+      BUFF_ICON_DURATION_SOURCES,
       `${path}.durationSourceType`,
     ),
     timedMarkerId: requireString(source.timedMarkerId, `${path}.timedMarkerId`),

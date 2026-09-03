@@ -22,6 +22,9 @@ export function compileEventCondition(
   context: CombatActionProjectionContextSource,
   targetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
 ): CompiledBuffConditionSource | null {
+  // 原生 IfElse 的返回值为 alwaysNext || 分支结果。空分支且条件无副作用时，
+  // 它即使位于另一层 conditionAction 中也是恒真；不等于把内部空间条件判成恒真。
+  if (isPureEmptyContinuingBranch(node)) return { kind: 'constant', value: true };
   if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') return null;
   return compileConditionLeaf(node.body.value.action, node.sourcePath, context, targetGroups);
 }
@@ -30,6 +33,7 @@ export function compileEventCondition(
 export function canOmitUnusedNativeCondition(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
 ): boolean {
+  if (isPureEmptyContinuingBranch(node)) return true;
   if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') return false;
   const condition = node.body.value.action;
   if (condition.kind === 'entityCount') return condition.storeKey === '';
@@ -44,6 +48,21 @@ export function canOmitUnusedNativeCondition(
     'targetContains',
     'targetInScreen',
   ].includes(condition.kind);
+}
+
+/** 只处理源树已无有效分支动作的窄结构，不执行跨组件活性优化。 */
+function isPureEmptyContinuingBranch(
+  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
+): boolean {
+  const body = node.body;
+  return (
+    body.kind === 'ifElse' && body.alwaysNext &&
+    body.whenTrue.actions.every(child => !child.metadata.enabled) &&
+    body.whenFalse.actions.every(child => !child.metadata.enabled) &&
+    body.condition.actions.every(
+      child => !child.metadata.enabled || canOmitUnusedNativeCondition(child),
+    )
+  );
 }
 
 /** 条件也可能写黑板；即便没有后继步骤，写入及其前置守卫也不能消去。 */

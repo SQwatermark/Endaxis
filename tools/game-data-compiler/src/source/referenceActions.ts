@@ -48,6 +48,9 @@ export interface ProjectilePresetPointSource {
   readonly point: TargetReferenceSource;
 }
 
+/** 原生 LaunchProjectile.Data 使用的模式；只接收导出层已还原的枚举名称。 */
+export type ProjectileTargetFilterModeSource = 'None' | 'OnlyHit' | 'NeverHit';
+
 export interface ProjectileLaunchActionSource {
   readonly kind: 'projectileLaunch';
   readonly projectileId: string;
@@ -67,6 +70,10 @@ export interface ProjectileLaunchActionSource {
   readonly emitPositionForwardMode: string;
   readonly emitPositionRandomOffset: Vector3Source;
   readonly target: TargetReferenceSource;
+  readonly targetFilterMode: ProjectileTargetFilterModeSource;
+  /** 旧结构没有过滤字段组时为 null；新结构即使关闭过滤也保留序列化配置。 */
+  readonly targetFilterSettings: TargetReferenceSource | null;
+  readonly alsoLaunchToHittableTarget: boolean;
   readonly overrideHitBone: boolean;
   readonly hitMountPoint: string;
   readonly hitBoneFixedOffset: Vector3Source;
@@ -103,6 +110,8 @@ export interface AbilityEntitySpawnActionSource {
   readonly assignments: readonly BlackboardAssignmentSource[];
   readonly assignBlackboard: boolean;
   readonly skillId: string;
+  /** 原生只传给实体子技能的 CastSkillOptions，不控制实体生成数量。 */
+  readonly allowMultiInputTarget: boolean;
   readonly overrideDuration: boolean;
   readonly duration: ScalarSource;
   readonly saveToContext: boolean;
@@ -221,6 +230,19 @@ export function parseProjectileLaunchActionSource(
   path: string,
 ): ProjectileLaunchActionSource {
   const action = requireRecord(value, path);
+  // combat-spec/launch-projectile-skill-routing.md：旧结构无此字段组；当前结构的
+  // None 不解析过滤目标，false 不额外发射。只允许整组缺失，不能吞掉残缺的新数据。
+  const targetControlFields = [
+    'targetFilterMode',
+    'targetFilterSettings',
+    'alsoLaunchToHittableTarget',
+  ];
+  const hasTargetControls = targetControlFields.some(field => Object.hasOwn(action, field));
+  if (hasTargetControls) {
+    for (const field of targetControlFields) {
+      if (!Object.hasOwn(action, field)) throw new Error(`${path}.${field}: missing field`);
+    }
+  }
   requireExactFields(
     action,
     new Set([
@@ -242,6 +264,7 @@ export function parseProjectileLaunchActionSource(
       'emitPosOffsetForward',
       'emitPosRandomOffset',
       'targetSettings',
+      ...(hasTargetControls ? targetControlFields : []),
       'overrideHitBone',
       'hitMountPoint',
       'hitBoneFixedOffset',
@@ -277,6 +300,16 @@ export function parseProjectileLaunchActionSource(
         : requireString(action[skillField], `${path}.${skillField}`);
     return { event, enabled, skillId };
   });
+  const targetFilterMode = hasTargetControls
+    ? requireString(action.targetFilterMode, `${path}.targetFilterMode`)
+    : 'None';
+  if (
+    targetFilterMode !== 'None' &&
+    targetFilterMode !== 'OnlyHit' &&
+    targetFilterMode !== 'NeverHit'
+  ) {
+    throw new Error(`${path}.targetFilterMode: unsupported enum name ${targetFilterMode}`);
+  }
   return {
     kind: 'projectileLaunch',
     projectileId: requireNonEmptyString(action.projectileId, `${path}.projectileId`),
@@ -310,6 +343,13 @@ export function parseProjectileLaunchActionSource(
       `${path}.emitPosRandomOffset`,
     ),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    targetFilterMode,
+    targetFilterSettings: hasTargetControls
+      ? parseTargetReferenceSource(action.targetFilterSettings, `${path}.targetFilterSettings`)
+      : null,
+    alsoLaunchToHittableTarget: hasTargetControls
+      ? requireBoolean(action.alsoLaunchToHittableTarget, `${path}.alsoLaunchToHittableTarget`)
+      : false,
     overrideHitBone: requireBoolean(action.overrideHitBone, `${path}.overrideHitBone`),
     hitMountPoint: requireNonEmptyString(action.hitMountPoint, `${path}.hitMountPoint`),
     hitBoneFixedOffset: parseVector3Source(action.hitBoneFixedOffset, `${path}.hitBoneFixedOffset`),
@@ -362,6 +402,7 @@ export function parseAbilityEntitySpawnActionSource(
       'assignPairs',
       'assignBlackboard',
       'abilityEntitySkillId',
+      ...(Object.hasOwn(action, 'allowMultiInputTarget') ? ['allowMultiInputTarget'] : []),
       'overrideDuration',
       'duration',
       'saveToContext',
@@ -435,6 +476,10 @@ export function parseAbilityEntitySpawnActionSource(
     }),
     assignBlackboard: requireBoolean(action.assignBlackboard, `${path}.assignBlackboard`),
     skillId: requireString(action.abilityEntitySkillId, `${path}.abilityEntitySkillId`),
+    // 旧结构没有此字段，沿用默认施法选项；新结构即使为 false 也严格校验类型。
+    allowMultiInputTarget: Object.hasOwn(action, 'allowMultiInputTarget')
+      ? requireBoolean(action.allowMultiInputTarget, `${path}.allowMultiInputTarget`)
+      : false,
     overrideDuration: requireBoolean(action.overrideDuration, `${path}.overrideDuration`),
     duration: parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard),
     saveToContext: requireBoolean(action.saveToContext, `${path}.saveToContext`),
@@ -461,9 +506,24 @@ export function parseSkillCastActionSource(value: unknown, path: string): SkillC
       'skillId',
       'skipApplyCost',
       'inheritSourceSkillCastId',
+      ...('interruptCurSkillOnlyWhenTargetCastable' in action
+        ? ['interruptCurSkillOnlyWhenTargetCastable']
+        : []),
     ]),
     path,
   );
+  // 新开关进入延迟施法请求，不是敌方的受控效果；本轮只接入关闭分支。
+  // 开启时的目标可施放/当前技能中断顺序需另行投影，不能按字段名猜测或直接删除。
+  if (
+    'interruptCurSkillOnlyWhenTargetCastable' in action &&
+    requireBoolean(
+      action.interruptCurSkillOnlyWhenTargetCastable,
+      `${path}.interruptCurSkillOnlyWhenTargetCastable`,
+    )
+  )
+    throw new Error(
+      `${path}.interruptCurSkillOnlyWhenTargetCastable: enabled cast interruption option is not projected`,
+    );
   return {
     kind: 'skillCast',
     caster: parseTargetReferenceSource(action.caster, `${path}.caster`),

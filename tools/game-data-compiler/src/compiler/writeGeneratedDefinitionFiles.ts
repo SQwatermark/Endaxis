@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { access, mkdir, rename, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { renameWithRetry } from '../io.ts';
 
 export interface RenderedDefinitionFileSource {
   readonly relativePath: string;
@@ -135,22 +136,5 @@ async function pathExists(path: string): Promise<boolean> {
     return true;
   } catch {
     return false;
-  }
-}
-
-/** Windows 的实时索引器可能短暂持有新目录句柄；仅对可恢复的占用错误重试原子 rename。 */
-async function renameWithRetry(source: string, destination: string): Promise<void> {
-  for (let attempt = 0; ; attempt += 1) {
-    try {
-      await rename(source, destination);
-      return;
-    } catch (error) {
-      const code =
-        typeof error === 'object' && error !== null && 'code' in error
-          ? String(error.code)
-          : undefined;
-      if ((code !== 'EPERM' && code !== 'EBUSY') || attempt >= 5) throw error;
-      await new Promise(resolve => setTimeout(resolve, 25 * 2 ** attempt));
-    }
   }
 }

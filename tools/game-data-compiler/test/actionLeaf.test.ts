@@ -86,10 +86,10 @@ describe('公共 Action 叶子分派', () => {
     ).toThrow('unexpected fields');
   });
 
-  it('零空间唯一木桩把受支持的光线查询写成敌人和空间 Context', () => {
+  it.each([false, true])('零空间唯一木桩把受支持的光线查询写成敌人和空间 Context，阵营过滤=%s', useFaction => {
     const sequence = parseKnownNativeActionSequenceSource(
       {
-        actionData: [rayCastEffectFixture()],
+        actionData: [rayCastEffectFixture({ useFaction })],
         onlyExecuteWhenSourceIsMainChar: false,
         onlyExecuteWhenSourceIsGuard: false,
       },
@@ -107,7 +107,7 @@ describe('公共 Action 叶子分派', () => {
       compileCombatActionSequenceSource(
         parseKnownNativeActionSequenceSource(
           {
-            actionData: [rayCastEffectFixture({ useFaction: true })],
+            actionData: [rayCastEffectFixture({ useFaction: true, autoSetTargetFaction: false })],
             onlyExecuteWhenSourceIsMainChar: false,
             onlyExecuteWhenSourceIsGuard: false,
           },
@@ -121,6 +121,32 @@ describe('公共 Action 叶子分派', () => {
         },
       ),
     ).toThrow('unsupported RayCastEffectAction stump projection');
+  });
+
+  it.each([
+    { factionTarget: 'Ally' },
+    { autoSetTargetFaction: false },
+    { containsUnMarkable: true },
+  ])('阵营过滤只开放已证明的自动敌对分支 %j', extra => {
+    const source = parseKnownNativeActionSequenceSource({
+      actionData: [rayCastEffectFixture({ useFaction: true, ...extra })],
+      onlyExecuteWhenSourceIsMainChar: false,
+      onlyExecuteWhenSourceIsGuard: false,
+    }, 'ray', {});
+    expect(() => compileCombatActionSequenceSource(source, {
+      actionOwnerTarget: 'caster', actionSourceTarget: 'caster', actionTargetTarget: 'enemy',
+    })).toThrow('unsupported RayCastEffectAction stump projection');
+  });
+
+  it('开启阵营过滤的实体宿主不能借用干员阵营证明', () => {
+    const source = parseKnownNativeActionSequenceSource({
+      actionData: [rayCastEffectFixture({ useFaction: true })],
+      onlyExecuteWhenSourceIsMainChar: false,
+      onlyExecuteWhenSourceIsGuard: false,
+    }, 'ray', {});
+    expect(() => compileCombatActionSequenceSource(source, {
+      actionOwnerTarget: 'currentAbilityEntity', actionSourceTarget: 'caster', actionTargetTarget: 'enemy',
+    })).toThrow('unsupported RayCastEffectAction stump projection');
   });
 
   it('能力实体 Context 可作为零空间光线的严格空间锚点', () => {

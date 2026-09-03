@@ -18,7 +18,7 @@ const META = {
 const SOURCE_TARGET = targetFixture('Source');
 
 describe('Buff 动作公共载荷', () => {
-  it('施加动作保留间接黑板赋值和生命周期字段', () => {
+  it.each(['ActionSource', 0])('施加动作保留间接黑板赋值和生命周期字段：%s', buffSource => {
     const source = parseBuffApplicationActionSource(
       {
         ...META,
@@ -31,7 +31,7 @@ describe('Buff 动作公共载荷', () => {
                 targetKey: 'duration',
                 inputValueKey: 'buff_duration',
                 useDirectValue: false,
-                directValueType: 'Numeric',
+                directValueType: typeof buffSource === 'number' ? 0 : 'Numeric',
                 numericValue: 3,
                 stringValue: '',
               },
@@ -42,7 +42,7 @@ describe('Buff 动作公共载荷', () => {
         ],
         count: scalarFixture(1),
         targetSettings: targetFixture('Target'),
-        buffSource: 'ActionSource',
+        buffSource,
         contextKey: '',
         autoFinishByAction: true,
         inheritSkillIdList: ['chr_fixture_followup'],
@@ -53,7 +53,10 @@ describe('Buff 动作公共载荷', () => {
         isExtra: false,
         passTargetGroupsToBuff: false,
         overrideBuffIconDuration: true,
-        buffIconDurationSource: {
+        buffIconDurationSource: typeof buffSource === 'number' ? {
+          durationSourceType: 0,
+          timedMarkerId: '',
+        } : {
           m_abilityEntityTypeInfo: 'editor hint',
           m_timedMarkerInfo: 'editor hint',
           durationSourceType: 'AbilityEntity',
@@ -65,6 +68,7 @@ describe('Buff 动作公共载荷', () => {
     );
     expect(source).toMatchObject({
       kind: 'buffApplication',
+      buffSource: 'ActionSource',
       lifetimeOwner: 'independent',
       buffs: [
         {

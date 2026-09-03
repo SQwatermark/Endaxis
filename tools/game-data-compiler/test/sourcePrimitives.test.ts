@@ -39,6 +39,11 @@ describe('shared native source primitives', () => {
   it('normalizes serialized native action type names', () => {
     expect(nativeActionName('Endfield.Action.SequenceAction, Game.Core')).toBe('SequenceAction');
     expect(nativeActionName('Endfield.Action.Outer+Nested, Game.Core')).toBe('Outer');
+    expect(nativeActionName('Beyond.Gameplay.Core.IfElseAction.IfElseActionData')).toBe(
+      'IfElseAction',
+    );
+    expect(nativeActionName('Beyond.Gameplay.Core.CastSkill.Data')).toBe('CastSkill');
+    expect(nativeActionName('Example.OuterAction.UnknownData')).toBe('UnknownData');
   });
 
   it('rejects booleans and fractions as native action indexes', () => {

@@ -20,6 +20,8 @@ import {
   parseBuffApplicationActionSource,
 } from './buffActions.ts';
 import type { TargetReferenceSource } from './target.ts';
+import { parseScalarSource } from './scalar.ts';
+import { parseAdvancedDirectionSource } from './spatial.ts';
 
 export interface GlobalPartyAuraBuffInputSource {
   readonly buffId: string;
@@ -99,12 +101,53 @@ const ACTION_FIELDS = new Set([
   'actionWhenExitAura',
 ]);
 
+const INFLUENCE_FILTER_FIELDS = [
+  'filterFactionSource',
+  'limitInfluenceHeight',
+  'maxInfluenceHeight',
+  'limitInfluenceAngle',
+  'influenceAngle',
+  'influenceDirection',
+  'influenceDirectionAngleOffset',
+] as const;
+
+/** 所有 Aura 入口共用字段增量校验，不把阵营来源或启用的空间过滤误当表现信息。 */
+function parseAuraRecord(value: unknown, path: string): Record<string, unknown> {
+  const action = requireRecord(value, path);
+  const hasInfluenceFilters = INFLUENCE_FILTER_FIELDS.some(field => field in action);
+  requireExactFields(
+    action,
+    new Set([...ACTION_FIELDS, ...(hasInfluenceFilters ? INFLUENCE_FILTER_FIELDS : [])]),
+    path,
+  );
+  if (hasInfluenceFilters) {
+    // combat-spec/docs/aura-influence-lifecycle.md：新来源配置默认解析 Action Source 的阵营。
+    requirePlainAuraTarget(
+      parseTargetReferenceSource(action.filterFactionSource, `${path}.filterFactionSource`),
+      'Source',
+      `${path}.filterFactionSource`,
+    );
+    for (const field of ['limitInfluenceHeight', 'limitInfluenceAngle'] as const) {
+      if (requireBoolean(action[field], `${path}.${field}`))
+        throw new Error(`${path}.${field}: enabled Aura spatial filter is not projected`);
+    }
+    // 两个开关关闭时原生不执行这些计算；只校验输入结构，不引入黑板读者或运行时字段。
+    for (const field of [
+      'maxInfluenceHeight',
+      'influenceAngle',
+      'influenceDirectionAngleOffset',
+    ] as const)
+      parseScalarSource(action[field], `${path}.${field}`, {});
+    parseAdvancedDirectionSource(action.influenceDirection, `${path}.influenceDirection`);
+  }
+  return action;
+}
+
 export function parseGlobalPartyAuraActionSource(
   value: unknown,
   path: string,
 ): GlobalPartyAuraActionSource {
-  const action = requireRecord(value, path);
-  requireExactFields(action, ACTION_FIELDS, path);
+  const action = parseAuraRecord(value, path);
   requireExpected(action.auraType, 'GlobalAura', `${path}.auraType`);
   const root = parseTargetReferenceSource(action.auraRoot, `${path}.auraRoot`);
   if (root.targetSource !== 'Owner' || root.targetGroupKey !== '') {
@@ -176,8 +219,7 @@ export function parseDirectRangedAuraActionSource<TLeaf>(
   path: string,
   parseSequence: (value: unknown, path: string) => NativeSequenceSource<TLeaf>,
 ): DirectRangedAuraActionSource<TLeaf> | GlobalPartyAuraActionSource {
-  const action = requireRecord(value, path);
-  requireExactFields(action, ACTION_FIELDS, path);
+  const action = parseAuraRecord(value, path);
   requireExpected(action.auraType, 'RangedAura', `${path}.auraType`);
   const root = parseTargetReferenceSource(action.auraRoot, `${path}.auraRoot`);
   if (root.targetSource !== 'Owner' || root.targetGroupKey !== '') {
@@ -546,8 +588,7 @@ export function parseAuraReferenceActionSource(
   value: unknown,
   path: string,
 ): AuraReferenceActionSource {
-  const action = requireRecord(value, path);
-  requireExactFields(action, ACTION_FIELDS, path);
+  const action = parseAuraRecord(value, path);
   requireNonEmptyString(action.auraType, `${path}.auraType`);
   const buffs = parseAuraBuffInputs(action.buffInput, `${path}.buffInput`, false);
   const exitBuffs = parseAuraExitAction(

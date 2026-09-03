@@ -34,6 +34,27 @@ function compileQueries(raw: unknown[] = queries()) {
 }
 
 describe('CharacterTeamFinder 来源事实', () => {
+  it('新版显式 Targets 复用公共解析，完整队伍查询编译结果不变', () => {
+    const raw = queries();
+    raw[1]!.selectorData.postProcessorData[0]!.processTargetType = 'Targets';
+    raw[1]!.selectorData.postProcessorData[1]!.processTargetType = 'Targets';
+    expect(compileQueries(raw)).toEqual(compileQueries());
+  });
+
+  it('队伍身份识别入口也拒绝未闭环的 HittableTargets 通道', () => {
+    const raw = queries();
+    raw[1]!.selectorData.postProcessorData[1]!.processTargetType = 'HittableTargets';
+    expect(() => parseCharacterTeamSelection(raw[1]!.selectorData, 'selector'))
+      .toThrow('processTargetType');
+    expect(() => compileQueries(raw)).toThrow('processTargetType');
+  });
+
+  it('队伍排除入口不会把受击列表排除误认成排除队友', () => {
+    const raw = queries();
+    raw[1]!.selectorData.postProcessorData[0]!.processTargetType = 'HittableTargets';
+    expect(() => compileQueries(raw)).toThrow('processTargetType');
+  });
+
   it('把真实余烬双查询投影为有序的队伍身份快照步骤', () => {
     expect(compileQueries()).toEqual({
       steps: [

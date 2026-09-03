@@ -47,7 +47,12 @@ AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用�
 - `/public/Json/BuffData/manifest.json`：BuffData 文件清单；
 - TableCfg 及本地化文件由清单和版本路由决定具体路径。
 
-边界：AKEDB 是高价值静态数据源，但不是客户端完整运行时。某个技能可能只有 CharacterTable、SkillPatch 和 BuffData，没有根 SkillData；客户端通用代码、热更逻辑和帧执行顺序也不一定能从它单独证明。
+边界：AKEDB 是当前生产融合下载的优先来源，但不是客户端完整运行时。2026-09-03 已实查
+1.5.3 的 18 张需求表、2621 SkillData、2872 BuffData 和 724 张引用图片；投射物、能力实体、
+角色模板与部分全局配置仍由 VFS 补齐。资源需求清单由 Endaxis 的 game-data-sources.json 维护。
+下载默认 hybrid，VFS-only 只作对照审计；字段、枚举、数值和图片未全面一致前不能替换 AKEDB。
+具体选择、校验、版本与发布规则统一见[编译器来源融合规则](../../tools/game-data-compiler/README.md#来源融合与-vfs-替代门禁2026-09-03当前权威规则)。
+最新资产清单为 /asset-sync-index.json，不再依赖旧版逐集合 manifest；版本清单请求必须防旧缓存。
 
 ## 3. vfs-index-browser
 

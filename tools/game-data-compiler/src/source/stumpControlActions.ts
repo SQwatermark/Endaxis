@@ -14,11 +14,18 @@ import {
   type TimeDilationCurveKeySource,
 } from './timeDilationActions.ts';
 import { parseAdvancedDirectionSource, type AdvancedDirectionSource } from './spatial.ts';
+import { readControlledStateDeadOption, readAbilityActionReturnTrueMethod } from './controlEnums.ts';
 
 export interface StaticEnemyControlActionSource {
-  readonly kind: 'enemyHurtAnimation' | 'pull' | 'pushBack';
+  readonly kind: 'enemyHurtAnimation' | 'pushBack';
   readonly source: TargetReferenceSource;
   readonly target: TargetReferenceSource;
+}
+
+export interface PullActionSource extends Omit<StaticEnemyControlActionSource, 'kind'> {
+  readonly kind: 'pull';
+  /** 普通目标/目的地未命中时的继续策略；不是拉拽是否成功的结果。 */
+  readonly alwaysNext: boolean;
 }
 
 export interface TargetHitStopActionSource {
@@ -72,6 +79,7 @@ export interface LaunchUpwardActionSource {
 
 export type StumpControlActionSource =
   | StaticEnemyControlActionSource
+  | PullActionSource
   | TargetHitStopActionSource
   | BlowOffEnemyActionSource
   | BlowOffActionSource
@@ -110,8 +118,8 @@ export function parseTakeDownActionSource(
     kind: 'takeDown',
     source: parseTargetReferenceSource(action.source, `${path}.source`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    deadOption: requireString(action.deadOption, `${path}.deadOption`),
-    returnTrueWhen: requireString(action.returnTrueWhen, `${path}.returnTrueWhen`),
+    deadOption: readControlledStateDeadOption(action.deadOption, `${path}.deadOption`),
+    returnTrueWhen: readAbilityActionReturnTrueMethod(action.returnTrueWhen, `${path}.returnTrueWhen`),
   };
 }
 
@@ -165,8 +173,8 @@ export function parseLaunchUpwardActionSource(
     faceDirection: parseAdvancedDirectionSource(action.faceDirection, `${path}.faceDirection`),
     airborneEffect: requireRecord(action.airborneEffect, `${path}.airborneEffect`),
     immobilizedTime: requireNumber(action.immobilizedTime, `${path}.immobilizedTime`),
-    deadOption: requireString(action.deadOption, `${path}.deadOption`),
-    returnTrueWhen: requireString(action.returnTrueWhen, `${path}.returnTrueWhen`),
+    deadOption: readControlledStateDeadOption(action.deadOption, `${path}.deadOption`),
+    returnTrueWhen: readAbilityActionReturnTrueMethod(action.returnTrueWhen, `${path}.returnTrueWhen`),
   };
 }
 
@@ -233,11 +241,14 @@ export function parsePullActionSource(value: unknown, path: string): StumpContro
       'fixedDistanceMode',
       'attenuationBySuperArmor',
       'attenuationValues',
+      ...('alwaysNext' in action ? ['alwaysNext'] : []),
     ]),
     path,
   );
   return {
     kind: 'pull',
+    // 旧结构等价于默认关闭；来源层保留控制策略，不能按位移参数丢失。
+    alwaysNext: 'alwaysNext' in action ? requireBoolean(action.alwaysNext, `${path}.alwaysNext`) : false,
     source: parseTargetReferenceSource(action.destination, `${path}.destination`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
   };
@@ -342,7 +353,7 @@ export function parseBlowOffEnemyActionSource(
       `${path}.attackerTargetSettings`,
     ),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    deadOption: requireString(action.deadOption, `${path}.deadOption`),
+    deadOption: readControlledStateDeadOption(action.deadOption, `${path}.deadOption`),
   };
 }
 
@@ -392,7 +403,7 @@ export function parseBlowOffActionSource(
       `${path}.attackerTargetSettings`,
     ),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    deadOption: requireString(action.deadOption, `${path}.deadOption`),
+    deadOption: readControlledStateDeadOption(action.deadOption, `${path}.deadOption`),
   };
 }
 

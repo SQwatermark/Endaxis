@@ -119,7 +119,8 @@ export function compileBuffLeafNode(
       action.moveType !== 'PointToPoint' ||
       (!plainOwnerSource && !contextSpatialSource) ||
       !fixedPointTarget ||
-      action.useFaction ||
+      // 开启过滤时，当前只证明干员 Owner 的自动敌对阵营；不推断实体宿主的阵营。
+      (action.useFaction && context.actionOwnerTarget !== 'caster') ||
       !action.autoSetTargetFaction ||
       action.containsUnMarkable ||
       action.factionTarget !== 'Anti' ||
@@ -419,6 +420,21 @@ export function compileBuffLeafNode(
       action.target.finderType === null &&
       action.target.validatorTypes.length === 0 &&
       action.target.postProcessorTypes.length === 0;
+    // combat-spec/spawn-ability-entity.md：开关只决定子技能 SaveTarget 保存首项还是全部。
+    // 无目标/无子技能时不产生差异；既有投影已证明的单一敌人、施术者或当前实体也等价。
+    // 空间点组可能有多项，不能把“零空间”误当“只有一个输入目标”。
+    if (
+      action.allowMultiInputTarget &&
+      action.setTarget &&
+      action.skillId !== '' &&
+      !targetIsEnemy &&
+      !targetIsCaster &&
+      !targetIsCurrentAbilityEntity
+    ) {
+      throw new Error(
+        `${node.sourcePath}.allowMultiInputTarget: child skill input is not a proven singleton`,
+      );
+    }
     const disabledAssignmentsArePlaceholders =
       !action.assignEntityBlackboard &&
       action.assignments.every(
@@ -849,6 +865,9 @@ export function compileBuffLeafNode(
     // 仍保留来源身份和死亡过滤的严格门槛。
     if ((!sourceIsKnownStatic && action.kind === 'blowOffEnemy') || !targetIsEnemy)
       throw new Error(`${node.sourcePath}: unsupported static-enemy control projection`);
+    // Pull 的普通失败返回 alwaysNext；true 明确保留后继，false 沿用已证明唯一敌人的
+    // 既有处理路径。这里只省略位移，不删除兄弟动作，也不把 Pull 当作可求值的条件。
+    // 返回值被 Not/IfElse 消费时仍由公共条件编译拒绝，不能扩展成任意目标恒真。
     if (action.kind === 'blowOffEnemy' && action.deadOption !== 'OnlyDead')
       throw new Error(
         `${node.sourcePath}: live-target BlowOffEnemy physical infliction is not projected`,

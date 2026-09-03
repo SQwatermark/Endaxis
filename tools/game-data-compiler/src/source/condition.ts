@@ -11,6 +11,9 @@ import {
   requireString,
 } from './primitives.ts';
 import { projectNativeDamageElement } from './damageElement.ts';
+import { parseBuffFindSettingsSource, readBuffStackNumType } from './buffFindSettings.ts';
+import { readTargetSource } from './targetEnums.ts';
+import { readCompareType } from './conditionEnums.ts';
 import {
   parseScalarSource,
   parseStringScalarSource,
@@ -790,7 +793,7 @@ export function parseConditionLeafSource(
       return {
         kind: 'globalCooldown',
         sourceType,
-        targetSource: requireNonEmptyString(target.targetSource, `${path}.target.targetSource`),
+        targetSource: readTargetSource(target.targetSource, `${path}.target.targetSource`),
         targetGroupKey: requireString(target.targetGroupKey, `${path}.target.targetGroupKey`),
         buffId: requireNonEmptyString(condition.buffId, `${path}.buffId`),
       };
@@ -892,7 +895,7 @@ function parseMainOperator(
   return {
     kind: 'mainOperator',
     sourceType,
-    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: readTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
   };
 }
@@ -911,10 +914,10 @@ function parseEntityCount(
     kind: 'entityCount',
     sourceType,
     ...(parsedTarget === undefined ? {} : { target: parsedTarget }),
-    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: readTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
     minimumCount: requireInteger(condition.minNum, `${path}.minNum`),
-    comparison: requireNonEmptyString(condition.compareType, `${path}.compareType`),
+    comparison: readCompareType(condition.compareType, `${path}.compareType`),
     containsHittableTarget: requireBoolean(
       condition.containsHittableTarget,
       `${path}.containsHittableTarget`,
@@ -961,7 +964,7 @@ function parseAdvancedBuffStack(
     settings.buffIds,
     settings.tagQueryType,
     settings.buffTagIds,
-    requireNonEmptyString(condition.buffStackNumType, `${path}.buffStackNumType`),
+    readBuffStackNumType(condition.buffStackNumType, `${path}.buffStackNumType`),
     requireBoolean(condition.limitSkillCastId, `${path}.limitSkillCastId`),
   );
 }
@@ -982,7 +985,7 @@ function parseTagBuffStack(
     [],
     query.queryType,
     query.tagIds,
-    requireNonEmptyString(condition.buffStackNumType, `${path}.buffStackNumType`),
+    readBuffStackNumType(condition.buffStackNumType, `${path}.buffStackNumType`),
     false,
   );
 }
@@ -1003,14 +1006,14 @@ function createBuffStack(
   return {
     kind: 'buffStack',
     sourceType,
-    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: readTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
     buffCheckType,
     buffIds,
     tagQueryType,
     buffTagIds,
     countType,
-    comparison: requireNonEmptyString(condition.compareType, `${path}.compareType`),
+    comparison: readCompareType(condition.compareType, `${path}.compareType`),
     value: parseScalarSource(condition.value, `${path}.value`, inheritedBlackboard),
     limitSkillCastId,
   };
@@ -1026,7 +1029,7 @@ function parseEntityTag(
   return {
     kind: 'entityTag',
     sourceType,
-    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: readTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
     tagQueryType: query.queryType,
     tagIds: query.tagIds,
@@ -1042,7 +1045,7 @@ function parseTimedMarker(
   return {
     kind: 'timedMarker',
     sourceType,
-    targetSource: requireNonEmptyString(target.targetSource, `${path}.checkTarget.targetSource`),
+    targetSource: readTargetSource(target.targetSource, `${path}.checkTarget.targetSource`),
     targetGroupKey: requireString(target.targetGroupKey, `${path}.checkTarget.targetGroupKey`),
     markerId: requireString(condition.id, `${path}.id`),
     blackboardKey: requireString(condition.blackboardKey, `${path}.blackboardKey`),
@@ -1061,7 +1064,7 @@ function parseHealth(
   inheritedBlackboard: BlackboardLevelValues,
 ): NativeConditionSource {
   const target = requireRecord(condition.hpOwner, `${path}.hpOwner`);
-  const targetSource = requireNonEmptyString(target.targetSource, `${path}.hpOwner.targetSource`);
+  const targetSource = readTargetSource(target.targetSource, `${path}.hpOwner.targetSource`);
   return {
     kind: 'health',
     sourceType,
@@ -1364,15 +1367,11 @@ export function parseBuffFindSettings(
   readonly tagQueryType: TagQueryType;
   readonly buffTagIds: readonly number[];
 } {
-  const settings = requireRecord(value, path);
-  const buffIds = requireArray(settings.buffIdList, `${path}.buffIdList`)
-    .map((item, index) => requireString(item, `${path}.buffIdList[${index}]`))
-    .filter(Boolean);
-  const query = parseTagQuerySource(settings.tagQuery, `${path}.tagQuery`);
+  const settings = parseBuffFindSettingsSource(value, path);
   return {
-    checkType: requireNonEmptyString(settings.checkType, `${path}.checkType`),
-    buffIds,
-    tagQueryType: query.queryType,
-    buffTagIds: query.tagIds,
+    checkType: settings.checkType,
+    buffIds: settings.buffIds.filter(Boolean),
+    tagQueryType: settings.tagQuery.queryType,
+    buffTagIds: settings.tagQuery.tagIds,
   };
 }

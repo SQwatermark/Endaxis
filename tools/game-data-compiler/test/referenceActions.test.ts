@@ -77,58 +77,68 @@ describe('引用闭包动作来源载荷', () => {
     });
   });
 
-  it('能力实体保留关闭赋值的编辑器空占位和未启用目标', () => {
-    const source = parseAbilityEntitySpawnActionSource(
-      {
-        ...META,
-        abilityEntityId: 'abilityentity_fixture',
-        setAbilityEntitySource: false,
-        abilityEntitySource: 'ActionSource',
-        abilityEntitySourceContextKey: '',
-        setAbilityEntityTarget: false,
-        abilityEntityTarget: targetFixture('Target'),
-        bornAt: targetFixture('Source'),
-        bornMountPoint: 'None',
-        bornPosOffset: VECTOR_ZERO,
-        checkNavmeshAreaName: false,
-        forbiddenAreaNames: [],
-        attachToClosestMeshPoint: false,
-        yRotateFromBoneToCurPos: false,
-        bornRotation: 'SourceForward',
-        bornRotationContextTarget: '',
-        useAdvancedDirectionSetting: false,
-        advancedDirectionSetting: DIRECTION,
-        clampToXZPlane: false,
-        applyBornRotationOffset: false,
-        bornRotationOffset: { x: 0, y: 0, z: 0, w: 1 },
+  it.each([undefined, false, true, 0, null, 'false'])(
+    '能力实体严格读取多输入配置 %s，保留关闭赋值和未启用目标',
+    allowMultiInputTarget => {
+      const parse = () =>
+        parseAbilityEntitySpawnActionSource(
+          {
+            ...META,
+            abilityEntityId: 'abilityentity_fixture',
+            setAbilityEntitySource: false,
+            abilityEntitySource: 'ActionSource',
+            abilityEntitySourceContextKey: '',
+            setAbilityEntityTarget: false,
+            abilityEntityTarget: targetFixture('Target'),
+            bornAt: targetFixture('Source'),
+            bornMountPoint: 'None',
+            bornPosOffset: VECTOR_ZERO,
+            checkNavmeshAreaName: false,
+            forbiddenAreaNames: [],
+            attachToClosestMeshPoint: false,
+            yRotateFromBoneToCurPos: false,
+            bornRotation: 'SourceForward',
+            bornRotationContextTarget: '',
+            useAdvancedDirectionSetting: false,
+            advancedDirectionSetting: DIRECTION,
+            clampToXZPlane: false,
+            applyBornRotationOffset: false,
+            bornRotationOffset: { x: 0, y: 0, z: 0, w: 1 },
+            assignEntityBlackboard: false,
+            assignPairs: [assignmentFixture('', '')],
+            assignBlackboard: false,
+            abilityEntitySkillId: '',
+            ...(allowMultiInputTarget === undefined ? {} : { allowMultiInputTarget }),
+            overrideDuration: false,
+            duration: scalarFixture(62),
+            saveToContext: false,
+            contextKey: '',
+            pauseEffectOnEnd: false,
+            inheritSourceSkillCastId: true,
+            dieWhenSourceDie: true,
+            forceSyncInit: false,
+            dieOnEnd: true,
+          },
+          'fixture.spawnAbilityEntity',
+          {},
+        );
+      if (allowMultiInputTarget !== undefined && typeof allowMultiInputTarget !== 'boolean') {
+        expect(parse).toThrow('allowMultiInputTarget');
+        return;
+      }
+      expect(parse()).toMatchObject({
+        kind: 'abilityEntitySpawn',
+        allowMultiInputTarget: allowMultiInputTarget ?? false,
+        setSource: false,
+        setTarget: false,
+        target: { targetSource: 'Target' },
         assignEntityBlackboard: false,
-        assignPairs: [assignmentFixture('', '')],
-        assignBlackboard: false,
-        abilityEntitySkillId: '',
+        assignments: [{ targetKey: '', inputValueKey: '' }],
         overrideDuration: false,
-        duration: scalarFixture(62),
-        saveToContext: false,
-        contextKey: '',
-        pauseEffectOnEnd: false,
-        inheritSourceSkillCastId: true,
-        dieWhenSourceDie: true,
-        forceSyncInit: false,
-        dieOnEnd: true,
-      },
-      'fixture.spawnAbilityEntity',
-      {},
-    );
-    expect(source).toMatchObject({
-      kind: 'abilityEntitySpawn',
-      setSource: false,
-      setTarget: false,
-      target: { targetSource: 'Target' },
-      assignEntityBlackboard: false,
-      assignments: [{ targetKey: '', inputValueKey: '' }],
-      overrideDuration: false,
-      duration: { value: 62 },
-    });
-  });
+        duration: { value: 62 },
+      });
+    },
+  );
 
   it('技能调用保留动态 ID 包装和完整施法者、目标引用', () => {
     expect(
@@ -150,6 +160,31 @@ describe('引用闭包动作来源载荷', () => {
       skillId: { value: 'fallback_skill', blackboardKey: 'next_skill' },
       skipApplyCost: true,
     });
+  });
+
+  const cast = {
+    ...META,
+    caster: targetFixture('Owner'),
+    target: targetFixture('Target'),
+    skillId: { value: 'fallback_skill', useBlackboardKey: true, blackboardKey: 'next_skill' },
+    skipApplyCost: true,
+    inheritSourceSkillCastId: true,
+  };
+  it('关闭新增施法中断选项不改变费用、动态技能 ID 和来源继承', () => {
+    expect(
+      parseSkillCastActionSource(
+        { ...cast, interruptCurSkillOnlyWhenTargetCastable: false },
+        'cast',
+      ),
+    ).toEqual(parseSkillCastActionSource(cast, 'cast'));
+  });
+  it.each([true, 0, 'false', null, undefined])('阻断未投影或非法施法中断选项 %j', flag => {
+    expect(() =>
+      parseSkillCastActionSource(
+        { ...cast, interruptCurSkillOnlyWhenTargetCastable: flag },
+        'cast',
+      ),
+    ).toThrow('interruptCurSkillOnlyWhenTargetCastable');
   });
 });
 

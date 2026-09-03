@@ -2,7 +2,7 @@
   "version": "1.4.4@9433094-12",
   "description": "原始资源快照；TableCfg 只保留角色行，哈希对应切片前原文件；其余文件保留完整内容。",
   "files": {
-    "skill-data-cdn/chr_0012_avywen_combo_skill.json": {
+    "SkillData/chr_0012_avywen_combo_skill.json": {
       "sha256": "0b122757b62a3a08427546f93fa74492089a405ec4d26f76439bbccaaf880816",
       "data": {
         "skillId": "chr_0012_avywen_combo_skill",
@@ -4237,7 +4237,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_attack1.json": {
+    "SkillData/chr_0012_avywen_attack1.json": {
       "sha256": "33063fe2a32f17bd4119a7cf8cd695e87e0aa84583bc0612312603bf3915ce8e",
       "data": {
         "skillId": "chr_0012_avywen_attack1",
@@ -6141,7 +6141,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_attack2.json": {
+    "SkillData/chr_0012_avywen_attack2.json": {
       "sha256": "78aab9d120b6c9ce9ba99977b73df714226115a739e759ce7725207c951d1336",
       "data": {
         "skillId": "chr_0012_avywen_attack2",
@@ -8063,7 +8063,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_attack3.json": {
+    "SkillData/chr_0012_avywen_attack3.json": {
       "sha256": "7c308bce93578ee8e2965b33b4a01dfc881b7a3334d78f5b9e63ff5598a32db6",
       "data": {
         "skillId": "chr_0012_avywen_attack3",
@@ -10029,7 +10029,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_attack4.json": {
+    "SkillData/chr_0012_avywen_attack4.json": {
       "sha256": "57df54865b5381aa0a090f56d9da5048c00ffb0a5d86f77aeb519a3653ca960a",
       "data": {
         "skillId": "chr_0012_avywen_attack4",
@@ -12980,7 +12980,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_attack5.json": {
+    "SkillData/chr_0012_avywen_attack5.json": {
       "sha256": "0fddfc2ffb453f6bcbc971a0617eefdb04aa334fac4632f95e2e65c1b8b3f413",
       "data": {
         "skillId": "chr_0012_avywen_attack5",
@@ -15711,7 +15711,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_power_attack.json": {
+    "SkillData/chr_0012_avywen_power_attack.json": {
       "sha256": "9d6283e1293fea265966b5c77cbe263ba91a455647368695b983fc0e1b6e05e8",
       "data": {
         "skillId": "chr_0012_avywen_power_attack",
@@ -21156,7 +21156,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_plunging_attack_end.json": {
+    "SkillData/chr_0012_avywen_plunging_attack_end.json": {
       "sha256": "99408fd96aca19966879ed57bcfebc28e8a28494f3dca3e79a8cab318fc615e7",
       "data": {
         "skillId": "chr_0012_avywen_plunging_attack_end",
@@ -23057,7 +23057,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_normal_skill.json": {
+    "SkillData/chr_0012_avywen_normal_skill.json": {
       "sha256": "cbcbe4d48e104a36e04b91c2870d60b45802455299ece5344dffc7797771e098",
       "data": {
         "skillId": "chr_0012_avywen_normal_skill",
@@ -28962,7 +28962,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_ultimate_skill.json": {
+    "SkillData/chr_0012_avywen_ultimate_skill.json": {
       "sha256": "ba59f41999c039afb2cf9505c118edf78eaa1a08c4220fe5c3490ac45ff8192e",
       "data": {
         "skillId": "chr_0012_avywen_ultimate_skill",
@@ -44027,7 +44027,7 @@
       "sha256": "23fda1349b876272c72cd34af5f189d1cfb18793f99ac454fd9c5c0b968bdc24",
       "data": {}
     },
-    "skill-data-cdn/chr_0012_avywen_combo_skill_lance_gene.json": {
+    "SkillData/chr_0012_avywen_combo_skill_lance_gene.json": {
       "sha256": "8585e3a2afb349f0846028133fc1184ef8e2c717516bb55be60ebe98e1361d4c",
       "data": {
         "skillId": "chr_0012_avywen_combo_skill_lance_gene",
@@ -44992,7 +44992,7 @@
         }
       }
     },
-    "skill-data-cdn/chr_0012_avywen_combo_skill_lance_back.json": {
+    "SkillData/chr_0012_avywen_combo_skill_lance_back.json": {
       "sha256": "dc856577a79c20a926c88bf7e8e5803e21a04e85dc4dfe1b607003617b126e66",
       "data": {
         "skillId": "chr_0012_avywen_combo_skill_lance_back",
@@ -46949,7 +46949,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_combo_skill_lance_back_reach.json": {
+    "SkillData/chr_0012_avywen_combo_skill_lance_back_reach.json": {
       "sha256": "e1c47718f337f0db6795ae8a1379bf41b8c4ec253e2577cb2c5eb645ccf2c772",
       "data": {
         "skillId": "chr_0012_avywen_combo_skill_lance_back_reach",
@@ -48039,7 +48039,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_ultimate_skill_lance_back.json": {
+    "SkillData/chr_0012_avywen_ultimate_skill_lance_back.json": {
       "sha256": "5456de15711357b10f07d4e57d6d979fd088218900450bde70d990a389e44e68",
       "data": {
         "skillId": "chr_0012_avywen_ultimate_skill_lance_back",
@@ -51745,7 +51745,7 @@
         ]
       }
     },
-    "skill-data-cdn/chr_0012_avywen_ultimate_skill_lance_gene.json": {
+    "SkillData/chr_0012_avywen_ultimate_skill_lance_gene.json": {
       "sha256": "62ba188462bbda8751c5c08881db6976b77ad63e5bb97cca510de0a9fe38638c",
       "data": {
         "skillId": "chr_0012_avywen_ultimate_skill_lance_gene",
@@ -52708,7 +52708,7 @@
         "rootRid": 8194869126427836000
       }
     },
-    "skill-data-cdn/chr_0012_avywen_combo_skill_lance.json": {
+    "SkillData/chr_0012_avywen_combo_skill_lance.json": {
       "sha256": "82bf534d1e16fcc1b8fe99cf0ddf7ec5eeddcfa36e1db148ade02880beb0aab5",
       "data": {
         "skillId": "chr_0012_avywen_combo_skill_lance",
@@ -53978,7 +53978,7 @@
         "needEnemyOutOfScreenWarningOverrideValue": false
       }
     },
-    "skill-data-cdn/chr_0012_avywen_ultimate_skill_lance.json": {
+    "SkillData/chr_0012_avywen_ultimate_skill_lance.json": {
       "sha256": "891b42558b99281e0edf7d1eb9c1aa33dfcbd0976db4b029f866e44a4227a069",
       "data": {
         "skillId": "chr_0012_avywen_ultimate_skill_lance",

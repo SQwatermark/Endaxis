@@ -2,6 +2,7 @@ import {
   requireExactFields,
   requireBoolean,
   requireNonEmptyString,
+  requireNativeEnum,
   requireRecord,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
@@ -144,6 +145,12 @@ export function parseSpellAbnormalLifecycleEventSource(
   };
 }
 
+// EnergyShardType 是 0 起始的独立枚举，不是含 Physical 的 DamageType，也不是异常类型枚举。
+// Enum=4 是原生成员，但不是可施加的法术状态；证据见 force-spell-status-action.md。
+const ENERGY_SHARD_TYPES = new Map([
+  [0, 'Fire'], [1, 'Pulse'], [2, 'Cryst'], [3, 'Natural'], [4, 'Enum'],
+] as const);
+
 export function parseForcedElementalStatusActionSource(
   value: unknown,
   path: string,
@@ -168,8 +175,8 @@ export function parseForcedElementalStatusActionSource(
     ]),
     path,
   );
-  const statusElement = requireNonEmptyString(action.spellStatusType, `${path}.spellStatusType`);
-  if (!['Fire', 'Pulse', 'Cryst', 'Natural'].includes(statusElement)) {
+  const statusElement = requireNativeEnum(action.spellStatusType, ENERGY_SHARD_TYPES, `${path}.spellStatusType`);
+  if (statusElement === 'Enum') {
     throw new Error(
       `${path}.spellStatusType: unsupported element ${JSON.stringify(statusElement)}`,
     );
@@ -178,7 +185,7 @@ export function parseForcedElementalStatusActionSource(
     kind: 'forcedElementalStatus',
     source: parseTargetReferenceSource(action.source, `${path}.source`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
-    statusElement: statusElement as ElementalInflictionTypeSource,
+    statusElement,
     consumedLayers: parseScalarSource(
       action.consumedLayer,
       `${path}.consumedLayer`,

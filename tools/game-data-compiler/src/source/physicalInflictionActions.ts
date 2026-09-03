@@ -3,16 +3,18 @@ import {
   requireExactFields,
   requireNumber,
   requireRecord,
-  requireString,
 } from './primitives.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseAdvancedDirectionSource, type AdvancedDirectionSource } from './spatial.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
-/** 原生枚举，不是正式输出协议；身份与数值见 combat-spec/docs/knockdown-action.md。 */
-export type ControlledStateDeadOptionSource = 'AllValid' | 'OnlyAlive' | 'OnlyDead';
-export type AbilityActionReturnTrueMethodSource =
-  'Always' | 'BothSuccessAndInterrupted' | 'OnlySuccess' | 'OnlyInterrupted';
+import {
+  readControlledStateDeadOption as parseDeadOption,
+  readAbilityActionReturnTrueMethod as parseReturnTrueWhen,
+  type ControlledStateDeadOptionSource,
+  type AbilityActionReturnTrueMethodSource,
+} from './controlEnums.ts';
+export type { ControlledStateDeadOptionSource, AbilityActionReturnTrueMethodSource } from './controlEnums.ts';
 
 /** 击倒不是纯敌人动作：入口有破防门、状态 Buff 和独立返回策略，不归木桩表现动作。 */
 export interface KnockDownActionSource {
@@ -130,7 +132,6 @@ export function parseAirborneActionSource(
     returnTrueWhen,
   };
 }
-
 export function parsePhysicalInflictionActionSource(
   value: unknown,
   path: string,
@@ -244,23 +245,4 @@ export function parseKnockDownActionSource(
     deadOption,
     returnTrueWhen,
   };
-}
-
-function parseDeadOption(value: unknown, path: string): ControlledStateDeadOptionSource {
-  const result = requireString(value, path);
-  if (result !== 'AllValid' && result !== 'OnlyAlive' && result !== 'OnlyDead')
-    throw new Error(`${path}: unsupported ControlledStateDeadOption ${result}`);
-  return result;
-}
-
-function parseReturnTrueWhen(value: unknown, path: string): AbilityActionReturnTrueMethodSource {
-  const result = requireString(value, path);
-  if (
-    result !== 'Always' &&
-    result !== 'BothSuccessAndInterrupted' &&
-    result !== 'OnlySuccess' &&
-    result !== 'OnlyInterrupted'
-  )
-    throw new Error(`${path}: unsupported ReturnTrueMethod ${result}`);
-  return result;
 }

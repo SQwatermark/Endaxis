@@ -1,11 +1,11 @@
 import {
   requireBoolean,
   requireExactFields,
-  requireNonEmptyString,
   requireNumber,
   requireRecord,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { readAdvancedDirectionType, readMountPoint } from './spatialEnums.ts';
 
 export type Vector3Source = readonly [number, number, number];
 export type QuaternionSource = readonly [number, number, number, number];
@@ -66,17 +66,26 @@ export function parseAdvancedDirectionSource(
     fields.add('target');
   }
   requireExactFields(direction, fields, path);
+  const customSourceAndTarget = requireBoolean(
+    direction.customSourceAndTarget, `${path}.customSourceAndTarget`,
+  );
+  // 未自定义时，VFS 的显式 null 与旧 JSON 的省略字段都表示没有覆盖引用。
+  // 非空载荷照常解析；显式 undefined 不是合法序列化值，仍由严格解析器拒绝。
+  const source = hasSource && direction.source !== null
+    ? parseTargetReferenceSource(direction.source, `${path}.source`) : null;
+  const target = hasTarget && direction.target !== null
+    ? parseTargetReferenceSource(direction.target, `${path}.target`) : null;
+  if (customSourceAndTarget && (source === null || target === null)) {
+    throw new Error(`${path}: custom source and target references are required`);
+  }
   return {
-    directionType: requireNonEmptyString(direction.directionType, `${path}.directionType`),
-    sourceMountPoint: requireNonEmptyString(direction.sourceMountPoint, `${path}.sourceMountPoint`),
-    targetMountPoint: requireNonEmptyString(direction.targetMountPoint, `${path}.targetMountPoint`),
-    customSourceAndTarget: requireBoolean(
-      direction.customSourceAndTarget,
-      `${path}.customSourceAndTarget`,
-    ),
+    directionType: readAdvancedDirectionType(direction.directionType, `${path}.directionType`),
+    sourceMountPoint: readMountPoint(direction.sourceMountPoint, `${path}.sourceMountPoint`),
+    targetMountPoint: readMountPoint(direction.targetMountPoint, `${path}.targetMountPoint`),
+    customSourceAndTarget,
     clampToXZ: requireBoolean(direction.clampToXZ, `${path}.clampToXZ`),
     invertDirection: requireBoolean(direction.invertDirection, `${path}.invertDirection`),
-    source: hasSource ? parseTargetReferenceSource(direction.source, `${path}.source`) : null,
-    target: hasTarget ? parseTargetReferenceSource(direction.target, `${path}.target`) : null,
+    source,
+    target,
   };
 }

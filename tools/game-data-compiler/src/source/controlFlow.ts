@@ -45,6 +45,13 @@ export type NativeTickIntervalModeSource = 'EachFrame' | 'Interval' | 'FixedCoun
 
 export type NativeActionBodySource<TLeaf> =
   | { readonly kind: 'leaf'; readonly value: TLeaf }
+  | {
+      /** 动作持有的条件回调不是同步后继；保留子树供公共投影由内向外分析。 */
+      readonly kind: 'actionWithCallback';
+      readonly value: TLeaf;
+      readonly trigger: 'targetPointInvalid';
+      readonly callback: NativeSequenceSource<TLeaf>;
+    }
   | { readonly kind: 'once'; readonly action: NativeSequenceSource<TLeaf> }
   | {
       readonly kind: 'ifElse';
@@ -123,6 +130,9 @@ export function collectNativeActionNodes<TLeaf>(
       result.push(node);
       const body = node.body;
       switch (body.kind) {
+        case 'actionWithCallback':
+          visitSequence(body.callback);
+          break;
         case 'ifElse':
           visitSequence(body.condition);
           visitSequence(body.whenTrue);
@@ -206,13 +216,33 @@ function parseNativeActionNodeSource<TLeaf>(
     nativeType,
     nativeName,
     enabled: requireBoolean(action.isEnable, `${path}.isEnable`),
-    priorityLevel: requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`),
+    // 当前 VFS 79749 个 SkillData 动作均为 0，对应已取证的 Default。
+    // 非零整数的跨版本映射尚未核实，不能沿用曾被撤回且缺少本轮证据确认的 -1/1 映射。
+    priorityLevel:
+      action.priorityLevel === 0
+        ? 'Default'
+        : requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`),
     priorityOffset: requireInteger(action.priorityOffset, `${path}.priorityOffset`),
     serverActionIndex: requireInteger(action.serverActionIndex, `${path}.serverActionIndex`),
   };
 
   let body: NativeActionBodySource<TLeaf>;
-  if (nativeName === 'DoOnceAction') {
+  if (nativeName === 'TeleportAction' && 'actionOnTargetPointInvalid' in action) {
+    // 只拆出原生明确声明的回调；动作自身仍由唯一叶子解析器严格读取。
+    // 不按 actionData 是否为空提前判断有效性，也不将回调扁平化为无条件执行。
+    const { actionOnTargetPointInvalid, ...owner } = action;
+    body = {
+      kind: 'actionWithCallback',
+      value: parseLeaf(owner, path),
+      trigger: 'targetPointInvalid',
+      callback: parseNativeSequenceSource(
+        actionOnTargetPointInvalid,
+        `${path}.actionOnTargetPointInvalid`,
+        inheritedBlackboard,
+        parseLeaf,
+      ),
+    };
+  } else if (nativeName === 'DoOnceAction') {
     requireExactFields(action, new Set([...ACTION_META_FIELDS, 'sequenceActionData']), path);
     body = {
       kind: 'once',

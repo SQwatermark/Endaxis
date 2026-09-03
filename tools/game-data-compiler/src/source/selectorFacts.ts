@@ -6,8 +6,16 @@ import {
   requireNumber,
   requireRecord,
 } from './primitives.ts';
-import { parsePriorityFilterSources, selectorComponentName } from './selectorComponents.ts';
-import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import {
+  parsePriorityFilterSource,
+  parsePriorityFilterSources,
+  selectorComponentName,
+} from './selectorComponents.ts';
+import {
+  parseExcludeTargetSource,
+  parseTargetReferenceSource,
+  type TargetReferenceSource,
+} from './target.ts';
 
 export interface CircularOrderSource {
   readonly indexKey: string;
@@ -56,28 +64,13 @@ export function parseCharacterTeamSelection(
     const exclusionPath = `${path}.postProcessorData[0]`;
     const exclusion = requireRecord(processors[0], exclusionPath);
     if (selectorComponentName(exclusion, exclusionPath) !== 'ExcludeTarget') return null;
-    requireExactFields(exclusion, new Set(['$type', 'excludedTargetSettings']), exclusionPath);
-    excludedTarget = parseTargetReferenceSource(
-      exclusion.excludedTargetSettings,
-      `${exclusionPath}.excludedTargetSettings`,
-    );
+    excludedTarget = parseExcludeTargetSource(exclusion, exclusionPath);
   }
 
   const priorityPath = `${path}.postProcessorData[${priorityIndex}]`;
-  const priority = requireRecord(processors[priorityIndex], priorityPath);
-  if (selectorComponentName(priority, priorityPath) !== 'PriorityFilter') return null;
-  requireExactFields(
-    priority,
-    new Set([
-      '$type',
-      'filterType',
-      'onlyReserveMaxPriorityTargets',
-      'limitMaxNum',
-      'maxNum',
-      'buffFilterSettings',
-    ]),
-    priorityPath,
-  );
+  if (selectorComponentName(processors[priorityIndex], priorityPath) !== 'PriorityFilter')
+    return null;
+  const priority = parsePriorityFilterSource(processors[priorityIndex], priorityPath);
   if (
     priority.filterType !== 'CurHpRatioAsc' ||
     priority.onlyReserveMaxPriorityTargets !== false ||
@@ -86,7 +79,14 @@ export function parseCharacterTeamSelection(
   ) {
     return null;
   }
-  if (!isEmptyBuffCountFilter(priority.buffFilterSettings, `${priorityPath}.buffFilterSettings`)) {
+  const filter = priority.buffFilter;
+  if (
+    filter.checkType !== 'Id' ||
+    filter.buffIds.length !== 0 ||
+    filter.tagQuery.queryType !== 'hasAny' ||
+    filter.tagQuery.tagIds.length !== 0 ||
+    filter.stackCountType !== 'BuffCount'
+  ) {
     return null;
   }
   return { kind: 'lowestHealthRatioOperator', excludedTarget };
@@ -186,11 +186,7 @@ function selectorExcludesPlainTarget(
     const processorPath = `${path}.postProcessorData[${index}]`;
     const processor = requireRecord(processors[index], processorPath);
     if (selectorComponentName(processor, processorPath) !== 'ExcludeTarget') continue;
-    requireExactFields(processor, new Set(['$type', 'excludedTargetSettings']), processorPath);
-    const excluded = parseTargetReferenceSource(
-      processor.excludedTargetSettings,
-      `${processorPath}.excludedTargetSettings`,
-    );
+    const excluded = parseExcludeTargetSource(processor, processorPath);
     if (isPlainTarget(excluded, targetSource, '')) return true;
   }
   return false;
@@ -234,26 +230,4 @@ function constantScalar(value: unknown, path: string): number {
     throw new Error(`${path}: blackboard scalar is not yet supported`);
   }
   return requireNumber(scalar.value, `${path}.value`);
-}
-
-function isEmptyBuffCountFilter(value: unknown, path: string): boolean {
-  const filter = requireRecord(value, path);
-  requireExactFields(filter, new Set(['buffSettings', 'buffStackNumType']), path);
-  const settings = requireRecord(filter.buffSettings, `${path}.buffSettings`);
-  requireExactFields(
-    settings,
-    new Set(['checkType', 'buffIdList', 'tagQuery']),
-    `${path}.buffSettings`,
-  );
-  const tagQuery = requireRecord(settings.tagQuery, `${path}.buffSettings.tagQuery`);
-  requireExactFields(tagQuery, new Set(['queryType', 'tags']), `${path}.buffSettings.tagQuery`);
-  return (
-    settings.checkType === 'Id' &&
-    Array.isArray(settings.buffIdList) &&
-    settings.buffIdList.length === 0 &&
-    tagQuery.queryType === 'HasAny' &&
-    Array.isArray(tagQuery.tags) &&
-    tagQuery.tags.length === 0 &&
-    filter.buffStackNumType === 'BuffCount'
-  );
 }

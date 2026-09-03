@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { parseDamageUnitSource } from '../src/index.ts';
+import { parseDamageProcessors } from '../src/source/damageActions.ts';
 import { scalarFixture } from './sourceFixtures.ts';
 
 const BASE_UNIT = {
@@ -37,6 +38,70 @@ const BASE_UNIT = {
 } as const;
 
 describe('伤害动作公共载荷', () => {
+  const instantModifier = {
+    $type: 'Beyond.Gameplay.Core.InstantModifyAttribute, Gameplay.Beyond',
+    modifyTargetSide: 'Attacker',
+    modifier: {
+      modifyAttributeType: 'Specific',
+      attributeType: 'CriticalRate',
+      formulaItem: 'BaseAddition',
+      param: scalarFixture(0, 'critical_rate'),
+    },
+  };
+  const emptyCache = {
+    m_attributeModifierLoader: {},
+    '<attributeMask>k__BackingField': { lowerMask: 0, higherMask: 0 },
+  };
+
+  it('空导出缓存不进入来源 IR，真实属性修正及黑板引用完整保留', () => {
+    const blackboard = { critical_rate: [0.1, 0.2] };
+    const old = parseDamageProcessors([instantModifier], 'processors', blackboard);
+    expect(
+      parseDamageProcessors([{ ...instantModifier, ...emptyCache }], 'processors', blackboard),
+    ).toEqual(old);
+    expect(old[0]).toMatchObject({
+      kind: 'instantAttributeModifier',
+      targetSide: 'Attacker',
+      attributeType: 'CriticalRate',
+      parameter: { blackboardKey: 'critical_rate', levelValues: [0.1, 0.2] },
+    });
+  });
+
+  it.each([
+    { m_attributeModifierLoader: {} },
+    { '<attributeMask>k__BackingField': { lowerMask: 0, higherMask: 0 } },
+    { ...emptyCache, m_attributeModifierLoader: null },
+    { ...emptyCache, m_attributeModifierLoader: { value: 1 } },
+    { ...emptyCache, '<attributeMask>k__BackingField': null },
+    { ...emptyCache, '<attributeMask>k__BackingField': { lowerMask: 1, higherMask: 0 } },
+    { ...emptyCache, '<attributeMask>k__BackingField': { lowerMask: 0, higherMask: 1 } },
+    { ...emptyCache, '<attributeMask>k__BackingField': { lowerMask: '0', higherMask: 0 } },
+    { ...emptyCache, '<attributeMask>k__BackingField': { lowerMask: 0 } },
+    { ...emptyCache, '<attributeMask>k__BackingField': { lowerMask: 0, higherMask: 0, extra: 0 } },
+  ])('拒绝不完整、非法或非空私有缓存 %j', cache => {
+    expect(() =>
+      parseDamageProcessors([{ ...instantModifier, ...cache }], 'processors', {}),
+    ).toThrow('processors[0]');
+  });
+
+  it('新版空伤害标签与旧结构相同，不改倍率、快照或伤害处理器', () => {
+    expect(
+      parseDamageUnitSource({ ...BASE_UNIT, damageTags: [] }, 'unit', { atk_scale: [0.9] }),
+    ).toEqual(parseDamageUnitSource(BASE_UNIT, 'unit', { atk_scale: [0.9] }));
+  });
+
+  it.each([null, undefined, {}, 0, ''])('拒绝非法伤害标签列表 %j', damageTags => {
+    expect(() => parseDamageUnitSource({ ...BASE_UNIT, damageTags }, 'unit', {})).toThrow(
+      'unit.damageTags',
+    );
+  });
+
+  it('非空伤害标签不伪装成无影响字段', () => {
+    expect(() =>
+      parseDamageUnitSource({ ...BASE_UNIT, damageTags: [{ tagId: 1208750764 }] }, 'unit', {}),
+    ).toThrow('non-empty damage tags require native consumer projection');
+  });
+
   it('简单计算保留失效公式存在性，但不读取其残留黑板值', () => {
     const source = parseDamageUnitSource(
       {

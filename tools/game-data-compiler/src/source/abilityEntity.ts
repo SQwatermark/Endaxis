@@ -7,6 +7,7 @@ import {
   requireNonNegativeInteger,
   requireNumber,
   requireRecord,
+  requireString,
 } from './primitives.ts';
 import {
   parseIntegerScalarSource,
@@ -73,7 +74,14 @@ export function parseNativeAbilityEntityTemplateSource(
   sourcePath: string,
 ): NativeAbilityEntityTemplateSource {
   const root = requireRecord(value, sourcePath);
-  requireExactFields(root, ABILITY_ENTITY_TEMPLATE_FIELDS, sourcePath);
+  requireExactFields(
+    root,
+    new Set([...ABILITY_ENTITY_TEMPLATE_FIELDS, ...('name' in root ? ['name'] : [])]),
+    sourcePath,
+  );
+  // BaseTemplateData.name 是可重复的模板标签，GameDataWithId.id 才是稳定资产身份。
+  // 不以 name 覆盖 gameId，也不把此标签当作应用层显示名称。
+  if ('name' in root) requireString(root.name, `${sourcePath}.name`);
   return {
     gameId: requireNonEmptyString(root.gameId, `${sourcePath}.gameId`),
     factionNativeValue: requireInteger(root.factionNativeValue, `${sourcePath}.factionNativeValue`),

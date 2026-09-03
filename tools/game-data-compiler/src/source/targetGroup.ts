@@ -1,3 +1,6 @@
+import { readActionTarget } from './targetEnums.ts';
+import { parseAdvancedDirectionSource, type AdvancedDirectionSource } from './spatial.ts';
+import { parseBuffFindSettingsSource } from './buffFindSettings.ts';
 import {
   nativeActionName,
   requireArray,
@@ -5,6 +8,7 @@ import {
   requireExactFields,
   requireNonEmptyString,
   requireNonNegativeInteger,
+  requireNativeEnum,
   requireNumber,
   requireRecord,
   requireString,
@@ -150,17 +154,7 @@ export interface TargetPostProcessorSource {
   readonly target: TargetReferenceSource;
   readonly center: TargetReferenceSource;
   readonly source: TargetReferenceSource;
-  readonly direction: {
-    readonly directionType: string;
-    /** customSourceAndTarget=false 时原生数据可不序列化这两个覆盖引用。 */
-    readonly source: TargetReferenceSource | null;
-    readonly target: TargetReferenceSource | null;
-    readonly sourceMountPoint: string;
-    readonly targetMountPoint: string;
-    readonly customSourceAndTarget: boolean;
-    readonly clampToXZ: boolean;
-    readonly invertDirection: boolean;
-  };
+  readonly direction: AdvancedDirectionSource;
 }
 
 export interface SmartTargetSelectionSource {
@@ -372,39 +366,7 @@ function parseTargetPostProcessorAction(
     false,
     inheritedBlackboard,
   );
-  const directionPath = `${path}.direction`;
-  const direction = requireRecord(action.direction, directionPath);
-  const hasDirectionSource = Object.hasOwn(direction, 'source');
-  const hasDirectionTarget = Object.hasOwn(direction, 'target');
-  if (hasDirectionSource !== hasDirectionTarget) {
-    throw new Error(`${directionPath}: source and target overrides must be serialized together`);
-  }
-  requireExactFields(
-    direction,
-    new Set([
-      'directionType',
-      ...(hasDirectionSource ? ['source', 'target'] : []),
-      'sourceMountPoint',
-      'targetMountPoint',
-      'customSourceAndTarget',
-      'clampToXZ',
-      'invertDirection',
-    ]),
-    directionPath,
-  );
-  const customSourceAndTarget = requireBoolean(
-    direction.customSourceAndTarget,
-    `${directionPath}.customSourceAndTarget`,
-  );
-  const directionSource = hasDirectionSource
-    ? parseTargetReferenceSource(direction.source, `${directionPath}.source`)
-    : null;
-  const directionTarget = hasDirectionTarget
-    ? parseTargetReferenceSource(direction.target, `${directionPath}.target`)
-    : null;
-  if (customSourceAndTarget && (directionSource === null || directionTarget === null)) {
-    throw new Error(`${directionPath}: custom source and target references are required`);
-  }
+  const direction = parseAdvancedDirectionSource(action.direction, `${path}.direction`);
   const input: TargetGroupInputSource = {
     targetSource: target.targetSource,
     targetGroupKey: target.targetGroupKey,
@@ -444,38 +406,37 @@ function parseTargetPostProcessorAction(
       target,
       center,
       source,
-      direction: {
-        directionType: requireNonEmptyString(
-          direction.directionType,
-          `${directionPath}.directionType`,
-        ),
-        source: directionSource,
-        target: directionTarget,
-        sourceMountPoint: requireNonEmptyString(
-          direction.sourceMountPoint,
-          `${directionPath}.sourceMountPoint`,
-        ),
-        targetMountPoint: requireNonEmptyString(
-          direction.targetMountPoint,
-          `${directionPath}.targetMountPoint`,
-        ),
-        customSourceAndTarget,
-        clampToXZ: requireBoolean(direction.clampToXZ, `${directionPath}.clampToXZ`),
-        invertDirection: requireBoolean(
-          direction.invertDirection,
-          `${directionPath}.invertDirection`,
-        ),
-      },
+      direction,
     },
   };
 }
+
+// 完整原生常量见 combat-spec/docs/convert-to-target-context.md；支持子集不等于枚举序号。
+const CONTEXT_OPERATIONS = new Map([
+  [0, 'None'],
+  [1, 'ConvertEntityToPosition'],
+  [2, 'TranslatePosition'],
+  [3, 'ExcludeTarget'],
+  [4, 'ConvertEntityToSlot'],
+  [5, 'ConvertSlotToPosition'],
+  [6, 'ConvertSlotToTarget'],
+  [7, 'ConvertBlackboardValueToPosition'],
+] as const);
+const CONTEXT_TRANSLATIONS = new Map([
+  [0, 'Rotate180DegAroundRef'],
+  [1, 'RotateAroundRefCW'],
+] as const);
 
 function parseConvertToTargetContextAction(
   action: Record<string, unknown>,
   path: string,
 ): TargetGroupActionSource {
   requireExactFields(action, CONVERT_FIELDS, path);
-  const operation = requireNonEmptyString(action.operationType, `${path}.operationType`);
+  const operation = requireNativeEnum(
+    action.operationType,
+    CONTEXT_OPERATIONS,
+    `${path}.operationType`,
+  );
   if (
     operation !== 'None' &&
     operation !== 'ConvertEntityToPosition' &&
@@ -483,27 +444,13 @@ function parseConvertToTargetContextAction(
     operation !== 'ExcludeTarget'
   )
     throw new Error(`${path}.operationType: unsupported operation ${JSON.stringify(operation)}`);
-  const translateOperation = requireNonEmptyString(
+  const translateOperation = requireNativeEnum(
     action.translateOperation,
+    CONTEXT_TRANSLATIONS,
     `${path}.translateOperation`,
   );
-  if (!['Rotate180DegAroundRef', 'RotateAroundRefCW'].includes(translateOperation))
-    throw new Error(
-      `${path}.translateOperation: unsupported operation ${JSON.stringify(translateOperation)}`,
-    );
-  const translationRef = requireNonEmptyString(action.translationRef, `${path}.translationRef`);
-  const excludeTarget = requireNonEmptyString(action.excludeTarget, `${path}.excludeTarget`);
-  for (const [key, value] of [
-    ['translationRef', translationRef],
-    ['excludeTarget', excludeTarget],
-  ] as const) {
-    if (
-      !['ActionSource', 'ActionOwner', 'InputTarget', 'CurrentTarget', 'ContextTarget'].includes(
-        value,
-      )
-    )
-      throw new Error(`${path}.${key}: unsupported target ${JSON.stringify(value)}`);
-  }
+  const translationRef = readActionTarget(action.translationRef, `${path}.translationRef`);
+  const excludeTarget = readActionTarget(action.excludeTarget, `${path}.excludeTarget`);
 
   const sourcePath = `${path}.convertFrom`;
   const source = parseTargetReferenceSource(action.convertFrom, sourcePath);
@@ -664,14 +611,14 @@ function parseFindTargetAction(
       : { targetContainsParents: summary.targetContainsParents }),
     ...(summary.excludeTargets.length === 0 ? {} : { excludeTargets: summary.excludeTargets }),
     finderFixedPointSnapToNavmesh,
-    center: requireString(action.center, `${path}.center`),
+    center: readActionTarget(action.center, `${path}.center`),
     centerContextKey: requireString(action.centerContextKey, `${path}.centerContextKey`),
-    selectorOwner: requireString(action.selectorOwner, `${path}.selectorOwner`),
+    selectorOwner: readActionTarget(action.selectorOwner, `${path}.selectorOwner`),
     selectorOwnerContextKey: requireString(
       action.selectorOwnerContextKey,
       `${path}.selectorOwnerContextKey`,
     ),
-    directionTarget: requireString(action.target, `${path}.target`),
+    directionTarget: readActionTarget(action.target, `${path}.target`),
     directionContextKey: requireString(action.contextKey, `${path}.contextKey`),
     characterTeamSelection: parseCharacterTeamSelection(selector, selectorPath),
     excludesCurrentTarget: selectorExcludesPlainCurrentTarget(selector, selectorPath),
@@ -696,7 +643,21 @@ function parseMergeTargetAction(
   action: Record<string, unknown>,
   path: string,
 ): TargetGroupActionSource {
-  requireExactFields(action, MERGE_FIELDS, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...MERGE_FIELDS,
+      ...('mergeHittableTargets' in action ? ['mergeHittableTargets'] : []),
+    ]),
+    path,
+  );
+  // 新开关额外合入可受击对象通道；关闭时仍是已有的普通目标去重合并。
+  // 不把未建模通道混入敌人/队伍身份，证据见 combat-spec/docs/merge-target-action.md。
+  if (
+    'mergeHittableTargets' in action &&
+    requireBoolean(action.mergeHittableTargets, `${path}.mergeHittableTargets`)
+  )
+    throw new Error(`${path}.mergeHittableTargets: hittable target merging is not projected`);
   const targetGroupKey = requireNonEmptyString(action.targetGroupKey, `${path}.targetGroupKey`);
   const inputTargets = requireArray(action.targets, `${path}.targets`).map((rawTarget, index) => {
     const targetPath = `${path}.targets[${index}]`;
@@ -849,8 +810,7 @@ function parseSmartTargetSelection(
     settingPath,
   );
   const findPath = `${settingPath}.smartTargetBuffFindSettings`;
-  const find = requireRecord(setting.smartTargetBuffFindSettings, findPath);
-  requireExactFields(find, new Set(['checkType', 'buffIdList', 'tagQuery']), findPath);
+  const find = parseBuffFindSettingsSource(setting.smartTargetBuffFindSettings, findPath);
   const rangePath = `${finderPath}.range`;
   const range = requireRecord(finder.range, rangePath);
   requireExactFields(range, new Set(['useBlackboardKey', 'value', 'blackboardKey']), rangePath);
@@ -875,11 +835,11 @@ function parseSmartTargetSelection(
       setting.smartTargetTagQuery,
       `${settingPath}.smartTargetTagQuery`,
     ),
-    buffFindCheckType: requireNonEmptyString(find.checkType, `${findPath}.checkType`),
-    buffFindIds: requireArray(find.buffIdList, `${findPath}.buffIdList`).map((id, index) =>
+    buffFindCheckType: find.checkType,
+    buffFindIds: find.buffIds.map((id, index) =>
       requireNonEmptyString(id, `${findPath}.buffIdList[${index}]`),
     ),
-    buffFindTagQuery: parseTagQuerySource(find.tagQuery, `${findPath}.tagQuery`),
+    buffFindTagQuery: find.tagQuery,
     useCustomRange: requireBoolean(finder.useCustomRange, `${finderPath}.useCustomRange`),
     range: {
       useBlackboardKey: useRangeKey,

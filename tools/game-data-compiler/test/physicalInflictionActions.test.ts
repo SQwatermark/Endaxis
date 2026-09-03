@@ -153,6 +153,14 @@ describe('击倒来源与隐式引用', () => {
     );
   });
 
+  it('受控状态和返回策略数字编码不改变完整击倒动作 IR', () => {
+    const named = parseKnockDownActionSource(knockDown({
+      deadOption: 'OnlyAlive', returnTrueWhen: 'OnlySuccess',
+    }), 'fixture', {});
+    expect(parseKnockDownActionSource(knockDown({ deadOption: 1, returnTrueWhen: 2 }), 'fixture', {}))
+      .toEqual(named);
+  });
+
   it.each(['Always', 'BothSuccessAndInterrupted', 'OnlySuccess', 'OnlyInterrupted'])(
     '保留返回策略 %s 与运行时黑板引用',
     returnTrueWhen => {

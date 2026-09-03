@@ -119,9 +119,15 @@ describe('公共属性快照投影', () => {
     );
   });
 
-  it.each(['Target', 'Group'])('仍拒绝未支持的属性目标 %s', target => {
+  it.each(['Target'])('仍拒绝未支持的属性目标 %s', target => {
     expect(() => project({ targetSettings: targetFixture(target) })).toThrow(
       'unsupported attribute snapshot target or selector',
+    );
+  });
+
+  it('Group 不是原生 TargetSource，必须在来源边界拒绝', () => {
+    expect(() => project({ targetSettings: targetFixture('Group') })).toThrow(
+      'targetSource: unknown native enum',
     );
   });
 

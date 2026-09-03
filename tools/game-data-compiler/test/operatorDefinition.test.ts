@@ -241,6 +241,17 @@ describe('原始整名候选：不依赖旧 Operator 补空', () => {
     });
   });
 
+  it('只读取 VFS 的 SkillData，不回退历史 skill-data-cdn 目录', () => {
+    const current = path.join(sourceRoot, 'SkillData');
+    const historical = path.join(sourceRoot, 'skill-data-cdn');
+    fs.renameSync(current, historical);
+    try {
+      expect(() => planOperatorDefinition(args)).toThrow(/SkillData/);
+    } finally {
+      fs.renameSync(historical, current);
+    }
+  });
+
   it('原始依赖缺失就阻塞，不能回退旧 Buff 定义', () => {
     const file = path.join(sourceRoot, 'BuffData/buff_chr_0012_avywen_talent_0.json');
     const original = fs.readFileSync(file, 'utf8');

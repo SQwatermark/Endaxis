@@ -4,6 +4,19 @@ import { parseNativeAbilityEntityTemplateSource } from '../src/index.ts';
 import { abilityEntityFixture } from './sourceFixtures.ts';
 
 describe('AbilityEntityTemplateData 来源', () => {
+  it('新版模板名可与 ID 不同，不进入运行投影或改变身份', () => {
+    const raw = abilityEntityFixture();
+    expect(
+      parseNativeAbilityEntityTemplateSource({ ...raw, name: 'shared-template-label' }, 'entity'),
+    ).toEqual(parseNativeAbilityEntityTemplateSource(raw, 'entity'));
+  });
+
+  it.each([null, undefined, 1, {}])('拒绝非法模板名 %j', name => {
+    expect(() =>
+      parseNativeAbilityEntityTemplateSource({ ...abilityEntityFixture(), name }, 'entity'),
+    ).toThrow('entity.name');
+  });
+
   it('完整保留静态身份、标签、动态寿命与动态叠层来源', () => {
     expect(
       parseNativeAbilityEntityTemplateSource(abilityEntityFixture(), 'AbilityEntityData.fixture'),

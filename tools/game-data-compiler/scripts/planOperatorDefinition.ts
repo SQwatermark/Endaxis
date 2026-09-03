@@ -84,7 +84,7 @@ export function planOperatorDefinition(
   const skills = Object.fromEntries(
     entries.map(entry => [
       entry.sourceFile,
-      read(path.join(args.sourceRoot, 'skill-data-cdn', entry.sourceFile)),
+      read(path.join(args.sourceRoot, 'SkillData', entry.sourceFile)),
     ]),
   );
   const foundation = compileOperatorFoundationSource({
@@ -136,7 +136,7 @@ export function planOperatorDefinition(
     Object.fromEntries(
       [...new Set(passiveRequests.map(request => request.skillId))].map(id => [
         id,
-        read(path.join(args.sourceRoot, 'skill-data-cdn', `${id}.json`)),
+        read(path.join(args.sourceRoot, 'SkillData', `${id}.json`)),
       ]),
     ),
     read(args.skillPatchTable),
@@ -244,7 +244,7 @@ export function planOperatorDefinition(
       level: index + 1,
       key: requireNonEmptyString(requireRecord(value, 'potential').key, 'potential.key'),
     })),
-    loadSkill: id => read(path.join(args.sourceRoot, 'skill-data-cdn', `${id}.json`)),
+    loadSkill: id => read(path.join(args.sourceRoot, 'SkillData', `${id}.json`)),
     loadBuff: id => read(path.join(args.buffDataRoot, `${id}.json`)),
     globalBuffCatalog: read(args.globalBuffCatalog),
     skillSettingCatalog: read(args.skillSettingCatalog),

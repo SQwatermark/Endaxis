@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
-import { writeAtomicBytes } from './downloadAkedbSources.ts';
+import { writeAtomicBytes } from './downloadGameDataSources.ts';
 
 /** 来源目录留给转换器；运行时仅加载可读标签与具名寿命，不再导入原生模板。 */
 export async function generateAbilityEntityTemplateCatalog(

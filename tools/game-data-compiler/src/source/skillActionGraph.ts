@@ -105,6 +105,10 @@ export interface SkillActionGraphSource<TLeaf> {
   readonly durationFrame: number;
   readonly declaredBlackboard: readonly DeclaredBlackboardValueSource[];
   readonly actionGroup: SkillActionGroupSource<TLeaf>;
+  /** VFS 导出的原生空载荷；旧命名导出可能省略，非空形态尚未接入。 */
+  readonly buffInputBase?: null;
+  /** 当前版本的原生布尔字段；保留来源事实，不据此虚构水中施法运行逻辑。 */
+  readonly canCastInWater?: boolean;
 }
 
 export function parseSkillActionGraphSource<TLeaf>(
@@ -114,8 +118,22 @@ export function parseSkillActionGraphSource<TLeaf>(
   parseLeaf: NativeLeafParser<TLeaf>,
 ): SkillActionGraphSource<TLeaf> {
   const root = requireRecord(value, sourcePath);
-  requireExactFields(root, SKILL_DATA_FIELDS, sourcePath);
+  const expectedFields = new Set(SKILL_DATA_FIELDS);
+  // 只兼容已经核对的两项来源差异，其他缺失或新增字段继续严格失败。
+  for (const field of ['buffInputBase', 'canCastInWater']) {
+    if (Object.hasOwn(root, field)) expectedFields.add(field);
+  }
+  requireExactFields(root, expectedFields, sourcePath);
+  // BuffInputBase 是原生多态载荷，不是 buffs 的别名。当前 2621 份均为 null；
+  // 非空形态必须先取证其消费者，不能当成启动 Buff 或任意对象吞掉。
+  if (Object.hasOwn(root, 'buffInputBase') && root.buffInputBase !== null) {
+    throw new Error(`${sourcePath}.buffInputBase: non-null payload is not supported`);
+  }
   return {
+    ...(Object.hasOwn(root, 'buffInputBase') ? { buffInputBase: null } : {}),
+    ...(Object.hasOwn(root, 'canCastInWater')
+      ? { canCastInWater: requireBoolean(root.canCastInWater, `${sourcePath}.canCastInWater`) }
+      : {}),
     skillId: requireNonEmptyString(root.skillId, `${sourcePath}.skillId`),
     level: requireNonNegativeInteger(root.level, `${sourcePath}.level`),
     durationFrame: requireNonNegativeInteger(root.durationFrame, `${sourcePath}.durationFrame`),

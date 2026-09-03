@@ -6,6 +6,7 @@ import {
 import { requireNonEmptyString, requireNonNegativeInteger, requireRecord } from './primitives.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import type { SkillActionGraphSource } from './skillActionGraph.ts';
+import { readSkillCastType } from './skillDispatch.ts';
 import {
   parseSkillTargetSelectionHeaderSource,
   type SkillTargetSelectionHeaderSource,
@@ -41,7 +42,7 @@ export function parseNativeActiveSkillSource(
   inheritedBlackboard: BlackboardLevelValues,
 ): NativeActiveSkillSource {
   const root = requireRecord(value, sourcePath);
-  const castType = requireNonEmptyString(root.castType, `${sourcePath}.castType`);
+  const castType = readSkillCastType(root.castType, `${sourcePath}.castType`);
   if (castType === 'Passive') {
     throw new Error(`${sourcePath}.castType: passive SkillData must use the passive compiler`);
   }

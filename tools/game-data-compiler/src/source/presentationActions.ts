@@ -467,6 +467,7 @@ export function parseSetStrafeModeActionSource(
       'minGait',
       'maxGait',
       'lockToCamera',
+      ...('yawOffset' in action ? ['yawOffset'] : []),
     ]),
     path,
   );
@@ -475,6 +476,11 @@ export function parseSetStrafeModeActionSource(
   requireString(action.minGait, `${path}.minGait`);
   requireString(action.maxGait, `${path}.maxGait`);
   requireBoolean(action.lockToCamera, `${path}.lockToCamera`);
+  // 原生直传移动组件的锁镜头朝向偏移；不改变技能时间轴或战斗数值。
+  if ('yawOffset' in action) {
+    const yawOffset = requireNumber(action.yawOffset, `${path}.yawOffset`);
+    if (!Number.isFinite(yawOffset)) throw new Error(`${path}.yawOffset: expected finite number`);
+  }
   return { kind: 'strafeMode' };
 }
 
@@ -1028,6 +1034,9 @@ export function parseVoiceTriggerActionSource(
       '_triggerKey',
       '_speakerType',
       '_canInterruptTimeMs',
+      ...('_jumpToWhenPlayMs' in action ? ['_jumpToWhenPlayMs'] : []),
+      ...('_seekFadeInMs' in action ? ['_seekFadeInMs'] : []),
+      ...('_responseQuestIdKey' in action ? ['_responseQuestIdKey'] : []),
       'targetSettings',
     ]),
     path,
@@ -1035,6 +1044,15 @@ export function parseVoiceTriggerActionSource(
   requireString(action._triggerKey, `${path}._triggerKey`);
   requireString(action._speakerType, `${path}._speakerType`);
   requireInteger(action._canInterruptTimeMs, `${path}._canInterruptTimeMs`);
+  // 新版时间参数传给语音 SeekResponse，不是战斗时间轴偏移。
+  for (const key of ['_jumpToWhenPlayMs', '_seekFadeInMs']) {
+    if (key in action) requireInteger(action[key], `${path}.${key}`);
+  }
+  // 原生把成功播放的句柄写回动作黑板；有写回时不能直接按纯语音省略。
+  if ('_responseQuestIdKey' in action &&
+      requireString(action._responseQuestIdKey, `${path}._responseQuestIdKey`) !== '') {
+    throw new Error(`${path}._responseQuestIdKey: voice handle consumers require explicit projection`);
+  }
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
   return { kind: 'voiceTrigger' };
 }
@@ -1159,12 +1177,17 @@ export function parseTemporaryUnlockActionSource(
   const action = requireRecord(value, path);
   requireExactFields(
     action,
-    new Set([...ACTION_META_FIELDS, 'compareTarget', 'targetSettings', 'disableLockAimPriority']),
+    new Set([
+      ...ACTION_META_FIELDS, 'compareTarget', 'targetSettings', 'disableLockAimPriority',
+      ...('blockManualLock' in action ? ['blockManualLock'] : []),
+    ]),
     path,
   );
   requireBoolean(action.compareTarget, `${path}.compareTarget`);
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
   requireNumber(action.disableLockAimPriority, `${path}.disableLockAimPriority`);
+  // 只限制玩家手动切换镜头锁定，不改已经选出的技能目标。
+  if ('blockManualLock' in action) requireBoolean(action.blockManualLock, `${path}.blockManualLock`);
   return { kind: 'temporaryUnlock' };
 }
 
@@ -1608,12 +1631,16 @@ export function parseCameraPresentationActionSource(
 }
 
 /** EffectAction 的根路由严格读取；渲染专属配置保留在来源 JSON，不进入无渲染战斗 IR。 */
-export function parseEffectActionSource(value: unknown, path: string): EffectActionSource {
+export function parseEffectActionSource(
+  value: unknown,
+  path: string,
+  encoding: 'polymorphic' | 'typedSlot' = 'polymorphic',
+): EffectActionSource {
   const action = requireRecord(value, path);
   requireExactFields(
     action,
     new Set([
-      '$type',
+      ...(encoding === 'polymorphic' ? ['$type'] : []),
       'isEnable',
       'priorityLevel',
       'priorityOffset',
@@ -1626,6 +1653,7 @@ export function parseEffectActionSource(value: unknown, path: string): EffectAct
       'isTargetMainCharacterActive',
       'isShowBigEffect',
       'bigEffectName',
+      ...('bigEffectTarget' in action ? ['bigEffectTarget'] : []),
       'playOnHittableObjects',
       'effectActionCfg',
       'saveEffectIdToBlackboard',
@@ -1635,6 +1663,25 @@ export function parseEffectActionSource(value: unknown, path: string): EffectAct
     path,
   );
   const config = requireRecord(action.effectActionCfg, `${path}.effectActionCfg`);
+  // 专用 stackEffects 槽与多态动作共用字段校验，区别仅在是否序列化类型标记。
+  requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
+  requireNumber(action.priorityOffset, `${path}.priorityOffset`);
+  requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
+  for (const key of ['isEnable', 'useGuardLodSourceOverride', 'isMainCharacterActive',
+    'isTargetMainCharacterActive', 'isShowBigEffect', 'playOnHittableObjects', 'forceMainBody',
+    'isCreateWithSourceModelActive']) {
+    requireBoolean(action[key], `${path}.${key}`);
+  }
+  requireRecord(action.guardLodSource, `${path}.guardLodSource`);
+  requireString(action.bigEffectName, `${path}.bigEffectName`);
+  // 新版大特效目标仍是公共 TargetSettings，只服务于表现路由，不另造一种目标解析器。
+  if ('bigEffectTarget' in action) {
+    parseTargetReferenceSource(action.bigEffectTarget, `${path}.bigEffectTarget`);
+  }
+  // 句柄写回可能有后续消费者，不能沿用纯表现省略；边界依据见 combat-spec/presentation-actions。
+  if (requireString(action.saveEffectIdToBlackboard, `${path}.saveEffectIdToBlackboard`) !== '') {
+    throw new Error(`${path}.saveEffectIdToBlackboard: effect handle consumers require explicit projection`);
+  }
   return {
     kind: 'effect',
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),

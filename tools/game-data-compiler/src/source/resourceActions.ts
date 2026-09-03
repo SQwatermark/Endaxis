@@ -1,6 +1,7 @@
 import {
   requireBoolean,
   requireExactFields,
+  requireInteger,
   requireNonEmptyString,
   requireNonNegativeInteger,
   requireRecord,
@@ -13,6 +14,7 @@ import {
   type StringScalarSource,
 } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { gameplayTagId } from './nativeGameplayTags.ts';
 
 export interface ResourceGainActionSource {
   readonly kind: 'resourceGain';
@@ -97,6 +99,7 @@ export function parseResourceGainActionSource(
       'ignoreUspGainScalar',
       'atbSourceType',
       'atbGainMethod',
+      ...('useAtbGainTag' in action || 'atbGainTag' in action ? ['useAtbGainTag', 'atbGainTag'] : []),
       'playObtainAtbEffect',
       'playObtainAtbAudio',
       'costValue',
@@ -107,6 +110,15 @@ export function parseResourceGainActionSource(
     ]),
     path,
   );
+  // 新版开关关闭时 GainAtb 不读取配置标签；仅接入这一有证据的旧行为等价分支。
+  // 字段必须成对出现，开启时不能静默丢弃标签资格或自行猜测其含义。
+  if ('useAtbGainTag' in action) {
+    const enabled = requireBoolean(action.useAtbGainTag, `${path}.useAtbGainTag`);
+    const tag = requireRecord(action.atbGainTag, `${path}.atbGainTag`);
+    requireExactFields(tag, new Set(['tagId']), `${path}.atbGainTag`);
+    gameplayTagId(requireInteger(tag.tagId, `${path}.atbGainTag.tagId`));
+    if (enabled) throw new Error(`${path}.useAtbGainTag: tagged SP gain requires native consumer projection`);
+  }
   const resource = { UltimateSp: 'ultimateEnergy', Atb: 'sp' }[String(action.costType)] as
     'ultimateEnergy' | 'sp' | undefined;
   if (!resource)

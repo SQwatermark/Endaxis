@@ -1,6 +1,6 @@
 # 当前任务快照
 
-> 更新时间：2026-09-02（Asia/Shanghai）
+> 更新时间：2026-09-03（Asia/Shanghai）
 > 本文是变化最快、优先级最高的交接入口。完全不了解背景时，先读 [交接文档首页](./README.md)，再读本文和 [Next 文档入口](../next/README.md)。
 
 > **当前有效生成口径：30/30 名干员具备完整正式定义，310/310 个声明为主动的技能已进入统一 TS
@@ -16,6 +16,467 @@
 `refactor/operator-completion` 的完整干员成果。唯一新转换入口为
 `tools/game-data-compiler`；旧 Python 干员/装备生成器已删除，需要对照时查 Git 历史。仅仍有独立
 证据价值、尚未 TS 化的敌人 rank 提取器保存在该工具的 `legacy/` 边界，不承载生产生成。
+
+### 2026-09-03：恢复 AKEDB 优先、VFS 补缺（覆盖下方历史 VFS-only 路线）
+
+#### 提交交接检查点
+
+- 当前新版进度为 **28/30 整名候选编译**；页面仍使用 `3b187292` 恢复的正式定义，
+  不能把本文开头的旧版 30/30 正式覆盖与新版进度混读。
+- 本批统一提交来源融合下载器、公共来源适配/编译修复、回归与证据文档；VFS 的枚举名称
+  批量导出仍属未验证完的工作，不宣称已经生产可用。解包资产、下载快照、临时报告不入 Git。
+- 新旧干员实质变化与证据限制汇总在
+  [干员来源差异检查点](../research/operator-refresh-differences-2026-09-03.md)，接续必须阅读。
+  优先回归洛茜 Buff 时钟、三名干员输出伤害前事件、诀印记身份与梨诺回调依赖；
+  不把浮点表示变化或生成 stale 当成游戏机制变化。
+- 恢复执行：使用本机 `tmp/game-data-hybrid-full-20260903` 及上文记录的快照哈希，
+  候选固定值 `tmp/hybrid-operator-candidate-pins-20260903.json`、同批实体索引
+  `tmp/hybrid-ability-source-catalog-20260903.json`。这些不随 Git 同步，换机缺失时由统一下载器
+  重取并核对 provenance，不复制旧派生目录冒充同版本完整来源。
+- 下一步顺序：诀/秋栗阻塞 → 同批派生目录与 pin 审计 → 30 名完整对象差分及真实轴回归
+  → 正式数据/图片发布。Typhoeus 膨胀和 VFS/AKEDB 对齐继续列为独立门禁。
+- 本次交付发现 combat-spec 之前漏同步远端 6 提交，已合入截至 bd0c352 的 HUD/技能初始化证据、
+  能力实体 Spawned/Finished 事件。多输入选项和事件发送同时保留；合并后聚焦 60 项中 59 通过，
+  1 项庄方宜资产准入计数仍失败（旧断言 41，当前解析 57）。不得写为全绿；接续先复核该断言及
+  新证据对 Endaxis 的影响。VFS 本机 Python 38 项、Worker 20 项通过；编译器 1534 项通过。
+
+- **最新实现：补齐输出伤害前事件的目标上下文，整名编译推进至 28/30。**
+  公共 Buff 事件投影原本只为干员持有的 OnBeforeDamageAction / OnOutputDamage 绑定敌人目标，
+  本轮补上 OnBeforeOutputDamage，沿用既有事件与条件执行器。依据见 combat-spec 的
+  origin-skill-event-context 与 buff-and-damage；不把承伤事件或任意宿主一并放宽。
+- **纠正下方历史诊断：别礼的 CheckHp 检查 Target（受击敌人），不是 Buff 施术者。**
+  `buff_chr_0026_lastrite_normal_skill` 的生命守卫仍读取实时敌人生命，不替换为恒真。
+  莱万汀 `buff_chr_0016_laevat_passive_teammate` 同一事件里的查询以 InputTarget 为中心，
+  目标身份补齐后也复用既有查询投影通过；没有逐干员特例或新的空间模型。
+- 预检 `tmp/hybrid-operator-preflight-output-health-20260903.json`：26 名完整编译/渲染后 stale，
+  catcher/fluorite 与基线一致，合计 **28/30**。正式定义未替换，其他派生目录仍用基线，
+  未做新版完整模拟回归；这不是新版发布完成率。
+- 剩余两名及下一步：
+  - 诀 arcane：seal_bunshin_end_listener 的 BuffCount 按 limitSkillCastId 限定身份。
+    现有 sameSourceSkillCast 只读普通 SkillCastInfo；原生 Buff 环境还涉及 affixSkillCastId 优先、
+    零值回退。先追身份赋值/生命周期，再复用公共计数执行器；不能直接开启 SourceCast 证明开关。
+    证据入口为 combat-spec/save-buff-stack-num-advanced 的 limitSkillCastId 小节。
+  - 秋栗 akekuri：公用附魔 Buff 的 condition 是有副作用的序列，按伤害 mask 写入
+    real_imbue_scale 后供处理器读取。应复用公共动作程序及其返回/短路语义，不另做一套条件执行器，
+    也不能把黑板写入或条件分支删除。先核对原生条件执行与处理器求值顺序。
+- 新增三事件的目标身份回归，包含敌人宿主仍拒绝的边界；编译器 **133 文件 / 1534 项通过**，
+  类型检查通过。本轮只改公共编译器、测试和文档，无运行时/UI/正式生成资源改动，未提交/推送。
+
+- **最新实现：Pull 继续策略与条件槽内的纯空 IfElse 接入，整名编译推进至 26/30。**
+  Pull 来源拆出独立类型保留 alwaysNext，旧结构缺省 false；对既有固定敌人路径开放 true，
+  仅省略位移，保留后继行为。追加原生核对发现目的地普通解析失败在 `0x02DB4421` 也读取
+  alwaysNext 返回，不是必然 false；证据已更新 combat-spec/pull-action。队伍/未知目标和
+  条件槽返回值消费者仍阻断。诀 abilityrange2 的 Pull 后伤害不能与空间动作一起删除。
+- 管理员阻塞来自 conditionAction 内的 IfElse：两个分支均空且 alwaysNext=true。
+  公共条件投影依据 combat-spec IfElseAction 的 `alwaysNext || 分支结果`，仅在内部条件
+  无副作用时返回常量 true；不是将空间/数量条件本身判为 true。有效分支、写回条件、
+  alwaysNext=false 均未放宽，也未启动跨组件活性优化。
+- 最新预检 `tmp/hybrid-operator-preflight-pull-empty-ifelse-20260903.json`：
+  **24 名编译/渲染后 stale，catcher/fluorite 与基线一致，共 26 名通过**，新增管理员。
+  剩余四名及下一步：
+  - arcane：`buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener` 的 Owner BuffCount，
+    buffId=combo_skill_seal2、limitSkillCastId=true；需保留施法身份限定，不得改成所有 Buff 层数。
+  - akekuri：`buff_common_affixes_skillimbue_atk.damageModifier[0].condition` 不只是条件：
+    根据 damageDecorateMask 写入 real_imbue_scale=imbue_scale×1.5 或 imbue_scale，实际影响伤害。
+    要查明原生条件程序与处理器求值先后，再接入公共行为编排，不能删除这个分支。
+  - last-rite：Buff 的施术者生命条件；laevatain：天赋队友 HitBox/Tag/Priority 查询。
+- 测试净增 **5 项**，编译器 **133 文件 / 1531 项通过**，类型检查、两仓 diff 检查通过。
+  正式定义仍未替换，其他派生目录仍用基线，未做新版完整模拟回归，26/30 不是发布完成率。
+  本轮仅改公共来源/编译器、测试和文档；没有修改 UI、运行时、图片或 C# 执行器，未提交/推送。
+
+- **最新实现：侧移朝向偏移兼容、干员射线自动敌对过滤接入，整名编译推进至 25/30。**
+  yawOffset 经台式机原生消费者核实，直传 SetStrafeMode 并写入锁镜头朝向偏移，非时间/伤害参数。
+  公共读取器接受可选有限数值，沿用表现省略；融合 Buff 中两处值为 0/10。
+  诀普攻4射线的 tar1 被后续合并目标、伤害和 ForEach 消费，不能整体删除。只开放明确 caster
+  持有、自动 Anti 阵营过滤的既有射线形状；其他宿主阵营、显式阵营和不可选中目标仍阻断。
+  原生证据分别补 combat-spec 的 presentation-actions、ray-cast-effect-action；未修改 C# 执行器。
+- 最新预检 `tmp/hybrid-operator-preflight-strafe-ray-20260903.json`：
+  **23 名编译/渲染后 stale，catcher/fluorite 与基线一致，共 25 名通过**，新增庄方宜。
+  诀已越过射线首阻塞，当前停在 `chr_0032_lizhiyan_normal_skill_abilityrange2` 的
+  `timelineActions[2]...failActions.actionData[1].alwaysNext`：Pull 无条件继续选项尚未投影。
+  其他四名首阻塞仍为秋栗附魔伤害条件、管理员非纯条件序列、别礼施术者生命条件、莱万汀队友查询。
+  下一步先结合 Pull 返回值证据检查其后续有效动作，再推进这四处；不因是移动就忽略短路语义。
+- 本轮新增 **15 项测试**，编译器 **133 文件 / 1526 项通过**，类型检查、两仓 diff 检查通过。
+  正式定义未替换，其他派生目录仍为基线，未做新版完整模拟回归；**25/30 不是新版发布完成率**。
+  未修改 UI、运行时或图片，未提交/推送。
+
+- **最新实现：修复静态分支预选提前要求条件模型的问题，新版整名编译推进至 24/30。**
+  公共 actionSequenceProgram 原本已先投影 IfElse 两侧，但 selectIfElseBranch 在此之前就
+  调用了完整条件投影器，导致纯空间分支尚未清空就报角度、屏幕、目标数量或距离未支持。
+  现在预选成功仍只编译可达分支；失败暂存原错误，只有纯读取条件且两侧等价/为空才消去，
+  否则重新抛出。没有给这些条件补恒真值，也没有新增运行时空间模型或逐干员例外。
+  实现规则同步至编译器 README 的“控制流与优化边界”。
+- 最新预检 `tmp/hybrid-operator-preflight-branch-selection-20260903.json`：
+  **22 名编译/渲染后 stale，catcher/fluorite 与基线一致，共 24 名通过**。
+  新增 avywenna、rossi、liino；洛茜屏幕检查后的 smart_target 数量检查同样只控制选点/传送，
+  均经末端投影消去。其他派生目录仍使用基线，正式定义未替换，尚未做新版完整模拟回归，
+  **24/30 不是新版全量发布完成率**。
+- 剩余 6 名首阻塞：zhuang-fangyi 的 SetStrafeModeAction.yawOffset（真实样本为 0）；
+  arcane 的 Owner → FixedPoint RayCastEffectAction；akekuri 附魔 Buff 伤害条件；
+  endministrator 条件序列含非条件节点；last-rite 的 Buff 施术者生命条件；
+  laevatain 天赋队友 Buff 的 HitBox/Tag/Priority 查询。
+  下一步先核实 yawOffset 的原生消费者，再检查 RayCast 输出的实际战斗读者，仍按影响决定研究范围。
+- 本轮新增 **7 项测试**，编译器 **133 文件 / 1511 项通过**，类型检查和 diff 检查通过。
+  这轮只修 Endaxis 公共编译控制流、回归与文档，未改正式定义、UI、运行时或其他仓库，未提交/推送。
+
+- **最新实现：目标合并、随机位置尺寸、CastSkill 关闭选项兼容；新版整名编译推进至 21/30。**
+  MergeTargetAction.mergeHittableTargets 只开放 false（当前 180 处均关闭），普通目标有序去重
+  不变。RandomPointFinder.extent2D 只开放 Circle/Sector 的零常量二维尺寸（1059/201 处），
+  pointNum 字面值、黑板引用和 createSpatialPointTargets.count 仍保留；未扩大随机形状支持。
+  CastSkill.interruptCurSkillOnlyWhenTargetCastable 只开放 false，原生字段直传延迟请求，
+  不能按“敌人没有行为”删除干员自己的施法中断控制。当前 116 false / 95 true，true 仍阻断。
+  公共来源读取器统一接入，无运行时新字段或领域专用补丁。
+- 原生证据已补 combat-spec 的 merge-target-action、random-point-finder、cast-skill-action。
+  CastSkill Data 字段与 TryCastSkillDuringAction 参数 forceInterruptCurSkill 名称不一致；
+  已确认直传、不取反与写入延迟请求，但开启时最终消费者的中断顺序尚未核实，后续不得凭名称猜。
+- 最新预检 `tmp/hybrid-operator-preflight-targets-cast-20260903.json` 使用候选角色模板固定值、
+  同批 215 份实体索引，其余派生目录仍为基线：**19 名编译/渲染后 stale，catcher/fluorite
+  与基线一致，共 21 名通过本次整名编译**。较上轮新增 catcher、ardelia、pogranichnik、camille。
+  正式定义未替换，未做新版完整模拟回归，仍非新版全量发布完成率。
+- 剩余 9 名首阻塞与下一轮入口：
+  - avywenna：连携两方向夹角条件 twoDirectionAngle；rossi：连携 targetInScreen。
+    先检查分支末端，不为没有战斗影响的分支补空间/屏幕模型。
+  - zhuang-fangyi：移动控制新增 yawOffset（limitGait/minGait/maxGait 原已支持）；arcane：普攻4 RayCastEffectAction
+    的 Owner → FixedPoint 来源投影，需检查目标组写入消费者。
+  - akekuri：公用附魔 Buff 的伤害条件；endministrator：条件序列含未支持节点；
+    last-rite：Buff 的施术者生命条件；laevatain：天赋队友 Buff 的 HitBox/Tag/Priority 查询；
+    liino：命中 Buff 的零距离条件端点/选项。
+- 本轮新增 **24 项测试**，编译器 **133 文件 / 1504 项通过**，类型检查及差异格式检查通过。
+  未改正式定义、UI、运行时、图片或 C# 执行器；未提交/推送。继续以末端实际行为决定取证范围。
+
+- **最新实现：实体模板 name 格式兼容、Aura 默认过滤接入；新版整名编译推进至 17/30。**
+  纠正上轮诊断：7 名实体首阻塞直接来自 sourceRoot/AbilityEntityData 单文件新增的 name，
+  不是旧派生目录；公共模板读取器接受字符串模板标签，但身份仍只用 gameId，不引入显示名。
+  Aura 新字段经原生直接消费者核对，仅接入 plain Source 阵营来源与角度/高度限制均关闭的
+  分支；168 个来源实例中 166 个属于该默认分支。三个 Aura 入口共用校验，不改 Buff
+  安装、进入/离开动作和施法来源。证据见 combat-spec 的 spawn-ability-entity、aura-influence-lifecycle。
+- 同批能力实体模板前缀已聚合至 `tmp/hybrid-ability-source-catalog-20260903.json`：
+  **215/215** 逐文件长度、SHA-256 与融合来源清单一致，公共原始模板解析通过。
+  构建脚本为 `tmp/build-hybrid-ability-source-catalog.ts`；这只是源前缀索引，不声称实体组件
+  完整转换，也没有重建弹道、全局 Buff、标签、SkillSetting 等其他派生目录。
+- 最新报告 `tmp/hybrid-operator-preflight-same-batch-entities-aura-20260903.json` 使用上轮候选
+  角色模板固定值、本轮同批实体索引，其余派生目录仍取基线。
+  **16 名到达整名源码 stale 门禁，萤石 fluorite 与基线一致，共 17 名完成本次编译/渲染。**
+  剩余首阻塞：mergeHittableTargets 5（avywenna/catcher/pogranichnik/arcane/laevatain）、
+  位置 finder 3（ardelia/rossi/zhuang-fangyi）、CastSkill 新字段 2（camille/liino）、
+  秋栗附魔 Buff 伤害条件、管理员条件序列、别礼施术者生命条件各 1。
+  正式文件未替换，也未验证新版完整模拟，**17/30 不是新版正式发布完成率**。
+- 本轮新增 **25 项测试**，编译器 **132 文件 / 1480 项通过**，类型检查与差异格式检查通过。
+  未改正式定义、运行时、UI、图片或 C# 执行器，未提交/推送。下一步依次筛查目标合并、
+  位置 finder 与 CastSkill 默认字段；继续按实际战斗影响决定是否深挖，不做全面空间模型。
+
+- **最新实现：伤害处理器空缓存、Pull 默认返回分支接入，并完成新版角色模板来源固定值候选审计。**
+  InstantModifyAttribute 的私有 loader/mask 在伤害执行时重新装载，只接受成对空初态，
+  modifier、目标侧和动态黑板值完整保留。Pull.alwaysNext 是返回值控制，只接受 false；
+  true 不作为空间字段丢弃。原生直接消费者记录在 combat-spec 的 damage-processors、pull-action。
+- **纠正模板阻塞的解释：** runtimeTemplate.sourceSha256 固定的是导出 JSON 内的源资产哈希，
+  不是 JSON 字节哈希或旧派生目录哈希。新版模板已下载，无需仅因这个报错再次“重建模板”。
+  本轮逐份验证来源清单中的字节长度/SHA-256、原生类型、显式 sourceCharacterId、连携技能身份，
+  仅更新 `tmp/hybrid-operator-candidate-pins-20260903.json`。正式 manifest 与身份校验没有放宽。
+  管理员按显式源角色 chr_0003_endminf 校验，不误用应用层 chr_9000_endmin。
+  30 份全部通过；独立运行模板审计为 **29 份 compiled-and-bound / 1 份 compiled-unbound / 0 blocked**。
+  审计入口 `tmp/prepare-hybrid-runtime-template-pins.ts`，旧/新源哈希、下载文件哈希及提供方记录在
+  `tmp/hybrid-runtime-template-pin-audit-20260903.json`。全部模板来自 VFS、decodeStatus=partial，
+  只证明所消费前缀，不声称 VFS 镜像已与 AKEDB 版本一致。
+- 新预检 `tmp/hybrid-operator-preflight-cache-pull-pins-20260903.json`：
+  **余烬 ember、大潘 da-pan、弭弗 mifu 三名通过整名编译和源码渲染，到达正式文件 stale 差异门禁**。
+  尚未替换正式文件或做新版模拟回归，不能记为完整发布通过。
+  其余首阻塞：**Aura 9、实体模板格式 7（当时误判为旧目录）、mergeHittableTargets 4、位置 finder 3、CastSkill 1、
+  管理员条件序列 1、别礼施术者生命条件 1、秋栗公用附魔 Buff 伤害修正条件 1**。
+  预检依然使用基线派生目录；下一步优先重建隔离的同批实体目录并筛查 Aura 新字段，
+  再处理目标合并与位置 finder，继续按实际末端战斗影响决定研究深度。
+- 本轮新增 **18 项测试**，编译器 **131 文件 / 1455 项通过**，类型检查及差异格式检查通过。
+  本轮未改正式定义、运行时、UI、图片，未改 C# 执行器；未提交或推送。
+
+- **最新实现：Buff 展示默认分支、层数特效共享读取、输入根运动兼容。**
+  showDirectlyInHeadBuff 涉及显示资格，仅开放关闭分支；2872 份 Buff 中仅两个敌人/关卡
+  计时 Buff 开启，继续明确阻断，不将其映射成旧显示槽。Buff 层数特效删除重复字段表，
+  改为公共 EffectAction 读取器的 typedSlot 编码（不带 `$type`），与多态动作共用校验。
+  ReceiveMoveInput 的 combineRootMotion / inputAlongRMScale / rootMotionScale 只配置
+  输入与根运动混合，沿用空间省略，不改变 duration 或技能调度。原生证据位于 combat-spec
+  buff-data-adapter、buff-stack-presentation、move-to-action，C# 执行器未修改。
+- 最新 30 名预检报告 `tmp/hybrid-operator-preflight-buff-effects-input-20260903.json`：
+  **7 名进入旧运行模板 sourceSha256 不匹配**，精确 slug 为
+  ember/antal/alesh/xaihi/estella/da-pan/akekuri。
+  这只是推进到运行模板源身份验证，不是完整生成通过；新版固定值接入见上文纠正，不能放宽哈希校验。
+  其余首阻塞：伤害处理器 3、目标合并 4、Aura 5、finder 3、拉拽 3、旧实体目录结构 2、
+  CastSkill 新字段 1、管理员条件序列 1、别礼施术者生命条件 1。
+- 本轮新增 **16 项测试**，编译器 **131 文件 / 1437 项通过**、类型检查通过；正式定义、图片、UI 未修改，
+  未提交。下一步优先筛查伤害处理器导出增量与 Pull.alwaysNext（涉及结果控制，不仅是位移），
+  并为已抵达模板门禁的干员验证隔离的新版来源固定值，再继续其余来源缺口。
+
+- **最新实现：语音 / 锁定 / 空伤害标签 / 默认技力标签兼容。** 语音播放偏移与淡入不改战斗
+  时间轴，句柄写回非空仍阻断；blockManualLock 复用无镜头省略。damageTags 只开放空列表，
+  新版 useAtbGainTag / atbGainTag 成对读取且仅开放关闭分支，不混入 uspRecoverTag。
+  来源公共读取器统一处理，没有新增契约或运行时开关。原生证据分别记录在 combat-spec
+  presentation-actions、temporary-unlock-action、skill-data-damage-adapter、ultimate-sp-recovery-restriction。
+- 当前融合输入盘点：语音 962 处均无句柄写回；锁定 54 处（1 处开启）；伤害标签 3410 处空、
+  14 处非空；资源动作 467 处（Atb 359、UltimateSp 108）均关闭新增技力标签。
+  **非空伤害标签中 5 处属于 Typhoeus 浮游/射箭命中、9 处来自敌人。** Typhoeus 这部分需
+  对照原生实际消费者及同批可读标签目录接入，不能以敌人无主动行为整体省略。
+- 30 名预检已解除前轮语音、锁定、伤害字段及随后 19 名资源字段的首阻塞。最新报告
+  `tmp/hybrid-operator-preflight-resource-tags-20260903.json`：**Buff 图标配置 17、目标合并 4、
+  Aura 4、finder 3、移动输入 1（Gilberta）、拉拽 1（Mifu）**。仍使用基线派生目录，
+  尚无新版完整候选；17 名进入 Buff 配置校验也不等于完整干员生成成功。
+- 本轮新增 **32 项测试**，编译器 **131 文件 / 1421 项通过**、类型检查通过；正式定义、
+  图片与 UI 未修改，未提交。combat-spec 仅补证据，未改 C# 执行器。
+  下一步继续按影响筛查优先处理 Buff 展示配置增量与纯空间新字段，再推进合并、Aura、finder；
+  可见状态身份/持续时间不属于可随意删除的表现信息，勿混同于粒子、闪烁等渲染参数。
+
+- **最新实现：移动 / 特效新版来源字段已接入。** CustomRootMotion 的 manualTick、MoveTo 的
+  manualTick / updateLatestMainCharacter / dontClampFaceToMoveDirToXZ 经影响筛查和必要的
+  直接消费者核对后，沿用既有空间省略路径，不新增运行时或契约。EffectAction 的
+  bigEffectTarget 复用公共 TargetSettings；非空特效句柄写回明确阻断，避免丢失潜在消费者。
+  证据分别在 combat-spec 的 custom-root-motion-action、move-to-action、presentation-actions。
+- 全库来源扫描：MoveTo **853/853**、根运动 **1778/1783**、特效 **11326/11330** 通过。
+  根运动剩余 5 处是曲线 inTangent 非数值；特效剩余 4 处是 test1–test4 句柄写回。
+  不把这些来源解析数字当作技能模拟完成率，也未为了清零错误放宽未知字段或数值校验。
+- 30 名新版输入预检：前轮 14 名移动、随后 9 名特效的字段首阻塞解除。最新首阻塞为
+  **伤害载荷 12、语音 4、锁定 3、目标合并 4、Aura 4、finder 3**，报告
+  `tmp/hybrid-operator-preflight-movement-effects-20260903.json`。仍使用基线派生目录，
+  新版完整候选尚未生成。下一步先筛查语音/锁定的纯表现增量，再处理伤害载荷的有效字段，
+  之后继续目标合并、Aura 和 finder；不要将所有原生系统的完整还原作为前置条件。
+- 本切片新增 **27 项测试**，编译器全套 **130 文件 / 1389 项通过**，类型检查通过。
+  未改正式定义、图片或 UI，未提交；combat-spec 本切片只补原生证据文档，未改 C# 执行器。
+
+- **新组件先筛查影响，再决定是否深挖。** 先用实际末端行为、已有证据与有效消费者判断
+  与模拟结果的关系；已确认无影响则走既有省略路径，不继续还原其内部系统。疑点只取证到
+  足以决定保留或省略。权威规则在编译器 README “影响筛查优先，深挖按需”；这不是启动
+  下述组件级优化待办，当前仍以新版全量转换为主线。
+- **当前主线仍是新版数据全量转换。** 用户明确要求：组件类型/分支级行为审计先作为待办，
+  不在现阶段启动。继续解除新版融合输入的移动、特效、目标合并、Aura 与 finder 等阻塞，
+  然后重建同批派生数据、生成完整候选并验证正式结果。既有单敌人省略与自底向上判定继续遵守，
+  但不借此扩展为新的全程序优化项目；基线派生目录上的预检不等于全量转换完成。
+- **待办，暂不实现：按组件实际承载行为审计，允许类型/分支整体不生成。** 固定行为与配置回调
+  一起由叶向根分析；实例没有战斗行为则消去，有则只保留必要语义。可装任意行为不构成必须
+  实现的理由。完整当前输入中某类型/精确分支均无战斗行为时，不给它添加 Endaxis 定义、
+  契约或运行时类型。规则唯一入口为编译器 README “按组件实际承载的行为决定是否生成”。
+  将来启动时建立全输入行为盘点与类型/分支级省略结论，按输入快照重新验证；出现有效行为
+  时撤销相应省略，不能永久白名单或只凭少量样本放行。用户明确要求先作为待办，不立即实现；
+  本次只更新文档，尚未实现该审计器，不据此扩展当前代码改动。
+- **最新实现：传送失败回调自叶向根消去。** 原始回调非空不再直接决定支持边界；公共来源树
+  新增 `actionWithCallback`，公共程序递归编译回调，剩余可见效果为空才省略持有动作。
+  来源收集器包含回调子树，选点 Context 被外层有效读者使用时仍阻止消去。根守卫改为末端
+  投影后检查，返回值被消费时不省略。原生证据在 combat-spec `docs/teleport-position-selection.md`。
+- 融合 237 处传送中，隔离场景 233 处解析并投影为空（包含唯一非空、但仅选点+再次传送的
+  回调）；4 处卡 finder 新结构。30 名预检的 8 项传送字段首阻塞解除，最新首阻塞为
+  **移动 14、特效 5、mergeHittableTargets 4、Aura 4、finder 3**。报告
+  `tmp/hybrid-operator-preflight-spatial-callback-20260903.json`，仍使用基线派生目录。
+- 编译器 **128 文件 / 1362 项通过**、类型检查通过；本切片新增 9 项测试，正式数据和图片
+  未覆盖，未提交。combat-spec 本次仅补证据文档，未实现 C# 导航/传送执行器。
+  下一步延续有界消去，并将来源级保守逃逸检查逐步改为基于有效读者的反向活性；目前尚未
+  完成通用黑板、覆盖写或跨调度活性分析，不能将本次切片描述为全程序 DCE 已完成。
+- **最新用户方向：combat-spec 原生研究与 Endaxis 场景支持分开收束。** 不把导航、碰撞、
+  随机选择等原生完整复刻当作 Endaxis 的前置门槛；先证明目标身份/基数和可观察消费者，
+  纯空间及唯一敌人下无差异的筛选尽早消去。权威实现规则已补入编译器 README
+  “场景简化优先于原生完整复刻”。当前 spatial 叶子通常已投影为空，主要阻塞在新版来源字段
+  校验；下一步应优先恢复有证据的消去路径，而非给正式运行时增加空间或筛选模型。
+  队友/主控/实体集合、空集差异、重复次数、时间/回调/有效状态资格仍需保留。
+  本次仅调整文档和工作方向，未修改运行代码，前次测试结果沿用。
+- 最新续跑已分别取证并接入 ExcludeTarget/ShuffleTarget 的普通 `Targets` 分支，证据统一在
+  combat-spec `docs/selector-pipeline.md`。三种已取证处理器共用严格通道校验，三处排除解析
+  合并为 `parseExcludeTargetSource`。不合并普通与受击列表，不向契约/运行时新增开关。
+  C# 接入 ExcludeTarget 普通通道；ShuffleTarget 仍只有证据，未擅自补 Unity 随机执行模型。
+- 融合数据 124 处普通排除、4 处普通随机筛选解析通过；3 处受击排除、2 处受击随机筛选
+  明确拒绝。余烬、弧光原先的 ExcludeTarget 首阻塞解除。最新 30 名预检首阻塞：
+  **移动 11、Teleport 8、mergeHittableTargets 4、Aura 4、finder 3**。报告
+  `tmp/hybrid-operator-preflight-selector-processors-20260903.json`；仍使用基线派生目录，
+  尚未完成新版整批生成。下一步先追移动/传送新字段的原生消费者及单敌人投影边界。
+- 本次编译器 **127 文件 / 1353 项通过**、类型检查通过；C# 排除/优先级相关
+  **42 项通过**（本切片新增 7 项）。本次未重跑 C# 完整套件，正式数据和图片未覆盖，未提交。
+- 前一切片已接入 `PriorityFilter.processTargetType` 的普通 `Targets` 分支。原生候选列表
+  选择、metadata 常量及镜像指纹统一记录在 combat-spec `docs/selector-pipeline.md`。
+  旧结构缺失 / 新结构显式 Targets 共用既有来源结构；HittableTargets、数字与未知名称明确
+  拒绝，不新增运行时开关。队伍选择器删除重复 PriorityFilter 解析，改用公共单项读取器。
+- 融合 Skill/Buff 的 321 处 PriorityFilter 来源解析全部通过。30 名干员预检中原先 7 名
+  PriorityFilter 首阻塞全部解除，但新版整批生成仍未完成。最新首阻塞为 **移动 10、
+  Teleport 7、mergeHittableTargets 4、Aura 4、finder 3、ExcludeTarget 2**，详见
+  `tmp/hybrid-operator-preflight-selector-priority-20260903.json`（仍使用基线派生目录）。
+  下一步追踪 ExcludeTarget/ShuffleTarget 各自的 processTargetType 消费者，再推进移动等
+  公共字段；不能仅因同名或单敌人就认定普通目标与受击目标列表等价。
+- 本次编译器 **127 文件 / 1339 项通过**，`type-check:game-data` 通过；C# 聚焦
+  PriorityFilter **23 项通过**（新增 8 项），覆盖旧/新结构、拒绝边界和普通排序不清受击信息。
+  C# 完整套件本次未重跑，最近全量结果见下方实体输入切片。正式定义/图片未覆盖，未提交。
+- 前一切片已闭环 `SpawnAbilityEntity.allowMultiInputTarget`：台式机连接短暂超时后恢复，
+  当前原生镜像证明该字段只传给实体子技能的 `CastSkillOptions`，不控制实体生成数量。
+  权威证据在 combat-spec `docs/spawn-ability-entity.md` 的 2026-09-03 小节。
+  C# 动作 → ObjectContainer → Controller 传递已有选项，复用 `Skill.SaveTarget`，
+  不另写目标选择逻辑。Endaxis 公共来源层保留字段；无子技能、无输入目标或已证明单一
+  敌人/施术者/当前实体时消去差异，不向契约和运行时新增开关。开启且指向空间点组/未知多目标
+  时仍明确拒绝。不能将“场景只有一个敌人”推广成所有输入句柄都只有一项。
+- 融合 Skill/Buff 中共 1188 处实体生成：1185 处关闭、3 处开启；两处开启位于
+  `chr_0034_typhoea_archery_not_typhoea_attack`，另一处在 `buff_common_enemy_numshield_spawn_tl`。
+  全库解析 963 处通过；221 处仍卡 finder 新字段，4 处 Typhoeus 卡方向配置 source/target
+  不成对。这里只统计来源解析，不是完整模拟覆盖。
+- 再跑 30 名预检，之前 7 名的 SpawnAbilityEntity 首阻塞全部解除。当前首阻塞：
+  **RootMotion/移动 7、Selector postProcessor 7、Teleport 6、mergeHittableTargets 4、
+  Aura 4、Selector finder 2**。报告 `tmp/hybrid-operator-preflight-spawn-input-20260903.json`。
+  仍是旧派生目录上的新版输入诊断，30 名尚未整批生成完成。下一步优先核对公共 Selector
+  postProcessor 的新增字段，再处理剩余移动/目标集合形状；之后才重建同批派生目录和正式候选。
+- 本轮 Endaxis 编译器 **126 文件 / 1328 项通过**、类型检查通过。C# 新增 10 项回归，
+  证明单输入两种配置等价、双输入保留差异但不增加实体数，并严格读取旧/新布尔字段。
+  C# 聚焦 33 通过 / 1 历史缓存计数失败；完整 **1613 项，1599 通过 / 14 失败**，
+  失败名称与 `handoff-2026-08-28.md` 的已知清单一致，未改期望值掩盖历史问题。
+  本轮未覆盖正式生成定义、运行时或图片，未提交。
+- 此前投射物切片已取证并接入 `LaunchProjectile` 的三个新增字段。原生依据统一记录于
+  combat-spec `docs/launch-projectile-skill-routing.md` 的 2026-09-03 小节（当前镜像指纹、
+  字段偏移、开关分支 RVA）；不是直接忽略未知字段。来源层只接收枚举名称，保留完整过滤设置，
+  允许旧结构整组缺失但拒绝新结构部分缺失。零距离投影只放行 `None + false`；开启过滤或
+  额外发射仍明确失败，已证明无战斗回调的发射先剔除，不为它增加运行时条件。
+- 同一融合快照的 Skill/Buff 全库共 3115 处发射：2801 处 `None + false`、267 处
+  `OnlyHit + false`、47 处 `None + true`。逐项解析通过 3009 处、仍失败 106 处，
+  不能将支持新增字段等同于完整投射物生成。正式代码/图片没有重生成，本轮未提交。
+- 重跑 30 名干员预检后，先前 16 名的 LaunchProjectile 首阻塞已解除；当前首阻塞为
+  **SpawnAbilityEntity 7、Teleport 6、RootMotion 6、Aura 4、Selector postProcessor 3、
+  mergeHittableTargets 3、Selector finder 1**。报告保留为
+  `tmp/hybrid-operator-preflight-launch-controls-20260903.json`，仍使用基线派生目录，
+  **30 名均尚未完成新版整批生成**。此检查点现已被上方 SpawnAbilityEntity 切片更新；
+  后续继续处理剩余公共字段，不按干员打补丁，再重建同批派生目录与正式候选。
+- 此切片新增 18 项回归，覆盖旧/新结构、中性结果等价、数字/未知枚举拒绝、残缺字段、所有
+  公开投射物投影入口的开启状态拒绝及无行为短路。编译器完整 **126 文件 / 1321 项通过**，
+  `type-check:game-data` 通过；combat-spec 本轮仅新增原生证据文档，未声称 C# 已复刻开启路径。
+- 本次续跑已完成 AKEDB 图片整批重导：可信基线 716 项（712 张游戏图片 + 4 张项目占位图），
+  再补前序隔离批次中 Typhoeus 9 张、新武器 2 张、武器 Buff 1 张，共 728 项，全部零失败。
+  游戏图片 724 张全部取自 AKEDB，索引大小/MD5 与末尾清单复核通过；输出位于
+  `tmp/game-icons-hybrid-full-20260903`，完整审计 `tmp/hybrid-full-image-audit-20260903.json`。
+  与本机已校验 VFS 图片逐张比较，393 张 RGBA 完全一致、331 张尺寸不同；不能宣称 VFS 图片已等价。
+  12 张补导图片不代表已恢复相应正式干员/武器定义，正式图片没有被本次导出覆盖。
+- 实跑暴露 CDN ECONNRESET / 连接超时，公共 provider 已补原 URL 最多三次的有限传输重试，
+  不改 provider、不放宽内容/身份校验；图片改用现有有界调度器，默认 6 workers，账本按路径排序。
+  下载和生成目录的占用重试已收敛为 `src/io.ts`，不重复实现。最终编译器完整
+  **125 文件 / 1303 项通过**，`type-check:game-data` 通过。
+- 全量融合输入已取齐并逐文件复核：**6230 项 = AKEDB 5511 + VFS 719**；
+  SHA-256 为 `3c85bb1596f73d384403bdfe35f576b1ffb00beafcb13fe502fdc8154fd3331c`。
+  末尾 AKEDB 清单复核通过；发布时曾遇 Windows EPERM / Access denied。用户授权结束占用
+  进程后，停止 Vite 仍不能改名，结束 IntelliJ 的 `fsnotifier.exe` 后立即成功，IDE 主进程未关闭。
+  **完整快照已发布到 `tmp/game-data-hybrid-full-20260903`**，内有完整 `source-provenance.json`；
+  不需要重新下载。目录占用并非内容/来源校验失败，不能用复制覆盖绕过原子发布。
+- 与此前已校验 VFS 快照比较，719 份补缺数据逐字节相同；18 张表中 15 张 JSON 值相同。
+  共享 Skill/Buff 的表示差异之外，发现 **313 处布尔值差异**，全部集中在 Buff stackingSettings：
+  `usePriorityKey` 204 处、`useMaxStackCntKey` 109 处，不能归因于枚举命名。
+  Typhoeus `buff_chr_0034_typhoea_common_arrowshow` 的 triggerInterval 和事件数组长度也不同。
+  两端版本一致性/运行时语义尚未证明，详细分类在 `tmp/hybrid-vfs-input-comparison-20260903.json`。
+- 首轮新融合输入的 30 名干员预检全部在新版字段校验阻断，首个阻塞分别为 LaunchProjectile 16、
+  SpawnAbilityEntity 3、Aura 3、Teleport 3、Selector postProcessor 2、RootMotion 2、
+  mergeHittableTargets 1。报告 `tmp/hybrid-operator-preflight-20260903.json`；该诊断仍用基线
+  派生目录，不是端到端重生成；最新结果见上方 LaunchProjectile 切片。后续按 combat-spec/反编译证据适配公共新结构，
+  同时追踪 VFS 布尔字段布局和自动枚举名称；不要重新引入 Buff cap 兜底。正式定义和图片未改。
+- 用户明确决定先恢复融合导出，逐步补齐 VFS，只有输出与 AKEDB 全面对齐后才考虑替代。
+  唯一策略见[编译器 README](../../tools/game-data-compiler/README.md)的“来源融合与 VFS 替代门禁”。
+- 唯一下载入口为 downloadGameDataSources.ts，唯一需求清单为 game-data-sources.json；
+  同名文件 AKEDB 优先，VFS 补集合新增项和缺件，不逐字段混合。图片也优先 AKEDB。
+  全量 JSON 下载要求新目录，完成前只写 partial 目录，不覆盖正式定义或已有输入。
+- 实查 AKEDB 最新 1.5.3@9885010-4；普通 manifest 请求曾返回旧 1.4.4，刷新参数才能取得新清单。
+  SkillData/BuffData 文件名与 VFS 快照完全一致，724 张引用图片都有对应。
+- buff_wpn_sword_0016_valid 的 useMaxStackCntKey 两端分别为 AKEDB=true、VFS=false；
+  下一步先查解码或版本差异，不修改原生模拟规则迁就任一端。
+- 前序 VFS 工作树中的 metadata 枚举批量提取与严格名称导出尚未验证完成；转换器数字兼容
+  也尚未清退，这是待迁移缺口，不是继续扩写手填映射的依据。角色/全局配置、图片一致性和
+  融合整批生成仍须分别验证，不能由下载器测试通过推导生成完成。
+- 本轮编译器全量 **123 文件 / 1292 项通过**，type-check:game-data 通过。真实 AKEDB 18 张表
+  已隔离下载至 tmp/game-data-hybrid-tables-20260903，快照 SHA-256 为
+  ea94ee3f98bd6183328986df1499529474d46683bd4a9db29fb40354f6f5bf20；真实标签预定义配置由
+  台式机 8765 VFS 补取成功，Typhoeus 头像从 AKEDB 导出并校验大小/MD5/SHA-256。
+  原 8765 的 CharacterData manifest 仍返回 404；本次续跑使用独立 8766 角色模板接口完成补取，
+  未替换原 8765 服务，未重生成正式数据，未提交。
+
+### 2026-09-03：恢复可信基线、VFS-only 实机复现与 Typhoeus 暂缓接入（历史实验）
+
+- `b8212cb3 feat(next): regenerate current VFS combat data` 把 Typhoeus、武器/装备重生成、Buff 上限
+  解释变化和多项运行时代码混在一个批次中；提交说明只记录了聚焦门禁，但实际完整 Next 回归出现
+  41 项失败。现已用 `3b187292 revert(next): restore validated game data baseline` 整批撤回到此前正式
+  内容，并修正三处已经落后于原子项目校验/当前来源标记的测试。可信基线重新通过 Next **303 文件 /
+  4067 项全绿**及 `type-check:next`。Typhoeus 暂不属于正式干员目录，其原始改动仍可从 Git 历史和
+  隔离 worktree 取证，不能零散挑回未经完整回归证明的运行时改动。
+- “非正静态上限改读 `max_stack`”指：原生 Buff 的 `useMaxStackCntKey=false` 时，运行时应直接读取
+  静态 `maxStackCnt`；只有开关为 true 才读取 `maxStackCntKey`。Pogranichnik、曜夜及
+  `buff_wpn_sword_0016_valid` 的当前 VFS 样本出现“静态值不为正、开关为 false，但动作写入
+  `max_stack` 且文本给出 3/4/5”的冲突。`b8212cb3` 曾在通用解析器里绕过开关读取黑板值，这没有
+  combat-spec 证据，已随回退移除。后续必须继续追踪 loader/server/precomputed 路径；证据闭环前应
+  隔离这些资产，而不是把冲突样本推广成公共规则。
+- Typhoeus 产物膨胀已量化：隔离生成文件约 **73,408 行 / 4.45 MB**，其中四段浮游攻击各约
+  **15.4k 行 / 0.98 MB**。每段包含 120 个动作黑板 scope、60 个 projectile scope 和 60 个 callback
+  scope；原始 SkillData 的 60 条不同分支路径反复启动同一 projectile 及同一回调技能体，渲染器又
+  在每个启动点完整内联回调。根因是“来源重复叶子 + 缺少语义子程序共享/安全 CSE”，不是 60 个不同
+  能力实体，也不是单纯格式化。修复必须保留真实命中身份和可编辑性，不能粗暴忽略全部 key/sourcePath。
+- vfs-index-browser 的 binary32 解码曾把正确的 float32 扩成 Python/JSON float64 长尾，例如
+  `0.05000000074505806`。当前工作树新增 `canonical_float32`，在 f32 读取边界选择仍能重编码回相同
+  4 字节的最短十进制，f64 不变；VFS 全量 **640/640** 测试通过。该现象是序列化表示噪声，不是已经
+  证明的位宽/偏移错读。新下载真实快照中仅 0.05/0.1/0.2/0.3 四种常见 binary32 长尾就出现
+  19,772 次，证明应在公共 f32 读取边界统一修正，而不是在武器生成器逐字段舍入。
+- Endaxis 下载入口已在可信基线上单独恢复为 VFS-only：唯一清单是 `vfs-sources.json`，下载器拒绝
+  没有 `X-Endaxis-Source: vfs-index-browser` 的响应，并记录逐文件大小、SHA-256 与整批快照哈希；不再
+  回退 AKEDB、邻接目录或旧快照。2026-09-03 通过台式机 `Admin@100.64.0.64` 的 localhost VFS 完成
+  独立全量下载：18 张表、2621 SkillData、2872 BuffData、471 ProjectileData、215 AbilityEntityData，
+  共 6198 个受管输入条目，加 provenance 共 6199 文件 / 270,997,417 字节，快照 SHA-256 为
+  `f0a06f7a77aee8ae555e3a969ec46d6f13e4bd0850f4883cd334aecb7f84702d`。随后以 5 workers 重新下载
+  第二份独立目录，与首次 12 workers 下载的条目数和完整快照哈希完全一致；VFS-only 获取层的实机
+  可复现性已闭环。该结论只证明来源快照，不替代生成产物和 Next 完整回归门禁。
+- Operator 主入口、Buff/实体子技能与投射物回调现已统一读取 `SkillData/`，不再读取历史
+  `skill-data-cdn/`。测试把 SkillData 整体移到历史目录，明确验证生成失败而不是偷偷兜底；迁移后
+  编译器全量 **115 文件 / 1112 项通过**及 `type-check:game-data` 通过，异地 Avywenna 整名
+  `--check` 与正式定义一致。测试素材版本未被伪装成当前 VFS 版本。
+- VFS 新增 `/api/endaxis-data/CharacterData/manifest.json` 与
+  `CharacterData/<角色ID>.runtime-template.json`，Endaxis 清单已纳入该集合。服务通过精确 Manifest
+  资产 → 原始 MonoBehaviour → worker `decodeCharacterTemplate` 复用已有 C# 解码器，没有第二套
+  字段解析。总体 `partial`、raw 条件和未知后缀不变；旧 worker 不支持操作返回 503，不静默回退。
+  本机 VFS **640 项 Python 测试通过**，C# **51 通过 / 6 外部资产跳过**。float32 还补了最大
+  有限值候选溢出的处理，以及次正规数、正负零的重编码一致性测试。
+- 新 CharacterData 接口及 f32 修复已在台式机独立工作树/8766 服务完成实机验证，未替换原有 8765
+  服务。不同输出、缓存目录和 8 / 3 workers 两轮空目录下载均得到 **6230 项**（含 32 CharacterData），
+  快照哈希均为 `a430238c373b9a137f7d17345837907e9b4911a431e07f2f3978294cd71b7e9c`。
+  完整 ZIP 已取回本机 `tmp/vfs-current-verified-20260903/endaxis-vfs-character-20260903`，逐文件大小、
+  SHA 和整批哈希再次通过。与旧 f0 快照相比 2945 文件共 87,749 处数字变化全部保持 binary32 位值，
+  没有其他值/结构变化；新增的 32 CharacterData 单独审计，不能算作浮点差异。
+- **端到端生成尚未闭环**：30 名正式干员的新模板都能解析，但 raw SHA 全部不同于正式 pin。
+  本机旧工件有 21 名条件引用不完整；可完整比较的 9 名中 8 名已解析行为字段相同，汤汤存在真实
+  技能登记/连携条件字段变化，不能批量改 pin 放行。整名诊断首先暴露 `castType: expected string`：
+  整批撤回也移除了必要的 VFS 原生枚举适配。现已按 metadata 精确常量单独恢复公共 Skill 工厂判别，
+  主动/被动/引用闭包共用，未恢复无证据的 Buff cap 兜底。继续按真实来源诊断逐层恢复格式适配。
+  后续已从台式机当前 dump/runtime 核对新增字段：来源 IR 保留 null BuffInputBase 和布尔
+  canCastInWater；非空 BuffInputBase 阻断，不虚构水中行为。当前 CheckState 不读取水中字段，
+  该结论不能推广为所有运行路径无消费者。另恢复公共动作嵌套类型名和 `0 → Default` 优先级表示。
+  后续已恢复 Selector 嵌套名、非搜索来源的 null finder 和目标数字枚举；目标引用、FindTarget、
+  CreateBuff 与 Unity 连携 RID 共用 `targetEnums.ts`。InstantSearch 缺 finder 仍失败；未知枚举
+  不兜底。纠正了几处测试混用非原生名称/不同枚举的问题，正式数据未改。
+  再恢复 Buff 黑板赋值类型、图标时长来源与控制动作枚举：MemoryPack 图标来源仅有两个公开字段，
+  不再强求旧 JSON 的两个私有说明字段；Unity 连携适配也不再补造说明文字。赋值 Any=2 仍阻断。
+  `controlEnums.ts` 统一读取死活与返回选项，不改变各动作实际行为。证据同步至 combat-spec。
+  又已恢复高级方向、挂点和自身旋转枚举：高级方向有第 5 项，根运动旋转只有 -1/1，不能与近似
+  枚举混用。未自定义方向支持 null/省略空引用，自定义引用缺失仍失败。目标后处理的重复方向
+  类型/解析代码已删除，改用公共 `AdvancedDirectionSource`。证据见 combat-spec
+  `docs/spatial-source-encoding.md`，不是从字段名猜测身份。
+  又已统一 BuffFindSettings：Buff 动作、条件、Selector 和智能选目标共用 `buffFindSettings.ts`，
+  原有空 ID 消费规则保持不变。目标转换操作按完整原生数值归一化后仍检查既有支持子集，
+  未建模空间转换继续拒绝；两个目标引用字段复用 ActionTargetType。combat-spec 同步证据。
+  又已统一条件 TargetSource、实体/Buff 计数比较、BuffStackNumType，并恢复 ForceSpellStatus 的
+  EnergyShardType；均与原生精确类型一致，不改变目标选择或法术行为。
+  台式机只读核查确认 Selector.processTargetType 是三个具体后处理 Data 各自的新增字段，
+  PriorityFilter 机器码确实读取并传递它。尚未闭环普通/可受击目标集合分支，因此没有放宽白名单；
+  证据及下一处 RVA 见 combat-spec `docs/selector-pipeline.md`。runtime 镜像在 il2cpp-current 根目录，
+  不是 IL2CPP_Dump_Normal 子目录。
+  30 名首个阻塞最新分为：投射物新字段 16、能力实体新字段 3、Aura 新字段 3、RootMotion
+  新字段 2、Selector 后处理新字段 2、目标组合 mergeHittableTargets 新字段 1、teleportType
+  编码 3。下一步追踪 Selector 的集合分支并核对瞬移枚举，再集中审计投射物新增载荷。
+  完整生成尚未通过，报告为 `tmp/vfs-operator-after-condition-encoding-check.json`。
+  当前编译器回归为 **122 文件 / 1283 项通过**，`type-check:game-data` 通过。
+  当前版本还发现 canCastInAir 对 readyToAir 的短路与旧 C# 规格不同，已在 combat-spec 记录
+  版本边界待办，本轮未混入运行时改动。非零动作优先级也不能照搬 b821 的未核实映射。
+  GameplayTagConfigSet、SkillSetting、GlobalBuff 等派生目录仍需验证能从同批输入重建；本次诊断
+  显式沿用已检入派生目录，**不能视作端到端 VFS-only 生成证明**。本地化 Python 入口还在读取 AKEDB，
+  README 曾误写为 VFS，现已纠正，迁移仍是待办。
+- 全量图片已在隔离目录 **强制重导完成：724 张原生图片 + 4 张本地占位，0 失败**，包含 Typhoeus，
+  不再只是补 9 张缺图。ZIP 已取回并验证，728 项输出逐图校验。相对本机资源：80 项字节相同（含
+  4 占位）、5 项仅编码不同、640 项像素变化、3 项缺图；其中 602 项尺寸不同。已抽查诀立绘确有
+  内容变化，不能将全部差异描述成压缩噪声。包保留于 `tmp/icons-verified-20260903`，尚未批量发布到
+  public；需核对 Sprite 裁切/尺寸变化在 UI 的影响。此前 Typhoeus 的 9 张缺图仍在 public 未跟踪。
+- 台式机公钥认证正常，先前超时与 `sfo` 中继/会话不稳定相关，不能写成密钥未授权或关机。
+  本轮两个独立验证服务均在结束后停止；远端原仓库和原 8765 服务没有被覆盖。完整路径、哈希、
+  模板字段差异和后续门禁统一见 [VFS-only 刷新实机记录](../research/vfs-only-refresh-2026-09-03.md)。
+- 图片导出器已增加 `--output-root` 与原图/WebP SHA-256，支持隔离全量 `--overwrite`，不改正式图片；
+  占位图只复制并保留独立来源标记。新增 4 项回归覆盖输出隔离、强制覆盖、占位图、dry-run 和越界
+  拒绝；该阶段编译器全量 **116 文件 / 1116 项通过**，类型检查通过。真实全量导出结果见上文，
+  来源重新取得与正式资源发布是两个门禁。
 
 ### 2026-09-02：技能定义枚举与技能库放置规则收口
 

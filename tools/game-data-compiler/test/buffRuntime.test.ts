@@ -4,6 +4,64 @@ import { parseBuffRuntimeSource, compileBuffRuntimeDefinitionSource } from '../s
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 describe('Buff 运行时公共来源', () => {
+  it.each(['OnBeforeOutputDamage', 'OnBeforeDamageAction', 'OnOutputDamage'])(
+    '干员输出事件 %s 的血量守卫读取敌人，不读取 Buff 持有者', abilityEvent => {
+      const meta = { isEnable: true, priorityLevel: 'Default', priorityOffset: 0, serverActionIndex: 0 };
+      const source = parseBuffRuntimeSource(buffFixture({
+        abilityEventAction: [{ abilityEvent, actions: [sequence([
+          { ...meta, $type: 'Beyond.Gameplay.Core.Conditions.CheckHp+Data, Gameplay.Beyond',
+            hpOwner: targetFixture('Target'), compare: 'GT', isRatio: false, value: scalarFixture(0) },
+          { ...meta, $type: 'Beyond.Gameplay.Core.SimpleCalcBBAction+Data, Gameplay.Beyond',
+            key: 'observed', operation: 'Add', value1: scalarFixture(1), value2: scalarFixture(2) },
+        ])] }],
+      }), 'BuffData.health_output');
+      const compile = (fixedBuffOwnerTarget: 'caster' | 'enemy') => compileBuffRuntimeDefinitionSource(
+        source, undefined, undefined, undefined, undefined,
+        { gameplayTagRegistry: fixtureGameplayTagRegistry, fixedBuffOwnerTarget, fixedBuffSourceTarget: 'caster' },
+      );
+      expect(compile('caster').abilityEventResponses?.[0]?.sequence.steps[0]).toMatchObject({
+        kind: 'conditional',
+        parameters: { condition: {
+          kind: 'healthCompare', target: 'enemy', valueType: 'current', operator: 'greater',
+          value: { kind: 'constant', value: 0 },
+        } },
+        whenTrue: { steps: [{ kind: 'calculateActionValue' }] },
+      });
+      expect(() => compile('enemy')).toThrow('unsupported health condition target');
+    },
+  );
+
+  it('新版关闭直接头顶显示时不改变图标、显示资格或生命周期', () => {
+    const old = buffFixture({ hasIcon: true, lifeType: 'Limited', duration: scalarFixture(15) });
+    const current = { ...old, iconConfig: { ...iconFixture(), showDirectlyInHeadBuff: false } };
+    expect(parseBuffRuntimeSource(current, 'buff')).toEqual(parseBuffRuntimeSource(old, 'buff'));
+  });
+
+  it('新增直接显示资格不能当作普通渲染参数省略', () => {
+    expect(() =>
+      parseBuffRuntimeSource(
+        buffFixture({
+          iconConfig: { ...iconFixture(), showDirectlyInHeadBuff: true },
+        }),
+        'buff',
+      ),
+    ).toThrow('direct head buff display requires native routing projection');
+  });
+
+  it.each([null, undefined, 0, 'false', {}])(
+    '直接显示开关严格校验显式值 %j',
+    showDirectlyInHeadBuff => {
+      expect(() =>
+        parseBuffRuntimeSource(
+          buffFixture({
+            iconConfig: { ...iconFixture(), showDirectlyInHeadBuff },
+          }),
+          'buff',
+        ),
+      ).toThrow('buff.iconConfig.showDirectlyInHeadBuff');
+    },
+  );
+
   it('保留生命周期、图标、属性修正和可执行技能类型条件', () => {
     const parsed = parseBuffRuntimeSource(
       buffFixture({

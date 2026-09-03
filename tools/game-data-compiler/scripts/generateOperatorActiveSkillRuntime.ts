@@ -122,7 +122,7 @@ function loadProjectileCallbackClosure(
     for (const callback of launches[index]!.callbacks) {
       if (!callback.enabled || callbackGraphs.has(callback.skillId)) continue;
       const id = callback.skillId;
-      const value = readJson(path.resolve(sourceRoot, 'skill-data-cdn', `${id}.json`));
+      const value = readJson(path.resolve(sourceRoot, 'SkillData', `${id}.json`));
       assertNoUnprojectedSkillRootEffects(value, `SkillData.${id}`);
       const callbackPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
       const prepared = prepareSkillDefinitionInputSource(value, id, callbackPatch);
@@ -231,7 +231,7 @@ export function prepareProjectileProjection(
 export function planOperatorActiveSkillRuntime(
   args: Omit<OperatorActiveSkillRuntimeArguments, 'check'>,
 ): PlannedOperatorActiveSkillRuntime {
-  const sourcePath = path.resolve(args.sourceRoot, 'skill-data-cdn', args.sourceFile);
+  const sourcePath = path.resolve(args.sourceRoot, 'SkillData', args.sourceFile);
   const sourceText = fs.readFileSync(sourcePath, 'utf8');
   const source = JSON.parse(sourceText);
   const skillId = String(source.skillId ?? '');
@@ -339,7 +339,7 @@ export function planOperatorActiveSkillRuntime(
   while (pendingAbilitySkillIds.length > 0) {
     const id = pendingAbilitySkillIds.shift()!;
     if (abilityChildGraphs.has(id)) continue;
-    const value = readJson(path.resolve(args.sourceRoot, 'skill-data-cdn', `${id}.json`));
+    const value = readJson(path.resolve(args.sourceRoot, 'SkillData', `${id}.json`));
     const childPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
     const childPrepared = prepareSkillDefinitionInputSource(value, id, childPatch);
     const child = parseKnownSkillActionGraphSource(value, id, childPrepared.blackboard.values);

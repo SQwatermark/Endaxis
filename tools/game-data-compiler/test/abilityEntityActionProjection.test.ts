@@ -221,6 +221,7 @@ describe('原生查询 → Context → 逐能力实体动作的公共投影', ()
                   ],
                   assignBlackboard: true,
                   skillId: '',
+                  allowMultiInputTarget: false,
                   overrideDuration: false,
                   duration: { value: 0, blackboardKey: null, levelValues: null },
                   saveToContext: false,

@@ -1,5 +1,6 @@
 import { parseBuffFindSettings } from './condition.ts';
 import { parseBuffFindSettingsSource } from './buffActions.ts';
+import { readBuffStackNumType } from './buffFindSettings.ts';
 import {
   nativeActionName,
   requireExactFields,
@@ -239,7 +240,7 @@ export function parseBuffStackReadActionSource(
     buffIds: settings.buffIds,
     tagQueryType: settings.tagQueryType,
     buffTagIds: settings.buffTagIds,
-    countType: requireNonEmptyString(action.buffStackNumType, `${path}.buffStackNumType`),
+    countType: readBuffStackNumType(action.buffStackNumType, `${path}.buffStackNumType`),
     limitSkillCastId: requireBoolean(action.limitSkillCastId, `${path}.limitSkillCastId`),
     outputKey: requireNonEmptyString(action.key, `${path}.key`),
   };
@@ -278,7 +279,7 @@ export function parseTaggedBuffStackReadActionSource(
     buffIds: [],
     tagQueryType: tagQuery.queryType,
     buffTagIds: tagQuery.tagIds,
-    countType: requireNonEmptyString(action.buffStackNumType, `${path}.buffStackNumType`),
+    countType: readBuffStackNumType(action.buffStackNumType, `${path}.buffStackNumType`),
     limitSkillCastId: false,
     outputKey: requireNonEmptyString(action.key, `${path}.key`),
   };

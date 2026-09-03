@@ -11,6 +11,33 @@ const META = {
 } as const;
 
 describe('原生控制流来源树', () => {
+  it('VFS 的嵌套类型名和零优先级进入相同控制流，保留原始类型身份', () => {
+    const node = {
+      ...META,
+      $type: 'Example.IfElseAction+IfElseActionData, Example',
+      conditionAction: sequence([]),
+      succeedActions: sequence([]),
+      failActions: sequence([]),
+      alwaysNext: false,
+    };
+    const parse = (item: unknown) =>
+      parseNativeSequenceSource(sequence([item]), 'fixture', {}, parseLeafName);
+    const before = parse(node);
+    const after = parse({
+      ...node,
+      $type: 'Example.IfElseAction.IfElseActionData',
+      priorityLevel: 0,
+    });
+    expect(after.actions[0]?.body).toEqual(before.actions[0]?.body);
+    expect(after.actions[0]?.metadata).toEqual({
+      ...before.actions[0]?.metadata,
+      nativeType: 'Example.IfElseAction.IfElseActionData',
+    });
+    for (const value of [-1, 1, -100, 100, null]) {
+      expect(() => parse({ ...node, priorityLevel: value })).toThrow('priorityLevel');
+    }
+  });
+
   it('保留根序列守卫、关闭项和 IfElse 三个独立序列', () => {
     const parsed = parseNativeSequenceSource(
       sequence(

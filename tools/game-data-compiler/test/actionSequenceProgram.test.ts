@@ -80,6 +80,15 @@ function options(): CompileActionSequenceProgramOptions<
 }
 
 describe('公共 Action 序列控制流投影', () => {
+  it('根守卫在空子树投影后消去，但被外层消费的返回值不消去', () => {
+    const source = { ...sequence([]), onlyExecuteWhenSourceIsGuard: true };
+    expect(compileActionSequenceProgram(source, options())).toEqual({ steps: [] });
+    expect(() => compileActionSequenceProgram(source, { ...options(), resultIsConsumed: true }))
+      .toThrow('root filter unsupported');
+    expect(() => compileActionSequenceProgram({ ...source, actions: [leaf('visible')] }, options()))
+      .toThrow('root filter unsupported');
+  });
+
   const branch = (
     children: readonly NativeActionNodeSource<string>[],
     alwaysNext = true,
@@ -188,6 +197,24 @@ describe('公共 Action 序列控制流投影', () => {
         { kind: 'leaf', value: 'after[]' },
       ],
     });
+  });
+
+  it('静态预选失败后先投影末端，只有纯读取空分支可消去', () => {
+    const failure = new Error('静态预选未支持');
+    const configured = {
+      ...bottomUpOptions(),
+      selectIfElseBranch: (): boolean | undefined => { throw failure; },
+    };
+    expect(compileActionSequenceProgram(sequence([branch([leaf('visual')])]), configured))
+      .toEqual({ steps: [] });
+    expect(() => compileActionSequenceProgram(sequence([branch([leaf('damage')])]), configured))
+      .toThrow(failure);
+    expect(() => compileActionSequenceProgram(sequence([branch([leaf('visual')])]), {
+      ...configured,
+      canOmitUnusedCondition: () => false,
+    })).toThrow(failure);
+    expect(() => compileActionSequenceProgram(sequence([branch([leaf('visual')], false)]), configured))
+      .toThrow('stopping IfElse');
   });
 
   it('固定模型证明 IfElse 真值时只编译可达分支并继续后续兄弟', () => {

@@ -4,6 +4,10 @@
  * 证据：combat-spec combo-condition-leaves.md / Runtime/TargetResolution.cs / MathUtils.cs。
  */
 import { parseComboSkillConditionsSource } from './comboSkillConditions.ts';
+import { parseBuffIconDuration } from './buffActions.ts';
+import { readBlackboardAssignmentValueType } from './assignments.ts';
+import { readBuffFindCheckType, readBuffStackNumType } from './buffFindSettings.ts';
+import { readCompareType } from './conditionEnums.ts';
 import { NATIVE_GAMEPLAY_TAG_QUERY_NAMES } from './tagQuery.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import {
@@ -15,30 +19,7 @@ import {
   requireString,
 } from './primitives.ts';
 
-const TARGET_SOURCES = [
-  'Target',
-  'Source',
-  'Context',
-  'InstantSearch',
-  'Owner',
-  'MainCharacter',
-  'MainTarget',
-];
-const ACTION_TARGETS = [
-  'ActionSource',
-  'ActionOwner',
-  'InputTarget',
-  'CurrentTarget',
-  'ContextTarget',
-];
-const DIRECTIONS = [
-  'SourceForward',
-  'TargetForward',
-  'SourceToTarget',
-  'TargetToSource',
-  'CameraForward',
-];
-const COMPARISONS = ['LT', 'LE', 'GT', 'GE', 'Equals'];
+import { readActionTarget, readDirectionType, readTargetSource } from './targetEnums.ts';
 const META = ['isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex'];
 const LEAF_FIELDS: Readonly<Record<string, readonly string[]>> = {
   'Beyond.Gameplay.Core.Conditions.CheckObjectTypeMatch/Data': ['target', 'objectTypeMask'],
@@ -226,11 +207,10 @@ function normalizeLeaf(
   for (const key of ['valueA', 'valueB', 'value'])
     if (key in data) result[key] = normalizeScalar(data[key], `${path}.${key}`);
   for (const key of ['compare', 'compareType'])
-    if (key in data) result[key] = enumName(data[key], COMPARISONS, `${path}.${key}`);
+    if (key in data) result[key] = readCompareType(data[key], `${path}.${key}`);
   if ('buffStackNumType' in data)
-    result.buffStackNumType = enumName(
+    result.buffStackNumType = readBuffStackNumType(
       data.buffStackNumType,
-      ['BuffCount', 'BuffIdCount'],
       `${path}.buffStackNumType`,
     );
   if ('tagQuery' in data) result.tagQuery = normalizeTagQuery(data.tagQuery, `${path}.tagQuery`);
@@ -272,29 +252,14 @@ function normalizeLeaf(
   }
   if (type.endsWith('.CreateBuffAction/Data')) {
     result.count = normalizeScalar(data.count, `${path}.count`);
-    result.buffSource = enumName(data.buffSource, ACTION_TARGETS, `${path}.buffSource`);
+    result.buffSource = readActionTarget(data.buffSource, `${path}.buffSource`);
     result.buffs = requireArray(data.buffs, `${path}.buffs`).map((value, index) =>
       normalizeCreateBuffInput(value, `${path}.buffs[${index}]`),
     );
-    const duration = requireRecord(data.buffIconDurationSource, `${path}.buffIconDurationSource`);
-    requireExactFields(
-      duration,
-      new Set(['durationSourceType', 'timedMarkerId']),
+    result.buffIconDurationSource = parseBuffIconDuration(
+      data.buffIconDurationSource,
       `${path}.buffIconDurationSource`,
     );
-    result.buffIconDurationSource = {
-      m_abilityEntityTypeInfo: '当ActionOwner是AbilityEntity时，Buff图标倒计时显示Owner的剩余时间',
-      m_timedMarkerInfo: '选择ActionOwner身上的一个TimedMarker作为Buff图标倒计时显示的来源',
-      durationSourceType: enumName(
-        duration.durationSourceType,
-        ['AbilityEntity', 'TimedMarker'],
-        `${path}.buffIconDurationSource.durationSourceType`,
-      ),
-      timedMarkerId: requireString(
-        duration.timedMarkerId,
-        `${path}.buffIconDurationSource.timedMarkerId`,
-      ),
-    };
   }
   if (type.endsWith('.IfElseAction/IfElseActionData')) {
     for (const key of ['conditionAction', 'succeedActions', 'failActions'])
@@ -364,9 +329,8 @@ function normalizeCreateBuffInput(value: unknown, path: string) {
       );
       return {
         ...item,
-        directValueType: enumName(
+        directValueType: readBlackboardAssignmentValueType(
           item.directValueType,
-          ['Numeric', 'String'],
           `${itemPath}.directValueType`,
         ),
       };
@@ -395,9 +359,8 @@ function normalizeBuffFindSettings(value: unknown, path: string) {
   const settings = requireRecord(value, path);
   requireExactFields(settings, new Set(['checkType', 'buffIdList', 'tagQuery']), path);
   return {
-    checkType: enumName(
+    checkType: readBuffFindCheckType(
       settings.checkType,
-      ['Id', 'Tag', 'Environment', 'Context'],
       `${path}.checkType`,
     ),
     buffIdList: requireArray(settings.buffIdList, `${path}.buffIdList`).map((value, index) =>
@@ -466,11 +429,11 @@ function normalizeTarget(
     throw new Error(`${path}: non-empty direction RID graph is not normalized`);
   return {
     ...target,
-    targetSource: enumName(target.targetSource, TARGET_SOURCES, `${path}.targetSource`),
-    selectorOwner: enumName(target.selectorOwner, ACTION_TARGETS, `${path}.selectorOwner`),
-    centerType: enumName(target.centerType, ACTION_TARGETS, `${path}.centerType`),
-    target: enumName(target.target, ACTION_TARGETS, `${path}.target`),
-    selectorDirection: enumName(target.selectorDirection, DIRECTIONS, `${path}.selectorDirection`),
+    targetSource: readTargetSource(target.targetSource, `${path}.targetSource`),
+    selectorOwner: readActionTarget(target.selectorOwner, `${path}.selectorOwner`),
+    centerType: readActionTarget(target.centerType, `${path}.centerType`),
+    target: readActionTarget(target.target, `${path}.target`),
+    selectorDirection: readDirectionType(target.selectorDirection, `${path}.selectorDirection`),
     selectorData: {
       ...(finderData === null ? {} : { finderData }),
       validatorData,

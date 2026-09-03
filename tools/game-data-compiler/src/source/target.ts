@@ -18,6 +18,7 @@ import {
   parsePriorityFilterSources,
   parseDistanceValidatorSources,
   parseShuffleTargetSources,
+  requireOrdinaryTargetProcessor,
   selectorComponentName,
   type PriorityFilterSource,
   type DistanceValidatorSource,
@@ -25,6 +26,24 @@ import {
 } from './selectorComponents.ts';
 
 export { selectorComponentName } from './selectorComponents.ts';
+
+/** 排除后处理器统一入口；完整目标设置沿用公共解析，不能只验证或复制 key。 */
+export function parseExcludeTargetSource(value: unknown, path: string): TargetReferenceSource {
+  const processor = requireOrdinaryTargetProcessor(value, path, 'ExcludeTarget', [
+    'excludedTargetSettings',
+  ]);
+  return parseTargetReferenceSource(
+    processor.excludedTargetSettings,
+    `${path}.excludedTargetSettings`,
+  );
+}
+import {
+  readActionTarget,
+  readDirectionType,
+  readTargetSource,
+  readFactionTarget,
+  readHitBoxObjectType,
+} from './targetEnums.ts';
 
 export interface TargetReferenceSource {
   readonly targetSource: string;
@@ -191,7 +210,7 @@ export function parseTargetReferenceSource(value: unknown, path: string): Target
   const target = requireRecord(value, path);
   requireExactFields(target, TARGET_FIELDS, path);
 
-  const targetSource = requireNonEmptyString(target.targetSource, `${path}.targetSource`);
+  const targetSource = readTargetSource(target.targetSource, `${path}.targetSource`);
   const selectorData = target.selectorData;
   const selectorPath = `${path}.selectorData`;
   const summary = parseSelectorSummarySource(
@@ -204,18 +223,18 @@ export function parseTargetReferenceSource(value: unknown, path: string): Target
   return {
     targetSource,
     targetGroupKey: requireString(target.targetGroupKey, `${path}.targetGroupKey`),
-    selectorOwner: requireNonEmptyString(target.selectorOwner, `${path}.selectorOwner`),
+    selectorOwner: readActionTarget(target.selectorOwner, `${path}.selectorOwner`),
     ownerContextKey: requireString(target.ownerContextKey, `${path}.ownerContextKey`),
-    centerType: requireNonEmptyString(target.centerType, `${path}.centerType`),
+    centerType: readActionTarget(target.centerType, `${path}.centerType`),
     centerContextKey: requireString(target.centerContextKey, `${path}.centerContextKey`),
     centerToGround: requireBoolean(target.centerToGround, `${path}.centerToGround`),
-    target: requireNonEmptyString(target.target, `${path}.target`),
+    target: readActionTarget(target.target, `${path}.target`),
     targetContextKey: requireString(target.targetContextKey, `${path}.targetContextKey`),
     enableAdvancedDirection: requireBoolean(
       target.enableAdvancedDirection,
       `${path}.enableAdvancedDirection`,
     ),
-    selectorDirection: requireNonEmptyString(target.selectorDirection, `${path}.selectorDirection`),
+    selectorDirection: readDirectionType(target.selectorDirection, `${path}.selectorDirection`),
     finderType: summary.finderType,
     ...(summary.finderFactionTarget === null
       ? {}
@@ -268,7 +287,9 @@ export function parseSelectorSummarySource(
   let finderPointBlackboardKeys: string[] = [];
   let finderRandomPointCount: SelectorSummarySource['finderRandomPointCount'] = null;
   let finderFixedPoint: FixedPointFinderSource | null = null;
-  if ('finderData' in selector) {
+  // 非搜索来源不会执行 finder，VFS 的显式 null 与旧导出省略字段都表示没有配置。
+  // finderRequired 为 true 时仍进入下方拒绝路径，不把空 finder 解释成零个目标。
+  if ('finderData' in selector && selector.finderData !== null) {
     const finder = requireRecord(selector.finderData, `${path}.finderData`);
     finderType = selectorComponentName(finder, `${path}.finderData`);
     if (!KNOWN_FINDERS.has(finderType)) {
@@ -281,11 +302,11 @@ export function parseSelectorSummarySource(
     } else if (finderType === 'FixedPointFinder') {
       finderFixedPoint = parseFixedPointFinderSource(finder, `${path}.finderData`);
     } else if (finderType === 'HitBoxFinder') {
-      finderFactionTarget = requireNonEmptyString(
+      finderFactionTarget = readFactionTarget(
         finder.factionTarget,
         `${path}.finderData.factionTarget`,
       );
-      finderTargetObjectType = requireNonEmptyString(
+      finderTargetObjectType = readHitBoxObjectType(
         finder.targetObjectType,
         `${path}.finderData.targetObjectType`,
       );
@@ -329,6 +350,7 @@ export function parseSelectorSummarySource(
           'angle',
           'useExtraJitter',
           'snapToNavMesh',
+          ...('extent2D' in finder ? ['extent2D'] : []),
         ]),
         `${path}.finderData`,
       );
@@ -352,6 +374,20 @@ export function parseSelectorSummarySource(
         };
       };
       finderRandomPointCount = parseNumber(finder.pointNum, `${path}.finderData.pointNum`);
+      if ('extent2D' in finder) {
+        // 二维尺寸由另一形状分支消费；本轮仅接入现有 Circle/Sector 的零默认载荷。
+        // 点数与已有几何黑板依赖保持原样，不能把生成点数量一起当成空间效果消除。
+        if (finder.shape !== 'Circle' && finder.shape !== 'Sector')
+          throw new Error(`${path}.finderData.shape: extent2D shape is not projected`);
+        const extentPath = `${path}.finderData.extent2D`;
+        const extent = requireRecord(finder.extent2D, extentPath);
+        requireExactFields(extent, new Set(['x', 'y']), extentPath);
+        for (const axis of ['x', 'y'] as const) {
+          const component = parseNumber(extent[axis], `${extentPath}.${axis}`);
+          if (component.blackboardKey !== null || component.value !== 0)
+            throw new Error(`${extentPath}.${axis}: expected inactive zero extent`);
+        }
+      }
       const eulers = requireRecord(
         finder.localPlaneRotationEulers,
         `${path}.finderData.localPlaneRotationEulers`,
@@ -416,11 +452,7 @@ export function parseSelectorSummarySource(
     const processorPath = `${path}.postProcessorData[${index}]`;
     const processor = requireRecord(rawProcessor, processorPath);
     if (selectorComponentName(processor, processorPath) !== 'ExcludeTarget') return [];
-    requireExactFields(processor, new Set(['$type', 'excludedTargetSettings']), processorPath);
-    const excluded = parseTargetReferenceSource(
-      processor.excludedTargetSettings,
-      `${processorPath}.excludedTargetSettings`,
-    );
+    const excluded = parseExcludeTargetSource(processor, processorPath);
     return [{ targetSource: excluded.targetSource, targetGroupKey: excluded.targetGroupKey }];
   });
   return {
@@ -575,7 +607,7 @@ function parseShapeFinderSource(finder: Record<string, unknown>, path: string): 
       `${path}.autoSetTargetFaction`,
     ),
     containsUnmarkable: requireBoolean(finder.containsUnMarkable, `${path}.containsUnMarkable`),
-    factionTarget: requireNonEmptyString(finder.factionTarget, `${path}.factionTarget`),
+    factionTarget: readFactionTarget(finder.factionTarget, `${path}.factionTarget`),
     targetFactionType,
     shape: requireNonEmptyString(shape._shape, `${shapePath}._shape`),
     rotationOffset: parseVector3(shape._rotationOffset, `${shapePath}._rotationOffset`),
@@ -637,7 +669,7 @@ export function parseSpawnedEntitySelectorIdentitySource(
 ): SpawnedEntitySelectorIdentitySource {
   const selector = requireRecord(value, path);
   let spawnedObjectType: string | null = null;
-  if ('finderData' in selector) {
+  if ('finderData' in selector && selector.finderData !== null) {
     const finder = requireRecord(selector.finderData, `${path}.finderData`);
     if (selectorComponentName(finder, `${path}.finderData`) === 'OwnerSpawnedEntityFinder') {
       requireExactFields(finder, new Set(['$type', 'spawnedObjectType']), `${path}.finderData`);

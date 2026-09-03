@@ -3,7 +3,6 @@ import {
   requireArray,
   requireExactFields,
   requireInteger,
-  requireNonEmptyString,
   requireRecord,
 } from './primitives.ts';
 import {
@@ -14,6 +13,7 @@ import type { BlackboardLevelValues } from './scalar.ts';
 import { parseSkillBuffInstallSources, type SkillBuffInstallSource } from './skillBuffInstall.ts';
 import type { SkillActionGraphSource } from './skillActionGraph.ts';
 import { parseSkillActionGraphSource } from './skillActionGraph.ts';
+import { readPassiveSkillType, readSkillCastType } from './skillDispatch.ts';
 import {
   parseKnownNativeActionLeafSource,
   type KnownNativeActionLeafSource,
@@ -51,10 +51,10 @@ export function parseNativePassiveSkillSource(
   inheritedBlackboard: BlackboardLevelValues,
 ): NativePassiveSkillSource {
   const root = requireRecord(value, sourcePath);
-  if (root.castType !== 'Passive') {
+  if (readSkillCastType(root.castType, `${sourcePath}.castType`) !== 'Passive') {
     throw new Error(`${sourcePath}.castType: expected "Passive"`);
   }
-  const passiveType = requireNonEmptyString(
+  const passiveType = readPassiveSkillType(
     root.passiveSkillType,
     `${sourcePath}.passiveSkillType`,
   );

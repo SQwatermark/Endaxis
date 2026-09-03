@@ -301,9 +301,9 @@ describe('目标组单动作解析', () => {
       finderData: {
         $type: 'Example.Selector+HitBoxFinder+Data, Example',
         autoSetTargetFaction: false,
-        factionTarget: 'Enemy',
+        factionTarget: 'Anti',
         targetFactionType: 'Bad',
-        targetObjectType: 'Character',
+        targetObjectType: 'Normal',
         checkAlive: true,
       },
       validatorData: [
@@ -333,6 +333,13 @@ describe('目标组单动作解析', () => {
       ],
     });
     const actual = parseTargetGroupWriteAction(action, 'fixture.action', schedule);
+    expect(
+      parseTargetGroupWriteAction(
+        { ...action, center: 0, selectorOwner: 1, target: 0 },
+        'fixture.action',
+        schedule,
+      ),
+    ).toEqual(actual);
     expect(
       withoutTargetGroupSourcePaths({ ...actual, priorityFilters: [], distanceValidators: [] }),
     ).toMatchSnapshot();

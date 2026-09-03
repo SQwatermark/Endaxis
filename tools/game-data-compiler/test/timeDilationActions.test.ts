@@ -35,7 +35,7 @@ describe('时间膨胀动作来源', () => {
         curveKey: 'ComboSkill',
         timeScaleCurve: curve,
         finishByAction: false,
-        ignoreTargets: [targetFixture('SkillOwner')],
+        ignoreTargets: [targetFixture('Owner')],
         effectTargets: [],
         useTimeScaleForSkillCdTick: true,
         influenceSkillCdTime: scalarFixture(0.4),
@@ -52,7 +52,7 @@ describe('时间膨胀动作来源', () => {
       useCurveKey: true,
       curveKey: 'ComboSkill',
       inlineCurveKeys: [{ outWeight: 1 }],
-      ignoreTargets: [{ targetSource: 'SkillOwner' }],
+      ignoreTargets: [{ targetSource: 'Owner' }],
       useTimeScaleForSkillCooldownTick: true,
     });
   });

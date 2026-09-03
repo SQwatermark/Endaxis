@@ -16,7 +16,12 @@
 - `scripts/auditGearSetSourceClosure.ts`、`auditGearSetStaticDefinitions.ts`：套装来源闭包与静态候选审计；
 - `scripts/exportReferencedGameIcons.ts`：扫描正式运行引用，只补缺漏地导出 WebP；`--overwrite` 覆盖，
   `--dry-run` 只审计，`--prune` 删除引用闭包外的受管游戏资源；
-- `scripts/exportGameLocales.py`：AKEDB 本地化和富文本图标来源导出；图标入口会调用它生成临时 manifest；
+  `--output-root` 指定独立图片目录（默认 `public`），覆盖与清理都只作用于该目录，引用仍扫描当前
+  源码。全量重导建议 `--overwrite --output-root tmp/game-icons-reexport`，零失败后再发布；项目占位图
+  从正式目录复制，明确标记为 `kept-local`，不是游戏导出。审计记录原图及 WebP 的 SHA-256，位于
+  `tmp/referenced-game-icons/audit.json`；连续不同批次验证须分别保存该审计。
+- `scripts/exportGameLocales.py`：尚未 TS 化的 AKEDB 本地化导出，当前与融合来源策略一致；图标入口的
+  `--skip-rich-text-refresh` 只调用其本地图标 manifest 生成，不触发远端刷新。完整本地化导出仍需迁移；
 - `scripts/generateOperatorPassiveUiPrefabCatalog.ts`：从 VFS 对象快照识别角色专属 HUD prefab 的
   `UICharPassive*` 组件，并生成模拟所需的窄语义目录；
 - `config/gearSetIdentities.json`：已闭合并进入正式库的套装身份；
@@ -24,6 +29,18 @@
 
 根 `package.json` 暴露 `generate:game-data:*`、`audit:game-data:*`、`export:game-icons` 和
 `export:game-locales`。机器审计和中间 manifest 只写入已忽略的 `tmp/`。
+
+来源格式适配必须共用：Skill 工厂、TargetSettings、BuffFindSettings、黑板赋值和方向设置，
+均由精确原生类型所属的公共读取器负责，不在干员、武器、装备或 Unity RID 适配中复制近似结构。
+**枚举数字 → 原生名称属于 VFS 导出职责**，必须从同版本 metadata 批量提取；转换器最终只读名称，
+不得继续新增手填数值映射。本轮前序为 VFS 数字 JSON 增加的 source/*Enums.ts 兼容尚未清退，
+这是待迁移缺口，不是允许继续扩大的架构。保留各公共结构读取器，后续删除的是数字编码兼容。
+VFS 的新批量枚举导出尚未完成实机验证，不能将它标成已可替代 AKEDB。
+来源新增字段先按下文“影响筛查优先”判断是否涉及模拟结果，再按需核对原生消费者；
+Selector.processTargetType 有真实消费者，
+目前分别取证并开放 PriorityFilter、ExcludeTarget、ShuffleTarget 的普通 Targets 分支；
+受击目标通道仍不放行。
+证据见 combat-spec 的 docs/selector-pipeline.md，不能静默忽略。
 
 ### 角色专属 HUD prefab 转换边界
 
@@ -62,6 +79,123 @@ Next 查询快照操作与 Context 治疗接线仍待实现，不复用治疗时
 数据流、并列选择边界与接入顺序见[队友目标快照](../../docs/research/character-team-target-snapshots.md)。
 
 ### 无效分支必须自下而上删除
+
+#### 待办：按组件实际承载的行为决定是否生成（2026-09-03）
+
+状态：用户要求先记录为后续优化，不立即实现。下述为设计方向，不代表审计器或类型级裁剪已落地。
+
+组件是行为的容器，不因原生存在某个组件类型就要求 Endaxis 定义与运行时一对一实现。
+判据是当前模拟场景下的实际行为及其依赖，不是原始字段数量、回调是否非空，或原生理论上
+能否承载战斗行为。组件自身的固定行为和配置的子行为必须一起检查。
+
+1. **实例级**：从叶子向根、从有效读者向前追踪依赖。有战斗行为则保留组件承载该行为所需的
+   最小语义；其中无关行为仍可裁剪。全部行为均不可观察时，组件实例整体不生成。
+2. **可配置行为**：能装任意动作/回调的组件，递归分析当前数据实际装入的行为。不能因为
+   理论上能装伤害就强制实现，也不能因为目前叫特效或移动就无条件删除；只装无效行为的
+   非空回调也应消去。有效返回值、跨组件共享状态、时间和外部读者属于行为依赖。
+3. **类型/分支级**：若当前完整输入集中，该组件类型或精确配置分支的所有实例均没有战斗行为，
+   则该类型/分支不需要进入 Endaxis 正式定义、公共游戏数据契约、编辑器或运行时。
+   转换器只需保留必要的行为槽位识别、审计与消去能力，不为无效组件先造完整正式结构再丢弃。
+
+类型级省略是**当前数据集的结论**，不是原生类型永久无效。审计记录输入快照/范围、原生类型、
+分支条件、实例数量和残留有效行为；新数据每次重新审计。新增有效行为只使对应类型/分支的
+省略结论失效，进入正常转换或明确报告缺失支持，不能套用历史结论静默丢弃。
+局部样本通过不能冒充全库结论；未知行为不能记为“无影响”。
+
+combat-spec 保留原生结构和执行证据，不受 Endaxis 类型级裁剪反向约束。将来启动此待办时，先做
+全输入行为审计并批量排除无效类型/分支，再实现有战斗行为的剩余部分，不继续逐组件补齐原生系统。
+
+#### 场景简化优先于原生完整复刻（2026-09-03）
+
+combat-spec 研究和记录原生规则；Endaxis 只保留会影响固定木桩模拟结果的部分。
+两者的完成门槛不同：只要已证明某项差异在当前场景不可观察，Endaxis 不应等待其原生
+导航、碰撞、洗牌等内部算法完整复刻。证据仍统一记录在 combat-spec，不在转换器猜规则。
+
+- **影响筛查优先，深挖按需**：遇到新组件或字段，先看现有结构、实际配置的末端行为、
+  已有证据与有效消费者，判断是否可能改变当前模拟结果。已有依据足以确认无影响就停止
+  追踪内部算法，接入既有省略路径；可能影响伤害、状态、资源、时间、目标身份/数量或
+  后续有效行为时，才围绕具体疑点追加原生取证。尚不确定不等于无影响，但只补足决定
+  保留或省略所需的证据，不以完整还原组件为目标。这是当前工作顺序，不启动上方待办审计器。
+- 纯位移、传送落点、朝向、距离和命中范围：按零空间、所有攻击命中唯一敌人的前提消去，
+  不生成对应运行时操作，也不要求可见程序不再读取的空间参数拥有完整执行模型。
+- 目标筛选：若输入已证明就是唯一敌人，且筛选仅涉及上述空间命中或不改变单项集合的
+  排序/随机选择，则折叠为既有敌人身份。不要把“全体敌人里选一名”引入战斗随机性。
+- 不按动作名称一刀切：队友、主控、能力实体等集合可能不止一个对象；排除唯一敌人可能
+  得到空集；状态/标签资格、数量裁剪、重复作用次数也可能改变实际结果。这些差异不能
+  因为动作叫“目标筛选”就删除。身份、基数与后续消费者才是判据。
+- 保留可观察的时间与控制流：空间动作消去不等于删掉其调度时间、移动结束触发的有效行为、
+  返回值、失败回调或会被伤害/Buff/资源读取的黑板写入。先投影末端，再判断这些消费者是否仍存在。
+- 来源结构与行为支持分开审计：未知字段先做影响筛查，必要时查所属类型和原生消费者，确认纯空间用途后归入
+  已有省略策略；不为无效参数增加契约字段或运行时开关，也不全局放宽未知字段白名单。
+  活性已消失的子程序不应继续以其中未支持的条件/算法阻塞正式生成。
+
+接下来的移动/传送迁移以建立这一有界消去路径为先，而非在 Endaxis 中补齐原生空间系统。
+
+新版移动字段已接入来源校验：CustomRootMotion 的 `manualTick`，MoveTo 的 `manualTick`、
+`updateLatestMainCharacter`、`dontClampFaceToMoveDirToXZ`。旧结构可缺省，显式值必须是布尔；
+它们不进入正式契约，也不改变既有调度或返回值边界。原生直接消费者分别记录在 combat-spec
+`docs/custom-root-motion-action.md`、`docs/move-to-action.md`，不继续展开导航内部算法。
+EffectAction 的 `bigEffectTarget` 复用公共 TargetSettings 读取器；非空特效句柄写回明确阻断，
+直到其有效消费者得到处理。原生表现边界统一见 combat-spec `docs/presentation-actions.md`。
+
+SetStrafeModeAction 的可选 `yawOffset` 必须为有限数值；它直传移动组件的锁镜头朝向偏移，
+沿用 strafeMode 省略，不写入契约。RayCastEffectAction 则不是纯表现：命中组可被伤害读取；
+在既有 PointToPoint/FixedPoint/Anti 边界上，只新增允许明确 caster 持有的自动阵营过滤，
+不扩大到实体宿主的未知阵营、显式阵营或不可选中目标。原生过滤与目标写回依据统一见
+combat-spec `docs/ray-cast-effect-action.md`，不将射线整体删除。
+
+同样的字段级兼容边界适用于 VoiceTrigger 的播放偏移/淡入与 TemporaryUnlock 的手动锁定开关；
+语音句柄写回非空仍需消费者投影，不能当纯音频省略。DamageUnit 新版 `damageTags` 仅空列表
+与旧结构等价，非空标签有伤害免疫等原生消费者，不能丢弃。ObtainCost 的新增技力标签开关
+`useAtbGainTag` 与 `atbGainTag` 必须成对，当前只支持关闭分支；不与终结技恢复标签混用。
+这些有界兼容不代表已支持标签生效分支，也不因此在契约或运行时引入原生数字 ID。
+
+Buff `showDirectlyInHeadBuff` 是显示资格增量，目前只接受关闭分支，不映射成已有显示槽。
+`stackEffects[].effectActions[]` 的精确类型已由专用槽确定：使用公共 EffectAction 读取器的
+`typedSlot` 编码，不含 `$type`；普通动作使用 `polymorphic` 编码。禁止各维护一份字段表，
+也不能用可选 `$type` 全局放宽普通动作校验。输入位移新增根运动混合参数同样只在来源读取，
+不改变动作区间和技能时间轴。
+
+InstantModifyAttribute 新导出的私有 loader/mask 仅接受成对空初态；来源 IR 不保存缓存，
+实际 modifier、属性侧与黑板引用仍完整进入公共属性读取器。非空缓存不静默忽略，亦不把规则
+扩展给名称相近的 Poise/Heal 处理器。PullAction 新增 alwaysNext 是返回控制，来源保留布尔，
+旧输入缺省为 false。对既有已证明唯一敌人的路径，true 同样可省略位移并保留后继动作；
+未知/队伍目标和条件槽返回值消费者不放宽，不把它当无条件恒真的条件叶。原生依据分别为 combat-spec 的
+`docs/damage-processors.md`、`docs/pull-action.md`。
+
+新版角色运行模板接入需区分两种哈希：下载清单 SHA-256 校验导出 JSON 字节；
+`runtimeTemplate.sourceSha256` 固定的是 JSON 内声明的源资产身份，不是 JSON 自身的哈希。
+切换输入批次时，先核对下载来源、字节哈希、原生类型、sourceCharacterId、连携技能身份，
+再在隔离候选 manifest 中更新源资产固定值，跑模板审计与整名预检；不可删除正式哈希门禁。
+这一步不是派生目录重建，模板前缀通过也不意味着同批实体/弹道等目录或完整模拟已经通过。
+
+AbilityEntityData 新前缀的 name 是可重复模板标签，不是稳定资产 ID 或显示名称；公共模板
+读取器只校验其字符串类型，不改变 gameId、寿命、标签与叠层。不要以“目录太旧”为由掩盖
+原始单文件格式不兼容，也不要在各领域入口重复剥离 name。聚合同批模板时先核对下载清单
+中的逐文件哈希，再复用公共目录编译器；仅聚合模板前缀不等于组件或其他派生目录完成。
+
+Aura 新增 filterFactionSource 与角度/高度限制共用一份字段校验，目前仅接受 plain Source
+及两个限制关闭的分支。阵营来源与 buffSource 是两个不同原生字段，不得合并。关闭限制时
+原生不执行几何计算，其参数不进入有效黑板依赖；Buff 安装、进入/退出行为与来源身份不省略。
+原生证据位于 combat-spec 的 `docs/aura-influence-lifecycle.md`。
+
+MergeTargetAction 的 mergeHittableTargets 仅开放关闭分支，不改变普通目标有序去重；
+RandomPointFinder 的 extent2D 只兼容 Circle/Sector 的零常量尺寸，不删除 pointNum 或其
+黑板依赖。CastSkill 新中断选项进入延迟请求，当前仅开放 false，不能以敌人无主动行为
+为由忽略干员自己的施法控制。三者都由现有公共读取器处理，无领域特判或新运行时字段。
+证据分别见 combat-spec 的 merge-target-action、random-point-finder、cast-skill-action。
+
+当前传送失败回调已接入公共树：`controlFlow.ts` 用 `actionWithCallback` 保存持有动作、
+`targetPointInvalid` 触发语义及原样解析的 SequenceAction 子树；未知触发不自动扩展。
+动作叶子解析器只负责持有动作，带回调的完整输入必须走公共序列入口，不能绕回叶子直接解析。
+`actionSequenceProgram.ts` 提供回调投影钩子，领域投影先递归编译子树，结果为空才消去持有动作；
+不使用“原始 actionData 非空即失败”的规则，不把回调当成同步后继，也不向外传播其局部状态。
+根守卫同样在末端投影后处理，`resultIsConsumed` 为真时不能因无副作用而抹掉返回值。
+原生证据唯一入口为 combat-spec `docs/teleport-position-selection.md`。
+
+这不是完整的全程序反向活性分析：回调树和纯守卫已自底向上处理，空间 Context 逃逸仍采用
+保守来源检查，尚未区分所有覆盖写、死分支和跨调度活跃区间。后续完善此检查时应以剩余有效
+读者为根做反向依赖分析，不能将目前保守阻塞解释为必须给 Next 建模空间或原生随机系统。
 
 先转换末端实际行为，再向根回收分支；两支为空且条件无副作用，就不要求该条件先有运行模型，
 并直接从产物删除整个分支，不输出空 `conditional`。已经建模的纯条件同样适用。
@@ -111,13 +245,13 @@ Assign 的目的键不算读取，但赋值保留；本轮没有启动通用黑�
 
 ### 全局标签预定义配置的下载与生成
 
-`akedb-sources.json.jsonFiles` 维护 Endaxis 需要的精确全局 JSON，不依赖 combat-spec 选择资源，
-也不要求 AKEDB 当前集合索引已经列出它。`--json-file` 只能选择清单内资源，不刷新其他表/集合；
+`game-data-sources.json.jsonFiles` 维护 Endaxis 需要的精确全局 JSON，不依赖 combat-spec 选择资源。
+`--json-file` 只能选择清单内资源，不刷新其他表/集合；
 单文件来源保存为相邻 `.provenance.json`，不覆盖整批下载账本。全量下载包含这些配置，
 `--tables-only` 不包含；两种选择开关不能同时使用。
 
 ```powershell
-npm run download:game-data:sources -- --json-file GameplayConfig/GameplayTagPredefineTable.json --vfs-fallback tmp/vfs-tag-predefine-fallback
+npm run download:game-data:sources -- --json-file GameplayConfig/GameplayTagPredefineTable.json --vfs-base http://desktop:8765/api/endaxis-data
 npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/next/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/next/data/combat/gameplayTagCatalog.generated.ts
 npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/next/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/next/data/combat/gameplayTagCatalog.generated.ts --check
 ```
@@ -515,14 +649,14 @@ Toggle 组和动作图。旧 `CompiledWeaponTraitLevelRuntimeDependencySource` �
 ### 整名生成与检查
 
 仍使用既有批量入口；`--complete` 才会生成包括养成和附属定义的 Operator。以下命令为只读校验，
-移除最后的 `--check` 才写入。`source-root` 是资源总目录，不是它的 `skill-data-cdn` 子目录。
+移除最后的 `--check` 才写入。`source-root` 是资源总目录，不是它的 `SkillData` 子目录。
 
 ```powershell
 npm run generate:game-data:operator-active-skills -- --complete `
   --manifest tools/game-data-compiler/config/operators.json `
   --source-root tmp/game-data-sources `
-  --table-root tmp/game-data-sources/TableCfg-1.4.4-9433094-12 `
-  --skill-patch-table tmp/game-data-sources/TableCfg-1.4.4-9433094-12/SkillPatchTable.json `
+  --table-root tmp/game-data-sources/TableCfg-current `
+  --skill-patch-table tmp/game-data-sources/TableCfg-current/SkillPatchTable.json `
   --buff-data-root tmp/game-data-sources/BuffData `
   --ability-entity-catalog src/next/data/ability-entities/ability-entity-templates-1.4.4.json `
   --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json `
@@ -840,6 +974,16 @@ Action、Buff 或 AbilityEntity 编译器。
 优化必须在结构化 IR 上执行，并保持稳定、可解释、可关闭。所有树形优化都应自叶子向根，
 先规范化子节点，再比较或折叠父节点。
 
+公共 `actionSequenceProgram` 的静态分支预选不能绕过该顺序：预选成功仍只编译可达分支；
+预选失败则暂存原错误，先投影两侧末端。仅当条件已证明为纯读取、两侧投影等价或都为空，
+才随无效分支一并消去条件及该错误；仍有行为差异、条件存在副作用或返回值控制未支持时继续
+失败关闭。来源解析和有效子树的错误不在这个暂存范围内。不能为了删空分支而给空间/屏幕条件
+补虚假的恒真结果，也不为不同条件类型重复维护例外列表。
+
+条件槽本身也可能包含 IfElse。仅对“alwaysNext=true、两个源分支无启用动作、内部条件
+已证明无副作用”的窄结构，按原生 `alwaysNext || 分支结果` 将整个 IfElse 的返回值投影为 true；
+并非将其内部的角度/数量等条件判成 true。有效分支、写回条件或 alwaysNext=false 仍不走该规则。
+
 当前允许的保守优化：
 
 - 展开只起容器作用的单层 Sequence；
@@ -933,44 +1077,94 @@ npm run type-check:game-data
 npm run test:game-data
 ```
 
-固定版本输入统一由 `npm run download:game-data:sources` 获取，所需资源只在本目录的
-`akedb-sources.json` 声明一次；下载器、审计和正式生成不得各自维护近似清单。装备与武器正式编译要求
-`WeaponUpgradeTemplateTable`、`EquipTable` 与其余 TableCfg 来自同一个 manifest 版本，不能把本地
-AKEDatabase 工作树中的当前文件混入版本化快照。默认输出位于 Endaxis 自己的
-`tmp/game-data-sources`，不得提交；`combat-spec` 只提供反编译证据，不能充当资源清单、下载器配置或
-生成输入的隐式提供者。
+### 来源融合与 VFS 替代门禁（2026-09-03，当前权威规则）
 
-下载器按单个逻辑资源执行固定优先级：先请求 AKEDB CDN；资源不存在、内容不是合法 JSON 或请求失败时，
-才请求可选的 vfs-index-browser fallback。`--vfs-fallback` 可以是本地兼容目录，也可以是
-`http(s)://.../api/akedb-compatible` 基址。两种提供者使用同一逻辑路径：
+唯一入口为 `scripts/downloadGameDataSources.ts`，默认 `hybrid`：
+AKEDB CDN 优先，VFS 补齐欠缺。所需资源只由 `game-data-sources.json` 声明；
+combat-spec 提供反编译依据，不能充当资源清单、隐式缓存或下载配置。
 
-```text
-TableCfg-<version>/<TableName>.json
-SkillData/manifest.json
-SkillData/<file>.json
-BuffData/manifest.json
-BuffData/<file>.json
+- AKEDB manifest 与 asset-sync-index 使用刷新参数、no-cache 请求，避免缓存仍返回旧版本。
+  默认选择 latest，也可显式传完整 `--version 1.5.3@9885010-4`。注意版本只固定 TableCfg：
+  JSON 与图片仍是共享当前快照，逐项 version 表示该文件记录版本，不能声称已支持历史全资源重建。
+- 集合使用 AKEDB 索引和 VFS manifest 的并集；同名文件优先完整读取 AKEDB，
+  **不按字段混合两份对象**。AKEDB 未收录或 HTTP 404 才补 VFS；
+  超时、500、坏 JSON、索引大小/MD5 不符均阻断，不用换源掩盖错误。
+  连接重置、暂时 DNS 错误和超时只对原 URL 做最多三次传输尝试（包含响应体读取）；
+  重试仍失败时报告 URL 与底层原因。HTTP 状态、来源身份头和内容校验错误不重试。
+- VFS 补取仍须有 `X-Endaxis-Source: vfs-index-browser`。该头是协议标记，不是密码学认证。
+  VFS 清单不可达而 AKEDB 有该集合时只取得 AKEDB 已知覆盖，并在账本标记 inventory unavailable；
+  没有任何可用清单、坏清单或身份头错误不能当成空集合。
+- 全量输出必须选择**尚不存在**的目录。先写相邻 `.partial-*`，结束时重新核对 AKEDB 清单哈希，
+  再一次 rename 发布；失败中间目录保留供检查，不覆盖上一批输入。不要提交这些目录。
+  下载与生成目录共用 `src/io.ts` 的原子 rename 占用重试，不各自维护 Windows 特例。
+  该层只处理文件系统传输，不承载游戏数据类型、来源选择或覆盖策略。
+- `source-provenance.json` 保存所选表版本、资产 revision、清单 SHA-256、
+  逐文件 provider/URL/version/字节数/SHA-256/补缺原因及内容快照哈希。
+  `--vfs-version` 只是调用方声明，账本始终标记 versionVerified=false；
+  未声明则为 null，不能伪装成已证明与 AKEDB 同版本。
+- `--json-file` 仍只补清单中指定的一份全局 JSON，另写相邻 provenance；
+  `--tables-only` 只取表，不能与它组合。目录仍为 TableCfg-current、SkillData、BuffData、
+  ProjectileData、AbilityEntityData、CharacterData；编译器不根据 provider 再走一套生成实现。
+- 图片入口 `export:game-icons` 同样默认 AKEDB 优先，复用同一资产索引/校验实现；
+  名称匹配忽略大小写，真正请求保留索引中的原始路径大小写。缺图/404 才查询 VFS，
+  歧义、哈希错误不自动换源。保留输出隔离、占位图和 WebP 转换，并记录 provider/version/URL/hash。
+  图片仍逐张写入，完整审计后才能人工发布隔离输出，不声称具备全目录原子发布。
+  `--workers` 控制有界并发（默认 6），与来源下载共用调度器；审计结果固定按资源路径排序。
+- `--source-mode vfs-only` 仅用于独立复现和差异审计，**不是生产默认来源**。
+
+当前 AKEDB 已覆盖 18 张需求表、2621 SkillData、2872 BuffData、724 张引用图片；
+ProjectileData、AbilityEntityData、角色模板和部分全局配置仍需 VFS。文件名覆盖不等于逐字段一致。
+VFS 按以下顺序逐渐补能力：metadata 自动枚举名称 → 共享结构字段/默认值 →
+角色及全局配置闭包 → Sprite 裁切与图片 → 全量对照。
+只有同版本资源集合、字段值、枚举名称、数值表示、图片内容和可复现导出全部对齐，
+才考虑提出用 VFS 替代 AKEDB；不能以下载成功、文件数相同或局部门禁通过提前替换。
+已发现武器 Buff 的 useMaxStackCntKey 两端 true/false 差异，必须追查解码/版本，
+不得修改原生规则迁就任何一端。
+
+```powershell
+npm run download:game-data:sources -- --output tmp/game-data-hybrid-20260903 --vfs-base http://desktop:8765/api/endaxis-data
+npm run download:game-data:sources -- --tables-only --version 1.5.3@9885010-4 --output tmp/tables-1.5.3
+npm run download:game-data:sources -- --source-mode vfs-only --output tmp/vfs-comparison --vfs-base http://desktop:8765/api/endaxis-data
+npm run export:game-icons -- --overwrite --output-root tmp/game-icons-hybrid
 ```
 
-AKEDB 已提供集合清单时，基础下载只对其中明确列出的同名资源逐文件 fallback，不把 VFS 整个集合
-合并进来；否则会把当前 Operator 根无关的敌人、关卡资源混进版本快照。只有 AKEDB 完全没有该集合
-清单时，才使用 VFS manifest 建立基础集合。额外的子 Skill、Buff、Projectile 和 AbilityEntity 由
-领域闭包命令按精确 ID 获取。输出目录的 `akedb-source-provenance.json` 逐文件记录实际提供者，避免把
-混合来源误称为纯 AKEDB 快照。这里的
-“同构”指逻辑路径和解码后的 JSON 数据结构可由同一 source 读取器消费，不要求空白、字段排列或曲线的
-历史/当前序列化外形逐字节相同；读取器若支持多个已证实外形，仍必须投影为同一个源 IR。
-如果 AKEDB manifest 尚未登记请求版本，下载器使用显式 `--version` 或清单默认版本构造 VFS 逻辑路径，
-该版本的 TableCfg 全部由 fallback 提供；不会要求 vfs-index-browser 伪造 AKEDB manifest。
+角色模板仍需要提供 decodeCharacterTemplate 的 VFS worker（0.15.0 起），
+保持有界解码与 partial 标记；下载成功不等于字段可模拟或完整定义可生成。
 
-示例：
+### 新来源字段迁移：投射物目标控制边界
 
-```sh
-npm run download:game-data:sources -- --version 1.4.4@9433094-12
-npm run download:game-data:sources -- --vfs-fallback http://desktop:8765/api/akedb-compatible
-npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:8765/api/akedb-compatible
-```
+原生权威依据见 combat-spec `docs/launch-projectile-skill-routing.md` 的 2026-09-03 小节。
+公共 `referenceActions.ts` 读取 `targetFilterMode`、`targetFilterSettings`、
+`alsoLaunchToHittableTarget`，只允许旧结构整组缺失或新结构完整存在；模式只接受名称，
+不在转换器新增数值映射。过滤配置在关闭状态也保留于来源 IR，不下放到运行时数据契约。
+
+公共零距离投射物投影仅接受原生已证明不会开启新路径的 `None + false`；
+`OnlyHit/NeverHit` 或额外发射开启时明确失败，不能因“所有攻击命中”而忽略过滤资格或发射数量。
+已证明完全无战斗回调的发射仍先剔除。旧/新关闭结构必须输出等价结果，公开底层投影入口
+必须与扩展工厂共用同一守卫，避免绕过工厂后丢失新增语义。
+
+迁移进度与整批预检记录在 `docs/handoff/current-context.md`；来源解析通过不代表生成完成，
+使用旧派生目录的预检也不能冒充同批来源的端到端重生成。
+
+### 新来源字段迁移：实体子技能的多输入目标
+
+`SpawnAbilityEntity.allowMultiInputTarget` 的原生依据与 C# 实现在 combat-spec
+`docs/spawn-ability-entity.md`。它只影响子技能保存输入目标，**不控制生成数量**。
+公共来源解析保留严格布尔字段，旧结构缺失表示默认选项；Endaxis 对无子技能、无目标或
+已证明的单一敌人/施术者/当前实体输入消去差异，不给运行时再加无效配置。
+开启且输入为未证明单项的空间点组或其他目标组时仍失败；不能用“零距离”代替目标基数证明。
 
 ## 10. 迁移顺序
+
+当前输入版本的 Selector 后处理迁移：`PriorityFilter.processTargetType` 仅开放旧结构缺失
+或新结构显式 `Targets`。证据集中于 combat-spec `docs/selector-pipeline.md` 的 2026-09-03
+小节；该字段真实选择候选列表，不能无条件忽略。普通目标两种编码共享同一来源结构，
+`parsePriorityFilterSource` 是唯一单项解析入口，队伍选择器识别也复用它。
+ExcludeTarget/ShuffleTarget 已分别追踪当前镜像消费者，三者通过
+`requireOrdinaryTargetProcessor` 共用缺失/显式 Targets 的严格结构校验；其他同名字段不自动放行。
+排除设置只由 `parseExcludeTargetSource` 解析，随机筛选仍保存限量值，不在来源层模拟随机或删操作。
+`HittableTargets`、数字/未知枚举仍拒绝。C# 只接入前两种处理器，ShuffleTarget 尚无执行适配器。
+此迁移不新增契约或运行时开关，不等于新版本全干员整批生成完成。
 
 1. 迁移严格读取原语、数值来源、类型名和原生单精度行为；
 2. 迁移 Target、Tag、Blackboard、SkillPatch 等公共叶子结构；
@@ -1090,6 +1284,11 @@ npm run download:game-data:operator-closure -- --vfs-fallback http://desktop:876
   对象类型等 14 类高频条件；
 - 角度、霸体、失衡、敌人等级、构筑属性，以及伤害、治疗、Buff、技能命中、能力实体时长等
   事件上下文条件；
+- 干员持有的 Buff 在 OnBeforeDamageAction、OnBeforeOutputDamage、OnOutputDamage 中，
+  动作 Target 统一绑定输出伤害的受击敌人，生命条件与 InputTarget 查询共用这一上下文；
+  生命条件仍读取实时值，不按“干员不会受伤”省略。依据为 combat-spec 的
+  origin-skill-event-context 与 buff-and-damage；不得推广到承伤事件或其他宿主。
+  Buff 的 limitSkillCastId 另涉及 affix 身份，不能借事件目标绑定就证明普通来源 cast id 等价。
 - `OrConditionAction` 的“组内全部满足、组间任一满足”结构，以及只反转下一项的
   `NotNextCheckAction`；
 - `ObtainCostAction`、`CreateTimedMarker` 和 `AddGlobalCDTimer` 的公共来源载荷；资源动作
@@ -1223,16 +1422,16 @@ docs/research/weapon-buff-count-r3.md。已有 966 交叉场景通过不等于�
 艾维文娜三连携后战技回收枪的 EntityBB_talent0 传递仍缺失，是下一阶段完整干员迁移优先项。
 
 ```powershell
-npm run generate:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录> `
-  --buff-data <BuffData目录>
+npm run generate:game-data:weapons -- --tables tmp/game-data-sources/TableCfg-current `
+  --skill-data tmp/game-data-sources/SkillData --buff-data tmp/game-data-sources/BuffData
 # 同参数追加 --check 校验确定性输出；审计可通过 --audit-output 指定临时目录。
 ```
 
 武器静态审计不写中间产物；某把武器失败时仍继续报告其余身份：
 
 ```powershell
-npm run audit:game-data:weapons -- --tables <TableCfg目录> --skill-data <SkillData目录> `
-  --buff-data <BuffData目录> `
+npm run audit:game-data:weapons -- --tables tmp/game-data-sources/TableCfg-current `
+  --skill-data tmp/game-data-sources/SkillData --buff-data tmp/game-data-sources/BuffData `
   --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts
 ```
 
@@ -1240,18 +1439,15 @@ Operator 主动技能库可用以下命令批量审计；任何干员失败都�
 
 ```powershell
 npm run audit:game-data:operators -- --manifest tools/game-data-compiler/config/operators.json `
-  --skill-data <skill-data-cdn目录> --buff-data <BuffData目录> `
-  --projectile-data <ProjectileData目录> --ability-entity-data <AbilityEntityData目录> `
+  --skill-data tmp/game-data-sources/SkillData --buff-data tmp/game-data-sources/BuffData `
+  --projectile-data tmp/game-data-sources/ProjectileData `
+  --ability-entity-data tmp/game-data-sources/AbilityEntityData `
   --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts `
-  --tables <TableCfg目录>
+  --tables tmp/game-data-sources/TableCfg-current
 ```
 
-资源下载器的正式资源目录由 `akedb-sources.json` 独立维护。TableCfg、SkillData 和 BuffData
-优先来自 AKEDB；下载完 SkillData/BuffData 后，下载器会递归收集其中实际出现的
-`projectileId`、`abilityEntityId`，再批量关闭 ProjectileData / AbilityEntityData 引用集合。
-AKEDB 的 `asset-sync-index.json` 如果将来提供同名文件仍优先使用；当前 Unity 模板由
-vfs-index-browser 的同构端点精确导出。不得把 combat-spec 工件目录重新接成下载来源，也不得
-逐个在 Operator 配置中手写模板清单。
+资源获取遵循上文“来源融合与 VFS 替代门禁”的唯一规则，领域编译器再证明实际引用闭包。
+不得把 combat-spec 工件目录接成隐式下载来源，也不得在 Operator 配置中手写欠缺模板清单。
 
 ProjectileData 目前提供已解码 `ProjectileComponentData`；AbilityEntityData 只提供已由
 反编译和样本共同证实的 `AbilityEntityTemplateData` 逻辑前缀。引用闭包能据此证明模板身份存在，

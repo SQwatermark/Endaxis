@@ -165,7 +165,13 @@ export function parseDamageUnitSource(
   const expectedFields = new Set(DAMAGE_UNIT_BASE_FIELDS);
   if ('atkCalculation' in unit) expectedFields.add('atkCalculation');
   if ('poiseCalculation' in unit) expectedFields.add('poiseCalculation');
+  if ('damageTags' in unit) expectedFields.add('damageTags');
   requireExactFields(unit, expectedFields, path);
+  // 新版标签会参与原生伤害免疫等规则，不能当成显示字段丢弃；仅空列表等价于旧结构。
+  // 非空列表留待公共伤害标签链接入，不在来源层猜标签含义或新增运行时数字 ID。
+  if ('damageTags' in unit && requireArray(unit.damageTags, `${path}.damageTags`).length > 0) {
+    throw new Error(`${path}.damageTags: non-empty damage tags require native consumer projection`);
+  }
   // 两个字段是完整表现配置；只校验对象存在。
   requireRecord(unit.effectData, `${path}.effectData`);
   requireRecord(unit.hitSoundData, `${path}.hitSoundData`);
@@ -296,11 +302,37 @@ export function parseDamageProcessors(
     const processor = requireRecord(rawProcessor, processorPath);
     const sourceType = typeof processor.$type === 'string' ? nativeActionName(processor.$type) : '';
     if (sourceType === 'InstantModifyAttribute') {
+      const hasExportedCache =
+        'm_attributeModifierLoader' in processor || '<attributeMask>k__BackingField' in processor;
       requireExactFields(
         processor,
-        new Set(['$type', 'modifyTargetSide', 'modifier']),
+        new Set([
+          '$type',
+          'modifyTargetSide',
+          'modifier',
+          ...(hasExportedCache
+            ? ['m_attributeModifierLoader', '<attributeMask>k__BackingField']
+            : []),
+        ]),
         processorPath,
       );
+      if (hasExportedCache) {
+        // 原生每次处理伤害时由 modifier 与当前黑板重新装载缓存；只接受导出器写出的空初态。
+        // 证据见 combat-spec/docs/damage-processors.md，不能据此忽略真实 modifier 或非空运行状态。
+        const loaderPath = `${processorPath}.m_attributeModifierLoader`;
+        requireExactFields(
+          requireRecord(processor.m_attributeModifierLoader, loaderPath),
+          new Set(),
+          loaderPath,
+        );
+        const maskPath = `${processorPath}.<attributeMask>k__BackingField`;
+        const mask = requireRecord(processor['<attributeMask>k__BackingField'], maskPath);
+        requireExactFields(mask, new Set(['lowerMask', 'higherMask']), maskPath);
+        for (const key of ['lowerMask', 'higherMask'] as const) {
+          if (requireNumber(mask[key], `${maskPath}.${key}`) !== 0)
+            throw new Error(`${maskPath}.${key}: expected empty exported attribute mask`);
+        }
+      }
       const modifier = requireRecord(processor.modifier, `${processorPath}.modifier`);
       requireExactFields(
         modifier,

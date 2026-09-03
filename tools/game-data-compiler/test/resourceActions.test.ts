@@ -15,29 +15,61 @@ const META = {
   serverActionIndex: 1,
 } as const;
 
+const RESOURCE = {
+  ...META,
+  costType: 'Atb',
+  isPercentValue: false,
+  useUspRecoverTag: false,
+  uspRecoverTag: { tagId: 0 },
+  ignoreUspGainScalar: false,
+  atbSourceType: 'NormalAttack',
+  atbGainMethod: 'Gain',
+  playObtainAtbEffect: true,
+  playObtainAtbAudio: false,
+  costValue: scalarFixture(0, 'atb'),
+  coefficient: scalarFixture(1),
+  atbOnlyMainChar: false,
+  source: targetFixture('Source'),
+  target: targetFixture('Owner'),
+};
+
 describe('资源与计时动作公共载荷', () => {
-  it('完整保留资源获得动作的目标与表现开关', () => {
-    const source = parseResourceGainActionSource(
-      {
-        ...META,
-        costType: 'Atb',
-        isPercentValue: false,
-        useUspRecoverTag: false,
-        uspRecoverTag: { tagId: 0 },
-        ignoreUspGainScalar: false,
-        atbSourceType: 'NormalAttack',
-        atbGainMethod: 'Gain',
-        playObtainAtbEffect: true,
-        playObtainAtbAudio: false,
-        costValue: scalarFixture(0, 'atb'),
-        coefficient: scalarFixture(1),
-        atbOnlyMainChar: false,
-        source: targetFixture('Source'),
-        target: targetFixture('Owner'),
-      },
-      'fixture.resource',
-      { atb: [3, 4] },
+  it.each(['Atb', 'UltimateSp'])('新版关闭技力标签时保留 %s 的原有计算与目标', costType => {
+    const old = { ...RESOURCE, costType };
+    expect(
+      parseResourceGainActionSource(
+        { ...old, useAtbGainTag: false, atbGainTag: { tagId: 0 } },
+        'resource',
+        {},
+      ),
+    ).toEqual(parseResourceGainActionSource(old, 'resource', {}));
+  });
+
+  it('关闭时不使用残留标签，开启时明确拒绝未建模消费者', () => {
+    const current = { ...RESOURCE, useAtbGainTag: false, atbGainTag: { tagId: -123 } };
+    expect(parseResourceGainActionSource(current, 'resource', {})).toEqual(
+      parseResourceGainActionSource(RESOURCE, 'resource', {}),
     );
+    expect(() =>
+      parseResourceGainActionSource({ ...current, useAtbGainTag: true }, 'resource', {}),
+    ).toThrow('tagged SP gain requires native consumer projection');
+  });
+
+  it.each([
+    { useAtbGainTag: false },
+    { atbGainTag: { tagId: 0 } },
+    { useAtbGainTag: null, atbGainTag: { tagId: 0 } },
+    { useAtbGainTag: false, atbGainTag: null },
+    { useAtbGainTag: false, atbGainTag: { tagId: '0' } },
+    { useAtbGainTag: false, atbGainTag: { tagId: 0, extra: true } },
+  ])('不吞掉缺失字段或非法标签 %j', fields => {
+    expect(() =>
+      parseResourceGainActionSource({ ...RESOURCE, ...fields }, 'resource', {}),
+    ).toThrow();
+  });
+
+  it('完整保留资源获得动作的目标与表现开关', () => {
+    const source = parseResourceGainActionSource(RESOURCE, 'fixture.resource', { atb: [3, 4] });
     expect(source).toMatchObject({
       kind: 'resourceGain',
       resource: 'sp',

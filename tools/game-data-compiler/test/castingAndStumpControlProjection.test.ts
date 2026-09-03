@@ -11,7 +11,8 @@ import {
   isStaticSingleEnemyTargetGroup,
   type CombatActionProjectionContextSource,
 } from '../src/compiler/combatProjectionCommon.ts';
-import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
+import { parseKnownNativeActionLeafSource, parseKnownNativeActionSequenceSource } from '../src/source/actionLeaf.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../packages/game-data-contract/src/conditions.ts';
 
@@ -45,7 +46,7 @@ function node(value: ReturnType<typeof parseKnownNativeActionLeafSource>) {
   };
 }
 
-function blowOff(deadOption: string) {
+function blowOff(deadOption: string | number) {
   return parseKnownNativeActionLeafSource(
     {
       ...META,
@@ -73,7 +74,100 @@ function blowOff(deadOption: string) {
   );
 }
 
+it('木桩控制动作使用与物理异常相同的原生死活枚举读取器', () => {
+  expect(blowOff(0)).toEqual(blowOff('AllValid'));
+  expect(blowOff(2)).toEqual(blowOff('OnlyDead'));
+  expect(() => blowOff(3)).toThrow('deadOption');
+});
+
 describe('施法输入限制与木桩物理控制投影', () => {
+  const pull = {
+    ...META,
+    $type: 'Beyond.Gameplay.Core.PullAction+Data, Gameplay.Beyond',
+    targetSettings: targetFixture('Context', undefined, 'tar'),
+    destination: targetFixture('Owner'),
+    pullSpeedUseBb: false,
+    pullSpeed: 1,
+    pullSpeedBb: '',
+    isInfinity: false,
+    pullDuration: 1,
+    stopTolerance: 0,
+    unmovable: false,
+    finishPullByAction: false,
+    pullTargetType: 'All',
+    fixedDistanceMode: false,
+    attenuationBySuperArmor: false,
+    attenuationValues: [],
+  };
+
+  it('Pull 默认返回分支沿用既有固定敌人投影，不增加位移步骤', () => {
+    const old = parseKnownNativeActionLeafSource(pull, 'fixture.action', {});
+    const current = parseKnownNativeActionLeafSource(
+      { ...pull, alwaysNext: false },
+      'fixture.action',
+      {},
+    );
+    expect(current).toEqual(old);
+    expect(
+      compileBuffLeafNode(node(current), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+    ).toMatchObject({ steps: [] });
+  });
+
+  it.each([0, 'false', null, undefined])(
+    'Pull 非法返回策略继续阻断 %j',
+    alwaysNext => {
+      expect(() =>
+        parseKnownNativeActionLeafSource({ ...pull, alwaysNext }, 'fixture.action', {}),
+      ).toThrow('alwaysNext');
+    },
+  );
+
+  it.each([false, true])('Pull 仍不能把队伍目标误当作固定敌人消除，alwaysNext=%s', alwaysNext => {
+    const source = parseKnownNativeActionLeafSource(
+      { ...pull, alwaysNext, targetSettings: targetFixture('Owner') },
+      'fixture.action',
+      {},
+    );
+    expect(() =>
+      compileBuffLeafNode(node(source), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+    ).toThrow('unsupported static-enemy control projection');
+  });
+
+  it('Pull 来源保留继续策略，省略位移后保留前后有效动作的顺序', () => {
+    const parse = (actionData: unknown[]) => parseKnownNativeActionSequenceSource({
+      actionData, onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false,
+    }, 'sequence', {});
+    const write = (key: string) => ({
+      ...META,
+      $type: 'Beyond.Gameplay.Core.SimpleCalcBBAction+Data, Gameplay.Beyond',
+      key, operation: 'Add', value1: scalarFixture(1), value2: scalarFixture(2),
+    });
+    const current = { ...pull, alwaysNext: true, destination: targetFixture('Context', undefined, 'mainPos') };
+    expect(parseKnownNativeActionLeafSource(current, 'pull', {}))
+      .toMatchObject({ family: 'stumpControl', action: { kind: 'pull', alwaysNext: true } });
+    expect(compileCombatActionSequenceSource(parse([write('before'), current, write('after')]), ACTIVE_SKILL_CONTEXT))
+      .toEqual(compileCombatActionSequenceSource(parse([write('before'), write('after')]), ACTIVE_SKILL_CONTEXT));
+  });
+
+  it('Pull 的继续选项不放开未知目标组或作为条件求值的用途', () => {
+    const parse = (actionData: unknown[]) => parseKnownNativeActionSequenceSource({
+      actionData, onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false,
+    }, 'sequence', {});
+    expect(() => compileCombatActionSequenceSource(parse([
+      { ...pull, alwaysNext: true, targetSettings: targetFixture('Context', undefined, 'unknown') },
+    ]), ACTIVE_SKILL_CONTEXT)).toThrow('unsupported static-enemy control projection');
+    const source = parse([
+      { ...META, $type: 'Beyond.Gameplay.Core.IfElseAction+IfElseActionData, Gameplay.Beyond',
+        conditionAction: { actionData: [{ ...pull, alwaysNext: true }], onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false },
+        succeedActions: { actionData: [], onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false },
+        failActions: { actionData: [], onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false },
+        alwaysNext: true,
+      },
+    ]);
+    expect(() => compileCombatActionSequenceSource(source, ACTIVE_SKILL_CONTEXT))
+      .toThrow('expected a condition-only sequence');
+  });
+
   it('只把已证明的 Buff Owner 职业筛选投影为干员定位条件', () => {
     const action = parseKnownNativeActionLeafSource(
       {
@@ -1292,118 +1386,149 @@ describe('施法输入限制与木桩物理控制投影', () => {
     });
   });
 
-  it('能力实体出生于直接 Source 时不执行残留主控选择器', () => {
-    const action = parseKnownNativeActionLeafSource(
-      {
-        ...META,
-        $type: 'Beyond.Gameplay.Core.SpawnAbilityEntity+Data, Gameplay.Beyond',
-        abilityEntityId: 'abilityentity_fixture',
-        setAbilityEntitySource: true,
-        abilityEntitySource: 'ActionOwner',
-        abilityEntitySourceContextKey: '',
-        setAbilityEntityTarget: false,
-        abilityEntityTarget: targetFixture('Target'),
-        bornAt: {
-          ...targetFixture('Source'),
-          selectorData: {
-            finderData: {
-              $type: 'Beyond.Gameplay.Core.Selector+CharacterTeamFinder+Data, Gameplay.Beyond',
-            },
-            validatorData: [
-              {
-                $type: 'Beyond.Gameplay.Core.Selector+MainCharacterValidator+Data, Gameplay.Beyond',
+  it.each([undefined, false, true])(
+    '能力实体出生于直接 Source，单目标下多输入配置 %s 不改变结果',
+    allowMultiInputTarget => {
+      const action = parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SpawnAbilityEntity+Data, Gameplay.Beyond',
+          abilityEntityId: 'abilityentity_fixture',
+          setAbilityEntitySource: true,
+          abilityEntitySource: 'ActionOwner',
+          abilityEntitySourceContextKey: '',
+          setAbilityEntityTarget: false,
+          abilityEntityTarget: targetFixture('Target'),
+          bornAt: {
+            ...targetFixture('Source'),
+            selectorData: {
+              finderData: {
+                $type: 'Beyond.Gameplay.Core.Selector+CharacterTeamFinder+Data, Gameplay.Beyond',
               },
-            ],
-            postProcessorData: [],
+              validatorData: [
+                {
+                  $type:
+                    'Beyond.Gameplay.Core.Selector+MainCharacterValidator+Data, Gameplay.Beyond',
+                },
+              ],
+              postProcessorData: [],
+            },
           },
+          bornMountPoint: 'None',
+          bornPosOffset: { x: -1, y: 0.5, z: 0 },
+          checkNavmeshAreaName: false,
+          forbiddenAreaNames: [],
+          attachToClosestMeshPoint: false,
+          yRotateFromBoneToCurPos: false,
+          bornRotation: 'SourceForward',
+          bornRotationContextTarget: '',
+          useAdvancedDirectionSetting: false,
+          advancedDirectionSetting: {
+            directionType: 'SourceForward',
+            sourceMountPoint: 'None',
+            targetMountPoint: 'None',
+            customSourceAndTarget: false,
+            clampToXZ: true,
+            invertDirection: false,
+          },
+          clampToXZPlane: false,
+          applyBornRotationOffset: false,
+          bornRotationOffset: { x: 0, y: 0, z: 0, w: 1 },
+          assignEntityBlackboard: false,
+          assignPairs: [],
+          assignBlackboard: true,
+          abilityEntitySkillId: 'fixture_skill',
+          ...(allowMultiInputTarget === undefined ? {} : { allowMultiInputTarget }),
+          overrideDuration: false,
+          duration: scalarFixture(0),
+          saveToContext: false,
+          contextKey: '',
+          pauseEffectOnEnd: false,
+          inheritSourceSkillCastId: true,
+          dieWhenSourceDie: false,
+          forceSyncInit: false,
+          dieOnEnd: false,
         },
-        bornMountPoint: 'None',
-        bornPosOffset: { x: -1, y: 0.5, z: 0 },
-        checkNavmeshAreaName: false,
-        forbiddenAreaNames: [],
-        attachToClosestMeshPoint: false,
-        yRotateFromBoneToCurPos: false,
-        bornRotation: 'SourceForward',
-        bornRotationContextTarget: '',
-        useAdvancedDirectionSetting: false,
-        advancedDirectionSetting: {
-          directionType: 'SourceForward',
-          sourceMountPoint: 'None',
-          targetMountPoint: 'None',
-          customSourceAndTarget: false,
-          clampToXZ: true,
-          invertDirection: false,
-        },
-        clampToXZPlane: false,
-        applyBornRotationOffset: false,
-        bornRotationOffset: { x: 0, y: 0, z: 0, w: 1 },
-        assignEntityBlackboard: false,
-        assignPairs: [],
-        assignBlackboard: true,
-        abilityEntitySkillId: 'fixture_skill',
-        overrideDuration: false,
-        duration: scalarFixture(0),
-        saveToContext: false,
-        contextKey: '',
-        pauseEffectOnEnd: false,
-        inheritSourceSkillCastId: true,
-        dieWhenSourceDie: false,
-        forceSyncInit: false,
-        dieOnEnd: false,
-      },
-      'fixture.action',
-      {},
-    );
+        'fixture.action',
+        {},
+      );
 
-    expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
-      steps: [
+      expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual(
         {
-          kind: 'spawnAbilityEntity',
-          parameters: {
-            abilityEntityId: 'abilityentity_fixture',
-            childSkillId: 'fixture_skill',
-            inheritActionBlackboard: true,
-            dieWhenSourceDies: false,
+          steps: [
+            {
+              kind: 'spawnAbilityEntity',
+              parameters: {
+                abilityEntityId: 'abilityentity_fixture',
+                childSkillId: 'fixture_skill',
+                inheritActionBlackboard: true,
+                dieWhenSourceDies: false,
+              },
+            },
+          ],
+          state: new Map(),
+        },
+      );
+      if (action.family !== 'abilityEntity') throw new Error('expected AbilityEntity action');
+      const enemyTargetAction = {
+        ...action,
+        action: { ...action.action, setTarget: true },
+      };
+      expect(
+        compileBuffLeafNode(node(enemyTargetAction), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+      ).toMatchObject({ steps: [{ kind: 'spawnAbilityEntity', parameters: { target: 'enemy' } }] });
+      const spatialTargets = {
+        ...enemyTargetAction,
+        action: {
+          ...enemyTargetAction.action,
+          target: { ...action.action.target, targetSource: 'Context', targetGroupKey: 'points' },
+        },
+      };
+      if (allowMultiInputTarget === true) {
+        expect(() =>
+          compileBuffLeafNode(
+            node(spatialTargets),
+            new Set(),
+            new Map([['points', 'spatialPoint']]),
+            ACTIVE_SKILL_CONTEXT,
+          ),
+        ).toThrow('allowMultiInputTarget: child skill input is not a proven singleton');
+      }
+      const casterTargetAction = {
+        ...action,
+        action: {
+          ...action.action,
+          setTarget: true,
+          target: { ...action.action.target, targetSource: 'Source', targetGroupKey: '' },
+        },
+      };
+      expect(
+        compileBuffLeafNode(node(casterTargetAction), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+      ).toMatchObject({
+        steps: [{ kind: 'spawnAbilityEntity', parameters: { target: 'caster' } }],
+      });
+      const sourceBoundAction = {
+        ...action,
+        action: { ...action.action, dieWhenSourceDies: true, dieOnEnd: true },
+      };
+      expect(
+        compileBuffLeafNode(node(sourceBoundAction), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+      ).toMatchObject({
+        steps: [
+          {
+            kind: 'spawnAbilityEntity',
+            parameters: { dieWhenSourceDies: true, finishByAction: true },
           },
-        },
-      ],
-      state: new Map(),
-    });
-    if (action.family !== 'abilityEntity') throw new Error('expected AbilityEntity action');
-    const casterTargetAction = {
-      ...action,
-      action: {
-        ...action.action,
-        setTarget: true,
-        target: { ...action.action.target, targetSource: 'Source', targetGroupKey: '' },
-      },
-    };
-    expect(
-      compileBuffLeafNode(node(casterTargetAction), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
-    ).toMatchObject({
-      steps: [{ kind: 'spawnAbilityEntity', parameters: { target: 'caster' } }],
-    });
-    const sourceBoundAction = {
-      ...action,
-      action: { ...action.action, dieWhenSourceDies: true, dieOnEnd: true },
-    };
-    expect(
-      compileBuffLeafNode(node(sourceBoundAction), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
-    ).toMatchObject({
-      steps: [
-        {
-          kind: 'spawnAbilityEntity',
-          parameters: { dieWhenSourceDies: true, finishByAction: true },
-        },
-      ],
-    });
-    expect(() =>
-      compileBuffLeafNode(node(action), new Set(), new Map(), {
-        ...ACTIVE_SKILL_CONTEXT,
-        actionSourceTarget: 'buffSource',
-      }),
-    ).toThrow('unsupported AbilityEntity spawn projection');
-  });
+        ],
+      });
+      expect(() =>
+        compileBuffLeafNode(node(action), new Set(), new Map(), {
+          ...ACTIVE_SKILL_CONTEXT,
+          actionSourceTarget: 'buffSource',
+        }),
+      ).toThrow('unsupported AbilityEntity spawn projection');
+    },
+  );
 
   it('敌方监听 Buff 可按已证明的创建来源减少干员绝对冷却', () => {
     const action = parseKnownNativeActionLeafSource(
@@ -1621,7 +1746,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
       compileBuffLeafNode(node(blowOff('OnlyDead')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
     ).toEqual({ steps: [], state: new Map() });
     expect(() =>
-      compileBuffLeafNode(node(blowOff('NotDead')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
+      compileBuffLeafNode(node(blowOff('OnlyAlive')), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
     ).toThrow('live-target BlowOffEnemy physical infliction');
   });
 
