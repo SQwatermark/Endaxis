@@ -23,6 +23,7 @@ import {
   COMBAT_STEP_KINDS,
   COMBAT_TARGETS,
   TIMED_MARKER_TARGETS,
+  GLOBAL_COOLDOWN_TARGETS,
   COMPARISON_OPERATORS,
   DAMAGE_CALCULATIONS,
   DAMAGE_ELEMENTS,
@@ -742,6 +743,10 @@ function validateCombatCondition(
     case 'timedMarkerPresent':
       requireEnum(record, 'target', TIMED_MARKER_TARGETS_SET, path, out);
       validateActionStringOperand(record.markerId, `${path}.markerId`, out);
+      break;
+    case 'globalCooldownPresent':
+      requireEnum(record, 'target', new Set(GLOBAL_COOLDOWN_TARGETS), path, out);
+      requireString(record, 'markerId', path, out);
       break;
     case 'abilityEntityTimedMarkerPresent':
       validateActionStringOperand(record.markerId, `${path}.markerId`, out);
@@ -2608,6 +2613,21 @@ function validateCombatStep(
         true,
       );
       requireBoolean(parameters, 'clearUltimateEnergyOnEnd', `${path}.parameters`, out);
+      break;
+    case 'setGlobalCooldown':
+      requireEnum(
+        parameters,
+        'target',
+        new Set(GLOBAL_COOLDOWN_TARGETS),
+        `${path}.parameters`,
+        out,
+      );
+      requireString(parameters, 'markerId', `${path}.parameters`, out);
+      validateActionValueOperand(
+        parameters.durationSeconds,
+        `${path}.parameters.durationSeconds`,
+        out,
+      );
       break;
     case 'createTimedMarker':
       requireEnum(parameters, 'target', TIMED_MARKER_TARGETS_SET, `${path}.parameters`, out);

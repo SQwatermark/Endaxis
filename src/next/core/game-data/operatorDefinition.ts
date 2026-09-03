@@ -33,6 +33,8 @@ export {
   COMBAT_TARGETS,
   type CombatTarget,
   TIMED_MARKER_TARGETS,
+  GLOBAL_COOLDOWN_TARGETS,
+  type GlobalCooldownTarget,
   type TimedMarkerTarget,
   TIME_DILATION_IGNORE_TARGETS,
   type TimeDilationIgnoreTarget,

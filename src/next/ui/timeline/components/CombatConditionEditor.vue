@@ -13,6 +13,7 @@ import { useI18n } from 'vue-i18n';
 import {
   COMBAT_CONDITION_KINDS,
   COMBAT_TARGETS,
+  GLOBAL_COOLDOWN_TARGETS,
   BUFF_SINGLE_TARGETS,
   COMPARISON_OPERATORS,
   DAMAGE_ELEMENTS,
@@ -72,6 +73,11 @@ function setKind(event: Event): void {
 function setTarget(event: Event): void {
   const rawTarget = (event.target as HTMLSelectElement).value;
   const condition = props.condition;
+  if (condition.kind === 'globalCooldownPresent') {
+    const target = GLOBAL_COOLDOWN_TARGETS.find(value => value === rawTarget);
+    if (target) emit('update', { ...condition, target });
+    return;
+  }
   if (
     condition.kind === 'buffStackCompare' ||
     condition.kind === 'buffTagIdCountCompare' ||
@@ -130,7 +136,10 @@ function setText(field: 'branchKey' | 'flag' | 'statusKey' | 'markerId', event: 
     emit('update', { ...condition, flag: value });
   else if (field === 'statusKey' && condition.kind === 'statusActive')
     emit('update', { ...condition, statusKey: value });
-  else if (field === 'markerId' && condition.kind === 'timedMarkerPresent')
+  else if (
+    field === 'markerId' &&
+    (condition.kind === 'timedMarkerPresent' || condition.kind === 'globalCooldownPresent')
+  )
     emit('update', { ...condition, markerId: value });
 }
 
@@ -614,6 +623,7 @@ function removeChild(index: number): void {
           'entityTagMatch',
           'buffIdStackCompare',
           'timedMarkerPresent',
+          'globalCooldownPresent',
         ].includes(condition.kind)
       "
       class="condition-editor__field"
@@ -629,7 +639,9 @@ function removeChild(index: number): void {
             'buffIdStackCompare',
           ].includes(condition.kind)
             ? CONDITION_QUERY_TARGETS
-            : COMBAT_TARGETS"
+            : condition.kind === 'globalCooldownPresent'
+              ? GLOBAL_COOLDOWN_TARGETS
+              : COMBAT_TARGETS"
           :key="target"
           :value="target"
         >
@@ -1024,7 +1036,9 @@ function removeChild(index: number): void {
       /></label>
     </template>
 
-    <label v-if="condition.kind === 'timedMarkerPresent'" class="condition-editor__field"
+    <label
+      v-if="condition.kind === 'timedMarkerPresent' || condition.kind === 'globalCooldownPresent'"
+      class="condition-editor__field"
       ><EditorFieldLabel
         :label="t('nextTimeline.skillEditing.markerId')"
         :help="t('nextTimeline.skillEditing.fieldHelp.markerId')" /><input

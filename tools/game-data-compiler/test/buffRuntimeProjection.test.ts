@@ -3248,8 +3248,8 @@ describe('公共 Buff 运行时投影', () => {
                 condition: {
                   kind: 'not',
                   condition: {
-                    kind: 'timedMarkerPresent',
-                    target: 'caster',
+                    kind: 'globalCooldownPresent',
+                    target: 'buffOwner',
                     markerId: 'buff_equipsuit_physuit_01',
                   },
                 },
@@ -3266,12 +3266,11 @@ describe('公共 Buff 运行时投影', () => {
                     },
                   },
                   {
-                    kind: 'createTimedMarker',
+                    kind: 'setGlobalCooldown',
                     parameters: {
                       target: 'caster',
                       markerId: 'buff_equipsuit_physuit_01',
                       durationSeconds: { kind: 'blackboard', key: 'duration' },
-                      autoFinishByAction: false,
                     },
                   },
                 ],

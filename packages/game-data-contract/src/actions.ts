@@ -25,6 +25,7 @@ import {
   type TimeDilationIgnoreTarget,
   type TimeDilationEntityTarget,
   type TimedMarkerTarget,
+  type GlobalCooldownTarget,
 } from './primitives.ts';
 import {
   type ActionValueCalculationOperation,
@@ -580,6 +581,12 @@ export interface CombatStepParameters {
     allowedRecoveryTags: readonly GameplayTag[];
     clearUltimateEnergyOnEnd: boolean;
   };
+  /** 设置角色的战斗级冷却：同角色/ID 刷新剩余秒数，不受角色时间膨胀或动作结束影响。 */
+  setGlobalCooldown: {
+    target: GlobalCooldownTarget;
+    markerId: string;
+    durationSeconds: ActionValueOperand;
+  };
   /** 在目标能力系统上创建定时标记；同 ID 标记不会互相覆盖。 */
   createTimedMarker: {
     target: TimedMarkerTarget;
@@ -867,6 +874,7 @@ export const COMBAT_STEP_KINDS = [
   'inheritBuffById',
   'restrictUltimateEnergyRecovery',
   'createTimedMarker',
+  'setGlobalCooldown',
   'createAbilityEntityTimedMarker',
   'startTimeDilation',
   'startUltimateTimeDilation',

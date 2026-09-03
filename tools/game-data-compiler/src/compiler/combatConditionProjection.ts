@@ -1,4 +1,5 @@
 import { projectGameplayTags } from './combatProjectionCommon.ts';
+import { projectGlobalCooldownTarget } from './globalCooldownProjection.ts';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../packages/game-data-contract/src/conditions.ts';
 import type { NativeActionNodeSource } from '../source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
@@ -56,7 +57,8 @@ function isPureEmptyContinuingBranch(
 ): boolean {
   const body = node.body;
   return (
-    body.kind === 'ifElse' && body.alwaysNext &&
+    body.kind === 'ifElse' &&
+    body.alwaysNext &&
     body.whenTrue.actions.every(child => !child.metadata.enabled) &&
     body.whenFalse.actions.every(child => !child.metadata.enabled) &&
     body.condition.actions.every(
@@ -1473,18 +1475,13 @@ function compileConditionLeaf(
     return groups.length === 1 ? groups[0]! : { kind: 'any', conditions: groups };
   }
   if (condition.kind === 'globalCooldown') {
-    const target =
-      condition.targetSource === 'Owner'
-        ? ('caster' as const)
-        : condition.targetSource === 'Source'
-          ? context.actionSourceTarget
-          : null;
-    if (target !== 'caster' || condition.targetGroupKey !== '' || condition.buffId.length === 0) {
+    const target = projectGlobalCooldownTarget(condition, context, sourcePath);
+    if (condition.buffId.length === 0) {
       throw new Error(`${sourcePath}: unsupported global cooldown condition target`);
     }
     return {
       kind: 'not',
-      condition: { kind: 'timedMarkerPresent', target: 'caster', markerId: condition.buffId },
+      condition: { kind: 'globalCooldownPresent', target, markerId: condition.buffId },
     };
   }
   if (condition.kind === 'skillHasHit') {

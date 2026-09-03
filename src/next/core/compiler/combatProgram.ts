@@ -230,6 +230,7 @@ export interface ResolvedCombatStepParameters {
   holdBuffsById: CombatStepParameters['holdBuffsById'];
   inheritBuffById: CombatStepParameters['inheritBuffById'];
   createTimedMarker: CombatStepParameters['createTimedMarker'];
+  setGlobalCooldown: CombatStepParameters['setGlobalCooldown'];
   createAbilityEntityTimedMarker: CombatStepParameters['createAbilityEntityTimedMarker'];
   startTimeDilation: CombatStepParameters['startTimeDilation'];
   startUltimateTimeDilation: CombatStepParameters['startUltimateTimeDilation'];

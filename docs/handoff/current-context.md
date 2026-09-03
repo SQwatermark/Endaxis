@@ -5870,3 +5870,21 @@ comboSkillConditions -> 公共事件/条件动作运行时` 一条权威路径�
   （Next / compiler / production / contract）通过。完整新快照另跑装备门禁 **774/774**。
   Vitest 使用 `--maxWorkers=2`，避免本机默认并发造成 worker 启动/退出失败。所有来源、候选、审计
   和服务日志仅留在被忽略的 `tmp/`；本轮没有发布游戏资源，也没有修改 combat-spec/VFS 的代码。
+
+### 2026-09-03：新套装全局冷却与爆发 Context 已贯通
+
+- 修复前述 `suit_spellburst` 阻塞：公共检查和写入共用 Owner/Source 解析，保留 buffOwner/buffSource
+  的执行身份；全局冷却新增独立协议和战斗级目录，同角色/ID 刷新，普通 TimedMarker 不受影响。
+  新动作/条件已接入严格校验、编译、模拟、编辑器及三语语义说明。
+- 真实模拟进一步发现元素条件把爆发前 Context 错误排除，导致“可生成却不触发”。先依据已有
+  `origin-skill-event-context.md` 证据补齐复刻库，再修复 Endaxis 公共元素条件；savedKey 的严格
+  读写仍走原有逻辑。combat-spec 提交 `37c0ecf`，尚未推送；没有重新取证 1.5.3 机器码/IFix。
+- 当前完整来源可生成 24 个套装 / 43 份 Buff / 25 项省略诊断；新增 `suit_spellburst`，旧 23 项中
+  只有 `suit_phy01` 因冷却协议改变，另有索引更新。候选仍在 `run-dYAF19/diagnostic-gear-sets-existing-tags`。
+- 实机套装审计 **28/28**：24 个真实三件套装配与爆发模拟；新套装寒冷/自然触发、电磁不触发，
+  同帧冷却、三个独立 20 秒 Stack 实例、首个爆发伤害提高。使用受控测试操作序列，不修改正式干员。
+  命令和完整证据见 `docs/research/spellburst-gear-set-2026-09-03.md`。
+- 全量编译器 **138 文件 / 1563 项**、Next **304 文件 / 4077 项**及四套类型检查通过；C# 定向
+  **29/29**，另一个真实全局冷却资产扫描因未入库 artifacts 缺失而失败，未伪造或跳过后宣称全量通过。
+- 正式产物没有发布。旧正式冷却投影需随受审计重生成更新，不做猜 ID 的运行兼容或文本替换。
+  接下来仍优先同批 GameplayTag/模板输入重建、79 把武器与新干员；不要继续研究不影响木桩伤害的细枝末节。

@@ -98,6 +98,7 @@ function inspectCondition(
     case 'abilityEntityRemainingDurationCompare':
     case 'ownerSpawnedAbilityEntityPresent':
     case 'timedMarkerPresent':
+    case 'globalCooldownPresent':
     case 'abilityEntityTimedMarkerPresent':
     case 'elementalReactionActive':
     case 'casterControlled':
@@ -388,6 +389,7 @@ function inspectSequence(
       case 'modifyActionValue':
       case 'calculateActionValue':
       case 'createTimedMarker':
+      case 'setGlobalCooldown':
       case 'createAbilityEntityTimedMarker':
       case 'gainSquadUltimateEnergyFromSkillCost':
       case 'gainFinisherSp':

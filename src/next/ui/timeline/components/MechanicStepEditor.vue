@@ -9,6 +9,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   COMBAT_TARGETS,
+  GLOBAL_COOLDOWN_TARGETS,
   type ActionValueOperand,
   type CombatStepDefinition,
   type CombatTarget,
@@ -25,6 +26,7 @@ type MechanicStep = Extract<
   {
     kind:
       | 'createTimedMarker'
+      | 'setGlobalCooldown'
       | 'outputAirborne'
       | 'outputKnockDown'
       | 'gainSquadUltimateEnergyFromSkillCost'
@@ -60,12 +62,21 @@ const operandLabels = () => ({
 });
 
 function setMarkerText(event: Event): void {
-  if (props.step.kind !== 'createTimedMarker') return;
   const markerId = (event.target as HTMLInputElement).value;
-  emit('update', { ...props.step, parameters: { ...props.step.parameters, markerId } });
+  if (props.step.kind === 'createTimedMarker')
+    emit('update', { ...props.step, parameters: { ...props.step.parameters, markerId } });
+  else if (props.step.kind === 'setGlobalCooldown')
+    emit('update', { ...props.step, parameters: { ...props.step.parameters, markerId } });
 }
 
 function setMarkerTarget(event: Event): void {
+  if (props.step.kind === 'setGlobalCooldown') {
+    const target = GLOBAL_COOLDOWN_TARGETS.find(
+      value => value === (event.target as HTMLSelectElement).value,
+    );
+    if (target) emit('update', { ...props.step, parameters: { ...props.step.parameters, target } });
+    return;
+  }
   if (props.step.kind !== 'createTimedMarker') return;
   const target = (event.target as HTMLSelectElement).value as CombatTarget;
   if (!COMBAT_TARGETS.includes(target)) return;
@@ -80,8 +91,10 @@ function setControlOutputTarget(event: Event): void {
 }
 
 function setMarkerDuration(durationSeconds: ActionValueOperand): void {
-  if (props.step.kind !== 'createTimedMarker') return;
-  emit('update', { ...props.step, parameters: { ...props.step.parameters, durationSeconds } });
+  if (props.step.kind === 'createTimedMarker')
+    emit('update', { ...props.step, parameters: { ...props.step.parameters, durationSeconds } });
+  else if (props.step.kind === 'setGlobalCooldown')
+    emit('update', { ...props.step, parameters: { ...props.step.parameters, durationSeconds } });
 }
 
 function setAutoFinish(event: Event): void {
@@ -175,7 +188,7 @@ function setPassiveUiValue(value: ActionValueOperand): void {
       </label>
     </template>
 
-    <template v-else-if="step.kind === 'createTimedMarker'">
+    <template v-else-if="step.kind === 'createTimedMarker' || step.kind === 'setGlobalCooldown'">
       <label>
         <EditorFieldLabel
           :label="t('nextTimeline.skillEditing.markerId')"
@@ -189,7 +202,13 @@ function setPassiveUiValue(value: ActionValueOperand): void {
           :help="t('nextTimeline.skillEditing.fieldHelp.markerTarget')"
         />
         <select :value="step.parameters.target" @change="setMarkerTarget">
-          <option v-for="target in COMBAT_TARGETS" :key="target" :value="target">
+          <option
+            v-for="target in step.kind === 'setGlobalCooldown'
+              ? GLOBAL_COOLDOWN_TARGETS
+              : COMBAT_TARGETS"
+            :key="target"
+            :value="target"
+          >
             {{ t(`nextTimeline.skillEditing.targets.${target}`) }}
           </option>
         </select>
@@ -205,7 +224,10 @@ function setPassiveUiValue(value: ActionValueOperand): void {
           @update="setMarkerDuration"
         />
       </label>
-      <label class="step-editor__check step-editor__check--field">
+      <label
+        v-if="step.kind === 'createTimedMarker'"
+        class="step-editor__check step-editor__check--field"
+      >
         <input
           type="checkbox"
           :checked="step.parameters.autoFinishByAction"

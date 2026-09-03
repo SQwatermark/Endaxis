@@ -22,6 +22,7 @@ export const STEP_TYPE_GROUPS: readonly StepTypeGroup[] = [
       'startUltimateTimeDilation',
       'setIgnoreGlobalTimeScale',
       'createTimedMarker',
+      'setGlobalCooldown',
       'createAbilityEntityTimedMarker',
     ],
   },

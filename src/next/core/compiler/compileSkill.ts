@@ -634,6 +634,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'createTimedMarker':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'setGlobalCooldown':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'createAbilityEntityTimedMarker':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'startTimeDilation':

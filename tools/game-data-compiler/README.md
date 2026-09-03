@@ -61,11 +61,16 @@ Remove-Item Env:ENDAXIS_GAME_DATA_REBUILD_REPORT
 
 用该批 SkillData/BuffData 加**基线标签目录**进行定位性套装试编译，发现新套装
 `buff_equipsuit_spellburst_01.abilityEventAction[0].actions[0].actionData[3]` 的
-`AddGlobalCDTimer`（Owner，0.1 秒）阻塞。该 Buff 来自 AKEDB，不是 VFS 数字枚举误读；
+`AddGlobalCDTimer`（Owner，0.1 秒）曾阻塞。该 Buff 来自 AKEDB，不是 VFS 数字枚举误读；
 公共投影在未固定 BuffOwner 时只接受 caster，不能直接把 Owner 强写为 caster 绕过。
 原生全局冷却语义已有 `combat-spec/docs/global-timed-marker.md` 证据，应先核对目标绑定及
 全局标记与普通 TimedMarker 的现有简化，再补统一检查/写入和运行回归。此次诊断未发布任何套装，
 也不能用基线标签冒充同批完整重建。
+
+同日后续已补齐公共全局冷却协议及独立运行目录，并先修复复刻库、再修复 Endaxis 的爆发前元素
+条件漏接。24 个套装候选现在全部可生成；28 项实机兼容性测试通过，含新套装寒冷/自然触发、
+电磁不触发、同帧冷却、三个独立 20 秒实例及首个爆发伤害差分。正式目录未发布，完整重建入口
+仍等待同批标签等输入。证据与复跑命令见[新套装研究记录](../../docs/research/spellburst-gear-set-2026-09-03.md)。
 
 ### 各领域独立入口
 

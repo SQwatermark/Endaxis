@@ -131,6 +131,7 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
         value: 1,
       };
     case 'timedMarkerPresent':
+    case 'globalCooldownPresent':
       return { kind, target: 'caster', markerId: 'custom-marker' };
     case 'abilityEntityTimedMarkerPresent':
       return { kind, markerId: 'custom-marker' };

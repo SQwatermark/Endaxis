@@ -59,6 +59,8 @@ import { EnemyRankConditionExecutor } from './enemyRankConditionExecutor';
 import { EnemySuperArmorConditionExecutor } from './enemySuperArmorConditionExecutor';
 import { CameraTargetAngleConditionExecutor } from './cameraTargetAngleConditionExecutor';
 import { TimedMarkerContainer } from './timedMarkers';
+import { GlobalCooldowns } from './globalCooldowns';
+import type { GlobalCooldownTarget } from '../../game-data/operatorDefinition';
 import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 import { ComboWindowRuntime } from './comboWindowRuntime';
 import { prepareComboCast } from './comboCastPreparation';
@@ -460,6 +462,7 @@ export class CombatRuntimeAssembly {
   readonly #operatorStatuses = new Map<string, CombatStatusRuntime>();
   readonly #enemyTimedMarkers = new TimedMarkerContainer('enemy', this.clock);
   readonly #operatorTimedMarkers = new Map<string, TimedMarkerContainer>();
+  readonly #globalCooldowns = new GlobalCooldowns(this.clock);
   readonly #skillCastIds = new SkillCastIdAllocator();
   /** 原生 ChangeSkillAction 每槽只允许一个有效句柄；新句柄会先结束旧句柄。 */
   readonly #activeSkillSlotReplacementHandles = new Map<string, { readonly finish: () => void }>();
@@ -2051,6 +2054,9 @@ export class CombatRuntimeAssembly {
       delegate: globalBuffOperations,
     });
     const timedMarkerOperations = new TimedMarkerOperationExecutor({
+      globalCooldowns: this.#globalCooldowns,
+      resolveCooldownCharacter: (target, context) =>
+        this.#requireCooldownCharacter(target, operatorId, context),
       resolveTarget: target =>
         target === 'enemy'
           ? this.#enemyTimedMarkers
@@ -2317,6 +2323,9 @@ export class CombatRuntimeAssembly {
       delegate: globalBuffOperations,
     });
     const markerOperations = new TimedMarkerOperationExecutor({
+      globalCooldowns: this.#globalCooldowns,
+      resolveCooldownCharacter: (target, context) =>
+        this.#requireCooldownCharacter(target, operatorId, context),
       resolveTarget: target =>
         target === 'enemy'
           ? this.#enemyTimedMarkers
@@ -2544,6 +2553,23 @@ export class CombatRuntimeAssembly {
         ...(reason === undefined ? {} : { reason }),
       },
     });
+  }
+
+  #requireCooldownCharacter(
+    target: GlobalCooldownTarget,
+    operatorId: string,
+    context: Parameters<CombatOperationExecutor['execute']>[1],
+  ): string {
+    const id =
+      target === 'caster'
+        ? operatorId
+        : target === 'buffOwner'
+          ? context?.buffOwnerId
+          : context?.buffSourceId;
+    if (id === undefined || !this.#operators.has(id)) {
+      throw new Error(`global cooldown ${target} requires a combat character identity`);
+    }
+    return id;
   }
 
   #requireTimedMarkerContainer(operatorId: string): TimedMarkerContainer {

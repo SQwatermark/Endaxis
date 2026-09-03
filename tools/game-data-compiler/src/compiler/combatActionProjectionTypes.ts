@@ -44,6 +44,7 @@ type MarkerTarget =
 
 export type CompiledBuffConditionSource =
   | Condition<'constant'>
+  | Condition<'globalCooldownPresent'>
   | Condition<
       | 'casterControlled'
       | 'characterTypeIn'
@@ -435,6 +436,7 @@ export type CompiledBuffStepSource =
     >
   | Step<'finishBuffsByTag'>
   | Step<'createTimedMarker', Parameters<'createTimedMarker'> & { readonly target: MarkerTarget }>
+  | Step<'setGlobalCooldown'>
   | Step<'createAbilityEntityTimedMarker'>
   | Step<'finishCurrentBuff'>
   | Step<'setCurrentBuffTimePaused'>;

@@ -12,6 +12,22 @@ export const NATIVE_ELEMENT_VALUES: Readonly<Record<InflictionElement, number>> 
   nature: 3,
 };
 
+/** 爆发事件同样携带原生 SpellInflictionContext.inflictionType。未知载荷不能匹配元素条件。 */
+export function spellBurstElement(type: string): InflictionElement | undefined {
+  switch (type) {
+    case 'Fire':
+      return 'heat';
+    case 'Pulse':
+      return 'electric';
+    case 'Cryst':
+      return 'cryo';
+    case 'Natural':
+      return 'nature';
+    default:
+      return undefined;
+  }
+}
+
 export const ELEMENTAL_INFLICTION_OUTCOME_KINDS = [
   'attachmentOnly',
   'burst',

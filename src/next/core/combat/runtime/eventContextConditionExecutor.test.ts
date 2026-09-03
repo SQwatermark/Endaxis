@@ -287,6 +287,42 @@ describe('EventContextConditionExecutor', () => {
     expect(blackboard.getNumber('physicalType')).toBe(2);
   });
 
+  it.each([
+    ['Fire', false, -1],
+    ['Pulse', false, -1],
+    ['Cryst', true, 2],
+    ['Natural', true, 3],
+    ['unknown', false, -1],
+  ] as const)(
+    '爆发 %s 复用原生附着 Context 的元素条件和 savedKey',
+    (burstType, expected, value) => {
+      const executor = new EventContextConditionExecutor(terminal);
+      const blackboard = new ActionBlackboard({ saved: -1 });
+      const event = {
+        kind: 'abilitySpellBurst' as const,
+        event: 'beforeOutputSpellBurst' as const,
+        sourceId: 'source',
+        targetId: 'enemy',
+        burstType,
+      };
+      const condition = {
+        kind: 'eventInflictionElementIn' as const,
+        elements: ['cryo', 'nature'] as const,
+        outputKey: 'saved',
+      };
+      expect(executor.evaluate(condition, { blackboard, event })).toBe(expected);
+      expect(blackboard.getNumber('saved')).toBe(value);
+      if (expected)
+        expect(() =>
+          executor.evaluate(condition, { blackboard: new ActionBlackboard(), event }),
+        ).toThrow('saved');
+      else
+        expect(executor.evaluate(condition, { blackboard: new ActionBlackboard(), event })).toBe(
+          false,
+        );
+    },
+  );
+
   it('matches only the requested element on an enemy infliction event', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const condition = {

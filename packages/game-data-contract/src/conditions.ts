@@ -17,6 +17,7 @@ import {
   type SpGainKind,
   type SpGainSource,
   type TimedMarkerTarget,
+  type GlobalCooldownTarget,
   type ActionStringOperand,
 } from './primitives.ts';
 
@@ -207,6 +208,12 @@ export type CombatCondition =
       sameSourceSkillCast?: boolean;
       operator: ComparisonOperator;
       value: number | ActionValueOperand;
+    }
+  | {
+      /** 查询角色的战斗级冷却；与能力系统上的同名普通标记相互隔离。 */
+      kind: 'globalCooldownPresent';
+      target: GlobalCooldownTarget;
+      markerId: string;
     }
   | {
       /** 检查目标能力系统中是否存在仍有效的原生定时标记。 */
@@ -413,6 +420,7 @@ export const COMBAT_CONDITION_KINDS = [
   'entityTagMatch',
   'buffIdStackCompare',
   'timedMarkerPresent',
+  'globalCooldownPresent',
   'abilityEntityTimedMarkerPresent',
   'eventDamageTagsMatch',
   'eventDamageFeaturesMatch',

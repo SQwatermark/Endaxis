@@ -1,4 +1,5 @@
 import { projectGameplayTags } from './combatProjectionCommon.ts';
+import { projectGlobalCooldownTarget } from './globalCooldownProjection.ts';
 import {
   compileEventTargetSimpleDamageOperationSource,
   compileEventTargetSimplePoiseOperationSource,
@@ -1485,28 +1486,17 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'globalCooldown') {
     const action = node.body.value.action;
-    const target =
-      action.target.targetSource === 'Owner'
-        ? context.actionOwnerTarget === 'buffOwner'
-          ? context.fixedBuffOwnerTarget
-          : requireActionOwnerProjection(context, node.sourcePath)
-        : action.target.targetSource === 'Source'
-          ? context.actionSourceTarget
-          : null;
-    if (target !== 'caster' || action.buffId.length === 0) {
+    const target = projectGlobalCooldownTarget(action.target, context, node.sourcePath);
+    if (action.buffId.length === 0) {
       throw new Error(`${node.sourcePath}: unsupported global cooldown application target`);
     }
     return [
       {
-        kind: 'createTimedMarker',
+        kind: 'setGlobalCooldown',
         parameters: {
-          target: 'caster',
+          target,
           markerId: action.buffId,
-          durationSeconds:
-            action.duration.blackboardKey === null
-              ? { kind: 'constant', value: action.duration.value }
-              : { kind: 'blackboard', key: action.duration.blackboardKey },
-          autoFinishByAction: false,
+          durationSeconds: actionValueOperand(action.duration),
         },
       },
     ];

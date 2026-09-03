@@ -11,7 +11,10 @@ import {
   isStaticSingleEnemyTargetGroup,
   type CombatActionProjectionContextSource,
 } from '../src/compiler/combatProjectionCommon.ts';
-import { parseKnownNativeActionLeafSource, parseKnownNativeActionSequenceSource } from '../src/source/actionLeaf.ts';
+import {
+  parseKnownNativeActionLeafSource,
+  parseKnownNativeActionSequenceSource,
+} from '../src/source/actionLeaf.ts';
 import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../packages/game-data-contract/src/conditions.ts';
@@ -113,14 +116,11 @@ describe('施法输入限制与木桩物理控制投影', () => {
     ).toMatchObject({ steps: [] });
   });
 
-  it.each([0, 'false', null, undefined])(
-    'Pull 非法返回策略继续阻断 %j',
-    alwaysNext => {
-      expect(() =>
-        parseKnownNativeActionLeafSource({ ...pull, alwaysNext }, 'fixture.action', {}),
-      ).toThrow('alwaysNext');
-    },
-  );
+  it.each([0, 'false', null, undefined])('Pull 非法返回策略继续阻断 %j', alwaysNext => {
+    expect(() =>
+      parseKnownNativeActionLeafSource({ ...pull, alwaysNext }, 'fixture.action', {}),
+    ).toThrow('alwaysNext');
+  });
 
   it.each([false, true])('Pull 仍不能把队伍目标误当作固定敌人消除，alwaysNext=%s', alwaysNext => {
     const source = parseKnownNativeActionLeafSource(
@@ -134,38 +134,94 @@ describe('施法输入限制与木桩物理控制投影', () => {
   });
 
   it('Pull 来源保留继续策略，省略位移后保留前后有效动作的顺序', () => {
-    const parse = (actionData: unknown[]) => parseKnownNativeActionSequenceSource({
-      actionData, onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false,
-    }, 'sequence', {});
+    const parse = (actionData: unknown[]) =>
+      parseKnownNativeActionSequenceSource(
+        {
+          actionData,
+          onlyExecuteWhenSourceIsMainChar: false,
+          onlyExecuteWhenSourceIsGuard: false,
+        },
+        'sequence',
+        {},
+      );
     const write = (key: string) => ({
       ...META,
       $type: 'Beyond.Gameplay.Core.SimpleCalcBBAction+Data, Gameplay.Beyond',
-      key, operation: 'Add', value1: scalarFixture(1), value2: scalarFixture(2),
+      key,
+      operation: 'Add',
+      value1: scalarFixture(1),
+      value2: scalarFixture(2),
     });
-    const current = { ...pull, alwaysNext: true, destination: targetFixture('Context', undefined, 'mainPos') };
-    expect(parseKnownNativeActionLeafSource(current, 'pull', {}))
-      .toMatchObject({ family: 'stumpControl', action: { kind: 'pull', alwaysNext: true } });
-    expect(compileCombatActionSequenceSource(parse([write('before'), current, write('after')]), ACTIVE_SKILL_CONTEXT))
-      .toEqual(compileCombatActionSequenceSource(parse([write('before'), write('after')]), ACTIVE_SKILL_CONTEXT));
+    const current = {
+      ...pull,
+      alwaysNext: true,
+      destination: targetFixture('Context', undefined, 'mainPos'),
+    };
+    expect(parseKnownNativeActionLeafSource(current, 'pull', {})).toMatchObject({
+      family: 'stumpControl',
+      action: { kind: 'pull', alwaysNext: true },
+    });
+    expect(
+      compileCombatActionSequenceSource(
+        parse([write('before'), current, write('after')]),
+        ACTIVE_SKILL_CONTEXT,
+      ),
+    ).toEqual(
+      compileCombatActionSequenceSource(
+        parse([write('before'), write('after')]),
+        ACTIVE_SKILL_CONTEXT,
+      ),
+    );
   });
 
   it('Pull 的继续选项不放开未知目标组或作为条件求值的用途', () => {
-    const parse = (actionData: unknown[]) => parseKnownNativeActionSequenceSource({
-      actionData, onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false,
-    }, 'sequence', {});
-    expect(() => compileCombatActionSequenceSource(parse([
-      { ...pull, alwaysNext: true, targetSettings: targetFixture('Context', undefined, 'unknown') },
-    ]), ACTIVE_SKILL_CONTEXT)).toThrow('unsupported static-enemy control projection');
+    const parse = (actionData: unknown[]) =>
+      parseKnownNativeActionSequenceSource(
+        {
+          actionData,
+          onlyExecuteWhenSourceIsMainChar: false,
+          onlyExecuteWhenSourceIsGuard: false,
+        },
+        'sequence',
+        {},
+      );
+    expect(() =>
+      compileCombatActionSequenceSource(
+        parse([
+          {
+            ...pull,
+            alwaysNext: true,
+            targetSettings: targetFixture('Context', undefined, 'unknown'),
+          },
+        ]),
+        ACTIVE_SKILL_CONTEXT,
+      ),
+    ).toThrow('unsupported static-enemy control projection');
     const source = parse([
-      { ...META, $type: 'Beyond.Gameplay.Core.IfElseAction+IfElseActionData, Gameplay.Beyond',
-        conditionAction: { actionData: [{ ...pull, alwaysNext: true }], onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false },
-        succeedActions: { actionData: [], onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false },
-        failActions: { actionData: [], onlyExecuteWhenSourceIsMainChar: false, onlyExecuteWhenSourceIsGuard: false },
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.IfElseAction+IfElseActionData, Gameplay.Beyond',
+        conditionAction: {
+          actionData: [{ ...pull, alwaysNext: true }],
+          onlyExecuteWhenSourceIsMainChar: false,
+          onlyExecuteWhenSourceIsGuard: false,
+        },
+        succeedActions: {
+          actionData: [],
+          onlyExecuteWhenSourceIsMainChar: false,
+          onlyExecuteWhenSourceIsGuard: false,
+        },
+        failActions: {
+          actionData: [],
+          onlyExecuteWhenSourceIsMainChar: false,
+          onlyExecuteWhenSourceIsGuard: false,
+        },
         alwaysNext: true,
       },
     ]);
-    expect(() => compileCombatActionSequenceSource(source, ACTIVE_SKILL_CONTEXT))
-      .toThrow('expected a condition-only sequence');
+    expect(() => compileCombatActionSequenceSource(source, ACTIVE_SKILL_CONTEXT)).toThrow(
+      'expected a condition-only sequence',
+    );
   });
 
   it('只把已证明的 Buff Owner 职业筛选投影为干员定位条件', () => {
@@ -443,7 +499,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
     expect(compileEventCondition(node(action), ACTIVE_SKILL_CONTEXT, new Map())).toEqual({
       kind: 'not',
       condition: {
-        kind: 'timedMarkerPresent',
+        kind: 'globalCooldownPresent',
         target: 'caster',
         markerId: 'buff_chr_0031_mifu_shield',
       },
@@ -463,12 +519,11 @@ describe('施法输入限制与木桩物理控制投影', () => {
     ).toEqual({
       steps: [
         {
-          kind: 'createTimedMarker',
+          kind: 'setGlobalCooldown',
           parameters: {
             target: 'caster',
             markerId: 'buff_chr_0031_mifu_shield',
             durationSeconds: { kind: 'constant', value: 1 },
-            autoFinishByAction: false,
           },
         },
       ],

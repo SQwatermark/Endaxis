@@ -6,7 +6,7 @@ export interface TimedMarkerClock {
   readonly time: number;
 }
 
-const VALIDITY_TOLERANCE_SECONDS = 0.00001;
+export const VALIDITY_TOLERANCE_SECONDS = 0.00001;
 
 export interface TimedMarkerHandle {
   remove(): void;

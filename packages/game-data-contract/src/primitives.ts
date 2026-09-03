@@ -175,6 +175,10 @@ export const TIMED_MARKER_TARGETS = [
 /** 定时标记还可明确落到触发当前响应的事件目标。 */
 export type TimedMarkerTarget = (typeof TIMED_MARKER_TARGETS)[number];
 
+/** 全局冷却按角色身份索引；Buff 的持有者与来源在执行时解析，不等同于施法者。 */
+export const GLOBAL_COOLDOWN_TARGETS = ['caster', 'buffOwner', 'buffSource'] as const;
+export type GlobalCooldownTarget = (typeof GLOBAL_COOLDOWN_TARGETS)[number];
+
 export const TIME_DILATION_IGNORE_TARGETS = [...COMBAT_TARGETS, 'controlled'] as const;
 
 /** 全局时间膨胀还可在动作执行帧排除当前主控干员。 */

@@ -466,6 +466,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'applyStatus',
   'consumeStatus',
   'createTimedMarker',
+  'setGlobalCooldown',
   'createAbilityEntityTimedMarker',
   'setContextFlag',
   'setCharacterPassiveUiValue',
@@ -951,6 +952,15 @@ export function createSkillEditorStep(
       return { kind, parameters: { statusKey: 'custom-status', target: 'caster' } };
     case 'consumeStatus':
       return { kind, parameters: { statusKey: 'custom-status', target: 'enemy' } };
+    case 'setGlobalCooldown':
+      return {
+        kind,
+        parameters: {
+          target: 'caster',
+          markerId: 'custom-cooldown',
+          durationSeconds: { kind: 'constant', value: 1 },
+        },
+      };
     case 'createTimedMarker':
       return {
         kind,
