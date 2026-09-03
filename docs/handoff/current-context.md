@@ -5811,3 +5811,26 @@ comboSkillConditions -> 公共事件/条件动作运行时` 一条权威路径�
   `docs/research/combat-hud-state-integration.md`。
 - 本轮定向回归 **5 文件 / 20 项**通过，随后核心敌人投影回归 **2 文件 / 6 项**通过；
   `type-check:next` 与 `git diff --check` 通过。未修改旧版代码，未纳入 `tmp/`。
+
+### 2026-09-03：远程提交整合后的稳定基线
+
+- 本节以 2026-09-03 远程后续提交为唯一当前事实：Endaxis
+  `71d30414 feat: restore hybrid game data conversion and record refresh handoff`、vfs-index-browser
+  `629a884 feat: expose character templates and canonical resource values`。昨晚的 Endaxis
+  `b8212cb3` 已被远程 `3b187292` 明确回退；其中直接覆盖的 VFS-only 生成定义、Typhoeus 注册、两把
+  新武器和新增装备不能恢复为正式资产。
+- 当前生产来源策略仍是 **AKEDB 优先、vfs-index-browser 补缺**。VFS-only 只用于独立复现、字段差异
+  审计和替代能力建设；当前 VFS 导出仍有数字枚举、来源默认字段、Sprite 裁切等基础差异，不能把
+  “文件齐全”误写成“转换结果正确”。精确实验结果见
+  `docs/research/vfs-only-refresh-2026-09-03.md` 与
+  `docs/research/operator-refresh-differences-2026-09-03.md`。
+- combat-spec 的两个远程分支已在本地以 `refactor/operator-completion` 为承载合并：该分支原有的连携、
+  Buff、伤害动作成果与 `main` 新增的共享目标输入、能力实体输入目标保存、空间/表现动作证据均保留；
+  两处同文件修改自动合并后逐段核对，没有相互覆盖。合并提交为 `f160dcd`，尚未推送。
+- 基线验证：Endaxis game-data **133 文件 / 1534 项**、Next **303 文件 / 4067 项**通过，Next、
+  game-data contract、game-data compiler、production game-data 四套类型检查通过。VFS Python 定向
+  **76/76**，Unity Worker **51 通过 / 6 外部资产跳过 / 0 失败**。combat-spec 双分支核心定向
+  **70/70**；全量 **1664/1692**，其中 27 项依赖未入库真实 artifact，另有 1 项既有 SpellBurst
+  事件对象身份断言失败，不能宣称全量通过。
+- 后续必须从该基线继续：先把 VFS 的枚举名称、完整字段和图片裁切语义逐项校准到可替代门禁，再切换
+  生产来源；在此之前不得重新发布昨晚错误生成的正式定义，也不得删除 AKEDB 主源路径。
