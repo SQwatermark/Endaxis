@@ -147,3 +147,41 @@ ChangeSkillType(AttachSkill) 再 CastSkill；见复刻库 `docs/change-skill-typ
 本轮编译器 141 文件 / 1594 项、compiler/production 类型检查通过；28 名候选的 578 次
 模拟 + 28 份定义检查共 606 项重跑通过。报告仍在上述 tmp 路径；正式 pin/生成物未变，
 AKEDB 主源策略不变，完整重建及发布仍未完成。
+
+## 2026-09-04 后续：同步执行宿主与真实伤害处理器回归
+
+前节第 3/4 项的核心运行宿主已实现：
+
+- `DamageModifierConditionProgram` 是装配后的执行端口，不是可保存协议中的 JS 回调；
+  `CombatBuffDefinition.damageModifiers[].createConditionProgram` 按 Buff 实例创建它。
+  `DamageModifier.apply` 只向它传入只读伤害视图，不能任意修改 DamageContext。
+- `createDamageModifierConditionProgram` 接收已经解析好的公共 ResolvedActionSequence 和
+  所属 Buff 的 CombatActionSequenceRuntime；当前只开放条件分支及两类黑板运算。持续动作
+  在安装时明确拒绝，不把首帧执行当作完整语义。每次伤害调用独立建立动作状态并 End/Reset。
+- BeforeApplyDamageModifier 单独放在 CombatOperationContext，不伪装成 outputDamage 等
+  AbilitySystem 广播；保留 Buff 自身来源身份，但清掉此次判断不应继承的外部事件/InputTarget。
+  伤害类型/标签/特征仍复用 EventContextConditionExecutor 的公共匹配逻辑。
+- CheckSkillCastId 对此上下文强制读取显式 affix getter。测试将普通来源编号设为 999、affix
+  设为 42，确认包 42 生效、包 999 失败；未知端口抛错，0/null 为 false，非法 UInt32 拒绝。
+  这只提供正确的消费边界，**没有证明/实现真实 affix 写入及引用传播**。
+
+新 `damageModifierSequenceRuntime.test.ts` 从合成原生字段序列进入正式解析/转换/编译，
+通过真实 CombatBuffContainer 注册 DamageModifier，再调用 PlayerDamageContext。受控
+基础值 100 和灌注 0.5 得到 175/150；两阶段重算、多个 Buff 的独立黑板、空处理器写入、
+结束注销和副作用前短路均有断言。不是把测试中的 0.5 当作当前秋栗所有等级的真实数值。
+
+当前真实文件另经 `npx tsx tmp/operator-refresh-20260903/modifier-sequence-current.ts`
+复验，5 项条件结果与写回值通过。来源文件 SHA-256
+`236b56504ba7811b529448751f8e16ef95e2c1d8896835751ab632cdd8500353`；完整来源快照前后均为
+`3c85bb1596f73d384403bdfe35f576b1ffb00beafcb13fe502fdc8154fd3331c`。
+报告 `modifier-sequence-current-result.json` 标记
+`current-source-condition-program-with-controlled-affix-and-blackboard-inputs`、published=false。
+
+全量 Next 305 文件 / 4100 项、编译器 141 文件 / 1594 项及 Next/compiler/production 类型
+检查通过。公共持久化协议和编辑器尚未增加条件序列入口，生成器的纯程序门禁未放开，正式资源
+未改。本轮不修改 combat-spec/VFS，不重复声明上一轮 606 项上轴检查已在本轮重跑。
+
+下一步应从复刻库 `skill-affix-action.md` 列出的原生 ExecuteInternal/OnOutputBuff 及 Buff
+affix 字段读写核实来源；当前 C# SkillAffixAction 也只是 FillSkillCastInfo + OnSkillEnd 的
+直接技能寿命子集，不能用它自行证明所有 affix 身份等价。来源闭环后接公共数据字段、严格校验、
+公共/内联 Buff 编译及编辑器，再开放秋栗整名生成与实际组合轴验证。

@@ -10,6 +10,55 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('同步伤害条件读取临时包，不借环境中残留的 AbilitySystem 事件', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      event: {
+        kind: 'abilityDamage' as const,
+        event: 'outputDamage' as const,
+        sourceId: 'old',
+        targetId: 'old',
+        damageType: 'heat' as const,
+        tags: ['ultimateSkill'] as const,
+        features: [],
+      },
+      beforeApplyDamageModifier: {
+        side: 'attacker' as const,
+        sourceId: 'operator',
+        targetId: 'enemy',
+        skillCastId: 42,
+        damageType: 'physical' as const,
+        tags: ['normalSkill'] as const,
+        features: ['dot'] as const,
+      },
+    };
+    expect(
+      executor.evaluate({ kind: 'eventDamageTypeIn', damageTypes: ['physical'] }, context),
+    ).toBe(true);
+    expect(executor.evaluate({ kind: 'eventDamageTypeIn', damageTypes: ['heat'] }, context)).toBe(
+      false,
+    );
+    expect(
+      executor.evaluate(
+        { kind: 'eventDamageTagsMatch', match: 'hasAll', tags: ['normalSkill'] },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        { kind: 'eventDamageTagsMatch', match: 'hasAny', tags: ['ultimateSkill'] },
+        context,
+      ),
+    ).toBe(false);
+    expect(
+      executor.evaluate(
+        { kind: 'eventDamageFeaturesMatch', match: 'hasAll', features: ['dot'] },
+        context,
+      ),
+    ).toBe(true);
+  });
+
   it('按公共 Action Context 查询 InputTarget 的对象类型与主控身份', () => {
     const executor = new EventContextConditionExecutor(
       terminal,

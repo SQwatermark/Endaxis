@@ -185,7 +185,12 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly waitFirstTriggerInterval?: boolean;
   readonly maxTriggerCount?: BuffTriggerCount;
   readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
-  readonly damageModifiers?: readonly DamageModifierDefinition[];
+  readonly damageModifiers?: readonly (DamageModifierDefinition & {
+    /** 装配层提供的已编译条件宿主；每个 Buff 实例独立创建，不进入游戏数据协议。 */
+    readonly createConditionProgram?: (
+      buff: CombatBuff<Key>,
+    ) => import('../damage/damageModifiers').DamageModifierConditionProgram;
+  })[];
   readonly keywordEnhancements?: readonly BuffKeywordEnhancementDefinition[];
   readonly healModifiers?: readonly HealModifierDefinition[];
   readonly poiseModifiers?: readonly PoiseModifierDefinition[];
@@ -301,6 +306,7 @@ export class CombatBuff<Key extends string> {
           modifier,
           value => this.resolveDamageNumber(value),
           this.skillCastInfo?.skillCastId ?? null,
+          modifier.createConditionProgram?.(this),
         ),
     );
     this.healModifiers = (definition.healModifiers ?? []).map(

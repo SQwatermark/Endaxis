@@ -294,7 +294,7 @@ export type CombatCondition =
       kind: 'eventSkillIdIn';
       skillIds: readonly string[];
     }
-  /** 当前技能事件与持有此响应的 Buff 是否来自同一原生 SkillCastId。 */
+  /** 原生 CheckSkillCastId；事件分支读取来源身份，伤害修正分支必须显式读取 Buff affixSkillCastId。 */
   | { kind: 'eventSkillCastMatchesBuffSource' }
   | {
       /** 匹配触发当前响应的新施加 Buff 身份。 */

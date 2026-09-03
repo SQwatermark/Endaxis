@@ -2,8 +2,8 @@ import type { GameplayTag } from '../../../../../packages/game-data-contract/src
 /**
  * 求值依赖当前事件负载的条件。
  *
- * 该执行器只读取 `CombatOperationContext.event`，不持有事件实例。它应同时进入技能临时监听器
- * 和常驻事件监听器的操作链；普通技能步骤误用事件条件时会明确失败。
+ * 该执行器只读取当前调用的事件或 BeforeApplyDamageModifier 临时上下文，不持有事件实例。
+ * 技能临时监听器、常驻监听器与同步伤害条件共用；普通技能步骤误用事件条件时会明确失败。
  */
 import type { CombatCondition, DamageFeature, DamageTag } from '../../game-data/operatorDefinition';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
@@ -49,6 +49,31 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
+    const modifier = context?.beforeApplyDamageModifier;
+    if (modifier !== undefined) {
+      if (condition.kind === 'eventSkillCastMatchesBuffSource') {
+        if (modifier.getBuffAffixSkillCastId === undefined) {
+          throw new Error(
+            'damage modifier skill-cast check requires an explicit Buff affix skill cast identity',
+          );
+        }
+        const expected = modifier.getBuffAffixSkillCastId();
+        if (
+          expected !== null &&
+          (!Number.isSafeInteger(expected) || expected < 0 || expected > 0xffffffff)
+        ) {
+          throw new Error('Buff affix skill cast identity must be a UInt32 or null');
+        }
+        return expected !== null && expected > 0 && expected === modifier.skillCastId;
+      }
+      if (
+        condition.kind === 'eventDamageTypeIn' ||
+        condition.kind === 'eventDamageTagsMatch' ||
+        condition.kind === 'eventDamageFeaturesMatch'
+      ) {
+        return matchDamageCondition(condition, modifier);
+      }
+    }
     if (
       condition.kind !== 'eventDamageTagsMatch' &&
       condition.kind !== 'eventDamageFeaturesMatch' &&
@@ -375,16 +400,23 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     const damageEvent = eventDamageProperties(context.event);
     if (damageEvent === null) return false;
-    if (condition.kind === 'eventDamageTypeIn') {
-      return (
-        damageEvent.damageType !== undefined &&
-        condition.damageTypes.includes(damageEvent.damageType)
-      );
-    }
-    return condition.kind === 'eventDamageTagsMatch'
-      ? matchValues(damageEvent.tags, condition.tags, condition.match)
-      : matchValues(damageEvent.features, condition.features, condition.match);
+    return matchDamageCondition(condition, damageEvent);
   }
+}
+
+function matchDamageCondition(
+  condition: Extract<
+    CombatCondition,
+    { kind: 'eventDamageTypeIn' | 'eventDamageTagsMatch' | 'eventDamageFeaturesMatch' }
+  >,
+  damage: NonNullable<ReturnType<typeof eventDamageProperties>>,
+): boolean {
+  if (condition.kind === 'eventDamageTypeIn') {
+    return damage.damageType !== undefined && condition.damageTypes.includes(damage.damageType);
+  }
+  return condition.kind === 'eventDamageTagsMatch'
+    ? matchValues(damage.tags, condition.tags, condition.match)
+    : matchValues(damage.features, condition.features, condition.match);
 }
 
 function eventDamageProperties(event: NonNullable<CombatOperationContext['event']>): {

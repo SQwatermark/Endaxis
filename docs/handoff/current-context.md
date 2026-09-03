@@ -5962,3 +5962,25 @@ comboSkillConditions -> 公共事件/条件动作运行时` 一条权威路径�
 - 下一步直接接同步 Modifier 条件执行宿主，复用公共动作程序/黑板/执行器，不再重做条件解析。
   需要同时覆盖公共 Buff 与内联 Buff 的编译、校验、编辑器；BeforeApplyDamageModifierContext
   是临时伤害上下文，不应伪造 AbilitySystem 事件广播。详细接线位置及编号边界见研究文档末节。
+
+### 2026-09-04：同步伤害条件执行层已落地，整名生成仍保持门禁
+
+- `DamageModifier` 现在可消费已编译条件程序的布尔结果；Buff 按实例创建宿主，并随原有启用/
+  结束机制注册注销。程序使用 Buff 自己的黑板，仍先做 side/owner 门控，再执行条件，最后执行
+  processors。支持公共 conditional / modifyActionValue / calculateActionValue，不另写分支 DSL。
+- `damageModifierSequenceRuntime.ts` 复用已有 CombatActionSequenceRuntime 与操作链。
+  新增独立 BeforeApplyDamageModifier 只读上下文；不发布 AbilitySystem 事件，不覆盖普通来源
+  SkillCastInfo，Target 取当前处理侧的对侧。每次调用重新求值，End/Reset 包含异常清理。
+- 新入口的 CheckSkillCastId 强制要求显式 `getBuffAffixSkillCastId`：缺端口报错，0/null 失败，
+  非 UInt32 拒绝，绝不借用普通 Buff 来源编号。原有纯条件路径尚未改写，不能宣称 affix 全局建模完成。
+- 新增来源解析→公共编译→真实 Buff 注册→伤害处理器的受控测试：基础值 100、imbue_scale=0.5
+  时，战技 175 / 终结技 150，不匹配施法 100；覆盖双标签、空处理器、实例隔离、两阶段重算、
+  结束注销、错误后恢复和上下文不泄漏。不是秋栗真实养成数值/完整轴的验收。
+- 当前 AKEDB 文件原样条件再验证 **5/5**，快照前后复验一致；报告位于
+  `tmp/operator-refresh-20260903/modifier-sequence-current-result.json`，明确使用受控 affix/黑板输入。
+- 全量 Next **305 文件 / 4100 项**、编译器 **141 文件 / 1594 项**通过；Next、compiler、
+  production 类型检查通过。没有放开公共数据协议、转换发布或 UI，正式 pin/生成物/旧版不变。
+  整名规划仍沿用上一轮 28/30 检查点，本轮未重跑全名规划；不能将执行层完成计作秋栗已完整转换。
+- 下一步：先核实 SkillAffixAction 对 Buff.affixSkillCastId 的写入、继承/清理和直接技能来源链，
+  需要时先补复刻库；再把公共 ActionSequence 数据接到上述宿主，同时覆盖公共 Buff、内联 Buff
+  校验/编译与编辑器。不要重新实现本轮已完成的计算执行层。诀的有效编号计数和全量重建其余缺口不变。

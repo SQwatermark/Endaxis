@@ -175,6 +175,11 @@ export interface CombatAbilityCustomEvent {
 
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
 export interface CombatOperationContext {
+  /** 临时 BeforeApplyDamageModifierContext；不是 AbilitySystem 广播，不覆盖普通来源施法。 */
+  readonly beforeApplyDamageModifier?: import('../damage/damageModifiers').DamageModifierConditionInput & {
+    /** 原生 Buff.affixSkillCastId。未绑定与明确无效的 0/null 必须区分，不回退普通 SkillCastInfo。 */
+    readonly getBuffAffixSkillCastId?: () => number | null;
+  };
   /** 当前动作环境独占的 direct 黑板；生命周期由技能、Buff 或连携条件宿主管理。 */
   readonly blackboard: ActionBlackboard;
   /** 由宿主 Reset 准备、按动作实例保存的原生攻击计算快照。 */

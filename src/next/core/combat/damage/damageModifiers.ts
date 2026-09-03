@@ -15,7 +15,7 @@ import {
 } from '../../../../../packages/game-data-contract/src/modifiers.ts';
 /**
  * Buff 定义与伤害包各处理阶段之间的声明式协议。
- * 修正必须明确所属阶段、作用方和条件，不能直接回调或任意修改完整伤害上下文。
+ * 修正必须明确所属阶段、作用方和条件；可保存定义不接受回调，已编译程序也只获得只读伤害视图。
  */
 import { compareCombatNumbers } from '../runtime/numericComparison';
 import { attributeModifierValues } from '../attributes/combatAttributes';
@@ -31,6 +31,22 @@ export type DamageModifierConditionEvaluator = (
   resolveNumber: (value: DamageModifierNumber) => number,
 ) => boolean;
 
+/** 同步条件只能读取本次伤害身份；不能持有或任意修改可变 DamageContext。 */
+export interface DamageModifierConditionInput {
+  readonly side: DamageModifierSide;
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly skillCastId: number | null;
+  readonly damageType: PlayerDamageContext['damageType'];
+  readonly tags: PlayerDamageContext['tags'];
+  readonly features: PlayerDamageContext['features'];
+}
+
+/** 已编译动作程序的运行端口，不属于可保存的游戏数据协议。 */
+export interface DamageModifierConditionProgram {
+  execute(input: DamageModifierConditionInput): boolean;
+}
+
 /** 由一个已启用 Buff 实例持有的运行时修正。 */
 export class DamageModifier {
   constructor(
@@ -43,7 +59,12 @@ export class DamageModifier {
       );
     },
     readonly sourceSkillCastId: number | null = null,
-  ) {}
+    readonly conditionProgram?: DamageModifierConditionProgram,
+  ) {
+    if (definition.condition !== undefined && conditionProgram !== undefined) {
+      throw new Error('damage modifier cannot combine a pure condition with a condition program');
+    }
+  }
 
   apply(
     timing: DamageProcessTiming,
@@ -54,6 +75,19 @@ export class DamageModifier {
     if (side !== this.definition.enabledSide || context.getEntityId(side) !== this.ownerId) {
       return;
     }
+    if (
+      this.conditionProgram !== undefined &&
+      !this.conditionProgram.execute({
+        side,
+        sourceId: context.sourceId,
+        targetId: context.targetId,
+        skillCastId: context.skillCastId,
+        damageType: context.damageType,
+        tags: context.tags,
+        features: context.features,
+      })
+    )
+      return;
     if (this.definition.condition !== undefined) {
       if (evaluateCondition === undefined) {
         throw new Error('conditional damage modifier requires a condition evaluator');
