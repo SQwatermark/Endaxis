@@ -181,6 +181,101 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('resolves Buff lifecycle operations from a deferred unbound skill definition', () => {
+    const container = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
+    const buffRuntime = new BuffDefinitionOperationTarget(container, {
+      get: () => undefined,
+      compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+    });
+    const hidden = skill({
+      skillId: 'hidden',
+      sourceSkillId: 'native-hidden',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffId: 'hidden-buff',
+                  target: 'caster',
+                  inheritSourceSkillCastInfo: true,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const placed = skill({
+      skillId: 'placed',
+      castId: 'placed-cast',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'castSkillDuringAction',
+                parameters: {
+                  skillId: 'native-hidden',
+                  target: 'enemy',
+                  skipApplyCost: true,
+                  inheritSourceSkillCastInfo: false,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly(
+      [placed, hidden],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      () => buffRuntime,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      {
+        'hidden-buff': {
+          stackingType: 'unique',
+          lifecycleSequences: {
+            enable: {
+              steps: [
+                {
+                  kind: 'modifyActionValue',
+                  parameters: {
+                    key: 'seen',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
+
+    expect(assembly.tryStartSkill('operator', 'placed', 'placed-cast')).toBe(true);
+    assembly.advanceFrame();
+    expect(container.getCountById('hidden-buff')).toBe(1);
+  });
+
   it('emits native owner switch events exactly when the control timeline changes', () => {
     const emitted = vi.fn();
     const assembly = createAssembly(

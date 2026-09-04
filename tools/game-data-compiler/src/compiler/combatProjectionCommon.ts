@@ -111,9 +111,10 @@ export interface CombatActionProjectionContextSource {
   readonly singleEnemyTargetGroupKeys?: ReadonlySet<string>;
   /** 跨时间段可证明只含固定敌人或固定空间点的 Context；仅用于零空间锚点，不代表实体身份。 */
   readonly staticZeroSpaceTargetGroupKeys?: ReadonlySet<string>;
-  /** 同名 Context 的每次写入都保证产生一个敌人或 FixedPoint；成员身份可变，但固定模型中
-   * 次数恒为一且位置恒为零。仅用于消去按瞄准点逐项执行的几何循环。 */
-  readonly staticSingletonZeroSpaceTargetGroupKeys?: ReadonlySet<string>;
+  /** 同名 Context 的每次写入都至多产生一个敌人或 FixedPoint；成员身份可变且集合可为空。 */
+  readonly atMostOneZeroSpaceTargetGroupKeys?: ReadonlySet<string>;
+  /** 按原生控制流传播后，已证明在当前时间线入口恰有一个零空间成员的 Context。 */
+  readonly guaranteedSingletonZeroSpaceTargetGroupKeys?: ReadonlySet<string>;
   /** 来源控制流已经证明该发射点的 OnlyHit 白名单包含唯一敌人。按动作路径记录，
    * 避免把同名、但可能保存 FixedPoint 的 Context 全局误标成敌人。 */
   readonly provenOnlyHitProjectilePaths?: ReadonlySet<string>;

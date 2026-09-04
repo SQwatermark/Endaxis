@@ -16,7 +16,8 @@
 
 `rebuild:game-data` 已接入来源下载、逐文件/整批哈希复验、身份覆盖检查、装备/武器/套装、完整
 GameplayTag、TimeDilation、SkillSetting、GlobalBuff、31 名干员与公共 Buff 候选生成及重跑
-`--check`。每次只创建 `tmp/game-data-rebuild/run-*`，候选保留正式相对路径；不会覆盖正式
+`--check`，并在所有已登记领域候选整批完成后执行候选虚拟落位 TypeScript 检查。每次只创建
+`tmp/game-data-rebuild/run-*`，候选保留正式相对路径；不会覆盖正式
 定义、图片、旧版代码或项目数据。失败会留报告和下载器自己的 `.partial-*` 供排查。
 
 ```powershell
@@ -38,6 +39,23 @@ npm run rebuild:game-data
   任一身份未闭合时整批不写盘。`gearSetIdentities.json` 只保留已发布基线身份，不再截断生成范围。
 - 正式装备目录仅在候选生成之后用作可选差异比较；该目录不存在时也能生成。比较只忽略 CRLF/LF，
   不忽略游戏数值或行为字段。报告保留木桩省略诊断，而不是删除后宣称原生完整。
+- `candidate-type-check` 把候选文件映射到未来正式路径，只修改 TypeScript 编译器的读视图；候选目录
+  按完整目录替换，已从候选删除的文件不能由旧正式目录偷偷补齐。该阶段不复制或覆盖正式文件，
+  随后 `candidate-assets` 复用图片导出器的字面引用提取器，阻断候选引用但 `public`
+  缺失的游戏图片。它不联网、不导出，也不等于注册表、逐技能与组合轴模拟已通过。
+- 候选类型和图片通过后，可对同一候选运行逐技能真实模拟。它加载全部候选干员和公共 Buff，过滤
+  `internal` 替换技能，然后将每个可摆放技能单独放到标准场景运行；正式目录仅作为候选未覆盖的
+  手写代码后备，不会补齐候选生成目录。失败包含技能稳定身份、Buff ID、来源动作和堆栈。
+
+  ```powershell
+  npm run audit:game-data:candidate-operator-skills -- `
+    --candidate-root tmp/game-data-rebuild/run-实际目录/candidate `
+    --potential 0 --end-frame 3600
+  ```
+
+  该命令证明定义可加载、可放置并在给定帧数内运行，不证明数值精确、潜能 1..5、组合轴或来源快照
+  可复现；它也不发布候选。2026-09-04 的取回候选隔离复验口径为 31 名、325/325 个可摆放技能。
+
 - `report.json.remaining` 明确记录后续阻塞：全部领域的同批依赖、全局/模板证据、本地化旧文件、
   图标扫描、旧展示适配和敌人预设、全量模拟与发布。它不是可执行删除清单；混合目录不能整体清空。
 
@@ -59,6 +77,10 @@ Remove-Item Env:ENDAXIS_GAME_DATA_REBUILD_REPORT
 快照 `3c85bb1596f73d384403bdfe35f576b1ffb00beafcb13fe502fdc8154fd3331c`，共 6,230 项，
 其中 AKEDB 5,511 项、VFS 补件 719 项。它覆盖当前来源清单，不代表所有全局配置、图片/HUD 和
 本地化派生流程已覆盖。重试可传入该次的 `sources` 目录，不需重新下载，仍会完整复验。
+
+Windows 下整批写盘的同级暂存目录使用“进程 ID + 64 位随机数”。这不是降低原子性，而是避免
+`tmp/game-data-rebuild/run-*/candidate/...` 深路径再叠加完整 UUID 后逼近 260 字符、导致目录
+rename 报 `EPERM`；真实 258 件单件装备重建和专门的深路径回归均覆盖该边界。
 
 用该批 SkillData/BuffData 加**基线标签目录**进行定位性套装试编译，发现新套装
 `buff_equipsuit_spellburst_01.abilityEventAction[0].actions[0].actionData[3]` 的
@@ -1121,6 +1143,16 @@ Action、Buff 或 AbilityEntity 编译器。
 - 清除过滤后为空的容器；
 - 若 Branch 两侧经过场景过滤和子树规范化后实际执行逻辑完全相同，删除 Branch，只保留一份；
 - 仅在能证明顺序和时序不变时合并相邻结构；
+
+生成源码的重复表达与 IR 行为优化是两件事。`definitionSourceRenderer` 可以把出现至少两次、
+序列化签名至少 1000 字节且结构和值完全一致的动作序列抽成模块内共享常量；这只共享不可变定义对象，
+不合并近似分支、不忽略稳定 key，也不改变运行次数。可用以下命令审计单个生成干员的技能占比、DSL
+节点和完全相同/仅生成位置身份不同的重复子树；后者只用于定位，不能直接作为合并证明：
+
+```bash
+npm run audit:game-data:generated-operator-structure -- --file <operator.generated.ts> --top 20
+```
+
 - 根 SequenceAction 的释放条件不能作为运行时根守卫，使条件失败时整项技能消失；
 - 非根守卫失败后若仍有剩余行为，应保留可执行部分，以符合“技能必然可以释放”的模拟方针。
 
@@ -1257,7 +1289,11 @@ npm run download:game-data:sources -- --output tmp/game-data-hybrid-20260903 --v
 npm run download:game-data:sources -- --tables-only --version 1.5.3@9885010-4 --output tmp/tables-1.5.3
 npm run download:game-data:sources -- --source-mode vfs-only --output tmp/vfs-comparison --vfs-base http://desktop:8765/api/endaxis-data
 npm run export:game-icons -- --overwrite --output-root tmp/game-icons-hybrid
+npm run export:game-icons -- --additional-reference-root tmp/game-data-rebuild/<run>/candidate/src/next/data
 ```
+
+`--additional-reference-root` 可重复使用，用于把未发布候选定义的图片引用并入闭包；
+默认仍扫描正式 `src`，不得因候选尚未落位而遗漏新干员、武器或 Buff 图标。
 
 角色模板仍需要提供 decodeCharacterTemplate 的 VFS worker（0.15.0 起），
 保持有界解码与 partial 标记；下载成功不等于字段可模拟或完整定义可生成。

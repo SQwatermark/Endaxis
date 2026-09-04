@@ -140,6 +140,7 @@ function inspectCondition(
     case 'buffTagIdCountCompare':
     case 'currentBuffStackCompare':
     case 'buffIdStackCompare':
+    case 'buffBlackboardValueCompare':
     case 'entityTagMatch':
       return;
     case 'healthCompare':

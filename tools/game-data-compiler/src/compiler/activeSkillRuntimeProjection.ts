@@ -39,6 +39,7 @@ import {
 import { parseSkillTargetSelectionHeaderSource } from '../source/skillTargetSelection.ts';
 import { compileSkillSmartTargetSource } from './comboSmartTarget.ts';
 import { assertPresentationCalculationIsolation } from './presentationCalculationIsolation.ts';
+import { propagateGuaranteedSingletonZeroSpaceFacts } from './targetGroupCardinalityAnalysis.ts';
 
 /** 正式调度输出子集；原生时间轴结束帧必填，动作仍限于已支持的公共投影。 */
 export type CompiledActiveSkillTimelineSequenceSource = Readonly<
@@ -130,7 +131,7 @@ function directBooleanBlackboardAssignments(
  */
 function collectEnemyPresenceBlackboardKeys(
   graph: ReturnType<typeof parseKnownSkillActionGraphSource>,
-  singletonZeroSpaceKeys: ReadonlySet<string>,
+  atMostOneZeroSpaceKeys: ReadonlySet<string>,
 ): ReadonlyMap<string, string> {
   const candidates = new Map<string, string>();
   const conflicts = new Set<string>();
@@ -147,7 +148,7 @@ function collectEnemyPresenceBlackboardKeys(
       condition.body.value.family !== 'condition' ||
       condition.body.value.action.kind !== 'entityCount' ||
       condition.body.value.action.targetSource !== 'Context' ||
-      !singletonZeroSpaceKeys.has(condition.body.value.action.targetGroupKey) ||
+      !atMostOneZeroSpaceKeys.has(condition.body.value.action.targetGroupKey) ||
       condition.body.value.action.containsHittableTarget ||
       condition.body.value.action.excludeDeadEntity ||
       condition.body.value.action.storeKey !== '' ||
@@ -199,7 +200,7 @@ function collectEnemyPresenceBlackboardKeys(
 function conditionGuaranteedEnemyContextKey(
   sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
   enemyPresenceBlackboardKeys: ReadonlyMap<string, string>,
-  singletonZeroSpaceKeys: ReadonlySet<string>,
+  atMostOneZeroSpaceKeys: ReadonlySet<string>,
 ): string | null {
   const nodes = sequence.actions.filter(node => node.metadata.enabled);
   const node = nodes[0];
@@ -210,7 +211,7 @@ function conditionGuaranteedEnemyContextKey(
   if (
     condition.kind === 'entityCount' &&
     condition.targetSource === 'Context' &&
-    singletonZeroSpaceKeys.has(condition.targetGroupKey) &&
+    atMostOneZeroSpaceKeys.has(condition.targetGroupKey) &&
     !condition.containsHittableTarget &&
     !condition.excludeDeadEntity &&
     condition.storeKey === '' &&
@@ -245,12 +246,12 @@ function conditionGuaranteedEnemyContextKey(
 
 function collectGuardedProjectilePaths(
   graph: ReturnType<typeof parseKnownSkillActionGraphSource>,
-  singletonZeroSpaceKeys: ReadonlySet<string>,
+  atMostOneZeroSpaceKeys: ReadonlySet<string>,
 ): {
   readonly onlyHit: ReadonlySet<string>;
   readonly zeroSpace: ReadonlySet<string>;
 } {
-  const presenceKeys = collectEnemyPresenceBlackboardKeys(graph, singletonZeroSpaceKeys);
+  const presenceKeys = collectEnemyPresenceBlackboardKeys(graph, atMostOneZeroSpaceKeys);
   const onlyHit = new Set<string>();
   const zeroSpace = new Set<string>();
   const visitSequence = (
@@ -281,7 +282,7 @@ function collectGuardedProjectilePaths(
         const guaranteedKey = conditionGuaranteedEnemyContextKey(
           node.body.condition,
           presenceKeys,
-          singletonZeroSpaceKeys,
+          atMostOneZeroSpaceKeys,
         );
         visitSequence(
           node.body.whenTrue,
@@ -984,8 +985,9 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     write => write.hitPosGroupKey,
   );
   const staticZeroSpaceTargetGroupKeys = new Set(staticEnemyTargetGroupKeys);
-  const staticSingletonZeroSpaceTargetGroupKeys = new Set(
-    [...writesByKey]
+  const atMostOneZeroSpaceTargetGroupKeys = new Set([
+    ...singleEnemyTargetGroupKeys,
+    ...[...writesByKey]
       .filter(
         ([, writes]) =>
           writes.length > 0 &&
@@ -1005,10 +1007,10 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
           ),
       )
       .map(([key]) => key),
-  );
+  ]);
   const guardedProjectilePaths = collectGuardedProjectilePaths(
     graph,
-    staticSingletonZeroSpaceTargetGroupKeys,
+    atMostOneZeroSpaceTargetGroupKeys,
   );
   for (const key of new Set([...writesByKey.keys(), ...rayCastHitPositionWritesByKey.keys()])) {
     const ordinaryWrites = writesByKey.get(key) ?? [];
@@ -1071,6 +1073,62 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
         changed = true;
       }
     }
+  }
+  const guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline =
+    graph.actionGroup.timelineActions.map(() => new Set<string>());
+  let guaranteedSingletonZeroSpaceTargetGroupKeys = new Set<string>();
+  if (targeting.definition.smartTarget !== undefined) {
+    guaranteedSingletonZeroSpaceTargetGroupKeys.add('smart_target');
+  }
+  const orderedTimelineIndexes = graph.actionGroup.timelineActions
+    .map((timeline, timelineIndex) => ({ timeline, timelineIndex }))
+    .sort(
+      (left, right) =>
+        left.timeline.startFrame - right.timeline.startFrame ||
+        left.timelineIndex - right.timelineIndex,
+    );
+  for (const { timeline, timelineIndex } of orderedTimelineIndexes) {
+    guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline[timelineIndex] = new Set(
+      guaranteedSingletonZeroSpaceTargetGroupKeys,
+    );
+    if (timeline.sequence.onlyExecuteWhenSourceIsGuard) continue;
+    const sequence = timeline.sequence.onlyExecuteWhenSourceIsMainCharacter
+      ? { ...timeline.sequence, onlyExecuteWhenSourceIsMainCharacter: false }
+      : timeline.sequence;
+    guaranteedSingletonZeroSpaceTargetGroupKeys = propagateGuaranteedSingletonZeroSpaceFacts(
+      sequence,
+      guaranteedSingletonZeroSpaceTargetGroupKeys,
+      {
+        atMostOneZeroSpaceKeys: atMostOneZeroSpaceTargetGroupKeys,
+        compareKnownNumbers,
+        writeProducesSingleton: (write, state) => {
+          if (
+            isStaticActiveSkillEnemyTargetGroup(write) ||
+            isStaticZeroSpacePointWrite(write) ||
+            isStaticControlledOperatorWrite(write)
+          ) {
+            return true;
+          }
+          const input = write.inputTargets[0];
+          return (
+            write.producerType === 'PickTargetAction' &&
+            write.inputTargets.length === 1 &&
+            input?.targetSource === 'Context' &&
+            state.has(input.targetGroupKey) &&
+            input.finderType === null &&
+            input.validatorTypes.length === 0 &&
+            input.postProcessorTypes.length === 0 &&
+            input.priorityFilters.length === 0 &&
+            input.shuffleTargets.length === 0 &&
+            input.distanceValidators.length === 0 &&
+            input.finderSpawnedObjectType === null &&
+            input.validatorTagQueries.length === 0 &&
+            write.pickIndexBlackboardKey === null &&
+            write.pickIndexValue === 0
+          );
+        },
+      },
+    );
   }
   const exclusiveFrame = Number(prepared.root.exclusiveFrame);
   if (!Number.isInteger(exclusiveFrame) || exclusiveFrame < 0)
@@ -1152,7 +1210,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     staticEnemyTargetGroupKeys,
     singleEnemyTargetGroupKeys,
     staticZeroSpaceTargetGroupKeys,
-    staticSingletonZeroSpaceTargetGroupKeys,
+    atMostOneZeroSpaceTargetGroupKeys,
     provenOnlyHitProjectilePaths: guardedProjectilePaths.onlyHit,
     provenZeroSpaceProjectilePaths: guardedProjectilePaths.zeroSpace,
     dynamicSpatialPointCounts,
@@ -1236,7 +1294,9 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     const timelineEnemyKeys = new Set(staticEnemyTargetGroupKeys);
     const timelineAbilityEntityKeys = new Set(staticAbilityEntityTargetGroupKeys);
     const timelineZeroSpaceKeys = new Set(staticZeroSpaceTargetGroupKeys);
-    const timelineSingletonZeroSpaceKeys = new Set(staticSingletonZeroSpaceTargetGroupKeys);
+    const timelineSingletonZeroSpaceKeys = new Set(
+      guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline[timelineIndex],
+    );
     for (const [key, items] of latestWritesByKey) {
       const writes = items.map(item => item.write);
       if (writes.length > 0 && writes.every(isStaticActiveSkillEnemyTargetGroup)) {
@@ -1272,7 +1332,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
       staticEnemyTargetGroupKeys: timelineEnemyKeys,
       singleEnemyTargetGroupKeys: new Set([...singleEnemyTargetGroupKeys, ...timelineEnemyKeys]),
       staticZeroSpaceTargetGroupKeys: timelineZeroSpaceKeys,
-      staticSingletonZeroSpaceTargetGroupKeys: timelineSingletonZeroSpaceKeys,
+      guaranteedSingletonZeroSpaceTargetGroupKeys: timelineSingletonZeroSpaceKeys,
       staticAbilityEntityTargetGroupKeys: timelineAbilityEntityKeys,
     };
     const sequence = compileCombatActionSequenceSource(

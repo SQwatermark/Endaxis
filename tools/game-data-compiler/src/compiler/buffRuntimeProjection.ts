@@ -3,6 +3,7 @@ import { buffHasNoAffixIdentityWriter } from './buffCastIdentityProof.ts';
 import { projectPureDamageModifierCondition } from './damageModifierConditionProjection.ts';
 import {
   compileResolvedAttributeModifierSource,
+  isCombatRuntimeAttributeRelevant,
   projectCombatRuntimeAttributeKey,
 } from './attributeModifier.ts';
 import {
@@ -167,7 +168,8 @@ export function compileBuffRuntimeDefinitionSource(
     | 'staticEnemyTargetGroupKeys'
     | 'staticEmptyTargetGroupKeys'
     | 'staticZeroSpaceTargetGroupKeys'
-    | 'staticSingletonZeroSpaceTargetGroupKeys'
+    | 'atMostOneZeroSpaceTargetGroupKeys'
+    | 'guaranteedSingletonZeroSpaceTargetGroupKeys'
     | 'provenOnlyHitProjectilePaths'
     | 'provenZeroSpaceProjectilePaths'
     | 'staticAbilityEntityTargetGroupKeys'
@@ -810,7 +812,7 @@ export function compileBuffRuntimeDefinitionSource(
       `BuffData.${source.graph.buffId}.extendTags`,
     ),
     blackboard,
-    attributeModifiers: source.attributeModifiers.modifiers.map((modifier, index) => {
+    attributeModifiers: source.attributeModifiers.modifiers.flatMap((modifier, index) => {
       if (modifier.modifyAttributeType !== 'Specific') {
         throw new Error(
           `attributeModifiers[${index}]: unsupported target ${modifier.modifyAttributeType}`,
@@ -823,11 +825,14 @@ export function compileBuffRuntimeDefinitionSource(
         formulaItem: modifier.formulaItem,
         value: 0,
       });
-      return {
-        attribute: projectCombatRuntimeAttributeKey(modifier.attributeType),
-        slot: compiled.slot,
-        value: scalarOperand(modifier.parameter),
-      };
+      if (!isCombatRuntimeAttributeRelevant(modifier.attributeType)) return [];
+      return [
+        {
+          attribute: projectCombatRuntimeAttributeKey(modifier.attributeType),
+          slot: compiled.slot,
+          value: scalarOperand(modifier.parameter),
+        },
+      ];
     }),
     ...compileBuffDamageModifiers(source, projectionContextOverrides),
     ...compileBuffHealModifiers(source, projectionContextOverrides),
@@ -1899,15 +1904,16 @@ function createBuffSequenceProjection(
       }
       if (
         node.body.target.targetSource === 'Context' &&
-        context.staticSingletonZeroSpaceTargetGroupKeys?.has(node.body.target.targetGroupKey) ===
-          true &&
+        context.guaranteedSingletonZeroSpaceTargetGroupKeys?.has(
+          node.body.target.targetGroupKey,
+        ) === true &&
         node.body.target.finderType === null &&
         node.body.target.validatorTypes.length === 0 &&
         node.body.target.postProcessorTypes.length === 0 &&
         !node.body.action.onlyExecuteWhenSourceIsMainCharacter &&
         !node.body.action.onlyExecuteWhenSourceIsGuard
       ) {
-        // 该 Context 可在敌人和 FixedPoint 之间切换，但每种写法都严格产生一个目标。
+        // 该 Context 可在敌人和 FixedPoint 之间切换，但当前控制流已证明严格产生一个目标。
         // 固定模型把二者都置于唯一木桩的零空间位置，因此逐目标子序列精确执行一次；
         // 这里只消去循环几何，不把该 Context 提升为全局 enemy 身份。
         const loopContext: CombatActionProjectionContextSource = {

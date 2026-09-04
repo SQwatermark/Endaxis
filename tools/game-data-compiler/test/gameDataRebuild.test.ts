@@ -112,6 +112,10 @@ describe('从无产物工作树重建装备候选', () => {
       status: 'blocked',
     });
     expect(report.stages.find(s => s.id === 'gameplay-tags')).toMatchObject({ status: 'blocked' });
+    expect(report.stages.find(s => s.id === 'candidate-type-check')).toMatchObject({
+      status: 'blocked',
+      detail: expect.stringContaining('不能用旧正式文件补齐'),
+    });
     const gear = report.stages.find(s => s.id === 'gears');
     expect(gear).toMatchObject({
       status: 'passed',

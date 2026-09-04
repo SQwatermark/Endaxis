@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   compileResolvedAttributeModifierSource,
+  isCombatRuntimeAttributeRelevant,
   projectCombatRuntimeAttributeKey,
   projectPrimaryAttributeKey,
   resolveCompiledAttributeModifierTargets,
@@ -26,6 +27,12 @@ describe('公共属性修正编译器', () => {
     );
     expect(projectCombatRuntimeAttributeKey('PulseDamageIncrease')).toBe('electricDamageIncrease');
     expect(projectCombatRuntimeAttributeKey('Atk')).toBe('Atk');
+  });
+
+  it('公共 IR 保留索敌距离，但固定零空间运行投影将其排除', () => {
+    expect(isCombatRuntimeAttributeRelevant('NormalAttackRange')).toBe(false);
+    expect(isCombatRuntimeAttributeRelevant('NormalAttackStartRange')).toBe(false);
+    expect(isCombatRuntimeAttributeRelevant('Atk')).toBe(true);
   });
 
   it('把八个原生数字槽稳定映射到运行时槽位', () => {

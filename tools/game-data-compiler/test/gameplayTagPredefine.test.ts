@@ -177,4 +177,20 @@ describe('GameplayTagPredefine 公共转换', () => {
     expect(await fs.readFile(output, 'utf8')).toBe(original);
     expect(await fs.readFile(path.join(directory, 'other.json'), 'utf8')).toBe('keep');
   });
+
+  it('生成内容不依赖候选文件的物理暂存深度', async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'endaxis-tag-predefine-'));
+    directories.push(directory);
+    const input = path.join(directory, 'source.json');
+    const shallow = path.join(directory, 'shallow.ts');
+    const deep = path.join(directory, 'a/b/c/deep.ts');
+    await fs.mkdir(path.dirname(deep), { recursive: true });
+    await fs.writeFile(input, JSON.stringify(sourceTable()));
+    await generateGameplayTagPredefine(input, shallow, 'fixture', fixtureGameplayTagCatalog);
+    await generateGameplayTagPredefine(input, deep, 'fixture', fixtureGameplayTagCatalog);
+    expect(await fs.readFile(deep, 'utf8')).toBe(await fs.readFile(shallow, 'utf8'));
+    expect(await fs.readFile(deep, 'utf8')).toContain(
+      '"../../../../packages/game-data-contract/src/gameplayTags.ts"',
+    );
+  });
 });

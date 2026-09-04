@@ -503,6 +503,15 @@ export class CombatRuntimeAssembly {
       readonly statusRuntime?: CombatStatusRuntime;
     }[]
   >();
+  /** 无 castId 的原生内部技能 key 只在所属干员内唯一，不能与玩家块的全局身份混用。 */
+  readonly #unboundSkillOperationBindings = new Map<
+    string,
+    readonly {
+      readonly operator: CombatOperatorProgram;
+      readonly program: CompiledSkillProgram;
+      readonly statusRuntime?: CombatStatusRuntime;
+    }[]
+  >();
 
   constructor(options: CombatRuntimeAssemblyOptions) {
     this.#options = options;
@@ -648,6 +657,30 @@ export class CombatRuntimeAssembly {
       if (statusRuntime !== undefined) {
         this.#operatorStatuses.set(operator.operatorId, statusRuntime);
       }
+      const registerCastOperationBinding = (program: CompiledSkillProgram) => {
+        const bindingsMap =
+          program.castId === undefined
+            ? this.#unboundSkillOperationBindings
+            : this.#castOperationBindings;
+        const bindingKey =
+          program.castId === undefined
+            ? `${operator.operatorId}\u0000${program.skillId}`
+            : program.castId;
+        const bindings = bindingsMap.get(bindingKey) ?? [];
+        if (bindings.some(binding => binding.program.skillId === program.skillId)) {
+          throw new Error(
+            `duplicate combat skill operation binding '${bindingKey}/${program.skillId}'`,
+          );
+        }
+        bindingsMap.set(bindingKey, [
+          ...bindings,
+          {
+            operator: runtimeOperator,
+            program,
+            ...(statusRuntime === undefined ? {} : { statusRuntime }),
+          },
+        ]);
+      };
       for (const program of runtimeOperator.skills) {
         const programKey = `${operator.operatorId}\u0000${program.skillId}\u0000${program.castId ?? ''}`;
         if (this.#skillPrograms.has(programKey)) {
@@ -667,21 +700,7 @@ export class CombatRuntimeAssembly {
           }
           this.#nativeSkillKeys.set(nativeKey, program.skillId);
         }
-        if (program.castId === undefined) continue;
-        const bindings = this.#castOperationBindings.get(program.castId) ?? [];
-        if (bindings.some(binding => binding.program.skillId === program.skillId)) {
-          throw new Error(
-            `duplicate combat skill cast variant '${program.castId}/${program.skillId}'`,
-          );
-        }
-        this.#castOperationBindings.set(program.castId, [
-          ...bindings,
-          {
-            operator: runtimeOperator,
-            program,
-            ...(statusRuntime === undefined ? {} : { statusRuntime }),
-          },
-        ]);
+        registerCastOperationBinding(program);
       }
       // 带 castId 的时间轴实例只服务该技能块；Buff/技能内部按原生 ID 延迟
       // Cast 仍需要无 castId 的静态定义。两者的 AbilitySkillKey 不同，可以并存。
@@ -699,6 +718,9 @@ export class CombatRuntimeAssembly {
           throw new Error(`duplicate hidden combat skill program '${programKey}'`);
         }
         this.#skillPrograms.set(programKey, program);
+        // 原生 CastSkill 启动的隐藏定义没有时间轴块 castId；其后代 Buff 仍以逻辑 skillId
+        // 保存施法来源，生命周期必须能回到同一静态操作程序，而不是只认识玩家放置块。
+        registerCastOperationBinding(program);
         if (program.sourceSkillId === undefined) continue;
         const nativeKey = `${operator.operatorId}\u0000${program.sourceSkillId}`;
         if (this.#ambiguousNativeSkillKeys.has(nativeKey)) continue;
@@ -1861,7 +1883,18 @@ export class CombatRuntimeAssembly {
   ): CombatOperationExecutor {
     const cast = source.skillCastInfo;
     const castId = cast?.originCastId ?? source.sourceActionId;
-    const candidates = this.#castOperationBindings.get(castId) ?? [];
+    const candidates =
+      cast?.originCastId !== undefined
+        ? (this.#castOperationBindings.get(cast.originCastId) ?? [])
+        : cast !== null
+          ? (this.#unboundSkillOperationBindings.get(
+              `${source.definitionOwnerId}\u0000${cast.originSkillId}`,
+            ) ?? [])
+          : (this.#castOperationBindings.get(source.sourceActionId) ??
+            this.#unboundSkillOperationBindings.get(
+              `${source.definitionOwnerId}\u0000${source.sourceActionId}`,
+            ) ??
+            []);
     const binding =
       cast === null
         ? candidates.length === 1

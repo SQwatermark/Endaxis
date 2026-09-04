@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 import { runConcurrent } from './downloadGameDataSources.ts';
 import { AkedbSnapshot, DEFAULT_CDN, isMissingResource } from './gameDataProviders.ts';
+import { readGameIconReferences } from '../src/compiler/gameIconReferences.ts';
 
 type Candidate = {
   readonly assetIndex: number;
@@ -30,7 +31,6 @@ const TMP_ROOT = path.join(PROJECT_ROOT, 'tmp', 'referenced-game-icons');
 const RICH_TEXT_SOURCE_MANIFEST = path.join(TMP_ROOT, 'rich-text-icon-sources.json');
 const REPORT_PATH = path.join(TMP_ROOT, 'audit.json');
 const TEXT_EXTENSIONS = new Set(['.css', '.html', '.js', '.json', '.scss', '.ts', '.tsx', '.vue']);
-const GAME_PUBLIC_PREFIXES = ['/icons/', '/operators/', '/weapons/', '/equipment/'] as const;
 const WEAPON_OUTPUT_TO_NATIVE_PREFIX = new Map([
   ['wpn_greatsword_', 'wpn_claym_'],
   ['wpn_polearm_', 'wpn_lance_'],
@@ -170,6 +170,8 @@ type Arguments = {
   readonly vfsBaseUrl: string;
   readonly gameDataSourceRoot: string;
   readonly outputRoot: string;
+  /** 额外扫描尚未发布的候选定义；不改变正式 src 的默认闭包。 */
+  readonly additionalReferenceRoots: readonly string[];
 };
 
 export function parseArguments(argv: readonly string[]): Arguments {
@@ -183,6 +185,7 @@ export function parseArguments(argv: readonly string[]): Arguments {
   let vfsBaseUrl = 'http://127.0.0.1:8765';
   let gameDataSourceRoot = path.join(PROJECT_ROOT, 'tmp', 'game-data-sources');
   let outputRoot = PUBLIC_ROOT;
+  const additionalReferenceRoots: string[] = [];
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index]!;
     if (argument === '--workers') {
@@ -205,6 +208,8 @@ export function parseArguments(argv: readonly string[]): Arguments {
       gameDataSourceRoot = path.resolve(requireArgumentValue(argv, ++index, argument));
     } else if (argument === '--output-root') {
       outputRoot = path.resolve(requireArgumentValue(argv, ++index, argument));
+    } else if (argument === '--additional-reference-root') {
+      additionalReferenceRoots.push(path.resolve(requireArgumentValue(argv, ++index, argument)));
     } else throw new Error(`unknown argument: ${argument}`);
   }
   return {
@@ -218,6 +223,7 @@ export function parseArguments(argv: readonly string[]): Arguments {
     vfsBaseUrl,
     gameDataSourceRoot,
     outputRoot,
+    additionalReferenceRoots,
   };
 }
 
@@ -247,8 +253,8 @@ async function listFiles(directory: string): Promise<readonly string[]> {
   return children.flat();
 }
 
-function isRuntimeReferenceSource(filePath: string): boolean {
-  const relative = path.relative(SOURCE_ROOT, filePath).replaceAll('\\', '/');
+function isRuntimeReferenceSource(root: string, filePath: string): boolean {
+  const relative = path.relative(root, filePath).replaceAll('\\', '/');
   return (
     TEXT_EXTENSIONS.has(path.extname(filePath).toLowerCase()) &&
     !relative.includes('/__snapshots__/') &&
@@ -256,25 +262,27 @@ function isRuntimeReferenceSource(filePath: string): boolean {
   );
 }
 
-async function collectLiteralReferences(): Promise<Map<string, Set<string>>> {
+async function collectLiteralReferences(
+  additionalRoots: readonly string[],
+): Promise<Map<string, Set<string>>> {
   const references = new Map<string, Set<string>>();
-  const files = (await listFiles(SOURCE_ROOT)).filter(isRuntimeReferenceSource);
+  const roots = [SOURCE_ROOT, ...additionalRoots];
+  const files = (
+    await Promise.all(
+      roots.map(async root => ({
+        root,
+        files: (await listFiles(root)).filter(file => isRuntimeReferenceSource(root, file)),
+      })),
+    )
+  ).flatMap(entry => entry.files.map(file => ({ root: entry.root, file })));
   await Promise.all(
-    files.map(async filePath => {
+    files.map(async ({ file: filePath }) => {
       const source = await readFile(filePath, 'utf8');
       const relative = path.relative(PROJECT_ROOT, filePath).replaceAll('\\', '/');
-      for (const prefix of GAME_PUBLIC_PREFIXES) {
-        const expression = new RegExp(
-          `(['\"])(` + `${prefix.replaceAll('/', '\\/')}[^'\"]*?\\.webp)\\1`,
-          'gu',
-        );
-        for (const match of source.matchAll(expression)) {
-          const publicPath = match[2]!;
-          if (publicPath.includes('${')) continue;
-          const owners = references.get(publicPath) ?? new Set<string>();
-          owners.add(relative);
-          references.set(publicPath, owners);
-        }
+      for (const publicPath of readGameIconReferences(source)) {
+        const owners = references.get(publicPath) ?? new Set<string>();
+        owners.add(relative);
+        references.set(publicPath, owners);
       }
     }),
   );
@@ -459,7 +467,7 @@ function sourcePlanForReference(
 }
 
 async function buildReferenceClosure(arguments_: Arguments): Promise<readonly IconReference[]> {
-  const references = await collectLiteralReferences();
+  const references = await collectLiteralReferences(arguments_.additionalReferenceRoots);
   const operatorOverrides = await addOperatorImpliedReferences(
     references,
     arguments_.gameDataSourceRoot,

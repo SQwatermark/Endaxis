@@ -1,6 +1,6 @@
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -76,6 +76,20 @@ describe('装备正式定义原子写盘', () => {
         { relativePath: './same.ts', content: 'right\n' },
       ]),
     ).rejects.toThrow('duplicate rendered definition path');
+  });
+
+  it('深层候选不会因完整 UUID 暂存名撞上 Windows 目录重命名边界', async () => {
+    const root = await createTemporaryRoot();
+    const relativePath =
+      'suit_crush_fracture/item_equip_t4_suit_crush_fracture_hand_02.generated.ts';
+    const legacySuffix = `.generated.staging-${process.pid}-${'0'.repeat(36)}`;
+    const fixedLength = join(root, legacySuffix, relativePath).length;
+    const output = join(root, 'x'.repeat(Math.max(1, 270 - fixedLength)), 'generated');
+    const legacyDeepPath = join(dirname(output), legacySuffix, relativePath);
+    expect(legacyDeepPath.length).toBeGreaterThanOrEqual(260);
+
+    await writeEquipmentDefinitionFiles(output, [{ relativePath, content: 'gear\n' }]);
+    await expect(readFile(join(output, relativePath), 'utf8')).resolves.toBe('gear\n');
   });
 });
 

@@ -3831,7 +3831,7 @@ describe('固定木桩 RangedAura 投影', () => {
 });
 
 describe('Typhoea 弓术目标选择投影', () => {
-  it('在唯一木桩模型中把持续选中折叠为由当前 Buff 持有的敌方标记', () => {
+  it('在唯一木桩模型中移除只服务于目标选择的持续标记', () => {
     const sequence = {
       onlyExecuteWhenSourceIsMainCharacter: false,
       onlyExecuteWhenSourceIsGuard: false,
@@ -3885,17 +3885,7 @@ describe('Typhoea 弓术目标选择投影', () => {
         fixedBuffOwnerTarget: 'caster',
         fixedBuffSourceTarget: 'caster',
       }).steps,
-    ).toEqual([
-      {
-        kind: 'applyBuff',
-        parameters: {
-          buffId: 'buff_chr_0034_typhoea_normal_skill_aimmedenemy',
-          target: 'enemy',
-          inheritSourceSkillCastInfo: true,
-          asChildBuff: true,
-        },
-      },
-    ]);
+    ).toEqual([]);
   });
 });
 

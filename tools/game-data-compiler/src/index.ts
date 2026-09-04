@@ -178,6 +178,7 @@ export {
 export {
   ATTRIBUTE_MODIFIER_SLOTS,
   compileResolvedAttributeModifierSource,
+  isCombatRuntimeAttributeRelevant,
   projectCombatRuntimeAttributeKey,
   projectPrimaryAttributeKey,
   resolveCompiledAttributeModifierTargets,

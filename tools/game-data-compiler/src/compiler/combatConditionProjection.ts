@@ -761,6 +761,23 @@ function compileConditionLeaf(
     }
     if (
       condition.targetSource === 'Context' &&
+      context.guaranteedSingletonZeroSpaceTargetGroupKeys?.has(condition.targetGroupKey) === true &&
+      !condition.containsHittableTarget &&
+      !condition.excludeDeadEntity &&
+      condition.storeKey === '' &&
+      operator !== undefined
+    ) {
+      // 该事实来自同一技能按原生时间线及 IfElse 汇合传播后的入口状态；它只证明
+      // 当前集合恰有一个成员，不把 FixedPoint 冒充为敌人，也不外推到其他时间线。
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 1 },
+        operator,
+        right: { kind: 'constant', value: condition.minimumCount },
+      };
+    }
+    if (
+      condition.targetSource === 'Context' &&
       (projectedGroup === 'controlledOperator' || knownStaticEnemy) &&
       !condition.containsHittableTarget &&
       (!condition.excludeDeadEntity || knownStaticEnemy) &&

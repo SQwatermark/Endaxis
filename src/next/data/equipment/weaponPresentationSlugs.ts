@@ -18,6 +18,8 @@ export const weaponPresentationSlugByAsset = Object.freeze({
   wpn_artsunit_0016: 'type-42-solemn-phalanx',
   wpn_artsunit_0017: 'flickers-in-the-mist',
   wpn_artsunit_0018: 'junction-point',
+  wpn_artsunit_0019: 'umbra-of-frigid-eventide',
+  wpn_artsunit_0020: 'sufferings-end',
   wpn_greatsword_0003: 'industry-01',
   wpn_greatsword_0004: 'exemplar',
   wpn_greatsword_0006: 'former-finery',

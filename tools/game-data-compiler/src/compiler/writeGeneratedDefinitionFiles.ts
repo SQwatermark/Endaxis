@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { access, mkdir, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
@@ -53,7 +53,8 @@ export async function writeGeneratedDefinitionFiles(
   if (identity.length === 0 || target === parent) {
     throw new Error(`unsafe generated definition output directory ${JSON.stringify(target)}`);
   }
-  const suffix = `${process.pid}-${randomUUID()}`;
+  // PID 已隔离并发进程，64 位随机数用于隔离同进程批次；避免完整 UUID 把深层候选推过 Windows 260 字符边界。
+  const suffix = `${process.pid}-${randomBytes(8).toString('hex')}`;
   const staging = resolve(parent, `.${identity}.staging-${suffix}`);
   const backup = resolve(parent, `.${identity}.backup-${suffix}`);
   requireDirectChild(parent, staging, 'staging directory');

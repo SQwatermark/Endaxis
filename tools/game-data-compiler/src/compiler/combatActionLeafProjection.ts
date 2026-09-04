@@ -1815,20 +1815,10 @@ export function compileActionNode(
     ) {
       throw new Error(`${node.sourcePath}: unsupported Typhoea target selection count or mark`);
     }
-    // 原生动作把选择配置注册到 BattleManager，管理器持续维护“已瞄准”列表并同步
-    // markBuff；OnEnd 会清除全部标记。固定木桩模型只有一个存活敌人，所有屏幕、距离和
-    // 优先级筛选均选择该敌人，因此等价为给唯一敌人安装一个由当前 Buff 持有的子 Buff。
-    return [
-      {
-        kind: 'applyBuff' as const,
-        parameters: {
-          buffId: action.markBuffId,
-          target: 'enemy',
-          inheritSourceSkillCastInfo: true,
-          asChildBuff: true,
-        },
-      },
-    ];
+    // 原生动作把屏幕区域、距离和优先级选择注册到 BattleManager，并用 markBuff 维护
+    // 被选中的敌人列表。这个标记只是目标选择的实现细节；固定单敌人模型中没有第二个
+    // 候选目标，也没有空间筛选，因此它既不改变战斗结果，也不应伪装成可见战斗 Buff。
+    return [];
   }
   if (node.body.value.family === 'incomingDamageDefense') {
     const action = node.body.value.action;

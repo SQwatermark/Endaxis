@@ -2,6 +2,8 @@ type RecordValue = Readonly<Record<string, unknown>>;
 
 interface RenderContext {
   readonly helpers: Set<string>;
+  readonly sharedSequenceReferenceByObject: WeakMap<object, string>;
+  renderingSharedSequenceIdentifier?: string;
 }
 
 interface RawExpression {
@@ -14,8 +16,12 @@ interface RawExpression {
  */
 export function renderOperatorDefinitionSource(input: { readonly operator: RecordValue }): string {
   assertFiniteNumbers(input, '$');
-  const context: RenderContext = { helpers: new Set() };
   const operator = { ...input.operator };
+  const sharedSequences = collectSharedActionSequences(operator);
+  const context: RenderContext = {
+    helpers: new Set(),
+    sharedSequenceReferenceByObject: sharedSequences.referenceByObject,
+  };
   const skillDeclarations: string[] = [];
   const renderedSkills = new Map<string, string>();
   const registerSkill = (skillValue: unknown, path: string): RawExpression => {
@@ -94,13 +100,22 @@ export function renderOperatorDefinitionSource(input: { readonly operator: Recor
   operator.skillGroups = skillGroups;
 
   const renderedOperator = renderValue(operator, context);
+  const sharedSequenceDeclarations = sharedSequences.definitions.map(definition => {
+    context.renderingSharedSequenceIdentifier = definition.identifier;
+    const rendered = renderValue(definition.value, context);
+    context.renderingSharedSequenceIdentifier = undefined;
+    return `const ${definition.identifier}: ActionSequenceDefinition = ${rendered};`;
+  });
   const helperImport = [...context.helpers].sort().join(', ');
   return `/** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
 import type {
+${sharedSequenceDeclarations.length > 0 ? '  ActionSequenceDefinition,\n' : ''}
   OperatorDefinition,
   SkillDefinition,
 } from '../../../../core/game-data/operatorDefinition';
 ${helperImport ? `import { ${helperImport} } from '../../definitionHelpers';\n` : ''}
+${sharedSequenceDeclarations.join('\n\n')}
+${sharedSequenceDeclarations.length > 0 ? '\n' : ''}
 ${skillDeclarations.join('\n\n')}
 
 export default ${renderedOperator} as const satisfies OperatorDefinition;
@@ -110,7 +125,10 @@ export default ${renderedOperator} as const satisfies OperatorDefinition;
 /** 公共 Buff 是独立、不可编辑的全局资源；不得从任一干员生成文件反向聚合。 */
 export function renderCommonBuffDefinitionsSource(definitions: RecordValue): string {
   assertFiniteNumbers(definitions, '$.commonBuffDefinitions');
-  const context: RenderContext = { helpers: new Set() };
+  const context: RenderContext = {
+    helpers: new Set(),
+    sharedSequenceReferenceByObject: new WeakMap(),
+  };
   const rendered = renderValue(definitions, context);
   const helperImport = [...context.helpers].sort().join(', ');
   return `/** 由 tools/game-data-compiler 公共 Buff 生成器生成；不要手工编辑。 */
@@ -144,6 +162,10 @@ function renderSkill(skill: RecordValue, context: RenderContext): string {
 
 function renderValue(value: unknown, context: RenderContext, property?: string): string {
   if (isRaw(value)) return value.rawExpression;
+  if (value !== null && typeof value === 'object') {
+    const shared = context.sharedSequenceReferenceByObject.get(value);
+    if (shared !== undefined && shared !== context.renderingSharedSequenceIdentifier) return shared;
+  }
   if (value === null || typeof value === 'boolean' || typeof value === 'string')
     return JSON.stringify(value);
   if (typeof value === 'number') {
@@ -169,6 +191,81 @@ function renderValue(value: unknown, context: RenderContext, property?: string):
   return `{${Object.entries(record)
     .map(([key, item]) => `${JSON.stringify(key)}: ${renderValue(item, context, key)}`)
     .join(', ')}}`;
+}
+
+const SHARED_ACTION_SEQUENCE_MINIMUM_SIGNATURE_LENGTH = 1_000;
+
+interface SharedActionSequenceDefinition {
+  readonly identifier: string;
+  readonly value: RecordValue;
+}
+
+/**
+ * 原生 SkillData 会从多个发射点调用同一个投射物回调。编译后的动作序列若完全相同，
+ * 源码无需再次内联几百份；这里只共享不可变定义对象，不删除分支、不改 step key，也不把
+ * “形似”当作“相同”。阈值只避免为很短的重复序列制造比正文更吵的声明。
+ */
+function collectSharedActionSequences(value: unknown): {
+  readonly definitions: readonly SharedActionSequenceDefinition[];
+  readonly referenceByObject: WeakMap<object, string>;
+} {
+  const occurrences = new Map<
+    string,
+    { count: number; readonly values: RecordValue[]; readonly firstOrder: number }
+  >();
+  let order = 0;
+  const visit = (item: unknown): void => {
+    if (Array.isArray(item)) {
+      item.forEach(visit);
+      return;
+    }
+    if (item === null || typeof item !== 'object' || isRaw(item)) return;
+    const record = item as RecordValue;
+    if (sameKeys(Object.keys(record), ['steps']) && Array.isArray(record.steps)) {
+      const signature = exactValueSignature(record);
+      const previous = occurrences.get(signature);
+      if (previous === undefined) {
+        occurrences.set(signature, { count: 1, values: [record], firstOrder: order++ });
+      } else {
+        previous.count += 1;
+        previous.values.push(record);
+      }
+    }
+    Object.values(record).forEach(visit);
+  };
+  visit(value);
+
+  const selected = [...occurrences]
+    .filter(
+      ([signature, occurrence]) =>
+        occurrence.count > 1 && signature.length >= SHARED_ACTION_SEQUENCE_MINIMUM_SIGNATURE_LENGTH,
+    )
+    .sort((left, right) => left[1].firstOrder - right[1].firstOrder)
+    .map(([signature, occurrence], index) => ({
+      signature,
+      occurrence,
+      identifier: `sharedActionSequence${index + 1}`,
+    }));
+  const referenceByObject = new WeakMap<object, string>();
+  for (const entry of selected) {
+    for (const object of entry.occurrence.values) referenceByObject.set(object, entry.identifier);
+  }
+  return {
+    definitions: selected
+      // 子序列声明必须先于引用它的较大父序列；名称仍按首次出现顺序保持稳定。
+      .sort((left, right) => left.signature.length - right.signature.length)
+      .map(entry => ({ identifier: entry.identifier, value: entry.occurrence.values[0]! })),
+    referenceByObject,
+  };
+}
+
+function exactValueSignature(value: unknown): string {
+  return JSON.stringify(value, (_key, item: unknown) => {
+    if (typeof item !== 'number' || Number.isFinite(item)) return item;
+    if (item === Number.POSITIVE_INFINITY) return { $number: 'positiveInfinity' };
+    if (item === Number.NEGATIVE_INFINITY) return { $number: 'negativeInfinity' };
+    return { $number: 'nan' };
+  });
 }
 
 function renderHelper(value: RecordValue, context: RenderContext): string | null {

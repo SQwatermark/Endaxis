@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { GameplayTagRegistry, gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';
+import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
 import { collectBuffRuntimeClosure } from '../src/compiler/buffReferenceClosure.ts';
 import {
@@ -50,6 +50,7 @@ import { parseGlobalBuffTemplateCatalogSource } from '../src/source/globalBuffTe
 import { createGlobalBuffProjectionExtensions } from '../src/compiler/globalBuffProjection.ts';
 import { parseSkillSettingCatalogSource } from '../src/source/skillSettingCatalog.ts';
 import { createSkillSettingProjectionExtensions } from '../src/compiler/skillSettingProjection.ts';
+import { readGeneratedTimeDilationPriorities } from '../src/compiler/generatedTimeDilationCatalog.ts';
 
 export interface OperatorActiveSkillRuntimeArguments {
   readonly sourceRoot: string;
@@ -721,13 +722,7 @@ function loadBuffClosureSources(
 }
 
 export function readTimeDilationPriorities(file: string): Map<number, number> {
-  const text = fs.readFileSync(file, 'utf8');
-  const rows = [
-    ...text.matchAll(/^\s*priority\('([^']+)',\s*(-?\d+(?:\.\d+)?)\),?\s*$/gm),
-    ...text.matchAll(/\{\s*"tagPath":\s*"([^"]+)",\s*"value":\s*(-?\d+(?:\.\d+)?)\s*\}/gm),
-  ];
-  if (rows.length === 0) throw new Error(`${file}: time-dilation priorities not found`);
-  return new Map(rows.map(match => [gameplayTagIdFromPath(match[1]!), Number(match[2])]));
+  return readGeneratedTimeDilationPriorities(file);
 }
 
 function requireOwnedDirectory(directory: string, slug: string, expectedName: string): void {

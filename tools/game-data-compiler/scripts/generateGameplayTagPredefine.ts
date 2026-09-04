@@ -9,6 +9,9 @@ import { parseGameplayTagPredefineTableSource } from '../src/source/gameplayTagP
 import { compileGameplayTagPredefine } from '../src/compiler/gameplayTagPredefine.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
 
+// 生成内容描述的是未来正式文件，而不是候选暂存文件的物理位置。
+const GAMEPLAY_TAG_CONTRACT_IMPORT = '../../../../packages/game-data-contract/src/gameplayTags.ts';
+
 /** 输入必须是 Endaxis 下载器管理的原始表；只负责转换，不隐式寻找 combat-spec 或旧生成数据。 */
 export async function generateGameplayTagPredefine(
   input: string,
@@ -30,14 +33,7 @@ export async function generateGameplayTagPredefine(
     sourceSha256: createHash('sha256').update(bytes).digest('hex'),
     ...definition,
   };
-  const contract = fileURLToPath(
-    new URL('../../../packages/game-data-contract/src/gameplayTags.ts', import.meta.url),
-  );
-  const relativeImport = path
-    .relative(path.dirname(path.resolve(output)), contract)
-    .replaceAll('\\', '/');
-  const importPath = relativeImport.startsWith('.') ? relativeImport : `./${relativeImport}`;
-  const content = `/** 由原生 GameplayTagPredefineTable 生成；请通过 generate:game-data:tag-predefine 重建。 */\nimport type { GameplayTagPredefineDocument } from ${JSON.stringify(importPath)};\n\nexport const GAMEPLAY_TAG_PREDEFINE: GameplayTagPredefineDocument = ${JSON.stringify(document, null, 2)};\n`;
+  const content = `/** 由原生 GameplayTagPredefineTable 生成；请通过 generate:game-data:tag-predefine 重建。 */\nimport type { GameplayTagPredefineDocument } from ${JSON.stringify(GAMEPLAY_TAG_CONTRACT_IMPORT)};\n\nexport const GAMEPLAY_TAG_PREDEFINE: GameplayTagPredefineDocument = ${JSON.stringify(document, null, 2)};\n`;
   if (check) {
     if ((await fs.readFile(output, 'utf8')) !== content)
       throw new Error(`${output}: generated GameplayTag predefine is stale`);

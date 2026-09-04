@@ -24,6 +24,8 @@ import { generateGlobalBuffCatalog } from './generateGlobalBuffCatalog.ts';
 import { generateOperatorDefinitionCandidates } from './generateOperatorDefinitionCandidates.ts';
 import { generateCommonBuffDefinitions } from './generateCommonBuffDefinitions.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
+import { typeCheckCandidateOverlay } from '../src/compiler/candidateTypeCheck.ts';
+import { checkCandidateGameAssets } from '../src/compiler/candidateAssetCheck.ts';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
 
@@ -44,13 +46,18 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
     id: 'operators',
     outputs: ['src/next/data/operators/generated-definitions'],
     blocker:
-      '同批 31 名/328 技能事务候选已接入；仍需候选类型检查、所有可放置技能与组合轴模拟、体积审计和原子发布。不得复用正式派生目录。',
+      '同批 31 名/328 技能事务候选及虚拟落位类型检查已接入；仍需在同批快照实际跑过类型门禁、所有可放置技能与组合轴模拟、体积审计和原子发布。不得复用正式派生目录。',
   },
   {
     id: 'common-buffs',
     outputs: ['src/next/data/buffs/generated'],
     blocker:
       '同批 31 名闭包已可汇总 61 个公共 Buff；仍需随干员候选执行模拟、显示名/图标引用和原子发布门禁。',
+  },
+  {
+    id: 'gears',
+    outputs: ['src/next/data/equipment/generated'],
+    blocker: '单件装备已可从表格独立生成；仍须与其他领域同批通过虚拟落位类型检查、模拟和原子发布。',
   },
   {
     id: 'weapons',
@@ -447,8 +454,61 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             throw new Error('GameplayTag source set changed during generation');
           return verified;
         });
+        const typeCheckDependencies = [
+          'gears',
+          'gameplay-tags',
+          'time-dilation',
+          'skill-setting',
+          'global-buffs',
+          'operator-candidates',
+          'common-buffs',
+          'gameplay-tag-predefine',
+          'gear-sets',
+          'weapons',
+          'gameplay-tags-after-generation',
+        ];
+        const unavailable = typeCheckDependencies.filter(
+          id => stages.find(item => item.id === id)?.status !== 'passed',
+        );
+        if (unavailable.length === 0) {
+          await stage('candidate-type-check', async () => ({
+            ...typeCheckCandidateOverlay({
+              projectRoot: root,
+              candidateRoot,
+              configFile: 'tsconfig.next.json',
+              replacementPaths: GAME_DATA_REBUILD_BOUNDARIES.flatMap(item => item.outputs),
+            }),
+            note: '所有已登记领域候选以未来正式路径进入 TypeScript 读视图；未覆盖工作树正式文件。',
+          }));
+          await stage('candidate-assets', async () => ({
+            ...(await checkCandidateGameAssets({
+              projectRoot: root,
+              candidateRoot,
+              replacementPaths: GAME_DATA_REBUILD_BOUNDARIES.flatMap(item => item.outputs),
+            })),
+            note: '仅检查候选字面图片引用已存在于 public；不下载、不发布。',
+          }));
+        } else {
+          stages.push({
+            id: 'candidate-type-check',
+            status: 'blocked',
+            detail: { unavailableStages: unavailable },
+          });
+          stages.push({
+            id: 'candidate-assets',
+            status: 'blocked',
+            detail: { unavailableStages: unavailable },
+          });
+        }
       } else {
-        for (const id of ['operator-refresh', 'gameplay-tag-predefine', 'gear-sets', 'weapons'])
+        for (const id of [
+          'operator-refresh',
+          'gameplay-tag-predefine',
+          'gear-sets',
+          'weapons',
+          'candidate-type-check',
+          'candidate-assets',
+        ])
           stages.push({
             id,
             status: 'blocked',
@@ -460,6 +520,16 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         id: 'gameplay-tags',
         status: 'blocked',
         detail: '需要完整来源快照及显式 --unity-worker；不会使用旧标签目录。',
+      });
+      stages.push({
+        id: 'candidate-type-check',
+        status: 'blocked',
+        detail: '完整候选未生成，不能用旧正式文件补齐类型检查。',
+      });
+      stages.push({
+        id: 'candidate-assets',
+        status: 'blocked',
+        detail: '完整候选未生成，不能用旧正式定义代替资源引用闭包。',
       });
     }
     await stage('sources-after-generation', async () => {

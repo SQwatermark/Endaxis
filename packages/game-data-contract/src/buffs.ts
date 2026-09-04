@@ -27,6 +27,7 @@ export const BUFF_ABILITY_EVENTS = [
   'beforeTakeDamage',
   'beforeCalculateDamage',
   'beforeDamageAction',
+  'beforeOutputDamage',
   'beforeTakePhysicalInfliction',
   'beforeOutputPhysicalInfliction',
   'afterOutputPhysicalInfliction',

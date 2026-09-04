@@ -47,4 +47,44 @@ describe('complete operator definition source renderer', () => {
     expect(source).not.toContain('prettier-ignore');
     expect(source).not.toContain('commonBuffDefinitions');
   });
+
+  it('shares only byte-for-byte equal large action sequences', () => {
+    const repeatedSequence = {
+      steps: [
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'large-callback',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+            blackboardAssignments: { payload: 'x'.repeat(1_200) },
+          },
+        },
+      ],
+    };
+    const source = renderOperatorDefinitionSource({
+      operator: {
+        slug: 'shared-sample',
+        skillGroups: [
+          {
+            key: 'battleSkill',
+            skillType: 'battleSkill',
+            levelSource: 'battleSkill',
+            skills: {
+              key: 'battleSkill',
+              timelineBlockFrames: 1,
+              scheduledSequences: [
+                { startFrame: 0, sequence: repeatedSequence },
+                { startFrame: 1, sequence: structuredClone(repeatedSequence) },
+              ],
+            },
+          },
+        ],
+      },
+    });
+
+    expect(source).toContain('const sharedActionSequence1: ActionSequenceDefinition = sequence(');
+    expect(source.match(/scheduled\([01], sharedActionSequence1\)/g)).toHaveLength(2);
+    expect(source.match(/"large-callback"/g)).toHaveLength(1);
+  });
 });

@@ -43,6 +43,18 @@ describe('全量图片隔离导出', () => {
     expect(() => parseArguments(['--output-root'])).toThrow('requires a value');
   });
 
+  it('可重复登记未发布候选的额外引用根', () => {
+    expect(
+      parseArguments([
+        '--additional-reference-root',
+        'tmp/candidate-a',
+        '--additional-reference-root',
+        'tmp/candidate-b',
+      ]).additionalReferenceRoots,
+    ).toEqual([path.resolve('tmp/candidate-a'), path.resolve('tmp/candidate-b')]);
+    expect(() => parseArguments(['--additional-reference-root'])).toThrow('requires a value');
+  });
+
   it('强制重导只覆盖隔离产物，不修改正式图片', async () => {
     const args = await isolatedArguments(['--overwrite']);
     const original = await fs.readFile('public/icons/airborne.webp');

@@ -290,6 +290,33 @@ describe('standardPlayerDamageCompatibility', () => {
     expect(issues).toEqual([]);
   });
 
+  it('允许技能动作上下文读取既有 Buff 黑板并参与条件判断', () => {
+    const issues = inspectStandardPlayerDamageCompatibility(
+      compatibilityInput(
+        operator({
+          steps: [
+            {
+              kind: 'conditional',
+              parameters: {
+                condition: {
+                  kind: 'buffBlackboardValueCompare',
+                  target: 'caster',
+                  query: { kind: 'id', buffIds: ['buff:test'] },
+                  desiredKey: 'enabled',
+                  outputKey: 'enabled',
+                  operator: 'greater',
+                  value: { kind: 'constant', value: 0 },
+                },
+              },
+              whenTrue: { steps: [] },
+            },
+          ],
+        }),
+      ),
+    );
+    expect(issues).toEqual([]);
+  });
+
   it('accepts current-cast Buff lifetime with context binding checked at execution', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(
