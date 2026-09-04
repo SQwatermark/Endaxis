@@ -150,6 +150,8 @@ type EnvironmentOptions = Pick<
 export type StandardPlayerDamageEvent =
   | KnockDownAbilityEvent
   | 'enterFight'
+  | 'ownerSwitchToCenter'
+  | 'ownerSwitchToGuard'
   | 'ownerHpZero'
   | 'abilityEntitySpawned'
   | 'abilityEntityFinished'
@@ -189,6 +191,7 @@ export type StandardPlayerDamageEvent =
   | 'addedBuff'
   | 'finishedBuff'
   | 'buffEndsEarly'
+  | 'buffEnhanceChanged'
   | 'buffConsumed'
   | 'buffAbsorbed'
   | 'afterOutputWeaknessTriggered'
@@ -281,6 +284,7 @@ export class StandardPlayerDamageEnvironment {
       null,
       undefined,
       (buff, reason) => this.#recordBuffFinished(buff, reason),
+      (buff, layerCount, reason) => this.#emitBuffEnhanceChanged('enemy', buff, layerCount, reason),
     );
     this.#enemyBuffRuntime = new BuffDefinitionOperationTarget(
       this.#enemyBuffs,
@@ -344,6 +348,8 @@ export class StandardPlayerDamageEnvironment {
           null,
           entityBlackboard,
           (buff, reason) => this.#recordOwnedBuffFinished(entityId, buff, reason),
+          (buff, layerCount, reason) =>
+            this.#emitBuffEnhanceChanged(entityId, buff, layerCount, reason),
         );
         container.addEntityTags(bornTags);
         return new BuffDefinitionOperationTarget(
@@ -932,6 +938,8 @@ export class StandardPlayerDamageEnvironment {
         null,
         undefined,
         (buff, reason) => this.#recordOwnedBuffFinished(operatorId, buff, reason),
+        (buff, layerCount, reason) =>
+          this.#emitBuffEnhanceChanged(operatorId, buff, layerCount, reason),
       );
       runtime = new BuffDefinitionOperationTarget(
         container,
@@ -1528,6 +1536,23 @@ export class StandardPlayerDamageEnvironment {
         reason,
       });
     }
+  }
+
+  #emitBuffEnhanceChanged(
+    ownerId: string,
+    buff: CombatBuff<string>,
+    layerCount: number,
+    reason?: BuffFinishReason,
+  ): void {
+    this.#emit(ownerId, 'buffEnhanceChanged', {
+      // DoesEventHaveTarget(209)=false；统一 payload 形状中的两端均写发布者，
+      // 但该事件不登记动作目标绑定，消费者不得据此推导目标关系。
+      sourceId: ownerId,
+      targetId: ownerId,
+      buffId: buff.definition.id,
+      layerCount,
+      ...(reason === undefined ? {} : { reason }),
+    });
   }
 
   #buffContainer(

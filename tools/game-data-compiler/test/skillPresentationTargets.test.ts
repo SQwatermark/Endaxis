@@ -7,6 +7,7 @@ import {
   collectPresentationOnlyTargetGroups,
   collectUnconsumedTargetGroups,
   collectCombatInvisibleRandomBlackboardKeys,
+  collectPresentationSelectionTimelineIndexes,
   isPresentationOnlyActionSequence,
 } from '../src/compiler/skillPresentationTargets.ts';
 import { targetFixture } from './sourceFixtures.ts';
@@ -17,6 +18,66 @@ function graph() {
 }
 
 describe('整张 SkillData 的表现目标依赖', () => {
+  it('跨时间线的镜头选敌子图整体省略，但输出进入战斗时完整保留', () => {
+    const leaf = (family: string, action: Record<string, unknown>) => ({
+      sourcePath: `fixture.${family}`,
+      metadata: { nativeName: family, enabled: true },
+      body: { kind: 'leaf', value: { family, action } },
+    });
+    const target = leaf('targetGroup', {
+      producerType: 'FindTargetAction',
+      finderType: 'AllEnemyFinder',
+      targetGroupKey: 'camera_targets',
+    });
+    const angle = leaf('presentationCalculation', {
+      kind: 'saveTwoDirectionAngle',
+      outputKey: 'camera_angle',
+    });
+    const side = leaf('blackboardMutation', {
+      kind: 'blackboardMutation',
+      key: 'camera_side',
+    });
+    const camera = leaf('presentation', { kind: 'cameraRotate', key: 'camera_angle' });
+    const forEach = {
+      sourcePath: 'fixture.forEach',
+      metadata: { nativeName: 'ForEachAction', enabled: true },
+      body: {
+        kind: 'forEach',
+        target: { targetSource: 'Context', targetGroupKey: 'camera_targets' },
+        action: {
+          actions: [angle, leaf('condition', { kind: 'floatCompare', key: 'camera_angle' }), side],
+        },
+      },
+    };
+    const timelines = [
+      { sequence: { actions: [target, forEach] } },
+      {
+        sequence: {
+          actions: [leaf('condition', { kind: 'floatCompare', key: 'camera_side' }), camera],
+        },
+      },
+    ];
+    const source = { actionGroup: { timelineActions: timelines } } as unknown as Parameters<
+      typeof collectPresentationSelectionTimelineIndexes
+    >[0];
+    expect([...collectPresentationSelectionTimelineIndexes(source)]).toEqual([0, 1]);
+
+    const combatSource = {
+      actionGroup: {
+        timelineActions: [
+          ...timelines,
+          {
+            sequence: {
+              actions: [leaf('damage', { kind: 'simpleDamage', key: 'camera_side' })],
+            },
+          },
+        ],
+      },
+    } as unknown as Parameters<typeof collectPresentationSelectionTimelineIndexes>[0];
+    // 生产 camera_side 的查询/计算时间线必须保留；纯镜头消费者自身仍可独立删除。
+    expect([...collectPresentationSelectionTimelineIndexes(combatSource)]).toEqual([1]);
+  });
+
   it('只用于选择镜头的条件树可整体省略，任一战斗分支都会保留', () => {
     const leaf = (family: string, kind: string) => ({
       sourcePath: `fixture.${kind}`,
@@ -171,6 +232,30 @@ describe('整张 SkillData 的表现目标依赖', () => {
       actionGroup: { timelineActions: [{ sequence: { actions: [random] } }] },
     } as unknown as Parameters<typeof collectCombatInvisibleRandomBlackboardKeys>[0];
     expect([...collectCombatInvisibleRandomBlackboardKeys(presentationOnly)]).toEqual([
+      'pull_offset',
+    ]);
+
+    const projectileOnly = {
+      actionGroup: {
+        timelineActions: [
+          {
+            sequence: {
+              actions: [
+                random,
+                leaf('projectile', {
+                  kind: 'projectileLaunch',
+                  assignments: [
+                    { targetKey: 'EntityBB_Degree_Low', inputValueKey: 'pull_offset' },
+                    { targetKey: 'EntityBB_Degree_High', inputValueKey: 'pull_offset' },
+                  ],
+                }),
+              ],
+            },
+          },
+        ],
+      },
+    } as unknown as Parameters<typeof collectCombatInvisibleRandomBlackboardKeys>[0];
+    expect([...collectCombatInvisibleRandomBlackboardKeys(projectileOnly)]).toEqual([
       'pull_offset',
     ]);
 

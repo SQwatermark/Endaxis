@@ -33,6 +33,41 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entities.findOwnerSpawned({ ownerId: 'arclight' })).toHaveLength(1);
   });
 
+  it('does not retain the source cast identity when the native spawn disables inheritance', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const executor = new AbilityEntityOperationExecutor(
+      'typhoeus',
+      entities,
+      { execute: () => false, evaluate: () => false },
+      undefined,
+      () => ({ lifetime: { kind: 'limited', durationSeconds: 3 } }),
+    );
+
+    executor.execute(
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: {
+          abilityEntityId: 'dead-arrow',
+          dieWhenSourceDies: false,
+          inheritSourceSkillCastInfo: false,
+        },
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        skillCastInfo: {
+          skillCastId: 37,
+          originSkillId: 'chr_0034_typhoea_attack1_01',
+          originSkillType: 'basicAttack',
+          nonReturnedSpCost: 0,
+        },
+      },
+    );
+
+    const [entity] = entities.findOwnerSpawned({ ownerId: 'typhoeus' });
+    expect(entity).toBeDefined();
+    expect(entities.snapshot(entity!).sourceSkillCastId).toBeUndefined();
+  });
+
   it('resolves template duration and stacking limit from spawn entity-blackboard assignments', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor(
@@ -295,6 +330,72 @@ describe('AbilityEntityOperationExecutor', () => {
         { blackboard: new ActionBlackboard() },
       ),
     ).toThrow('requires a current target');
+  });
+
+  it('preserves a materialized ActionOwner AbilityEntity as the nested spawn source', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const parent = entities.spawn({
+      abilityEntityId: 'projectile-parent',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 5 } },
+      ownerId: 'typhoeus',
+      source: { kind: 'operator', operatorId: 'typhoeus' },
+    });
+    if (parent.kind !== 'abilityEntity') throw new Error('expected AbilityEntity target');
+    const executor = new AbilityEntityOperationExecutor('typhoeus', entities, {
+      execute: () => false,
+      evaluate: () => false,
+    });
+
+    expect(
+      executor.execute(
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: {
+            abilityEntityId: 'dead-arrow',
+            definition: { lifetime: { kind: 'limited', durationSeconds: 3 } },
+            source: 'currentAbilityEntity',
+            dieWhenSourceDies: true,
+          },
+        },
+        { blackboard: new ActionBlackboard(), actionOwnerAbilityEntity: parent },
+      ),
+    ).toBe(true);
+
+    const child = entities
+      .findOwnerSpawned({ ownerId: 'typhoeus' })
+      .find(entity => entities.snapshot(entity).abilityEntityId === 'dead-arrow');
+    expect(child).toBeDefined();
+    if (child === undefined) throw new Error('expected nested AbilityEntity');
+    expect(entities.snapshot(child).source).toEqual(parent);
+    entities.notifySourceDied(parent);
+    expect(entities.snapshot(child).isAlive).toBe(false);
+  });
+
+  it('only substitutes an unmaterialized projectile source when source-death tracking is disabled', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const executor = new AbilityEntityOperationExecutor('typhoeus', entities, {
+      execute: () => false,
+      evaluate: () => false,
+    });
+    const step = {
+      kind: 'spawnAbilityEntity' as const,
+      parameters: {
+        abilityEntityId: 'dead-arrow',
+        definition: { lifetime: { kind: 'limited' as const, durationSeconds: 3 } },
+        source: 'currentAbilityEntity' as const,
+        dieWhenSourceDies: false,
+      },
+    };
+
+    expect(executor.execute(step, { blackboard: new ActionBlackboard() })).toBe(true);
+    const child = entities.findOwnerSpawned({ ownerId: 'typhoeus' })[0]!;
+    expect(entities.snapshot(child).source).toEqual({ kind: 'operator', operatorId: 'typhoeus' });
+    expect(() =>
+      executor.execute(
+        { ...step, parameters: { ...step.parameters, dieWhenSourceDies: true } },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toThrow('requires a materialized current AbilityEntity source');
   });
 
   it('finds all owner-tag matches in zero space and exposes their count', () => {

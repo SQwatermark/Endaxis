@@ -18,6 +18,7 @@ import {
 } from './attributeModifiers.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { parseTagIdsSource } from './tagQuery.ts';
 
 const ACTION_META_FIELDS = [
   '$type',
@@ -92,6 +93,8 @@ export interface DamageUnitSource {
   readonly poiseCalculation: NativeCalculationSource | null;
   readonly takeAttackSnapshot: boolean;
   readonly damageDecorateMask: number;
+  /** DamageUnit.damageTags 的原生 GameplayTag ID；与 damageDecorateMask 分类位相互独立。 */
+  readonly gameplayTagIds: readonly number[];
   readonly controlEffectRoll: boolean;
   readonly onlyEnableForMainOperator: boolean;
   readonly processors: readonly DamageProcessorSource[];
@@ -167,11 +170,8 @@ export function parseDamageUnitSource(
   if ('poiseCalculation' in unit) expectedFields.add('poiseCalculation');
   if ('damageTags' in unit) expectedFields.add('damageTags');
   requireExactFields(unit, expectedFields, path);
-  // 新版标签会参与原生伤害免疫等规则，不能当成显示字段丢弃；仅空列表等价于旧结构。
-  // 非空列表留待公共伤害标签链接入，不在来源层猜标签含义或新增运行时数字 ID。
-  if ('damageTags' in unit && requireArray(unit.damageTags, `${path}.damageTags`).length > 0) {
-    throw new Error(`${path}.damageTags: non-empty damage tags require native consumer projection`);
-  }
+  const gameplayTagIds =
+    'damageTags' in unit ? parseTagIdsSource(unit.damageTags, `${path}.damageTags`) : [];
   // 两个字段是完整表现配置；只校验对象存在。
   requireRecord(unit.effectData, `${path}.effectData`);
   requireRecord(unit.hitSoundData, `${path}.hitSoundData`);
@@ -229,6 +229,7 @@ export function parseDamageUnitSource(
       unit.damageDecorateMask,
       `${path}.damageDecorateMask`,
     ),
+    gameplayTagIds,
     controlEffectRoll: requireBoolean(unit.controlEffectRoll, `${path}.controlEffectRoll`),
     onlyEnableForMainOperator: requireBoolean(
       unit.onlyEnableForMainChar,

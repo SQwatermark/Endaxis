@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ActionBlackboard } from './actionBlackboard';
+import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
 
 describe('ActionBlackboard', () => {
   it('applies runtime values over definition defaults with typed reads', () => {
@@ -10,6 +10,20 @@ describe('ActionBlackboard', () => {
     expect(blackboard.getString('label')).toBeUndefined();
     expect(blackboard.getNumber('missing')).toBeUndefined();
     expect(blackboard.snapshot()).toEqual({ count: 3, label: 5, empty: null });
+  });
+
+  it('uses an explicit call-site fallback without weakening strict operands', () => {
+    const blackboard = new ActionBlackboard();
+
+    expect(
+      resolveActionValueOperand(
+        { kind: 'blackboard', key: 'EntityBB_counter', fallback: 0 },
+        blackboard,
+      ),
+    ).toBe(0);
+    expect(() =>
+      resolveActionValueOperand({ kind: 'blackboard', key: 'missing' }, blackboard),
+    ).toThrow("action blackboard value 'missing' is missing");
   });
 
   it('supports dynamic assignment and exact snapshot restoration', () => {

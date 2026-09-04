@@ -160,6 +160,85 @@ describe('projectOperatorPassiveUiTimelineViz', () => {
     ]);
   });
 
+  it('直接按三个原生 Buff 的层数投影 Typhoea 箭矢 HUD，不复制战斗状态', () => {
+    const definition = {
+      kind: 'buffCounters' as const,
+      appearance: 'typhoeaArrows' as const,
+      reserveArrowBuffId: 'reserve',
+      battleArrowBuffId: 'battle',
+      pointBuffId: 'points',
+      maximumArrows: 4,
+      maximumPoints: 8,
+    };
+    const entries: CombatReceiptEntry[] = [
+      {
+        sequence: 0,
+        frame: 2,
+        time: 2 / 30,
+        event: 'BuffApplied',
+        targetId: 'operator:1',
+        data: { buffId: 'battle', instanceId: 1, layers: 2 },
+      },
+      {
+        sequence: 1,
+        frame: 4,
+        time: 4 / 30,
+        event: 'BuffApplied',
+        targetId: 'operator:1',
+        data: { buffId: 'points', instanceId: 2, layers: 6 },
+      },
+      {
+        sequence: 2,
+        frame: 8,
+        time: 8 / 30,
+        event: 'BuffFinished',
+        targetId: 'operator:1',
+        data: { buffId: 'battle', instanceId: 1 },
+      },
+    ];
+
+    expect(
+      projectOperatorPassiveUiTimelineViz(entries, 10, [{ operatorId: 'operator:1', definition }]),
+    ).toEqual([
+      {
+        kind: 'buffCounters',
+        appearance: 'typhoeaArrows',
+        operatorId: 'operator:1',
+        startFrame: 2,
+        endFrame: 4,
+        reserveArrows: 0,
+        battleArrows: 2,
+        points: 0,
+        maximumArrows: 4,
+        maximumPoints: 8,
+      },
+      {
+        kind: 'buffCounters',
+        appearance: 'typhoeaArrows',
+        operatorId: 'operator:1',
+        startFrame: 4,
+        endFrame: 8,
+        reserveArrows: 0,
+        battleArrows: 2,
+        points: 6,
+        maximumArrows: 4,
+        maximumPoints: 8,
+      },
+      {
+        kind: 'buffCounters',
+        appearance: 'typhoeaArrows',
+        operatorId: 'operator:1',
+        startFrame: 8,
+        endFrame: 10,
+        reserveArrows: 0,
+        battleArrows: 0,
+        points: 6,
+        maximumArrows: 4,
+        maximumPoints: 8,
+      },
+    ]);
+  });
+
   it('可以在已有 Buff lane 后继续排布', () => {
     const segments = projectOperatorPassiveUiTimelineViz(
       [

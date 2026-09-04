@@ -117,7 +117,7 @@ describe('投射物同步回调黑板投影（有界切片）', () => {
       }),
     ).toThrow('unsupported or duplicate blackboard initial value');
   });
-  it('模板缺键且没有命中写入时保持显式报错，不借用角色板或补零', () => {
+  it('唯一木桩下被证明为死分支的弹射记账不会制造实体黑板依赖', () => {
     const input = makeInput();
     const fixture = run(
       {
@@ -127,7 +127,8 @@ describe('投射物同步回调黑板投影（有界切片）', () => {
       },
       6,
     );
-    expect(fixture.execute).toThrow("action blackboard value 'EntityBB_talent0' is missing");
+    expect(fixture.execute()).toBe(true);
+    expect(fixture.gains).toEqual([]);
   });
   it.each([0, 1])('回收枪样本 %i 保留写入和两个资源守卫', index => {
     const input = makeInput(index);

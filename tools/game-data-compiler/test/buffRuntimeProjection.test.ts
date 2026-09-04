@@ -3830,12 +3830,82 @@ describe('固定木桩 RangedAura 投影', () => {
   });
 });
 
+describe('Typhoea 弓术目标选择投影', () => {
+  it('在唯一木桩模型中把持续选中折叠为由当前 Buff 持有的敌方标记', () => {
+    const sequence = {
+      onlyExecuteWhenSourceIsMainCharacter: false,
+      onlyExecuteWhenSourceIsGuard: false,
+      actions: [
+        {
+          sourcePath: 'BuffData.typhoea.targetSelect',
+          metadata: {
+            enabled: true,
+            priorityLevel: 'Default',
+            priorityOffset: 0,
+            serverActionIndex: 0,
+          },
+          body: {
+            kind: 'leaf',
+            value: {
+              family: 'typhoeaArcherySelection',
+              action: {
+                kind: 'typhoeaArcheryTargetSelection',
+                markBuffId: 'buff_chr_0034_typhoea_normal_skill_aimmedenemy',
+                targetCount: { value: 2, blackboardKey: null, levelValues: null },
+                fullScreen: false,
+                lockRegionHalfHeight: { value: 0.5, blackboardKey: null, levelValues: null },
+                lockRegionRatio: { value: 1.777, blackboardKey: null, levelValues: null },
+                maxLockDistanceFromCamera: {
+                  value: 25,
+                  blackboardKey: null,
+                  levelValues: null,
+                },
+                smartPrioritySelection: {
+                  strategy: 'SelectByTag',
+                  buffIds: [],
+                  tagQuery: { queryType: 'hasAny', tagIds: [-1411846745] },
+                  buffFindSettings: {
+                    checkType: 'Id',
+                    buffIds: [],
+                    tagQuery: { queryType: 'hasAny', tagIds: [] },
+                  },
+                },
+              },
+            },
+          },
+        },
+      ],
+    };
+    expect(
+      compileCombatActionSequenceSource(sequence as never, {
+        gameplayTagRegistry: fixtureGameplayTagRegistry,
+        actionOwnerTarget: 'buffOwner',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+        fixedBuffOwnerTarget: 'caster',
+        fixedBuffSourceTarget: 'caster',
+      }).steps,
+    ).toEqual([
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'buff_chr_0034_typhoea_normal_skill_aimmedenemy',
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+          asChildBuff: true,
+        },
+      },
+    ]);
+  });
+});
+
 function simpleDamageFixture(): DamageActionSource {
   const common = {
     damageType: 'Physical',
     simpleCalculation: true,
     takeAttackSnapshot: false,
     damageDecorateMask: 0,
+    gameplayTagIds: [],
     controlEffectRoll: true,
     onlyEnableForMainOperator: false,
     processors: [],
@@ -4012,6 +4082,8 @@ function sourceFixture(): BuffRuntimeSource {
     },
     lifecycle: {
       lifeType: 'Infinity',
+      addingCooldown: null,
+      ignoreAddingCooldown: false,
       duration: { value: 0, blackboardKey: null, levelValues: null },
       triggerInterval: { value: -1, blackboardKey: null, levelValues: null },
       waitFirstTriggerInterval: false,

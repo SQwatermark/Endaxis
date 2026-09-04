@@ -45,6 +45,7 @@ export const STEP_TYPE_GROUPS: readonly StepTypeGroup[] = [
       'triggerSpellBurst',
       'triggerCustomAbilityEvent',
       'castSkillDuringAction',
+      'inheritSkillCastInfoForBasicAttack',
       'applyElementalReaction',
       'consumeElementalReaction',
     ],

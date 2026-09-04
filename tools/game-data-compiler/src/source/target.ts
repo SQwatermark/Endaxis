@@ -171,6 +171,7 @@ const TARGET_FIELDS = new Set([
 
 const KNOWN_FINDERS = new Set([
   'AbilityEntityTargetFinder',
+  'AllEnemyFinder',
   'CharacterTeamFinder',
   'FixedPointFinder',
   'GodEntityFinder',
@@ -186,11 +187,13 @@ const KNOWN_FINDERS = new Set([
   'SmartTargetFinder',
   'SnapPointFinder',
   'SourceFinder',
+  'TyphoeaArcherySelectedFinder',
 ]);
 const KNOWN_VALIDATORS = new Set([
   'DistanceValidator',
   'ExcludeOwnerValidator',
   'HittableObjectValidator',
+  'InScreenValidator',
   'MainCharacterValidator',
   'SkillCastIdValidator',
   'TagValidator',
@@ -295,9 +298,14 @@ export function parseSelectorSummarySource(
     if (!KNOWN_FINDERS.has(finderType)) {
       throw new Error(`${path}.finderData: unsupported finder ${JSON.stringify(finderType)}`);
     }
-    if (finderType === 'GodEntityFinder' || finderType === 'AbilityEntityTargetFinder') {
-      // 两类 1.4.4 Data 都没有配置字段：前者读取 BattleManager 的全局 GodEntity，
-      // 后者复制 selector owner 所属 AbilityEntity 控制器保存的目标句柄。
+    if (
+      finderType === 'AllEnemyFinder' ||
+      finderType === 'GodEntityFinder' ||
+      finderType === 'AbilityEntityTargetFinder' ||
+      finderType === 'TyphoeaArcherySelectedFinder'
+    ) {
+      // 三类 Data 都没有配置字段：前两者分别读取全局 GodEntity 和
+      // AbilityEntity 控制器目标；Typhoea 分支复制 BattleManager 的屏幕选中目标集。
       requireExactFields(finder, new Set(['$type']), `${path}.finderData`);
     } else if (finderType === 'FixedPointFinder') {
       finderFixedPoint = parseFixedPointFinderSource(finder, `${path}.finderData`);

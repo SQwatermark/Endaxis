@@ -223,6 +223,8 @@ export interface SkillCastActionSource {
   readonly skillId: StringScalarSource;
   readonly skipApplyCost: boolean;
   readonly inheritSourceSkillCastId: boolean;
+  /** 新版延迟请求先验证目标技能可施放，成功后才允许中断当前技能。 */
+  readonly interruptCurrentSkillOnlyWhenTargetCastable: boolean;
 }
 
 export function parseProjectileLaunchActionSource(
@@ -512,18 +514,13 @@ export function parseSkillCastActionSource(value: unknown, path: string): SkillC
     ]),
     path,
   );
-  // 新开关进入延迟施法请求，不是敌方的受控效果；本轮只接入关闭分支。
-  // 开启时的目标可施放/当前技能中断顺序需另行投影，不能按字段名猜测或直接删除。
-  if (
-    'interruptCurSkillOnlyWhenTargetCastable' in action &&
-    requireBoolean(
-      action.interruptCurSkillOnlyWhenTargetCastable,
-      `${path}.interruptCurSkillOnlyWhenTargetCastable`,
-    )
-  )
-    throw new Error(
-      `${path}.interruptCurSkillOnlyWhenTargetCastable: enabled cast interruption option is not projected`,
-    );
+  const interruptCurrentSkillOnlyWhenTargetCastable =
+    'interruptCurSkillOnlyWhenTargetCastable' in action
+      ? requireBoolean(
+          action.interruptCurSkillOnlyWhenTargetCastable,
+          `${path}.interruptCurSkillOnlyWhenTargetCastable`,
+        )
+      : false;
   return {
     kind: 'skillCast',
     caster: parseTargetReferenceSource(action.caster, `${path}.caster`),
@@ -534,6 +531,7 @@ export function parseSkillCastActionSource(value: unknown, path: string): SkillC
       action.inheritSourceSkillCastId,
       `${path}.inheritSourceSkillCastId`,
     ),
+    interruptCurrentSkillOnlyWhenTargetCastable,
   };
 }
 

@@ -65,6 +65,18 @@ export type CombatHudPassiveUiSnapshot =
       readonly buffId: string;
       readonly instanceId: number;
       readonly ratio: number | null;
+    }
+  | {
+      readonly kind: 'buffCounters';
+      readonly appearance: Extract<
+        OperatorPassiveUiDefinition,
+        { kind: 'buffCounters' }
+      >['appearance'];
+      readonly reserveArrows: number;
+      readonly battleArrows: number;
+      readonly points: number;
+      readonly maximumArrows: number;
+      readonly maximumPoints: number;
     };
 
 export interface CombatHudHpProgressSnapshot {
@@ -517,6 +529,37 @@ function passiveUiSnapshotsAtFrame(
         value,
         maximum: definition.maximum,
         active: definition.activeAt !== undefined && value >= definition.activeAt,
+      });
+      continue;
+    }
+    if (definition.kind === 'buffCounters') {
+      const counts = new Map<string, number>([
+        [definition.reserveArrowBuffId, 0],
+        [definition.battleArrowBuffId, 0],
+        [definition.pointBuffId, 0],
+      ]);
+      for (const entry of entries) {
+        if (entry.frame > frame || entry.targetId !== operatorId) continue;
+        const buffId = stringData(entry.data, 'buffId');
+        if (buffId === undefined || !counts.has(buffId)) continue;
+        if (entry.event === 'BuffApplied') {
+          counts.set(buffId, Math.max(0, Math.round(numberData(entry.data, 'layers') ?? 1)));
+        } else if (entry.event === 'BuffFinished') counts.set(buffId, 0);
+      }
+      result.set(operatorId, {
+        kind: 'buffCounters',
+        appearance: definition.appearance,
+        reserveArrows: Math.min(
+          definition.maximumArrows,
+          counts.get(definition.reserveArrowBuffId) ?? 0,
+        ),
+        battleArrows: Math.min(
+          definition.maximumArrows,
+          counts.get(definition.battleArrowBuffId) ?? 0,
+        ),
+        points: Math.min(definition.maximumPoints, counts.get(definition.pointBuffId) ?? 0),
+        maximumArrows: definition.maximumArrows,
+        maximumPoints: definition.maximumPoints,
       });
       continue;
     }

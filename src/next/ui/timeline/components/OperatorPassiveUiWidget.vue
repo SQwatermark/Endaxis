@@ -15,6 +15,7 @@ const props = withDefaults(
     active?: boolean;
     mode?: 'normal' | 'ultimate';
     ratio?: number | null;
+    points?: number;
     height?: number;
     maxWidth?: number | null;
   }>(),
@@ -24,6 +25,7 @@ const props = withDefaults(
     active: false,
     mode: 'normal',
     ratio: null,
+    points: 0,
     height: 20,
     maxWidth: null,
   },
@@ -41,6 +43,8 @@ const nativeSize = computed(() => {
       return { width: 44, height: 36 };
     case 'liinoMusic':
       return { width: 68, height: 60 };
+    case 'typhoeaArrows':
+      return { width: 72, height: 44 };
   }
 });
 
@@ -166,7 +170,7 @@ const arcanePartColor = (part: 1 | 2) => {
         </template>
       </template>
 
-      <template v-else>
+      <template v-else-if="appearance === 'liinoMusic'">
         <img class="liino-ring" src="/next/passive-ui/liino-bg.png" alt="" />
         <img class="liino-deco" src="/next/passive-ui/liino-deco.png" alt="" />
         <img
@@ -200,6 +204,25 @@ const arcanePartColor = (part: 1 | 2) => {
           src="/next/passive-ui/liino-small-star.png"
           alt=""
         />
+      </template>
+
+      <template v-else-if="appearance === 'typhoeaArrows'">
+        <span class="typhoea-arrows">
+          <span
+            v-for="index in Math.max(1, maximum)"
+            :key="`arrow:${index}`"
+            class="typhoea-arrow"
+            :class="{ 'is-filled': index <= value }"
+          />
+        </span>
+        <span class="typhoea-points">
+          <span
+            v-for="index in 8"
+            :key="`point:${index}`"
+            class="typhoea-point"
+            :class="{ 'is-filled': index <= points }"
+          />
+        </span>
       </template>
     </span>
   </span>
@@ -391,5 +414,45 @@ const arcanePartColor = (part: 1 | 2) => {
   left: 43px;
   width: 28px;
   height: 28px;
+}
+
+/* 几何数量来自 UICharPassiveTyphoea 的 arrows/points 数组；原生纹理随后由资源管线接入。 */
+.typhoea-arrows,
+.typhoea-points {
+  position: absolute;
+  left: 2px;
+  display: flex;
+  gap: 3px;
+}
+
+.typhoea-arrows {
+  top: 4px;
+}
+
+.typhoea-points {
+  top: 29px;
+  gap: 2px;
+}
+
+.typhoea-arrow {
+  width: 13px;
+  height: 18px;
+  border: 1px solid rgb(116 127 127 / 80%);
+  clip-path: polygon(50% 0, 100% 48%, 68% 48%, 68% 100%, 32% 100%, 32% 48%, 0 48%);
+  background: rgb(55 61 61);
+}
+
+.typhoea-arrow.is-filled,
+.typhoea-point.is-filled {
+  border-color: rgb(160 255 241);
+  background: rgb(94 231 209);
+}
+
+.typhoea-point {
+  width: 6px;
+  height: 6px;
+  border: 1px solid rgb(116 127 127 / 80%);
+  border-radius: 50%;
+  background: rgb(55 61 61);
 }
 </style>

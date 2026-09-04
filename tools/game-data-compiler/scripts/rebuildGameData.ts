@@ -18,6 +18,11 @@ import { auditOperatorTemplateRefresh } from '../src/audits/operatorTemplateRefr
 import { auditOperatorSkillLibraries } from '../src/audits/operatorSkillLibraries.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import { readAbilityEntityTemplates } from './readAbilityEntityTemplates.ts';
+import { generateTimeDilationCatalog } from './generateTimeDilationCatalog.ts';
+import { generateSkillSettingCatalog } from './generateSkillSettingCatalog.ts';
+import { generateGlobalBuffCatalog } from './generateGlobalBuffCatalog.ts';
+import { generateOperatorDefinitionCandidates } from './generateOperatorDefinitionCandidates.ts';
+import { generateCommonBuffDefinitions } from './generateCommonBuffDefinitions.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
@@ -39,12 +44,13 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
     id: 'operators',
     outputs: ['src/next/data/operators/generated-definitions'],
     blocker:
-      '需要同批能力实体、投射物黑板、GameplayTag、TimeDilation、GlobalBuff、SkillSetting 和角色模板；不得复用正式派生目录或自动改写模板 pin。',
+      '同批 31 名/328 技能事务候选已接入；仍需候选类型检查、所有可放置技能与组合轴模拟、体积审计和原子发布。不得复用正式派生目录。',
   },
   {
     id: 'common-buffs',
     outputs: ['src/next/data/buffs/generated'],
-    blocker: '需要全部干员的同批完整闭包，不能从旧生成定义抽取。',
+    blocker:
+      '同批 31 名闭包已可汇总 61 个公共 Buff；仍需随干员候选执行模拟、显示名/图标引用和原子发布门禁。',
   },
   {
     id: 'weapons',
@@ -64,15 +70,18 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
       'src/next/data/combat/gameplayTagCatalog.generated.ts',
       'src/next/data/combat/gameplayTagPredefine.generated.ts',
       'src/next/data/combat/hitStopCurveCatalog.generated.ts',
+      'src/next/data/combat/timeDilationCatalog.generated.ts',
+      'src/next/data/combat/skill-setting.generated.json',
+      'src/next/data/global-buffs/global-buff-templates.generated.json',
     ],
     blocker:
-      '完整标签配置集与预定义表已可自动导出转换；其他全局配置/HUD prefab 仍待接入。VFS worker 需显式配置；TimeDilation 等混合文件先分离代码与游戏数据。',
+      '完整标签配置集、预定义表、TimeDilation、SkillSetting 与已登记 GlobalBuff 已可自动导出转换；其他全局配置/HUD prefab 仍待接入。VFS worker 需显式配置，且仍须闭合 AKEDB/VFS 版本身份。',
   },
   {
     id: 'template-evidence',
     outputs: [],
     blocker:
-      '能力实体已能直接读取本次 AbilityEntityData；投射物 EntityBB、GlobalBuff、SkillSetting 的旧 JSON 仍待换成同批来源，不能复制旧证据充数。',
+      '能力实体、当前所需投射物 EntityBB、TimeDilation、SkillSetting 与两个已登记 GlobalBuff 均直接读取本次来源；仍须由整批候选反向证明 GlobalBuff 身份清单没有漏项。',
   },
   {
     id: 'legacy-presentation-and-enemies',
@@ -232,6 +241,121 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         };
       });
       if (tagsOkay) {
+        const timeDilationCatalog = path.join(
+          candidateRoot,
+          'src/next/data/combat/timeDilationCatalog.generated.ts',
+        );
+        const skillSettingCatalog = path.join(
+          candidateRoot,
+          'src/next/data/combat/skill-setting.generated.json',
+        );
+        const globalBuffCatalog = path.join(
+          candidateRoot,
+          'src/next/data/global-buffs/global-buff-templates.generated.json',
+        );
+        const timeDilationOkay = await stage('time-dilation', async () => {
+          const sourceUrl = await resolveNamedManifestAssetPreview(
+            args.vfsBase,
+            'timedilationconfig.asset',
+            'assets/beyond/dynamicassets/gamedata/gameplayconfig/timedilationconfig.asset',
+          );
+          const input = {
+            sourceUrl,
+            gameplayTagCatalog: tags,
+            output: timeDilationCatalog,
+            check: false,
+          };
+          const generated = await generateTimeDilationCatalog(input);
+          await generateTimeDilationCatalog({ ...input, check: true });
+          return {
+            ...generated,
+            sourceUrl,
+            deterministicCheck: 'passed',
+            note: '来自当前 VFS manifest；在 VFS 与 AKEDB 版本身份闭合前仍只是候选。',
+          };
+        });
+        const skillSettingOkay = await stage('skill-setting', async () => {
+          const sourceUrl = await resolveNamedManifestAssetPreview(
+            args.vfsBase,
+            'skillsetting.asset',
+            'assets/beyond/dynamicassets/gamedata/gameplayconfig/skillsetting.asset',
+          );
+          const input = {
+            sourceUrl,
+            revision: snapshot!.version,
+            output: skillSettingCatalog,
+            check: false,
+          };
+          const generated = await generateSkillSettingCatalog(input);
+          await generateSkillSettingCatalog({ ...input, check: true });
+          return {
+            ...generated,
+            sourceUrl,
+            deterministicCheck: 'passed',
+            note: '来自当前 VFS manifest；在 VFS 与 AKEDB 版本身份闭合前仍只是候选。',
+          };
+        });
+        const globalBuffsOkay = await stage('global-buffs', async () => {
+          const input = {
+            vfsBase: args.vfsBase,
+            revision: snapshot!.version,
+            identities: path.join(
+              root,
+              'tools/game-data-compiler/config/globalBuffIdentities.json',
+            ),
+            output: globalBuffCatalog,
+            check: false,
+          };
+          const generated = await generateGlobalBuffCatalog(input);
+          await generateGlobalBuffCatalog({ ...input, check: true });
+          return {
+            ...generated,
+            deterministicCheck: 'passed',
+            note: '身份清单只含当前产品闭包已证明引用的 GlobalBuff；候选生成仍须反向核验无遗漏引用。',
+          };
+        });
+        const operatorCandidateInput = {
+          manifest: path.join(root, 'tools/game-data-compiler/config/operators.json'),
+          sourceRoot,
+          tableRoot: path.join(sourceRoot, 'TableCfg-current'),
+          skillPatchTable: path.join(sourceRoot, 'TableCfg-current/SkillPatchTable.json'),
+          buffDataRoot: path.join(sourceRoot, 'BuffData'),
+          abilityEntityCatalog: path.join(sourceRoot, 'AbilityEntityData'),
+          gameplayTagCatalog: tags,
+          timeDilationCatalog,
+          globalBuffCatalog,
+          skillSettingCatalog,
+        };
+        if (timeDilationOkay && skillSettingOkay && globalBuffsOkay) {
+          await stage('operator-candidates', async () => {
+            const input = {
+              ...operatorCandidateInput,
+              outputRoot: path.join(candidateRoot, 'src/next/data/operators/generated-definitions'),
+              auditRoot: path.join(runRoot, 'audit', 'operator-definitions'),
+              check: false,
+            };
+            const generated = await generateOperatorDefinitionCandidates(input);
+            await generateOperatorDefinitionCandidates({ ...input, check: true });
+            return { ...generated, deterministicCheck: 'passed' };
+          });
+          await stage('common-buffs', async () => {
+            const input = {
+              ...operatorCandidateInput,
+              output: path.join(candidateRoot, 'src/next/data/buffs/generated'),
+              check: false,
+            };
+            const generated = await generateCommonBuffDefinitions(input);
+            await generateCommonBuffDefinitions({ ...input, check: true });
+            return { ...generated, deterministicCheck: 'passed' };
+          });
+        } else {
+          for (const id of ['operator-candidates', 'common-buffs'])
+            stages.push({
+              id,
+              status: 'blocked',
+              detail: '同次任务的 TimeDilation、SkillSetting 或 GlobalBuff 候选未通过。',
+            });
+        }
         await stage('operator-refresh', async () => {
           const detail = await inspectOperatorRefresh(sourceRoot, root, tags);
           await writeAtomicJson(path.join(runRoot, 'audit', 'operator-refresh.json'), detail);
@@ -529,6 +653,24 @@ export function parseRebuildArguments(values: readonly string[]): RebuildArgumen
       ? { unityWorker: path.resolve(entries.get('--unity-worker')!) }
       : {}),
   };
+}
+
+async function resolveNamedManifestAssetPreview(
+  vfsBase: string,
+  name: string,
+  expectedPath: string,
+): Promise<string> {
+  const endpoint = new URL('/api/manifest-assets/by-name', vfsBase);
+  endpoint.searchParams.set('name', name);
+  const response = await fetch(endpoint);
+  if (!response.ok) throw new Error(`${endpoint}: HTTP ${response.status}`);
+  const document = (await response.json()) as {
+    candidates?: readonly { path?: unknown; previewUrl?: unknown }[];
+  };
+  const matches = (document.candidates ?? []).filter(item => item.path === expectedPath);
+  if (matches.length !== 1 || typeof matches[0]!.previewUrl !== 'string')
+    throw new Error(`${endpoint}: expected exactly one ${expectedPath}`);
+  return new URL(matches[0]!.previewUrl, vfsBase).href;
 }
 
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {

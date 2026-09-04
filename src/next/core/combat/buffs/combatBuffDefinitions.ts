@@ -179,6 +179,8 @@ export class CompiledCombatBuffDefinitions<
       priority: entry.priority,
       maxStackCount: entry.maxStackCount,
       durationSeconds: entry.durationSeconds,
+      addingCooldownSeconds: entry.addingCooldownSeconds,
+      ignoreAddingCooldown: entry.ignoreAddingCooldown,
       triggerIntervalSeconds: entry.triggerIntervalSeconds,
       waitFirstTriggerInterval: entry.waitFirstTriggerInterval,
       maxTriggerCount: entry.maxTriggerCount,
@@ -301,6 +303,8 @@ export function parseCombatBuffDefinitionEntry(
     'priority',
     'maxStackCount',
     'durationSeconds',
+    'addingCooldownSeconds',
+    'ignoreAddingCooldown',
     'triggerIntervalSeconds',
     'waitFirstTriggerInterval',
     'maxTriggerCount',
@@ -346,6 +350,8 @@ export function parseCombatBuffDefinitionEntry(
     ...parseOptionalPriority(entry, path),
     ...parseOptionalNonNegativeInteger(entry, 'maxStackCount', path),
     ...parseOptionalScalar(entry, 'durationSeconds', path),
+    ...parseOptionalScalar(entry, 'addingCooldownSeconds', path),
+    ...parseOptionalBoolean(entry, 'ignoreAddingCooldown', path),
     ...parseOptionalScalar(entry, 'triggerIntervalSeconds', path),
     ...parseOptionalBoolean(entry, 'waitFirstTriggerInterval', path),
     ...parseOptionalTriggerCount(entry, path),
@@ -1376,7 +1382,7 @@ function parseOptionalTriggerCount(
 
 function parseOptionalScalar(
   entry: Readonly<Record<string, unknown>>,
-  key: 'durationSeconds' | 'triggerIntervalSeconds',
+  key: 'durationSeconds' | 'triggerIntervalSeconds' | 'addingCooldownSeconds',
   path: string,
 ): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   const value = entry[key];
@@ -1468,7 +1474,7 @@ function parseOptionalString(
 
 function parseOptionalBoolean(
   entry: Readonly<Record<string, unknown>>,
-  key: 'waitFirstTriggerInterval',
+  key: 'waitFirstTriggerInterval' | 'ignoreAddingCooldown',
   path: string,
 ): Partial<Pick<CombatBuffDefinitionEntry, typeof key>> {
   if (entry[key] === undefined) return {};

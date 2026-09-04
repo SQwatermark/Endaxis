@@ -11,6 +11,8 @@ const NATIVE_ABILITY_EVENT_NAMES = {
   OnOwnerHpZero: 'ownerHpZero',
   OnCustomAbilityEvent: 'customAbilityEvent',
   OnEnterFight: 'enterFight',
+  OnOwnerSwitchToCenter: 'ownerSwitchToCenter',
+  OnOwnerSwitchToGuard: 'ownerSwitchToGuard',
   OnAddedBuff: 'addedBuff',
   OnTakeDamage: 'takeDamage',
   OnOutputDamage: 'outputDamage',
@@ -40,6 +42,7 @@ const NATIVE_ABILITY_EVENT_NAMES = {
   OnAfterSkillApplyCost: 'afterSkillApplyCost',
   OnFinishedBuff: 'finishedBuff',
   OnBuffEndsEarly: 'buffEndsEarly',
+  OnBuffEnhanceChanged: 'buffEnhanceChanged',
   OnBeforeAddedBuff: 'beforeAddedBuff',
   OnBeforeOutputBuff: 'beforeOutputBuff',
   OnConsumeBuff: 'buffConsumed',
@@ -56,6 +59,8 @@ const NATIVE_ABILITY_EVENT_NAMES = {
 
 const NATIVE_ABILITY_EVENT_IDS = {
   1: 'OnOwnerHpZero',
+  2: 'OnOwnerSwitchToCenter',
+  3: 'OnOwnerSwitchToGuard',
   5: 'OnCustomAbilityEvent',
   6: 'OnEnterFight',
   9: 'OnAddedBuff',
@@ -90,6 +95,7 @@ const NATIVE_ABILITY_EVENT_IDS = {
   205: 'OnBeforeAddedBuff',
   206: 'OnBeforeOutputBuff',
   208: 'OnConsumeBuff',
+  209: 'OnBuffEnhanceChanged',
   211: 'OnAbsorbBuff',
   222: 'OnAfterKillEntity',
   241: 'OnPoiseKnotBreak',

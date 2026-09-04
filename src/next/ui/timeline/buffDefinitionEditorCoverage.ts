@@ -21,6 +21,8 @@ export const BUFF_DEFINITION_EDITOR_COVERAGE = {
   stackingKey: 'editable',
   priority: 'editable',
   durationSeconds: 'editable',
+  addingCooldownSeconds: 'editable',
+  ignoreAddingCooldown: 'editable',
   triggerIntervalSeconds: 'editable',
   waitFirstTriggerInterval: 'editable',
   maxTriggerCount: 'editable',

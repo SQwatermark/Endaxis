@@ -928,6 +928,40 @@ export async function generateOperatorDefinition(
     if (path.dirname(target) !== path.resolve(parent!) || path.basename(target) !== args.slug)
       throw new Error(`complete operator output must be ${parent}/${args.slug}`);
   }
+  const rendered = await renderOperatorDefinition(args);
+  const { plan, file, auditFile } = rendered;
+  if (
+    fs.existsSync(args.output) &&
+    JSON.stringify(fs.readdirSync(args.output)) !== JSON.stringify([file.relativePath])
+  )
+    throw new Error('complete operator directory contains unexpected files');
+  if (args.check) {
+    const target = path.join(args.output, file.relativePath);
+    if (
+      !fs.existsSync(target) ||
+      fs.readFileSync(target, 'utf8').replaceAll('\r\n', '\n') !== file.content
+    )
+      throw new Error(`complete operator definition is stale: ${target}`);
+  } else {
+    await writeGeneratedDefinitionFiles(args.auditOutput, [auditFile]);
+    await writeGeneratedDefinitionFiles(args.output, [file]);
+  }
+  return {
+    slug: args.slug,
+    skillCount: plan.activeSkills.length,
+    talentCount: plan.operator.talents.length,
+    potentialCount: plan.operator.potentials.length,
+    entityCount: Object.keys(plan.operator.abilityEntityDefinitions!).length,
+    privateBuffCount: Object.keys(plan.operator.buffDefinitions!).length,
+    commonBuffCount: Object.keys(plan.commonBuffDefinitions).length,
+  };
+}
+
+/**
+ * 渲染一名干员的完整候选，但不写文件。整批重建用它先闭合全部对象，再一次性安装候选目录；
+ * 这样第 N 名失败时不会留下前 N-1 名的新旧混合快照。
+ */
+export async function renderOperatorDefinition(args: Parameters<typeof planOperatorDefinition>[0]) {
   const plan = planOperatorDefinition(args);
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
   const content = await format(
@@ -943,31 +977,12 @@ export async function generateOperatorDefinition(
     relativePath: `${args.slug}.operator.generated.ts`,
     content,
   };
-  if (
-    fs.existsSync(args.output) &&
-    JSON.stringify(fs.readdirSync(args.output)) !== JSON.stringify([file.relativePath])
-  )
-    throw new Error('complete operator directory contains unexpected files');
-  if (args.check) {
-    const target = path.join(args.output, file.relativePath);
-    if (
-      !fs.existsSync(target) ||
-      fs.readFileSync(target, 'utf8').replaceAll('\r\n', '\n') !== file.content
-    )
-      throw new Error(`complete operator definition is stale: ${target}`);
-  } else {
-    await writeGeneratedDefinitionFiles(args.auditOutput, [
-      { relativePath: 'operator.audit.json', content: JSON.stringify(plan.audit, null, 2) + '\n' },
-    ]);
-    await writeGeneratedDefinitionFiles(args.output, [file]);
-  }
   return {
-    slug: args.slug,
-    skillCount: plan.activeSkills.length,
-    talentCount: plan.operator.talents.length,
-    potentialCount: plan.operator.potentials.length,
-    entityCount: Object.keys(plan.operator.abilityEntityDefinitions!).length,
-    privateBuffCount: Object.keys(plan.operator.buffDefinitions!).length,
-    commonBuffCount: Object.keys(plan.commonBuffDefinitions).length,
+    plan,
+    file,
+    auditFile: {
+      relativePath: 'operator.audit.json',
+      content: JSON.stringify(plan.audit, null, 2) + '\n',
+    },
   };
 }

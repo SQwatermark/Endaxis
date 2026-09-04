@@ -98,6 +98,22 @@ export type CombatCondition =
       right: ActionValueOperand;
     }
   | {
+      /** GetTargetBuffBBAdvanced + CompareFloat：找不到 Buff 时为 false，找到时先写动作黑板。 */
+      kind: 'buffBlackboardValueCompare';
+      target: BuffConditionTarget;
+      query:
+        | { kind: 'id'; buffIds: readonly string[] }
+        | {
+            kind: 'tag';
+            tagQueryType: GameplayTagQueryType;
+            buffTags: readonly GameplayTag[];
+          };
+      desiredKey: string;
+      outputKey: string;
+      operator: ComparisonOperator;
+      value: ActionValueOperand;
+    }
+  | {
       /** 以原生 RandomUtil.Dice(float) 对动作黑板或常量概率取样。 */
       kind: 'probability';
       probability: ActionValueOperand;
@@ -238,6 +254,12 @@ export type CombatCondition =
       tags: readonly DamageTag[];
     }
   | {
+      /** 匹配伤害包 DamageUnit.damageTags 的原生 GameplayTag。 */
+      kind: 'eventDamageGameplayTagsMatch';
+      match: GameplayTagMatchType;
+      tags: readonly GameplayTag[];
+    }
+  | {
       /** 匹配触发当前响应的伤害行为特征；普通技能步骤没有事件上下文。 */
       kind: 'eventDamageFeaturesMatch';
       match: GameplayTagMatchType;
@@ -271,6 +293,8 @@ export type CombatCondition =
       /** 精确匹配当前 OnCustomAbilityEvent 的命名载荷。 */
       kind: 'eventCustomAbilityNameMatch';
       eventName: string;
+      /** 名称匹配后把事件 float 参数写入当前动作黑板；对应原生 savedParamKey。 */
+      outputKey?: string;
     }
   | {
       /** 查询目标 AbilitySystem 当前仍在施放的技能类型；不读取事件载荷。 */
@@ -428,6 +452,7 @@ export const COMBAT_CONDITION_KINDS = [
   'casterComboPending',
   'abilityEntityTimedMarkerPresent',
   'eventDamageTagsMatch',
+  'eventDamageGameplayTagsMatch',
   'eventDamageFeaturesMatch',
   'eventDamageTypeIn',
   'eventInflictionElementIn',
@@ -465,7 +490,13 @@ export type CombatConditionKind = (typeof COMBAT_CONDITION_KINDS)[number];
 
 /** 条件判断读取的动作实例值；黑板键只在当前技能实例生命周期内有效。 */
 export type ActionValueOperand =
-  { kind: 'blackboard'; key: string } | { kind: 'constant'; value: number };
+  | {
+      kind: 'blackboard';
+      key: string;
+      /** 仅在原生调用点明确使用 GetValueOrDefault 时携带；缺省仍严格报错。 */
+      fallback?: number;
+    }
+  | { kind: 'constant'; value: number };
 
 /** Unity AnimationCurve 的关键帧；权重位与原生 WeightedMode 保持一致。 */
 export interface TimeScaleCurveKeyDefinition {

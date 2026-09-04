@@ -53,19 +53,40 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
   readonly allowMissingEntityBlackboardEvidence?: boolean;
 }): CompiledActionBlackboardScopeSource {
   const { sourcePath, launch, template, invocations } = input;
-  const callbackReadsEntityBlackboard = invocations.some(invocation =>
-    invocation.declaredBlackboard.some(value => value.key.startsWith('EntityBB_')),
+  const projectedInvocations = invocations.map((invocation, invocationIndex) => ({
+    ...invocation,
+    sequence: omitDeadSingleEnemyBounceBookkeeping(
+      invocation.sequence,
+      invocations.slice(invocationIndex + 1).map(candidate => candidate.sequence),
+    ),
+  }));
+  const callbackEntityBlackboardKeys = new Set(
+    projectedInvocations.flatMap(invocation => [
+      ...invocation.declaredBlackboard
+        .filter(value => value.key.startsWith('EntityBB_'))
+        .map(value => value.key),
+      ...collectEntityBlackboardReads(invocation.sequence),
+    ]),
   );
+  const callbackReadsEntityBlackboard = callbackEntityBlackboardKeys.size > 0;
   if (
     template === null &&
-    (!input.allowMissingEntityBlackboardEvidence ||
-      (launch.assignEntityBlackboard && launch.assignments.length !== 0) ||
-      callbackReadsEntityBlackboard)
+    (!input.allowMissingEntityBlackboardEvidence || callbackReadsEntityBlackboard)
   )
     throw new Error(`${sourcePath}: projectile entity blackboard evidence is missing`);
   if (template !== null && template.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: projectile template identity mismatch`);
-  const entityAssignments = projectEntityAssignments(launch, sourcePath);
+  // 即使当前回调没有读取某个键，来源模板也必须先完整通过严格校验；筛选只控制
+  // 运行时产物体积，不能让未使用字段绕过来源证据校验。
+  const templateInitialValues =
+    template === null
+      ? undefined
+      : numericInitialValues(template.entityBlackboard, sourcePath, true);
+  const entityAssignments = projectEntityAssignments(
+    launch,
+    sourcePath,
+    callbackEntityBlackboardKeys,
+  );
   const routes = new Map<ProjectileSkillCallbackSource['event'], string>();
   for (const callback of launch.callbacks) {
     if (!callback.enabled) continue;
@@ -74,7 +95,7 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
     routes.set(callback.event, callback.skillId);
   }
   const skills = new Set<string>();
-  const steps: CompiledBuffStepSource[] = invocations.map((invocation, invocationIndex) => {
+  const steps: CompiledBuffStepSource[] = projectedInvocations.map(invocation => {
     if (routes.get(invocation.event) !== invocation.skillId)
       throw new Error(
         `${sourcePath}: callback ${invocation.event} does not match the enabled native route`,
@@ -84,10 +105,6 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
         `${sourcePath}: repeated callback skill requires dynamic restoration semantics`,
       );
     skills.add(invocation.skillId);
-    const sequence = omitDeadSingleEnemyBounceBookkeeping(
-      invocation.sequence,
-      invocations.slice(invocationIndex + 1).map(candidate => candidate.sequence),
-    );
     return {
       kind: 'withActionBlackboardScope',
       parameters: {
@@ -97,7 +114,7 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
         initialValues: numericInitialValues(invocation.declaredBlackboard, sourcePath),
         inheritParent: true,
       },
-      body: sequence,
+      body: invocation.sequence,
     } satisfies CompiledActionBlackboardScopeSource;
   });
   return {
@@ -110,12 +127,53 @@ export function compileSynchronousProjectileCallbackScopesSource(input: {
       ...(template === null
         ? {}
         : {
-            entityInitialValues: numericInitialValues(template.entityBlackboard, sourcePath, true),
+            entityInitialValues: Object.fromEntries(
+              Object.entries(templateInitialValues!).filter(([key]) =>
+                callbackEntityBlackboardKeys.has(key),
+              ),
+            ),
             ...(Object.keys(entityAssignments).length === 0 ? {} : { entityAssignments }),
           }),
     },
     body: { steps },
   };
+}
+
+function collectEntityBlackboardReads(value: unknown): string[] {
+  const occurrences = new Map<string, number>();
+  const pureWrites = new Map<string, number>();
+  const visit = (item: unknown): void => {
+    if (typeof item === 'string') {
+      if (item.startsWith('EntityBB_')) occurrences.set(item, (occurrences.get(item) ?? 0) + 1);
+      return;
+    }
+    if (Array.isArray(item)) {
+      item.forEach(visit);
+      return;
+    }
+    if (item !== null && typeof item === 'object') {
+      const record = item as Record<string, unknown>;
+      if (
+        record.kind === 'modifyActionValue' &&
+        record.parameters !== null &&
+        typeof record.parameters === 'object'
+      ) {
+        const parameters = record.parameters as Record<string, unknown>;
+        if (
+          parameters.operation === 'assign' &&
+          typeof parameters.key === 'string' &&
+          parameters.key.startsWith('EntityBB_')
+        ) {
+          pureWrites.set(parameters.key, (pureWrites.get(parameters.key) ?? 0) + 1);
+        }
+      }
+      Object.values(record).forEach(visit);
+    }
+  };
+  visit(value);
+  return [...occurrences].flatMap(([key, count]) =>
+    count > (pureWrites.get(key) ?? 0) ? [key] : [],
+  );
 }
 
 /**
@@ -162,29 +220,30 @@ function containsStringValue(value: unknown, expected: string): boolean {
 function projectEntityAssignments(
   launch: ProjectileLaunchActionSource,
   sourcePath: string,
+  retainedKeys: ReadonlySet<string>,
 ): Readonly<Record<string, CompiledActionValueOperandSource>> {
   if (!launch.assignEntityBlackboard || launch.assignments.length === 0) return {};
-  return Object.fromEntries(
-    launch.assignments.map((assignment, index) => {
-      if (!assignment.targetKey.startsWith('EntityBB_')) {
-        throw new Error(
-          `${sourcePath}.assignPairs[${index}]: projectile entity assignment requires an EntityBB_ target`,
-        );
-      }
-      if (!assignment.useDirectValue) {
-        return [
-          assignment.targetKey,
-          { kind: 'blackboard', key: assignment.inputValueKey },
-        ] as const;
-      }
-      if (assignment.valueType !== 'Numeric') {
-        throw new Error(
-          `${sourcePath}.assignPairs[${index}]: projectile entity assignment requires a numeric value`,
-        );
-      }
-      return [assignment.targetKey, { kind: 'constant', value: assignment.numericValue }] as const;
-    }),
-  );
+  const entries: [string, CompiledActionValueOperandSource][] = [];
+  launch.assignments.forEach((assignment, index) => {
+    if (!assignment.targetKey.startsWith('EntityBB_')) {
+      throw new Error(
+        `${sourcePath}.assignPairs[${index}]: projectile entity assignment requires an EntityBB_ target`,
+      );
+    }
+    if (assignment.useDirectValue && assignment.valueType !== 'Numeric') {
+      throw new Error(
+        `${sourcePath}.assignPairs[${index}]: projectile entity assignment requires a numeric value`,
+      );
+    }
+    if (!retainedKeys.has(assignment.targetKey)) return;
+    entries.push([
+      assignment.targetKey,
+      assignment.useDirectValue
+        ? { kind: 'constant', value: assignment.numericValue }
+        : { kind: 'blackboard', key: assignment.inputValueKey },
+    ]);
+  });
+  return Object.fromEntries(entries);
 }
 
 function numericInitialValues(

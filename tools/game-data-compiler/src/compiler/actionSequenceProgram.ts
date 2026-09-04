@@ -23,6 +23,11 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
     node: NativeActionNodeSource<TLeaf>,
     state: TState,
   ) => TCondition | null;
+  /** 多个原生条件动作共同表达一次带读取副作用的条件时，由领域整体投影。 */
+  readonly compileConditionSequence?: (
+    sequence: NativeSequenceSource<TLeaf>,
+    state: TState,
+  ) => TCondition | null;
   /** 只有已证明无副作用且结果不被消费的尾条件才可删；缺省保留求值。 */
   readonly canOmitTerminalCondition?: (condition: TCondition) => boolean;
   /** 来源已证明纯读取时，先投影其控制的末端；末端为空就无需建立条件的运行模型。 */
@@ -49,6 +54,13 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
   readonly compileForEach?: (
     node: NativeActionNodeSource<TLeaf> & {
       readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'forEach' }>;
+    },
+    state: TState,
+  ) => CompiledActionNodeProgram<TStep, TState> | null;
+  /** 物理查询只有在宿主证明其全部输出不可见时才可省略；否则必须保持严格阻断。 */
+  readonly compilePhysicsCast?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'physicsCast' }>;
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
@@ -195,6 +207,21 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
           }),
         ];
   }
+  // 对已证明纯读取的静态守卫，先求值再编译不可达末端。来源 parser 仍会严格读取整棵树；
+  // 这里只避免让“静止输入”等固定场景假分支要求本不可能执行的动作运行模型。
+  if (options.canOmitUnusedCondition?.(first!) === true) {
+    try {
+      const staticCondition = options.compileCondition(first!, state);
+      if (staticCondition !== null) {
+        const staticValue = options.evaluateCondition?.(staticCondition);
+        if (!options.resultIsConsumed && staticValue !== undefined) {
+          return staticValue ? compileActionNodePrograms(rest, options, state) : [];
+        }
+      }
+    } catch {
+      // 保持原有“先看末端是否仍可见”的诊断顺序；末端有效时下方会重新抛出条件错误。
+    }
+  }
   // 纯守卫不写编译期状态，故其后续动作可以先投影；不能对普通写入动作倒序执行。
   const guardedBody =
     options.canOmitUnusedCondition?.(first!) === true
@@ -268,8 +295,15 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
       return compileActionNodePrograms(rest, options, state);
     }
     if (selectionFailure !== undefined) throw selectionFailure.error;
-    const branchConditions: TCondition[] = [];
-    for (let index = 0; index < conditionNodes.length; index += 1) {
+    const combinedCondition = options.compileConditionSequence?.(first!.body.condition, state);
+    const branchConditions: TCondition[] =
+      combinedCondition === undefined || combinedCondition === null ? [] : [combinedCondition];
+    for (
+      let index = 0;
+      (combinedCondition === undefined || combinedCondition === null) &&
+      index < conditionNodes.length;
+      index += 1
+    ) {
       const child = conditionNodes[index]!;
       if (child.body.kind === 'negateNextResult') {
         const next = conditionNodes[index + 1];
@@ -312,6 +346,17 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
     const compiled = options.compileForEach(
       first as NativeActionNodeSource<TLeaf> & {
         readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'forEach' }>;
+      },
+      state,
+    );
+    if (compiled !== null) {
+      return [...compiled.steps, ...compileActionNodePrograms(rest, options, compiled.state)];
+    }
+  }
+  if (first!.body.kind === 'physicsCast' && options.compilePhysicsCast !== undefined) {
+    const compiled = options.compilePhysicsCast(
+      first as NativeActionNodeSource<TLeaf> & {
+        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'physicsCast' }>;
       },
       state,
     );

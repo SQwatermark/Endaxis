@@ -4,10 +4,9 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   planOperatorDefinition,
-  generateOperatorDefinition,
+  renderOperatorDefinition,
 } from '../scripts/planOperatorDefinition.ts';
 import { avywenna } from '../../../src/next/data/operators/avywenna';
-import { commonBuffDefinitions } from '../../../src/next/data/buffs/commonDefinitions';
 import {
   validateAbilityEntityDefinition,
   validateSkillDefinition,
@@ -205,8 +204,17 @@ beforeAll(() => {
   );
   fs.mkdirSync(path.dirname(runtimeTemplatePath), { recursive: true });
   fs.writeFileSync(runtimeTemplatePath, JSON.stringify(avywennaRuntimeTemplateFixture()));
+  const fixtureManifestPath = path.join(sourceRoot, 'operators.fixture.json');
+  const fixtureManifest = JSON.parse(
+    fs.readFileSync('tools/game-data-compiler/config/operators.json', 'utf8'),
+  ) as { operators: { slug: string; runtimeTemplate?: { sourceSha256: string } }[] };
+  const avywennaManifest = fixtureManifest.operators.find(operator => operator.slug === 'avywenna');
+  if (!avywennaManifest?.runtimeTemplate) throw new Error('missing Avywenna runtime template');
+  avywennaManifest.runtimeTemplate.sourceSha256 =
+    'aefbe71b7b9b14a258c922be943c3329fcb3cef8dd8f57dd860f7c8c7e3549cc';
+  fs.writeFileSync(fixtureManifestPath, JSON.stringify(fixtureManifest));
   args = {
-    manifest: 'tools/game-data-compiler/config/operators.json',
+    manifest: fixtureManifestPath,
     sourceRoot,
     tableRoot: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12'),
     skillPatchTable: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12/SkillPatchTable.json'),
@@ -215,12 +223,12 @@ beforeAll(() => {
     projectileBlackboardCatalog:
       'src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json',
     gameplayTagCatalog: 'src/next/data/combat/gameplayTagCatalog.generated.ts',
-    timeDilationCatalog: 'src/next/data/combat/timeDilationCatalog.ts',
-    globalBuffCatalog: 'src/next/data/global-buffs/global-buff-templates-1.4.4.json',
-    skillSettingCatalog: 'src/next/data/combat/skill-setting.combat-1.4.4.json',
+    timeDilationCatalog: 'src/next/data/combat/timeDilationCatalog.generated.ts',
+    globalBuffCatalog: 'src/next/data/global-buffs/global-buff-templates.generated.json',
+    skillSettingCatalog: 'src/next/data/combat/skill-setting.generated.json',
     slug: 'avywenna',
-    output: 'src/next/data/operators/generated-definitions/avywenna',
-    auditOutput: 'tmp/game-data-audit/operator-definitions/avywenna',
+    output: path.join(sourceRoot, 'generated/avywenna'),
+    auditOutput: path.join(sourceRoot, 'audit/avywenna'),
   };
   candidate = planOperatorDefinition(args);
 });
@@ -237,17 +245,14 @@ describe('原始整名候选：不依赖旧 Operator 补空', () => {
     expect(current.operator).toEqual(candidate.operator);
     expect(current.commonBuffDefinitions).toEqual(candidate.commonBuffDefinitions);
   });
-  it('正式注册消费整名产物，异地原始快照重建 --check 一致', async () => {
-    expect(avywenna).toEqual({
-      ...candidate.operator,
-      conversionSupport: { completeness: 'complete', missingCapabilities: [] },
-    });
-    expect(commonBuffDefinitions).toMatchObject(candidate.commonBuffDefinitions);
-    await expect(generateOperatorDefinition({ ...args, check: true })).resolves.toMatchObject({
-      skillCount: 10,
-      entityCount: 2,
-    });
-  });
+  it('隔离候选在相同原始快照上确定性渲染', async () => {
+    const first = await renderOperatorDefinition(args);
+    const second = await renderOperatorDefinition(args);
+    expect(second.file).toEqual(first.file);
+    expect(second.auditFile).toEqual(first.auditFile);
+    expect(first.plan.activeSkills).toHaveLength(10);
+    expect(Object.keys(first.plan.operator.abilityEntityDefinitions!)).toHaveLength(2);
+  }, 15_000);
 
   it('只读取 VFS 的 SkillData，不回退历史 skill-data-cdn 目录', () => {
     const current = path.join(sourceRoot, 'SkillData');

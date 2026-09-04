@@ -104,7 +104,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       // 没有第二条回调或外部消费者。Next 不渲染这些原生特效，整次发射可安全省略。
       return [];
     }
-    assertSupportedLaunchTargetControls(launch, sourcePath);
+    assertSupportedLaunchTargetControls(launch, sourcePath, projectionContext);
     if (enabled.length === 1 && enabled[0]!.event === 'block') {
       return [
         compileZeroDistanceFirstTickBlockProjectileSource({
@@ -248,6 +248,30 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       enabled.length === 2 &&
       enabled.some(item => item.event === 'block') &&
       enabled.some(item => item.event === 'hit') &&
+      runtime.blockLayerDef?.value === 1 &&
+      runtime.blockLayerDef.name === 'WallAndGround'
+    ) {
+      // 固定木桩场景不建模墙体或地面碰撞几何；block 路由在产品模型中不可达。
+      // 敌人仍与首 Tick 碰撞体共点，因此独立的 hit 回调按公共首碰撞门禁严格投影。
+      return [
+        compileZeroDistanceFirstTickHitProjectileSource({
+          sourcePath,
+          launch,
+          runtime,
+          template,
+          hitGraph: callback('hit'),
+          callbackContext,
+          projectionContext,
+          visualOnlyIds: input.visualOnlyIds,
+          callbackExtensions: input.callbackExtensions,
+          allowGameplayTagFilter: true,
+        }),
+      ];
+    }
+    if (
+      enabled.length === 2 &&
+      enabled.some(item => item.event === 'block') &&
+      enabled.some(item => item.event === 'hit') &&
       enabled[0]!.skillId === enabled[1]!.skillId
     ) {
       // combat-spec 已闭环首 Tick 顺序为 collision(hit) → move/block；零距离唯一木桩
@@ -340,10 +364,10 @@ export function compileZeroDistanceFirstTickReachProjectileSource(input: {
   readonly callbackExtensions?: CombatActionProjectionExtensionsSource;
 }): CompiledActionBlackboardScopeSource {
   const { sourcePath, launch, runtime, template } = input;
-  assertSupportedLaunchTargetControls(launch, sourcePath);
+  assertSupportedLaunchTargetControls(launch, sourcePath, input.projectionContext);
   if (runtime.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: ProjectileData identity mismatch`);
-  if (!isPlainZeroSpaceFixedPoint(launch.target, input.projectionContext))
+  if (!isPlainZeroSpaceFixedPoint(launch.target, input.projectionContext, sourcePath))
     throw new Error(
       `${sourcePath}: projectile reach target is not a proven zero-space point ` +
         JSON.stringify({
@@ -389,12 +413,20 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
   readonly allowGameplayTagFilter?: boolean;
 }): CompiledActionBlackboardScopeSource {
   const { sourcePath, launch, runtime, template } = input;
-  assertSupportedLaunchTargetControls(launch, sourcePath);
+  assertSupportedLaunchTargetControls(
+    launch,
+    sourcePath,
+    input.projectionContext ?? input.callbackContext,
+  );
   if (runtime.projectileId !== launch.projectileId)
     throw new Error(`${sourcePath}: ProjectileData identity mismatch`);
   if (
     runtime.hitOnReach &&
-    !isPlainZeroSpaceFixedPoint(launch.target, input.projectionContext ?? input.callbackContext)
+    !isPlainZeroSpaceFixedPoint(
+      launch.target,
+      input.projectionContext ?? input.callbackContext,
+      sourcePath,
+    )
   ) {
     throw new Error(`${sourcePath}: hitOnReach target is not a proven zero-space point`);
   }
@@ -758,14 +790,22 @@ export function compileZeroDistanceFirstTickProjectileSource(input: {
 
 /**
  * 新增目标控制会改变命中资格或发射数量，不能由“零距离”自动推出无影响。
- * None + false 的短路有 combat-spec 原生证据；开启形状在补齐投影前明确拒绝。
+ * combat-spec 已证明 OnlyHit 是白名单：仅当过滤集合静态包含唯一敌人时可消去。
  * 公共扩展先剔除已证明完全无战斗回调的发射，再调用此守卫。
  */
 function assertSupportedLaunchTargetControls(
   launch: ProjectileLaunchActionSource,
   path: string,
+  context?: CombatActionProjectionContextSource,
 ): void {
-  if (launch.targetFilterMode !== 'None') {
+  if (
+    launch.targetFilterMode === 'OnlyHit' &&
+    launch.targetFilterSettings !== null &&
+    (targetReferenceSelectsUniqueEnemy(launch.targetFilterSettings, context) ||
+      context?.provenOnlyHitProjectilePaths?.has(path) === true)
+  ) {
+    // 唯一可能碰撞的敌人属于白名单，过滤前后可见 hit 集合相同。
+  } else if (launch.targetFilterMode !== 'None') {
     throw new Error(
       `${path}.targetFilterMode: projectile target filter ${launch.targetFilterMode} is not modeled`,
     );
@@ -775,6 +815,20 @@ function assertSupportedLaunchTargetControls(
       `${path}.alsoLaunchToHittableTarget: additional projectile launches are not modeled`,
     );
   }
+}
+
+function targetReferenceSelectsUniqueEnemy(
+  target: ProjectileLaunchActionSource['targetFilterSettings'],
+  context?: CombatActionProjectionContextSource,
+): boolean {
+  if (target === null || context === undefined) return false;
+  if (target.targetSource === 'MainTarget') return true;
+  if (target.targetSource === 'Target') return context.actionTargetTarget === 'enemy';
+  return (
+    target.targetSource === 'Context' &&
+    target.targetGroupKey !== '' &&
+    context.staticEnemyTargetGroupKeys?.has(target.targetGroupKey) === true
+  );
 }
 
 function assertSupportedFirstTickShape(
@@ -1018,6 +1072,7 @@ function assertSupportedFirstTickReachShape(
 function isPlainZeroSpaceFixedPoint(
   target: ProjectileLaunchActionSource['target'],
   context: CombatActionProjectionContextSource,
+  sourcePath?: string,
 ): boolean {
   const ownerIsCaster =
     (target.targetSource === 'Owner' && context.actionOwnerTarget === 'caster') ||
@@ -1032,11 +1087,14 @@ function isPlainZeroSpaceFixedPoint(
     target.targetSource === 'Context' &&
     target.targetGroupKey !== '' &&
     (context.staticZeroSpaceTargetGroupKeys?.has(target.targetGroupKey) === true ||
-      context.dynamicSpatialPointCounts?.has(target.targetGroupKey) === true);
+      context.dynamicSpatialPointCounts?.has(target.targetGroupKey) === true ||
+      (sourcePath !== undefined &&
+        context.provenZeroSpaceProjectilePaths?.has(sourcePath) === true));
   const instantPointAnchoredToCaster =
     target.targetSource === 'InstantSearch' &&
     context.actionSourceTarget === 'caster' &&
-    target.selectorOwner === 'ActionSource' &&
+    (target.selectorOwner === 'ActionSource' ||
+      (target.selectorOwner === 'ActionOwner' && context.actionOwnerTarget === 'caster')) &&
     target.ownerContextKey === '' &&
     target.centerType === 'ActionSource' &&
     target.centerContextKey === '' &&
@@ -1100,7 +1158,9 @@ function isPlainZeroSpaceFixedPoint(
       instantPointAnchoredToCaster ||
       directTargetIsProvenZeroSpace ||
       contextTargetIsProvenZeroSpace) &&
-    (contextTargetIsProvenZeroSpace || target.targetGroupKey === '') &&
+    (contextTargetIsProvenZeroSpace ||
+      instantPointAnchoredToCaster ||
+      target.targetGroupKey === '') &&
     target.finderType === 'FixedPointFinder' &&
     fixedPoint !== undefined &&
     !fixedPoint.snapToNavmesh &&

@@ -90,6 +90,213 @@ export function isPresentationOnlyActionSequence(
   );
 }
 
+function isPresentationSelectionNode(
+  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
+): boolean {
+  if (!node.metadata.enabled) return true;
+  const body = node.body;
+  if (body.kind === 'leaf') {
+    return [
+      'presentation',
+      'presentationCalculation',
+      'spatialMeasurement',
+      'targetGroup',
+      'condition',
+      'blackboardMutation',
+      'blackboardCalculation',
+    ].includes(body.value.family);
+  }
+  if (body.kind === 'ifElse') {
+    return [body.condition, body.whenTrue, body.whenFalse].every(sequence =>
+      sequence.actions.every(isPresentationSelectionNode),
+    );
+  }
+  if (body.kind === 'forEach' || body.kind === 'once') {
+    return body.action.actions.every(isPresentationSelectionNode);
+  }
+  return false;
+}
+
+function presentationSelectionOutputKeys(
+  sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
+): ReadonlySet<string> {
+  const outputs = new Set<string>();
+  for (const node of collectNativeActionNodes(sequence)) {
+    if (!node.metadata.enabled || node.body.kind !== 'leaf') continue;
+    const leaf = node.body.value;
+    if (leaf.family === 'targetGroup') outputs.add(leaf.action.targetGroupKey);
+    if (leaf.family === 'blackboardMutation' || leaf.family === 'blackboardCalculation') {
+      outputs.add(leaf.action.key);
+    }
+    if (leaf.family === 'presentationCalculation') {
+      const action = leaf.action;
+      for (const key of 'outputKeys' in action ? action.outputKeys : [action.outputKey]) {
+        outputs.add(key);
+      }
+    }
+    if (leaf.family === 'spatialMeasurement') outputs.add(leaf.action.outputKey);
+  }
+  return outputs;
+}
+
+function presentationSelectionBlackboardWriteKeys(
+  sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
+): ReadonlySet<string> {
+  return new Set(
+    collectNativeActionNodes(sequence).flatMap(node =>
+      node.metadata.enabled &&
+      node.body.kind === 'leaf' &&
+      (node.body.value.family === 'blackboardMutation' ||
+        node.body.value.family === 'blackboardCalculation')
+        ? [node.body.value.action.key]
+        : [],
+    ),
+  );
+}
+
+/**
+ * 收集“查询/条件/临时黑板只为最终表现动作服务”的完整调度时间线。
+ *
+ * 镜头选敌并不总是简单的 CameraAction：原生会先查目标、ForEach 计算左右侧，再跨多个
+ * 时间线复用 Context 与黑板值。这里先按动作族找出不含任何战斗副作用的候选子图，再反复
+ * 验证候选产生的每个 Context/黑板输出都没有流向候选集外。任一伤害、Buff、资源或未知
+ * 控制动作读取这些输出，整条生产链都会退出候选，不能借“最终有相机动作”裁掉战斗逻辑。
+ */
+export function collectPresentationSelectionTimelineIndexes(
+  graph: SkillActionGraphSource<KnownNativeActionLeafSource>,
+): ReadonlySet<number> {
+  const timelines = graph.actionGroup.timelineActions;
+  const candidates = new Set(
+    timelines.flatMap((timeline, index) => {
+      const nodes = collectNativeActionNodes(timeline.sequence).filter(
+        node => node.metadata.enabled,
+      );
+      const containsPresentation = nodes.some(
+        node =>
+          node.body.kind === 'leaf' &&
+          (node.body.value.family === 'presentation' ||
+            node.body.value.family === 'presentationCalculation'),
+      );
+      return containsPresentation && timeline.sequence.actions.every(isPresentationSelectionNode)
+        ? [index]
+        : [];
+    }),
+  );
+  const outputsByTimeline = timelines.map(timeline =>
+    presentationSelectionOutputKeys(timeline.sequence),
+  );
+  const blackboardWritesByTimeline = timelines.map(timeline =>
+    presentationSelectionBlackboardWriteKeys(timeline.sequence),
+  );
+  const orderedLeafNodes = timelines.flatMap((timeline, timelineIndex) =>
+    collectNativeActionNodes(timeline.sequence).flatMap((node, nodeIndex) =>
+      node.metadata.enabled && node.body.kind === 'leaf'
+        ? [{ timelineIndex, nodeIndex, node }]
+        : [],
+    ),
+  );
+
+  // 一个末端黑板写入即使当前 SkillData 内没人读取，仍是动作作用域的可观察状态，不能因为
+  // 同一时间线里恰好还有镜头动作而删除。只有该值后来确实进入本候选表现子图，写入才属于
+  // 可裁剪的中间量；这同时防止表现计算与同名正式动作槽位相互覆盖时被误判。
+  for (const index of [...candidates]) {
+    const hasTerminalBlackboardWrite = [...blackboardWritesByTimeline[index]!].some(key => {
+      const references = orderedLeafNodes.filter(
+        ({ node }) =>
+          node.body.kind === 'leaf' &&
+          JSON.stringify(node.body.value).includes(JSON.stringify(key)),
+      );
+      const last = references.at(-1)?.node;
+      return (
+        last?.body.kind === 'leaf' &&
+        (last.body.value.family === 'blackboardMutation' ||
+          last.body.value.family === 'blackboardCalculation') &&
+        last.body.value.action.key === key
+      );
+    });
+    if (hasTerminalBlackboardWrite) candidates.delete(index);
+  }
+
+  let changed: boolean;
+  do {
+    changed = false;
+    for (const index of [...candidates]) {
+      const outputs = outputsByTimeline[index]!;
+      const outputEscapes = [...outputs].some(key =>
+        timelines.some(
+          (timeline, consumerIndex) =>
+            consumerIndex >= index &&
+            !candidates.has(consumerIndex) &&
+            countExactString(timeline.sequence, key) > 0,
+        ),
+      );
+      if (outputEscapes) {
+        candidates.delete(index);
+        changed = true;
+      }
+    }
+  } while (changed);
+  return candidates;
+}
+
+/**
+ * PhysicsCast 需要真实物理世界才能决定分支。这里只证明 combat-spec 记录的最窄不可见形状：
+ * 不写距离、不 Tick；两个分支仅从命中点/动作实体派生固定位置组，且这些组与命中点在动作之后
+ * 都没有消费者。较早时间线中的同名临时组不会被倒推成该动作的输出消费者。
+ */
+export function collectCombatInvisiblePhysicsCastPaths(
+  graph: SkillActionGraphSource<KnownNativeActionLeafSource>,
+): ReadonlySet<string> {
+  const nodes = graph.actionGroup.timelineActions.flatMap(timeline =>
+    collectNativeActionNodes(timeline.sequence),
+  );
+  const result = new Set<string>();
+  for (const [index, node] of nodes.entries()) {
+    if (!node.metadata.enabled || node.body.kind !== 'physicsCast') continue;
+    const action = node.body.value;
+    if (action.hitDistanceBlackboardKey !== '' || action.needTick) continue;
+    const branchNodes = [node.body.whenHit, node.body.whenMiss].flatMap(collectNativeActionNodes);
+    const enabledBranchNodes = branchNodes.filter(child => child.metadata.enabled);
+    if (
+      enabledBranchNodes.length === 0 ||
+      !enabledBranchNodes.every(child => {
+        if (child.body.kind !== 'leaf' || child.body.value.family !== 'targetGroup') return false;
+        const write = child.body.value.action;
+        return (
+          write.producerType === 'FindTargetAction' &&
+          write.finderType === 'FixedPointFinder' &&
+          write.validatorTypes.length === 0 &&
+          write.postProcessorTypes.length === 0 &&
+          (write.center === 'ActionOwner' ||
+            (write.center === 'ContextTarget' &&
+              write.centerContextKey === action.hitPositionTargetGroupKey))
+        );
+      })
+    ) {
+      continue;
+    }
+    const outputKeys = new Set([
+      action.hitPositionTargetGroupKey,
+      ...enabledBranchNodes.flatMap(child =>
+        child.body.kind === 'leaf' && child.body.value.family === 'targetGroup'
+          ? [child.body.value.action.targetGroupKey]
+          : [],
+      ),
+    ]);
+    const descendants = new Set(branchNodes);
+    const laterNodes = nodes.slice(index + 1).filter(candidate => !descendants.has(candidate));
+    if (
+      [...outputKeys].some(key =>
+        laterNodes.some(candidate => JSON.stringify(candidate.body).includes(JSON.stringify(key))),
+      )
+    ) {
+      continue;
+    }
+    result.add(node.sourcePath);
+  }
+  return result;
+}
+
 /**
  * 只把“写入和所有跨时间线消费者均属于纯表现控制树”的动作黑板键判为可删除。
  * 从全部写入键开始反复收缩；一个候选依赖后来被判为战斗键时，依赖它的整棵树也会在下一轮退出。
@@ -136,6 +343,7 @@ export function collectPresentationOnlyBlackboardKeys(
 export function collectCombatInvisibleRandomBlackboardKeys(
   graph: SkillActionGraphSource<KnownNativeActionLeafSource>,
 ): ReadonlySet<string> {
+  const presentationOnlyCalculationKeys = collectPresentationOnlyBlackboardKeys(graph);
   // collectNativeActionNodes 同时返回控制流容器与其后代；容器的 body 会再次内嵌所有叶子。
   // 数据流消费者只存在于叶动作上，因此必须先去掉容器，避免同一黑板引用被重复计为未知读取。
   const nodes = graph.actionGroup.timelineActions
@@ -168,6 +376,32 @@ export function collectCombatInvisibleRandomBlackboardKeys(
         if (pointOccurrences > 0 && pointOccurrences === occurrences) {
           return true;
         }
+      }
+      if (node.body.kind === 'leaf' && node.body.value.family === 'projectile') {
+        // 首帧零距离投影独立证明命中/阻挡/到达事件；未进入回调黑板的实体赋值只控制
+        // 原生投射物移动。回调若声明对应 EntityBB，作用域编译会保留赋值并使缺失随机值报错。
+        const assignmentOccurrences = node.body.value.action.assignments.filter(
+          assignment => assignment.inputValueKey === key,
+        ).length;
+        if (assignmentOccurrences > 0 && assignmentOccurrences === occurrences) return true;
+      }
+      if (node.body.kind === 'leaf' && node.body.value.family === 'blackboardCalculation') {
+        const outputKey = node.body.value.action.key;
+        const outputWriterOccurrences = nodes.filter(
+          candidate =>
+            candidate.body.kind === 'leaf' &&
+            (candidate.body.value.family === 'blackboardCalculation' ||
+              candidate.body.value.family === 'blackboardMutation') &&
+            candidate.body.value.action.key === outputKey,
+        ).length;
+        const outputHasNoOtherConsumer =
+          nodes.reduce(
+            (count, candidate) => count + countExactString(candidate.body, outputKey),
+            0,
+          ) === outputWriterOccurrences;
+        // 随机输入可以先参与一段只写入纯表现/无消费者槽位的计算；这不把输出槽位
+        // 反向提升为战斗数据。输出若被伤害、条件或 Buff 消费，会从上面的闭包集合中退出。
+        if (presentationOnlyCalculationKeys.has(outputKey) || outputHasNoOtherConsumer) return true;
       }
       return false;
     });

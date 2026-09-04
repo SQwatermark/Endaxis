@@ -65,6 +65,18 @@ describe('语音与镜头锁定的新版字段', () => {
     ).toThrow('voice handle consumers require explicit projection');
   });
 
+  it.each([0, 1, 2, 3, 4])('VFS 原生 VoSpeakerType 数值 %s 仍是纯表现输入', speakerType => {
+    expect(parseVoiceTriggerActionSource({ ...voice, _speakerType: speakerType }, 'voice')).toEqual(
+      { kind: 'voiceTrigger' },
+    );
+  });
+
+  it.each([-1, 5, 0.5, null, {}])('拒绝未知 VoSpeakerType %j', speakerType => {
+    expect(() =>
+      parseVoiceTriggerActionSource({ ...voice, _speakerType: speakerType }, 'voice'),
+    ).toThrow('voice._speakerType');
+  });
+
   it.each([null, undefined, '0', {}, 0.5])('语音偏移拒绝非法整数 %j', value => {
     for (const key of ['_jumpToWhenPlayMs', '_seekFadeInMs']) {
       expect(() => parseVoiceTriggerActionSource({ ...voice, [key]: value }, 'voice')).toThrow(

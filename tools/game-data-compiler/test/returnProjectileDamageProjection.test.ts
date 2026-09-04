@@ -670,6 +670,31 @@ describe('公共回调伤害投影', () => {
         projectionContext: returnProjectionContext,
       }).body.steps,
     ).toHaveLength(1);
+
+    const ownerAnchoredInput = structuredClone(launchInput);
+    ownerAnchoredInput.targetSettings = {
+      ...(ownerAnchoredInput.targetSettings as Record<string, unknown>),
+      selectorOwner: 'ActionOwner',
+      // InstantSearch 走 selector 管线，Context 组名不参与目标读取；真实数据仍可能保留该槽位。
+      targetGroupKey: 'smart_target',
+    };
+    expect(() =>
+      compileZeroDistanceFirstTickReachProjectileSource({
+        sourcePath: 'reach.instant.owner.launch',
+        launch: parseProjectileLaunchActionSource(ownerAnchoredInput, 'reach.instant.owner.launch'),
+        runtime: parseProjectileRuntimeSource(runtime, 'reach.instant.owner.projectile'),
+        template: null,
+        reachGraph: {
+          skillId: 'reach_fixture',
+          level: 1,
+          durationFrame: 0,
+          declaredBlackboard: [],
+          actionGroup: { timelineActions: [], passiveEvents: [] },
+        },
+        callbackContext: returnProjectionContext,
+        projectionContext: { ...returnProjectionContext, actionOwnerTarget: 'caster' },
+      }),
+    ).not.toThrow();
   });
 
   it('唯一木桩下允许 allowHitSameTarget=false 且 maxHitCount=-1 的 hit-only 投射物', () => {
@@ -998,7 +1023,10 @@ describe('公共回调伤害投影', () => {
     expect(projected.body.steps).toHaveLength(1);
   });
 
-  it('block layer 为 Nothing 时忽略不可达的独立 block 技能，只执行 hit', () => {
+  it.each([
+    { value: 0 as const, name: 'Nothing' as const },
+    { value: 1 as const, name: 'WallAndGround' as const },
+  ])('固定木桩忽略 $name 的独立 block 技能，只执行 hit', blockLayerDef => {
     const raw = scopeFixtures[0]!;
     const launch = parseProjectileLaunchActionSource(
       {
@@ -1031,7 +1059,7 @@ describe('公共回调伤害投影', () => {
             launch.projectileId,
             {
               ...runtime,
-              blockLayerDef: { value: 0, name: 'Nothing' },
+              blockLayerDef,
               maxHitCount: 1,
               allowHitSameTarget: false,
               colliderShape: { shapeType: 1, radius: 0.45, extent: [0, 0, 0] },

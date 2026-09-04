@@ -86,67 +86,86 @@ describe('公共 Action 叶子分派', () => {
     ).toThrow('unexpected fields');
   });
 
-  it.each([false, true])('零空间唯一木桩把受支持的光线查询写成敌人和空间 Context，阵营过滤=%s', useFaction => {
-    const sequence = parseKnownNativeActionSequenceSource(
-      {
-        actionData: [rayCastEffectFixture({ useFaction })],
-        onlyExecuteWhenSourceIsMainChar: false,
-        onlyExecuteWhenSourceIsGuard: false,
-      },
-      'fixture.ray.sequence',
-      {},
-    );
-    expect(
-      compileCombatActionSequenceSource(sequence, {
-        actionOwnerTarget: 'caster',
-        actionSourceTarget: 'caster',
-        actionTargetTarget: 'enemy',
-      }),
-    ).toEqual({ steps: [] });
-    expect(() =>
-      compileCombatActionSequenceSource(
-        parseKnownNativeActionSequenceSource(
-          {
-            actionData: [rayCastEffectFixture({ useFaction: true, autoSetTargetFaction: false })],
-            onlyExecuteWhenSourceIsMainChar: false,
-            onlyExecuteWhenSourceIsGuard: false,
-          },
-          'fixture.ray.unsupported',
-          {},
-        ),
+  it.each([false, true])(
+    '零空间唯一木桩把受支持的光线查询写成敌人和空间 Context，阵营过滤=%s',
+    useFaction => {
+      const sequence = parseKnownNativeActionSequenceSource(
         {
+          actionData: [rayCastEffectFixture({ useFaction })],
+          onlyExecuteWhenSourceIsMainChar: false,
+          onlyExecuteWhenSourceIsGuard: false,
+        },
+        'fixture.ray.sequence',
+        {},
+      );
+      expect(
+        compileCombatActionSequenceSource(sequence, {
           actionOwnerTarget: 'caster',
           actionSourceTarget: 'caster',
           actionTargetTarget: 'enemy',
-        },
-      ),
-    ).toThrow('unsupported RayCastEffectAction stump projection');
-  });
+        }),
+      ).toEqual({ steps: [] });
+      expect(() =>
+        compileCombatActionSequenceSource(
+          parseKnownNativeActionSequenceSource(
+            {
+              actionData: [rayCastEffectFixture({ useFaction: true, autoSetTargetFaction: false })],
+              onlyExecuteWhenSourceIsMainChar: false,
+              onlyExecuteWhenSourceIsGuard: false,
+            },
+            'fixture.ray.unsupported',
+            {},
+          ),
+          {
+            actionOwnerTarget: 'caster',
+            actionSourceTarget: 'caster',
+            actionTargetTarget: 'enemy',
+          },
+        ),
+      ).toThrow('unsupported RayCastEffectAction stump projection');
+    },
+  );
 
   it.each([
     { factionTarget: 'Ally' },
     { autoSetTargetFaction: false },
     { containsUnMarkable: true },
   ])('阵营过滤只开放已证明的自动敌对分支 %j', extra => {
-    const source = parseKnownNativeActionSequenceSource({
-      actionData: [rayCastEffectFixture({ useFaction: true, ...extra })],
-      onlyExecuteWhenSourceIsMainChar: false,
-      onlyExecuteWhenSourceIsGuard: false,
-    }, 'ray', {});
-    expect(() => compileCombatActionSequenceSource(source, {
-      actionOwnerTarget: 'caster', actionSourceTarget: 'caster', actionTargetTarget: 'enemy',
-    })).toThrow('unsupported RayCastEffectAction stump projection');
+    const source = parseKnownNativeActionSequenceSource(
+      {
+        actionData: [rayCastEffectFixture({ useFaction: true, ...extra })],
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      'ray',
+      {},
+    );
+    expect(() =>
+      compileCombatActionSequenceSource(source, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toThrow('unsupported RayCastEffectAction stump projection');
   });
 
   it('开启阵营过滤的实体宿主不能借用干员阵营证明', () => {
-    const source = parseKnownNativeActionSequenceSource({
-      actionData: [rayCastEffectFixture({ useFaction: true })],
-      onlyExecuteWhenSourceIsMainChar: false,
-      onlyExecuteWhenSourceIsGuard: false,
-    }, 'ray', {});
-    expect(() => compileCombatActionSequenceSource(source, {
-      actionOwnerTarget: 'currentAbilityEntity', actionSourceTarget: 'caster', actionTargetTarget: 'enemy',
-    })).toThrow('unsupported RayCastEffectAction stump projection');
+    const source = parseKnownNativeActionSequenceSource(
+      {
+        actionData: [rayCastEffectFixture({ useFaction: true })],
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      'ray',
+      {},
+    );
+    expect(() =>
+      compileCombatActionSequenceSource(source, {
+        actionOwnerTarget: 'currentAbilityEntity',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toThrow('unsupported RayCastEffectAction stump projection');
   });
 
   it('能力实体 Context 可作为零空间光线的严格空间锚点', () => {
@@ -1190,6 +1209,20 @@ describe('公共 Action 叶子分派', () => {
         },
       ],
     });
+    expect(compile(makeCast({ interruptCurSkillOnlyWhenTargetCastable: true }))).toEqual({
+      steps: [
+        {
+          kind: 'castSkillDuringAction',
+          parameters: {
+            skillId: 'fixture_child',
+            target: 'enemy',
+            skipApplyCost: true,
+            inheritSourceSkillCastInfo: true,
+            interruptCurrentSkillOnlyWhenTargetCastable: true,
+          },
+        },
+      ],
+    });
     expect(() =>
       compile(
         makeCast({
@@ -1197,9 +1230,19 @@ describe('公共 Action 叶子分派', () => {
         }),
       ),
     ).toThrow('unsupported deferred skill cast source/target/id');
-    expect(() => compile(makeCast({ target: targetFixture('Target') }))).toThrow(
-      'unsupported deferred skill cast source/target/id',
-    );
+    expect(compile(makeCast({ target: targetFixture('Target', undefined, 'ignored') }))).toEqual({
+      steps: [
+        {
+          kind: 'castSkillDuringAction',
+          parameters: {
+            skillId: 'fixture_child',
+            target: 'enemy',
+            skipApplyCost: true,
+            inheritSourceSkillCastInfo: true,
+          },
+        },
+      ],
+    });
 
     expect(
       compile(
@@ -2504,3 +2547,72 @@ function lockCameraAimFixture(): Record<string, unknown> {
     targetAlpha: 0.618,
   };
 }
+
+describe('新版施法身份与移动轴动作', () => {
+  it('完整保留 Typhoea 弓术选择配置，固定木桩简化留给投影层', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.TyphoeaArcheryTargetSelect+Data, Gameplay.Beyond',
+      markBuff: {
+        buffId: 'buff_chr_0034_typhoea_normal_skill_aimmedenemy',
+        assignBlackboard: false,
+        assignItems: [],
+        readIdFromBlackboard: false,
+        buffIdKey: '',
+      },
+      targetNum: { useBlackboardKey: false, value: 2, blackboardKey: '' },
+      fullScreen: false,
+      lockRegionHalfHeight: { useBlackboardKey: false, value: 0.5, blackboardKey: '' },
+      lockRegionRatio: { useBlackboardKey: false, value: 1.777, blackboardKey: '' },
+      maxLockDistanceFromCamera: { useBlackboardKey: false, value: 25, blackboardKey: '' },
+      smartPrioritySelect: {
+        smartTargetSelectStrategy: 'SelectByTag',
+        smartTargetBuffIds: [],
+        smartTargetTagQuery: { queryType: 'HasAny', tags: [{ tagId: -1411846745 }] },
+        smartTargetBuffFindSettings: {
+          checkType: 'Id',
+          buffIdList: [],
+          tagQuery: { queryType: 'HasAny', tags: [] },
+        },
+      },
+    };
+    const parsed = parseKnownNativeActionLeafSource(source, 'fixture.typhoeaSelect', {});
+    expect(parsed.family).toBe('typhoeaArcherySelection');
+    if (parsed.family !== 'typhoeaArcherySelection') throw new Error('unexpected family');
+    expect(parsed.action.markBuffId).toBe('buff_chr_0034_typhoea_normal_skill_aimmedenemy');
+    expect(parsed.action.targetCount.value).toBe(2);
+    expect(parsed.action.smartPrioritySelection.tagQuery.tagIds).toEqual([-1411846745]);
+    expect(() =>
+      parseKnownNativeActionLeafSource({ ...source, extra: true }, 'fixture.typhoeaSelect', {}),
+    ).toThrow('unexpected fields');
+  });
+
+  it('严格读取 SaveMoveAxisAngle 的输出键', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.SaveMoveAxisAngle+Data, Gameplay.Beyond',
+      key: 'move_axis_angle',
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.moveAxis', {})).toEqual({
+      family: 'presentationCalculation',
+      action: { kind: 'saveMoveAxisAngle', outputKey: 'move_axis_angle' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource({ ...source, extra: true }, 'fixture.moveAxis', {}),
+    ).toThrow('unexpected fields');
+  });
+
+  it('严格读取普通攻击施法身份继承动作', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.MarkInheritSkillCastIdOnNormalAttack+Data, Gameplay.Beyond',
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.inheritCast', {})).toEqual({
+      family: 'skillCastInheritance',
+      action: { kind: 'inheritSkillCastInfoForBasicAttack' },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource({ ...source, guessed: false }, 'fixture.inheritCast', {}),
+    ).toThrow('unexpected fields');
+  });
+});

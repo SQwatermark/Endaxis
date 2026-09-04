@@ -111,6 +111,8 @@ export interface PostSkillCastRequest {
   readonly castId?: string;
   readonly skipApplyCost?: boolean;
   readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+  /** 原生 forceInterruptCurSkill 分支：先检查请求技能可启动，失败时不得结束当前技能。 */
+  readonly interruptCurrentSkillOnlyWhenTargetCastable?: boolean;
   /** 玩家技能槽输入解析当前替换形态；原生 CastSkill 的显式 Skill ID 必须关闭该解析。 */
   readonly resolveSkillSlot?: boolean;
 }
@@ -755,12 +757,15 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#postSkillCastRequest = null;
 
     const previousSkill = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
-    this.#currentSkill = null;
     const nextSkill = this.#requireSkill(
       request.skillId,
       request.castId,
       request.resolveSkillSlot !== false,
     );
+    if (request.interruptCurrentSkillOnlyWhenTargetCastable === true && !nextSkill.canStart()) {
+      return;
+    }
+    this.#currentSkill = null;
     if (previousSkill !== null) this.#interruptForNextSkill(previousSkill, nextSkill);
     this.#beforePostSkillCastStart?.(request);
     if (nextSkill.tryStart()) {

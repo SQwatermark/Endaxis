@@ -322,6 +322,60 @@ describe('原生控制流来源树', () => {
       { body: { kind: 'leaf', value: 'CheckMainCharacterCondition' } },
     ]);
   });
+
+  it('PhysicsCast 保留命中/未命中子序列与物理查询协议', () => {
+    const parsed = parseNativeSequenceSource(
+      sequence([
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.PhysicsCastAction+PhysicsCastActionData, Gameplay.Beyond',
+          succeedActions: sequence([leaf('HitAction')]),
+          failActions: sequence([leaf('MissAction')]),
+          hitPositionTargetGroupKey: 'hitPos',
+          hitDistanceBlackboardKey: '',
+          pointDirType: 'SourceToTarget',
+          sourceSettings: targetFixture('Source'),
+          targetSettings: targetFixture('Source'),
+          sourceForwardData: {
+            mountPoint: 'None',
+            offsetForwardDirectionType: 'SourceForward',
+            startPosOffset: {},
+            directionSubType: 'MountPointTransformForward',
+            rayLocalRotationEuler: {},
+          },
+          sourceToTargetData: {
+            sourceMountPoint: 'None',
+            offsetForwardDirectionType: 'SourceForward',
+            startPosOffset: {},
+            targetMountPoint: 'None',
+            endPosOffset: {},
+            rayLocalRotationEuler: {},
+          },
+          layerMask: {},
+          maxDistance: scalarFixture(100),
+          queryTriggerInteraction: 'UseGlobal',
+          sphereRadius: scalarFixture(0),
+          needTick: false,
+          tickInterval: 0.1,
+          stopTickWhenHit: false,
+        },
+      ]),
+      'fixture.sequence',
+      {},
+      parseLeafName,
+    );
+    expect(parsed.actions[0]?.body).toMatchObject({
+      kind: 'physicsCast',
+      value: {
+        hitPositionTargetGroupKey: 'hitPos',
+        hitDistanceBlackboardKey: '',
+        pointDirectionType: 'SourceToTarget',
+        needTick: false,
+      },
+      whenHit: { actions: [{ body: { kind: 'leaf', value: 'HitAction' } }] },
+      whenMiss: { actions: [{ body: { kind: 'leaf', value: 'MissAction' } }] },
+    });
+  });
 });
 
 function sequence(

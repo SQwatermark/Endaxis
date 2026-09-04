@@ -11,6 +11,7 @@ import {
 } from './primitives.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { parsePhysicsCastActionSource, type PhysicsCastActionSource } from './physicsCastAction.ts';
 
 const ACTION_META_FIELDS = [
   '$type',
@@ -70,6 +71,12 @@ export type NativeActionBodySource<TLeaf> =
       readonly kind: 'forEach';
       readonly target: TargetReferenceSource;
       readonly action: NativeSequenceSource<TLeaf>;
+    }
+  | {
+      readonly kind: 'physicsCast';
+      readonly value: PhysicsCastActionSource;
+      readonly whenHit: NativeSequenceSource<TLeaf>;
+      readonly whenMiss: NativeSequenceSource<TLeaf>;
     }
   | {
       readonly kind: 'channeling';
@@ -137,6 +144,10 @@ export function collectNativeActionNodes<TLeaf>(
           visitSequence(body.condition);
           visitSequence(body.whenTrue);
           visitSequence(body.whenFalse);
+          break;
+        case 'physicsCast':
+          visitSequence(body.whenHit);
+          visitSequence(body.whenMiss);
           break;
         case 'switch':
           body.options.forEach(option => visitSequence(option.action));
@@ -227,7 +238,24 @@ function parseNativeActionNodeSource<TLeaf>(
   };
 
   let body: NativeActionBodySource<TLeaf>;
-  if (nativeName === 'TeleportAction' && 'actionOnTargetPointInvalid' in action) {
+  if (nativeName === 'PhysicsCastAction') {
+    body = {
+      kind: 'physicsCast',
+      value: parsePhysicsCastActionSource(action, path, inheritedBlackboard),
+      whenHit: parseNativeSequenceSource(
+        action.succeedActions,
+        `${path}.succeedActions`,
+        inheritedBlackboard,
+        parseLeaf,
+      ),
+      whenMiss: parseNativeSequenceSource(
+        action.failActions,
+        `${path}.failActions`,
+        inheritedBlackboard,
+        parseLeaf,
+      ),
+    };
+  } else if (nativeName === 'TeleportAction' && 'actionOnTargetPointInvalid' in action) {
     // 只拆出原生明确声明的回调；动作自身仍由唯一叶子解析器严格读取。
     // 不按 actionData 是否为空提前判断有效性，也不将回调扁平化为无条件执行。
     const { actionOnTargetPointInvalid, ...owner } = action;

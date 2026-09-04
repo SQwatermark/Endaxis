@@ -144,6 +144,7 @@ export function compileActionNode(
       'modeAndResourcePolicy',
       'skillCooldownMutation',
       'skillSlotReplacement',
+      'typhoeaArcherySelection',
       'eventListener',
       'environment',
       'elementalInfliction',
@@ -266,9 +267,13 @@ export function compileActionNode(
   if (node.body.value.family === 'customAbilityEvent') {
     const action = node.body.value.action;
     const sourceIsCaster =
-      action.eventSource.targetSource === 'Source' &&
-      action.eventSource.targetGroupKey === '' &&
-      context.actionSourceTarget === 'caster';
+      (action.eventSource.targetSource === 'Source' &&
+        action.eventSource.targetGroupKey === '' &&
+        context.actionSourceTarget === 'caster') ||
+      (action.eventSource.targetSource === 'Owner' &&
+        action.eventSource.targetGroupKey === '' &&
+        context.actionOwnerTarget === 'buffOwner' &&
+        context.fixedBuffOwnerTarget === 'caster');
     const sourceIsActionOwnerAbilityEntity =
       action.eventSource.targetSource === 'Owner' &&
       action.eventSource.targetGroupKey === '' &&
@@ -276,9 +281,13 @@ export function compileActionNode(
         (context.actionOwnerTarget === 'buffOwner' &&
           context.fixedBuffOwnerTarget === 'currentAbilityEntity'));
     const targetIsCaster =
-      action.targets.targetSource === 'Source' &&
-      action.targets.targetGroupKey === '' &&
-      context.actionSourceTarget === 'caster';
+      (action.targets.targetSource === 'Source' &&
+        action.targets.targetGroupKey === '' &&
+        context.actionSourceTarget === 'caster') ||
+      (action.targets.targetSource === 'Owner' &&
+        action.targets.targetGroupKey === '' &&
+        context.actionOwnerTarget === 'buffOwner' &&
+        context.fixedBuffOwnerTarget === 'caster');
     if (
       (!sourceIsCaster && !sourceIsActionOwnerAbilityEntity) ||
       !targetIsCaster ||
@@ -336,9 +345,14 @@ export function compileActionNode(
       (action.target.targetSource === 'Context' &&
         action.target.targetGroupKey !== '' &&
         context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true) ||
+      // TargetSource.Target reads the action input target handle; targetGroupKey and embedded
+      // selector fields are not consulted by this branch. Active skill projection binds that
+      // input handle to the unique enemy.
+      (action.target.targetSource === 'Target' && context.actionTargetTarget === 'enemy') ||
       // AbilityActionUtils.GetTargetsView 的 MainTarget 分支直接读取 BattleManager 主目标，
       // 不消费 TargetSettings 中残留的命名组或 selector。固定唯一木桩模型下其身份就是 enemy。
-      action.target.targetSource === 'MainTarget';
+      action.target.targetSource === 'MainTarget' ||
+      isUniqueEnemyMainTargetInstantSearch(action.target);
     const targetIsFixedCaster =
       action.target.targetSource === 'Owner' &&
       action.target.targetGroupKey === '' &&
@@ -359,6 +373,9 @@ export function compileActionNode(
           target: targetIsFixedCaster ? 'caster' : 'enemy',
           skipApplyCost: action.skipApplyCost,
           inheritSourceSkillCastInfo: action.inheritSourceSkillCastId,
+          ...(action.interruptCurrentSkillOnlyWhenTargetCastable
+            ? { interruptCurrentSkillOnlyWhenTargetCastable: true }
+            : {}),
         },
       },
     ];
@@ -788,17 +805,18 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'normalSkillUltimateEnergy') {
     const action = node.body.value.action;
+    const sourceIsCaster =
+      action.source.targetGroupKey === '' &&
+      ((action.source.targetSource === 'Source' && context.actionSourceTarget === 'caster') ||
+        (action.source.targetSource === 'Owner' &&
+          (context.actionOwnerTarget === 'caster' || context.fixedBuffOwnerTarget === 'caster')));
     const coefficient =
       action.coefficient.blackboardKey === null
         ? action.coefficient.value
         : typeof action.coefficient.levelValues === 'number'
           ? action.coefficient.levelValues
           : null;
-    if (
-      action.source.targetSource !== 'Source' ||
-      action.source.targetGroupKey !== '' ||
-      coefficient === null
-    )
+    if (!sourceIsCaster || coefficient === null)
       throw new Error(`${node.sourcePath}: unsupported ObtainUspInNormalSkill projection`);
     return [
       {
@@ -870,9 +888,7 @@ export function compileActionNode(
   if (node.body.value.family === 'forcedElementalStatus') {
     const action = node.body.value.action;
     const targetsEnemy =
-      (action.target.targetSource === 'Target' &&
-        action.target.targetGroupKey === '' &&
-        context.actionTargetTarget === 'enemy') ||
+      (action.target.targetSource === 'Target' && context.actionTargetTarget === 'enemy') ||
       (action.target.targetSource === 'Context' &&
         action.target.targetGroupKey !== '' &&
         (partyTargetGroups.get(action.target.targetGroupKey) === 'enemy' ||
@@ -922,7 +938,7 @@ export function compileActionNode(
         },
       },
       {
-        kind: 'applyBuff',
+        kind: 'applyBuff' as const,
         parameters: {
           buffId: forcedBuffIds[action.statusElement],
           target: 'enemy',
@@ -1381,6 +1397,7 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'blackboardCalculation') {
     const action = node.body.value.action;
+    if (context.combatInvisiblePresentationBlackboardKeys?.has(action.key)) return [];
     const operation = ACTION_VALUE_OPERATIONS[action.operation];
     if (
       (operation !== 'add' && operation !== 'multiply' && operation !== 'divide') ||
@@ -1460,12 +1477,12 @@ export function compileActionNode(
   if (node.body.value.family === 'finisherSpGain') {
     const action = node.body.value.action;
     const targetIsProvenEnemy =
-      (action.target.targetGroupKey === '' && context.actionTargetTarget === 'enemy') ||
-      (action.target.targetGroupKey.length > 0 &&
+      (action.target.targetSource === 'Target' && context.actionTargetTarget === 'enemy') ||
+      (action.target.targetSource === 'Context' &&
+        action.target.targetGroupKey.length > 0 &&
         context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true);
     if (
       action.source.targetSource !== 'Source' ||
-      action.target.targetSource !== 'Target' ||
       action.source.targetGroupKey !== '' ||
       context.actionSourceTarget !== 'caster' ||
       !targetIsProvenEnemy
@@ -1786,6 +1803,50 @@ export function compileActionNode(
   // 单技能编译不知道原生 skillId 对应哪个产品技能组；整名生成器必须提供稳定身份映射。
   // Buff 顶层换槽仍由 Buff 定义装配器单独处理，故无扩展时保持来源审计但不重复执行。
   if (node.body.value.family === 'skillSlotReplacement') return [];
+  if (node.body.value.family === 'skillCastInheritance') {
+    return [{ kind: 'inheritSkillCastInfoForBasicAttack', parameters: {} }];
+  }
+  if (node.body.value.family === 'typhoeaArcherySelection') {
+    const action = node.body.value.action;
+    if (
+      action.targetCount.blackboardKey !== null ||
+      action.targetCount.value < 1 ||
+      action.markBuffId.length === 0
+    ) {
+      throw new Error(`${node.sourcePath}: unsupported Typhoea target selection count or mark`);
+    }
+    // 原生动作把选择配置注册到 BattleManager，管理器持续维护“已瞄准”列表并同步
+    // markBuff；OnEnd 会清除全部标记。固定木桩模型只有一个存活敌人，所有屏幕、距离和
+    // 优先级筛选均选择该敌人，因此等价为给唯一敌人安装一个由当前 Buff 持有的子 Buff。
+    return [
+      {
+        kind: 'applyBuff' as const,
+        parameters: {
+          buffId: action.markBuffId,
+          target: 'enemy',
+          inheritSourceSkillCastInfo: true,
+          asChildBuff: true,
+        },
+      },
+    ];
+  }
+  if (node.body.value.family === 'incomingDamageDefense') {
+    const action = node.body.value.action;
+    if (
+      action.kind !== 'damageTagImmunity' ||
+      action.target.targetSource !== 'Owner' ||
+      action.target.targetGroupKey !== '' ||
+      context.actionOwnerTarget !== 'buffOwner' ||
+      context.fixedBuffOwnerTarget !== 'caster'
+    ) {
+      throw new Error(
+        `${node.sourcePath}: incoming-damage immunity target is not a caster Buff owner`,
+      );
+    }
+    // Endaxis 的固定木桩不会主动攻击干员；该规则只过滤宿主收到的伤害，不能改变宿主
+    // 对木桩输出的 DamagePack。仍严格解析目标和查询，防止敌方免疫被误删。
+    return [];
+  }
   throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
 }
 
@@ -1905,9 +1966,6 @@ function compileBuffApplication(
     )
   )
     throw new Error(`${sourcePath}: unaudited receiving Buff event target`);
-  if (action.isExtra) {
-    throw new Error(`${sourcePath}: unsupported CreateBuff lifecycle options`);
-  }
   if (
     action.overrideBuffIconDuration &&
     !(
@@ -2055,6 +2113,7 @@ function compileBuffApplication(
             ? {}
             : { count: actionValueOperand(action.count) }),
           ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
+          ...(action.isExtra ? { isExtra: true } : {}),
           ...(action.autoFinishByAction ? { finishByAction: true } : {}),
           ...(action.inheritSkillIds.length === 0
             ? {}
@@ -2091,10 +2150,14 @@ function compileBuffApplication(
   ];
 }
 
-const ACTION_VALUE_OPERATIONS: Readonly<Record<string, 'assign' | 'add' | 'multiply' | 'divide'>> =
-  {
-    Assign: 'assign',
-    Add: 'add',
-    Multiply: 'multiply',
-    Divide: 'divide',
-  };
+const ACTION_VALUE_OPERATIONS: Readonly<
+  Record<string, 'assign' | 'add' | 'multiply' | 'divide' | 'floor' | 'ceil' | 'roundToInt'>
+> = {
+  Assign: 'assign',
+  Add: 'add',
+  Multiply: 'multiply',
+  Divide: 'divide',
+  Floor: 'floor',
+  Ceil: 'ceil',
+  RoundToInt: 'roundToInt',
+};

@@ -126,12 +126,37 @@ export interface CameraPresentationActionSource {
     | 'passiveUiValue'
     | 'animatorAimOffset'
     | 'squadTeleportOmitted'
-    | 'dashWindowOmitted';
+    | 'dashWindowOmitted'
+    | 'typhoeaHudHint';
   readonly readBlackboardKeys?: readonly string[];
   readonly target?: TargetReferenceSource;
   readonly sourceSkillId?: string;
   readonly nativeSkillType?: import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType;
   readonly value?: ScalarSource;
+}
+
+/** 汤芙亚专属 HUD 只订阅箭矢/能量 Buff；Buff 本身仍由正式战斗运行时维护。 */
+export function parseTyphoeaHudHintActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'arrowBuffId',
+      'energyBuffId',
+    ]),
+    path,
+  );
+  requireNonEmptyString(action.arrowBuffId, `${path}.arrowBuffId`);
+  requireNonEmptyString(action.energyBuffId, `${path}.energyBuffId`);
+  return { kind: 'typhoeaHudHint' };
 }
 
 /** 只驱动 Animator 的瞄准偏移层；完整校验字段后在无表现模拟中省略。 */
@@ -269,7 +294,7 @@ export function parseForceTargetInFightActionSource(
   return { kind: 'forceTargetInFightOmitted' };
 }
 
-/** 当前模拟没有产生 InterruptHenshin 预定义标签；严格保留其唯一“结束自身形态 Buff”形状。 */
+/** 当前模拟不产生外部形态中断或受控标签；严格保留其唯一“结束自身形态 Buff”形状。 */
 export function parseInterruptHenshinTagListenerActionSource(
   value: unknown,
   path: string,
@@ -299,9 +324,10 @@ export function parseInterruptHenshinTagListenerActionSource(
   ) {
     return parseCutsceneCleanupTagListener(action, path, inheritedBlackboard);
   }
+  const predefinedQuery = requireString(action.predefinedQuery, `${path}.predefinedQuery`);
   if (
     requireString(action.listenerType, `${path}.listenerType`) !== 'PredefinedQuery' ||
-    requireString(action.predefinedQuery, `${path}.predefinedQuery`) !== 'InterruptHenshin' ||
+    (predefinedQuery !== 'InterruptHenshin' && predefinedQuery !== 'InImmobilized') ||
     !requireBoolean(action.executeOnMatch, `${path}.executeOnMatch`)
   ) {
     throw new Error(`${path}: unsupported TagQueryListener projection`);
@@ -312,7 +338,7 @@ export function parseInterruptHenshinTagListenerActionSource(
     requireString(customQuery.queryType, `${path}.customQuery.queryType`) !== 'HasAny' ||
     requireArray(customQuery.tags, `${path}.customQuery.tags`).length !== 0
   ) {
-    throw new Error(`${path}: InterruptHenshin listener must have an empty custom query`);
+    throw new Error(`${path}: predefined listener must have an empty custom query`);
   }
   const sequence = requireRecord(action.executeAction, `${path}.executeAction`);
   requireExactFields(
@@ -333,7 +359,7 @@ export function parseInterruptHenshinTagListenerActionSource(
     throw new Error(`${path}: guarded InterruptHenshin listener is unsupported`);
   }
   const children = requireArray(sequence.actionData, `${path}.executeAction.actionData`);
-  if (children.length !== 1) throw new Error(`${path}: expected one InterruptHenshin action`);
+  if (children.length !== 1) throw new Error(`${path}: expected one predefined-listener action`);
   const finish = parseAdvancedBuffFinishActionSource(
     children[0],
     `${path}.executeAction.actionData[0]`,
@@ -355,7 +381,7 @@ export function parseInterruptHenshinTagListenerActionSource(
     !isPlainTargetReference(finish.buffSource, 'Source') ||
     !isPlainTargetReference(finish.finishSource, 'Source')
   ) {
-    throw new Error(`${path}: unsupported InterruptHenshin finish action`);
+    throw new Error(`${path}: unsupported predefined-listener finish action`);
   }
   return { kind: 'interruptHenshinListenerOmitted' };
 }
@@ -1042,16 +1068,27 @@ export function parseVoiceTriggerActionSource(
     path,
   );
   requireString(action._triggerKey, `${path}._triggerKey`);
-  requireString(action._speakerType, `${path}._speakerType`);
+  const speakerTypePath = `${path}._speakerType`;
+  const speakerType = action._speakerType;
+  if (!(
+    typeof speakerType === 'string' ||
+    (Number.isInteger(speakerType) && (speakerType as number) >= 0 && (speakerType as number) <= 4)
+  )) {
+    throw new Error(`${speakerTypePath}: expected VoSpeakerType name or native value 0..4`);
+  }
   requireInteger(action._canInterruptTimeMs, `${path}._canInterruptTimeMs`);
   // 新版时间参数传给语音 SeekResponse，不是战斗时间轴偏移。
   for (const key of ['_jumpToWhenPlayMs', '_seekFadeInMs']) {
     if (key in action) requireInteger(action[key], `${path}.${key}`);
   }
   // 原生把成功播放的句柄写回动作黑板；有写回时不能直接按纯语音省略。
-  if ('_responseQuestIdKey' in action &&
-      requireString(action._responseQuestIdKey, `${path}._responseQuestIdKey`) !== '') {
-    throw new Error(`${path}._responseQuestIdKey: voice handle consumers require explicit projection`);
+  if (
+    '_responseQuestIdKey' in action &&
+    requireString(action._responseQuestIdKey, `${path}._responseQuestIdKey`) !== ''
+  ) {
+    throw new Error(
+      `${path}._responseQuestIdKey: voice handle consumers require explicit projection`,
+    );
   }
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
   return { kind: 'voiceTrigger' };
@@ -1178,7 +1215,10 @@ export function parseTemporaryUnlockActionSource(
   requireExactFields(
     action,
     new Set([
-      ...ACTION_META_FIELDS, 'compareTarget', 'targetSettings', 'disableLockAimPriority',
+      ...ACTION_META_FIELDS,
+      'compareTarget',
+      'targetSettings',
+      'disableLockAimPriority',
       ...('blockManualLock' in action ? ['blockManualLock'] : []),
     ]),
     path,
@@ -1187,7 +1227,8 @@ export function parseTemporaryUnlockActionSource(
   parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`);
   requireNumber(action.disableLockAimPriority, `${path}.disableLockAimPriority`);
   // 只限制玩家手动切换镜头锁定，不改已经选出的技能目标。
-  if ('blockManualLock' in action) requireBoolean(action.blockManualLock, `${path}.blockManualLock`);
+  if ('blockManualLock' in action)
+    requireBoolean(action.blockManualLock, `${path}.blockManualLock`);
   return { kind: 'temporaryUnlock' };
 }
 
@@ -1667,9 +1708,16 @@ export function parseEffectActionSource(
   requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
   requireNumber(action.priorityOffset, `${path}.priorityOffset`);
   requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
-  for (const key of ['isEnable', 'useGuardLodSourceOverride', 'isMainCharacterActive',
-    'isTargetMainCharacterActive', 'isShowBigEffect', 'playOnHittableObjects', 'forceMainBody',
-    'isCreateWithSourceModelActive']) {
+  for (const key of [
+    'isEnable',
+    'useGuardLodSourceOverride',
+    'isMainCharacterActive',
+    'isTargetMainCharacterActive',
+    'isShowBigEffect',
+    'playOnHittableObjects',
+    'forceMainBody',
+    'isCreateWithSourceModelActive',
+  ]) {
     requireBoolean(action[key], `${path}.${key}`);
   }
   requireRecord(action.guardLodSource, `${path}.guardLodSource`);
@@ -1680,7 +1728,9 @@ export function parseEffectActionSource(
   }
   // 句柄写回可能有后续消费者，不能沿用纯表现省略；边界依据见 combat-spec/presentation-actions。
   if (requireString(action.saveEffectIdToBlackboard, `${path}.saveEffectIdToBlackboard`) !== '') {
-    throw new Error(`${path}.saveEffectIdToBlackboard: effect handle consumers require explicit projection`);
+    throw new Error(
+      `${path}.saveEffectIdToBlackboard: effect handle consumers require explicit projection`,
+    );
   }
   return {
     kind: 'effect',

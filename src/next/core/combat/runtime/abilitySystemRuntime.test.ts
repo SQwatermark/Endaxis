@@ -176,6 +176,59 @@ describe('AbilitySystemRuntime', () => {
     ]);
   });
 
+  it('目标技能不可施放时保留当前技能，不执行延迟施法准备', () => {
+    const events: string[] = [];
+    const first = new FixtureRuntime('first', events);
+    const second = Object.assign(new FixtureRuntime('second', events), {
+      canStart: () => false,
+      tryStart: () => {
+        events.push('unexpected-start:second');
+        return false;
+      },
+    });
+    const ability = new AbilitySystemRuntime({
+      skills: [first, second],
+      beforePostSkillCastStart: request => events.push(`before:${request.skillId}`),
+    });
+    expect(ability.tryStartSkill('first')).toBe(true);
+    events.length = 0;
+
+    ability.requestPostSkillCast({
+      skillId: 'second',
+      interruptCurrentSkillOnlyWhenTargetCastable: true,
+    });
+    ability.advanceFrame();
+
+    expect(events).toEqual(['tick:first', 'tick:second']);
+    expect(ability.currentSkillId).toBe('first');
+  });
+
+  it('未启用可施放保护时保留原生先中断、后尝试施放语义', () => {
+    const events: string[] = [];
+    const first = new FixtureRuntime('first', events);
+    const second = Object.assign(new FixtureRuntime('second', events), {
+      canStart: () => false,
+      tryStart: () => {
+        events.push('failed-start:second');
+        return false;
+      },
+    });
+    const ability = new AbilitySystemRuntime({ skills: [first, second] });
+    expect(ability.tryStartSkill('first')).toBe(true);
+    events.length = 0;
+
+    ability.requestPostSkillCast({ skillId: 'second' });
+    ability.advanceFrame();
+
+    expect(events).toEqual([
+      'tick:first',
+      'tick:second',
+      'interrupt:first:castNextSkill',
+      'failed-start:second',
+    ]);
+    expect(ability.currentSkillId).toBeNull();
+  });
+
   it('treats each placed skill as an instruction to replace the previous skill', () => {
     const events: string[] = [];
     const basicAttack = new FixtureRuntime('basic', events, 'basicAttack');

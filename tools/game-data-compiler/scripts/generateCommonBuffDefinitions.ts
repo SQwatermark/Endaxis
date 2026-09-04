@@ -18,7 +18,7 @@ interface Arguments {
   readonly skillPatchTable: string;
   readonly buffDataRoot: string;
   readonly abilityEntityCatalog: string;
-  readonly projectileBlackboardCatalog: string;
+  readonly projectileBlackboardCatalog?: string;
   readonly gameplayTagCatalog: string;
   readonly timeDilationCatalog: string;
   readonly globalBuffCatalog: string;
@@ -173,7 +173,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       skillPatchTable: required('--skill-patch-table'),
       buffDataRoot: required('--buff-data-root'),
       abilityEntityCatalog: required('--ability-entity-catalog'),
-      projectileBlackboardCatalog: required('--projectile-blackboard-catalog'),
+      ...(values.has('--projectile-blackboard-catalog')
+        ? { projectileBlackboardCatalog: required('--projectile-blackboard-catalog') }
+        : {}),
       gameplayTagCatalog: required('--gameplay-tag-catalog'),
       timeDilationCatalog: required('--time-dilation-catalog'),
       globalBuffCatalog: required('--global-buff-catalog'),

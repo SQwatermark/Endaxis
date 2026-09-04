@@ -13,10 +13,13 @@ import {
   type TagQuerySource,
 } from './tagQuery.ts';
 import { parseScalarSource, type ScalarSource } from './scalar.ts';
+import { parseBlackboardDataPairs, type DeclaredBlackboardValueSource } from './blackboard.ts';
 
 export interface ProjectileRuntimeSource {
   readonly projectileId: string;
   readonly decodeStatus: 'partial' | 'complete';
+  /** 新版 VFS 严格解码直接恢复的 Projectile AbilitySystem 实体黑板；缺少表示尚未解出。 */
+  readonly entityBlackboard?: readonly DeclaredBlackboardValueSource[];
   readonly finishDuration: number;
   /** 保留 BlackboardDouble 身份；零空间投影可以忽略距离阈值，但审计不能丢掉来源键。 */
   readonly finishDistance: ScalarSource;
@@ -134,6 +137,14 @@ export function parseProjectileRuntimeSource(
   return {
     projectileId: requireNonEmptyString(root.id, `${path}.id`),
     decodeStatus: root.decodeStatus,
+    ...(root.entityBlackboard === undefined
+      ? {}
+      : {
+          entityBlackboard: parseBlackboardDataPairs(
+            requireArray(root.entityBlackboard, `${path}.entityBlackboard`),
+            `${path}.entityBlackboard`,
+          ),
+        }),
     finishDuration: parseDirectBlackboardDouble(root.finishDuration, `${path}.finishDuration`),
     finishDistance: parseScalarSource(root.finishDistance, `${path}.finishDistance`, {}),
     finishOnReach: requireBoolean(root.finishOnReach, `${path}.finishOnReach`),

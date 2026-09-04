@@ -1,4 +1,5 @@
 {
+  "ignoredRuntimeTemplateSourceFiles": ["CharacterData/chr_0002_endminm.runtime-template.json"],
   "simulationNoEffectBuffIds": [],
   "operators": [
     {
@@ -180,7 +181,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0004_pelica.runtime-template.json",
-        "sourceSha256": "d3e8abd97fcc0b4411dfc422309f8a638681d6f8fd77a898e23e0af5cb9eae82",
+        "sourceSha256": "5cedd39b343b467b6f4dd66e7b0297b1d6f4bc9f5e8b570f32cfb280d125d498",
         "sourceCharacterId": "chr_0004_pelica",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -363,7 +364,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0009_azrila.runtime-template.json",
-        "sourceSha256": "f85ac7c17d6d1ae067c87f43b254d4952ecedbf554d5cbc0e919307fe5acbd08",
+        "sourceSha256": "2947032dac743cdf8a5ad8b894110b78aba6e3a76462ef5188a107887aa058ca",
         "sourceCharacterId": "chr_0009_azrila",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -546,7 +547,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0006_wolfgd.runtime-template.json",
-        "sourceSha256": "15af52a0964f75c46e8a0d4463347f01837fa3e517a078fd0cccbd94406cec0d",
+        "sourceSha256": "8454a664e612bb45c02be37a7b62fa1822c0dea68493a3047aaf095aae2b7efa",
         "sourceCharacterId": "chr_0006_wolfgd",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -729,7 +730,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0023_antal.runtime-template.json",
-        "sourceSha256": "34e6ec444c2560da22417a98de8515e8125b888b2ed596f3e5a8faf608c2ca57",
+        "sourceSha256": "69082473dbec46a96a1ff843de98a2b7ebeb033e01b6f307d5d42e9ea10de92b",
         "sourceCharacterId": "chr_0023_antal",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -928,7 +929,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0024_deepfin.runtime-template.json",
-        "sourceSha256": "e906de11329283fe04422c348db6dc8a376d0911563bde12c91e6a860d5d4b81",
+        "sourceSha256": "8d3616ac12fa7cbb0612f247998ddf73ac86b7d1d5507ecde7081256d37ad8d1",
         "sourceCharacterId": "chr_0024_deepfin",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -1127,7 +1128,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0011_seraph.runtime-template.json",
-        "sourceSha256": "7ff37a40f89c304cf6bc5b33d1ddb75894ddb07c988f989f9c02747c7e432054",
+        "sourceSha256": "3aaf44a4f97e900324040179c41298bf25edc757a284c673d4cf17afcac7007c",
         "sourceCharacterId": "chr_0011_seraph",
         "comboSkillGroupKey": null
       }
@@ -1326,7 +1327,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0012_avywen.runtime-template.json",
-        "sourceSha256": "aefbe71b7b9b14a258c922be943c3329fcb3cef8dd8f57dd860f7c8c7e3549cc",
+        "sourceSha256": "0796e0c2a1f97638b7cc0a05ecf8e8f8b27c3a8afdae1e273d490c972afe5821",
         "sourceCharacterId": "chr_0012_avywen",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -1509,7 +1510,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0020_meurs.runtime-template.json",
-        "sourceSha256": "f9dfb91b0ed56e077fab0bfc6686db623296a4a89398b31fc231515017468d95",
+        "sourceSha256": "e147abe4466e045ba0741cb4c9e35d2942f4dc5930519e08e177774901db6ee8",
         "sourceCharacterId": "chr_0020_meurs",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -1692,7 +1693,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0025_ardelia.runtime-template.json",
-        "sourceSha256": "552e39d601e12addd144dd6ae22f4e902569c331fa11a5521432763c7a2fe627",
+        "sourceSha256": "1e5cead1de6950a0a8577a76b3ac6f0e705bfda933c8d2324c91aab3de21cd8e",
         "sourceCharacterId": "chr_0025_ardelia",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -1894,7 +1895,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0005_chen.runtime-template.json",
-        "sourceSha256": "34e2d290411acf774b3d5fc79747e1d02783632da8bc10cabe337d59d3dda9b1",
+        "sourceSha256": "e6c2994b4f219d537b8b10dba6b1820321facfa5c5e00076bbca41c0cd5de158",
         "sourceCharacterId": "chr_0005_chen",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -2120,7 +2121,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0028_wulfa.runtime-template.json",
-        "sourceSha256": "03ca73085922b930531fd079f2c3e11d934ba5b0eff594465cbc5ef2ff17b4eb",
+        "sourceSha256": "b8efe3df64495e90bb66c35f33b7f74a09e7c7b647d16f32bd2e01afd6fbc132",
         "sourceCharacterId": "chr_0028_wulfa",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -2369,7 +2370,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0033_camille.runtime-template.json",
-        "sourceSha256": "d6cb89d0b2ceadc35a201270ad225bc42ba79d5684cf72b536c34db89735539c",
+        "sourceSha256": "d3b9824e9abd6bad631c05a92f43ac4d77a2172b381e8a894b78a2caccd72219",
         "sourceCharacterId": "chr_0033_camille",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -2567,7 +2568,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0029_pograni.runtime-template.json",
-        "sourceSha256": "cd8776e86c6d2205fe354cfc501d75834ac95cb37fb28855abe7246f96e3d558",
+        "sourceSha256": "e878e68ee58af5001a6e95ecd2681ac464b2ba111cf84b8a8c4b094e0e0646cc",
         "sourceCharacterId": "chr_0029_pograni",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -2860,7 +2861,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0030_zhuangfy.runtime-template.json",
-        "sourceSha256": "5c35d0c2af6019329e06e1cb78e8872850efbd5097f5e4c139596de2e99d34c2",
+        "sourceSha256": "aa43801294219ab08c0c9756204a12d37bab6b7c9d93cce1c42cc59f655e38f2",
         "sourceCharacterId": "chr_0030_zhuangfy",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -2963,7 +2964,7 @@
       "compileTimeOnlyBasePassiveSkillIds": ["chr_0032_lizhiyan_passive"],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0032_lizhiyan.runtime-template.json",
-        "sourceSha256": "33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc",
+        "sourceSha256": "10e1ce2ff0a1784dac610fddc361c4af78000ed2184ea204a9abfd1933d1c630",
         "sourceCharacterId": "chr_0032_lizhiyan",
         "comboSkillGroupKey": "comboSkill"
       },
@@ -3290,7 +3291,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0007_ikut.runtime-template.json",
-        "sourceSha256": "3459b404017613eacb1e9f56ada1d988f76b3f76ff4fa3057081fb2e2db5ee64",
+        "sourceSha256": "266366d2a775cd2544cd8a48b789c455f1b374040e9114113ac3bfa27fb226d1",
         "sourceCharacterId": "chr_0007_ikut",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -3477,7 +3478,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0013_aglina.runtime-template.json",
-        "sourceSha256": "17143ce39b192f058732a466de668dfc6ea24da9e0f2389a4e5ab871cd5c58d1",
+        "sourceSha256": "7464d19fe71a5a73a978736f92eb2d246c27792c8097b5737dbeacd7241629f7",
         "sourceCharacterId": "chr_0013_aglina",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -3665,7 +3666,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0015_lifeng.runtime-template.json",
-        "sourceSha256": "7308056bd49346aa788863629060dd5f1e1ab034436a0c58f2f8eceeeca15bf6",
+        "sourceSha256": "9bc238f8568edb235ea72e90dd55010c02b4043eb4c993c45130a26fcea2cbc9",
         "sourceCharacterId": "chr_0015_lifeng",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -3851,7 +3852,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0021_whiten.runtime-template.json",
-        "sourceSha256": "f79f53e49db0eeeef4f3985f906ee997b849cd6c3cd542d4c28c6e5d7755d81a",
+        "sourceSha256": "483cc5c85926e36efe6011ec8c12b60cf0dd12f22975fd3f7c9fb8d279a3749a",
         "sourceCharacterId": "chr_0021_whiten",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -4040,7 +4041,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0018_dapan.runtime-template.json",
-        "sourceSha256": "a449237fea607b52c9df0dff9746d79c7700ae15b3ec2871e52c7200454a45b5",
+        "sourceSha256": "d5ca0bae0b1a92733d7f0746269c37263aecad2e2ca68aff6412fa6268163ebe",
         "sourceCharacterId": "chr_0018_dapan",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -4230,7 +4231,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0019_karin.runtime-template.json",
-        "sourceSha256": "0a7036f7c55521500500b1e29558732378380254d5bb7d937fd466f72e61b85b",
+        "sourceSha256": "b4ed155669ffe3b01f1de2d799c78f17fc90f36a403aa8ef1a840916171586b7",
         "sourceCharacterId": "chr_0019_karin",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -4444,7 +4445,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0027_tangtang.runtime-template.json",
-        "sourceSha256": "7fdfa2f96443489d39c497117e8660e2471f3cc3c3c571858321af171df98f4c",
+        "sourceSha256": "183b53c19d30f2ad9c78253c17fd828c28f36a9893a60fa167ce6140107c9045",
         "sourceCharacterId": "chr_0027_tangtang",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -4647,7 +4648,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0022_bounda.runtime-template.json",
-        "sourceSha256": "092afffb6ce596f7cd4e68ebdef229b6123cfb37026b0db88e3f1d6170c8f2ce",
+        "sourceSha256": "881a65baaf09897f44683efffb8da7bee20808131a07b9fc6762eb73d3527351",
         "sourceCharacterId": "chr_0022_bounda",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -4934,7 +4935,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0003_endminf.runtime-template.json",
-        "sourceSha256": "e3940ddcf0729961d2490553993007c0ded39df3a0a98c3dc148f2ac8b75874f",
+        "sourceSha256": "f23bdabd5ebed5b719dc0319caa1b7d8fbe5c246b96e5af71b566cb3553af362",
         "sourceCharacterId": "chr_0003_endminf",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -5121,7 +5122,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0026_lastrite.runtime-template.json",
-        "sourceSha256": "bf4ff06976b506da00104cc09e5c9870b86481514de56625419ac2bff2bbfce9",
+        "sourceSha256": "b0a18631ad59996db190d48a03b7ab45e1f378bcef38db326843595664044838",
         "sourceCharacterId": "chr_0026_lastrite",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -5387,7 +5388,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0016_laevat.runtime-template.json",
-        "sourceSha256": "dda7639fbd233d705d6f7f1912a5751cf0c5fcec180d5548de75a5e1df8ba82a",
+        "sourceSha256": "a7b80b4f23e64571053596f9455b894f40500c0aa19214f0b6975372db3459b7",
         "sourceCharacterId": "chr_0016_laevat",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -5664,7 +5665,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0017_yvonne.runtime-template.json",
-        "sourceSha256": "9b34657aac21d0fe8aa4378cf4f90251f8aab748a530772015f0ba4605f03439",
+        "sourceSha256": "a7f869de4e9b397f9c29912d01ebf9a729a8b928d6f01a9d9ea32936ca665877",
         "sourceCharacterId": "chr_0017_yvonne",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -5872,7 +5873,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0031_mifu.runtime-template.json",
-        "sourceSha256": "a6b12a3c2c74fad1930bb87a79fd393f2f90ff4ff41c61343cfb110bf9232645",
+        "sourceSha256": "e4decd8d54797829a2bbee90167e97e9e820e54a82dccab867c8bb10e88e239f",
         "sourceCharacterId": "chr_0031_mifu",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -6045,7 +6046,7 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0014_aurora.runtime-template.json",
-        "sourceSha256": "ccfe1e381c4e70ca2a6386a0d91fceaab54f2a66248178fc919d3c6be5400149",
+        "sourceSha256": "54d3af3b59a99642a9f0fc8def5bd8ead6dcc454c0119bde019a168b2515e46b",
         "sourceCharacterId": "chr_0014_aurora",
         "comboSkillGroupKey": "comboSkill"
       }
@@ -6266,8 +6267,306 @@
       ],
       "runtimeTemplate": {
         "sourceFile": "CharacterData/chr_0035_liino.runtime-template.json",
-        "sourceSha256": "ae1663be1846d57e7fea9685fe00b1db68ef216f02f9d4e55f0ad7c777ba656b",
+        "sourceSha256": "ee67864e1388307aea5b03abcaca9b894bb3acb5bf7e97430648a868b0feba8d",
         "sourceCharacterId": "chr_0035_liino",
+        "comboSkillGroupKey": "comboSkill"
+      }
+    },
+    {
+      "slug": "typhoeus",
+      "exportName": "typhoeusGeneratedSource",
+      "gameId": "TYPHOEUS",
+      "charId": "chr_0034_typhoea",
+      "basePassiveSkillIds": [
+        "chr_0034_typhoea_passive",
+        "chr_0034_typhoea_passive_increase_attackrange"
+      ],
+      "runtimeReplacementSkillKeys": ["battleSkillLoop", "battleSkillEnd", "floatingComboSkill"],
+      "talents": [
+        {
+          "index": 0,
+          "key": "talent1"
+        },
+        {
+          "index": 1,
+          "key": "talent2"
+        }
+      ],
+      "potentials": [
+        {
+          "key": "potential1"
+        },
+        {
+          "key": "potential2"
+        },
+        {
+          "key": "potential3"
+        },
+        {
+          "key": "potential4"
+        },
+        {
+          "key": "potential5"
+        }
+      ],
+      "skillGroups": [
+        {
+          "key": "basicAttack",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": [
+            "basicAttack1",
+            "basicAttack2",
+            "basicAttack3",
+            "basicAttack4",
+            "basicAttack5"
+          ],
+          "variants": [
+            {
+              "key": "enhancedBasicAttack",
+              "levelSource": "battleSkill",
+              "nativeGroupType": 1,
+              "libraryPresentation": "enhanced",
+              "skillKeys": [
+                "floatingAttack1",
+                "floatingAttack2",
+                "floatingAttack3",
+                "floatingAttack4",
+                "floatingAttack5"
+              ]
+            }
+          ]
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["finisher"]
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "nativeGroupType": 0,
+          "skillKeys": ["plungingAttack"]
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "nativeGroupType": 1,
+          "replacementPlacements": {
+            "battleSkillLoop": "internal",
+            "battleSkillEnd": "internal"
+          },
+          "skillKeys": ["battleSkill", "battleSkillLoop", "battleSkillEnd"]
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "nativeGroupType": 3,
+          "replacementPlacements": {
+            "floatingComboSkill": "enhanced"
+          },
+          "skillKeys": ["comboSkill", "floatingComboSkill"]
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "nativeGroupType": 2,
+          "skillKeys": ["ultimate"]
+        }
+      ],
+      "skills": [
+        {
+          "key": "basicAttack1",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack1.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack"]
+          }
+        },
+        {
+          "key": "basicAttack2",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack2.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack"]
+          }
+        },
+        {
+          "key": "basicAttack3",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack3.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack"]
+          }
+        },
+        {
+          "key": "basicAttack4",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack4.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack"]
+          }
+        },
+        {
+          "key": "basicAttack5",
+          "skillType": "basicAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_attack5.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"]
+          }
+        },
+        {
+          "key": "floatingAttack1",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack1.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack"]
+          }
+        },
+        {
+          "key": "floatingAttack2",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack2.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack"]
+          }
+        },
+        {
+          "key": "floatingAttack3",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack3.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack"]
+          }
+        },
+        {
+          "key": "floatingAttack4",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack4.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack"]
+          }
+        },
+        {
+          "key": "floatingAttack5",
+          "skillType": "basicAttack",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_floating_attack5.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "normalAttackLastCombo"]
+          }
+        },
+        {
+          "key": "finisher",
+          "skillType": "finisher",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_power_attack.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "powerAttack"]
+          }
+        },
+        {
+          "key": "plungingAttack",
+          "skillType": "plungingAttack",
+          "levelSource": "basicAttack",
+          "source": "chr_0034_typhoea_plunging_attack_end.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalAttack", "plungingAttack"]
+          }
+        },
+        {
+          "key": "battleSkill",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_normal_skill_floating_start.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalSkill"]
+          }
+        },
+        {
+          "key": "battleSkillLoop",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_normal_skill_floating_loop.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalSkill"]
+          }
+        },
+        {
+          "key": "battleSkillEnd",
+          "skillType": "battleSkill",
+          "levelSource": "battleSkill",
+          "source": "chr_0034_typhoea_normal_skill_floating_end.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["normalSkill"]
+          }
+        },
+        {
+          "key": "comboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "source": "chr_0034_typhoea_combo_skill.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["comboSkill"]
+          }
+        },
+        {
+          "key": "floatingComboSkill",
+          "skillType": "comboSkill",
+          "levelSource": "comboSkill",
+          "source": "chr_0034_typhoea_combo_skillfloating.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["comboSkill"]
+          }
+        },
+        {
+          "key": "ultimate",
+          "skillType": "ultimate",
+          "levelSource": "ultimate",
+          "source": "chr_0034_typhoea_ultimate_skillfloating.json",
+          "compile": {
+            "kind": "resolvedSequence",
+            "tags": ["ultimateSkill"]
+          }
+        }
+      ],
+      "runtimeTemplate": {
+        "sourceFile": "CharacterData/chr_0034_typhoea.runtime-template.json",
+        "sourceSha256": "64d9d63835862dc42a3a1c15d9ac745ed124195a11ea2b49a044419c6a318e58",
+        "sourceCharacterId": "chr_0034_typhoea",
         "comboSkillGroupKey": "comboSkill"
       }
     }

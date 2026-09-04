@@ -125,6 +125,8 @@ export interface BuffAppliedEvent {
   readonly buffTags: readonly GameplayTag[];
   /** AddBuffContext 使用本次施加请求的来源，不能从接收者/监听器反推。 */
   readonly skillCastInfo?: CombatSkillCastInfo | null;
+  /** 原生 AddBuffContext.isExtra；供 Buff 添加事件条件读取。 */
+  readonly isExtra?: boolean;
 }
 
 export interface BuffConsumedEvent {
@@ -152,6 +154,7 @@ export interface BuffApplicationRequest {
   readonly sourceActionId?: string;
   readonly blackboardValues: Readonly<Record<string, number>>;
   readonly skillCastInfo?: CombatSkillCastInfo;
+  readonly isExtra?: boolean;
   readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;
   readonly getSourceAttributeValue?: (attribute: string) => number;
 }
@@ -467,6 +470,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ...(step.parameters.inheritSourceSkillCastInfo && inheritedSkillCastInfo !== undefined
             ? { skillCastInfo: inheritedSkillCastInfo }
             : {}),
+          ...(step.parameters.isExtra ? { isExtra: true } : {}),
         };
       };
       if (finishByAction && this.#actionDurationBuffs.has(step)) {
@@ -1097,6 +1101,24 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       }
       const value = resolveActionValueOperand(condition.value, context.blackboard);
       return compareCombatNumbers(count, value, condition.operator);
+    }
+    if (condition.kind === 'buffBlackboardValueCompare') {
+      if (context === undefined) {
+        throw new Error('buffBlackboardValueCompare requires a combat operation context');
+      }
+      const target = this.#resolveSingleTarget(condition.target, context);
+      const buff =
+        condition.query.kind === 'tag'
+          ? target.findFirstByTags(condition.query.buffTags, condition.query.tagQueryType)
+          : target.findFirstByIds(condition.query.buffIds);
+      if (buff === undefined) return false;
+      const value = buff.blackboard.getNumber(condition.desiredKey) ?? 0;
+      context.blackboard.assignDynamic(condition.outputKey, value);
+      return compareCombatNumbers(
+        value,
+        resolveActionValueOperand(condition.value, context.blackboard),
+        condition.operator,
+      );
     }
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)

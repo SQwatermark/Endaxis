@@ -511,6 +511,32 @@ describe('CombatBuffContainer', () => {
     expect(container.getCountById('buff.attack')).toBe(0);
   });
 
+  it('publishes layered Buff changes after finish state refresh with the native signed count', () => {
+    const order: string[] = [];
+    const container = new CombatBuffContainer(
+      'operator',
+      new CombatAttributeSet<Attribute>(),
+      undefined,
+      null,
+      undefined,
+      buff =>
+        order.push(`finished:${buff.isFinished}:${container.getCountById(buff.definition.id)}`),
+      (buff, layerCount, reason) =>
+        order.push(`changed:${buff.definition.stackingType}:${layerCount}:${reason ?? 'enhance'}`),
+    );
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'buff.layered-expiry',
+      stackingType: 'highPriorityWithMaxStack',
+      maxStackCount: 4,
+      durationSeconds: 1,
+    };
+    requireAddedBuff(container.add(definition, 'operator'));
+
+    container.tick(1);
+
+    expect(order).toEqual(['finished:true:0', 'changed:highPriorityWithMaxStack:-1:lifetime']);
+  });
+
   it('keeps the instant stage snapshot for the final hit and clears the live modifier', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
@@ -2304,5 +2330,76 @@ describe('CombatBuffContainer', () => {
     expect(container.impactResistance).toBe(40);
     low.finish();
     expect(container.superArmor).toBe(0);
+  });
+
+  it('TimedGrowingEnhance 按周期补层、跨大步长追赶并在满层保持', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    const definition = {
+      id: 'arrow-recovery',
+      stackingType: 'timedGrowingEnhance',
+      durationSeconds: 3,
+      maxStackCount: 4,
+    } as const;
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+
+    expect(buff.enhanceCount).toBe(1);
+    buff.tick(2.9);
+    expect(buff.enhanceCount).toBe(1);
+    buff.tick(0.2);
+    expect(buff.enhanceCount).toBe(2);
+    buff.tick(6.1);
+    expect(buff.enhanceCount).toBe(4);
+    buff.tick(30);
+    expect(buff.enhanceCount).toBe(4);
+
+    expect(buff.decreaseEnhanceCount(2, 'other')).toBe(true);
+    buff.tick(3);
+    expect(buff.enhanceCount).toBe(3);
+  });
+
+  it('TimedGrowingEnhance 未满层的外部增强不重置当前成长计时', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    const definition = {
+      id: 'arrow-recovery',
+      stackingType: 'timedGrowingEnhance',
+      durationSeconds: 3,
+      maxStackCount: 4,
+    } as const;
+    const buff = requireAddedBuff(container.add(definition, 'operator'));
+    buff.tick(2);
+    expect(container.add(definition, 'operator')).toBe(buff);
+    expect(buff.enhanceCount).toBe(2);
+    buff.tick(1.1);
+    expect(buff.enhanceCount).toBe(3);
+  });
+
+  it('Buff 添加冷却在接收者上拒绝同 ID 重复添加并按普通时间到期', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    const definition = {
+      id: 'arrow-buffer',
+      stackingType: 'unlimited',
+      durationSeconds: 3,
+      addingCooldownSeconds: 0.2,
+    } as const;
+
+    expect(container.add(definition, 'operator')).not.toBeNull();
+    expect(container.add(definition, 'operator')).toBeNull();
+    container.tick(0.19);
+    expect(container.add(definition, 'operator')).toBeNull();
+    container.tick(0.02);
+    expect(container.add(definition, 'operator')).not.toBeNull();
+  });
+
+  it('ignoreAddingCooldown 只跳过检查，成功添加仍创建新的冷却标记', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    const bypass = {
+      id: 'arrow-buffer',
+      stackingType: 'unlimited',
+      addingCooldownSeconds: 0.2,
+      ignoreAddingCooldown: true,
+    } as const;
+    expect(container.add(bypass, 'operator')).not.toBeNull();
+    expect(container.add(bypass, 'operator')).not.toBeNull();
+    expect(container.add({ ...bypass, ignoreAddingCooldown: false }, 'operator')).toBeNull();
   });
 });

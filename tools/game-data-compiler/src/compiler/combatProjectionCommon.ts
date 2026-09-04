@@ -60,6 +60,8 @@ export function isPlainOwnerTarget(target: TargetReferenceSource): boolean {
 
 /** 原生动作身份由宿主及事件方向共同投影，不能把物理事件来源一律当作 ActionSource。 */
 export interface CombatActionProjectionContextSource {
+  /** 当前 Buff AbilityEvent；仅用于投影原生事件负载条件，不替代公开事件身份。 */
+  readonly nativeAbilityEvent?: string | number;
   /** 同步伤害修正宿主具有 BeforeApplyDamageModifierContext；不代表发生 AbilitySystem 广播。 */
   readonly damageModifierContext?: true;
   /** 回调宿主未投影时显式 unavailable；读取 Owner 必须失败，不能借用发射者。 */
@@ -109,6 +111,14 @@ export interface CombatActionProjectionContextSource {
   readonly singleEnemyTargetGroupKeys?: ReadonlySet<string>;
   /** 跨时间段可证明只含固定敌人或固定空间点的 Context；仅用于零空间锚点，不代表实体身份。 */
   readonly staticZeroSpaceTargetGroupKeys?: ReadonlySet<string>;
+  /** 同名 Context 的每次写入都保证产生一个敌人或 FixedPoint；成员身份可变，但固定模型中
+   * 次数恒为一且位置恒为零。仅用于消去按瞄准点逐项执行的几何循环。 */
+  readonly staticSingletonZeroSpaceTargetGroupKeys?: ReadonlySet<string>;
+  /** 来源控制流已经证明该发射点的 OnlyHit 白名单包含唯一敌人。按动作路径记录，
+   * 避免把同名、但可能保存 FixedPoint 的 Context 全局误标成敌人。 */
+  readonly provenOnlyHitProjectilePaths?: ReadonlySet<string>;
+  /** 条件分支已证明发射目标 Context 当前保存唯一敌人；与 OnlyHit 白名单证明分开。 */
+  readonly provenZeroSpaceProjectilePaths?: ReadonlySet<string>;
   /** RandomPointFinder 命名空间点组的原生 pointNum；只折叠几何，不折叠回调次数。 */
   readonly dynamicSpatialPointCounts?: ReadonlyMap<string, ActionValueOperand>;
   /** 完整主动技能中仅由 SpawnAbilityEntity 写入的 Context；集合可为空，但成员身份固定。 */
@@ -120,6 +130,8 @@ export interface CombatActionProjectionContextSource {
   readonly combatInvisibleRandomBlackboardKeys?: ReadonlySet<string>;
   /** 只在表现分支间传递的确定性动作黑板键；写入与消费可一并省略。 */
   readonly combatInvisiblePresentationBlackboardKeys?: ReadonlySet<string>;
+  /** 完整 SkillData 数据流证明不会留下战斗可见输出的 PhysicsCast 源路径。 */
+  readonly combatInvisiblePhysicsCastPaths?: ReadonlySet<string>;
   /** 完整主动技能图中是否存在启用且非纯表现的动画事件监听器；未提供时不得假定倍率无战斗影响。 */
   readonly enabledAnimationEventListenerPresent?: boolean;
   /**
@@ -139,8 +151,8 @@ export interface CombatActionProjectionContextSource {
    */
   readonly actionEnvironmentSkillCastInfoIsSourceCast?: boolean;
   /**
-   * 主动技能宿主为“单一顶层发射动作”提供的相对调度出口。投射物扩展只能把不依赖
-   * 回调 direct blackboard 的延迟动作提升到这里；Buff/嵌套控制流不得安装该出口。
+   * 主动技能宿主为无条件顶层发射动作提供的相对调度出口。投射物扩展只能把不依赖
+   * 回调 direct blackboard 的延迟动作提升到这里；条件、事件响应与嵌套控制流不得安装该出口。
    */
   readonly scheduleRelativeProjectileCallback?: (scheduled: {
     readonly startFrame: number;
@@ -205,10 +217,14 @@ export function requireActionOwnerProjection(
  * 过滤、后处理仍须为空，且必须保留原生布尔字段而不是接受未解析状态。
  */
 export function isStaticSingleEnemyTargetGroup(write: TargetGroupActionSource): boolean {
+  const hasDistanceValidator = write.validatorTypes.includes('DistanceValidator');
+  const fixedModelValidatorsPass =
+    write.validatorTypes.every(
+      type => type === 'InScreenValidator' || type === 'DistanceValidator',
+    ) &&
+    (!hasDistanceValidator || zeroDistanceValidatorsAlwaysPass(write));
   return (
-    isSingleEnemyFinder(write) &&
-    write.validatorTypes.length === 0 &&
-    postProcessingKeepsSingleEnemy(write)
+    isSingleEnemyFinder(write) && fixedModelValidatorsPass && postProcessingKeepsSingleEnemy(write)
   );
 }
 
@@ -348,21 +364,28 @@ export function isZeroSpaceSingleEnemySmartTargetGroup(write: TargetGroupActionS
   );
 }
 
-/** 固定模型中距离恒为 0；只折叠已证明阈值在全部等级都非负的 `distance <= threshold`。 */
+/**
+ * 固定模型中距离恒为 0：`distance <= threshold` 要求全部等级阈值非负，
+ * `distance < threshold` 则要求全部等级严格为正。其他比较方向不会被折叠。
+ */
 export function zeroDistanceValidatorsAlwaysPass(write: TargetGroupActionSource): boolean {
   const distanceTypeCount = write.validatorTypes.filter(
     type => type === 'DistanceValidator',
   ).length;
   if (distanceTypeCount !== write.distanceValidators.length) return false;
   return write.distanceValidators.every(distance => {
-    if (distance.compareType !== 'LE') return false;
+    if (distance.compareType !== 'LE' && distance.compareType !== 'LT') return false;
     const levelValues =
       distance.threshold.blackboardKey === null
         ? [distance.threshold.value]
         : distance.threshold.levelValues;
     const values =
       levelValues === null ? null : typeof levelValues === 'number' ? [levelValues] : levelValues;
-    return values !== null && values.length > 0 && values.every(value => value >= 0);
+    return (
+      values !== null &&
+      values.length > 0 &&
+      values.every(value => (distance.compareType === 'LT' ? value > 0 : value >= 0))
+    );
   });
 }
 
@@ -371,7 +394,9 @@ function isSingleEnemyFinder(write: TargetGroupActionSource): boolean {
     (write.producerType === 'FindTargetAction' ||
       write.producerType === 'ContinuousFindTargetAction' ||
       write.producerType === 'ConvertToTargetContext') &&
-    (write.finderType === 'MainTargetFinder' ||
+    (write.finderType === 'AllEnemyFinder' ||
+      write.finderType === 'TyphoeaArcherySelectedFinder' ||
+      write.finderType === 'MainTargetFinder' ||
       (write.finderType === 'HitBoxFinder' &&
         write.finderFactionTarget === 'Anti' &&
         (write.finderTargetObjectType === 'Normal' ||
@@ -574,15 +599,23 @@ export function scalarOperand(source: ScalarSource): CompiledBuffNumberSource {
   return source.blackboardKey === null ? source.value : { blackboardKey: source.blackboardKey };
 }
 
-export function actionValueOperand(source: ScalarSource):
+export function actionValueOperand(
+  source: ScalarSource,
+  fallback?: number,
+):
   | { readonly kind: 'constant'; readonly value: number }
   | {
       readonly kind: 'blackboard';
       readonly key: string;
+      readonly fallback?: number;
     } {
   return source.blackboardKey === null
     ? { kind: 'constant', value: source.value }
-    : { kind: 'blackboard', key: source.blackboardKey };
+    : {
+        kind: 'blackboard',
+        key: source.blackboardKey,
+        ...(fallback === undefined ? {} : { fallback }),
+      };
 }
 
 export const DAMAGE_TYPES: Readonly<

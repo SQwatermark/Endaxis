@@ -35,6 +35,8 @@ export const BUFF_ABILITY_EVENTS = [
   'beforeOutputInfliction',
   'beforeOutputSpellBurst',
   'beforeTakeSpellInfliction',
+  'ownerSwitchToCenter',
+  'ownerSwitchToGuard',
   'beforeTakeInfliction',
   'takeDamage',
   'takeCriticalDamage',
@@ -175,6 +177,7 @@ export const BUFF_STACKING_TYPES = [
   'overwriteDuration',
   'enhanceAndOverwriteDuration',
   'highPriorityWithMaxStack',
+  'timedGrowingEnhance',
 ] as const;
 
 /** 同身份 Buff 再次添加时采用的原生叠加策略。 */
@@ -455,6 +458,9 @@ export type BuffDefinitionProperties = {
   readonly stackingKey?: string;
   readonly priority?: BuffPriority;
   readonly durationSeconds?: BuffDuration;
+  /** 同 ID Buff 成功添加前在接收者上安装的普通时间冷却。 */
+  readonly addingCooldownSeconds?: BuffDuration;
+  readonly ignoreAddingCooldown?: boolean;
   readonly triggerIntervalSeconds?: BuffDuration;
   readonly waitFirstTriggerInterval?: boolean;
   readonly maxTriggerCount?: BuffTriggerCount;

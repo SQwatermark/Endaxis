@@ -1,19 +1,19 @@
 {
-  "version": "1.4.4",
+  "version": "1.5.3@9885010-4",
   "evidence": {
     "source": "vfs-index-browser",
-    "manifestId": 451359,
-    "assetIndex": 249506,
-    "recordId": 13824,
-    "asset": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_combo_trigger.asset",
-    "fileDataMd5": "B65DCF3C9411F179F30EEEF2B8EEA36C",
-    "additionalAssets": [
+    "assets": [
       {
-        "manifestId": 451359,
-        "assetIndex": 237504,
-        "recordId": 206332,
-        "asset": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_liino_combo_atb_return.asset",
-        "fileDataMd5": "C2A76D867CB744F220945AC7B7E304FF"
+        "id": "global_buff_combo_trigger",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_combo_trigger.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=160094",
+        "sourceSha256": "ef3eead851b5605277d9dc99a6e49ad575d1d8f759cf2f1a7d25998c1249ac9a"
+      },
+      {
+        "id": "global_buff_liino_combo_atb_return",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_liino_combo_atb_return.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=34028",
+        "sourceSha256": "f62ae685184a0714bf6d6664129a1b2b0035f0c5ba105771b6dd7fdafde035dc"
       }
     ]
   },

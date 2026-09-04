@@ -161,6 +161,7 @@ export interface ResolvedCombatStepParameters {
     calculationAttribute?: string;
     calculationAddition?: number | ActionValueOperand;
     tags: readonly DamageTag[];
+    gameplayTags?: readonly GameplayTag[];
     features?: readonly DamageFeature[];
     stagger?: number | ActionValueOperand;
     staggerMultiplier?: number | ActionValueOperand;
@@ -294,6 +295,7 @@ export interface ResolvedCombatStepParameters {
   changePlayerActionMode: CombatStepParameters['changePlayerActionMode'];
   changeNativeSkillType: CombatStepParameters['changeNativeSkillType'];
   setCharacterPassiveUiValue: CombatStepParameters['setCharacterPassiveUiValue'];
+  inheritSkillCastInfoForBasicAttack: CombatStepParameters['inheritSkillCastInfoForBasicAttack'];
   castSkillDuringAction: CombatStepParameters['castSkillDuringAction'];
   withActionBlackboardScope: {
     scopeKey: string;

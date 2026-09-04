@@ -91,7 +91,7 @@ export type CompiledBuffConditionSource =
       readonly target:
         'caster' | 'controlledOperator' | 'contextTarget' | 'currentTarget' | 'enemy';
     })
-  | Condition<'eventDamageTagsMatch' | 'eventDamageFeaturesMatch'>
+  | Condition<'eventDamageTagsMatch' | 'eventDamageGameplayTagsMatch' | 'eventDamageFeaturesMatch'>
   | (Condition<'eventSpGainMatch'> & {
       readonly sources?: readonly ['skill'];
       readonly gainKinds?: readonly ['gain'];
@@ -118,6 +118,9 @@ export type CompiledBuffConditionSource =
     })
   | (Omit<Condition<'buffTagIdCountCompare'>, 'target'> & {
       readonly target: BuffQueryTarget;
+    })
+  | (Omit<Condition<'buffBlackboardValueCompare'>, 'target'> & {
+      readonly target: BuffQueryTarget | 'eventSource';
     })
   | (Omit<Condition<'buffIdStackCompare'>, 'target' | 'value'> & {
       readonly target: BuffQueryTarget;
@@ -208,9 +211,14 @@ type DamageParameters = Pick<
     | 'normalSkill'
     | 'ultimateSkill'
     | 'comboSkill'
+    | 'fireBurst'
+    | 'electricBurst'
+    | 'cryoBurst'
+    | 'natureBurst'
     | 'fireAbnormal'
     | 'cryoAbnormal'
   )[];
+  readonly gameplayTags?: Parameters<'dealDamage'>['gameplayTags'];
   readonly features?: readonly (
     | 'canBreakWeakness'
     | 'dot'
@@ -268,6 +276,7 @@ export type CompiledBuffStepSource =
   | Step<'changePlayerActionMode'>
   | Step<'changeNativeSkillType'>
   | Step<'setCharacterPassiveUiValue'>
+  | Step<'inheritSkillCastInfoForBasicAttack'>
   | Step<'startCurrentAbilityEntityChildSkillById'>
   | Step<'startTimeDilation', GlobalTimeDilation | EntityTimeDilation>
   | Step<'setIgnoreGlobalTimeScale'>
@@ -303,6 +312,7 @@ export type CompiledBuffStepSource =
           Parameters<'spawnAbilityEntity'>,
           | 'childSkillId'
           | 'inheritActionBlackboard'
+          | 'inheritSourceSkillCastInfo'
           | 'target'
           | 'overrideDurationSeconds'
           | 'saveToContextKey'
@@ -385,7 +395,8 @@ export type CompiledBuffStepSource =
   | Step<
       'modifyActionValue',
       Parameters<'modifyActionValue'> & {
-        readonly operation: 'assign' | 'add' | 'multiply' | 'divide';
+        readonly operation:
+          'assign' | 'add' | 'multiply' | 'divide' | 'floor' | 'ceil' | 'roundToInt';
       }
     >
   | Step<

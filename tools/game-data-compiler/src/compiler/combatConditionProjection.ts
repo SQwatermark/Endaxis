@@ -97,6 +97,23 @@ function compileConditionLeaf(
   targetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
 ): CompiledBuffConditionSource {
   if (condition.kind === 'constant') return { kind: 'constant', value: condition.value };
+  if (condition.kind === 'moveInput') {
+    // Endaxis 的技能块没有移动轴输入；未提供输入表示静止。原生条件在零轴时返回 false，
+    // 后续 SaveMoveAxisAngle/方向 JumpTo 因 Sequence 短路不可达。若战斗程序仍消费角度，
+    // presentationCalculationIsolation 会继续拒绝，而不是伪造一个方向。
+    return { kind: 'constant', value: false };
+  }
+  if (condition.kind === 'skillInterruptReason') {
+    if (context.nativeAbilityEvent !== 'OnSkillInterrupted') {
+      throw new Error(`${sourcePath}: CheckSkillInterruptReason requires OnSkillInterrupted`);
+    }
+    const known = new Set(['CastNextSkill']);
+    if (condition.reasons.some(reason => !known.has(reason))) {
+      throw new Error(`${sourcePath}: unsupported skill interrupt reason`);
+    }
+    // Next 目前唯一会主动产生的技能中断就是形态/连段转场 CastNextSkill。
+    return { kind: 'constant', value: condition.reasons.includes('CastNextSkill') };
+  }
   // 主动动作/命中回调没有 Buff 事件环境；只有已验收的条件可使用显式木桩 Target。
   if (
     context.actionTargetTarget === 'enemy' &&
@@ -130,6 +147,7 @@ function compileConditionLeaf(
       'skillHasHit',
       // OnOutputDamage 的装饰标签来自事件伤害包，不会把固定 enemy Target 当作普通动作输入。
       'damageDecorateMask',
+      'damageGameplayTag',
       'originSkillType',
       'profession',
     ].includes(condition.kind)
@@ -429,12 +447,13 @@ function compileConditionLeaf(
   }
   if (condition.kind === 'squadInFight') {
     // 正式时间轴只在已绑定 Battle 的模拟中执行；未绑定环境会在运行入口先失败。
-    return {
-      kind: 'actionValueCompare',
-      left: { kind: 'constant', value: 1 },
-      operator: 'equal',
-      right: { kind: 'constant', value: 1 },
-    };
+    return { kind: 'constant', value: !condition.inverted };
+  }
+  if (condition.kind === 'dungeonCategory' && !condition.needDetailedConfig) {
+    // combat-spec/check-dungeon-category.md：原生在配置服务可用且不要求详细配置时
+    // 直接返回 true，不读取 category list。Endaxis 的正式模拟入口已经绑定 Battle，
+    // 因而对应配置环境可用；列表和 returnTrueWhenInList 都只是序列化残留。
+    return { kind: 'constant', value: true };
   }
   if (
     context.restrictEventSourceTargetProjection === true &&
@@ -488,6 +507,21 @@ function compileConditionLeaf(
         operator: 'equal',
         right: { kind: 'constant', value: 1 },
       };
+    }
+    if (
+      condition.targetSource === 'Target' &&
+      condition.targetGroupKey === '' &&
+      context.actionTargetTarget === 'buffOwner' &&
+      (context.fixedBuffOwnerTarget === 'caster' || context.fixedBuffOwnerTarget === 'enemy')
+    ) {
+      return context.fixedBuffOwnerTarget === 'caster'
+        ? { kind: 'casterControlled' }
+        : {
+            kind: 'actionValueCompare',
+            left: { kind: 'constant', value: 0 },
+            operator: 'equal',
+            right: { kind: 'constant', value: 1 },
+          };
     }
     if (
       condition.targetSource === 'Target' &&
@@ -563,9 +597,11 @@ function compileConditionLeaf(
     if (operator === undefined) throw new Error(`${sourcePath}: unsupported float comparison`);
     return {
       kind: 'actionValueCompare',
-      left: actionValueOperand(condition.left),
+      // 当前原生 CompareFloat 两侧都通过 GetValueOrDefault(..., 0) 求值；
+      // 不能把这个缺省策略扩散到其他 BlackboardDouble 调用点。
+      left: actionValueOperand(condition.left, 0),
       operator,
-      right: actionValueOperand(condition.right),
+      right: actionValueOperand(condition.right, 0),
     };
   }
   if (condition.kind === 'health') {
@@ -650,16 +686,13 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'customAbilityEvent') {
-    if (
-      condition.eventName.blackboardKey !== null ||
-      condition.eventName.value.length === 0 ||
-      condition.savedParamKey !== ''
-    ) {
+    if (condition.eventName.blackboardKey !== null || condition.eventName.value.length === 0) {
       throw new Error(`${sourcePath}: unsupported dynamic custom ability event check`);
     }
     return {
       kind: 'eventCustomAbilityNameMatch',
       eventName: condition.eventName.value,
+      ...(condition.savedParamKey === '' ? {} : { outputKey: condition.savedParamKey }),
     };
   }
   if (condition.kind === 'skillId') {
@@ -907,6 +940,13 @@ function compileConditionLeaf(
     return {
       kind: condition.checkType === 'HasAny' || condition.checkType === 'ExceptAll' ? 'any' : 'all',
       conditions: projected,
+    };
+  }
+  if (condition.kind === 'damageGameplayTag') {
+    return {
+      kind: 'eventDamageGameplayTagsMatch',
+      match: condition.queryType,
+      tags: projectGameplayTags(condition.tagIds, context, sourcePath),
     };
   }
   if (condition.kind === 'healTag') {

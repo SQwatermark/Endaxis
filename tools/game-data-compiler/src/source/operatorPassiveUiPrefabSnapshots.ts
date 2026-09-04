@@ -18,6 +18,11 @@ interface UnityObjectSnapshot {
   readonly states?: unknown;
   readonly normalBuffId?: unknown;
   readonly ultimateBuffId?: unknown;
+  readonly arrowBuffId?: unknown;
+  readonly arrowBuffIdBattle?: unknown;
+  readonly pointBuffId?: unknown;
+  readonly arrows?: unknown;
+  readonly points?: unknown;
 }
 
 const SUPPORTED_COMPONENTS = new Set([
@@ -26,6 +31,7 @@ const SUPPORTED_COMPONENTS = new Set([
   'UICharPassiveZhuangfy',
   'UICharPassiveLizhiyan',
   'UICharPassiveLiino',
+  'UICharPassiveTyphoea',
 ]);
 
 function readSnapshotFiles(directory: string): UnityObjectSnapshot[] {
@@ -123,6 +129,24 @@ export function projectOperatorPassiveUiPrefabSnapshots(
           componentType,
           normalBuffId: requireString(component.normalBuffId, `${sourcePath}.normalBuffId`),
           ultimateBuffId: requireString(component.ultimateBuffId, `${sourcePath}.ultimateBuffId`),
+        },
+      ];
+    case 'UICharPassiveTyphoea':
+      if (!Array.isArray(component.arrows) || !Array.isArray(component.points)) {
+        throw new Error(`${sourcePath}: expected arrows and points arrays`);
+      }
+      return [
+        prefabName,
+        {
+          componentType,
+          arrowBuffId: requireString(component.arrowBuffId, `${sourcePath}.arrowBuffId`),
+          battleArrowBuffId: requireString(
+            component.arrowBuffIdBattle,
+            `${sourcePath}.arrowBuffIdBattle`,
+          ),
+          pointBuffId: requireString(component.pointBuffId, `${sourcePath}.pointBuffId`),
+          arrowCount: component.arrows.length,
+          pointCount: component.points.length,
         },
       ];
     default:

@@ -288,6 +288,29 @@ describe('主动技能正式时间轴投影', () => {
     ]);
   });
 
+  it('破防回能可读取已证明为唯一木桩的命名 Context', () => {
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([
+        meta('MergeTargetAction', {
+          targets: [targetFixture('Target')],
+          targetGroupKey: 'mainTar',
+        }),
+        meta('GainBreakingAttackAtb', {
+          source: targetFixture('Source'),
+          target: targetFixture('Context', undefined, 'mainTar'),
+          factor: scalarFixture(1),
+        }),
+      ]),
+      sourcePath: 'active.named-finisher-target',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+    });
+    expect(result.scheduledSequences[0]!.sequence.steps.at(-1)).toEqual({
+      kind: 'gainFinisherSp',
+      parameters: { factor: 1, recipient: 'team' },
+    });
+  });
+
   it.each([
     ['a non-proven source group', { target: targetFixture('Context', undefined, 'unknown') }],
     [
@@ -1522,6 +1545,50 @@ describe('主动技能正式时间轴投影', () => {
       parameters: { condition: { kind: 'casterControlled' } },
       whenTrue: { steps: [{ kind: 'gainFinisherSp' }] },
     });
+  });
+
+  it('无条件顶层投射物存在普通兄弟动作时仍可提升延迟回调', () => {
+    const skill = activeWithLaunch();
+    const actionData = (skill.actionGroupData as any).timelineActions[0]._sequenceActionData
+      .actionData as unknown[];
+    actionData.push(
+      meta('GainBreakingAttackAtb', {
+        source: targetFixture('Source'),
+        target: targetFixture('Target'),
+        factor: scalarFixture(1),
+      }),
+    );
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: skill,
+      sourcePath: 'active.projectile-with-unconditional-sibling',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+      extensions: {
+        compileProjectileLaunch: (_action, _sourcePath, context) => {
+          context.scheduleRelativeProjectileCallback?.({
+            startFrame: 5,
+            endFrame: 5,
+            sequence: {
+              steps: [
+                {
+                  kind: 'gainFinisherSp',
+                  parameters: { factor: 0.5, recipient: 'team' },
+                },
+              ],
+            },
+          });
+          return [];
+        },
+      },
+    });
+    expect(result.scheduledSequences).toHaveLength(2);
+    expect(result.scheduledSequences[0]!.sequence.steps).toContainEqual({
+      kind: 'gainFinisherSp',
+      parameters: { factor: 1, recipient: 'team' },
+    });
+    expect(result.scheduledSequences[1]!.startFrame).toBe(
+      result.scheduledSequences[0]!.startFrame + 5,
+    );
   });
 
   it('不把主动 SkillData 的被动事件静默塞入施法时间轴', () => {

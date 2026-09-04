@@ -104,6 +104,59 @@ describe('TargetSettings', () => {
     ).toThrow('buff.godEntity.selectorData.finderData: unexpected fields');
   });
 
+  it('保留 Typhoea 屏幕选中目标 Finder 的原生身份', () => {
+    expect(
+      parseTargetReferenceSource(
+        targetFixture('InstantSearch', {
+          finderData: {
+            $type:
+              'Beyond.Gameplay.Core.Selector+TyphoeaArcherySelectedFinder+Data, Gameplay.Beyond',
+          },
+          validatorData: [],
+          postProcessorData: [],
+        }),
+        'skill.selectedTargets',
+      ),
+    ).toMatchObject({
+      targetSource: 'InstantSearch',
+      finderType: 'TyphoeaArcherySelectedFinder',
+    });
+  });
+
+  it('严格识别无配置字段的 AllEnemyFinder', () => {
+    expect(
+      parseTargetReferenceSource(
+        targetFixture('InstantSearch', {
+          finderData: {
+            $type: 'Beyond.Gameplay.Core.Selector+AllEnemyFinder+Data, Gameplay.Beyond',
+          },
+          validatorData: [],
+          postProcessorData: [],
+        }),
+        'skill.allEnemies',
+      ),
+    ).toMatchObject({ finderType: 'AllEnemyFinder' });
+  });
+
+  it('保留无配置字段的 InScreenValidator', () => {
+    expect(
+      parseTargetReferenceSource(
+        targetFixture('InstantSearch', {
+          finderData: {
+            $type: 'Beyond.Gameplay.Core.Selector+AllEnemyFinder+Data, Gameplay.Beyond',
+          },
+          validatorData: [
+            {
+              $type: 'Beyond.Gameplay.Core.Selector+InScreenValidator+Data, Gameplay.Beyond',
+            },
+          ],
+          postProcessorData: [],
+        }),
+        'skill.visibleEnemies',
+      ),
+    ).toMatchObject({ validatorTypes: ['InScreenValidator'] });
+  });
+
   it('保留 ShapeFinderData 的结构事实，不假称可执行空间查询', () => {
     expect(
       parseTargetReferenceSource(

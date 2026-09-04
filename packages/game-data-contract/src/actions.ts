@@ -65,6 +65,8 @@ export interface DealDamageParameters {
   /** MultiplyAttributeCalculation 在属性乘算后追加的固定或黑板值。 */
   calculationAddition?: LevelValues | ActionValueOperand;
   tags: readonly DamageTag[];
+  /** DamageUnit.damageTags 携带的原生 GameplayTag；与 damageDecorateMask 分类位分开。 */
+  gameplayTags?: readonly GameplayTag[];
   /** 原生伤害位中与技能分类无关的行为特征。 */
   features?: readonly DamageFeature[];
   /** 同一次命中在生命伤害之后结算的失衡伤害；原生同样允许从动作黑板读取。 */
@@ -237,8 +239,15 @@ export interface CombatStepParameters {
     definition?: AbilityEntityDefinition;
     /** 原生 assignBlackboard：生成时把当前动作黑板复制为实体黑板初值。 */
     inheritActionBlackboard?: boolean;
+    /** 原生 inheritSourceSkillCastId=false 时，实体及其子技能不继承当前施法身份。省略表示继承。 */
+    inheritSourceSkillCastInfo?: boolean;
     /** 从实体模板的具名子技能集合选择本次 Spawn 绑定的原生子技能。 */
     childSkillId?: string;
+    /**
+     * 原生 setAbilityEntitySource 的来源身份。省略表示施术者；投射物/能力实体子技能中的
+     * ActionOwner 必须显式保留为当前能力实体，不能在生成期压平成施术者。
+     */
+    source?: 'caster' | 'currentAbilityEntity';
     /** 生成位置锚点；Buff 局部时间线中的 Owner 是当前 Buff 宿主能力实体。 */
     target?: CombatTarget | 'currentAbilityEntity';
     overrideDurationSeconds?: ActionValueOperand;
@@ -273,6 +282,8 @@ export interface CombatStepParameters {
     target: 'caster' | 'enemy';
     skipApplyCost: boolean;
     inheritSourceSkillCastInfo: boolean;
+    /** 目标技能不可施放时保留当前技能；省略表示旧版无条件消费延迟请求。 */
+    interruptCurrentSkillOnlyWhenTargetCastable?: boolean;
   };
   /** 普通根倒地动作；破防与状态 Buff 由公共目录解析，不等同于输出一次成功事件。 */
   applyKnockDown: {
@@ -409,6 +420,8 @@ export interface CombatStepParameters {
     }[];
     /** 原生动作要求把当前施法身份复制到新 Buff 时为 true。 */
     inheritSourceSkillCastInfo?: boolean;
+    /** 原生 AddBuffContext.isExtra；仅作为 Buff 添加事件事实传播，不自行产生数值效果。 */
+    isExtra?: boolean;
     /** 原生区域/动作生命周期结束时，只结束本步骤实际创建的 Buff 实例。 */
     finishByAction?: boolean;
     /**
@@ -815,6 +828,8 @@ export interface CombatStepParameters {
     target: CombatTarget;
     value: ActionValueOperand;
   };
+  /** Buff 有效期内把其来源施法身份注册为后续普通攻击的施法身份。 */
+  inheritSkillCastInfoForBasicAttack: Record<string, never>;
   /**
    * 在所在调度项的有效区间内监听战斗事件。
    * 调度项开始时注册，结束或技能中断时注销；响应序列在事件派发过程中同步执行。
@@ -905,6 +920,7 @@ export const COMBAT_STEP_KINDS = [
   'changePlayerActionMode',
   'changeNativeSkillType',
   'setCharacterPassiveUiValue',
+  'inheritSkillCastInfoForBasicAttack',
   'listenForCombatEvents',
 ] as const satisfies readonly (keyof CombatStepParameters)[];
 

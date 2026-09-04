@@ -32,6 +32,7 @@ import type {
   PlayerDamageAttackerSnapshot,
   PlayerDamageDefenderSnapshot,
 } from './playerActiveDamageInput';
+import type { GameplayTag } from '../tags/gameplayTags';
 
 /** 单次伤害包冻结的来源方与目标方属性快照。 */
 export interface PlayerDamageAttributeSnapshots {
@@ -67,6 +68,7 @@ interface PlayerDamageContextInput {
   readonly damageType: DamageType;
   readonly targetHealthType: DamageTargetHealthType;
   readonly tags?: readonly DamageTag[];
+  readonly gameplayTags?: readonly GameplayTag[];
   readonly features?: readonly DamageFeature[];
   readonly skillCastId?: number;
   readonly skillId?: string;
@@ -81,6 +83,7 @@ export class PlayerDamageContext {
   readonly damageType: DamageType;
   readonly targetHealthType: DamageTargetHealthType;
   readonly tags: readonly DamageTag[];
+  readonly gameplayTags: readonly GameplayTag[];
   readonly features: readonly DamageFeature[];
   readonly skillCastId: number | null;
   readonly skillId?: string;
@@ -101,6 +104,7 @@ export class PlayerDamageContext {
     this.damageType = input.damageType;
     this.targetHealthType = input.targetHealthType;
     this.tags = input.tags ?? [];
+    this.gameplayTags = input.gameplayTags ?? [];
     this.features = input.features ?? [];
     this.skillCastId = input.skillCastId ?? null;
     this.skillId = input.skillId;

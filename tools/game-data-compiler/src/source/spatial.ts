@@ -1,9 +1,4 @@
-import {
-  requireBoolean,
-  requireExactFields,
-  requireNumber,
-  requireRecord,
-} from './primitives.ts';
+import { requireBoolean, requireExactFields, requireNumber, requireRecord } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { readAdvancedDirectionType, readMountPoint } from './spatialEnums.ts';
 
@@ -50,9 +45,6 @@ export function parseAdvancedDirectionSource(
   const direction = requireRecord(value, path);
   const hasSource = 'source' in direction;
   const hasTarget = 'target' in direction;
-  if (hasSource !== hasTarget) {
-    throw new Error(`${path}: source and target must be serialized together`);
-  }
   const fields = new Set([
     'directionType',
     'sourceMountPoint',
@@ -61,23 +53,23 @@ export function parseAdvancedDirectionSource(
     'clampToXZ',
     'invertDirection',
   ]);
-  if (hasSource) {
-    fields.add('source');
-    fields.add('target');
-  }
+  if (hasSource) fields.add('source');
+  if (hasTarget) fields.add('target');
   requireExactFields(direction, fields, path);
   const customSourceAndTarget = requireBoolean(
-    direction.customSourceAndTarget, `${path}.customSourceAndTarget`,
+    direction.customSourceAndTarget,
+    `${path}.customSourceAndTarget`,
   );
   // 未自定义时，VFS 的显式 null 与旧 JSON 的省略字段都表示没有覆盖引用。
   // 非空载荷照常解析；显式 undefined 不是合法序列化值，仍由严格解析器拒绝。
-  const source = hasSource && direction.source !== null
-    ? parseTargetReferenceSource(direction.source, `${path}.source`) : null;
-  const target = hasTarget && direction.target !== null
-    ? parseTargetReferenceSource(direction.target, `${path}.target`) : null;
-  if (customSourceAndTarget && (source === null || target === null)) {
-    throw new Error(`${path}: custom source and target references are required`);
-  }
+  const source =
+    hasSource && direction.source !== null
+      ? parseTargetReferenceSource(direction.source, `${path}.source`)
+      : null;
+  const target =
+    hasTarget && direction.target !== null
+      ? parseTargetReferenceSource(direction.target, `${path}.target`)
+      : null;
   return {
     directionType: readAdvancedDirectionType(direction.directionType, `${path}.directionType`),
     sourceMountPoint: readMountPoint(direction.sourceMountPoint, `${path}.sourceMountPoint`),

@@ -258,7 +258,7 @@ it('动作窄子集只纳入已证明的实体曲线，不扩张等级列或未�
     Extract<ProjectedParameters<'startTimeDilation'>, { scope: 'entity' }>['curve']['kind']
   >().toEqualTypeOf<'inline' | 'named'>();
   expectTypeOf<ProjectedParameters<'modifyActionValue'>['operation']>().toEqualTypeOf<
-    'assign' | 'add' | 'multiply' | 'divide'
+    'assign' | 'add' | 'multiply' | 'divide' | 'floor' | 'ceil' | 'roundToInt'
   >();
   expectTypeOf<
     ProjectedParameters<'gainSquadUltimateEnergyFromSkillCost'>['coefficient']

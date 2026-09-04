@@ -23,4 +23,12 @@ export type OperatorPassiveUiPrefabComponentEvidence =
       readonly componentType: 'UICharPassiveLiino';
       readonly normalBuffId: string;
       readonly ultimateBuffId: string;
+    }
+  | {
+      readonly componentType: 'UICharPassiveTyphoea';
+      readonly arrowBuffId: string;
+      readonly battleArrowBuffId: string;
+      readonly pointBuffId: string;
+      readonly arrowCount: number;
+      readonly pointCount: number;
     };

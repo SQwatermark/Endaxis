@@ -69,6 +69,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       if (
         condition.kind === 'eventDamageTypeIn' ||
         condition.kind === 'eventDamageTagsMatch' ||
+        condition.kind === 'eventDamageGameplayTagsMatch' ||
         condition.kind === 'eventDamageFeaturesMatch'
       ) {
         return matchDamageCondition(condition, modifier);
@@ -76,6 +77,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     if (
       condition.kind !== 'eventDamageTagsMatch' &&
+      condition.kind !== 'eventDamageGameplayTagsMatch' &&
       condition.kind !== 'eventDamageFeaturesMatch' &&
       condition.kind !== 'eventDamageTypeIn' &&
       condition.kind !== 'eventInflictionElementIn' &&
@@ -222,9 +224,17 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       );
     }
     if (condition.kind === 'eventCustomAbilityNameMatch') {
-      return (
-        context.event.kind === 'abilityCustom' && context.event.eventName === condition.eventName
-      );
+      if (
+        context.event.kind !== 'abilityCustom' ||
+        context.event.eventName !== condition.eventName
+      ) {
+        return false;
+      }
+      if (condition.outputKey !== undefined && condition.outputKey !== '') {
+        context.blackboard.assignDynamic(condition.outputKey, context.event.eventParam);
+        context.refreshCurrentBuffAttributeModifiers?.();
+      }
+      return true;
     }
     if (condition.kind === 'eventInflictionElementIn') {
       const event = context.event;
@@ -407,12 +417,21 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
 function matchDamageCondition(
   condition: Extract<
     CombatCondition,
-    { kind: 'eventDamageTypeIn' | 'eventDamageTagsMatch' | 'eventDamageFeaturesMatch' }
+    {
+      kind:
+        | 'eventDamageTypeIn'
+        | 'eventDamageTagsMatch'
+        | 'eventDamageGameplayTagsMatch'
+        | 'eventDamageFeaturesMatch';
+    }
   >,
   damage: NonNullable<ReturnType<typeof eventDamageProperties>>,
 ): boolean {
   if (condition.kind === 'eventDamageTypeIn') {
     return damage.damageType !== undefined && condition.damageTypes.includes(damage.damageType);
+  }
+  if (condition.kind === 'eventDamageGameplayTagsMatch') {
+    return matchValues(damage.gameplayTags ?? [], condition.tags, condition.match);
   }
   return condition.kind === 'eventDamageTagsMatch'
     ? matchValues(damage.tags, condition.tags, condition.match)
@@ -421,17 +440,28 @@ function matchDamageCondition(
 
 function eventDamageProperties(event: NonNullable<CombatOperationContext['event']>): {
   readonly tags: readonly DamageTag[];
+  readonly gameplayTags?: readonly GameplayTag[];
   readonly features: readonly DamageFeature[];
   readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
 } | null {
   switch (event.kind) {
     case 'operatorHit':
-      return { tags: event.tags, features: event.features, damageType: event.damageType };
+      return {
+        tags: event.tags,
+        gameplayTags: [],
+        features: event.features,
+        damageType: event.damageType,
+      };
     case 'abilityDamage':
-      return { tags: event.tags, features: event.features, damageType: event.damageType };
+      return {
+        tags: event.tags,
+        gameplayTags: event.gameplayTags,
+        features: event.features,
+        damageType: event.damageType,
+      };
     case 'damageTagHit':
     case 'enemyDefeated':
-      return { tags: event.tags, features: event.features ?? [] };
+      return { tags: event.tags, gameplayTags: [], features: event.features ?? [] };
     default:
       return null;
   }

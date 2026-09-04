@@ -83,10 +83,12 @@ describe('公共 Action 序列控制流投影', () => {
   it('根守卫在空子树投影后消去，但被外层消费的返回值不消去', () => {
     const source = { ...sequence([]), onlyExecuteWhenSourceIsGuard: true };
     expect(compileActionSequenceProgram(source, options())).toEqual({ steps: [] });
-    expect(() => compileActionSequenceProgram(source, { ...options(), resultIsConsumed: true }))
-      .toThrow('root filter unsupported');
-    expect(() => compileActionSequenceProgram({ ...source, actions: [leaf('visible')] }, options()))
-      .toThrow('root filter unsupported');
+    expect(() =>
+      compileActionSequenceProgram(source, { ...options(), resultIsConsumed: true }),
+    ).toThrow('root filter unsupported');
+    expect(() =>
+      compileActionSequenceProgram({ ...source, actions: [leaf('visible')] }, options()),
+    ).toThrow('root filter unsupported');
   });
 
   const branch = (
@@ -203,18 +205,25 @@ describe('公共 Action 序列控制流投影', () => {
     const failure = new Error('静态预选未支持');
     const configured = {
       ...bottomUpOptions(),
-      selectIfElseBranch: (): boolean | undefined => { throw failure; },
+      selectIfElseBranch: (): boolean | undefined => {
+        throw failure;
+      },
     };
-    expect(compileActionSequenceProgram(sequence([branch([leaf('visual')])]), configured))
-      .toEqual({ steps: [] });
-    expect(() => compileActionSequenceProgram(sequence([branch([leaf('damage')])]), configured))
-      .toThrow(failure);
-    expect(() => compileActionSequenceProgram(sequence([branch([leaf('visual')])]), {
-      ...configured,
-      canOmitUnusedCondition: () => false,
-    })).toThrow(failure);
-    expect(() => compileActionSequenceProgram(sequence([branch([leaf('visual')], false)]), configured))
-      .toThrow('stopping IfElse');
+    expect(compileActionSequenceProgram(sequence([branch([leaf('visual')])]), configured)).toEqual({
+      steps: [],
+    });
+    expect(() =>
+      compileActionSequenceProgram(sequence([branch([leaf('damage')])]), configured),
+    ).toThrow(failure);
+    expect(() =>
+      compileActionSequenceProgram(sequence([branch([leaf('visual')])]), {
+        ...configured,
+        canOmitUnusedCondition: () => false,
+      }),
+    ).toThrow(failure);
+    expect(() =>
+      compileActionSequenceProgram(sequence([branch([leaf('visual')], false)]), configured),
+    ).toThrow('stopping IfElse');
   });
 
   it('固定模型证明 IfElse 真值时只编译可达分支并继续后续兄弟', () => {
@@ -353,5 +362,28 @@ describe('公共 Action 序列控制流投影', () => {
       { kind: 'leaf', value: 'folded:1' },
       { kind: 'leaf', value: 'after[loop]' },
     ]);
+  });
+
+  it('静态假守卫不会编译不可达的后继动作', () => {
+    const projection = options();
+    const result = compileActionSequenceProgram(
+      sequence([leaf('?stationary-move-input'), leaf('unsupported-direction-write')]),
+      {
+        ...projection,
+        canOmitUnusedCondition: node =>
+          node.body.kind === 'leaf' && node.body.value.startsWith('?'),
+        evaluateCondition: condition =>
+          condition.value === '?stationary-move-input' ? false : undefined,
+        compileLeaf: (node, state) => {
+          if (node.body.kind !== 'leaf') throw new Error('expected leaf');
+          if (node.body.value === 'unsupported-direction-write') {
+            throw new Error('unreachable direction write was compiled');
+          }
+          return projection.compileLeaf(node, state);
+        },
+      },
+    );
+
+    expect(result.steps).toEqual([]);
   });
 });

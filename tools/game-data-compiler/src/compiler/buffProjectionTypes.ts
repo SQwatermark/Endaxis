@@ -158,6 +158,8 @@ export type CompiledBuffDefinitionSource = Pick<
         | 'afterKillEntity'
         | 'buffConsumed'
         | 'enterFight'
+        | 'ownerSwitchToCenter'
+        | 'ownerSwitchToGuard'
         | 'abilityEntitySpawned'
         | 'abilityEntityFinished'
         | 'skillSpGained'

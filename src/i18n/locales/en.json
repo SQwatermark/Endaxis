@@ -2061,6 +2061,7 @@
         "triggerSpellBurst": "Publishes the specified native spell-burst event and resolves registered responses with the current Buff source and skill-cast context.",
         "triggerCustomAbilityEvent": "Synchronously publishes an exactly named custom event on the caster AbilitySystem. The current subset only supports the evidenced caster-to-self target route.",
         "castSkillDuringAction": "Queues a registered native skill from the current action and inherits this cast context without charging its cost again. The native ID must resolve to one logical skill.",
+        "inheritSkillCastInfoForBasicAttack": "Inherits the current cast information for a basic attack started during the action, preserving damage provenance without creating another player action or cost.",
         "applyPhysicalInfliction": "Executes the native FractureAction chain: creates No Guard first, then triggers Fracture when No Guard already exists. Both public Buff definitions are embedded at the use site.",
         "applyElementalReaction": "Directly applies an elemental reaction with duration and effectiveness.",
         "consumeElementalReaction": "Consumes a specified reaction on the enemy for follow-up effects.",

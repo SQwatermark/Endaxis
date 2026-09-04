@@ -8,6 +8,7 @@ describe('公共 AbilityEvent 身份投影', () => {
     ['OnEnemyBeforeTakeSpellInfliction', 121, 'beforeTakeInfliction'],
     ['OnSetWeakness', 151, 'weaknessSet'],
     ['OnBuffEndsEarly', 204, 'buffEndsEarly'],
+    ['OnBuffEnhanceChanged', 209, 'buffEnhanceChanged'],
     ['OnAbsorbBuff', 211, 'buffAbsorbed'],
     ['OnPoiseKnotBreak', 241, 'poiseKnotBreak'],
   ] as const)('%s 与数字 %s 投影成同一事件 %s', (nativeName, nativeId, expected) => {

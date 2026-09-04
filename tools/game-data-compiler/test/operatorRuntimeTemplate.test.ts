@@ -125,6 +125,22 @@ describe('角色运行模板来源', () => {
       unconfiguredSourceFiles: ['CharacterData/broken.json', 'CharacterData/new.json'],
     });
     expect(manifest).toEqual(before);
+    const ignored = auditOperatorTemplateRefresh(
+      { ...manifest, ignoredRuntimeTemplateSourceFiles: ['CharacterData/new.json'] },
+      templates,
+      GAMEPLAY_TAG_PATHS,
+    );
+    expect(ignored).toMatchObject({
+      ignoredSourceFiles: ['CharacterData/new.json'],
+      unconfiguredSourceFiles: ['CharacterData/broken.json'],
+    });
+    expect(() =>
+      auditOperatorTemplateRefresh(
+        { ...manifest, ignoredRuntimeTemplateSourceFiles: ['CharacterData/missing.json'] },
+        templates,
+        GAMEPLAY_TAG_PATHS,
+      ),
+    ).toThrow('ignored runtime template source does not exist');
     const missing = auditOperatorTemplateRefresh(manifest, {}, GAMEPLAY_TAG_PATHS);
     expect(missing).toMatchObject({ sourceCount: 0, blockedCount: 1 });
     expect(missing.entries[0]).toMatchObject({ configuredSlugs: ['known'], status: 'blocked' });

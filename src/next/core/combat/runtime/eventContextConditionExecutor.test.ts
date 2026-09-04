@@ -30,6 +30,7 @@ describe('EventContextConditionExecutor', () => {
         skillCastId: 42,
         damageType: 'physical' as const,
         tags: ['normalSkill'] as const,
+        gameplayTags: ['Damage/TyphoeaSkill/FloatingHit_Weak'] as const,
         features: ['dot'] as const,
       },
     };
@@ -54,6 +55,22 @@ describe('EventContextConditionExecutor', () => {
     expect(
       executor.evaluate(
         { kind: 'eventDamageFeaturesMatch', match: 'hasAll', features: ['dot'] },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventDamageGameplayTagsMatch',
+          match: 'hasAny',
+          tags: ['Damage/TyphoeaSkill/FloatingHit_Weak'],
+        },
+        context,
+      ),
+    ).toBe(true);
+    expect(
+      executor.evaluate(
+        { kind: 'eventDamageTagsMatch', match: 'hasAny', tags: ['normalSkill'] },
         context,
       ),
     ).toBe(true);

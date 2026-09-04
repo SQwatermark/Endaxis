@@ -39,6 +39,7 @@ export interface DamageModifierConditionInput {
   readonly skillCastId: number | null;
   readonly damageType: PlayerDamageContext['damageType'];
   readonly tags: PlayerDamageContext['tags'];
+  readonly gameplayTags?: PlayerDamageContext['gameplayTags'];
   readonly features: PlayerDamageContext['features'];
 }
 
@@ -84,6 +85,7 @@ export class DamageModifier {
         skillCastId: context.skillCastId,
         damageType: context.damageType,
         tags: context.tags,
+        gameplayTags: context.gameplayTags,
         features: context.features,
       })
     )

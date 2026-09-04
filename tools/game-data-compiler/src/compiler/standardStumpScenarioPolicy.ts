@@ -13,6 +13,8 @@ const OMITTED_CASTER_BUFF_ABILITY_EVENT_REASONS: Readonly<Record<string, string>
     'operator death cannot occur without player damage in the fixed passive-enemy scenario',
   OnAfterKillEntity:
     'the unique fixed target has no post-defeat damage window, so kill responses cannot affect the simulation result',
+  OnAfterCharacterTakeBlowOff:
+    'the passive-enemy scenario cannot apply blow-off to an operator without an explicit external event marker',
 };
 
 const OMITTED_ENEMY_BUFF_ABILITY_EVENT_REASONS: Readonly<Record<string, string>> = {

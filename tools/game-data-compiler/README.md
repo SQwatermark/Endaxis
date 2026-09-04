@@ -14,8 +14,9 @@
 当前开发主线为**优先适配新版与接入新增内容，最终全部游戏派生资源可从空目录一次重建**。
 仍以 AKEDB 为主、VFS 补缺；不等待 VFS 完整替代 AKEDB，也不借此恢复已回退的错误生成物。
 
-`rebuild:game-data` 已接入来源下载、逐文件/整批哈希复验、身份覆盖检查、单件装备候选生成及
-重跑 `--check`。每次只创建 `tmp/game-data-rebuild/run-*`，候选保留正式相对路径；不会覆盖正式
+`rebuild:game-data` 已接入来源下载、逐文件/整批哈希复验、身份覆盖检查、装备/武器/套装、完整
+GameplayTag、TimeDilation、SkillSetting、GlobalBuff、31 名干员与公共 Buff 候选生成及重跑
+`--check`。每次只创建 `tmp/game-data-rebuild/run-*`，候选保留正式相对路径；不会覆盖正式
 定义、图片、旧版代码或项目数据。失败会留报告和下载器自己的 `.partial-*` 供排查。
 
 ```powershell
@@ -109,12 +110,26 @@ CharGrowthTable。明细保存于本次 `audit/operator-refresh.json`，不读�
 模板解析器，整名回归对象一致。统一重建新增 `ability-entity-templates` 阶段，已实际校验 215 份
 当前模板，不再生成聚合中间文件；仍不代表子技能/组件闭包完成。
 
-新快照 + 当前能力实体 + 当前标签、但保留旧投射物黑板/TimeDilation/GlobalBuff/SkillSetting 的
-**定位性**全干员规划现为 **30/30**（2026-09-04）。秋栗的带黑板副作用伤害修正条件不再
+新快照 + 当前能力实体/投射物 EntityBB + 当前标签/TimeDilation/SkillSetting、但保留旧 GlobalBuff 的
+**定位性**全干员规划现为 **31/31**（2026-09-04，含 Typhoeus）。当前所需投射物黑板均由
+同批 `ProjectileData` 直接恢复；完全省略 1.4.4 独立目录仍可生成 31 名、328 个技能，并通过整批
+二次确定性校验。字段尚未解出但回调不读取的投射物保留“无证据”状态，不冒充空模板；以后若新增
+读取会由投射物回调编译器原地阻断。秋栗的带黑板副作用伤害修正条件不再
 降低为纯条件树：转换器保留受限同步 `conditionProgram`，由本体在每次修正求值时复用公共
 ActionSequence 执行器重算 Buff 黑板；只有 conditional / calculateActionValue /
 modifyActionValue 获准，其他步骤继续阻断。直接 SkillAffix 创建形状显式记录独立 affix 施法身份，
 不覆盖 Buff 普通来源，也不把普通来源编号冒充 affix。
+
+同日继续把 `TimeDilationConfig` 与 `SkillSetting` 接入当前 VFS manifest 的严格 TypeTree 生成链。
+时间膨胀生成器保存 10 条优先级、7 条命名曲线和 4 条槽位特殊关系；SkillSetting 生成器保存
+22 条四列附着参数与 3 条增强公式，并做字典计数、连续索引、标签身份/公式引用和二次确定性检查。
+当前 `连击增伤` 四列已经由旧 `[0.2, 0.15, 0.1333, 0.125]` 更新为资源中的
+`[0.2, 0.1, 0.1, 0.1]`，说明重建不是只换版本号。剩余旧全局证据依赖集中到按引用出现的独立
+GlobalBuff 资产；它们不能被误当成一个总配置文件。
+
+随后两个当前产品闭包实际使用的 GlobalBuff 也改为逐资产生成：身份清单只保存产品范围，模板字段、
+子 Buff 赋值和黑板均从当前 TypeTree 读取；非零全局 modifier/event 继续失败关闭。当前两份模板
+与旧 1.4.4 内容一致，但不再依赖旧证据 JSON。整批干员候选仍需反向验证身份清单无遗漏。
 诀通过完整 Buff 定义无 SkillAffix 写入的保守证明，在保留 Buff 普通来源的事件回调中使用
 已有 sameSourceSkillCast 计数，未泛化为所有 Buff 都可以忽略 affix。修复终结技能量恢复限制
 已有执行器但遗漏准入的问题后，30 名的 309 个可放置技能分别按潜能 0/5 单放上轴，
@@ -773,16 +788,18 @@ npm run generate:game-data:operator-active-skills -- --complete `
   --skill-patch-table tmp/game-data-sources/TableCfg-current/SkillPatchTable.json `
   --buff-data-root tmp/game-data-sources/BuffData `
   --ability-entity-catalog tmp/game-data-sources/AbilityEntityData `
-  --projectile-blackboard-catalog src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json `
   --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts `
   --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts `
-  --global-buff-catalog src/next/data/global-buffs/global-buff-templates-1.4.4.json `
-  --skill-setting-catalog src/next/data/combat/skill-setting.combat-1.4.4.json `
+  --global-buff-catalog src/next/data/global-buffs/global-buff-templates.generated.json `
+  --skill-setting-catalog src/next/data/combat/skill-setting.generated.json `
   --slug avywenna `
   --output src/next/data/operators/generated-definitions/avywenna `
   --audit-output tmp/game-data-audit/operator-definitions/avywenna `
   --check
 ```
+
+`--projectile-blackboard-catalog` 现仅用于历史基线回归；当前快照完整生成应省略，让生成器直接消费
+同批 `ProjectileData`。若实际回调读取了未解出的 `EntityBB_*`，生成会失败，不会把缺字段解释为空。
 
 - `planOperatorDefinition.ts` 负责编排 IO；来源基础复用 `compileOperatorFoundationSource`，
   `domains/operator/definition.ts` 装配技能组、养成和附属引用。公共 Action/Buff 不在领域内重写。

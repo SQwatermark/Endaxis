@@ -17,6 +17,14 @@ export function auditOperatorTemplateRefresh(
   gameplayTagPaths: readonly string[],
 ) {
   const manifest = requireRecord(manifestValue, 'operators.json');
+  const ignoredSourceFiles = new Set(
+    requireArray(
+      manifest.ignoredRuntimeTemplateSourceFiles ?? [],
+      'operators.json.ignoredRuntimeTemplateSourceFiles',
+    ).map((value, index) =>
+      requireNonEmptyString(value, `operators.json.ignoredRuntimeTemplateSourceFiles[${index}]`),
+    ),
+  );
   const configured = requireArray(manifest.operators, 'operators.json.operators').map(
     (value, i) => {
       const row = requireRecord(value, `operators[${i}]`);
@@ -98,6 +106,12 @@ export function auditOperatorTemplateRefresh(
       };
     }
   });
+  for (const sourceFile of ignoredSourceFiles) {
+    if (!sourceFiles.includes(sourceFile))
+      throw new Error(`ignored runtime template source does not exist: ${sourceFile}`);
+    if (configured.some(row => row.sourceFile === sourceFile))
+      throw new Error(`configured runtime template cannot be ignored: ${sourceFile}`);
+  }
   return {
     scope: 'current-operator-template-prefix-refresh',
     sourceCount: Object.keys(templatesBySourceFile).length,
@@ -109,8 +123,11 @@ export function auditOperatorTemplateRefresh(
       0,
     ),
     unconfiguredSourceFiles: entries
-      .filter(entry => entry.configuredSlugs.length === 0)
+      .filter(
+        entry => entry.configuredSlugs.length === 0 && !ignoredSourceFiles.has(entry.sourceFile),
+      )
       .map(entry => entry.sourceFile),
+    ignoredSourceFiles: [...ignoredSourceFiles].sort(),
     entries,
     note: '只验证已解码模板前缀/黑板/连携条件；源哈希变化不证明效果变化，未配置身份不等于新增可玩干员。未更新 pin，未验证完整技能闭包或模拟。',
   };

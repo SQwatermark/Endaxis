@@ -1039,12 +1039,14 @@ function compileOperatorBuffSkillSlotReplacements(
           if (node.body.kind !== 'leaf' || node.body.value.family !== 'skillSlotReplacement') {
             continue;
           }
+          // Disabled 原生动作已经由来源 parser 完整校验，但不会进入 SequenceAction 运行时；
+          // 不得把其配置的生命周期或目标技能当成实际替换关系。
+          if (!node.metadata.enabled) continue;
           const action = node.body.value.action;
           const restoredSkillKey = skillKeyByNativeId.get(action.targetSkillId);
           const isDirectComboRestore =
             event.event === 'OnBuffFinish' &&
             directNodes.has(node) &&
-            node.metadata.enabled &&
             isPlainBuffSkillSlotTarget(action.skillSource) &&
             action.skillSlot === 'ComboSkill' &&
             action.lifetime === 'Infinite' &&
@@ -1065,7 +1067,6 @@ function compileOperatorBuffSkillSlotReplacements(
             );
           }
           if (
-            !node.metadata.enabled ||
             !isPlainBuffSkillSlotTarget(action.skillSource) ||
             action.lifetime !== 'FinishByAction'
           ) {

@@ -7,6 +7,8 @@
  */
 export const ABILITY_EVENTS = [
   'enterFight',
+  'ownerSwitchToCenter',
+  'ownerSwitchToGuard',
   'ownerHpZero',
   'abilityEntitySpawned',
   'abilityEntityFinished',
@@ -44,6 +46,7 @@ export const ABILITY_EVENTS = [
   'addedBuff',
   'finishedBuff',
   'buffEndsEarly',
+  'buffEnhanceChanged',
   'afterOutputWeaknessTriggered',
   'weaknessSet',
   'customAbilityEvent',

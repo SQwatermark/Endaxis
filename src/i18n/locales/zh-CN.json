@@ -2053,6 +2053,7 @@
         "triggerSpellBurst": "按指定原生术法爆发类型发布爆发事件，并沿用当前 Buff 来源与技能释放上下文结算已注册的响应。",
         "triggerCustomAbilityEvent": "在施放者 AbilitySystem 上同步发布一个精确命名的自定义事件；当前只开放已取证的施放者到自身目标子集。",
         "castSkillDuringAction": "由当前动作延迟启动一个已注册的原生技能，并继承本次释放上下文；不重复扣费。原生 ID 必须能唯一对应一个逻辑技能。",
+        "inheritSkillCastInfoForBasicAttack": "为动作中启动的普攻继承当前施法信息，使派生伤害继续归属于原技能释放；不创建新的玩家操作或重复扣费。",
         "applyPhysicalInfliction": "按原生 FractureAction 顺序执行物理异常：首次创建破防层，已有破防层时触发碎甲链；两份公共 Buff 定义均内联在使用点。",
         "applyElementalReaction": "直接施加指定元素反应及其持续时间和效果强度。",
         "consumeElementalReaction": "结束并消费敌人身上的指定元素反应，供后续步骤触发派生效果。",

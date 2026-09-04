@@ -107,6 +107,10 @@ import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRunt
 import { CustomAbilityEventOperationExecutor } from './customAbilityEventOperationExecutor';
 import { SkillCastOperationExecutor } from './skillCastOperationExecutor';
 import { ProjectileFinishCallbackRuntime } from './projectileFinishCallbackRuntime';
+import {
+  BasicAttackSkillCastInheritanceRegistry,
+  SkillCastInheritanceOperationExecutor,
+} from './skillCastInheritanceOperationExecutor';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -326,6 +330,8 @@ export interface CombatRuntimeAssemblyOptions {
       | 'ownerHpZero'
       | 'abilityEntitySpawned'
       | 'abilityEntityFinished'
+      | 'ownerSwitchToCenter'
+      | 'ownerSwitchToGuard'
       | 'beforeOutputPhysicalInfliction'
       | 'afterOutputPhysicalInfliction'
       | 'customAbilityEvent',
@@ -464,6 +470,7 @@ export class CombatRuntimeAssembly {
   readonly #operatorTimedMarkers = new Map<string, TimedMarkerContainer>();
   readonly #globalCooldowns = new GlobalCooldowns(this.clock);
   readonly #skillCastIds = new SkillCastIdAllocator();
+  readonly #basicAttackSkillCastInheritance = new BasicAttackSkillCastInheritanceRegistry();
   /** 原生 ChangeSkillAction 每槽只允许一个有效句柄；新句柄会先结束旧句柄。 */
   readonly #activeSkillSlotReplacementHandles = new Map<string, { readonly finish: () => void }>();
   /** 同一干员同一技能的所有放置块共用一份冷却事实。 */
@@ -1031,6 +1038,30 @@ export class CombatRuntimeAssembly {
       }
 
       if (this.timeDilation !== null) this.simulation.add(this.timeDilation);
+      if (options.isOperatorControlled !== undefined) {
+        const controlledByOperator = new Map(
+          options.operators.map(operator => [
+            operator.operatorId,
+            options.isOperatorControlled!(operator.operatorId, this.clock.frame),
+          ]),
+        );
+        this.simulation.add({
+          // 共享时钟已进入新帧，但 Buff PreLateTick 尚未推进：此处对应原生角色换位事件边界。
+          advanceFrame: () => {
+            for (const operator of options.operators) {
+              const previous = controlledByOperator.get(operator.operatorId)!;
+              const current = options.isOperatorControlled!(operator.operatorId, this.clock.frame);
+              if (previous === current) continue;
+              controlledByOperator.set(operator.operatorId, current);
+              options.emitAbilityEvent?.(
+                operator.operatorId,
+                current ? 'ownerSwitchToCenter' : 'ownerSwitchToGuard',
+                { sourceId: operator.operatorId, targetId: operator.operatorId },
+              );
+            }
+          },
+        });
+      }
       const enemyControlRuntime = boundBattleRuntimes.enemyControlRuntime;
       if (enemyControlRuntime !== undefined && enemyControlRuntime !== null) {
         this.simulation.add({
@@ -1242,12 +1273,18 @@ export class CombatRuntimeAssembly {
     resolveSkillSlot = true,
   ): void {
     const ability = this.#requireAbilitySystem(operatorId);
-    const skillCastId = inheritedSkillCastInfo?.skillCastId ?? this.#skillCastIds.allocate();
-    ability.prepareSkillCastId(skillId, castId, skillCastId, resolveSkillSlot);
     const resolvedSkillId = ability.resolveSkillId(skillId, castId, resolveSkillSlot);
     const program = this.#skillPrograms.get(
       `${operatorId}\u0000${resolvedSkillId}\u0000${castId ?? ''}`,
     );
+    const effectiveInheritedSkillCastInfo =
+      inheritedSkillCastInfo ??
+      (program?.skillType === 'basicAttack'
+        ? this.#basicAttackSkillCastInheritance.get(operatorId)
+        : undefined);
+    const skillCastId =
+      effectiveInheritedSkillCastInfo?.skillCastId ?? this.#skillCastIds.allocate();
+    ability.prepareSkillCastId(skillId, castId, skillCastId, resolveSkillSlot);
     if (program?.skillType === 'comboSkill') {
       const result = this.comboWindows.consume(operatorId, resolvedSkillId, program.skillGroupKey);
       if (result.consumed) {
@@ -1306,7 +1343,7 @@ export class CombatRuntimeAssembly {
         skillType: program.skillType,
         skillId: program.sourceSkillId ?? program.skillId,
         skillCastId,
-        skillCastInfo: inheritedSkillCastInfo ?? {
+        skillCastInfo: effectiveInheritedSkillCastInfo ?? {
           skillCastId,
           originSkillId: program.skillId,
           originSkillType: program.skillType,
@@ -2121,8 +2158,13 @@ export class CombatRuntimeAssembly {
           : this.#abilitySystems.get(targetId)?.currentSkillType;
       },
     );
-    const delegate = new ActionBlackboardOperationExecutor(
+    const skillCastInheritance = new SkillCastInheritanceOperationExecutor(
+      definitionOperator.operatorId,
+      this.#basicAttackSkillCastInheritance,
       eventConditions,
+    );
+    const delegate = new ActionBlackboardOperationExecutor(
+      skillCastInheritance,
       this.#options.probabilitySamples,
       this.#options.readSourceAttributeValue === undefined
         ? undefined

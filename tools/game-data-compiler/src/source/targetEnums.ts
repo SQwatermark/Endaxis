@@ -16,6 +16,7 @@ const ACTION_TARGETS = new Map([
   [2, 'InputTarget'],
   [3, 'CurrentTarget'],
   [4, 'ContextTarget'],
+  [5, 'MainCharacter'],
 ] as const);
 const DIRECTIONS = new Map([
   [0, 'SourceForward'],

@@ -32,6 +32,8 @@ import {
   collectPresentationOnlyTargetGroups,
   collectUnconsumedTargetGroups,
   collectCombatInvisibleRandomBlackboardKeys,
+  collectCombatInvisiblePhysicsCastPaths,
+  collectPresentationSelectionTimelineIndexes,
   isPresentationOnlyActionSequence,
 } from './skillPresentationTargets.ts';
 import { parseSkillTargetSelectionHeaderSource } from '../source/skillTargetSelection.ts';
@@ -99,6 +101,216 @@ function compareKnownNumbers(left: number, comparison: string, right: number): b
     default:
       return undefined;
   }
+}
+
+function directBooleanBlackboardAssignments(
+  sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
+): ReadonlyMap<string, 0 | 1> {
+  const result = new Map<string, 0 | 1>();
+  for (const node of sequence.actions.filter(node => node.metadata.enabled)) {
+    if (
+      node.body.kind !== 'leaf' ||
+      node.body.value.family !== 'blackboardMutation' ||
+      node.body.value.action.operation !== 'Assign' ||
+      !node.body.value.action.directValue ||
+      node.body.value.action.value.blackboardKey !== null ||
+      (node.body.value.action.value.value !== 0 && node.body.value.action.value.value !== 1)
+    ) {
+      continue;
+    }
+    result.set(node.body.value.action.key, node.body.value.action.value.value as 0 | 1);
+  }
+  return result;
+}
+
+/**
+ * 原生技能常用 CheckEntityNum 在同一 IfElse 中把“是否有实体目标”缓存成 0/1，
+ * 后续每箭用该值选择 OnlyHit 或自由命中。这里从结构建立 BB→Context 关系；同名 BB
+ * 只要出现不属于 0/1 镜像的写入就不参与证明。
+ */
+function collectEnemyPresenceBlackboardKeys(
+  graph: ReturnType<typeof parseKnownSkillActionGraphSource>,
+  singletonZeroSpaceKeys: ReadonlySet<string>,
+): ReadonlyMap<string, string> {
+  const candidates = new Map<string, string>();
+  const conflicts = new Set<string>();
+  const allNodes = graph.actionGroup.timelineActions.flatMap(timeline =>
+    collectNativeActionNodes(timeline.sequence),
+  );
+  for (const node of allNodes) {
+    if (node.body.kind !== 'ifElse') continue;
+    const conditions = node.body.condition.actions.filter(child => child.metadata.enabled);
+    const condition = conditions[0];
+    if (
+      conditions.length !== 1 ||
+      condition?.body.kind !== 'leaf' ||
+      condition.body.value.family !== 'condition' ||
+      condition.body.value.action.kind !== 'entityCount' ||
+      condition.body.value.action.targetSource !== 'Context' ||
+      !singletonZeroSpaceKeys.has(condition.body.value.action.targetGroupKey) ||
+      condition.body.value.action.containsHittableTarget ||
+      condition.body.value.action.excludeDeadEntity ||
+      condition.body.value.action.storeKey !== '' ||
+      compareKnownNumbers(
+        1,
+        condition.body.value.action.comparison,
+        condition.body.value.action.minimumCount,
+      ) !== true ||
+      compareKnownNumbers(
+        0,
+        condition.body.value.action.comparison,
+        condition.body.value.action.minimumCount,
+      ) !== false
+    ) {
+      continue;
+    }
+    const whenTrue = directBooleanBlackboardAssignments(node.body.whenTrue);
+    const whenFalse = directBooleanBlackboardAssignments(node.body.whenFalse);
+    for (const [key, value] of whenTrue) {
+      if (value !== 1 || whenFalse.get(key) !== 0) continue;
+      const targetGroupKey = condition.body.value.action.targetGroupKey;
+      const previous = candidates.get(key);
+      if (previous !== undefined && previous !== targetGroupKey) conflicts.add(key);
+      else candidates.set(key, targetGroupKey);
+    }
+  }
+  for (const node of allNodes) {
+    if (
+      node.body.kind !== 'leaf' ||
+      node.body.value.family !== 'blackboardMutation' ||
+      !candidates.has(node.body.value.action.key)
+    ) {
+      continue;
+    }
+    const action = node.body.value.action;
+    if (
+      action.operation !== 'Assign' ||
+      !action.directValue ||
+      action.value.blackboardKey !== null ||
+      (action.value.value !== 0 && action.value.value !== 1)
+    ) {
+      conflicts.add(action.key);
+    }
+  }
+  for (const key of conflicts) candidates.delete(key);
+  return candidates;
+}
+
+function conditionGuaranteedEnemyContextKey(
+  sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
+  enemyPresenceBlackboardKeys: ReadonlyMap<string, string>,
+  singletonZeroSpaceKeys: ReadonlySet<string>,
+): string | null {
+  const nodes = sequence.actions.filter(node => node.metadata.enabled);
+  const node = nodes[0];
+  if (nodes.length !== 1 || node?.body.kind !== 'leaf' || node.body.value.family !== 'condition') {
+    return null;
+  }
+  const condition = node.body.value.action;
+  if (
+    condition.kind === 'entityCount' &&
+    condition.targetSource === 'Context' &&
+    singletonZeroSpaceKeys.has(condition.targetGroupKey) &&
+    !condition.containsHittableTarget &&
+    !condition.excludeDeadEntity &&
+    condition.storeKey === '' &&
+    compareKnownNumbers(1, condition.comparison, condition.minimumCount) === true &&
+    compareKnownNumbers(0, condition.comparison, condition.minimumCount) === false
+  ) {
+    return condition.targetGroupKey;
+  }
+  if (condition.kind !== 'floatCompare') return null;
+  const leftKey = condition.left.blackboardKey;
+  const rightKey = condition.right.blackboardKey;
+  if (
+    leftKey !== null &&
+    rightKey === null &&
+    condition.right.value === 1 &&
+    compareKnownNumbers(1, condition.comparison, 1) === true &&
+    compareKnownNumbers(0, condition.comparison, 1) === false
+  ) {
+    return enemyPresenceBlackboardKeys.get(leftKey) ?? null;
+  }
+  if (
+    rightKey !== null &&
+    leftKey === null &&
+    condition.left.value === 1 &&
+    compareKnownNumbers(1, condition.comparison, 1) === true &&
+    compareKnownNumbers(1, condition.comparison, 0) === false
+  ) {
+    return enemyPresenceBlackboardKeys.get(rightKey) ?? null;
+  }
+  return null;
+}
+
+function collectGuardedProjectilePaths(
+  graph: ReturnType<typeof parseKnownSkillActionGraphSource>,
+  singletonZeroSpaceKeys: ReadonlySet<string>,
+): {
+  readonly onlyHit: ReadonlySet<string>;
+  readonly zeroSpace: ReadonlySet<string>;
+} {
+  const presenceKeys = collectEnemyPresenceBlackboardKeys(graph, singletonZeroSpaceKeys);
+  const onlyHit = new Set<string>();
+  const zeroSpace = new Set<string>();
+  const visitSequence = (
+    sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
+    guaranteedEnemyKeys: ReadonlySet<string>,
+  ): void => {
+    for (const node of sequence.actions.filter(node => node.metadata.enabled)) {
+      if (node.body.kind === 'leaf') {
+        if (node.body.value.family === 'projectile') {
+          const launch = node.body.value.action;
+          if (
+            launch.target.targetSource === 'Context' &&
+            guaranteedEnemyKeys.has(launch.target.targetGroupKey)
+          ) {
+            zeroSpace.add(node.sourcePath);
+          }
+          if (
+            launch.targetFilterMode === 'OnlyHit' &&
+            launch.targetFilterSettings?.targetSource === 'Context' &&
+            guaranteedEnemyKeys.has(launch.targetFilterSettings.targetGroupKey)
+          ) {
+            onlyHit.add(node.sourcePath);
+          }
+        }
+        continue;
+      }
+      if (node.body.kind === 'ifElse') {
+        const guaranteedKey = conditionGuaranteedEnemyContextKey(
+          node.body.condition,
+          presenceKeys,
+          singletonZeroSpaceKeys,
+        );
+        visitSequence(
+          node.body.whenTrue,
+          guaranteedKey === null
+            ? guaranteedEnemyKeys
+            : new Set([...guaranteedEnemyKeys, guaranteedKey]),
+        );
+        visitSequence(node.body.whenFalse, guaranteedEnemyKeys);
+        continue;
+      }
+      const nested: NativeSequenceSource<KnownNativeActionLeafSource>[] = [];
+      if (node.body.kind === 'actionWithCallback') nested.push(node.body.callback);
+      else if (node.body.kind === 'once' || node.body.kind === 'forEach')
+        nested.push(node.body.action);
+      else if (node.body.kind === 'physicsCast') nested.push(node.body.whenHit, node.body.whenMiss);
+      else if (node.body.kind === 'channeling') nested.push(node.body.actionOnTick);
+      else if (node.body.kind === 'timelineJump') nested.push(node.body.condition);
+      else if (node.body.kind === 'tickInterval' || node.body.kind === 'tickIntervalV2')
+        nested.push(node.body.actionOnTick);
+      else if (node.body.kind === 'togglable') nested.push(node.body.condition, node.body.action);
+      else if (node.body.kind === 'switch')
+        nested.push(...node.body.options.map(option => option.action));
+      nested.forEach(child => visitSequence(child, guaranteedEnemyKeys));
+    }
+  };
+  graph.actionGroup.timelineActions.forEach(timeline =>
+    visitSequence(timeline.sequence, new Set()),
+  );
+  return { onlyHit, zeroSpace };
 }
 
 /**
@@ -220,8 +432,7 @@ function isPlainStaticEnemyMerge(
   if (write.producerType !== 'MergeTargetAction' || write.inputTargets.length === 0) return false;
   let hasProvenEnemyInput = false;
   const preservesEnemyIdentity = write.inputTargets.every(input => {
-    const plainInput =
-      input.finderType === null &&
+    const noFilters =
       input.validatorTypes.length === 0 &&
       input.postProcessorTypes.length === 0 &&
       input.priorityFilters.length === 0 &&
@@ -229,11 +440,25 @@ function isPlainStaticEnemyMerge(
       input.distanceValidators.length === 0 &&
       input.finderSpawnedObjectType === null &&
       input.validatorTagQueries.length === 0;
-    if (!plainInput) return false;
+    if (!noFilters) return false;
+    const plainInput = input.finderType === null;
     if (input.targetSource === 'Target' || input.targetSource === 'MainTarget') {
       hasProvenEnemyInput = true;
       return true;
     }
+    const instantEnemy =
+      input.targetSource === 'InstantSearch' &&
+      (input.finderType === 'MainTargetFinder' ||
+        (input.finderType === 'HitBoxFinder' &&
+          input.finderFactionTarget === 'Anti' &&
+          (input.finderTargetObjectType === 'Normal' ||
+            input.finderTargetObjectType === 'NoInteractive') &&
+          input.finderCheckAlive !== null));
+    if (instantEnemy) {
+      hasProvenEnemyInput = true;
+      return true;
+    }
+    if (!plainInput) return false;
     if (input.targetSource !== 'Context') return false;
     if (staticEnemyTargetGroupKeys.has(input.targetGroupKey)) {
       hasProvenEnemyInput = true;
@@ -264,7 +489,12 @@ function isAtMostSingleEnemyMerge(
     const instantMainTarget =
       noFilters &&
       input.targetSource === 'InstantSearch' &&
-      input.finderType === 'MainTargetFinder';
+      (input.finderType === 'MainTargetFinder' ||
+        (input.finderType === 'HitBoxFinder' &&
+          input.finderFactionTarget === 'Anti' &&
+          (input.finderTargetObjectType === 'Normal' ||
+            input.finderTargetObjectType === 'NoInteractive') &&
+          input.finderCheckAlive !== null));
     return (
       instantMainTarget ||
       (plainInput &&
@@ -275,6 +505,75 @@ function isAtMostSingleEnemyMerge(
               singleEnemyTargetGroupKeys.has(input.targetGroupKey)))))
     );
   });
+}
+
+function isAtMostSingleEnemyConversion(
+  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
+  singleEnemyTargetGroupKeys: ReadonlySet<string>,
+): boolean {
+  const input = write.inputTargets[0];
+  return (
+    write.producerType === 'ConvertToTargetContext' &&
+    write.conversionOperation === 'ExcludeTarget' &&
+    write.inputTargets.length === 1 &&
+    input?.targetSource === 'Context' &&
+    (input.targetGroupKey === write.targetGroupKey ||
+      singleEnemyTargetGroupKeys.has(input.targetGroupKey)) &&
+    input.finderType === null &&
+    input.validatorTypes.length === 0 &&
+    input.postProcessorTypes.length === 0 &&
+    input.priorityFilters.length === 0 &&
+    input.shuffleTargets.length === 0 &&
+    input.distanceValidators.length === 0 &&
+    input.finderSpawnedObjectType === null &&
+    input.validatorTagQueries.length === 0
+  );
+}
+
+function isAtMostSingleEnemyFilteredFind(
+  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
+): boolean {
+  return (
+    write.producerType === 'FindTargetAction' &&
+    write.finderType === 'HitBoxFinder' &&
+    write.finderFactionTarget === 'Anti' &&
+    (write.finderTargetObjectType === 'Normal' ||
+      write.finderTargetObjectType === 'NoInteractive') &&
+    write.finderCheckAlive !== null &&
+    write.validatorTypes.length === 0 &&
+    write.postProcessorTypes.length === 1 &&
+    write.postProcessorTypes[0] === 'ExcludeTarget' &&
+    write.priorityFilters.length === 0 &&
+    write.shuffleTargets.length === 0 &&
+    write.distanceValidators.length === 0
+  );
+}
+
+function isStaticZeroSpacePointWrite(
+  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
+): boolean {
+  return (
+    (write.producerType === 'FindTargetAction' ||
+      write.producerType === 'ConvertToTargetContext') &&
+    write.finderType === 'FixedPointFinder' &&
+    write.validatorTypes.length === 0 &&
+    write.postProcessorTypes.length === 0
+  );
+}
+
+function isStaticControlledOperatorWrite(
+  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
+): boolean {
+  return (
+    write.producerType === 'FindTargetAction' &&
+    write.finderType === 'CharacterTeamFinder' &&
+    write.validatorTypes.length === 1 &&
+    write.validatorTypes[0] === 'MainCharacterValidator' &&
+    write.postProcessorTypes.length === 0 &&
+    write.priorityFilters.length === 0 &&
+    write.shuffleTargets.length === 0 &&
+    write.distanceValidators.length === 0
+  );
 }
 
 function isPlainTargetReference(
@@ -475,18 +774,21 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
   const visualOnlyIds = input.visualOnlyIds ?? new Set<string>();
   const extensions = input.extensions ?? {};
   const presentationOnlyBlackboardKeys = collectPresentationOnlyBlackboardKeys(graph);
+  const presentationSelectionTimelineIndexes = collectPresentationSelectionTimelineIndexes(graph);
   const combatInvisiblePresentationBlackboardKeys =
     collectCombatInvisiblePresentationAssignmentKeys(
       graph.actionGroup.timelineActions.map(timeline => timeline.sequence),
     );
   const combatInvisibleRandomBlackboardKeys = collectCombatInvisibleRandomBlackboardKeys(graph);
-  const targetGroupWrites = graph.actionGroup.timelineActions.flatMap(timeline =>
+  const combatInvisiblePhysicsCastPaths = collectCombatInvisiblePhysicsCastPaths(graph);
+  const timelineTargetGroupWrites = graph.actionGroup.timelineActions.map(timeline =>
     collectNativeActionNodes(timeline.sequence).flatMap(node =>
       node.body.kind === 'leaf' && node.body.value.family === 'targetGroup'
         ? [node.body.value.action]
         : [],
     ),
   );
+  const targetGroupWrites = timelineTargetGroupWrites.flat();
   const writesByKey = Map.groupBy(targetGroupWrites, write => write.targetGroupKey);
   const dynamicSpatialPointCounts = new Map<
     string,
@@ -606,12 +908,20 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
   // 保留已支持的直接搜索证明；传播阶段只负责增加跨 Context 的合并不变量。
   const isStaticActiveSkillEnemyTargetGroup = (write: (typeof targetGroupWrites)[number]) =>
     isStaticSingleEnemyTargetGroup(write) || isCurrentTargetRestrictedSingleEnemyTargetGroup(write);
-  const staticEnemyTargetGroupKeys = new Set(
-    targetGroupWrites
-      .filter(isStaticActiveSkillEnemyTargetGroup)
-      .map(write => write.targetGroupKey),
+  const rayCastEnemyWritesByKey = Map.groupBy(
+    rayCastTargetGroupWrites,
+    write => write.targetGroupKey,
   );
-  rayCastTargetGroupWrites.forEach(write => staticEnemyTargetGroupKeys.add(write.targetGroupKey));
+  const staticEnemyTargetGroupKeys = new Set(
+    [...new Set([...writesByKey.keys(), ...rayCastEnemyWritesByKey.keys()])].filter(key => {
+      const ordinaryWrites = writesByKey.get(key) ?? [];
+      const rayWrites = rayCastEnemyWritesByKey.get(key) ?? [];
+      return (
+        ordinaryWrites.length + rayWrites.length > 0 &&
+        ordinaryWrites.every(isStaticActiveSkillEnemyTargetGroup)
+      );
+    }),
+  );
   // StoreSmartTarget writes the selected candidate to this implicit native context group. 对 input/trigger
   // 路径，prepareComboCast 会在施法前严格拒绝非敌方候选；无候选手工排轴则回退唯一木桩。
   // 因而所有已支持的 smartTarget 模式在技能运行入口之后都具有同一 enemy 不变量。
@@ -657,7 +967,9 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
             isStaticActiveSkillEnemyTargetGroup(write) ||
             isDynamicSingleEnemyTagTargetGroup(write) ||
             isDynamicSingleEnemySmartTargetGroup(write) ||
-            isAtMostSingleEnemyMerge(write, singleEnemyTargetGroupKeys),
+            isAtMostSingleEnemyMerge(write, singleEnemyTargetGroupKeys) ||
+            isAtMostSingleEnemyConversion(write, singleEnemyTargetGroupKeys) ||
+            isAtMostSingleEnemyFilteredFind(write),
         )
       ) {
         singleEnemyTargetGroupKeys.add(key);
@@ -667,18 +979,51 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
   }
   // Context 目标组跨时间段保留。固定敌人和 FixedPoint 在 Endaxis 中都位于零空间，
   // 但这个集合只证明“可作零空间锚点”，不能反过来冒充敌人实体。
-  const staticZeroSpaceTargetGroupKeys = new Set(staticEnemyTargetGroupKeys);
-  rayCastTargetGroupWrites.forEach(write =>
-    staticZeroSpaceTargetGroupKeys.add(write.hitPosGroupKey),
+  const rayCastHitPositionWritesByKey = Map.groupBy(
+    rayCastTargetGroupWrites,
+    write => write.hitPosGroupKey,
   );
-  for (const write of targetGroupWrites) {
+  const staticZeroSpaceTargetGroupKeys = new Set(staticEnemyTargetGroupKeys);
+  const staticSingletonZeroSpaceTargetGroupKeys = new Set(
+    [...writesByKey]
+      .filter(
+        ([, writes]) =>
+          writes.length > 0 &&
+          writes.every(
+            write =>
+              isStaticActiveSkillEnemyTargetGroup(write) ||
+              isStaticZeroSpacePointWrite(write) ||
+              isStaticControlledOperatorWrite(write) ||
+              (write.producerType === 'PickTargetAction' &&
+                write.inputTargets.length === 1 &&
+                write.inputTargets[0]!.targetSource === 'Context' &&
+                singleEnemyTargetGroupKeys.has(write.inputTargets[0]!.targetGroupKey) &&
+                write.pickIndexBlackboardKey === null &&
+                write.pickIndexValue !== null &&
+                Number.isInteger(write.pickIndexValue) &&
+                write.pickIndexValue >= 0),
+          ),
+      )
+      .map(([key]) => key),
+  );
+  const guardedProjectilePaths = collectGuardedProjectilePaths(
+    graph,
+    staticSingletonZeroSpaceTargetGroupKeys,
+  );
+  for (const key of new Set([...writesByKey.keys(), ...rayCastHitPositionWritesByKey.keys()])) {
+    const ordinaryWrites = writesByKey.get(key) ?? [];
+    const rayHitWrites = rayCastHitPositionWritesByKey.get(key) ?? [];
     if (
-      write.producerType === 'FindTargetAction' &&
-      write.finderType === 'FixedPointFinder' &&
-      write.validatorTypes.length === 0 &&
-      write.postProcessorTypes.length === 0
-    )
-      staticZeroSpaceTargetGroupKeys.add(write.targetGroupKey);
+      ordinaryWrites.length + rayHitWrites.length > 0 &&
+      ordinaryWrites.every(
+        write =>
+          isStaticActiveSkillEnemyTargetGroup(write) ||
+          isStaticZeroSpacePointWrite(write) ||
+          isStaticControlledOperatorWrite(write),
+      )
+    ) {
+      staticZeroSpaceTargetGroupKeys.add(key);
+    }
   }
   let changed = true;
   while (changed) {
@@ -690,10 +1035,16 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
         writes.every(
           write =>
             isStaticActiveSkillEnemyTargetGroup(write) ||
-            (write.producerType === 'FindTargetAction' &&
-              write.finderType === 'FixedPointFinder' &&
-              write.validatorTypes.length === 0 &&
-              write.postProcessorTypes.length === 0) ||
+            isStaticZeroSpacePointWrite(write) ||
+            isStaticControlledOperatorWrite(write) ||
+            (write.producerType === 'PickTargetAction' &&
+              write.inputTargets.length === 1 &&
+              write.inputTargets[0]!.targetSource === 'Context' &&
+              staticZeroSpaceTargetGroupKeys.has(write.inputTargets[0]!.targetGroupKey) &&
+              write.pickIndexBlackboardKey === null &&
+              write.pickIndexValue !== null &&
+              Number.isInteger(write.pickIndexValue) &&
+              write.pickIndexValue >= 0) ||
             (write.producerType === 'MergeTargetAction' &&
               write.inputTargets.length > 0 &&
               write.inputTargets.every(input => {
@@ -801,20 +1152,25 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     staticEnemyTargetGroupKeys,
     singleEnemyTargetGroupKeys,
     staticZeroSpaceTargetGroupKeys,
+    staticSingletonZeroSpaceTargetGroupKeys,
+    provenOnlyHitProjectilePaths: guardedProjectilePaths.onlyHit,
+    provenZeroSpaceProjectilePaths: guardedProjectilePaths.zeroSpace,
     dynamicSpatialPointCounts,
     staticAbilityEntityTargetGroupKeys,
     presentationOnlyTargetGroupKeys: collectPresentationOnlyTargetGroups(graph),
     unconsumedTargetGroupKeys: collectUnconsumedTargetGroups(graph),
     combatInvisibleRandomBlackboardKeys,
     combatInvisiblePresentationBlackboardKeys,
+    combatInvisiblePhysicsCastPaths,
     enabledAnimationEventListenerPresent,
   };
   const scheduledSequences: CompiledActiveSkillTimelineSequenceSource[] = [];
-  for (const timeline of graph.actionGroup.timelineActions) {
+  for (const [timelineIndex, timeline] of graph.actionGroup.timelineActions.entries()) {
     // SequenceAction.checkCharacter proves these flags are complementary tests
     // of the source character's current main/guard state. A user-placed active
     // skill is cast by the selected main character in the Endaxis scenario.
     if (timeline.sequence.onlyExecuteWhenSourceIsGuard) continue;
+    if (presentationSelectionTimelineIndexes.has(timelineIndex)) continue;
     const activeMainCharacterSequence = timeline.sequence.onlyExecuteWhenSourceIsMainCharacter
       ? { ...timeline.sequence, onlyExecuteWhenSourceIsMainCharacter: false }
       : timeline.sequence;
@@ -825,17 +1181,106 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     if (isPresentationOnlyActionSequence(executableSequence, presentationOnlyBlackboardKeys))
       continue;
     const enabledTopLevel = executableSequence.actions.filter(action => action.metadata.enabled);
-    const standaloneProjectile =
-      enabledTopLevel.length === 1 &&
-      enabledTopLevel[0]!.body.kind === 'leaf' &&
-      enabledTopLevel[0]!.body.value.family === 'projectile';
+    const rootProjectilesCanScheduleCallbacks =
+      enabledTopLevel.some(
+        action => action.body.kind === 'leaf' && action.body.value.family === 'projectile',
+      ) &&
+      enabledTopLevel.every(
+        action =>
+          action.body.kind === 'leaf' &&
+          action.body.value.family !== 'condition' &&
+          action.body.value.family !== 'eventListener' &&
+          action.body.value.family !== 'animationEventListener',
+      );
     const relativeProjectileCallbacks: CompiledActiveSkillTimelineSequenceSource[] = [];
+    // Context 跨 SkillActionGroup 的时间线共享。同名键允许在后续帧改写成另一种实体，
+    // 因此不能提升为技能级静态类型；但当前时间线仍可继承按 (startFrame, source order)
+    // 严格发生在它之前的最后一批写入。相同调度点的条件分支只有所有写入类型一致时
+    // 才建立临时事实，避免把某一分支猜成必然执行。
+    const priorWrites = graph.actionGroup.timelineActions.flatMap((candidate, candidateIndex) =>
+      candidate.startFrame < timeline.startFrame ||
+      (candidate.startFrame === timeline.startFrame && candidateIndex < timelineIndex)
+        ? timelineTargetGroupWrites[candidateIndex]!.map(write => ({
+            write,
+            startFrame: candidate.startFrame,
+            timelineIndex: candidateIndex,
+          }))
+        : [],
+    );
+    const latestOrderByKey = new Map<
+      string,
+      { readonly startFrame: number; readonly timelineIndex: number }
+    >();
+    for (const item of priorWrites) {
+      const previous = latestOrderByKey.get(item.write.targetGroupKey);
+      if (
+        previous === undefined ||
+        item.startFrame > previous.startFrame ||
+        (item.startFrame === previous.startFrame && item.timelineIndex > previous.timelineIndex)
+      ) {
+        latestOrderByKey.set(item.write.targetGroupKey, {
+          startFrame: item.startFrame,
+          timelineIndex: item.timelineIndex,
+        });
+      }
+    }
+    const latestWritesByKey = Map.groupBy(
+      priorWrites.filter(item => {
+        const latest = latestOrderByKey.get(item.write.targetGroupKey);
+        return (
+          latest?.startFrame === item.startFrame && latest.timelineIndex === item.timelineIndex
+        );
+      }),
+      item => item.write.targetGroupKey,
+    );
+    const timelineEnemyKeys = new Set(staticEnemyTargetGroupKeys);
+    const timelineAbilityEntityKeys = new Set(staticAbilityEntityTargetGroupKeys);
+    const timelineZeroSpaceKeys = new Set(staticZeroSpaceTargetGroupKeys);
+    const timelineSingletonZeroSpaceKeys = new Set(staticSingletonZeroSpaceTargetGroupKeys);
+    for (const [key, items] of latestWritesByKey) {
+      const writes = items.map(item => item.write);
+      if (writes.length > 0 && writes.every(isStaticActiveSkillEnemyTargetGroup)) {
+        timelineEnemyKeys.add(key);
+        timelineZeroSpaceKeys.add(key);
+        timelineSingletonZeroSpaceKeys.add(key);
+        continue;
+      }
+      if (
+        writes.length > 0 &&
+        writes.every(
+          write =>
+            write.producerType === 'FindTargetAction' &&
+            write.finderType === 'OwnerSpawnedEntityFinder' &&
+            write.finderSpawnedObjectType === 'AbilityEntity',
+        )
+      ) {
+        timelineAbilityEntityKeys.add(key);
+        continue;
+      }
+      if (
+        writes.length > 0 &&
+        writes.every(
+          write => isStaticZeroSpacePointWrite(write) || isStaticControlledOperatorWrite(write),
+        )
+      ) {
+        timelineZeroSpaceKeys.add(key);
+        timelineSingletonZeroSpaceKeys.add(key);
+      }
+    }
+    const timelineContext = {
+      ...context,
+      staticEnemyTargetGroupKeys: timelineEnemyKeys,
+      singleEnemyTargetGroupKeys: new Set([...singleEnemyTargetGroupKeys, ...timelineEnemyKeys]),
+      staticZeroSpaceTargetGroupKeys: timelineZeroSpaceKeys,
+      staticSingletonZeroSpaceTargetGroupKeys: timelineSingletonZeroSpaceKeys,
+      staticAbilityEntityTargetGroupKeys: timelineAbilityEntityKeys,
+    };
     const sequence = compileCombatActionSequenceSource(
       executableSequence,
       {
-        ...context,
+        ...timelineContext,
         timelineRange: { startFrame: timeline.startFrame, endFrame: timeline.endFrame },
-        ...(standaloneProjectile
+        ...(rootProjectilesCanScheduleCallbacks
           ? {
               scheduleRelativeProjectileCallback: scheduled => {
                 relativeProjectileCallbacks.push({

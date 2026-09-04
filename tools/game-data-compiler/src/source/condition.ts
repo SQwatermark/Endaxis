@@ -22,7 +22,12 @@ import {
   type StringScalarSource,
 } from './scalar.ts';
 import { parseCharacterTeamSelection, type CharacterTeamSelectionSource } from './selectorFacts.ts';
-import { parseTagQuerySource, type TagQueryType } from './tagQuery.ts';
+import {
+  parseTagIdsSource,
+  parseTagQuerySource,
+  projectNativeTagQueryType,
+  type TagQueryType,
+} from './tagQuery.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import type {
   DamageElement,
@@ -49,7 +54,13 @@ function parseAttackTypeMaskSource(value: unknown, path: string): AttackTypeMask
 export type NativeConditionSource =
   | (ConditionIdentity & { readonly kind: 'constant'; readonly value: boolean })
   | (ConditionIdentity & CheckCustomAbilityEventSource)
-  | (ConditionIdentity & { readonly kind: 'squadInFight' })
+  | (ConditionIdentity & { readonly kind: 'squadInFight'; readonly inverted: boolean })
+  | (ConditionIdentity & {
+      readonly kind: 'dungeonCategory';
+      readonly needDetailedConfig: boolean;
+      readonly dungeonCategories: readonly string[];
+      readonly returnTrueWhenInList: boolean;
+    })
   | (ConditionIdentity & {
       /** 只表示玩家当前是否有移动输入；来源动作无额外字段或写黑板副作用。 */
       readonly kind: 'moveInput';
@@ -121,6 +132,11 @@ export type NativeConditionSource =
       readonly tagIds: readonly number[];
     })
   | (ConditionIdentity & {
+      readonly kind: 'damageGameplayTag';
+      readonly queryType: TagQueryType;
+      readonly tagIds: readonly number[];
+    })
+  | (ConditionIdentity & {
       readonly kind: 'timedMarker';
       readonly targetSource: string;
       readonly targetGroupKey: string;
@@ -150,6 +166,10 @@ export type NativeConditionSource =
   | (ConditionIdentity & {
       readonly kind: 'skillId';
       readonly skillIds: readonly StringScalarSource[];
+    })
+  | (ConditionIdentity & {
+      readonly kind: 'skillInterruptReason';
+      readonly reasons: readonly string[];
     })
   | (ConditionIdentity & {
       /** 当前事件载荷携带的来源技能类型；普通攻击还受原生三位攻击类型掩码约束。 */
@@ -415,9 +435,44 @@ export function parseConditionLeafSource(
         ]),
         path,
       );
-      if (requireBoolean(condition.invertCondition, `${path}.invertCondition`))
-        throw new Error(`${path}.invertCondition: inverted squad battle condition is unsupported`);
-      return { kind: 'squadInFight', sourceType };
+      return {
+        kind: 'squadInFight',
+        sourceType,
+        inverted: requireBoolean(condition.invertCondition, `${path}.invertCondition`),
+      };
+    case 'CheckDungeonCategory':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'needDetailedConfig',
+          'dungeonCategoryList',
+          'returnTrueWhenInList',
+        ]),
+        path,
+      );
+      return {
+        kind: 'dungeonCategory',
+        sourceType,
+        needDetailedConfig: requireBoolean(
+          condition.needDetailedConfig,
+          `${path}.needDetailedConfig`,
+        ),
+        dungeonCategories: requireArray(
+          condition.dungeonCategoryList,
+          `${path}.dungeonCategoryList`,
+        ).map((value, index) =>
+          requireNonEmptyString(value, `${path}.dungeonCategoryList[${index}]`),
+        ),
+        returnTrueWhenInList: requireBoolean(
+          condition.returnTrueWhenInList,
+          `${path}.returnTrueWhenInList`,
+        ),
+      };
     case 'CheckCurHpRatio':
       requireExactFields(condition, new Set(['$type', 'compareType', 'value']), path);
       return {
@@ -580,6 +635,26 @@ export function parseConditionLeafSource(
         kind: 'skillId',
         skillIds: requireArray(condition.skillIdList, `${path}.skillIdList`).map((item, index) =>
           parseStringScalarSource(item, `${path}.skillIdList[${index}]`),
+        ),
+      };
+    case 'CheckSkillInterruptReason':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'reasonList',
+        ]),
+        path,
+      );
+      return {
+        sourceType,
+        kind: 'skillInterruptReason',
+        reasons: requireArray(condition.reasonList, `${path}.reasonList`).map((item, index) =>
+          requireNonEmptyString(item, `${path}.reasonList[${index}]`),
         ),
       };
     case 'CheckOriginSkillType':
@@ -753,6 +828,26 @@ export function parseConditionLeafSource(
         sourceType,
         checkType: requireNonEmptyString(condition.checkType, `${path}.checkType`),
         mask: requireNonNegativeInteger(condition.mask, `${path}.mask`),
+      };
+    case 'CheckDamageTag':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'queryType',
+          'tags',
+        ]),
+        path,
+      );
+      return {
+        kind: 'damageGameplayTag',
+        sourceType,
+        queryType: projectNativeTagQueryType(condition.queryType, `${path}.queryType`),
+        tagIds: parseTagIdsSource(condition.tags, `${path}.tags`),
       };
     case 'CheckHealTag': {
       const query = parseTagQuerySource(condition.query, `${path}.query`);

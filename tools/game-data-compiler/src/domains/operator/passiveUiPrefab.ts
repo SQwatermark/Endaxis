@@ -87,5 +87,18 @@ export function compileOperatorPassiveUiPrefabComponent(
         normalBuffId: requireBuffId(evidence.normalBuffId, `${sourcePath}.normalBuffId`),
         ultimateBuffId: requireBuffId(evidence.ultimateBuffId, `${sourcePath}.ultimateBuffId`),
       };
+    case 'UICharPassiveTyphoea':
+      return {
+        kind: 'buffCounters',
+        appearance: 'typhoeaArrows',
+        reserveArrowBuffId: requireBuffId(evidence.arrowBuffId, `${sourcePath}.arrowBuffId`),
+        battleArrowBuffId: requireBuffId(
+          evidence.battleArrowBuffId,
+          `${sourcePath}.arrowBuffIdBattle`,
+        ),
+        pointBuffId: requireBuffId(evidence.pointBuffId, `${sourcePath}.pointBuffId`),
+        maximumArrows: requirePositiveInteger(evidence.arrowCount, `${sourcePath}.arrows`),
+        maximumPoints: requirePositiveInteger(evidence.pointCount, `${sourcePath}.points`),
+      };
   }
 }

@@ -167,6 +167,9 @@ export function compileBuffRuntimeDefinitionSource(
     | 'staticEnemyTargetGroupKeys'
     | 'staticEmptyTargetGroupKeys'
     | 'staticZeroSpaceTargetGroupKeys'
+    | 'staticSingletonZeroSpaceTargetGroupKeys'
+    | 'provenOnlyHitProjectilePaths'
+    | 'provenZeroSpaceProjectilePaths'
     | 'staticAbilityEntityTargetGroupKeys'
   > = {},
 ): CompiledBuffDefinitionSource {
@@ -492,6 +495,31 @@ export function compileBuffRuntimeDefinitionSource(
       // 保持严格失败；这里仅是纯表现事件的前置证明，不吞正式编译错误。
     }
   }
+  for (const event of source.graph.abilityEvents) {
+    if (event.event !== 'OnSkillInterrupted') continue;
+    try {
+      const sequences = event.actions.map(sequence =>
+        compileLinearSequence(
+          sequence,
+          visualOnlyIds,
+          {
+            ...BUFF_ACTION_CONTEXT,
+            abilityEntityQueries,
+            ...projectionContextOverrides,
+            nativeAbilityEvent: event.event,
+          },
+          extensions,
+        ),
+      );
+      // Next 只产生 CastNextSkill 中断；严格编译并证明该事件的所有分支在此模型下为空后，
+      // 才省略尚未公开的 OnSkillInterrupted 事件，不吞未知条件或动作。
+      if (sequences.every(sequence => sequence.steps.length === 0)) {
+        effectiveOmittedAbilityEvents.add(event.event);
+      }
+    } catch {
+      // 正式编译继续报告原始错误。
+    }
+  }
   // Ability-event callbacks retain the Buff's ordinary cast info; event cast
   // info is a separate value. Do not extend this proof to ignite callbacks,
   // whose execution context can replace ordinary cast provenance.
@@ -500,10 +528,14 @@ export function compileBuffRuntimeDefinitionSource(
     actionEnvironmentSkillCastInfoIsSourceCast: buffHasNoAffixIdentityWriter(source),
   };
   const abilityEventResponses = compileAbilityEventPrograms(
-    source.graph.abilityEvents.map(event => ({
-      abilityEvent: event.event,
-      actions: event.actions,
-    })),
+    source.graph.abilityEvents
+      .filter(event =>
+        event.actions.some(sequence => sequence.actions.some(node => node.metadata.enabled)),
+      )
+      .map(event => ({
+        abilityEvent: event.event,
+        actions: event.actions,
+      })),
     {
       sourcePath: `BuffData.${source.graph.buffId}.abilityEventAction`,
       omitEvent: event => effectiveOmittedAbilityEvents.has(event),
@@ -552,6 +584,7 @@ export function compileBuffRuntimeDefinitionSource(
                         ...BUFF_ACTION_CONTEXT,
                         abilityEntityQueries,
                         ...abilityEventProjectionContext,
+                        nativeAbilityEvent: abilityEvent,
                       },
               extensions,
             ),
@@ -742,7 +775,12 @@ export function compileBuffRuntimeDefinitionSource(
             ...(source.lifecycle.negatePriority ? { negate: true as const } : {}),
           },
     maxStackCount: scalarOperand(source.lifecycle.maxStackCount),
-    ...(source.lifecycle.lifeType === 'Limited'
+    ...(source.lifecycle.addingCooldown === null
+      ? {}
+      : { addingCooldownSeconds: scalarOperand(source.lifecycle.addingCooldown) }),
+    ...(source.lifecycle.ignoreAddingCooldown ? { ignoreAddingCooldown: true } : {}),
+    ...(source.lifecycle.lifeType === 'Limited' ||
+    source.lifecycle.stackingType === 'TimedGrowingEnhance'
       ? { durationSeconds: scalarOperand(source.lifecycle.duration) }
       : {}),
     ...(source.lifecycle.triggerInterval.value < 0 &&
@@ -1431,6 +1469,33 @@ function createBuffSequenceProjection(
         ),
       ]),
     compileCondition: (node, targetGroups) => compileEventCondition(node, context, targetGroups),
+    compileConditionSequence: (sequence, targetGroups) => {
+      const nodes = sequence.actions.filter(node => node.metadata.enabled);
+      if (nodes.length !== 2) return null;
+      const [readNode, compareNode] = nodes;
+      if (readNode?.body.kind !== 'leaf' || readNode.body.value.family !== 'buffBlackboardRead') {
+        return null;
+      }
+      const read = compileLeaf(readNode, targetGroups);
+      if (read.steps.length !== 1 || read.steps[0]?.kind !== 'readBuffBlackboard') return null;
+      const compare = compileEventCondition(compareNode!, context, targetGroups);
+      if (
+        compare?.kind !== 'actionValueCompare' ||
+        compare.left.kind !== 'blackboard' ||
+        compare.left.key !== readNode.body.value.action.outputKey
+      ) {
+        return null;
+      }
+      return {
+        kind: 'buffBlackboardValueCompare',
+        target: read.steps[0].parameters.target,
+        query: read.steps[0].parameters.query,
+        desiredKey: read.steps[0].parameters.desiredKey,
+        outputKey: read.steps[0].parameters.outputKey,
+        operator: compare.operator,
+        value: compare.right,
+      };
+    },
     canOmitTerminalCondition: canOmitUnusedCompiledCondition,
     canOmitUnusedCondition: canOmitUnusedNativeCondition,
     evaluateCondition: condition => {
@@ -1456,6 +1521,10 @@ function createBuffSequenceProjection(
       // 子树已消去后才检查持有动作；不能因原始回调非空就拒绝或让其无条件执行。
       return compileLeaf({ ...node, body: { kind: 'leaf', value: node.body.value } }, state);
     },
+    compilePhysicsCast: (node, state) =>
+      context.combatInvisiblePhysicsCastPaths?.has(node.sourcePath) === true
+        ? { steps: [], state }
+        : null,
     compileNodePrefix: (nodes, partyTargetGroups) => {
       const first = nodes[0]!;
       if (
@@ -1830,6 +1899,32 @@ function createBuffSequenceProjection(
       }
       if (
         node.body.target.targetSource === 'Context' &&
+        context.staticSingletonZeroSpaceTargetGroupKeys?.has(node.body.target.targetGroupKey) ===
+          true &&
+        node.body.target.finderType === null &&
+        node.body.target.validatorTypes.length === 0 &&
+        node.body.target.postProcessorTypes.length === 0 &&
+        !node.body.action.onlyExecuteWhenSourceIsMainCharacter &&
+        !node.body.action.onlyExecuteWhenSourceIsGuard
+      ) {
+        // 该 Context 可在敌人和 FixedPoint 之间切换，但每种写法都严格产生一个目标。
+        // 固定模型把二者都置于唯一木桩的零空间位置，因此逐目标子序列精确执行一次；
+        // 这里只消去循环几何，不把该 Context 提升为全局 enemy 身份。
+        const loopContext: CombatActionProjectionContextSource = {
+          ...context,
+          actionTargetTarget: 'enemy',
+        };
+        const body = compileActionSequenceProgram(node.body.action, {
+          ...createBuffSequenceProjection(visualOnlyIds, loopContext, extensions),
+          initialState: () => partyTargetGroups,
+        });
+        return {
+          steps: [{ kind: 'forEachContextTarget', parameters: { target: 'enemy' }, body }],
+          state: partyTargetGroups,
+        };
+      }
+      if (
+        node.body.target.targetSource === 'Context' &&
         partyTargetGroups.get(node.body.target.targetGroupKey) === 'abilityEntity' &&
         node.body.target.finderType === null &&
         node.body.target.validatorTypes.length === 0 &&
@@ -2194,13 +2289,20 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
   const nodes = sequences.flatMap(sequence => collectNativeActionNodes(sequence));
   const leafNodes = nodes.filter(node => node.body.kind === 'leaf');
   const candidates = new Set(
-    leafNodes.flatMap(node =>
-      node.body.kind === 'leaf' &&
-      node.body.value.family === 'blackboardMutation' &&
-      node.body.value.action.directValue
-        ? [node.body.value.action.key]
-        : [],
-    ),
+    leafNodes.flatMap(node => {
+      if (node.body.kind !== 'leaf') return [];
+      if (node.body.value.family === 'blackboardMutation' && node.body.value.action.directValue) {
+        return [node.body.value.action.key];
+      }
+      if (node.body.value.family === 'blackboardCalculation') {
+        return [node.body.value.action.key];
+      }
+      if (node.body.value.family === 'presentationCalculation') {
+        const action = node.body.value.action;
+        return 'outputKeys' in action ? [...action.outputKeys] : [action.outputKey];
+      }
+      return [];
+    }),
   );
   let candidateSetChanged = true;
   while (candidateSetChanged) {
@@ -2264,6 +2366,25 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
               node.body.value.action.directValue &&
               node.body.value.action.value.blackboardKey === key &&
               candidates.has(node.body.value.action.key)) ||
+            (node.body.value.family === 'blackboardCalculation' &&
+              node.body.value.action.key === key &&
+              [
+                node.body.value.action.left.blackboardKey,
+                node.body.value.action.right.blackboardKey,
+                node.body.value.action.addend?.blackboardKey ?? null,
+              ].every(inputKey => inputKey === null || candidates.has(inputKey))) ||
+            (node.body.value.family === 'blackboardCalculation' &&
+              node.body.value.action.key !== key &&
+              [
+                node.body.value.action.left.blackboardKey,
+                node.body.value.action.right.blackboardKey,
+                node.body.value.action.addend?.blackboardKey ?? null,
+              ].includes(key) &&
+              candidates.has(node.body.value.action.key)) ||
+            (node.body.value.family === 'presentationCalculation' &&
+              ('outputKeys' in node.body.value.action
+                ? node.body.value.action.outputKeys.includes(key)
+                : node.body.value.action.outputKey === key)) ||
             node.body.value.family === 'presentationCalculation' ||
             isCombatInvisiblePresentationLeaf(node) ||
             (node.body.value.family === 'condition' && presentationConditionNodes.has(node)))
@@ -2285,11 +2406,19 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
       const forwardsIntoPresentationCandidate = leafNodes.some(
         node =>
           node.body.kind === 'leaf' &&
-          node.body.value.family === 'blackboardMutation' &&
-          node.body.value.action.key !== key &&
-          node.body.value.action.directValue &&
-          node.body.value.action.value.blackboardKey === key &&
-          candidates.has(node.body.value.action.key),
+          ((node.body.value.family === 'blackboardMutation' &&
+            node.body.value.action.key !== key &&
+            node.body.value.action.directValue &&
+            node.body.value.action.value.blackboardKey === key &&
+            candidates.has(node.body.value.action.key)) ||
+            (node.body.value.family === 'blackboardCalculation' &&
+              node.body.value.action.key !== key &&
+              [
+                node.body.value.action.left.blackboardKey,
+                node.body.value.action.right.blackboardKey,
+                node.body.value.action.addend?.blackboardKey ?? null,
+              ].includes(key) &&
+              candidates.has(node.body.value.action.key))),
       );
       if (
         !leafReferencesAreCombatInvisible ||
@@ -2869,6 +2998,7 @@ const STACKING_TYPES: Record<BuffStackingTypeSource, BuffStackingType> = {
   OverwriteDuration: 'overwriteDuration',
   EnhanceAndOverwriteDuration: 'enhanceAndOverwriteDuration',
   HighPriorityWithMaxStack: 'highPriorityWithMaxStack',
+  TimedGrowingEnhance: 'timedGrowingEnhance',
 };
 
 const DAMAGE_MODIFIER_SIDES: Readonly<Record<string, DamageModifierSide>> = {

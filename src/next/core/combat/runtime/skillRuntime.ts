@@ -57,6 +57,7 @@ export interface CombatAbilityDamageEvent {
   readonly targetId: string;
   readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
   readonly tags: readonly DamageTag[];
+  readonly gameplayTags?: readonly GameplayTag[];
   readonly features: readonly DamageFeature[];
 }
 
@@ -141,9 +142,27 @@ export interface CombatAbilitySkillEvent {
 /** 本场固定战斗在装配完成后向已注册 Buff 发布的一次实体入战事件。 */
 export interface CombatAbilityLifecycleEvent {
   readonly kind: 'abilityLifecycle';
-  readonly event: 'enterFight' | 'ownerHpZero' | 'abilityEntitySpawned' | 'abilityEntityFinished';
+  readonly event:
+    | 'enterFight'
+    | 'ownerSwitchToCenter'
+    | 'ownerSwitchToGuard'
+    | 'ownerHpZero'
+    | 'abilityEntitySpawned'
+    | 'abilityEntityFinished';
   readonly sourceId: string;
   readonly targetId: string;
+}
+
+/** 叠层型 Buff 的有效层数发生变化后，在 Buff owner 上发布的无目标同步事件。 */
+export interface CombatAbilityBuffEnhanceChangedEvent {
+  readonly kind: 'abilityBuffEnhanceChanged';
+  readonly event: 'buffEnhanceChanged';
+  readonly sourceId: string;
+  readonly targetId: string;
+  readonly buffId: string;
+  /** 本次变化量：成功增强为正，实例结束或扣层为负。 */
+  readonly layerCount: number;
+  readonly reason?: BuffFinishReason;
 }
 
 /** 敌方弱点窗口确认触发后，在攻击者 AbilitySystem 上发布的同步事件。 */
@@ -219,6 +238,7 @@ export interface CombatOperationContext {
     | CombatAbilityHealEvent
     | CombatAbilitySkillEvent
     | CombatAbilityLifecycleEvent
+    | CombatAbilityBuffEnhanceChangedEvent
     | CombatAbilityWeaknessTriggeredEvent
     | CombatAbilityWeaknessSetEvent
     | CombatAbilityCustomEvent;

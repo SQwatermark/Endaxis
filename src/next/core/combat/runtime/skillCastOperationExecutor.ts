@@ -9,6 +9,7 @@ export interface SkillCastOperationExecutorDependencies {
     readonly nativeSkillId: string;
     readonly skipApplyCost: boolean;
     readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+    readonly interruptCurrentSkillOnlyWhenTargetCastable?: boolean;
   }) => void;
   readonly delegate: CombatOperationExecutor;
 }
@@ -50,6 +51,9 @@ export class SkillCastOperationExecutor implements CombatOperationExecutor {
     this.dependencies.request({
       nativeSkillId: step.parameters.skillId,
       skipApplyCost: step.parameters.skipApplyCost,
+      ...(step.parameters.interruptCurrentSkillOnlyWhenTargetCastable
+        ? { interruptCurrentSkillOnlyWhenTargetCastable: true }
+        : {}),
       ...(inherited === undefined ? {} : { inheritedSkillCastInfo: inherited }),
     });
   }

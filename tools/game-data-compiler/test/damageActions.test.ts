@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import { parseDamageUnitSource } from '../src/index.ts';
 import { parseDamageProcessors } from '../src/source/damageActions.ts';
-import { scalarFixture } from './sourceFixtures.ts';
+import { parseTargetReferenceSource } from '../src/source/target.ts';
+import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
+import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/simpleDamageOperation.ts';
+import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 const BASE_UNIT = {
   damageType: 'Physical',
@@ -96,10 +99,52 @@ describe('伤害动作公共载荷', () => {
     );
   });
 
-  it('非空伤害标签不伪装成无影响字段', () => {
-    expect(() =>
-      parseDamageUnitSource({ ...BASE_UNIT, damageTags: [{ tagId: 1208750764 }] }, 'unit', {}),
-    ).toThrow('non-empty damage tags require native consumer projection');
+  it('非空伤害标签严格保留原生有符号 ID', () => {
+    expect(
+      parseDamageUnitSource(
+        { ...BASE_UNIT, damageTags: [{ tagId: 1208750764 }, { tagId: -1 }] },
+        'unit',
+        {},
+      ).gameplayTagIds,
+    ).toEqual([1208750764, -1]);
+  });
+
+  it('将伤害 GameplayTag ID 投影为可读路径并与装饰分类分开', () => {
+    const unit = parseDamageUnitSource(
+      { ...BASE_UNIT, damageTags: [{ tagId: 1208750764 }] },
+      'unit',
+      { atk_scale: [0.9] },
+    );
+    const operation = compileEventTargetSimpleDamageOperationSource(
+      {
+        kind: 'damage',
+        alwaysNext: true,
+        attacker: 'ActionOwner',
+        target: parseTargetReferenceSource(targetFixture('Target'), 'target'),
+        effectSource: parseTargetReferenceSource(targetFixture('Owner'), 'effectSource'),
+        hitEnvironment: false,
+        units: [unit],
+      },
+      'damage',
+      {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        gameplayTagRegistry: new GameplayTagRegistry(['Damage/TyphoeaSkill/FloatingHit_Weak']),
+      },
+    );
+
+    expect(operation.parameters.gameplayTags).toEqual(['Damage/TyphoeaSkill/FloatingHit_Weak']);
+    expect(operation.parameters.tags).toEqual([]);
+  });
+
+  it.each([
+    { damageTags: [{}] },
+    { damageTags: [{ tagId: 1, extra: true }] },
+    { damageTags: [{ tagId: 1.5 }] },
+  ])('拒绝非法伤害标签项 %j', ({ damageTags }) => {
+    expect(() => parseDamageUnitSource({ ...BASE_UNIT, damageTags }, 'unit', {})).toThrow(
+      'unit.damageTags[0]',
+    );
   });
 
   it('简单计算保留失效公式存在性，但不读取其残留黑板值', () => {

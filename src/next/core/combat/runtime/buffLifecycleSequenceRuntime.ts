@@ -38,6 +38,7 @@ import type {
   CombatAbilityWeaknessTriggeredEvent,
   CombatAbilityCustomEvent,
   CombatAbilitySpellBurstEvent,
+  CombatAbilityBuffEnhanceChangedEvent,
 } from './skillRuntime';
 import type { CombatSemanticEvent } from './combatSemanticEventRuntime';
 import { DAMAGE_TYPES, type SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
@@ -746,6 +747,7 @@ export function normalizeAbilityEventPayload(
   | CombatAbilityHealEvent
   | CombatAbilitySkillEvent
   | CombatAbilityLifecycleEvent
+  | CombatAbilityBuffEnhanceChangedEvent
   | CombatAbilityWeaknessTriggeredEvent
   | import('./skillRuntime').CombatAbilityWeaknessSetEvent
   | CombatAbilityCustomEvent {
@@ -758,6 +760,8 @@ export function normalizeAbilityEventPayload(
   }
   if (
     event === 'enterFight' ||
+    event === 'ownerSwitchToCenter' ||
+    event === 'ownerSwitchToGuard' ||
     event === 'ownerHpZero' ||
     event === 'abilityEntitySpawned' ||
     event === 'abilityEntityFinished'
@@ -836,6 +840,9 @@ export function normalizeAbilityEventPayload(
     if (
       !Array.isArray(source.tags) ||
       !source.tags.every(value => typeof value === 'string') ||
+      (source.gameplayTags !== undefined &&
+        (!Array.isArray(source.gameplayTags) ||
+          !source.gameplayTags.every(value => typeof value === 'string'))) ||
       !Array.isArray(source.features) ||
       !source.features.every(value => typeof value === 'string')
     ) {
@@ -850,6 +857,7 @@ export function normalizeAbilityEventPayload(
         ? {}
         : { damageType: source.damageType as CombatAbilityDamageEvent['damageType'] }),
       tags: source.tags as CombatAbilityDamageEvent['tags'],
+      gameplayTags: (source.gameplayTags ?? []) as CombatAbilityDamageEvent['gameplayTags'],
       features: source.features as CombatAbilityDamageEvent['features'],
     };
   }
@@ -931,6 +939,22 @@ export function normalizeAbilityEventPayload(
       buffId: source.buffId,
       buffTags: source.buffTags as string[],
       reason: source.reason,
+    };
+  }
+  if (event === 'buffEnhanceChanged') {
+    if (typeof source.buffId !== 'string' || !Number.isInteger(source.layerCount)) {
+      throw new TypeError(`Ability event '${event}' payload has invalid Buff layer change`);
+    }
+    return {
+      kind: 'abilityBuffEnhanceChanged',
+      event,
+      sourceId: source.sourceId,
+      targetId: source.targetId,
+      buffId: source.buffId,
+      layerCount: source.layerCount as number,
+      ...(source.reason === undefined
+        ? {}
+        : { reason: source.reason as CombatAbilityBuffEnhanceChangedEvent['reason'] }),
     };
   }
   if (event === 'buffConsumed' || event === 'buffAbsorbed') {
@@ -1026,6 +1050,9 @@ export function normalizeAbilityEventPayload(
   if (
     !Array.isArray(source.tags) ||
     !source.tags.every(value => typeof value === 'string') ||
+    (source.gameplayTags !== undefined &&
+      (!Array.isArray(source.gameplayTags) ||
+        !source.gameplayTags.every(value => typeof value === 'string'))) ||
     !Array.isArray(source.features) ||
     !source.features.every(value => typeof value === 'string')
   ) {
@@ -1046,6 +1073,7 @@ export function normalizeAbilityEventPayload(
       ? {}
       : { damageType: source.damageType as CombatAbilityDamageEvent['damageType'] }),
     tags: source.tags as CombatAbilityDamageEvent['tags'],
+    gameplayTags: (source.gameplayTags ?? []) as CombatAbilityDamageEvent['gameplayTags'],
     features: source.features as CombatAbilityDamageEvent['features'],
   };
 }

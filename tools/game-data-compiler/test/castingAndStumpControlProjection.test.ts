@@ -495,7 +495,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         targetGroupKey: '',
         buffId: 'buff_chr_0031_mifu_shield',
       },
-    } as ReturnType<typeof parseKnownNativeActionLeafSource>;
+    } as unknown as ReturnType<typeof parseKnownNativeActionLeafSource>;
     expect(compileEventCondition(node(action), ACTIVE_SKILL_CONTEXT, new Map())).toEqual({
       kind: 'not',
       condition: {
@@ -513,7 +513,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         buffId: 'buff_chr_0031_mifu_shield',
         duration: { value: 1, blackboardKey: null, levelValues: null },
       },
-    } as ReturnType<typeof parseKnownNativeActionLeafSource>;
+    } as unknown as ReturnType<typeof parseKnownNativeActionLeafSource>;
     expect(
       compileBuffLeafNode(node(application), new Set(), new Map(), ACTIVE_SKILL_CONTEXT),
     ).toEqual({
@@ -598,7 +598,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         node({
           ...source,
           action: { ...source.action, returnTrueWhen: 'OnlySuccess' },
-        } as ReturnType<typeof parseKnownNativeActionLeafSource>),
+        } as unknown as ReturnType<typeof parseKnownNativeActionLeafSource>),
         new Set(),
         new Map(),
         ACTIVE_SKILL_CONTEXT,
@@ -661,6 +661,74 @@ describe('施法输入限制与木桩物理控制投影', () => {
       isStaticSingleEnemyTargetGroup({
         ...hitBox,
         priorityFilters: [{ ...hitBox.priorityFilters[0], maxNum: 0 }],
+      } as never),
+    ).toBe(false);
+  });
+
+  it('AllEnemy 和已选 Typhoea 目标在唯一活体敌人模型下折叠为同一木桩', () => {
+    const base = {
+      producerType: 'FindTargetAction',
+      validatorTypes: [],
+      postProcessorTypes: [],
+      priorityFilters: [],
+    };
+    expect(isStaticSingleEnemyTargetGroup({ ...base, finderType: 'AllEnemyFinder' } as never)).toBe(
+      true,
+    );
+    expect(
+      isStaticSingleEnemyTargetGroup({
+        ...base,
+        finderType: 'TyphoeaArcherySelectedFinder',
+      } as never),
+    ).toBe(true);
+  });
+
+  it('屏幕可见性与非负距离上限在固定零空间模型下不排除木桩', () => {
+    const write = {
+      producerType: 'FindTargetAction',
+      finderType: 'AllEnemyFinder',
+      validatorTypes: ['InScreenValidator', 'DistanceValidator'],
+      distanceValidators: [
+        {
+          compareType: 'LE',
+          threshold: { value: 30, blackboardKey: null, levelValues: null },
+        },
+      ],
+      postProcessorTypes: [],
+      priorityFilters: [],
+    };
+    expect(isStaticSingleEnemyTargetGroup(write as never)).toBe(true);
+    expect(
+      isStaticSingleEnemyTargetGroup({
+        ...write,
+        distanceValidators: [
+          {
+            compareType: 'LT',
+            threshold: { value: 0.01, blackboardKey: null, levelValues: null },
+          },
+        ],
+      } as never),
+    ).toBe(true);
+    expect(
+      isStaticSingleEnemyTargetGroup({
+        ...write,
+        distanceValidators: [
+          {
+            compareType: 'LT',
+            threshold: { value: 0, blackboardKey: null, levelValues: null },
+          },
+        ],
+      } as never),
+    ).toBe(false);
+    expect(
+      isStaticSingleEnemyTargetGroup({
+        ...write,
+        distanceValidators: [
+          {
+            compareType: 'GE',
+            threshold: { value: 30, blackboardKey: null, levelValues: null },
+          },
+        ],
       } as never),
     ).toBe(false);
   });
@@ -1270,6 +1338,26 @@ describe('施法输入限制与木桩物理控制投影', () => {
       steps: [{ kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 0.75 } }],
       state: new Map(),
     });
+    const owner = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.ObtainUspInNormalSkill+Data, Gameplay.Beyond',
+        source: targetFixture('Owner'),
+        coefficient: { useBlackboardKey: false, value: 1, blackboardKey: '' },
+      },
+      'fixture.owner',
+      {},
+    );
+    expect(compileBuffLeafNode(node(owner), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
+      steps: [{ kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } }],
+      state: new Map(),
+    });
+    expect(() =>
+      compileBuffLeafNode(node(owner), new Set(), new Map(), {
+        ...ACTIVE_SKILL_CONTEXT,
+        actionOwnerTarget: 'currentAbilityEntity',
+      }),
+    ).toThrow('unsupported ObtainUspInNormalSkill projection');
     const unresolved = parseKnownNativeActionLeafSource(
       {
         ...META,
@@ -1573,6 +1661,35 @@ describe('施法输入限制与木桩物理控制投影', () => {
           {
             kind: 'spawnAbilityEntity',
             parameters: { dieWhenSourceDies: true, finishByAction: true },
+          },
+        ],
+      });
+      const projectileOwnedAction = {
+        ...action,
+        action: {
+          ...action.action,
+          bornAt: {
+            ...action.action.bornAt,
+            targetSource: 'Context' as const,
+            targetGroupKey: 'projectile_hit_position',
+            finderType: null,
+            validatorTypes: [],
+            postProcessorTypes: [],
+          },
+        },
+      };
+      expect(
+        compileBuffLeafNode(
+          node(projectileOwnedAction),
+          new Set(),
+          new Map([['projectile_hit_position', 'spatialPoint']]),
+          { ...ACTIVE_SKILL_CONTEXT, actionOwnerTarget: 'currentAbilityEntity' },
+        ),
+      ).toMatchObject({
+        steps: [
+          {
+            kind: 'spawnAbilityEntity',
+            parameters: { source: 'currentAbilityEntity', dieWhenSourceDies: false },
           },
         ],
       });

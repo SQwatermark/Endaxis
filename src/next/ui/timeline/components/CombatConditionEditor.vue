@@ -253,6 +253,8 @@ function setGameplayTags(values: readonly GameplayTag[]): void {
     emit('update', { ...props.condition, tags: values });
   else if (props.condition.kind === 'contextTargetEntityTagMatch')
     emit('update', { ...props.condition, tags: values });
+  else if (props.condition.kind === 'eventDamageGameplayTagsMatch')
+    emit('update', { ...props.condition, tags: values });
   else if (props.condition.kind === 'eventBuffTagsMatch')
     emit('update', { ...props.condition, buffTags: values });
   else if (props.condition.kind === 'eventTargetBuffCountCompare')
@@ -355,6 +357,7 @@ function setObjectTypeMask(event: Event): void {
 function setEventTagMatch(event: Event): void {
   if (
     props.condition.kind !== 'eventDamageTagsMatch' &&
+    props.condition.kind !== 'eventDamageGameplayTagsMatch' &&
     props.condition.kind !== 'eventDamageFeaturesMatch'
   )
     return;
@@ -1070,6 +1073,20 @@ function removeChild(index: number): void {
           />{{ t(`nextTimeline.skillEditing.damageTagNames.${tag}`) }}</label
         >
       </fieldset>
+    </template>
+
+    <template v-if="condition.kind === 'eventDamageGameplayTagsMatch'">
+      <label class="condition-editor__field"
+        ><EditorFieldLabel
+          :label="t('nextTimeline.skillEditing.tagQueryType')"
+          :help="t('nextTimeline.skillEditing.fieldHelp.eventDamageTags')"
+        /><select :value="condition.match" @change="setEventTagMatch">
+          <option v-for="type in EVENT_TAG_MATCH_TYPES" :key="type" :value="type">
+            {{ t(`nextTimeline.skillEditing.tagQueryTypes.${type}`) }}
+          </option>
+        </select></label
+      >
+      <GameplayTagsEditor :tags="condition.tags" @update="setGameplayTags" />
     </template>
 
     <label v-if="condition.kind === 'eventBuffIdMatch'" class="condition-editor__field">

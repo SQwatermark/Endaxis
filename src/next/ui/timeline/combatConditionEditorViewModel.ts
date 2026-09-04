@@ -139,6 +139,8 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
       return { kind, markerId: 'custom-marker' };
     case 'eventDamageTagsMatch':
       return { kind, match: 'hasAny', tags: ['normalSkill'] };
+    case 'eventDamageGameplayTagsMatch':
+      return { kind, match: 'hasAny', tags: ['Custom/DamageTag'] };
     case 'eventDamageFeaturesMatch':
       return { kind, match: 'hasAny', features: ['canBreakWeakness'] };
     case 'eventDamageTypeIn':

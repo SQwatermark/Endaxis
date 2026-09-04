@@ -115,6 +115,7 @@ function inspectCondition(
     case 'eventSourceControlled':
     case 'buffSourceMatchesOwner':
     case 'eventDamageTagsMatch':
+    case 'eventDamageGameplayTagsMatch':
     case 'eventDamageFeaturesMatch':
     case 'eventDamageTypeIn':
     case 'eventHealTagsMatch':

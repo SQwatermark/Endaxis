@@ -265,6 +265,7 @@ function validateActionValueOperand(
   const kind = requireString(record, 'kind', path, out);
   if (kind === 'blackboard') {
     requireString(record, 'key', path, out);
+    if (record.fallback !== undefined) requireFiniteNumber(record, 'fallback', path, out);
   } else if (kind === 'constant') {
     requireFiniteNumber(record, 'value', path, out);
   } else if (kind !== null) {
@@ -756,6 +757,10 @@ function validateCombatCondition(
     case 'eventDamageTagsMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
       validateDamageTags(record.tags, `${path}.tags`, out);
+      break;
+    case 'eventDamageGameplayTagsMatch':
+      requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
+      validateGameplayTags(record.tags, `${path}.tags`, out);
       break;
     case 'eventDamageFeaturesMatch':
       requireEnum(record, 'match', TAG_QUERY_TYPES_WITH_EXACT_SET, path, out);
@@ -1520,6 +1525,9 @@ function validateCombatStep(
         }
       }
       validateDamageTags(parameters.tags, `${path}.parameters.tags`, out, false);
+      if (parameters.gameplayTags !== undefined) {
+        validateGameplayTags(parameters.gameplayTags, `${path}.parameters.gameplayTags`, out, true);
+      }
       if (parameters.features !== undefined) {
         validateDamageFeatures(parameters.features, `${path}.parameters.features`, out);
       }
@@ -2133,6 +2141,9 @@ function validateCombatStep(
       }
       if (parameters.inheritSourceSkillCastInfo !== undefined) {
         requireBoolean(parameters, 'inheritSourceSkillCastInfo', `${path}.parameters`, out);
+      }
+      if (parameters.isExtra !== undefined) {
+        requireBoolean(parameters, 'isExtra', `${path}.parameters`, out);
       }
       if (parameters.finishByAction !== undefined) {
         requireBoolean(parameters, 'finishByAction', `${path}.parameters`, out);
@@ -3144,6 +3155,8 @@ function validateCombatStep(
     case 'changeNativeSkillType':
       requireString(parameters, 'targetSkillKey', `${path}.parameters`, out);
       requireEnum(parameters, 'nativeSkillType', NATIVE_SKILL_TYPES_SET, `${path}.parameters`, out);
+      break;
+    case 'inheritSkillCastInfoForBasicAttack':
       break;
     case 'listenForCombatEvents':
       if (!Array.isArray(parameters.responses) || parameters.responses.length === 0) {

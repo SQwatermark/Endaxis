@@ -24,13 +24,17 @@ const items = computed(() =>
     const title =
       segment.kind === 'numeric'
         ? `${segment.value} / ${segment.maximum}`
-        : `${segment.mode}: ${segment.buffId}`;
+        : segment.kind === 'buffProgress'
+          ? `${segment.mode}: ${segment.buffId}`
+          : `arrows ${segment.battleArrows}/${segment.maximumArrows}; points ${segment.points}/${segment.maximumPoints}`;
     return {
       ...segment,
       key:
         segment.kind === 'numeric'
           ? `${segment.operatorId}:numeric:${segment.startFrame}:${segment.value}`
-          : `${segment.operatorId}:${segment.buffId}:${segment.instanceId}:${segment.startFrame}`,
+          : segment.kind === 'buffProgress'
+            ? `${segment.operatorId}:${segment.buffId}:${segment.instanceId}:${segment.startFrame}`
+            : `${segment.operatorId}:buffCounters:${segment.startFrame}`,
       title,
       left,
       top: props.actionTop - UPPER_OFFSET_FROM_ACTION - segment.lane * LANE_PITCH,
@@ -59,10 +63,23 @@ const items = computed(() =>
       <template #content>
         <OperatorPassiveUiWidget
           :appearance="item.appearance"
-          :value="item.kind === 'numeric' ? item.value : undefined"
-          :maximum="item.kind === 'numeric' ? item.maximum : undefined"
           :active="item.kind === 'numeric' && item.active"
           :mode="item.kind === 'buffProgress' ? item.mode : undefined"
+          :value="
+            item.kind === 'buffCounters'
+              ? item.battleArrows
+              : item.kind === 'numeric'
+                ? item.value
+                : undefined
+          "
+          :maximum="
+            item.kind === 'buffCounters'
+              ? item.maximumArrows
+              : item.kind === 'numeric'
+                ? item.maximum
+                : undefined
+          "
+          :points="item.kind === 'buffCounters' ? item.points : undefined"
           :height="16"
           :max-width="16"
         />

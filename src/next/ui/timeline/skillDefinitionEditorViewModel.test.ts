@@ -268,6 +268,12 @@ describe('ActionValueOperand editor helpers', () => {
     ).toEqual({ kind: 'blackboard', key: 'b' });
     expect(
       replaceActionValueOperandForEditor(
+        { kind: 'blackboard', key: 'a', fallback: 0 },
+        { kind: 'blackboard', key: 'b' },
+      ),
+    ).toEqual({ kind: 'blackboard', key: 'b', fallback: 0 });
+    expect(
+      replaceActionValueOperandForEditor(
         { kind: 'constant', value: 1 },
         { kind: 'blackboard', key: 'k' },
       ),

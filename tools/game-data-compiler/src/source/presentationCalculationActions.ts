@@ -13,6 +13,11 @@ import {
 
 export type PresentationCalculationActionSource =
   | {
+      /** 玩家移动输入的有符号角度；仅可在其全部保留消费者消失后从战斗程序省略。 */
+      readonly kind: 'saveMoveAxisAngle';
+      readonly outputKey: string;
+    }
+  | {
       readonly kind: 'saveTwoDirectionAngle';
       readonly sources: readonly TargetReferenceSource[];
       readonly outputKey: string;
@@ -29,6 +34,22 @@ export type PresentationCalculationActionSource =
       readonly mountPoint: string;
       readonly outputKeys: readonly string[];
     };
+
+export function parseSaveMoveAxisAngleActionSource(
+  value: unknown,
+  path: string,
+): PresentationCalculationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex', 'key']),
+    path,
+  );
+  return {
+    kind: 'saveMoveAxisAngle',
+    outputKey: requireNonEmptyString(action.key, `${path}.key`),
+  };
+}
 
 /**
  * 严格保留 SaveCameraAngle 的目标与实际写入键。角度值本身不在导入阶段求值；

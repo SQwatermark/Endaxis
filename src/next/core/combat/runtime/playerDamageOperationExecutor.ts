@@ -184,6 +184,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       damageType: step.parameters.damageType,
       targetHealthType: 'normal',
       tags: step.parameters.tags,
+      gameplayTags: step.kind === 'dealDamage' ? (step.parameters.gameplayTags ?? []) : [],
       features: step.parameters.features ?? [],
       ...(operationContext?.skillCastInfo === undefined
         ? {}
@@ -310,6 +311,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         targetId: this.dependencies.targetId,
         damageType: step.parameters.damageType,
         tags: step.parameters.tags,
+        gameplayTags: step.kind === 'dealDamage' ? (step.parameters.gameplayTags ?? []) : [],
         features: step.parameters.features ?? [],
         result: damageResult,
         detail: {

@@ -26,6 +26,7 @@ describe('SkillCastOperationExecutor', () => {
         target: 'enemy',
         skipApplyCost: true,
         inheritSourceSkillCastInfo: true,
+        interruptCurrentSkillOnlyWhenTargetCastable: true,
       },
     } satisfies ResolvedCombatOperationStep;
 
@@ -35,6 +36,7 @@ describe('SkillCastOperationExecutor', () => {
     expect(request).toHaveBeenCalledWith({
       nativeSkillId: 'chr_0035_liino_normal_skill_combo',
       skipApplyCost: true,
+      interruptCurrentSkillOnlyWhenTargetCastable: true,
       inheritedSkillCastInfo: skillCastInfo,
     });
   });

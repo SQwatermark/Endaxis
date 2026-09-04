@@ -181,6 +181,33 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('emits native owner switch events exactly when the control timeline changes', () => {
+    const emitted = vi.fn();
+    const assembly = createAssembly(
+      [],
+      (_operatorId, frame) => frame < 2 || frame >= 3,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      emitted,
+    );
+
+    assembly.advanceFrame();
+    expect(emitted).not.toHaveBeenCalled();
+    assembly.advanceFrame();
+    assembly.advanceFrame();
+
+    expect(emitted.mock.calls).toEqual([
+      ['operator', 'ownerSwitchToGuard', { sourceId: 'operator', targetId: 'operator' }],
+      ['operator', 'ownerSwitchToCenter', { sourceId: 'operator', targetId: 'operator' }],
+    ]);
+  });
+
   it('warns on a mismatched player slot but executes the explicitly placed skill', () => {
     const base = skill({ skillId: 'battleSkill', castId: 'cast:base', costs: [] });
     const replacement = skill({

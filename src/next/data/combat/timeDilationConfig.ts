@@ -7,6 +7,7 @@ import type { TimeDilationRuntimeConfig } from '../../core/combat/runtime/timeDi
 import { requireGameplayTag } from './gameplayTagCatalog';
 import { HIT_STOP_NAMED_CURVE_DEFINITIONS } from './hitStopCurveCatalog.generated';
 import { TIME_DILATION_NAMED_CURVE_DEFINITIONS } from './timeDilationCatalog';
+import { TIME_DILATION_SLOT_SPECIAL_CONFIGS } from './timeDilationCatalog';
 
 const curveDefinitions = {
   ...TIME_DILATION_NAMED_CURVE_DEFINITIONS,
@@ -24,10 +25,12 @@ const namedCurves = new Map(
 );
 
 export const timeDilationRuntimeConfig: TimeDilationRuntimeConfig = Object.freeze({
-  entityLifetimeUsesGlobalScaleBySlot: new Map([
-    [requireGameplayTag('TimeDilation/Layer/Entity/Frozen'), true],
-    [requireGameplayTag('TimeDilation/Layer/Entity/Seal'), true],
-  ]),
+  entityLifetimeUsesGlobalScaleBySlot: new Map(
+    TIME_DILATION_SLOT_SPECIAL_CONFIGS.filter(item => item.influencesDuration).map(item => [
+      requireGameplayTag(item.entitySlot),
+      true,
+    ]),
+  ),
   curves: namedCurves,
 });
 

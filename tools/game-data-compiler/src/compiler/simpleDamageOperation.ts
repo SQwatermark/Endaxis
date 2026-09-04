@@ -7,6 +7,10 @@ import {
   compileResolvedAttributeModifierSource,
   projectCombatRuntimeAttributeKey,
 } from './attributeModifier.ts';
+import {
+  projectGameplayTags,
+  type CombatActionProjectionContextSource,
+} from './combatProjectionCommon.ts';
 
 import type {
   CompiledActionValueOperandSource,
@@ -28,7 +32,10 @@ export type {
 export function compileEventTargetSimpleDamageOperationSource(
   action: DamageActionSource,
   sourcePath: string,
-  context: {
+  context: Pick<
+    CombatActionProjectionContextSource,
+    'gameplayTagRegistry' | 'abilityEntityQueries'
+  > & {
     readonly actionOwnerTarget: 'buffOwner' | 'caster' | 'unavailable';
     readonly actionSourceTarget: 'caster';
     readonly fixedBuffOwnerTarget?: 'caster' | 'enemy' | 'currentAbilityEntity';
@@ -231,6 +238,10 @@ export function compileEventTargetSimpleDamageOperationSource(
   const knockDown = Math.floor(mask / 65536) % 2 === 1;
   const dashAttack = Math.floor(mask / 131072) % 2 === 1;
   const normalAttackLastCombo = Math.floor(mask / 2097152) % 2 === 1;
+  const fireBurst = Math.floor(mask / 4194304) % 2 === 1;
+  const cryoBurst = Math.floor(mask / 8388608) % 2 === 1;
+  const electricBurst = Math.floor(mask / 16777216) % 2 === 1;
+  const natureBurst = Math.floor(mask / 33554432) % 2 === 1;
   const burning = Math.floor(mask / 67108864) % 2 === 1;
   const shatter = Math.floor(mask / 134217728) % 2 === 1;
   const dot = Math.floor(mask / 268435456) % 2 === 1;
@@ -254,7 +265,11 @@ export function compileEventTargetSimpleDamageOperationSource(
       (knockDown ? 65536 : 0) -
       (dashAttack ? 131072 : 0) -
       (normalAttackLastCombo ? 2097152 : 0) !==
-      (burning ? 67108864 : 0) +
+      (fireBurst ? 4194304 : 0) +
+        (cryoBurst ? 8388608 : 0) +
+        (electricBurst ? 16777216 : 0) +
+        (natureBurst ? 33554432 : 0) +
+        (burning ? 67108864 : 0) +
         (shatter ? 134217728 : 0) +
         (dot ? 268435456 : 0) +
         (remainArea ? 536870912 : 0) +
@@ -295,9 +310,22 @@ export function compileEventTargetSimpleDamageOperationSource(
         ...(normalSkill ? (['normalSkill'] as const) : []),
         ...(ultimateSkill ? (['ultimateSkill'] as const) : []),
         ...(comboSkill ? (['comboSkill'] as const) : []),
+        ...(fireBurst ? (['fireBurst'] as const) : []),
+        ...(cryoBurst ? (['cryoBurst'] as const) : []),
+        ...(electricBurst ? (['electricBurst'] as const) : []),
+        ...(natureBurst ? (['natureBurst'] as const) : []),
         ...(burning ? (['fireAbnormal'] as const) : []),
         ...(shatter ? (['cryoAbnormal'] as const) : []),
       ],
+      ...(unit.gameplayTagIds.length === 0
+        ? {}
+        : {
+            gameplayTags: projectGameplayTags(
+              unit.gameplayTagIds,
+              context,
+              `${sourcePath}.units[0].damageTags`,
+            ),
+          }),
       ...(canBreakWeakness || dot || remainArea || physicalInfliction || shatter || talentDamage
         ? {
             features: [

@@ -110,6 +110,7 @@ export const EQUIPMENT_ABILITY_EVENTS = [
   'beforeOutputBuff',
   'outputBuff',
   'addedBuff',
+  'buffEnhanceChanged',
 ] as const satisfies readonly AbilityEvent[];
 
 export type EquipmentAbilityEvent = (typeof EQUIPMENT_ABILITY_EVENTS)[number];

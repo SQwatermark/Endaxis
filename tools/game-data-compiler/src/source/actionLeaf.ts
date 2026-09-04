@@ -140,6 +140,7 @@ import {
   parseAnimatorAimOffsetActionSource,
   parseTryToTeleportSquadActionSource,
   parseMarkCanDashActionSource,
+  parseTyphoeaHudHintActionSource,
   type DebugPrintActionSource,
   type CameraPresentationActionSource,
   type EffectActionSource,
@@ -198,6 +199,7 @@ import {
 } from './resourceActions.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
 import {
   parseDirectRangedAuraActionSource,
   parseAuraReferenceActionSource,
@@ -260,6 +262,7 @@ import {
 import {
   parseCurveEvaluateFloatActionSource,
   parseSaveCameraAngleActionSource,
+  parseSaveMoveAxisAngleActionSource,
   parseSaveTwoDirectionAngleActionSource,
   type PresentationCalculationActionSource,
 } from './presentationCalculationActions.ts';
@@ -314,6 +317,10 @@ import {
   parseSaveAtbObtainValueActionSource,
   type SaveAtbObtainValueActionSource,
 } from './eventPayloadActions.ts';
+import {
+  parseTyphoeaArcheryTargetSelectionActionSource,
+  type TyphoeaArcheryTargetSelectionActionSource,
+} from './typhoeaArcheryActions.ts';
 
 const CONDITION_ACTION_NAMES = new Set([
   'ReturnFalseAction',
@@ -333,6 +340,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'Probablity',
   'CheckSkillType',
   'CheckSkillId',
+  'CheckSkillInterruptReason',
   'CheckOriginSkillType',
   'CheckObtainAtbType',
   'CheckTargetsEqual',
@@ -346,6 +354,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CompareDeckAttr',
   'CheckAbilityEntityCurDuration',
   'CheckDamageDecorateMask',
+  'CheckDamageTag',
   'CheckHealTag',
   'CheckOverHeal',
   'CheckBuffIdInContext',
@@ -361,6 +370,7 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckTargetAngle',
   'CheckPoiseValue',
   'CheckSquadInFight',
+  'CheckDungeonCategory',
   'CheckComboSkillCameraAlphaSetting',
   'CheckSkillCameraMotionFree',
   'CheckHasMoveInput',
@@ -466,6 +476,22 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'globalCooldown'; readonly action: GlobalCooldownApplicationSource }
   | { readonly family: 'skillCooldownMutation'; readonly action: SkillCooldownMutationActionSource }
   | { readonly family: 'skillSlotReplacement'; readonly action: SkillSlotReplacementActionSource }
+  | {
+      readonly family: 'skillCastInheritance';
+      readonly action: { readonly kind: 'inheritSkillCastInfoForBasicAttack' };
+    }
+  | {
+      readonly family: 'typhoeaArcherySelection';
+      readonly action: TyphoeaArcheryTargetSelectionActionSource;
+    }
+  | {
+      readonly family: 'incomingDamageDefense';
+      readonly action: {
+        readonly kind: 'damageTagImmunity';
+        readonly target: TargetReferenceSource;
+        readonly query: TagQuerySource;
+      };
+    }
   | { readonly family: 'buffApplication'; readonly action: BuffApplicationActionSource }
   | { readonly family: 'buffInheritance'; readonly action: BuffInheritanceActionSource }
   | {
@@ -613,6 +639,43 @@ export function tryParseKnownNativeActionLeafSource(
     };
   }
   switch (name) {
+    case 'TyphoeaArcheryTargetSelect':
+      return {
+        family: 'typhoeaArcherySelection',
+        action: parseTyphoeaArcheryTargetSelectionActionSource(value, path, inheritedBlackboard),
+      };
+    case 'MarkInheritSkillCastIdOnNormalAttack':
+      requireExactFields(
+        action,
+        new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+        path,
+      );
+      return {
+        family: 'skillCastInheritance',
+        action: { kind: 'inheritSkillCastInfoForBasicAttack' },
+      };
+    case 'SetDamageTagImmuneRule':
+      requireExactFields(
+        action,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'target',
+          'immuneQuery',
+        ]),
+        path,
+      );
+      return {
+        family: 'incomingDamageDefense',
+        action: {
+          kind: 'damageTagImmunity',
+          target: parseTargetReferenceSource(action.target, `${path}.target`),
+          query: parseTagQuerySource(action.immuneQuery, `${path}.immuneQuery`),
+        },
+      };
     case 'TriggerCustomAbilityEvent':
       return {
         family: 'customAbilityEvent',
@@ -981,10 +1044,20 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'presentation',
         action: parseVoiceInterruptActionSource(value, path),
       };
+    case 'ShowTyphoeaHudHint':
+      return {
+        family: 'presentation',
+        action: parseTyphoeaHudHintActionSource(value, path),
+      };
     case 'SaveTwoDirectionAngle':
       return {
         family: 'presentationCalculation',
         action: parseSaveTwoDirectionAngleActionSource(value, path),
+      };
+    case 'SaveMoveAxisAngle':
+      return {
+        family: 'presentationCalculation',
+        action: parseSaveMoveAxisAngleActionSource(value, path),
       };
     case 'SaveCameraAngle':
       return {

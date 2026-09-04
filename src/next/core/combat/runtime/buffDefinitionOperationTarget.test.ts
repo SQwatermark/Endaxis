@@ -269,11 +269,11 @@ describe('BuffDefinitionOperationTarget', () => {
     target.configureLifecycleOperations(source => {
       lifecycleSources.push(source);
       return {
-      execute: () => {
-        executed = true;
-        return true;
-      },
-      evaluate: () => true,
+        execute: () => {
+          executed = true;
+          return true;
+        },
+        evaluate: () => true,
       };
     });
 
@@ -337,6 +337,7 @@ describe('BuffDefinitionOperationTarget', () => {
       sourceId: 'operator',
       buffTags: [],
       skillCastInfo: null,
+      isExtra: false,
     });
   });
 
@@ -351,6 +352,7 @@ describe('BuffDefinitionOperationTarget', () => {
         sourceId: 'yvonne',
         buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
         skillCastInfo: null,
+        isExtra: false,
       });
     });
     const after = vi.fn();
@@ -415,6 +417,7 @@ describe('BuffDefinitionOperationTarget', () => {
       sourceId: 'enemy',
       buffTags: [],
       skillCastInfo: null,
+      isExtra: false,
     });
     expect(() => target.configureBuffAppliedObserver(observer)).toThrow('observer is configured');
   });

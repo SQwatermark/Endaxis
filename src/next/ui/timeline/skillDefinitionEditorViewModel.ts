@@ -96,7 +96,13 @@ export function replaceActionValueOperandForEditor(
   const kind = update.kind ?? value.kind;
   if (kind === 'blackboard') {
     if (typeof update.key !== 'string') return value;
-    return { kind: 'blackboard', key: update.key };
+    return {
+      kind: 'blackboard',
+      key: update.key,
+      ...(value.kind === 'blackboard' && value.fallback !== undefined
+        ? { fallback: value.fallback }
+        : {}),
+    };
   }
   if (typeof update.constant !== 'number' || !Number.isFinite(update.constant)) return value;
   return { kind: 'constant', value: update.constant };
@@ -470,6 +476,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'createAbilityEntityTimedMarker',
   'setContextFlag',
   'setCharacterPassiveUiValue',
+  'inheritSkillCastInfoForBasicAttack',
   'openComboWindow',
   'changeSkillSlot',
   'changePlayerActionMode',
@@ -991,6 +998,8 @@ export function createSkillEditorStep(
         kind,
         parameters: { target: 'caster', value: { kind: 'constant', value: 0 } },
       };
+    case 'inheritSkillCastInfoForBasicAttack':
+      return { kind, parameters: {} };
     case 'openComboWindow':
       return { kind, parameters: { nextSkillKey: 'comboSkillStage2' } };
     case 'changeSkillSlot':

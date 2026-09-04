@@ -35,6 +35,21 @@ export type OperatorPassiveUiTimelineSegment =
       readonly mode: 'normal' | 'ultimate';
       readonly buffId: string;
       readonly instanceId: number;
+    }
+  | {
+      readonly kind: 'buffCounters';
+      readonly appearance: Extract<
+        OperatorPassiveUiDefinition,
+        { kind: 'buffCounters' }
+      >['appearance'];
+      readonly operatorId: string;
+      readonly startFrame: number;
+      readonly endFrame: number;
+      readonly reserveArrows: number;
+      readonly battleArrows: number;
+      readonly points: number;
+      readonly maximumArrows: number;
+      readonly maximumPoints: number;
     };
 
 export type PositionedOperatorPassiveUiTimelineSegment = OperatorPassiveUiTimelineSegment & {
@@ -159,6 +174,70 @@ function projectBuffProgressSegments(
   return segments;
 }
 
+interface BuffCounterState {
+  readonly reserveArrows: number;
+  readonly battleArrows: number;
+  readonly points: number;
+}
+
+function counterValue(entry: CombatReceiptEntry, maximum: number): number | undefined {
+  if (entry.event !== 'BuffApplied') return undefined;
+  return normalizedNumericValue(numberData(entry.data, 'layers') ?? 1, maximum);
+}
+
+function projectBuffCounterSegments(
+  entries: readonly CombatReceiptEntry[],
+  endFrame: number,
+  source: OperatorPassiveUiTimelineSource & {
+    readonly definition: Extract<OperatorPassiveUiDefinition, { readonly kind: 'buffCounters' }>;
+  },
+): readonly OperatorPassiveUiTimelineSegment[] {
+  const segments: OperatorPassiveUiTimelineSegment[] = [];
+  let state: BuffCounterState = { reserveArrows: 0, battleArrows: 0, points: 0 };
+  let startFrame = 0;
+  const close = (frame: number): void => {
+    if (
+      frame <= startFrame ||
+      (state.reserveArrows === 0 && state.battleArrows === 0 && state.points === 0)
+    )
+      return;
+    segments.push({
+      kind: 'buffCounters',
+      appearance: source.definition.appearance,
+      operatorId: source.operatorId,
+      startFrame,
+      endFrame: frame,
+      ...state,
+      maximumArrows: source.definition.maximumArrows,
+      maximumPoints: source.definition.maximumPoints,
+    });
+  };
+
+  for (const entry of entries) {
+    if (entry.frame > endFrame || entry.targetId !== source.operatorId) continue;
+    const buffId = stringData(entry.data, 'buffId');
+    if (buffId === undefined) continue;
+    const field =
+      buffId === source.definition.reserveArrowBuffId
+        ? ('reserveArrows' as const)
+        : buffId === source.definition.battleArrowBuffId
+          ? ('battleArrows' as const)
+          : buffId === source.definition.pointBuffId
+            ? ('points' as const)
+            : null;
+    if (field === null) continue;
+    const maximum =
+      field === 'points' ? source.definition.maximumPoints : source.definition.maximumArrows;
+    const nextValue = entry.event === 'BuffFinished' ? 0 : counterValue(entry, maximum);
+    if (nextValue === undefined || state[field] === nextValue) continue;
+    close(entry.frame);
+    state = { ...state, [field]: nextValue };
+    startFrame = entry.frame;
+  }
+  close(endFrame);
+  return segments;
+}
+
 export function projectOperatorPassiveUiTimelineViz(
   entries: readonly CombatReceiptEntry[],
   endFrame: number,
@@ -167,17 +246,25 @@ export function projectOperatorPassiveUiTimelineViz(
   if (!Number.isInteger(endFrame) || endFrame < 0) {
     throw new RangeError('endFrame must be a non-negative integer');
   }
-  return sources.flatMap(source =>
-    source.definition.kind === 'numeric'
-      ? projectNumericSegments(entries, endFrame, {
+  return sources.flatMap(source => {
+    switch (source.definition.kind) {
+      case 'numeric':
+        return projectNumericSegments(entries, endFrame, {
           ...source,
           definition: source.definition,
-        })
-      : projectBuffProgressSegments(entries, endFrame, {
+        });
+      case 'buffProgress':
+        return projectBuffProgressSegments(entries, endFrame, {
           ...source,
           definition: source.definition,
-        }),
-  );
+        });
+      case 'buffCounters':
+        return projectBuffCounterSegments(entries, endFrame, {
+          ...source,
+          definition: source.definition,
+        });
+    }
+  });
 }
 
 /** 与 Buff 轨道相同的最早可复用 lane 排布；laneOffset 用于接在已有上方 Buff 后。 */

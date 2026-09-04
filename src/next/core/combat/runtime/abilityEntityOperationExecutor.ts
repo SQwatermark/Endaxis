@@ -226,6 +226,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       throw new Error('spawnAbilityEntity requires a combat operation context');
     }
     const parameters = step.parameters;
+    const inheritSourceSkillCastInfo = parameters.inheritSourceSkillCastInfo !== false;
     const definition =
       parameters.definition ?? this.#resolveDefinition?.(parameters.abilityEntityId);
     if (definition === undefined) {
@@ -250,7 +251,27 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       const assigned = assignments[value.blackboardKey];
       return typeof assigned === 'number' ? assigned : value.fallback;
     };
-    const source: RuntimeTargetRef = { kind: 'operator', operatorId: this.#operatorId };
+    const casterSource: RuntimeTargetRef = { kind: 'operator', operatorId: this.#operatorId };
+    const currentAbilityEntitySource =
+      context.actionOwnerAbilityEntity ??
+      (context.currentTarget?.kind === 'abilityEntity' ? context.currentTarget : undefined);
+    if (
+      parameters.source === 'currentAbilityEntity' &&
+      currentAbilityEntitySource === undefined &&
+      parameters.dieWhenSourceDies
+    ) {
+      throw new Error(
+        'spawnAbilityEntity source-death tracking requires a materialized current AbilityEntity source',
+      );
+    }
+    // 投射物回调只保留独立动作/实体黑板，尚未把投射物物化进逻辑能力实体目录。
+    // 当原生 dieWhenSourceDie=false 时，Source 身份不参与存活判定；此时以所属干员作为
+    // 运行时代表，但契约中的 source 仍保留真实 ActionOwner 身份。需要跟随来源死亡的动作
+    // 必须命中上面的严格门禁，不能套用这个简化。
+    const source =
+      parameters.source === 'currentAbilityEntity'
+        ? (currentAbilityEntitySource ?? casterSource)
+        : casterSource;
     const childSkill = this.#resolveSpawnChildSkill(definition, parameters.childSkillId);
     if (childSkill !== undefined && this.#childRuntimeDependencies === undefined) {
       throw new Error('spawnAbilityEntity child skill runtime is not configured');
@@ -262,7 +283,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
           ? ({ kind: 'enemy' } as const)
           : parameters.target === 'currentAbilityEntity'
             ? context.currentTarget
-            : source;
+            : casterSource;
     if (parameters.target === 'currentAbilityEntity' && target === undefined) {
       throw new Error('spawnAbilityEntity currentAbilityEntity target requires a current target');
     }
@@ -287,7 +308,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       },
       ownerId: this.#operatorId,
       source,
-      ...(context.skillCastInfo === undefined
+      ...(!inheritSourceSkillCastInfo || context.skillCastInfo === undefined
         ? {}
         : { sourceSkillCastId: context.skillCastInfo.skillCastId }),
       ...(target === undefined ? {} : { target }),
@@ -305,7 +326,13 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
         ? {}
         : {
             createChildRuntime: (entity, entityBlackboard) =>
-              this.#createChildRuntime(childSkill, entity, entityBlackboard, context),
+              this.#createChildRuntime(
+                childSkill,
+                entity,
+                entityBlackboard,
+                context,
+                inheritSourceSkillCastInfo,
+              ),
           }),
     });
     if (parameters.saveToContextKey !== undefined) {
@@ -412,6 +439,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     entity: RuntimeTargetRef,
     entityBlackboard: ActionBlackboard,
     context: CombatOperationContext,
+    inheritSourceSkillCastInfo = true,
   ): AbilityEntityChildSkillRuntime {
     if (this.#childRuntimeDependencies === undefined) {
       throw new Error('AbilityEntity child skill runtime is not configured');
@@ -430,7 +458,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       ...(this.#childRuntimeDependencies.semanticEvents === undefined
         ? {}
         : { semanticEvents: this.#childRuntimeDependencies.semanticEvents }),
-      ...(context.skillCastInfo === undefined
+      ...(!inheritSourceSkillCastInfo || context.skillCastInfo === undefined
         ? {}
         : { inheritedSkillCastInfo: context.skillCastInfo }),
       addAbilityChildBuff: child => this.#entities.addChildBuff(entity, child),

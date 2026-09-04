@@ -178,7 +178,15 @@ describe('引用闭包动作来源载荷', () => {
       ),
     ).toEqual(parseSkillCastActionSource(cast, 'cast'));
   });
-  it.each([true, 0, 'false', null, undefined])('阻断未投影或非法施法中断选项 %j', flag => {
+  it('保留“目标技能可施放时才中断当前技能”选项', () => {
+    expect(
+      parseSkillCastActionSource(
+        { ...cast, interruptCurSkillOnlyWhenTargetCastable: true },
+        'cast',
+      ),
+    ).toMatchObject({ interruptCurrentSkillOnlyWhenTargetCastable: true });
+  });
+  it.each([0, 'false', null, undefined])('阻断非法施法中断选项 %j', flag => {
     expect(() =>
       parseSkillCastActionSource(
         { ...cast, interruptCurSkillOnlyWhenTargetCastable: flag },

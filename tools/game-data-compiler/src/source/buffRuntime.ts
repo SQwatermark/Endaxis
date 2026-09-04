@@ -46,6 +46,7 @@ export const BUFF_STACKING_TYPES = [
   'OverwriteDuration',
   'EnhanceAndOverwriteDuration',
   'HighPriorityWithMaxStack',
+  'TimedGrowingEnhance',
 ] as const;
 export type BuffStackingTypeSource = (typeof BUFF_STACKING_TYPES)[number];
 
@@ -74,6 +75,8 @@ export interface BuffPresentationSource {
 }
 
 export interface BuffLifecycleSource {
+  readonly addingCooldown: ScalarSource | null;
+  readonly ignoreAddingCooldown: boolean;
   readonly lifeType: 'Limited' | 'Infinity';
   readonly duration: ScalarSource;
   readonly triggerInterval: ScalarSource;
@@ -194,7 +197,7 @@ export function parseBuffRuntimeSource(
   };
   const graph = parseKnownNativeBuffActionGraphSource(value, sourcePath, localBlackboard);
 
-  validatePassiveFlags(root, sourcePath, localBlackboard);
+  const addingCooldown = validatePassiveFlags(root, sourcePath, localBlackboard);
   const unsupportedPayloads = [...unsupportedArray(root, sourcePath, 'globalModifier')];
 
   const stacking = requireRecord(root.stackingSettings, `${sourcePath}.stackingSettings`);
@@ -225,6 +228,11 @@ export function parseBuffRuntimeSource(
     graph,
     presentation: parsePresentation(root, sourcePath),
     lifecycle: {
+      addingCooldown,
+      ignoreAddingCooldown: requireBoolean(
+        root.ignoreCooldownWhenAdding,
+        `${sourcePath}.ignoreCooldownWhenAdding`,
+      ),
       lifeType: requireOneOf(root.lifeType, ['Limited', 'Infinity'], `${sourcePath}.lifeType`),
       duration: parseScalarSource(root.duration, `${sourcePath}.duration`, localBlackboard),
       triggerInterval: parseScalarSource(
@@ -620,9 +628,13 @@ function parsePresentation(
     `${sourcePath}.iconConfig`,
   );
   // 这是新增显示资格，不是闪烁等纯渲染参数；关闭与旧结构等价，开启需先还原原生路由。
-  if ('showDirectlyInHeadBuff' in icon &&
-      requireBoolean(icon.showDirectlyInHeadBuff, `${sourcePath}.iconConfig.showDirectlyInHeadBuff`)) {
-    throw new Error(`${sourcePath}.iconConfig.showDirectlyInHeadBuff: direct head buff display requires native routing projection`);
+  if (
+    'showDirectlyInHeadBuff' in icon &&
+    requireBoolean(icon.showDirectlyInHeadBuff, `${sourcePath}.iconConfig.showDirectlyInHeadBuff`)
+  ) {
+    throw new Error(
+      `${sourcePath}.iconConfig.showDirectlyInHeadBuff: direct head buff display requires native routing projection`,
+    );
   }
   const order = requireRecord(
     icon._orderPriorityConfig,
@@ -719,7 +731,7 @@ function validatePassiveFlags(
   root: Record<string, unknown>,
   sourcePath: string,
   inheritedBlackboard: BlackboardLevelValues,
-): void {
+): ScalarSource | null {
   for (const field of ['ignoreTagImmune', 'finishOnRepatriate', 'ignoreCooldownWhenAdding']) {
     requireBoolean(root[field], `${sourcePath}.${field}`);
   }
@@ -727,11 +739,9 @@ function validatePassiveFlags(
     root.hasAddingCooldown,
     `${sourcePath}.hasAddingCooldown`,
   );
-  if (hasAddingCooldown) {
-    // combat-spec 目前同样只开放 false；不能验证完字段后再静默丢掉真实加 Buff 冷却。
-    parseScalarSource(root.addingCooldown, `${sourcePath}.addingCooldown`, inheritedBlackboard);
-    throw new Error(`${sourcePath}.hasAddingCooldown: enabled Buff adding cooldown is unsupported`);
-  }
+  const parsedAddingCooldown = hasAddingCooldown
+    ? parseScalarSource(root.addingCooldown, `${sourcePath}.addingCooldown`, inheritedBlackboard)
+    : null;
   // 关闭槽在 1.4.4 中存在 useBlackboardKey=true + 空 key 的序列化脏值；
   // 结构仍须严格，禁用值则不应被提升成运行时黑板依赖。
   const addingCooldown = requireRecord(root.addingCooldown, `${sourcePath}.addingCooldown`);
@@ -751,6 +761,7 @@ function validatePassiveFlags(
   );
   requireBoolean(dispel.canBeDispelled, `${sourcePath}.dispelConfig.canBeDispelled`);
   requireNonEmptyString(dispel.dispelledLevel, `${sourcePath}.dispelConfig.dispelledLevel`);
+  return parsedAddingCooldown;
 }
 
 function unsupportedArray(

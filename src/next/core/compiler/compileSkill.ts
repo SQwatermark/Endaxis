@@ -245,6 +245,9 @@ function resolveStep(
                 ),
               }),
           tags: step.parameters.tags,
+          ...(step.parameters.gameplayTags === undefined
+            ? {}
+            : { gameplayTags: step.parameters.gameplayTags }),
           ...(step.parameters.features === undefined ? {} : { features: step.parameters.features }),
           ...(step.parameters.instantAttributeModifiers === undefined
             ? {}
@@ -807,6 +810,7 @@ function resolveStep(
     case 'changePlayerActionMode':
     case 'changeNativeSkillType':
     case 'setCharacterPassiveUiValue':
+    case 'inheritSkillCastInfoForBasicAttack':
     case 'adjustSkillCooldown':
       return { ...keyed, kind: step.kind, parameters: step.parameters } as ResolvedCombatStep;
     case 'applyElementalReaction':

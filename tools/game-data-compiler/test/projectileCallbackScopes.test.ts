@@ -34,7 +34,7 @@ describe('synchronous projectile callback scope', () => {
     expect(result.body.steps).toHaveLength(1);
   });
 
-  it('projects non-empty projectile entity assignments from the parent action board', () => {
+  it('omits projectile entity assignments that no callback blackboard consumes', () => {
     const result = compileSynchronousProjectileCallbackScopesSource({
       sourcePath: 'skill.LaunchProjectile',
       launch: {
@@ -55,6 +55,35 @@ describe('synchronous projectile callback scope', () => {
         entityBlackboard: [],
       },
       invocations: [],
+    });
+    expect(result.parameters.entityAssignments).toBeUndefined();
+  });
+
+  it('retains projectile entity assignments consumed by a callback blackboard', () => {
+    const result = compileSynchronousProjectileCallbackScopesSource({
+      sourcePath: 'skill.LaunchProjectile',
+      launch: {
+        ...launch,
+        assignments: [
+          {
+            targetKey: 'EntityBB_value',
+            valueType: 'Numeric',
+            numericValue: 1,
+            stringValue: '',
+            useDirectValue: true,
+            inputValueKey: '',
+          },
+        ],
+      },
+      template: { projectileId: launch.projectileId, entityBlackboard: [] },
+      invocations: [
+        {
+          event: 'hit',
+          skillId: 'projectile_hit',
+          declaredBlackboard: [{ key: 'EntityBB_value', value: 0, isDynamic: true }],
+          sequence: { steps: [] },
+        },
+      ],
     });
     expect(result.parameters.entityAssignments).toEqual({
       EntityBB_value: { kind: 'constant', value: 1 },
@@ -125,5 +154,86 @@ describe('synchronous projectile callback scope', () => {
       kind: 'withActionBlackboardScope',
       body: { steps: [{ kind: 'dealDamage' }] },
     });
+  });
+
+  it('does not require missing entity-board evidence for bookkeeping removed by the fixed stump model', () => {
+    const result = compileSynchronousProjectileCallbackScopesSource({
+      sourcePath: 'skill.LaunchProjectile',
+      launch,
+      template: null,
+      allowMissingEntityBlackboardEvidence: true,
+      invocations: [
+        {
+          event: 'hit',
+          skillId: 'projectile_hit',
+          declaredBlackboard: [],
+          sequence: {
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'EntityBB_bounced' },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  alwaysNext: true,
+                },
+                whenTrue: {
+                  steps: [
+                    {
+                      kind: 'modifyActionValue',
+                      parameters: {
+                        key: 'EntityBB_bounced',
+                        operation: 'assign',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                    },
+                    {
+                      kind: 'mergeContextTargets',
+                      parameters: { saveToContextKey: 'extra_target', sources: [] },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(result.parameters.entityInitialValues).toBeUndefined();
+    expect(result.body.steps[0]).toMatchObject({ body: { steps: [] } });
+  });
+
+  it('does not treat a pure EntityBB assignment as a read requiring template defaults', () => {
+    const result = compileSynchronousProjectileCallbackScopesSource({
+      sourcePath: 'skill.LaunchProjectile',
+      launch,
+      template: null,
+      allowMissingEntityBlackboardEvidence: true,
+      invocations: [
+        {
+          event: 'hit',
+          skillId: 'projectile_hit',
+          declaredBlackboard: [],
+          sequence: {
+            steps: [
+              {
+                kind: 'modifyActionValue',
+                parameters: {
+                  key: 'EntityBB_written',
+                  operation: 'assign',
+                  value: { kind: 'constant', value: 1 },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(result.parameters.entityInitialValues).toBeUndefined();
   });
 });

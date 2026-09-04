@@ -110,7 +110,9 @@ export class ActionBlackboard {
   }
 }
 
-/** 严格解析动作操作数；黑板键缺失时不能使用序列化默认值掩盖数据错误。 */
+/**
+ * 解析动作操作数。默认严格；只有转换器根据原生调用点显式保留 fallback 时才允许缺键回退。
+ */
 export function resolveActionValueOperand(
   operand: ActionValueOperand,
   blackboard: ActionBlackboard,
@@ -118,6 +120,7 @@ export function resolveActionValueOperand(
   if (operand.kind === 'constant') return operand.value;
   const value = blackboard.getNumber(operand.key);
   if (value === undefined) {
+    if (operand.fallback !== undefined) return operand.fallback;
     throw new Error(`action blackboard value '${operand.key}' is missing`);
   }
   return value;

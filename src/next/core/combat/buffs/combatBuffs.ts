@@ -182,6 +182,8 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly maxStackCount?: BuffMaxStackCount;
   /** 缺少持续时间表示已还原出的无限生命周期。 */
   readonly durationSeconds?: BuffDuration;
+  readonly addingCooldownSeconds?: BuffDuration;
+  readonly ignoreAddingCooldown?: boolean;
   readonly triggerIntervalSeconds?: BuffDuration;
   readonly waitFirstTriggerInterval?: boolean;
   readonly maxTriggerCount?: BuffTriggerCount;
@@ -250,6 +252,8 @@ export class CombatBuff<Key extends string> {
   readonly #sharedSpGainModifiers: readonly SharedSpGainModifier[];
   #passedTime = 0;
   #remainingDuration: number | null;
+  readonly #timedGrowthPeriod: number | null;
+  #timedGrowthRemaining = 0;
   #started = false;
   #enabled = false;
   #finished = false;
@@ -305,7 +309,18 @@ export class CombatBuff<Key extends string> {
     }
     this.finishParentGlobalBuff = options?.finishParentGlobalBuff ?? null;
     this.priority = resolveBuffPriority(definition, this.blackboard);
-    this.#remainingDuration = resolveBuffDuration(definition, this.blackboard);
+    const duration = resolveBuffDuration(definition, this.blackboard);
+    if (definition.stackingType === 'timedGrowingEnhance') {
+      if (duration === null || duration <= BUFF_LIFETIME_EPSILON) {
+        throw new Error(`buff '${definition.id}' timed growth requires a positive duration`);
+      }
+      this.#remainingDuration = null;
+      this.#timedGrowthPeriod = duration;
+      this.#timedGrowthRemaining = duration;
+    } else {
+      this.#remainingDuration = duration;
+      this.#timedGrowthPeriod = null;
+    }
     this.#remainingTriggerCount = resolveBuffTriggerCount(definition, this.blackboard);
     const triggerInterval = resolveOptionalBuffNumber(
       definition.id,
@@ -564,6 +579,22 @@ export class CombatBuff<Key extends string> {
       this.triggerInternal(elapsed);
       this.#duringEnableAction?.tick(elapsed, this);
     }
+    if (this.#timedGrowthPeriod !== null) {
+      if (this.#stackingGroup?.canTimedGrow(this) !== true) return;
+      this.#timedGrowthRemaining -= elapsed;
+      while (this.#timedGrowthRemaining <= BUFF_LIFETIME_EPSILON) {
+        if (this.#stackingGroup?.growTimed(this) !== true) {
+          this.#timedGrowthRemaining = this.#timedGrowthPeriod;
+          break;
+        }
+        this.#timedGrowthRemaining += this.#timedGrowthPeriod;
+        if (this.#stackingGroup.canTimedGrow(this) !== true) {
+          this.#timedGrowthRemaining = this.#timedGrowthPeriod;
+          break;
+        }
+      }
+      return;
+    }
     if (this.#remainingDuration === null) return;
     this.#remainingDuration -= elapsed;
     if (this.#remainingDuration <= BUFF_LIFETIME_EPSILON) this.finish('lifetime');
@@ -623,6 +654,11 @@ export class CombatBuff<Key extends string> {
     // 强化层等价于重复注册同一组属性修正；重复对象可保留八槽中加法与乘法槽各自的聚合公式。
     this.replaceAttributeModifiers(this.createAttributeModifiers());
     this.definition.actions?.enhanceChanged?.(this, sourceId);
+    this.owner.handleBuffEnhanced(this, 1);
+  }
+
+  resetTimedGrowthPeriod(): void {
+    if (this.#timedGrowthPeriod !== null) this.#timedGrowthRemaining = this.#timedGrowthPeriod;
   }
 
   /** 原生 DecreaseEnhanceCnt：增强型 Buff 扣层，扣尽时结束整个实例。 */
@@ -633,6 +669,7 @@ export class CombatBuff<Key extends string> {
     this.definition.actions?.enhanceChanged?.(this, this.sourceId);
     this.replaceAttributeModifiers(this.createAttributeModifiers());
     this.#stackingGroup?.refreshAfterEnhanceDecrease();
+    this.owner.handleBuffEnhanced(this, -count);
     return true;
   }
 
@@ -848,6 +885,7 @@ export class CombatBuffContainer<Key extends string> {
   readonly #entityTagCounts = new Map<GameplayTag, number>();
   readonly #shields: CombatShield<Key>[] = [];
   readonly #sustainedProtections = new Map<CombatBuff<Key>, readonly [number, number]>();
+  readonly #addingCooldowns = new Map<string, number[]>();
   #nextInstanceId = 1;
   #onBuffConsumed?: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void;
   #onBuffAbsorbed?: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void;
@@ -862,11 +900,24 @@ export class CombatBuffContainer<Key extends string> {
     readonly entityBlackboard = new ActionBlackboard(),
     /** Buff 结束（到期、消费、驱散等）时通知，供回执记录结束事实。 */
     readonly onBuffFinished?: (buff: CombatBuff<Key>, reason: BuffFinishReason) => void,
+    /** 叠层变化完成后的 owner 侧原生同步事件。 */
+    readonly onBuffEnhanceChanged?: (
+      buff: CombatBuff<Key>,
+      layerCount: number,
+      reason?: BuffFinishReason,
+    ) => void,
   ) {}
 
   /** Buff 结束成功时由实例调用；调用方不应在回调里修改容器。 */
   handleBuffFinished(buff: CombatBuff<Key>, reason: BuffFinishReason): void {
     this.onBuffFinished?.(buff, reason);
+    if (isEnhanceChangedStackingType(buff.definition.stackingType)) {
+      this.onBuffEnhanceChanged?.(buff, -buff.enhanceCount, reason);
+    }
+  }
+
+  handleBuffEnhanced(buff: CombatBuff<Key>, layerCount: number): void {
+    this.onBuffEnhanceChanged?.(buff, layerCount);
   }
 
   configureConsumedObserver(
@@ -910,6 +961,25 @@ export class CombatBuffContainer<Key extends string> {
     options?: CombatBuffAddOptions,
     afterPublished?: (buff: CombatBuff<Key>) => void,
   ): CombatBuff<Key> | null {
+    if (definition.addingCooldownSeconds !== undefined) {
+      const active = this.#addingCooldowns.get(definition.id) ?? [];
+      if (!definition.ignoreAddingCooldown && active.some(value => value > BUFF_LIFETIME_EPSILON)) {
+        return null;
+      }
+      const blackboard = new ActionBlackboard(definition.blackboard, this.entityBlackboard);
+      blackboard.assign(options?.blackboardValues);
+      const duration =
+        typeof definition.addingCooldownSeconds === 'number'
+          ? definition.addingCooldownSeconds
+          : blackboard.getNumber(definition.addingCooldownSeconds.blackboardKey);
+      if (duration === undefined || !Number.isFinite(duration)) {
+        throw new Error(`buff '${definition.id}' adding cooldown must resolve to a finite number`);
+      }
+      if (duration > BUFF_LIFETIME_EPSILON) {
+        active.push(duration);
+        this.#addingCooldowns.set(definition.id, active);
+      }
+    }
     const stackingKey = definition.stackingKey ?? definition.id;
     let group = this.#stackingGroups.get(stackingKey);
     if (group === undefined) {
@@ -1263,6 +1333,16 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   tick(deltaTime: number | BuffTickDeltas): void {
+    const defaultDelta =
+      typeof deltaTime === 'number' ? deltaTime : resolveBuffTickDelta('default', deltaTime);
+    if (!Number.isFinite(defaultDelta)) throw new TypeError('buff delta time must be finite');
+    for (const [buffId, values] of this.#addingCooldowns) {
+      const remaining = values
+        .map(value => value - Math.max(0, defaultDelta))
+        .filter(value => value > BUFF_LIFETIME_EPSILON);
+      if (remaining.length === 0) this.#addingCooldowns.delete(buffId);
+      else this.#addingCooldowns.set(buffId, remaining);
+    }
     for (const buff of this.#buffs) buff.tick(deltaTime);
   }
 
@@ -1417,6 +1497,18 @@ function resolveBuffTickDelta(clock: BuffTimeClock, deltas: BuffTickDeltas): num
   }
 }
 
+/** 1.4.4 Buff.MarkFinish 中位图 0xD0C 对应的当前契约内精确事件集合。 */
+function isEnhanceChangedStackingType(stackingType: BuffStackingType): boolean {
+  return (
+    stackingType === 'stack' ||
+    stackingType === 'enhance' ||
+    stackingType === 'enhanceAndRefresh' ||
+    stackingType === 'enhanceAndOverwriteDuration' ||
+    stackingType === 'highPriorityWithMaxStack' ||
+    stackingType === 'timedGrowingEnhance'
+  );
+}
+
 class BuffStackingGroup<Key extends string> {
   readonly #buffs: CombatBuff<Key>[] = [];
   #currentStackCount = 0;
@@ -1464,6 +1556,8 @@ class BuffStackingGroup<Key extends string> {
         return this.overwriteDuration(existing, definition, sourceId, options);
       case 'enhanceAndOverwriteDuration':
         return this.enhanceAndOverwriteDuration(existing, definition, sourceId, options);
+      case 'timedGrowingEnhance':
+        return this.timedGrowingEnhance(existing, definition, sourceId, options);
       default:
         throw new Error(`buff stacking type '${this.stackingType}' is not implemented`);
     }
@@ -1614,6 +1708,43 @@ class BuffStackingGroup<Key extends string> {
     if (this.#maxStackCount > 0 && this.#currentStackCount >= this.#maxStackCount) return;
     this.#currentStackCount += 1;
     buff.enhance(sourceId);
+  }
+
+  canTimedGrow(buff: CombatBuff<Key>): boolean {
+    return (
+      this.stackingType === 'timedGrowingEnhance' &&
+      this.#buffs.includes(buff) &&
+      !buff.isFinished &&
+      (this.#maxStackCount <= 0 || this.#currentStackCount < this.#maxStackCount)
+    );
+  }
+
+  growTimed(buff: CombatBuff<Key>): boolean {
+    if (!this.canTimedGrow(buff)) return false;
+    this.#currentStackCount += 1;
+    buff.enhance(buff.sourceId);
+    return true;
+  }
+
+  private timedGrowingEnhance(
+    existing: CombatBuff<Key> | undefined,
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): CombatBuff<Key> {
+    if (existing === undefined) return this.allocateEnhanced(definition, sourceId, options);
+    const previousCount = this.#currentStackCount;
+    existing.executeBeforeEnhance(sourceId);
+    this.enhanceWithinLimit(existing, sourceId);
+    if (
+      previousCount < this.#maxStackCount &&
+      this.#maxStackCount > 0 &&
+      this.#currentStackCount >= this.#maxStackCount
+    ) {
+      existing.resetTimedGrowthPeriod();
+    }
+    existing.executeAfterEnhance(sourceId);
+    return existing;
   }
 
   private refresh(
