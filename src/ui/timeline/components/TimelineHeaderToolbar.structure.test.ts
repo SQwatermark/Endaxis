@@ -17,7 +17,7 @@ describe('TimelineHeaderToolbar structure', () => {
   it('renders every scenario as a numbered scrollable tab', () => {
     expect(source).toContain('v-for="(scenario, index) in scenarios"');
     expect(source).toContain("String(index + 1).padStart(2, '0')");
-    expect(source).toContain('.scenario-tabs');
+    expect(source).toContain('.ts-tabs-group');
     expect(source).toContain('overflow-x: auto');
     expect(source).toContain('ref="scenarioTabs"');
     expect(source).toContain(':style="scenarioTabsMaskStyle"');
@@ -29,17 +29,25 @@ describe('TimelineHeaderToolbar structure', () => {
   it('opens a real more menu with project and shortcut actions', () => {
     expect(source).toContain('v-model:visible="moreMenuOpen"');
     expect(source).toContain(':aria-expanded="moreMenuOpen"');
-    expect(source).toContain('popper-class="next-header-more"');
+    expect(source).toContain('popper-class="header-more-popper"');
     expect(source).toContain('@click="$emit(\'shortcuts\')"');
     expect(source).toContain('@click="$emit(\'open\')"');
     expect(source).toContain('@click="$emit(\'reset\')"');
+    expect(source).toContain('class="header-more-tool-row__icon"');
+    expect(source).toContain('width="18"');
+    expect(source).toContain('class="header-more-tool-row__check"');
+    expect(source).toContain('width="13"');
   });
 
   it('keeps the legacy analysis, export, display, and more commands permanently visible', () => {
     expect(source).not.toContain('class="history-actions"');
     expect(source).not.toContain('@click="$emit(\'open\')"\n      >');
     expect(source).not.toContain('command-button--reset');
-    expect(source).toContain('class="scenario-heading-group"');
+    expect(source).toContain('class="tech-scenario-bar"');
+    expect(source).toContain('class="ts-header-group"');
+    expect(source).toContain('class="header-controls"');
+    expect(source).toContain('ea-btn--hover-green');
+    expect(source).toContain('ea-btn--hover-orange');
     expect(source).toContain('width: 260px');
   });
 

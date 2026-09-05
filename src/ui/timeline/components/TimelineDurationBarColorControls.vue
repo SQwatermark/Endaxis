@@ -12,23 +12,31 @@ function tune(field: 'saturation' | 'lightness', event: Event) {
 </script>
 
 <template>
-  <section class="duration-color-section">
-    <h4>{{ t('timeline.header.sectionDurationBarColor') }}</h4>
-    <button
-      type="button"
-      class="color-check"
-      :aria-pressed="prefs.enabled"
-      @click="prefs.enabled = !prefs.enabled"
-    >
-      <svg viewBox="0 0 16 16" aria-hidden="true">
-        <rect x="1" y="1" width="14" height="14" rx="2" />
-        <polyline v-if="prefs.enabled" points="3,8 6.5,11.5 13,4.5" />
-      </svg>
-      <span>{{ t('timeline.header.coloredDurationBarsEnable') }}</span>
-    </button>
-    <div v-if="prefs.enabled" class="color-controls">
-      <label v-for="field in ['saturation', 'lightness'] as const" :key="field" class="tune-row">
-        <span
+  <section class="timeline-display-section duration-color-section">
+    <h4 class="timeline-display-section__title">
+      {{ t('timeline.header.sectionDurationBarColor') }}
+    </h4>
+    <div class="header-more-checklist">
+      <button
+        type="button"
+        class="header-more-check-row"
+        :aria-pressed="prefs.enabled"
+        @click="prefs.enabled = !prefs.enabled"
+      >
+        <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+          <rect x="1" y="1" width="14" height="14" rx="2" />
+          <polyline v-if="prefs.enabled" points="3,8 6.5,11.5 13,4.5" />
+        </svg>
+        <span>{{ t('timeline.header.coloredDurationBarsEnable') }}</span>
+      </button>
+    </div>
+    <div v-if="prefs.enabled" class="timeline-display-color-controls">
+      <label
+        v-for="field in ['saturation', 'lightness'] as const"
+        :key="field"
+        class="timeline-display-tune-row"
+      >
+        <span class="timeline-display-tune-row__label"
           >{{
             t(
               field === 'saturation'
@@ -49,34 +57,38 @@ function tune(field: 'saturation' | 'lightness', event: Event) {
           />
         </div>
       </label>
-      <h4>{{ t('timeline.header.durationBarColorSources') }}</h4>
-      <div class="color-grid">
+      <h4 class="timeline-display-section__title">
+        {{ t('timeline.header.durationBarColorSources') }}
+      </h4>
+      <div class="header-more-checklist header-more-checklist--grid">
         <button
           v-for="source in DURATION_COLOR_SOURCES"
           :key="source"
           type="button"
-          class="color-check"
+          class="header-more-check-row header-more-check-row--compact"
           :aria-pressed="prefs.sources[source]"
           @click="prefs.sources[source] = !prefs.sources[source]"
         >
-          <svg viewBox="0 0 16 16" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
             <rect x="1" y="1" width="14" height="14" rx="2" />
             <polyline v-if="prefs.sources[source]" points="3,8 6.5,11.5 13,4.5" />
           </svg>
           <span>{{ t(`timeline.header.durationBarColorSource.${source}`) }}</span>
         </button>
       </div>
-      <h4>{{ t('timeline.header.durationBarColorSurfaces') }}</h4>
-      <div class="color-grid">
+      <h4 class="timeline-display-section__title">
+        {{ t('timeline.header.durationBarColorSurfaces') }}
+      </h4>
+      <div class="header-more-checklist header-more-checklist--grid">
         <button
           v-for="surface in DURATION_COLOR_SURFACES"
           :key="surface"
           type="button"
-          class="color-check"
+          class="header-more-check-row header-more-check-row--compact"
           :aria-pressed="prefs.surfaces[surface]"
           @click="prefs.surfaces[surface] = !prefs.surfaces[surface]"
         >
-          <svg viewBox="0 0 16 16" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
             <rect x="1" y="1" width="14" height="14" rx="2" />
             <polyline v-if="prefs.surfaces[surface]" points="3,8 6.5,11.5 13,4.5" />
           </svg>
@@ -89,7 +101,7 @@ function tune(field: 'saturation' | 'lightness', event: Event) {
 
 <style scoped>
 .duration-color-section,
-.color-controls {
+.timeline-display-color-controls {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -98,46 +110,14 @@ function tune(field: 'saturation' | 'lightness', event: Event) {
   border-top: 1px solid var(--ea-border-soft);
   padding-top: 10px;
 }
-h4 {
+.timeline-display-section__title {
   margin: 0;
   color: var(--ea-fg-muted);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
-.color-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
-  border: 1px solid var(--ea-border-soft);
-  border-radius: 4px;
-  background: var(--ea-fill-soft);
-  overflow: hidden;
-}
-.duration-color-section .color-check {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 7px;
-  min-width: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ea-fg-secondary);
-  text-align: left;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 600;
-}
-.color-grid .color-check {
-  border-bottom: 1px solid var(--ea-border-soft);
-}
-.color-grid .color-check:nth-child(odd) {
-  border-right: 1px solid var(--ea-border-soft);
-}
-.color-check:hover {
-  background: var(--ea-hover-fill);
-}
-.color-check svg {
+.header-more-check-row svg {
   width: 12px;
   height: 12px;
   flex-shrink: 0;
@@ -145,22 +125,22 @@ h4 {
   stroke: color-mix(in srgb, var(--ea-gold) 85%, transparent);
   stroke-width: 1.5;
 }
-.color-check polyline {
+.header-more-check-row polyline {
   stroke-width: 2;
 }
-.tune-row {
+.timeline-display-tune-row {
   display: flex;
   flex-direction: column;
   gap: 3px;
   padding: 0 6px;
 }
-.tune-row > span {
+.timeline-display-tune-row__label {
   display: flex;
   justify-content: space-between;
   font-size: 11px;
   color: var(--ea-fg-secondary);
 }
-.tune-row em {
+.timeline-display-tune-row em {
   font-style: normal;
   color: var(--ea-fg-muted);
   font-variant-numeric: tabular-nums;

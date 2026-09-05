@@ -1,8 +1,5 @@
 <script setup lang="ts">
-/**
- * Next 时间轴的顶部方案工具栏，保持旧版的操作分区与视觉层级。
- * 当前尚未贯通的项目能力以禁用按钮占位，避免 UI 提前承诺不存在的行为。
- */
+/** 时间轴顶部方案栏。DOM 分区与视觉契约以旧版 TimelineEditor 为准。 */
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TimelineDurationBarColorControls from './TimelineDurationBarColorControls.vue';
@@ -146,66 +143,70 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="scenario-toolbar" @click.self="$emit('clearSelection')">
-    <div class="scenario-toolbar__project" @click.self="$emit('clearSelection')">
-      <div class="scenario-heading-group" @click.self="$emit('clearSelection')">
+  <div class="timeline-header-content" @click.self="$emit('clearSelection')">
+    <div class="tech-scenario-bar" @click.self="$emit('clearSelection')">
+      <div class="ts-header-group" @click.self="$emit('clearSelection')">
         <button
           type="button"
-          class="icon-button"
+          class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--ghost ea-btn--no-shrink"
           :title="labels.rename"
           :aria-label="labels.rename"
           @click="beginRename"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m4 16-1 5 5-1L19 9l-4-4L4 16Z" />
-            <path d="m13 7 4 4" />
+          <svg class="ts-rename-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+            />
           </svg>
         </button>
         <button
           type="button"
-          class="icon-button"
+          class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--ghost ea-btn--no-shrink"
           :title="labels.duplicate"
           :aria-label="labels.duplicate"
           @click="$emit('duplicate')"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="8" y="8" width="12" height="12" rx="2" />
-            <path d="M16 8V4H4v12h4" />
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
           </svg>
         </button>
 
         <button
           v-if="scenarios.length > 1"
           type="button"
-          class="icon-button icon-button--danger"
+          class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--ghost ea-btn--hover-danger ea-btn--no-shrink"
           :title="labels.delete"
           :aria-label="labels.delete"
           @click="$emit('delete')"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7m4 4v6m4-6v6" />
+            <polyline points="3 6 5 6 21 6" />
+            <path
+              d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+            />
           </svg>
         </button>
 
-        <div class="scenario-title" :title="scenarioName">
-          <span>[</span>
+        <div class="ts-title-wrapper" :title="scenarioName">
+          <span class="ts-deco-bracket">[</span>
           <input
             v-if="renaming"
             ref="renameInput"
             v-model="renameDraft"
-            class="scenario-title__input"
+            class="ts-title-input"
             @blur="finishRename"
             @keydown.enter.prevent="finishRename"
             @keydown.esc.prevent="cancelRename"
           />
-          <strong v-else @dblclick="beginRename">{{ scenarioName }}</strong>
-          <span>]</span
+          <strong v-else class="ts-title-text" @dblclick="beginRename">{{ scenarioName }}</strong>
+          <span class="ts-deco-bracket">]</span
           ><i v-if="projectDirty" class="dirty-indicator" :title="labels.projectDirty">●</i>
         </div>
       </div>
       <div
         ref="scenarioTabs"
-        class="scenario-tabs"
+        class="ts-tabs-group"
         :style="scenarioTabsMaskStyle"
         @scroll="updateScenarioTabsScrollMask"
       >
@@ -213,7 +214,7 @@ onBeforeUnmount(() => {
           v-for="(scenario, index) in scenarios"
           :key="scenario.id"
           type="button"
-          class="scenario-tab"
+          class="ts-tab-item"
           :class="{ 'is-active': scenario.id === activeScenarioId }"
           :title="scenario.name"
           :aria-label="scenario.name"
@@ -225,7 +226,7 @@ onBeforeUnmount(() => {
         <button
           v-if="scenarios.length < maxScenarios"
           type="button"
-          class="icon-button add-button"
+          class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--icon-plus ea-btn--no-shrink ts-add-btn"
           :title="labels.add"
           :aria-label="labels.add"
           @click="$emit('add')"
@@ -235,23 +236,27 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <div class="scenario-toolbar__actions" @click.self="$emit('clearSelection')">
+    <div class="header-controls" @click.self="$emit('clearSelection')">
       <button
         type="button"
-        class="command-button command-button--analysis"
+        class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-green command-button--analysis"
         @click="$emit('analysis')"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M21 12a9 9 0 1 1-9-9v9Z" />
-          <path d="M12 3a9 9 0 0 1 9 9h-9Z" />
+          <path d="M21 12a9 9 0 1 1-9-9v9z" />
+          <path d="M12 3a9 9 0 0 1 9 9h-9z" />
         </svg>
         {{ labels.analysis }}
       </button>
-      <button type="button" class="command-button command-button--export" @click="$emit('export')">
+      <button
+        type="button"
+        class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-orange command-button--export"
+        @click="$emit('export')"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M14 3h7v7" />
-          <path d="m10 14 11-11" />
-          <path d="M21 14v7H3V5h9" />
+          <path d="M10 14L21 3" />
+          <path d="M21 14v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h7" />
         </svg>
         {{ labels.export }}
       </button>
@@ -260,12 +265,13 @@ onBeforeUnmount(() => {
         placement="bottom-end"
         trigger="click"
         :width="280"
-        popper-class="next-header-display"
+        :show-arrow="true"
+        popper-class="header-more-popper"
       >
         <template #reference>
           <button
             type="button"
-            class="command-button"
+            class="ea-btn ea-btn--sm ea-btn--lift"
             :class="{ 'is-active': displayMenuOpen }"
             :title="t('display.title')"
             :aria-label="t('display.title')"
@@ -279,7 +285,7 @@ onBeforeUnmount(() => {
             {{ t('display.title') }}
           </button>
         </template>
-        <div class="more-menu timeline-display-menu" data-keyboard-shortcut-scope="overlay">
+        <div class="timeline-display-menu" data-keyboard-shortcut-scope="overlay">
           <button
             type="button"
             class="timeline-display-guide"
@@ -322,18 +328,18 @@ onBeforeUnmount(() => {
             </svg>
           </button>
           <div class="timeline-display-scroll">
-            <section class="more-menu__section">
-              <div class="display-layout-row">
+            <section class="timeline-display-section">
+              <h4 class="timeline-display-section__title">
+                {{ t('timeline.header.sectionViewBehavior') }}
+              </h4>
+              <div class="header-more-mode-row">
                 <span>{{ t('display.buffLayout') }}</span>
-                <div
-                  class="display-layout-modes"
-                  role="group"
-                  :aria-label="t('display.buffLayout')"
-                >
+                <div class="header-more-segment" role="group" :aria-label="t('display.buffLayout')">
                   <button
                     v-for="mode in ['compact', 'loose'] as const"
                     :key="mode"
                     type="button"
+                    :class="{ 'is-active': buffLayoutMode === mode }"
                     :aria-pressed="buffLayoutMode === mode"
                     @click="$emit('setBuffLayout', mode)"
                   >
@@ -348,42 +354,63 @@ onBeforeUnmount(() => {
                 </div>
               </div>
             </section>
-            <section class="more-menu__section">
-              <h4>{{ labels.view }}</h4>
-              <div class="view-layer-grid">
+            <section class="timeline-display-section">
+              <h4 class="timeline-display-section__title">{{ labels.view }}</h4>
+              <div class="header-more-checklist header-more-checklist--grid">
                 <button
                   v-for="layerId in viewLayerIds"
                   :key="layerId"
                   type="button"
-                  class="view-layer-toggle"
+                  class="header-more-check-row header-more-check-row--compact"
                   :aria-pressed="viewLayers[layerId]"
                   @click="$emit('toggleViewLayer', layerId)"
                 >
-                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="12"
+                    height="12"
+                    fill="none"
+                    stroke="color-mix(in srgb, var(--ea-gold) 85%, transparent)"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
                     <rect x="1" y="1" width="14" height="14" rx="2" />
                     <polyline v-if="viewLayers[layerId]" points="3,8 6.5,11.5 13,4.5" />
                   </svg>
                   <span>{{ labels.viewLayers[layerId] }}</span>
                 </button>
               </div>
-              <h4 class="view-operators-title">{{ labels.viewOperators }}</h4>
-              <div v-if="operatorEffects.length > 0" class="view-layer-grid">
+            </section>
+            <section class="timeline-display-section timeline-display-section--follow">
+              <h4 class="timeline-display-section__title">{{ labels.viewOperators }}</h4>
+              <div
+                v-if="operatorEffects.length > 0"
+                class="header-more-checklist header-more-checklist--grid"
+              >
                 <button
                   v-for="operator in operatorEffects"
                   :key="operator.trackIndex"
                   type="button"
-                  class="view-layer-toggle"
+                  class="header-more-check-row header-more-check-row--compact"
                   :aria-pressed="operator.visible"
                   @click="$emit('toggleOperatorEffects', operator.trackIndex)"
                 >
-                  <svg viewBox="0 0 16 16" aria-hidden="true" :style="{ color: operator.color }">
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="12"
+                    height="12"
+                    fill="none"
+                    :stroke="operator.color"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
                     <rect x="1" y="1" width="14" height="14" rx="2" />
                     <polyline v-if="operator.visible" points="3,8 6.5,11.5 13,4.5" />
                   </svg>
                   <span>{{ operator.name }}</span>
                 </button>
               </div>
-              <p v-else class="view-operators-empty">{{ labels.viewOperatorsEmpty }}</p>
+              <p v-else class="timeline-display-empty">{{ labels.viewOperatorsEmpty }}</p>
             </section>
             <TimelineDurationBarColorControls />
           </div>
@@ -394,12 +421,13 @@ onBeforeUnmount(() => {
         placement="bottom-end"
         trigger="click"
         :width="280"
-        popper-class="next-header-more"
+        :show-arrow="true"
+        popper-class="header-more-popper"
       >
         <template #reference>
           <button
             type="button"
-            class="command-button"
+            class="ea-btn ea-btn--sm ea-btn--lift"
             :class="{ 'is-active': moreMenuOpen }"
             :title="labels.more"
             :aria-label="labels.more"
@@ -407,54 +435,108 @@ onBeforeUnmount(() => {
             :data-keyboard-shortcut-scope="moreMenuOpen ? 'overlay' : undefined"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="5" r="1" />
-              <circle cx="12" cy="12" r="1" />
-              <circle cx="12" cy="19" r="1" />
+              <circle cx="12" cy="5" r="1.6" />
+              <circle cx="12" cy="12" r="1.6" />
+              <circle cx="12" cy="19" r="1.6" />
             </svg>
             {{ labels.more }}
           </button>
         </template>
-        <div class="more-menu" data-keyboard-shortcut-scope="overlay">
-          <section class="more-menu__section">
-            <h4>{{ t('timeline.header.sectionEditTools') }}</h4>
-            <div class="more-tools">
+        <div class="header-more-panel" data-keyboard-shortcut-scope="overlay">
+          <section class="header-more-section">
+            <h4 class="header-more-section__title">
+              {{ t('timeline.header.sectionEditTools') }}
+            </h4>
+            <div class="header-more-checklist header-more-checklist--grid">
               <button
                 type="button"
+                class="header-more-check-row header-more-tool-row"
+                :class="{ 'is-active': boxSelectEnabled }"
                 :aria-pressed="boxSelectEnabled"
                 @click="$emit('toggleBoxSelect')"
               >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
+                <svg
+                  class="header-more-tool-row__icon"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
                   <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
                   <rect x="7.5" y="7.5" width="9" height="9" stroke-dasharray="2 2" />
                 </svg>
-                {{ t('timelineGrid.toolbar.boxSelect') }}
-                <svg class="tool-check" viewBox="0 0 16 16" aria-hidden="true">
+                <span class="header-more-tool-row__label">{{
+                  t('timeline.header.editTools.boxSelect')
+                }}</span>
+                <svg
+                  class="header-more-tool-row__check"
+                  viewBox="0 0 16 16"
+                  width="13"
+                  height="13"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  aria-hidden="true"
+                >
                   <rect x="1" y="1" width="14" height="14" rx="2" />
                   <polyline v-if="boxSelectEnabled" points="3,8 6.5,11.5 13,4.5" />
                 </svg>
               </button>
               <button
                 type="button"
+                class="header-more-check-row header-more-tool-row"
+                :class="{ 'is-active': connectionToolEnabled }"
                 :aria-pressed="connectionToolEnabled"
                 @click="$emit('toggleConnectionTool')"
               >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
+                <svg
+                  class="header-more-tool-row__icon"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
                   <circle cx="5" cy="7" r="2.5" />
                   <circle cx="19" cy="17" r="2.5" />
                   <path d="M7.5 7c5.5 0 3.5 10 9 10" />
                 </svg>
-                {{ t('timelineGrid.toolbar.connectionTool') }}
-                <svg class="tool-check" viewBox="0 0 16 16" aria-hidden="true">
+                <span class="header-more-tool-row__label">{{
+                  t('timeline.header.editTools.connection')
+                }}</span>
+                <svg
+                  class="header-more-tool-row__check"
+                  viewBox="0 0 16 16"
+                  width="13"
+                  height="13"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  aria-hidden="true"
+                >
                   <rect x="1" y="1" width="14" height="14" rx="2" />
                   <polyline v-if="connectionToolEnabled" points="3,8 6.5,11.5 13,4.5" />
                 </svg>
               </button>
             </div>
           </section>
-          <section class="more-menu__section">
-            <h4>{{ t('timeline.header.sectionProject') }}</h4>
-            <div class="more-menu__actions">
-              <button type="button" @click="$emit('open')">
+          <section class="header-more-section">
+            <h4 class="header-more-section__title">{{ t('timeline.header.sectionProject') }}</h4>
+            <div class="header-more-actions">
+              <button
+                type="button"
+                class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-blue header-more-action"
+                @click="$emit('open')"
+              >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                   <polyline points="7 10 12 15 17 10" />
@@ -462,7 +544,11 @@ onBeforeUnmount(() => {
                 </svg>
                 <span>{{ labels.open }}</span>
               </button>
-              <button type="button" @click="$emit('export')">
+              <button
+                type="button"
+                class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-blue header-more-action"
+                @click="$emit('export')"
+              >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                   <polyline points="17 8 12 3 7 8" />
@@ -470,7 +556,11 @@ onBeforeUnmount(() => {
                 </svg>
                 <span>{{ labels.export }}</span>
               </button>
-              <button type="button" class="danger" @click="$emit('reset')">
+              <button
+                type="button"
+                class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-danger-dark header-more-action"
+                @click="$emit('reset')"
+              >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <polyline points="3 6 5 6 21 6" />
                   <path
@@ -481,22 +571,23 @@ onBeforeUnmount(() => {
               </button>
             </div>
           </section>
-          <section class="more-menu__section preferences-section">
-            <h4>{{ labels.preferences }}</h4>
-            <div class="preference-row">
-              <div class="segmented-control">
+          <section class="header-more-section">
+            <h4 class="header-more-section__title">{{ labels.preferences }}</h4>
+            <div class="header-more-pref-row">
+              <div class="header-more-locale">
                 <button
                   v-for="localeId in localeIds"
                   :key="localeId"
                   type="button"
-                  :class="{ active: locale === localeId }"
+                  class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-info header-more-locale__btn"
+                  :class="{ 'is-active': locale === localeId }"
                   @click="$emit('setLocale', localeId)"
                 >
                   {{ localeLabel(localeId) }}
                 </button>
               </div>
               <button
-                class="shortcuts-button"
+                class="ea-btn ea-btn--sm ea-btn--lift header-more-action header-more-action--icon"
                 type="button"
                 :title="labels.shortcuts"
                 :aria-label="labels.shortcuts"
@@ -516,12 +607,13 @@ onBeforeUnmount(() => {
                 </svg>
               </button>
             </div>
-            <div class="preference-row preference-row--appearance">
-              <span>{{ labels.appearance }}</span>
-              <div class="segmented-control segmented-control--appearance">
+            <div class="header-more-pref-row header-more-pref-row--appearance">
+              <span class="header-more-appearance__label">{{ labels.appearance }}</span>
+              <div class="header-more-appearance">
                 <button
                   type="button"
-                  :class="{ active: appearance === 'light' }"
+                  class="ea-btn ea-btn--sm ea-btn--lift header-more-appearance__btn"
+                  :class="{ 'is-active': appearance === 'light' }"
                   :title="labels.appearanceLight"
                   :aria-label="labels.appearanceLight"
                   :aria-pressed="appearance === 'light'"
@@ -546,7 +638,8 @@ onBeforeUnmount(() => {
                 </button>
                 <button
                   type="button"
-                  :class="{ active: appearance === 'dark' }"
+                  class="ea-btn ea-btn--sm ea-btn--lift header-more-appearance__btn"
+                  :class="{ 'is-active': appearance === 'dark' }"
                   :title="labels.appearanceDark"
                   :aria-label="labels.appearanceDark"
                   :aria-pressed="appearance === 'dark'"
@@ -576,142 +669,9 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.more-tools {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-}
-.more-tools button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.more-tools button[aria-pressed='true'] {
-  color: var(--ea-gold);
-}
-.more-tools svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-}
-.scenario-toolbar {
-  min-width: 0;
-  width: 100%;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 10px 0 0;
-  box-sizing: border-box;
-  color: var(--ea-fg);
-  user-select: none;
-}
-
-.scenario-toolbar__project,
-.scenario-toolbar__actions,
-.scenario-heading-group {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-}
-
-.scenario-toolbar__project {
-  flex: 1 1 auto;
-  height: 36px;
-  gap: 0;
-  margin-right: 20px;
-  padding: 0 10px;
-  background: linear-gradient(90deg, rgb(255 255 255 / 3%) 0%, transparent 100%);
-}
-
-.scenario-heading-group {
-  position: relative;
-  width: 260px;
-  flex: 0 0 260px;
-  gap: 4px;
-  padding-right: 10px;
-  overflow: hidden;
-}
-
-.scenario-toolbar__actions {
-  flex: 0 0 auto;
-  gap: 8px;
-}
-
 button {
   color: inherit;
   font: inherit;
-}
-
-.icon-button {
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 2px;
-  background: transparent;
-  color: var(--ea-icon-muted);
-  cursor: pointer;
-}
-
-.icon-button:hover:not(:disabled) {
-  background: var(--ea-hover-fill);
-  color: var(--ea-icon-strong);
-}
-
-.icon-button:disabled,
-.command-button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.icon-button svg,
-.command-button svg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.add-button {
-  border: 1px solid var(--ea-border);
-  font-size: 16px;
-}
-
-.scenario-title {
-  min-width: 0;
-  max-width: 172px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin: 0 6px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.scenario-title__input {
-  width: 120px;
-  height: 24px;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-gold);
-  border-radius: 2px;
-  outline: 0;
-  background: var(--ea-fill-input, #111);
-  color: var(--ea-fg);
-  font: inherit;
-}
-
-.scenario-title strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .dirty-indicator {
@@ -721,269 +681,322 @@ button {
   font-style: normal;
 }
 
-.scenario-tab {
-  min-width: 40px;
-  height: 24px;
-  flex: 0 0 auto;
-  padding: 0 8px;
-  border: 0;
-  border-radius: 4px;
-  background: var(--ea-tab-active-bg);
-  color: var(--ea-tab-active-fg);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
-  cursor: pointer;
-  font:
-    700 12px/1 'Roboto Mono',
-    Consolas,
-    monospace;
-}
-
-.scenario-tabs {
+/* The selectors below intentionally mirror the upstream TimelineEditor contract. */
+.timeline-header-content {
+  width: 100%;
   min-width: 0;
-  max-width: min(440px, 34vw);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.scenario-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.scenario-tab:not(.is-active) {
-  background: var(--ea-tab-idle-bg);
-  color: var(--ea-tab-idle-fg);
-  box-shadow: none;
-}
-
-.scenario-tab:hover {
-  background: var(--ea-hover-fill);
-  color: var(--ea-fg);
-}
-
-.icon-button--danger:hover {
-  background: rgb(255 77 79 / 12%);
-  color: #ff7875;
-}
-
-.command-button {
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0 10px;
-  border: 1px solid var(--ea-border);
-  border-radius: 4px;
-  background: var(--ea-fill-soft);
-  color: var(--ea-fg-secondary);
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.command-button:hover:not(:disabled) {
-  border-color: var(--ea-gold);
-  color: var(--ea-fg);
-}
-
-.command-button.is-active {
-  background: var(--ea-active-fill);
-  color: var(--ea-fg);
-}
-
-.more-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.display-layout-row {
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-  font-size: 12px;
+  padding: 0 10px 0 0;
+  box-sizing: border-box;
+  cursor: default;
+  user-select: none;
 }
 
-.display-layout-modes {
-  display: flex;
-  border: 1px solid var(--ea-border);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.display-layout-modes button[aria-pressed='true'] {
-  color: var(--ea-gold);
-  background: color-mix(in srgb, var(--ea-gold) 15%, transparent);
-}
-
-.more-menu__section h4 {
-  margin: 0 0 6px;
-  color: var(--ea-fg-muted);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.more-menu__section .view-operators-title {
-  margin-top: 10px;
-}
-
-.view-operators-empty {
-  margin: 0;
-  color: var(--ea-fg-muted);
-  font-size: 10px;
-}
-
-.view-layer-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
-  border: 1px solid var(--ea-border-soft);
-  border-radius: 4px;
-  background: var(--ea-fill-soft);
-  overflow: hidden;
-}
-
-.more-menu button {
-  width: 100%;
-  padding: 7px 9px;
-  border: 0;
-  background: transparent;
-  color: var(--ea-fg-secondary);
-  text-align: left;
-  cursor: pointer;
-}
-
-.more-menu .view-layer-toggle {
-  min-width: 0;
+.tech-scenario-bar {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 7px;
-  font-size: 11px;
-  font-weight: 600;
-  border-bottom: 1px solid var(--ea-border-soft);
+  height: 36px;
+  padding: 0 10px;
+  flex: 1;
+  min-width: 0;
+  margin-right: 20px;
+  background: linear-gradient(90deg, rgb(255 255 255 / 3%) 0%, transparent 100%);
 }
 
-.more-menu .view-layer-toggle:nth-child(odd) {
-  border-right: 1px solid var(--ea-border-soft);
+.ts-header-group {
+  width: 260px;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 10px;
+  overflow: hidden;
 }
 
-.view-layer-toggle svg {
-  width: 12px;
-  height: 12px;
-  flex: 0 0 auto;
-  fill: none;
-  stroke: var(--ea-gold);
-  stroke-width: 1.5;
+.ts-tabs-group {
+  min-width: 0;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.view-layer-toggle polyline {
-  stroke-width: 2;
+.ts-tabs-group::-webkit-scrollbar {
+  display: none;
 }
 
-.view-layer-toggle span {
+.ts-title-wrapper {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  margin-left: 4px;
+  overflow: hidden;
+  color: var(--ea-fg);
+  font:
+    700 16px/normal 'Segoe UI',
+    sans-serif;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ts-deco-bracket {
+  flex-shrink: 0;
+  margin: 0 2px;
+  color: var(--ea-fg-faint);
+  font-weight: 300;
+  user-select: none;
+}
+
+.ts-title-text {
   min-width: 0;
   overflow: hidden;
+  border-bottom: 1px dashed transparent;
+  cursor: pointer;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.more-menu__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+.ts-title-text:hover {
+  border-bottom-color: var(--ea-fg-muted);
 }
 
-.more-menu__actions button {
-  width: auto;
-  border: 1px solid var(--ea-border);
-  border-radius: 4px;
-  background: var(--ea-fill-soft);
-  font-size: 11px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.ts-title-input {
+  width: 120px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--ea-gold);
+  outline: 0;
+  background: transparent;
+  color: var(--ea-gold);
+  font-size: 16px;
+  font-weight: 700;
 }
-.more-menu__actions svg {
+
+.ts-tab-item {
+  min-width: 40px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: var(--ea-tab-idle-bg);
+  color: var(--ea-tab-idle-fg);
+  cursor: pointer;
+  font:
+    700 12px/1 'Roboto Mono',
+    monospace;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.ts-tab-item:hover {
+  background: var(--ea-hover-fill);
+  color: var(--ea-fg);
+}
+
+.ts-tab-item.is-active {
+  background: var(--ea-tab-active-bg);
+  color: var(--ea-tab-active-fg);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+}
+
+.ts-add-btn {
+  margin-left: 4px;
+  font-size: 14px;
+}
+
+.header-controls {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-controls .ea-btn.is-active {
+  background: var(--ea-active-fill);
+  color: var(--ea-fg);
+}
+
+.ts-header-group .ea-btn svg,
+.header-controls .ea-btn svg,
+.header-more-actions .ea-btn svg {
   width: 14px;
   height: 14px;
+  flex-shrink: 0;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.more-menu__section {
+
+.ts-header-group .ea-btn .ts-rename-icon {
+  fill: currentColor;
+  stroke: none;
+}
+
+.header-more-panel,
+.timeline-display-menu {
+  display: flex;
+  flex-direction: column;
+  max-height: min(760px, calc(100vh - 96px));
+}
+
+.header-more-panel {
+  gap: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+}
+
+.header-more-section {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-.more-menu__section + .more-menu__section {
+
+.header-more-section + .header-more-section {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--ea-border);
 }
-.more-menu__section h4 {
+
+.header-more-section__title {
   margin: 0;
-  font-size: 11px;
-  letter-spacing: 0.5px;
   color: color-mix(in srgb, var(--ea-gold) 90%, transparent);
-}
-.more-tools {
-  gap: 0;
-  border: 1px solid var(--ea-border-soft);
-  border-radius: 4px;
-  overflow: hidden;
-  background: var(--ea-fill-soft);
-}
-.more-tools button {
   font-size: 11px;
-  padding: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
-.more-tools button + button {
-  border-left: 1px solid var(--ea-border-soft);
+
+.header-more-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
-.more-tools svg {
-  flex-shrink: 0;
+
+.header-more-action.ea-btn {
+  width: auto;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  --ea-btn-bg: var(--ea-fill-soft);
+  --ea-btn-border: var(--ea-border);
+  --ea-btn-color: var(--ea-fg-secondary);
+  --ea-btn-bg-hover: var(--ea-hover-fill);
+  --ea-btn-border-hover: var(--ea-border-strong);
+  --ea-btn-color-hover: var(--ea-fg);
+  backdrop-filter: none;
 }
-.more-tools .tool-check {
-  width: 13px;
-  height: 13px;
+
+.header-more-pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.header-more-locale {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 1.75rem);
+  gap: 4px;
+}
+
+.header-more-pref-row .header-more-action--icon {
   margin-left: auto;
 }
 
+.header-more-pref-row--appearance {
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.header-more-appearance__label {
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.header-more-appearance {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 28px);
+  gap: 4px;
+}
+
+.header-more-locale__btn.ea-btn,
+.header-more-appearance__btn.ea-btn {
+  width: 100%;
+  min-width: 0;
+  --ea-btn-px: 0;
+  --ea-btn-py: 5px;
+  --ea-btn-font-size: 11px;
+  --ea-btn-bg: var(--ea-fill-soft);
+  --ea-btn-border: var(--ea-border);
+  --ea-btn-color: var(--ea-fg-secondary);
+}
+
+.header-more-appearance__btn.ea-btn,
+.header-more-action--icon.ea-btn {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+  justify-content: center;
+}
+
+.header-more-locale__btn.ea-btn.is-active,
+.header-more-appearance__btn.ea-btn.is-active {
+  border-color: color-mix(in srgb, var(--ea-gold) 50%, transparent);
+  background: color-mix(in srgb, var(--ea-gold) 10%, transparent);
+  color: #ffe38a;
+}
+
 .timeline-display-menu {
-  max-height: min(760px, calc(100vh - 96px));
   gap: 0;
 }
 
-.more-menu .timeline-display-guide {
-  display: flex;
+.timeline-display-guide {
+  width: calc(100% - 4px);
+  min-height: 48px;
   flex-shrink: 0;
+  display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 48px;
-  width: calc(100% - 4px);
   margin: 0 4px 10px 0;
   padding: 8px 10px;
   border: 1px solid var(--ea-border);
   border-radius: 4px;
   background: var(--ea-fill-soft);
+  color: var(--ea-fg-secondary);
+  text-align: left;
+  cursor: pointer;
 }
 
-.more-menu .timeline-display-guide:hover {
+.timeline-display-guide:hover {
   border-color: var(--ea-border-strong);
   background: var(--ea-hover-fill);
   color: var(--ea-fg);
 }
 
-.timeline-display-guide__icon {
+.timeline-display-guide__icon,
+.timeline-display-guide__check {
   flex-shrink: 0;
+}
+
+.timeline-display-guide__icon {
   color: var(--ea-fg-muted);
 }
 
@@ -993,9 +1006,9 @@ button {
 }
 
 .timeline-display-guide__content {
-  display: flex;
-  flex: 1;
   min-width: 0;
+  flex: 1;
+  display: flex;
   flex-direction: column;
   gap: 2px;
 }
@@ -1012,112 +1025,72 @@ button {
 }
 
 .timeline-display-guide__check {
-  flex-shrink: 0;
   color: color-mix(in srgb, var(--ea-gold) 85%, transparent);
 }
 
 .timeline-display-scroll {
-  display: flex;
   min-height: 0;
+  display: flex;
   flex-direction: column;
-  gap: 10px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-gutter: stable;
 }
 
-.preferences-section {
-  padding-top: 7px;
+.timeline-display-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timeline-display-section + .timeline-display-section {
+  margin-top: 10px;
+  padding-top: 12px;
   border-top: 1px solid var(--ea-border-soft);
 }
 
-.preference-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
+.timeline-display-section + .timeline-display-section--follow {
+  margin-top: 8px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.timeline-display-section__title {
+  margin: 0;
   color: var(--ea-fg-muted);
-  font-size: 10px;
-}
-
-.segmented-control {
-  min-width: 0;
-  display: inline-grid;
-  grid-template-columns: repeat(3, 1.75rem);
-  gap: 4px;
-  flex: 0 0 auto;
-}
-
-.segmented-control button {
-  min-width: 0;
-  flex: 1;
-  padding: 5px 4px;
-  text-align: center;
-  border: 1px solid var(--ea-border);
-  border-radius: 4px;
-  background: var(--ea-fill-soft);
-  font-size: 11px;
-}
-
-.segmented-control button.active {
-  background: var(--ea-active-fill);
-  color: var(--ea-gold);
-}
-
-.segmented-control--appearance {
-  grid-template-columns: repeat(2, 28px);
-}
-.segmented-control--appearance button {
-  height: 28px;
-}
-.preference-row--appearance {
-  justify-content: space-between;
-  margin-top: 2px;
   font-size: 11px;
   font-weight: 600;
 }
-.more-menu .shortcuts-button {
-  margin-left: auto;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid var(--ea-border);
-  border-radius: 4px;
-  display: grid;
-  place-items: center;
-  background: var(--ea-fill-soft);
-}
 
-.more-menu button:hover {
-  background: var(--ea-hover-fill);
-  color: var(--ea-fg);
-}
-
-.more-menu button.danger:hover {
-  color: #ff7875;
+.timeline-display-empty {
+  margin: 0;
+  padding: 8px;
+  color: var(--ea-fg-faint);
+  font-size: 12px;
 }
 
 @media (max-width: 1080px) {
   .command-button--analysis,
-  .scenario-heading-group {
+  .ts-header-group {
     display: none;
   }
 }
 </style>
 
 <style>
-.next-header-more.el-popover.el-popper {
+.header-more-popper.el-popover.el-popper {
   padding: 12px;
   background: var(--ea-popover-bg);
   border: 1px solid var(--ea-border);
   box-shadow: 0 10px 28px var(--ea-shadow-strong);
 }
 
-.next-header-more.el-popper.is-light,
-.next-header-more.el-popper {
+.header-more-popper.el-popper.is-light,
+.header-more-popper.el-popper {
   color: var(--ea-fg-secondary);
 }
 
-.next-header-more.el-popper .el-popper__arrow::before {
+.header-more-popper.el-popper .el-popper__arrow::before {
   background: var(--ea-popover-bg);
   border-color: var(--ea-border);
 }

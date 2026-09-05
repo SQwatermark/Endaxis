@@ -17,14 +17,14 @@ describe('legacy panel visual contracts', () => {
     expect(header.indexOf("t('timeline.header.sectionEditTools')")).toBeLessThan(
       header.indexOf("t('timeline.header.sectionProject')"),
     );
-    expect(header).toContain('preference-row preference-row--appearance');
-    expect(header).toContain('class="tool-check"');
-    expect(header).toContain('class="shortcuts-button"');
+    expect(header).toContain('header-more-pref-row header-more-pref-row--appearance');
+    expect(header).toContain('class="header-more-tool-row__check"');
+    expect(header).toContain('header-more-action--icon');
     expect(header).toContain('<span>{{ labels.open }}</span>');
     expect(header).toContain('<span>{{ labels.export }}</span>');
     expect(header).toContain('<span>{{ labels.reset }}</span>');
-    expect(header).toContain('popper-class="next-header-display"');
-    expect(header).toContain('.next-header-more.el-popover.el-popper');
+    expect(header).toContain('popper-class="header-more-popper"');
+    expect(header).toContain('.header-more-popper.el-popover.el-popper');
     expect(header).toContain('background: var(--ea-popover-bg)');
   });
 
