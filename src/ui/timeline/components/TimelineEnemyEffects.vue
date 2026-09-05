@@ -4,7 +4,7 @@
  * 可见 Buff = 原生图标框 + 层数角标 + 45 度条纹时长条；爆发/反应消费 = 图标标记。
  * 坐标与资源曲线同一体系（准备区偏移 + 每帧像素 + 轨道头宽度，跟随时间轴滚动）。
  */
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useDurationBarColor } from '../durationBarColorContext';
 import { resolveDurationBarColor } from '../durationBarColor';
 import { useI18n } from 'vue-i18n';
@@ -66,6 +66,7 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{
   'open-buff-detail': [target: BuffDetailTarget];
+  'minimum-height': [height: number];
 }>();
 
 const ICON_SIZE = 20;
@@ -185,6 +186,7 @@ const minimumHeight = computed(() =>
 const lastHitSummary = computed(() => summarizeLastHitBuffs(buffs.value, props.snapshotFrame));
 const visibleLastHitBuffs = computed(() => lastHitSummary.value.buffs);
 const lastHitBuffOverflow = computed(() => lastHitSummary.value.overflow);
+watch(minimumHeight, height => emit('minimum-height', height), { immediate: true });
 </script>
 
 <template>

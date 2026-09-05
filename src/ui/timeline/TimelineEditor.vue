@@ -1979,6 +1979,7 @@ const operatorControlTimeline = computed(() =>
 );
 
 /** 旧版底部摘要固定取最后一次敌人受伤时刻，而不是跟随隐藏的编辑光标。 */
+const enemyEffectsMinimumHeight = ref(60);
 const enemyLastDamageFrame = computed(() => {
   const current = simulationRun.value;
   if (current === null) return null;
@@ -5438,6 +5439,7 @@ function setPanelDialogVisible(visible: boolean): void {
         </div>
         <div v-if="simulationRun !== null" class="simulation-curves">
           <TimelineEnemyStatusSections
+            :affliction-minimum-height="enemyEffectsMinimumHeight"
             :labels="{
               affliction: t('resourceMonitor.modules.enemyStatus'),
               poise: t('resourceMonitor.modules.stagger'),
@@ -5449,6 +5451,7 @@ function setPanelDialogVisible(visible: boolean): void {
           >
             <template #affliction>
               <TimelineEnemyEffects
+                @minimum-height="enemyEffectsMinimumHeight = $event"
                 :duration-frames="scenario.battle.durationFrames"
                 v-if="combatHudSnapshot !== null"
                 :viz="enemyEffectViz"

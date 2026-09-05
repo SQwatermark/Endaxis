@@ -20,6 +20,7 @@ const props = defineProps<{
   labels: Record<SectionKey, string>;
   collapseLabel: string;
   expandLabel: string;
+  afflictionMinimumHeight?: number;
 }>();
 
 const emit = defineEmits<{
@@ -181,7 +182,13 @@ watch(
         class="enemy-status-section"
         :class="[`enemy-status-section--${key}`, { 'is-collapsed': collapsed[key] }]"
         :data-section-key="key"
-        :style="{ '--section-weight': sectionWeights[key] }"
+        :style="{
+          '--section-weight': sectionWeights[key],
+          minHeight:
+            key === 'affliction' && !collapsed[key]
+              ? `${props.afflictionMinimumHeight ?? 60}px`
+              : undefined,
+        }"
       >
         <span v-if="collapsed[key]" class="section-summary">{{ props.labels[key] }}</span>
         <button
@@ -207,7 +214,7 @@ watch(
 .enemy-status-sections {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: safe flex-end;
   min-width: 1px;
   overflow: hidden auto;
   background: var(--ea-workbench-main, #18181c);

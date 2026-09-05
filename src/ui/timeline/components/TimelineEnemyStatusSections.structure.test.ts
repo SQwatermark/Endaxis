@@ -8,7 +8,7 @@ import effectsSource from './TimelineEnemyEffects.vue?raw';
 
 describe('TimelineEnemyStatusSections legacy layout contract', () => {
   it('anchors the collapsed stack to the bottom without spacing its rows apart', () => {
-    expect(source).toContain('justify-content: flex-end');
+    expect(source).toContain('justify-content: safe flex-end');
     expect(source).toContain('flex: var(--section-weight) 1 14px');
     expect(source).toContain('flex: 0 0 14px');
     expect(source).not.toMatch(/\border\s*:/);
@@ -19,7 +19,7 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
     expect(source).toContain('affliction: 2');
     expect(source).toContain('poise: 1');
     expect(source).toContain('sp: 3');
-    expect(source).toContain(':style="{ \'--section-weight\': sectionWeights[key] }"');
+    expect(source).toContain("'--section-weight': sectionWeights[key]");
   });
   it('owns three collapsible sections and delegates the third collapse to the whole panel', () => {
     expect(source).toContain("type SectionKey = 'affliction' | 'poise' | 'sp'");
