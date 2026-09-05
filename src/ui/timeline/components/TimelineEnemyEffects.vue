@@ -98,10 +98,6 @@ function pointX(frame: number): number {
   );
 }
 
-function clamp(value: number, minimum: number, maximum: number): number {
-  return Math.min(maximum, Math.max(minimum, value));
-}
-
 const width = computed(() => Math.max(1, props.trackHeaderWidth + props.timelineWidth));
 
 /** 爆发/反应标记：小图标框，hover 显示说明。 */
@@ -118,7 +114,7 @@ const markers = computed(() =>
     return {
       key: `${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
       icon,
-      x: clamp(pointX(marker.frame) - ICON_SIZE / 2, 0, width.value - ICON_SIZE),
+      x: pointX(marker.frame) - ICON_SIZE / 2,
       title,
     };
   }),
@@ -127,7 +123,7 @@ const markers = computed(() =>
 const buffs = computed(() =>
   props.buffs.map(buff => {
     const left = pointX(buff.startFrame);
-    const right = pointX(buff.endFrame);
+    const right = pointX(buff.durationEndFrame ?? buff.endFrame);
     const sourceName = props.sourceName?.(buff);
     const modifierSummary = resolveSimpleBuffModifierDisplayName(
       {
@@ -165,7 +161,7 @@ const buffs = computed(() =>
         targetId: buff.targetId,
         ...(sourceName === undefined ? {} : { sourceName }),
         startFrame: buff.startFrame,
-        endFrame: buff.endFrame,
+        endFrame: buff.durationEndFrame ?? buff.endFrame,
         layers: buff.layers,
         icon,
         ...(modifierSummary === undefined ? {} : { modifierSummary }),
@@ -211,53 +207,45 @@ const minimumHeight = computed(() =>
       :display-name="displayName"
       @open-detail="emit('open-buff-detail', $event)"
     />
-    <div
-      v-if="markers.length === 0 && buffs.length === 0 && statusIndicators.length === 0"
-      class="enemy-effects__empty"
+    <span
+      v-for="marker in markers"
+      :key="marker.key"
+      class="effect-marker"
+      :style="{ left: `${marker.x}px`, top: `${MARKER_TOP}px` }"
+      :title="marker.title"
     >
-      —
-    </div>
-    <template v-else>
+      <img :src="marker.icon" class="marker-icon" alt="" />
+    </span>
+    <div
+      v-for="buff in buffs"
+      :key="buff.key"
+      class="attachment-item"
+      :style="{ left: `${buff.left}px`, top: `${buff.top}px` }"
+      :title="buff.title"
+    >
       <span
-        v-for="marker in markers"
-        :key="marker.key"
-        class="effect-marker"
-        :style="{ left: `${marker.x}px`, top: `${MARKER_TOP}px` }"
-        :title="marker.title"
+        class="anomaly-icon-box is-clickable"
+        role="button"
+        tabindex="0"
+        @click.stop="emit('open-buff-detail', buff.detail)"
+        @keydown.enter.stop.prevent="emit('open-buff-detail', buff.detail)"
+        @keydown.space.stop.prevent="emit('open-buff-detail', buff.detail)"
       >
-        <img :src="marker.icon" class="marker-icon" alt="" />
+        <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
+        <span v-else class="buff-fallback">+</span>
+        <span v-if="buff.layers > 1" class="anomaly-stacks">{{ buff.layers }}</span>
       </span>
-      <div
-        v-for="buff in buffs"
-        :key="buff.key"
-        class="attachment-item"
-        :style="{ left: `${buff.left}px`, top: `${buff.top}px` }"
-        :title="buff.title"
+      <span
+        v-if="buff.barWidthPx > 0"
+        class="anomaly-duration-bar generic-buff-bar"
+        :style="{
+          width: `${buff.barWidthPx}px`,
+          ...(buff.color === undefined ? {} : { backgroundColor: buff.color }),
+        }"
       >
-        <span
-          class="anomaly-icon-box is-clickable"
-          role="button"
-          tabindex="0"
-          @click.stop="emit('open-buff-detail', buff.detail)"
-          @keydown.enter.stop.prevent="emit('open-buff-detail', buff.detail)"
-          @keydown.space.stop.prevent="emit('open-buff-detail', buff.detail)"
-        >
-          <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
-          <span v-else class="buff-fallback">+</span>
-          <span v-if="buff.layers > 1" class="anomaly-stacks">{{ buff.layers }}</span>
-        </span>
-        <span
-          v-if="buff.barWidthPx > 0"
-          class="anomaly-duration-bar generic-buff-bar"
-          :style="{
-            width: `${buff.barWidthPx}px`,
-            ...(buff.color === undefined ? {} : { backgroundColor: buff.color }),
-          }"
-        >
-          <span class="striped-bg"></span>
-        </span>
-      </div>
-    </template>
+        <span class="striped-bg"></span>
+      </span>
+    </div>
   </div>
 </template>
 
@@ -275,14 +263,6 @@ const minimumHeight = computed(() =>
   position: absolute;
   z-index: 30;
   inset: 0 auto auto 0;
-}
-
-.enemy-effects__empty {
-  display: grid;
-  place-items: center;
-  height: 100%;
-  color: var(--ea-text-muted, rgb(255 255 255 / 32%));
-  font-size: 11px;
 }
 
 .enemy-status-strip {
@@ -338,6 +318,11 @@ const minimumHeight = computed(() =>
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: filter 0.12s ease;
+}
+
+.anomaly-icon-box:hover .anomaly-icon {
+  filter: brightness(1.12) saturate(1.08);
 }
 
 .buff-fallback {
@@ -364,8 +349,23 @@ const minimumHeight = computed(() =>
   height: 16px;
   margin-left: 2px;
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  overflow: visible;
+  border: none;
   border-radius: 2px;
   box-shadow: 0 1px 2px rgb(0 0 0 / 50%);
+  pointer-events: auto;
+  transition:
+    filter 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.anomaly-duration-bar:hover {
+  filter: brightness(1.16) saturate(1.08);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 18%),
+    0 2px 8px rgb(0 0 0 / 50%);
 }
 
 .generic-buff-bar {

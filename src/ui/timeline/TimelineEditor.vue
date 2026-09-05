@@ -101,6 +101,7 @@ import { resolveTimelineMarkerPointerFrame } from './timelineMarkerMoveGeometry'
 import { resolveOperatorPanelContributionSourceLabel } from './operatorPanelContributionPresentation';
 import type { OperatorPanelContributionReceipt } from '../../core/compiler/resolveOperatorPanel';
 import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
+import { SINGLE_ENEMY_TARGET_ID } from '../../core/projection/enemyHealthChangePoints';
 import { projectComboWindowTimelineViz } from '../../core/projection/comboWindowTimelineViz';
 import { projectSkillCooldownTimelineViz } from '../../core/projection/skillCooldownTimelineViz';
 import { projectTimelineComboCooldowns } from '../../core/projection/timelineComboCooldowns';
@@ -2072,10 +2073,19 @@ const positionedBuffsByTarget = computed(() => {
   }
   const positioned = new Map<string, PositionedBuffTimelineSegment[]>();
   for (const [targetId, segments] of grouped) {
-    positioned.set(targetId, [
-      ...layoutBuffTimelineSegments(segments.filter(segment => segment.placement === 'upper')),
-      ...layoutBuffTimelineSegments(segments.filter(segment => segment.placement === 'lower')),
-    ]);
+    positioned.set(
+      targetId,
+      targetId === SINGLE_ENEMY_TARGET_ID
+        ? [...layoutBuffTimelineSegments(segments)]
+        : [
+            ...layoutBuffTimelineSegments(
+              segments.filter(segment => segment.placement === 'upper'),
+            ),
+            ...layoutBuffTimelineSegments(
+              segments.filter(segment => segment.placement === 'lower'),
+            ),
+          ],
+    );
   }
   return positioned;
 });

@@ -4,6 +4,7 @@ import editorSource from '../TimelineEditor.vue?raw';
 import shellSource from './TimelineWorkbenchShell.vue?raw';
 import curvesSource from './TimelineResourceCurves.vue?raw';
 import hudSource from './EnemyCombatHudSnapshot.vue?raw';
+import effectsSource from './TimelineEnemyEffects.vue?raw';
 
 describe('TimelineEnemyStatusSections legacy layout contract', () => {
   it('anchors the collapsed stack to the bottom without spacing its rows apart', () => {
@@ -55,6 +56,20 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
     expect(curvesSource).toContain('curve-fill-${row.kind}');
     expect(curvesSource).toContain('stroke-width: 2');
     expect(curvesSource).toContain('color: #ff7875');
+  });
+
+  it('lets enemy effect items scroll out of view and preserves legacy duration-bar feedback', () => {
+    expect(effectsSource).toContain('x: pointX(marker.frame) - ICON_SIZE / 2');
+    expect(effectsSource).not.toContain('function clamp');
+    expect(effectsSource).not.toContain('enemy-effects__empty');
+    expect(effectsSource).toContain('.anomaly-duration-bar:hover');
+    expect(effectsSource).toContain('overflow: visible');
+    expect(effectsSource).toContain('pointX(buff.durationEndFrame ?? buff.endFrame)');
+  });
+
+  it('lays all enemy buffs together so source placement cannot create overlapping lanes', () => {
+    expect(editorSource).toContain('targetId === SINGLE_ENEMY_TARGET_ID');
+    expect(editorSource).toContain('? [...layoutBuffTimelineSegments(segments)]');
   });
 
   it('keeps the 180px summary column aligned with the timeline content column', () => {
