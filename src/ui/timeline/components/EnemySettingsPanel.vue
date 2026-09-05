@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Next 敌人实例的选择与属性编辑界面。
+ * 敌人实例的选择与属性编辑界面。
  * 组件复用旧版布局语言，但只处理草稿和展示；定义解析、默认值捕获与事务提交由外层协调器负责。
  */
 import { computed, reactive, ref, watch } from 'vue';
@@ -191,7 +191,11 @@ function removeKnotThreshold(index: number): void {
           </template>
         </span>
       </div>
-      <button type="button" class="stats-edit-button" @click="statsVisible = true">
+      <button
+        type="button"
+        class="ea-btn ea-btn--sm ea-btn--glass-rect stats-edit-button"
+        @click="statsVisible = true"
+      >
         {{ labels.editStats }}
       </button>
     </div>
@@ -412,50 +416,46 @@ function removeKnotThreshold(index: number): void {
 
 <style scoped>
 .enemy-settings-panel {
-  height: 100%;
-  min-height: 0;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
-  color: var(--ea-fg);
-  background: var(--ea-workbench-panel);
+  background: var(--ea-workbench-panel, #252526);
+  color: var(--ea-fg, #f0f0f0);
 }
 .enemy-select-module {
   position: relative;
   width: 100%;
-  height: auto;
   padding: 8px 10px;
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 0;
-  border-bottom: 1px solid var(--ea-border-soft);
-  background: var(--ea-fill-soft);
+  border: none;
+  border-bottom: 1px solid var(--ea-border-soft, rgb(255 255 255 / 8%));
+  background: var(--ea-fill-soft, rgb(255 255 255 / 3%));
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.12s ease;
 }
-.enemy-select-module:hover,
-.enemy-select-module:focus-visible {
-  background: var(--ea-hover-fill);
+.enemy-select-module:hover {
+  background: var(--ea-hover-fill, rgb(255 255 255 / 6%));
 }
 .module-deco-line {
   position: absolute;
-  inset: 8px auto 8px 0;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
   width: 2px;
   background: var(--ea-gold);
 }
-.enemy-avatar-box,
-.card-avatar {
+.enemy-avatar-box {
   position: relative;
   width: 32px;
   height: 32px;
-  flex: none;
-  display: grid;
-  place-items: center;
+  flex-shrink: 0;
   overflow: hidden;
-  border: 1px solid var(--ea-border-strong);
-  background: var(--ea-keycap-bg);
+  border: 1px solid var(--ea-border-strong, #444);
+  background: var(--ea-keycap-bg, #111);
 }
 .scan-line {
   position: absolute;
@@ -474,14 +474,21 @@ function removeKnotThreshold(index: number): void {
     transform: translateY(34px);
   }
 }
-.enemy-avatar-box img,
-.card-avatar img {
+.enemy-avatar-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 .custom-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--ea-gold) 5%, transparent);
   color: var(--ea-gold);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 18px;
   font-weight: 900;
 }
 .enemy-info-col {
@@ -492,13 +499,14 @@ function removeKnotThreshold(index: number): void {
   justify-content: center;
 }
 .enemy-name-line {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 .enemy-name {
   overflow: hidden;
-  color: var(--ea-fg);
+  color: var(--ea-fg, #eee);
   font-size: 12px;
   font-weight: bold;
   line-height: 1.2;
@@ -510,15 +518,22 @@ function removeKnotThreshold(index: number): void {
   color: var(--ea-gold);
   font-size: 10px;
 }
+.enemy-level-badge {
+  flex-shrink: 0;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 800;
+  line-height: 1;
+  opacity: 0.86;
+}
 .click-hint {
   margin-top: 1px;
   opacity: 0.5;
 }
 .stats-summary {
+  flex: 1 1 0;
   min-height: 0;
   padding: 10px;
   display: flex;
-  flex: 1;
   flex-direction: column;
   gap: 8px;
 }
@@ -540,7 +555,6 @@ function removeKnotThreshold(index: number): void {
   display: inline-flex;
   align-items: baseline;
   gap: 0;
-  color: var(--ea-fg);
   font-family: 'Roboto Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.02em;
@@ -563,8 +577,9 @@ function removeKnotThreshold(index: number): void {
   font-weight: 800;
 }
 .stats-edit-button {
-  width: 100%;
   margin-top: auto;
+  width: 100%;
+  justify-content: center;
 }
 .selector-header {
   display: flex;
@@ -646,6 +661,8 @@ function removeKnotThreshold(index: number): void {
   position: relative;
   width: 42px;
   height: 42px;
+  display: grid;
+  place-items: center;
   border: 1px solid var(--ea-border);
   background: var(--ea-keycap-bg);
   overflow: hidden;
@@ -792,5 +809,35 @@ function removeKnotThreshold(index: number): void {
 .primary-button {
   border-color: var(--ea-gold);
   color: var(--ea-gold);
+}
+
+:global(html[data-theme='light'] .enemy-settings-panel .enemy-card) {
+  border-color: var(--ea-border);
+  background: var(--ea-surface-row);
+}
+
+:global(html[data-theme='light'] .enemy-settings-panel .enemy-card:hover:not(:disabled)) {
+  background: rgb(180 140 0 / 10%);
+}
+
+:global(html[data-theme='light'] .enemy-settings-panel .enemy-card.selected) {
+  border-top-color: rgb(180 140 0 / 35%);
+  border-right-color: rgb(180 140 0 / 35%);
+  border-bottom-color: rgb(180 140 0 / 35%);
+  background: rgb(180 140 0 / 14%);
+}
+
+:global(html[data-theme='light'] .enemy-settings-panel .summary-row) {
+  background: var(--ea-surface-row);
+}
+
+:global(html[data-theme='light'] .enemy-settings-panel .tier-filters) {
+  background: var(--ea-surface-sunken);
+}
+
+:global(html[data-theme='light'] .enemy-settings-panel .enemy-avatar-box),
+:global(html[data-theme='light'] .enemy-settings-panel .card-avatar) {
+  border-color: rgb(26 27 30 / 14%);
+  background: var(--ea-chip-fill);
 }
 </style>
