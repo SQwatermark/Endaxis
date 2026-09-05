@@ -328,8 +328,8 @@ function leaveReorderTarget(event: DragEvent): void {
   --initial-gauge-input-width: 54px;
   position: absolute;
   z-index: 3;
-  top: calc(50% - 52px);
-  left: 7px;
+  top: calc(50% - 54px);
+  left: 6px;
   width: calc(100% - 13px);
   height: 20px;
   display: flex;
@@ -433,6 +433,7 @@ function leaveReorderTarget(event: DragEvent): void {
   position: relative;
   box-sizing: border-box;
   border-style: dashed;
+  border-color: var(--ea-keycap-border);
   background: var(--ea-keycap-bg, var(--ea-fill-soft));
 }
 
@@ -484,6 +485,10 @@ function leaveReorderTarget(event: DragEvent): void {
   border-color: var(--ea-gold);
 }
 
+.avatar {
+  border-color: #555;
+}
+
 .operator-name {
   overflow: hidden;
   font-size: 14px;
@@ -501,8 +506,8 @@ function leaveReorderTarget(event: DragEvent): void {
 
 .stat-detail-button {
   position: absolute;
-  top: calc(50% - 27px);
-  left: 58px;
+  top: calc(50% - 29px);
+  left: 62px;
   max-width: calc(100% - 64px);
   height: 18px;
   padding: 0 7px;
@@ -531,16 +536,17 @@ function leaveReorderTarget(event: DragEvent): void {
 
 .loadout-row {
   position: absolute;
-  left: 6px;
+  left: 0;
   top: calc(50% + 33px);
   display: flex;
   align-items: flex-end;
   gap: 4px;
+  height: 22px;
 }
 
 .gear-hint-row {
   position: absolute;
-  left: 6px;
+  left: 0;
   top: calc(50% + 57px);
   width: calc(100% - 12px);
   height: 22px;
@@ -583,6 +589,7 @@ function leaveReorderTarget(event: DragEvent): void {
 .weapon-slot.empty,
 .gear-slot.empty {
   border-style: dashed;
+  border-color: var(--ea-keycap-skill-border);
 }
 
 .weapon-slot:hover {
@@ -687,5 +694,11 @@ function leaveReorderTarget(event: DragEvent): void {
   background: #fff;
   color: var(--ea-gold);
   box-shadow: 0 1px 2px rgb(26 27 30 / 8%);
+}
+
+:global(html[data-theme='light'] .timeline-editor .stat-detail-button:hover:not(:disabled)) {
+  background: color-mix(in srgb, var(--ea-gold) 14%, #fff);
+  border-color: var(--ea-gold);
+  color: var(--ea-gold-hover);
 }
 </style>
