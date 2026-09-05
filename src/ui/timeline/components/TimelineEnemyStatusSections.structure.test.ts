@@ -15,22 +15,29 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
   });
 
   it('uses the old editor 2:1:3 expanded-section weights without changing DOM order', () => {
-    expect(source).toContain('.enemy-status-section--affliction');
-    expect(source).toContain('--section-weight: 2');
-    expect(source).toContain('.enemy-status-section--poise');
-    expect(source).toContain('--section-weight: 1');
-    expect(source).toContain('.enemy-status-section--sp');
-    expect(source).toContain('--section-weight: 3');
+    expect(source).toContain('affliction: 2');
+    expect(source).toContain('poise: 1');
+    expect(source).toContain('sp: 3');
+    expect(source).toContain(':style="{ \'--section-weight\': sectionWeights[key] }"');
   });
   it('owns three collapsible sections and delegates the third collapse to the whole panel', () => {
     expect(source).toContain("type SectionKey = 'affliction' | 'poise' | 'sp'");
     expect(source).toContain('v-for="key in sectionKeys"');
     expect(source).toContain(':aria-expanded="!collapsed[key]"');
-    expect(source).toContain('window.localStorage.setItem(STORAGE_KEY');
+    expect(source).toContain('window.localStorage.setItem(COLLAPSE_STORAGE_KEY');
     expect(source).toContain('sectionKeys.every(sectionKey => next[sectionKey])');
     expect(source).toContain("emit('collapsePanel')");
     expect(shellSource).toContain(':collapse-panel="collapseBottom"');
     expect(editorSource).toContain('@collapse-panel="collapsePanel"');
+  });
+
+  it('restores the old draggable, persisted section proportions without adding layout gaps', () => {
+    expect(source).toContain("'endaxis:resource-monitor-sections:v1'");
+    expect(source).toContain('resizePairForLower(key)');
+    expect(source).toContain('@pointerdown="beginSectionResize(key, $event)"');
+    expect(source).toContain("window.addEventListener('pointermove', onMove)");
+    expect(source).toContain('.section-resize-handle');
+    expect(source).toContain('height: 0');
   });
 
   it('uses the legacy monitor readout and curve constants', () => {

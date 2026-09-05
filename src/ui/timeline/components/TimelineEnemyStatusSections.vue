@@ -1,14 +1,20 @@
 <script setup lang="ts">
 /**
  * 旧版资源监控器的三段纵向骨架。每段内部仍共享“左侧状态摘要 / 右侧时间轴”坐标，
- * 本组件只负责段落折叠与持久化，不解释任何战斗数据。
+ * 本组件只负责段落折叠、比例调整与持久化，不解释任何战斗数据。
  */
-import { onMounted, reactive, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 
 type SectionKey = 'affliction' | 'poise' | 'sp';
 
-const STORAGE_KEY = 'endaxis:next-enemy-status-sections:v1';
+const COLLAPSE_STORAGE_KEY = 'endaxis:resource-monitor-section-collapse:v1';
+const LAYOUT_STORAGE_KEY = 'endaxis:resource-monitor-sections:v1';
 const sectionKeys: readonly SectionKey[] = ['affliction', 'poise', 'sp'];
+const minimumBodyHeight: Readonly<Record<SectionKey, number>> = {
+  affliction: 46,
+  poise: 26,
+  sp: 52,
+};
 
 const props = defineProps<{
   labels: Record<SectionKey, string>;
@@ -25,6 +31,26 @@ const collapsed = reactive<Record<SectionKey, boolean>>({
   poise: false,
   sp: false,
 });
+const sectionWeights = reactive<Record<SectionKey, number>>({
+  affliction: 2,
+  poise: 1,
+  sp: 3,
+});
+const root = ref<HTMLElement | null>(null);
+const activeResizeLowerKey = ref<SectionKey | null>(null);
+let stopResize: (() => void) | null = null;
+
+const resizePairs = computed(() => {
+  const expanded = sectionKeys.filter(key => !collapsed[key]);
+  return expanded.slice(1).map((lowerKey, index) => ({
+    upperKey: expanded[index]!,
+    lowerKey,
+  }));
+});
+
+function resizePairForLower(lowerKey: SectionKey) {
+  return resizePairs.value.find(pair => pair.lowerKey === lowerKey) ?? null;
+}
 
 function toggle(key: SectionKey): void {
   const next = {
@@ -41,28 +67,99 @@ function toggle(key: SectionKey): void {
   collapsed[key] = next[key];
 }
 
+function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
+  const pair = resizePairForLower(lowerKey);
+  if (pair === null || root.value === null) return;
+  const upper = root.value.querySelector<HTMLElement>(`[data-section-key="${pair.upperKey}"]`);
+  const lower = root.value.querySelector<HTMLElement>(`[data-section-key="${pair.lowerKey}"]`);
+  if (upper === null || lower === null) return;
+
+  event.preventDefault();
+  stopResize?.();
+  activeResizeLowerKey.value = lowerKey;
+  const startY = event.clientY;
+  const topbarHeight = 14;
+  const upperBody = Math.max(0, upper.clientHeight - topbarHeight);
+  const lowerBody = Math.max(0, lower.clientHeight - topbarHeight);
+  const bodyTotal = upperBody + lowerBody;
+  const weightTotal = sectionWeights[pair.upperKey] + sectionWeights[pair.lowerKey];
+  const requestedMinimumTotal = minimumBodyHeight[pair.upperKey] + minimumBodyHeight[pair.lowerKey];
+  const minimumScale = Math.min(1, bodyTotal / Math.max(1, requestedMinimumTotal));
+  const upperMinimum = minimumBodyHeight[pair.upperKey] * minimumScale;
+  const lowerMinimum = minimumBodyHeight[pair.lowerKey] * minimumScale;
+
+  const onMove = (moveEvent: PointerEvent) => {
+    const nextUpperBody = Math.min(
+      bodyTotal - lowerMinimum,
+      Math.max(upperMinimum, upperBody + moveEvent.clientY - startY),
+    );
+    const nextLowerBody = bodyTotal - nextUpperBody;
+    sectionWeights[pair.upperKey] = weightTotal * (nextUpperBody / Math.max(1, bodyTotal));
+    sectionWeights[pair.lowerKey] = weightTotal * (nextLowerBody / Math.max(1, bodyTotal));
+  };
+  const finish = () => {
+    activeResizeLowerKey.value = null;
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', finish);
+    window.removeEventListener('pointercancel', finish);
+    stopResize = null;
+  };
+  stopResize = finish;
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', finish);
+  window.addEventListener('pointercancel', finish);
+}
+
 onMounted(() => {
   try {
-    const value = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? 'null') as unknown;
-    if (value === null || typeof value !== 'object') return;
-    for (const key of sectionKeys) {
-      if (typeof (value as Record<string, unknown>)[key] === 'boolean') {
-        collapsed[key] = (value as Record<string, boolean>)[key]!;
+    const value = JSON.parse(
+      window.localStorage.getItem(COLLAPSE_STORAGE_KEY) ?? 'null',
+    ) as unknown;
+    if (value !== null && typeof value === 'object') {
+      for (const key of sectionKeys) {
+        if (typeof (value as Record<string, unknown>)[key] === 'boolean') {
+          collapsed[key] = (value as Record<string, boolean>)[key]!;
+        }
       }
-    }
-    if (sectionKeys.every(key => collapsed[key])) {
-      for (const key of sectionKeys) collapsed[key] = false;
+      if (sectionKeys.every(key => collapsed[key])) {
+        for (const key of sectionKeys) collapsed[key] = false;
+      }
     }
   } catch {
     // Storage is optional; section controls remain available in memory.
   }
+  try {
+    const value = JSON.parse(window.localStorage.getItem(LAYOUT_STORAGE_KEY) ?? 'null') as unknown;
+    if (value !== null && typeof value === 'object') {
+      for (const key of sectionKeys) {
+        const weight = Number((value as Record<string, unknown>)[key]);
+        if (Number.isFinite(weight) && weight >= 0.1) sectionWeights[key] = weight;
+      }
+    }
+  } catch {
+    // Storage is optional; default 2:1:3 weights remain usable.
+  }
 });
+
+onBeforeUnmount(() => stopResize?.());
 
 watch(
   collapsed,
   value => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+      window.localStorage.setItem(COLLAPSE_STORAGE_KEY, JSON.stringify(value));
+    } catch {
+      // Ignore disabled storage.
+    }
+  },
+  { deep: true, flush: 'post' },
+);
+
+watch(
+  sectionWeights,
+  value => {
+    try {
+      window.localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(value));
     } catch {
       // Ignore disabled storage.
     }
@@ -72,29 +169,37 @@ watch(
 </script>
 
 <template>
-  <div class="enemy-status-sections">
-    <section
-      v-for="key in sectionKeys"
-      :key="key"
-      class="enemy-status-section"
-      :class="[`enemy-status-section--${key}`, { 'is-collapsed': collapsed[key] }]"
-    >
-      <span v-if="collapsed[key]" class="section-summary">{{ props.labels[key] }}</span>
-      <button
-        type="button"
-        class="section-toggle"
-        :title="collapsed[key] ? props.expandLabel : props.collapseLabel"
-        :aria-label="`${collapsed[key] ? props.expandLabel : props.collapseLabel}：${props.labels[key]}`"
-        :aria-expanded="!collapsed[key]"
-        @click="toggle(key)"
+  <div ref="root" class="enemy-status-sections">
+    <template v-for="key in sectionKeys" :key="key">
+      <div
+        v-if="resizePairForLower(key) !== null"
+        class="section-resize-handle"
+        :class="{ 'is-active': activeResizeLowerKey === key }"
+        @pointerdown="beginSectionResize(key, $event)"
+      ></div>
+      <section
+        class="enemy-status-section"
+        :class="[`enemy-status-section--${key}`, { 'is-collapsed': collapsed[key] }]"
+        :data-section-key="key"
+        :style="{ '--section-weight': sectionWeights[key] }"
       >
-        <span class="section-toggle__chevron" aria-hidden="true"></span>
-        <strong>{{ props.labels[key] }}</strong>
-      </button>
-      <div v-show="!collapsed[key]" class="section-content">
-        <slot :name="key" />
-      </div>
-    </section>
+        <span v-if="collapsed[key]" class="section-summary">{{ props.labels[key] }}</span>
+        <button
+          type="button"
+          class="section-toggle"
+          :title="collapsed[key] ? props.expandLabel : props.collapseLabel"
+          :aria-label="`${collapsed[key] ? props.expandLabel : props.collapseLabel}：${props.labels[key]}`"
+          :aria-expanded="!collapsed[key]"
+          @click="toggle(key)"
+        >
+          <span class="section-toggle__chevron" aria-hidden="true"></span>
+          <strong>{{ props.labels[key] }}</strong>
+        </button>
+        <div v-show="!collapsed[key]" class="section-content">
+          <slot :name="key" />
+        </div>
+      </section>
+    </template>
   </div>
 </template>
 
@@ -128,16 +233,6 @@ watch(
   height: 1px;
   background: var(--ea-divider, rgb(255 255 255 / 16%));
   pointer-events: none;
-}
-
-.enemy-status-section--affliction {
-  --section-weight: 2;
-}
-.enemy-status-section--poise {
-  --section-weight: 1;
-}
-.enemy-status-section--sp {
-  --section-weight: 3;
 }
 
 .section-toggle {
@@ -195,13 +290,18 @@ watch(
 }
 
 .section-summary {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
+  height: 100%;
   width: 180px;
-  padding: 0 8px;
-  line-height: 14px;
   color: var(--ea-text-secondary, rgb(255 255 255 / 70%));
   font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  line-height: 14px;
+  white-space: nowrap;
 }
 
 .enemy-status-section.is-collapsed .section-toggle__chevron {
@@ -218,5 +318,46 @@ watch(
 
 .section-content > :deep(*) {
   height: 100%;
+}
+
+.section-resize-handle {
+  position: relative;
+  z-index: 41;
+  height: 0;
+  flex: 0 0 0;
+}
+
+.section-resize-handle::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: -6px;
+  right: 0;
+  left: 180px;
+  height: 12px;
+  cursor: ns-resize;
+}
+
+.section-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 180px;
+  height: 1px;
+  background: transparent;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition:
+    background-color 0.12s ease,
+    box-shadow 0.12s ease,
+    height 0.12s ease;
+}
+
+.section-resize-handle:hover::after,
+.section-resize-handle.is-active::after {
+  height: 2px;
+  background: color-mix(in srgb, var(--ea-gold) 55%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ea-gold) 22%, transparent);
 }
 </style>
