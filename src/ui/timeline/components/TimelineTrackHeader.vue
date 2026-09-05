@@ -59,6 +59,20 @@ function leaveReorderTarget(event: DragEvent): void {
   if (event.relatedTarget instanceof Node && current.contains(event.relatedTarget)) return;
   emit('reorderDragLeave');
 }
+
+function startReorder(event: DragEvent): void {
+  const header = (event.currentTarget as HTMLElement).closest('.track-header');
+  if (header instanceof HTMLElement && event.dataTransfer !== null) {
+    const bounds = header.getBoundingClientRect();
+    // 拖动预览沿用整个轨道身份区，抓取位置不因从把手启动而跳动。
+    event.dataTransfer.setDragImage(
+      header,
+      event.clientX - bounds.left,
+      event.clientY - bounds.top,
+    );
+  }
+  emit('reorderDragStart', event);
+}
 </script>
 
 <template>
@@ -90,7 +104,7 @@ function leaveReorderTarget(event: DragEvent): void {
         class="drag-handle"
         draggable="true"
         aria-hidden="true"
-        @dragstart.stop="$emit('reorderDragStart', $event)"
+        @dragstart.stop="startReorder"
         @dragend.stop="$emit('reorderDragEnd')"
       >
         <svg viewBox="0 0 24 24">
@@ -228,6 +242,7 @@ function leaveReorderTarget(event: DragEvent): void {
   min-height: 0;
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   align-items: center;
   box-sizing: border-box;
   padding: 0 0 0 4px;
@@ -248,13 +263,12 @@ function leaveReorderTarget(event: DragEvent): void {
 }
 
 .track-header.is-reorder-source {
-  opacity: 0.48;
+  opacity: 0.5;
 }
 
 .track-header.is-reorder-target {
-  outline: 2px solid var(--ea-gold);
-  outline-offset: -2px;
-  background: color-mix(in srgb, var(--ea-gold) 12%, var(--ea-workbench-header));
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .reorder-column {
@@ -307,6 +321,8 @@ function leaveReorderTarget(event: DragEvent): void {
 }
 
 .reorder-button svg {
+  width: 10px;
+  height: 10px;
   fill: none;
   stroke: currentColor;
   stroke-width: 3;
