@@ -45,6 +45,26 @@ describe('来源传输的有限重试', () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
 
+  it('AKEDB 实际出现的临时 HTTP 570 只重试同一 URL', async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 570 }))
+      .mockResolvedValueOnce(response());
+    vi.stubGlobal('fetch', fetcher);
+    await expect(vfsResource(url, 'BuffData/a.json', null)).resolves.toMatchObject({
+      provider: 'vfs-index-browser',
+    });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(String(fetcher.mock.calls[0]![0])).toBe(String(fetcher.mock.calls[1]![0]));
+  });
+
+  it('连续三次 HTTP 570 后仍以原始状态明确阻断', async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response(null, { status: 570 }));
+    vi.stubGlobal('fetch', fetcher);
+    await expect(vfsResource(url, 'BuffData/a.json', null)).rejects.toThrow('HTTP 570');
+    expect(fetcher).toHaveBeenCalledTimes(3);
+  });
+
   it('错误身份头和未知异常不能被吞掉', async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response('{}'));
     vi.stubGlobal('fetch', fetcher);

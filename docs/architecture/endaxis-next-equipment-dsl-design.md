@@ -1,6 +1,6 @@
 # Endaxis Next 武器、装备与套装 DSL 设计
 
-本文研究 Endaxis Next 如何声明、解析和执行武器、装备与套装效果。结论基于当前 `src/next` 的干员定义、技能编译、Buff、事件、机制与运行时边界，以及旧版 `src/data/weapons`、`src/data/gears`、`src/data/gearsets` 和 `src/data/collect.ts` 的实际数据与执行入口。
+本文研究 Endaxis Next 如何声明、解析和执行武器、装备与套装效果。结论基于当前 `src` 的干员定义、技能编译、Buff、事件、机制与运行时边界，以及旧版 `src/data/weapons`、`src/data/gears`、`src/data/gearsets` 和 `src/data/collect.ts` 的实际数据与执行入口。
 
 本文同时记录设计边界与当前实现状态。`equipmentDefinition.ts` 已完成第一阶段 DSL 骨架，`compileEquipment.ts` 已能解析常驻修正和现有通用事件序列；完整 Build Resolver、面板安装、Buff 蓝图和尚未恢复的事件仍待实现。
 

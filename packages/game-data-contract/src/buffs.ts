@@ -46,6 +46,7 @@ export const BUFF_ABILITY_EVENTS = [
   'outputKnockDown',
   'outputHeal',
   'receiveHeal',
+  'afterAddedShield',
   'poiseZero',
   'beforeCastSkill',
   'afterSkillApplyCost',
@@ -162,6 +163,14 @@ export interface SkillGlobalBuffDefinition {
   /** 原生父 GlobalBuff 的时长同时作为子 Buff 图标时长；不改变子 Buff 的战斗寿命归属。 */
   readonly applyIconDurationToBuffs?: boolean;
   readonly blackboard: Readonly<Record<string, ActionBlackboardValue>>;
+  /** 父 GlobalBuff 启用期间注册到整场战斗共享 SP 系统的原生全局修正。 */
+  readonly sharedSpModifiers?: readonly {
+    readonly attribute:
+      'spRecovery' | 'gainEfficiency' | 'normalAttackEfficiency' | 'powerAttackEfficiency';
+    readonly operation: 'addition' | 'multiplier';
+    readonly value: ActionValueOperand;
+    readonly applyToReturnSpGain: boolean;
+  }[];
   readonly children: readonly SkillGlobalBuffChildDefinition[];
 }
 
@@ -378,7 +387,8 @@ export interface CombatBuffDefinitionLifecycleActions {
 
 /** 外部定义中一项可序列化的原生八槽属性修正。 */
 export interface CombatBuffDefinitionAttributeModifier {
-  readonly attribute: string;
+  /** Specific 属性直接使用字符串；Main/Sub/All 保留原生延迟选择语义。 */
+  readonly attribute: string | { readonly kind: 'main' | 'secondary' | 'all' };
   readonly slot: AttributeModifierSlot;
   readonly value: number | { readonly blackboardKey: string };
   readonly target?: 'owner' | 'buffSource';

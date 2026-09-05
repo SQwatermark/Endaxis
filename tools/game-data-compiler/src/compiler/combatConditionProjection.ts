@@ -1144,6 +1144,24 @@ function compileConditionLeaf(
     if (matchesBuffSourceAndOwner && context.actionOwnerTarget === 'buffOwner') {
       return { kind: 'buffSourceMatchesOwner' };
     }
+    const matchesOwnerAndControlledOperator =
+      first.targetGroupKey === '' &&
+      second.targetGroupKey === '' &&
+      isPlainReference(first) &&
+      isPlainReference(second) &&
+      ((first.targetSource === 'Owner' && second.targetSource === 'MainCharacter') ||
+        (first.targetSource === 'MainCharacter' && second.targetSource === 'Owner'));
+    if (
+      matchesOwnerAndControlledOperator &&
+      (context.actionOwnerTarget === 'caster' || context.fixedBuffOwnerTarget === 'caster')
+    ) {
+      return {
+        kind: 'actionValueCompare',
+        left: { kind: 'constant', value: 1 },
+        operator: 'equal',
+        right: { kind: 'constant', value: 1 },
+      };
+    }
     const isEventInputReference = (target: typeof first) =>
       target.targetSource === 'Target' && isPlainReference(target);
     const contextIdentityOther = (

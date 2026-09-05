@@ -12,7 +12,12 @@ export interface CandidateAssetCheckArguments {
 export async function checkCandidateGameAssets(args: CandidateAssetCheckArguments) {
   const projectRoot = path.resolve(args.projectRoot);
   const candidateRoot = path.resolve(args.candidateRoot);
-  const publicRoot = path.join(projectRoot, 'public');
+  const candidatePublicRoot = path.join(candidateRoot, 'public');
+  // 完整重建必须验证隔离导出的资源闭包；旧的独立候选审计仍可在没有该目录时
+  // 回退只读正式 public，保持工具的诊断用途。
+  const publicRoot = (await exists(candidatePublicRoot))
+    ? candidatePublicRoot
+    : path.join(projectRoot, 'public');
   const references = new Map<string, Set<string>>();
   for (const relativePath of args.replacementPaths) {
     const root = path.resolve(candidateRoot, relativePath);

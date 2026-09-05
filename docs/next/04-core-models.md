@@ -16,7 +16,7 @@
 
 ## 2. V2 存档
 
-唯一定义位于 `src/next/core/project/schema.ts`，当前 `schemaVersion` 为 2，时间统一使用 30 FPS 的整数帧。
+唯一定义位于 `src/core/project/schema.ts`，当前 `schemaVersion` 为 2，时间统一使用 30 FPS 的整数帧。
 
 项目保存：
 

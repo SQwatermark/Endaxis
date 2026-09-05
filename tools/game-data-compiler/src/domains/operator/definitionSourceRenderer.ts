@@ -2,8 +2,9 @@ type RecordValue = Readonly<Record<string, unknown>>;
 
 interface RenderContext {
   readonly helpers: Set<string>;
-  readonly sharedSequenceReferenceByObject: WeakMap<object, string>;
+  readonly sharedSequenceReferenceByObject: WeakMap<object, SharedActionSequenceReference>;
   renderingSharedSequenceIdentifier?: string;
+  renderingIdentityPlaceholderByValue?: ReadonlyMap<string, string>;
 }
 
 interface RawExpression {
@@ -102,8 +103,12 @@ export function renderOperatorDefinitionSource(input: { readonly operator: Recor
   const renderedOperator = renderValue(operator, context);
   const sharedSequenceDeclarations = sharedSequences.definitions.map(definition => {
     context.renderingSharedSequenceIdentifier = definition.identifier;
+    context.renderingIdentityPlaceholderByValue = new Map(
+      definition.identities.map((value, index) => [value, generatedIdentityPlaceholder(index)]),
+    );
     const rendered = renderValue(definition.value, context);
     context.renderingSharedSequenceIdentifier = undefined;
+    context.renderingIdentityPlaceholderByValue = undefined;
     return `const ${definition.identifier}: ActionSequenceDefinition = ${rendered};`;
   });
   const helperImport = [...context.helpers].sort().join(', ');
@@ -164,10 +169,15 @@ function renderValue(value: unknown, context: RenderContext, property?: string):
   if (isRaw(value)) return value.rawExpression;
   if (value !== null && typeof value === 'object') {
     const shared = context.sharedSequenceReferenceByObject.get(value);
-    if (shared !== undefined && shared !== context.renderingSharedSequenceIdentifier) return shared;
+    if (shared !== undefined && shared.identifier !== context.renderingSharedSequenceIdentifier) {
+      if (shared.identities.length === 0) return shared.identifier;
+      context.helpers.add('instantiateActionSequence');
+      return `instantiateActionSequence(${shared.identifier}, ${renderValue(shared.identities, context)})`;
+    }
   }
-  if (value === null || typeof value === 'boolean' || typeof value === 'string')
-    return JSON.stringify(value);
+  if (typeof value === 'string')
+    return JSON.stringify(context.renderingIdentityPlaceholderByValue?.get(value) ?? value);
+  if (value === null || typeof value === 'boolean') return JSON.stringify(value);
   if (typeof value === 'number') {
     if (value === Number.POSITIVE_INFINITY) return 'Number.POSITIVE_INFINITY';
     if (value === Number.NEGATIVE_INFINITY) return 'Number.NEGATIVE_INFINITY';
@@ -198,6 +208,12 @@ const SHARED_ACTION_SEQUENCE_MINIMUM_SIGNATURE_LENGTH = 1_000;
 interface SharedActionSequenceDefinition {
   readonly identifier: string;
   readonly value: RecordValue;
+  readonly identities: readonly string[];
+}
+
+interface SharedActionSequenceReference {
+  readonly identifier: string;
+  readonly identities: readonly string[];
 }
 
 /**
@@ -207,11 +223,15 @@ interface SharedActionSequenceDefinition {
  */
 function collectSharedActionSequences(value: unknown): {
   readonly definitions: readonly SharedActionSequenceDefinition[];
-  readonly referenceByObject: WeakMap<object, string>;
+  readonly referenceByObject: WeakMap<object, SharedActionSequenceReference>;
 } {
   const occurrences = new Map<
     string,
-    { count: number; readonly values: RecordValue[]; readonly firstOrder: number }
+    {
+      count: number;
+      readonly values: { readonly value: RecordValue; readonly identities: readonly string[] }[];
+      readonly firstOrder: number;
+    }
   >();
   let order = 0;
   const visit = (item: unknown): void => {
@@ -222,13 +242,17 @@ function collectSharedActionSequences(value: unknown): {
     if (item === null || typeof item !== 'object' || isRaw(item)) return;
     const record = item as RecordValue;
     if (sameKeys(Object.keys(record), ['steps']) && Array.isArray(record.steps)) {
-      const signature = exactValueSignature(record);
-      const previous = occurrences.get(signature);
+      const normalized = identityParameterizedValueSignature(record);
+      const previous = occurrences.get(normalized.signature);
       if (previous === undefined) {
-        occurrences.set(signature, { count: 1, values: [record], firstOrder: order++ });
+        occurrences.set(normalized.signature, {
+          count: 1,
+          values: [{ value: record, identities: normalized.identities }],
+          firstOrder: order++,
+        });
       } else {
         previous.count += 1;
-        previous.values.push(record);
+        previous.values.push({ value: record, identities: normalized.identities });
       }
     }
     Object.values(record).forEach(visit);
@@ -246,26 +270,69 @@ function collectSharedActionSequences(value: unknown): {
       occurrence,
       identifier: `sharedActionSequence${index + 1}`,
     }));
-  const referenceByObject = new WeakMap<object, string>();
+  const referenceByObject = new WeakMap<object, SharedActionSequenceReference>();
   for (const entry of selected) {
-    for (const object of entry.occurrence.values) referenceByObject.set(object, entry.identifier);
+    for (const occurrence of entry.occurrence.values) {
+      referenceByObject.set(occurrence.value, {
+        identifier: entry.identifier,
+        identities: occurrence.identities,
+      });
+    }
   }
   return {
     definitions: selected
       // 子序列声明必须先于引用它的较大父序列；名称仍按首次出现顺序保持稳定。
       .sort((left, right) => left.signature.length - right.signature.length)
-      .map(entry => ({ identifier: entry.identifier, value: entry.occurrence.values[0]! })),
+      .map(entry => ({
+        identifier: entry.identifier,
+        value: entry.occurrence.values[0]!.value,
+        identities: entry.occurrence.values[0]!.identities,
+      })),
     referenceByObject,
   };
 }
 
-function exactValueSignature(value: unknown): string {
-  return JSON.stringify(value, (_key, item: unknown) => {
+function identityParameterizedValueSignature(value: unknown): {
+  readonly signature: string;
+  readonly identities: readonly string[];
+} {
+  const identityIndexes = new Map<string, number>();
+  const identities: string[] = [];
+  const signature = JSON.stringify(value, (_key, item: unknown) => {
     if (typeof item !== 'number' || Number.isFinite(item)) return item;
     if (item === Number.POSITIVE_INFINITY) return { $number: 'positiveInfinity' };
     if (item === Number.NEGATIVE_INFINITY) return { $number: 'negativeInfinity' };
     return { $number: 'nan' };
   });
+  const normalized = JSON.stringify(value, (_key, item: unknown) => {
+    if (typeof item === 'string' && isGeneratedIdentity(item)) {
+      let index = identityIndexes.get(item);
+      if (index === undefined) {
+        index = identities.length;
+        identityIndexes.set(item, index);
+        identities.push(item);
+      }
+      return { $generatedIdentity: index };
+    }
+    if (typeof item !== 'number' || Number.isFinite(item)) return item;
+    if (item === Number.POSITIVE_INFINITY) return { $number: 'positiveInfinity' };
+    if (item === Number.NEGATIVE_INFINITY) return { $number: 'negativeInfinity' };
+    return { $number: 'nan' };
+  });
+  return { signature: identities.length === 0 ? signature : normalized, identities };
+}
+
+function isGeneratedIdentity(value: string): boolean {
+  return (
+    value.startsWith('SkillData.') ||
+    value.includes(':/scheduledSequences/') ||
+    value.includes(':/eventListeners/') ||
+    value.includes(':/lifecycleSequences/')
+  );
+}
+
+function generatedIdentityPlaceholder(index: number): string {
+  return `\u0000endaxis-generated-identity:${index}`;
 }
 
 function renderHelper(value: RecordValue, context: RenderContext): string | null {

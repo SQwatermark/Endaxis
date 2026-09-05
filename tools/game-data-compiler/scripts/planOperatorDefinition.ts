@@ -921,7 +921,7 @@ export async function generateOperatorDefinition(
   args: Parameters<typeof planOperatorDefinition>[0] & { readonly check: boolean },
 ) {
   for (const [directory, parent] of [
-    [args.output, 'src/next/data/operators/generated-definitions'],
+    [args.output, 'src/data/operators/generated-definitions'],
     [args.auditOutput, 'tmp/game-data-audit/operator-definitions'],
   ]) {
     const target = path.resolve(directory!);

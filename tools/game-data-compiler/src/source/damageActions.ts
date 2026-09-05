@@ -80,6 +80,12 @@ export type DamageProcessorSource =
       readonly side: string;
       readonly zoneName: string;
       readonly addition: ScalarSource;
+    }
+  | {
+      /** AfterCalculation 飘字元数据；combat-spec 已确认不修改伤害数值。 */
+      readonly kind: 'damageTextPresentation';
+      readonly style: string;
+      readonly useHpChangeAsDisplayValue: boolean;
     };
 
 export interface DamageUnitSource {
@@ -371,6 +377,21 @@ export function parseDamageProcessors(
           processor.addition,
           `${processorPath}.addition`,
           inheritedBlackboard,
+        ),
+      };
+    }
+    if (sourceType === 'DamageTextProcessor') {
+      requireExactFields(
+        processor,
+        new Set(['$type', 'damageTextStyle', 'useHpChangeAsDisplayValue']),
+        processorPath,
+      );
+      return {
+        kind: 'damageTextPresentation',
+        style: requireNonEmptyString(processor.damageTextStyle, `${processorPath}.damageTextStyle`),
+        useHpChangeAsDisplayValue: requireBoolean(
+          processor.useHpChangeAsDisplayValue,
+          `${processorPath}.useHpChangeAsDisplayValue`,
         ),
       };
     }

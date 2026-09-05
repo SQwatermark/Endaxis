@@ -37,16 +37,16 @@ npm.cmd run dev -- --host 0.0.0.0
 常用入口：
 
 - 旧版：`http://127.0.0.1:5173/timeline`
-- Next：`http://127.0.0.1:5173/next/timeline`
+- 时间轴：`http://127.0.0.1:5173/timeline`
 
 若端口被占用，Vite 会选择其他端口；应读取终端输出，不要假定仍是 5173。
 
 验证命令：
 
 ```powershell
-npm.cmd run type-check:next
-npm.cmd run test:next
-npm.cmd run bench:next
+npm.cmd run type-check
+npm.cmd test
+npm.cmd run bench
 npm.cmd run format:check
 ```
 
@@ -66,7 +66,7 @@ npm.cmd run test:game-data
 
 生成器约束：
 
-- 正式输出进入 `src/next/data` 下相应生成目录；
+- 正式输出进入 `src/data` 下相应生成目录；
 - 审计与候选产物只写入已忽略的 `tmp/`；
 - 生成前固定 AKEDB/CDN 版本；
 - 未知数据报错；

@@ -39,6 +39,13 @@ export interface GlobalBuffTemplateSource {
   readonly applyIconDurationToBuffs: boolean;
   readonly children: readonly GlobalBuffChildInputSource[];
   readonly globalModifierCount: number;
+  readonly globalModifiers: readonly {
+    readonly attribute:
+      'spRecovery' | 'gainEfficiency' | 'normalAttackEfficiency' | 'powerAttackEfficiency';
+    readonly operation: 'addition' | 'multiplier';
+    readonly value: ScalarSource;
+    readonly applyToReturnSpGain: boolean;
+  }[];
   readonly globalEventCount: number;
   readonly blackboard: readonly DeclaredBlackboardValueSource[];
 }
@@ -68,6 +75,7 @@ export function parseGlobalBuffTemplateSource(
       'applyIconDurationToBuffs',
       'buffInputs',
       'globalModifierCount',
+      'globalModifiers',
       'globalEventCount',
       'blackboard',
     ]),
@@ -133,9 +141,52 @@ export function parseGlobalBuffTemplateSource(
       template.globalModifierCount,
       `${path}.globalModifierCount`,
     ),
+    globalModifiers: parseGlobalModifiers(
+      template.globalModifiers,
+      `${path}.globalModifiers`,
+      inherited,
+    ),
     globalEventCount: requireInteger(template.globalEventCount, `${path}.globalEventCount`),
     blackboard: parseBlackboardDataPairs(template.blackboard, `${path}.blackboard`),
   };
+}
+
+function parseGlobalModifiers(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: Readonly<Record<string, number>>,
+): GlobalBuffTemplateSource['globalModifiers'] {
+  if (value === undefined) return [];
+  return requireArray(value, path).map((raw, index) => {
+    const itemPath = `${path}[${index}]`;
+    const item = requireRecord(raw, itemPath);
+    requireExactFields(
+      item,
+      new Set(['attribute', 'operation', 'value', 'applyToReturnSpGain']),
+      itemPath,
+    );
+    const attribute = requireNonEmptyString(item.attribute, `${itemPath}.attribute`);
+    if (
+      !['spRecovery', 'gainEfficiency', 'normalAttackEfficiency', 'powerAttackEfficiency'].includes(
+        attribute,
+      )
+    ) {
+      throw new Error(`${itemPath}.attribute: unsupported value ${attribute}`);
+    }
+    const operation = requireNonEmptyString(item.operation, `${itemPath}.operation`);
+    if (operation !== 'addition' && operation !== 'multiplier') {
+      throw new Error(`${itemPath}.operation: unsupported value ${operation}`);
+    }
+    return {
+      attribute: attribute as GlobalBuffTemplateSource['globalModifiers'][number]['attribute'],
+      operation,
+      value: parseScalarSource(item.value, `${itemPath}.value`, inheritedBlackboard),
+      applyToReturnSpGain: requireBoolean(
+        item.applyToReturnSpGain,
+        `${itemPath}.applyToReturnSpGain`,
+      ),
+    };
+  });
 }
 
 export interface GlobalBuffTemplateCatalogSource {

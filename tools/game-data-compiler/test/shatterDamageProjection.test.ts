@@ -3,17 +3,17 @@ import fixture from './fixtures/avywenna-return-damage.json';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 import { parseDamageActionSource } from '../src/source/damageActions.ts';
 import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/simpleDamageOperation.ts';
-import { compileActionSequence } from '../../../src/next/core/compiler/compileSkill';
-import { CombatActionSequenceRuntime } from '../../../src/next/core/combat/runtime/combatActionSequenceRuntime';
-import { PlayerDamageOperationExecutor } from '../../../src/next/core/combat/runtime/playerDamageOperationExecutor';
-import { CombatClock } from '../../../src/next/core/combat/runtime/combatClock';
-import { CombatVitals } from '../../../src/next/core/combat/runtime/combatVitals';
-import { CombatReceiptCollector } from '../../../src/next/core/combat/receipt/combatReceipt';
-import { ActionBlackboard } from '../../../src/next/core/combat/runtime/actionBlackboard';
+import { compileActionSequence } from '../../../src/core/compiler/compileSkill';
+import { CombatActionSequenceRuntime } from '../../../src/core/combat/runtime/combatActionSequenceRuntime';
+import { PlayerDamageOperationExecutor } from '../../../src/core/combat/runtime/playerDamageOperationExecutor';
+import { CombatClock } from '../../../src/core/combat/runtime/combatClock';
+import { CombatVitals } from '../../../src/core/combat/runtime/combatVitals';
+import { CombatReceiptCollector } from '../../../src/core/combat/receipt/combatReceipt';
+import { ActionBlackboard } from '../../../src/core/combat/runtime/actionBlackboard';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeSnapshot,
-} from '../../../src/next/core/combat/damage/damageScaleAttributes';
+} from '../../../src/core/combat/damage/damageScaleAttributes';
 
 function project(mask = 134217728) {
   const raw = structuredClone(fixture[0]!.branch.failActions.actionData[0]!);

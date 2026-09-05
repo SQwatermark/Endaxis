@@ -1,34 +1,10 @@
 <script setup>
-import { computed, watch } from 'vue';
-import { useTimelineStore } from './stores/timelineStore.js';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
 import { getElementPlusLocale } from '@/i18n/elementPlusLocale';
-import { markBootReady } from '@/utils/bootLoader';
 
-const store = useTimelineStore();
-const route = useRoute();
 const { locale } = useI18n({ useScope: 'global' });
 const elementLocale = computed(() => getElementPlusLocale(locale.value));
-let legacyTimelineInitialized = false;
-
-watch(
-  () => route.meta.requiresLegacyTimeline,
-  async requiresLegacyTimeline => {
-    if (requiresLegacyTimeline !== true || legacyTimelineInitialized) return;
-    legacyTimelineInitialized = true;
-
-    try {
-      // 旧版仓库只服务现有时间轴；Next 路由使用独立数据边界。
-      await store.fetchGameData();
-      await store.loadFromBrowser();
-      store.initAutoSave();
-    } finally {
-      markBootReady('data');
-    }
-  },
-  { immediate: true },
-);
 </script>
 
 <template>

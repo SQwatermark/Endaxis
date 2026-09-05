@@ -369,14 +369,18 @@ export interface CombatStepParameters {
         contextKey?: never;
       }
   ) & {
+    /** 原生 Healer=ActionOwner 且动作位于 Buff 生命周期时，治疗来源是 Buff 宿主。 */
+    source?: 'buffOwner';
     /** 原生 AbilityAction.alwaysNext；false 时保留治疗应用失败的序列短路。 */
     alwaysNext?: boolean;
     /** 原生 useHealTags 开启时的 GameplayTag 整数身份。 */
     tags: readonly GameplayTag[];
   } & (
       | {
-          /** 按施法者属性乘区与固定加区计算。 */
+          /** 按原生指定一侧的属性乘区与固定加区计算。 */
           attribute: HealCalculationAttribute;
+          /** 省略时读取治疗来源；原生 valueSource=Target 时读取治疗目标。 */
+          attributeSource?: 'target';
           multiplier: LevelValues | ActionValueOperand;
           addition: LevelValues | ActionValueOperand;
           amount?: never;
@@ -402,6 +406,13 @@ export interface CombatStepParameters {
      * 该字段与接收 Buff 的 `target` 相互独立，只应在原生动作显式改写来源时配置。
      */
     source?: BuffApplicationSource;
+    /**
+     * 原生 Buff 图标的倒计时来源。它只改变可视倒计时，不改变 Buff 自身生命周期；
+     * 来源在施加边沿解析成稳定实例身份，同名 TimedMarker 重建不会串线。
+     */
+    iconDurationSource?:
+      | { readonly kind: 'actionOwnerAbilityEntity' }
+      | { readonly kind: 'actionOwnerTimedMarker'; readonly markerId: string };
     /**
      * 在施加时覆盖 Buff 定义黑板的同名默认值。动作操作数从当前动作黑板求值；
      * 等级值在技能或养成初始化程序编译时解析。
@@ -453,13 +464,19 @@ export interface CombatStepParameters {
     globalBuffId: string;
     definition: SkillGlobalBuffDefinition;
     count?: ActionValueOperand;
-    source?: BuffApplicationSource;
+    /** GodEntity 持有的原生全局实例保留 battle 来源，不伪装成某名干员。 */
+    source?: BuffApplicationSource | 'battle';
     blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
     /** 所在动作结束时只清理本步骤创建的 GlobalBuff 实例。 */
     finishByAction?: boolean;
   };
   /** 只结束当前子 Buff 精确关联的那个父 GlobalBuff 实例。 */
   finishParentGlobalBuff: {
+    reason: 'early' | 'other';
+  };
+  /** 按原生 GlobalBuffId 结束当前战斗中所有同名父实例。 */
+  finishGlobalBuffsById: {
+    globalBuffIds: readonly string[];
     reason: 'early' | 'other';
   };
   /** 从版本化 SkillSetting 的四列值按运行时列号读取，并写入当前动作黑板。 */
@@ -665,6 +682,16 @@ export interface CombatStepParameters {
     /** 共享技力实际变化量 OnObtainAtb.RealDelta。 */
     realDeltaOutputKey?: string;
   };
+  /** 从当前成功治疗事件保存修正后请求值和生命账本实际变化值。 */
+  storeEventHealValues: {
+    finalHealOutputKey?: string;
+    realHealOutputKey?: string;
+  };
+  /** 从护盾添加事件保存本次新增护盾，或读取动作宿主当前有限护盾总量。 */
+  storeShieldValue: {
+    value: 'gained' | 'current';
+    outputKey: string;
+  };
   modifyActionValue: {
     key: string;
     operation: ActionValueOperation;
@@ -686,6 +713,22 @@ export interface CombatStepParameters {
     multiplier: ActionValueOperand;
     base: ActionValueOperand;
     targetKey: string;
+  };
+  /** 按原生 StoreEntityProperty 读取当前动作所有者的战斗生命/失衡账本。 */
+  storeEntityPropertyValue: {
+    target: 'actionOwner';
+    property: 'currentHealth' | 'maxHealth' | 'currentPoise';
+    useFloor: boolean;
+    divisor: ActionValueOperand;
+    multiplier: ActionValueOperand;
+    base: ActionValueOperand;
+    targetKey: string;
+  };
+  /** 在动作寿命内为当前动作所有者注册生命下限；动作结束时移除同一原生句柄。 */
+  setHealthFloor: {
+    target: 'actionOwner';
+    mode: 'absolute' | 'maxHealthRatio';
+    value: ActionValueOperand;
   };
   changeResource: {
     resource: CombatResource;
@@ -871,6 +914,7 @@ export const COMBAT_STEP_KINDS = [
   'applyBuff',
   'createGlobalBuff',
   'finishParentGlobalBuff',
+  'finishGlobalBuffsById',
   'readSkillSettingData',
   'readBuffBlackboard',
   'readEventBuffBlackboard',
@@ -896,9 +940,13 @@ export const COMBAT_STEP_KINDS = [
   'setIgnoreGlobalTimeScale',
   'storeCurrentTimelineFrame',
   'storeEventSpGainAmount',
+  'storeEventHealValues',
+  'storeShieldValue',
   'modifyActionValue',
   'calculateActionValue',
   'storeSourceAttributeValue',
+  'storeEntityPropertyValue',
+  'setHealthFloor',
   'changeResource',
   'changeResourceByActionValue',
   'gainSquadUltimateEnergyFromSkillCost',

@@ -8,5 +8,5 @@ build
 *.log
 coverage
 package-lock.json
-src/next/data/operators/generated
-src/next/data/equipment/generated-weapons
+src/data/operators/generated
+src/data/equipment/generated-weapons

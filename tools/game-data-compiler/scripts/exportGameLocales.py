@@ -9,6 +9,10 @@ Typical usage:
     python3 tools/game-data-compiler/scripts/exportGameLocales.py
     python3 tools/game-data-compiler/scripts/exportGameLocales.py --refresh-cache
     python3 tools/game-data-compiler/scripts/exportGameLocales.py --output /tmp/game-locales
+
+The unified rebuild uses strict local mode with an explicit TableCfg root,
+candidate definition roots, operator manifest, and self-owned enum labels. That
+mode never accesses the network or merges a previous locale directory.
 """
 
 import argparse
@@ -41,6 +45,10 @@ GEAR_ICON_SUIT_RE = re.compile(r'icon:\s*[\'"]/equipment/([^/]+)/')
 GEAR_SET_SLUG_RE = re.compile(r'setSlug:\s*[\'"]([^\'"]+)[\'"]')
 WEAPON_ICON_ID_RE = re.compile(
     r'icon:\s*[\'"][^\'"]*/(wpn_[A-Za-z0-9]+_[0-9]+)\.[A-Za-z0-9]+[\'"]'
+)
+GENERATED_STRING_FIELD_RE = re.compile(
+    r'\b(?P<field>slug|assetSlug)\s*:\s*[\'\"](?P<value>[^\'\"]+)[\'\"]'
+    r'|[\'\"](?P<quoted_field>slug|assetSlug)[\'\"]\s*:\s*[\'\"](?P<quoted_value>[^\'\"]+)[\'\"]'
 )
 WEAPON_PREFIX_ALIASES = [
     ('wpn_claym_', 'wpn_greatsword_'),
@@ -716,9 +724,38 @@ def resolve_with_text_table(obj, text_table):
     return ''
 
 
+def export_enemies(table_dir, locale='CN'):
+    """Export native display names for selectable eny_* templates only."""
+    global TEXT_LOOKUP
+    TEXT_LOOKUP = load_text_table(table_dir, locale)
+    display_table = load_json(os.path.join(table_dir, 'EnemyTemplateDisplayInfoTable.json'))
+    if not isinstance(display_table, dict):
+        data_error('EnemyTemplateDisplayInfoTable', 'expected object')
+    result = {}
+    for game_id in sorted(display_table):
+        # tatget_* rows are training targets without EnemyTemplateData assets. They are not
+        # selectable enemy definitions and therefore do not share the enemy locale boundary.
+        if not game_id.startswith('eny_'):
+            continue
+        entry = display_table[game_id]
+        if not isinstance(entry, dict):
+            data_error(f'EnemyTemplateDisplayInfoTable {game_id}', 'expected object')
+        if entry.get('templateId') != game_id:
+            data_error(f'EnemyTemplateDisplayInfoTable {game_id}', 'templateId mismatch')
+        name = resolve_text(entry.get('name'))
+        if not name:
+            data_error(f'EnemyTemplateDisplayInfoTable {game_id}', 'missing localized name')
+        result[game_id] = {'name': name}
+    if not result:
+        data_error('EnemyTemplateDisplayInfoTable', 'no selectable eny_* templates')
+    return result
+
+
 # ─── Operator locale export ─────────────────────────────────────────────────
 
-def build_operator_slug(char_id, char_data, en_text, old_slugs=None):
+def build_operator_slug(char_id, char_data, en_text, old_slugs=None, char_slug_map=None):
+    if char_slug_map and char_id in char_slug_map:
+        return char_slug_map[char_id]
     en_name = resolve_with_text_table(char_data.get('name', ''), en_text)
     slug = re.sub(r'\s+', '-', en_name.lower()) if en_name else ''
     slug = re.sub(r'[^a-z0-9-]', '', slug).strip('-')
@@ -803,7 +840,7 @@ def build_skill_form_descriptions(skill_group, base_description, values, context
     return forms, form_labels
 
 
-def export_operators(table_dir, locale='CN', old_slugs=None):
+def export_operators(table_dir, locale='CN', old_slugs=None, char_slug_map=None):
     load_text_table(table_dir, locale)
 
     char_table = load_json(os.path.join(table_dir, 'CharacterTable.json'))
@@ -826,7 +863,7 @@ def export_operators(table_dir, locale='CN', old_slugs=None):
     ]
 
     for index, (char_id, char_data) in enumerate(char_items, start=1):
-        slug = build_operator_slug(char_id, char_data, en_text, old_slugs)
+        slug = build_operator_slug(char_id, char_data, en_text, old_slugs, char_slug_map)
         print(f'  [{locale}] operator {index}/{len(char_items)}: {slug}')
         name = resolve_text(char_data.get('name', '')) or slug
         growth = grow_table.get(char_id, {})
@@ -1087,6 +1124,96 @@ def build_existing_weapon_slug_map(repo_root, item_table=None):
         weapon_slug_map.setdefault(icon_id, slug)
 
     return weapon_slug_map
+
+
+def build_operator_slug_map_from_manifest(path):
+    manifest = load_json(os.path.abspath(path))
+    operators = manifest.get('operators') if isinstance(manifest, dict) else None
+    if not isinstance(operators, list):
+        data_error(f'operator manifest {path}', 'missing operators list')
+    result = {}
+    for index, entry in enumerate(operators):
+        context = f'operator manifest {path} operators[{index}]'
+        if not isinstance(entry, dict):
+            data_error(context, f'unexpected entry type: {type(entry).__name__}')
+        char_id = entry.get('charId')
+        slug = entry.get('slug')
+        if not isinstance(char_id, str) or not char_id or not isinstance(slug, str) or not slug:
+            data_error(context, 'expected non-empty charId and slug')
+        if char_id in result:
+            data_error(context, f'duplicate charId: {char_id}')
+        result[char_id] = slug
+    return result
+
+
+def read_generated_identity_fields(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        source = f.read()
+    fields = {}
+    for match in GENERATED_STRING_FIELD_RE.finditer(source):
+        field = match.group('field') or match.group('quoted_field')
+        value = match.group('value') or match.group('quoted_value')
+        fields.setdefault(field, value)
+        if 'slug' in fields and 'assetSlug' in fields:
+            break
+    return fields
+
+
+def build_weapon_slug_map_from_generated(root):
+    result = {}
+    for directory, _, files in os.walk(os.path.abspath(root)):
+        for filename in files:
+            if not filename.endswith('.generated.ts') or filename == 'index.generated.ts':
+                continue
+            path = os.path.join(directory, filename)
+            fields = read_generated_identity_fields(path)
+            slug = fields.get('slug')
+            asset_slug = fields.get('assetSlug') or slug
+            if not slug or not asset_slug:
+                data_error(f'generated weapon {path}', 'missing slug or assetSlug')
+            if slug in result and result[slug] != asset_slug:
+                data_error(f'generated weapon {path}', f'conflicting identity for {slug}')
+            result[slug] = asset_slug
+    if not result:
+        data_error(f'generated weapon root {root}', 'contains no weapon definitions')
+    return result
+
+
+def build_gear_slug_map_from_generated(root):
+    result = {}
+    for directory, _, files in os.walk(os.path.abspath(root)):
+        for filename in files:
+            if not filename.endswith('.generated.ts') or filename == 'index.generated.ts':
+                continue
+            path = os.path.join(directory, filename)
+            fields = read_generated_identity_fields(path)
+            slug = fields.get('slug')
+            if not slug:
+                data_error(f'generated gear {path}', 'missing slug')
+            if slug in result:
+                data_error(f'generated gear {path}', f'conflicting identity for {slug}')
+            # Localization follows the unique definition identity. assetSlug is a visual-resource
+            # identity and is intentionally non-unique for several native gear rows.
+            result[slug] = slug
+    if not result:
+        data_error(f'generated gear root {root}', 'contains no gear definitions')
+    return result
+
+
+def build_gear_set_slug_map_from_generated(root):
+    result = {}
+    for directory, _, files in os.walk(os.path.abspath(root)):
+        for filename in files:
+            if not filename.endswith('.generated.ts') or filename == 'index.generated.ts':
+                continue
+            path = os.path.join(directory, filename)
+            slug = read_generated_identity_fields(path).get('slug')
+            if not slug:
+                data_error(f'generated gear set {path}', 'missing slug')
+            result[slug] = slug
+    if not result:
+        data_error(f'generated gear set root {root}', 'contains no gear set definitions')
+    return result
 
 
 def slugify_gear_set_id(suit_id):
@@ -1435,12 +1562,57 @@ def export_gearsets(table_dir, locale='CN', suit_slug_map=None, old_data=None):
     return ordered
 
 
-def merge_old_order_and_subskills(operators, old_data):
-    """Keep existing operator order and manually maintained fields.
+def export_gearpieces(table_dir, locale, gear_slug_map, enum_terms):
+    """Export only localized presentation fields; numeric traits stay in GearDefinition."""
+    load_text_table(table_dir, locale)
+    item_table = load_json(os.path.join(table_dir, 'ItemTable.json'))
+    equip_table = load_json(os.path.join(table_dir, 'EquipTable.json'))
+    suit_table = load_json(os.path.join(table_dir, 'EquipSuitTable.json'))
+    slot_labels = enum_terms.get('slotType') if isinstance(enum_terms, dict) else None
+    if not isinstance(slot_labels, dict):
+        data_error(f'{locale} enum terms', 'missing slotType labels')
+    part_types = {0: 'armor', 1: 'gloves', 2: 'accessory'}
+    result = {}
+    for gear_id, asset_slug in sorted(gear_slug_map.items()):
+        context = f'{locale} gear piece {gear_id}'
+        item = item_table.get(gear_id)
+        equip = equip_table.get(gear_id)
+        if not isinstance(item, dict) or not isinstance(equip, dict):
+            data_error(context, 'missing ItemTable or EquipTable row')
+        name = resolve_text(item.get('name'))
+        if not name:
+            data_error(context, 'missing localized item name')
+        slot_key = part_types.get(equip.get('partType'))
+        if slot_key is None:
+            data_error(context, f'unexpected partType: {equip.get("partType")!r}')
+        suit_id = equip.get('suitID')
+        set_name = ''
+        if isinstance(suit_id, str) and suit_id:
+            suit = suit_table.get(suit_id)
+            entries = suit.get('list') if isinstance(suit, dict) else None
+            if isinstance(entries, list) and entries and isinstance(entries[0], dict):
+                set_name = resolve_text(entries[0].get('suitName'))
+        entry = {
+            'name': strip_rich_text_tags(name, f'{context} name'),
+            'slotType': slot_labels.get(slot_key) or slot_key,
+            'setName': strip_rich_text_tags(set_name, f'{context} set name') if set_name else '',
+        }
+        base = equip.get('displayBaseAttrModifier')
+        if isinstance(base, dict) and isinstance(base.get('attrValue'), (int, float)):
+            entry['defense'] = base['attrValue']
+        if asset_slug in result:
+            data_error(context, f'duplicate assetSlug: {asset_slug}')
+        result[asset_slug] = entry
+    return result
 
-    `subSkills` currently has no AKEDB exporter and is copied as-is. `forms`
-    is copied only as a fallback: generated form labels should win when AKEDB
-    provides them, otherwise stale old labels could mask updated game data.
+
+def merge_old_order_and_forms(operators, old_data):
+    """Keep existing operator order and form-label compatibility only.
+
+    Generic variant names such as enhanced basic/battle/combo skills belong to
+    the shared `skillType` messages, so `subSkills` is deliberately not copied
+    from an old operator locale. `forms` is copied only as a fallback: generated
+    form labels should win when AKEDB provides them.
     """
     if not old_data:
         return operators
@@ -1458,8 +1630,6 @@ def merge_old_order_and_subskills(operators, old_data):
         slug = slug_remap.get(old_slug, old_slug)
         if slug in operators:
             entry = operators[slug]
-            if 'subSkills' in old_data[slug]:
-                entry['subSkills'] = old_data[slug]['subSkills']
             if 'forms' in old_data[slug]:
                 old_forms = old_data[slug]['forms']
                 if not isinstance(old_forms, dict):
@@ -1516,6 +1686,30 @@ def parse_args(repo_root):
         '--version',
         default='latest',
         help='AKEDB manifest version id to export, or latest. Defaults to latest.',
+    )
+    parser.add_argument(
+        '--table-root',
+        help='Absolute local TableCfg-current directory. Disables manifest/table downloads.',
+    )
+    parser.add_argument(
+        '--operator-manifest',
+        help='Operator compiler manifest used as the charId -> slug authority in local mode.',
+    )
+    parser.add_argument(
+        '--weapon-definition-root',
+        help='Candidate generated-weapons directory used as the weapon -> assetSlug authority.',
+    )
+    parser.add_argument(
+        '--gear-set-definition-root',
+        help='Candidate generated-gear-sets directory used as the suit ID -> slug authority.',
+    )
+    parser.add_argument(
+        '--gear-definition-root',
+        help='Candidate generated gear directory used as the gear ID -> assetSlug authority.',
+    )
+    parser.add_argument(
+        '--enum-terms-root',
+        help='Directory containing explicit self-owned enum-terms.zh.json and enum-terms.en.json.',
     )
     parser.add_argument(
         '--no-cache',
@@ -1590,25 +1784,50 @@ def main():
         return
 
     output_base = os.path.abspath(args.output)
-    configure_remote(args.base_url, use_cache=not args.no_cache, refresh_cache=args.refresh_cache)
-
-    print('Loading AKEDB manifest')
-    manifest = fetch_remote_json('manifest.json', label='manifest.json', use_cache=False)
-    version = select_manifest_version(manifest, args.version)
-    table_dir = version['tableCfgPath']
-    print(
-        'Using AKEDB '
-        f'{version.get("id", args.version)} '
-        f'(game {version.get("gameVersion", "?")}, hotfix {version.get("hotfixVersion", "?")})'
-    )
-    print(f'TableCfg: {remote_url(table_dir)}')
+    local_mode = args.table_root is not None
+    if local_mode:
+        required = {
+            '--operator-manifest': args.operator_manifest,
+            '--weapon-definition-root': args.weapon_definition_root,
+            '--gear-set-definition-root': args.gear_set_definition_root,
+            '--gear-definition-root': args.gear_definition_root,
+            '--enum-terms-root': args.enum_terms_root,
+        }
+        missing = [flag for flag, value in required.items() if not value]
+        if missing:
+            raise ValueError(f'--table-root requires {", ".join(missing)}')
+        table_dir = os.path.abspath(args.table_root)
+        if not os.path.isdir(table_dir):
+            raise ValueError(f'--table-root is not a directory: {table_dir}')
+        char_slug_map = build_operator_slug_map_from_manifest(args.operator_manifest)
+        weapon_slug_map = build_weapon_slug_map_from_generated(args.weapon_definition_root)
+        gear_set_slug_map = build_gear_set_slug_map_from_generated(args.gear_set_definition_root)
+        gear_slug_map = build_gear_slug_map_from_generated(args.gear_definition_root)
+        print('Using fixed local candidate inputs; network and previous locale merge are disabled')
+        print(f'TableCfg: {table_dir}')
+    else:
+        configure_remote(args.base_url, use_cache=not args.no_cache, refresh_cache=args.refresh_cache)
+        print('Loading AKEDB manifest')
+        manifest = fetch_remote_json('manifest.json', label='manifest.json', use_cache=False)
+        version = select_manifest_version(manifest, args.version)
+        table_dir = version['tableCfgPath']
+        print(
+            'Using AKEDB '
+            f'{version.get("id", args.version)} '
+            f'(game {version.get("gameVersion", "?")}, hotfix {version.get("hotfixVersion", "?")})'
+        )
+        print(f'TableCfg: {remote_url(table_dir)}')
+        char_slug_map = None
+        gear_set_slug_map = build_existing_gear_set_slug_map(repo_root)
+        item_table = load_json(os.path.join(table_dir, 'ItemTable.json'))
+        weapon_slug_map = build_existing_weapon_slug_map(repo_root, item_table)
+        gear_slug_map = None
     print(f'Output: {output_base}')
-    print(f'Previous locale files: {default_output_base}')
-    gear_set_slug_map = build_existing_gear_set_slug_map(repo_root)
-    item_table = load_json(os.path.join(table_dir, 'ItemTable.json'))
-    weapon_slug_map = build_existing_weapon_slug_map(repo_root, item_table)
-    print(f'Gear set slug map: {len(gear_set_slug_map)} suit IDs from local gear pieces')
-    print(f'Weapon slug map: {len(weapon_slug_map)} weapon/icon IDs from local weapon sheets')
+    print(f'Previous locale merge: {"disabled" if local_mode else default_output_base}')
+    print(f'Gear set slug map: {len(gear_set_slug_map)} identities')
+    print(f'Weapon slug map: {len(weapon_slug_map)} identities')
+    if gear_slug_map is not None:
+        print(f'Gear slug map: {len(gear_slug_map)} identities')
 
     for locale, out_locale in LOCALE_EXPORTS:
         print(f'\nExporting {locale} -> {out_locale}')
@@ -1617,17 +1836,28 @@ def main():
 
         operators_file = os.path.join(locale_dir, 'operators.json')
         old_operators_file = os.path.join(default_output_base, out_locale, 'operators.json')
-        old_data = load_json(old_operators_file)
+        old_data = {} if local_mode else load_json(old_operators_file)
         old_slugs = set(old_data.keys()) if old_data else None
         weapons_file = os.path.join(locale_dir, 'weapons.json')
         old_weapons_file = os.path.join(default_output_base, out_locale, 'weapons.json')
-        old_weapons = load_json(old_weapons_file)
+        old_weapons = {} if local_mode else load_json(old_weapons_file)
         gearsets_file = os.path.join(locale_dir, 'gearsets.json')
+        enemies_file = os.path.join(locale_dir, 'enemies.json')
         old_gearsets_file = os.path.join(default_output_base, out_locale, 'gearsets.json')
-        old_gearsets = load_json(old_gearsets_file)
+        old_gearsets = {} if local_mode else load_json(old_gearsets_file)
+        enum_terms = (
+            load_json(os.path.join(os.path.abspath(args.enum_terms_root), f'enum-terms.{out_locale}.json'))
+            if local_mode
+            else load_json(os.path.join(default_output_base, out_locale, 'enum-terms.json'))
+        )
 
-        operators = export_operators(table_dir, locale=locale, old_slugs=old_slugs)
-        operators = merge_old_order_and_subskills(operators, old_data)
+        operators = export_operators(
+            table_dir,
+            locale=locale,
+            old_slugs=old_slugs,
+            char_slug_map=char_slug_map,
+        )
+        operators = merge_old_order_and_forms(operators, old_data)
         order_combat_skills(operators)
         battle_terms = export_battle_terms(table_dir, locale=locale)
         weapons = export_weapons(
@@ -1642,6 +1872,12 @@ def main():
             suit_slug_map=gear_set_slug_map,
             old_data=old_gearsets,
         )
+        gearpieces = (
+            export_gearpieces(table_dir, locale, gear_slug_map, enum_terms)
+            if local_mode
+            else load_json(os.path.join(default_output_base, out_locale, 'gearpieces.json'))
+        )
+        enemies = export_enemies(table_dir, locale=locale)
 
         with open(operators_file, 'w', encoding='utf-8') as f:
             json.dump(operators, f, ensure_ascii=False, indent=2)
@@ -1663,6 +1899,23 @@ def main():
             json.dump(gearsets, f, ensure_ascii=False, indent=2)
             f.write('\n')
         print(f'  [write] {gearsets_file} ({len(gearsets)} gear sets)')
+
+        gearpieces_file = os.path.join(locale_dir, 'gearpieces.json')
+        with open(gearpieces_file, 'w', encoding='utf-8') as f:
+            json.dump(gearpieces, f, ensure_ascii=False, indent=2)
+            f.write('\n')
+        print(f'  [write] {gearpieces_file} ({len(gearpieces)} gear pieces)')
+
+        with open(enemies_file, 'w', encoding='utf-8') as f:
+            json.dump(enemies, f, ensure_ascii=False, indent=2)
+            f.write('\n')
+        print(f'  [write] {enemies_file} ({len(enemies)} enemies)')
+
+        enum_terms_file = os.path.join(locale_dir, 'enum-terms.json')
+        with open(enum_terms_file, 'w', encoding='utf-8') as f:
+            json.dump(enum_terms, f, ensure_ascii=False, indent=2)
+            f.write('\n')
+        print(f'  [write] {enum_terms_file} ({len(enum_terms)} term groups)')
 
     if args.icon_source_manifest:
         write_icon_source_manifest(args.icon_source_manifest)

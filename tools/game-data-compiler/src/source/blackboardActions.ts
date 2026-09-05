@@ -2,8 +2,24 @@ import {
   requireBoolean,
   requireExactFields,
   requireNonEmptyString,
+  requireNativeEnum,
   requireRecord,
 } from './primitives.ts';
+
+// combat-spec/docs/compound-status-action-contracts.md：OperationType 元数据常量。
+const BLACKBOARD_OPERATIONS = new Map([
+  [0, 'Assign'],
+  [1, 'Add'],
+  [2, 'Multiply'],
+  [3, 'Divide'],
+  [4, 'Floor'],
+  [5, 'Ceil'],
+  [6, 'RoundToInt'],
+] as const);
+
+function readBlackboardOperation(value: unknown, path: string): string {
+  return requireNativeEnum(value, BLACKBOARD_OPERATIONS, path);
+}
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { ATTRIBUTE_TYPES, type AttributeTypeSource } from './attributeModifiers.ts';
@@ -60,6 +76,57 @@ export interface AttributeSnapshotActionSource {
   readonly multiplier: ScalarSource;
   readonly baseValue: ScalarSource;
   readonly outputKey: string;
+}
+
+export interface EntityPropertySnapshotActionSource {
+  readonly kind: 'entityPropertySnapshot';
+  readonly target: TargetReferenceSource;
+  readonly property: 'CurHp' | 'CurPoise';
+  readonly useFloor: boolean;
+  readonly divisor: ScalarSource;
+  readonly multiplier: ScalarSource;
+  readonly baseValue: ScalarSource;
+  readonly outputKey: string;
+}
+
+/** 严格读取 StoreEntityProperty；属性枚举及公式字段来自 combat-spec 的原生适配证据。 */
+export function parseEntityPropertySnapshotActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): EntityPropertySnapshotActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      ...ACTION_META_FIELDS,
+      'targetSettings',
+      'propertyType',
+      'useFloor',
+      'divisorValue',
+      'multiplierValue',
+      'baseValue',
+      'key',
+    ]),
+    path,
+  );
+  return {
+    kind: 'entityPropertySnapshot',
+    target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
+    property: requireKnownString(action.propertyType, `${path}.propertyType`, [
+      'CurHp',
+      'CurPoise',
+    ]),
+    useFloor: requireBoolean(action.useFloor, `${path}.useFloor`),
+    divisor: parseScalarSource(action.divisorValue, `${path}.divisorValue`, inheritedBlackboard),
+    multiplier: parseScalarSource(
+      action.multiplierValue,
+      `${path}.multiplierValue`,
+      inheritedBlackboard,
+    ),
+    baseValue: parseScalarSource(action.baseValue, `${path}.baseValue`, inheritedBlackboard),
+    outputKey: requireNonEmptyString(action.key, `${path}.key`),
+  };
 }
 
 /** 只保存随机写入的原生配置；上下界包含性和随机算法留给有运行时证据的投影层。 */
@@ -191,7 +258,7 @@ export function parseBlackboardMutationActionSource(
   return {
     kind: 'blackboardMutation',
     key: requireNonEmptyString(action.key, `${path}.key`),
-    operation: requireNonEmptyString(action.operation, `${path}.operation`),
+    operation: readBlackboardOperation(action.operation, `${path}.operation`),
     value: parseScalarSource(action.value, `${path}.value`, inheritedBlackboard),
     directValue: requireBoolean(action.directValue, `${path}.directValue`),
     calculationTarget: parseTargetReferenceSource(
@@ -211,7 +278,7 @@ export function parseBlackboardCalculationPayloadSource(
   const action = requireRecord(value, path);
   return {
     key: requireNonEmptyString(action.key, `${path}.key`),
-    operation: requireNonEmptyString(action.operation, `${path}.operation`),
+    operation: readBlackboardOperation(action.operation, `${path}.operation`),
     left: parseScalarSource(action.value1, `${path}.value1`, inheritedBlackboard),
     right: parseScalarSource(action.value2, `${path}.value2`, inheritedBlackboard),
     addend: null,
@@ -233,7 +300,7 @@ export function parseBlackboardMutationPayloadSource(
   }
   return {
     key: requireNonEmptyString(action.key, `${path}.key`),
-    operation: requireNonEmptyString(action.operation, `${path}.operation`),
+    operation: readBlackboardOperation(action.operation, `${path}.operation`),
     value: parseScalarSource(action.value, `${path}.value`, inheritedBlackboard),
   };
 }

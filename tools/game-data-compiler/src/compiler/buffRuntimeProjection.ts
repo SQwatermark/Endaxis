@@ -64,6 +64,12 @@ import {
   canOmitUnusedCompiledCondition,
 } from './combatConditionProjection.ts';
 import { assertPresentationCalculationIsolation } from './presentationCalculationIsolation.ts';
+import {
+  compareKnownNumbers,
+  isStaticControlledOperatorWrite,
+  isStaticZeroSpacePointWrite,
+  propagateGuaranteedSingletonZeroSpaceFacts,
+} from './targetGroupCardinalityAnalysis.ts';
 
 export { collectBuffRuntimeClosure } from './buffReferenceClosure.ts';
 // 兼容已有公共入口；类型的唯一声明不再夹在投影实现中。
@@ -119,6 +125,8 @@ const BUFF_IGNITE_CONTEXT: CombatActionProjectionContextSource = {
   actionSourceTarget: 'caster',
   actionTargetTarget: 'caster',
 };
+
+type BuffProjectionTargetGroup = ProjectedTargetGroup | 'guaranteedSingletonZeroSpace';
 
 type CompiledBuffAbilityEvent = NonNullable<
   CompiledBuffDefinitionSource['abilityEventResponses']
@@ -267,6 +275,81 @@ export function compileBuffRuntimeDefinitionSource(
       singleEnemyTargetGroupKeys.add(key);
     }
   }
+  // “恒为敌人”与“恒为一个零空间目标”是两项不同事实。技能型 Buff 的目标组可能
+  // 在主控/非主控分支分别写入唯一敌人和 FixedPoint；它不能冒充敌人身份，但两条
+  // 路径都严格产生一个目标，后续数量守卫和 ForEach 仍应保持原生的零次/一次语义。
+  const atMostOneZeroSpaceTargetGroupKeys = new Set([
+    ...(contextOverrides.atMostOneZeroSpaceTargetGroupKeys ?? []),
+    ...singleEnemyTargetGroupKeys,
+    ...[...targetGroupWritesByKey]
+      .filter(
+        ([, writes]) =>
+          writes.length > 0 &&
+          writes.every(
+            write =>
+              isStaticSingleEnemyTargetGroup(write) ||
+              isStaticZeroSpacePointWrite(write) ||
+              isStaticControlledOperatorWrite(write),
+          ),
+      )
+      .map(([key]) => key),
+  ]);
+  const guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline = source.graph.timelineActions.map(
+    () => new Set<string>(),
+  );
+  let guaranteedSingletonZeroSpaceTargetGroupKeys = new Set(
+    contextOverrides.guaranteedSingletonZeroSpaceTargetGroupKeys ?? [],
+  );
+  const orderedTimelineIndexes = source.graph.timelineActions
+    .map((timeline, timelineIndex) => ({ timeline, timelineIndex }))
+    .sort(
+      (left, right) =>
+        left.timeline.startFrame - right.timeline.startFrame ||
+        left.timelineIndex - right.timelineIndex,
+    );
+  for (const { timeline, timelineIndex } of orderedTimelineIndexes) {
+    guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline[timelineIndex] = new Set(
+      guaranteedSingletonZeroSpaceTargetGroupKeys,
+    );
+    if (timeline.sequence.onlyExecuteWhenSourceIsGuard) continue;
+    const sequence = timeline.sequence.onlyExecuteWhenSourceIsMainCharacter
+      ? { ...timeline.sequence, onlyExecuteWhenSourceIsMainCharacter: false }
+      : timeline.sequence;
+    guaranteedSingletonZeroSpaceTargetGroupKeys = propagateGuaranteedSingletonZeroSpaceFacts(
+      sequence,
+      guaranteedSingletonZeroSpaceTargetGroupKeys,
+      {
+        atMostOneZeroSpaceKeys: atMostOneZeroSpaceTargetGroupKeys,
+        compareKnownNumbers,
+        writeProducesSingleton: (write, state) => {
+          if (
+            isStaticSingleEnemyTargetGroup(write) ||
+            isStaticZeroSpacePointWrite(write) ||
+            isStaticControlledOperatorWrite(write)
+          ) {
+            return true;
+          }
+          const input = write.inputTargets[0];
+          return (
+            write.producerType === 'PickTargetAction' &&
+            write.inputTargets.length === 1 &&
+            input?.targetSource === 'Context' &&
+            state.has(input.targetGroupKey) &&
+            input.finderType === null &&
+            input.validatorTypes.length === 0 &&
+            input.postProcessorTypes.length === 0 &&
+            input.priorityFilters.length === 0 &&
+            input.shuffleTargets.length === 0 &&
+            input.distanceValidators.length === 0 &&
+            input.finderSpawnedObjectType === null &&
+            input.validatorTagQueries.length === 0 &&
+            write.pickIndexBlackboardKey === null &&
+            write.pickIndexValue === 0
+          );
+        },
+      },
+    );
+  }
   const combatInvisibleRandomBlackboardKeys = collectBuffPresentationRandomKeys(allSequences);
   const combatInvisiblePresentationBlackboardKeys =
     collectCombatInvisiblePresentationAssignmentKeys(allSequences);
@@ -321,6 +404,7 @@ export function compileBuffRuntimeDefinitionSource(
     ...(staticEnemyTargetGroupKeys.size === 0 ? {} : { staticEnemyTargetGroupKeys }),
     ...(staticEmptyTargetGroupKeys.size === 0 ? {} : { staticEmptyTargetGroupKeys }),
     ...(singleEnemyTargetGroupKeys.size === 0 ? {} : { singleEnemyTargetGroupKeys }),
+    ...(atMostOneZeroSpaceTargetGroupKeys.size === 0 ? {} : { atMostOneZeroSpaceTargetGroupKeys }),
     ...(staticAbilityEntityTargetGroupKeys.size === 0
       ? {}
       : { staticAbilityEntityTargetGroupKeys }),
@@ -331,7 +415,7 @@ export function compileBuffRuntimeDefinitionSource(
       ? {}
       : { combatInvisiblePresentationBlackboardKeys }),
   };
-  const scheduledSequences = source.graph.timelineActions.flatMap(timeline => {
+  const scheduledSequences = source.graph.timelineActions.flatMap((timeline, timelineIndex) => {
     const animationEndNodes: NativeActionNodeSource<KnownNativeActionLeafSource>[] = [];
     let animationEndFrame: number | null = null;
     const timelineActions = timeline.sequence.actions.map(node => {
@@ -382,6 +466,8 @@ export function compileBuffRuntimeDefinitionSource(
       ...BUFF_LIFECYCLE_CONTEXT,
       abilityEntityQueries,
       ...projectionContextOverrides,
+      guaranteedSingletonZeroSpaceTargetGroupKeys:
+        guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline[timelineIndex],
       timelineRange: { startFrame: timeline.startFrame, endFrame: timeline.endFrame },
     };
     const sequence = compileLinearSequence(
@@ -813,11 +899,6 @@ export function compileBuffRuntimeDefinitionSource(
     ),
     blackboard,
     attributeModifiers: source.attributeModifiers.modifiers.flatMap((modifier, index) => {
-      if (modifier.modifyAttributeType !== 'Specific') {
-        throw new Error(
-          `attributeModifiers[${index}]: unsupported target ${modifier.modifyAttributeType}`,
-        );
-      }
       const compiled = compileResolvedAttributeModifierSource({
         sourcePath: `BuffData.${source.graph.buffId}.attributeModifier.attributeModifiers[${index}]`,
         modifyAttributeType: modifier.modifyAttributeType,
@@ -825,10 +906,22 @@ export function compileBuffRuntimeDefinitionSource(
         formulaItem: modifier.formulaItem,
         value: 0,
       });
-      if (!isCombatRuntimeAttributeRelevant(modifier.attributeType)) return [];
+      if (
+        modifier.modifyAttributeType === 'Specific' &&
+        !isCombatRuntimeAttributeRelevant(modifier.attributeType)
+      )
+        return [];
+      const attribute =
+        modifier.modifyAttributeType === 'Specific'
+          ? projectCombatRuntimeAttributeKey(modifier.attributeType)
+          : modifier.modifyAttributeType === 'Main'
+            ? ({ kind: 'main' } as const)
+            : modifier.modifyAttributeType === 'Sub'
+              ? ({ kind: 'secondary' } as const)
+              : ({ kind: 'all' } as const);
       return [
         {
-          attribute: projectCombatRuntimeAttributeKey(modifier.attributeType),
+          attribute,
           slot: compiled.slot,
           value: scalarOperand(modifier.parameter),
         },
@@ -936,20 +1029,25 @@ function compileBuffDamageModifiers(
     // 原生先执行条件再遍历处理器。只有公共序列已证明无副作用，空列表才可省略。
     if (modifier.processors.length === 0 && conditionSource.conditionProgram === undefined)
       return [];
-    const processors = modifier.processors.map((processor, processorIndex) => {
+    const processors = modifier.processors.flatMap<
+      CompiledBuffDamageModifierSource['processors'][number]
+    >((processor, processorIndex) => {
       const processorPath = `damageModifier[${index}].damageProcessors[${processorIndex}]`;
+      if (processor.kind === 'damageTextPresentation') return [];
       if (processor.kind === 'damageScale') {
         const side = DAMAGE_MODIFIER_SIDES[processor.side];
         const zone = DAMAGE_SCALE_ZONES[processor.zoneName];
         if (side === undefined || zone === undefined) {
           throw new Error(`${processorPath}: unsupported side/zone`);
         }
-        return {
-          kind: 'damageScale' as const,
-          side,
-          zone,
-          addition: scalarOperand(processor.addition),
-        };
+        return [
+          {
+            kind: 'damageScale' as const,
+            side,
+            zone,
+            addition: scalarOperand(processor.addition),
+          },
+        ];
       }
       const targetSide = DAMAGE_MODIFIER_SIDES[processor.targetSide];
       if (targetSide === undefined || processor.modifyAttributeType !== 'Specific') {
@@ -962,14 +1060,17 @@ function compileBuffDamageModifiers(
         formulaItem: processor.formulaItem,
         value: 0,
       });
-      return {
-        kind: 'instantAttribute' as const,
-        targetSide,
-        attribute: projectCombatRuntimeAttributeKey(processor.attributeType),
-        values: { slot: compiled.slot, value: scalarOperand(processor.parameter) },
-        attributeTiming: 'runtime' as const,
-      };
+      return [
+        {
+          kind: 'instantAttribute' as const,
+          targetSide,
+          attribute: projectCombatRuntimeAttributeKey(processor.attributeType),
+          values: { slot: compiled.slot, value: scalarOperand(processor.parameter) },
+          attributeTiming: 'runtime' as const,
+        },
+      ];
     });
+    if (processors.length === 0 && conditionSource.conditionProgram === undefined) return [];
     return [{ enabledSide, ...conditionSource, processors }];
   });
   return modifiers.length === 0 ? {} : { damageModifiers: modifiers };
@@ -1292,7 +1393,11 @@ function assertSynchronousDamageModifierConditionProgram(
         );
       continue;
     }
-    if (step.kind !== 'modifyActionValue' && step.kind !== 'calculateActionValue')
+    if (
+      step.kind !== 'modifyActionValue' &&
+      step.kind !== 'calculateActionValue' &&
+      step.kind !== 'readBuffStackCount'
+    )
       throw originalError;
   }
 }
@@ -1446,26 +1551,51 @@ function createBuffSequenceProjection(
   KnownNativeActionLeafSource,
   CompiledBuffConditionSource,
   CompiledBuffStepSource,
-  ReadonlyMap<string, ProjectedTargetGroup>
+  ReadonlyMap<string, BuffProjectionTargetGroup>
 > {
+  const runtimeTargetGroups = (
+    targetGroups: ReadonlyMap<string, BuffProjectionTargetGroup>,
+  ): ReadonlyMap<string, ProjectedTargetGroup> => {
+    const result = new Map<string, ProjectedTargetGroup>();
+    for (const [key, value] of targetGroups) {
+      if (value !== 'guaranteedSingletonZeroSpace') result.set(key, value);
+    }
+    return result;
+  };
   const compileLeaf = (
     node: NativeActionNodeSource<KnownNativeActionLeafSource>,
-    partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
-  ) =>
-    node.body.kind === 'leaf' &&
-    node.body.value.family === 'eventListener' &&
-    node.body.value.action.events.some(
-      event =>
-        event.abilityEvent === 'OnAddedBuff' ||
-        event.abilityEvent === 'OnOutputBuff' ||
-        event.abilityEvent === 'OnBeforeTakeDamage' ||
-        event.abilityEvent === 'OnSkillEnd',
-    )
-      ? compileEventListenerNode(node, visualOnlyIds, partyTargetGroups, context, extensions)
-      : compileBuffLeafNode(node, visualOnlyIds, partyTargetGroups, context, extensions);
+    partyTargetGroups: ReadonlyMap<string, BuffProjectionTargetGroup>,
+  ) => {
+    const visibleTargetGroups = runtimeTargetGroups(partyTargetGroups);
+    const compiled =
+      node.body.kind === 'leaf' &&
+      node.body.value.family === 'eventListener' &&
+      node.body.value.action.events.some(
+        event =>
+          event.abilityEvent === 'OnAddedBuff' ||
+          event.abilityEvent === 'OnOutputBuff' ||
+          event.abilityEvent === 'OnBeforeTakeDamage' ||
+          event.abilityEvent === 'OnSkillEnd',
+      )
+        ? compileEventListenerNode(node, visualOnlyIds, visibleTargetGroups, context, extensions)
+        : compileBuffLeafNode(node, visualOnlyIds, visibleTargetGroups, context, extensions);
+    const refinedEntries = [...partyTargetGroups].filter(
+      ([, value]) => value === 'guaranteedSingletonZeroSpace',
+    );
+    if (refinedEntries.length === 0) return compiled;
+    const overwrittenKey =
+      node.body.kind === 'leaf' && node.body.value.family === 'targetGroup'
+        ? node.body.value.action.targetGroupKey
+        : null;
+    const nextState = new Map<string, BuffProjectionTargetGroup>(compiled.state);
+    for (const [key, value] of refinedEntries) {
+      if (key !== overwrittenKey && !nextState.has(key)) nextState.set(key, value);
+    }
+    return { ...compiled, state: nextState };
+  };
   return {
     initialState: () =>
-      new Map<string, ProjectedTargetGroup>([
+      new Map<string, BuffProjectionTargetGroup>([
         ...[...(context.staticAbilityEntityTargetGroupKeys ?? [])].map(
           key => [key, 'abilityEntity'] as const,
         ),
@@ -1473,7 +1603,8 @@ function createBuffSequenceProjection(
           key => [key, 'spatialPoint'] as const,
         ),
       ]),
-    compileCondition: (node, targetGroups) => compileEventCondition(node, context, targetGroups),
+    compileCondition: (node, targetGroups) =>
+      compileEventCondition(node, context, runtimeTargetGroups(targetGroups)),
     compileConditionSequence: (sequence, targetGroups) => {
       const nodes = sequence.actions.filter(node => node.metadata.enabled);
       if (nodes.length !== 2) return null;
@@ -1483,7 +1614,11 @@ function createBuffSequenceProjection(
       }
       const read = compileLeaf(readNode, targetGroups);
       if (read.steps.length !== 1 || read.steps[0]?.kind !== 'readBuffBlackboard') return null;
-      const compare = compileEventCondition(compareNode!, context, targetGroups);
+      const compare = compileEventCondition(
+        compareNode!,
+        context,
+        runtimeTargetGroups(targetGroups),
+      );
       if (
         compare?.kind !== 'actionValueCompare' ||
         compare.left.kind !== 'blackboard' ||
@@ -1525,6 +1660,34 @@ function createBuffSequenceProjection(
       }
       // 子树已消去后才检查持有动作；不能因原始回调非空就拒绝或让其无条件执行。
       return compileLeaf({ ...node, body: { kind: 'leaf', value: node.body.value } }, state);
+    },
+    refineIfElseBranchState: (node, state, branch) => {
+      if (branch !== 'whenTrue') return state;
+      const conditions = node.body.condition.actions.filter(child => child.metadata.enabled);
+      const condition = conditions[0];
+      if (
+        conditions.length !== 1 ||
+        condition?.body.kind !== 'leaf' ||
+        condition.body.value.family !== 'condition' ||
+        condition.body.value.action.kind !== 'entityCount'
+      ) {
+        return state;
+      }
+      const count = condition.body.value.action;
+      if (
+        count.targetSource !== 'Context' ||
+        context.atMostOneZeroSpaceTargetGroupKeys?.has(count.targetGroupKey) !== true ||
+        count.containsHittableTarget ||
+        count.excludeDeadEntity ||
+        count.storeKey !== '' ||
+        compareKnownNumbers(1, count.comparison, count.minimumCount) !== true ||
+        compareKnownNumbers(0, count.comparison, count.minimumCount) !== false
+      ) {
+        return state;
+      }
+      const refined = new Map(state);
+      refined.set(count.targetGroupKey, 'guaranteedSingletonZeroSpace');
+      return refined;
     },
     compilePhysicsCast: (node, state) =>
       context.combatInvisiblePhysicsCastPaths?.has(node.sourcePath) === true
@@ -1775,7 +1938,11 @@ function createBuffSequenceProjection(
         };
       }
       const jump = projectTimelineJump(nodes[0]!, context, node => {
-        const condition = compileEventCondition(node, context, partyTargetGroups);
+        const condition = compileEventCondition(
+          node,
+          context,
+          runtimeTargetGroups(partyTargetGroups),
+        );
         return condition !== null && !conditionWritesBlackboard(condition) ? condition : null;
       });
       if (jump !== null) {
@@ -1785,14 +1952,14 @@ function createBuffSequenceProjection(
         compileBuffOwnerCharacterTypeGate(
           nodes,
           visualOnlyIds,
-          partyTargetGroups,
+          runtimeTargetGroups(partyTargetGroups),
           context,
           extensions,
         ) ??
         compileDifferentCharacterTypePartyLoop(
           nodes,
           visualOnlyIds,
-          partyTargetGroups,
+          runtimeTargetGroups(partyTargetGroups),
           context,
           extensions,
         )
@@ -1904,9 +2071,11 @@ function createBuffSequenceProjection(
       }
       if (
         node.body.target.targetSource === 'Context' &&
-        context.guaranteedSingletonZeroSpaceTargetGroupKeys?.has(
+        (context.guaranteedSingletonZeroSpaceTargetGroupKeys?.has(
           node.body.target.targetGroupKey,
-        ) === true &&
+        ) === true ||
+          partyTargetGroups.get(node.body.target.targetGroupKey) ===
+            'guaranteedSingletonZeroSpace') &&
         node.body.target.finderType === null &&
         node.body.target.validatorTypes.length === 0 &&
         node.body.target.postProcessorTypes.length === 0 &&
@@ -1987,8 +2156,13 @@ function createBuffSequenceProjection(
       return {
         steps: bodyNodes.flatMap(
           child =>
-            compileBuffLeafNode(child, visualOnlyIds, partyTargetGroups, loopContext, extensions)
-              .steps,
+            compileBuffLeafNode(
+              child,
+              visualOnlyIds,
+              runtimeTargetGroups(partyTargetGroups),
+              loopContext,
+              extensions,
+            ).steps,
         ),
         state: partyTargetGroups,
       };
@@ -2157,7 +2331,7 @@ function createBuffSequenceProjection(
       if (isAbsentInterruptHenshinExitSuppressionCheck(node, context)) return true;
       const conditions = node.body.condition.actions.filter(child => child.metadata.enabled);
       if (conditions.length !== 1) return undefined;
-      const projected = compileEventCondition(conditions[0]!, context, state);
+      const projected = compileEventCondition(conditions[0]!, context, runtimeTargetGroups(state));
       if (projected?.kind === 'constant') return projected.value;
       if (projected?.kind === 'all' && projected.conditions.length === 0) return true;
       if (projected?.kind === 'any' && projected.conditions.length === 0) return false;
@@ -2891,6 +3065,27 @@ export function collectBuffRuntimeLevelEventActionPaths(
         node.metadata.enabled &&
         node.body.kind === 'leaf' &&
         node.body.value.family === 'levelEvent',
+    )
+    .map(node => node.sourcePath);
+}
+
+/** 严格解析后、仅在固定木桩强制排轴模型中省略的干员自施加异常路径。 */
+export function collectBuffRuntimeCharacterStatusActionPaths(
+  source: BuffRuntimeSource,
+): readonly string[] {
+  const sequences = [
+    ...source.graph.timelineActions.map(item => item.sequence),
+    ...source.graph.buffEvents.flatMap(item => item.actions),
+    ...source.graph.abilityEvents.flatMap(item => item.actions),
+    ...source.graph.igniteEvents.flatMap(item => item.actions),
+  ];
+  return sequences
+    .flatMap(sequence => collectNativeActionNodes(sequence))
+    .filter(
+      node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'characterSpellInfliction',
     )
     .map(node => node.sourcePath);
 }

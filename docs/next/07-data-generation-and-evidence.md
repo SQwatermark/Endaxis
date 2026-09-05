@@ -40,7 +40,7 @@ flowchart LR
 - `scripts/auditOperatorActiveSkillMigration.ts`：全干员主动技能覆盖审计。
 
 干员 manifest 位于 `tools/game-data-compiler/config/operators.json`，正式定义位于
-`src/next/data/operators/generated-definitions`。来源和机器审计写入被 Git 忽略的 `tmp/`；根
+`src/data/operators/generated-definitions`。来源和机器审计写入被 Git 忽略的 `tmp/`；根
 `scripts/` 已清空，旧 Python 生成器与迁移期审计仅从 Git 历史追溯。
 
 ## 4. 严格模式与宽松模式
@@ -75,13 +75,13 @@ Curated 不是自由手写规则的许可，而是可审计的证据补丁。
 
 ## 7. 武器、装备和敌人
 
-武器和装备的静态/事件贡献定义见 `core/game-data/equipmentDefinition.ts`，当前共享数据通过 `data/equipment/adaptSharedEquipment.ts` 适配。长期目标仍是由明确源数据和独立生成配置产生 Next 定义。
+武器和装备的静态/事件贡献定义见 `core/game-data/equipmentDefinition.ts`。当前正式定义由游戏数据编译器从同批来源生成，并以 Next 适配层接入；项目自有配置只能保存来源无法唯一推出且有明确证据边界的语义。
 
-敌人当前通过 `data/adapters/legacyEnemyCatalogAdapter.ts` 过渡接入。适配器只是隔离旧形状，不代表旧数据自动成为可信证据；处决倍率、失衡和其他关键值仍需源数据验证。
+敌人正式定义也已进入同一 TS 生产链：等级数值来自当前表，rank 来自同批 VFS Unity worker 导出的 `EnemyTemplateData`，并通过候选类型、资源和发布门禁。韧性节点时长等仍无唯一原始字段的值必须继续标注为项目兼容常量，不能因已自动生成就宣称全部语义已有原生证据。
 
 ## 8. Buff 和元素目录
 
-`src/next/data/buffs` 中的 JSON 带战斗版本号。加载器执行严格 schema 校验，再编译为运行时定义。目录变化必须更新 revision 和测试，不能让新旧战斗数据混用。
+`src/data/buffs` 中的 JSON 带战斗版本号。加载器执行严格 schema 校验，再编译为运行时定义。目录变化必须更新 revision 和测试，不能让新旧战斗数据混用。
 
 ## 9. 测试层次
 

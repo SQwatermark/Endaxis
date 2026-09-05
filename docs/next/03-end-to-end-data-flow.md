@@ -4,9 +4,9 @@
 
 ## 1. 页面启动和目录加载
 
-路由 `/next/timeline` 加载 `src/next/ui/timeline/NextTimelineEditor.vue`。路由元数据声明需要的游戏文本族，`src/router/index.ts` 在进入页面前按需加载干员、武器、装备和术语文本。
+路由 `/timeline` 加载 `src/ui/timeline/TimelineEditor.vue`。路由元数据声明需要的游戏文本族，`src/router/index.ts` 在进入页面前按需加载干员、武器、装备和术语文本。
 
-页面使用 `src/next/data/gameDataCatalog.ts` 提供的 `nextGameDataRepository`。该对象同时实现：
+页面使用 `src/data/gameDataCatalog.ts` 提供的 `gameDataRepository`。该对象同时实现：
 
 - `GameDataRepository`：供编译器按稳定 ID 查询；
 - `GameDataBrowser`：供 UI 枚举选择项。

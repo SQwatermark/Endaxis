@@ -69,6 +69,18 @@ export interface EquipmentAttributeModifierSource extends AttributeModifierIdent
   readonly nativeModifierType: number;
 }
 
+export interface EquipmentDisplayAttributeModifierSource extends AttributeModifierIdentitySource {
+  readonly sourcePath: string;
+  /** UI 中的词条顺序，不是精锻档位所绑定的模拟 attrIndex。 */
+  readonly displayIndex: number;
+  /** 与 equipAttrModifiers.attrIndex 对应的真实精锻身份。 */
+  readonly enhancedAttributeIndex: number;
+  readonly compositeAttribute: string;
+  readonly attributeValues: readonly number[];
+  readonly nativeAttributeType: number;
+  readonly nativeModifierType: number;
+}
+
 export interface EquipmentItemSource {
   readonly sourcePath: string;
   readonly equipmentId: string;
@@ -79,6 +91,7 @@ export interface EquipmentItemSource {
   readonly partType: EquipmentPartTypeSource;
   readonly nativePartType: number;
   readonly attributeModifiers: readonly EquipmentAttributeModifierSource[];
+  readonly displayAttributeModifiers: readonly EquipmentDisplayAttributeModifierSource[];
 }
 
 export interface ResolvedEquipmentAttributeModifierSource extends ResolvedAttributeModifierSource {
@@ -117,10 +130,21 @@ export function parseEquipmentItemSources(
       `${sourcePath}.displayBaseAttrModifier`,
       true,
     );
-    requireArray(row.displayAttrModifiers, `${sourcePath}.displayAttrModifiers`).forEach(
-      (modifier, index) =>
-        parseDisplayModifier(modifier, `${sourcePath}.displayAttrModifiers[${index}]`, false),
-    );
+    const displayAttributeModifiers = requireArray(
+      row.displayAttrModifiers,
+      `${sourcePath}.displayAttrModifiers`,
+    ).map((modifier, index) => {
+      const parsed = parseDisplayModifier(
+        modifier,
+        `${sourcePath}.displayAttrModifiers[${index}]`,
+        false,
+      );
+      if (parsed === null) throw new Error('non-empty display modifier unexpectedly parsed empty');
+      return parsed;
+    });
+    if (displayAttributeModifiers.length === 0) {
+      throw new Error(`${sourcePath}.displayAttrModifiers: expected at least one display modifier`);
+    }
 
     const modifiers = requireArray(row.equipAttrModifiers, `${sourcePath}.equipAttrModifiers`).map(
       (rawModifier, index) =>
@@ -148,6 +172,7 @@ export function parseEquipmentItemSources(
       partType,
       nativePartType,
       attributeModifiers: modifiers,
+      displayAttributeModifiers,
     };
   });
 }
@@ -221,18 +246,40 @@ function parseEquipmentAttributeModifier(
   };
 }
 
-function parseDisplayModifier(value: unknown, path: string, allowEmpty: boolean): void {
+function parseDisplayModifier(
+  value: unknown,
+  path: string,
+  allowEmpty: boolean,
+): EquipmentDisplayAttributeModifierSource | null {
   const modifier = requireRecord(value, path);
-  if (allowEmpty && Object.keys(modifier).length === 0) return;
+  if (allowEmpty && Object.keys(modifier).length === 0) return null;
   requireExactFields(modifier, DISPLAY_MODIFIER_FIELDS, path);
-  requireNonNegativeInteger(modifier.attrIndex, `${path}.attrIndex`);
-  requireNonNegativeInteger(modifier.attrType, `${path}.attrType`);
-  requireNumber(modifier.attrValue, `${path}.attrValue`);
-  requireString(modifier.compositeAttr, `${path}.compositeAttr`);
-  requireString(modifier.enhanceGuaranteeTimesRuleId, `${path}.enhanceGuaranteeTimesRuleId`);
-  requireNonNegativeInteger(modifier.enhancedAttrIndex, `${path}.enhancedAttrIndex`);
-  requireArray(modifier.enhancedAttrValues, `${path}.enhancedAttrValues`).forEach((item, index) =>
-    requireNumber(item, `${path}.enhancedAttrValues[${index}]`),
+  const nativeAttributeType = requireNonNegativeInteger(modifier.attrType, `${path}.attrType`);
+  const nativeModifierType = requireNonNegativeInteger(
+    modifier.modifierType,
+    `${path}.modifierType`,
   );
-  requireNonNegativeInteger(modifier.modifierType, `${path}.modifierType`);
+  const baseValue = requireNumber(modifier.attrValue, `${path}.attrValue`);
+  const enhancedValues = requireArray(
+    modifier.enhancedAttrValues,
+    `${path}.enhancedAttrValues`,
+  ).map((item, index) => requireNumber(item, `${path}.enhancedAttrValues[${index}]`));
+  requireString(modifier.enhanceGuaranteeTimesRuleId, `${path}.enhanceGuaranteeTimesRuleId`);
+  const compositeAttribute = requireString(modifier.compositeAttr, `${path}.compositeAttr`);
+  return {
+    sourcePath: path,
+    displayIndex: requireNonNegativeInteger(modifier.attrIndex, `${path}.attrIndex`),
+    enhancedAttributeIndex: requireNonNegativeInteger(
+      modifier.enhancedAttrIndex,
+      `${path}.enhancedAttrIndex`,
+    ),
+    compositeAttribute,
+    attributeValues: [baseValue, ...enhancedValues],
+    modifyAttributeType:
+      compositeAttribute === 'Main' ? 'Main' : compositeAttribute === 'Sub' ? 'Sub' : 'Specific',
+    attributeType: parseAttributeTypeValue(nativeAttributeType, `${path}.attrType`),
+    formulaItem: parseModifierTypeValue(nativeModifierType, `${path}.modifierType`),
+    nativeAttributeType,
+    nativeModifierType,
+  };
 }

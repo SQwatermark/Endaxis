@@ -1,6 +1,6 @@
 # Perlica definition in Endaxis Next
 
-`src/next/data/operators/perlica.ts` is the first operator definition written against the ordered action model. It is intentionally separate from the current `OperatorSheet` and does not affect `/timeline`.
+`src/data/operators/perlica.ts` is the first operator definition written against the ordered action model. It is intentionally separate from the current `OperatorSheet` and does not affect `/timeline`.
 
 ## Naming boundary
 

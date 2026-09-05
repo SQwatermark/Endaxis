@@ -240,10 +240,11 @@ type HealParameters = (
       readonly contextKey: string;
     }
   | {
-      readonly target: 'caster' | 'buffOwner' | 'controlledOperator' | 'currentTarget';
+      readonly target: 'enemy' | 'caster' | 'buffOwner' | 'controlledOperator' | 'currentTarget';
       readonly contextKey?: never;
     }
 ) & {
+  readonly source?: 'buffOwner';
   readonly alwaysNext?: boolean;
   readonly tags: Parameters<'heal'>['tags'];
 } & (
@@ -256,6 +257,7 @@ type HealParameters = (
     | {
         readonly amount?: never;
         readonly attribute: 'strength' | 'agility' | 'intellect' | 'will' | 'maxHealth';
+        readonly attributeSource?: 'target';
         readonly multiplier: CompiledActionValueOperandSource;
         readonly addition: CompiledActionValueOperandSource;
       }
@@ -365,6 +367,7 @@ export type CompiledBuffStepSource =
   | Step<'applyBuff', BuffApplicationParameters>
   | Step<'createGlobalBuff'>
   | Step<'finishParentGlobalBuff'>
+  | Step<'finishGlobalBuffsById'>
   | Step<'readSkillSettingData'>
   | Step<'applyElementalInfliction'>
   | Step<
@@ -407,6 +410,10 @@ export type CompiledBuffStepSource =
           | { readonly kind: 'secondary' };
       }
     >
+  | Step<'storeEntityPropertyValue'>
+  | Step<'setHealthFloor'>
+  | Step<'storeEventHealValues'>
+  | Step<'storeShieldValue'>
   | Step<'calculateActionValue'>
   | Step<'readCurrentBuffRemainingDuration'>
   | Step<'readBuffRemainingDuration'>

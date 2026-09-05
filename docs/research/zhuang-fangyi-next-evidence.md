@@ -1,6 +1,6 @@
 # 庄方宜新版配置证据记录
 
-本文记录 `src/next/data/operators/zhuang-fangyi.ts` 的来源、已闭环语义和当前边界。正式配置只保存 Endaxis
+本文记录 `src/data/operators/zhuang-fangyi.ts` 的来源、已闭环语义和当前边界。正式配置只保存 Endaxis
 可理解的战斗语义；游戏 Skill ID、Buff ID、Blackboard 键和动作类名只出现在本文。
 
 ## 数据版本与来源
@@ -126,5 +126,5 @@ Next 运行时现已提供通用 `buffStackCompare` 和 `actionValueCompare` 条
 
 ## 当前执行边界
 
-本轮完成的是有证据的目录定义、类型模型和结构测试。`src/next` 编译器/模拟器尚未把所有状态、条件和升级修正编译为正式时间轴运行时，
+本轮完成的是有证据的目录定义、类型模型和结构测试。`src` 编译器/模拟器尚未把所有状态、条件和升级修正编译为正式时间轴运行时，
 因此“配置可表达”不等于现有 `/timeline` 已能执行。后续应先实现通用反应状态、状态层数倍率和技能替换编译，再用庄方宜作为端到端验收样本。

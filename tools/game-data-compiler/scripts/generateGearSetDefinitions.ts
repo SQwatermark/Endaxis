@@ -165,9 +165,7 @@ function parseArguments(values: readonly string[]): GearSetGenerationArguments {
   for (const required of ['--tables', '--skills', '--buffs', '--gameplay-tag-catalog']) {
     if (entries[required] === undefined) throw new Error(`missing ${required}`);
   }
-  const outputDirectory = resolve(
-    entries['--output'] ?? 'src/next/data/equipment/generated-gear-sets',
-  );
+  const outputDirectory = resolve(entries['--output'] ?? 'src/data/equipment/generated-gear-sets');
   const result = {
     tablesDirectory: resolve(entries['--tables']!),
     skillDataDirectory: resolve(entries['--skills']!),

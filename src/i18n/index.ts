@@ -1,5 +1,5 @@
 import { createI18n } from 'vue-i18n';
-import { normalizeLocale, SUPPORTED_LOCALES, type SupportedLocale } from './elementPlusLocale';
+import { normalizeLocale, type SupportedLocale } from './elementPlusLocale';
 import { gameLocaleRegistry } from './gameLocaleRegistry';
 import {
   localeResourceLoaders,
@@ -52,7 +52,7 @@ export interface PreparedLocaleResources {
 }
 
 /**
- * 只准备资源而不改变当前可见语言。旧页面传入全部 family；Next 页面可以按实际视图缩小集合。
+ * 只准备资源而不改变当前可见语言；页面可以按实际视图缩小资源集合。
  * 俄语 UI 尚未自包含，因此兼容阶段额外准备中文 fallback。
  */
 export async function ensureLocaleResources(

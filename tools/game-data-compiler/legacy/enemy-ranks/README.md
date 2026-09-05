@@ -7,7 +7,7 @@ managed-reference prefix before reading the rank value.
 
 The script is intentionally strict: missing assets, unexpected serialized types,
 unknown enum values, or a changed component-list layout stop the run. Output is
-written to `src/next/data/enemies/enemy-ranks-1.4.4.json`; raw exports use the OS
+written to `src/data/enemies/enemy-ranks-1.4.4.json`; raw exports use the OS
 temporary directory and are not committed.
 
 ```powershell

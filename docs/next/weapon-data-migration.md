@@ -5,7 +5,7 @@
 ## 当前规则
 
 - 武器、装备、套装、干员、Buff 和能力实体均不保存 r1/r2/r3 等历史运行定义。
-- `gameDataRevision` 当前固定为 `endaxis-next-definitions-latest`，只是项目来源与重新导出的诊断标记，
+- `gameDataRevision` 当前固定为 `endaxis-definitions-latest`，只是项目来源与重新导出的诊断标记，
   不对应可选择的历史规则集。
 - 打开项目时直接使用最新目录校验全部引用。引用有效则归一 revision 标记并提示重新导出；引用失效则
   在原位置报错，不猜测替代身份，也不恢复历史定义。

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { parseOperatorRuntimeTemplateSource } from '../src/source/operatorRuntimeTemplate.ts';
 import { unityComboConditionFixture } from './unityComboConditionFixture.ts';
 import { auditOperatorTemplateRefresh } from '../src/audits/operatorTemplateRefresh.ts';
-import { GAMEPLAY_TAG_PATHS } from '../../../src/next/data/combat/gameplayTagCatalog.generated.ts';
+import { GAMEPLAY_TAG_PATHS } from '../../../src/data/combat/gameplayTagCatalog.generated.ts';
 
 const sourceSha256 = '33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc';
 const pair = (key: string, valueDouble = 0) => ({

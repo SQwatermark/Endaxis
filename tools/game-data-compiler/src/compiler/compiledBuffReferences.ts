@@ -238,7 +238,10 @@ export function collectCompiledBuffIdentityReadIds(value: unknown): ReadonlySet<
     }
     if (item === null || typeof item !== 'object') return;
     const record = item as Record<string, unknown>;
-    if (record.kind === 'buffIdStackCompare' && Array.isArray(record.buffIds)) {
+    if (
+      (record.kind === 'buffIdStackCompare' || record.kind === 'eventBuffIdMatch') &&
+      Array.isArray(record.buffIds)
+    ) {
       for (const id of record.buffIds) if (typeof id === 'string' && id.length > 0) ids.add(id);
     }
     if (record.kind === 'applyBuff') {

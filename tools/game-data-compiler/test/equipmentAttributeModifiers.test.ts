@@ -40,6 +40,29 @@ describe('单件装备属性修正', () => {
       },
     });
     expect(equipment!.attributeModifiers).toHaveLength(4);
+    expect(equipment!.displayAttributeModifiers).toEqual([
+      expect.objectContaining({
+        displayIndex: 1,
+        enhancedAttributeIndex: 1,
+        compositeAttribute: '',
+        attributeType: 'Str',
+        attributeValues: [15],
+      }),
+      expect.objectContaining({
+        displayIndex: 2,
+        enhancedAttributeIndex: 2,
+        compositeAttribute: '',
+        attributeType: 'Agi',
+        attributeValues: [10],
+      }),
+      expect.objectContaining({
+        displayIndex: 3,
+        enhancedAttributeIndex: 3,
+        compositeAttribute: '',
+        attributeType: 'MaxHp',
+        attributeValues: [46.3273721859878],
+      }),
+    ]);
     expect(equipment!.attributeModifiers[3]).toEqual({
       sourcePath: `EquipTable.${fixture.equipmentId}.equipAttrModifiers[3]`,
       attributeIndex: 3,
@@ -86,6 +109,12 @@ describe('单件装备属性修正', () => {
     const drifted = structuredClone(fixture.equipTableEntry) as Record<string, unknown>;
     drifted.futureField = true;
     expect(() => parseFixture(drifted)).toThrow('unexpected fields');
+
+    const missingDisplay = structuredClone(fixture.equipTableEntry) as Record<string, unknown>;
+    missingDisplay.displayAttrModifiers = [];
+    expect(() => parseFixture(missingDisplay)).toThrow(
+      '.displayAttrModifiers: expected at least one display modifier',
+    );
   });
 });
 

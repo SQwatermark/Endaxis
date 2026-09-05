@@ -72,8 +72,8 @@ Next 已建立统一养成 Patch 阶段，`multiplySkillCost` 会修改目标技
   `ChangeSkillParam` 与 Add/Multiply/Overwrite 的原生语义；
 - `vfs-index-browser/combat-spec/src/EndfieldCombatSpec.Core/Runtime/TalentAndPotentialModifiers.cs`：
   `CostValue`、`CoolDown` 等枚举和结构化复刻；
-- `src/next/core/game-data/operatorDefinition.ts`：Next Upgrade modifier 定义；
-- `src/next/core/compiler/resolveOperatorPanel.ts`：当前实际消费的养成 modifier 范围；
+- `src/core/game-data/operatorDefinition.ts`：Next Upgrade modifier 定义；
+- `src/core/compiler/resolveOperatorPanel.ts`：当前实际消费的养成 modifier 范围；
 - `operator-progression-runtime-closure-gaps.md`：两个静态属性缺口的方向和生命周期说明。
 
 ## 运行时闭环进展

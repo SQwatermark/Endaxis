@@ -8,7 +8,7 @@
 原组件仍 partial，审计保留该状态，不把 14 条叶子完整解码外推到整个模板。
 
 默认 arcane 包装器通过严格身份绑定安装该定义，原有动作/Buff/天赋与 Deck 构筑初始化保留。
-正式文件在 src/next/data/operators/generated-runtime/arcane/，原始来源和审计在 tmp/。
+正式文件在 src/data/operators/generated-runtime/arcane/，原始来源和审计在 tmp/。
 generate:game-data:operator-runtime 支持原子生成与只读 --check；确切命令见编译器 README。
 
 此前 8 场正式阻塞全部解除，77 把候选武器 × 兼容干员 × 两端词条构筑 **966/966 成功**，
@@ -391,7 +391,7 @@ Skill/Buff 内仍只有读取，但当前 manifest 的 CharacterTemplateData 中
 这不是全矩阵通过，也不是默认库发布许可。后续先补齐同版本解码与实体初始化/运行时 Patch
 证据，再修公共转换或运行逻辑，删除这份明确的阻塞清单。
 
-本文审计 `src/next/data/operators/arcane.ts` 的来源与当前边界。正式配置只保存 Endaxis 可执行的
+本文审计 `src/data/operators/arcane.ts` 的来源与当前边界。正式配置只保存 Endaxis 可执行的
 业务语义；原始 SkillData、Buff ID、Blackboard 键和实现事件名只记录在本文。
 
 ## 版本与来源

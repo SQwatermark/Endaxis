@@ -1,0 +1,83 @@
+.next-armory-dialog {
+  max-width: calc(100vw - 24px);
+}
+
+@media (max-width: 760px) {
+  .next-armory-dialog .el-dialog__body {
+    overflow-x: hidden;
+  }
+
+  .next-armory-dialog .header,
+  .next-armory-dialog .name-row,
+  .next-armory-dialog .footer {
+    flex-wrap: wrap;
+  }
+
+  .next-armory-dialog .header-info,
+  .next-armory-dialog .skill-info {
+    min-width: 0;
+  }
+
+  .next-armory-dialog .header > .definition-entry {
+    width: 100%;
+    flex-basis: 100%;
+    position: static;
+    order: 3;
+  }
+
+  .next-armory-dialog .level-selector {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+
+  .next-armory-dialog .level-selector .level-btn {
+    flex: 0 0 92px;
+  }
+
+  .next-armory-dialog .skill-row-main {
+    flex-wrap: wrap;
+  }
+
+  .next-armory-dialog .skill-bar-area {
+    width: 100%;
+    margin-left: 0;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+
+  .next-armory-dialog .talent-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .next-armory-dialog .talent-nodes {
+    max-width: 100%;
+    margin-left: 0;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 440px) {
+  .next-armory-dialog .el-dialog__body {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .next-armory-dialog .header {
+    gap: 12px;
+  }
+
+  .next-armory-dialog .portrait-frame {
+    width: 112px;
+    min-width: 112px;
+    height: 112px;
+  }
+
+  .next-armory-dialog .section {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+}

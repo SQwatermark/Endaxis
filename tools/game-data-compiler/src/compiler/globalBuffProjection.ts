@@ -32,18 +32,26 @@ function compileGlobalBuffAction(
 ): readonly CompiledBuffStepSource[] {
   if (action.kind === 'finishGlobalBuff') {
     if (
-      !action.finishParent ||
-      action.globalBuffIds.length !== 0 ||
       !action.finishAll ||
       action.finishCount.blackboardKey !== null ||
       action.finishCount.value !== 1
     ) {
-      throw new Error(`${sourcePath}: unsupported non-parent GlobalBuff finish`);
+      throw new Error(`${sourcePath}: unsupported partial GlobalBuff finish`);
+    }
+    const reason = action.isFinishedEarly ? ('early' as const) : ('other' as const);
+    if (action.finishParent) {
+      if (action.globalBuffIds.length !== 0) {
+        throw new Error(`${sourcePath}: parent GlobalBuff finish must not name IDs`);
+      }
+      return [{ kind: 'finishParentGlobalBuff', parameters: { reason } }];
+    }
+    if (action.globalBuffIds.length === 0) {
+      throw new Error(`${sourcePath}: named GlobalBuff finish requires at least one ID`);
     }
     return [
       {
-        kind: 'finishParentGlobalBuff',
-        parameters: { reason: action.isFinishedEarly ? 'early' : 'other' },
+        kind: 'finishGlobalBuffsById',
+        parameters: { globalBuffIds: action.globalBuffIds, reason },
       },
     ];
   }
@@ -78,7 +86,7 @@ function compileGlobalBuffAction(
   });
 }
 
-function compileGlobalBuffTemplate(
+export function compileGlobalBuffTemplate(
   template: GlobalBuffTemplateSource,
   sourcePath: string,
 ): SkillGlobalBuffDefinition {
@@ -89,7 +97,7 @@ function compileGlobalBuffTemplate(
     template.priorityKey !== '' ||
     template.negatePriority ||
     template.priority !== 0 ||
-    template.globalModifierCount !== 0 ||
+    template.globalModifierCount !== template.globalModifiers.length ||
     template.globalEventCount !== 0 ||
     template.triggerInterval.blackboardKey !== null ||
     template.triggerInterval.value !== 0 ||
@@ -119,6 +127,16 @@ function compileGlobalBuffTemplate(
       : {}),
     ...(template.applyIconDurationToBuffs ? { applyIconDurationToBuffs: true } : {}),
     blackboard: Object.fromEntries(template.blackboard.map(item => [item.key, item.value])),
+    ...(template.globalModifiers.length === 0
+      ? {}
+      : {
+          sharedSpModifiers: template.globalModifiers.map(modifier => ({
+            attribute: modifier.attribute,
+            operation: modifier.operation,
+            value: actionValueOperand(modifier.value),
+            applyToReturnSpGain: modifier.applyToReturnSpGain,
+          })),
+        }),
     children: template.children.map((child, index) => ({
       buffId: child.buffId,
       blackboardAssignments: child.assignBlackboard
@@ -132,7 +150,17 @@ function projectGlobalBuffSource(
   source: TargetReferenceSource,
   context: CombatActionProjectionContextSource,
   sourcePath: string,
-): 'caster' | 'buffOwner' | 'buffSource' {
+): 'caster' | 'buffOwner' | 'buffSource' | 'battle' {
+  if (
+    source.targetSource === 'InstantSearch' &&
+    source.targetGroupKey === '' &&
+    source.finderType === 'GodEntityFinder' &&
+    source.validatorTypes.length === 0 &&
+    source.postProcessorTypes.length === 0
+  ) {
+    // GodEntity 是全局父实例的原生持有者；保留战斗级来源身份，不能伪装成某名干员。
+    return 'battle';
+  }
   if (
     source.targetGroupKey !== '' ||
     source.finderType !== null ||

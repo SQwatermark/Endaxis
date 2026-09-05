@@ -63,6 +63,37 @@ function rayCastEffectFixture(overrides: Record<string, unknown> = {}) {
 }
 
 describe('公共 Action 叶子分派', () => {
+  it('完整保留 StoreEntityProperty 的目标、属性和写回公式', () => {
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.StoreEntityProperty+Data, Gameplay.Beyond',
+          targetSettings: targetFixture('Owner'),
+          propertyType: 'CurHp',
+          useFloor: true,
+          divisorValue: scalarFixture(2),
+          multiplierValue: scalarFixture(3, 'scale'),
+          baseValue: scalarFixture(4),
+          key: 'hp',
+        },
+        'fixture.entity-property',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'entityPropertySnapshot',
+      action: {
+        target: { targetSource: 'Owner' },
+        property: 'CurHp',
+        useFloor: true,
+        divisor: { value: 2 },
+        multiplier: { blackboardKey: 'scale' },
+        baseValue: { value: 4 },
+        outputKey: 'hp',
+      },
+    });
+  });
+
   it('保留 RayCastEffectAction 写出的命中目标组与位置组', () => {
     expect(
       parseKnownNativeActionLeafSource(rayCastEffectFixture(), 'fixture.ray', {}),
@@ -364,6 +395,44 @@ describe('公共 Action 叶子分派', () => {
             outputKey: 'atb_contain_temp',
             realDeltaOutputKey: 'atb_real_delta',
           },
+        },
+      ],
+    });
+  });
+
+  it('保留 SaveShieldValueToBB 的原生值选择并投影为统一黑板步骤', () => {
+    const action = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.SaveShieldValueToBB+Data, Gameplay.Beyond',
+      shieldValue: targetFixture('Owner'),
+      valueType: 'GainedValue',
+      bbKey: 'heal',
+    };
+
+    expect(parseKnownNativeActionLeafSource(action, 'fixture.saveShield', {})).toMatchObject({
+      family: 'eventPayload',
+      action: {
+        kind: 'saveShieldValue',
+        target: { targetSource: 'Owner' },
+        valueType: 'GainedValue',
+        outputKey: 'heal',
+      },
+    });
+    expect(
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(sequence([action]), 'fixture.saveShield', {}),
+        {
+          actionOwnerTarget: 'buffOwner',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+          fixedBuffOwnerTarget: 'caster',
+        },
+      ),
+    ).toEqual({
+      steps: [
+        {
+          kind: 'storeShieldValue',
+          parameters: { value: 'gained', outputKey: 'heal' },
         },
       ],
     });
@@ -1823,6 +1892,44 @@ describe('公共 Action 叶子分派', () => {
         {},
       ),
     ).toThrow('fixture.infliction.inflictionType: unsupported elemental infliction');
+  });
+
+  it('SpellInflictionOnChar 与敌人附着动作分型并严格保留角色异常参数', () => {
+    const source = {
+      ...META,
+      $type: 'Beyond.Gameplay.Core.SpellInflictionOnChar+Data, Gameplay.Beyond',
+      source: targetFixture('Owner'),
+      target: targetFixture('MainCharacter'),
+      inflictionType: 'Cryst',
+      directToTriggerred: false,
+      inflictionCount: 1,
+      inflictionCountBlackboardKey: '',
+      useInflictionCountBlackboardKey: false,
+      ignoreImmuneLevel: 'IgnoreWeakImmune',
+      ignoreAddingCooldown: false,
+    };
+    expect(parseKnownNativeActionLeafSource(source, 'fixture.charInfliction', {})).toMatchObject({
+      family: 'characterSpellInfliction',
+      action: {
+        kind: 'characterSpellInfliction',
+        source: { targetSource: 'Owner', targetGroupKey: '' },
+        target: { targetSource: 'MainCharacter', targetGroupKey: '' },
+        element: 'Cryst',
+        directToTriggered: false,
+        count: 1,
+        countBlackboardKey: '',
+        useCountBlackboardKey: false,
+        ignoreImmuneLevel: 'IgnoreWeakImmune',
+        ignoreAddingCooldown: false,
+      },
+    });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...source, ignoreImmuneLevel: 'IgnoreEverything' },
+        'fixture.charInfliction',
+        {},
+      ),
+    ).toThrow('fixture.charInfliction.ignoreImmuneLevel: unsupported value');
   });
 
   it('TeleportPosSelectAction 完整保留选点策略和上下文写入', () => {

@@ -5,6 +5,7 @@ import {
   getOperatorCombatSkillFormKeys,
   getOperatorFormName,
   getOperatorGameName,
+  getOperatorSubSkillName,
   getOperatorUiLabel,
   getWeaponGameName,
   getWeaponSkillDescription,
@@ -21,9 +22,13 @@ describe('game text localization', () => {
   });
 
   test('zh localizes Blessing of Lustrous Carmine skill entries', () => {
-    expect(getWeaponSkillName('blessing-of-lustrous-carmine', 'skill1', 'zh-CN')).toBe('敏捷');
-    expect(getWeaponSkillName('blessing-of-lustrous-carmine', 'skill2', 'zh-CN')).toBe('灼热伤害');
-    expect(getWeaponSkillName('blessing-of-lustrous-carmine', 'skill3', 'zh-CN')).toBe('镀红祝福');
+    expect(getWeaponSkillName('blessing-of-lustrous-carmine', 'skill1', 'zh-CN')).toBe(
+      '敏捷提升·大',
+    );
+    expect(getWeaponSkillName('blessing-of-lustrous-carmine', 'skill2', 'zh-CN')).toBe(
+      '灼热伤害提升·大',
+    );
+    expect(getWeaponSkillName('blessing-of-lustrous-carmine', 'skill3', 'zh-CN')).toBe('流转·汲罪');
   });
 
   test('zh keeps arts-unit weapons with swapped icon IDs mapped to the correct skills', () => {
@@ -53,6 +58,31 @@ describe('game text localization', () => {
     expect(getOperatorCombatSkillDescription('arcane', 'comboSkill', 'zh-CN', 'will')).toContain(
       '阵诀·意',
     );
+  });
+
+  test('current presentation slugs resolve native weapon locale identities', () => {
+    expect(getWeaponGameName('bedazzling-night-debut', 'zh-CN')).toBe('曜夜的首演');
+    expect(getWeaponSkillName('bedazzling-night-debut', 'skill3', 'zh-CN')).toBe('医疗·闪耀帷幕');
+    expect(getWeaponSkillDescription('bedazzling-night-debut', 'skill3', 'zh-CN', 4)).toContain(
+      '+25.6%',
+    );
+  });
+
+  test('generic enhanced skill names come from common skill type messages', () => {
+    expect(getOperatorSubSkillName('zhuang-fangyi', 'enhancedBattleSkill', 'zh-CN')).toBe(
+      '强化战技',
+    );
+    expect(getOperatorSubSkillName('zhuang-fangyi', 'enhancedComboSkill', 'en')).toBe(
+      'Enhanced Combo',
+    );
+    expect(
+      getOperatorSubSkillName(
+        'laevatain',
+        'laevatain-basic-attack-during-ultimate',
+        'en',
+        'enhancedBasicAttack',
+      ),
+    ).toBe('Enhanced Basic Attack');
   });
 
   test('zh resolves camelCase operator UI enum keys without an English fallback', () => {

@@ -59,6 +59,9 @@
   "eny_0055_hscrane": {
     "name": "Cloud Stalker"
   },
+  "eny_0057_dog": {
+    "name": "Wild Tuskbeast"
+  },
   "eny_0058_agdisk": {
     "name": "Effigy"
   },
@@ -124,6 +127,9 @@
   },
   "eny_0079_nefarp2": {
     "name": "Nefarith, \"Conqueror\""
+  },
+  "eny_0080_reaper": {
+    "name": "Ereignis"
   },
   "eny_0081_ruanyi": {
     "name": "Ruan Yi"
@@ -244,5 +250,14 @@
   },
   "eny_0125_fdcentur": {
     "name": "Alleikhreos, Chiliarch"
+  },
+  "eny_0127_bigents": {
+    "name": "Gloomwald's Rage"
+  },
+  "eny_0128_babyents": {
+    "name": "Woodcraft Wanderer"
+  },
+  "eny_0129_slwood": {
+    "name": "Woodcraft Slug"
   }
 }

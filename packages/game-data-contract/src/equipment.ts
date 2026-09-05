@@ -96,6 +96,31 @@ export type EquipmentModifierDefinition =
       readonly value: LevelValues;
     };
 
+export const EQUIPMENT_TRAIT_DISPLAY_COMPOSITES = [
+  'cryoAndElectricDamageIncrease',
+  'heatAndNatureDamageIncrease',
+  'allSkillDamageIncrease',
+  'allDamageReduction',
+  'spellDamageIncrease',
+] as const;
+
+export type EquipmentTraitDisplayComposite = (typeof EQUIPMENT_TRAIT_DISPLAY_COMPOSITES)[number];
+
+/**
+ * 游戏 EquipTable.displayAttrModifiers 的规范化结果。它只决定一条词条如何显示；
+ * `modifiers` 仍是实际战斗效果，二者不得互相反推。
+ */
+export type EquipmentTraitDisplayDefinition =
+  | {
+      readonly kind: 'modifier';
+      readonly modifier: EquipmentModifierDefinition;
+    }
+  | {
+      readonly kind: 'composite';
+      readonly composite: EquipmentTraitDisplayComposite;
+      readonly value: LevelValues;
+    };
+
 /** 配装被动直接监听的原生 AbilitySystem 事件。 */
 export const EQUIPMENT_ABILITY_EVENTS = [
   'enterFight',
@@ -152,8 +177,10 @@ export interface WeaponTraitDefinition extends EquipmentContributionDefinition {
 
 /** 一把武器在只读定义中的稳定身份、成长数据与词条能力。 */
 export interface WeaponDefinition {
+  /** 游戏原生武器对象 ID（`wpn_*`）；项目引用、实例关联与校验均以它为准。 */
   readonly slug: string;
   readonly displayName?: string;
+  /** 仅用于定位图标/本地化等展示资源；资源复用不得改变 slug 身份。 */
   readonly assetSlug?: string;
   /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
   readonly iconPath?: string;
@@ -173,12 +200,16 @@ export type GearSlotType = (typeof GEAR_SLOT_TYPES)[number];
 export interface GearTraitDefinition extends EquipmentContributionDefinition {
   readonly key: string;
   readonly levelCount: number;
+  /** 每条原生装备词条都有且只有一份 displayAttrModifiers 展示定义。 */
+  readonly display: EquipmentTraitDisplayDefinition;
 }
 
 /** 一件装备在只读定义中的稳定身份、基础防御、词条与套装归属。 */
 export interface GearDefinition {
+  /** 游戏原生装备对象 ID（`item_equip_*`）；项目引用、实例关联与校验均以它为准。 */
   readonly slug: string;
   readonly displayName?: string;
+  /** 仅用于定位图标/本地化等展示资源；共用 iconId 不得改变 slug 身份。 */
   readonly assetSlug?: string;
   /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
   readonly iconPath?: string;

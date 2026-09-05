@@ -18,7 +18,7 @@
 
 ## 当前实现
 
-`src/next/ui/keyboard/keyboardShortcutRouter.ts` 提供：
+`src/ui/keyboard/keyboardShortcutRouter.ts` 提供：
 
 - `KeyboardShortcutRouter`：按优先级排序和分发按键，核心逻辑可以脱离 DOM 测试。
 - `useKeyboardShortcutScope()`：在 Vue 组件作用域内注册，并在组件销毁时自动注销。

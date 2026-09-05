@@ -12,7 +12,7 @@ afterEach(async () => {
 async function setup(source: string, createAsset: boolean) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'endaxis-candidate-assets-'));
   roots.push(root);
-  const candidate = path.join(root, 'candidate/src/next/data/generated');
+  const candidate = path.join(root, 'candidate/src/data/generated');
   await fs.mkdir(candidate, { recursive: true });
   await fs.writeFile(path.join(candidate, 'definition.ts'), source);
   if (createAsset) {
@@ -29,7 +29,7 @@ describe('候选游戏资源闭包', () => {
       checkCandidateGameAssets({
         projectRoot: root,
         candidateRoot: path.join(root, 'candidate'),
-        replacementPaths: ['src/next/data/generated'],
+        replacementPaths: ['src/data/generated'],
       }),
     ).resolves.toEqual({ referencedAssetCount: 1, referencingFileCount: 1 });
   });
@@ -40,8 +40,22 @@ describe('候选游戏资源闭包', () => {
       checkCandidateGameAssets({
         projectRoot: root,
         candidateRoot: path.join(root, 'candidate'),
-        replacementPaths: ['src/next/data/generated'],
+        replacementPaths: ['src/data/generated'],
       }),
     ).rejects.toThrow('/icons/missing.webp');
+  });
+
+  it('隔离 public 存在时不允许正式 public 偷偷补齐候选', async () => {
+    const root = await setup("export const icon = '/icons/formal-only.webp';", false);
+    await fs.mkdir(path.join(root, 'public/icons'), { recursive: true });
+    await fs.writeFile(path.join(root, 'public/icons/formal-only.webp'), 'formal');
+    await fs.mkdir(path.join(root, 'candidate/public'), { recursive: true });
+    await expect(
+      checkCandidateGameAssets({
+        projectRoot: root,
+        candidateRoot: path.join(root, 'candidate'),
+        replacementPaths: ['src/data/generated'],
+      }),
+    ).rejects.toThrow('/icons/formal-only.webp');
   });
 });

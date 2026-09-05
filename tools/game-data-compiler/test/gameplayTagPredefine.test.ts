@@ -7,9 +7,9 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { parseGameplayTagPredefineTableSource } from '../src/source/gameplayTagPredefineTable.ts';
 import { compileGameplayTagPredefine } from '../src/compiler/gameplayTagPredefine.ts';
 import { generateGameplayTagPredefine } from '../scripts/generateGameplayTagPredefine.ts';
-import { GameplayTagPredefine } from '../../../src/next/core/combat/tags/gameplayTagPredefine';
-import { CombatBuffContainer } from '../../../src/next/core/combat/buffs/combatBuffs';
-import { CombatAttributeSet } from '../../../src/next/core/combat/attributes/combatAttributes';
+import { GameplayTagPredefine } from '../../../src/core/combat/tags/gameplayTagPredefine';
+import { CombatBuffContainer } from '../../../src/core/combat/buffs/combatBuffs';
+import { CombatAttributeSet } from '../../../src/core/combat/attributes/combatAttributes';
 import { GameplayTagRegistry } from '../../../src/shared/gameplayTags';
 
 const statusPath = 'Skill/Character/Common/PhysicalStatus/KnockdownStatus';

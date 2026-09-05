@@ -93,7 +93,7 @@ Next 已有 `PlayerDamageDefenderSnapshot.resistances.ether.damageTakenMultiplie
 - `vfs-index-browser/combat-spec/src/EndfieldCombatSpec.Core/Runtime/PlayerActiveDamageAttributeResolver.cs`：以太伤害读取防御方承伤倍率；
 - `vfs-index-browser/combat-spec/docs/derived-attributes.md`：四维派生公式与版本常量；
 - `vfs-index-browser/docs/research/combat/damage-formula.md`：以太抗性因子；
-- `src/next/core/combat/attributes/operatorAttackAttributes.ts`：四维派生系数属性集和动态攻击读取；
-- `src/next/core/combat/runtime/staticPlayerDamageSnapshots.ts`：普通伤害读取动态攻击；
-- `src/next/core/combat/runtime/standardPlayerDamageEnvironment.ts`：Buff 属性集共享及法术爆发读取；
+- `src/core/combat/attributes/operatorAttackAttributes.ts`：四维派生系数属性集和动态攻击读取；
+- `src/core/combat/runtime/staticPlayerDamageSnapshots.ts`：普通伤害读取动态攻击；
+- `src/core/combat/runtime/standardPlayerDamageEnvironment.ts`：Buff 属性集共享及法术爆发读取；
 - `docs/architecture/endaxis-next-equipment-persistent-effects-extension-plan.md`：治疗执行器仍属于未来能力。

@@ -80,13 +80,20 @@ describe('LaunchProjectile 原生新增目标控制', () => {
     );
   });
 
-  it.each(['None', 'OnlyHit', 'NeverHit'])('保留命名枚举 %s 和额外发射开关', mode => {
+  it.each([
+    ['None', 0],
+    ['OnlyHit', 1],
+    ['NeverHit', 2],
+  ] as const)('归一化命名/数值枚举 %s 和额外发射开关', (mode, nativeValue) => {
     expect(
       parse({ ...controls, targetFilterMode: mode, alsoLaunchToHittableTarget: true }),
     ).toMatchObject({ targetFilterMode: mode, alsoLaunchToHittableTarget: true });
+    expect(
+      parse({ ...controls, targetFilterMode: nativeValue, alsoLaunchToHittableTarget: true }),
+    ).toMatchObject({ targetFilterMode: mode, alsoLaunchToHittableTarget: true });
   });
 
-  it.each([0, 1, 2, '0', 'Unknown', null])('不接受枚举编码或未知名称 %s', mode => {
+  it.each([3, -1, '0', 'Unknown', null])('不接受未知枚举值或字符串强转 %s', mode => {
     expect(() => parse({ ...controls, targetFilterMode: mode })).toThrow('targetFilterMode');
   });
 

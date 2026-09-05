@@ -1,4 +1,4 @@
-import { compileGearSetContribution } from '../../../src/next/core/compiler/compileEquipment.ts';
+import { compileGearSetContribution } from '../../../src/core/compiler/compileEquipment.ts';
 import { describe, expect, it } from 'vitest';
 
 import { compileEquipmentSuitStaticDefinitionBatchSource } from '../src/index.ts';

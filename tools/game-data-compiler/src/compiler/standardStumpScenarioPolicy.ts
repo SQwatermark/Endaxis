@@ -18,6 +18,8 @@ const OMITTED_CASTER_BUFF_ABILITY_EVENT_REASONS: Readonly<Record<string, string>
 };
 
 const OMITTED_ENEMY_BUFF_ABILITY_EVENT_REASONS: Readonly<Record<string, string>> = {
+  OnOutputBuff:
+    'the fixed passive enemy cannot output a Buff without enemy active behavior or an explicit external event marker',
   OnOwnerHpZero:
     'the unique fixed target reaching zero HP ends the simulation before post-defeat behavior matters',
   OnOwnerDead:

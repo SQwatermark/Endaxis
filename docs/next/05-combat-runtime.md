@@ -6,7 +6,7 @@
 
 ## 2. 装配根
 
-`src/next/core/combat/runtime/combatRuntimeAssembly.ts` 是一次战斗的装配根。它拥有时钟、资源、实体能力系统、输入和回执，并把职责执行器按顺序连接起来。
+`src/core/combat/runtime/combatRuntimeAssembly.ts` 是一次战斗的装配根。它拥有时钟、资源、实体能力系统、输入和回执，并把职责执行器按顺序连接起来。
 
 环境负责提供具体能力，例如：
 

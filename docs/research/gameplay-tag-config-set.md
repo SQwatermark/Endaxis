@@ -51,8 +51,8 @@ fileId=0 才引用当前 SerializedFile；Int64 pathId 全程用十进制字符�
 原始 dump、Bundle、worker 元数据和下载缓存放在忽略的 `tmp/`，不提交游戏原始 Bundle。
 
 ```powershell
-npm run generate:game-data:gameplay-tags -- tools/game-data-compiler/gameplay-tag-config-set-1.4.4.sources.json src/next/data/combat/gameplayTagCatalog.generated.ts --source-set --source-root tmp/game-data-sources/GameplayTagConfigSet
-npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/next/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/next/data/combat/gameplayTagCatalog.generated.ts
+npm run generate:game-data:gameplay-tags -- tools/game-data-compiler/gameplay-tag-config-set-1.4.4.sources.json src/data/combat/gameplayTagCatalog.generated.ts --source-set --source-root tmp/game-data-sources/GameplayTagConfigSet
+npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/data/combat/gameplayTagCatalog.generated.ts
 # 两条命令分别追加 --check，只比较现有产物，不写入。
 ```
 
@@ -73,5 +73,5 @@ npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig
 本轮使用离线精确导出；**下载器尚未自动编排这 27 个 Unity 对象及 CABMap**，不宣称已有 CDN 或
 VFS HTTP 的配置集集合端点。本机缓存已具备完整重建条件；跨机缺缓存时需按清单重导。
 
-Operator 来源审计可改用 `--gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts`，
+Operator 来源审计可改用 `--gameplay-tag-catalog src/data/combat/gameplayTagCatalog.generated.ts`，
 与旧 `--gameplay-tag-dump` 互斥；主动生成、完整定义及全局配置都消费同一份路径目录。

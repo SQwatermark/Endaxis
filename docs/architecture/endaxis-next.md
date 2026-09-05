@@ -17,7 +17,7 @@
 
 ## Goal
 
-`src/next` is a parallel implementation of the editor and combat simulator. It is built without changing the current `/timeline` entry and will replace that entry only after compatibility and behavior checks pass.
+`src` is a parallel implementation of the editor and combat simulator. It is built without changing the current `/timeline` entry and will replace that entry only after compatibility and behavior checks pass.
 
 The new implementation shares game data with the existing application, but it does not share the current timeline store, simulation engine, persistence types, or UI state.
 
@@ -27,16 +27,16 @@ The new implementation shares game data with the existing application, but it do
 src/data
    |
    v
-src/next/adapters        legacy sheet -> normalized game definition
+src/adapters        legacy sheet -> normalized game definition
    |
    v
-src/next/core            framework-independent project/compiler/simulator
+src/core            framework-independent project/compiler/simulator
    |
    v
-src/next application UI
+src application UI
 ```
 
-Only modules under `src/next/adapters` may import the current `src/data` implementation. The core declares `GameDataRepository` and depends on that interface.
+Only modules under `src/adapters` may import the current `src/data` implementation. The core declares `GameDataRepository` and depends on that interface.
 
 ## Persisted state
 
@@ -80,7 +80,7 @@ Combat-step definitions are ordered operations, not independently named entities
 
 A damage hit owns its element, per-level multiplier, stagger value, target context, and eventual instance `hitId`. These values are not stored in a separate damage-group registry. Source code may reuse the same immutable value object for repeated hits, but the serialized model has no `damageGroupKey` indirection.
 
-Operator definitions use the shared constructors in `src/next/data/operators/definitionHelpers.ts` for recurring syntax such as ordered sequences, conditional branches, status and reaction conditions, level-value conversion, damage scaling, and normal-attack segments. `basicAttackOfType` requires the definition to bind a concrete damage type instead of inferring it from the operator's element. These helpers only construct typed core definitions; they do not evaluate combat rules or contain operator-specific mechanics. Character concepts such as Zhuang Fangyi's Sunderblades remain in that operator's definition.
+Operator definitions use the shared constructors in `src/data/operators/definitionHelpers.ts` for recurring syntax such as ordered sequences, conditional branches, status and reaction conditions, level-value conversion, damage scaling, and normal-attack segments. `basicAttackOfType` requires the definition to bind a concrete damage type instead of inferring it from the operator's element. These helpers only construct typed core definitions; they do not evaluate combat rules or contain operator-specific mechanics. Character concepts such as Zhuang Fangyi's Sunderblades remain in that operator's definition.
 
 Operator skills are nested under typed skill groups. A group's `skills` value is either one skill or an ordered skill array; an array such as a basic-attack chain expands into multiple skill casts in one placement command. Every combat-step `kind` is a discriminated union member with its own parameter type. Enumerated domain values such as element, weapon type, role, target, resource, and skill type use exported finite types and runtime constant lists. Strings remain open only for identities such as skill keys, catalog Buff keys, blackboard keys, and user-defined custom action types. A raw resource ID is not executable behavior: an adapter must translate a known game-data construct into an Endaxis semantic step before the simulator may consume it.
 

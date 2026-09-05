@@ -5,12 +5,12 @@ import children from './fixtures/avywenna-vulnerable-children.json';
 import { compileBuffRuntimeDefinitionSource } from '../src/compiler/buffRuntimeProjection.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
 import { parseBuffRuntimeSource } from '../src/source/buffRuntime.ts';
-import { compileOperatorBuffDefinitions } from '../../../src/next/core/compiler/compileSkill';
-import { CombatAttributeSet } from '../../../src/next/core/combat/attributes/combatAttributes';
-import { CombatBuffContainer } from '../../../src/next/core/combat/buffs/combatBuffs';
-import { CompiledCombatBuffDefinitions } from '../../../src/next/core/combat/buffs/combatBuffDefinitions';
-import { BuffDefinitionOperationTarget } from '../../../src/next/core/combat/runtime/buffDefinitionOperationTarget';
-import { BuffOperationExecutor } from '../../../src/next/core/combat/runtime/buffOperationExecutor';
+import { compileOperatorBuffDefinitions } from '../../../src/core/compiler/compileSkill';
+import { CombatAttributeSet } from '../../../src/core/combat/attributes/combatAttributes';
+import { CombatBuffContainer } from '../../../src/core/combat/buffs/combatBuffs';
+import { CompiledCombatBuffDefinitions } from '../../../src/core/combat/buffs/combatBuffDefinitions';
+import { BuffDefinitionOperationTarget } from '../../../src/core/combat/runtime/buffDefinitionOperationTarget';
+import { BuffOperationExecutor } from '../../../src/core/combat/runtime/buffOperationExecutor';
 
 const carrierId = 'buff_common_affixes_vulnerable_pulse';
 const childId = 'buff_common_affixes_vulnerable_pulse_default_child';

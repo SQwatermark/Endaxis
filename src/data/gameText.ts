@@ -2,6 +2,7 @@ import { i18n } from '@/i18n';
 import { normalizeLocale } from '../i18n/elementPlusLocale';
 import { gameLocaleRegistry } from '../i18n/gameLocaleRegistry';
 import type { GameTextFamily } from '../i18n/localeResourceLoaders';
+import { weaponPresentationSlugByAsset } from './weaponPresentationSlugs';
 
 type LocaleTable = Record<string, any>;
 
@@ -97,8 +98,20 @@ function getOperatorCombatSkillEntry(
   return { skill, formSkill };
 }
 
+const weaponAssetSlugByPresentation = Object.freeze(
+  Object.fromEntries(
+    Object.entries(weaponPresentationSlugByAsset).map(([assetSlug, presentationSlug]) => [
+      presentationSlug,
+      assetSlug,
+    ]),
+  ) as Readonly<Record<string, string>>,
+);
+
 function getWeaponEntry(slug: string, locale?: string | null) {
-  return getEntry('weapons', slug, locale);
+  return (
+    getEntry('weapons', slug, locale) ||
+    getEntry('weapons', weaponAssetSlugByPresentation[slug] ?? '', locale)
+  );
 }
 
 function getGearSetEntry(slug: string, locale?: string | null) {
@@ -255,6 +268,23 @@ export function getOperatorSubSkillName(
   locale?: string | null,
   fallback?: string | null,
 ) {
+  const semanticKey = `${subSkillKey} ${fallback ?? ''}`.replace(/[^a-z]/gi, '').toLowerCase();
+  const commonSkillTypeKey = semanticKey.includes('enhancedbasicattack')
+    ? 'enhancedAttack'
+    : semanticKey.includes('enhancedbattleskill')
+      ? 'enhancedSkill'
+      : semanticKey.includes('enhancedcomboskill')
+        ? 'enhancedLink'
+        : semanticKey.includes('enhancedultimate')
+          ? 'enhancedUltimate'
+          : null;
+  if (commonSkillTypeKey) {
+    const messages = i18n.global.getLocaleMessage(
+      normalizeLocale(locale ?? i18n.global.locale.value),
+    ) as LocaleTable;
+    const commonName = readTrimmedText(messages.skillType?.[commonSkillTypeKey]);
+    if (commonName) return commonName;
+  }
   const entry = getOperatorEntry(slug, locale);
   const table = entry?.subSkills;
   const fallbackKey = readTrimmedText(fallback);

@@ -62,6 +62,7 @@ function gear(slug: string, gearSetSlug?: string): CompiledGearDefinitionSource 
   return {
     slug,
     assetSlug: slug,
+    iconPath: `/equipment/test/${slug}.webp`,
     slotType: 'armor',
     levelRequirement: 70,
     baseDefense: 48,
@@ -69,6 +70,15 @@ function gear(slug: string, gearSetSlug?: string): CompiledGearDefinitionSource 
       {
         key: 'attribute-1',
         levelCount: 4,
+        display: {
+          kind: 'modifier',
+          modifier: {
+            kind: 'attribute',
+            attribute: 'main',
+            operation: 'flat',
+            value: [1, 2, 3, 4],
+          },
+        },
         modifiers: [
           {
             kind: 'attribute',

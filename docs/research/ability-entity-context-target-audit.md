@@ -73,7 +73,7 @@ AbilityEntity template IDs referenced by the paired SkillData corpus. The
 retired strict extractor preserved in Git history resolves the raw
 Unity assets and records their hashes, born tags, lifetime fields, stacking
 metadata and component references in
-`src/next/data/ability-entities/ability-entity-templates-1.4.4.json`. The one
+`src/data/ability-entities/ability-entity-templates-1.4.4.json`. The one
 explicitly unresolved reference is
 `abilityentity_chr_0035_liino_ult_skill_projhit`; it remains absent from the
 current manifest and is not synthesized.

@@ -50,6 +50,14 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
     nodes: readonly NativeActionNodeSource<TLeaf>[],
     state: TState,
   ) => (CompiledActionNodeProgram<TStep, TState> & { readonly consumedNodeCount: number }) | null;
+  /** 条件成立/失败可为对应分支增加编译期事实；分支写入仍不会反向污染外层。 */
+  readonly refineIfElseBranchState?: (
+    node: NativeActionNodeSource<TLeaf> & {
+      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
+    },
+    state: TState,
+    branch: 'whenTrue' | 'whenFalse',
+  ) => TState;
   /** 领域可在语义等价时把原生逐目标循环折叠为集合操作；未提供或拒绝时严格失败。 */
   readonly compileForEach?: (
     node: NativeActionNodeSource<TLeaf> & {
@@ -269,15 +277,27 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
       const selected = compileActionSequenceProgramFromState(
         selectedBranch ? first!.body.whenTrue : first!.body.whenFalse,
         options,
-        state,
+        options.refineIfElseBranchState?.(
+          branchNode,
+          state,
+          selectedBranch ? 'whenTrue' : 'whenFalse',
+        ) ?? state,
       );
       return [...selected.steps, ...compileActionNodePrograms(rest, options, state)];
     }
     if (!first!.body.alwaysNext) {
       throw new Error(`${first!.sourcePath}: stopping IfElse is unsupported`);
     }
-    const whenTrue = compileActionSequenceProgramFromState(first!.body.whenTrue, options, state);
-    const whenFalse = compileActionSequenceProgramFromState(first!.body.whenFalse, options, state);
+    const whenTrue = compileActionSequenceProgramFromState(
+      first!.body.whenTrue,
+      options,
+      options.refineIfElseBranchState?.(branchNode, state, 'whenTrue') ?? state,
+    );
+    const whenFalse = compileActionSequenceProgramFromState(
+      first!.body.whenFalse,
+      options,
+      options.refineIfElseBranchState?.(branchNode, state, 'whenFalse') ?? state,
+    );
     const conditionNodes = first!.body.condition.actions.filter(node => node.metadata.enabled);
     const conditionsArePureReads = conditionNodes.every((child, index) =>
       child.body.kind === 'negateNextResult'

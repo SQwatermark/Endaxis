@@ -33,7 +33,7 @@ The non-numeric ordering of the flags is deliberate. It is supported by the
   root `EnemyTemplateData.modelKey`. The extractor validates the managed type,
   root RID, component list, model key, and known enum range before accepting it.
 
-The checked dataset is `src/next/data/enemies/enemy-ranks-1.4.4.json`; each row
+The checked dataset is `src/data/enemies/enemy-ranks-1.4.4.json`; each row
 records its raw payload SHA-256. It covers all 82 enemy `gameId` values currently
 adapted by Next: 37 mob, 32 elite, and 13 boss. `eny_0007_mimicw` is native
 `elite` while its legacy display tier is `advanced`, directly disproving a

@@ -32,6 +32,8 @@ describe('公共属性修正编译器', () => {
   it('公共 IR 保留索敌距离，但固定零空间运行投影将其排除', () => {
     expect(isCombatRuntimeAttributeRelevant('NormalAttackRange')).toBe(false);
     expect(isCombatRuntimeAttributeRelevant('NormalAttackStartRange')).toBe(false);
+    expect(isCombatRuntimeAttributeRelevant('MoveSpeedScalar')).toBe(false);
+    expect(isCombatRuntimeAttributeRelevant('InAirMoveSpeedScalar')).toBe(false);
     expect(isCombatRuntimeAttributeRelevant('Atk')).toBe(true);
   });
 

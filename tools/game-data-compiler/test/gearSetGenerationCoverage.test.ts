@@ -85,7 +85,7 @@ describe('套装来源全量发现，不依赖已发布身份名单', () => {
         tablesDirectory: tables,
         skillDataDirectory: skills,
         buffDataDirectory: buffs,
-        gameplayTagCatalog: 'src/next/data/combat/gameplayTagCatalog.generated.ts',
+        gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
         outputDirectory: output,
         check: false,
       }),

@@ -9,16 +9,16 @@
 - 当前工作树与编译器主线：`D:\Projects\Endaxis`，分支 `refactor/common-game-data`
 - 主要远端：`https://github.com/SQwatermark/Endaxis.git`
 - 上游远端：`https://github.com/Lieyuan621/Endaxis.git`
-- 当前任务：开发 `src/next` 中的新项目模型、编译器、战斗运行时、投影和并行 UI。
+- 当前任务：开发 `src` 中的新项目模型、编译器、战斗运行时、投影和并行 UI。
 
 Endaxis 是最终面向用户的应用。它不负责直接解密游戏文件，也不应在运行时依赖 AnimeStudio 或 IL2CPP Dumper。研究工具的结论必须先转化为稳定数据、DSL、适配器和测试，才能进入生产应用。
 
 主要目录：
 
-- `src/next/core`：框架无关的领域模型、编译器、模拟器和投影；
-- `src/next/data`：新 DSL、目录和旧数据适配；
-- `src/next/application`：打开项目、运行场景等用例；
-- `src/next/ui`：Vue 页面、组件、ViewModel、快捷键和主题；
+- `src/core`：框架无关的领域模型、编译器、模拟器和投影；
+- `src/data`：新 DSL、目录和旧数据适配；
+- `src/application`：打开项目、运行场景等用例；
+- `src/ui`：Vue 页面、组件、ViewModel、快捷键和主题；
 - `tools/game-data-compiler`：统一 TypeScript 编译器的唯一新实现入口；公共来源 IR、
   Action/Condition/Buff/引用图和被动编译只实现一次，装备、图标、本地化等正式数据工具也统一收口于此；
 - `scripts`：已清空；旧生成器和迁移期审计只从 Git 历史追溯，不再保留第二套入口；

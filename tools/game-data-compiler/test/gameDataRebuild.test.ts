@@ -7,6 +7,7 @@ import {
   rebuildGameData,
   parseRebuildArguments,
   compareCandidateFiles,
+  GAME_DATA_REBUILD_BOUNDARIES,
 } from '../scripts/rebuildGameData.ts';
 import { verifyGameDataSnapshot } from '../scripts/verifyGameDataSnapshot.ts';
 
@@ -78,18 +79,21 @@ async function setup() {
 }
 
 describe('从无产物工作树重建装备候选', () => {
-  it('默认保留 AKEDB 主源；不提供发布、VFS-only 或正式输出路径开关', () => {
+  it('默认保留 AKEDB 主源；发布必须显式开启，且不提供 VFS-only 或正式输出路径开关', () => {
     expect(parseRebuildArguments([])).toMatchObject({
       workers: 6,
       tablesOnly: false,
+      publish: false,
       cdn: 'https://data.akedata.wiki',
     });
+    expect(parseRebuildArguments(['--publish']).publish).toBe(true);
     expect(parseRebuildArguments(['--unity-worker', 'worker.exe']).unityWorker).toBe(
       path.resolve('worker.exe'),
     );
     expect(() => parseRebuildArguments(['--unity-worker'])).toThrow('missing');
     for (const values of [
-      ['--publish'],
+      ['--publish', '--publish'],
+      ['--publish', '--tables-only'],
       ['--source-mode', 'vfs-only'],
       ['--output', 'src'],
       ['--workers', '0'],
@@ -98,6 +102,10 @@ describe('从无产物工作树重建装备候选', () => {
     ]) {
       expect(() => parseRebuildArguments(values)).toThrow();
     }
+    const localeBoundary = GAME_DATA_REBUILD_BOUNDARIES.find(item => item.id === 'locales')!;
+    expect(localeBoundary.outputs).toHaveLength(14);
+    expect(localeBoundary.outputs).not.toContain('src/i18n/game-locales');
+    expect(localeBoundary.outputs.filter(file => file.endsWith('/enemies.json'))).toHaveLength(2);
   });
 
   it('正式资源全不存在时生成真实夹具，并通过重复生成 --check；完整重建仍明确未完成', async () => {
@@ -128,9 +136,7 @@ describe('从无产物工作树重建装备候选', () => {
     });
     await expect(fs.stat(path.join(root, 'src'))).rejects.toMatchObject({ code: 'ENOENT' });
     await expect(
-      fs.stat(
-        path.join(report.candidateRoot, 'src/next/data/equipment/generated/index.generated.ts'),
-      ),
+      fs.stat(path.join(report.candidateRoot, 'src/data/equipment/generated/index.generated.ts')),
     ).resolves.toBeDefined();
     expect(JSON.parse(await fs.readFile(path.join(report.runRoot, 'report.json'), 'utf8'))).toEqual(
       report,

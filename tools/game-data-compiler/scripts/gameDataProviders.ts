@@ -178,7 +178,9 @@ async function fetchBytes(
       }
       return { content: new Uint8Array(await response.arrayBuffer()), source: url.href };
     } catch (error) {
-      if (!isTransientTransportError(error)) throw error;
+      const retryableHttpResponse = error instanceof ResourceHttpError && error.status === 570;
+      if (!retryableHttpResponse && !isTransientTransportError(error)) throw error;
+      if (attempt === 3 && retryableHttpResponse) throw error;
       if (attempt === 3)
         throw new TypeError(`${url}: transport failed after ${attempt} attempts`, { cause: error });
       await new Promise(resolve => setTimeout(resolve, 250 * attempt));

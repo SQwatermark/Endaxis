@@ -7,13 +7,13 @@ import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
 import { parseNativeSequenceSource } from '../src/source/controlFlow.ts';
 import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
-import { compileActionSequence } from '../../../src/next/core/compiler/compileSkill';
-import { BuffOperationExecutor } from '../../../src/next/core/combat/runtime/buffOperationExecutor';
-import { CombatBuffContainer } from '../../../src/next/core/combat/buffs/combatBuffs';
-import { CombatAttributeSet } from '../../../src/next/core/combat/attributes/combatAttributes';
-import { CombatActionSequenceRuntime } from '../../../src/next/core/combat/runtime/combatActionSequenceRuntime';
-import { ActionBlackboard } from '../../../src/next/core/combat/runtime/actionBlackboard';
-import { GameplayTagRegistry } from '../../../src/next/core/combat/tags/gameplayTags';
+import { compileActionSequence } from '../../../src/core/compiler/compileSkill';
+import { BuffOperationExecutor } from '../../../src/core/combat/runtime/buffOperationExecutor';
+import { CombatBuffContainer } from '../../../src/core/combat/buffs/combatBuffs';
+import { CombatAttributeSet } from '../../../src/core/combat/attributes/combatAttributes';
+import { CombatActionSequenceRuntime } from '../../../src/core/combat/runtime/combatActionSequenceRuntime';
+import { ActionBlackboard } from '../../../src/core/combat/runtime/actionBlackboard';
+import { GameplayTagRegistry } from '../../../src/core/combat/tags/gameplayTags';
 
 const meta = { isEnable: true, priorityLevel: 'Default', priorityOffset: 0, serverActionIndex: 0 };
 const context = {

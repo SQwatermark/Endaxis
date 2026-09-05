@@ -2,7 +2,7 @@
 
 ## 1. 总体原则
 
-Endaxis Next 位于 `src/next`，是与旧版并行的新实现。它共享必要的游戏数据和视觉参考，但不共享旧版项目状态、模拟器、持久化类型或 UI 状态。
+Endaxis Next 位于 `src`，是与旧版并行的新实现。它共享必要的游戏数据和视觉参考，但不共享旧版项目状态、模拟器、持久化类型或 UI 状态。
 
 核心原则：
 
@@ -17,7 +17,7 @@ Endaxis Next 位于 `src/next`，是与旧版并行的新实现。它共享必�
 ## 2. 目录分层
 
 ```text
-src/next/
+src/
   application/       用例编排：打开项目、运行模拟
   core/
     project/         项目 schema、校验、序列化、迁移
@@ -173,7 +173,7 @@ type LevelValues = number | readonly number[];
 ### 7.1 外部游戏数据编译器
 
 `tools/game-data-compiler` 是原生导出数据进入上述 Next 定义的唯一新转换入口。它与
-`src/next/core/compiler` 的职责不同：前者把版本化游戏数据转换成可审计的正式定义，后者把正式
+`src/core/compiler` 的职责不同：前者把版本化游戏数据转换成可审计的正式定义，后者把正式
 定义和用户构筑编译成单次模拟程序。
 
 外部编译器的依赖方向固定为：
@@ -297,7 +297,7 @@ Mechanic 用于表达不适合塞入通用技能 step、但会向编译或运行
 - ViewModel 将项目和投影整理为组件需要的数据；
 - Vue 组件只处理渲染、输入和局部交互状态。
 
-当前页面 `NextTimelineEditor.vue` 已拆出轨道头、标尺、资源曲线、技能块、连接层、选择弹窗、构筑面板和工具栏等组件。快捷键使用 `keyboardShortcutRouter` 逐步建立作用域；临时的 DOM 弹窗判断应在后续统一成显式 focus scope 栈。
+当前页面 `TimelineEditor.vue` 已拆出轨道头、标尺、资源曲线、技能块、连接层、选择弹窗、构筑面板和工具栏等组件。快捷键使用 `keyboardShortcutRouter` 逐步建立作用域；临时的 DOM 弹窗判断应在后续统一成显式 focus scope 栈。
 
 ## 12. i18n 与主题
 
@@ -325,7 +325,7 @@ i18n 原则：
 - 投影从 receipt 单次遍历生成变化点；
 - UI 只渲染可视区和必要派生数据；
 - 不在 render 中重复编译或模拟；
-- benchmark 放在 `src/next/benchmarks`，以真实场景和正确性测试为前提。
+- benchmark 放在 `src/benchmarks`，以真实场景和正确性测试为前提。
 
 不要为了微小性能收益引入难以审计的 ECS、跨层缓存或隐式全局单例。
 
@@ -336,7 +336,7 @@ i18n 原则：
 - 新代码只写新版格式；
 - 当前 breaking change 允许不兼容更早实验版本，但重构完成后的正式版本必须有稳定 schema 和迁移策略；
 - `/timeline` 在切换前不应被 Next 开发顺手修改；
-- UI 可以参考或复制旧组件样式，但新功能写入 `src/next`。
+- UI 可以参考或复制旧组件样式，但新功能写入 `src`。
 
 ## Unity 模板的引用闭包下载
 

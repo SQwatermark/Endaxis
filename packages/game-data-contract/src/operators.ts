@@ -327,10 +327,11 @@ export interface ComboSkillConditionDefinition {
 }
 
 export interface OperatorDefinition {
+  /** 稳定英文名；项目引用与实例关联使用此身份。 */
   slug: string;
   /** 项目模板可提供独立展示名；内置定义继续使用本地化文本。 */
   displayName?: string;
-  /** 项目模板继承头像、技能图标和本地化回退时使用的内置资源 slug。 */
+  /** 项目模板继承头像、技能图标和本地化回退时使用的内置资源 slug；不参与对象身份。 */
   assetSlug?: string;
   gameId: string;
   rarity: OperatorRarity;

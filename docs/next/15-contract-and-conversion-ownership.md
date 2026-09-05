@@ -25,10 +25,10 @@ Next 已经形成了公共数据协议、游戏数据编译器、项目校验、
   -> tools/game-data-compiler/src/source（Source IR）
   -> tools/game-data-compiler/src/compiler（语义投影）
   -> packages/game-data-contract（公共定义）
-  -> src/next/data（版本化目录与生成产物）
-  -> src/next/core/project + core/game-data（不可信输入校验）
-  -> src/next/core/compiler（单场不可变程序）
-  -> src/next/core/combat（唯一战斗解释）
+  -> src/data（版本化目录与生成产物）
+  -> src/core/project + core/game-data（不可信输入校验）
+  -> src/core/compiler（单场不可变程序）
+  -> src/core/combat（唯一战斗解释）
   -> receipt -> projection -> UI
 ```
 

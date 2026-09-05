@@ -44,8 +44,7 @@ describe('生成时间膨胀目录结构读取', () => {
 
   it('读取仓库当前生成目录', () => {
     expect(
-      readGeneratedTimeDilationPriorities('src/next/data/combat/timeDilationCatalog.generated.ts')
-        .size,
+      readGeneratedTimeDilationPriorities('src/data/combat/timeDilationCatalog.generated.ts').size,
     ).toBe(10);
   });
 });

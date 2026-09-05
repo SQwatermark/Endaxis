@@ -101,7 +101,7 @@
   `CombatAttributes.cs`：防御、暴击、治疗、技能类别及伤害类型属性的实际消费点；
 - `docs/damage-formula.md`：同一命中可同时累加伤害类型和技能类别增伤，普攻集合包含普通攻击、
   重击、下落攻击与冲刺攻击；真实伤害不消费伤害类型增伤，但仍可消费技能类别增伤；
-- `src/next/core/combat/damage/damageScaleAttributes.ts`：Next 已有与上述原生属性一一对应的伤害
+- `src/core/combat/damage/damageScaleAttributes.ts`：Next 已有与上述原生属性一一对应的伤害
   快照字段与命中标签分类，因此无需引入近似筛选规则；
 - `ReadSkillSettingAction.cs`：原生逻辑读取
   `PhysicalAndSpellInflictionEnhance` 作为附着增强输入；

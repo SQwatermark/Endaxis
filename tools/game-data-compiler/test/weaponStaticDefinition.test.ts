@@ -1,4 +1,4 @@
-import { compileWeaponContributions } from '../../../src/next/core/compiler/compileEquipment.ts';
+import { compileWeaponContributions } from '../../../src/core/compiler/compileEquipment.ts';
 import { describe, expect, it } from 'vitest';
 
 import { compileWeaponStaticDefinitionBatchSource } from '../src/index.ts';
@@ -198,6 +198,36 @@ describe('武器静态定义', () => {
         ]),
       );
     }
+  });
+
+  it('三星武器保留紧凑等级列，但将第二条原生被动定义为 skill3', () => {
+    const weapon = {
+      ...weaponFixture(),
+      rarity: 3,
+      weaponSkillList: ['sk_wpn_fixture', 'sk_wpn_fixture_second'],
+    };
+    const secondPassive = { ...passiveFixture(), skillId: 'sk_wpn_fixture_second' };
+    const result = compileWeaponStaticDefinitionBatchSource(
+      { wpn_lance_fixture: weapon },
+      upgradeFixture(),
+      {
+        sk_wpn_fixture: passiveFixture(),
+        sk_wpn_fixture_second: secondPassive,
+      },
+      {
+        sk_wpn_fixture: patchFixture(),
+        sk_wpn_fixture_second: patchFixture(),
+      },
+    );
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.definitions[0]?.traits.map(trait => trait.key)).toEqual(['skill1', 'skill3']);
+    expect(
+      result.runtimeDependencies.map(dependency => [dependency.traitKey, dependency.slotIndex]),
+    ).toEqual([
+      ['skill1', 0],
+      ['skill3', 1],
+    ]);
   });
 
   it('固定按原生 ID 排序，且拒绝重复选择身份', () => {

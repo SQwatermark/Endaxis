@@ -253,6 +253,7 @@ export const RESOURCE_RECIPIENTS = ['caster', 'team'] as const;
 export type ResourceRecipient = (typeof RESOURCE_RECIPIENTS)[number];
 
 export const HEAL_TARGETS = [
+  'enemy',
   'caster',
   'buffSource',
   'buffOwner',

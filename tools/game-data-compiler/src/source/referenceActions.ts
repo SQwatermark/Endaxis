@@ -7,6 +7,7 @@ import {
   requireBoolean,
   requireExactFields,
   requireInteger,
+  requireNativeEnum,
   requireNonEmptyString,
   requireRecord,
   requireString,
@@ -26,7 +27,9 @@ import {
   type QuaternionSource,
   type Vector3Source,
 } from './spatial.ts';
+import { readMountPoint } from './spatialEnums.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { readDirectionType } from './targetEnums.ts';
 
 const ACTION_META_FIELDS = [
   '$type',
@@ -51,6 +54,13 @@ export interface ProjectilePresetPointSource {
 /** 原生 LaunchProjectile.Data 使用的模式；只接收导出层已还原的枚举名称。 */
 export type ProjectileTargetFilterModeSource = 'None' | 'OnlyHit' | 'NeverHit';
 
+// combat-spec/launch-projectile-skill-routing.md：元数据常量表的精确值，不按声明顺序推断。
+const PROJECTILE_TARGET_FILTER_MODES = new Map<number, ProjectileTargetFilterModeSource>([
+  [0, 'None'],
+  [1, 'OnlyHit'],
+  [2, 'NeverHit'],
+]);
+
 export interface ProjectileLaunchActionSource {
   readonly kind: 'projectileLaunch';
   readonly projectileId: string;
@@ -64,7 +74,8 @@ export interface ProjectileLaunchActionSource {
   readonly emitMountPoint: string;
   readonly useWeaponMountPoint: boolean;
   readonly weaponIndex: number;
-  readonly weaponMountPoint: string;
+  /** WeaponMountPoint 的原生表示；尚未取得该独立枚举的名称映射。 */
+  readonly weaponMountPoint: string | number;
   readonly overrideEmitBone: boolean;
   readonly emitPositionFixedOffset: Vector3Source;
   readonly emitPositionForwardMode: string;
@@ -303,15 +314,12 @@ export function parseProjectileLaunchActionSource(
     return { event, enabled, skillId };
   });
   const targetFilterMode = hasTargetControls
-    ? requireString(action.targetFilterMode, `${path}.targetFilterMode`)
+    ? requireNativeEnum(
+        action.targetFilterMode,
+        PROJECTILE_TARGET_FILTER_MODES,
+        `${path}.targetFilterMode`,
+      )
     : 'None';
-  if (
-    targetFilterMode !== 'None' &&
-    targetFilterMode !== 'OnlyHit' &&
-    targetFilterMode !== 'NeverHit'
-  ) {
-    throw new Error(`${path}.targetFilterMode: unsupported enum name ${targetFilterMode}`);
-  }
   return {
     kind: 'projectileLaunch',
     projectileId: requireNonEmptyString(action.projectileId, `${path}.projectileId`),
@@ -327,16 +335,16 @@ export function parseProjectileLaunchActionSource(
       enabled: assignEntityBlackboard,
     }),
     emitPosition: parseTargetReferenceSource(action.emitPos, `${path}.emitPos`),
-    emitMountPoint: requireNonEmptyString(action.emitMountPoint, `${path}.emitMountPoint`),
+    emitMountPoint: readMountPoint(action.emitMountPoint, `${path}.emitMountPoint`),
     useWeaponMountPoint: requireBoolean(action.useWeaponMp, `${path}.useWeaponMp`),
     weaponIndex: requireInteger(action.weaponIndex, `${path}.weaponIndex`),
-    weaponMountPoint: requireNonEmptyString(action.weaponMp, `${path}.weaponMp`),
+    weaponMountPoint: parseOpaqueWeaponMountPoint(action.weaponMp, `${path}.weaponMp`),
     overrideEmitBone: requireBoolean(action.overrideEmitBone, `${path}.overrideEmitBone`),
     emitPositionFixedOffset: parseVector3Source(
       action.emitPosFixedOffset,
       `${path}.emitPosFixedOffset`,
     ),
-    emitPositionForwardMode: requireNonEmptyString(
+    emitPositionForwardMode: readDirectionType(
       action.emitPosOffsetForward,
       `${path}.emitPosOffsetForward`,
     ),
@@ -353,9 +361,9 @@ export function parseProjectileLaunchActionSource(
       ? requireBoolean(action.alsoLaunchToHittableTarget, `${path}.alsoLaunchToHittableTarget`)
       : false,
     overrideHitBone: requireBoolean(action.overrideHitBone, `${path}.overrideHitBone`),
-    hitMountPoint: requireNonEmptyString(action.hitMountPoint, `${path}.hitMountPoint`),
+    hitMountPoint: readMountPoint(action.hitMountPoint, `${path}.hitMountPoint`),
     hitBoneFixedOffset: parseVector3Source(action.hitBoneFixedOffset, `${path}.hitBoneFixedOffset`),
-    hitBoneForwardMode: requireNonEmptyString(
+    hitBoneForwardMode: readDirectionType(
       action.hitBoneOffsetForward,
       `${path}.hitBoneOffsetForward`,
     ),
@@ -368,6 +376,12 @@ export function parseProjectileLaunchActionSource(
     ),
     callbacks,
   };
+}
+
+function parseOpaqueWeaponMountPoint(value: unknown, path: string): string | number {
+  if (typeof value === 'string' && value.length > 0) return value;
+  if (typeof value === 'number' && Number.isInteger(value)) return value;
+  throw new Error(`${path}: expected a non-empty enum name or integer native value`);
 }
 
 export function parseAbilityEntitySpawnActionSource(

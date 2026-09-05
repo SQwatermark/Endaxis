@@ -2,18 +2,18 @@ import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/avywenna-progression.json';
 import buffFixture from './fixtures/avywenna-talent-buff.json';
-import type { SkillBuffDefinition } from '../../../src/next/core/game-data/operatorDefinition';
-import { validateActionSequenceDefinition } from '../../../src/next/core/game-data/validateSkillDefinition';
+import type { SkillBuffDefinition } from '../../../src/core/game-data/operatorDefinition';
+import { validateActionSequenceDefinition } from '../../../src/core/game-data/validateSkillDefinition';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
-import { ScenarioSimulationService } from '../../../src/next/application/scenarioSimulationService';
-import { createEmptyScenario } from '../../../src/next/core/project/createProject';
-import { avywenna } from '../../../src/next/data/operators/avywenna';
-import { skillSettings } from '../../../src/next/data/combat/skillSettings';
+import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
+import { createEmptyScenario } from '../../../src/core/project/createProject';
+import { avywenna } from '../../../src/data/operators/avywenna';
+import { skillSettings } from '../../../src/data/combat/skillSettings';
 import { parseOperatorProgressionSource } from '../src/domains/operator/progression.ts';
 import {
   compileOperatorInitializationPrograms,
   resolveActiveOperatorUpgrades,
-} from '../../../src/next/core/compiler/compileOperatorUpgrades';
+} from '../../../src/core/compiler/compileOperatorUpgrades';
 import {
   compileOperatorPotentialDefinition,
   compileOperatorTalentDefinition,

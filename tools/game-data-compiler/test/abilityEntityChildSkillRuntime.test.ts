@@ -2,18 +2,18 @@ import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/avywenna-entity-child-skills.json';
 import { compileAbilityEntityChildSkillSource } from '../src/compiler/abilityEntityChildSkill.ts';
 import { makeReturnTargetProjection } from './support/avywennaReturnTargets.ts';
-import { avywenna } from '../../../src/next/data/operators/avywenna';
+import { avywenna } from '../../../src/data/operators/avywenna';
 import type {
   ActionSequenceDefinition,
   OperatorDefinition,
-} from '../../../src/next/core/game-data/operatorDefinition';
-import { ScenarioSimulationService } from '../../../src/next/application/scenarioSimulationService';
-import { createEmptyScenario } from '../../../src/next/core/project/createProject';
-import { placeSkillGroup } from '../../../src/next/ui/timeline/placeSkillGroup';
+} from '../../../src/core/game-data/operatorDefinition';
+import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
+import { createEmptyScenario } from '../../../src/core/project/createProject';
+import { placeSkillGroup } from '../../../src/ui/timeline/placeSkillGroup';
 
 const ids = [
   'abilityentity_chr_0012_avywen_combo_skill_lance',
-  'abilityentity_chr_0012_avywen_ultimate_skill',
+  'abilityentity_chr_0012_avywen_ultimate_skill_lance',
 ];
 const marker = 'buff_chr_0012_avywen_lance_becalled';
 

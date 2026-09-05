@@ -1058,6 +1058,10 @@ describe('公共 Buff 运行时投影', () => {
                   inheritSourceSkillCastInfo: true,
                   buffs: [entry],
                   exitBuffs: [],
+                  iconDurationOverride: {
+                    durationSourceType: 'TimedMarker',
+                    timedMarkerId: 'ultimate-window',
+                  },
                 },
               },
             },
@@ -1074,7 +1078,13 @@ describe('公共 Buff 运行时投影', () => {
 
     expect(projected.steps[0]).toMatchObject({
       kind: 'applyBuff',
-      parameters: { source: 'currentAbilityEntity' },
+      parameters: {
+        source: 'currentAbilityEntity',
+        iconDurationSource: {
+          kind: 'actionOwnerTimedMarker',
+          markerId: 'ultimate-window',
+        },
+      },
     });
   });
 
@@ -1692,6 +1702,112 @@ describe('公共 Buff 运行时投影', () => {
     });
   });
 
+  it('数量真分支把至多一个的零空间 Context 细化为单例且不泄漏编译标记', () => {
+    const sequence = sourceFixture().graph.abilityEvents[0]!.actions[0]!;
+    const metadata = sequence.actions[0]!.metadata;
+    const target = { ...fixedTarget('Context'), targetGroupKey: 'tar2' };
+    const readNode = {
+      sourcePath: 'SkillData.fixture.forEach.readCount',
+      metadata,
+      body: {
+        kind: 'leaf',
+        value: {
+          family: 'buffQuery',
+          action: {
+            kind: 'buffStackRead',
+            sourceType: 'SaveBuffStackNumByTag',
+            target: fixedTarget('Target'),
+            checkType: 'Tag',
+            buffIds: [],
+            tagQueryType: 'hasAny',
+            buffTagIds: [1075718177],
+            countType: 'BuffCount',
+            limitSkillCastId: false,
+            outputKey: 'count',
+          },
+        },
+      },
+    };
+    const result = compileCombatActionSequenceSource(
+      {
+        ...sequence,
+        actions: [
+          {
+            sourcePath: 'SkillData.fixture.guard',
+            metadata,
+            body: {
+              kind: 'ifElse',
+              condition: {
+                ...sequence,
+                actions: [
+                  {
+                    sourcePath: 'SkillData.fixture.guard.count',
+                    metadata,
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'condition',
+                        action: {
+                          kind: 'entityCount',
+                          targetSource: 'Context',
+                          targetGroupKey: 'tar2',
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          storeKey: '',
+                          comparison: 'GE',
+                          minimumCount: 1,
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+              whenTrue: {
+                ...sequence,
+                actions: [
+                  {
+                    sourcePath: 'SkillData.fixture.guard.forEach',
+                    metadata,
+                    body: {
+                      kind: 'forEach',
+                      target,
+                      action: { ...sequence, actions: [readNode] },
+                    },
+                  },
+                ],
+              },
+              whenFalse: { ...sequence, actions: [] },
+              alwaysNext: true,
+            },
+          },
+        ],
+      } as never,
+      {
+        gameplayTagRegistry: fixtureGameplayTagRegistry,
+        actionOwnerTarget: 'currentAbilityEntity',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'caster',
+        atMostOneZeroSpaceTargetGroupKeys: new Set(['tar2']),
+      },
+    );
+
+    expect(result.steps[0]).toMatchObject({
+      kind: 'conditional',
+      whenTrue: {
+        steps: [
+          {
+            kind: 'forEachContextTarget',
+            parameters: { target: 'enemy' },
+            body: {
+              steps: [{ kind: 'readBuffStackCount', parameters: { target: 'enemy' } }],
+            },
+          },
+        ],
+      },
+    });
+    expect(JSON.stringify(result)).not.toContain('guaranteedSingletonZeroSpace');
+  });
+
   it('公共动作投影按宿主上下文解析 ActionOwner，而不把武器宿主伪装成 Buff', () => {
     const source = sourceFixture();
     const sequence = source.graph.abilityEvents[0]!.actions[0]!;
@@ -1780,6 +1896,62 @@ describe('公共 Buff 运行时投影', () => {
         },
       ],
     });
+  });
+
+  it('FinishBuffAdvanced 将原生 MainCharacter owner 投影为固定施法者', () => {
+    const source = sourceFixture();
+    const baseSequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const metadata = baseSequence.actions[0]!.metadata;
+    const compiled = compileCombatActionSequenceSource(
+      {
+        ...baseSequence,
+        actions: [
+          {
+            sourcePath: 'BuffData.buff_cc_chr.finishStack',
+            metadata,
+            body: {
+              kind: 'leaf',
+              value: {
+                family: 'buffFinish',
+                action: {
+                  kind: 'buffFinishByQuery',
+                  owner: fixedTarget('MainCharacter'),
+                  settings: {
+                    checkType: 'Id',
+                    buffIds: ['buff_cc_chr_stack'],
+                    tagQuery: { queryType: 'hasAny', tagIds: [] },
+                  },
+                  finishAll: true,
+                  finishLayerCount: { value: 1, blackboardKey: null, levelValues: null },
+                  limitSource: false,
+                  buffSource: fixedTarget('Source'),
+                  isFinishedEarly: false,
+                  isAbsorbed: false,
+                  finishSource: fixedTarget('Source'),
+                },
+              },
+            },
+          },
+        ],
+      },
+      {
+        actionOwnerTarget: 'buffOwner',
+        actionSourceTarget: 'buffSource',
+        actionTargetTarget: 'eventTarget',
+        fixedBuffOwnerTarget: 'caster',
+        fixedBuffSourceTarget: 'caster',
+      },
+    );
+    expect(compiled.steps).toEqual([
+      {
+        kind: 'finishBuffsById',
+        parameters: {
+          target: 'caster',
+          buffIds: ['buff_cc_chr_stack'],
+          reason: 'other',
+        },
+      },
+    ]);
   });
 
   it('FinishBuffAdvanced 的空 Id 列表严格投影为无操作而非结束全部 Buff', () => {
@@ -2841,6 +3013,35 @@ describe('公共 Buff 运行时投影', () => {
         },
       ],
     });
+  });
+
+  it('把原生 Main 属性修正保留为运行时主属性选择器', () => {
+    const fixture = sourceFixture();
+    const source = {
+      ...fixture,
+      attributeModifiers: {
+        ...fixture.attributeModifiers,
+        modifiers: [
+          {
+            ...fixture.attributeModifiers.modifiers[0]!,
+            modifyAttributeType: 'Main' as const,
+          },
+        ],
+      },
+    };
+
+    const definition = compileBuffRuntimeDefinitionSource(
+      source,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { gameplayTagRegistry: fixtureGameplayTagRegistry },
+    );
+
+    expect(definition.attributeModifiers).toEqual([
+      { attribute: { kind: 'main' }, slot: 'baseMultiplier', value: { blackboardKey: 'atk_up' } },
+    ]);
   });
 
   it('fails closed on behavior payloads that are not in the common IR', () => {

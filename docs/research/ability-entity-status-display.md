@@ -34,9 +34,11 @@
 图标倒计时显示 Owner 的剩余时间”。因此许多旧版“能力实体状态”更可能是**真实 Buff 图标 + 实体
 倒计时源**，而不是能力实体自身拥有另一套图标定义。
 
-当前转换器虽然严格解析了上述动作字段，但战斗投影明确丢弃了这层只影响图标的倒计时来源；时间轴仍
-按 Buff 自身寿命绘制。这是已经定位的展示语义损失。当前 AbilityEntity 模板链也只解码逻辑前缀，组件
-数量和 RID 仍只是解码边界。两者都属于**转换器覆盖缺口**，不能当成原始游戏没有展示语义的证据。
+转换器和运行时现已闭合这类图标时钟：CreateBuff 的 AbilityEntity 来源与 Aura 的 TimedMarker 来源
+都会在 Buff 施加边沿解析成稳定实例身份；`AbilityEntityFinished` / `TimedMarkerFinished` 只覆盖图标
+持续条，不改变 Buff 自身寿命。汤汤终结技的两份 Aura Buff 已用生产场景证明共用同一个
+`tangtang_ult` 实例，并按实体自身时间膨胀时钟结束。当前 AbilityEntity 模板链仍只解码逻辑前缀，
+组件数量和 RID 仍只是解码边界；这部分仍是**转换器覆盖缺口**，不能当成原始游戏没有展示语义的证据。
 
 当前 IL2CPP 静态证据只覆盖 `Gameplay.Beyond.dll`：能看到 `AbilitySystem.onBuffIconChange`、
 `OnBuffIconChange`、Buff 合并/层数规则和倒计时来源，但尚未包含订阅该事件并最终绘制图标的完整 UI/View
@@ -49,14 +51,14 @@
 
 ## 已确认的新旧对应
 
-| 旧版直接模拟的状态 | Next 原生能力实体证据 | 对应结论 | 计数注意事项 |
-| --- | --- | --- | --- |
-| 赛希 `xaihi-auxiliary-crystal`（支援晶体） | `abilityentity_chr_0011_seraph_normal_skill`，战技生成，实体内部承载治疗与连携计数 Buff | 确认对应 | 旧版的 2 层表示剩余使用次数，不是两个实体。Next 是一个实体；内部 `buff_chr_0011_seraph_combo_count` 达到 2 后结束实体。因此不能用存活实例数冒充旧版层数。 |
-| 庄方宜 `zhuangfangyi-sunderblades`（青霆剑） | `abilityentity_chr_0030_zhuangfy_normal_skill_sword`，每把剑独立生成、独立结束，并受动态寿命与数量上限控制 | 确认对应 | 计数可以来自同 owner 下存活的同类实体数；各实例寿命独立，不能合成一个假的刷新型 Buff。 |
-| 汤汤 `tangtang-whirlpools`（涡流） | `abilityentity_chr_0027_tangtang_comboskill_water`，连携生成，原生最大同时存在 2 个，后续技能会查找这些实例 | 确认对应 | 适合按存活实例数显示 1/2；实体自身与其产生的水龙卷伤害/易伤 Buff 是不同状态。 |
-| 艾维文娜 `avywenna-thunderlance` / `avywenna-thunderlance-ex`（雷枪/强雷枪） | `abilityentity_chr_0012_avywen_combo_skill_lance` / `abilityentity_chr_0012_avywen_ultimate_skill`，战技查找并召回实体 | 确认对应 | 旧版普通雷枪一次显示 3 层，而 Next 当前是一份逻辑实体蓝图；层数不能仅按实例数计算，需继续从原生实体内部状态或可靠展示证据闭合。 |
-| 萤石 `fluorite-battle-improvised-explosive`（自制炸弹） | `abilityentity_chr_0022_bounda_normal_skill`，以敌人为目标生成，子技能延迟结算伤害 | 确认对应 | 它应出现在敌方状态区；旧版写 3 秒，Next 模板寿命为 5 秒，最终持续条以真实生成/结束回执为准，旧值只作差异审计。 |
-| 诀 `arcane-gloompurger-array`（破晦阵） | `abilityentity_chr_0032_lizhiyan_ultimate_skill`，奥义按 `duration_aura` 覆盖模板寿命生成，技能和 Buff 会查找该实体 | 确认对应 | 展示主阵实体，不展示 place、laser、laser target、death 等内部配套实体；集束打击计数仍是独立 Buff 状态。 |
+| 旧版直接模拟的状态                                                           | Next 原生能力实体证据                                                                                                  | 对应结论 | 计数注意事项                                                                                                                                              |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 赛希 `xaihi-auxiliary-crystal`（支援晶体）                                   | `abilityentity_chr_0011_seraph_normal_skill`，战技生成，实体内部承载治疗与连携计数 Buff                                | 确认对应 | 旧版的 2 层表示剩余使用次数，不是两个实体。Next 是一个实体；内部 `buff_chr_0011_seraph_combo_count` 达到 2 后结束实体。因此不能用存活实例数冒充旧版层数。 |
+| 庄方宜 `zhuangfangyi-sunderblades`（青霆剑）                                 | `abilityentity_chr_0030_zhuangfy_normal_skill_sword`，每把剑独立生成、独立结束，并受动态寿命与数量上限控制             | 确认对应 | 计数可以来自同 owner 下存活的同类实体数；各实例寿命独立，不能合成一个假的刷新型 Buff。                                                                    |
+| 汤汤 `tangtang-whirlpools`（涡流）                                           | `abilityentity_chr_0027_tangtang_comboskill_water`，连携生成，原生最大同时存在 2 个，后续技能会查找这些实例            | 确认对应 | 适合按存活实例数显示 1/2；实体自身与其产生的水龙卷伤害/易伤 Buff 是不同状态。                                                                             |
+| 艾维文娜 `avywenna-thunderlance` / `avywenna-thunderlance-ex`（雷枪/强雷枪） | `abilityentity_chr_0012_avywen_combo_skill_lance` / `abilityentity_chr_0012_avywen_ultimate_skill`，战技查找并召回实体 | 确认对应 | 旧版普通雷枪一次显示 3 层，而 Next 当前是一份逻辑实体蓝图；层数不能仅按实例数计算，需继续从原生实体内部状态或可靠展示证据闭合。                           |
+| 萤石 `fluorite-battle-improvised-explosive`（自制炸弹）                      | `abilityentity_chr_0022_bounda_normal_skill`，以敌人为目标生成，子技能延迟结算伤害                                     | 确认对应 | 它应出现在敌方状态区；旧版写 3 秒，Next 模板寿命为 5 秒，最终持续条以真实生成/结束回执为准，旧值只作差异审计。                                            |
+| 诀 `arcane-gloompurger-array`（破晦阵）                                      | `abilityentity_chr_0032_lizhiyan_ultimate_skill`，奥义按 `duration_aura` 覆盖模板寿命生成，技能和 Buff 会查找该实体    | 确认对应 | 展示主阵实体，不展示 place、laser、laser target、death 等内部配套实体；集束打击计数仍是独立 Buff 状态。                                                   |
 
 这些对应不是按名称相似得出：每一项都同时具备旧版可见 `status`、Next 的明确生成动作，以及后续
 查找、消费、结束或子技能行为证据。
@@ -105,12 +107,12 @@
 旧版的 `status` 同时承担了两种职责：一是模拟 Buff，二是给任何需要观察的持续机制提供图标、层数和
 持续条。因此“旧版显示为 Buff”并不能证明它在游戏规则中是 Buff。当前已能看到至少四种来源：
 
-| Next 中的真实来源 | 旧版示例 | 正确处理 |
-| --- | --- | --- |
-| 真实 Buff 实例 | 莱万汀熔火、大潘备料、安塔尔聚焦、角色增益和敌方减益 | 读取 `BuffApplied` / `BuffFinished` 及真实层数；已有原生展示字段时直接生成。字段缺失时先检查专用 UI 资产和提取器覆盖，不能立即补产品配置，更不能另造 Buff。 |
-| 真实能力实体 | 支援晶体、青霆剑、涡流、雷枪、自制炸弹、破晦阵 | 读取实体生成/结束及必要的实体宿主 Buff；不能把实体重新放进 Buff 容器。 |
-| 已有专用生命周期 | 连携窗口、终结技强化、技能冷却 | 继续使用专用投影和专用视觉层。旧版曾用 status 只是旧架构限制，不应为了“像旧版”重复画进状态栏。 |
-| 复合或派生的可观察状态 | 支援晶体剩余次数、多个青霆剑实例的合计、不同类型雷枪的合计 | 从多个真实回执做只读归并；归并规则必须逐项配置，不能写进模拟运行时。 |
+| Next 中的真实来源      | 旧版示例                                                   | 正确处理                                                                                                                                                    |
+| ---------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 真实 Buff 实例         | 莱万汀熔火、大潘备料、安塔尔聚焦、角色增益和敌方减益       | 读取 `BuffApplied` / `BuffFinished` 及真实层数；已有原生展示字段时直接生成。字段缺失时先检查专用 UI 资产和提取器覆盖，不能立即补产品配置，更不能另造 Buff。 |
+| 真实能力实体           | 支援晶体、青霆剑、涡流、雷枪、自制炸弹、破晦阵             | 读取实体生成/结束及必要的实体宿主 Buff；不能把实体重新放进 Buff 容器。                                                                                      |
+| 已有专用生命周期       | 连携窗口、终结技强化、技能冷却                             | 继续使用专用投影和专用视觉层。旧版曾用 status 只是旧架构限制，不应为了“像旧版”重复画进状态栏。                                                              |
+| 复合或派生的可观察状态 | 支援晶体剩余次数、多个青霆剑实例的合计、不同类型雷枪的合计 | 从多个真实回执做只读归并；归并规则必须逐项配置，不能写进模拟运行时。                                                                                        |
 
 因此最终要设计的不是“所有能力实体默认可见”，而是**由原生展示机制生成的统一状态指示器定义**。
 Buff 和实体定义仍保持各自唯一、稳定的游戏数据结构；生成的指示器引用这些身份并保留原生规定的
@@ -128,10 +130,10 @@ packages/game-data-contract
 tools/game-data-compiler
   从 Buff iconConfig、图标倒计时来源、角色 HUD 控制器等原生证据生成归一化定义
 
-src/next/data/operators/generated-definitions/
+src/data/operators/generated-definitions/
   与干员规则定义一同承载生成的 statusIndicators
 
-src/next/data/status-indicator-fallbacks/
+src/data/status-indicator-fallbacks/
   仅保存已审计且原生证据确实不足的 legacyFallback；正常内置数据不得进入这里
 ```
 

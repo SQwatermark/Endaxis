@@ -28,7 +28,10 @@ export function typeCheckCandidateOverlay(args: CandidateTypeCheckArguments) {
   const virtualDirectories = new Map<string, string>();
   for (const relativePath of args.replacementPaths) {
     const candidate = path.resolve(candidateRoot, relativePath);
-    if (!isWithin(candidateRoot, candidate) || !fs.existsSync(candidate)) continue;
+    if (!isWithin(candidateRoot, candidate))
+      throw new Error(`candidate replacement escapes candidate root: ${relativePath}`);
+    if (!fs.existsSync(candidate))
+      throw new Error(`candidate replacement is missing: ${relativePath}`);
     const target = path.resolve(projectRoot, relativePath);
     if (!isWithin(projectRoot, target))
       throw new Error(`candidate target escapes project: ${relativePath}`);
@@ -52,7 +55,7 @@ export function typeCheckCandidateOverlay(args: CandidateTypeCheckArguments) {
   }
   if (overlays.size === 0) throw new Error('candidate overlay has no generated files');
 
-  const dataRoot = path.join(projectRoot, 'src/next/data');
+  const dataRoot = path.join(projectRoot, 'src/data');
   const rootNames = parsed.fileNames
     .filter(file => isWithin(dataRoot, file) && isTypeScript(file))
     .filter(file => !isMasked(file, replacedDirectories, overlays));

@@ -648,6 +648,10 @@ function scheduleDelayedProjectileCallbackSource(
   const unsafeWriterKinds = new Set([
     'modifyActionValue',
     'storeSourceAttributeValue',
+    'storeEntityPropertyValue',
+    'storeEventHealValues',
+    'storeShieldValue',
+    'setHealthFloor',
     'calculateActionValue',
     'readCurrentBuffRemainingDuration',
     'readBuffRemainingDuration',

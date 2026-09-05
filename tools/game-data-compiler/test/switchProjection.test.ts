@@ -9,9 +9,9 @@ import {
   scalarFixture,
   targetFixture,
 } from './sourceFixtures.ts';
-import { compileActionSequence } from '../../../src/next/core/compiler/compileSkill';
-import { CombatActionSequenceRuntime } from '../../../src/next/core/combat/runtime/combatActionSequenceRuntime';
-import { ActionBlackboard } from '../../../src/next/core/combat/runtime/actionBlackboard';
+import { compileActionSequence } from '../../../src/core/compiler/compileSkill';
+import { CombatActionSequenceRuntime } from '../../../src/core/combat/runtime/combatActionSequenceRuntime';
+import { ActionBlackboard } from '../../../src/core/combat/runtime/actionBlackboard';
 import { renderCommonBuffDefinitionsSource } from '../src/domains/operator/definitionSourceRenderer.ts';
 
 const meta = { isEnable: true, priorityLevel: 'Default', priorityOffset: 0, serverActionIndex: 0 };

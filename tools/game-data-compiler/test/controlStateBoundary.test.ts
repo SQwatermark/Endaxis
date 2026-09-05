@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import akekuri from '../../../src/next/data/operators/generated-definitions/akekuri/akekuri.operator.generated';
-import avywenna from '../../../src/next/data/operators/generated-definitions/avywenna/avywenna.operator.generated';
-import wulfgard from '../../../src/next/data/operators/generated-definitions/wulfgard/wulfgard.operator.generated';
-import xaihi from '../../../src/next/data/operators/generated-definitions/xaihi/xaihi.operator.generated';
-import yvonne from '../../../src/next/data/operators/generated-definitions/yvonne/yvonne.operator.generated';
+import akekuri from '../../../src/data/operators/generated-definitions/akekuri/akekuri.operator.generated';
+import avywenna from '../../../src/data/operators/generated-definitions/avywenna/avywenna.operator.generated';
+import wulfgard from '../../../src/data/operators/generated-definitions/wulfgard/wulfgard.operator.generated';
+import xaihi from '../../../src/data/operators/generated-definitions/xaihi/xaihi.operator.generated';
+import yvonne from '../../../src/data/operators/generated-definitions/yvonne/yvonne.operator.generated';
 import { standardStumpBuffAbilityEventOmissionReason } from '../src/compiler/standardStumpScenarioPolicy.ts';
 
 function visit(value: unknown, inspect: (row: Record<string, unknown>) => void) {
@@ -50,6 +50,12 @@ describe('无敌人主动行为的控制状态边界', () => {
     expect(standardStumpBuffAbilityEventOmissionReason('OnTakeDamage', 'enemy')).toBeNull();
     expect(standardStumpBuffAbilityEventOmissionReason('OnOwnerHpZero', 'enemy')).not.toBeNull();
     expect(standardStumpBuffAbilityEventOmissionReason('OnOwnerDead', 'enemy')).not.toBeNull();
+  });
+
+  it('敌人输出 Buff 只在被动木桩归属已证明时省略', () => {
+    expect(standardStumpBuffAbilityEventOmissionReason('OnOutputBuff')).toBeNull();
+    expect(standardStumpBuffAbilityEventOmissionReason('OnOutputBuff', 'caster')).toBeNull();
+    expect(standardStumpBuffAbilityEventOmissionReason('OnOutputBuff', 'enemy')).not.toBeNull();
   });
 
   it('五份完整定义目前只有伊冯的干员自身查询可能读取起身祖先标签；新增消费者必须重新审计', () => {

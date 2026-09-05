@@ -12,29 +12,15 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/timeline',
     name: 'Timeline',
-    component: () => import('../views/TimelineEntry.vue'),
+    component: () => import('../ui/timeline/TimelineEditor.vue'),
     meta: {
-      requiresLegacyTimeline: true,
       gameTextFamilies: ALL_GAME_TEXT_FAMILIES,
     },
   },
   {
-    path: '/next/timeline',
-    name: 'NextTimeline',
-    component: () => import('../next/ui/timeline/NextTimelineEditor.vue'),
-    meta: {
-      gameTextFamilies: [
-        'operators',
-        'weapons',
-        'gears',
-        'terms',
-      ] satisfies readonly GameTextFamily[],
-    },
-  },
-  {
-    path: '/next/editor-demo',
-    name: 'NextEditorDemo',
-    component: () => import('../next/ui/editor-demo/OperatorEditorWorkspaceDemo.vue'),
+    path: '/editor-demo',
+    name: 'EditorDemo',
+    component: () => import('../ui/editor-demo/OperatorEditorWorkspaceDemo.vue'),
     meta: {
       gameTextFamilies: ['operators'] satisfies readonly GameTextFamily[],
     },

@@ -136,8 +136,42 @@ export function parseGlobalBuffDumpSource(text: string, sourcePath: string): Glo
   );
   const globalModifierCount = declaredSize(modifier, sourcePath, 'global modifier', 3);
   const globalEventCount = declaredSize(events, sourcePath, 'global event', 3);
-  if (globalModifierCount !== 0 || globalEventCount !== 0)
-    throw new Error(`${sourcePath}: non-empty GlobalBuff global behavior is unsupported`);
+  if (globalEventCount !== 0)
+    throw new Error(`${sourcePath}: non-empty GlobalBuff event behavior is unsupported`);
+  const modifierStarts = [...modifier.matchAll(/^\t{4}\[(\d+)\]\r?\n\t{4}Data data\r?$/gm)];
+  if (modifierStarts.length !== globalModifierCount)
+    throw new Error(`${sourcePath}: GlobalBuff global modifier count mismatch`);
+  const globalModifiers = modifierStarts.map((entry, index) => {
+    requireIndex(entry, index, sourcePath, 'global modifier');
+    const item = modifier.slice(
+      entry.index! + entry[0].length,
+      modifierStarts[index + 1]?.index ?? modifier.length,
+    );
+    const nativeType = integerField(item, 'int', 'type', sourcePath, 5);
+    const attribute = [
+      'spRecovery',
+      'gainEfficiency',
+      null,
+      null,
+      'normalAttackEfficiency',
+      'powerAttackEfficiency',
+    ][nativeType];
+    if (attribute === undefined || attribute === null)
+      throw new Error(`${sourcePath}: unsupported GlobalBuff global modifier type ${nativeType}`);
+    const nativeOperation = integerField(item, 'int', 'formulaItem', sourcePath, 5);
+    const operation =
+      nativeOperation === 0 ? 'addition' : nativeOperation === 1 ? 'multiplier' : null;
+    if (operation === null)
+      throw new Error(
+        `${sourcePath}: unsupported GlobalBuff modifier operation ${nativeOperation}`,
+      );
+    return {
+      attribute,
+      operation,
+      value: scalar(item, 'float', sourcePath, 6),
+      applyToReturnSpGain: booleanField(item, 'applyToReturnAtbGain', sourcePath, 5),
+    };
+  });
 
   const blackboardBlock = block.slice(block.indexOf('\t\tDataPair blackboard'));
   const blackboardCount = declaredSize(blackboardBlock, sourcePath, 'blackboard', 3);
@@ -184,6 +218,7 @@ export function parseGlobalBuffDumpSource(text: string, sourcePath: string): Glo
       applyIconDurationToBuffs: booleanField(block, 'applyIconDurationToBuffs', sourcePath, 2),
       buffInputs,
       globalModifierCount,
+      globalModifiers,
       globalEventCount,
       blackboard,
     },
@@ -191,11 +226,11 @@ export function parseGlobalBuffDumpSource(text: string, sourcePath: string): Glo
   };
 }
 
-function scalar(block: string, valueType: 'float' | 'int', sourcePath: string) {
+function scalar(block: string, valueType: 'float' | 'int', sourcePath: string, indentation = 3) {
   return {
-    useBlackboardKey: booleanField(block, 'useBlackboardKey', sourcePath, 3),
-    value: numberField(block, valueType, 'value', sourcePath, 3),
-    blackboardKey: stringField(block, 'blackboardKey', sourcePath, 3, true),
+    useBlackboardKey: booleanField(block, 'useBlackboardKey', sourcePath, indentation),
+    value: numberField(block, valueType, 'value', sourcePath, indentation),
+    blackboardKey: stringField(block, 'blackboardKey', sourcePath, indentation, true),
   };
 }
 

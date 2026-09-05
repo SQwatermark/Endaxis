@@ -1,12 +1,14 @@
 import type {
   GearDefinition,
   GearSlotType,
+  EquipmentTraitDisplayDefinition,
   GearTraitDefinition,
 } from '../../../../../packages/game-data-contract/src/equipment.ts';
 import { compileResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
 import { isBuildContributionModifier } from '../../compiler/buildAttributeProjection.ts';
 import type {
   EquipmentAttributeModifierSource,
+  EquipmentDisplayAttributeModifierSource,
   EquipmentItemSource,
   EquipmentPartTypeSource,
 } from '../../source/equipmentAttributeModifiers.ts';
@@ -27,14 +29,14 @@ export type { GearSlotType as CompiledGearSlotTypeSource } from '../../../../../
 
 /** 正式装备词条的静态输出子集，不是来源或优化 IR。 */
 export type CompiledGearTraitDefinitionSource = Readonly<
-  Pick<GearTraitDefinition, 'key' | 'levelCount'>
+  Pick<GearTraitDefinition, 'key' | 'levelCount' | 'display'>
 > & {
   readonly modifiers: readonly CompiledEquipmentModifierDefinitionSource[];
 };
 
 export type CompiledGearDefinitionSource = Readonly<
   Pick<GearDefinition, 'slug' | 'slotType' | 'levelRequirement' | 'baseDefense' | 'gearSetSlug'> &
-    Required<Pick<GearDefinition, 'assetSlug'>>
+    Required<Pick<GearDefinition, 'assetSlug' | 'iconPath'>>
 > & {
   readonly traits: readonly CompiledGearTraitDefinitionSource[];
 };
@@ -114,7 +116,7 @@ export function compileEquipmentDefinitionSource(
     });
   }
 
-  const traits = compileTraits(projected, diagnostics);
+  const traits = compileTraits(projected, equipment.displayAttributeModifiers, diagnostics);
   if (diagnostics.some(diagnostic => diagnostic.status === 'blocked') || slotType === undefined) {
     return { diagnostics };
   }
@@ -123,6 +125,7 @@ export function compileEquipmentDefinitionSource(
     definition: {
       slug: equipment.equipmentId,
       assetSlug: equipment.identity.iconId,
+      iconPath: projectEquipmentIconPath(equipment.identity.iconId),
       slotType,
       levelRequirement: equipment.minimumWearLevel,
       baseDefense: baseDefenseValues[0]!,
@@ -131,6 +134,15 @@ export function compileEquipmentDefinitionSource(
     },
     diagnostics,
   };
+}
+
+/** ItemTable 的 iconId 自带稳定系列段；沿用既有 public/equipment 目录约定。 */
+function projectEquipmentIconPath(iconId: string): string {
+  const match = /^item_equip_t\d+_(?:suit|parts)_(.+)_(?:body|hand|edc)_\d+$/.exec(iconId);
+  if (match?.[1] === undefined) {
+    throw new Error(`equipment icon identity '${iconId}' has no stable series segment`);
+  }
+  return `/equipment/${match[1]}/${iconId}.webp`;
 }
 
 /** 批量入口固定按原生装备 ID 排序，并在渲染前关闭重复身份。 */
@@ -170,11 +182,18 @@ function projectModifierLevels(source: EquipmentAttributeModifierSource): Projec
 
 function compileTraits(
   projected: readonly ProjectedModifierLevels[],
+  displaySources: readonly EquipmentDisplayAttributeModifierSource[],
   diagnostics: EquipmentDefinitionDiagnosticSource[],
 ): CompiledGearTraitDefinitionSource[] {
   const groups = new Map<number, ProjectedModifierLevels[]>();
   for (const entry of projected) {
-    if (entry.status !== 'supported' || !isBuildContributionModifier(entry.modifier)) {
+    // 基础防御被提升为 GearDefinition.baseDefense，不属于可精锻词条。其余原生
+    // attrIndex 即使在木桩模型中不参与模拟，也仍须保留词条身份与展示事实。
+    if (
+      entry.status === 'supported' &&
+      entry.modifier.kind === 'panelStat' &&
+      entry.modifier.stat === 'baseDefense'
+    ) {
       continue;
     }
     const group = groups.get(entry.origin.attributeIndex) ?? [];
@@ -182,8 +201,36 @@ function compileTraits(
     groups.set(entry.origin.attributeIndex, group);
   }
 
+  const displayByEnhancedIndex = new Map<number, EquipmentDisplayAttributeModifierSource>();
+  for (const source of [...displaySources].sort(
+    (left, right) => left.displayIndex - right.displayIndex,
+  )) {
+    if (displayByEnhancedIndex.has(source.enhancedAttributeIndex)) {
+      diagnostics.push({
+        status: 'blocked',
+        sourcePath: source.sourcePath,
+        reason: `duplicate display modifier for enhanced attrIndex ${source.enhancedAttributeIndex}`,
+      });
+      continue;
+    }
+    displayByEnhancedIndex.set(source.enhancedAttributeIndex, source);
+  }
+
   const traits: CompiledGearTraitDefinitionSource[] = [];
-  for (const [attributeIndex, entries] of [...groups].sort(([left], [right]) => left - right)) {
+  for (const source of [...displaySources].sort(
+    (left, right) => left.displayIndex - right.displayIndex,
+  )) {
+    const attributeIndex = source.enhancedAttributeIndex;
+    if (displayByEnhancedIndex.get(attributeIndex) !== source) continue;
+    const entries = groups.get(attributeIndex);
+    if (entries === undefined) {
+      diagnostics.push({
+        status: 'blocked',
+        sourcePath: source.sourcePath,
+        reason: `display modifier references missing equipAttrModifiers attrIndex ${attributeIndex}`,
+      });
+      continue;
+    }
     const levelCount = entries[0]!.origin.attributeValues.length;
     if (entries.some(entry => entry.origin.attributeValues.length !== levelCount)) {
       diagnostics.push({
@@ -193,9 +240,12 @@ function compileTraits(
       });
       continue;
     }
+    const display = compileTraitDisplay(source, diagnostics);
+    if (display === undefined) continue;
     traits.push({
       key: `attribute-${attributeIndex}`,
       levelCount,
+      display,
       modifiers: entries.flatMap(entry =>
         entry.status === 'supported' && isBuildContributionModifier(entry.modifier)
           ? [entry.modifier]
@@ -203,5 +253,68 @@ function compileTraits(
       ),
     });
   }
+  for (const attributeIndex of groups.keys()) {
+    if (!displayByEnhancedIndex.has(attributeIndex)) {
+      diagnostics.push({
+        status: 'blocked',
+        sourcePath: projected.find(entry => entry.origin.attributeIndex === attributeIndex)!.origin
+          .sourcePath,
+        reason: `equipAttrModifiers attrIndex ${attributeIndex} has no display modifier`,
+      });
+    }
+  }
   return traits;
+}
+
+const DISPLAY_COMPOSITE_BY_NATIVE: Readonly<
+  Record<string, Extract<EquipmentTraitDisplayDefinition, { kind: 'composite' }>['composite']>
+> = {
+  CrystAndPulseDamageIncrease: 'cryoAndElectricDamageIncrease',
+  FireAndNaturalDamageIncrease: 'heatAndNatureDamageIncrease',
+  AllSkillDamageIncrease: 'allSkillDamageIncrease',
+  AllDamageTakenScalar: 'allDamageReduction',
+  SpellDamageIncrease: 'spellDamageIncrease',
+};
+
+function compileTraitDisplay(
+  source: EquipmentDisplayAttributeModifierSource,
+  diagnostics: EquipmentDefinitionDiagnosticSource[],
+): EquipmentTraitDisplayDefinition | undefined {
+  if (
+    source.compositeAttribute !== '' &&
+    source.compositeAttribute !== 'Main' &&
+    source.compositeAttribute !== 'Sub'
+  ) {
+    const composite = DISPLAY_COMPOSITE_BY_NATIVE[source.compositeAttribute];
+    if (composite === undefined) {
+      diagnostics.push({
+        status: 'blocked',
+        sourcePath: `${source.sourcePath}.compositeAttr`,
+        reason: `unsupported equipment display composite ${JSON.stringify(source.compositeAttribute)}`,
+      });
+      return undefined;
+    }
+    return { kind: 'composite', composite, value: source.attributeValues };
+  }
+  const projection = projectEquipmentAttributeModifier(
+    compileResolvedAttributeModifierSource({
+      sourcePath: source.sourcePath,
+      modifyAttributeType: source.modifyAttributeType,
+      attributeType: source.attributeType,
+      formulaItem: source.formulaItem,
+      value: source.attributeValues,
+    }),
+  );
+  if (projection.status !== 'supported' || !isBuildContributionModifier(projection.modifier)) {
+    diagnostics.push({
+      status: 'blocked',
+      sourcePath: source.sourcePath,
+      reason:
+        projection.status === 'supported'
+          ? 'display modifier resolved to base defense'
+          : `display modifier is not representable: ${projection.reason}`,
+    });
+    return undefined;
+  }
+  return { kind: 'modifier', modifier: projection.modifier };
 }

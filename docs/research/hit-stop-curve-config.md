@@ -19,8 +19,8 @@
 - TypeTree 文本 SHA-256：`45b132032c043ac6f7d7703338d0b17cf513799f5a79697772d3f807c6ca17f8`
 
 生成器 `generate:game-data:hit-stop-curves` 对 TypeTree 文本做严格解析，当前目录包含 24 条命名曲线。
-产物是 `src/next/data/combat/hitStopCurveCatalog.generated.ts`；手工入口
-`src/next/data/combat/hitStopCurveCatalog.ts` 只负责暴露生成目录，不能抄写或修补曲线。
+产物是 `src/data/combat/hitStopCurveCatalog.generated.ts`；手工入口
+`src/data/combat/hitStopCurveCatalog.ts` 只负责暴露生成目录，不能抄写或修补曲线。
 
 ## `char_hard_stop` 样本
 

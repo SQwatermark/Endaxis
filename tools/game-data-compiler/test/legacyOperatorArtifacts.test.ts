@@ -3,9 +3,9 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const retiredRoots = [
-  'src/next/data/operators/generated',
-  'src/next/data/operators/generated-active-skills',
-  'src/next/data/operators/generated-runtime',
+  'src/data/operators/generated',
+  'src/data/operators/generated-active-skills',
+  'src/data/operators/generated-runtime',
 ] as const;
 
 describe('旧干员生成产物退役门禁', () => {

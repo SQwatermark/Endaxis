@@ -39,7 +39,12 @@ import {
 import { parseSkillTargetSelectionHeaderSource } from '../source/skillTargetSelection.ts';
 import { compileSkillSmartTargetSource } from './comboSmartTarget.ts';
 import { assertPresentationCalculationIsolation } from './presentationCalculationIsolation.ts';
-import { propagateGuaranteedSingletonZeroSpaceFacts } from './targetGroupCardinalityAnalysis.ts';
+import {
+  compareKnownNumbers,
+  isStaticControlledOperatorWrite,
+  isStaticZeroSpacePointWrite,
+  propagateGuaranteedSingletonZeroSpaceFacts,
+} from './targetGroupCardinalityAnalysis.ts';
 
 /** 正式调度输出子集；原生时间轴结束帧必填，动作仍限于已支持的公共投影。 */
 export type CompiledActiveSkillTimelineSequenceSource = Readonly<
@@ -77,31 +82,6 @@ export interface CompiledActiveSkillRuntimeProjectionSource {
     readonly asSkillCast: boolean;
     readonly sequence: CompiledBuffSequenceSource;
   };
-}
-
-function compareKnownNumbers(left: number, comparison: string, right: number): boolean | undefined {
-  switch (comparison) {
-    case 'EQ':
-    case 'Equals':
-      return left === right;
-    case 'NE':
-    case 'NotEquals':
-      return left !== right;
-    case 'GT':
-    case 'GreaterThan':
-      return left > right;
-    case 'GE':
-    case 'GreaterThanOrEqual':
-      return left >= right;
-    case 'LT':
-    case 'LessThan':
-      return left < right;
-    case 'LE':
-    case 'LessThanOrEqual':
-      return left <= right;
-    default:
-      return undefined;
-  }
 }
 
 function directBooleanBlackboardAssignments(
@@ -544,33 +524,6 @@ function isAtMostSingleEnemyFilteredFind(
     write.validatorTypes.length === 0 &&
     write.postProcessorTypes.length === 1 &&
     write.postProcessorTypes[0] === 'ExcludeTarget' &&
-    write.priorityFilters.length === 0 &&
-    write.shuffleTargets.length === 0 &&
-    write.distanceValidators.length === 0
-  );
-}
-
-function isStaticZeroSpacePointWrite(
-  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
-): boolean {
-  return (
-    (write.producerType === 'FindTargetAction' ||
-      write.producerType === 'ConvertToTargetContext') &&
-    write.finderType === 'FixedPointFinder' &&
-    write.validatorTypes.length === 0 &&
-    write.postProcessorTypes.length === 0
-  );
-}
-
-function isStaticControlledOperatorWrite(
-  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
-): boolean {
-  return (
-    write.producerType === 'FindTargetAction' &&
-    write.finderType === 'CharacterTeamFinder' &&
-    write.validatorTypes.length === 1 &&
-    write.validatorTypes[0] === 'MainCharacterValidator' &&
-    write.postProcessorTypes.length === 0 &&
     write.priorityFilters.length === 0 &&
     write.shuffleTargets.length === 0 &&
     write.distanceValidators.length === 0

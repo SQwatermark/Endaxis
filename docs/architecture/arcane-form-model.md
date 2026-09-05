@@ -13,7 +13,7 @@ The implementation deliberately separates four concerns:
 3. `contextFlagEquals` lets shared skill graphs branch on that derived form.
 4. `presentationVariants` select form-specific UI content for one stable skill group.
 
-The Arcane-specific form logic is kept with the operator definition in `src/next/data/operators/arcane.ts`. Equal intellect and will select the intellect form because the recovered comparison is `Wisd >= Will`.
+The Arcane-specific form logic is kept with the operator definition in `src/data/operators/arcane.ts`. Equal intellect and will select the intellect form because the recovered comparison is `Wisd >= Will`.
 
 ## Why the form is not a separate skill
 

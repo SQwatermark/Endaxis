@@ -2,7 +2,7 @@ import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/avywenna-entity-child-skills.json';
 import { compileAbilityEntityChildSkillSource } from '../src/compiler/abilityEntityChildSkill.ts';
-import { validateAbilityEntityChildSkillDefinition } from '../../../src/next/core/game-data/validateSkillDefinition';
+import { validateAbilityEntityChildSkillDefinition } from '../../../src/core/game-data/validateSkillDefinition';
 import { compileActiveSkillRuntimeProjectionSource } from '../src/compiler/activeSkillRuntimeProjection.ts';
 
 describe('原始能力实体子技能共用时间轴编译', () => {

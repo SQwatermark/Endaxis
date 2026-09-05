@@ -1,5 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import {
   downloadGameDataSources,
@@ -19,15 +21,32 @@ import { auditOperatorSkillLibraries } from '../src/audits/operatorSkillLibrarie
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import { readAbilityEntityTemplates } from './readAbilityEntityTemplates.ts';
 import { generateTimeDilationCatalog } from './generateTimeDilationCatalog.ts';
+import { generateHitStopCurveCatalog } from './generateHitStopCurveCatalog.ts';
 import { generateSkillSettingCatalog } from './generateSkillSettingCatalog.ts';
 import { generateGlobalBuffCatalog } from './generateGlobalBuffCatalog.ts';
+import { generateContingencyContractCatalog } from './generateContingencyContractCatalog.ts';
+import { generateContingencyContractDefinitions } from './generateContingencyContractDefinitions.ts';
 import { generateOperatorDefinitionCandidates } from './generateOperatorDefinitionCandidates.ts';
 import { generateCommonBuffDefinitions } from './generateCommonBuffDefinitions.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 import { typeCheckCandidateOverlay } from '../src/compiler/candidateTypeCheck.ts';
 import { checkCandidateGameAssets } from '../src/compiler/candidateAssetCheck.ts';
+import { auditCandidateOperatorSkills } from './auditCandidateOperatorSkills.ts';
+import { auditCandidateEquipment } from './auditCandidateEquipment.ts';
+import { extractEnemyRankEvidence } from './extractEnemyRankEvidence.ts';
+import { generateEnemyDefinitions } from './generateEnemyDefinitions.ts';
+import { auditCandidateEnemyDefinitions } from './auditCandidateEnemyDefinitions.ts';
+import { exportReferencedGameIcons } from './exportReferencedGameIcons.ts';
+import { publishGameDataCandidate } from '../src/compiler/gameDataCandidatePublisher.ts';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
+const runFile = promisify(execFile);
+const GAME_LOCALE_FILES = ['zh', 'en'].flatMap(locale =>
+  ['operators', 'terms', 'weapons', 'gearsets', 'gearpieces', 'enum-terms', 'enemies'].map(
+    name => `${locale}/${name}.json`,
+  ),
+);
+const GAME_LOCALE_REBUILD_OUTPUTS = GAME_LOCALE_FILES.map(file => `src/i18n/game-locales/${file}`);
 
 export interface RebuildArguments {
   readonly sourceRoot?: string;
@@ -36,53 +55,86 @@ export interface RebuildArguments {
   readonly vfsBase: string;
   readonly workers: number;
   readonly tablesOnly: boolean;
+  readonly publish: boolean;
   /** 显式本机 VFS 通用 worker，不执行 HTTP 响应中的命令。 */
   readonly unityWorker?: string;
 }
 
-/** 游戏派生产物不等于整个 src/next/data 或 public；混合文件不能直接登记为可删除目录。 */
+const GAME_DATA_PUBLISH_DIRECTORY_OUTPUTS = [
+  'src/data/operators/generated-definitions',
+  'src/data/buffs/generated',
+  'src/data/equipment/generated',
+  'src/data/equipment/generated-weapons',
+  'src/data/equipment/generated-gear-sets',
+  'src/data/enemies/generated',
+  'src/data/mechanics/generated',
+  // These roots contain referenced game-derived WebP files plus the four explicitly audited
+  // project defaults. Replacing the roots removes stale, no-longer-referenced game icons.
+  'public/equipment',
+  'public/Icon_Enemy',
+  'public/icons',
+  'public/operators',
+  'public/weapons',
+] as const;
+
+const GAME_DATA_PUBLISH_FILE_OUTPUTS = [
+  'src/data/combat/gameplayTagCatalog.generated.ts',
+  'src/data/combat/gameplayTagPredefine.generated.ts',
+  'src/data/combat/hitStopCurveCatalog.generated.ts',
+  'src/data/combat/timeDilationCatalog.generated.ts',
+  'src/data/combat/skill-setting.generated.json',
+  'src/data/global-buffs/global-buff-templates.generated.json',
+  'src/data/mechanics/contingency-contract-catalog.generated.json',
+  'src/data/enemies/enemy-ranks.generated.json',
+  ...GAME_LOCALE_REBUILD_OUTPUTS,
+] as const;
+
+/** 游戏派生产物不等于整个 src/data 或 public；混合文件不能直接登记为可删除目录。 */
 export const GAME_DATA_REBUILD_BOUNDARIES = [
   {
     id: 'operators',
-    outputs: ['src/next/data/operators/generated-definitions'],
+    outputs: ['src/data/operators/generated-definitions'],
     blocker:
-      '同批 31 名/328 技能事务候选及虚拟落位类型检查已接入；仍需在同批快照实际跑过类型门禁、所有可放置技能与组合轴模拟、体积审计和原子发布。不得复用正式派生目录。',
+      '同批 31 名/328 技能候选、虚拟落位类型检查、325 个可放置技能单放、198 张技能库卡片整链、31 条全卡片组合轴、单文件 1 MiB 源码上限及可回滚发布已接入；仍需机制定向组合和数值回归。不得复用正式派生目录。',
   },
   {
     id: 'common-buffs',
-    outputs: ['src/next/data/buffs/generated'],
+    outputs: ['src/data/buffs/generated'],
     blocker:
-      '同批 31 名闭包已可汇总 61 个公共 Buff；仍需随干员候选执行模拟、显示名/图标引用和原子发布门禁。',
+      '同批 31 名闭包已可汇总 61 个公共 Buff，并随技能单放、技能库卡片整链和每名干员全卡片组合轴模拟及发布；仍需机制定向组合和显示身份审计。',
   },
   {
     id: 'gears',
-    outputs: ['src/next/data/equipment/generated'],
-    blocker: '单件装备已可从表格独立生成；仍须与其他领域同批通过虚拟落位类型检查、模拟和原子发布。',
+    outputs: ['src/data/equipment/generated'],
+    blocker:
+      '单件装备已可从表格独立生成，并随同批候选通过最低/最高精炼、第二饰品槽、双饰品装配模拟和发布；仍需机制定向差分。',
   },
   {
     id: 'weapons',
-    outputs: ['src/next/data/equipment/generated-weapons'],
+    outputs: ['src/data/equipment/generated-weapons'],
     blocker:
-      '完整标签和被动来源已可同次任务编译；当前新版 wpn_funnel_0020 被 OnBuffEnhanceChanged 阻断，必须补齐实际事件广播与效果回归后才能发布。',
+      '完整标签和被动来源已可同次任务编译 79 把武器并通过候选类型/资源、逐武器兼容干员装配模拟和发布；仍需机制定向组合回归。',
   },
   {
     id: 'gear-sets',
-    outputs: ['src/next/data/equipment/generated-gear-sets'],
+    outputs: ['src/data/equipment/generated-gear-sets'],
     blocker:
-      '同次任务完整标签与被动闭包已可生成全部套装；仍需整批模拟门禁、来源版本核对和正式发布。',
+      '同次任务完整标签与被动闭包已可生成并发布全部套装，并逐套通过三件套四技能场景及无套装/纯静态基线差分；仍需机制定向数值和来源版本核对。',
   },
   {
     id: 'global-catalogs',
     outputs: [
-      'src/next/data/combat/gameplayTagCatalog.generated.ts',
-      'src/next/data/combat/gameplayTagPredefine.generated.ts',
-      'src/next/data/combat/hitStopCurveCatalog.generated.ts',
-      'src/next/data/combat/timeDilationCatalog.generated.ts',
-      'src/next/data/combat/skill-setting.generated.json',
-      'src/next/data/global-buffs/global-buff-templates.generated.json',
+      'src/data/combat/gameplayTagCatalog.generated.ts',
+      'src/data/combat/gameplayTagPredefine.generated.ts',
+      'src/data/combat/hitStopCurveCatalog.generated.ts',
+      'src/data/combat/timeDilationCatalog.generated.ts',
+      'src/data/combat/skill-setting.generated.json',
+      'src/data/global-buffs/global-buff-templates.generated.json',
+      'src/data/mechanics/contingency-contract-catalog.generated.json',
+      'src/data/mechanics/generated',
     ],
     blocker:
-      '完整标签配置集、预定义表、TimeDilation、SkillSetting 与已登记 GlobalBuff 已可自动导出转换；其他全局配置/HUD prefab 仍待接入。VFS worker 需显式配置，且仍须闭合 AKEDB/VFS 版本身份。',
+      '完整标签配置集、预定义表、TimeDilation、SkillSetting、危机合约表目录与其引用的 GlobalBuff 已可自动导出转换；其他全局配置/HUD prefab 仍待接入。VFS worker 需显式配置，且仍须闭合 AKEDB/VFS 版本身份。',
   },
   {
     id: 'template-evidence',
@@ -91,27 +143,28 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
       '能力实体、当前所需投射物 EntityBB、TimeDilation、SkillSetting 与两个已登记 GlobalBuff 均直接读取本次来源；仍须由整批候选反向证明 GlobalBuff 身份清单没有漏项。',
   },
   {
-    id: 'legacy-presentation-and-enemies',
-    outputs: [],
+    id: 'enemies',
+    outputs: ['src/data/enemies/generated', 'src/data/enemies/enemy-ranks.generated.json'],
     blocker:
-      '新版装备展示/注册和敌人预设仍有旧版数据适配器；需要区分可生成的游戏字段与自有别名配置，并移除生成时对旧版游戏数据的依赖，不修改旧版行为。',
+      '87 个原生 eny_* 敌人已可由同批表格与 VFS Unity worker 原始 EnemyTemplateData.rank 生成并发布；韧性节点 2 秒仍是明确标注的项目兼容常量。敌人图标已进入隔离引用闭包。',
   },
   {
     id: 'locales',
-    outputs: ['src/i18n/game-locales'],
-    blocker: '本地化脚本仍自行下载并读取旧语言文件，需改为消费同批表和显式自有文案配置。',
+    outputs: GAME_LOCALE_REBUILD_OUTPUTS,
+    blocker:
+      '干员、战斗术语、武器、套装、单件装备、枚举和敌人的 14 个中英文文件已可由同批本地 TableCfg、候选身份和项目自有枚举配置严格生成，并随完整候选通过资源与发布门禁。',
   },
   {
     id: 'icons',
     outputs: [],
     blocker:
-      '需要扫描候选定义和候选富文本；public 目录混有自有 UI/占位图，必须按引用及所有权逐文件处理，不能整目录删除。',
+      '完整候选可在隔离 public 根按引用导出并发布 WebP，项目占位图明确复制为 kept-local；不能把混有自有 UI 的整个 public 目录登记为游戏派生目录。',
   },
   {
     id: 'simulation-and-publication',
     outputs: [],
     blocker:
-      '全部候选闭合后执行严格契约/技能上轴/配装模拟/图片引用检查，成功才允许发布；当前入口没有发布能力。',
+      '全部候选闭合后执行严格契约、技能上轴、配装模拟、图片引用及来源冻结检查，成功才允许可回滚逐文件发布；该完整路径已由统一入口实际通过。',
   },
 ] as const;
 
@@ -191,7 +244,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
     });
     await stage('content-inventory', () => inspectSourceIdentities(sourceRoot, root));
     await stage('gears', async () => {
-      const relativeOutput = 'src/next/data/equipment/generated';
+      const relativeOutput = 'src/data/equipment/generated';
       const generationArgs = {
         tablesDirectory: path.join(sourceRoot, 'TableCfg-current'),
         outputDirectory: path.join(candidateRoot, relativeOutput),
@@ -220,7 +273,51 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
       });
     }
     if (!args.tablesOnly && missingRequestedInputs.length === 0 && args.unityWorker) {
-      const tags = path.join(candidateRoot, 'src/next/data/combat/gameplayTagCatalog.generated.ts');
+      await stage('enemies', async () => {
+        const relativeOutput = 'src/data/enemies/generated';
+        const rankRelative = 'src/data/enemies/enemy-ranks.generated.json';
+        const rankOutput = path.join(candidateRoot, rankRelative);
+        const rankInput = {
+          tablesDirectory: path.join(sourceRoot, 'TableCfg-current'),
+          unityWorker: args.unityWorker!,
+          output: rankOutput,
+          vfsUrl: args.vfsBase.replace(/\/api\/endaxis-data\/?$/, ''),
+          workers: Math.min(args.workers, 4),
+        };
+        const ranks = await extractEnemyRankEvidence(rankInput);
+        const firstRankText = await fs.readFile(rankOutput, 'utf8');
+        await extractEnemyRankEvidence(rankInput);
+        if ((await fs.readFile(rankOutput, 'utf8')) !== firstRankText) {
+          throw new Error('enemy rank evidence changed on identical second extraction');
+        }
+        const generationInput = {
+          tablesDirectory: rankInput.tablesDirectory,
+          rankEvidence: rankOutput,
+          runtimeDefaults: path.join(
+            root,
+            'tools/game-data-compiler/config/enemies/runtime-defaults.json',
+          ),
+          outputDirectory: path.join(candidateRoot, relativeOutput),
+          check: false,
+        };
+        const generated = await generateEnemyDefinitions(generationInput);
+        await generateEnemyDefinitions({ ...generationInput, check: true });
+        return {
+          ranks,
+          generated,
+          audit: await auditCandidateEnemyDefinitions({
+            tablesDirectory: rankInput.tablesDirectory,
+            rankEvidence: rankOutput,
+            runtimeDefaults: generationInput.runtimeDefaults,
+          }),
+          deterministicCheck: 'passed',
+          comparison: await compareCandidateFiles(
+            path.join(root, relativeOutput),
+            generationInput.outputDirectory,
+          ),
+        };
+      });
+      const tags = path.join(candidateRoot, 'src/data/combat/gameplayTagCatalog.generated.ts');
       const tagRoot = path.join(runRoot, 'unity-sources', 'GameplayTagConfigSet');
       const tagsOkay = await stage('gameplay-tags', async () => {
         const exported = await exportGameplayTagConfigSet({
@@ -250,16 +347,45 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
       if (tagsOkay) {
         const timeDilationCatalog = path.join(
           candidateRoot,
-          'src/next/data/combat/timeDilationCatalog.generated.ts',
+          'src/data/combat/timeDilationCatalog.generated.ts',
+        );
+        const hitStopCurveCatalog = path.join(
+          candidateRoot,
+          'src/data/combat/hitStopCurveCatalog.generated.ts',
         );
         const skillSettingCatalog = path.join(
           candidateRoot,
-          'src/next/data/combat/skill-setting.generated.json',
+          'src/data/combat/skill-setting.generated.json',
         );
         const globalBuffCatalog = path.join(
           candidateRoot,
-          'src/next/data/global-buffs/global-buff-templates.generated.json',
+          'src/data/global-buffs/global-buff-templates.generated.json',
         );
+        const contingencyContractCatalog = path.join(
+          candidateRoot,
+          'src/data/mechanics/contingency-contract-catalog.generated.json',
+        );
+        const contingencyContractDefinitions = path.join(
+          candidateRoot,
+          'src/data/mechanics/generated',
+        );
+        let contingencyContractGlobalBuffIds: readonly string[] = [];
+        const contingencyContractOkay = await stage('contingency-contract-catalog', async () => {
+          const input = {
+            tableRoot: path.join(sourceRoot, 'TableCfg-current'),
+            revision: snapshot!.version,
+            output: contingencyContractCatalog,
+            check: false,
+          };
+          const generated = await generateContingencyContractCatalog(input);
+          await generateContingencyContractCatalog({ ...input, check: true });
+          contingencyContractGlobalBuffIds = generated.globalBuffIds;
+          return {
+            ...generated,
+            deterministicCheck: 'passed',
+            note: 'termType 只按当前程序集显式枚举分类；目录尚不表示对应 Buff 已全部进入模拟。',
+          };
+        });
         const timeDilationOkay = await stage('time-dilation', async () => {
           const sourceUrl = await resolveNamedManifestAssetPreview(
             args.vfsBase,
@@ -279,6 +405,22 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             sourceUrl,
             deterministicCheck: 'passed',
             note: '来自当前 VFS manifest；在 VFS 与 AKEDB 版本身份闭合前仍只是候选。',
+          };
+        });
+        const hitStopOkay = await stage('hit-stop', async () => {
+          const sourceUrl = await resolveNamedManifestAssetPreview(
+            args.vfsBase,
+            'hitstopconfig.asset',
+            'assets/beyond/dynamicassets/gamedata/gameplayconfig/hitstopconfig.asset',
+          );
+          const input = { sourceUrl, output: hitStopCurveCatalog, check: false };
+          const generated = await generateHitStopCurveCatalog(input);
+          await generateHitStopCurveCatalog({ ...input, check: true });
+          return {
+            ...generated,
+            sourceUrl,
+            deterministicCheck: 'passed',
+            note: '来自当前 VFS manifest；与 TimeDilation 分开保留命中停顿曲线身份。',
           };
         });
         const skillSettingOkay = await stage('skill-setting', async () => {
@@ -303,6 +445,9 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           };
         });
         const globalBuffsOkay = await stage('global-buffs', async () => {
+          if (!contingencyContractOkay) {
+            throw new Error('Contingency Contract catalog is unavailable');
+          }
           const input = {
             vfsBase: args.vfsBase,
             revision: snapshot!.version,
@@ -312,15 +457,48 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             ),
             output: globalBuffCatalog,
             check: false,
+            additionalIdentities: contingencyContractGlobalBuffIds,
+            referenceDataRoot: path.join(sourceRoot, 'BuffData'),
+            tolerateUnsupportedAdditionalIdentities: true,
           };
           const generated = await generateGlobalBuffCatalog(input);
           await generateGlobalBuffCatalog({ ...input, check: true });
           return {
             ...generated,
             deterministicCheck: 'passed',
-            note: '身份清单只含当前产品闭包已证明引用的 GlobalBuff；候选生成仍须反向核验无遗漏引用。',
+            note: '基础身份清单与当前危机合约 SelfGlobalBuff 词条取并集；候选生成仍须反向核验其他领域无遗漏引用。',
           };
         });
+        if (contingencyContractOkay && skillSettingOkay && globalBuffsOkay) {
+          await stage('contingency-contract-definitions', async () => {
+            const input = {
+              tableRoot: path.join(sourceRoot, 'TableCfg-current'),
+              buffDataRoot: path.join(sourceRoot, 'BuffData'),
+              globalBuffCatalog,
+              skillSettingCatalog,
+              gameplayTagPaths: readGameplayTagPaths(tags),
+              scope: path.join(
+                root,
+                'tools/game-data-compiler/config/contingencyContractSimulationScope.json',
+              ),
+              output: contingencyContractDefinitions,
+              check: false,
+            };
+            const generated = await generateContingencyContractDefinitions(input);
+            await generateContingencyContractDefinitions({ ...input, check: true });
+            return {
+              ...generated,
+              deterministicCheck: 'passed',
+              note: '只发布木桩模型中已可执行的词条；blocked 与 omitted 仍由同一范围清单显式生成。',
+            };
+          });
+        } else {
+          stages.push({
+            id: 'contingency-contract-definitions',
+            status: 'blocked',
+            detail: '危机合约目录、SkillSetting 或 GlobalBuff 候选未通过。',
+          });
+        }
         const operatorCandidateInput = {
           manifest: path.join(root, 'tools/game-data-compiler/config/operators.json'),
           sourceRoot,
@@ -333,11 +511,11 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           globalBuffCatalog,
           skillSettingCatalog,
         };
-        if (timeDilationOkay && skillSettingOkay && globalBuffsOkay) {
+        if (timeDilationOkay && hitStopOkay && skillSettingOkay && globalBuffsOkay) {
           await stage('operator-candidates', async () => {
             const input = {
               ...operatorCandidateInput,
-              outputRoot: path.join(candidateRoot, 'src/next/data/operators/generated-definitions'),
+              outputRoot: path.join(candidateRoot, 'src/data/operators/generated-definitions'),
               auditRoot: path.join(runRoot, 'audit', 'operator-definitions'),
               check: false,
             };
@@ -348,7 +526,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           await stage('common-buffs', async () => {
             const input = {
               ...operatorCandidateInput,
-              output: path.join(candidateRoot, 'src/next/data/buffs/generated'),
+              output: path.join(candidateRoot, 'src/data/buffs/generated'),
               check: false,
             };
             const generated = await generateCommonBuffDefinitions(input);
@@ -360,7 +538,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             stages.push({
               id,
               status: 'blocked',
-              detail: '同次任务的 TimeDilation、SkillSetting 或 GlobalBuff 候选未通过。',
+              detail: '同次任务的 TimeDilation、HitStop、SkillSetting 或 GlobalBuff 候选未通过。',
             });
         }
         await stage('operator-refresh', async () => {
@@ -389,7 +567,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         await stage('gameplay-tag-predefine', async () => {
           const params = [
             path.join(sourceRoot, 'GameplayConfig/GameplayTagPredefineTable.json'),
-            path.join(candidateRoot, 'src/next/data/combat/gameplayTagPredefine.generated.ts'),
+            path.join(candidateRoot, 'src/data/combat/gameplayTagPredefine.generated.ts'),
             snapshot!.version,
             tags,
           ] as const;
@@ -398,7 +576,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           return { ...generated, deterministicCheck: 'passed' };
         });
         await stage('gear-sets', async () => {
-          const relative = 'src/next/data/equipment/generated-gear-sets';
+          const relative = 'src/data/equipment/generated-gear-sets';
           const input = {
             tablesDirectory: path.join(sourceRoot, 'TableCfg-current'),
             skillDataDirectory: path.join(sourceRoot, 'SkillData'),
@@ -419,7 +597,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           };
         });
         await stage('weapons', async () => {
-          const relative = 'src/next/data/equipment/generated-weapons';
+          const relative = 'src/data/equipment/generated-weapons';
           const input = {
             tables: path.join(sourceRoot, 'TableCfg-current'),
             skillData: path.join(sourceRoot, 'SkillData'),
@@ -437,6 +615,55 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             comparison: await compareCandidateFiles(path.join(root, relative), input.output),
           };
         });
+        await stage('locales', async () => {
+          const relative = 'src/i18n/game-locales';
+          const output = path.join(candidateRoot, relative);
+          const input = {
+            tableRoot: path.join(sourceRoot, 'TableCfg-current'),
+            operatorManifest: path.join(root, 'tools/game-data-compiler/config/operators.json'),
+            weaponDefinitionRoot: path.join(candidateRoot, 'src/data/equipment/generated-weapons'),
+            gearDefinitionRoot: path.join(candidateRoot, 'src/data/equipment/generated'),
+            gearSetDefinitionRoot: path.join(
+              candidateRoot,
+              'src/data/equipment/generated-gear-sets',
+            ),
+            enumTermsRoot: path.join(root, 'tools/game-data-compiler/config/locales'),
+            output,
+          };
+          const generated = await exportCandidateGameLocales(root, input);
+          const before = await readDirectoryTextFiles(output);
+          await exportCandidateGameLocales(root, input);
+          const after = await readDirectoryTextFiles(output);
+          if (!sameTextFiles(before, after))
+            throw new Error('locale candidate output changed on identical second generation');
+          return {
+            ...generated,
+            deterministicCheck: 'passed',
+            comparison: await compareCandidateFileSet(
+              path.join(root, relative),
+              output,
+              GAME_LOCALE_FILES,
+            ),
+            note: '游戏文本只读同批 TableCfg 与候选定义身份；枚举显示词是项目自有语义配置。不联网、不合并正式语言目录、不发布。',
+          };
+        });
+        await stage('icons', async () => ({
+          ...(await exportReferencedGameIcons({
+            workers: args.workers,
+            sourceMode: 'hybrid',
+            cdn: args.cdn,
+            overwrite: false,
+            dryRun: false,
+            refreshRichText: false,
+            prune: false,
+            vfsBaseUrl: args.vfsBase.replace(/\/api\/endaxis-data\/?$/, ''),
+            gameDataSourceRoot: sourceRoot,
+            outputRoot: path.join(candidateRoot, 'public'),
+            additionalReferenceRoots: [path.join(candidateRoot, 'src')],
+            auditOutput: path.join(runRoot, 'audit', 'referenced-game-icons.json'),
+          })),
+          note: '扫描正式运行源码与同批候选，向隔离 public 根只补缺漏；游戏图经 AKEDB 优先/VFS 补缺导出，项目占位图只复制并标记 kept-local。',
+        }));
         await stage('gameplay-tags-after-generation', async () => {
           const detail = requireRecord(
             stages.find(item => item.id === 'gameplay-tags')!.detail,
@@ -456,22 +683,28 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         });
         const typeCheckDependencies = [
           'gears',
+          'enemies',
           'gameplay-tags',
           'time-dilation',
+          'hit-stop',
           'skill-setting',
+          'contingency-contract-catalog',
+          'contingency-contract-definitions',
           'global-buffs',
           'operator-candidates',
           'common-buffs',
           'gameplay-tag-predefine',
           'gear-sets',
           'weapons',
+          'locales',
+          'icons',
           'gameplay-tags-after-generation',
         ];
         const unavailable = typeCheckDependencies.filter(
           id => stages.find(item => item.id === id)?.status !== 'passed',
         );
         if (unavailable.length === 0) {
-          await stage('candidate-type-check', async () => ({
+          const candidateTypeCheckOkay = await stage('candidate-type-check', async () => ({
             ...typeCheckCandidateOverlay({
               projectRoot: root,
               candidateRoot,
@@ -488,6 +721,31 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             })),
             note: '仅检查候选字面图片引用已存在于 public；不下载、不发布。',
           }));
+          if (candidateTypeCheckOkay) {
+            await stage('candidate-operator-skills', async () => ({
+              ...(await auditCandidateOperatorSkills({
+                candidateRoot,
+                potential: 0,
+                endFrame: 3600,
+              })),
+              note: '逐个放置全部非 internal 干员技能，按技能库自身放置语义运行每张卡片的完整技能链，并按声明顺序把每名干员的全部可见卡片放入同一轴；分组只构造测试输入，候选仍不发布。',
+            }));
+            await stage('candidate-equipment', async () => ({
+              ...(await auditCandidateEquipment({ candidateRoot, endFrame: 300 })),
+              note: '逐把装配候选武器；逐件检查装备最低/最高精炼、饰品第二槽与双饰品；逐套运行三件套四技能场景并验证相对无套装基线的可观察差分，运行时套装另验证相对纯静态基线的下游差分。候选仍不发布。',
+            }));
+          } else {
+            stages.push({
+              id: 'candidate-operator-skills',
+              status: 'blocked',
+              detail: { unavailableStages: ['candidate-type-check'] },
+            });
+            stages.push({
+              id: 'candidate-equipment',
+              status: 'blocked',
+              detail: { unavailableStages: ['candidate-type-check'] },
+            });
+          }
         } else {
           stages.push({
             id: 'candidate-type-check',
@@ -499,15 +757,31 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             status: 'blocked',
             detail: { unavailableStages: unavailable },
           });
+          stages.push({
+            id: 'candidate-operator-skills',
+            status: 'blocked',
+            detail: { unavailableStages: unavailable },
+          });
+          stages.push({
+            id: 'candidate-equipment',
+            status: 'blocked',
+            detail: { unavailableStages: unavailable },
+          });
         }
       } else {
         for (const id of [
           'operator-refresh',
+          'contingency-contract-catalog',
+          'contingency-contract-definitions',
           'gameplay-tag-predefine',
           'gear-sets',
           'weapons',
+          'locales',
+          'icons',
           'candidate-type-check',
           'candidate-assets',
+          'candidate-operator-skills',
+          'candidate-equipment',
         ])
           stages.push({
             id,
@@ -531,6 +805,16 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         status: 'blocked',
         detail: '完整候选未生成，不能用旧正式定义代替资源引用闭包。',
       });
+      stages.push({
+        id: 'candidate-operator-skills',
+        status: 'blocked',
+        detail: '完整候选未生成，不能用旧正式定义代替逐技能模拟。',
+      });
+      stages.push({
+        id: 'candidate-equipment',
+        status: 'blocked',
+        detail: '完整候选未生成，不能用旧正式定义代替逐武器装配模拟。',
+      });
     }
     await stage('sources-after-generation', async () => {
       const after = await verifyGameDataSnapshot(
@@ -550,24 +834,54 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
       });
     }
   }
+  let published = false;
+  if (args.publish) {
+    const unavailableStages = stages.filter(item => item.status !== 'passed').map(item => item.id);
+    if (args.tablesOnly || unavailableStages.length > 0) {
+      stages.push({
+        id: 'publication',
+        status: 'blocked',
+        detail: {
+          unavailableStages,
+          ...(args.tablesOnly ? { reason: '--tables-only cannot publish a partial snapshot' } : {}),
+        },
+      });
+    } else {
+      published = await stage('publication', async () => ({
+        ...(await publishGameDataCandidate({
+          projectRoot: root,
+          candidateRoot,
+          directoryOutputs: GAME_DATA_PUBLISH_DIRECTORY_OUTPUTS,
+          fileOutputs: GAME_DATA_PUBLISH_FILE_OUTPUTS,
+        })),
+        note: '全部候选门禁和来源冻结检查通过后，逐文件同步专用生成/图片目录并精确替换混合目录中的语言与全局文件；过期文件删除，任一失败由预先备份逆序恢复。',
+      }));
+    }
+  }
   const report = {
     sourcePolicy: 'akedb-primary-vfs-fallback',
-    fullRebuild: false,
-    published: false,
-    requestedScope: args.tablesOnly ? 'tables-and-gear-candidate' : 'full-candidate',
+    fullRebuild: published,
+    published,
+    requestedScope: args.tablesOnly
+      ? 'tables-and-gear-candidate'
+      : args.publish
+        ? 'full-and-publish'
+        : 'full-candidate',
     runRoot,
     sourceRoot,
     candidateRoot,
     stages,
-    remaining: GAME_DATA_REBUILD_BOUNDARIES,
+    remaining: published ? [] : GAME_DATA_REBUILD_BOUNDARIES,
   };
   await writeAtomicJson(path.join(runRoot, 'report.json'), report);
   // 完整重建在剩余边界闭合前不能返回成功；显式表格切片仅对该切片返回成功。
   const exitCode = stages.some(item => item.status === 'failed')
     ? 1
-    : args.tablesOnly && stages.every(item => item.status === 'passed')
+    : published
       ? 0
-      : 2;
+      : args.tablesOnly && stages.every(item => item.status === 'passed')
+        ? 0
+        : 2;
   return { report, exitCode };
 }
 
@@ -646,6 +960,130 @@ export async function compareCandidateFiles(baseline: string, candidate: string)
   };
 }
 
+async function compareCandidateFileSet(
+  baselineRoot: string,
+  candidateRoot: string,
+  files: readonly string[],
+) {
+  const added: string[] = [];
+  const changed: string[] = [];
+  for (const relative of files) {
+    const candidate = (await fs.readFile(path.join(candidateRoot, relative), 'utf8')).replaceAll(
+      '\r\n',
+      '\n',
+    );
+    const baseline = await fs.readFile(path.join(baselineRoot, relative), 'utf8').then(
+      content => content.replaceAll('\r\n', '\n'),
+      (error: NodeJS.ErrnoException) => {
+        if (error.code === 'ENOENT') return null;
+        throw error;
+      },
+    );
+    if (baseline === null) added.push(relative);
+    else if (baseline !== candidate) changed.push(relative);
+  }
+  return { baselinePresent: added.length !== files.length, added, changed, removed: [] };
+}
+
+interface CandidateLocaleInput {
+  readonly tableRoot: string;
+  readonly operatorManifest: string;
+  readonly weaponDefinitionRoot: string;
+  readonly gearDefinitionRoot: string;
+  readonly gearSetDefinitionRoot: string;
+  readonly enumTermsRoot: string;
+  readonly output: string;
+}
+
+/**
+ * 本地化必须消费本次候选定义的稳定身份，不能从正式本地化或旧生成目录反推。
+ * Python 仍是既有文本清洗实现；统一入口负责固定全部输入并复验完整输出契约。
+ */
+async function exportCandidateGameLocales(projectRoot: string, input: CandidateLocaleInput) {
+  const script = path.join(projectRoot, 'tools/game-data-compiler/scripts/exportGameLocales.py');
+  await runFile(
+    'python',
+    [
+      script,
+      '--table-root',
+      input.tableRoot,
+      '--operator-manifest',
+      input.operatorManifest,
+      '--weapon-definition-root',
+      input.weaponDefinitionRoot,
+      '--gear-definition-root',
+      input.gearDefinitionRoot,
+      '--gear-set-definition-root',
+      input.gearSetDefinitionRoot,
+      '--enum-terms-root',
+      input.enumTermsRoot,
+      '--output',
+      input.output,
+    ],
+    { cwd: projectRoot, maxBuffer: 16 * 1024 * 1024 },
+  );
+  const expectedFiles = [
+    'enemies.json',
+    'enum-terms.json',
+    'gearpieces.json',
+    'gearsets.json',
+    'operators.json',
+    'terms.json',
+    'weapons.json',
+  ];
+  const counts: Record<string, Record<string, number>> = {};
+  for (const locale of ['zh', 'en']) {
+    const directory = path.join(input.output, locale);
+    const actualFiles = (await fs.readdir(directory)).sort();
+    if (actualFiles.join('\n') !== expectedFiles.join('\n'))
+      throw new Error(
+        `locale ${locale}: expected ${expectedFiles.join(', ')}, got ${actualFiles.join(', ')}`,
+      );
+    counts[locale] = {};
+    for (const file of expectedFiles) {
+      const document = requireRecord(
+        await readJson(path.join(directory, file)),
+        `${locale}/${file}`,
+      );
+      const count = Object.keys(document).length;
+      if (count === 0) throw new Error(`${locale}/${file}: empty locale document`);
+      counts[locale]![file.slice(0, -'.json'.length)] = count;
+    }
+  }
+  for (const file of expectedFiles) {
+    const key = file.slice(0, -'.json'.length);
+    if (counts.zh![key] !== counts.en![key])
+      throw new Error(
+        `${file}: zh/en identity count differs (${counts.zh![key]} != ${counts.en![key]})`,
+      );
+  }
+  return { counts, source: 'fixed-local-TableCfg-and-candidate-identities' };
+}
+
+async function readDirectoryTextFiles(root: string) {
+  const result = new Map<string, string>();
+  async function walk(directory: string) {
+    for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
+      const file = path.join(directory, entry.name);
+      if (entry.isSymbolicLink()) throw new Error(`generated directory contains a link: ${file}`);
+      if (entry.isDirectory()) await walk(file);
+      else
+        result.set(
+          path.relative(root, file).split(path.sep).join('/'),
+          await fs.readFile(file, 'utf8'),
+        );
+    }
+  }
+  await walk(root);
+  return result;
+}
+
+function sameTextFiles(left: ReadonlyMap<string, string>, right: ReadonlyMap<string, string>) {
+  return (
+    left.size === right.size && [...left].every(([file, content]) => right.get(file) === content)
+  );
+}
+
 async function readJson(file: string): Promise<unknown> {
   return JSON.parse(await fs.readFile(file, 'utf8'));
 }
@@ -687,6 +1125,7 @@ export async function inspectOperatorRefresh(
 export function parseRebuildArguments(values: readonly string[]): RebuildArguments {
   const entries = new Map<string, string>();
   let tablesOnly = false;
+  let publish = false;
   const allowed = new Set([
     '--source-root',
     '--version',
@@ -701,6 +1140,10 @@ export function parseRebuildArguments(values: readonly string[]): RebuildArgumen
       tablesOnly = true;
       continue;
     }
+    if (flag === '--publish' && !publish) {
+      publish = true;
+      continue;
+    }
     if (!allowed.has(flag) || entries.has(flag))
       throw new Error(`unknown or duplicate argument: ${flag}`);
     const value = values[++i];
@@ -710,6 +1153,7 @@ export function parseRebuildArguments(values: readonly string[]): RebuildArgumen
   const workers = Number(entries.get('--workers') ?? 6);
   if (!Number.isInteger(workers) || workers <= 0)
     throw new Error('--workers: expected positive integer');
+  if (tablesOnly && publish) throw new Error('--publish cannot be combined with --tables-only');
   return {
     ...(entries.has('--source-root')
       ? { sourceRoot: path.resolve(entries.get('--source-root')!) }
@@ -719,6 +1163,7 @@ export function parseRebuildArguments(values: readonly string[]): RebuildArgumen
     vfsBase: entries.get('--vfs-base') ?? DEFAULT_VFS_BASE,
     workers,
     tablesOnly,
+    publish,
     ...(entries.has('--unity-worker')
       ? { unityWorker: path.resolve(entries.get('--unity-worker')!) }
       : {}),
@@ -747,7 +1192,7 @@ if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === imp
   const { report, exitCode } = await rebuildGameData(parseRebuildArguments(process.argv.slice(2)));
   for (const stage of report.stages) console.log(`${stage.id}: ${stage.status}`);
   console.log(
-    `fullRebuild=false; published=false; report: ${path.join(report.runRoot, 'report.json')}`,
+    `fullRebuild=${report.fullRebuild}; published=${report.published}; report: ${path.join(report.runRoot, 'report.json')}`,
   );
   process.exitCode = exitCode;
 }

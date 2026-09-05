@@ -82,10 +82,16 @@ export function projectCombatRuntimeAttributeKey(attribute: AttributeTypeSource)
 
 /**
  * 固定单敌人、零空间模型实际消费的属性边界。公共 IR 仍保留所有原生枚举，只有进入
- * Endaxis Buff 运行定义时才排除纯索敌距离；否则它会伪装成需要战斗属性上下界的数值。
+ * Endaxis Buff 运行定义时才排除纯索敌距离与移动速度；否则它们会伪装成需要战斗属性上下界的数值。
+ * 对同一 Buff 中仍影响伤害的生命周期、事件与其他修饰不做连带裁剪。
  */
 export function isCombatRuntimeAttributeRelevant(attribute: AttributeTypeSource): boolean {
-  return attribute !== 'NormalAttackRange' && attribute !== 'NormalAttackStartRange';
+  return ![
+    'NormalAttackRange',
+    'NormalAttackStartRange',
+    'MoveSpeedScalar',
+    'InAirMoveSpeedScalar',
+  ].includes(attribute);
 }
 
 /** 原生四维 AttributeType 到 Next 稳定主属性键的唯一公共投影。 */

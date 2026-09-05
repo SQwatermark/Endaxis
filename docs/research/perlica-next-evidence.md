@@ -1,6 +1,6 @@
 # 佩丽卡新版配置证据记录
 
-本文审计 `src/next/data/operators/perlica.ts` 的数据来源。证据不进入正式干员配置，也不参与编译和模拟。
+本文审计 `src/data/operators/perlica.ts` 的数据来源。证据不进入正式干员配置，也不参与编译和模拟。
 
 ## 版本边界
 

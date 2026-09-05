@@ -16,15 +16,15 @@ GameplayTag 配置映射而来。
 
 ## 已统一的编辑入口
 
-| 编辑语义                  | DSL 字段                        | 处理方式                                     |
-| ------------------------- | ------------------------------- | -------------------------------------------- |
-| Buff 标签查询、读取和结束 | `buffTags`                    | 可搜索路径列表；直接保存可读路径            |
+| 编辑语义                  | DSL 字段                      | 处理方式                                     |
+| ------------------------- | ----------------------------- | -------------------------------------------- |
+| Buff 标签查询、读取和结束 | `buffTags`                    | 可搜索路径列表；直接保存可读路径             |
 | 实体标签条件              | `tags`                        | 可搜索路径列表                               |
 | Buff 事件标签条件         | `eventBuffTagsMatch.buffTags` | 补齐此前缺失的 Inspector，并复用统一选择器   |
 | 治疗标签                  | `heal.tags`                   | 可为空的路径列表                             |
 | 终结技能量恢复分类        | `ultimateRecoveryTag`         | 最多一项的路径选择器                         |
-| Buff 持有、延长标签       | `applyTags`、`extendTags`   | 在内联 Buff 蓝图 Inspector 中显式编辑        |
-| 时间膨胀槽位              | `startTimeDilation.slot`        | 限定为 `TimeDilation/Layer/*` 的证据槽位下拉 |
+| Buff 持有、延长标签       | `applyTags`、`extendTags`     | 在内联 Buff 蓝图 Inspector 中显式编辑        |
+| 时间膨胀槽位              | `startTimeDilation.slot`      | 限定为 `TimeDilation/Layer/*` 的证据槽位下拉 |
 
 旧数字定义不再合法，不加运行时兼容转换，也不静默删除未知引用；自定义旧项目需要在数据
 输入边界迁移。转换器遇到未知来源 ID 必须失败；原生空槽位明确投影为 `unassigned`。
@@ -52,6 +52,6 @@ GameplayTag 配置映射而来。
 
 - 完整配置集清单、各文件 SHA-256 和复现命令见[来源记录](./gameplay-tag-config-set.md)；
 - 正式生成器：`tools/game-data-compiler/scripts/generateGameplayTagCatalog.ts`；
-- 生成目录：`src/next/data/combat/gameplayTagCatalog.generated.ts`；
+- 生成目录：`src/data/combat/gameplayTagCatalog.generated.ts`；
 - 时间膨胀配置与 Bundle 哈希见
   [`time-dilation-slot-and-curve-config.md`](./time-dilation-slot-and-curve-config.md)。

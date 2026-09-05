@@ -15,17 +15,17 @@ import type {
 } from '../../../packages/game-data-contract/src/equipment.ts';
 import type { OperatorDefinition } from '../../../packages/game-data-contract/src/operators.ts';
 import type { InflictionElement } from '../../../packages/game-data-contract/src/primitives.ts';
-import { validateGearSetDefinition } from '../../../src/next/core/game-data/equipmentDefinitionValidation';
-import { createSkillEditorStep } from '../../../src/next/ui/timeline/skillDefinitionEditorViewModel';
-import { createCombatCondition } from '../../../src/next/ui/timeline/combatConditionEditorViewModel';
-import { createEmptyScenario } from '../../../src/next/core/project/createProject';
-import { compileScenarioEquipment } from '../../../src/next/core/compiler/compileScenarioEquipment';
-import { perlica } from '../../../src/next/data/operators/perlica';
-import { perlicaBattleSkill } from '../../../src/next/data/operators/generated-definitions/perlica/perlica.operator.generated';
-import { commonBuffDefinitions } from '../../../src/next/data/buffs/commonDefinitions';
-import { skillSettings } from '../../../src/next/data/combat/skillSettings';
-import { placeSkillGroup } from '../../../src/next/ui/timeline/placeSkillGroup';
-import { ScenarioSimulationService } from '../../../src/next/application/scenarioSimulationService';
+import { validateGearSetDefinition } from '../../../src/core/game-data/equipmentDefinitionValidation';
+import { createSkillEditorStep } from '../../../src/ui/timeline/skillDefinitionEditorViewModel';
+import { createCombatCondition } from '../../../src/ui/timeline/combatConditionEditorViewModel';
+import { createEmptyScenario } from '../../../src/core/project/createProject';
+import { compileScenarioEquipment } from '../../../src/core/compiler/compileScenarioEquipment';
+import { perlica } from '../../../src/data/operators/perlica';
+import { perlicaBattleSkill } from '../../../src/data/operators/generated-definitions/perlica/perlica.operator.generated';
+import { commonBuffDefinitions } from '../../../src/data/buffs/commonDefinitions';
+import { skillSettings } from '../../../src/data/combat/skillSettings';
+import { placeSkillGroup } from '../../../src/ui/timeline/placeSkillGroup';
+import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
 
 it('全局冷却编辑器工厂输出通过公共定义校验', () => {
   const step = createSkillEditorStep(perlicaBattleSkill, 'setGlobalCooldown');
@@ -60,16 +60,13 @@ if (reportPath) {
   )
     throw new Error('source snapshot changed');
   const tagStage = report.stages.find((s: { id: string }) => s.id === 'gameplay-tags');
-  let tagCatalog = 'src/next/data/combat/gameplayTagCatalog.generated.ts';
+  let tagCatalog = 'src/data/combat/gameplayTagCatalog.generated.ts';
   if (tagStage) {
     if (tagStage.status !== 'passed') throw new Error('candidate GameplayTag export did not pass');
     const sourceSet = readGameplayTagConfigSetExport(tagStage.detail.manifestPath);
     if (sourceSet.sourceSha256 !== tagStage.detail.sourceSha256)
       throw new Error('candidate GameplayTag source changed');
-    tagCatalog = path.join(
-      report.candidateRoot,
-      'src/next/data/combat/gameplayTagCatalog.generated.ts',
-    );
+    tagCatalog = path.join(report.candidateRoot, 'src/data/combat/gameplayTagCatalog.generated.ts');
     await generateGameplayTagCatalog({
       dump: tagStage.detail.manifestPath,
       output: tagCatalog,

@@ -11,6 +11,7 @@ import App from './App.vue';
 import router from './router';
 import { i18n, setLocale } from './i18n';
 import { bootstrapAppearance } from './composables/useAppearance';
+import { showBootstrapFailure } from './bootstrapFailure';
 
 async function bootstrap() {
   bootstrapAppearance();
@@ -23,6 +24,9 @@ async function bootstrap() {
   app.use(ElementPlus);
   app.use(router);
   app.use(i18n);
+  // A failed initial route (including lazy game-text imports) used to mount
+  // an empty RouterView and remove the loader, leaving only the background.
+  await router.isReady();
   app.mount('#app');
 
   // 启动遮罩属于应用外壳；语言资源和首个路由完成挂载后再移除。
@@ -33,4 +37,4 @@ async function bootstrap() {
   });
 }
 
-void bootstrap();
+void bootstrap().catch(showBootstrapFailure);

@@ -125,6 +125,8 @@ export function compileActionNode(
       'timelineRead',
       'randomBlackboard',
       'attributeSnapshot',
+      'entityPropertySnapshot',
+      'healthFloor',
       'resource',
       'finisherSpGain',
       'presentation',
@@ -148,6 +150,7 @@ export function compileActionNode(
       'eventListener',
       'environment',
       'elementalInfliction',
+      'characterSpellInfliction',
       'buffIgnite',
       'forcedElementalStatus',
       'spellBurstEvent',
@@ -172,6 +175,10 @@ export function compileActionNode(
       'blackboardCalculation',
       'blackboardMutation',
       'eventPayload',
+      // 接收侧回调可读取自身动态生命/失衡值与 MaxHp 等属性；各分支仍严格校验 Owner。
+      'entityPropertySnapshot',
+      'attributeSnapshot',
+      'healthFloor',
       'presentation',
       'timedMarker',
       'modeAndResourcePolicy',
@@ -224,6 +231,49 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'eventPayload') {
     const action = node.body.value.action;
+    if (action.kind === 'saveHealValue') {
+      if (action.finalHealKey.length === 0 && action.realHealKey.length === 0) {
+        throw new Error(`${node.sourcePath}: SaveHealValue has no output key`);
+      }
+      return [
+        {
+          kind: 'storeEventHealValues',
+          parameters: {
+            ...(action.finalHealKey.length === 0
+              ? {}
+              : { finalHealOutputKey: action.finalHealKey }),
+            ...(action.realHealKey.length === 0 ? {} : { realHealOutputKey: action.realHealKey }),
+          },
+        },
+      ];
+    }
+    if (action.kind === 'saveShieldValue') {
+      const target = action.target;
+      if (
+        action.outputKey.length === 0 ||
+        target.targetSource !== 'Owner' ||
+        target.targetGroupKey !== '' ||
+        target.finderType !== null ||
+        target.validatorTypes.length !== 0 ||
+        target.postProcessorTypes.length !== 0 ||
+        target.priorityFilters.length !== 0 ||
+        target.shuffleTargets.length !== 0 ||
+        target.distanceValidators.length !== 0 ||
+        target.finderSpawnedObjectType !== null ||
+        target.validatorTagQueries.length !== 0
+      ) {
+        throw new Error(`${node.sourcePath}: unsupported SaveShieldValueToBB target or output key`);
+      }
+      return [
+        {
+          kind: 'storeShieldValue',
+          parameters: {
+            value: action.valueType === 'GainedValue' ? 'gained' : 'current',
+            outputKey: action.outputKey,
+          },
+        },
+      ];
+    }
     if (action.valueKey.length === 0 && action.realDeltaKey.length === 0) {
       throw new Error(`${node.sourcePath}: SaveAtbObtainValue has no output key`);
     }
@@ -536,6 +586,21 @@ export function compileActionNode(
     if (auraBuffSource === null) {
       throw new Error(`${node.sourcePath}: Aura Buff source is unavailable`);
     }
+    const iconDurationSource =
+      aura.iconDurationOverride === undefined
+        ? undefined
+        : context.actionOwnerTarget !== 'currentAbilityEntity'
+          ? (() => {
+              throw new Error(
+                `${node.sourcePath}: Aura icon duration source requires an AbilityEntity action owner`,
+              );
+            })()
+          : aura.iconDurationOverride.durationSourceType === 'AbilityEntity'
+            ? ({ kind: 'actionOwnerAbilityEntity' } as const)
+            : ({
+                kind: 'actionOwnerTimedMarker',
+                markerId: aura.iconDurationOverride.timedMarkerId,
+              } as const);
     const exitBuffs = aura.exitBuffs.flatMap((entry, index) => {
       if (visualOnlyIds.has(entry.buffId)) return [];
       const assignments = entry.assignBlackboard
@@ -599,6 +664,7 @@ export function compileActionNode(
             target: aura.target,
             ...(auraBuffSource === undefined ? {} : { source: auraBuffSource }),
             finishByAction: true,
+            ...(iconDurationSource === undefined ? {} : { iconDurationSource }),
             ...(index === 0 && exitBuffs.length > 0 ? { onActionEndBuffs: exitBuffs } : {}),
             ...(aura.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
             ...(Object.keys(assignments).length === 0
@@ -614,7 +680,8 @@ export function compileActionNode(
     // fixedWhenStart 和 RangedAura 的空间黑板只决定 Aura 中心/覆盖范围；固定零空间中
     // 唯一敌人或既定友方集合从动作开始即在范围内。Good+All 额外覆盖的友方非角色
     // 没有可编辑轨道实例；其移动/表现状态不进入木桩账本，但来源事实已由 Aura IR 保留。
-    // 图标倒计时覆盖只影响展示来源，不改变这里由动作寿命控制的 Buff 安装与离场清理。
+    // 图标倒计时覆盖只把稳定实例身份传给展示回执，不改变这里由动作寿命控制的
+    // Buff 安装与离场清理。
     return [...enterCleanupSteps, ...applicationSteps];
   }
   if (node.body.value.family === 'buffFinish') {
@@ -637,7 +704,8 @@ export function compileActionNode(
         ownerContextTarget === undefined &&
         ((action.owner.targetSource !== 'Owner' &&
           action.owner.targetSource !== 'Source' &&
-          action.owner.targetSource !== 'Target') ||
+          action.owner.targetSource !== 'Target' &&
+          action.owner.targetSource !== 'MainCharacter') ||
           action.owner.targetGroupKey !== '')) ||
       action.limitSource ||
       action.buffSource.targetSource !== 'Source' ||
@@ -658,18 +726,20 @@ export function compileActionNode(
             ? ('enemy' as const)
             : action.owner.targetSource === 'Owner'
               ? requireActionOwnerProjection(context, node.sourcePath)
-              : action.owner.targetSource === 'Source'
-                ? 'caster'
-                : context.actionTargetTarget === 'enemy' ||
-                    context.actionTargetTarget === 'buffOwner' ||
-                    context.actionTargetTarget === 'caster' ||
-                    context.actionTargetTarget === 'currentAbilityEntity'
-                  ? context.actionTargetTarget
-                  : (() => {
-                      throw new Error(
-                        `${node.sourcePath}: Buff finish Target projection is unavailable`,
-                      );
-                    })();
+              : action.owner.targetSource === 'MainCharacter'
+                ? ('caster' as const)
+                : action.owner.targetSource === 'Source'
+                  ? 'caster'
+                  : context.actionTargetTarget === 'enemy' ||
+                      context.actionTargetTarget === 'buffOwner' ||
+                      context.actionTargetTarget === 'caster' ||
+                      context.actionTargetTarget === 'currentAbilityEntity'
+                    ? context.actionTargetTarget
+                    : (() => {
+                        throw new Error(
+                          `${node.sourcePath}: Buff finish Target projection is unavailable`,
+                        );
+                      })();
     if (
       action.kind === 'buffFinishByQuery' &&
       action.settings.checkType === 'Tag' &&
@@ -885,6 +955,28 @@ export function compileActionNode(
   if (node.body.value.family === 'elementalInfliction') {
     return [projectElementalInflictionAction(node.body.value.action, node.sourcePath, context)];
   }
+  if (node.body.value.family === 'characterSpellInfliction') {
+    const action = node.body.value.action;
+    const sourceIsCaster =
+      action.source.targetGroupKey === '' &&
+      ((action.source.targetSource === 'Owner' &&
+        ((context.actionOwnerTarget === 'buffOwner' && context.fixedBuffOwnerTarget === 'caster') ||
+          context.actionOwnerTarget === 'caster')) ||
+        (action.source.targetSource === 'Source' &&
+          (context.actionSourceTarget === 'caster' ||
+            (context.actionSourceTarget === 'buffSource' &&
+              context.fixedBuffSourceTarget === 'caster'))));
+    const targetIsCaster =
+      action.target.targetSource === 'MainCharacter' && action.target.targetGroupKey === '';
+    if (!sourceIsCaster || !targetIsCaster) {
+      throw new Error(
+        `${node.sourcePath}: character spell infliction is only scenario-omittable for proven caster self-target`,
+      );
+    }
+    // 严格排轴会照常执行技能；当前后端既不模拟干员受控状态，也不以其计算木桩伤害。
+    // 这里只省略已证明的干员自施加形状，不能扩展为按动作类型全局忽略。
+    return [];
+  }
   if (node.body.value.family === 'forcedElementalStatus') {
     const action = node.body.value.action;
     const targetsEnemy =
@@ -976,28 +1068,33 @@ export function compileActionNode(
   if (node.body.value.family === 'heal') {
     const action = node.body.value.action;
     const target =
-      action.target.targetSource === 'Source' &&
+      action.target.targetSource === 'Owner' &&
       action.target.targetGroupKey === '' &&
-      context.actionSourceTarget === 'caster'
-        ? ('caster' as const)
-        : isControlledOperatorInstantSearch(action.target)
-          ? ('controlledOperator' as const)
-          : action.target.targetSource === 'Owner' &&
-              (context.actionOwnerTarget === 'caster' || context.actionOwnerTarget === 'buffOwner')
-            ? context.actionOwnerTarget
-            : action.target.targetSource === 'Target' &&
-                context.actionTargetTarget === 'currentOperator'
-              ? ('currentTarget' as const)
-              : action.target.targetSource === 'MainCharacter' &&
-                  action.target.finderType === null &&
-                  action.target.validatorTypes.length === 0 &&
-                  action.target.postProcessorTypes.length === 0
-                ? ('controlledOperator' as const)
-                : action.target.targetSource === 'Context' &&
-                    action.target.targetGroupKey !== '' &&
-                    partyTargetGroups.get(action.target.targetGroupKey) === 'contextOperator'
-                  ? ('contextTarget' as const)
-                  : null;
+      isInFightEnemyInstantSearch(action.target)
+        ? ('enemy' as const)
+        : action.target.targetSource === 'Source' &&
+            action.target.targetGroupKey === '' &&
+            context.actionSourceTarget === 'caster'
+          ? ('caster' as const)
+          : isControlledOperatorInstantSearch(action.target)
+            ? ('controlledOperator' as const)
+            : action.target.targetSource === 'Owner' &&
+                (context.actionOwnerTarget === 'caster' ||
+                  context.actionOwnerTarget === 'buffOwner')
+              ? context.actionOwnerTarget
+              : action.target.targetSource === 'Target' &&
+                  context.actionTargetTarget === 'currentOperator'
+                ? ('currentTarget' as const)
+                : action.target.targetSource === 'MainCharacter' &&
+                    action.target.finderType === null &&
+                    action.target.validatorTypes.length === 0 &&
+                    action.target.postProcessorTypes.length === 0
+                  ? ('controlledOperator' as const)
+                  : action.target.targetSource === 'Context' &&
+                      action.target.targetGroupKey !== '' &&
+                      partyTargetGroups.get(action.target.targetGroupKey) === 'contextOperator'
+                    ? ('contextTarget' as const)
+                    : null;
     const attributeNames = {
       Str: 'strength',
       Agi: 'agility',
@@ -1011,7 +1108,8 @@ export function compileActionNode(
         : undefined;
     if (
       action.healType !== 'Normal' ||
-      action.healer !== 'ActionSource' ||
+      (action.healer !== 'ActionSource' && action.healer !== 'ActionOwner') ||
+      (action.healer === 'ActionOwner' && context.actionOwnerTarget !== 'buffOwner') ||
       (action.contextKey !== '' &&
         partyTargetGroups.get(action.contextKey) !== 'buffSource' &&
         !(
@@ -1023,7 +1121,8 @@ export function compileActionNode(
       (action.calculation.kind === 'definite' && action.calculation.applyScale) ||
       (action.calculation.kind !== 'definite' &&
         (action.calculation.kind !== 'attribute' ||
-          action.calculation.valueSource !== 'AttackerOrHealer' ||
+          (action.calculation.valueSource !== 'AttackerOrHealer' &&
+            action.calculation.valueSource !== 'Target') ||
           attribute === undefined))
     ) {
       throw new Error(`${node.sourcePath}: unsupported Buff runtime heal`);
@@ -1045,6 +1144,7 @@ export function compileActionNode(
         kind: 'heal',
         parameters: {
           ...targetParameters,
+          ...(action.healer === 'ActionOwner' ? { source: 'buffOwner' as const } : {}),
           ...(action.alwaysNext ? { alwaysNext: true } : {}),
           tags: projectGameplayTags(
             action.useHealTags ? action.healTagIds : [],
@@ -1052,6 +1152,9 @@ export function compileActionNode(
             node.sourcePath,
           ),
           ...calculation,
+          ...(action.calculation.kind === 'attribute' && action.calculation.valueSource === 'Target'
+            ? { attributeSource: 'target' as const }
+            : {}),
         },
       },
     ];
@@ -1357,7 +1460,29 @@ export function compileActionNode(
           ? (context.fixedBuffSourceTarget ?? context.actionSourceTarget)
           : null;
     if (
-      target !== 'caster' ||
+      (target === 'enemy' ||
+        (target === 'buffOwner' && context.fixedBuffOwnerTarget === 'enemy')) &&
+      action.primaryAttributeType === 'Specific' &&
+      action.attributeType === 'MaxHp'
+    ) {
+      return [
+        {
+          kind: 'storeEntityPropertyValue',
+          parameters: {
+            target: 'actionOwner',
+            property: 'maxHealth',
+            useFloor: action.useFloor,
+            divisor: actionValueOperand(action.divisor),
+            multiplier: actionValueOperand(action.multiplier),
+            base: actionValueOperand(action.baseValue),
+            targetKey: action.outputKey,
+          },
+        },
+      ];
+    }
+    const fixedTarget = target === 'buffOwner' ? context.fixedBuffOwnerTarget : target;
+    if (
+      fixedTarget !== 'caster' ||
       (action.primaryAttributeType !== 'Sub' &&
         (action.primaryAttributeType !== 'Specific' ||
           !supportedSpecificAttributes.has(action.attributeType)))
@@ -1391,6 +1516,48 @@ export function compileActionNode(
           multiplier: actionValueOperand(action.multiplier),
           base: actionValueOperand(action.baseValue),
           targetKey: action.outputKey,
+        },
+      },
+    ];
+  }
+  if (node.body.value.family === 'entityPropertySnapshot') {
+    const action = node.body.value.action;
+    if (action.target.targetSource !== 'Owner') {
+      throw new Error(`${node.sourcePath}: unsupported entity-property snapshot target`);
+    }
+    requireActionOwnerProjection(context, node.sourcePath);
+    return [
+      {
+        kind: 'storeEntityPropertyValue',
+        parameters: {
+          target: 'actionOwner',
+          property: action.property === 'CurHp' ? 'currentHealth' : 'currentPoise',
+          useFloor: action.useFloor,
+          divisor: actionValueOperand(action.divisor),
+          multiplier: actionValueOperand(action.multiplier),
+          base: actionValueOperand(action.baseValue),
+          targetKey: action.outputKey,
+        },
+      },
+    ];
+  }
+  if (node.body.value.family === 'healthFloor') {
+    const action = node.body.value.action;
+    if (
+      action.actionAfterSet.actions.length !== 0 ||
+      action.actionAfterSet.onlyExecuteWhenSourceIsMainCharacter ||
+      action.actionAfterSet.onlyExecuteWhenSourceIsGuard
+    ) {
+      throw new Error(`${node.sourcePath}: non-empty SetHpFloor actionAfterSet is unsupported`);
+    }
+    requireActionOwnerProjection(context, node.sourcePath);
+    return [
+      {
+        kind: 'setHealthFloor',
+        parameters: {
+          target: 'actionOwner',
+          mode: action.useRatio ? 'maxHealthRatio' : 'absolute',
+          value: actionValueOperand(action.useRatio ? action.floorRatio : action.floorValue),
         },
       },
     ];
@@ -1840,6 +2007,19 @@ export function compileActionNode(
   throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
 }
 
+function isInFightEnemyInstantSearch(target: TargetReferenceSource): boolean {
+  return (
+    target.finderType === 'InFightEnemyFinder' &&
+    target.validatorTypes.length === 0 &&
+    target.postProcessorTypes.length === 0 &&
+    target.priorityFilters.length === 0 &&
+    target.shuffleTargets.length === 0 &&
+    target.distanceValidators.length === 0 &&
+    target.finderSpawnedObjectType === null &&
+    target.validatorTagQueries.length === 0
+  );
+}
+
 function isPlainTargetReference(
   target: TargetReferenceSource,
   targetSource: string,
@@ -2104,6 +2284,9 @@ function compileBuffApplication(
             : { count: actionValueOperand(action.count) }),
           ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
           ...(action.isExtra ? { isExtra: true } : {}),
+          ...(action.overrideBuffIconDuration
+            ? { iconDurationSource: { kind: 'actionOwnerAbilityEntity' as const } }
+            : {}),
           ...(action.autoFinishByAction ? { finishByAction: true } : {}),
           ...(action.inheritSkillIds.length === 0
             ? {}

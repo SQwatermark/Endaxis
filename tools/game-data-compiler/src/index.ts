@@ -500,6 +500,7 @@ export {
   parseEquipmentItemSources,
   resolveEquipmentAttributeModifiers,
   type EquipmentAttributeModifierSource,
+  type EquipmentDisplayAttributeModifierSource,
   type EquipmentItemIdentitySource,
   type EquipmentItemSource,
   type EquipmentPartTypeSource,

@@ -28,7 +28,7 @@ describe('黑板运行时动作载荷', () => {
         {
           ...meta,
           key: 'result',
-          operation: 'Add',
+          operation: 1,
           value1: scalarFixture(1),
           value2: scalarFixture(0, 'bonus'),
         },
@@ -38,6 +38,7 @@ describe('黑板运行时动作载荷', () => {
     ).toMatchObject({
       kind: 'blackboardCalculation',
       key: 'result',
+      operation: 'Add',
       right: { blackboardKey: 'bonus', levelValues: [2, 3] },
     });
   });

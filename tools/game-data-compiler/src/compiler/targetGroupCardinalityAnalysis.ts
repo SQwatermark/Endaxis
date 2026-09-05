@@ -3,6 +3,60 @@ import type { NativeSequenceSource } from '../source/controlFlow.ts';
 
 type TargetGroupAction = Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'];
 
+export function compareKnownNumbers(
+  left: number,
+  comparison: string,
+  right: number,
+): boolean | undefined {
+  switch (comparison) {
+    case 'EQ':
+    case 'Equals':
+      return left === right;
+    case 'NE':
+    case 'NotEquals':
+      return left !== right;
+    case 'GT':
+    case 'GreaterThan':
+      return left > right;
+    case 'GE':
+    case 'GreaterThanOrEqual':
+      return left >= right;
+    case 'LT':
+    case 'LessThan':
+      return left < right;
+    case 'LE':
+    case 'LessThanOrEqual':
+      return left <= right;
+    default:
+      return undefined;
+  }
+}
+
+/** 固定木桩模型中不依赖运行时几何、每次严格产生一个零空间点的写入。 */
+export function isStaticZeroSpacePointWrite(write: TargetGroupAction): boolean {
+  return (
+    (write.producerType === 'FindTargetAction' ||
+      write.producerType === 'ConvertToTargetContext') &&
+    write.finderType === 'FixedPointFinder' &&
+    write.validatorTypes.length === 0 &&
+    write.postProcessorTypes.length === 0
+  );
+}
+
+/** 当前主控干员在战斗中严格唯一；这里仅验收完整的原生主控查询形状。 */
+export function isStaticControlledOperatorWrite(write: TargetGroupAction): boolean {
+  return (
+    write.producerType === 'FindTargetAction' &&
+    write.finderType === 'CharacterTeamFinder' &&
+    write.validatorTypes.length === 1 &&
+    write.validatorTypes[0] === 'MainCharacterValidator' &&
+    write.postProcessorTypes.length === 0 &&
+    write.priorityFilters.length === 0 &&
+    write.shuffleTargets.length === 0 &&
+    write.distanceValidators.length === 0
+  );
+}
+
 export interface GuaranteedSingletonZeroSpaceAnalysisOptions {
   readonly atMostOneZeroSpaceKeys: ReadonlySet<string>;
   readonly compareKnownNumbers: (

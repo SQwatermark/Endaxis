@@ -37,12 +37,12 @@ describe('OwnerSpawned AbilityEntity 公共查询投影', () => {
       targetFixture('InstantSearch', {
         finderData: {
           $type: 'Example.Selector+OwnerSpawnedEntityFinder+Data, Example',
-          spawnedObjectType: 'AbilityEntity',
+          spawnedObjectType: 512,
         },
         validatorData: [
           {
             $type: 'Example.Selector+TagValidator+Data, Example',
-            query: { queryType: 'HasAny', tags: [{ tagId: parent }] },
+            query: { queryType: 0, tags: [{ tagId: parent }] },
           },
           { $type: 'Example.Selector+SkillCastIdValidator+Data, Example' },
         ],

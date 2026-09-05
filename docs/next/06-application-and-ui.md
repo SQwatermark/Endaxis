@@ -8,7 +8,7 @@ Next UI 的目标不是重新设计 Endaxis，而是在底层数据差异允许�
 
 ## 2. 应用层
 
-`src/next/application` 将 core 能力组合成可供 UI 调用的用例。
+`src/application` 将 core 能力组合成可供 UI 调用的用例。
 
 ### 项目加载
 
@@ -29,7 +29,7 @@ Next UI 的目标不是重新设计 Endaxis，而是在底层数据差异允许�
 
 ## 3. 时间轴 UI 结构
 
-主要页面是 `ui/timeline/NextTimelineEditor.vue`，组件按职责拆分：
+主要页面是 `ui/timeline/TimelineEditor.vue`，组件按职责拆分：
 
 - `TimelineWorkbenchShell.vue`：工作台布局。
 - `TimelineHeaderToolbar.vue`、`TimelineCornerToolbar.vue`：顶部和角落工具区。

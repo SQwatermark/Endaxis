@@ -2,10 +2,12 @@ import {
   parseBlackboardCalculationActionSource,
   parseBlackboardMutationActionSource,
   parseAttributeSnapshotActionSource,
+  parseEntityPropertySnapshotActionSource,
   parseRandomBlackboardActionSource,
   type BlackboardCalculationActionSource,
   type BlackboardMutationActionSource,
   type AttributeSnapshotActionSource,
+  type EntityPropertySnapshotActionSource,
   type RandomBlackboardActionSource,
 } from './blackboardActions.ts';
 import {
@@ -80,12 +82,14 @@ import {
 } from './environmentActions.ts';
 import {
   parseElementalInflictionActionSource,
+  parseCharacterSpellInflictionActionSource,
   parseForcedElementalStatusActionSource,
   parseSpellAbnormalLifecycleEventSource,
   parseSpellInflictionStartedEventSource,
   parseTriggerSpellBurstEventSource,
   parseForceTriggerWeaknessEventSource,
   type ElementalInflictionActionSource,
+  type CharacterSpellInflictionActionSource,
   type ForcedElementalStatusActionSource,
   type SpellAbnormalLifecycleEventSource,
   type SpellInflictionStartedEventSource,
@@ -315,7 +319,11 @@ import {
 import { parseAiMarkerActionSource, type AiMarkerActionSource } from './aiMarkerActions.ts';
 import {
   parseSaveAtbObtainValueActionSource,
+  parseSaveHealValueActionSource,
+  parseSaveShieldValueActionSource,
   type SaveAtbObtainValueActionSource,
+  type SaveHealValueActionSource,
+  type SaveShieldValueActionSource,
 } from './eventPayloadActions.ts';
 import {
   parseTyphoeaArcheryTargetSelectionActionSource,
@@ -408,6 +416,13 @@ const REFERENCE_CLOSURE_ACTION_NAMES = new Set([
 
 export type KnownNativeActionParseScope = 'all' | 'referenceClosure';
 
+export interface HealthFloorActionSource {
+  readonly useRatio: boolean;
+  readonly floorValue: ScalarSource;
+  readonly floorRatio: ScalarSource;
+  readonly actionAfterSet: NativeSequenceSource<KnownNativeActionLeafSource>;
+}
+
 /** 已迁移到公共来源 IR 的 Action 叶子；领域适配器只能消费该公共并集。 */
 export type KnownNativeActionLeafSource =
   | { readonly family: 'condition'; readonly action: NativeConditionSource }
@@ -415,6 +430,11 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'blackboardMutation'; readonly action: BlackboardMutationActionSource }
   | { readonly family: 'randomBlackboard'; readonly action: RandomBlackboardActionSource }
   | { readonly family: 'attributeSnapshot'; readonly action: AttributeSnapshotActionSource }
+  | {
+      readonly family: 'entityPropertySnapshot';
+      readonly action: EntityPropertySnapshotActionSource;
+    }
+  | { readonly family: 'healthFloor'; readonly action: HealthFloorActionSource }
   | { readonly family: 'characterIdentity'; readonly action: CharacterTypeIdReadActionSource }
   | { readonly family: 'targetGroup'; readonly action: TargetGroupActionSource }
   | { readonly family: 'rayCastTargetGroup'; readonly action: RayCastTargetGroupActionSource }
@@ -463,7 +483,11 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'castingControl'; readonly action: ChannelingCastingActionSource }
   | { readonly family: 'timelineControl'; readonly action: InterruptCurrentSkillActionSource }
   | { readonly family: 'timelineRead'; readonly action: StoreCurrentSkillExecuteFrameActionSource }
-  | { readonly family: 'eventPayload'; readonly action: SaveAtbObtainValueActionSource }
+  | {
+      readonly family: 'eventPayload';
+      readonly action:
+        SaveAtbObtainValueActionSource | SaveHealValueActionSource | SaveShieldValueActionSource;
+    }
   | { readonly family: 'globalBuff'; readonly action: GlobalBuffActionSource }
   | { readonly family: 'skillSetting'; readonly action: SkillSettingReadActionSource }
   | { readonly family: 'selfDefense'; readonly action: SetSuperArmorActionSource }
@@ -521,6 +545,10 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'heal'; readonly action: HealActionSource }
   | { readonly family: 'environment'; readonly action: BreakInteractiveActionSource }
   | { readonly family: 'elementalInfliction'; readonly action: ElementalInflictionActionSource }
+  | {
+      readonly family: 'characterSpellInfliction';
+      readonly action: CharacterSpellInflictionActionSource;
+    }
   | { readonly family: 'buffIgnite'; readonly action: BuffIgniteActionSource }
   | { readonly family: 'forcedElementalStatus'; readonly action: ForcedElementalStatusActionSource }
   | {
@@ -803,6 +831,11 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'elementalInfliction',
         action: parseElementalInflictionActionSource(value, path),
+      };
+    case 'SpellInflictionOnChar':
+      return {
+        family: 'characterSpellInfliction',
+        action: parseCharacterSpellInflictionActionSource(value, path),
       };
     case 'IgniteAction':
       return { family: 'buffIgnite', action: parseBuffIgniteActionSource(value, path) };
@@ -1114,6 +1147,16 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'eventPayload',
         action: parseSaveAtbObtainValueActionSource(value, path),
       };
+    case 'SaveHealValue':
+      return {
+        family: 'eventPayload',
+        action: parseSaveHealValueActionSource(value, path),
+      };
+    case 'SaveShieldValueToBB':
+      return {
+        family: 'eventPayload',
+        action: parseSaveShieldValueActionSource(value, path),
+      };
     case 'RandomAction':
       return {
         family: 'randomBlackboard',
@@ -1124,6 +1167,51 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'attributeSnapshot',
         action: parseAttributeSnapshotActionSource(value, path, inheritedBlackboard),
       };
+    case 'StoreEntityProperty':
+      return {
+        family: 'entityPropertySnapshot',
+        action: parseEntityPropertySnapshotActionSource(value, path, inheritedBlackboard),
+      };
+    case 'SetHpFloor': {
+      requireExactFields(
+        action,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'useRatio',
+          'floorValue',
+          'floorRatio',
+          'actionAfterSet',
+        ]),
+        path,
+      );
+      return {
+        family: 'healthFloor',
+        action: {
+          useRatio: requireBoolean(action.useRatio, `${path}.useRatio`),
+          floorValue: parseScalarSource(
+            action.floorValue,
+            `${path}.floorValue`,
+            inheritedBlackboard,
+          ),
+          floorRatio: parseScalarSource(
+            action.floorRatio,
+            `${path}.floorRatio`,
+            inheritedBlackboard,
+          ),
+          actionAfterSet: parseNativeSequenceSource(
+            action.actionAfterSet,
+            `${path}.actionAfterSet`,
+            inheritedBlackboard,
+            (leaf, leafPath) =>
+              parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
+          ),
+        },
+      };
+    }
     case 'SaveCharTypeId':
       return {
         family: 'characterIdentity',

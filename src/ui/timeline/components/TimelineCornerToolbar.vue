@@ -1,0 +1,347 @@
+<script setup lang="ts">
+import { nextTick, ref } from 'vue';
+
+/**
+ * 时间轴轨道头部上方的编辑工具区，复刻旧版控件的稳定顺序和尺寸。
+ * 尚未接入 Next 命令层的工具保持禁用；接入时应由父组件传入状态与命令。
+ */
+defineProps<{
+  snapLabel: string;
+  zoomPercent: number;
+  cursorGuideEnabled: boolean;
+  boxSelectEnabled: boolean;
+  connectionToolEnabled: boolean;
+  initialGaugeMode: 'empty' | 'full' | 'custom';
+  buffLayoutMode: 'compact' | 'loose';
+  labels: {
+    initialGauge: string;
+    cursorGuide: string;
+    boxSelect: string;
+    snapPrecision: string;
+    connectionTool: string;
+    buffLayout: string;
+    zoom: string;
+  };
+}>();
+
+const emit = defineEmits<{
+  toggleSnapPrecision: [];
+  cycleInitialGauge: [];
+  setUnifiedInitialGauge: [value: number];
+  toggleCursorGuide: [];
+  toggleBoxSelect: [];
+  toggleConnectionTool: [];
+  toggleBuffLayout: [];
+  updateZoomPercent: [percent: number];
+}>();
+
+const gaugeEditorOpen = ref(false);
+const gaugeDraft = ref('100');
+const gaugeInput = ref<HTMLInputElement | null>(null);
+
+function toggleGaugeEditor(event: Event): void {
+  event.preventDefault();
+  gaugeEditorOpen.value = !gaugeEditorOpen.value;
+  if (gaugeEditorOpen.value) void nextTick(() => gaugeInput.value?.select());
+}
+
+function applyGaugeDraft(): void {
+  if (!gaugeEditorOpen.value) return;
+  const value = Number(gaugeDraft.value);
+  if (Number.isInteger(value) && value >= 0) emit('setUnifiedInitialGauge', value);
+  gaugeEditorOpen.value = false;
+}
+</script>
+
+<template>
+  <div class="corner-controls">
+    <div class="corner-button-row">
+      <div class="initial-gauge-tool">
+        <button
+          type="button"
+          class="mini-tool-button"
+          :class="{
+            'is-active': initialGaugeMode !== 'empty',
+            'is-gauge-custom': initialGaugeMode === 'custom',
+          }"
+          :title="labels.initialGauge"
+          :aria-label="labels.initialGauge"
+          :aria-pressed="initialGaugeMode !== 'empty'"
+          :aria-expanded="gaugeEditorOpen"
+          aria-controls="timeline-initial-gauge-editor"
+          @click="emit('cycleInitialGauge')"
+          @contextmenu="toggleGaugeEditor"
+          @keydown.shift.enter.prevent.stop="toggleGaugeEditor"
+        >
+          <svg v-if="initialGaugeMode !== 'custom'" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M13 2 4 14h7l-1 8L20 9h-7V2Z"
+              :fill="initialGaugeMode === 'full' ? 'currentColor' : 'none'"
+            />
+          </svg>
+          <svg v-else viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="7" width="16" height="10" rx="2" />
+            <path d="M19 10h2v4h-2" />
+            <path d="M7 10v4M11 10v4M15 10v4" stroke-width="1.75" />
+          </svg>
+        </button>
+        <input
+          v-if="gaugeEditorOpen"
+          ref="gaugeInput"
+          id="timeline-initial-gauge-editor"
+          v-model="gaugeDraft"
+          class="gauge-popover"
+          type="number"
+          min="0"
+          step="1"
+          :aria-label="labels.initialGauge"
+          @keydown.enter.prevent="applyGaugeDraft"
+          @keydown.esc.prevent="gaugeEditorOpen = false"
+          @blur="applyGaugeDraft"
+        />
+      </div>
+      <button
+        type="button"
+        class="mini-tool-button mini-tool-button--text"
+        :title="labels.snapPrecision"
+        :aria-label="`${labels.snapPrecision}: ${snapLabel}`"
+        @click="$emit('toggleSnapPrecision')"
+      >
+        {{ snapLabel }}
+      </button>
+    </div>
+
+    <div class="zoom-row" :title="labels.zoom">
+      <div class="zoom-info">
+        <span>SCALE</span><strong>{{ zoomPercent }}%</strong>
+      </div>
+      <div class="zoom-slider-row">
+        <button
+          type="button"
+          class="zoom-step"
+          :aria-label="`${labels.zoom} -`"
+          @click="emit('updateZoomPercent', zoomPercent - 10)"
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 5h6" fill="none" stroke="currentColor" />
+          </svg>
+        </button>
+        <input
+          :value="zoomPercent"
+          type="range"
+          min="50"
+          max="200"
+          step="1"
+          :aria-label="labels.zoom"
+          @input="emit('updateZoomPercent', Number(($event.target as HTMLInputElement).value))"
+        />
+        <button
+          type="button"
+          class="zoom-step"
+          :aria-label="`${labels.zoom} +`"
+          @click="emit('updateZoomPercent', zoomPercent + 10)"
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 5h6M5 2v6" fill="none" stroke="currentColor" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.corner-controls {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.corner-button-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.mini-tool-button {
+  min-width: 0;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--ea-border-strong);
+  border-radius: 3px;
+  background: var(--ea-fill-input);
+  color: var(--ea-fg-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mini-tool-button:hover {
+  border-color: var(--ea-border-strong, #777);
+  background: var(--ea-hover-fill, #444);
+  color: var(--ea-fg-secondary, #ccc);
+}
+
+.mini-tool-button:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+}
+
+.mini-tool-button.is-active {
+  border-color: var(--ea-gold);
+  background: color-mix(in srgb, var(--ea-gold) 10%, var(--ea-fill-input));
+  color: var(--ea-gold);
+}
+
+.initial-gauge-tool {
+  grid-column: span 2;
+  position: relative;
+  min-width: 0;
+}
+
+.initial-gauge-tool .mini-tool-button {
+  width: 100%;
+}
+
+.mini-tool-button.is-gauge-custom {
+  border-style: dashed;
+}
+
+.mini-tool-button.is-gauge-custom.is-active {
+  border-color: #38bdf8;
+  background: rgb(56 189 248 / 12%);
+  color: #7dd3fc;
+}
+
+.gauge-popover {
+  position: absolute;
+  z-index: 20;
+  top: 23px;
+  left: 0;
+  width: 74px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--ea-gold);
+  border-radius: 2px;
+  background: var(--ea-fill-input);
+  color: var(--ea-fg);
+  font:
+    11px 'Roboto Mono',
+    Consolas,
+    monospace;
+}
+
+.mini-tool-button svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mini-tool-button--text {
+  font:
+    700 9px/1 'Roboto Mono',
+    Consolas,
+    monospace;
+}
+
+.zoom-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.zoom-info,
+.zoom-slider-row {
+  display: flex;
+  align-items: center;
+}
+
+.zoom-step {
+  width: 12px;
+  height: 12px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.zoom-info {
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 2px;
+  width: 100%;
+}
+
+.zoom-info strong {
+  color: var(--ea-gold);
+  font-family: 'Roboto Mono', Consolas, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.zoom-info > span {
+  color: #555;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.zoom-step:hover {
+  color: var(--ea-gold);
+}
+
+.zoom-slider-row {
+  width: 100%;
+  gap: 4px;
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.zoom-slider-row input {
+  min-width: 0;
+  height: 2px;
+  flex: 1 1 auto;
+  margin: 0;
+  appearance: none;
+  background: #555;
+  outline: none;
+  border-radius: 1px;
+}
+
+.zoom-slider-row input::-webkit-slider-thumb {
+  appearance: none;
+  width: 8px;
+  height: 8px;
+  background: var(--ea-gold);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1px solid #333;
+  box-shadow: 0 0 2px rgb(0 0 0 / 50%);
+  transition: transform 0.1s;
+}
+.zoom-slider-row input::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+  background: #fff;
+}
+.zoom-slider-row input::-moz-range-thumb {
+  width: 8px;
+  height: 8px;
+  background: var(--ea-gold);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+</style>

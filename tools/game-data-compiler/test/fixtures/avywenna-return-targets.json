@@ -8,9 +8,9 @@
       "id": "abilityentity_chr_0012_avywen_combo_skill_lance"
     },
     {
-      "sha256": "d1d9a3dd2fc2e94001cd45484240dfe429437a317ffefef2021e3ad963c411ea",
-      "json": "{\"gameId\": \"abilityentity_chr_0012_avywen_ultimate_skill\", \"factionNativeValue\": 2, \"bornTagIds\": [-1706530655, 1717826765, -715143713, 152398297, 1980073742, -808036568, -279045144, 1643653132, 2056757668, 195489960, 2136825092, -3742501, 486381712, -922203198], \"lifeTypeNativeValue\": 0, \"durationSeconds\": 62.0, \"durationBlackboard\": {\"useBlackboardKey\": false, \"value\": 0.0, \"blackboardKey\": \"\"}, \"maxDurationForServerSeconds\": 0.0, \"maxStackingCount\": -1, \"maxStackingCountBlackboard\": {\"useBlackboardKey\": false, \"value\": 0, \"blackboardKey\": \"\"}, \"delayToRecycleSeconds\": 0.0, \"delayRecyclePerformSeconds\": 0.0, \"sendDieEvent\": false, \"enableBornFadeIn\": false, \"fadeInSeconds\": 1.0, \"componentCount\": 4, \"managedReferenceCount\": 5, \"rootRid\": 8194869126427836781}",
-      "id": "abilityentity_chr_0012_avywen_ultimate_skill"
+      "sha256": "3b2b07d9cf04012802cb1dd55bde59120b7e3ddeb9f2da6931cd602fda5e16a3",
+      "json": "{\"gameId\": \"abilityentity_chr_0012_avywen_ultimate_skill_lance\", \"name\": \"abilityentity_chr_0012_avywen_ultimate_skill_lance\", \"factionNativeValue\": 2, \"bornTagIds\": [-1706530655, 1717826765, -715143713, 152398297, 1980073742, -808036568, -279045144, 1643653132, 2056757668, 195489960, 2136825092, -3742501, 486381712, -922203198], \"lifeTypeNativeValue\": 0, \"durationSeconds\": 62.0, \"durationBlackboard\": {\"useBlackboardKey\": false, \"value\": 0.0, \"blackboardKey\": \"\"}, \"maxDurationForServerSeconds\": 0.0, \"maxStackingCount\": -1, \"maxStackingCountBlackboard\": {\"useBlackboardKey\": false, \"value\": 0, \"blackboardKey\": \"\"}, \"delayToRecycleSeconds\": 0.0, \"delayRecyclePerformSeconds\": 0.0, \"sendDieEvent\": false, \"enableBornFadeIn\": false, \"fadeInSeconds\": 1.0, \"componentCount\": 4, \"managedReferenceCount\": 5, \"rootRid\": 3010137844548108695}",
+      "id": "abilityentity_chr_0012_avywen_ultimate_skill_lance"
     }
   ],
   "timelines": [

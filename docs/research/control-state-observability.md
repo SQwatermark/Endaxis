@@ -22,15 +22,15 @@
 
 ## 具体消费者
 
-| 来源 | 实际读取／响应 | 本轮判断 |
-| --- | --- | --- |
-| `buff_equipsuit_knockdownup_01` | Attacker 侧伤害修正，查询 Target 的倒地标签，读取 `downdmg` | 倒地有数值意义，不能整体删除；当前表未查到该被动挂接，不能称已发布可用套装 |
-| `buff_grounded_dam_up` / `cri_cridam_up` / `pen_up` | Target 倒地条件下增伤／暴击／穿透修正 | 来源候选；不能按文件名推断它们已进入构筑闭包 |
-| `buff_chr_0009_azrila_talent_0_1` | `OnAfterOutputKnockDown` 后概率施加 Buff | 原始资源候选，不在当前余烬真实来源闭包；不能当成整名生成的前置需求 |
-| `buff_chr_0015_lifeng_talent_2` | `OnBeforeOutputKnockDown` 执行动作序列 | 击倒前事件也是潜在战斗依赖，不能统一删除 |
-| `buff_chr_0017_yvonne_normal_skill_projectile` | Buff 结束时查询 Owner 的 `Status/Immobilized` | 当前完整伊冯定义中该 Buff 的所有施加目标均为 caster；读取干员自身，不要求敌人起身 |
-| `buff_chr_0030_zhuangfy_ult_base` | 查询 Source 的 `Status/Immobilized` | 来源指向干员侧的候选；庄方宜未完成，不据此宣称整名依赖已闭合 |
-| `buff_eny_*` 的控制状态查询 | 敌人行动／护盾／伤害条件等混合用途 | 不因命名统一删除；仅固定木桩明确未安装的敌人逻辑不进入该场景 |
+| 来源                                                | 实际读取／响应                                              | 本轮判断                                                                          |
+| --------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `buff_equipsuit_knockdownup_01`                     | Attacker 侧伤害修正，查询 Target 的倒地标签，读取 `downdmg` | 倒地有数值意义，不能整体删除；当前表未查到该被动挂接，不能称已发布可用套装        |
+| `buff_grounded_dam_up` / `cri_cridam_up` / `pen_up` | Target 倒地条件下增伤／暴击／穿透修正                       | 来源候选；不能按文件名推断它们已进入构筑闭包                                      |
+| `buff_chr_0009_azrila_talent_0_1`                   | `OnAfterOutputKnockDown` 后概率施加 Buff                    | 原始资源候选，不在当前余烬真实来源闭包；不能当成整名生成的前置需求                |
+| `buff_chr_0015_lifeng_talent_2`                     | `OnBeforeOutputKnockDown` 执行动作序列                      | 击倒前事件也是潜在战斗依赖，不能统一删除                                          |
+| `buff_chr_0017_yvonne_normal_skill_projectile`      | Buff 结束时查询 Owner 的 `Status/Immobilized`               | 当前完整伊冯定义中该 Buff 的所有施加目标均为 caster；读取干员自身，不要求敌人起身 |
+| `buff_chr_0030_zhuangfy_ult_base`                   | 查询 Source 的 `Status/Immobilized`                         | 来源指向干员侧的候选；庄方宜未完成，不据此宣称整名依赖已闭合                      |
+| `buff_eny_*` 的控制状态查询                         | 敌人行动／护盾／伤害条件等混合用途                          | 不因命名统一删除；仅固定木桩明确未安装的敌人逻辑不进入该场景                      |
 
 现有五份完整定义（秋栗、艾维文娜、狼卫、赛希、伊冯）实际对象已回归检查：可能读取起身
 标签的条件只有伊冯的上述 buffOwner 查询，所有安装点均为 caster。这个结论只覆盖五份
@@ -65,8 +65,8 @@ combat-spec 的 `GetUpTimeState` 和回归保留为原生证据，不反向以�
 但本轮执行测试用可控的真实 Buff 容器定义验证流程，不能冒称五 Buff 的真实伤害数值已运行验收。
 
 ```powershell
-npx vitest run src/next/core/combat/runtime/knockDownOperationExecutor.test.ts
-npx vitest run src/next/core/combat/runtime/standardPlayerDamageKnockDown.test.ts
+npx vitest run src/core/combat/runtime/knockDownOperationExecutor.test.ts
+npx vitest run src/core/combat/runtime/standardPlayerDamageKnockDown.test.ts
 ```
 
 ### 实体时钟与来源属性（本轮新增）
@@ -102,7 +102,7 @@ Skill/Buff 入边。它引用的 `buff_chr_0009_azrila_talent_0` 本地缺失、
 ### 来源盘点
 
 ```powershell
-npm run audit:game-data:tag-references -- --sources tmp/game-data-sources/skill-data-cdn --sources tmp/game-data-sources/BuffData --catalog src/next/data/combat/gameplayTagCatalog.generated.ts --tag Status/Immobilized/KnockDown --tag Status/Immobilized/Getup --tag Status/SkillCast/WeaknessInterrupted --output tmp/control-state-dependencies.json
+npm run audit:game-data:tag-references -- --sources tmp/game-data-sources/skill-data-cdn --sources tmp/game-data-sources/BuffData --catalog src/data/combat/gameplayTagCatalog.generated.ts --tag Status/Immobilized/KnockDown --tag Status/Immobilized/Getup --tag Status/SkillCast/WeaknessInterrupted --output tmp/control-state-dependencies.json
 npx vitest run tools/game-data-compiler/test/gameplayTagReferences.test.ts tools/game-data-compiler/test/controlStateBoundary.test.ts
 ```
 

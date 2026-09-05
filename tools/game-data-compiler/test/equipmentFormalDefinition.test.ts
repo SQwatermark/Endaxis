@@ -6,6 +6,7 @@ import {
   compileEquipmentDefinitionSource,
   parseEquipmentItemSources,
   type EquipmentAttributeModifierSource,
+  type EquipmentDisplayAttributeModifierSource,
   type EquipmentItemSource,
 } from '../src/index.ts';
 
@@ -34,6 +35,7 @@ describe('单件装备正式定义组装', () => {
     expect(result.definition).toEqual({
       slug: fixture.equipmentId,
       assetSlug: fixture.equipmentId,
+      iconPath: `/equipment/tundra01/${fixture.equipmentId}.webp`,
       slotType: 'armor',
       levelRequirement: 10,
       baseDefense: 8,
@@ -41,6 +43,15 @@ describe('单件装备正式定义组装', () => {
         {
           key: 'attribute-1',
           levelCount: 4,
+          display: {
+            kind: 'modifier',
+            modifier: {
+              kind: 'attribute',
+              attribute: 'strength',
+              operation: 'flat',
+              value: [15],
+            },
+          },
           modifiers: [
             {
               kind: 'attribute',
@@ -53,6 +64,15 @@ describe('单件装备正式定义组装', () => {
         {
           key: 'attribute-2',
           levelCount: 4,
+          display: {
+            kind: 'modifier',
+            modifier: {
+              kind: 'attribute',
+              attribute: 'agility',
+              operation: 'flat',
+              value: [10],
+            },
+          },
           modifiers: [
             {
               kind: 'attribute',
@@ -65,6 +85,14 @@ describe('单件装备正式定义组装', () => {
         {
           key: 'attribute-3',
           levelCount: 4,
+          display: {
+            kind: 'modifier',
+            modifier: {
+              kind: 'panelStat',
+              stat: 'healthFlat',
+              value: [46.3273721859878],
+            },
+          },
           modifiers: [
             {
               kind: 'panelStat',
@@ -92,12 +120,31 @@ describe('单件装备正式定义组装', () => {
     const result = compileEquipmentDefinitionSource({
       ...equipment,
       attributeModifiers: [equipment.attributeModifiers[0]!, damageScale, omitted],
+      displayAttributeModifiers: [
+        replaceDisplayModifier(equipment.displayAttributeModifiers[0]!, {
+          attributeType: 'DamageToBrokenUnitIncrease',
+          attributeValues: [0.1, 0.2, 0.3, 0.4],
+        }),
+        replaceDisplayModifier(equipment.displayAttributeModifiers[1]!, {
+          compositeAttribute: 'AllDamageTakenScalar',
+          attributeValues: [0.95],
+        }),
+      ],
     });
 
     expect(result.definition?.traits).toEqual([
       {
         key: 'attribute-1',
         levelCount: 4,
+        display: {
+          kind: 'modifier',
+          modifier: {
+            kind: 'damageScale',
+            target: 'staggeredEnemy',
+            slot: 'baseAddition',
+            value: [0.1, 0.2, 0.3, 0.4],
+          },
+        },
         modifiers: [
           {
             kind: 'damageScale',
@@ -106,6 +153,16 @@ describe('单件装备正式定义组装', () => {
             value: [0.1, 0.2, 0.3, 0.4],
           },
         ],
+      },
+      {
+        key: 'attribute-2',
+        levelCount: 4,
+        display: {
+          kind: 'composite',
+          composite: 'allDamageReduction',
+          value: [0.95],
+        },
+        modifiers: [],
       },
     ]);
     expect(result.diagnostics).toEqual([
@@ -149,5 +206,12 @@ function replaceModifier(
   source: EquipmentAttributeModifierSource,
   patch: Partial<EquipmentAttributeModifierSource>,
 ): EquipmentAttributeModifierSource {
+  return { ...source, ...patch };
+}
+
+function replaceDisplayModifier(
+  source: EquipmentDisplayAttributeModifierSource,
+  patch: Partial<EquipmentDisplayAttributeModifierSource>,
+): EquipmentDisplayAttributeModifierSource {
   return { ...source, ...patch };
 }

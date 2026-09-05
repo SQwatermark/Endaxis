@@ -159,7 +159,7 @@ const PUBLIC_ICON_SOURCE_ALIASES = new Map<
   ],
 ]);
 
-type Arguments = {
+export type ExportGameIconsArguments = {
   readonly workers: number;
   readonly sourceMode: 'hybrid' | 'vfs-only';
   readonly cdn: string;
@@ -172,9 +172,10 @@ type Arguments = {
   readonly outputRoot: string;
   /** 额外扫描尚未发布的候选定义；不改变正式 src 的默认闭包。 */
   readonly additionalReferenceRoots: readonly string[];
+  readonly auditOutput?: string;
 };
 
-export function parseArguments(argv: readonly string[]): Arguments {
+export function parseArguments(argv: readonly string[]): ExportGameIconsArguments {
   let workers = 6;
   let sourceMode: 'hybrid' | 'vfs-only' = 'hybrid';
   let cdn = DEFAULT_CDN;
@@ -287,6 +288,37 @@ async function collectLiteralReferences(
     }),
   );
   return references;
+}
+
+async function addContingencyContractImpliedReferences(
+  references: Map<string, Set<string>>,
+): Promise<void> {
+  const catalogPath = path.join(
+    SOURCE_ROOT,
+    'next',
+    'data',
+    'mechanics',
+    'contingency-contract-catalog.generated.json',
+  );
+  const value: unknown = JSON.parse(await readFile(catalogPath, 'utf8'));
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${catalogPath}: expected an object`);
+  }
+  const tags = (value as { readonly tags?: unknown }).tags;
+  if (!Array.isArray(tags)) throw new Error(`${catalogPath}.tags: expected an array`);
+  for (const [index, raw] of tags.entries()) {
+    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+      throw new Error(`${catalogPath}.tags[${index}]: expected an object`);
+    }
+    const icon = (raw as { readonly icon?: unknown }).icon;
+    if (typeof icon !== 'string' || icon.length === 0 || !/^[a-zA-Z0-9_-]+$/u.test(icon)) {
+      throw new Error(`${catalogPath}.tags[${index}].icon: expected a safe non-empty icon ID`);
+    }
+    const publicPath = `/contingency_contract/1/${icon}.webp`;
+    const owners = references.get(publicPath) ?? new Set<string>();
+    owners.add(path.relative(PROJECT_ROOT, catalogPath).replaceAll('\\', '/'));
+    references.set(publicPath, owners);
+  }
 }
 
 async function runRichTextExporter(refreshRichText: boolean): Promise<void> {
@@ -454,6 +486,9 @@ function sourcePlanForReference(
   if (publicPath.startsWith('/equipment/')) {
     return { sourceNames: [`${stem}.png`], preferredPathSegments: ['/itemicon/'] };
   }
+  if (publicPath.startsWith('/Icon_Enemy/')) {
+    return { sourceNames: [`${stem}.png`], preferredPathSegments: ['/monstericon/'] };
+  }
   if (publicPath.startsWith('/operators/')) {
     return {
       sourceNames: [`${stem}.png`],
@@ -466,8 +501,11 @@ function sourcePlanForReference(
   };
 }
 
-async function buildReferenceClosure(arguments_: Arguments): Promise<readonly IconReference[]> {
+async function buildReferenceClosure(
+  arguments_: ExportGameIconsArguments,
+): Promise<readonly IconReference[]> {
   const references = await collectLiteralReferences(arguments_.additionalReferenceRoots);
+  await addContingencyContractImpliedReferences(references);
   const operatorOverrides = await addOperatorImpliedReferences(
     references,
     arguments_.gameDataSourceRoot,
@@ -518,7 +556,7 @@ function selectCandidate(reference: IconReference, candidates: readonly Candidat
 
 export async function exportReference(
   reference: IconReference,
-  arguments_: Arguments,
+  arguments_: ExportGameIconsArguments,
   snapshot?: AkedbSnapshot,
 ) {
   const relativePath = reference.publicPath.slice(1).replaceAll('/', path.sep);
@@ -618,9 +656,14 @@ async function pruneUnreferencedAssets(
   outputRoot: string,
 ): Promise<readonly string[]> {
   const retained = new Set(references.map(reference => reference.publicPath.toLowerCase()));
-  const managedRoots = ['icons', 'operators', 'weapons', 'equipment'].map(name =>
-    path.join(outputRoot, name),
-  );
+  const managedRoots = [
+    'icons',
+    'operators',
+    'weapons',
+    'equipment',
+    'Icon_Enemy',
+    'contingency_contract',
+  ].map(name => path.join(outputRoot, name));
   const files = (await Promise.all(managedRoots.map(listFiles))).flat();
   const removed: string[] = [];
   for (const filePath of files) {
@@ -633,8 +676,13 @@ async function pruneUnreferencedAssets(
   return removed.sort();
 }
 
-async function main(): Promise<void> {
-  const arguments_ = parseArguments(process.argv.slice(2));
+export async function exportReferencedGameIcons(arguments_: ExportGameIconsArguments): Promise<{
+  readonly referencedCount: number;
+  readonly exportedCount: number;
+  readonly keptLocalCount: number;
+  readonly skippedExistingCount: number;
+  readonly auditOutput: string;
+}> {
   await mkdir(TMP_ROOT, { recursive: true });
   await runRichTextExporter(arguments_.refreshRichText);
   const references = await buildReferenceClosure(arguments_);
@@ -656,7 +704,17 @@ async function main(): Promise<void> {
   });
   results.sort((left, right) => left.publicPath.localeCompare(right.publicPath));
   failures.sort((left, right) => left.publicPath.localeCompare(right.publicPath));
-  await snapshot?.verifyUnchanged();
+  let snapshotVerification: { status: 'passed' } | { status: 'failed'; error: string } = {
+    status: 'passed',
+  };
+  try {
+    await snapshot?.verifyUnchanged();
+  } catch (error) {
+    snapshotVerification = {
+      status: 'failed',
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
   const pruned =
     arguments_.prune && failures.length === 0
       ? await pruneUnreferencedAssets(references, arguments_.dryRun, arguments_.outputRoot)
@@ -673,15 +731,26 @@ async function main(): Promise<void> {
     results,
     failures,
     pruned,
+    snapshotVerification,
   };
-  await writeFile(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  console.log(`Audit: ${REPORT_PATH}`);
+  const auditOutput = arguments_.auditOutput ?? REPORT_PATH;
+  await mkdir(path.dirname(auditOutput), { recursive: true });
+  await writeFile(auditOutput, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  console.log(`Audit: ${auditOutput}`);
   if (failures.length > 0)
     throw new Error(`${failures.length} referenced icons could not be exported`);
+  if (snapshotVerification.status === 'failed') throw new Error(snapshotVerification.error);
+  return {
+    referencedCount: references.length,
+    exportedCount: results.filter(result => result.status.startsWith('exported-')).length,
+    keptLocalCount: results.filter(result => result.status === 'kept-local').length,
+    skippedExistingCount: results.filter(result => result.status === 'skipped-existing').length,
+    auditOutput,
+  };
 }
 
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
-  main().catch(error => {
+  exportReferencedGameIcons(parseArguments(process.argv.slice(2))).catch(error => {
     console.error(error);
     process.exitCode = 1;
   });

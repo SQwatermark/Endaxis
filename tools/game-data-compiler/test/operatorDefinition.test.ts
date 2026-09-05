@@ -6,15 +6,15 @@ import {
   planOperatorDefinition,
   renderOperatorDefinition,
 } from '../scripts/planOperatorDefinition.ts';
-import { avywenna } from '../../../src/next/data/operators/avywenna';
+import { avywenna } from '../../../src/data/operators/avywenna';
 import {
   validateAbilityEntityDefinition,
   validateSkillDefinition,
-} from '../../../src/next/core/game-data/validateSkillDefinition';
-import { ScenarioSimulationService } from '../../../src/next/application/scenarioSimulationService';
-import { createEmptyScenario } from '../../../src/next/core/project/createProject';
-import { placeSkillGroup } from '../../../src/next/ui/timeline/placeSkillGroup';
-import { skillSettings } from '../../../src/next/data/combat/skillSettings';
+} from '../../../src/core/game-data/validateSkillDefinition';
+import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
+import { createEmptyScenario } from '../../../src/core/project/createProject';
+import { placeSkillGroup } from '../../../src/ui/timeline/placeSkillGroup';
+import { skillSettings } from '../../../src/data/combat/skillSettings';
 
 let sourceRoot: string;
 let candidate: ReturnType<typeof planOperatorDefinition>;
@@ -219,13 +219,12 @@ beforeAll(() => {
     tableRoot: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12'),
     skillPatchTable: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12/SkillPatchTable.json'),
     buffDataRoot: path.join(sourceRoot, 'BuffData'),
-    abilityEntityCatalog: 'src/next/data/ability-entities/ability-entity-templates-1.4.4.json',
-    projectileBlackboardCatalog:
-      'src/next/data/projectiles/projectile-entity-blackboards-1.4.4.json',
-    gameplayTagCatalog: 'src/next/data/combat/gameplayTagCatalog.generated.ts',
-    timeDilationCatalog: 'src/next/data/combat/timeDilationCatalog.generated.ts',
-    globalBuffCatalog: 'src/next/data/global-buffs/global-buff-templates.generated.json',
-    skillSettingCatalog: 'src/next/data/combat/skill-setting.generated.json',
+    abilityEntityCatalog: 'src/data/ability-entities/ability-entity-templates-1.4.4.json',
+    projectileBlackboardCatalog: 'src/data/projectiles/projectile-entity-blackboards-1.4.4.json',
+    gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
+    timeDilationCatalog: 'src/data/combat/timeDilationCatalog.generated.ts',
+    globalBuffCatalog: 'src/data/global-buffs/global-buff-templates.generated.json',
+    skillSettingCatalog: 'src/data/combat/skill-setting.generated.json',
     slug: 'avywenna',
     output: path.join(sourceRoot, 'generated/avywenna'),
     auditOutput: path.join(sourceRoot, 'audit/avywenna'),

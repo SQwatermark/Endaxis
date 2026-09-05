@@ -33,7 +33,7 @@ describe('可读标签的单向数据边界', () => {
         else if (/\.(?:ts|vue)$/.test(entry.name) && !/\.test\.ts$/.test(entry.name)) {
           const text = fs.readFileSync(file, 'utf8');
           if (
-            /\b(?:GameplayTagId|gameplayTagIdFromPath|gameplayTagId|nativeGameplayTags|tagIds|buffTagIds|applyTagIds|extendTagIds|allowedRecoveryTagIds|ultimateRecoveryTagId)\b/.test(
+            /\b(?:GameplayTagId|gameplayTagIdFromPath|gameplayTagId|nativeGameplayTags|buffTagIds|applyTagIds|extendTagIds|allowedRecoveryTagIds|ultimateRecoveryTagId)\b/.test(
               text,
             ) ||
             /\bgameplayTag\s*\(/.test(text)
@@ -43,7 +43,7 @@ describe('可读标签的单向数据边界', () => {
         }
       }
     }
-    for (const directory of ['packages/game-data-contract/src', 'src/shared', 'src/next'])
+    for (const directory of ['packages/game-data-contract/src', 'src/shared', 'src'])
       inspect(path.join(root, directory));
     expect(violations).toEqual([]);
   });

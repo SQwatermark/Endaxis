@@ -1,0 +1,880 @@
+{
+  "format": "EndaxisEnemyRankEvidence",
+  "manifestId": 456952,
+  "nativeValues": {
+    "0": "mob",
+    "1": "boss",
+    "2": "elite"
+  },
+  "enemies": {
+    "eny_0007_mimicw": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0007_mimicw.asset",
+      "assetIndex": 85674,
+      "rawSha256": "91173794ceab8e9c2aeebf1030e59b786a3163cda6925cab810f6dba489b35f8",
+      "modelKey": "eny_0007_mimicw_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0007_mimicw.png"
+    },
+    "eny_0018_lbtough": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0018_lbtough.asset",
+      "assetIndex": 106408,
+      "rawSha256": "0a947f1e16adead769b5a80349b5987b59155ae7ab82dd9688e767a979fd323c",
+      "modelKey": "eny_0018_lbtough_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0018_lbtough.png"
+    },
+    "eny_0021_agmelee": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0021_agmelee.asset",
+      "assetIndex": 25755,
+      "rawSha256": "27022ecfb20f9542ce9da3b509c1fe9ac04acddb00cd58d871ad9dff06d25472",
+      "modelKey": "eny_0021_agmelee_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0021_agmelee.png"
+    },
+    "eny_0023_aghornb": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0023_aghornb.asset",
+      "assetIndex": 103429,
+      "rawSha256": "26cb8b903eb0436a154f77343f5c241bde0f08fd3902f4f4dd768511074c2f09",
+      "modelKey": "eny_0023_aghornb_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0023_aghornb.png"
+    },
+    "eny_0025_agrange": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0025_agrange.asset",
+      "assetIndex": 283706,
+      "rawSha256": "057cfb7e12f1df75c4feda5e3c024eee59c4f35f15305b7156c2950a2f74b8f0",
+      "modelKey": "eny_0025_agrange_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0025_agrange.png"
+    },
+    "eny_0027_agscorp": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0027_agscorp.asset",
+      "assetIndex": 248873,
+      "rawSha256": "4f7fcf021d700d85007f14dc0ed13f01d71222ef339179a053efda7babf1f850",
+      "modelKey": "eny_0027_agscorp_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0027_agscorp.png"
+    },
+    "eny_0029_lbmob": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0029_lbmob.asset",
+      "assetIndex": 7050,
+      "rawSha256": "219df67206c46ad8f5945982db70c1ea1e9d22fbab087cc362cb19d8176bdd66",
+      "modelKey": "eny_0029_lbmob_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0029_lbmob.png"
+    },
+    "eny_0033_lbhunt": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0033_lbhunt.asset",
+      "assetIndex": 146998,
+      "rawSha256": "8d62f999ccbc9a1c781a7fae3e2a372c34d3103203e23914bc775a72db485a36",
+      "modelKey": "eny_0033_lbhunt_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0033_lbhunt.png"
+    },
+    "eny_0039_agcanno": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0039_agcanno.asset",
+      "assetIndex": 191796,
+      "rawSha256": "233fda3c641b7eb24ac00da675a53abf2e2d51510e9f4aa70f8c75b3bf8bfa1a",
+      "modelKey": "eny_0039_agcanno_postmodel",
+      "componentCount": 19,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0039_agcanno.png"
+    },
+    "eny_0045_agtrinit": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0045_agtrinit.asset",
+      "assetIndex": 125767,
+      "rawSha256": "ce118c1697e34f28a79e73c586962938e617f6e49aab9b337b10db764d41ae2b",
+      "modelKey": "eny_0045_agtrinit_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0045_agtrinit.png"
+    },
+    "eny_0046_lbshamman": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0046_lbshamman.asset",
+      "assetIndex": 241979,
+      "rawSha256": "3f05e5503fbc307d259ae882cef97ee933fd28bbd11c0032e81af6a08296e052",
+      "modelKey": "eny_0046_lbshamman_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0046_lbshamman.png"
+    },
+    "eny_0047_firebat": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0047_firebat.asset",
+      "assetIndex": 68443,
+      "rawSha256": "8d28b9a9c26236103e0cbb599b39e22756d3b3ced52d1b2b8ad71b0f226cb232",
+      "modelKey": "eny_0047_firebat_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0047_firebat.png"
+    },
+    "eny_0048_hvybow": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0048_hvybow.asset",
+      "assetIndex": 149741,
+      "rawSha256": "163665a6fbd0a0e0e88b13af8e958a9c4b994407a771079a8454ef92664411e8",
+      "modelKey": "eny_0048_hvybow_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0048_hvybow.png"
+    },
+    "eny_0049_rogue": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0049_rogue.asset",
+      "assetIndex": 70496,
+      "rawSha256": "83e25a4199d6a21387fb875e6585cba094a87a97a42fe49f4dae367e022ca6c9",
+      "modelKey": "eny_0049_rogue_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0049_rogue.png"
+    },
+    "eny_0050_hound": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0050_hound.asset",
+      "assetIndex": 194536,
+      "rawSha256": "0c932dc8b36932524b56853fbba0baffa31b770749285ff34d528722cb94617c",
+      "modelKey": "eny_0050_hound_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0050_hound.png"
+    },
+    "eny_0051_rodin": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0051_rodin.asset",
+      "assetIndex": 102741,
+      "rawSha256": "27d791e38cda24afd8311a16c38002e91bc44472b70dfdcb461a55def67627c5",
+      "modelKey": "eny_0051_rodin_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0051_rodin.png"
+    },
+    "eny_0052_palesent": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0052_palesent.asset",
+      "assetIndex": 226395,
+      "rawSha256": "2db43406321be2c978cea18034fcd1cd73e6f56653032c9422246f2485fb6c8c",
+      "modelKey": "eny_0052_palesent_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0052_palesent.png"
+    },
+    "eny_0053_hsmob": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0053_hsmob.asset",
+      "assetIndex": 228952,
+      "rawSha256": "6248289bf8f6059f441164f8eabfebe842052ad836c785d074e25abbe29e5495",
+      "modelKey": "eny_0053_hsmob_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0053_hsmob.png"
+    },
+    "eny_0054_hsmino": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0054_hsmino.asset",
+      "assetIndex": 25993,
+      "rawSha256": "9465b764bafa1c7af045d4c914ce740748600cf34ad680c36d08a1ca481ea80d",
+      "modelKey": "eny_0054_hsmino_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0054_hsmino.png"
+    },
+    "eny_0055_hscrane": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0055_hscrane.asset",
+      "assetIndex": 54765,
+      "rawSha256": "a15a52d3acacd4e6b06587b2ff14cb928cecdbe57fc06ee5c11d1044a2a8b24e",
+      "modelKey": "eny_0055_hscrane_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0055_hscrane.png"
+    },
+    "eny_0057_dog": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0057_dog.asset",
+      "assetIndex": 262592,
+      "rawSha256": "00240e1107abb5d85ba84abad81d99481e4f9786f57ca1ffbdd94778dcd1b1b1",
+      "modelKey": "eny_0057_dog_postmodel",
+      "componentCount": 18
+    },
+    "eny_0058_agdisk": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0058_agdisk.asset",
+      "assetIndex": 103597,
+      "rawSha256": "6e00cc42529d291fd65cd0f18dfd049bfa1f34d642bfac4253e08509593bdf08",
+      "modelKey": "eny_0058_agdisk_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0058_agdisk.png"
+    },
+    "eny_0059_erhound": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0059_erhound.asset",
+      "assetIndex": 163018,
+      "rawSha256": "4505d8ffdfa0d1af601e70eaa84a78c01b1e549bb1ea771acad3ca086c315e2f",
+      "modelKey": "eny_0059_erhound_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0059_erhound.png"
+    },
+    "eny_0060_lbmad": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0060_lbmad.asset",
+      "assetIndex": 61201,
+      "rawSha256": "e78ee127f11274cf189535e86d5c40858d9960a96c2d71d757f036a41bd468b9",
+      "modelKey": "eny_0060_lbmad_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0060_lbmad.png"
+    },
+    "eny_0061_palecore": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0061_palecore.asset",
+      "assetIndex": 204205,
+      "rawSha256": "738cd816cef17c0ff817550d985f2a360c4e94355f4becaaa9159086a427094f",
+      "modelKey": "eny_0061_palecore_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0061_palecore.png"
+    },
+    "eny_0062_paletent": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0062_paletent.asset",
+      "assetIndex": 235477,
+      "rawSha256": "383cd70624d9ab2667b63337eaaf91f54c7813e5a3c8b47005ab939808967a81",
+      "modelKey": "eny_0062_paletent_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0062_paletent.png"
+    },
+    "eny_0063_agmelee2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0063_agmelee2.asset",
+      "assetIndex": 258,
+      "rawSha256": "1dc3c013ae90cab242e9f6bd00bb9165fe4061222c4827f85b350b5ea14c3a42",
+      "modelKey": "eny_0063_agmelee2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0063_agmelee2.png"
+    },
+    "eny_0064_agrange2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0064_agrange2.asset",
+      "assetIndex": 200435,
+      "rawSha256": "857b973a23d517f12e55926ec7813a1f6aba9ebce560b1a3cf86c69c5d71c3da",
+      "modelKey": "eny_0064_agrange2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0064_agrange2.png"
+    },
+    "eny_0065_lbmob2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0065_lbmob2.asset",
+      "assetIndex": 240005,
+      "rawSha256": "3bb4a65cd2e78b6b755f454b18c0e2560e9b1f781747e5cce4320994d8b98f9d",
+      "modelKey": "eny_0065_lbmob2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0065_lbmob2.png"
+    },
+    "eny_0066_lbhunt2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0066_lbhunt2.asset",
+      "assetIndex": 62067,
+      "rawSha256": "994c7f836ba3ea0b31e1d42edb1af20d38ce81e4410639843e969e6a16312693",
+      "modelKey": "eny_0066_lbhunt2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0066_lbhunt2.png"
+    },
+    "eny_0067_hound2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0067_hound2.asset",
+      "assetIndex": 186800,
+      "rawSha256": "8c71916de3fe9690a39bae1a2bddaf73577357e8910eb71ed0765f77abdfe857",
+      "modelKey": "eny_0067_hound2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0067_hound2.png"
+    },
+    "eny_0068_lbtough2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0068_lbtough2.asset",
+      "assetIndex": 52831,
+      "rawSha256": "64e2f06182c68d24537da6cfde69c351637c0a8aa01c4cb89b6f29b9f3404284",
+      "modelKey": "eny_0068_lbtough2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0068_lbtough2.png"
+    },
+    "eny_0069_aghornb2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0069_aghornb2.asset",
+      "assetIndex": 35495,
+      "rawSha256": "dddb810c3eaeb7e570ea5fa35369cc5b5c08b577064c6b8bbad7ff2534bc772c",
+      "modelKey": "eny_0069_aghornb2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0069_aghornb2.png"
+    },
+    "eny_0070_agscorp2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0070_agscorp2.asset",
+      "assetIndex": 188352,
+      "rawSha256": "a9f2e8b44eae554f15855ea9c7c1323256b66d7512d9c3dcbd85cdd961916230",
+      "modelKey": "eny_0070_agscorp2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0070_agscorp2.png"
+    },
+    "eny_0071_sandb": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0071_sandb.asset",
+      "assetIndex": 12238,
+      "rawSha256": "7d257127485486f986bbc3a50f3ed5df9944971f2f8e48f1d527b6e3e9c55868",
+      "modelKey": "eny_0071_sandb_postmodel",
+      "componentCount": 19,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0071_sandb.png"
+    },
+    "eny_0072_slimeml": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0072_slimeml.asset",
+      "assetIndex": 77126,
+      "rawSha256": "29e20932fc1476202cce3130383abf578377862d983f65bb5053255e42fd9db8",
+      "modelKey": "eny_0072_slimeml_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0072_slimeml.png"
+    },
+    "eny_0073_slimerg": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0073_slimerg.asset",
+      "assetIndex": 48250,
+      "rawSha256": "e47282eb0b900d81db282c053a3b644a8973c8eca6a1a07ffaa4d601a1d33a92",
+      "modelKey": "eny_0073_slimerg_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0073_slimerg.png"
+    },
+    "eny_0074_lbshield": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0074_lbshield.asset",
+      "assetIndex": 200694,
+      "rawSha256": "aba7e88e965ec194954f83c7666e5866de13c2fd82d7c5d4a56b4792419f644d",
+      "modelKey": "eny_0074_lbshield_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0074_lbshield.png"
+    },
+    "eny_0075_lbroshan": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0075_lbroshan.asset",
+      "assetIndex": 250836,
+      "rawSha256": "5a1004f7f67075bb1182fbb5d183ffdc22d6d226acdce9c773cb0fbe12a007be",
+      "modelKey": "eny_0075_lbroshan_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0075_lbroshan.png"
+    },
+    "eny_0076_agfly": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0076_agfly.asset",
+      "assetIndex": 285108,
+      "rawSha256": "8338339584730d72ec27196d82077d7b840a0cdab41fad6945b3b6bcf8612251",
+      "modelKey": "eny_0076_agfly_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0076_agfly.png"
+    },
+    "eny_0077_agshield": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0077_agshield.asset",
+      "assetIndex": 295778,
+      "rawSha256": "1b59ee021f7725e548a63e8e0b1a4683cb06c18b26a3b846d61bed81ff6fb22d",
+      "modelKey": "eny_0077_agshield_postmodel",
+      "componentCount": 20,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0077_agshield.png"
+    },
+    "eny_0078_nefarp1": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0078_nefarp1.asset",
+      "assetIndex": 41706,
+      "rawSha256": "1287e32787ea43497f4ca7c282c7820df1ea6ee71cd93be5b14e985b4faf4241",
+      "modelKey": "eny_0078_nefarp1_postmodel",
+      "componentCount": 19,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0078_nefarp1.png"
+    },
+    "eny_0079_nefarp2": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0079_nefarp2.asset",
+      "assetIndex": 258854,
+      "rawSha256": "0860a66d63ef1c60eb6e5cf656a28e2df208736f51c65698c1fe348c9df4f4ad",
+      "modelKey": "eny_0079_nefarp2_postmodel",
+      "componentCount": 19,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0079_nefarp2.png"
+    },
+    "eny_0080_reaper": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0080_reaper.asset",
+      "assetIndex": 5165,
+      "rawSha256": "905ee911a8bba82bc0164ce594f26f5b35baa4b8035513e39e8f14b64054516f",
+      "modelKey": "eny_0080_reaper_postmodel",
+      "componentCount": 20,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0080_reaper.png"
+    },
+    "eny_0081_ruanyi": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0081_ruanyi.asset",
+      "assetIndex": 23657,
+      "rawSha256": "e506097268323440134f5a70a61ba9a340ef5c9167e3a604521c7fb162fad1e4",
+      "modelKey": "eny_0081_ruanyi_postmodel",
+      "componentCount": 21,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0081_ruanyi.png"
+    },
+    "eny_0082_hsbear": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0082_hsbear.asset",
+      "assetIndex": 235524,
+      "rawSha256": "44a4950c6c602707c3b98527c0a9f23d96dfdce86ed5f4028161198033a773ce",
+      "modelKey": "eny_0082_hsbear_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0082_hsbear.png"
+    },
+    "eny_0083_hstiger": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0083_hstiger.asset",
+      "assetIndex": 45088,
+      "rawSha256": "0d1a16bd2badcf18dfeafeac5e64b39b0fff18c528665aa1a4de318dbd8b289a",
+      "modelKey": "eny_0083_hstiger_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0083_hstiger.png"
+    },
+    "eny_0084_hshunt": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0084_hshunt.asset",
+      "assetIndex": 165465,
+      "rawSha256": "20dfaa762d741a10f9b1b00e2118f323077455b906a61205333a7fcecb9b67af",
+      "modelKey": "eny_0084_hshunt_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0084_hshunt.png"
+    },
+    "eny_0085_hsrogue": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0085_hsrogue.asset",
+      "assetIndex": 218396,
+      "rawSha256": "032080cbdf61feba8703d2141d66aeda2a1a9cd925f4ecdf691c1f2de99ccc32",
+      "modelKey": "eny_0085_hsrogue_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0085_hsrogue.png"
+    },
+    "eny_0087_wgslime": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0087_wgslime.asset",
+      "assetIndex": 64621,
+      "rawSha256": "83a8fcaaecb29e312ea4df737c46fdf1483020121f95b2cf55ecd6fff3ee150b",
+      "modelKey": "eny_0087_wgslime_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0087_wgslime.png"
+    },
+    "eny_0088_wgthorns": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0088_wgthorns.asset",
+      "assetIndex": 244770,
+      "rawSha256": "0b8f8b3ff0d1c1c4ba37cd4694284f6bad1a166d715c0269b118f5435945740a",
+      "modelKey": "eny_0088_wgthorns_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0088_wgthorns.png"
+    },
+    "eny_0089_wgreflec": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0089_wgreflec.asset",
+      "assetIndex": 71368,
+      "rawSha256": "6425f6126fd27655f3beb7252f8c828aac609bf5cb56d88219f814bd06d3fbfc",
+      "modelKey": "eny_0089_wgreflec_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0089_wgreflec.png"
+    },
+    "eny_0090_wgabyss": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0090_wgabyss.asset",
+      "assetIndex": 12122,
+      "rawSha256": "cc026f5142fb42ebc5c38258fb80c8687a8cc151d13bd60dc03a6b953983279a",
+      "modelKey": "eny_0090_wgabyss_postmodel",
+      "componentCount": 19,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0090_wgabyss.png"
+    },
+    "eny_0091_wgshoal": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0091_wgshoal.asset",
+      "assetIndex": 190554,
+      "rawSha256": "ddd53a7d931de18fbf9f591bdbb044d44db432f895a4106561e8506dfac4648d",
+      "modelKey": "eny_0091_wgshoal_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0091_wgshoal.png"
+    },
+    "eny_0092_slbomb": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0092_slbomb.asset",
+      "assetIndex": 34304,
+      "rawSha256": "6b3dab9800102417ca4492a52618a1c76ea8aa3a1cc7f1f0b87a51a7c3272de1",
+      "modelKey": "eny_0092_slbomb_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0092_slbomb.png"
+    },
+    "eny_0093_hshog": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0093_hshog.asset",
+      "assetIndex": 163726,
+      "rawSha256": "57b41b95122e9760a64bd46493899e92f96c8f5efa269fdadce9be482abdfa9c",
+      "modelKey": "eny_0093_hshog_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0093_hshog.png"
+    },
+    "eny_0094_hsfly": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0094_hsfly.asset",
+      "assetIndex": 94282,
+      "rawSha256": "c54e17774b061de575a9ab7953362e89db3c8875d77f144d4087142cd17e5c35",
+      "modelKey": "eny_0094_hsfly_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0094_hsfly.png"
+    },
+    "eny_0095_ethillu": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0095_ethillu.asset",
+      "assetIndex": 133904,
+      "rawSha256": "3825a9470fd0505c5814ea9122594f9cda043f8412ed31769986d954f20c0444",
+      "modelKey": "eny_0095_ethillu_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0095_ethillu.png"
+    },
+    "eny_0096_hsmob2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0096_hsmob2.asset",
+      "assetIndex": 310559,
+      "rawSha256": "383ba226e4a62df5ae7e5c30f960ac815b0e4bb0c582b18ebf41ed4839bf80f4",
+      "modelKey": "eny_0096_hsmob2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0096_hsmob2.png"
+    },
+    "eny_0097_hsmino2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0097_hsmino2.asset",
+      "assetIndex": 286113,
+      "rawSha256": "146e709b7da7219282fb7dd9806c92476ae40d2778edab6e17d27b1f835b2bd4",
+      "modelKey": "eny_0097_hsmino2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0097_hsmino2.png"
+    },
+    "eny_0098_sandb2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0098_sandb2.asset",
+      "assetIndex": 75875,
+      "rawSha256": "b55ee3154bf52e4adc05f5ed75baa5cd7b1113a82d64bc64d13eb9cd95fc8d6c",
+      "modelKey": "eny_0098_sandb2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0098_sandb2.png"
+    },
+    "eny_0099_slimeml2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0099_slimeml2.asset",
+      "assetIndex": 166393,
+      "rawSha256": "2b031318cad2a964a25494c65144938134d220c792e70d9c61f83fe0a5b94dfa",
+      "modelKey": "eny_0099_slimeml2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0099_slimeml2.png"
+    },
+    "eny_0100_slimerg2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0100_slimerg2.asset",
+      "assetIndex": 201796,
+      "rawSha256": "072fd25684b1d2f86eb474100d5e5cd7be6b0181f8a92255def1f81125070ec1",
+      "modelKey": "eny_0100_slimerg2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0100_slimerg2.png"
+    },
+    "eny_0101_agfly2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0101_agfly2.asset",
+      "assetIndex": 213700,
+      "rawSha256": "7e5c7502953a3e54caa397552e2b584f930b4c29b7420fd7094773913e4de1ba",
+      "modelKey": "eny_0101_agfly2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0101_agfly2.png"
+    },
+    "eny_0102_hstiger2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0102_hstiger2.asset",
+      "assetIndex": 158854,
+      "rawSha256": "bbe44567f60b978b761392f08d771ae04c73aa53d5bcce770ac71357d9e28c6f",
+      "modelKey": "eny_0102_hstiger2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0102_hstiger2.png"
+    },
+    "eny_0103_hshunt2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0103_hshunt2.asset",
+      "assetIndex": 16842,
+      "rawSha256": "09a279ca7f0be5fae5a3747a8ecdd61019dc44bcb2fd235fe5fed0c3749cb5aa",
+      "modelKey": "eny_0103_hshunt2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0103_hshunt2.png"
+    },
+    "eny_0104_hsrogue2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0104_hsrogue2.asset",
+      "assetIndex": 212509,
+      "rawSha256": "6eea997df0bc5d06a6b711f90c62ebda2753af6d5d2daca226c1cc6d606ef7e2",
+      "modelKey": "eny_0104_hsrogue2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0104_hsrogue2.png"
+    },
+    "eny_0105_wgslime2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0105_wgslime2.asset",
+      "assetIndex": 295025,
+      "rawSha256": "823671f18aaadc9a53eab8dd7dd645ac7c9f5ae921e4696aa60f06dd3eae7bde",
+      "modelKey": "eny_0105_wgslime2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0105_wgslime2.png"
+    },
+    "eny_0106_wgthorns2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0106_wgthorns2.asset",
+      "assetIndex": 59767,
+      "rawSha256": "529b5a5692a5aac598539c666dc21b86927ea63db2584b0dc116bc049d2504f0",
+      "modelKey": "eny_0106_wgthorns2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0106_wgthorns2.png"
+    },
+    "eny_0107_wgshoal2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0107_wgshoal2.asset",
+      "assetIndex": 237881,
+      "rawSha256": "dbccd8e91f839de95c57b361d1a0c413e82339d24cc0798973d7b010a76729f3",
+      "modelKey": "eny_0107_wgshoal2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0107_wgshoal2.png"
+    },
+    "eny_0108_slbomb2": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0108_slbomb2.asset",
+      "assetIndex": 64695,
+      "rawSha256": "7d071fc0e5d043a231574f0a740a9746e9898a2314eea096ff9a1ff027ea986d",
+      "modelKey": "eny_0108_slbomb2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0108_slbomb2.png"
+    },
+    "eny_0109_hshog2": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0109_hshog2.asset",
+      "assetIndex": 257589,
+      "rawSha256": "f521e7792402c88b9ae69c5d733704850630783b33b33c670288fe50d0d07a30",
+      "modelKey": "eny_0109_hshog2_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0109_hshog2.png"
+    },
+    "eny_0112_jzmonk": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0112_jzmonk.asset",
+      "assetIndex": 302480,
+      "rawSha256": "059a263f0e13612ab98f801a1dd8ed2c2da318bde103725e9001c9d0f66793b9",
+      "modelKey": "eny_0112_jzmonk_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0112_jzmonk.png"
+    },
+    "eny_0113_jzogre": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0113_jzogre.asset",
+      "assetIndex": 98905,
+      "rawSha256": "7db5e0b16282374634c3e03af045b2663710a29aeebf3aa754e97e4443f854da",
+      "modelKey": "eny_0113_jzogre_postmodel",
+      "componentCount": 19,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0113_jzogre.png"
+    },
+    "eny_0114_jzmking": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0114_jzmking.asset",
+      "assetIndex": 242198,
+      "rawSha256": "96513445d6bab277ceea94c711d49b84383ca9151be1881d8a46564c0b7b9de3",
+      "modelKey": "eny_0114_jzmking_postmodel",
+      "componentCount": 20,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0114_jzmking.png"
+    },
+    "eny_0117_klhound": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0117_klhound.asset",
+      "assetIndex": 121929,
+      "rawSha256": "0890ed32a59ccf6c00ca4bb14f0cb8b450d8f0235cd0625fe9569905565a3a8d",
+      "modelKey": "eny_0117_klhound_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0117_klhound.png"
+    },
+    "eny_0118_klhog": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0118_klhog.asset",
+      "assetIndex": 271302,
+      "rawSha256": "35ab79c113e67626d3427495b6c58b4962e580daf79a5e4241f0c4c520231d56",
+      "modelKey": "eny_0118_klhog_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0118_klhog.png"
+    },
+    "eny_0119_kltiger": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0119_kltiger.asset",
+      "assetIndex": 86975,
+      "rawSha256": "08d6c21b88bb59f74dbfa18ea0cdabb724f870481682613ad9d059f09d3d9aca",
+      "modelKey": "eny_0119_kltiger_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0119_kltiger.png"
+    },
+    "eny_0120_klbear": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0120_klbear.asset",
+      "assetIndex": 293699,
+      "rawSha256": "312ff02a978540fd428cd3818d2744fb3fb4833740133339c5dcddc13e6b5971",
+      "modelKey": "eny_0120_klbear_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0120_klbear.png"
+    },
+    "eny_0121_klbud": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0121_klbud.asset",
+      "assetIndex": 31623,
+      "rawSha256": "b8e2776a87145c6a7acc2540294ade72c03c3d5ec8ead898f75ae5ec130cfb0a",
+      "modelKey": "eny_0121_klbud_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0121_klbud.png"
+    },
+    "eny_0122_kltdbud": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0122_kltdbud.asset",
+      "assetIndex": 146690,
+      "rawSha256": "13ca992ed875cc4b2560583347567c016b1876d36755efcfcc8d1b3c2ff72601",
+      "modelKey": "eny_0122_kltdbud_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0122_kltdbud.png"
+    },
+    "eny_0123_klcap": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0123_klcap.asset",
+      "assetIndex": 73111,
+      "rawSha256": "d6e316abd0bc2c457e9b03659b65f7bd65a270e6481d2db21437f92fdb332ccf",
+      "modelKey": "eny_0123_klcap_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0123_klcap.png"
+    },
+    "eny_0124_kltdcap": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0124_kltdcap.asset",
+      "assetIndex": 72091,
+      "rawSha256": "e8a90f86f657d3a666e4a80f7914453d89414b3c3ff4de5b8c0972cdebe323fc",
+      "modelKey": "eny_0124_kltdcap_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0124_kltdcap.png"
+    },
+    "eny_0125_fdcentur": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0125_fdcentur.asset",
+      "assetIndex": 18812,
+      "rawSha256": "56e758551b05c25281acc0ba47cbd6173af3e533781c3f9823eba355f868940e",
+      "modelKey": "eny_0125_fdcentur_postmodel",
+      "componentCount": 19,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0125_fdcentur.png"
+    },
+    "eny_0127_bigents": {
+      "rank": "boss",
+      "nativeValue": 1,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0127_bigents.asset",
+      "assetIndex": 68777,
+      "rawSha256": "1a180f9dba8de19fa36e0ba5e027690ef1e6fae66e59cda6ee73722cd01b1a41",
+      "modelKey": "eny_0127_bigents_postmodel",
+      "componentCount": 19,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0127_bigents.png"
+    },
+    "eny_0128_babyents": {
+      "rank": "elite",
+      "nativeValue": 2,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0128_babyents.asset",
+      "assetIndex": 53587,
+      "rawSha256": "a495a73a0658f6204f5efcb076f0ef567b22da38b4193e5190a67c2a74bdf820",
+      "modelKey": "eny_0128_babyents_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0128_babyents.png"
+    },
+    "eny_0129_slwood": {
+      "rank": "mob",
+      "nativeValue": 0,
+      "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0129_slwood.asset",
+      "assetIndex": 310118,
+      "rawSha256": "6bd61c5b2033435777bc7c72df879f90d772c80fe7c069fb365a6bbe541e7fe7",
+      "modelKey": "eny_0129_slwood_postmodel",
+      "componentCount": 18,
+      "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0129_slwood.png"
+    }
+  }
+}

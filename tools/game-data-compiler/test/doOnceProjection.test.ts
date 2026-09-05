@@ -4,9 +4,9 @@ import { parseNativeSequenceSource, collectNativeActionNodes } from '../src/sour
 import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
 import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
-import { compileActionSequence } from '../../../src/next/core/compiler/compileSkill';
-import { CombatActionSequenceRuntime } from '../../../src/next/core/combat/runtime/combatActionSequenceRuntime';
-import { ActionBlackboard } from '../../../src/next/core/combat/runtime/actionBlackboard';
+import { compileActionSequence } from '../../../src/core/compiler/compileSkill';
+import { CombatActionSequenceRuntime } from '../../../src/core/combat/runtime/combatActionSequenceRuntime';
+import { ActionBlackboard } from '../../../src/core/combat/runtime/actionBlackboard';
 
 const meta = { isEnable: true, priorityLevel: 'Default', priorityOffset: 0, serverActionIndex: 0 };
 const sequence = (actionData: unknown[]) => ({

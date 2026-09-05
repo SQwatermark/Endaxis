@@ -6,6 +6,7 @@ describe('公共 AbilityEvent 身份投影', () => {
     ['OnAddedBuff', 9, 'addedBuff'],
     ['OnPoiseZero', 21, 'poiseZero'],
     ['OnEnemyBeforeTakeSpellInfliction', 121, 'beforeTakeInfliction'],
+    ['OnAfterAddedShield', 147, 'afterAddedShield'],
     ['OnSetWeakness', 151, 'weaknessSet'],
     ['OnBuffEndsEarly', 204, 'buffEndsEarly'],
     ['OnBuffEnhanceChanged', 209, 'buffEnhanceChanged'],

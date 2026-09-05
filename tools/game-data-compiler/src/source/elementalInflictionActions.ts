@@ -1,9 +1,11 @@
 import {
   requireExactFields,
   requireBoolean,
+  requireInteger,
   requireNonEmptyString,
   requireNativeEnum,
   requireRecord,
+  requireString,
 } from './primitives.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
@@ -16,6 +18,20 @@ export interface ElementalInflictionActionSource {
   readonly target: TargetReferenceSource;
   readonly element: ElementalInflictionTypeSource;
   readonly isExtra: boolean;
+}
+
+/** 角色侧元素异常；与敌人 SpellInfliction 的附着/反应状态机严格分开。 */
+export interface CharacterSpellInflictionActionSource {
+  readonly kind: 'characterSpellInfliction';
+  readonly source: TargetReferenceSource;
+  readonly target: TargetReferenceSource;
+  readonly element: ElementalInflictionTypeSource;
+  readonly directToTriggered: boolean;
+  readonly count: number;
+  readonly countBlackboardKey: string;
+  readonly useCountBlackboardKey: boolean;
+  readonly ignoreImmuneLevel: 'Default' | 'IgnoreWeakImmune';
+  readonly ignoreAddingCooldown: boolean;
 }
 
 export interface ForcedElementalStatusActionSource {
@@ -148,7 +164,11 @@ export function parseSpellAbnormalLifecycleEventSource(
 // EnergyShardType 是 0 起始的独立枚举，不是含 Physical 的 DamageType，也不是异常类型枚举。
 // Enum=4 是原生成员，但不是可施加的法术状态；证据见 force-spell-status-action.md。
 const ENERGY_SHARD_TYPES = new Map([
-  [0, 'Fire'], [1, 'Pulse'], [2, 'Cryst'], [3, 'Natural'], [4, 'Enum'],
+  [0, 'Fire'],
+  [1, 'Pulse'],
+  [2, 'Cryst'],
+  [3, 'Natural'],
+  [4, 'Enum'],
 ] as const);
 
 export function parseForcedElementalStatusActionSource(
@@ -175,7 +195,11 @@ export function parseForcedElementalStatusActionSource(
     ]),
     path,
   );
-  const statusElement = requireNativeEnum(action.spellStatusType, ENERGY_SHARD_TYPES, `${path}.spellStatusType`);
+  const statusElement = requireNativeEnum(
+    action.spellStatusType,
+    ENERGY_SHARD_TYPES,
+    `${path}.spellStatusType`,
+  );
   if (statusElement === 'Enum') {
     throw new Error(
       `${path}.spellStatusType: unsupported element ${JSON.stringify(statusElement)}`,
@@ -236,5 +260,74 @@ export function parseElementalInflictionActionSource(
     target: parseTargetReferenceSource(action.target, `${path}.target`),
     element: element as ElementalInflictionTypeSource,
     isExtra: requireBoolean(action.isExtra, `${path}.isExtra`),
+  };
+}
+
+/**
+ * combat-spec spell-infliction-on-character.md：完整保留角色异常动作载荷。
+ * 场景能否省略由投影层结合 owner/source/target 证明，来源层不吞语义。
+ */
+export function parseCharacterSpellInflictionActionSource(
+  value: unknown,
+  path: string,
+): CharacterSpellInflictionActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'source',
+      'target',
+      'inflictionType',
+      'directToTriggerred',
+      'inflictionCount',
+      'inflictionCountBlackboardKey',
+      'useInflictionCountBlackboardKey',
+      'ignoreImmuneLevel',
+      'ignoreAddingCooldown',
+    ]),
+    path,
+  );
+  const element = requireNonEmptyString(action.inflictionType, `${path}.inflictionType`);
+  if (!['Fire', 'Pulse', 'Cryst', 'Natural'].includes(element)) {
+    throw new Error(
+      `${path}.inflictionType: unsupported character spell infliction ${JSON.stringify(element)}`,
+    );
+  }
+  const ignoreImmuneLevel = requireNonEmptyString(
+    action.ignoreImmuneLevel,
+    `${path}.ignoreImmuneLevel`,
+  );
+  if (!['Default', 'IgnoreWeakImmune'].includes(ignoreImmuneLevel)) {
+    throw new Error(
+      `${path}.ignoreImmuneLevel: unsupported value ${JSON.stringify(ignoreImmuneLevel)}`,
+    );
+  }
+  const count = requireInteger(action.inflictionCount, `${path}.inflictionCount`);
+  if (count < 0) throw new Error(`${path}.inflictionCount: expected non-negative integer`);
+  return {
+    kind: 'characterSpellInfliction',
+    source: parseTargetReferenceSource(action.source, `${path}.source`),
+    target: parseTargetReferenceSource(action.target, `${path}.target`),
+    element: element as ElementalInflictionTypeSource,
+    directToTriggered: requireBoolean(action.directToTriggerred, `${path}.directToTriggerred`),
+    count,
+    countBlackboardKey: requireString(
+      action.inflictionCountBlackboardKey,
+      `${path}.inflictionCountBlackboardKey`,
+    ),
+    useCountBlackboardKey: requireBoolean(
+      action.useInflictionCountBlackboardKey,
+      `${path}.useInflictionCountBlackboardKey`,
+    ),
+    ignoreImmuneLevel: ignoreImmuneLevel as 'Default' | 'IgnoreWeakImmune',
+    ignoreAddingCooldown: requireBoolean(
+      action.ignoreAddingCooldown,
+      `${path}.ignoreAddingCooldown`,
+    ),
   };
 }

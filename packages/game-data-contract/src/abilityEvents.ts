@@ -35,6 +35,7 @@ export const ABILITY_EVENTS = [
   'outputKnockDown',
   'outputHeal',
   'receiveHeal',
+  'afterAddedShield',
   'poiseZero',
   'poiseKnotBreak',
   'beforeCastSkill',

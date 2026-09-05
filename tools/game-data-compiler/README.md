@@ -15,22 +15,33 @@
 仍以 AKEDB 为主、VFS 补缺；不等待 VFS 完整替代 AKEDB，也不借此恢复已回退的错误生成物。
 
 `rebuild:game-data` 已接入来源下载、逐文件/整批哈希复验、身份覆盖检查、装备/武器/套装、完整
-GameplayTag、TimeDilation、SkillSetting、GlobalBuff、31 名干员与公共 Buff 候选生成及重跑
+GameplayTag、TimeDilation、HitStop、SkillSetting、GlobalBuff、31 名干员、公共 Buff 与 87 个敌人候选生成及重跑
 `--check`，并在所有已登记领域候选整批完成后执行候选虚拟落位 TypeScript 检查。每次只创建
-`tmp/game-data-rebuild/run-*`，候选保留正式相对路径；不会覆盖正式
-定义、图片、旧版代码或项目数据。失败会留报告和下载器自己的 `.partial-*` 供排查。
+`tmp/game-data-rebuild/run-*`，候选保留正式相对路径；图片也从空的候选 `public` 按引用导出，
+不会借正式图片补缺，更不会覆盖正式定义、图片、旧版代码或项目数据。失败会留报告和下载器自己的
+`.partial-*` 供排查。
 
 ```powershell
 # 第一条已实际验证：从网络下载当前表，在没有任何候选产物的目录生成全部单件装备。
 npm run rebuild:game-data -- --tables-only
 # 离线重试也必须有下载器的 hybrid provenance，逐项校验，不搜索旧缓存。
 npm run rebuild:game-data -- --source-root tmp/rebuild-tables-20260903 --tables-only
-# 完整目标当前仍未闭合：继续采用 hybrid 全量下载，但报告明确未完成，退出码为 2。
-npm run rebuild:game-data
+# 默认只生成并验证隔离候选，不覆盖正式数据；通过后仍以退出码 2 提醒“未发布”。
+npm run rebuild:game-data -- --unity-worker D:/Projects/vfs-index-browser/unity-worker/src/Vfs.UnityWorker/bin/Release/net9.0-windows/Vfs.UnityWorker.exe
+# 显式发布：同一命令从零取源、生成、验证、模拟，全部通过后才事务替换正式派生资源。
+npm run rebuild:game-data -- --publish --unity-worker D:/Projects/vfs-index-browser/unity-worker/src/Vfs.UnityWorker/bin/Release/net9.0-windows/Vfs.UnityWorker.exe
 ```
 
 - `--tables-only` 仅表示表和单件装备切片通过；始终输出 `fullRebuild=false`、`published=false`。
-  完整入口在其他阶段闭合前返回 2；传输/校验/生成错误返回 1。不提供 `--publish` 或正式输出开关。
+  完整候选通过但未要求发布时返回 2；传输/校验/生成/发布错误返回 1。`--publish` 不能与
+  `--tables-only` 共用，也没有允许任意正式输出路径的开关。
+- `--publish` 只在全部来源、确定性、类型、资源、逐技能、技能库整链、全卡片组合轴、武器/装备/
+  套装差分及结束时来源冻结门禁均通过后执行。六个生成目录和五个专用图片根使用完整替换语义，
+  因而会自动移除旧生成文件与未再引用图标；14 个语言文件、7 个全局/敌人证据文件逐项替换，绝不
+  整体覆盖混合所有权目录。发布前先在私有事务目录保存全部候选和旧目标；安装时逐文件临时写入后
+  替换，并精确清理过期成员，避免 Windows 开发服务器监视正式目录时拒绝整目录 rename。它是可
+  回滚的文件事务，不宣称所有目录在同一瞬间切换；任一目标安装失败会按逆序恢复旧目标，回滚不完整
+  则保留备份目录供人工恢复。成功才报告 `fullRebuild=true`、`published=true` 并返回 0。
 - 来源复验拒绝 VFS-only、错版本、路径穿越、重复/漏记/额外文件、链接、字节/大小/哈希变化与清单
   数量不符。生成后再次复验整批身份。VFS 补件仍明确 `vfsVersionVerified=false`，哈希不证明同版本。
 - 身份检查比较角色/套装表与现有转换配置。未配置角色不自动注册；管理员表现变体、非玩家记录和
@@ -41,11 +52,14 @@ npm run rebuild:game-data
   不忽略游戏数值或行为字段。报告保留木桩省略诊断，而不是删除后宣称原生完整。
 - `candidate-type-check` 把候选文件映射到未来正式路径，只修改 TypeScript 编译器的读视图；候选目录
   按完整目录替换，已从候选删除的文件不能由旧正式目录偷偷补齐。该阶段不复制或覆盖正式文件，
-  随后 `candidate-assets` 复用图片导出器的字面引用提取器，阻断候选引用但 `public`
-  缺失的游戏图片。它不联网、不导出，也不等于注册表、逐技能与组合轴模拟已通过。
-- 候选类型和图片通过后，可对同一候选运行逐技能真实模拟。它加载全部候选干员和公共 Buff，过滤
-  `internal` 替换技能，然后将每个可摆放技能单独放到标准场景运行；正式目录仅作为候选未覆盖的
-  手写代码后备，不会补齐候选生成目录。失败包含技能稳定身份、Buff ID、来源动作和堆栈。
+  `icons` 随后扫描正式手写源码与候选生成源码，从空候选目录导出全部引用的游戏 WebP；项目自有
+  占位图只允许从正式 `public` 明确复制并记作 `kept-local`。`candidate-assets` 只检查该候选图片根，
+  正式 `public` 即使有同名文件也不能掩盖候选漏导。2026-09-05 完整发布批次闭合 830/830 个引用，
+  其中 826 个游戏资源、4 个项目占位资源。
+- 候选类型通过后，统一入口自动执行 `candidate-operator-skills`：加载全部候选干员和公共 Buff，过滤
+  `internal` 替换技能，将每个可摆放技能单独放到标准场景并模拟 P0/3600 帧；正式目录仅作为候选
+  未覆盖的手写代码后备，不会补齐候选生成目录。运行对象若残留未实例化的生成 identity 占位符也会
+  直接失败。下面的独立命令仍可用于同一候选的定位复跑：
 
   ```powershell
   npm run audit:game-data:candidate-operator-skills -- `
@@ -53,11 +67,58 @@ npm run rebuild:game-data
     --potential 0 --end-frame 3600
   ```
 
-  该命令证明定义可加载、可放置并在给定帧数内运行，不证明数值精确、潜能 1..5、组合轴或来源快照
-  可复现；它也不发布候选。2026-09-04 的取回候选隔离复验口径为 31 名、325/325 个可摆放技能。
+  同时按技能库自身的放置语义逐张放置完整卡片，因此多段普攻、连携和战技链不会被“逐技能单放”
+  掩盖；最后还按声明顺序把每名干员的全部可见卡片放到同一条轴上，检查跨技能状态共存。分组和
+  卡片只决定测试输入，不参与运行时技能路由。该门禁证明定义可加载、可放置并在给定帧数内运行，
+  不证明数值精确、潜能 1..5 或机制所需的特定操作顺序，也不发布候选。2026-09-04 当前完整来源候选
+  口径为 31 名、325/325 个可摆放技能、198/198 张技能库卡片（38 张多技能链）和 31/31 条全卡片
+  组合轴。
 
-- `report.json.remaining` 明确记录后续阻塞：全部领域的同批依赖、全局/模板证据、本地化旧文件、
-  图标扫描、旧展示适配和敌人预设、全量模拟与发布。它不是可执行删除清单；混合目录不能整体清空。
+  同一门禁默认要求每份 `*.operator.generated.ts` 不超过 **1 MiB**，避免结构投射回归重新制造数 MB
+  乃至数十 MB 的单文件并拖垮 TypeScript/Vite。可用 `--max-operator-source-bytes <正整数>` 显式调整，
+  但统一重建使用默认发布口径。最新候选总计 3,963,484 bytes，最大为 Typhoeus 878,234 bytes。
+
+- 候选类型通过后，统一入口还执行 `candidate-equipment`：从同批候选干员里按游戏定义的
+  `weaponType` 选择兼容持有者并逐把真实装配候选武器；同时逐件检查装备最低/最高精炼、饰品第二
+  槽与双饰品，并逐套运行三件套四技能场景。该门禁不靠正式配装目录补定义，也不把“能够初始化”
+  冒充模拟通过。独立定位命令为：
+
+  ```powershell
+  npm run audit:game-data:candidate-equipment -- `
+    --candidate-root tmp/game-data-rebuild/run-实际目录/candidate `
+    --end-frame 300
+  ```
+
+  2026-09-04 当前完整候选为 79 把武器、258 件装备（516 个精炼边界）、111 个第二饰品槽、
+  111 组双饰品及 24 套三件套全部装配模拟通过。每套都必须与移除套装关联的基线产生可观察差分；
+  其中 19 套带运行时根，还必须在过滤根 Buff 自身应用/结束记录后，与纯静态基线产生下游差分。
+  机制所需的特定队伍、反应、精确数值和技能顺序仍由定向回归负责。
+
+- `report.json.remaining` 明确记录后续阻塞。当前同批生成、图片闭包、候选类型、技能与装备运行门禁
+  已通过，主要剩余项是事务发布和少量明确标注的证据边界。它不是可执行删除清单；混合目录不能
+  整体清空，尤其不能把整个 `public` 当作游戏派生目录替换。
+
+本地化脚本的严格候选模式必须显式提供固定表与同批候选身份；该模式不访问网络，也不读取或合并
+`src/i18n/game-locales`：
+
+```powershell
+python tools/game-data-compiler/scripts/exportGameLocales.py `
+  --table-root tmp/game-data-rebuild/<source-run>/sources/TableCfg-current `
+  --operator-manifest tools/game-data-compiler/config/operators.json `
+  --weapon-definition-root tmp/game-data-rebuild/<candidate-run>/candidate/src/data/equipment/generated-weapons `
+  --gear-definition-root tmp/game-data-rebuild/<candidate-run>/candidate/src/data/equipment/generated `
+  --gear-set-definition-root tmp/game-data-rebuild/<candidate-run>/candidate/src/data/equipment/generated-gear-sets `
+  --enum-terms-root tools/game-data-compiler/config/locales `
+  --output tmp/game-data-locales/local-candidate
+```
+
+当前同批结果为 zh/en 各 31 名干员、64 个战斗术语、79 把武器、24 套装备、258 件单件装备、
+87 个敌人，另有 8 组项目自有枚举显示词。严格模式完整生成 `operators.json`、`terms.json`、
+`weapons.json`、`gearsets.json`、`gearpieces.json`、`enum-terms.json` 和 `enemies.json`；连续两次生成
+必须逐字节一致。游戏文本只来自固定 TableCfg，身份只来自同批候选定义；枚举显示词明确归项目所有，
+不伪装成游戏导出字段。“强化普攻/战技/连携/终结技”属于项目公共 `skillType`，严格生成不从旧
+`operators.json.subSkills` 合并这类重复值。统一重建把七类、共 14 个中英文文件逐文件映射进候选
+类型和资源检查，仍不会覆盖正式目录。
 
 单件装备兼容性可对隔离报告运行：
 
@@ -104,7 +165,7 @@ npm run rebuild:game-data -- --source-root tmp/game-data-rebuild/run-dYAF19/sour
 显式 worker 路径支持 exe/dll。`exportGameplayTagConfigSet.ts` 只编排 VFS 通用导出能力，按
 当前逻辑目录发现成员并严格连接 PPtr/CAB，不复制旧成员名单或产物。AKEDB 无配置才补 VFS；
 所有输入/请求/审计均在本次 tmp 下。当前恢复 6956 条路径及 179/67/37 全局预定义，生成全部
-24 套套装；完整命令仍因武器 `OnBuffEnhanceChanged` 未接入而失败，不发布部分武器。
+24 套套装；历史上的武器 `OnBuffEnhanceChanged` 阻塞已经贯通，当前 79 把武器候选可生成，仍不发布。
 无 worker 时明确阻塞，不隐式使用正式标签。前文保留的是阶段历史。
 来源、重复路径处理和证据边界见[新版标签重建](../../docs/research/gameplay-tag-refresh-2026-09-03.md)。
 
@@ -164,6 +225,9 @@ GlobalBuff 资产；它们不能被误当成一个总配置文件。
 
 - `scripts/generateWeaponDefinitions.ts`、`generateGearDefinitions.ts`、
   `generateGearSetDefinitions.ts`：武器、单件装备和套装正式生成及 `--check`；
+- `scripts/extractEnemyRankEvidence.ts`、`generateEnemyDefinitions.ts`、
+  `auditCandidateEnemyDefinitions.ts`：通过 VFS 公共 API + 显式 Unity worker 恢复原生 rank，编译
+  87 个 `eny_*` 敌人，并对旧 82 项逐字段回归；`tatget_*` 训练木桩不冒充敌人模板；
 - `scripts/auditGearSetSourceClosure.ts`、`auditGearSetStaticDefinitions.ts`：套装来源闭包与静态候选审计；
 - `scripts/exportReferencedGameIcons.ts`：扫描正式运行引用，只补缺漏地导出 WebP；`--overwrite` 覆盖，
   `--dry-run` 只审计，`--prune` 删除引用闭包外的受管游戏资源；
@@ -176,7 +240,7 @@ GlobalBuff 资产；它们不能被误当成一个总配置文件。
 - `scripts/generateOperatorPassiveUiPrefabCatalog.ts`：从 VFS 对象快照识别角色专属 HUD prefab 的
   `UICharPassive*` 组件，并生成模拟所需的窄语义目录；
 - `config/gearSetIdentities.json`：已闭合并进入正式库的套装身份；
-- `legacy/enemy-ranks`：仍有证据价值、但尚未改写为 TS 的敌人 rank 原始提取器。
+- `legacy/enemy-ranks`：只保留历史证据对照；生产 rank 提取已迁入上述 TS 入口。
 
 根 `package.json` 暴露 `generate:game-data:*`、`audit:game-data:*`、`export:game-icons` 和
 `export:game-locales`。机器审计和中间 manifest 只写入已忽略的 `tmp/`。
@@ -403,14 +467,14 @@ Assign 的目的键不算读取，但赋值保留；本轮没有启动通用黑�
 
 ```powershell
 npm run download:game-data:sources -- --json-file GameplayConfig/GameplayTagPredefineTable.json --vfs-base http://desktop:8765/api/endaxis-data
-npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/next/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/next/data/combat/gameplayTagCatalog.generated.ts
-npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/next/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/next/data/combat/gameplayTagCatalog.generated.ts --check
+npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/data/combat/gameplayTagCatalog.generated.ts
+npm run generate:game-data:tag-predefine -- tmp/game-data-sources/GameplayConfig/GameplayTagPredefineTable.json src/data/combat/gameplayTagPredefine.generated.ts combat-1.4.4 src/data/combat/gameplayTagCatalog.generated.ts --check
 ```
 
 完整目录不再只读单份 652 条配置，而是严格连接 ConfigSet 的全部 26 个引用：
 
 ```powershell
-npm run generate:game-data:gameplay-tags -- tools/game-data-compiler/gameplay-tag-config-set-1.4.4.sources.json src/next/data/combat/gameplayTagCatalog.generated.ts --source-set --source-root tmp/game-data-sources/GameplayTagConfigSet --check
+npm run generate:game-data:gameplay-tags -- tools/game-data-compiler/gameplay-tag-config-set-1.4.4.sources.json src/data/combat/gameplayTagCatalog.generated.ts --source-set --source-root tmp/game-data-sources/GameplayTagConfigSet --check
 ```
 
 原始 6842 条记录中有 1 条原生无效空串、35 条跨配置重复路径，明确统计后生成 6806 条。
@@ -810,12 +874,12 @@ npm run generate:game-data:operator-active-skills -- --complete `
   --skill-patch-table tmp/game-data-sources/TableCfg-current/SkillPatchTable.json `
   --buff-data-root tmp/game-data-sources/BuffData `
   --ability-entity-catalog tmp/game-data-sources/AbilityEntityData `
-  --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts `
-  --time-dilation-catalog src/next/data/combat/timeDilationCatalog.ts `
-  --global-buff-catalog src/next/data/global-buffs/global-buff-templates.generated.json `
-  --skill-setting-catalog src/next/data/combat/skill-setting.generated.json `
+  --gameplay-tag-catalog src/data/combat/gameplayTagCatalog.generated.ts `
+  --time-dilation-catalog src/data/combat/timeDilationCatalog.ts `
+  --global-buff-catalog src/data/global-buffs/global-buff-templates.generated.json `
+  --skill-setting-catalog src/data/combat/skill-setting.generated.json `
   --slug avywenna `
-  --output src/next/data/operators/generated-definitions/avywenna `
+  --output src/data/operators/generated-definitions/avywenna `
   --audit-output tmp/game-data-audit/operator-definitions/avywenna `
   --check
 ```
@@ -839,9 +903,9 @@ npm run generate:game-data:operator-active-skills -- --complete `
 - 单干员命令一次原子写入一个 `<slug>.operator.generated.ts`，只包含干员定义、私有 `buff_chr_*`
   和对公共 Buff ID 的引用。它不得导出 `commonBuffDefinitions`，也不得反向决定公共资源内容。
 - 公共 Buff 使用独立 `generate:game-data:common-buffs` 命令扫描全部正式来源闭包，原子生成
-  `src/next/data/buffs/generated/commonBuffDefinitions.generated.ts`。相同 ID 在多个闭包中出现时必须
+  `src/data/buffs/generated/commonBuffDefinitions.generated.ts`。相同 ID 在多个闭包中出现时必须
   得到深度一致的定义，否则生成失败；不能再靠干员 import 或对象展开顺序选择“规范版本”。产品只
-  通过 `src/next/data/buffs/commonDefinitions.ts` 的稳定只读入口注册该目录。
+  通过 `src/data/buffs/commonDefinitions.ts` 的稳定只读入口注册该目录。
 - 输出目录严格限定为上述父目录下的 slug 子目录；未知文件拒绝覆盖。审计写入 tmp，正式数据不带
   本机路径。`--check` 忽略 CRLF/LF，仍严格核对内容；文件存在数与注册/可模拟计数不能混用。
 - 伤害 key 按技能身份与最终结构路径确定，展开后的独立回调步骤各有唯一 key；不随机、不取绝对路径。
@@ -1289,7 +1353,7 @@ npm run download:game-data:sources -- --output tmp/game-data-hybrid-20260903 --v
 npm run download:game-data:sources -- --tables-only --version 1.5.3@9885010-4 --output tmp/tables-1.5.3
 npm run download:game-data:sources -- --source-mode vfs-only --output tmp/vfs-comparison --vfs-base http://desktop:8765/api/endaxis-data
 npm run export:game-icons -- --overwrite --output-root tmp/game-icons-hybrid
-npm run export:game-icons -- --additional-reference-root tmp/game-data-rebuild/<run>/candidate/src/next/data
+npm run export:game-icons -- --additional-reference-root tmp/game-data-rebuild/<run>/candidate/src/data
 ```
 
 `--additional-reference-root` 可重复使用，用于把未发布候选定义的图片引用并入闭包；
@@ -1554,7 +1618,7 @@ ExcludeTarget/ShuffleTarget 已分别追踪当前镜像消费者，三者通过
 完整传入正式步骤；生产端已按精确技能实例附着并在结束/中断时清理，不静默丢弃寿命。
 截至 2026-08-27，真实四技能生产门禁 **77/77 成功**，全兼容干员/两端构筑交叉 **966/966 成功、
 0 失败豁免**（早期 65/77、12 阻塞口径已过期）；已进入 v2 默认库，详见
-`src/next/application/generatedWeaponsSimulation.test.ts`。全量运行和关键被动数值/寿命差分满足前，
+`src/application/generatedWeaponsSimulation.test.ts`。全量运行和关键被动数值/寿命差分满足前，
 不能把“生成成功”升级为“全武器模拟完成”。
 
 公共事件程序投影必须遵守以下不可退化规则：
@@ -1571,7 +1635,7 @@ ExcludeTarget/ShuffleTarget 已分别追踪当前镜像消费者，三者通过
 正式生成命令不会在第一把失败时中断审计：它逐把收集来源错误，再合并运行投影诊断，全部通过后
 才渲染并原子替换目录。正式目录只保存 78 个 TypeScript 文件；机器审计写入被忽略的
 `tmp/generated-next-weapons`，`--check` 不读取也不修改审计文件。生成目录已接入唯一最新仓库，
-revision 标记为 `endaxis-next-definitions-latest`。Next 尚未发布首个稳定数据版本，不保存旧武器定义，
+revision 标记为 `endaxis-definitions-latest`。Next 尚未发布首个稳定数据版本，不保存旧武器定义，
 也不为每次生成差异建立迁移边；差异必须通过来源审计、生成 `--check`、聚焦模拟和代码评审证明。
 当前策略见 docs/next/weapon-data-migration.md。
 
@@ -1599,7 +1663,7 @@ npm run generate:game-data:weapons -- --tables tmp/game-data-sources/TableCfg-cu
 ```powershell
 npm run audit:game-data:weapons -- --tables tmp/game-data-sources/TableCfg-current `
   --skill-data tmp/game-data-sources/SkillData --buff-data tmp/game-data-sources/BuffData `
-  --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts
+  --gameplay-tag-catalog src/data/combat/gameplayTagCatalog.generated.ts
 ```
 
 Operator 主动技能库可用以下命令批量审计；任何干员失败都会保留逐项诊断并使进程返回非零：
@@ -1609,7 +1673,7 @@ npm run audit:game-data:operators -- --manifest tools/game-data-compiler/config/
   --skill-data tmp/game-data-sources/SkillData --buff-data tmp/game-data-sources/BuffData `
   --projectile-data tmp/game-data-sources/ProjectileData `
   --ability-entity-data tmp/game-data-sources/AbilityEntityData `
-  --gameplay-tag-catalog src/next/data/combat/gameplayTagCatalog.generated.ts `
+  --gameplay-tag-catalog src/data/combat/gameplayTagCatalog.generated.ts `
   --tables tmp/game-data-sources/TableCfg-current
 ```
 

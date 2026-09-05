@@ -1,14 +1,14 @@
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { compileWeaponContributions } from '../../../src/next/core/compiler/compileEquipment.ts';
+import { compileWeaponContributions } from '../../../src/core/compiler/compileEquipment.ts';
 import {
   compileWeaponRuntimeDefinitionBatchSource,
   type CompiledWeaponStaticDefinitionSource,
   type CompiledWeaponTraitRuntimeDependencySource,
   type CompiledWeaponToggleBuffGroupSource,
 } from '../src/index.ts';
-import { validateWeaponDefinition } from '../../../src/next/core/game-data/equipmentDefinitionValidation.ts';
+import { validateWeaponDefinition } from '../../../src/core/game-data/equipmentDefinitionValidation.ts';
 import type {
   WeaponDefinition,
   LevelValues,

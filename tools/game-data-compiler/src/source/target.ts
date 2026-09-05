@@ -685,11 +685,15 @@ export function parseSpawnedEntitySelectorIdentitySource(
       if (rawObjectType === 0) {
         // ObjectType 没有命名零成员；反编译证据表明零掩码不会命中子实体。
         spawnedObjectType = '0';
+      } else if (rawObjectType === 512) {
+        spawnedObjectType = 'AbilityEntity';
+      } else if (rawObjectType === -1) {
+        spawnedObjectType = 'All';
       } else if (typeof rawObjectType === 'string' && rawObjectType.length > 0) {
         spawnedObjectType = rawObjectType;
       } else {
         throw new Error(
-          `${path}.finderData.spawnedObjectType: expected named ObjectType or numeric 0`,
+          `${path}.finderData.spawnedObjectType: expected proven ObjectType name or native value`,
         );
       }
     }
@@ -705,7 +709,16 @@ export function parseSpawnedEntitySelectorIdentitySource(
     const queryPath = `${validatorPath}.query`;
     const query = requireRecord(validator.query, queryPath);
     requireExactFields(query, new Set(['queryType', 'tags']), queryPath);
-    const queryType = requireString(query.queryType, `${queryPath}.queryType`);
+    const rawQueryType = query.queryType;
+    let queryType: string;
+    if (typeof rawQueryType === 'number' && Number.isInteger(rawQueryType)) {
+      const nativeQueryType = NATIVE_GAMEPLAY_TAG_QUERY_NAMES[rawQueryType];
+      if (!nativeQueryType)
+        throw new Error(
+          `${queryPath}.queryType: unsupported native value ${JSON.stringify(rawQueryType)}`,
+        );
+      queryType = nativeQueryType;
+    } else queryType = requireString(rawQueryType, `${queryPath}.queryType`);
     if (!(NATIVE_GAMEPLAY_TAG_QUERY_NAMES as readonly string[]).includes(queryType)) {
       throw new Error(`${queryPath}.queryType: unsupported value ${JSON.stringify(queryType)}`);
     }

@@ -2287,6 +2287,7 @@ describe('主动技能正式时间轴投影', () => {
           buffId: 'buff_fixture_entity_child',
           target: 'currentAbilityEntity',
           inheritSourceSkillCastInfo: true,
+          iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
           finishByAction: true,
           asChildBuff: true,
         },

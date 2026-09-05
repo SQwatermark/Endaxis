@@ -3,12 +3,12 @@ import fixture from './fixtures/ember-shelter-buffs.json';
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
-import { compileOperatorBuffDefinitions } from '../../../src/next/core/compiler/compileSkill';
-import { CombatAttributeSet } from '../../../src/next/core/combat/attributes/combatAttributes';
-import { CombatBuffContainer } from '../../../src/next/core/combat/buffs/combatBuffs';
-import { CompiledCombatBuffDefinitions } from '../../../src/next/core/combat/buffs/combatBuffDefinitions';
-import { BuffDefinitionOperationTarget } from '../../../src/next/core/combat/runtime/buffDefinitionOperationTarget';
-import { BuffOperationExecutor } from '../../../src/next/core/combat/runtime/buffOperationExecutor';
+import { compileOperatorBuffDefinitions } from '../../../src/core/compiler/compileSkill';
+import { CombatAttributeSet } from '../../../src/core/combat/attributes/combatAttributes';
+import { CombatBuffContainer } from '../../../src/core/combat/buffs/combatBuffs';
+import { CompiledCombatBuffDefinitions } from '../../../src/core/combat/buffs/combatBuffDefinitions';
+import { BuffDefinitionOperationTarget } from '../../../src/core/combat/runtime/buffDefinitionOperationTarget';
+import { BuffOperationExecutor } from '../../../src/core/combat/runtime/buffOperationExecutor';
 
 const rootId = 'buff_chr_0009_azrila_normal_skill_shelter';
 const carrierId = 'buff_common_affixes_shelter';

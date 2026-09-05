@@ -1,0 +1,52 @@
+import { describe, expect, it } from 'vitest';
+import source from './TimelineHitDetailDialog.vue?raw';
+
+describe('TimelineHitDetailDialog structure', () => {
+  it('follows the legacy context-result-base-multiplier hierarchy using receipt facts', () => {
+    expect(source).toContain('<el-dialog');
+    expect(source).toContain('class="hit-damage-detail-dialog"');
+    expect(source).toContain('labels.dialogTitle');
+    expect(source).toContain('labels.context');
+    expect(source).toContain('labels.result');
+    expect(source).toContain('labels.base');
+    expect(source).toContain('labels.multipliers');
+    expect(source).toContain('class="expected-damage"');
+    expect(source).toContain("entry.event !== 'DamageApplied'");
+    expect(source).toContain('labels.expectedDamage');
+    expect(source).toContain('labels.criticalDamage');
+    expect(source).toContain('labels.nonCriticalDamage');
+    expect(source).toContain('data.attack');
+    expect(source).toContain('projectAttackDetail');
+    expect(source).toContain('<ArrowRight />');
+    expect(source).toContain('labels.basicTotal');
+    expect(source).toContain('labels.baseAttack');
+    expect(source).toContain('labels.operatorAttack');
+    expect(source).toContain('labels.weaponAttack');
+    expect(source).toContain('labels.attackBonus');
+    expect(source).toContain('detail.attackDetail.attackPercentSources');
+    expect(source).toContain('contributionSourceLabel(source)');
+    expect(source).toContain('class="label-cell indent-4"');
+    expect(source).toContain('labels.attributeBonus');
+    expect(source).toContain('data.skillMultiplierPercent');
+    expect(source).toContain('data.baseDamage');
+    expect(source).toContain('data.damageScaleMultiplier');
+    expect(source).toContain('data.criticalExpectationMultiplier');
+    expect(source).toContain('data.directDamageMultiplier');
+    expect(source).toContain('data.defenseMultiplier');
+    expect(source).toContain('data.enemyResistancePercent');
+    expect(source).toContain('data.resistancePercentMultiplier');
+    expect(source).not.toContain('1 + Math.min(Math.max(criticalRate');
+    expect(source).not.toContain('data.calculationMultiplier');
+  });
+
+  it('uses the legacy dialog shell and force-critical footer interaction', () => {
+    expect(source).toContain(':model-value="visible"');
+    expect(source).toContain('width="420px"');
+    expect(source).toContain('@update:model-value="onClose"');
+    expect(source).toContain(':checked="forceCritical"');
+    expect(source).toContain("emit('toggleForceCritical'");
+    expect(source).toContain('labels.forceCrit');
+    expect(source).not.toContain('class="hit-detail-overlay"');
+    expect(source).not.toContain('class="headline-damage"');
+  });
+});

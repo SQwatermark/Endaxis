@@ -209,8 +209,8 @@ pwsh -NoProfile -File D:/Projects/combat-spec/tools/Inspect-ProjectileBlackboard
   -ExpectedId projectile_chr_0012_avywen_combo_skill_lance_back `
   -VfsExtensionAssembly D:/Projects/vfs-index-browser/unity-worker/src/Endfield.Extensions/bin/Release/net9.0/Vfs.Endfield.Extensions.dll
 
-npx vitest run src/next/application/projectileCallbackScopes.test.ts `
-  src/next/core/combat/runtime/combatActionSequenceRuntime.test.ts --maxWorkers=2
+npx vitest run src/application/projectileCallbackScopes.test.ts `
+  src/core/combat/runtime/combatActionSequenceRuntime.test.ts --maxWorkers=2
 ```
 
 原始资源可通过 VFS `/api/projectile?projectileId=<精确ID>` 获取 source.asset/container 与

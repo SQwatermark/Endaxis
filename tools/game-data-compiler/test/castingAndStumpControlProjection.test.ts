@@ -883,6 +883,31 @@ describe('施法输入限制与木桩物理控制投影', () => {
     });
   });
 
+  it('已证明由主控干员持有的 Buff 中 Owner 与 MainCharacter 恒为同一实例', () => {
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.Conditions.CheckTargetsEqual+Data, Gameplay.Beyond',
+        firstTargetSettings: targetFixture('Owner'),
+        secondTargetSettings: targetFixture('MainCharacter'),
+      },
+      'fixture.action',
+      {},
+    );
+    expect(
+      compileEventCondition(
+        node(action),
+        { ...ACTIVE_SKILL_CONTEXT, actionOwnerTarget: 'buffOwner', fixedBuffOwnerTarget: 'caster' },
+        new Map(),
+      ),
+    ).toEqual({
+      kind: 'actionValueCompare',
+      left: { kind: 'constant', value: 1 },
+      operator: 'equal',
+      right: { kind: 'constant', value: 1 },
+    });
+  });
+
   it('Channeling 当前 Target 与已证明敌人 Context 保持同一木桩身份', () => {
     const action = parseKnownNativeActionLeafSource(
       {
@@ -1412,6 +1437,65 @@ describe('施法输入限制与木桩物理控制投影', () => {
             attribute: 'intellect',
             multiplier: { kind: 'blackboard', key: 'heal_sub_multi' },
             addition: { kind: 'blackboard', key: 'heal_base' },
+          },
+        },
+      ],
+      state: new Map(),
+    });
+  });
+
+  it('Buff 宿主通过 InFightEnemyFinder 按敌人 MaxHp 治疗唯一敌人', () => {
+    const action = {
+      family: 'heal' as const,
+      action: {
+        kind: 'heal' as const,
+        alwaysNext: true,
+        healType: 'Normal',
+        healer: 'ActionOwner',
+        contextKey: '',
+        target: {
+          targetSource: 'Owner',
+          targetGroupKey: '',
+          finderType: 'InFightEnemyFinder',
+          validatorTypes: [],
+          postProcessorTypes: [],
+          priorityFilters: [],
+          shuffleTargets: [],
+          distanceValidators: [],
+          finderSpawnedObjectType: null,
+          validatorTagQueries: [],
+        },
+        calculation: {
+          kind: 'attribute' as const,
+          valueSource: 'Target',
+          attributeType: 'MaxHp',
+          multiplier: { value: 1, blackboardKey: 'eny_heal_ratio', levelValues: null },
+          addition: { value: 0, blackboardKey: null, levelValues: [0] },
+        },
+        useHealTags: false,
+        healTagIds: [],
+      },
+    } as unknown as ReturnType<typeof parseKnownNativeActionLeafSource>;
+
+    expect(
+      compileBuffLeafNode(node(action), new Set(), new Map(), {
+        ...ACTIVE_SKILL_CONTEXT,
+        actionOwnerTarget: 'buffOwner',
+        fixedBuffOwnerTarget: 'enemy',
+      }),
+    ).toEqual({
+      steps: [
+        {
+          kind: 'heal',
+          parameters: {
+            target: 'enemy',
+            source: 'buffOwner',
+            alwaysNext: true,
+            tags: [],
+            attribute: 'maxHealth',
+            multiplier: { kind: 'blackboard', key: 'eny_heal_ratio' },
+            addition: { kind: 'constant', value: 0 },
+            attributeSource: 'target',
           },
         },
       ],

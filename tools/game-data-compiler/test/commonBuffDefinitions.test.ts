@@ -25,7 +25,7 @@ describe('公共 Buff 独立所有权', () => {
   });
 
   it('正式干员生成文件不再导出公共 Buff', () => {
-    const root = path.resolve('src/next/data/operators/generated-definitions');
+    const root = path.resolve('src/data/operators/generated-definitions');
     const offenders = fs
       .readdirSync(root)
       .map(slug => path.join(root, slug, `${slug}.operator.generated.ts`))
@@ -35,10 +35,7 @@ describe('公共 Buff 独立所有权', () => {
   });
 
   it('产品稳定入口不反向依赖任何干员定义', () => {
-    const source = fs.readFileSync(
-      path.resolve('src/next/data/buffs/commonDefinitions.ts'),
-      'utf8',
-    );
+    const source = fs.readFileSync(path.resolve('src/data/buffs/commonDefinitions.ts'), 'utf8');
     expect(source).toContain("from './generated/commonBuffDefinitions.generated'");
     expect(source).not.toContain('operators/');
     expect(source).not.toContain('generated-definitions/');
@@ -50,7 +47,7 @@ describe('公共 Buff 独立所有权', () => {
     );
     const names = readPresentationNameKeys(configPath);
     const generatedSource = fs.readFileSync(
-      path.resolve('src/next/data/buffs/generated/commonBuffPresentationNames.generated.ts'),
+      path.resolve('src/data/buffs/generated/commonBuffPresentationNames.generated.ts'),
       'utf8',
     );
     expect(renderCommonBuffPresentationNamesSource(names).replace(/\r\n/g, '\n')).toContain(
@@ -63,7 +60,7 @@ describe('公共 Buff 独立所有权', () => {
 
   it('展示名称不会注入公共战斗定义', () => {
     const generatedDefinitions = fs.readFileSync(
-      path.resolve('src/next/data/buffs/generated/commonBuffDefinitions.generated.ts'),
+      path.resolve('src/data/buffs/generated/commonBuffDefinitions.generated.ts'),
       'utf8',
     );
     const names = readPresentationNameKeys(

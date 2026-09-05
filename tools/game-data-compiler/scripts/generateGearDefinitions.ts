@@ -66,7 +66,7 @@ export async function planGearDefinitions(tablesDirectory: string) {
 
 function parseArguments(values: readonly string[]): GearGenerationArguments {
   let tablesDirectory: string | undefined;
-  let outputDirectory = resolve('src/next/data/equipment/generated');
+  let outputDirectory = resolve('src/data/equipment/generated');
   let check = false;
   for (let index = 0; index < values.length; index += 1) {
     const key = values[index];

@@ -29,17 +29,17 @@ flowchart TB
 ## 2. 仓库目录
 
 ```text
-src/next/
+src/
 ├─ application/       应用用例、项目加载、编辑会话、场景模拟入口
 ├─ core/
-│  ├─ project/        V2 项目格式、校验、序列化、迁移端口
+│  ├─ project/        V2 项目格式、校验与序列化
 │  ├─ game-data/      稳定领域定义和只读目录接口
 │  ├─ compiler/       build、面板、技能、装备、敌人和场景编译
 │  ├─ mechanics/      关卡、活动和自定义规则的受控扩展
 │  ├─ combat/         框架无关的战斗核心
 │  ├─ projection/     从回执派生曲线与诊断
 │  └─ pipeline/       可取消、可缓存的阶段编排基础设施
-├─ data/              当前游戏版本的数据定义与旧数据适配器
+├─ data/              当前游戏版本的数据定义与只读目录
 ├─ ui/                Vue 组件、ViewModel、交互、i18n 边界和主题
 └─ benchmarks/        核心性能基准
 ```
@@ -54,7 +54,6 @@ src/next/
 - `validation.ts`、`scenarioValidation.ts`：纯结构和场景约束校验。
 - `catalogValidation.ts`：结合游戏目录校验引用。
 - `serialization.ts`：版本识别、解析与序列化边界。
-- `migration.ts`：旧格式迁移端口。
 - `createProject.ts`：合法空项目和场景的创建入口。
 
 该层不知道 Vue、模拟器实例、翻译文本或面板结果。

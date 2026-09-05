@@ -8,17 +8,17 @@ import {
 } from '../scripts/generateGearDefinitions.ts';
 import { loadSourceCatalog } from '../scripts/downloadGameDataSources.ts';
 import { verifyGameDataSnapshot } from '../scripts/verifyGameDataSnapshot.ts';
-import { validateGearDefinition } from '../../../src/next/core/game-data/equipmentDefinitionValidation';
-import { compileGearContributions } from '../../../src/next/core/compiler/compileEquipment';
-import { compileScenarioEquipment } from '../../../src/next/core/compiler/compileScenarioEquipment';
-import { createEmptyScenario } from '../../../src/next/core/project/createProject';
-import type { GearDefinition } from '../../../src/next/core/game-data/equipmentDefinition';
+import { validateGearDefinition } from '../../../src/core/game-data/equipmentDefinitionValidation';
+import { compileGearContributions } from '../../../src/core/compiler/compileEquipment';
+import { compileScenarioEquipment } from '../../../src/core/compiler/compileScenarioEquipment';
+import { createEmptyScenario } from '../../../src/core/project/createProject';
+import type { GearDefinition } from '../../../src/core/game-data/equipmentDefinition';
 import { OPERATOR_ATTRIBUTES } from '../../../packages/game-data-contract/src/primitives.ts';
-import { commonBuffDefinitions } from '../../../src/next/data/buffs/commonDefinitions';
-import { perlica } from '../../../src/next/data/operators/perlica';
-import { skillSettings } from '../../../src/next/data/combat/skillSettings';
-import { placeSkillGroup } from '../../../src/next/ui/timeline/placeSkillGroup';
-import { ScenarioSimulationService } from '../../../src/next/application/scenarioSimulationService';
+import { commonBuffDefinitions } from '../../../src/data/buffs/commonDefinitions';
+import { perlica } from '../../../src/data/operators/perlica';
+import { skillSettings } from '../../../src/data/combat/skillSettings';
+import { placeSkillGroup } from '../../../src/ui/timeline/placeSkillGroup';
+import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
 
 // 配装兼容性门禁：干员/公共规则仍用已验证正式基线，不冒充全资源无旧数据重建。
 // 默认用小型真实夹具；指定完整报告时逐件验证该批候选，不复制其文件到正式目录。

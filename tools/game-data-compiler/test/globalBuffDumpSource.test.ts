@@ -84,16 +84,52 @@ describe('GlobalBuff TypeTree source', () => {
     });
   });
 
+  it('preserves native shared-SP recovery modifiers and their blackboard operand', () => {
+    const withModifier = dump
+      .replace(
+        `\t\tData globalModifier
+\t\t\tArray Array
+\t\t\tint size = 0`,
+        `\t\tData globalModifier
+\t\t\tArray Array
+\t\t\tint size = 1
+\t\t\t\t[0]
+\t\t\t\tData data
+\t\t\t\t\tint type = 0
+\t\t\t\t\tint formulaItem = 1
+\t\t\t\t\tBlackboardDouble param
+\t\t\t\t\t\tUInt8 useBlackboardKey = 1
+\t\t\t\t\t\tfloat value = 0
+\t\t\t\t\t\tstring blackboardKey = "ratio"
+\t\t\t\t\tUInt8 applyToReturnAtbGain = 1`,
+      )
+      .replace('\t\t\t\t\tstring key = "duration"', '\t\t\t\t\tstring key = "ratio"')
+      .replace('\t\t\t\t\tdouble valueDouble = 0', '\t\t\t\t\tdouble valueDouble = -0.1');
+
+    expect(parseGlobalBuffDumpSource(withModifier, 'modifier.fixture').template).toMatchObject({
+      globalModifierCount: 1,
+      globalModifiers: [
+        {
+          attribute: 'spRecovery',
+          operation: 'multiplier',
+          value: { useBlackboardKey: true, blackboardKey: 'ratio' },
+          applyToReturnSpGain: true,
+        },
+      ],
+      blackboard: [{ key: 'ratio', valueDouble: -0.1 }],
+    });
+  });
+
   it('fails closed for unsupported behavior and malformed collection counts', () => {
     expect(() =>
       parseGlobalBuffDumpSource(
         dump.replace(
-          '\t\t\tint size = 0\n\t\tGlobalBuffActionMap',
-          '\t\t\tint size = 1\n\t\tGlobalBuffActionMap',
+          '\t\tGlobalBuffActionMap globalBuffEventAction\n\t\t\tArray Array\n\t\t\tint size = 0',
+          '\t\tGlobalBuffActionMap globalBuffEventAction\n\t\t\tArray Array\n\t\t\tint size = 1',
         ),
-        'modifier',
+        'event',
       ),
-    ).toThrow('non-empty GlobalBuff global behavior');
+    ).toThrow('non-empty GlobalBuff event behavior');
     expect(() =>
       parseGlobalBuffDumpSource(
         dump.replace('\t\t\tint size = 1\n\t\t\t\t[0]', '\t\t\tint size = 2\n\t\t\t\t[0]'),

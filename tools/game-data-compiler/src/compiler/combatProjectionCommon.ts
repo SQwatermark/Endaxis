@@ -396,6 +396,7 @@ function isSingleEnemyFinder(write: TargetGroupActionSource): boolean {
       write.producerType === 'ContinuousFindTargetAction' ||
       write.producerType === 'ConvertToTargetContext') &&
     (write.finderType === 'AllEnemyFinder' ||
+      write.finderType === 'InFightEnemyFinder' ||
       write.finderType === 'TyphoeaArcherySelectedFinder' ||
       write.finderType === 'MainTargetFinder' ||
       (write.finderType === 'HitBoxFinder' &&

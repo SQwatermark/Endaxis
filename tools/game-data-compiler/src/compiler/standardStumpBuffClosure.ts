@@ -5,6 +5,7 @@ import {
   collectBuffRuntimeClosure,
   collectBuffRuntimePresentationActionPaths,
   collectBuffRuntimeLevelEventActionPaths,
+  collectBuffRuntimeCharacterStatusActionPaths,
   compileBuffRuntimeDefinitionSource,
   isAfterEnemyDefeatedOnlyBuffRuntime,
   isPresentationOnlyBuffStackEffect,
@@ -129,7 +130,11 @@ export function compileStandardStumpBuffClosure(
       buffActionNodes(source).flatMap(node =>
         node.metadata.enabled && node.body.kind === 'leaf' && node.body.value.family === 'condition'
           ? collectConditionBuffIds(node.body.value.action)
-          : [],
+          : node.metadata.enabled &&
+              node.body.kind === 'leaf' &&
+              node.body.value.family === 'buffQuery'
+            ? collectConditionBuffIds(node.body.value.action)
+            : [],
       ),
     ),
   );
@@ -237,6 +242,16 @@ export function compileStandardStumpBuffClosure(
           'strictly validated GameLevelEvent/BattleRecorder publication has no registered production consumer in the fixed-target combat runtime',
       });
     }
+    if (buffOwnerTargets.get(buffId) === 'caster') {
+      for (const sourcePath of collectBuffRuntimeCharacterStatusActionPaths(source)) {
+        diagnostics.push({
+          status: 'scenario-omitted',
+          sourcePath,
+          reason:
+            'strictly validated operator self-infliction only changes operator abnormal/control state, which cannot change fixed-stump damage under forced timeline execution',
+        });
+      }
+    }
     const omittedEvents = new Set<string | number>();
     for (const event of source.graph.abilityEvents) {
       const reason = standardStumpBuffAbilityEventOmissionReason(
@@ -328,6 +343,9 @@ function buffActionNodes(source: BuffRuntimeSource) {
     ...source.graph.buffEvents.flatMap(item => item.actions),
     ...source.graph.abilityEvents.flatMap(item => item.actions),
     ...source.graph.igniteEvents.flatMap(item => item.actions),
+    ...source.damageModifiers.map(item => item.condition),
+    ...source.healModifiers.map(item => item.condition),
+    ...source.poiseModifiers.map(item => item.condition),
   ].flatMap(sequence => collectNativeActionNodes(sequence));
 }
 

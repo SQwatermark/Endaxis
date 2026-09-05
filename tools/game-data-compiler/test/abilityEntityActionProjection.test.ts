@@ -300,7 +300,7 @@ describe('原生查询 → Context → 逐能力实体动作的公共投影', ()
         abilityEntityIds: [
           index === 0
             ? 'abilityentity_chr_0012_avywen_combo_skill_lance'
-            : 'abilityentity_chr_0012_avywen_ultimate_skill',
+            : 'abilityentity_chr_0012_avywen_ultimate_skill_lance',
         ],
       },
     });

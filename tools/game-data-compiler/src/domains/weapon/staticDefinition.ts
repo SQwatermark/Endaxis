@@ -143,10 +143,16 @@ export function compileWeaponStaticDefinitionBatchSource(
     }
 
     const traits: CompiledWeaponTraitStaticDefinitionSource[] = [];
-    for (const request of requestsByWeaponId.get(weapon.weaponId) ?? []) {
+    const weaponRequests = requestsByWeaponId.get(weapon.weaponId) ?? [];
+    for (const request of weaponRequests) {
       const compiled = requireCompiledSkill(request, compiledBySkillId);
       const levels = [...compiled.definition.blackboard.levels];
-      const traitKey = `skill${request.levelSource.kind === 'weaponProgression' ? request.levelSource.slotIndex + 1 : traits.length + 1}`;
+      const traitKey = resolveWeaponTraitKey(
+        weapon.rarity,
+        weaponRequests.length,
+        request,
+        traits.length,
+      );
       const blackboard = resolvePassiveSkillDefinitionBlackboard(request, compiled);
       traits.push({
         key: traitKey,
@@ -191,6 +197,21 @@ export function compileWeaponStaticDefinitionBatchSource(
   }
 
   return { definitions, runtimeDependencies, diagnostics };
+}
+
+function resolveWeaponTraitKey(
+  rarity: number,
+  requestCount: number,
+  request: PassiveSkillCompileRequestSource,
+  fallbackIndex: number,
+): `skill${number}` {
+  if (request.levelSource.kind !== 'weaponProgression') return `skill${fallbackIndex + 1}`;
+  const progressionSlotIndex = request.levelSource.slotIndex;
+  // 三星武器的 weaponSkillList 把不存在的第二展示槽压掉了，但突破/潜能模板仍以
+  // 紧凑数组位置 1 提供这条被动的等级列。只改变产品展示身份，不能改等级来源列。
+  const displaySlotIndex =
+    rarity === 3 && requestCount === 2 && progressionSlotIndex === 1 ? 2 : progressionSlotIndex;
+  return `skill${displaySlotIndex + 1}`;
 }
 
 function requireWeaponTable(value: unknown): Record<string, unknown> {

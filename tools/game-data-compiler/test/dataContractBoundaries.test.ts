@@ -3,7 +3,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import ts from 'typescript';
-import { COMBAT_PROTOCOL_RUNTIME_GAPS } from '../../../src/next/core/combat/runtime/combatProtocolCapabilities.ts';
+import { COMBAT_PROTOCOL_RUNTIME_GAPS } from '../../../src/core/combat/runtime/combatProtocolCapabilities.ts';
 import {
   ABILITY_EVENTS,
   ATTRIBUTE_MODIFIER_SLOTS,
@@ -34,7 +34,7 @@ import {
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const contractRoot = join(root, 'packages/game-data-contract/src');
 const compilerRoot = join(root, 'tools/game-data-compiler');
-const productRoot = join(root, 'src/next');
+const productRoot = join(root, 'src');
 const sharedRoot = join(root, 'src/shared');
 
 function inside(file: string, directory: string): boolean {
@@ -205,12 +205,13 @@ describe('独立游戏数据契约边界', () => {
       CompiledGearDefinitionSource: [
         'slug',
         'assetSlug',
+        'iconPath',
         'slotType',
         'levelRequirement',
         'baseDefense',
         'gearSetSlug',
       ],
-      CompiledGearTraitDefinitionSource: ['key', 'levelCount'],
+      CompiledGearTraitDefinitionSource: ['key', 'levelCount', 'display'],
       CompiledOperatorDefinitionHeaderSource: [
         'slug',
         'gameId',
