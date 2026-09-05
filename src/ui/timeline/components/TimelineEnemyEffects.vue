@@ -70,6 +70,7 @@ const emit = defineEmits<{
 }>();
 
 const ICON_SIZE = 20;
+const EFFECT_ROW_PITCH = ICON_SIZE + 4;
 const SECTION_TOPBAR_HEIGHT = 14;
 const durationBarColor = useDurationBarColor();
 const ICON_TOP = 2;
@@ -152,7 +153,7 @@ const buffs = computed(() =>
       key: `${buff.buffId}:${buff.instanceId}:${buff.startFrame}`,
       icon,
       left,
-      top: SECTION_TOPBAR_HEIGHT + ICON_TOP + buff.lane * 22,
+      top: SECTION_TOPBAR_HEIGHT + ICON_TOP + buff.lane * EFFECT_ROW_PITCH,
       barWidthPx: Math.max(0, right - left - ICON_SIZE - 2),
       color: resolveDurationBarColor(durationBarColor.value, 'enemy', buff),
       title,
@@ -177,7 +178,7 @@ const rowCount = computed(() =>
 const minimumHeight = computed(() =>
   Math.max(
     SECTION_TOPBAR_HEIGHT + 46,
-    SECTION_TOPBAR_HEIGHT + rowCount.value * 22 + 2,
+    SECTION_TOPBAR_HEIGHT + rowCount.value * EFFECT_ROW_PITCH + 2,
     // 156px 摘要宽度一行容纳7个18px图标；保留完整换行和底部内边距。
     visibleLastHitBuffs.value.length > 7 ? 106 : visibleLastHitBuffs.value.length > 0 ? 84 : 60,
   ),
