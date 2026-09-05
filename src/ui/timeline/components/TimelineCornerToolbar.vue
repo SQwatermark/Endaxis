@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
+import {
+  MIN_TIMELINE_ZOOM_PERCENT,
+  MAX_TIMELINE_ZOOM_PERCENT,
+  stepTimelineZoomPercent,
+} from '../timelineZoom';
 
 /** 时间轴轨道头部上方的编辑工具区，结构与尺寸以旧版 TimelineGrid 为准。 */
 defineProps<{
@@ -106,7 +111,7 @@ function applyGaugeDraft(): void {
         :aria-label="`${labels.snapPrecision}: ${snapLabel}`"
         @click="$emit('toggleSnapPrecision')"
       >
-        {{ snapLabel }}
+        <span class="snap-tool-value">{{ snapLabel }}</span>
       </button>
     </div>
 
@@ -119,18 +124,18 @@ function applyGaugeDraft(): void {
           type="button"
           class="zoom-step"
           :aria-label="`${labels.zoom} -`"
-          @click="emit('updateZoomPercent', zoomPercent - 10)"
+          @click="emit('updateZoomPercent', stepTimelineZoomPercent(zoomPercent, -1))"
         >
-          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-            <path d="M2 5h6" fill="none" stroke="currentColor" />
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 13H5v-2h14v2z" />
           </svg>
         </button>
         <input
           :value="zoomPercent"
           type="range"
-          min="50"
-          max="200"
-          step="1"
+          :min="MIN_TIMELINE_ZOOM_PERCENT"
+          :max="MAX_TIMELINE_ZOOM_PERCENT"
+          step="2"
           :aria-label="labels.zoom"
           @input="emit('updateZoomPercent', Number(($event.target as HTMLInputElement).value))"
         />
@@ -138,10 +143,10 @@ function applyGaugeDraft(): void {
           type="button"
           class="zoom-step"
           :aria-label="`${labels.zoom} +`"
-          @click="emit('updateZoomPercent', zoomPercent + 10)"
+          @click="emit('updateZoomPercent', stepTimelineZoomPercent(zoomPercent, 1))"
         >
-          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-            <path d="M2 5h6M5 2v6" fill="none" stroke="currentColor" />
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
           </svg>
         </button>
       </div>
@@ -153,7 +158,8 @@ function applyGaugeDraft(): void {
 .corner-controls {
   display: flex;
   flex-direction: column;
-  flex: 1 0 0;
+  flex: none;
+  width: 100%;
   gap: 4px;
   min-width: 0;
 }
@@ -257,10 +263,13 @@ function applyGaugeDraft(): void {
 }
 
 .mini-tool-button--text {
-  font:
-    700 9px/1 'Roboto Mono',
-    Consolas,
-    monospace;
+  color: var(--ea-gold);
+}
+
+.snap-tool-value {
+  font-size: 9px;
+  font-weight: bold;
+  transform: scale(0.9);
 }
 
 .zoom-row {
@@ -276,8 +285,8 @@ function applyGaugeDraft(): void {
 }
 
 .zoom-step {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -326,7 +335,7 @@ function applyGaugeDraft(): void {
   min-width: 0;
   height: 2px;
   flex: 1 1 auto;
-  margin: 0;
+  margin: 2px;
   appearance: none;
   background: #555;
   outline: none;

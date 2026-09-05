@@ -93,7 +93,14 @@ function beginResize(kind: 'prep' | 'duration', event: PointerEvent): void {
         MIN_BATTLE_DURATION_FRAMES,
         Math.min(
           MAX_BATTLE_DURATION_FRAMES,
-          snapFrame(localPx / props.pxPerFrame - activePrepFrames.value),
+          snapFrame(
+            timelinePxToFrame(
+              localPx,
+              activePrepFrames.value,
+              props.pxPerFrame,
+              props.prepExpanded,
+            ),
+          ),
         ),
       );
     }
@@ -448,7 +455,7 @@ function seek(event: MouseEvent): void {
 }
 
 .tick--majorDim {
-  opacity: 0.55;
+  background: var(--ea-mark);
 }
 
 .tick--minor {
@@ -458,7 +465,6 @@ function seek(event: MouseEvent): void {
 
 .tick--frame {
   height: 5px;
-  opacity: 0.65;
 }
 
 .tick-label {
