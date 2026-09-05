@@ -177,7 +177,10 @@ function startReorder(event: DragEvent): void {
         >
           <span class="empty-avatar" aria-hidden="true"></span>
         </button>
-        <span class="operator-name-row">
+        <span
+          class="operator-name-row"
+          :class="{ 'has-support-notice': track.operatorSupport?.completeness === 'partial' }"
+        >
           <span class="operator-name">{{ name }}</span>
           <OperatorSupportNotice
             v-if="track.operatorSlug"
@@ -501,22 +504,39 @@ function startReorder(event: DragEvent): void {
   border-color: var(--ea-gold);
 }
 
+.avatar-trigger:hover .empty-avatar {
+  border-color: var(--ea-gold);
+  background: var(--ea-keycap-skill-bg, var(--ea-fill-soft));
+}
+
+.avatar-trigger:hover .empty-avatar::before,
+.avatar-trigger:hover .empty-avatar::after {
+  background: var(--ea-gold);
+}
+
 .avatar {
   border-color: #555;
 }
 
 .operator-name {
+  display: block;
+  min-width: 0;
   overflow: hidden;
   font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
   text-overflow: ellipsis;
+  line-height: 18px;
+  user-select: none;
 }
 
 .operator-name-row {
   position: relative;
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.operator-name-row.has-support-notice {
   padding-right: 20px;
 }
 
