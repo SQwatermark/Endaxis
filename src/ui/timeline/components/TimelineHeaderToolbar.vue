@@ -669,7 +669,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-button {
+button:not(.ea-btn) {
   color: inherit;
   font: inherit;
 }
