@@ -46,6 +46,13 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
     expect(hudSource).toContain('gauge__value-max');
     expect(curvesSource).toContain('const POINT_RADIUS = 2');
     expect(curvesSource).toContain('const SP_NEGATIVE_BUFFER = 40');
+    expect(curvesSource).toContain('const CHART_TOP = 0');
+    expect(curvesSource).toContain('const CHART_BOTTOM = 0');
+    expect(curvesSource).toContain('function linePath');
+    expect(curvesSource).not.toContain('function stepPath');
+    expect(curvesSource).not.toContain('pointMarkerX');
+    expect(curvesSource).toContain('v-for="value in [300, 200, 100]"');
+    expect(curvesSource).toContain('curve-fill-${row.kind}');
     expect(curvesSource).toContain('stroke-width: 2');
     expect(curvesSource).toContain('color: #ff7875');
   });

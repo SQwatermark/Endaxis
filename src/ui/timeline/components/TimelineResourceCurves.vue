@@ -42,8 +42,8 @@ const emit = defineEmits<{
 }>();
 
 const ROW_HEIGHT = 56;
-const CHART_TOP = 8;
-const CHART_BOTTOM = 8;
+const CHART_TOP = 0;
+const CHART_BOTTOM = 0;
 const POINT_RADIUS = 2;
 /** 旧版 ResourceMonitor 为技力 0 以下固定保留 40 点显示区。 */
 const SP_NEGATIVE_BUFFER = 40;
@@ -129,17 +129,23 @@ function baselineY(row: ResourceCurveRow): number {
   return pointY(row, 0);
 }
 
-/** 稀疏点描述的是离散状态，两个变化点之间应保持前一个值。 */
-function stepPath(row: ResourceCurveRow): string {
+/** 旧版资源监控器直接连接相邻事实点；同帧的连续事实自然形成竖直线。 */
+function linePath(row: ResourceCurveRow): string {
   const [first, ...rest] = row.points;
   if (first === undefined) return '';
 
   let path = `M ${pointX(first.frame)} ${pointY(row, first.value)}`;
   for (const point of rest) {
-    const x = pointX(point.frame);
-    path += ` H ${x} V ${pointY(row, point.value)}`;
+    path += ` L ${pointX(point.frame)} ${pointY(row, point.value)}`;
   }
-  return `${path} H ${pointX(duration.value)}`;
+  return path;
+}
+
+function fillPath(row: ResourceCurveRow): string {
+  const last = row.points.at(-1);
+  if (last === undefined) return '';
+  const points = row.points.map(point => `${pointX(point.frame)} ${pointY(row, point.value)}`);
+  return `M 0 ${baselineY(row)} L ${points.join(' L ')} L ${pointX(last.frame)} ${baselineY(row)} Z`;
 }
 
 /** 每 5 秒一条的纵向网格线，和上方标尺对齐。 */
@@ -150,11 +156,6 @@ const gridLines = computed(() => {
   }
   return lines;
 });
-
-function pointMarkerX(frame: number): number {
-  const inset = Math.min(POINT_RADIUS, width.value / 2);
-  return clamp(pointX(frame), inset, width.value - inset);
-}
 
 function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return String(value);
@@ -243,6 +244,20 @@ function pointTitle(point: ResourceCurvePointView): string {
         preserveAspectRatio="none"
         aria-hidden="true"
       >
+        <defs>
+          <linearGradient :id="`curve-fill-${row.kind}`" x1="0" y1="0" x2="0" y2="1">
+            <stop
+              offset="0%"
+              stop-color="currentColor"
+              :stop-opacity="row.kind === 'poise' ? 0.5 : 0.3"
+            />
+            <stop
+              offset="100%"
+              stop-color="currentColor"
+              :stop-opacity="row.kind === 'poise' ? 0.1 : 0.05"
+            />
+          </linearGradient>
+        </defs>
         <line
           v-for="line in gridLines"
           :key="`grid-${line}`"
@@ -252,15 +267,31 @@ function pointTitle(point: ResourceCurvePointView): string {
           :x2="line"
           :y2="ROW_HEIGHT"
         />
-        <line
-          v-for="ratio in [0.25, 0.5, 0.75]"
-          :key="ratio"
-          class="guide-line"
-          x1="0"
-          :y1="CHART_TOP + (ROW_HEIGHT - CHART_TOP - CHART_BOTTOM) * ratio"
-          :x2="width"
-          :y2="CHART_TOP + (ROW_HEIGHT - CHART_TOP - CHART_BOTTOM) * ratio"
-        />
+        <template v-if="row.kind === 'sp'">
+          <line
+            v-for="value in [300, 200, 100]"
+            :key="value"
+            class="guide-line"
+            x1="0"
+            :y1="pointY(row, value)"
+            :x2="width"
+            :y2="pointY(row, value)"
+          />
+          <text
+            :x="trackHeaderWidth + 5 - scrollLeft"
+            :y="pointY(row, 300) + 12"
+            class="guide-label"
+          >
+            MAX({{ formatNumber(row.maxValue) }})
+          </text>
+          <text
+            :x="trackHeaderWidth + 5 - scrollLeft"
+            :y="baselineY(row) - 4"
+            class="guide-label guide-label--zero"
+          >
+            0
+          </text>
+        </template>
         <rect
           v-if="row.kind === 'sp'"
           class="sp-negative-zone"
@@ -269,13 +300,17 @@ function pointTitle(point: ResourceCurvePointView): string {
           :width="width"
           :height="Math.max(0, ROW_HEIGHT - CHART_BOTTOM - baselineY(row))"
         />
-        <path class="curve-fill" :d="`${stepPath(row)} V ${baselineY(row)} H 0 Z`" />
-        <path class="curve-line" :d="stepPath(row)" />
+        <path
+          class="curve-fill"
+          :style="{ fill: `url(#curve-fill-${row.kind})` }"
+          :d="fillPath(row)"
+        />
+        <path class="curve-line" :d="linePath(row)" />
         <circle
           v-for="(point, index) in row.points.filter(point => point.source !== 'autoRecovery')"
           :key="`${point.frame}:${index}`"
           class="curve-point"
-          :cx="pointMarkerX(point.frame)"
+          :cx="pointX(point.frame)"
           :cy="pointY(row, point.value)"
           :r="POINT_RADIUS"
           :class="{ 'is-negative': row.kind === 'sp' && point.value < 0 }"
@@ -411,10 +446,19 @@ function pointTitle(point: ResourceCurvePointView): string {
 }
 
 .guide-line {
-  stroke: var(--ea-border, rgb(255 255 255 / 10%));
+  stroke: #444;
   stroke-width: 1;
-  stroke-dasharray: 2 3;
+  stroke-dasharray: 2;
   vector-effect: non-scaling-stroke;
+}
+
+.guide-label {
+  fill: #888;
+  font-size: 9px;
+}
+
+.guide-label--zero {
+  fill: #666;
 }
 
 .guide-grid-line {
@@ -425,14 +469,13 @@ function pointTitle(point: ResourceCurvePointView): string {
 
 .curve-fill {
   fill: currentColor;
-  fill-opacity: 0.09;
 }
 
 .curve-line {
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
-  stroke-linejoin: miter;
+  stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
 
