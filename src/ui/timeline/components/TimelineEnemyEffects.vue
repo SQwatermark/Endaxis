@@ -190,7 +190,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
 </script>
 
 <template>
-  <div class="enemy-effects" :style="{ width: `${width}px`, minHeight: `${minimumHeight}px` }">
+  <div class="enemy-effects" :style="{ minHeight: `${minimumHeight}px` }">
     <TimelineMonitorGrid
       :width="width"
       :duration-frames="durationFrames"
@@ -253,7 +253,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
       >
         <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
         <span v-else class="buff-fallback">+</span>
-        <span v-if="buff.layers > 1" class="anomaly-stacks">{{ buff.layers }}</span>
+        <span class="anomaly-stacks">{{ Math.max(1, buff.layers) }}</span>
       </span>
       <span
         v-if="buff.barWidthPx > 0"
@@ -272,9 +272,10 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
 <style scoped>
 .enemy-effects {
   position: relative;
+  width: 100%;
   min-width: 1px;
   height: 100%;
-  overflow: hidden;
+  overflow: clip;
   color: var(--ea-fg);
   background: var(--ea-workbench-main, #18181c);
 }
@@ -319,6 +320,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
   z-index: 10;
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
   box-sizing: border-box;
   display: flex;
   align-items: center;
