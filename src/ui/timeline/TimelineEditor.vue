@@ -283,7 +283,11 @@ import {
   resolveTimelineCastAlignmentFrame,
   type TimelineCastAlignmentMode,
 } from './timelineCastAlignment';
-import { normalizeTimelineZoomPercent, timelinePxPerFrame } from './timelineZoom';
+import {
+  normalizeTimelineZoomPercent,
+  timelinePxPerFrame,
+  wheelTimelineZoomPercent,
+} from './timelineZoom';
 import type { TimelineOperationMarkerInput } from './timelineOperationMarkers';
 import { projectPerfectComboCastIds } from './timelinePerfectComboEvidence';
 import {
@@ -4159,9 +4163,8 @@ function handleTimelineWheel(event: WheelEvent): void {
     if (viewport !== null) viewport.scrollLeft += intent.deltaPx;
     return;
   }
-  const step = Math.max(1, Math.round(timelineZoomPercent.value * 0.15));
   void updateTimelineZoomPercent(
-    timelineZoomPercent.value + intent.direction * step,
+    wheelTimelineZoomPercent(timelineZoomPercent.value, intent.direction),
     event.clientX,
   );
 }

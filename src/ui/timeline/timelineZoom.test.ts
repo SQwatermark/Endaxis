@@ -3,9 +3,17 @@ import {
   normalizeTimelineZoomPercent,
   timelinePxPerFrame,
   stepTimelineZoomPercent,
+  wheelTimelineZoomPercent,
 } from './timelineZoom';
 
 describe('timelineZoom', () => {
+  it('滚轮按秒宽取整，显示比例与 range 步长保持一致', () => {
+    expect(wheelTimelineZoomPercent(100, 1)).toBe(116);
+    expect(wheelTimelineZoomPercent(116, -1)).toBe(98);
+    expect(wheelTimelineZoomPercent(100, -1)).toBe(86);
+    expect(wheelTimelineZoomPercent(30, -1)).toBe(30);
+    expect(wheelTimelineZoomPercent(2400, 1)).toBe(2400);
+  });
   it('将缩放百分比换算成统一的每帧像素', () => {
     expect(timelinePxPerFrame(50) * 30).toBeCloseTo(25);
     expect(timelinePxPerFrame(100) * 30).toBeCloseTo(50);

@@ -14,6 +14,11 @@ export function stepTimelineZoomPercent(percent: number, direction: -1 | 1): num
   );
 }
 
+/** 滚轮按秒宽的 15% 取整到像素，再换回百分比。 */
+export function wheelTimelineZoomPercent(percent: number, direction: -1 | 1): number {
+  return normalizeTimelineZoomPercent(percent + Math.round((percent / 2) * 0.15 * direction) * 2);
+}
+
 export function normalizeTimelineZoomPercent(percent: number): number {
   if (!Number.isFinite(percent)) return 100;
   return Math.min(

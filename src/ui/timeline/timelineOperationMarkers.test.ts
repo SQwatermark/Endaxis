@@ -2,6 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { projectTimelineOperationMarkers } from './timelineOperationMarkers';
 
 describe('timeline operation marker projection', () => {
+  it('同一时刻保持轨道输入顺序，不按实例 ID 重排', () => {
+    const markers = projectTimelineOperationMarkers(
+      [
+        { id: 'z', kind: 'skill', trackIndex: 0, frame: 0 },
+        { id: 'a', kind: 'skill', trackIndex: 1, frame: 0 },
+      ],
+      0,
+      2,
+    );
+    expect(markers.map(marker => [marker.label, marker.top])).toEqual([
+      ['1', 0],
+      ['2', 16],
+    ]);
+  });
   it('uses the legacy labels and widths without persisting presentation data', () => {
     const markers = projectTimelineOperationMarkers(
       [

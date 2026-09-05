@@ -81,7 +81,8 @@ export function projectTimelineOperationMarkers(
         perfect: input.kind === 'combo' && input.perfect === true,
       };
     })
-    .sort((left, right) => left.left - right.left || left.id.localeCompare(right.id));
+    // 同时操作按输入顺序（轨道/动作顺序）排层，不能让生成 ID 改变可见顺序。
+    .sort((left, right) => left.left - right.left);
 
   const result: MutableMarker[] = [];
   let cluster: MutableMarker[] = [];
