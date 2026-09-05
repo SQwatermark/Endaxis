@@ -4126,7 +4126,7 @@ async function updateTimelineZoomPercent(percent: number, anchorClientX?: number
     viewport === null
       ? null
       : anchorClientX === undefined
-        ? viewport.clientWidth / 2
+        ? TIMELINE_TRACK_HEADER_WIDTH + (viewport.clientWidth - TIMELINE_TRACK_HEADER_WIDTH) / 2
         : anchorClientX - viewport.getBoundingClientRect().left;
   const anchorContentX =
     viewport === null || anchorOffset === null ? null : viewport.scrollLeft + anchorOffset;
@@ -4706,6 +4706,7 @@ function setPanelDialogVisible(visible: boolean): void {
               @toggle-connection-tool="toggleConnectionTool"
               @toggle-buff-layout="toggleBuffLayout"
               @update-zoom-percent="updateTimelineZoomPercent"
+              @set-zoom-percent="timelineZoomPercent = normalizeTimelineZoomPercent($event)"
             />
           </div>
           <TimelineRuler

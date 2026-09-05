@@ -36,6 +36,7 @@ const emit = defineEmits<{
   toggleConnectionTool: [];
   toggleBuffLayout: [];
   updateZoomPercent: [percent: number];
+  setZoomPercent: [percent: number];
 }>();
 
 const gaugeEditorOpen = ref(false);
@@ -143,7 +144,7 @@ function applyGaugeDraft(): void {
           :max="MAX_TIMELINE_ZOOM_PERCENT"
           step="2"
           :aria-label="labels.zoom"
-          @input="emit('updateZoomPercent', Number(($event.target as HTMLInputElement).value))"
+          @input="emit('setZoomPercent', Number(($event.target as HTMLInputElement).value))"
         />
         <button
           type="button"
