@@ -56,5 +56,7 @@ describe('timeline ruler tick projection', () => {
     });
     expect(ticks.find(tick => tick.key === 'time:0')?.left).toBe(18);
     expect(ticks.find(tick => tick.key === 'time:150')?.left).toBe(318);
+    expect(ticks.every(tick => tick.left >= 18)).toBe(true);
+    expect(ticks.some(tick => tick.label.startsWith('-'))).toBe(false);
   });
 });

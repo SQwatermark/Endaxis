@@ -44,7 +44,10 @@ export function projectTimelineRulerTicks(
     input.pxPerFrame,
     input.prepExpanded,
   );
-  const minimumFrame = Math.max(-input.prepFrames, visibleStartFrame);
+  const minimumFrame = Math.max(
+    input.prepExpanded === false ? 0 : -input.prepFrames,
+    visibleStartFrame,
+  );
   const maximumFrame = Math.min(input.durationFrames, visibleEndFrame);
   const first = Math.ceil(minimumFrame / stepFrames) * stepFrames;
   const result: TimelineRulerTick[] = [];

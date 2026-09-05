@@ -2,7 +2,7 @@
 /**
  * 时间轴的实际战斗时间标尺与准备区边界。
  */
-import { computed, onScopeDispose, ref } from 'vue';
+import { computed, nextTick, onScopeDispose, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { PROJECT_FPS } from '../../../core/project/schema';
 import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from '../timelineGeometry';
@@ -39,6 +39,8 @@ const prepEditorOpen = ref(false);
 const durationEditorOpen = ref(false);
 const prepDraft = ref('');
 const durationDraftSeconds = ref('');
+const prepInput = ref<HTMLInputElement | null>(null);
+const durationInput = ref<HTMLInputElement | null>(null);
 let stopResize: (() => void) | null = null;
 const activePrepFrames = computed(() => prepPreview.value ?? props.prepFrames);
 const activeDurationFrames = computed(() => durationPreview.value ?? props.durationFrames);
@@ -142,6 +144,7 @@ function openPrepEditor(): void {
   prepDraft.value = String(props.prepFrames);
   prepEditorOpen.value = true;
   durationEditorOpen.value = false;
+  void nextTick(() => prepInput.value?.focus({ preventScroll: true }));
 }
 
 function applyPrepDraft(): void {
@@ -159,6 +162,7 @@ function openDurationEditor(): void {
   durationDraftSeconds.value = String(props.durationFrames / PROJECT_FPS);
   durationEditorOpen.value = true;
   prepEditorOpen.value = false;
+  void nextTick(() => durationInput.value?.focus({ preventScroll: true }));
 }
 
 function applyDurationDraft(): void {
@@ -222,6 +226,7 @@ function seek(event: MouseEvent): void {
       </span>
       <span
         class="axis-boundary axis-boundary--prep"
+        :class="{ 'is-prep-collapsed': !prepExpanded }"
         :style="{ left: `${prepWidth}px` }"
         @pointerdown="beginResize('prep', $event)"
         @click.stop
@@ -285,6 +290,7 @@ function seek(event: MouseEvent): void {
         @pointerdown.stop
       >
         <input
+          ref="prepInput"
           v-model="prepDraft"
           type="number"
           min="0"
@@ -302,6 +308,7 @@ function seek(event: MouseEvent): void {
         @pointerdown.stop
       >
         <input
+          ref="durationInput"
           v-model="durationDraftSeconds"
           type="number"
           min="30"
@@ -545,6 +552,16 @@ function seek(event: MouseEvent): void {
   left: -15px;
 }
 
+.axis-boundary--prep.is-prep-collapsed {
+  cursor: default;
+}
+
+.axis-boundary--prep.is-prep-collapsed button {
+  top: auto;
+  bottom: 20px;
+  left: -11px;
+}
+
 .axis-boundary--end::before {
   background: rgb(0 229 255 / 55%);
 }
@@ -555,8 +572,11 @@ function seek(event: MouseEvent): void {
   right: 12px;
   color: rgb(0 229 255 / 92%);
   font:
-    10px/16px Consolas,
-    monospace;
+    10px/1 'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-align: right;
@@ -566,29 +586,40 @@ function seek(event: MouseEvent): void {
 
 .axis-editor {
   position: absolute;
-  z-index: 8;
-  top: 28px;
+  z-index: 50;
+  top: 6px;
   display: flex;
   align-items: center;
-  border: 1px solid var(--ea-gold);
-  background: var(--ea-workbench-panel);
-  box-shadow: 0 3px 10px var(--ea-shadow);
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid var(--ea-border-strong);
+  background: var(--ea-tooltip-bg);
+  box-shadow: 0 10px 25px var(--ea-shadow-strong);
 }
 
 .axis-editor input {
-  width: 64px;
-  border: 0;
-  padding: 4px 5px;
-  background: transparent;
+  width: 72px;
+  height: 22px;
+  border: 1px solid var(--ea-border-strong);
+  padding: 0 6px;
+  background: var(--ea-fill-soft);
   color: var(--ea-fg);
   outline: 0;
+  font:
+    12px 'Roboto Mono',
+    Consolas,
+    monospace;
+}
+
+.axis-editor input:focus {
+  border-color: color-mix(in srgb, var(--ea-gold) 70%, transparent);
 }
 
 .axis-editor span {
-  padding-right: 5px;
   color: var(--ea-fg-muted);
   font:
-    10px Consolas,
+    12px 'Roboto Mono',
+    Consolas,
     monospace;
 }
 </style>

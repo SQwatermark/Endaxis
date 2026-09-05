@@ -72,7 +72,10 @@ function applyGaugeDraft(): void {
           :aria-pressed="initialGaugeMode !== 'empty'"
           :aria-expanded="gaugeEditorOpen"
           aria-controls="timeline-initial-gauge-editor"
-          @click="emit('cycleInitialGauge')"
+          @click="
+            gaugeEditorOpen = false;
+            emit('cycleInitialGauge');
+          "
           @contextmenu="toggleGaugeEditor"
           @keydown.shift.enter.prevent.stop="toggleGaugeEditor"
         >
@@ -89,20 +92,23 @@ function applyGaugeDraft(): void {
           </svg>
           <span class="gauge-tool-value">{{ initialGaugeDisplayValue }}</span>
         </button>
-        <input
+        <form
           v-if="gaugeEditorOpen"
-          ref="gaugeInput"
           id="timeline-initial-gauge-editor"
-          v-model="gaugeDraft"
           class="gauge-popover"
-          type="number"
-          min="0"
-          step="1"
-          :aria-label="labels.initialGauge"
-          @keydown.enter.prevent="applyGaugeDraft"
-          @keydown.esc.prevent="gaugeEditorOpen = false"
-          @blur="applyGaugeDraft"
-        />
+          @submit.prevent="applyGaugeDraft"
+        >
+          <input
+            ref="gaugeInput"
+            v-model="gaugeDraft"
+            type="number"
+            min="0"
+            step="1"
+            :aria-label="labels.initialGauge"
+            @keydown.esc.prevent="gaugeEditorOpen = false"
+            @blur="applyGaugeDraft"
+          />
+        </form>
       </div>
       <button
         type="button"
@@ -227,20 +233,33 @@ function applyGaugeDraft(): void {
 .gauge-popover {
   position: absolute;
   z-index: 20;
-  top: 50%;
+  top: 6px;
   left: calc(100% + 4px);
-  width: 74px;
-  height: 24px;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-gold);
-  border-radius: 2px;
-  background: var(--ea-fill-input);
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border: 1px solid var(--ea-border-strong);
+  background: var(--ea-tooltip-bg);
+  box-shadow: 0 10px 25px var(--ea-shadow-strong);
+  transform: translateY(-50%);
+}
+
+.gauge-popover input {
+  width: 72px;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--ea-border-strong);
+  outline: none;
+  background: var(--ea-fill-soft);
   color: var(--ea-fg);
   font:
-    11px 'Roboto Mono',
+    12px 'Roboto Mono',
     Consolas,
     monospace;
-  transform: translateY(-50%);
+}
+
+.gauge-popover input:focus {
+  border-color: color-mix(in srgb, var(--ea-gold) 70%, transparent);
 }
 
 .gauge-tool-value {

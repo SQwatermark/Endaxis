@@ -1,4 +1,5 @@
-export const WORKBENCH_HEADER_HEIGHT = 50;
+/** 顶栏 50px 内容加 1px 下边框。 */
+export const WORKBENCH_HEADER_HEIGHT = 51;
 export const WORKBENCH_BOTTOM_RESIZER_HEIGHT = 1;
 export const WORKBENCH_TIMELINE_MIN_HEIGHT = 600;
 export const WORKBENCH_BOTTOM_DEFAULT_HEIGHT = 240;
