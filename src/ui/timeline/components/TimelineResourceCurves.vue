@@ -8,6 +8,7 @@
  */
 import { computed } from 'vue';
 import CustomNumberInput from '../../components/CustomNumberInput.vue';
+import { poiseProgressPoints } from '../poiseProgressPoints';
 import type { SharedSpCurve } from '../../../core/projection/resourceCurves';
 import type { EnemyHealthCurve } from '../../../core/projection/enemyHealthCurves';
 import type { PoiseCurve } from '../../../core/projection/poiseCurves';
@@ -93,7 +94,7 @@ const rows = computed<readonly ResourceCurveRow[]>(() => [
           label: props.poiseLabel ?? 'POISE',
           kind: 'poise' as const,
           maxValue: props.poiseCurve.maxValue,
-          points: props.poiseCurve.points,
+          points: poiseProgressPoints(props.poiseCurve),
         },
       ]),
 ]);
