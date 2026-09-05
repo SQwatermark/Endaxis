@@ -26,7 +26,7 @@ describe('TimelineTrackHeader old-editor behavior parity', () => {
 
   test('stretches with the shared loose-effect row height instead of staying at 160px', () => {
     expect(source).toContain('height: 100%');
-    expect(source).toContain('min-height: 160px');
+    expect(source).toContain('min-height: 0');
     expect(source).toContain('top: calc(50% - 54px)');
     expect(source).toContain('top: calc(50% - 29px)');
     expect(source).toContain('top: calc(50% + 33px)');

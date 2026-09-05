@@ -225,7 +225,7 @@ function leaveReorderTarget(event: DragEvent): void {
 .track-header {
   width: 180px;
   height: 100%;
-  min-height: 160px;
+  min-height: 0;
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
   align-items: center;

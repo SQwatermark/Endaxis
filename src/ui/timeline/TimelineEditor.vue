@@ -71,6 +71,7 @@ import TimelineOperatorPassiveUiBands from './components/TimelineOperatorPassive
 import {
   projectTimelineTrackEffectLayout,
   resizeTimelineTrackPair,
+  resolveCompactTrackHeights,
   TIMELINE_TRACK_BASE_HEIGHT,
   TIMELINE_TRACK_MIN_HEIGHT,
 } from './timelineTrackEffectLayout';
@@ -477,6 +478,13 @@ const timelineScroll = ref<HTMLElement | null>(null);
 const timelineHorizontalScrollbar = ref<HTMLElement | null>(null);
 const timelineScrollLeft = ref(0);
 const timelineViewportWidth = ref(1200);
+const timelineViewportHeight = ref(0);
+const displayedCompactTrackHeights = computed(() =>
+  resolveCompactTrackHeights(
+    compactTrackHeights.value,
+    timelineViewportHeight.value - TIMELINE_RULER_HEIGHT,
+  ),
+);
 const timelineVerticalScrollbarWidth = ref(0);
 let timelineResizeObserver: ResizeObserver | null = null;
 const connectionDrag = ref<{
@@ -1632,6 +1640,7 @@ function updateTimelineViewportMetrics(): void {
   if (viewport === null) return;
   timelineScrollLeft.value = viewport.scrollLeft;
   timelineViewportWidth.value = viewport.clientWidth;
+  timelineViewportHeight.value = viewport.clientHeight;
   timelineVerticalScrollbarWidth.value = Math.max(0, viewport.offsetWidth - viewport.clientWidth);
   const scrollbar = timelineHorizontalScrollbar.value;
   if (scrollbar !== null && Math.abs(scrollbar.scrollLeft - viewport.scrollLeft) > 0.5) {
@@ -2152,7 +2161,7 @@ function trackEffectLayout(trackIndex: TrackIndex, targetId: string | null) {
     mode: buffLayoutMode.value,
     upperLaneCount: laneCount('upper'),
     lowerLaneCount: laneCount('lower'),
-    compactHeight: compactTrackHeights.value[trackIndex],
+    compactHeight: displayedCompactTrackHeights.value[trackIndex],
   });
 }
 
@@ -2160,6 +2169,7 @@ interface CompactTrackResizeGesture {
   readonly dividerIndex: TrackIndex;
   readonly startY: number;
   readonly initialHeights: readonly number[];
+  readonly initialWeights: readonly number[];
 }
 
 const compactTrackResizeGesture = ref<CompactTrackResizeGesture | null>(null);
@@ -2170,7 +2180,21 @@ function finishCompactTrackResize(): void {
   document.documentElement.classList.remove('is-track-resizing');
   window.removeEventListener('pointermove', updateCompactTrackResize);
   window.removeEventListener('pointerup', finishCompactTrackResize);
-  window.removeEventListener('pointercancel', finishCompactTrackResize);
+  window.removeEventListener('pointercancel', cancelCompactTrackResize);
+  window.removeEventListener('keydown', cancelCompactTrackResizeFromKeyboard, true);
+}
+
+function cancelCompactTrackResize(): void {
+  const gesture = compactTrackResizeGesture.value;
+  if (gesture !== null) compactTrackHeights.value = gesture.initialWeights;
+  finishCompactTrackResize();
+}
+
+function cancelCompactTrackResizeFromKeyboard(event: KeyboardEvent): void {
+  if (event.key !== 'Escape') return;
+  event.preventDefault();
+  event.stopPropagation();
+  cancelCompactTrackResize();
 }
 
 function updateCompactTrackResize(event: PointerEvent): void {
@@ -2197,20 +2221,19 @@ function beginCompactTrackResize(event: PointerEvent, dividerIndex: TrackIndex):
   compactTrackResizeGesture.value = {
     dividerIndex,
     startY: event.clientY,
-    initialHeights: compactTrackHeights.value,
+    initialHeights: displayedCompactTrackHeights.value,
+    initialWeights: compactTrackHeights.value,
   };
   document.documentElement.classList.add('is-track-resizing');
   window.addEventListener('pointermove', updateCompactTrackResize);
   window.addEventListener('pointerup', finishCompactTrackResize);
-  window.addEventListener('pointercancel', finishCompactTrackResize);
+  window.addEventListener('pointercancel', cancelCompactTrackResize);
+  window.addEventListener('keydown', cancelCompactTrackResizeFromKeyboard, true);
 }
 
-function resetCompactTrackPair(dividerIndex: TrackIndex): void {
-  if (dividerIndex >= compactTrackHeights.value.length - 1) return;
-  const next = [...compactTrackHeights.value];
-  next[dividerIndex] = TIMELINE_TRACK_BASE_HEIGHT;
-  next[dividerIndex + 1] = TIMELINE_TRACK_BASE_HEIGHT;
-  compactTrackHeights.value = next;
+function resetCompactTrackLayout(): void {
+  cancelCompactTrackResize();
+  compactTrackHeights.value = compactTrackHeights.value.map(() => TIMELINE_TRACK_BASE_HEIGHT);
 }
 
 function damageElementLabel(element: string): string {
@@ -5351,7 +5374,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 role="separator"
                 aria-orientation="horizontal"
                 @pointerdown="beginCompactTrackResize($event, track.trackIndex)"
-                @dblclick.stop="resetCompactTrackPair(track.trackIndex)"
+                @dblclick.stop="resetCompactTrackLayout()"
               ></div>
             </div>
           </div>
@@ -6581,6 +6604,7 @@ button:disabled {
 
 .track-row {
   position: relative;
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: 180px minmax(0, 1fr);
   height: 160px;

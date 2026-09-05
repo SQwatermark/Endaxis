@@ -20,6 +20,36 @@ export const TIMELINE_TRACK_MIN_HEIGHT = 66;
 
 const BUFF_LAYER_MARGIN = 8;
 
+/** 紧凑轨道按已有高度比例填满可视区域；不增加额外的上下空白。 */
+export function resolveCompactTrackHeights(
+  weights: readonly number[],
+  availableHeight: number,
+): readonly number[] {
+  if (weights.length === 0) return [];
+  const total = Math.max(
+    weights.length * TIMELINE_TRACK_MIN_HEIGHT,
+    Math.round(
+      Number.isFinite(availableHeight) && availableHeight > 0
+        ? availableHeight
+        : weights.length * TIMELINE_TRACK_BASE_HEIGHT,
+    ),
+  );
+  const normalized = weights.map(value => (Number.isFinite(value) && value > 0 ? value : 1));
+  const sum = normalized.reduce((a, b) => a + b, 0);
+  let remaining = total;
+  return normalized.map((weight, index) => {
+    const height =
+      index === weights.length - 1
+        ? remaining
+        : Math.min(
+            remaining - (weights.length - index - 1) * TIMELINE_TRACK_MIN_HEIGHT,
+            Math.max(TIMELINE_TRACK_MIN_HEIGHT, Math.round((total * weight) / sum)),
+          );
+    remaining -= height;
+    return height;
+  });
+}
+
 /**
  * 旧版松散 Buff 排版的 Next 几何投影。
  *

@@ -2,10 +2,20 @@ import { describe, expect, it } from 'vitest';
 import {
   projectTimelineTrackEffectLayout,
   resizeTimelineTrackPair,
+  resolveCompactTrackHeights,
   TIMELINE_TRACK_MIN_HEIGHT,
 } from './timelineTrackEffectLayout';
 
 describe('timeline track effect layout', () => {
+  it('fills available height and preserves resized proportions across viewport changes', () => {
+    expect(resolveCompactTrackHeights([160, 160, 160, 160], 720)).toEqual([180, 180, 180, 180]);
+    expect(resolveCompactTrackHeights([200, 120, 160, 160], 800)).toEqual([250, 150, 200, 200]);
+    expect(resolveCompactTrackHeights([160, 160, 160, 160], 723).reduce((a, b) => a + b, 0)).toBe(
+      723,
+    );
+    expect(resolveCompactTrackHeights([160, 160, 160, 160], 100)).toEqual([66, 66, 66, 66]);
+    expect(resolveCompactTrackHeights([10000, 1, 1, 1], 400)).toEqual([202, 66, 66, 66]);
+  });
   it('grows compact rows and the canvas when effects use many lanes', () => {
     expect(
       projectTimelineTrackEffectLayout({
