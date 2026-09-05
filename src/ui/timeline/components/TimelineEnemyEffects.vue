@@ -25,6 +25,7 @@ import {
 import { frameToTimelinePx } from '../timelineGeometry';
 import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from '../lastHitBuffSummary';
+import { layoutEnemyMarkerLanes } from '../enemyMarkerLayout';
 
 const { t, te } = useI18n();
 
@@ -74,7 +75,6 @@ const EFFECT_ROW_PITCH = ICON_SIZE + 4;
 const SECTION_TOPBAR_HEIGHT = 14;
 const durationBarColor = useDurationBarColor();
 const ICON_TOP = 2;
-const MARKER_TOP = SECTION_TOPBAR_HEIGHT + 3;
 
 const REACTION_BUFF_IDS: Readonly<Record<string, keyof typeof commonBuffPresentationNameKeys>> = {
   electrification: 'buff_common_pulse_pulse_conduct_triggered_do',
@@ -103,8 +103,12 @@ function pointX(frame: number): number {
 const width = computed(() => Math.max(1, props.trackHeaderWidth + props.timelineWidth));
 
 /** 爆发/反应标记：小图标框，hover 显示说明。 */
+const buffRowCount = computed(() => Math.max(0, ...props.buffs.map(buff => buff.lane + 1)));
+const markerLanes = computed(() =>
+  layoutEnemyMarkerLanes(props.viz.markers.map(marker => pointX(marker.frame) - ICON_SIZE / 2)),
+);
 const markers = computed(() =>
-  props.viz.markers.map(marker => {
+  props.viz.markers.map((marker, index) => {
     const icon =
       marker.kind === 'burst'
         ? (getSpellBurstIconPath(marker.burstType) ?? DEFAULT_GAME_ICON_PATH)
@@ -114,9 +118,13 @@ const markers = computed(() =>
         ? `${props.labels.burst} ${marker.burstType ?? ''}`
         : `${props.labels.reactionConsumed} ${effectName(configuredNameKey(REACTION_BUFF_IDS[marker.reaction ?? '']), marker.reaction ?? '')}`;
     return {
-      key: `${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
+      key: `${index}:${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
       icon,
       x: pointX(marker.frame) - ICON_SIZE / 2,
+      top:
+        SECTION_TOPBAR_HEIGHT +
+        ICON_TOP +
+        (buffRowCount.value + (markerLanes.value[index] ?? 0)) * EFFECT_ROW_PITCH,
       title,
     };
   }),
@@ -172,8 +180,8 @@ const buffs = computed(() =>
   }),
 );
 
-const rowCount = computed(() =>
-  Math.max(props.viz.markers.length > 0 ? 1 : 0, ...buffs.value.map(buff => buff.lane + 1)),
+const rowCount = computed(
+  () => buffRowCount.value + Math.max(0, ...markerLanes.value.map(lane => lane + 1)),
 );
 const minimumHeight = computed(() =>
   Math.max(
@@ -232,7 +240,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
       v-for="marker in markers"
       :key="marker.key"
       class="effect-marker"
-      :style="{ left: `${marker.x}px`, top: `${MARKER_TOP}px` }"
+      :style="{ left: `${marker.x}px`, top: `${marker.top}px` }"
       :title="marker.title"
     >
       <img :src="marker.icon" class="marker-icon" alt="" />
