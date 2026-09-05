@@ -107,7 +107,6 @@ import { projectComboWindowTimelineViz } from '../../core/projection/comboWindow
 import { projectSkillCooldownTimelineViz } from '../../core/projection/skillCooldownTimelineViz';
 import { projectTimelineComboCooldowns } from '../../core/projection/timelineComboCooldowns';
 import { projectSkillEnhancementTimelineViz } from '../../core/projection/skillEnhancementTimelineViz';
-import { projectCombatStatusIndicators } from '../../core/projection/combatStatusIndicators';
 import { resolveControlTimeline } from '../../core/project/resolveControlTimeline';
 import {
   layoutBuffTimelineSegments,
@@ -1935,10 +1934,6 @@ const buffTimelineSegments = computed(() => {
 });
 
 /** 光标快照只消费已经生成的生命周期段，不回查或重算 Buff 运行时。 */
-const combatStatusIndicators = computed(() =>
-  projectCombatStatusIndicators(buffTimelineSegments.value, cursorFrame.value),
-);
-
 const combatHudInitialSkillSlots = computed(() =>
   viewModel.value.tracks.flatMap(track => {
     if (track.operatorInstanceId === null || track.operatorSlug === null) return [];
@@ -1983,12 +1978,20 @@ const operatorControlTimeline = computed(() =>
   ),
 );
 
-/** 状态栏和光标辅助线共用一份只读快照，避免各组件分别解释回执。 */
+/** 旧版底部摘要固定取最后一次敌人受伤时刻，而不是跟随隐藏的编辑光标。 */
+const enemyLastDamageFrame = computed(() => {
+  const current = simulationRun.value;
+  if (current === null) return null;
+  return (
+    current.enemyHealthCurve.points.filter(point => point.sequence !== null).at(-1)?.frame ?? null
+  );
+});
+
 const combatHudSnapshot = computed(() => {
   const current = simulationRun.value;
-  if (current === null || cursorFrame.value > current.frame) return null;
+  if (current === null) return null;
   return projectCombatHudSnapshot({
-    frame: cursorFrame.value,
+    frame: enemyLastDamageFrame.value ?? 0,
     endFrame: current.frame,
     enemyHealthCurve: current.enemyHealthCurve,
     poiseCurve: current.poiseCurve,
@@ -2000,12 +2003,6 @@ const combatHudSnapshot = computed(() => {
     controlTimeline: operatorControlTimeline.value,
   });
 });
-
-function statusIndicatorsForTarget(targetId: string | null) {
-  return targetId === null
-    ? []
-    : combatStatusIndicators.value.filter(indicator => indicator.targetId === targetId);
-}
 
 const comboWindowSegments = computed(() => {
   const current = simulationRun.value;
@@ -5452,6 +5449,7 @@ function setPanelDialogVisible(visible: boolean): void {
           >
             <template #affliction>
               <TimelineEnemyEffects
+                :duration-frames="scenario.battle.durationFrames"
                 v-if="combatHudSnapshot !== null"
                 :viz="enemyEffectViz"
                 :buffs="buffSegmentsForTarget('enemy')"
@@ -5463,8 +5461,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :px-per-frame="pxPerFrame"
                 :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
                 :scroll-left="timelineScrollLeft"
-                :status-indicators="statusIndicatorsForTarget('enemy')"
-                :cursor-frame="cursorFrame"
+                :snapshot-frame="enemyLastDamageFrame"
                 :hud-snapshot="combatHudSnapshot.enemy"
                 :enemy-name="enemyHudName"
                 :enemy-level="scenario.enemy.source.level"

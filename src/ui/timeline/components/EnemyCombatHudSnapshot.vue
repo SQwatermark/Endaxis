@@ -50,6 +50,7 @@ const poiseStateLabel = computed(() => {
         ></span>
       </span>
     </div>
+    <slot />
     <div v-if="showPoise !== false && snapshot.poise !== null" class="gauge gauge--poise">
       <span class="gauge__label">{{ labels.poise }}</span>
       <span v-if="poiseStateLabel !== null" class="gauge__state">{{ poiseStateLabel }}</span>

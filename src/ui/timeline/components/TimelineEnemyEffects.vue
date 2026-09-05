@@ -10,9 +10,7 @@ import { resolveDurationBarColor } from '../durationBarColor';
 import { useI18n } from 'vue-i18n';
 import type { EnemyEffectViz } from '../../../core/projection/enemyEffectViz';
 import type { PositionedBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
-import type { CombatStatusIndicator } from '../../../core/projection/combatStatusIndicators';
 import type { EnemyCombatHudSnapshot as EnemyCombatHudSnapshotModel } from '../../../core/projection/combatHudSnapshot';
-import CombatStatusIconStrip from './CombatStatusIconStrip.vue';
 import EnemyCombatHudSnapshot from './EnemyCombatHudSnapshot.vue';
 import { resolveBuffDisplayName } from '../buffDisplayName';
 import { commonBuffPresentationNameKeys } from '../../../data/buffs/generated/commonBuffPresentationNames.generated';
@@ -25,6 +23,8 @@ import {
   getSpellBurstIconPath,
 } from '../../gameAssetPaths';
 import { frameToTimelinePx } from '../timelineGeometry';
+import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
+import { summarizeLastHitBuffs } from '../lastHitBuffSummary';
 
 const { t, te } = useI18n();
 
@@ -32,6 +32,7 @@ const props = defineProps<{
   viz: EnemyEffectViz;
   buffs: readonly PositionedBuffTimelineSegment[];
   timelineWidth: number;
+  durationFrames: number;
   prepFrames: number;
   pxPerFrame: number;
   trackHeaderWidth: number;
@@ -42,8 +43,7 @@ const props = defineProps<{
     reaction: string;
     reactionConsumed: string;
   };
-  statusIndicators: readonly CombatStatusIndicator[];
-  cursorFrame: number;
+  snapshotFrame: number | null;
   hudSnapshot: EnemyCombatHudSnapshotModel;
   enemyName: string;
   enemyLevel: number;
@@ -174,12 +174,30 @@ const rowCount = computed(() =>
   Math.max(props.viz.markers.length > 0 ? 1 : 0, ...buffs.value.map(buff => buff.lane + 1)),
 );
 const minimumHeight = computed(() =>
-  Math.max(SECTION_TOPBAR_HEIGHT + 46, SECTION_TOPBAR_HEIGHT + rowCount.value * 22 + 2),
+  Math.max(
+    SECTION_TOPBAR_HEIGHT + 46,
+    SECTION_TOPBAR_HEIGHT + rowCount.value * 22 + 2,
+    // 156px 摘要宽度一行容纳7个18px图标；保留完整换行和底部内边距。
+    visibleLastHitBuffs.value.length > 7 ? 106 : visibleLastHitBuffs.value.length > 0 ? 84 : 60,
+  ),
 );
+
+const lastHitSummary = computed(() => summarizeLastHitBuffs(buffs.value, props.snapshotFrame));
+const visibleLastHitBuffs = computed(() => lastHitSummary.value.buffs);
+const lastHitBuffOverflow = computed(() => lastHitSummary.value.overflow);
 </script>
 
 <template>
   <div class="enemy-effects" :style="{ width: `${width}px`, minHeight: `${minimumHeight}px` }">
+    <TimelineMonitorGrid
+      :width="width"
+      :duration-frames="durationFrames"
+      :prep-frames="prepFrames"
+      :prep-expanded="prepExpanded"
+      :px-per-frame="pxPerFrame"
+      :track-header-width="trackHeaderWidth"
+      :scroll-left="scrollLeft"
+    />
     <EnemyCombatHudSnapshot
       class="enemy-hud"
       :snapshot="hudSnapshot"
@@ -188,25 +206,25 @@ const minimumHeight = computed(() =>
       :show-poise="false"
       :poise-knot-thresholds="poiseKnotThresholds"
       :labels="hudLabels"
-    />
-    <CombatStatusIconStrip
-      class="enemy-status-strip"
-      :indicators="statusIndicators"
-      slot="headBarCommon"
-      :frame="cursorFrame"
-      :source-name="sourceName"
-      :display-name="displayName"
-      @open-detail="emit('open-buff-detail', $event)"
-    />
-    <CombatStatusIconStrip
-      class="enemy-status-strip enemy-status-strip--attached"
-      :indicators="statusIndicators"
-      slot="headBarAttached"
-      :frame="cursorFrame"
-      :source-name="sourceName"
-      :display-name="displayName"
-      @open-detail="emit('open-buff-detail', $event)"
-    />
+    >
+      <span v-if="visibleLastHitBuffs.length > 0" class="last-hit-buffs">
+        <button
+          v-for="buff in visibleLastHitBuffs"
+          :key="buff.buffId"
+          type="button"
+          class="anomaly-icon-box last-hit-buff"
+          :title="buff.title"
+          @click.stop="emit('open-buff-detail', buff.detail)"
+        >
+          <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
+          <span v-else class="buff-fallback">+</span>
+          <span class="anomaly-stacks">{{ Math.max(1, buff.layers) }}</span>
+        </button>
+        <strong v-if="lastHitBuffOverflow > 0" class="last-hit-buff-more">
+          +{{ lastHitBuffOverflow }}
+        </strong>
+      </span>
+    </EnemyCombatHudSnapshot>
     <span
       v-for="marker in markers"
       :key="marker.key"
@@ -265,17 +283,27 @@ const minimumHeight = computed(() =>
   inset: 0 auto auto 0;
 }
 
-.enemy-status-strip {
-  position: absolute;
-  z-index: 35;
-  top: 55px;
-  left: 8px;
-  max-width: 82px;
-  overflow: visible;
+.last-hit-buffs {
+  margin-top: 2px;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
 }
 
-.enemy-status-strip--attached {
-  left: 96px;
+.anomaly-icon-box.last-hit-buff {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  padding: 0;
+}
+
+.last-hit-buff-more {
+  color: var(--ea-fg-muted, rgb(255 255 255 / 55%));
+  font:
+    700 10px/1 'Roboto Mono',
+    monospace;
 }
 
 .attachment-item {
@@ -387,6 +415,7 @@ const minimumHeight = computed(() =>
 
 .effect-marker {
   position: absolute;
+  z-index: 1;
   width: 20px;
   height: 20px;
   box-sizing: border-box;
