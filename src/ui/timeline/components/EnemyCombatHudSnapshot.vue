@@ -83,7 +83,10 @@ const poiseStateLabel = computed(() => {
   border-left: 3px solid #ff7875;
   background: var(--ea-workbench-panel, #252526);
   color: var(--ea-fg);
-  font-family: var(--ea-font-family, 'Segoe UI', sans-serif);
+  font-family:
+    Inter,
+    -apple-system,
+    sans-serif;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -102,7 +105,7 @@ header strong {
   overflow: hidden;
   color: #ff7875;
   font-size: 11px;
-  line-height: 12px;
+  line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -120,7 +123,7 @@ header strong {
 .gauge__value {
   color: #ff7875;
   font:
-    700 12px/14px 'Roboto Mono',
+    700 12px/1.1 'Roboto Mono',
     monospace;
   white-space: nowrap;
 }
@@ -149,7 +152,7 @@ header strong {
   display: block;
   height: 100%;
   background: #d9363e;
-  transition: width 80ms linear;
+  transition: width 0.16s ease;
 }
 
 .gauge--poise .gauge__fill {
