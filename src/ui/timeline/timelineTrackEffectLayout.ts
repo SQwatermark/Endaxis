@@ -16,7 +16,10 @@ export interface TimelineTrackEffectLayout {
 export const TIMELINE_TRACK_BASE_HEIGHT = 160;
 export const TIMELINE_ACTION_BASE_TOP = 55;
 export const TIMELINE_BUFF_LANE_PITCH = 22;
-export const TIMELINE_TRACK_MIN_HEIGHT = 66;
+/** 原布局的套装提示延伸至中心下方 79px，加边框后至少需要 160px。
+ * 空轨也保留同一约束，避免选择干员后改变分隔线位置。
+ */
+export const TIMELINE_TRACK_MIN_HEIGHT = TIMELINE_TRACK_BASE_HEIGHT;
 
 const BUFF_LAYER_MARGIN = 8;
 
