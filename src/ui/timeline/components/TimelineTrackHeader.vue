@@ -1,12 +1,13 @@
 <script setup lang="ts">
 /**
- * Next 时间轴单轨固定头部，只展示定义身份和稳定配装槽位。
+ * 时间轴单轨固定头部，只展示定义身份和稳定配装槽位。
  * 选择、排序和编辑动作由父层 command 处理，本组件不修改项目对象。
  */
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
 import type { LoadoutGearSlot } from '../loadoutBuildViewModel';
 import OperatorSupportNotice from './OperatorSupportNotice.vue';
 import { getOperatorAvatarPath } from '../../gameAssetPaths';
+import CustomNumberInput from '../../components/CustomNumberInput.vue';
 
 const props = defineProps<{
   track: TimelineTrackViewModel;
@@ -45,16 +46,12 @@ function selectHeader(): void {
   if (props.track.operatorSlug === null) emit('operator');
 }
 
-function updateInitialUltimateEnergy(event: Event): void {
+function updateInitialUltimateEnergy(value: unknown): void {
   const maximum = props.track.maxUltimateEnergy;
   if (maximum === null) return;
-  const input = event.target as HTMLInputElement;
-  const value = Number(input.value);
-  if (!Number.isFinite(value)) {
-    input.value = String(props.track.initialUltimateEnergy);
-    return;
-  }
-  emit('updateInitialUltimateEnergy', Math.min(maximum, Math.max(0, value)));
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return;
+  emit('updateInitialUltimateEnergy', Math.min(maximum, Math.max(0, numericValue)));
 }
 
 function leaveReorderTarget(event: DragEvent): void {
@@ -117,19 +114,22 @@ function leaveReorderTarget(event: DragEvent): void {
       </button>
     </span>
     <span class="identity-body">
-      <label v-if="track.operatorSlug" class="initial-energy-control" @click.stop>
-        <span>{{ $t('timelineGrid.track.initialGaugeShort') }}</span>
-        <input
-          type="number"
-          min="0"
-          :max="track.maxUltimateEnergy ?? undefined"
-          step="1"
-          :value="track.initialUltimateEnergy"
-          :disabled="track.maxUltimateEnergy === null"
-          @change="updateInitialUltimateEnergy"
-        />
-        <span>/{{ track.maxUltimateEnergy ?? '?' }}</span>
-      </label>
+      <div v-if="track.operatorSlug" class="initial-gauge-control" @click.stop>
+        <span class="initial-gauge-label">{{ $t('timelineGrid.track.initialGaugeShort') }}</span>
+        <span class="initial-gauge-input-wrap">
+          <CustomNumberInput
+            :model-value="track.initialUltimateEnergy"
+            :min="0"
+            :max="track.maxUltimateEnergy ?? 0"
+            :step="1"
+            active-color="#7dd3fc"
+            border-color="#7dd3fc"
+            text-align="center"
+            @update:model-value="updateInitialUltimateEnergy"
+          />
+        </span>
+        <span class="initial-gauge-max">/{{ track.maxUltimateEnergy ?? '?' }}</span>
+      </div>
       <span class="operator-row">
         <button
           v-if="track.operatorSlug"
@@ -144,7 +144,14 @@ function leaveReorderTarget(event: DragEvent): void {
             :src="getOperatorAvatarPath(track.operatorAssetSlug ?? track.operatorSlug)"
             alt=""
           />
-          <span class="avatar-change-hint" aria-hidden="true">↻</span>
+          <span class="avatar-change-hint" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M21.5 2v6h-6" />
+              <path d="M21.5 8A10 10 0 0 0 3 8" />
+              <path d="M2.5 22v-6h6" />
+              <path d="M2.5 16A10 10 0 0 0 21 16" />
+            </svg>
+          </span>
         </button>
         <button
           v-else
@@ -189,7 +196,7 @@ function leaveReorderTarget(event: DragEvent): void {
           @click.stop="$emit('weapon')"
         >
           <img v-if="weaponIcon" :src="weaponIcon" alt="" />
-          <span v-else aria-hidden="true">+</span>
+          <span v-else class="weapon-placeholder" aria-hidden="true"></span>
         </button>
         <button
           v-for="slot in ['armor', 'gloves', 'accessory1', 'accessory2'] as const"
@@ -202,7 +209,7 @@ function leaveReorderTarget(event: DragEvent): void {
           @click.stop="$emit('gear', slot)"
         >
           <img v-if="gearIcons[slot]" :src="gearIcons[slot]!" alt="" />
-          <span v-else aria-hidden="true">+</span>
+          <span v-else class="gear-placeholder" aria-hidden="true"></span>
         </button>
       </span>
       <span class="gear-hint-row">
@@ -222,8 +229,9 @@ function leaveReorderTarget(event: DragEvent): void {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
   align-items: center;
-  padding: 0;
-  border: 0;
+  box-sizing: border-box;
+  padding: 0 0 0 4px;
+  border: 1px solid transparent;
   border-bottom: 1px solid var(--ea-border-soft);
   border-right: 3px solid transparent;
   border-radius: 0;
@@ -231,6 +239,7 @@ function leaveReorderTarget(event: DragEvent): void {
   color: var(--ea-fg);
   text-align: left;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .track-header.is-selected {
@@ -314,43 +323,77 @@ function leaveReorderTarget(event: DragEvent): void {
   box-sizing: border-box;
 }
 
-.initial-energy-control {
+.initial-gauge-control {
+  --initial-gauge-accent: #7dd3fc;
+  --initial-gauge-input-width: 54px;
   position: absolute;
-  top: calc(50% - 72px);
-  left: 6px;
+  z-index: 3;
+  top: calc(50% - 52px);
+  left: 7px;
+  width: calc(100% - 13px);
+  height: 20px;
   display: flex;
   align-items: center;
-  gap: 3px;
-  color: var(--ea-energy-accent, #7dd3fc);
-  font-size: 9px;
-  font-weight: 700;
+  justify-content: flex-start;
+  gap: 4px;
+  color: var(--initial-gauge-accent);
+  font-size: 10px;
+  font-weight: 800;
   line-height: 1;
 }
 
-.initial-energy-control input {
-  width: 38px;
-  height: 18px;
-  box-sizing: border-box;
-  padding: 0 3px;
-  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
-  border-radius: 2px;
-  outline: 0;
-  background: var(--ea-fill-input);
-  color: inherit;
-  font:
-    700 10px/16px 'Roboto Mono',
-    Consolas,
-    monospace;
-  text-align: center;
+.initial-gauge-label,
+.initial-gauge-max {
+  flex: 0 0 auto;
+  user-select: none;
 }
 
-.initial-energy-control input:focus {
-  border-color: currentColor;
-  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+.initial-gauge-label {
+  color: var(--initial-gauge-accent);
+  opacity: 0.92;
 }
 
-.initial-energy-control input:disabled {
-  opacity: 0.45;
+.initial-gauge-input-wrap {
+  flex: 0 0 var(--initial-gauge-input-width);
+  width: var(--initial-gauge-input-width);
+  height: 20px;
+}
+
+.initial-gauge-input-wrap :deep(.custom-number-input) {
+  height: 20px;
+  background: rgb(0 0 0 / 20%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--initial-gauge-accent) 38%, transparent) inset;
+}
+
+.initial-gauge-input-wrap :deep(.custom-number-input:focus-within) {
+  background: color-mix(in srgb, var(--initial-gauge-accent) 12%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--initial-gauge-accent) 90%, transparent) inset;
+}
+
+.initial-gauge-input-wrap :deep(.value-display) {
+  padding: 0 2px;
+  color: var(--ea-fg, #e0f2fe);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 20px;
+}
+
+.initial-gauge-input-wrap :deep(.controls-stack),
+.initial-gauge-input-wrap :deep(.control-btn) {
+  width: 14px;
+}
+
+.initial-gauge-input-wrap :deep(.control-btn) {
+  color: var(--ea-fg-muted, rgb(125 211 252 / 62%));
+  font-size: 9px;
+}
+
+.initial-gauge-input-wrap :deep(.control-btn:hover:not(:disabled)) {
+  color: var(--ea-fg, #e0f2fe);
+}
+
+.initial-gauge-max {
+  color: var(--ea-fg-muted, rgb(186 230 253 / 62%));
 }
 
 .operator-row {
@@ -418,9 +461,19 @@ function leaveReorderTarget(event: DragEvent): void {
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.62);
   color: #fff;
-  font-size: 20px;
   opacity: 0;
-  transition: opacity 0.15s;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.avatar-change-hint svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .avatar-trigger:hover .avatar-change-hint {
@@ -433,7 +486,7 @@ function leaveReorderTarget(event: DragEvent): void {
 
 .operator-name {
   overflow: hidden;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -448,8 +501,9 @@ function leaveReorderTarget(event: DragEvent): void {
 
 .stat-detail-button {
   position: absolute;
-  top: calc(50% - 53px);
-  right: 6px;
+  top: calc(50% - 27px);
+  left: 58px;
+  max-width: calc(100% - 64px);
   height: 18px;
   padding: 0 7px;
   border: 1px solid color-mix(in srgb, var(--ea-gold) 40%, transparent);
@@ -459,6 +513,9 @@ function leaveReorderTarget(event: DragEvent): void {
   font-size: 10px;
   font-weight: 700;
   line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stat-detail-button:disabled {
@@ -466,10 +523,16 @@ function leaveReorderTarget(event: DragEvent): void {
   cursor: not-allowed;
 }
 
+.stat-detail-button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--ea-gold) 72%, transparent);
+  background: color-mix(in srgb, var(--ea-gold) 20%, transparent);
+  color: var(--ea-gold-hover);
+}
+
 .loadout-row {
   position: absolute;
   left: 6px;
-  top: calc(50% + 24px);
+  top: calc(50% + 33px);
   display: flex;
   align-items: flex-end;
   gap: 4px;
@@ -478,7 +541,7 @@ function leaveReorderTarget(event: DragEvent): void {
 .gear-hint-row {
   position: absolute;
   left: 6px;
-  top: calc(50% + 58px);
+  top: calc(50% + 57px);
   width: calc(100% - 12px);
   height: 22px;
 }
@@ -524,10 +587,12 @@ function leaveReorderTarget(event: DragEvent): void {
 
 .weapon-slot:hover {
   border-color: var(--ea-gold);
+  background: var(--ea-keycap-skill-bg, var(--ea-fill-soft));
 }
 
 .gear-slot:hover {
   border-color: #2dd4bf;
+  background: var(--ea-keycap-skill-bg, var(--ea-fill-soft));
 }
 
 .weapon-slot img,
@@ -535,6 +600,57 @@ function leaveReorderTarget(event: DragEvent): void {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.weapon-placeholder,
+.gear-placeholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.weapon-placeholder::before,
+.weapon-placeholder::after,
+.gear-placeholder::before,
+.gear-placeholder::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 1px;
+  background: var(--ea-fg-muted, #888);
+  transform: translate(-50%, -50%);
+  transition: background 0.2s;
+}
+
+.weapon-placeholder::before {
+  width: 16px;
+  height: 2px;
+}
+
+.weapon-placeholder::after {
+  width: 2px;
+  height: 16px;
+}
+
+.gear-placeholder::before {
+  width: 12px;
+  height: 2px;
+}
+
+.gear-placeholder::after {
+  width: 2px;
+  height: 12px;
+}
+
+.weapon-slot:hover .weapon-placeholder::before,
+.weapon-slot:hover .weapon-placeholder::after {
+  background: var(--ea-gold);
+}
+
+.gear-slot:hover .gear-placeholder::before,
+.gear-slot:hover .gear-placeholder::after {
+  background: #2dd4bf;
 }
 
 .weapon-slot {
@@ -545,5 +661,31 @@ function leaveReorderTarget(event: DragEvent): void {
 .gear-slot {
   width: 22px;
   height: 22px;
+}
+
+:global(html[data-theme='light'] .timeline-editor .initial-gauge-control) {
+  --initial-gauge-accent: #0b6e99;
+}
+
+:global(html[data-theme='light'] .timeline-editor .initial-gauge-input-wrap .custom-number-input) {
+  background: var(--ea-surface-row);
+  box-shadow: 0 0 0 1px rgb(11 110 153 / 35%) inset;
+}
+
+:global(
+  html[data-theme='light']
+    .timeline-editor
+    .initial-gauge-input-wrap
+    .custom-number-input:focus-within
+) {
+  background: #fff;
+  box-shadow: 0 0 0 1px rgb(11 110 153 / 75%) inset;
+}
+
+:global(html[data-theme='light'] .timeline-editor .stat-detail-button) {
+  border-color: color-mix(in srgb, var(--ea-gold) 45%, transparent);
+  background: #fff;
+  color: var(--ea-gold);
+  box-shadow: 0 1px 2px rgb(26 27 30 / 8%);
 }
 </style>

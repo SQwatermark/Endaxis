@@ -27,14 +27,26 @@ describe('TimelineTrackHeader old-editor behavior parity', () => {
   test('stretches with the shared loose-effect row height instead of staying at 160px', () => {
     expect(source).toContain('height: 100%');
     expect(source).toContain('min-height: 160px');
-    expect(source).toContain('top: calc(50% - 72px)');
-    expect(source).toContain('top: calc(50% - 53px)');
+    expect(source).toContain('top: calc(50% - 52px)');
+    expect(source).toContain('top: calc(50% - 27px)');
+    expect(source).toContain('top: calc(50% + 33px)');
     expect(editorSource).toContain(
       'height: `${trackEffectLayout(track.trackIndex, track.operatorInstanceId).height}px`',
     );
     expect(editorSource).toContain(
       "'--timeline-action-top': `${trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop}px`",
     );
+  });
+
+  test('uses the old compact number control and placeholder geometry', () => {
+    expect(source).toContain(
+      "import CustomNumberInput from '../../components/CustomNumberInput.vue'",
+    );
+    expect(source).toContain('--initial-gauge-input-width: 54px');
+    expect(source).toContain('class="initial-gauge-input-wrap"');
+    expect(source).toContain('class="weapon-placeholder"');
+    expect(source).toContain('class="gear-placeholder"');
+    expect(source).not.toContain('<span v-else aria-hidden="true">+</span>');
   });
 
   test('shows only compiler-compatible resolved three-piece set hints', () => {
