@@ -37,13 +37,28 @@ function createEditor() {
 }
 
 describe('useTimelineLoadoutEditor', () => {
-  it('空轨道切换会打开干员选择并清除技能选择', () => {
-    const { editor, clearTimelineSelection } = createEditor();
+  it('空轨道切换只改变选中轨道并清除技能选择，不打开面板或写入历史', () => {
+    const { editor, clearTimelineSelection, selectedTrack, session } = createEditor();
 
-    editor.selectTrack(0);
+    editor.selectTrack(2);
 
-    expect(editor.operatorDialogTrack.value).toBe(0);
+    expect(selectedTrack.value).toBe(2);
+    expect(editor.operatorDialogTrack.value).toBeNull();
     expect(clearTimelineSelection).toHaveBeenCalledOnce();
+    expect(session.snapshot.revision).toBe(0);
+  });
+
+  it('已配置轨道的选择也清除技能选择，选择器只由显式入口打开', () => {
+    const { editor, clearTimelineSelection, session } = createEditor();
+    editor.openOperatorDialog(0);
+    editor.selectOperator(perlica.slug);
+    clearTimelineSelection.mockClear();
+    editor.selectTrack(0);
+    expect(clearTimelineSelection).toHaveBeenCalledOnce();
+    expect(editor.operatorDialogTrack.value).toBeNull();
+    expect(session.snapshot.revision).toBe(1);
+    editor.openOperatorDialog(0);
+    expect(editor.operatorDialogTrack.value).toBe(0);
   });
 
   it('选择干员只提交一次完整实例修改', () => {

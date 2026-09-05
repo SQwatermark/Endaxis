@@ -43,6 +43,10 @@ const emit = defineEmits<{
 
 function selectHeader(): void {
   emit('select');
+}
+
+function selectName(): void {
+  emit('select');
   if (props.track.operatorSlug === null) emit('operator');
 }
 
@@ -83,7 +87,7 @@ function startReorder(event: DragEvent): void {
       'is-reorder-source': reorderSource,
       'is-reorder-target': reorderTarget,
     }"
-    @click="selectHeader"
+    @click.stop="selectHeader"
     @dragover.prevent
     @dragenter.prevent="$emit('reorderDragEnter')"
     @dragleave="leaveReorderTarget"
@@ -180,6 +184,7 @@ function startReorder(event: DragEvent): void {
         <span
           class="operator-name-row"
           :class="{ 'has-support-notice': track.operatorSupport?.completeness === 'partial' }"
+          @click.stop="selectName"
         >
           <span class="operator-name">{{ name }}</span>
           <OperatorSupportNotice

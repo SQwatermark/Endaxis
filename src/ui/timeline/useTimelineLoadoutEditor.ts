@@ -134,8 +134,7 @@ export function useTimelineLoadoutEditor(options: TimelineLoadoutEditorOptions) 
 
   function selectTrack(trackIndex: TrackIndex): void {
     options.selectedTrack.value = trackIndex;
-    const track = options.scenario.value.tracks[trackIndex];
-    if (track?.operator == null) openOperatorDialog(trackIndex);
+    options.clearTimelineSelection();
   }
 
   function selectOperator(slug: string): void {
