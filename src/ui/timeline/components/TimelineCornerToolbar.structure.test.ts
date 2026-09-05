@@ -22,7 +22,7 @@ describe('TimelineCornerToolbar legacy behavior parity', () => {
     );
   });
 
-  it('keeps icon-only tools keyboard-readable without changing their visual layout', () => {
+  it('keeps the compact tools keyboard-readable without changing their visual layout', () => {
     expect(source).toContain(':aria-label="labels.initialGauge"');
     expect(header).toContain(':aria-pressed="cursorGuideEnabled"');
     expect(header).toContain(':aria-pressed="boxSelectEnabled"');
@@ -30,6 +30,15 @@ describe('TimelineCornerToolbar legacy behavior parity', () => {
     expect(source).toContain('@keydown.shift.enter.prevent.stop="toggleGaugeEditor"');
     expect(source).toContain(':aria-label="labels.zoom"');
     expect(editorSource).toContain('const showCursorGuide = ref(false)');
+  });
+
+  it('shows the legacy short gauge state or a shared custom value', () => {
+    expect(source).toContain('{{ initialGaugeDisplayValue }}');
+    expect(editorSource).toContain('const initialUltimateEnergyDisplayValue = computed(() =>');
+    expect(editorSource).toContain('values.every(value => value === values[0])');
+    expect(editorSource).toContain(
+      ':initial-gauge-display-value="initialUltimateEnergyDisplayValue"',
+    );
   });
 
   it('grows the outer row, lane, and scrollable canvas for excess Buff lanes', () => {
@@ -51,6 +60,6 @@ describe('TimelineCornerToolbar legacy behavior parity', () => {
     expect(source).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');
     expect(source).toContain('height: 20px');
     expect(source).toContain('gap: 4px');
-    expect(source).toContain('color-mix(in srgb, var(--ea-gold) 10%, var(--ea-fill-input))');
+    expect(source).toContain('color-mix(in srgb, var(--ea-gold) 10%, transparent)');
   });
 });

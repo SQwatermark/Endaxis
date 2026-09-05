@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Next 时间轴的实际战斗时间标尺与准备区边界。
+ * 时间轴的实际战斗时间标尺与准备区边界。
  */
 import { computed, onScopeDispose, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -312,7 +312,7 @@ function seek(event: MouseEvent): void {
 <style scoped>
 .ruler-viewport {
   width: 100%;
-  height: 76px;
+  height: 60px;
   overflow: hidden;
   border-bottom: 1px solid var(--ea-border);
   background: var(--ea-workbench-header);

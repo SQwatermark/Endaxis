@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
 
-/**
- * 时间轴轨道头部上方的编辑工具区，复刻旧版控件的稳定顺序和尺寸。
- * 尚未接入 Next 命令层的工具保持禁用；接入时应由父组件传入状态与命令。
- */
+/** 时间轴轨道头部上方的编辑工具区，结构与尺寸以旧版 TimelineGrid 为准。 */
 defineProps<{
   snapLabel: string;
   zoomPercent: number;
@@ -12,6 +9,7 @@ defineProps<{
   boxSelectEnabled: boolean;
   connectionToolEnabled: boolean;
   initialGaugeMode: 'empty' | 'full' | 'custom';
+  initialGaugeDisplayValue: string;
   buffLayoutMode: 'compact' | 'loose';
   labels: {
     initialGauge: string;
@@ -84,6 +82,7 @@ function applyGaugeDraft(): void {
             <path d="M19 10h2v4h-2" />
             <path d="M7 10v4M11 10v4M15 10v4" stroke-width="1.75" />
           </svg>
+          <span class="gauge-tool-value">{{ initialGaugeDisplayValue }}</span>
         </button>
         <input
           v-if="gaugeEditorOpen"
@@ -152,24 +151,26 @@ function applyGaugeDraft(): void {
 
 <style scoped>
 .corner-controls {
-  width: 100%;
-  min-width: 0;
   display: flex;
   flex-direction: column;
+  flex: 1 0 0;
   gap: 4px;
+  min-width: 0;
 }
 
 .corner-button-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
   gap: 4px;
 }
 
 .mini-tool-button {
   min-width: 0;
   height: 20px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   border: 1px solid var(--ea-border-strong);
   border-radius: 3px;
@@ -192,7 +193,7 @@ function applyGaugeDraft(): void {
 
 .mini-tool-button.is-active {
   border-color: var(--ea-gold);
-  background: color-mix(in srgb, var(--ea-gold) 10%, var(--ea-fill-input));
+  background: color-mix(in srgb, var(--ea-gold) 10%, transparent);
   color: var(--ea-gold);
 }
 
@@ -204,6 +205,7 @@ function applyGaugeDraft(): void {
 
 .initial-gauge-tool .mini-tool-button {
   width: 100%;
+  gap: 5px;
 }
 
 .mini-tool-button.is-gauge-custom {
@@ -219,8 +221,8 @@ function applyGaugeDraft(): void {
 .gauge-popover {
   position: absolute;
   z-index: 20;
-  top: 23px;
-  left: 0;
+  top: 50%;
+  left: calc(100% + 4px);
   width: 74px;
   height: 24px;
   box-sizing: border-box;
@@ -232,6 +234,16 @@ function applyGaugeDraft(): void {
     11px 'Roboto Mono',
     Consolas,
     monospace;
+  transform: translateY(-50%);
+}
+
+.gauge-tool-value {
+  overflow: hidden;
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mini-tool-button svg {

@@ -59,7 +59,7 @@ function formatDuration(frames: number): string {
 .time-dilation-bands {
   position: absolute;
   z-index: 5;
-  inset: 76px 0 0;
+  inset: 60px 0 0;
   overflow: hidden;
   pointer-events: none;
 }

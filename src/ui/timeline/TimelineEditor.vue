@@ -329,7 +329,7 @@ import {
 const { t, locale } = useI18n({ useScope: 'global' });
 const { appearance, setAppearance } = useAppearance();
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
-const TIMELINE_RULER_HEIGHT = 76;
+const TIMELINE_RULER_HEIGHT = 60;
 /** 拖动投影以约 30Hz 更新；技能块本身仍逐 pointermove 跟手。 */
 const LIVE_SIMULATION_RATE_HZ = 30;
 const LIVE_SIMULATION_INTERVAL_MS = 1000 / LIVE_SIMULATION_RATE_HZ;
@@ -855,6 +855,17 @@ const viewModel = computed(() => {
 const initialUltimateEnergyPresetMode = computed(() =>
   resolveInitialUltimateEnergyPresetMode(scenario.value),
 );
+const initialUltimateEnergyDisplayValue = computed(() => {
+  const mode = initialUltimateEnergyPresetMode.value;
+  if (mode === 'empty') return t('timelineGrid.toolbar.initialGaugeEmptyShort');
+  if (mode === 'full') return t('timelineGrid.toolbar.initialGaugeFullShort');
+  const values = scenario.value.tracks.flatMap(track =>
+    track === null ? [] : [track.initialState.ultimateEnergy],
+  );
+  return values.length > 0 && values.every(value => value === values[0])
+    ? String(values[0])
+    : t('timelineGrid.toolbar.initialGaugeCustomShort');
+});
 const maximumUltimateEnergyByTrack = computed(() =>
   viewModel.value.tracks.map(track => track.maxUltimateEnergy),
 );
@@ -4660,6 +4671,7 @@ function setPanelDialogVisible(visible: boolean): void {
               :box-select-enabled="boxSelectEnabled"
               :connection-tool-enabled="connectionToolEnabled"
               :initial-gauge-mode="initialUltimateEnergyPresetMode"
+              :initial-gauge-display-value="initialUltimateEnergyDisplayValue"
               :buff-layout-mode="buffLayoutMode"
               :labels="{
                 initialGauge: t('timelineGrid.toolbar.initialGauge'),
@@ -6089,7 +6101,7 @@ button:disabled {
      only prevents later track content from painting over it while it is visible. */
   z-index: 120;
   width: 180px;
-  height: 76px;
+  height: 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -6104,14 +6116,14 @@ button:disabled {
   position: sticky;
   top: 0;
   z-index: 110;
-  margin-top: -76px;
+  margin-top: -60px;
   margin-left: 180px;
 }
 
 .timeline-battle-start-boundary {
   position: absolute;
   z-index: 11;
-  top: 76px;
+  top: 60px;
   bottom: 0;
   width: 14px;
   margin-left: -7px;
@@ -6138,7 +6150,7 @@ button:disabled {
 .prep-expanded-collapse {
   position: absolute;
   z-index: 12;
-  top: calc(76px + (100% - 76px) / 2);
+  top: calc(60px + (100% - 60px) / 2);
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
@@ -6193,7 +6205,7 @@ button:disabled {
 
 .cursor-guide {
   position: absolute;
-  top: 76px;
+  top: 60px;
   bottom: 0;
   width: 1px;
   background: color-mix(in srgb, var(--ea-gold) 80%, transparent);
@@ -6243,7 +6255,7 @@ button:disabled {
 .simulation-range-dim {
   position: absolute;
   z-index: 7;
-  top: 76px;
+  top: 60px;
   bottom: 0;
   background: rgb(0 0 0 / 38%);
   pointer-events: none;
@@ -6254,7 +6266,7 @@ button:disabled {
 }
 
 .simulation-range-marker {
-  top: 76px;
+  top: 60px;
   bottom: 0;
   width: 1px;
   border-left: 2px solid #5b9bd5;
@@ -6300,7 +6312,7 @@ button:disabled {
 
 .cycle-boundary-marker,
 .team-event-marker {
-  top: 76px;
+  top: 60px;
   bottom: 0;
   width: 1px;
   border-left: 1px solid rgb(0 0 0 / 82%);

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import editorSource from '../TimelineEditor.vue?raw';
 import rulerSource from './TimelineRuler.vue?raw';
 
-describe('Next timeline ruler editing structure', () => {
+describe('timeline ruler editing structure', () => {
   it('retains operation keycaps but removes the standalone white cursor line', () => {
     expect(rulerSource).toContain('v-for="operation in operationMarkers"');
     expect(rulerSource).not.toContain('<span class="cursor"');
@@ -100,5 +100,12 @@ describe('Next timeline ruler editing structure', () => {
     expect(rulerSource).toMatch(
       /\.axis-boundary b \{[\s\S]*top: 28px;[\s\S]*color: rgb\(0 229 255 \/ 92%\)/,
     );
+  });
+
+  it('uses the old collapsed 60px ruler row throughout the timeline overlays', () => {
+    expect(rulerSource).toContain('height: 60px');
+    expect(editorSource).toContain('const TIMELINE_RULER_HEIGHT = 60');
+    expect(editorSource).toContain('margin-top: -60px');
+    expect(editorSource).not.toContain('const TIMELINE_RULER_HEIGHT = 76');
   });
 });
