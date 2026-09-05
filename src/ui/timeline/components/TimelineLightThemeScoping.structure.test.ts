@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 import actionBlockSource from './TimelineActionBlock.vue?raw';
 import skillCardSource from './SkillLibraryCard.vue?raw';
 import workbenchSource from './TimelineWorkbenchShell.vue?raw';
+import trackHeaderSource from './TimelineTrackHeader.vue?raw';
 
 describe('Next timeline light-theme selector scoping', () => {
   it('never compiles icon and component filters onto the html theme root', () => {
-    for (const source of [actionBlockSource, skillCardSource, workbenchSource]) {
+    for (const source of [actionBlockSource, skillCardSource, workbenchSource, trackHeaderSource]) {
       expect(source).not.toMatch(/:global\(html\[data-theme='light'\]\)\s+/);
     }
 

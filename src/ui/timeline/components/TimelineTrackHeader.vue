@@ -670,33 +670,30 @@ function leaveReorderTarget(event: DragEvent): void {
   height: 22px;
 }
 
-:global(html[data-theme='light'] .timeline-editor .initial-gauge-control) {
+:global(html[data-theme='light'] .track-header .initial-gauge-control) {
   --initial-gauge-accent: #0b6e99;
 }
 
-:global(html[data-theme='light'] .timeline-editor .initial-gauge-input-wrap .custom-number-input) {
+:global(html[data-theme='light'] .track-header .initial-gauge-input-wrap .custom-number-input) {
   background: var(--ea-surface-row);
   box-shadow: 0 0 0 1px rgb(11 110 153 / 35%) inset;
 }
 
 :global(
-  html[data-theme='light']
-    .timeline-editor
-    .initial-gauge-input-wrap
-    .custom-number-input:focus-within
+  html[data-theme='light'] .track-header .initial-gauge-input-wrap .custom-number-input:focus-within
 ) {
   background: #fff;
   box-shadow: 0 0 0 1px rgb(11 110 153 / 75%) inset;
 }
 
-:global(html[data-theme='light'] .timeline-editor .stat-detail-button) {
+:global(html[data-theme='light'] .track-header .stat-detail-button) {
   border-color: color-mix(in srgb, var(--ea-gold) 45%, transparent);
   background: #fff;
   color: var(--ea-gold);
   box-shadow: 0 1px 2px rgb(26 27 30 / 8%);
 }
 
-:global(html[data-theme='light'] .timeline-editor .stat-detail-button:hover:not(:disabled)) {
+:global(html[data-theme='light'] .track-header .stat-detail-button:hover:not(:disabled)) {
   background: color-mix(in srgb, var(--ea-gold) 14%, #fff);
   border-color: var(--ea-gold);
   color: var(--ea-gold-hover);
