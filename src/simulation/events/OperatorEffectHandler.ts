@@ -44,6 +44,7 @@ export class OperatorEffectHandler implements EventHandler<OperatorEffectEvents>
               id: event.id,
               consumed: false,
               actionId: event.actionId,
+              durationActionId: event.durationActionId,
               sourceSkillType: event.sourceSkillType,
               sourceSkillId: event.sourceSkillId,
             },
@@ -66,6 +67,7 @@ export class OperatorEffectHandler implements EventHandler<OperatorEffectEvents>
               id: event.id,
               consumed: false,
               actionId: event.actionId,
+              durationActionId: event.durationActionId,
               sourceSkillType: event.sourceSkillType,
               sourceSkillId: event.sourceSkillId,
             },
@@ -77,6 +79,7 @@ export class OperatorEffectHandler implements EventHandler<OperatorEffectEvents>
             event.id,
             event.stat,
             'self',
+            // actorId is the APPLIER (it gates matchesScope); recipient is the last arg.
             event.sourceId,
             event.time,
             ctx,
@@ -84,6 +87,7 @@ export class OperatorEffectHandler implements EventHandler<OperatorEffectEvents>
             event.sourceSkillId,
             resolvedStacks,
             event.actionId,
+            [event.targetTrackId],
           );
         }
         break;

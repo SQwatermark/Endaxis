@@ -68,9 +68,7 @@ const operatorOptions = computed(() =>
   collectStatusOptions(props.operatorStatusOptions, operatorKeys.value),
 );
 
-const enemyOptions = computed(() =>
-  collectStatusOptions(KNOWN_ENEMY_STATUS_KEYS, enemyKeys.value),
-);
+const enemyOptions = computed(() => collectStatusOptions(KNOWN_ENEMY_STATUS_KEYS, enemyKeys.value));
 
 function statusLabel(value) {
   return translateEffectName(t, te, value, props.operatorStatusNameById);
@@ -91,6 +89,7 @@ function statusLabel(value) {
           collapse-tags
           collapse-tags-tooltip
           clearable
+          :placeholder="t('common.none')"
           class="effect-select-dark"
           popper-class="hit-editor-select-popper"
         >
@@ -113,6 +112,7 @@ function statusLabel(value) {
           collapse-tags
           collapse-tags-tooltip
           clearable
+          :placeholder="t('common.none')"
           class="effect-select-dark"
           popper-class="hit-editor-select-popper"
         >

@@ -18,6 +18,7 @@ export interface TimelineAction {
   startTime: number;
   logicalStartTime?: number;
   duration?: number;
+  _sheetDurationBaseline?: number;
   cooldown?: number;
   spCost?: number;
   gaugeCost?: number;
@@ -160,6 +161,7 @@ export interface ScenarioSnapshot {
   connections?: Connection[];
   cycleBoundaries?: CycleBoundary[];
   switchEvents?: SwitchEvent[];
+  comboCooldownEvents?: ComboCooldownEvent[];
   characterOverrides?: Record<string, unknown>;
   weaponOverrides?: Record<string, unknown>;
   equipmentCategoryOverrides?: Record<string, unknown>;
@@ -196,6 +198,10 @@ export interface ScenarioListEntry {
   id: string;
   name: string;
   data: ScenarioData | null;
+  /** Editing preferences that follow this scenario without entering combat undo history. */
+  editorPrefs?: {
+    snapStep?: number;
+  };
 }
 
 /** Runtime enemy/system configuration (systemConstants + customEnemyParams). */
@@ -240,6 +246,12 @@ export interface TimelineRect {
 export interface SwitchEvent {
   id: string;
   [key: string]: unknown;
+}
+
+export interface ComboCooldownEvent {
+  id: string;
+  time: number;
+  mode: 'ready' | 'cooldown';
 }
 
 export interface CycleBoundary {

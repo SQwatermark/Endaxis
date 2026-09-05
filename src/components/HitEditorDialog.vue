@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { ArrowRight } from '@element-plus/icons-vue';
 import draggable from 'vuedraggable';
 import CustomNumberInput from './CustomNumberInput.vue';
 import EffectConditionEditor from './hitEditor/EffectConditionEditor.vue';
@@ -78,6 +79,7 @@ const { t, te } = useI18n({ useScope: 'global' });
 
 const draft = ref(null);
 const selectedEffectId = ref(null);
+const advancedSettingsOpen = ref(false);
 
 const open = computed({
   get: () => props.visible,
@@ -97,6 +99,7 @@ watch(
     if (!props.visible) return;
     draft.value = cloneEditorHit(props.hit || {}, defaultElementKey.value);
     selectedEffectId.value = null;
+    advancedSettingsOpen.value = false;
   },
   { immediate: true, deep: true },
 );
@@ -106,6 +109,29 @@ const dialogTitle = computed(() => t('hitEditor.title', { index: props.hitIndex 
 const selectedEffect = computed(() => {
   const effects = draft.value?.effects || [];
   return effects.find(effect => effect._id === selectedEffectId.value) || null;
+});
+
+function hasConfiguredAdvancedSettings(effect) {
+  if (!effect) return false;
+  const condition = effect.condition;
+  const hasCondition =
+    condition != null && (typeof condition !== 'object' || Object.keys(condition).length > 0);
+
+  return Boolean(
+    effect.stackStrategy ||
+    effect.applyTiming ||
+    Number(effect.durationExtension) ||
+    Number(effect.icd) ||
+    effect.icdGroup ||
+    effect.stacks === 'fromConsume' ||
+    effect.hide ||
+    effect.ignoreTimeShift ||
+    hasCondition,
+  );
+}
+
+watch(selectedEffectId, () => {
+  advancedSettingsOpen.value = false;
 });
 
 const effectList = computed({
@@ -586,10 +612,11 @@ function save() {
               :model-value="draft.treatAsReaction || ''"
               @update:model-value="value => patchHit('treatAsReaction', optionalString(value))"
               size="small"
+              :empty-values="[null, undefined]"
               class="effect-select-dark"
               popper-class="hit-editor-select-popper"
             >
-              <el-option value="" :label="t('common.noneParen')" />
+              <el-option value="" :label="t('common.none')" />
               <el-option
                 v-for="anomalyType in TREAT_AS_ANOMALY_TYPES"
                 :key="anomalyType"
@@ -604,10 +631,11 @@ function save() {
               :model-value="draft.treatAsSkillType || ''"
               @update:model-value="value => patchHit('treatAsSkillType', optionalString(value))"
               size="small"
+              :empty-values="[null, undefined]"
               class="effect-select-dark"
               popper-class="hit-editor-select-popper"
             >
-              <el-option value="" :label="t('common.noneParen')" />
+              <el-option value="" :label="t('common.none')" />
               <el-option
                 v-for="skillType in SKILL_TYPES"
                 :key="skillType"
@@ -633,99 +661,150 @@ function save() {
       </section>
 
       <div class="effect-layout">
-          <div class="effect-list">
-            <div class="effect-pane-title">{{ t('hitEditor.effects') }}</div>
-            <draggable
-              v-model="effectList"
-              item-key="_id"
-              class="effect-list-body"
-              :animation="160"
-            >
-              <template #item="{ element: effect }">
-                <div
-                  class="effect-row"
-                  :class="{ 'is-active': effect._id === selectedEffectId }"
-                  @click="selectedEffectId = effect._id"
-                >
-                  <span class="effect-row__text">
-                    <span class="effect-row__name">{{ effectDisplayName(effect) }}</span>
-                    <span class="effect-row__kind">{{ effectKindLabel(effect.kind) }}</span>
-                  </span>
-                  <button
-                    type="button"
-                    class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--glass-rect ea-btn--accent-red ea-btn--glass-rect-danger effect-row__delete"
-                    :title="t('common.delete')"
-                    @click.stop="removeEffectById(effect._id)"
-                  ></button>
-                </div>
-              </template>
-            </draggable>
-            <button type="button" class="add-effect-bar" @click="addEffect">
-              <span class="plus-icon">
-                <svg
-                  viewBox="0 0 24 24"
-                  width="10"
-                  height="10"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="4"
-                  aria-hidden="true"
-                >
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-              </span>
-              <span>{{ t('propertiesPanel.effects.addEffect') }}</span>
-            </button>
-          </div>
+        <div class="effect-list">
+          <div class="effect-pane-title">{{ t('hitEditor.effects') }}</div>
+          <draggable v-model="effectList" item-key="_id" class="effect-list-body" :animation="160">
+            <template #item="{ element: effect }">
+              <div
+                class="effect-row"
+                :class="{ 'is-active': effect._id === selectedEffectId }"
+                @click="selectedEffectId = effect._id"
+              >
+                <span class="effect-row__text">
+                  <span class="effect-row__name">{{ effectDisplayName(effect) }}</span>
+                  <span class="effect-row__kind">{{ effectKindLabel(effect.kind) }}</span>
+                </span>
+                <button
+                  type="button"
+                  class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--glass-rect ea-btn--accent-red ea-btn--glass-rect-danger effect-row__delete"
+                  :title="t('common.delete')"
+                  @click.stop="removeEffectById(effect._id)"
+                ></button>
+              </div>
+            </template>
+          </draggable>
+          <button type="button" class="add-effect-bar" @click="addEffect">
+            <span class="plus-icon">
+              <svg
+                viewBox="0 0 24 24"
+                width="10"
+                height="10"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="4"
+                aria-hidden="true"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </span>
+            <span>{{ t('propertiesPanel.effects.addEffect') }}</span>
+          </button>
+        </div>
 
-          <div v-if="selectedEffect" class="effect-detail">
-            <div class="effect-detail__name">{{ effectDisplayName(selectedEffect) }}</div>
-            <div class="effect-field-groups">
-              <div class="effect-field-groups__title">{{ t('hitEditor.generalSettings') }}</div>
-              <div class="field-grid field-grid--effect-select-row">
-                <label class="field">
-                  <span>{{ t('hitEditor.effectKind') }}</span>
-                  <el-select
-                    :model-value="selectedEditorKind"
-                    @update:model-value="updateSelectedEffectKind"
-                    size="small"
-                    class="effect-select-dark"
-                    popper-class="hit-editor-select-popper"
+        <div v-if="selectedEffect" class="effect-detail">
+          <div class="effect-detail__name">{{ effectDisplayName(selectedEffect) }}</div>
+          <div class="effect-field-groups">
+            <div class="effect-field-groups__title">{{ t('hitEditor.generalSettings') }}</div>
+            <div class="field-grid field-grid--effect-select-row">
+              <label class="field">
+                <span>{{ t('hitEditor.effectKind') }}</span>
+                <el-select
+                  :model-value="selectedEditorKind"
+                  @update:model-value="updateSelectedEffectKind"
+                  size="small"
+                  class="effect-select-dark"
+                  popper-class="hit-editor-select-popper"
+                >
+                  <el-option
+                    v-for="kind in EDITOR_EFFECT_KINDS"
+                    :key="kind"
+                    :value="kind"
+                    :label="effectKindLabel(kind)"
+                  />
+                </el-select>
+              </label>
+              <label v-if="showDisplayTypeField" class="field full">
+                <span>{{ t('hitEditor.displayType') }}</span>
+                <el-select
+                  :model-value="resolveEffectDisplayKey(selectedEffect)"
+                  @update:model-value="updateSelectedEffectDisplayType"
+                  filterable
+                  size="small"
+                  class="effect-select-dark"
+                  popper-class="hit-editor-select-popper"
+                >
+                  <el-option value="default" :label="t('common.default')" />
+                  <el-option-group
+                    v-for="group in filteredEffectOptions"
+                    :key="group.label"
+                    :label="group.label"
                   >
                     <el-option
-                      v-for="kind in EDITOR_EFFECT_KINDS"
-                      :key="kind"
-                      :value="kind"
-                      :label="effectKindLabel(kind)"
+                      v-for="item in group.options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
                     />
-                  </el-select>
-                </label>
-                <label v-if="showDisplayTypeField" class="field full">
-                  <span>{{ t('hitEditor.displayType') }}</span>
-                  <el-select
-                    :model-value="resolveEffectDisplayKey(selectedEffect)"
-                    @update:model-value="updateSelectedEffectDisplayType"
-                    filterable
-                    size="small"
-                    class="effect-select-dark"
-                    popper-class="hit-editor-select-popper"
-                  >
-                    <el-option value="default" :label="t('common.none')" />
-                    <el-option-group
-                      v-for="group in filteredEffectOptions"
-                      :key="group.label"
-                      :label="group.label"
-                    >
-                      <el-option
-                        v-for="item in group.options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-option-group>
-                  </el-select>
-                </label>
+                  </el-option-group>
+                </el-select>
+              </label>
+            </div>
+
+            <div class="field-grid field-grid--effect-input-row">
+              <label class="field">
+                <span>{{ t('common.duration') }}</span>
+                <CustomNumberInput
+                  :model-value="frameValue(selectedEffect.duration || 0)"
+                  @update:model-value="
+                    value => patchSelectedEffect('duration', timeValueFromFrame(value))
+                  "
+                  :min="0"
+                  :step="1"
+                  :activeColor="'var(--ea-gold)'"
+                />
+              </label>
+              <label class="field">
+                <span>{{ t('common.stacks') }}</span>
+                <CustomNumberInput
+                  :model-value="
+                    selectedEffect.stacks === 'fromConsume' ? 0 : Number(selectedEffect.stacks) || 1
+                  "
+                  :disabled="selectedEffect.stacks === 'fromConsume'"
+                  @update:model-value="value => patchSelectedEffectNumber('stacks', value)"
+                  :min="0"
+                  :activeColor="'var(--ea-gold)'"
+                />
+              </label>
+              <label class="field">
+                <span>{{ t('hitEditor.maxStacks') }}</span>
+                <CustomNumberInput
+                  :model-value="selectedEffect.maxStacks || 0"
+                  @update:model-value="value => patchSelectedEffectNumber('maxStacks', value)"
+                  :min="0"
+                  :activeColor="'var(--ea-gold)'"
+                />
+              </label>
+            </div>
+
+            <button
+              type="button"
+              class="advanced-settings-toggle"
+              :class="{ 'has-values': hasConfiguredAdvancedSettings(selectedEffect) }"
+              :aria-expanded="advancedSettingsOpen"
+              @click="advancedSettingsOpen = !advancedSettingsOpen"
+            >
+              <el-icon
+                class="advanced-settings-toggle__icon"
+                :class="{ 'is-open': advancedSettingsOpen }"
+              >
+                <ArrowRight />
+              </el-icon>
+              <span>{{ t('hitEditor.advancedSettings') }}</span>
+            </button>
+
+            <div v-if="advancedSettingsOpen" class="advanced-settings-body">
+              <div class="field-grid field-grid--effect-select-row">
                 <label v-if="canEditStackStrategy" class="field">
                   <span>{{ t('hitEditor.stackStrategy') }}</span>
                   <el-select
@@ -734,6 +813,7 @@ function save() {
                       value => patchSelectedEffect('stackStrategy', optionalString(value))
                     "
                     size="small"
+                    :empty-values="[null, undefined]"
                     class="effect-select-dark"
                     popper-class="hit-editor-select-popper"
                   >
@@ -754,6 +834,7 @@ function save() {
                       value => patchSelectedEffect('applyTiming', optionalString(value))
                     "
                     size="small"
+                    :empty-values="[null, undefined]"
                     class="effect-select-dark"
                     popper-class="hit-editor-select-popper"
                   >
@@ -770,18 +851,6 @@ function save() {
 
               <div class="field-grid field-grid--effect-input-row">
                 <label class="field">
-                  <span>{{ t('common.duration') }}</span>
-                  <CustomNumberInput
-                    :model-value="frameValue(selectedEffect.duration || 0)"
-                    @update:model-value="
-                      value => patchSelectedEffect('duration', timeValueFromFrame(value))
-                    "
-                    :min="0"
-                    :step="1"
-                    :activeColor="'var(--ea-gold)'"
-                  />
-                </label>
-                <label class="field">
                   <span>{{ t('hitEditor.durationExtension') }}</span>
                   <CustomNumberInput
                     :model-value="frameValue(selectedEffect.durationExtension || 0)"
@@ -793,32 +862,6 @@ function save() {
                     :activeColor="'#00e5ff'"
                   />
                 </label>
-                <label class="field">
-                  <span>{{ t('common.stacks') }}</span>
-                  <CustomNumberInput
-                    :model-value="
-                      selectedEffect.stacks === 'fromConsume'
-                        ? 0
-                        : Number(selectedEffect.stacks) || 1
-                    "
-                    :disabled="selectedEffect.stacks === 'fromConsume'"
-                    @update:model-value="value => patchSelectedEffectNumber('stacks', value)"
-                    :min="0"
-                    :activeColor="'var(--ea-gold)'"
-                  />
-                </label>
-                <label class="field">
-                  <span>{{ t('hitEditor.maxStacks') }}</span>
-                  <CustomNumberInput
-                    :model-value="selectedEffect.maxStacks || 0"
-                    @update:model-value="value => patchSelectedEffectNumber('maxStacks', value)"
-                    :min="0"
-                    :activeColor="'var(--ea-gold)'"
-                  />
-                </label>
-              </div>
-
-              <div class="field-grid field-grid--effect-input-row">
                 <label class="field">
                   <span>ICD</span>
                   <CustomNumberInput
@@ -897,496 +940,487 @@ function save() {
                 @update:model-value="value => patchSelectedEffect('condition', value)"
               />
             </div>
-
-            <div class="kind-field-groups">
-              <div class="kind-field-groups__title">{{ t('hitEditor.specialSettings') }}</div>
-              <template v-if="canEditStat || canEditTarget">
-                <EffectStatEditor
-                  v-if="canEditStat"
-                  :model-value="selectedEffect.stat"
-                  @update:model-value="value => patchSelectedEffect('stat', value)"
-                />
-                <EffectTargetEditor
-                  v-if="canEditTarget"
-                  :model-value="selectedEffect.target"
-                  @update:model-value="value => patchSelectedEffect('target', value)"
-                />
-              </template>
-
-              <template v-if="selectedEffect.kind === 'status'">
-                <div class="field-grid field-grid--effect-input-row">
-                  <label class="field">
-                    <span>{{ t('common.value') }}</span>
-                    <CustomNumberInput
-                      :model-value="selectedEffect.value || 0"
-                      @update:model-value="value => patchSelectedEffectNumber('value', value)"
-                      :activeColor="'var(--ea-gold)'"
-                    />
-                  </label>
-                </div>
-                <div class="field-grid field-grid--effect-check-row">
-                  <label class="check-field ea-check-rect">
-                    <input
-                      type="checkbox"
-                      :checked="!!selectedEffect.silent"
-                      @change="event => patchSelectedEffectBool('silent', event.target.checked)"
-                    />
-                    <span>{{ fieldLabel('silent') }}</span>
-                  </label>
-                  <label class="check-field ea-check-rect">
-                    <input
-                      type="checkbox"
-                      :checked="!!selectedEffect.external"
-                      @change="event => patchSelectedEffectBool('external', event.target.checked)"
-                    />
-                    <span>{{ fieldLabel('external') }}</span>
-                  </label>
-                </div>
-              </template>
-
-              <template
-                v-if="selectedEffect.kind === 'infliction' || selectedEffect.kind === 'burst'"
-              >
-                <div class="field-grid field-grid--effect-select-row">
-                  <label class="field">
-                    <span>{{ t('common.element') }}</span>
-                    <el-select
-                      :model-value="selectedEffect.element || 'heat'"
-                      @update:model-value="value => patchSelectedEffect('element', value)"
-                      size="small"
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option
-                        v-for="element in ARTS_ELEMENTS"
-                        :key="element"
-                        :value="element"
-                        :label="elementLabel(element)"
-                      />
-                    </el-select>
-                  </label>
-                </div>
-              </template>
-
-              <template v-if="selectedEffect.kind === 'reaction'">
-                <div class="field-grid field-grid--effect-select-row">
-                  <label class="field">
-                    <span>{{ fieldLabel('reactionType') }}</span>
-                    <el-select
-                      :model-value="selectedEffect.reactionType || 'combustion'"
-                      @update:model-value="value => patchSelectedEffect('reactionType', value)"
-                      size="small"
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option
-                        v-for="reaction in REACTION_TYPES"
-                        :key="reaction"
-                        :value="reaction"
-                        :label="reactionLabel(reaction)"
-                      />
-                    </el-select>
-                  </label>
-                  <label class="field">
-                    <span>{{ fieldLabel('requiresInfliction') }}</span>
-                    <el-select
-                      :model-value="requiresInflictionValues"
-                      @update:model-value="value => (requiresInflictionValues = value)"
-                      size="small"
-                      multiple
-                      collapse-tags
-                      collapse-tags-tooltip
-                      clearable
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option
-                        v-for="element in ARTS_ELEMENTS"
-                        :key="element"
-                        :value="element"
-                        :label="elementLabel(element)"
-                      />
-                    </el-select>
-                  </label>
-                </div>
-                <div class="field-grid field-grid--effect-input-row">
-                  <label class="field">
-                    <span>{{ fieldLabel('effectiveness') }}</span>
-                    <CustomNumberInput
-                      :model-value="selectedEffect.effectiveness ?? 1"
-                      @update:model-value="
-                        value => patchSelectedEffectNumber('effectiveness', value)
-                      "
-                      :activeColor="'var(--ea-gold)'"
-                    />
-                  </label>
-                  <label class="field">
-                    <span>{{ fieldLabel('defaultLevel') }}</span>
-                    <CustomNumberInput
-                      :model-value="selectedEffect.defaultLevel || 1"
-                      @update:model-value="
-                        value => patchSelectedEffectNumber('defaultLevel', value)
-                      "
-                      :min="1"
-                      :activeColor="'var(--ea-gold)'"
-                    />
-                  </label>
-                </div>
-              </template>
-
-              <template v-if="selectedEffect.kind === 'physicalStatus'">
-                <div class="field-grid field-grid--effect-select-row">
-                  <label class="field">
-                    <span>{{ fieldLabel('physicalType') }}</span>
-                    <el-select
-                      :model-value="selectedEffect.physicalType || 'breach'"
-                      @update:model-value="value => patchSelectedEffect('physicalType', value)"
-                      size="small"
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option
-                        v-for="status in physicalStatusOptions"
-                        :key="status"
-                        :value="status"
-                        :label="physicalStatusLabel(status)"
-                      />
-                    </el-select>
-                  </label>
-                </div>
-                <div class="field-grid field-grid--effect-input-row">
-                  <label class="field">
-                    <span>{{ fieldLabel('effectiveness') }}</span>
-                    <CustomNumberInput
-                      :model-value="selectedEffect.effectiveness ?? 1"
-                      @update:model-value="
-                        value => patchSelectedEffectNumber('effectiveness', value)
-                      "
-                      :activeColor="'var(--ea-gold)'"
-                    />
-                  </label>
-                </div>
-                <div class="field-grid field-grid--effect-check-row">
-                  <label class="check-field ea-check-rect">
-                    <input
-                      type="checkbox"
-                      :checked="!!selectedEffect.forced"
-                      @change="event => patchSelectedEffectBool('forced', event.target.checked)"
-                    />
-                    <span>{{ fieldLabel('forced') }}</span>
-                  </label>
-                </div>
-              </template>
-
-              <template
-                v-if="
-                  selectedEffect.kind === 'damageHit' || selectedEffect.kind === 'damageOverTime'
-                "
-              >
-                <div class="field-grid field-grid--effect-select-row">
-                  <label class="field">
-                    <span>{{ t('common.element') }}</span>
-                    <el-select
-                      :model-value="selectedEffect.element || 'physical'"
-                      @update:model-value="value => patchSelectedEffect('element', value)"
-                      size="small"
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option
-                        v-for="element in DAMAGE_ELEMENTS"
-                        :key="element"
-                        :value="element"
-                        :label="elementLabel(element)"
-                      />
-                    </el-select>
-                  </label>
-                  <label v-if="selectedEffect.kind === 'damageOverTime'" class="field">
-                    <span>{{ fieldLabel('multiplierMode') }}</span>
-                    <el-select
-                      :model-value="selectedEffect.multiplierMode || ''"
-                      @update:model-value="
-                        value => patchSelectedEffect('multiplierMode', optionalString(value))
-                      "
-                      size="small"
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option value="" :label="t('common.default')" />
-                      <el-option value="each" :label="multiplierModeLabel('each')" />
-                      <el-option value="split" :label="multiplierModeLabel('split')" />
-                    </el-select>
-                  </label>
-                </div>
-                <div class="field-grid field-grid--effect-input-row">
-                  <label class="field">
-                    <span>{{ t('propertiesPanel.damage.tickMultiplier') }}</span>
-                    <CustomNumberInput
-                      :model-value="selectedEffect.multiplier || 0"
-                      @update:model-value="value => patchSelectedEffectNumber('multiplier', value)"
-                      :activeColor="'var(--ea-gold)'"
-                    />
-                  </label>
-                  <label class="field">
-                    <span>{{ t('common.triggerTime') }}</span>
-                    <CustomNumberInput
-                      :model-value="frameValue(selectedEffect.offset || 0)"
-                      @update:model-value="
-                        value => patchSelectedEffect('offset', timeValueFromFrame(value))
-                      "
-                      :min="0"
-                      :step="1"
-                      :activeColor="'var(--ea-gold)'"
-                    />
-                  </label>
-                  <label v-if="selectedEffect.kind === 'damageOverTime'" class="field">
-                    <span>{{ fieldLabel('interval') }}</span>
-                    <CustomNumberInput
-                      :model-value="selectedEffect.interval || 1"
-                      @update:model-value="value => patchSelectedEffectNumber('interval', value)"
-                      :min="0"
-                      :activeColor="'var(--ea-gold)'"
-                    />
-                  </label>
-                </div>
-                <div class="field-grid field-grid--effect-check-row">
-                  <label
-                    v-if="selectedEffect.kind === 'damageHit'"
-                    class="check-field ea-check-rect"
-                  >
-                    <input
-                      type="checkbox"
-                      :checked="!!selectedEffect.scaleByCrit"
-                      @change="
-                        event => patchSelectedEffectBool('scaleByCrit', event.target.checked)
-                      "
-                    />
-                    <span>{{ fieldLabel('scaleByCrit') }}</span>
-                  </label>
-                  <label
-                    v-if="selectedEffect.kind === 'damageOverTime'"
-                    class="check-field ea-check-rect"
-                  >
-                    <input
-                      type="checkbox"
-                      :checked="!!selectedEffect.snapshot"
-                      @change="event => patchSelectedEffectBool('snapshot', event.target.checked)"
-                    />
-                    <span>{{ fieldLabel('snapshot') }}</span>
-                  </label>
-                  <label
-                    v-if="selectedEffect.kind === 'damageOverTime'"
-                    class="check-field ea-check-rect"
-                  >
-                    <input
-                      type="checkbox"
-                      :checked="selectedEffect.canCrit !== false"
-                      @change="event => patchSelectedEffectBool('canCrit', event.target.checked)"
-                    />
-                    <span>{{ fieldLabel('canCrit') }}</span>
-                  </label>
-                  <label
-                    v-if="selectedEffect.kind === 'damageOverTime'"
-                    class="check-field ea-check-rect"
-                  >
-                    <input
-                      type="checkbox"
-                      :checked="!!selectedEffect.skipFirstTick"
-                      @change="
-                        event => patchSelectedEffectBool('skipFirstTick', event.target.checked)
-                      "
-                    />
-                    <span>{{ fieldLabel('skipFirstTick') }}</span>
-                  </label>
-                  <label
-                    v-if="selectedEffect.kind === 'damageOverTime'"
-                    class="check-field ea-check-rect"
-                  >
-                    <input
-                      type="checkbox"
-                      :checked="!!selectedEffect.cancelOnRefresh"
-                      @change="
-                        event => patchSelectedEffectBool('cancelOnRefresh', event.target.checked)
-                      "
-                    />
-                    <span>{{ fieldLabel('cancelOnRefresh') }}</span>
-                  </label>
-                </div>
-              </template>
-
-              <template
-                v-if="
-                  [
-                    'spRecovery',
-                    'spReturn',
-                    'ultEnergyGain',
-                    'oneTime',
-                    'cooldownReductionFlat',
-                    'cooldownReductionPercent',
-                  ].includes(selectedEffect.kind)
-                "
-              >
-                <div class="field-grid field-grid--effect-input-row">
-                  <label class="field">
-                    <span>{{ t('common.value') }}</span>
-                    <CustomNumberInput
-                      :model-value="selectedEffect.value || 0"
-                      @update:model-value="value => patchSelectedEffectNumber('value', value)"
-                      :activeColor="'var(--ea-gold)'"
-                    />
-                  </label>
-                </div>
-              </template>
-
-              <template v-if="canEditSkillScope">
-                <div class="field-grid field-grid--effect-select-row">
-                  <label class="field">
-                    <span>{{ fieldLabel('skillTypes') }}</span>
-                    <el-select
-                      :model-value="skillTypeValues"
-                      @update:model-value="value => (skillTypeValues = value)"
-                      size="small"
-                      multiple
-                      collapse-tags
-                      collapse-tags-tooltip
-                      clearable
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option
-                        v-for="skill in SKILL_TYPES"
-                        :key="skill"
-                        :value="skill"
-                        :label="skillTypeLabel(skill)"
-                      />
-                    </el-select>
-                  </label>
-                </div>
-              </template>
-
-              <template v-if="selectedEffect.kind === 'damageHit'">
-                <div class="field-grid field-grid--effect-select-row">
-                  <label class="field">
-                    <span>{{ fieldLabel('conditionTarget') }}</span>
-                    <el-select
-                      :model-value="readConsumedStacksTarget"
-                      @update:model-value="value => (readConsumedStacksTarget = value)"
-                      size="small"
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option value="self" :label="t('hitEditor.targetScopes.self')" />
-                      <el-option value="enemy" :label="t('hitEditor.targetScopes.enemy')" />
-                    </el-select>
-                  </label>
-                  <label class="field">
-                    <span>{{ fieldLabel('readConsumedStacks') }}</span>
-                    <el-select
-                      :model-value="readConsumedStacksKey"
-                      @update:model-value="value => (readConsumedStacksKey = value)"
-                      size="small"
-                      clearable
-                      filterable
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option value="" :label="t('common.none')" />
-                      <el-option
-                        v-for="status in readConsumedStacksOptions"
-                        :key="status"
-                        :value="status"
-                        :label="statusOptionLabel(status)"
-                      />
-                    </el-select>
-                  </label>
-                </div>
-              </template>
-
-              <EffectScalingEditor
-                v-if="canEditScaling"
-                :model-value="selectedEffect.scaling"
-                :label="fieldLabel('scaling')"
-                :operator-status-options="operatorStatusOptions"
-                :operator-status-name-by-id="operatorStatusNameById"
-                @update:model-value="value => patchSelectedEffect('scaling', value)"
-              />
-              <EffectScalingEditor
-                v-if="canEditMultiplierScaling"
-                :model-value="selectedEffect.multiplierScaling"
-                :label="fieldLabel('multiplierScaling')"
-                :operator-status-options="operatorStatusOptions"
-                :operator-status-name-by-id="operatorStatusNameById"
-                @update:model-value="value => patchSelectedEffect('multiplierScaling', value)"
-              />
-              <EffectScalingEditor
-                v-if="canEditStaggerScaling"
-                :model-value="selectedEffect.staggerScaling"
-                :label="fieldLabel('staggerScaling')"
-                :operator-status-options="operatorStatusOptions"
-                :operator-status-name-by-id="operatorStatusNameById"
-                @update:model-value="value => patchSelectedEffect('staggerScaling', value)"
-              />
-
-              <template v-if="selectedEffect.kind === 'consume'">
-                <EffectConsumeStatusesEditor
-                  :operator-status="selectedEffect.operatorStatus"
-                  :enemy-status="selectedEffect.enemyStatus"
-                  :operator-status-options="operatorStatusOptions"
-                  :operator-status-name-by-id="operatorStatusNameById"
-                  @update:operator-status="value => patchSelectedEffect('operatorStatus', value)"
-                  @update:enemy-status="value => patchSelectedEffect('enemyStatus', value)"
-                />
-                <div class="field-grid field-grid--effect-select-row">
-                  <label class="field">
-                    <span>{{ fieldLabel('consumeScope') }}</span>
-                    <el-select
-                      :model-value="selectedEffect.consumeScope || ''"
-                      @update:model-value="
-                        value => patchSelectedEffect('consumeScope', optionalString(value))
-                      "
-                      size="small"
-                      class="effect-select-dark"
-                      popper-class="hit-editor-select-popper"
-                    >
-                      <el-option value="" :label="t('common.default')" />
-                      <el-option value="team" :label="consumeScopeLabel('team')" />
-                    </el-select>
-                  </label>
-                </div>
-                <div class="field-grid field-grid--effect-input-row">
-                  <label class="field">
-                    <span>{{ fieldLabel('consumeStacks') }}</span>
-                    <CustomNumberInput
-                      :model-value="selectedEffect.consumeStacks || 0"
-                      @update:model-value="
-                        value => patchSelectedEffectNumber('consumeStacks', value)
-                      "
-                      :min="0"
-                      :activeColor="'var(--ea-gold)'"
-                    />
-                  </label>
-                </div>
-              </template>
-
-              <ConsumedStatEffectsEditor
-                v-if="canEditConsumedStatEffects"
-                :model-value="selectedEffect.consumedStatEffects"
-                @update:model-value="value => patchSelectedEffect('consumedStatEffects', value)"
-              />
-
-              <EffectNestedHitEditor
-                v-if="canEditNestedHit"
-                :model-value="selectedEffect.hit"
-                :label="fieldLabel('hit')"
-                @update:model-value="value => patchSelectedEffect('hit', value)"
-              />
-            </div>
           </div>
 
-          <div v-else class="effect-detail effect-detail--empty">
-            <div class="empty-hint">{{ t('hitEditor.noEffect') }}</div>
+          <div class="kind-field-groups">
+            <div class="kind-field-groups__title">{{ t('hitEditor.specialSettings') }}</div>
+            <template v-if="canEditStat || canEditTarget">
+              <EffectStatEditor
+                v-if="canEditStat"
+                :model-value="selectedEffect.stat"
+                @update:model-value="value => patchSelectedEffect('stat', value)"
+              />
+              <EffectTargetEditor
+                v-if="canEditTarget"
+                :model-value="selectedEffect.target"
+                @update:model-value="value => patchSelectedEffect('target', value)"
+              />
+            </template>
+
+            <template v-if="selectedEffect.kind === 'status'">
+              <div class="field-grid field-grid--effect-input-row">
+                <label class="field">
+                  <span>{{ t('common.value') }}</span>
+                  <CustomNumberInput
+                    :model-value="selectedEffect.value || 0"
+                    @update:model-value="value => patchSelectedEffectNumber('value', value)"
+                    :activeColor="'var(--ea-gold)'"
+                  />
+                </label>
+              </div>
+              <div class="field-grid field-grid--effect-check-row">
+                <label class="check-field ea-check-rect">
+                  <input
+                    type="checkbox"
+                    :checked="!!selectedEffect.silent"
+                    @change="event => patchSelectedEffectBool('silent', event.target.checked)"
+                  />
+                  <span>{{ fieldLabel('silent') }}</span>
+                </label>
+                <label class="check-field ea-check-rect">
+                  <input
+                    type="checkbox"
+                    :checked="!!selectedEffect.external"
+                    @change="event => patchSelectedEffectBool('external', event.target.checked)"
+                  />
+                  <span>{{ fieldLabel('external') }}</span>
+                </label>
+              </div>
+            </template>
+
+            <template
+              v-if="selectedEffect.kind === 'infliction' || selectedEffect.kind === 'burst'"
+            >
+              <div class="field-grid field-grid--effect-select-row">
+                <label class="field">
+                  <span>{{ t('common.element') }}</span>
+                  <el-select
+                    :model-value="selectedEffect.element || 'heat'"
+                    @update:model-value="value => patchSelectedEffect('element', value)"
+                    size="small"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option
+                      v-for="element in ARTS_ELEMENTS"
+                      :key="element"
+                      :value="element"
+                      :label="elementLabel(element)"
+                    />
+                  </el-select>
+                </label>
+              </div>
+            </template>
+
+            <template v-if="selectedEffect.kind === 'reaction'">
+              <div class="field-grid field-grid--effect-select-row">
+                <label class="field">
+                  <span>{{ fieldLabel('reactionType') }}</span>
+                  <el-select
+                    :model-value="selectedEffect.reactionType || 'combustion'"
+                    @update:model-value="value => patchSelectedEffect('reactionType', value)"
+                    size="small"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option
+                      v-for="reaction in REACTION_TYPES"
+                      :key="reaction"
+                      :value="reaction"
+                      :label="reactionLabel(reaction)"
+                    />
+                  </el-select>
+                </label>
+                <label class="field">
+                  <span>{{ fieldLabel('requiresInfliction') }}</span>
+                  <el-select
+                    :model-value="requiresInflictionValues"
+                    @update:model-value="value => (requiresInflictionValues = value)"
+                    size="small"
+                    multiple
+                    collapse-tags
+                    collapse-tags-tooltip
+                    clearable
+                    :placeholder="t('common.none')"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option
+                      v-for="element in ARTS_ELEMENTS"
+                      :key="element"
+                      :value="element"
+                      :label="elementLabel(element)"
+                    />
+                  </el-select>
+                </label>
+              </div>
+              <div class="field-grid field-grid--effect-input-row">
+                <label class="field">
+                  <span>{{ fieldLabel('effectiveness') }}</span>
+                  <CustomNumberInput
+                    :model-value="selectedEffect.effectiveness ?? 1"
+                    @update:model-value="value => patchSelectedEffectNumber('effectiveness', value)"
+                    :activeColor="'var(--ea-gold)'"
+                  />
+                </label>
+                <label class="field">
+                  <span>{{ fieldLabel('defaultLevel') }}</span>
+                  <CustomNumberInput
+                    :model-value="selectedEffect.defaultLevel || 1"
+                    @update:model-value="value => patchSelectedEffectNumber('defaultLevel', value)"
+                    :min="1"
+                    :activeColor="'var(--ea-gold)'"
+                  />
+                </label>
+              </div>
+            </template>
+
+            <template v-if="selectedEffect.kind === 'physicalStatus'">
+              <div class="field-grid field-grid--effect-select-row">
+                <label class="field">
+                  <span>{{ fieldLabel('physicalType') }}</span>
+                  <el-select
+                    :model-value="selectedEffect.physicalType || 'breach'"
+                    @update:model-value="value => patchSelectedEffect('physicalType', value)"
+                    size="small"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option
+                      v-for="status in physicalStatusOptions"
+                      :key="status"
+                      :value="status"
+                      :label="physicalStatusLabel(status)"
+                    />
+                  </el-select>
+                </label>
+              </div>
+              <div class="field-grid field-grid--effect-input-row">
+                <label class="field">
+                  <span>{{ fieldLabel('effectiveness') }}</span>
+                  <CustomNumberInput
+                    :model-value="selectedEffect.effectiveness ?? 1"
+                    @update:model-value="value => patchSelectedEffectNumber('effectiveness', value)"
+                    :activeColor="'var(--ea-gold)'"
+                  />
+                </label>
+              </div>
+              <div class="field-grid field-grid--effect-check-row">
+                <label class="check-field ea-check-rect">
+                  <input
+                    type="checkbox"
+                    :checked="!!selectedEffect.forced"
+                    @change="event => patchSelectedEffectBool('forced', event.target.checked)"
+                  />
+                  <span>{{ fieldLabel('forced') }}</span>
+                </label>
+              </div>
+            </template>
+
+            <template
+              v-if="selectedEffect.kind === 'damageHit' || selectedEffect.kind === 'damageOverTime'"
+            >
+              <div class="field-grid field-grid--effect-select-row">
+                <label class="field">
+                  <span>{{ t('common.element') }}</span>
+                  <el-select
+                    :model-value="selectedEffect.element || 'physical'"
+                    @update:model-value="value => patchSelectedEffect('element', value)"
+                    size="small"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option
+                      v-for="element in DAMAGE_ELEMENTS"
+                      :key="element"
+                      :value="element"
+                      :label="elementLabel(element)"
+                    />
+                  </el-select>
+                </label>
+                <label v-if="selectedEffect.kind === 'damageOverTime'" class="field">
+                  <span>{{ fieldLabel('multiplierMode') }}</span>
+                  <el-select
+                    :model-value="selectedEffect.multiplierMode || ''"
+                    @update:model-value="
+                      value => patchSelectedEffect('multiplierMode', optionalString(value))
+                    "
+                    size="small"
+                    :empty-values="[null, undefined]"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option value="" :label="t('common.default')" />
+                    <el-option value="each" :label="multiplierModeLabel('each')" />
+                    <el-option value="split" :label="multiplierModeLabel('split')" />
+                  </el-select>
+                </label>
+              </div>
+              <div class="field-grid field-grid--effect-input-row">
+                <label class="field">
+                  <span>{{ t('propertiesPanel.damage.tickMultiplier') }}</span>
+                  <CustomNumberInput
+                    :model-value="selectedEffect.multiplier || 0"
+                    @update:model-value="value => patchSelectedEffectNumber('multiplier', value)"
+                    :activeColor="'var(--ea-gold)'"
+                  />
+                </label>
+                <label class="field">
+                  <span>{{ t('common.triggerTime') }}</span>
+                  <CustomNumberInput
+                    :model-value="frameValue(selectedEffect.offset || 0)"
+                    @update:model-value="
+                      value => patchSelectedEffect('offset', timeValueFromFrame(value))
+                    "
+                    :min="0"
+                    :step="1"
+                    :activeColor="'var(--ea-gold)'"
+                  />
+                </label>
+                <label v-if="selectedEffect.kind === 'damageOverTime'" class="field">
+                  <span>{{ fieldLabel('interval') }}</span>
+                  <CustomNumberInput
+                    :model-value="selectedEffect.interval || 1"
+                    @update:model-value="value => patchSelectedEffectNumber('interval', value)"
+                    :min="0"
+                    :activeColor="'var(--ea-gold)'"
+                  />
+                </label>
+              </div>
+              <div class="field-grid field-grid--effect-check-row">
+                <label v-if="selectedEffect.kind === 'damageHit'" class="check-field ea-check-rect">
+                  <input
+                    type="checkbox"
+                    :checked="!!selectedEffect.scaleByCrit"
+                    @change="event => patchSelectedEffectBool('scaleByCrit', event.target.checked)"
+                  />
+                  <span>{{ fieldLabel('scaleByCrit') }}</span>
+                </label>
+                <label
+                  v-if="selectedEffect.kind === 'damageOverTime'"
+                  class="check-field ea-check-rect"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="!!selectedEffect.snapshot"
+                    @change="event => patchSelectedEffectBool('snapshot', event.target.checked)"
+                  />
+                  <span>{{ fieldLabel('snapshot') }}</span>
+                </label>
+                <label
+                  v-if="selectedEffect.kind === 'damageOverTime'"
+                  class="check-field ea-check-rect"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="selectedEffect.canCrit !== false"
+                    @change="event => patchSelectedEffectBool('canCrit', event.target.checked)"
+                  />
+                  <span>{{ fieldLabel('canCrit') }}</span>
+                </label>
+                <label
+                  v-if="selectedEffect.kind === 'damageOverTime'"
+                  class="check-field ea-check-rect"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="!!selectedEffect.skipFirstTick"
+                    @change="
+                      event => patchSelectedEffectBool('skipFirstTick', event.target.checked)
+                    "
+                  />
+                  <span>{{ fieldLabel('skipFirstTick') }}</span>
+                </label>
+                <label
+                  v-if="selectedEffect.kind === 'damageOverTime'"
+                  class="check-field ea-check-rect"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="!!selectedEffect.cancelOnRefresh"
+                    @change="
+                      event => patchSelectedEffectBool('cancelOnRefresh', event.target.checked)
+                    "
+                  />
+                  <span>{{ fieldLabel('cancelOnRefresh') }}</span>
+                </label>
+              </div>
+            </template>
+
+            <template
+              v-if="
+                [
+                  'spRecovery',
+                  'spReturn',
+                  'ultEnergyGain',
+                  'oneTime',
+                  'cooldownReductionFlat',
+                  'cooldownReductionPercent',
+                ].includes(selectedEffect.kind)
+              "
+            >
+              <div class="field-grid field-grid--effect-input-row">
+                <label class="field">
+                  <span>{{ t('common.value') }}</span>
+                  <CustomNumberInput
+                    :model-value="selectedEffect.value || 0"
+                    @update:model-value="value => patchSelectedEffectNumber('value', value)"
+                    :activeColor="'var(--ea-gold)'"
+                  />
+                </label>
+              </div>
+            </template>
+
+            <template v-if="canEditSkillScope">
+              <div class="field-grid field-grid--effect-select-row">
+                <label class="field">
+                  <span>{{ fieldLabel('skillTypes') }}</span>
+                  <el-select
+                    :model-value="skillTypeValues"
+                    @update:model-value="value => (skillTypeValues = value)"
+                    size="small"
+                    multiple
+                    collapse-tags
+                    collapse-tags-tooltip
+                    clearable
+                    :placeholder="t('common.default')"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option
+                      v-for="skill in SKILL_TYPES"
+                      :key="skill"
+                      :value="skill"
+                      :label="skillTypeLabel(skill)"
+                    />
+                  </el-select>
+                </label>
+              </div>
+            </template>
+
+            <template v-if="selectedEffect.kind === 'damageHit'">
+              <div class="field-grid field-grid--effect-select-row">
+                <label class="field">
+                  <span>{{ fieldLabel('conditionTarget') }}</span>
+                  <el-select
+                    :model-value="readConsumedStacksTarget"
+                    @update:model-value="value => (readConsumedStacksTarget = value)"
+                    size="small"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option value="self" :label="t('hitEditor.targetScopes.self')" />
+                    <el-option value="enemy" :label="t('hitEditor.targetScopes.enemy')" />
+                  </el-select>
+                </label>
+                <label class="field">
+                  <span>{{ fieldLabel('readConsumedStacks') }}</span>
+                  <el-select
+                    :model-value="readConsumedStacksKey"
+                    @update:model-value="value => (readConsumedStacksKey = value)"
+                    size="small"
+                    clearable
+                    filterable
+                    :empty-values="[null, undefined]"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option value="" :label="t('common.none')" />
+                    <el-option
+                      v-for="status in readConsumedStacksOptions"
+                      :key="status"
+                      :value="status"
+                      :label="statusOptionLabel(status)"
+                    />
+                  </el-select>
+                </label>
+              </div>
+            </template>
+
+            <EffectScalingEditor
+              v-if="canEditScaling"
+              :model-value="selectedEffect.scaling"
+              :label="fieldLabel('scaling')"
+              :operator-status-options="operatorStatusOptions"
+              :operator-status-name-by-id="operatorStatusNameById"
+              @update:model-value="value => patchSelectedEffect('scaling', value)"
+            />
+            <EffectScalingEditor
+              v-if="canEditMultiplierScaling"
+              :model-value="selectedEffect.multiplierScaling"
+              :label="fieldLabel('multiplierScaling')"
+              :operator-status-options="operatorStatusOptions"
+              :operator-status-name-by-id="operatorStatusNameById"
+              @update:model-value="value => patchSelectedEffect('multiplierScaling', value)"
+            />
+            <EffectScalingEditor
+              v-if="canEditStaggerScaling"
+              :model-value="selectedEffect.staggerScaling"
+              :label="fieldLabel('staggerScaling')"
+              :operator-status-options="operatorStatusOptions"
+              :operator-status-name-by-id="operatorStatusNameById"
+              @update:model-value="value => patchSelectedEffect('staggerScaling', value)"
+            />
+
+            <template v-if="selectedEffect.kind === 'consume'">
+              <EffectConsumeStatusesEditor
+                :operator-status="selectedEffect.operatorStatus"
+                :enemy-status="selectedEffect.enemyStatus"
+                :operator-status-options="operatorStatusOptions"
+                :operator-status-name-by-id="operatorStatusNameById"
+                @update:operator-status="value => patchSelectedEffect('operatorStatus', value)"
+                @update:enemy-status="value => patchSelectedEffect('enemyStatus', value)"
+              />
+              <div class="field-grid field-grid--effect-select-row">
+                <label class="field">
+                  <span>{{ fieldLabel('consumeScope') }}</span>
+                  <el-select
+                    :model-value="selectedEffect.consumeScope || ''"
+                    @update:model-value="
+                      value => patchSelectedEffect('consumeScope', optionalString(value))
+                    "
+                    size="small"
+                    :empty-values="[null, undefined]"
+                    class="effect-select-dark"
+                    popper-class="hit-editor-select-popper"
+                  >
+                    <el-option value="" :label="t('common.default')" />
+                    <el-option value="team" :label="consumeScopeLabel('team')" />
+                  </el-select>
+                </label>
+              </div>
+              <div class="field-grid field-grid--effect-input-row">
+                <label class="field">
+                  <span>{{ fieldLabel('consumeStacks') }}</span>
+                  <CustomNumberInput
+                    :model-value="selectedEffect.consumeStacks || 0"
+                    @update:model-value="value => patchSelectedEffectNumber('consumeStacks', value)"
+                    :min="0"
+                    :activeColor="'var(--ea-gold)'"
+                  />
+                </label>
+              </div>
+            </template>
+
+            <ConsumedStatEffectsEditor
+              v-if="canEditConsumedStatEffects"
+              :model-value="selectedEffect.consumedStatEffects"
+              @update:model-value="value => patchSelectedEffect('consumedStatEffects', value)"
+            />
+
+            <EffectNestedHitEditor
+              v-if="canEditNestedHit"
+              :model-value="selectedEffect.hit"
+              :label="fieldLabel('hit')"
+              @update:model-value="value => patchSelectedEffect('hit', value)"
+            />
           </div>
         </div>
+
+        <div v-else class="effect-detail effect-detail--empty">
+          <div class="empty-hint">{{ t('hitEditor.noEffect') }}</div>
+        </div>
+      </div>
 
       <section class="editor-section">
         <div class="section-title">{{ t('hitEditor.advanced') }}</div>
@@ -1488,6 +1522,55 @@ function save() {
   font-weight: 700;
   letter-spacing: 0.4px;
   text-transform: uppercase;
+}
+
+.advanced-settings-toggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--ea-border-soft, rgba(255, 255, 255, 0.08));
+  color: var(--ea-fg-secondary, #cfd3dc);
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  gap: 6px;
+  min-height: 30px;
+  padding: 8px 2px 0;
+  text-align: left;
+  width: 100%;
+}
+
+.advanced-settings-toggle:hover,
+.advanced-settings-toggle:focus-visible {
+  color: var(--ea-gold);
+  outline: none;
+}
+
+.advanced-settings-toggle.has-values::after {
+  background: var(--ea-gold);
+  content: '';
+  height: 4px;
+  margin-left: 2px;
+  width: 4px;
+}
+
+.advanced-settings-toggle__icon {
+  color: currentColor;
+  transition: transform 0.16s ease;
+}
+
+.advanced-settings-toggle__icon.is-open {
+  transform: rotate(90deg);
+}
+
+.advanced-settings-body {
+  border-left: 2px solid color-mix(in srgb, var(--ea-gold) 28%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 10px;
 }
 
 .kind-field-groups {

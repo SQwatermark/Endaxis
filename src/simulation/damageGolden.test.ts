@@ -10,11 +10,17 @@ import estellaSheet from '@/data/operators/estella';
 import daPanSheet from '@/data/operators/da-pan';
 import snowshineSheet from '@/data/operators/snowshine';
 import mifuSheet from '@/data/operators/mifu';
+import zhuangFangyiSheet from '@/data/operators/zhuang-fangyi';
+import liinoSheet from '@/data/operators/liino';
+import rossiSheet from '@/data/operators/rossi';
+import lastRiteSheet from '@/data/operators/last-rite';
+import { setLocale } from '@/i18n';
 import { extractRawEntries, resolveHitsFromSheet } from '@/stores/timeline/resolveHits';
 import type { BaseStatValues } from '@/data/stats/types';
 import type { Effect, TriggerEffect } from '@/data/types';
 import type { GearInstance, OperatorInstance, TeamInstance, WeaponInstance } from '@/types';
 import type { EnemyResistance } from '@/data/enemyResistance';
+import { computeExpectedDamageWithBreakdown } from '@/data/stats/computeDamage';
 
 type TrackPatch = Omit<Partial<ScenarioTrack>, 'stats'> & {
   stats?: Partial<ScenarioTrack['stats']>;
@@ -106,6 +112,7 @@ function runScenario(
     enemyResistance?: EnemyResistance;
     lmdiAttributionMode?: 'stacks' | 'applier';
     initialEffects?: any[];
+    initialEnemyState?: any;
   } = {},
 ) {
   const { timeline, teamConfig, enemyConfig, actors } = compileScenario(createScenario(tracks));
@@ -118,6 +125,7 @@ function runScenario(
     enemyResistance: options.enemyResistance,
     lmdiAttributionMode: options.lmdiAttributionMode,
     initialEffects: options.initialEffects,
+    initialEnemyState: options.initialEnemyState,
   });
 }
 
@@ -294,6 +302,371 @@ function totalDamage(result: ReturnType<typeof runScenario>) {
 }
 
 describe('optimizer damage golden baselines', () => {
+  it('caps expected crit rate while retaining raw rate and source snapshots', () => {
+    const breakdown = computeExpectedDamageWithBreakdown({
+      attack: 1000,
+      multiplier: 100,
+      critRate: 1.25,
+      critRateSources: [
+        { label: '__base__', value: 0.05 },
+        { label: 'crit-buff', value: 1.2 },
+      ],
+      critDmg: 0.5,
+      critDmgSources: [{ label: '__base__', value: 0.5 }],
+      dmgBonus: 0,
+      dmgBonusExternalMult: 1,
+      ampBonus: 0,
+      directMultiplier: 1,
+      enemyDef: 100,
+      resistanceIgnore: 0,
+      resistanceShred: 0,
+      susceptibility: 0,
+      increasedDmgTaken: 0,
+      dmgTakenExternalMult: 1,
+      linkStacks: 0,
+      staggerMult: 1,
+      finisherMult: 1,
+    });
+
+    expect(breakdown).toMatchObject({
+      critRateRaw: 1.25,
+      critRate: 1,
+      critRateSources: [
+        { label: '__base__', value: 0.05 },
+        { label: 'crit-buff', value: 1.2 },
+      ],
+      critDmgSources: [{ label: '__base__', value: 0.5 }],
+      critMult: 1.5,
+      expectedDamage: 750,
+    });
+  });
+
+  it('keeps Liino existing combo window usable without retriggering it during ultimate', () => {
+    const liino = createOperatorInstance('liino');
+    const team = createTeam(liino.id);
+    const ultimateHits = resolveOperatorSheetHits(liinoSheet, 'ultimate', 11);
+    const applyElectrification = (id: string, startTime: number) =>
+      createAction(id, 'battleSkill', {
+        startTime,
+        hits: [
+          {
+            offset: 0,
+            multiplier: 0,
+            spRecovery: 0,
+            spReturn: 0,
+            stagger: 0,
+            effects: [
+              {
+                id: 'electrification',
+                kind: 'status',
+                target: 'enemy',
+                duration: 10,
+              },
+            ],
+          },
+        ],
+      });
+    const tracks = [
+      createTrack('liino', [
+        applyElectrification('before_ultimate', 0),
+        createAction('ultimate', 'ultimate', {
+          skillId: 'ultimate',
+          startTime: 1,
+          hits: ultimateHits,
+        }),
+        applyElectrification('during_ultimate', 4),
+        createAction('combo', 'comboSkill', {
+          skillId: 'comboSkill',
+          startTime: 4.5,
+        }),
+      ]),
+    ];
+    const result = runScenario(
+      tracks,
+      createRegistry(collectRuntimeTriggers(team, [liino], [], [], tracks)),
+    );
+    const windowEvents = result.operatorLog.filter(entry => entry.id === 'liino-combo-window');
+
+    expect(windowEvents.filter(entry => entry.type === 'OPERATOR_EFFECT_APPLY')).toHaveLength(1);
+    expect(windowEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'OPERATOR_EFFECT_EXPIRE',
+          consumed: true,
+          time: 4.5,
+        }),
+      ]),
+    );
+  });
+
+  it('stacks Liino T2 and Zhuang Fangyi potential 3 SP returns', () => {
+    const zhuang = createOperatorInstance('zhuang-fangyi', { potential: 3 });
+    const liino = createOperatorInstance('liino', { talentStates: { '1': 2 } });
+    const team = createTeam(zhuang.id);
+    team.slots[1]!.operatorId = liino.id;
+
+    const battleHits = resolveOperatorSheetHits(zhuangFangyiSheet, 'battleSkill', 11, 0, {
+      talentStates: {},
+      potential: 3,
+    });
+    const tracks = [
+      createTrack(
+        'zhuang-fangyi',
+        [
+          createAction('zhuang_battle', 'battleSkill', {
+            skillId: 'battleSkill',
+            startTime: 1,
+            spCost: 100,
+            hits: battleHits,
+          }),
+        ],
+        { element: 'electric' },
+      ),
+      createTrack(
+        'liino',
+        [
+          createAction('liino_combo', 'comboSkill', {
+            skillId: 'comboSkill',
+            startTime: 0,
+          }),
+        ],
+        { element: 'electric' },
+      ),
+    ];
+    const result = runScenario(
+      tracks,
+      createRegistry(collectRuntimeTriggers(team, [zhuang, liino], [], [], tracks)),
+      {
+        initialEnemyState: {
+          debuffs: {
+            electrification: {
+              level: 1,
+              remainingDuration: 30,
+              sourceId: 'liino',
+            },
+          },
+        },
+      },
+    );
+
+    const returnEvents = result.simLog.filter(
+      entry => entry.type === 'SP_CHANGE' && entry.payload.spType === 'return',
+    );
+    expect(
+      returnEvents.map(entry => ({
+        change: entry.payload.change,
+        sourceId: entry.payload.sourceId,
+      })),
+    ).toEqual([
+      { change: 10, sourceId: 'zhuang_battle_inst' },
+      { change: 10, sourceId: 'zhuang_battle_inst' },
+    ]);
+    expect(returnEvents[1]?.payload.refundSp).toBe(20);
+  });
+
+  it('accelerates an active Zhuang Fangyi combo cooldown when her ultimate activates', () => {
+    const ultimateHits = resolveOperatorSheetHits(zhuangFangyiSheet, 'ultimate', 11);
+    const result = runScenario(
+      [
+        createTrack('zhuang-fangyi', [
+          createAction('combo', 'comboSkill', {
+            skillId: 'comboSkill',
+            startTime: 0,
+            cooldown: 18,
+          }),
+          createAction('ultimate', 'ultimate', {
+            skillId: 'ultimate',
+            startTime: 1,
+            hits: ultimateHits,
+          }),
+        ]),
+      ],
+      createRegistry([]),
+    );
+
+    expect(result.comboCooldownIntervals).toHaveLength(1);
+    expect(result.comboCooldownIntervals[0]).toEqual(
+      expect.objectContaining({
+        actorId: 'zhuang-fangyi',
+        start: 0,
+        baseDuration: 18,
+      }),
+    );
+    expect(result.comboCooldownIntervals[0]!.end).toBeCloseTo(7.2375, 6);
+  });
+
+  it('resets Zhuang Fangyi T1 to 18% and adds 2% per Thunder Strike with talent attribution', () => {
+    setLocale('zh-CN');
+    const operator = createOperatorInstance('zhuang-fangyi', {
+      skillLevels: {
+        basicAttack: 1,
+        battleSkill: 12,
+        comboSkill: 1,
+        ultimate: 1,
+      },
+      talentStates: { '0': 2 },
+    });
+    const team = createTeam(operator.id);
+    const battleHits = resolveOperatorSheetHits(zhuangFangyiSheet, 'battleSkill', 11, 0, {
+      talentStates: { '0': 2 },
+      potential: 0,
+    });
+    const tracks = [
+      createTrack('zhuang-fangyi', [
+        createAction('battle_1', 'battleSkill', { startTime: 0, hits: battleHits }),
+        createAction('battle_2', 'battleSkill', { startTime: 7, hits: battleHits }),
+      ]),
+    ];
+    const result = runScenario(
+      tracks,
+      createRegistry(collectRuntimeTriggers(team, [operator], [], [], tracks)),
+    );
+    const t1Applies = result.operatorLog.filter(
+      entry => entry.type === 'OPERATOR_EFFECT_APPLY' && entry.id === 'zhuang-fangyi-t1',
+    );
+    const thunderHitEntries = result.simLog.filter(
+      entry =>
+        entry.type === 'DAMAGE_HIT' && entry.payload.hitData.id === 'zhuang-fangyi-thunder-strike',
+    );
+    const thunderHits = thunderHitEntries.map(entry => entry.payload.hitData);
+
+    expect(
+      t1Applies.map(entry => ({
+        value: entry.value,
+        time: entry.time,
+        expiresAt: entry.expiresAt,
+        actionId: entry.actionId,
+      })),
+    ).toEqual([
+      { value: 18, time: 0, expiresAt: 5, actionId: 'battle_1_inst' },
+      { value: 20, time: 1.367, expiresAt: 6.367, actionId: 'battle_1_inst' },
+      { value: 18, time: 7, expiresAt: 12, actionId: 'battle_2_inst' },
+      { value: 20, time: 8, expiresAt: 13, actionId: 'battle_2_inst' },
+      { value: 22, time: 8.6, expiresAt: 13.6, actionId: 'battle_2_inst' },
+    ]);
+    expect(
+      thunderHitEntries.map(entry => ({
+        actionId: entry.payload.actionId,
+        time: entry.time,
+        ampBonus: entry.payload.hitData._damageBreakdown?.ampBonus,
+      })),
+    ).toEqual([
+      { actionId: 'battle_1_inst', time: 1.367, ampBonus: 0.2 },
+      { actionId: 'battle_2_inst', time: 8, ampBonus: 0.2 },
+      { actionId: 'battle_2_inst', time: 8.6, ampBonus: 0.22 },
+    ]);
+    expect(
+      thunderHits.every(hit =>
+        hit._damageBreakdown?.ampBonusSources?.some(source => source.label === '天地造化'),
+      ),
+    ).toBe(true);
+  });
+
+  it('keeps Zhuang Fangyi consumed Electrification scaling on the owning action', () => {
+    const trackerId = 'zhuangfangyi-battle-bonus-multiplier-tracker';
+    const enhancedHits = resolveOperatorSheetHits(zhuangFangyiSheet, 'enhancedBattleSkill', 11);
+    const generationHit = enhancedHits.find(
+      hit => hit.id === 'zhuang-fangyi-battle-sunderblades-generation-hit',
+    );
+    const finalHit = enhancedHits.find(
+      hit =>
+        hit.id === 'zhuang-fangyi-thunder-strike' &&
+        hit.effects?.some(
+          effect =>
+            effect.kind === 'consume' &&
+            effect.operatorStatus === 'zhuangfangyi-battle-bonus-multiplier-tracker',
+        ),
+    );
+    const trackerEffect = generationHit?.effects?.find(effect => effect.id === trackerId);
+    const consumeTrackerEffect = finalHit?.effects?.find(
+      effect => effect.kind === 'consume' && effect.operatorStatus === trackerId,
+    );
+    if (!finalHit || !trackerEffect || !consumeTrackerEffect) {
+      throw new Error('Missing Zhuang Fangyi enhanced battle tracker effects');
+    }
+
+    const result = runScenario(
+      [
+        createTrack('zhuang-fangyi', [
+          createAction('free_enhanced_battle', 'battleSkill', {
+            startTime: 0,
+            duration: 0.2,
+            hits: [
+              {
+                offset: 1,
+                spRecovery: 0,
+                spReturn: 0,
+                stagger: 0,
+                effects: [consumeTrackerEffect],
+              },
+            ],
+          }),
+          createAction('next_enhanced_battle', 'battleSkill', {
+            startTime: 0.3,
+            hits: [
+              {
+                offset: 0.2,
+                spRecovery: 0,
+                spReturn: 0,
+                stagger: 0,
+                effects: [trackerEffect],
+              },
+              {
+                ...finalHit,
+                offset: 1.2,
+                _condition: undefined,
+                effects: [],
+              },
+            ],
+          }),
+        ]),
+      ],
+      undefined,
+      {
+        initialEnemyState: {
+          debuffs: {
+            electrification: {
+              level: 3,
+              remainingDuration: 30,
+              sourceId: 'zhuang-fangyi',
+            },
+          },
+        },
+      },
+    );
+    const hit = result.simLog
+      .flatMap(entry =>
+        entry.type === 'DAMAGE_HIT' && entry.payload.actionId === 'next_enhanced_battle_inst'
+          ? [entry.payload.hitData]
+          : [],
+      )
+      .find(candidate => candidate._damageBreakdown);
+
+    expect(result.operatorLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'OPERATOR_EFFECT_EXPIRE',
+          id: trackerId,
+          consumed: true,
+          time: 1,
+        }),
+      ]),
+    );
+    expect(hit?._damageBreakdown?.multiplier).toBe(810);
+    expect(hit?._damageBreakdown?.multiplierDetail).toEqual({
+      base: 486,
+      sources: [
+        {
+          kind: 'stack',
+          value: 324,
+          key: trackerId,
+          stacks: 3,
+          coefficient: 108,
+        },
+      ],
+    });
+  });
+
   it('locks real Estella sheet battle-skill hit damage and damage type', () => {
     const result = runScenario([
       createTrack('alpha', [
@@ -363,6 +736,47 @@ describe('optimizer damage golden baselines', () => {
       expectedDamage: 435,
     });
     expect(def300._expectedDamage).toBeLessThan(def100._expectedDamage!);
+  });
+
+  it('applies basic-attack damage bonuses to finisher hits', () => {
+    const result = runScenario([
+      createTrack('alpha', [
+        createAction('apply_basic_bonus', 'battleSkill', {
+          startTime: 0,
+          hits: [
+            {
+              offset: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [
+                {
+                  id: 'basic-dmg-bonus',
+                  kind: 'status',
+                  stat: { modifier: 'dmgBonus', skillTypes: 'basicAttack' },
+                  target: 'self',
+                  value: 50,
+                  duration: 10,
+                } as Effect,
+              ],
+            },
+          ],
+        }),
+        createAction('finisher_hit', 'finisher', {
+          startTime: 1,
+          element: 'physical',
+          hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+        }),
+      ]),
+    ]);
+    const hit = damageByAction(result, 'finisher_hit_inst');
+
+    expect(hit._damageBreakdown).toMatchObject({
+      skillType: 'finisher',
+      dmgBonus: 0.5,
+      dmgBonusMult: 1.5,
+      dmgBonusSources: [{ label: 'basic-dmg-bonus', value: 0.5 }],
+    });
   });
 
   it('keeps neutral enemy resistance at the old damage result', () => {
@@ -555,6 +969,61 @@ describe('optimizer damage golden baselines', () => {
     });
     expect(reactionHit?._lmdiSelf).toBe(2720);
     expect(reactionHit?._lmdiExternal).toEqual({});
+  });
+
+  it('snapshots consumed infliction stacks for Last Rite hypothermia', () => {
+    const lastRite = createOperatorInstance('last-rite', { talentStates: { '0': 2 } });
+    const tracks = [
+      createTrack('last-rite', [
+        createAction('heat', 'battleSkill', {
+          startTime: 0,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [{ kind: 'infliction', element: 'heat', stacks: 2 } as Effect],
+            },
+          ],
+        }),
+        createAction('cryo', 'battleSkill', {
+          startTime: 1,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [{ kind: 'infliction', element: 'cryo' } as Effect],
+            },
+          ],
+        }),
+      ]),
+    ];
+    const triggers = collectRuntimeTriggers(createTeam(lastRite.id), [lastRite], [], [], tracks);
+    const result = runScenario(tracks, createRegistry(triggers));
+
+    expect(result.enemyLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'ENEMY_STATUS_APPLY',
+          stat: { modifier: 'susceptibility', elements: 'cryo' },
+          value: 8,
+        }),
+      ]),
+    );
+  });
+
+  it('uses the corrected Last Rite pursuit delay', () => {
+    const lastRiteSkills = patchCombatSkills(lastRiteSheet, { talentStates: {}, potential: 0 });
+    const pursuit = lastRiteSkills.battleSkill?.triggers?.[0]?.effects?.find(
+      effect => effect.id === 'lastrite-mirages-hit',
+    ) as { offset?: number } | undefined;
+
+    expect(pursuit?.offset).toBe(0.4);
   });
 
   it('locks physical vulnerability consumption and physical reaction damage', () => {
@@ -882,12 +1351,22 @@ describe('optimizer damage golden baselines', () => {
       base: 2040,
       dmgBonus: 0.2,
       dmgBonusMult: 1.2,
+      critRateRaw: 0.55,
       critRate: 0.55,
+      critRateSources: [
+        { label: '__base__', value: 0.05 },
+        { label: 'self-crit-rate', value: 0.5 },
+      ],
       critDmg: 1.5,
+      critDmgSources: [
+        { label: '__base__', value: 0.5 },
+        { label: 'self-crit-dmg', value: 1 },
+      ],
       critMult: 1.8250000000000002,
       ampBonus: 0.3,
       ampMult: 1.3,
       directMultiplier: 1.5,
+      directMultiplierSources: [{ label: 'self-direct', value: 1.5 }],
       susceptibility: 0.45000000000000007,
       susceptMult: 1.4500000000000002,
       increasedDmgTaken: 0.3,
@@ -900,6 +1379,89 @@ describe('optimizer damage golden baselines', () => {
       nonCritDamage: 3749,
       critDamage: 9373,
       expectedDamage: 6842,
+    });
+  });
+
+  it('records stack-based skill multiplier detail at hit time', () => {
+    const result = runScenario([
+      createTrack('alpha', [
+        createAction('setup_multiplier_stack', 'battleSkill', {
+          startTime: 0,
+          hits: [
+            {
+              offset: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [
+                {
+                  id: 'multiplier-stack',
+                  kind: 'status',
+                  target: 'self',
+                  value: 0,
+                  stacks: 2,
+                  maxStacks: 4,
+                  duration: 10,
+                } as Effect,
+              ],
+            },
+          ],
+        }),
+        createAction('scaled_hit', 'battleSkill', {
+          startTime: 1,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 100,
+              _multiplierScaling: {
+                additive: [{ key: 'multiplier-stack', target: 'self', coefficient: 5 }],
+              },
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+            },
+          ],
+        }),
+      ]),
+    ]);
+    const hit = damageByAction(result, 'scaled_hit_inst');
+
+    expect(hit._damageBreakdown?.multiplierDetail).toEqual({
+      base: 100,
+      sources: [
+        {
+          kind: 'stack',
+          value: 10,
+          key: 'multiplier-stack',
+          stacks: 2,
+          coefficient: 5,
+        },
+      ],
+    });
+  });
+
+  it('attributes a potential patch that adds triggered-damage multiplier', () => {
+    setLocale('zh-CN');
+    const operator = createOperatorInstance('rossi', {
+      talentStates: { '1': 2 },
+      potential: 3,
+    });
+    const team = createTeam(operator.id);
+    const tracks = [createTrack('rossi', [])];
+    const triggers = collectRuntimeTriggers(team, [operator], [], [], tracks);
+    const talentDamage = triggers
+      .flatMap(entry => entry.triggerEffect.effects)
+      .find(effect => effect.id === 'rossi-talent-2');
+
+    expect(talentDamage).toMatchObject({
+      multiplier: 24,
+      multiplierScaling: {
+        additive: [{ value: 8, sourceLabel: '有形的责任' }],
+      },
+    });
+    expect(rossiSheet.potentials[2]?.patches?.[0]).toMatchObject({
+      kind: 'patchEffect',
+      targetEffect: 'rossi-talent-2',
     });
   });
 
@@ -923,6 +1485,24 @@ describe('optimizer damage golden baselines', () => {
                   value: 80,
                   skillTypes: 'battleSkill',
                 } as Effect,
+                {
+                  id: 'next-battle-crit-rate',
+                  name: 'One-time CRIT Rate',
+                  kind: 'oneTime',
+                  stat: { modifier: 'critRate' },
+                  target: 'self',
+                  value: 25,
+                  skillTypes: 'battleSkill',
+                } as Effect,
+                {
+                  id: 'next-battle-crit-dmg',
+                  name: 'One-time CRIT DMG',
+                  kind: 'oneTime',
+                  stat: { modifier: 'critDmg' },
+                  target: 'self',
+                  value: 50,
+                  skillTypes: 'battleSkill',
+                } as Effect,
               ],
             },
           ],
@@ -935,19 +1515,44 @@ describe('optimizer damage golden baselines', () => {
     ]);
     const hit = damageByAction(result, 'consume_onetime_inst');
 
-    expect(hit.consumedStatEffects).toEqual([
-      expect.objectContaining({
-        id: 'next-battle-dmg',
-        stat: { modifier: 'dmgBonus' },
-        value: 80,
-      }),
-    ]);
+    expect(hit.consumedStatEffects).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'next-battle-dmg',
+          stat: { modifier: 'dmgBonus' },
+          value: 80,
+        }),
+        expect.objectContaining({
+          id: 'next-battle-crit-rate',
+          sourceLabel: 'One-time CRIT Rate',
+          stat: { modifier: 'critRate' },
+          value: 25,
+        }),
+        expect.objectContaining({
+          id: 'next-battle-crit-dmg',
+          sourceLabel: 'One-time CRIT DMG',
+          stat: { modifier: 'critDmg' },
+          value: 50,
+        }),
+      ]),
+    );
     expect(hit._damageBreakdown).toMatchObject({
       dmgBonus: 0.8,
       dmgBonusMult: 1.8,
+      critRateRaw: 0.3,
+      critRate: 0.3,
+      critRateSources: [
+        { label: '__base__', value: 0.05 },
+        { label: 'One-time CRIT Rate', value: 0.25 },
+      ],
+      critDmg: 1,
+      critDmgSources: [
+        { label: '__base__', value: 0.5 },
+        { label: 'One-time CRIT DMG', value: 0.5 },
+      ],
       nonCritDamage: 1530,
-      critDamage: 2295,
-      expectedDamage: 1568,
+      critDamage: 3060,
+      expectedDamage: 1989,
     });
     expect(result.operatorLog).toEqual(
       expect.arrayContaining([

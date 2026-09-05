@@ -4,6 +4,8 @@ import { compileScenario } from '@/simulation/compiler/compileScenario';
 import type { Action, ScenarioData, ScenarioTrack } from '@/simulation/compiler/types';
 import { simulate } from '@/simulation/simulator';
 import type { InitialEffect } from '@/simulation/simulator';
+import { TriggerRegistry } from '@/simulation/engine/TriggerRegistry';
+import type { ComboCooldownEvent } from '@/stores/timeline/types';
 
 function createAction(id: string, type: Action['type'], patch: Partial<Action> = {}): Action {
   const startTime = Number(patch.startTime) || 0;
@@ -42,14 +44,22 @@ function createTrack(actions: Action[], id = 'laevatain'): ScenarioTrack {
   };
 }
 
-function run(actions: Action[], trackId = 'laevatain', initialEffects: InitialEffect[] = []) {
+function run(
+  actions: Action[],
+  trackId = 'laevatain',
+  initialEffects: InitialEffect[] = [],
+  comboCooldownEvents: ComboCooldownEvent[] = [],
+  comboCooldownByActorId: Record<string, number> = {},
+) {
   const scenario: ScenarioData = {
     tracks: [createTrack(actions, trackId)],
     connections: [],
   };
   const { timeline, teamConfig, enemyConfig, actors } = compileScenario(scenario);
-  return simulate(timeline, teamConfig, enemyConfig, actors, undefined, undefined, {
+  return simulate(timeline, teamConfig, enemyConfig, actors, new TriggerRegistry([]), undefined, {
     initialEffects,
+    comboCooldownEvents,
+    comboCooldownByActorId,
   });
 }
 
@@ -63,6 +73,18 @@ const ARCANE_ULTIMATE_ARCANA_REQUISITE = {
     ],
   },
   messageKey: 'actionItem.requisiteTitle.arcaneUltimateArcanaRequired',
+};
+
+const ARCANE_ULTIMATE_COOLDOWN_REQUISITE = {
+  id: 'ultimate-cooldown-ready',
+  condition: {
+    kind: 'or' as const,
+    conditions: [
+      { kind: 'ultimateCooldownReady' as const },
+      { kind: 'operatorStatus' as const, status: 'arcane-gloompurge-arcana-ready' },
+    ],
+  },
+  messageKey: 'actionItem.requisiteTitle.ultimateSkillOnCooldown',
 };
 
 const LAEVATAIN_OUTSIDE_ULTIMATE_BASIC_REQUISITE = {
@@ -113,7 +135,153 @@ const YVONNE_OUTSIDE_ULTIMATE_BASIC_REQUISITE = {
   messageKey: 'actionItem.requisiteTitle.enhancedBasicDuringUltimate',
 };
 
+const ULTIMATE_COOLDOWN_REQUISITE = {
+  id: 'ultimate-cooldown-ready',
+  condition: { kind: 'ultimateCooldownReady' as const },
+  messageKey: 'actionItem.requisiteTitle.ultimateSkillOnCooldown',
+};
+
+const COMBO_COOLDOWN_REQUISITE = {
+  id: 'combo-cooldown-ready',
+  condition: { kind: 'comboNotOnCooldown' as const },
+};
+
 describe('evaluateSkillRequisites', () => {
+  it('lets a forced-ready event end the current combo cooldown', () => {
+    const result = run(
+      [
+        createAction('combo', 'comboSkill', { startTime: 1, cooldown: 10 }),
+        createAction('check', 'basicAttack', {
+          startTime: 6,
+          requisites: [COMBO_COOLDOWN_REQUISITE],
+        }),
+      ],
+      'laevatain',
+      [],
+      [{ id: 'ready', time: 5, mode: 'ready' }],
+    );
+
+    expect(
+      result.simLog.some(
+        entry =>
+          entry.type === 'ACTION_REQUISITE_FAILED' && entry.payload.actionId === 'check_inst',
+      ),
+    ).toBe(false);
+    expect(result.comboCooldownIntervals).toContainEqual(
+      expect.objectContaining({
+        actorId: 'laevatain',
+        start: 1,
+        end: 5,
+        forced: false,
+      }),
+    );
+  });
+
+  it('starts the configured combo cooldown for every actor', () => {
+    const result = run(
+      [
+        createAction('blocked', 'basicAttack', {
+          startTime: 5,
+          requisites: [COMBO_COOLDOWN_REQUISITE],
+        }),
+        createAction('ready', 'basicAttack', {
+          startTime: 12,
+          requisites: [COMBO_COOLDOWN_REQUISITE],
+        }),
+      ],
+      'laevatain',
+      [],
+      [{ id: 'cooldown', time: 1, mode: 'cooldown' }],
+      { laevatain: 10 },
+    );
+
+    const failures = result.simLog.filter(entry => entry.type === 'ACTION_REQUISITE_FAILED');
+    expect(failures.map(entry => entry.payload.actionId)).toContain('blocked_inst');
+    expect(failures.map(entry => entry.payload.actionId)).not.toContain('ready_inst');
+  });
+
+  it('applies a same-frame control event before the combo action', () => {
+    const result = run(
+      [
+        createAction('combo', 'comboSkill', { startTime: 1, cooldown: 10 }),
+        createAction('check', 'basicAttack', {
+          startTime: 2,
+          requisites: [COMBO_COOLDOWN_REQUISITE],
+        }),
+      ],
+      'laevatain',
+      [],
+      [{ id: 'ready', time: 1, mode: 'ready' }],
+    );
+
+    expect(result.simLog).toContainEqual(
+      expect.objectContaining({
+        type: 'ACTION_REQUISITE_FAILED',
+        payload: expect.objectContaining({ actionId: 'check_inst' }),
+      }),
+    );
+  });
+
+  it('draws and truncates a forced combo cooldown interval', () => {
+    const result = run(
+      [],
+      'laevatain',
+      [],
+      [
+        { id: 'cooldown', time: 1, mode: 'cooldown' },
+        { id: 'ready', time: 5, mode: 'ready' },
+      ],
+      { laevatain: 10 },
+    );
+
+    expect(result.comboCooldownIntervals).toEqual([
+      expect.objectContaining({
+        actorId: 'laevatain',
+        start: 1,
+        end: 5,
+        forced: true,
+      }),
+    ]);
+  });
+
+  it('keeps a second-stage combo cooldown after its opening hit clears the first stage', () => {
+    const result = run([
+      createAction('combo-stage-1', 'comboSkill', { startTime: 1, cooldown: 10 }),
+      createAction('combo-stage-2', 'comboSkill', {
+        startTime: 2,
+        cooldown: 10,
+        hits: [
+          {
+            id: 'combo-stage-2-hit',
+            offset: 0,
+            multiplier: 0,
+            spRecovery: 0,
+            spReturn: 0,
+            stagger: 0,
+            effects: [
+              {
+                kind: 'cooldownReductionPercent',
+                skillTypes: 'comboSkill',
+                target: 'self',
+                value: 100,
+              },
+            ],
+          },
+        ],
+      }),
+    ]);
+
+    expect(result.comboCooldownIntervals).toEqual([
+      expect.objectContaining({
+        actorId: 'laevatain',
+        sourceActionId: 'combo-stage-2_inst',
+        start: 2,
+        end: 12,
+        forced: false,
+      }),
+    ]);
+  });
+
   it('logs unmet ultimate-enhancement release prerequisites', () => {
     const result = run([
       createAction('enhanced', 'battleSkill', {
@@ -160,8 +328,7 @@ describe('evaluateSkillRequisites', () => {
     expect(
       result.simLog.some(
         entry =>
-          entry.type === 'ACTION_REQUISITE_FAILED' &&
-          entry.payload.actionId === 'enhanced_inst',
+          entry.type === 'ACTION_REQUISITE_FAILED' && entry.payload.actionId === 'enhanced_inst',
       ),
     ).toBe(false);
   });
@@ -264,7 +431,11 @@ describe('evaluateSkillRequisites', () => {
       .map(entry => entry.payload.actionId);
 
     expect(failedActionIds).toEqual(
-      expect.arrayContaining(['enhanced-basic_inst', 'enhanced-battle_inst', 'enhanced-combo_inst']),
+      expect.arrayContaining([
+        'enhanced-basic_inst',
+        'enhanced-battle_inst',
+        'enhanced-combo_inst',
+      ]),
     );
   });
 
@@ -328,7 +499,7 @@ describe('evaluateSkillRequisites', () => {
           gaugeCost: 100,
           enhancementTime: 'arcane-gloompurger-array',
           animationTime: 0,
-          requisites: [ARCANE_ULTIMATE_ARCANA_REQUISITE],
+          requisites: [ARCANE_ULTIMATE_ARCANA_REQUISITE, ARCANE_ULTIMATE_COOLDOWN_REQUISITE],
           hits: [
             {
               offset: 0,
@@ -351,7 +522,7 @@ describe('evaluateSkillRequisites', () => {
           gaugeCost: 100,
           enhancementTime: 'arcane-gloompurger-array',
           animationTime: 0,
-          requisites: [ARCANE_ULTIMATE_ARCANA_REQUISITE],
+          requisites: [ARCANE_ULTIMATE_ARCANA_REQUISITE, ARCANE_ULTIMATE_COOLDOWN_REQUISITE],
         }),
       ],
       'arcane',
@@ -377,7 +548,8 @@ describe('evaluateSkillRequisites', () => {
           gaugeCost: 100,
           enhancementTime: 'arcane-gloompurger-array',
           animationTime: 0,
-          requisites: [ARCANE_ULTIMATE_ARCANA_REQUISITE],
+          cooldown: 20,
+          requisites: [ARCANE_ULTIMATE_ARCANA_REQUISITE, ARCANE_ULTIMATE_COOLDOWN_REQUISITE],
           hits: [
             {
               offset: 0,
@@ -400,7 +572,8 @@ describe('evaluateSkillRequisites', () => {
           gaugeCost: 100,
           enhancementTime: 'arcane-gloompurger-array',
           animationTime: 0,
-          requisites: [ARCANE_ULTIMATE_ARCANA_REQUISITE],
+          cooldown: 20,
+          requisites: [ARCANE_ULTIMATE_ARCANA_REQUISITE, ARCANE_ULTIMATE_COOLDOWN_REQUISITE],
         }),
       ],
       'arcane',
@@ -423,5 +596,85 @@ describe('evaluateSkillRequisites', () => {
           entry.payload.actionId === 'second-ultimate_inst',
       ),
     ).toBe(false);
+  });
+
+  it('warns while the previous ultimate is cooling down and passes at the boundary', () => {
+    const failuresAt = (retryTime: number) => {
+      const result = run([
+        createAction('first-ultimate', 'ultimate', {
+          startTime: 0,
+          cooldown: 10,
+          animationTime: 1,
+        }),
+        createAction('retry-ultimate', 'ultimate', {
+          startTime: retryTime,
+          cooldown: 10,
+          requisites: [ULTIMATE_COOLDOWN_REQUISITE],
+        }),
+      ]);
+      return result.simLog.filter(
+        entry =>
+          entry.type === 'ACTION_REQUISITE_FAILED' &&
+          entry.payload.actionId === 'retry-ultimate_inst' &&
+          entry.payload.requisiteId === 'ultimate-cooldown-ready',
+      );
+    };
+
+    expect(failuresAt(10.9)).toHaveLength(1);
+    expect(failuresAt(11)).toHaveLength(0);
+  });
+
+  it('starts a status-bound ultimate cooldown when its enhancement is terminated', () => {
+    const failuresAt = (retryTime: number) => {
+      const result = run([
+        createAction('first-ultimate', 'ultimate', {
+          startTime: 0,
+          cooldown: 10,
+          enhancementTime: 'test-ultimate-stance',
+          hits: [
+            {
+              offset: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [
+                {
+                  id: 'test-ultimate-stance',
+                  kind: 'status',
+                  target: 'self',
+                  duration: 20,
+                },
+              ],
+            },
+          ],
+        }),
+        createAction('end-stance', 'battleSkill', {
+          startTime: 5,
+          hits: [
+            {
+              offset: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [{ kind: 'consume', operatorStatus: 'test-ultimate-stance' }],
+            },
+          ],
+        }),
+        createAction('retry-ultimate', 'ultimate', {
+          startTime: retryTime,
+          cooldown: 10,
+          requisites: [ULTIMATE_COOLDOWN_REQUISITE],
+        }),
+      ]);
+      return result.simLog.filter(
+        entry =>
+          entry.type === 'ACTION_REQUISITE_FAILED' &&
+          entry.payload.actionId === 'retry-ultimate_inst' &&
+          entry.payload.requisiteId === 'ultimate-cooldown-ready',
+      );
+    };
+
+    expect(failuresAt(14.9)).toHaveLength(1);
+    expect(failuresAt(15)).toHaveLength(0);
   });
 });

@@ -21,6 +21,8 @@ import type {
   ResolvedSpReturnEffect,
   ResolvedUltimateEnergyGainEffect,
   ResolvedOneTimeEffect,
+  SkillMultiplierDetail,
+  SkillMultiplierSourceDetail,
 } from '@/data/types';
 import { isEnemyEffect } from '@/data/types';
 import type {
@@ -32,6 +34,7 @@ import type {
 import type { SimulationContext } from '@/simulation/engine/SimulationContext';
 import { resolveEffectDefaults, resolveEffectLifecycle } from '@/data/effectPresets';
 import type { ResolvedAction, ActorStats } from '@/simulation/compiler/types';
+import { isUltimateLikeAction } from '@/simulation/compiler/types';
 import { computeScalingBasis } from '@/data/stats';
 import { computeStats } from '@/data/stats/computeStats';
 import { resolveStatAttributes } from '@/data/collect';
@@ -278,29 +281,37 @@ export function evaluateEffectCondition(
     return (ctx.getAction(actionId)?.consumedStacks?.link ?? 0) > 0;
   }
   if (cond.kind === 'comboNotOnCooldown') {
-    const actions = ctx.getAllActions();
-    // Find the last combo action on this track (descending by start time)
-    let lastCombo: ResolvedAction | undefined;
-    for (let i = actions.length - 1; i >= 0; i--) {
-      const a = actions[i]!;
+    return ctx.getComboCooldownState(sourceTrackId, time) === null;
+  }
+  if (cond.kind === 'ultimateCooldownReady') {
+    let lastUltimate: ResolvedAction | undefined;
+    for (const action of ctx.getAllActions()) {
       if (
-        a.trackId === sourceTrackId &&
-        a.node.type === 'comboSkill' &&
-        !a.node.isDisabled &&
-        a.realStartTime <= time
+        action.id === actionId ||
+        action.trackId !== sourceTrackId ||
+        !isUltimateLikeAction(action.node) ||
+        action.node.isDisabled ||
+        action.realStartTime > time
       ) {
-        if (!lastCombo || a.realStartTime > lastCombo.realStartTime) lastCombo = a;
+        continue;
+      }
+      if (!lastUltimate || action.realStartTime > lastUltimate.realStartTime) {
+        lastUltimate = action;
       }
     }
-    if (!lastCombo) return true;
-    const startTime = lastCombo.realStartTime;
-    const cd = lastCombo.node.cooldown ?? 0;
-    const cdReduction = ctx.state.getActor(sourceTrackId).getCdReduction(lastCombo.id);
-    const cooldownEnd = startTime + cd - cdReduction;
-    return time >= cooldownEnd;
+    if (!lastUltimate) return true;
+
+    const cooldown = Number(lastUltimate.node.cooldown) || 0;
+    if (cooldown <= 0) return true;
+    const cooldownStart = ctx.getActionCooldownStart(lastUltimate);
+    const reduction = ctx.state.getActor(sourceTrackId).getCdReduction(lastUltimate.id);
+    return time >= cooldownStart + Math.max(0, cooldown - reduction) - 1e-6;
   }
   if (cond.kind === 'ultimateEnhancement') {
     return ctx.isUltimateEnhancementActive(sourceTrackId, time);
+  }
+  if (cond.kind === 'skillCooldownReady') {
+    return ctx.getSkillCooldownEnd(sourceTrackId, cond.cooldownKey, time) <= time;
   }
   if (cond.kind === 'enemyStaggered') {
     return ctx.state.enemy.isBroken(time);
@@ -332,14 +343,16 @@ export function scheduleConsumption(
   ctx: SimulationContext,
   skillType?: string,
   skillId?: string,
+  actionId?: string,
 ): void {
   if (Array.isArray(condition)) {
-    for (const c of condition) scheduleConsumption(c, time, sourceId, ctx, skillType, skillId);
+    for (const c of condition)
+      scheduleConsumption(c, time, sourceId, ctx, skillType, skillId, actionId);
     return;
   }
   if (condition.kind === 'or') {
     for (const c of condition.conditions)
-      scheduleConsumption(c, time, sourceId, ctx, skillType, skillId);
+      scheduleConsumption(c, time, sourceId, ctx, skillType, skillId, actionId);
     return;
   }
   if (condition.kind === 'enemyStatus') {
@@ -376,7 +389,7 @@ export function scheduleConsumption(
               sourceId,
               sourceSkillType: skillType,
               sourceSkillId: skillId,
-              actionId: matchingEntry?.actionId,
+              actionId: actionId ?? matchingEntry?.actionId,
               ...(stacksToConsume !== undefined && { stacksToConsume }),
             } as EnemyEffectExpireEvent,
             3,
@@ -413,6 +426,7 @@ export function scheduleConsumption(
               sourceId,
               sourceSkillType: skillType,
               sourceSkillId: skillId,
+              actionId,
               ...(stacksToConsume !== undefined && { stacksToConsume }),
             } as EnemyEffectExpireEvent,
             3,
@@ -430,6 +444,7 @@ export function scheduleConsumption(
               sourceId,
               sourceSkillType: skillType,
               sourceSkillId: skillId,
+              actionId,
             } as EnemyEffectExpireEvent,
             3,
           );
@@ -447,6 +462,7 @@ export function scheduleConsumption(
               sourceId,
               sourceSkillType: skillType,
               sourceSkillId: skillId,
+              actionId,
             } as EnemyEffectExpireEvent,
             3,
           );
@@ -467,7 +483,7 @@ export function scheduleConsumption(
               sourceId,
               sourceSkillType: skillType,
               sourceSkillId: skillId,
-              actionId: match.entry.actionId,
+              actionId: actionId ?? match.entry.actionId,
               ...(stacksToConsume !== undefined && { stacksToConsume }),
             } as EnemyEffectExpireEvent,
             3,
@@ -565,6 +581,8 @@ function applyResolvedScalingStatic(
   for (const term of scaling.additive ?? []) {
     if (typeof term === 'number') {
       additiveSum += term;
+    } else if ('value' in term) {
+      additiveSum += term.value;
     } else if ('basis' in term && attrs) {
       additiveSum +=
         computeScalingBasis(term.basis as string | string[], attrs) * (term.coefficient as number);
@@ -582,19 +600,13 @@ function applyResolvedScalingStatic(
  * Extract the EffectTargetScope from any effect that may carry a `target` field.
  * Handles both shorthand (`target: 'self'`) and object (`target: { scope: 'self' }`) forms.
  */
-function getEffectTargetScope(effect: Effect | ResolvedEffect): EffectTargetScope | undefined {
-  const raw = (effect as { target?: EffectTarget }).target;
-  if (raw === undefined) return undefined;
-  return typeof raw === 'string' ? raw : raw.scope;
-}
-
 /**
  * Extract the full EffectTarget from any effect type that may carry one.
  * Normalizes the shorthand string form to an object.
  */
 export function getEffectTarget(
   effect: Effect | ResolvedEffect,
-): { scope: EffectTargetScope; classes?: string[] } | undefined {
+): { scope: EffectTargetScope; classes?: string[]; elements?: string[] } | undefined {
   const raw = (effect as { target?: EffectTarget }).target;
   if (raw === undefined) return undefined;
   return typeof raw === 'string' ? { scope: raw } : raw;
@@ -610,15 +622,38 @@ export function getEffectTarget(
  *                       (scope:'owner' target). Falls back to selfTrackId when omitted.
  * @param elementByTrackId – optional map of trackId→element for teamExcludeSameElement scope
  */
+export interface TargetResolutionContext {
+  selfTrackId: string;
+  allTrackIds: readonly string[];
+  ownerTrackId?: string;
+  elementByTrackId?: ReadonlyMap<string, string | undefined>;
+  classByTrackId?: ReadonlyMap<string, string | undefined>;
+  controlledTrackId?: string | null;
+  recipientTrackIds?: readonly string[];
+}
+
 export function resolveTargetTrackIds(
   effect: Effect | ResolvedEffect,
-  selfTrackId: string,
-  allTrackIds: readonly string[],
-  ownerTrackId?: string,
-  elementByTrackId?: ReadonlyMap<string, string | undefined>,
-  controlledTrackId?: string | null,
+  rc: TargetResolutionContext,
 ): string[] {
-  const scope = getEffectTargetScope(effect) ?? 'self';
+  const target = getEffectTarget(effect);
+  const tracks = resolveScopeTrackIds(target?.scope ?? 'self', rc);
+  // classes/elements narrow the resolved list for every scope. Empty/omitted = no filter;
+  // a track with an unknown class/element never matches a non-empty filter.
+  const byClass = target?.classes?.length
+    ? tracks.filter(id => matchesFilter(rc.classByTrackId?.get(id), target.classes!))
+    : tracks;
+  return target?.elements?.length
+    ? byClass.filter(id => matchesFilter(rc.elementByTrackId?.get(id), target.elements!))
+    : byClass;
+}
+
+function matchesFilter(value: string | undefined, allowed: readonly string[]): boolean {
+  return value !== undefined && allowed.includes(value);
+}
+
+function resolveScopeTrackIds(scope: EffectTargetScope, rc: TargetResolutionContext): string[] {
+  const { selfTrackId, allTrackIds, ownerTrackId, elementByTrackId, controlledTrackId } = rc;
   switch (scope) {
     case 'self':
       return [selfTrackId];
@@ -636,6 +671,10 @@ export function resolveTargetTrackIds(
         id => id !== selfTrackId && elementByTrackId?.get(id) !== selfElement,
       ) as string[];
     }
+    case 'statusRecipients':
+      return rc.recipientTrackIds ? [...rc.recipientTrackIds] : [];
+    case 'statusRecipientsExcludeSelf':
+      return rc.recipientTrackIds ? rc.recipientTrackIds.filter(id => id !== selfTrackId) : [];
     case 'enemy':
       return [];
     default:
@@ -654,13 +693,13 @@ export function resolveConsumeTrackIds(
   ctx: SimulationContext,
 ): string[] {
   if (!target) return [sourceTrackId];
-  return resolveTargetTrackIds(
-    { target } as unknown as Effect,
-    sourceTrackId,
-    ctx.allTrackIds,
-    sourceTrackId,
-    ctx.elementByTrackId,
-  );
+  return resolveTargetTrackIds({ target } as unknown as Effect, {
+    selfTrackId: sourceTrackId,
+    allTrackIds: ctx.allTrackIds,
+    ownerTrackId: sourceTrackId,
+    elementByTrackId: ctx.elementByTrackId,
+    classByTrackId: ctx.classByTrackId,
+  });
 }
 
 // ─── Shared dispatch helpers ────────────────────────────────────────────────
@@ -678,63 +717,162 @@ export function applyResolvedScaling(
   ctx: SimulationContext,
   enemySnap?: EnemyStatusSnapshot,
   preConsumeOpStacks?: Map<string, number>,
+  actionId?: string,
 ): number {
-  // Sum additive terms separately so cap applies to additive portion only
-  let additiveSum = 0;
-  let liveAttrs: Attributes | undefined;
-  for (const term of scaling.additive ?? []) {
-    if (typeof term === 'number') {
-      additiveSum += term;
-    } else if ('basis' in term) {
-      if (liveAttrs === undefined) {
-        const baseStats = ctx.getBaseStats(sourceTrackId);
-        if (baseStats) {
-          const activeEntries = ctx.getOperatorEffects(sourceTrackId).getActiveEntries(time);
-          const dynamicMods: ResolvedStatModifier[] = [];
-          for (const entry of activeEntries) {
-            if (!entry.stat) continue;
-            dynamicMods.push({
-              stat: entry.stat,
-              value: entry.value * entry.stacks,
-              external: entry.external,
-            });
+  return resolveResolvedScalingValue(
+    base,
+    scaling,
+    sourceTrackId,
+    time,
+    ctx,
+    enemySnap,
+    preConsumeOpStacks,
+    undefined,
+    actionId,
+  );
+}
+
+export function applyResolvedScalingWithDetail(
+  base: number,
+  scaling: ResolvedScalingDef,
+  sourceTrackId: string,
+  time: number,
+  ctx: SimulationContext,
+  enemySnap?: EnemyStatusSnapshot,
+  preConsumeOpStacks?: Map<string, number>,
+  actionId?: string,
+): { value: number; detail: SkillMultiplierDetail } {
+  const sources: SkillMultiplierSourceDetail[] = [];
+  const value = resolveResolvedScalingValue(
+    base,
+    scaling,
+    sourceTrackId,
+    time,
+    ctx,
+    enemySnap,
+    preConsumeOpStacks,
+    sources,
+    actionId,
+  );
+  return { value, detail: { base, sources } };
+}
+
+function resolveResolvedScalingValue(
+  base: number,
+  scaling: ResolvedScalingDef,
+  sourceTrackId: string,
+  time: number,
+  ctx: SimulationContext,
+  enemySnap?: EnemyStatusSnapshot,
+  preConsumeOpStacks?: Map<string, number>,
+  sources?: SkillMultiplierSourceDetail[],
+  actionId?: string,
+): number {
+  return applyScalingLevel(base, scaling, false);
+
+  function applyScalingLevel(
+    initialValue: number,
+    levelScaling: ResolvedScalingDef,
+    conditional: boolean,
+  ): number {
+    // Sum additive terms separately so cap applies to additive portion only.
+    let additiveSum = 0;
+    let liveAttrs: Attributes | undefined;
+    for (const term of levelScaling.additive ?? []) {
+      if (typeof term === 'number') {
+        additiveSum += term;
+        sources?.push({ kind: 'fixed', value: term });
+      } else if ('value' in term) {
+        additiveSum += term.value;
+        sources?.push({
+          kind: 'fixed',
+          value: term.value,
+          sourceLabel: term.sourceLabel,
+        });
+      } else if ('basis' in term) {
+        if (liveAttrs === undefined) {
+          const baseStats = ctx.getBaseStats(sourceTrackId);
+          if (baseStats) {
+            const activeEntries = ctx.getOperatorEffects(sourceTrackId).getActiveEntries(time);
+            const dynamicMods: ResolvedStatModifier[] = [];
+            for (const entry of activeEntries) {
+              if (!entry.stat) continue;
+              dynamicMods.push({
+                stat: entry.stat,
+                value: entry.value * entry.stacks,
+                external: entry.external,
+              });
+            }
+            liveAttrs = computeStats(baseStats, [], dynamicMods).attributes;
+          } else {
+            liveAttrs = { strength: 0, agility: 0, intellect: 0, will: 0 };
           }
-          liveAttrs = computeStats(baseStats, [], dynamicMods).attributes;
-        } else {
-          liveAttrs = { strength: 0, agility: 0, intellect: 0, will: 0 };
         }
+        const basisValue = computeScalingBasis(term.basis as string | string[], liveAttrs);
+        const contribution = basisValue * term.coefficient;
+        additiveSum += contribution;
+        sources?.push({
+          kind: 'attribute',
+          value: contribution,
+          sourceLabel: term.sourceLabel,
+          basis: term.basis,
+          basisValue,
+          coefficient: term.coefficient,
+        });
+      } else if ('key' in term) {
+        const stackCount =
+          term.target === 'enemy'
+            ? ((enemySnap ? getEnemyStatus(term.key, enemySnap, time).stacks : 0) ?? 0)
+            : term.target === 'action'
+              ? ((actionId ? ctx.getAction(actionId)?.consumedStacks?.[term.key] : 0) ?? 0)
+              : (preConsumeOpStacks?.get(term.key) ??
+                ctx.getOperatorEffects(sourceTrackId).getStacks(term.key, time));
+        additiveSum += term.coefficient * stackCount;
+        sources?.push({
+          kind: 'stack',
+          value: term.coefficient * stackCount,
+          sourceLabel: term.sourceLabel,
+          key: term.key,
+          stacks: stackCount,
+          coefficient: term.coefficient,
+        });
       }
-      additiveSum +=
-        computeScalingBasis(term.basis as string | string[], liveAttrs) * term.coefficient;
-    } else if ('key' in term) {
-      const stackCount =
-        term.target === 'enemy'
-          ? ((enemySnap ? getEnemyStatus(term.key, enemySnap, time).stacks : 0) ?? 0)
-          : (preConsumeOpStacks?.get(term.key) ??
-            ctx.getOperatorEffects(sourceTrackId).getStacks(term.key, time));
-      additiveSum += term.coefficient * stackCount;
     }
-  }
-  if (scaling.cap !== undefined) additiveSum = Math.min(additiveSum, scaling.cap);
-  let value = base + additiveSum;
-  for (const m of scaling.multiplier ?? []) {
-    value *= m;
-  }
-  if (scaling.conditionalScaling !== undefined) {
-    const { condition, scaling: condScaling } = scaling.conditionalScaling;
-    if (evaluateEffectCondition(condition, time, sourceTrackId, ctx, enemySnap)) {
-      value = applyResolvedScaling(
-        value,
-        condScaling,
-        sourceTrackId,
-        time,
-        ctx,
-        enemySnap,
-        preConsumeOpStacks,
-      );
+    if (levelScaling.cap !== undefined) additiveSum = Math.min(additiveSum, levelScaling.cap);
+    let value = initialValue + additiveSum;
+    for (const m of levelScaling.multiplier ?? []) {
+      value *= m;
+      sources?.push({ kind: 'postMultiplier', value: m, conditional });
     }
+    if (levelScaling.conditionalScaling !== undefined) {
+      const { condition, scaling: condScaling } = levelScaling.conditionalScaling;
+      if (evaluateEffectCondition(condition, time, sourceTrackId, ctx, enemySnap)) {
+        value = applyScalingLevel(value, condScaling, true);
+      }
+    }
+    return value;
   }
-  return value;
+}
+
+function divideSkillMultiplierDetail(
+  detail: SkillMultiplierDetail,
+  divisor: number,
+): SkillMultiplierDetail {
+  if (divisor <= 1) return detail;
+  return {
+    base: detail.base / divisor,
+    sources: detail.sources.map(source =>
+      source.kind === 'postMultiplier'
+        ? source
+        : {
+            ...source,
+            value: source.value / divisor,
+            ...(source.coefficient !== undefined
+              ? { coefficient: source.coefficient / divisor }
+              : {}),
+          },
+    ),
+  };
 }
 
 /**
@@ -794,7 +932,7 @@ export function dispatchEnemyEffects(
     const cond = (resolved as { condition?: EffectCondition | EffectCondition[] }).condition;
     if (!evaluateEffectCondition(cond, time, sourceId, ctx, undefined, actionId)) continue;
     if (cond && conditionHasConsume(cond))
-      scheduleConsumption(cond, time, sourceId, ctx, skillType, skillId);
+      scheduleConsumption(cond, time, sourceId, ctx, skillType, skillId, actionId);
     const lifecycle = resolveEffectLifecycle(resolved);
     switch (resolved.kind) {
       case 'infliction':
@@ -892,6 +1030,9 @@ export function dispatchEnemyEffects(
             actionId,
             icon: resolved.icon,
             effect: resolved,
+            ...(consumedStacks !== undefined && enemySnap
+              ? { scalingEnemySnapshot: enemySnap }
+              : {}),
             ...(ctx.consumedStacksWriteKeys.has(baseEffectId) && actionId
               ? { consumedStacks: ctx.getAction(actionId)?.consumedStacks }
               : {}),
@@ -985,9 +1126,19 @@ export function scheduleDotTicks(
   }
 
   // Resolve multiplier with scaling
-  const finalMultiplier = r.multiplierScaling
-    ? applyResolvedScaling(r.multiplier, r.multiplierScaling, sourceTrackId, time, ctx)
-    : r.multiplier;
+  const multiplierResolution: { value: number; detail?: SkillMultiplierDetail } =
+    r.multiplierScaling
+      ? applyResolvedScalingWithDetail(
+          r.multiplier,
+          r.multiplierScaling,
+          sourceTrackId,
+          time,
+          ctx,
+          undefined,
+          undefined,
+          sourceActionId,
+        )
+      : { value: r.multiplier };
 
   // Compute tick count and per-tick multiplier
   const tickCount = r.skipFirstTick
@@ -995,7 +1146,13 @@ export function scheduleDotTicks(
     : Math.floor(duration / r.interval) + 1;
 
   const tickMultiplier =
-    r.multiplierMode === 'split' && tickCount > 0 ? finalMultiplier / tickCount : finalMultiplier;
+    r.multiplierMode === 'split' && tickCount > 0
+      ? multiplierResolution.value / tickCount
+      : multiplierResolution.value;
+  const multiplierDetail =
+    multiplierResolution.detail && r.multiplierMode === 'split' && tickCount > 0
+      ? divideSkillMultiplierDetail(multiplierResolution.detail, tickCount)
+      : multiplierResolution.detail;
 
   // Inherit consumed stacks and stat effects from the source action (if any),
   // and merge in any effect-level consumedStatEffects baked into the DoT definition.
@@ -1021,6 +1178,7 @@ export function scheduleDotTicks(
           effectId,
           element: r.element,
           multiplier: tickMultiplier,
+          multiplierDetail,
           // By default a DoT tick is skill-type-agnostic (skill-type-scoped mods + link don't apply),
           // mirroring reaction damage. An effect may opt in via `skillType` to have its ticks treated
           // as that skill's damage (e.g. tangtang's ultimate DoT → inherits ult-scoped buffs + link).
@@ -1103,7 +1261,7 @@ export interface EffectDispatchContext {
   /** Duration override for duringAction triggers. */
   durationOverride?: number;
   /** Forward into OPERATOR_EFFECT_APPLY for duringAction runtime extension. */
-  statusActionId?: string;
+  durationActionId?: string;
   /** Override triggeredBy on DAMAGE_HIT. Defaults to resolved.name ?? resolved.id. */
   triggeredByOverride?: string;
   /** Pre-resolved consumedStacks for damageHit readConsumedStacks (trigger-only). */
@@ -1115,6 +1273,7 @@ export interface EffectDispatchContext {
     targetTrackId: string,
     ctx: SimulationContext,
   ) => void;
+  recipientTrackIds?: readonly string[];
   /** Callback for zero-duration status heals (fires onStatusApplied signal). */
   onInstantHeal?: (
     id: string,
@@ -1122,6 +1281,7 @@ export interface EffectDispatchContext {
     sourceTrackId: string,
     time: number,
     skillType?: string,
+    recipientTrackIds?: readonly string[],
   ) => void;
 }
 
@@ -1143,16 +1303,28 @@ export function dispatchSingleActorEffect(
   const ownerTrackId = dc.ownerTrackId ?? sourceTrackId;
   const controlledTrackId = ctx.getControlledOperatorAt?.(time) ?? null;
 
+  const targetCtx: TargetResolutionContext = {
+    selfTrackId,
+    allTrackIds: ctx.allTrackIds,
+    ownerTrackId,
+    elementByTrackId: ctx.elementByTrackId,
+    classByTrackId: ctx.classByTrackId,
+    controlledTrackId,
+    recipientTrackIds: dc.recipientTrackIds,
+  };
+  const resolveTargets = (e: Effect | ResolvedEffect) => resolveTargetTrackIds(e, targetCtx);
+
+  if (resolved.kind === 'skillCooldown') {
+    const duration = resolveEffectLifecycle(resolved).duration;
+    for (const targetId of resolveTargets(resolved)) {
+      ctx.applySkillCooldown(targetId, resolved.cooldownKey, time, duration, actionId, skillId);
+    }
+    return;
+  }
+
   // ── cooldownReduction ──────────────────────────────────────────────────
   if (resolved.kind === 'cooldownReductionFlat' || resolved.kind === 'cooldownReductionPercent') {
-    const targets = resolveTargetTrackIds(
-      resolved,
-      selfTrackId,
-      ctx.allTrackIds,
-      ownerTrackId,
-      ctx.elementByTrackId,
-      controlledTrackId,
-    );
+    const targets = resolveTargets(resolved);
     for (const targetId of targets) {
       dc.applyCooldownReduction?.(resolved as any, time, targetId, ctx);
     }
@@ -1174,15 +1346,9 @@ export function dispatchSingleActorEffect(
         ctx,
         enemySnap,
         preConsumeOpStacks,
+        actionId,
       );
-    const targets = resolveTargetTrackIds(
-      resolved,
-      selfTrackId,
-      ctx.allTrackIds,
-      ownerTrackId,
-      ctx.elementByTrackId,
-      controlledTrackId,
-    );
+    const targets = resolveTargets(resolved);
     const oneTimeDuration = resolveEffectLifecycle(resolved).duration;
     const expiresAt =
       oneTimeDuration > 0
@@ -1225,17 +1391,20 @@ export function dispatchSingleActorEffect(
   if (resolved.kind === 'damageHit') {
     const r = resolved as ResolvedDamageHitEffect;
     const effectId = getRuntimeEffectId(resolved);
-    let finalMultiplier = r.multiplierScaling
-      ? applyResolvedScaling(
-          r.multiplier,
-          r.multiplierScaling,
-          sourceTrackId,
-          time,
-          ctx,
-          enemySnap,
-          preConsumeOpStacks,
-        )
-      : r.multiplier;
+    const multiplierResolution: { value: number; detail?: SkillMultiplierDetail } =
+      r.multiplierScaling
+        ? applyResolvedScalingWithDetail(
+            r.multiplier,
+            r.multiplierScaling,
+            sourceTrackId,
+            time,
+            ctx,
+            enemySnap,
+            preConsumeOpStacks,
+            actionId,
+          )
+        : { value: r.multiplier };
+    let finalMultiplier = multiplierResolution.value;
 
     // Scale multiplier by operator's live crit rate at dispatch time
     let critRateScale: number | undefined;
@@ -1267,6 +1436,7 @@ export function dispatchSingleActorEffect(
           ctx,
           enemySnap,
           preConsumeOpStacks,
+          actionId,
         )
       : (r.hit?.stagger ?? 0);
     const parentAction = actionId ? ctx.getAction(actionId) : undefined;
@@ -1283,6 +1453,7 @@ export function dispatchSingleActorEffect(
             offset: 0,
             element: r.element,
             multiplier: finalMultiplier,
+            _multiplierDetail: multiplierResolution.detail,
             spRecovery: r.hit?.spRecovery ?? 0,
             spReturn: r.hit?.spReturn ?? 0,
             stagger: finalStagger,
@@ -1292,6 +1463,7 @@ export function dispatchSingleActorEffect(
             time: hitTime,
             triggered: true,
             triggeredBy: dc.triggeredByOverride ?? resolved.name ?? effectId,
+            canTriggerOnHit: r.canTriggerOnHit === true,
             skillType,
             consumedStacks: dc.hitConsumedStacks ?? parentAction?.consumedStacks,
             consumedStatEffects: parentAction?.consumedStatEffects,
@@ -1322,14 +1494,7 @@ export function dispatchSingleActorEffect(
   // ── spRecovery / spReturn ──────────────────────────────────────────────
   if (resolved.kind === 'spRecovery' || resolved.kind === 'spReturn') {
     const effectId = getRuntimeEffectId(resolved);
-    const targets = resolveTargetTrackIds(
-      resolved,
-      selfTrackId,
-      ctx.allTrackIds,
-      ownerTrackId,
-      ctx.elementByTrackId,
-      controlledTrackId,
-    );
+    const targets = resolveTargets(resolved);
     const spEff = resolved as ResolvedSpGainEffect | ResolvedSpReturnEffect;
     const gain = spEff.scaling
       ? applyResolvedScaling(
@@ -1340,6 +1505,7 @@ export function dispatchSingleActorEffect(
           ctx,
           enemySnap,
           preConsumeOpStacks,
+          actionId,
         )
       : spEff.value;
     if (gain > 0) {
@@ -1366,14 +1532,7 @@ export function dispatchSingleActorEffect(
   // ── ultEnergyGain ──────────────────────────────────────────────────────
   if (resolved.kind === 'ultEnergyGain') {
     const effectId = getRuntimeEffectId(resolved);
-    const targets = resolveTargetTrackIds(
-      resolved,
-      selfTrackId,
-      ctx.allTrackIds,
-      ownerTrackId,
-      ctx.elementByTrackId,
-      controlledTrackId,
-    );
+    const targets = resolveTargets(resolved);
     const ue = resolved as ResolvedUltimateEnergyGainEffect;
     const gain = ue.scaling
       ? applyResolvedScaling(
@@ -1384,6 +1543,7 @@ export function dispatchSingleActorEffect(
           ctx,
           enemySnap,
           preConsumeOpStacks,
+          actionId,
         )
       : ue.value;
     if (gain > 0) {
@@ -1405,14 +1565,7 @@ export function dispatchSingleActorEffect(
 
   // ── status ─────────────────────────────────────────────────────────────
   if (resolved.kind === 'status') {
-    const targets = resolveTargetTrackIds(
-      resolved,
-      selfTrackId,
-      ctx.allTrackIds,
-      ownerTrackId,
-      ctx.elementByTrackId,
-      controlledTrackId,
-    );
+    const targets = resolveTargets(resolved);
     const lifecycle = resolveEffectLifecycle(resolved);
     const duration =
       dc.durationOverride !== undefined
@@ -1421,12 +1574,14 @@ export function dispatchSingleActorEffect(
 
     if (duration <= 0) {
       if (resolved.stat?.modifier === 'heal' && !resolved.silent) {
+        // A duration-0 heal is never stored, so `targets` is the only record of who was healed.
         dc.onInstantHeal?.(
           getRuntimeEffectId(resolved),
           resolved.stat,
           sourceTrackId,
           time,
           skillType,
+          targets,
         );
       }
       return;
@@ -1440,6 +1595,14 @@ export function dispatchSingleActorEffect(
           resolveConsumeTargetStacks(resolved.condition, sourceTrackId, time, ctx))
         : baseStacks;
 
+    if (resolved.stacks === 'fromConsume' && actionId) {
+      const sourceAction = ctx.getAction(actionId);
+      if (sourceAction) {
+        if (!sourceAction.consumedStacks) sourceAction.consumedStacks = {};
+        sourceAction.consumedStacks[effectId] = stacks;
+      }
+    }
+
     let value = typeof resolved.value === 'number' ? resolved.value : 0;
     if (resolved.stat && resolved.scaling)
       value = applyResolvedScaling(
@@ -1450,6 +1613,7 @@ export function dispatchSingleActorEffect(
         ctx,
         enemySnap,
         preConsumeOpStacks,
+        actionId,
       );
 
     for (const targetId of targets) {
@@ -1479,7 +1643,8 @@ export function dispatchSingleActorEffect(
           sourceSkillType: skillType,
           sourceSkillId: skillId,
           stackStrategy: lifecycle.stackStrategy,
-          actionId: dc.statusActionId,
+          actionId,
+          durationActionId: dc.durationActionId,
           ...(ctx.consumedStacksWriteKeys.has(effectId) && actionId
             ? { consumedStacks: ctx.getAction(actionId)?.consumedStacks }
             : {}),
@@ -1529,7 +1694,15 @@ export function dispatchActorEffects(
     if (!evaluateEffectCondition(cond, dc.time, dc.sourceTrackId, dc.ctx, undefined, dc.actionId))
       continue;
     if (cond && conditionHasConsume(cond))
-      scheduleConsumption(cond, dc.time, dc.sourceTrackId, dc.ctx, dc.skillType, dc.skillId);
+      scheduleConsumption(
+        cond,
+        dc.time,
+        dc.sourceTrackId,
+        dc.ctx,
+        dc.skillType,
+        dc.skillId,
+        dc.actionId,
+      );
 
     if (resolved.kind === 'consume') {
       dispatchConsumeEffect(

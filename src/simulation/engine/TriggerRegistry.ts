@@ -9,7 +9,12 @@ import type {
 import type { ResolvedAction } from '@/simulation/compiler/types';
 import { isEnemyEffect } from '@/data/types';
 import type { SimulationContext } from './SimulationContext';
-import type { SpChangeEvent, HitEvent, ActionStartEvent, SimEvent } from '@/simulation/events/event.types';
+import type {
+  SpChangeEvent,
+  HitEvent,
+  ActionStartEvent,
+  SimEvent,
+} from '@/simulation/events/event.types';
 import type { EnemyStatusSnapshot } from '@/simulation/engine/types';
 import { resolveEffectDefaults } from '@/data/effectPresets';
 import {
@@ -116,16 +121,19 @@ export class TriggerRegistry {
     }
   }
 
-  onHit(event: HitEvent, ctx: SimulationContext): void {
+  onHit(event: HitEvent, ctx: SimulationContext, timing: 'beforeDamage' | 'afterDamage'): void {
     const actorId = event.payload.sourceId;
     // Skip reaction damage — reactions are not direct skill hits
     if ((event.payload.hitData as any)._reactionMeta) return;
-    if ((event.payload.hitData as any).triggered) return;
+    if ((event.payload.hitData as any).triggered && !(event.payload.hitData as any).canTriggerOnHit)
+      return;
     for (const entry of this.entries) {
       if (!this.matchesScope(entry, actorId)) continue;
       const { trigger } = entry.triggerEffect;
       if (trigger.kind !== 'onHit') continue;
       const t = trigger as Extract<TriggerEvent, { kind: 'onHit' }>;
+      const triggerTiming = t.timing === 'beforeDamage' ? 'beforeDamage' : 'afterDamage';
+      if (triggerTiming !== timing) continue;
       if (t.skillTypes || t.skillId) {
         const action = ctx.getAction(event.payload.actionId);
         if (!action) continue;
@@ -362,6 +370,8 @@ export class TriggerRegistry {
     skillId?: string,
     cumulativeStacks?: number,
     actionId?: string,
+    /** Tracks that RECEIVED this status (operator side only; omitted elsewhere). */
+    recipientTrackIds?: readonly string[],
   ): void {
     for (const entry of this.entries) {
       if (!this.matchesScope(entry, actorId)) continue;
@@ -391,6 +401,7 @@ export class TriggerRegistry {
         undefined,
         undefined,
         skillId,
+        recipientTrackIds,
       );
     }
   }
@@ -511,13 +522,17 @@ export class TriggerRegistry {
      *  downstream OPERATOR_EFFECT_APPLY / ENEMY_EFFECT_APPLY events as `sourceSkillId` so that
      *  onStatusApplied triggers with a `skillId:` filter on the applied status match correctly. */
     sourceSkillId?: string,
+    /** onStatusApplied only: tracks that received the triggering status. */
+    recipientTrackIds?: readonly string[],
   ): void {
     const enemySnap = preComputedEnemySnap ?? ctx.state.enemy.statusSnapshot();
     const selfTrackId = triggeringTrackId ?? sourceTrackId;
     for (const effect of effects) {
       const resolved = resolveEffectDefaults(effect);
 
-      // ICD check (trigger-specific — hit-attached effects don't have ICD)
+      // ICD check (trigger-specific — hit-attached effects don't have ICD).
+      // Keyed per source, not per target: one fire fans out to all recipients atomically, so
+      // this equals a per-target ICD unless two applies in-window hit disjoint recipient sets.
       if (resolved.icd !== undefined && resolved.icd > 0) {
         const key = resolved.icdGroup ?? `${sourceTrackId}:${resolved.id!}`;
         const last = this.lastFire.get(key) ?? -Infinity;
@@ -536,7 +551,15 @@ export class TriggerRegistry {
       // Schedule consumption if the condition (or any element of a compound condition) has consume.
       const cond = resolved.condition;
       if (conditionHasConsume(cond)) {
-        scheduleConsumption(cond!, time, sourceTrackId, ctx, sourceSkillType, sourceSkillId);
+        scheduleConsumption(
+          cond!,
+          time,
+          sourceTrackId,
+          ctx,
+          sourceSkillType,
+          sourceSkillId,
+          actionId,
+        );
       }
 
       if (resolved.kind === 'consume') {
@@ -601,12 +624,26 @@ export class TriggerRegistry {
         consumedStacks,
         preConsumeOpStacks,
         durationOverride,
-        statusActionId: actionId,
+        durationActionId: durationOverride !== undefined ? actionId : undefined,
         hitConsumedStacks,
         triggeredByOverride,
+        recipientTrackIds,
         applyCooldownReduction: (eff, t, tid, c) => this.applyCooldownReduction(eff, t, tid, c),
-        onInstantHeal: (id, stat, src, t, st) =>
-          this.onStatusApplied(id, stat, 'self', src, t, ctx, st, sourceSkillId),
+        // Distinct name: a chained heal must report its OWN targets, not inherit this list.
+        onInstantHeal: (id, stat, src, t, st, healRecipients) =>
+          this.onStatusApplied(
+            id,
+            stat,
+            'self',
+            src,
+            t,
+            ctx,
+            st,
+            sourceSkillId,
+            undefined,
+            undefined,
+            healRecipients,
+          ),
       });
     }
   }
@@ -615,6 +652,7 @@ export class TriggerRegistry {
     effect: {
       kind: 'cooldownReductionFlat' | 'cooldownReductionPercent';
       value: number;
+      percentBasis?: 'base' | 'remaining';
       skillTypes?: any;
       skillId?: any;
     },
@@ -625,10 +663,44 @@ export class TriggerRegistry {
     const rawValue = typeof effect.value === 'number' ? effect.value : 0;
     if (rawValue <= 0) return;
 
+    const comboState = ctx.getReducibleComboCooldownState(targetTrackId, time);
+    const matchesComboType =
+      !effect.skillTypes || passesSkillFilter(effect.skillTypes, 'comboSkill');
+    const matchesComboSkill =
+      !effect.skillId ||
+      (comboState?.sourceSkillId && passesSkillFilter(effect.skillId, comboState.sourceSkillId));
+    if (comboState && matchesComboType && matchesComboSkill) {
+      const requested =
+        effect.kind === 'cooldownReductionFlat'
+          ? rawValue
+          : ((effect.percentBasis === 'remaining'
+              ? comboState.end - time
+              : comboState.baseDuration) *
+              rawValue) /
+            100;
+      const reduction = ctx.reduceComboCooldown(targetTrackId, time, requested);
+      if (reduction > 0) {
+        ctx.state.getActor(targetTrackId).recordCdReduction(comboState.sourceActionId, reduction);
+        ctx.simLog({
+          type: 'CD_REDUCTION',
+          time,
+          payload: {
+            actorId: targetTrackId,
+            actionId: comboState.sourceActionId,
+            reduction,
+            clearedRemaining: ctx.getReducibleComboCooldownState(targetTrackId, time) === null,
+          },
+        });
+      }
+    }
+
     // Find all actions on the target track that are currently in cooldown and match filters.
     const matchingActions: ResolvedAction[] = [];
     for (const action of ctx.getAllActions()) {
       if (action.trackId !== targetTrackId) continue;
+      if (action.node.type === 'comboSkill' || comboState?.sourceActionId === action.id) {
+        continue;
+      }
       const cd = action.node.cooldown ?? 0;
       if (cd <= 0) continue;
       const cdStart = ctx.getActionCooldownStart(action);

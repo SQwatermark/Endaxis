@@ -130,6 +130,7 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
         ctx.enemyLog(event);
         this.emitReactionDamageHit('artsBurst', 1, event.time, event.sourceId, ctx, {
           triggerElement: event.element,
+          actionId: event.actionId,
         });
         this.registry?.onStatusApplied(
           `${event.element}Burst`,
@@ -245,7 +246,7 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
     ctx: SimulationContext,
   ): void {
     const state = ctx.state.enemy;
-    const { element, time, sourceId, sourceSkillType, sourceSkillId } = event;
+    const { element, time, sourceId, sourceSkillType, sourceSkillId, actionId } = event;
     if (state.hasInflictionBarrier(element, time)) return;
     const stacks = event.stacks ?? 1;
     const duration = event.effectiveDuration;
@@ -287,6 +288,7 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
         element,
         stacks: state.infliction.stacks,
         sourceId,
+        actionId,
         effectiveDuration: duration,
         expiresAt: shiftedExpiry,
       });
@@ -330,11 +332,20 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
         element,
         stacks,
         sourceId,
+        actionId,
         effectiveDuration: duration,
         expiresAt: shiftedExpiry,
       });
       ctx.queue.enqueue(
-        { type: 'ARTS_BURST', time: time + 1, element, sourceId, sourceSkillType, sourceSkillId },
+        {
+          type: 'ARTS_BURST',
+          time: time + 1,
+          element,
+          sourceId,
+          sourceSkillType,
+          sourceSkillId,
+          actionId,
+        },
         1,
       );
       this.registry?.onStatusApplied(
@@ -406,6 +417,7 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
       element,
       stacks,
       sourceId,
+      actionId,
       effectiveDuration: duration,
       triggerOnly: true,
     });
@@ -528,20 +540,17 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
           event.stackStrategy,
         );
         if (hasVuln || forced) {
-          // Only deal damage + stagger when vulnerability was present (not forced without vuln)
-          if (hasVuln) {
-            const ai = this.getSourceArtsIntensity(sourceId, time, ctx);
-            this.emitReactionDamageHit(
-              physicalType as ReactionDamageType,
-              1,
-              time,
-              sourceId,
-              ctx,
-              { actionId },
-              LIFT_KNOCKDOWN_BASE_STAGGER,
-              computeArtsIntensityStaggerMult(ai),
-            );
-          }
+          const ai = this.getSourceArtsIntensity(sourceId, time, ctx);
+          this.emitReactionDamageHit(
+            physicalType as ReactionDamageType,
+            1,
+            time,
+            sourceId,
+            ctx,
+            { actionId },
+            LIFT_KNOCKDOWN_BASE_STAGGER,
+            computeArtsIntensityStaggerMult(ai),
+          );
           this.registry?.onStatusApplied(
             physicalType,
             undefined,
@@ -1261,8 +1270,17 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
   }
 
   private handleDotTick(event: DotTickSimEvent, ctx: SimulationContext): void {
-    const { sourceId, effectId, element, multiplier, skillType, skillId, canCrit, actionId } =
-      event.payload;
+    const {
+      sourceId,
+      effectId,
+      element,
+      multiplier,
+      multiplierDetail,
+      skillType,
+      skillId,
+      canCrit,
+      actionId,
+    } = event.payload;
 
     // Log for projection (diamond markers)
     ctx.enemyLog({ type: 'DOT_TICK', time: event.time, effectId, sourceId });
@@ -1279,6 +1297,7 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
           hitData: {
             offset: 0,
             multiplier,
+            _multiplierDetail: multiplierDetail,
             spRecovery: 0,
             spReturn: 0,
             stagger: 0,
@@ -1473,8 +1492,7 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
     // statuses (e.g. Arcane 阵诀·意 combo susceptibility) get live will/intellect.
     let value = event.value;
     const effect = event.effect as
-      | { value?: number; scaling?: ResolvedScalingDef; stat?: unknown }
-      | undefined;
+      { value?: number; scaling?: ResolvedScalingDef; stat?: unknown } | undefined;
     if (effect?.scaling && effect.stat) {
       const base = typeof effect.value === 'number' ? effect.value : 0;
       value = applyResolvedScaling(
@@ -1483,7 +1501,9 @@ export class EnemyEffectHandler implements EventHandler<EnemyEffectEvents> {
         sourceId,
         time,
         ctx,
-        ctx.state.enemy.statusSnapshot(),
+        event.scalingEnemySnapshot ?? ctx.state.enemy.statusSnapshot(),
+        undefined,
+        actionId,
       );
     }
 

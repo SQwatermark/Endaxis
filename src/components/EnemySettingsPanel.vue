@@ -11,6 +11,9 @@ import { ENEMY_TIERS, ENEMY_TIER_WEIGHT } from '@/utils/theme';
 const store = useTimelineStore();
 const { t, locale } = useI18n({ useScope: 'global' });
 const { enemyDatabase, enemyCategories } = storeToRefs(store);
+const props = defineProps({
+  selectorOnly: { type: Boolean, default: false },
+});
 
 const ENEMY_RESISTANCE_ELEMENTS = ['physical', 'heat', 'cryo', 'electric', 'nature'];
 const ENEMY_LEVELS = [1, 20, 40, 60, 80, 90];
@@ -134,74 +137,90 @@ function selectEnemy(id) {
   isEnemySelectorVisible.value = false;
 }
 
+function openSelector() {
+  isEnemySelectorVisible.value = true;
+}
+
+function closeSelector() {
+  isEnemySelectorVisible.value = false;
+}
+
+defineExpose({
+  openSelector,
+  close: closeSelector,
+  isOpen: () => isEnemySelectorVisible.value,
+});
+
 function setEnemyLevel(level) {
   store.setActiveEnemyLevel(level);
 }
 </script>
 
 <template>
-  <section class="enemy-settings-panel">
-    <button type="button" class="enemy-select-module" @click="isEnemySelectorVisible = true">
-      <div class="module-deco-line"></div>
-      <div class="enemy-avatar-box">
-        <img
-          v-if="!activeEnemyInfo.isCustom"
-          :src="activeEnemyInfo.avatar"
-          @error="e => (e.target.src = '/Endaxis/avatars/default_enemy.webp')"
-        />
-        <div v-else class="custom-avatar-placeholder">?</div>
-        <div class="scan-line"></div>
-      </div>
-      <div class="enemy-info-col">
-        <div class="enemy-name-line">
-          <span class="enemy-name">{{ activeEnemyInfo.name }}</span>
-          <span v-if="!activeEnemyInfo.isCustom" class="enemy-level-badge"
-            >Lv{{ store.activeEnemyLevel }}</span
-          >
+  <section class="enemy-settings-panel" :class="{ 'is-selector-only': props.selectorOnly }">
+    <template v-if="!props.selectorOnly">
+      <button type="button" class="enemy-select-module" @click="openSelector">
+        <div class="module-deco-line"></div>
+        <div class="enemy-avatar-box">
+          <img
+            v-if="!activeEnemyInfo.isCustom"
+            :src="activeEnemyInfo.avatar"
+            @error="e => (e.target.src = '/Endaxis/avatars/default_enemy.webp')"
+          />
+          <div v-else class="custom-avatar-placeholder">?</div>
+          <div class="scan-line"></div>
         </div>
-        <div class="click-hint">{{ t('resourceMonitor.enemy.clickToChange') }}</div>
-      </div>
-    </button>
-
-    <div class="stats-summary">
-      <div class="summary-row">
-        <span class="summary-label">{{ t('resourceMonitor.labels.enemyHp') }}</span>
-        <span class="summary-value">{{ summaryHp.toLocaleString() }}</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">{{ t('resourceMonitor.labels.maxStagger') }}</span>
-        <span class="summary-value">{{ summaryStagger.toLocaleString() }}</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">{{ t('resourceMonitor.labels.staggerNodes') }}</span>
-        <span class="summary-value">{{ summaryStaggerNodes }}</span>
-      </div>
-      <div class="summary-row">
-        <span class="summary-label">{{ t('resourceMonitor.labels.resistanceTitle') }}</span>
-        <span class="summary-value summary-value--res">
-          <template v-for="(item, index) in resistanceSummary" :key="item.key">
-            <span v-if="index > 0" class="res-sep">/</span>
-            <span class="res-value" :style="{ color: item.color }">{{ item.value }}</span>
-          </template>
-        </span>
-      </div>
-      <button
-        type="button"
-        class="ea-btn ea-btn--sm ea-btn--glass-rect stats-edit-btn"
-        @click="isStatsDialogVisible = true"
-      >
-        {{ t('resourceMonitor.enemy.editStats') }}
+        <div class="enemy-info-col">
+          <div class="enemy-name-line">
+            <span class="enemy-name">{{ activeEnemyInfo.name }}</span>
+            <span v-if="!activeEnemyInfo.isCustom" class="enemy-level-badge"
+              >Lv{{ store.activeEnemyLevel }}</span
+            >
+          </div>
+          <div class="click-hint">{{ t('resourceMonitor.enemy.clickToChange') }}</div>
+        </div>
       </button>
-    </div>
 
-    <EditEnemyBaseStatsDialog v-model:visible="isStatsDialogVisible" />
+      <div class="stats-summary">
+        <div class="summary-row">
+          <span class="summary-label">{{ t('resourceMonitor.labels.enemyHp') }}</span>
+          <span class="summary-value">{{ summaryHp.toLocaleString() }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">{{ t('resourceMonitor.labels.maxStagger') }}</span>
+          <span class="summary-value">{{ summaryStagger.toLocaleString() }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">{{ t('resourceMonitor.labels.staggerNodes') }}</span>
+          <span class="summary-value">{{ summaryStaggerNodes }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">{{ t('resourceMonitor.labels.resistanceTitle') }}</span>
+          <span class="summary-value summary-value--res">
+            <template v-for="(item, index) in resistanceSummary" :key="item.key">
+              <span v-if="index > 0" class="res-sep">/</span>
+              <span class="res-value" :style="{ color: item.color }">{{ item.value }}</span>
+            </template>
+          </span>
+        </div>
+        <button
+          type="button"
+          class="ea-btn ea-btn--sm ea-btn--glass-rect stats-edit-btn"
+          @click="isStatsDialogVisible = true"
+        >
+          {{ t('resourceMonitor.enemy.editStats') }}
+        </button>
+      </div>
+
+      <EditEnemyBaseStatsDialog v-model:visible="isStatsDialogVisible" />
+    </template>
 
     <el-dialog
       v-model="isEnemySelectorVisible"
       :title="t('resourceMonitor.enemy.dialogTitle')"
       width="640px"
       align-center
-      class="char-selector-dialog"
+      class="char-selector-dialog enemy-selector-dialog"
       :append-to-body="true"
     >
       <div class="selector-header">
@@ -345,6 +364,10 @@ function setEnemyLevel(level) {
   overflow: hidden;
   background: var(--ea-workbench-panel, #252526);
   color: var(--ea-fg, #f0f0f0);
+}
+
+.enemy-settings-panel.is-selector-only {
+  display: contents;
 }
 
 .enemy-select-module {

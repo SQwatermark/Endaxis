@@ -25,7 +25,7 @@ const sheet: OperatorSheet = {
         {
           trigger: {
             kind: 'onStatusApplied',
-            status: 'solidification',
+            status: ['solidification', 'endministrator-originium-crystals'],
             target: 'enemy',
             triggerScope: 'global',
           },
@@ -321,7 +321,7 @@ const sheet: OperatorSheet = {
                 'electrification',
                 'solidification',
                 'corrosion',
-                'originiumCrystals',
+                'endministrator-originium-crystals',
               ],
               target: 'enemy',
               triggerScope: 'global',
@@ -375,6 +375,12 @@ const sheet: OperatorSheet = {
                       offset: 1.27,
                       spRecovery: [20, 20, 20, 20, 20, 22, 22, 22, 22, 23, 23, 25],
                       stagger: 10,
+                      effects: [
+                        {
+                          kind: 'ultEnergyGain',
+                          value: 10,
+                        },
+                      ],
                     },
                   ],
                 },

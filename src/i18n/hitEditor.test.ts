@@ -63,21 +63,25 @@ const REQUIRED_GROUPS = {
   ],
 };
 
-/** Anomaly / physical keys share `effects.name` with the rest of the app — no hitEditor copy. */
+/** Runtime effect keys share `effects.name` with the rest of the app — no hitEditor copy. */
 const EFFECT_NAME_KEYS = Object.freeze([
   ...TREAT_AS_REACTION_TYPES,
   ...PHYSICAL_STATUS_TYPES,
+  'vocalistStance',
+  'cosmovoiceStance',
+  'firefangVesperwings',
+  'pursuit',
 ]);
 
 describe('hit editor localization', () => {
-  test.each(['zh-CN', 'en', 'ru'])('%s has a shared none label for hit editor selects', locale => {
+  test.each(['zh-CN', 'en'])('%s has a shared none label for hit editor selects', locale => {
     const message = i18n.global.getLocaleMessage(locale) as Record<string, any>;
 
     expect(message.common.none, `${locale}.common.none`).toEqual(expect.any(String));
     expect(message.common.none).not.toBe('');
   });
 
-  test.each(['zh-CN', 'en', 'ru'])('%s has labels for editor enums and fields', locale => {
+  test.each(['zh-CN', 'en'])('%s has labels for editor enums and fields', locale => {
     const message = i18n.global.getLocaleMessage(locale) as Record<string, unknown>;
     const hitEditor = message.hitEditor as Record<string, string | Record<string, string>>;
 
@@ -152,6 +156,10 @@ describe('hit editor localization', () => {
       crush: '猛击',
       lift: '击飞',
       knockdown: '倒地',
+      vocalistStance: '演唱姿态',
+      cosmovoiceStance: '高歌姿态',
+      firefangVesperwings: '衔火血翼',
+      pursuit: '追猎',
     });
   });
 });

@@ -7,6 +7,9 @@ const NON_NATURE_INFLICTION_STATUSES = INFLICTIONS.filter(x => x !== 'nature').m
   x => `${x}Infliction`,
 );
 const TRACKER_IDS = Object.fromEntries(INFLICTIONS.map(x => [x, `arcane-combo-tracker-${x}`]));
+const TRACKER_EXTENDER_IDS = Object.fromEntries(
+  INFLICTIONS.map(x => [x, `arcane-combo-tracker-extender-${x}`]),
+);
 
 const INFLICTION_TRACKER: TriggerEffect[] = INFLICTIONS.map(x => ({
   trigger: {
@@ -30,13 +33,26 @@ const INFLICTION_TRACKER: TriggerEffect[] = INFLICTIONS.map(x => ({
   ],
 }));
 
+const COMBO_SKILL_EFFECTS_EXTENDER: Effect[] = INFLICTIONS.map(x => ({
+  id: TRACKER_EXTENDER_IDS[x]!,
+  kind: 'status' as const,
+  target: 'self' as const,
+  duration: 6,
+  hide: true,
+  condition: {
+    kind: 'operatorStatus',
+    status: TRACKER_IDS[x]!,
+    consume: true,
+  },
+}));
+
 const COMBO_SKILL_EFFECTS: Effect[] = INFLICTIONS.map(x => ({
   kind: 'infliction' as const,
   element: x as ArtsElement,
   applyTiming: 'beforeDamage' as const,
   condition: {
     kind: 'operatorStatus',
-    status: TRACKER_IDS[x]!,
+    status: TRACKER_EXTENDER_IDS[x]!,
     consume: true,
   },
 }));
@@ -51,6 +67,18 @@ const ULTIMATE_ARCANA_REQUISITE: SkillRequisite = {
     ],
   },
   messageKey: 'actionItem.requisiteTitle.arcaneUltimateArcanaRequired',
+};
+
+const ULTIMATE_COOLDOWN_REQUISITE: SkillRequisite = {
+  id: 'ultimate-cooldown-ready',
+  condition: {
+    kind: 'or',
+    conditions: [
+      { kind: 'ultimateCooldownReady' },
+      { kind: 'operatorStatus', status: 'arcane-gloompurge-arcana-ready' },
+    ],
+  },
+  messageKey: 'actionItem.requisiteTitle.ultimateSkillOnCooldown',
 };
 
 const sheet: OperatorSheet = {
@@ -272,7 +300,7 @@ const sheet: OperatorSheet = {
           battleSkill: {
             segments: [
               {
-                duration: 1.167,
+                duration: 0.5,
                 spCost: 100,
                 damageGroups: [
                   {
@@ -453,6 +481,8 @@ const sheet: OperatorSheet = {
                   ...map(range(5), (hitIndex: number) => ({
                     kind: 'damageHit' as const,
                     element: 'nature' as const,
+                    // These follow-up strikes still count as combo-skill damage for onHit triggers.
+                    canTriggerOnHit: true,
                     multiplier: map(
                       [222, 244, 266, 289, 311, 333, 355, 377, 400, 427, 461, 500],
                       levelMult => (levelMult / 5) * (hitIndex === 4 ? 2.6 : 0.6),
@@ -472,7 +502,7 @@ const sheet: OperatorSheet = {
             ],
           },
           ultimate: {
-            requisites: [ULTIMATE_ARCANA_REQUISITE],
+            requisites: [ULTIMATE_ARCANA_REQUISITE, ULTIMATE_COOLDOWN_REQUISITE],
             segments: [
               {
                 duration: 2.417,
@@ -775,7 +805,7 @@ const sheet: OperatorSheet = {
           battleSkill: {
             segments: [
               {
-                duration: 1.167,
+                duration: 0.5,
                 spCost: 100,
                 damageGroups: [
                   {
@@ -817,12 +847,20 @@ const sheet: OperatorSheet = {
                 duration: 1,
                 damageGroups: [
                   {
+                    hits: [
+                      {
+                        offset: 0,
+                        effects: COMBO_SKILL_EFFECTS_EXTENDER,
+                      },
+                    ],
+                  },
+                  {
                     element: 'nature',
                     multiplier: [35, 39, 42, 46, 50, 53, 57, 60, 64, 68, 73, 80],
                     multiplierMode: 'split',
                     hits: [
                       {
-                        offset: 0.5,
+                        offset: 0.6,
                         stagger: 5,
                         effects: [
                           {
@@ -894,7 +932,7 @@ const sheet: OperatorSheet = {
             ],
           },
           ultimate: {
-            requisites: [ULTIMATE_ARCANA_REQUISITE],
+            requisites: [ULTIMATE_ARCANA_REQUISITE, ULTIMATE_COOLDOWN_REQUISITE],
             segments: [
               {
                 duration: 2.417,

@@ -36,8 +36,10 @@ export interface SimulationContext {
   };
   /** All track IDs currently active in the simulation. */
   allTrackIds: string[];
-  /** Map of trackId → operator element (for teamExcludeSameElement scope resolution). */
+  /** Map of trackId → operator element (teamExcludeSameElement scope, EffectTarget.elements filter). */
   elementByTrackId: ReadonlyMap<string, string | undefined>;
+  /** Map of trackId → operator class (EffectTarget.classes filter). */
+  classByTrackId: ReadonlyMap<string, string | undefined>;
   /** Status keys that need consumedStacks written at apply time (auto-inferred from readConsumedStacks). */
   consumedStacksWriteKeys: Set<string>;
   /** Compute the real-time end point of a duration starting at startTime, accounting for any time freezes within the window. */
@@ -47,6 +49,29 @@ export interface SimulationContext {
   isUltimateEnergyBlocked(actorId: string, time: number): boolean;
   /** When an action's skill cooldown window starts (enhancement end for enhanced ultimates). */
   getActionCooldownStart(action: ResolvedAction): number;
+  /** Active runtime cooldown end for a shared skill bucket, or 0 when ready. */
+  getSkillCooldownEnd(actorId: string, cooldownKey: string, time: number): number;
+  /** Start or refresh a shared runtime skill cooldown. */
+  applySkillCooldown(
+    actorId: string,
+    cooldownKey: string,
+    time: number,
+    duration: number,
+    sourceActionId?: string,
+    sourceSkillId?: string,
+  ): void;
+  getComboCooldownState(actorId: string, time: number): RuntimeComboCooldown | null;
+  startComboCooldown(
+    actorId: string,
+    time: number,
+    duration: number,
+    sourceActionId: string,
+    sourceSkillId?: string,
+    forced?: boolean,
+  ): void;
+  clearComboCooldown(actorId: string, time: number): void;
+  getReducibleComboCooldownState(actorId: string, time: number): RuntimeComboCooldown | null;
+  reduceComboCooldown(actorId: string, time: number, reduction: number): number;
   /** Base stat values per track for damage calculation (baseAtk, weaponAtk, attrs, etc.). */
   getBaseStats: (trackId: string) => BaseStatValues | undefined;
   /** Enemy defense value for damage calculation. */
@@ -69,6 +94,16 @@ export interface SimulationContext {
   lmdiAttributionMode: 'stacks' | 'applier';
   /** Operator (track id) controlled at the given time, or null if none. Derived from switch events. */
   getControlledOperatorAt: (time: number) => string | null;
+}
+
+export interface RuntimeComboCooldown {
+  actorId: string;
+  start: number;
+  end: number;
+  baseDuration: number;
+  sourceActionId: string;
+  sourceSkillId?: string;
+  forced: boolean;
 }
 
 export interface EventHookContext extends SimulationContext {

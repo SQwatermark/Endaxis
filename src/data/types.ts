@@ -13,6 +13,7 @@ import type {
   PhysicalStatus,
   SkillType,
   StackStrategy,
+  SubSkillGroup,
   TreatAsReaction,
 } from './enums';
 
@@ -30,6 +31,7 @@ export type {
   SkillType,
   SkillTypeScope,
   StackStrategy,
+  SubSkillGroup,
   TreatAsReaction,
 } from './enums';
 
@@ -58,6 +60,7 @@ export {
   SKILL_TYPE_SCOPES,
   STACKS_COMPARES,
   STACK_STRATEGIES,
+  SUB_SKILL_GROUPS,
   TREAT_AS_REACTION_TYPES,
   isPhysicalStatusType,
   isReactionType,
@@ -182,7 +185,7 @@ interface TriggerElementFilter {
 }
 
 export type TriggerEvent =
-  | ({ kind: 'onHit' } & TriggerSkillFilter & TriggerScopeFilter)
+  | ({ kind: 'onHit'; timing?: ApplyTiming } & TriggerSkillFilter & TriggerScopeFilter)
   | ({ kind: 'onFinalStrike' } & TriggerScopeFilter)
   | ({ kind: 'onFinisher' } & TriggerScopeFilter)
   | ({ kind: 'onDive' } & TriggerScopeFilter)
@@ -264,9 +267,20 @@ export interface OperatorComboCdCondition {
   kind: 'comboNotOnCooldown';
 }
 
+/** True when the source operator's previous ultimate has finished cooling down. */
+export interface UltimateCooldownReadyCondition {
+  kind: 'ultimateCooldownReady';
+}
+
 /** True while the source operator is inside its own ultimate enhancement window. */
 export interface UltimateEnhancementCondition {
   kind: 'ultimateEnhancement';
+}
+
+/** True when the named runtime skill-cooldown bucket is not active on the source operator. */
+export interface SkillCooldownReadyCondition {
+  kind: 'skillCooldownReady';
+  cooldownKey: string;
 }
 
 export type EffectCondition =
@@ -276,7 +290,9 @@ export type EffectCondition =
   | OperatorCondition
   | OperatorHpCondition
   | OperatorComboCdCondition
+  | UltimateCooldownReadyCondition
   | UltimateEnhancementCondition
+  | SkillCooldownReadyCondition
   | ActionLinkConsumedCondition
   | NegatedCondition
   | OrCondition;
@@ -308,20 +324,27 @@ export function resolveLeveled(v: Leveled<number>, idx: number): number {
 export interface AttributeScaling {
   basis: string | string[];
   coefficient: Leveled<number>;
+  sourceLabel?: string;
 }
 
 export interface StackScaling {
   /** The id of the effect whose current stack count is used. */
   key: string;
-  /** Whether to read stacks from the enemy or the operator (self). Defaults to 'self'. */
-  target?: 'enemy' | 'self';
+  /** Whether to read stacks from the enemy, operator, or current action snapshot. Defaults to 'self'. */
+  target?: 'enemy' | 'self' | 'action';
   /** Multiplied against the stack count to produce the additive contribution. */
   coefficient: Leveled<number>;
+  sourceLabel?: string;
+}
+
+export interface FixedScaling {
+  value: Leveled<number>;
+  sourceLabel?: string;
 }
 
 export interface ScalingDef {
   /** Additive terms summed on top of the base value. Each term is an attribute scaling, a stack scaling, a fixed number, or a leveled number array. */
-  additive?: (AttributeScaling | StackScaling | Leveled<number>)[];
+  additive?: (AttributeScaling | StackScaling | FixedScaling | Leveled<number>)[];
   /** Post-computation multipliers. Each applied as (1 + m). */
   multiplier?: Leveled<number>[];
   cap?: Leveled<number>;
@@ -344,7 +367,8 @@ export interface TriggerEffect {
 // ─── Effect Target ────────────────────────────────────────────────────────────
 
 export type EffectTarget =
-  { scope: EffectTargetScope; classes?: operatorClass[] } | EffectTargetScope;
+  | { scope: EffectTargetScope; classes?: operatorClass[]; elements?: DamageElement[] }
+  | EffectTargetScope;
 
 // ─── Effect Base ─────────────────────────────────────────────────────────────
 
@@ -465,6 +489,8 @@ export interface DamageHitEffect extends EffectBase {
   readConsumedStacks?: { statusKey: string; target: 'enemy' | 'self' };
   /** When true, the resolved multiplier is scaled by the operator's current crit rate at dispatch time. */
   scaleByCrit?: boolean;
+  /** Allow this triggered damage to fire matching onHit triggers. Disabled by default to prevent chains. */
+  canTriggerOnHit?: boolean;
 }
 
 /** Schedules periodic DAMAGE_HIT events over a duration. Always targets the enemy. */
@@ -524,9 +550,19 @@ export interface UltimateEnergyGainEffect extends EffectBase {
 export interface CooldownReductionEffect extends EffectBase {
   kind: 'cooldownReductionFlat' | 'cooldownReductionPercent';
   value: Leveled<number>;
+  /** Percentage reductions normally use the skill's base cooldown. */
+  percentBasis?: 'base' | 'remaining';
   target?: EffectTarget;
   skillTypes?: SkillType | SkillType[];
   skillId?: string | string[];
+}
+
+/** Starts or refreshes a runtime cooldown bucket shared by one or more skill actions. */
+export interface SkillCooldownEffect extends EffectBase {
+  kind: 'skillCooldown';
+  cooldownKey: string;
+  duration: Leveled<number>;
+  target?: EffectTarget;
 }
 
 /** Copies a named collected StatEffect and merges override fields over it.
@@ -671,7 +707,8 @@ export type Effect =
   | ConsumeEffect
   | DerivedEffect
   | OneTimeEffect
-  | CooldownReductionEffect;
+  | CooldownReductionEffect
+  | SkillCooldownEffect;
 
 export function isStatusEffect(
   effect: Effect | ResolvedEffect,
@@ -697,6 +734,7 @@ export function isEnemyEffect(effect: Effect | ResolvedEffect): boolean {
   if (effect.kind === 'damageHit' || effect.kind === 'damageOverTime') return false;
   if (effect.kind === 'cooldownReductionFlat' || effect.kind === 'cooldownReductionPercent')
     return false; // actor-side cooldown reduction
+  if (effect.kind === 'skillCooldown') return false;
   if (effect.kind === 'status') {
     const target = effect.target;
     const scope = typeof target === 'string' ? target : target?.scope;
@@ -722,19 +760,43 @@ interface ResolvedEffectBase extends Omit<
 export interface ResolvedAttributeScaling {
   basis: string | string[];
   coefficient: number;
+  sourceLabel?: string;
 }
 
 export interface ResolvedStackScaling {
   key: string;
-  target?: 'enemy' | 'self';
+  target?: 'enemy' | 'self' | 'action';
   coefficient: number;
+  sourceLabel?: string;
+}
+
+export interface ResolvedFixedScaling {
+  value: number;
+  sourceLabel?: string;
 }
 
 export interface ResolvedScalingDef {
-  additive?: (ResolvedAttributeScaling | ResolvedStackScaling | number)[];
+  additive?: (ResolvedAttributeScaling | ResolvedStackScaling | ResolvedFixedScaling | number)[];
   multiplier?: number[];
   cap?: number;
   conditionalScaling?: { condition: EffectCondition; scaling: ResolvedScalingDef };
+}
+
+export interface SkillMultiplierSourceDetail {
+  kind: 'fixed' | 'stack' | 'attribute' | 'postMultiplier';
+  value: number;
+  sourceLabel?: string;
+  key?: string;
+  stacks?: number;
+  coefficient?: number;
+  basis?: string | string[];
+  basisValue?: number;
+  conditional?: boolean;
+}
+
+export interface SkillMultiplierDetail {
+  base: number;
+  sources: SkillMultiplierSourceDetail[];
 }
 
 export interface ResolvedStatusEffect extends ResolvedEffectBase {
@@ -787,6 +849,7 @@ export interface ResolvedDamageHitEffect extends ResolvedEffectBase {
   };
   readConsumedStacks?: { statusKey: string; target: 'enemy' | 'self' };
   scaleByCrit?: boolean;
+  canTriggerOnHit?: boolean;
 }
 
 export interface ResolvedDamageOverTimeEffect extends ResolvedEffectBase {
@@ -844,6 +907,13 @@ export interface ResolvedOneTimeEffect extends ResolvedEffectBase {
   skillId?: string | string[];
 }
 
+export interface ResolvedSkillCooldownEffect extends ResolvedEffectBase {
+  kind: 'skillCooldown';
+  cooldownKey: string;
+  duration: number;
+  target?: EffectTarget;
+}
+
 export type ResolvedEffect =
   | ResolvedStatusEffect
   | ResolvedInflictionEffect
@@ -856,7 +926,8 @@ export type ResolvedEffect =
   | ResolvedSpReturnEffect
   | ResolvedUltimateEnergyGainEffect
   | ResolvedConsumeEffect
-  | ResolvedOneTimeEffect;
+  | ResolvedOneTimeEffect
+  | ResolvedSkillCooldownEffect;
 
 export interface ResolvedTriggerEffect {
   trigger: TriggerEvent;
@@ -890,6 +961,8 @@ export interface CombatSkillEntry {
   effects?: Effect[];
   icon?: string;
   cooldown?: Leveled<number>;
+  /** Explicit SP cost for a battle skill. Omit to use the project default. */
+  spCost?: Leveled<number>;
   ultimateEnergyCost?: number;
   ultimateEnergyGain?: number;
   animationTime?: number;
@@ -921,9 +994,11 @@ export interface FlatSkillEntry extends Omit<CombatSkillEntry, 'subSkills'> {
   /** Key into opInst.skillLevels. For subSkills and finisher/dive, points at the parent
    *  skill's combatSkills key (e.g. 'basicAttack'). */
   levelKey: string;
-  /** Skill type tag: `'basicAttack' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'finisher' | 'dive'`.
-   *  For subSkills this equals the parent combatSkills key — generic trigger filters targeting
-   *  e.g. `'comboSkill'` match the parent AND every sub-variant by plain equality. */
+  /** Skill type tag: a `CombatSkillType`, `'finisher' | 'dive'`, or `'nonSkill'`.
+   *  For subSkills this equals `sub.group`, which need not match the parent combatSkills key —
+   *  e.g. yvonne/laevatain/zhuang-fangyi nest a `group: 'basicAttack'` variant under `ultimate:` so it
+   *  scales off the ultimate's level. Generic trigger filters targeting e.g. `'comboSkill'` match the
+   *  parent AND every sub-variant grouped there, by plain equality. */
   type: string;
   /** SubSkill's author-provided `name`. Used as the i18n lookup key and override-key segment
    *  so that back-compat with user-stored overrides is preserved. */
@@ -971,13 +1046,16 @@ export function createDiveEntry(element: DamageElement): CombatSkillEntry {
 }
 
 export interface SubSkillEntry {
-  group: CombatSkillType;
+  group: SubSkillGroup;
   name: string;
   id?: string;
   segments: Segment[];
   effects?: Effect[];
   icon?: string;
   cooldown?: Leveled<number>;
+  /** Explicit SP cost for a battle-skill variant. Omit to use the project default. */
+  spCost?: Leveled<number>;
+  ultimateEnergyGain?: number;
   /** Release-time prerequisites shared by this sub-skill and its segments. */
   requisites?: SkillRequisite[];
 }

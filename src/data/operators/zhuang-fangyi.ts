@@ -158,7 +158,7 @@ const BATTLE_HIT_GROUPS: HitGroup[] = [...Array(9).keys()].flatMap(i => {
         additive: [
           {
             key: 'zhuangfangyi-battle-bonus-multiplier-tracker',
-            target: 'self',
+            target: 'action',
             coefficient: [3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 8, 9],
           },
         ],
@@ -199,7 +199,7 @@ const BATTLE_HIT_GROUPS: HitGroup[] = [...Array(9).keys()].flatMap(i => {
         additive: [
           {
             key: 'zhuangfangyi-battle-bonus-multiplier-tracker',
-            target: 'self',
+            target: 'action',
             coefficient: [3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 8, 9].map(i => 6 * i),
           },
         ],
@@ -246,7 +246,7 @@ const ENHANCED_BATTLE_HIT_GROUPS: HitGroup[] = [...Array(9).keys()].flatMap(i =>
         additive: [
           {
             key: 'zhuangfangyi-battle-bonus-multiplier-tracker',
-            target: 'self',
+            target: 'action',
             coefficient: [8, 9, 10, 11, 11, 12, 13, 14, 15, 16, 17, 18],
           },
         ],
@@ -286,7 +286,7 @@ const ENHANCED_BATTLE_HIT_GROUPS: HitGroup[] = [...Array(9).keys()].flatMap(i =>
         additive: [
           {
             key: 'zhuangfangyi-battle-bonus-multiplier-tracker',
-            target: 'self',
+            target: 'action',
             coefficient: [8, 9, 10, 11, 11, 12, 13, 14, 15, 16, 17, 18].map(i => 6 * i),
           },
         ],
@@ -371,14 +371,18 @@ const sheet: OperatorSheet = {
           ],
         },
         {
-          trigger: { kind: 'onHit', skillId: 'zhuang-fangyi-thunder-strike' },
+          trigger: {
+            kind: 'onHit',
+            skillId: 'zhuang-fangyi-thunder-strike',
+            timing: 'beforeDamage',
+          },
           effects: [
             {
               id: 'zhuang-fangyi-t1',
               kind: 'status',
               stat: { modifier: 'ampBonus', elements: 'electric' },
               target: 'self',
-              value: [10, 19],
+              value: [10, 20],
               scaling: {
                 additive: [
                   {
@@ -745,6 +749,7 @@ const sheet: OperatorSheet = {
               duration: 1.2,
               damageGroups: [
                 {
+                  element: 'electric',
                   multiplier: [240, 264, 288, 312, 336, 360, 384, 408, 432, 462, 498, 540],
                   multiplierMode: 'split',
                   hits: [
@@ -804,6 +809,13 @@ const sheet: OperatorSheet = {
                       value: 100,
                       duration: 25,
                       hide: true,
+                    },
+                    {
+                      kind: 'cooldownReductionPercent',
+                      skillTypes: 'comboSkill',
+                      target: 'self',
+                      value: 75,
+                      percentBasis: 'remaining',
                     },
                   ],
                 },

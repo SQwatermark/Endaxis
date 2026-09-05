@@ -176,6 +176,8 @@ export type EnemyEffectApplyEvent = {
       icon?: string;
       consumedStacks?: Record<string, number>;
       effect?: Effect;
+      /** Enemy state captured when a trigger was dispatched, used by stack-based scaling. */
+      scalingEnemySnapshot?: EnemyStatusSnapshot;
       sourceBreakdown?: Record<string, number>;
       /** When true, applying this effect does not fire onStatusApplied triggers. */
       silent?: boolean;
@@ -215,6 +217,8 @@ export interface InflictionApplyEvent {
   element: ArtsElement;
   stacks: number;
   sourceId: string;
+  /** Action that applied the infliction. */
+  actionId?: string;
   /** When true, this apply only triggered a reaction — no infliction bar remains. */
   triggerOnly?: boolean;
   /** Updated expiresAt after this apply (present on same-element reapply when timer is refreshed). */
@@ -230,6 +234,8 @@ export interface ArtsBurstEvent {
   time: number;
   element: ArtsElement;
   sourceId: string;
+  /** Original action that caused the delayed burst. */
+  actionId?: string;
   sourceSkillType?: string;
   sourceSkillId?: string;
 }
@@ -362,6 +368,8 @@ export interface OperatorEffectApplyEvent {
   sourceSkillId?: string;
   stackStrategy?: 'REFRESH_DURATION' | 'INDEPENDENT' | 'REPLACE';
   /** Set for effects applied via duringAction trigger; used to reschedule expiry on hit.durationExtension. */
+  durationActionId?: string;
+  /** Source action that applied this effect, retained for log attribution. */
   actionId?: string;
   /** Snapshotted consumed stacks from the action that applied this effect. */
   consumedStacks?: Record<string, number>;
@@ -380,8 +388,10 @@ export interface OperatorEffectExpireEvent {
   consumed: boolean;
   id: string;
   stacksToConsume?: number;
-  /** Mirrors actionId from the apply event; allows HitHandler to reschedule duringAction expiries. */
+  /** Source action that applied this effect, retained for log attribution. */
   actionId?: string;
+  /** Mirrors durationActionId from the apply event for duringAction expiry rescheduling. */
+  durationActionId?: string;
   /** Action type that caused consumption. Used by onStatusConsumed/Expire triggers' `skillTypes` filter. */
   sourceSkillType?: string;
   /** Specific skillId that caused consumption. Used by onStatusConsumed/Expire triggers' `skillId` filter. */

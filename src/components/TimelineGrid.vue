@@ -32,6 +32,13 @@ import {
   shouldStartTimelinePan,
 } from '@/utils/timelineSelectionGestures';
 import { sampleSpSeriesAtTime } from '@/simulation/projection/projectSpSeries';
+import { getDisplayKeyCandidates } from '@/utils/effectDisplay';
+import {
+  buildCumulativeDamageSeries,
+  buildEnemyEffectGuideTimeline,
+  sampleEnemyEffectGuideTimeline,
+  sampleStepSeriesAtTime,
+} from '@/utils/timelineGuideData';
 
 const store = useTimelineStore();
 const connectionHandler = useDragConnection();
@@ -54,9 +61,30 @@ const trackLaneRefs = ref([]);
 const svgRenderKey = ref(0);
 const scrollbarHeight = ref(0);
 const isCursorVisible = ref(false);
+let cursorMoveRaf = null;
+let pendingCursorPosition = null;
 const hitDetailHit = ref(null);
 const showHitDetail = computed(() => hitDetailHit.value !== null);
 const hitDetailBreakdown = computed(() => hitDetailHit.value?._damageBreakdown ?? null);
+
+const comboCooldownIntervalsByTrack = computed(() => {
+  const result = new Map();
+  for (const interval of store.comboCooldownIntervals ?? []) {
+    const list = result.get(interval.actorId) ?? [];
+    list.push(interval);
+    result.set(interval.actorId, list);
+  }
+  return result;
+});
+
+function getComboCooldownBarStyle(interval) {
+  const start = Number(interval.start) || 0;
+  const end = Number(interval.end) || start;
+  return {
+    left: `${store.timeToPx(start)}px`,
+    width: `${Math.max(0, store.timeToPx(end) - store.timeToPx(start))}px`,
+  };
+}
 
 function openHitDetail(hitData) {
   hitDetailHit.value = hitData;
@@ -77,18 +105,21 @@ const dragThreshold = 5;
 const wasSelectedOnPress = ref(false);
 const wasCycleSelectedOnPress = ref(false);
 const wasSwitchSelectedOnPress = ref(false);
+const wasComboCooldownSelectedOnPress = ref(false);
 const dragStartTimes = new Map();
 const isAltDown = ref(false);
 const isShiftDown = ref(false);
 const hoveredContext = ref(null);
 const draggingCycleBoundaryId = ref(null);
 const draggingSwitchEventId = ref(null);
+const draggingComboCooldownEventId = ref(null);
 const draggingEndline = ref(false);
 const draggingStartline = ref(false);
 const wasEndlineSelectedOnPress = ref(false);
 const wasStartlineSelectedOnPress = ref(false);
 const switchEventDragOffsetX = ref(0);
 const cycleBoundaryDragOffsetX = ref(0);
+const comboCooldownDragOffsetX = ref(0);
 const dragStartMouseTime = ref(0);
 const isTimelinePanning = ref(false);
 let timelinePanState = null;
@@ -125,6 +156,7 @@ const TIMELINE_BLANK_TARGET_BLOCKLIST_SELECTOR = [
   '.action-item-wrapper',
   '.switch-tag',
   '.cycle-guide',
+  '.combo-cooldown-guide',
   '.battle-start-handle',
   '.battle-end-handle',
   '.track-divider-handle',
@@ -343,16 +375,11 @@ function getTrackBuffContentPaddingNeeds(index) {
   const showLower = store.isTimelineViewLayerVisible('lowerBuffs');
 
   const operatorLayout = store.operatorEffectLayouts.get(track.id);
-  const upperNeed = showUpper
-    ? Math.max(0, Number(operatorLayout?.groupHeights?.[0]) || 0)
-    : 0;
+  const upperNeed = showUpper ? Math.max(0, Number(operatorLayout?.groupHeights?.[0]) || 0) : 0;
 
   const actionBuffLayout = store.trackBuffLayouts.get(track.id);
-  const lowerLaneCount = showLower
-    ? Math.max(0, Number(actionBuffLayout?.lowerLaneCount) || 0)
-    : 0;
-  const lowerNeed =
-    lowerLaneCount > 0 ? lowerLaneCount * EQUIPMENT_BUFF_LANE_PITCH : 0;
+  const lowerLaneCount = showLower ? Math.max(0, Number(actionBuffLayout?.lowerLaneCount) || 0) : 0;
+  const lowerNeed = lowerLaneCount > 0 ? lowerLaneCount * EQUIPMENT_BUFF_LANE_PITCH : 0;
 
   return {
     topNeed: upperNeed > 0 ? upperNeed + BUFF_LAYER_MARGIN : 0,
@@ -371,12 +398,7 @@ function getTrackBuffAdjustedRowMetrics(index, basePadding, requestedRowHeight) 
 
   // Symmetric padding keeps the 50px lane (and avatar/name) centered in the row.
   const { topNeed, bottomNeed } = getTrackBuffContentPaddingNeeds(index);
-  const pad = Math.max(
-    TRACK_ROW_BASE_PADDING,
-    TRACK_ROW_MIN_PADDING,
-    topNeed,
-    bottomNeed,
-  );
+  const pad = Math.max(TRACK_ROW_BASE_PADDING, TRACK_ROW_MIN_PADDING, topNeed, bottomNeed);
   return {
     topPadding: pad,
     bottomPadding: pad,
@@ -501,12 +523,25 @@ const trackOperatorFormNames = computed(() => {
 
 const isGameTimeCollapsed = ref(true);
 const showGameTime = computed(() => !isGameTimeCollapsed.value || store.isCapturing);
-// Two tool-button rows + zoom need more header height than the old single row.
-const gridRowHeight = computed(() => (showGameTime.value ? '88px' : '76px'));
+const gridRowHeight = computed(() => (showGameTime.value ? '72px' : '60px'));
 
 const isUnifiedGaugeEditorOpen = ref(false);
 const unifiedGaugeDraft = ref('');
 const unifiedGaugeInputRef = ref(null);
+
+const initialGaugeDisplayValue = computed(() => {
+  if (store.initialGaugeMode === 'empty') {
+    return t('timelineGrid.toolbar.initialGaugeEmptyShort');
+  }
+  if (store.initialGaugeMode === 'full') {
+    return t('timelineGrid.toolbar.initialGaugeFullShort');
+  }
+  const values = (store.tracks || [])
+    .flatMap(track => (track?.id ? [Number(store.customInitialGauges?.[track.id])] : []))
+    .filter(Number.isFinite);
+  if (values.length && values.every(value => value === values[0])) return String(values[0]);
+  return t('timelineGrid.toolbar.initialGaugeCustomShort');
+});
 
 function defaultUnifiedGaugeDraftValue() {
   const gauges = store.customInitialGauges || {};
@@ -1218,17 +1253,8 @@ const currentSpReturnText = computed(() => {
 
 const cachedStaggerData = computed(() => store.staggerSeries?.points || []);
 const currentStaggerValue = computed(() => {
-  const time = store.cursorCurrentTime;
-  const points = cachedStaggerData.value;
-  if (!points || points.length === 0) return 0;
-  for (let i = 0; i < points.length - 1; i++) {
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    if (time >= p1.time && time < p2.time) {
-      return Math.floor(p1.val);
-    }
-  }
-  return Math.floor(points[points.length - 1].val);
+  const point = sampleStepSeriesAtTime(cachedStaggerData.value, store.cursorCurrentTime);
+  return Math.floor(Number(point?.val) || 0);
 });
 const currentStaggerMax = computed(() =>
   Math.max(0, Number(store.systemConstants.maxStagger) || 0),
@@ -1242,17 +1268,21 @@ const currentEnemyMaxHp = computed(() => {
   return Number(store.systemConstants.enemyHp ?? 0) || 0;
 });
 
-const currentEnemyDamageTaken = computed(() => {
-  const time = store.cursorCurrentTime;
-
-  return (store.simLog || [])
-    .filter(entry => entry.type === 'DAMAGE_HIT' && Number(entry.time) <= time)
-    .reduce((sum, entry) => {
+const cursorDamageSeries = computed(() => {
+  void store.simLogRevision;
+  return buildCumulativeDamageSeries(
+    (store.simLog || []).filter(entry => entry?.type === 'DAMAGE_HIT'),
+    entry => Number(entry.time) || 0,
+    entry => {
       const hitData = entry.payload?.hitData;
-      const damage =
-        Number(store.getHitDisplayDamage?.(hitData) ?? hitData?._expectedDamage ?? 0) || 0;
-      return sum + damage;
-    }, 0);
+      return Number(store.getHitDisplayDamage?.(hitData) ?? hitData?._expectedDamage ?? 0) || 0;
+    },
+  );
+});
+
+const currentEnemyDamageTaken = computed(() => {
+  const point = sampleStepSeriesAtTime(cursorDamageSeries.value, store.cursorCurrentTime);
+  return Number(point?.total) || 0;
 });
 
 const currentEnemyHp = computed(() => {
@@ -1266,20 +1296,6 @@ const currentEnemyHpText = computed(() => {
   if (!maxHp) return '';
   return `${currentEnemyHp.value.toLocaleString()} / ${maxHp.toLocaleString()}`;
 });
-
-function getStepPointAtTime(points, time) {
-  if (!points || points.length === 0) return null;
-
-  let lo = 0;
-  let hi = points.length - 1;
-  while (lo <= hi) {
-    const mid = (lo + hi) >> 1;
-    if ((Number(points[mid].time) || 0) <= time) lo = mid + 1;
-    else hi = mid - 1;
-  }
-
-  return points[Math.max(0, hi)] || null;
-}
 
 function toMutedRgba(color, alpha = 0.78) {
   const c = String(color || '').trim();
@@ -1314,7 +1330,7 @@ const cursorGaugeRows = computed(() => {
     if (!track?.id) continue;
 
     const points = store.gaugeSeriesByTrackId.get(track.id) || [];
-    const point = getStepPointAtTime(points, time);
+    const point = sampleStepSeriesAtTime(points, time);
     const val = snapMs(point?.val ?? 0);
 
     const max = store.getTrackGaugeMax(track.id);
@@ -1338,12 +1354,57 @@ const cursorGaugeRows = computed(() => {
   return rows;
 });
 
+const CURSOR_EFFECT_ICON_LIMIT = 10;
+const cursorEnemyEffectTimeline = computed(() =>
+  buildEnemyEffectGuideTimeline(store.enemyEffectLayout?.positionedSegments || []),
+);
+const cursorEnemyEffects = computed(() =>
+  sampleEnemyEffectGuideTimeline(
+    cursorEnemyEffectTimeline.value,
+    store.cursorCurrentTime,
+    CURSOR_EFFECT_ICON_LIMIT,
+  ),
+);
+const cursorGuideInfoStyle = computed(() => ({
+  transform: `translate3d(0, ${Math.max(0, Number(store.timelineScrollTop) || 0) + 4}px, 0)`,
+}));
+
+function getCursorEffectTitle(typeKey) {
+  locale.value;
+  for (const candidate of getDisplayKeyCandidates(typeKey)) {
+    const localeKey = `effects.name.${candidate}`;
+    const translated = t(localeKey);
+    if (translated !== localeKey) return translated;
+  }
+  return String(typeKey || '');
+}
+
+function getCursorEffectIcon(effect) {
+  if (effect?.icon) return effect.icon;
+  for (const candidate of getDisplayKeyCandidates(effect?.typeKey)) {
+    if (store.iconDatabase?.[candidate]) return store.iconDatabase[candidate];
+  }
+  return store.iconDatabase?.default || '/icons/default_icon.webp';
+}
+
+function flushCursorMove() {
+  cursorMoveRaf = null;
+  const position = pendingCursorPosition;
+  pendingCursorPosition = null;
+  if (!position) return;
+  store.setCursorPosition(position.x, position.y);
+}
+
 function onGridMouseMove(evt) {
-  store.setCursorPosition(evt.clientX, evt.clientY);
+  pendingCursorPosition = { x: evt.clientX, y: evt.clientY };
   isCursorVisible.value = true;
+  if (cursorMoveRaf == null) cursorMoveRaf = window.requestAnimationFrame(flushCursorMove);
 }
 function onGridMouseLeave() {
   isCursorVisible.value = false;
+  pendingCursorPosition = null;
+  if (cursorMoveRaf != null) window.cancelAnimationFrame(cursorMoveRaf);
+  cursorMoveRaf = null;
 }
 
 function onContentMouseDown(evt) {
@@ -1450,6 +1511,29 @@ function onCycleLineMouseDown(evt, boundaryId) {
   const mousePos = store.toTimelineSpace(evt.clientX, evt.clientY);
   cycleBoundaryDragOffsetX.value = mousePos.x - store.timeToPx(Number(boundary?.time) || 0);
   draggingCycleBoundaryId.value = boundaryId;
+  initialMouseX.value = evt.clientX;
+  initialMouseY.value = evt.clientY;
+  isDragStarted.value = false;
+  isMouseDown.value = true;
+  document.body.classList.add('is-dragging');
+
+  window.addEventListener('mousemove', onWindowMouseMove);
+  window.addEventListener('mouseup', onWindowMouseUp);
+  window.addEventListener('blur', onWindowMouseUp);
+}
+
+function onComboCooldownMouseDown(evt, eventId) {
+  evt.stopPropagation();
+  evt.preventDefault();
+  if (evt.button !== 0) return;
+
+  wasComboCooldownSelectedOnPress.value = store.selectedComboCooldownEventId === eventId;
+  if (!wasComboCooldownSelectedOnPress.value) store.selectComboCooldownEvent(eventId);
+
+  const controlEvent = store.comboCooldownEvents.find(item => item.id === eventId);
+  const mousePos = store.toTimelineSpace(evt.clientX, evt.clientY);
+  comboCooldownDragOffsetX.value = mousePos.x - store.timeToPx(Number(controlEvent?.time) || 0);
+  draggingComboCooldownEventId.value = eventId;
   initialMouseX.value = evt.clientX;
   initialMouseY.value = evt.clientY;
   isDragStarted.value = false;
@@ -1922,6 +2006,17 @@ function updateCycleBoundaryPosition(clientX, clientY) {
   store.updateCycleBoundary(draggingCycleBoundaryId.value, newTime);
 }
 
+function updateComboCooldownPosition(clientX, clientY) {
+  let newTime = calculateTimeFromClient(
+    clientX,
+    clientY,
+    comboCooldownDragOffsetX.value,
+    store.snapStep,
+  );
+  newTime = Math.max(0, Math.min(store.viewDuration, snapTimeToFrame(newTime)));
+  store.updateComboCooldownEvent(draggingComboCooldownEventId.value, newTime);
+}
+
 function updateEndlinePosition(clientX, clientY) {
   let newTime = calculateTimeFromClient(clientX, clientY, 0, store.snapStep);
   if (newTime > store.viewDuration) newTime = store.viewDuration;
@@ -1978,6 +2073,7 @@ function performAutoScroll() {
   const newShift = store.timelineShift + autoScrollSpeed.value;
   store.setTimelineShift(newShift);
   if (draggingSwitchEventId.value) updateSwitchMarkerPosition(lastMouseX, lastMouseY);
+  else if (draggingComboCooldownEventId.value) updateComboCooldownPosition(lastMouseX, lastMouseY);
   else if (draggingCycleBoundaryId.value) updateCycleBoundaryPosition(lastMouseX, lastMouseY);
   else if (draggingEndline.value) updateEndlinePosition(lastMouseX, lastMouseY);
   else if (draggingStartline.value) updateStartlinePosition(lastMouseX, lastMouseY);
@@ -2028,6 +2124,18 @@ function onWindowMouseMove(evt) {
     updateDragAutoScroll(evt.clientX);
     if (autoScrollSpeed.value === 0) {
       updateSwitchMarkerPosition(evt.clientX, evt.clientY);
+    }
+    return;
+  }
+  if (draggingComboCooldownEventId.value) {
+    if (!isDragStarted.value) {
+      const dist = Math.hypot(evt.clientX - initialMouseX.value, evt.clientY - initialMouseY.value);
+      if (dist > dragThreshold) isDragStarted.value = true;
+      else return;
+    }
+    updateDragAutoScroll(evt.clientX);
+    if (autoScrollSpeed.value === 0) {
+      updateComboCooldownPosition(evt.clientX, evt.clientY);
     }
     return;
   }
@@ -2153,6 +2261,23 @@ function onWindowMouseUp(event) {
     window.removeEventListener('blur', onWindowMouseUp);
     isMouseDown.value = false;
 
+    return;
+  }
+
+  if (draggingComboCooldownEventId.value) {
+    if (!isDragStarted.value && wasComboCooldownSelectedOnPress.value) {
+      store.selectComboCooldownEvent(draggingComboCooldownEventId.value);
+    }
+    if (isDragStarted.value) store.commitState();
+
+    isDragStarted.value = false;
+    draggingComboCooldownEventId.value = null;
+    comboCooldownDragOffsetX.value = 0;
+    document.body.classList.remove('is-dragging');
+    window.removeEventListener('mousemove', onWindowMouseMove);
+    window.removeEventListener('mouseup', onWindowMouseUp);
+    window.removeEventListener('blur', onWindowMouseUp);
+    isMouseDown.value = false;
     return;
   }
 
@@ -2311,12 +2436,16 @@ function handleKeyDown(event) {
     store.multiSelectedIds.size > 0 ||
     store.selectedConnectionId ||
     store.selectedCycleBoundaryId ||
-    store.selectedSwitchEventId;
+    store.selectedSwitchEventId ||
+    store.selectedComboCooldownEventId ||
+    store.isStartlineSelected ||
+    store.isEndlineSelected;
   const hasNudgeTarget =
     store.selectedActionId ||
     store.multiSelectedIds.size > 0 ||
     store.selectedCycleBoundaryId ||
-    store.selectedSwitchEventId;
+    store.selectedSwitchEventId ||
+    store.selectedComboCooldownEventId;
   if (!hasSelection) return;
 
   if (event.key === 'Delete' || event.key === 'Backspace') {
@@ -2400,6 +2529,15 @@ function onCycleBoundaryContextMenu(evt, boundaryId) {
   store.openContextMenu(evt, boundaryId, Number(boundary.time) || 0, 'cycleBoundary');
 }
 
+function onComboCooldownContextMenu(evt, eventId) {
+  const controlEvent = store.comboCooldownEvents.find(item => item.id === eventId);
+  if (!controlEvent) return;
+  if (store.selectedComboCooldownEventId !== eventId) {
+    store.selectComboCooldownEvent(eventId);
+  }
+  store.openContextMenu(evt, eventId, Number(controlEvent.time) || 0, 'comboCooldownEvent');
+}
+
 const activeFreezeRegions = computed(() => {
   const selectedIds = store.multiSelectedIds;
   const hoveredId = store.hoveredActionId;
@@ -2476,6 +2614,9 @@ onMounted(() => {
   window.addEventListener('mouseup', onGlobalWindowMouseUp);
 });
 onUnmounted(() => {
+  if (cursorMoveRaf != null) window.cancelAnimationFrame(cursorMoveRaf);
+  cursorMoveRaf = null;
+  pendingCursorPosition = null;
   if (tracksContentRef.value) {
     // tracksContentRef.value.removeEventListener('scroll', syncRulerScroll);
     tracksContentRef.value.removeEventListener('scroll', syncVerticalScroll);
@@ -2559,6 +2700,7 @@ defineExpose({
                 <path d="M19 10h2v4h-2" />
                 <path d="M7 10v4M11 10v4M15 10v4" stroke-width="1.75" />
               </svg>
+              <span class="gauge-tool-value">{{ initialGaugeDisplayValue }}</span>
             </button>
             <div
               v-if="isUnifiedGaugeEditorOpen"
@@ -2581,114 +2723,11 @@ defineExpose({
           </div>
 
           <button
-            class="mini-tool-btn"
-            :class="{ 'is-active': store.showCursorGuide }"
-            @click="store.toggleCursorGuide"
-            :title="t('timelineGrid.toolbar.cursorGuide')"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="12"
-              height="12"
-              stroke="currentColor"
-              stroke-width="2.5"
-              fill="none"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="6" x2="12" y2="18"></line>
-              <line x1="6" y1="12" x2="18" y2="12"></line>
-            </svg>
-          </button>
-
-          <button
-            class="mini-tool-btn"
-            :class="{ 'is-active': store.isBoxSelectMode }"
-            @click="store.toggleBoxSelectMode"
-            :title="t('timelineGrid.toolbar.boxSelect')"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="12"
-              height="12"
-              stroke="currentColor"
-              stroke-width="2.5"
-              fill="none"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 4" />
-              <path d="M8 12h8" stroke-width="1.5" />
-              <path d="M12 8v8" stroke-width="1.5" />
-            </svg>
-          </button>
-
-          <button
-            class="mini-tool-btn"
-            :class="{ 'is-active': store.snapStep < 0.1 }"
+            class="mini-tool-btn snap-tool-btn"
             @click="store.toggleSnapStep"
             :title="t('timelineGrid.toolbar.snapPrecision')"
           >
             <span class="btn-text">{{ store.snapStep < 0.05 ? '1f' : '0.1s' }}</span>
-          </button>
-
-          <button
-            class="mini-tool-btn"
-            :class="{ 'is-active': connectionHandler.toolEnabled.value }"
-            @click="store.toggleConnectionTool"
-            :title="t('timelineGrid.toolbar.connectionTool')"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="14"
-              height="14"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-            >
-              <path d="M5 4h14c3 0 3 8 0 8h-14c-3 0-3 8 0 8h14" />
-              <circle cx="5" cy="4" r="2" fill="currentColor" />
-              <circle cx="19" cy="20" r="2" fill="currentColor" />
-            </svg>
-          </button>
-
-          <button
-            class="mini-tool-btn"
-            :class="{ 'is-active': store.buffLayoutMode === 'loose' }"
-            @click="store.toggleBuffLayoutMode"
-            :title="
-              t('timelineGrid.toolbar.buffLayoutMode', {
-                mode: t(
-                  store.buffLayoutMode === 'loose'
-                    ? 'timelineGrid.toolbar.buffLayoutLoose'
-                    : 'timelineGrid.toolbar.buffLayoutCompact',
-                ),
-              })
-            "
-          >
-            <svg
-              v-if="store.buffLayoutMode === 'loose'"
-              viewBox="0 0 24 24"
-              width="14"
-              height="14"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-            >
-              <line x1="4" y1="5" x2="20" y2="5" />
-              <line x1="4" y1="12" x2="20" y2="12" />
-              <line x1="4" y1="19" x2="20" y2="19" />
-            </svg>
-            <svg
-              v-else
-              viewBox="0 0 24 24"
-              width="14"
-              height="14"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-            >
-              <line x1="4" y1="8" x2="20" y2="8" />
-              <line x1="4" y1="12" x2="20" y2="12" />
-              <line x1="4" y1="16" x2="20" y2="16" />
-            </svg>
           </button>
         </div>
 
@@ -3262,10 +3301,7 @@ defineExpose({
       @contextmenu="onBackgroundContextMenu"
       @auxclick.prevent
     >
-      <div
-        class="tracks-content-scroller"
-        :style="tracksScrollerStyle"
-      >
+      <div class="tracks-content-scroller" :style="tracksScrollerStyle">
         <div
           v-if="trackDividerOffsets.length"
           class="track-divider-overlay"
@@ -3291,44 +3327,65 @@ defineExpose({
         </div>
 
         <div
-          v-if="store.showCursorGuide && !store.isBoxSelectMode"
+          v-if="store.showCursorGuide && !isBoxSelecting"
           class="cursor-guide"
           :style="{ transform: `translateX(${store.cursorPosTimeline.x}px)` }"
           v-show="isCursorVisible"
         >
-          <div class="guide-time-label">
-            {{ store.formatAxisTimeLabel(store.cursorCurrentTime) }}
-          </div>
+          <div class="cursor-guide__info" :style="cursorGuideInfoStyle">
+            <div class="guide-time-label">
+              {{ store.formatAxisTimeLabel(store.cursorCurrentTime) }}
+            </div>
 
-          <div class="guide-sp-label">
-            {{ t('timelineGrid.cursor.sp') }}: {{ currentSpValue }}{{ currentSpReturnText }}
-          </div>
-          <div class="guide-stagger-label">
-            {{ t('timelineGrid.cursor.stagger') }}: {{ currentStaggerText }}
-          </div>
+            <div class="guide-sp-label">
+              {{ t('timelineGrid.cursor.sp') }}: {{ currentSpValue }}{{ currentSpReturnText }}
+            </div>
+            <div class="guide-stagger-label">
+              {{ t('timelineGrid.cursor.stagger') }}: {{ currentStaggerText }}
+            </div>
 
-          <div v-if="cursorGaugeRows.length" class="guide-gauge-panel">
-            <div class="guide-gauge-title">{{ t('timelineGrid.cursor.gauge') }}</div>
-            <div class="guide-gauge-grid">
-              <div v-for="row in cursorGaugeRows" :key="row.id" class="guide-gauge-grid-row">
-                <span
-                  class="guide-gauge-name"
-                  :class="{ 'is-full': row.isFull }"
-                  :style="{ color: row.color, '--row-color': row.color }"
-                  >{{ row.name }}</span
-                >
-                <span class="guide-gauge-value" :class="{ 'is-full': row.isFull }">
-                  <span class="guide-gauge-current" :style="{ color: row.color }">{{
-                    row.val
-                  }}</span>
-                  <span class="guide-gauge-sep">/</span>
-                  <span class="guide-gauge-max">{{ row.max }}</span>
-                </span>
+            <div v-if="cursorGaugeRows.length" class="guide-gauge-panel">
+              <div class="guide-gauge-title">{{ t('timelineGrid.cursor.gauge') }}</div>
+              <div class="guide-gauge-grid">
+                <div v-for="row in cursorGaugeRows" :key="row.id" class="guide-gauge-grid-row">
+                  <span
+                    class="guide-gauge-name"
+                    :class="{ 'is-full': row.isFull }"
+                    :style="{ color: row.color, '--row-color': row.color }"
+                    >{{ row.name }}</span
+                  >
+                  <span class="guide-gauge-value" :class="{ 'is-full': row.isFull }">
+                    <span class="guide-gauge-current" :style="{ color: row.color }">{{
+                      row.val
+                    }}</span>
+                    <span class="guide-gauge-sep">/</span>
+                    <span class="guide-gauge-max">{{ row.max }}</span>
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-          <div v-if="currentEnemyHpText" class="guide-enemy-hp-label">
-            HP: {{ currentEnemyHpText }}
+            <div v-if="currentEnemyHpText" class="guide-enemy-hp-label">
+              HP: {{ currentEnemyHpText }}
+            </div>
+            <div
+              v-if="cursorEnemyEffects.buffs.length || cursorEnemyEffects.overflow"
+              class="guide-enemy-effects"
+              @mousemove.stop
+            >
+              <div
+                v-for="effect in cursorEnemyEffects.buffs"
+                :key="effect.typeKey"
+                class="guide-enemy-effect"
+                :class="{ 'is-disabled': effect.disabled }"
+                :title="getCursorEffectTitle(effect.typeKey)"
+              >
+                <img :src="getCursorEffectIcon(effect)" alt="" />
+                <span>{{ effect.stacks }}</span>
+              </div>
+              <span v-if="cursorEnemyEffects.overflow" class="guide-enemy-effect-more">
+                +{{ cursorEnemyEffects.overflow }}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -3344,6 +3401,35 @@ defineExpose({
           <div class="cycle-label-time">{{ store.formatAxisTimeLabel(boundary.time) }}</div>
           <div class="cycle-label-text">{{ t('timelineGrid.cycleBoundary') }}</div>
           <div class="cycle-hit-area"></div>
+        </div>
+
+        <div
+          v-for="controlEvent in store.comboCooldownEvents"
+          :key="controlEvent.id"
+          class="combo-cooldown-guide"
+          :class="[
+            `is-${controlEvent.mode}`,
+            { 'is-selected': controlEvent.id === store.selectedComboCooldownEventId },
+          ]"
+          :style="{ left: `${store.timeToPx(controlEvent.time)}px` }"
+          :title="
+            controlEvent.mode === 'ready'
+              ? t('contextMenu.comboCooldownReadyAll')
+              : t('contextMenu.comboCooldownStartAll')
+          "
+          @mousedown="onComboCooldownMouseDown($event, controlEvent.id)"
+          @contextmenu.stop.prevent="onComboCooldownContextMenu($event, controlEvent.id)"
+        >
+          <div class="combo-cooldown-marker">
+            <svg v-if="controlEvent.mode === 'ready'" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 11a8 8 0 1 1-2.3-5.7" />
+              <path d="M20 4v7h-7" />
+            </svg>
+            <svg v-else viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+          </div>
         </div>
 
         <div
@@ -3610,6 +3696,24 @@ defineExpose({
               :data-track-index="index"
               :data-track-id="track.id"
             >
+              <div
+                v-if="track.id && store.isTrackViewLayerVisible(index, 'skillDecorations')"
+                class="combo-cooldown-layer"
+              >
+                <div
+                  v-for="interval in comboCooldownIntervalsByTrack.get(track.id) ?? []"
+                  :key="`${interval.sourceActionId}:${interval.start}`"
+                  class="combo-cooldown-bar"
+                  :class="{ 'is-forced': interval.forced }"
+                  :style="getComboCooldownBarStyle(interval)"
+                >
+                  <div class="combo-cooldown-bar__line"></div>
+                  <span class="combo-cooldown-bar__duration">
+                    {{ store.formatTimeLabel(interval.end - interval.start) }}
+                  </span>
+                  <div class="combo-cooldown-bar__end"></div>
+                </div>
+              </div>
               <GaugeOverlay
                 v-if="track.id && store.isTrackViewLayerVisible(index, 'gauge')"
                 :track-id="track.id"
@@ -3695,14 +3799,13 @@ defineExpose({
       </div>
     </div>
 
-      <div class="timeline-horizontal-scrollbar" ref="fakeScrollbarRef" @scroll="onFakeScroll">
-        <div class="scrollbar-spacer" :style="{ width: `${totalWidthComputed}px` }"></div>
-      </div>
+    <div class="timeline-horizontal-scrollbar" ref="fakeScrollbarRef" @scroll="onFakeScroll">
+      <div class="scrollbar-spacer" :style="{ width: `${totalWidthComputed}px` }"></div>
+    </div>
 
     <OperatorSelectionDialog ref="operatorSelectionDialogRef" />
     <WeaponSelectionDialog ref="weaponSelectionDialogRef" />
     <EquipmentSelectionDialog ref="equipmentSelectionDialogRef" />
-
   </div>
 </template>
 
@@ -3755,6 +3858,7 @@ defineExpose({
 .initial-gauge-tool {
   position: relative;
   min-width: 0;
+  grid-column: span 2;
 }
 
 .initial-gauge-tool .mini-tool-btn {
@@ -3804,6 +3908,23 @@ defineExpose({
 .gauge-tool-icon {
   display: block;
   flex-shrink: 0;
+}
+
+.gauge-tool-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.initial-gauge-tool .mini-tool-btn {
+  gap: 5px;
+}
+
+.snap-tool-btn .btn-text {
+  color: var(--ea-gold);
 }
 
 .btn-text {
@@ -4642,7 +4763,9 @@ body.capture-mode .davinci-range {
   color: var(--ea-gold);
   box-shadow: 0 1px 2px rgba(26, 27, 30, 0.08);
 }
-:global(html[data-theme='light'] .timeline-grid-layout .track-stat-detail-btn:hover:not(:disabled)) {
+:global(
+  html[data-theme='light'] .timeline-grid-layout .track-stat-detail-btn:hover:not(:disabled)
+) {
   background: color-mix(in srgb, var(--ea-gold) 14%, #ffffff);
   border-color: var(--ea-gold);
   color: var(--ea-gold-hover);
@@ -4947,11 +5070,17 @@ body.capture-mode .davinci-range {
   box-shadow: 0 0 6px var(--ea-gold);
 }
 
+.cursor-guide__info {
+  width: max-content;
+  will-change: transform;
+}
+
 .guide-time-label,
 .guide-sp-label,
 .guide-stagger-label,
 .guide-enemy-hp-label,
-.guide-gauge-panel {
+.guide-gauge-panel,
+.guide-enemy-effects {
   width: fit-content;
   padding: 3px 6px;
   border: 1px solid var(--ea-border, rgba(255, 255, 255, 0.1));
@@ -4988,6 +5117,52 @@ body.capture-mode .davinci-range {
 
 .guide-gauge-panel {
   margin-top: 2px;
+}
+
+.guide-enemy-effects {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  pointer-events: auto;
+}
+
+.guide-enemy-effect {
+  position: relative;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  border: 1px solid var(--ea-keycap-skill-border, #999);
+  background: var(--ea-keycap-skill-bg, #333);
+  box-sizing: border-box;
+}
+
+.guide-enemy-effect.is-disabled {
+  opacity: 0.42;
+  filter: grayscale(0.5);
+}
+
+.guide-enemy-effect img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.guide-enemy-effect span {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  padding: 0 2px;
+  background: rgba(0, 0, 0, 0.82);
+  color: var(--ea-gold);
+  font-size: 8px;
+  line-height: 1;
+}
+
+.guide-enemy-effect-more {
+  color: var(--ea-fg-muted, rgba(255, 255, 255, 0.55));
+  font-size: 10px;
 }
 
 .guide-gauge-title {
@@ -5088,7 +5263,6 @@ body.capture-mode .davinci-range {
 .track-row.is-active-drop .track-lane {
   border-top: 2px dashed #c0c0c0;
   border-bottom: 2px dashed #c0c0c0;
-  z-index: 1;
 }
 
 .actions-container {
@@ -5098,6 +5272,52 @@ body.capture-mode .davinci-range {
   width: 100%;
   height: 100%;
   z-index: 10;
+}
+
+.combo-cooldown-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  pointer-events: none;
+}
+
+.combo-cooldown-bar {
+  position: absolute;
+  top: calc(100% + 7px);
+  height: 2px;
+  color: var(--ea-gold);
+  opacity: 0.7;
+}
+
+.combo-cooldown-bar.is-forced {
+  opacity: 0.9;
+}
+
+.combo-cooldown-bar__line {
+  width: 100%;
+  height: 2px;
+  background: currentColor;
+}
+
+.combo-cooldown-bar__duration {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  color: currentColor;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.combo-cooldown-bar__end {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 1px;
+  height: 8px;
+  background: currentColor;
+  transform: translateY(-50%);
 }
 
 .connections-svg {
@@ -5300,6 +5520,60 @@ body.capture-mode .davinci-range {
 /* ==========================================================================
    11. Cycle Guide Styles
    ========================================================================== */
+.combo-cooldown-guide {
+  --combo-control-color: #f15b8a;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--combo-control-color) 55%, transparent);
+  pointer-events: auto;
+  cursor: grab;
+  z-index: 5;
+}
+
+.combo-cooldown-guide.is-ready {
+  --combo-control-color: #20d9d2;
+}
+
+.combo-cooldown-guide.is-selected {
+  width: 2px;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.75);
+  z-index: 31;
+}
+
+.combo-cooldown-marker {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: #161616;
+  background: var(--combo-control-color);
+  border: 1px solid color-mix(in srgb, var(--combo-control-color) 72%, #fff);
+  transform: translateX(-50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.combo-cooldown-guide.is-selected .combo-cooldown-marker {
+  color: #111;
+  background: #fff;
+  border-color: #fff;
+}
+
+.combo-cooldown-marker svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .cycle-guide {
   position: absolute;
   top: 0;
@@ -5805,11 +6079,18 @@ body.capture-mode .davinci-range {
 :global(html[data-theme='light'] .timeline-grid-layout .initial-gauge-control) {
   --initial-gauge-accent: #0b6e99;
 }
-:global(html[data-theme='light'] .timeline-grid-layout .initial-gauge-input-wrap .custom-number-input) {
+:global(
+  html[data-theme='light'] .timeline-grid-layout .initial-gauge-input-wrap .custom-number-input
+) {
   background: var(--ea-surface-row);
   box-shadow: 0 0 0 1px rgba(11, 110, 153, 0.35) inset;
 }
-:global(html[data-theme='light'] .timeline-grid-layout .initial-gauge-input-wrap .custom-number-input:focus-within) {
+:global(
+  html[data-theme='light']
+    .timeline-grid-layout
+    .initial-gauge-input-wrap
+    .custom-number-input:focus-within
+) {
   background: #ffffff;
   box-shadow: 0 0 0 1px rgba(11, 110, 153, 0.75) inset;
 }

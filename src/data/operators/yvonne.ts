@@ -61,7 +61,7 @@ const sheet: OperatorSheet = {
             {
               id: 'yvonne-t1',
               kind: 'status',
-              stat: { modifier: 'dmgBonus', skillTypes: 'basicAttack' },
+              stat: { modifier: 'dmgBonus', skillTypes: 'finalStrike' },
               target: 'self',
               value: [0, 50],
               duration: 999,
@@ -331,10 +331,12 @@ const sheet: OperatorSheet = {
                       kind: 'reaction',
                       reactionType: 'solidification',
                       requiresInfliction: ['cryo', 'nature'],
+                      applyTiming: 'beforeDamage',
                     },
                     {
                       kind: 'ultEnergyGain',
                       value: 10,
+                      applyTiming: 'beforeDamage',
                       condition: {
                         kind: 'enemyStatus',
                         status: ['cryoInfliction', 'natureInfliction'],
@@ -343,6 +345,7 @@ const sheet: OperatorSheet = {
                     {
                       kind: 'ultEnergyGain',
                       value: 0,
+                      applyTiming: 'beforeDamage',
                       scaling: {
                         additive: [
                           {
@@ -398,6 +401,10 @@ const sheet: OperatorSheet = {
                           kind: 'ultEnergyGain',
                           value: 10,
                         },
+                        {
+                          kind: 'ultEnergyGain',
+                          value: 10,
+                        },
                       ]
                     : [],
               },
@@ -410,13 +417,7 @@ const sheet: OperatorSheet = {
                 {
                   offset: 3.63,
                   stagger: 10,
-                  effects: [
-                    {
-                      kind: 'ultEnergyGain',
-                      value: 10,
-                    },
-                    { kind: 'reaction', reactionType: 'solidification' },
-                  ],
+                  effects: [{ kind: 'reaction', reactionType: 'solidification' }],
                 },
               ],
             },
@@ -508,9 +509,7 @@ const sheet: OperatorSheet = {
                           id: 'yvonne-ultimate-enhanced-final-additional',
                           kind: 'damageHit',
                           element: 'cryo',
-                          multiplier: [
-                            267, 294, 320, 347, 374, 400, 427, 454, 480, 514, 554, 600,
-                          ],
+                          multiplier: [267, 294, 320, 347, 374, 400, 427, 454, 480, 514, 554, 600],
                           condition: {
                             kind: 'enemyStatus',
                             status: 'solidification',

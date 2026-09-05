@@ -107,15 +107,9 @@ const attributeValue = computed({
   },
 });
 
-const showElements = computed(() =>
-  ELEMENT_SCOPED_STAT_MODIFIERS.includes(modifierValue.value),
-);
-const showSkillScope = computed(() =>
-  SKILL_SCOPED_STAT_MODIFIERS.includes(modifierValue.value),
-);
-const showAttribute = computed(() =>
-  ATTRIBUTE_STAT_MODIFIERS.includes(modifierValue.value),
-);
+const showElements = computed(() => ELEMENT_SCOPED_STAT_MODIFIERS.includes(modifierValue.value));
+const showSkillScope = computed(() => SKILL_SCOPED_STAT_MODIFIERS.includes(modifierValue.value));
+const showAttribute = computed(() => ATTRIBUTE_STAT_MODIFIERS.includes(modifierValue.value));
 
 function patchScope(key, raw) {
   if (!modifierValue.value) return;
@@ -151,6 +145,7 @@ function skillTypeLabel(value) {
           size="small"
           clearable
           filterable
+          :empty-values="[null, undefined]"
           class="effect-select-dark"
           popper-class="hit-editor-select-popper"
         >
@@ -200,6 +195,7 @@ function skillTypeLabel(value) {
           collapse-tags
           collapse-tags-tooltip
           clearable
+          :placeholder="t('common.default')"
           class="effect-select-dark"
           popper-class="hit-editor-select-popper"
         >
@@ -221,6 +217,7 @@ function skillTypeLabel(value) {
           collapse-tags
           collapse-tags-tooltip
           clearable
+          :placeholder="t('common.default')"
           class="effect-select-dark"
           popper-class="hit-editor-select-popper"
         >

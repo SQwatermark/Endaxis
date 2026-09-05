@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ArrowRight } from '@element-plus/icons-vue';
 import { getGameElementName } from '@/data/gameText';
+import { STAT_SOURCE_BASE_LABEL } from '@/data/stats/computeStats';
 import { translateEffectName } from '@/editor/hits/statusOptions';
 import { resolveDamageBonusSourceLabel } from '@/utils/damageBonusSourceLabel';
 import { useTimelineStore } from '@/stores/timelineStore';
@@ -19,6 +20,8 @@ const { t, te, locale } = useI18n();
 const store = useTimelineStore();
 
 const atkOpen = ref(false);
+const multiplierOpen = ref(false);
+const critOpen = ref(false);
 
 const ATTR_KEYS = ['strength', 'agility', 'intellect', 'will'];
 
@@ -46,6 +49,19 @@ function formatResistanceDetail(breakdown) {
 function tr(key, fallback) {
   const value = t(key);
   return value === key ? fallback : value;
+}
+
+function resolveSourceLabel(raw) {
+  const label = String(raw || '').trim();
+  if (!label || label === STAT_SOURCE_BASE_LABEL) return t('statDetail.baseSource');
+  return resolveDamageBonusSourceLabel(label, t, te, locale.value) || label;
+}
+
+function formatCritSourceValue(source) {
+  const value = Number(source?.value) || 0;
+  const formatted = pct(value);
+  if (source?.label === STAT_SOURCE_BASE_LABEL || value <= 0) return formatted;
+  return `+${formatted}`;
 }
 
 function humanize(value) {
@@ -152,6 +168,45 @@ const displayBase = computed(() => {
   return props.breakdown.base;
 });
 
+const skillMultiplierDetail = computed(() => props.breakdown?.multiplierDetail ?? null);
+
+function multiplierSourceLabel(source) {
+  if (source.sourceLabel) {
+    return resolveDamageBonusSourceLabel(source.sourceLabel, t, te, locale.value);
+  }
+  if (source.key) return translateEffectName(t, te, source.key);
+  if (source.kind === 'attribute') return t('hitDetail.attributeMultiplier');
+  if (source.kind === 'postMultiplier' && source.conditional) {
+    return t('hitDetail.conditionalMultiplier');
+  }
+  return t('hitDetail.fixedMultiplier');
+}
+
+function multiplierSourceDetail(source) {
+  if (source.kind === 'stack') {
+    return t('hitDetail.stackMultiplierDetail', {
+      stacks: Number(source.stacks) || 0,
+      coefficient: `${(Number(source.coefficient) || 0).toFixed(1)}%`,
+    });
+  }
+  if (source.kind === 'attribute') {
+    const basis = Array.isArray(source.basis) ? source.basis : [source.basis];
+    const basisLabel = basis.filter(Boolean).map(attrLabel).join(' + ');
+    return t('hitDetail.attributeMultiplierDetail', {
+      attribute: basisLabel,
+      value: (Number(source.basisValue) || 0).toFixed(1),
+      coefficient: (Number(source.coefficient) || 0).toFixed(3),
+    });
+  }
+  return '';
+}
+
+function multiplierSourceValue(source) {
+  if (source.kind === 'postMultiplier') return mult(source.value);
+  const value = Number(source.value) || 0;
+  return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+}
+
 const contextRows = computed(() => {
   if (!props.breakdown) return [];
   const rows = [];
@@ -199,7 +254,11 @@ const multiplierRows = computed(() => {
       tooltip: t('hitDetail.critRateScaleTooltip'),
     });
   }
-  if (b.dmgBonusMult !== 1 || b.dmgBonusExternalMult !== 1 || (b.dmgBonusSources?.length ?? 0) > 0) {
+  if (
+    b.dmgBonusMult !== 1 ||
+    b.dmgBonusExternalMult !== 1 ||
+    (b.dmgBonusSources?.length ?? 0) > 0
+  ) {
     const sourceLines = (b.dmgBonusSources || []).map(src => {
       const name = resolveDamageBonusSourceLabel(src.label, t, te, locale.value);
       const signed = src.external
@@ -219,8 +278,9 @@ const multiplierRows = computed(() => {
   }
   if (b.critMult !== 1) {
     rows.push({
+      kind: 'crit',
       label: t('hitDetail.critMult'),
-      detail: `${pct(b.critRate)} x ${pct(b.critDmg)}`,
+      detail: `${pct(b.critRate)} × ${pct(b.critDmg)}`,
       value: mult(b.critMult),
     });
   }
@@ -237,7 +297,16 @@ const multiplierRows = computed(() => {
     });
   }
   if (b.directMultiplier !== 1) {
-    rows.push({ label: t('hitDetail.directMult'), detail: '', value: mult(b.directMultiplier) });
+    const directLines = (b.directMultiplierSources || []).map(src => {
+      const name = resolveDamageBonusSourceLabel(src.label, t, te, locale.value);
+      return `${name} ${mult(src.value)}`;
+    });
+    rows.push({
+      label: t('hitDetail.directMult'),
+      detail: '',
+      value: mult(b.directMultiplier),
+      tooltip: directLines.length ? directLines.join('\n') : undefined,
+    });
   }
   if (b.susceptMult !== 1) {
     const susceptLines = [
@@ -333,6 +402,8 @@ const multiplierRows = computed(() => {
 
 function onClose() {
   atkOpen.value = false;
+  multiplierOpen.value = false;
+  critOpen.value = false;
   emit('update:visible', false);
 }
 </script>
@@ -444,7 +515,8 @@ function onClose() {
               <td class="label-cell indent-4">
                 {{
                   t('statDetail.fromSource', {
-                    name: resolveDamageBonusSourceLabel(src.label, t, te, locale.value) || src.label,
+                    name:
+                      resolveDamageBonusSourceLabel(src.label, t, te, locale.value) || src.label,
                   })
                 }}
               </td>
@@ -468,10 +540,43 @@ function onClose() {
               <td class="value-cell">+{{ (row.contrib * 100).toFixed(1) }}%</td>
             </tr>
           </template>
-          <tr>
-            <td class="label-cell">{{ t('hitDetail.multiplier') }}</td>
+          <tr
+            class="expandable-row"
+            :class="{ 'is-disabled': !skillMultiplierDetail?.sources?.length }"
+            @click="
+              skillMultiplierDetail?.sources?.length ? (multiplierOpen = !multiplierOpen) : null
+            "
+          >
+            <td class="label-cell">
+              <el-icon
+                v-if="skillMultiplierDetail?.sources?.length"
+                class="expand-icon"
+                :class="{ 'is-open': multiplierOpen }"
+                ><ArrowRight
+              /></el-icon>
+              {{ t('hitDetail.multiplier') }}
+            </td>
             <td class="value-cell">{{ displayMultiplier.toFixed(1) }}%</td>
           </tr>
+          <template v-if="multiplierOpen && skillMultiplierDetail?.sources?.length">
+            <tr class="sub-row">
+              <td class="label-cell indent-1">{{ t('hitDetail.baseMultiplier') }}</td>
+              <td class="value-cell">{{ skillMultiplierDetail.base.toFixed(1) }}%</td>
+            </tr>
+            <tr
+              v-for="(source, idx) in skillMultiplierDetail.sources"
+              :key="`skill-multiplier-${idx}`"
+              class="sub-row dim"
+            >
+              <td class="label-cell indent-2">
+                {{ multiplierSourceLabel(source) }}
+                <span v-if="multiplierSourceDetail(source)" class="mult-detail">
+                  {{ multiplierSourceDetail(source) }}
+                </span>
+              </td>
+              <td class="value-cell">{{ multiplierSourceValue(source) }}</td>
+            </tr>
+          </template>
           <tr class="bold">
             <td class="label-cell">{{ t('hitDetail.baseDamage') }}</td>
             <td class="value-cell">{{ num(displayBase) }}</td>
@@ -483,22 +588,72 @@ function onClose() {
         <div class="section-label">{{ t('hitDetail.multipliers') }}</div>
         <table class="stat-table">
           <tbody>
-            <tr v-for="row in multiplierRows" :key="row.label">
-              <td class="label-cell">
-                {{ row.label }}
-                <el-tooltip
-                  v-if="row.tooltip"
-                  :content="row.tooltip"
-                  placement="top"
-                  :show-after="80"
-                  popper-class="hit-detail-source-tooltip"
+            <template v-for="row in multiplierRows" :key="row.label">
+              <tr
+                :class="{ 'expandable-row': row.kind === 'crit' }"
+                @click="row.kind === 'crit' ? (critOpen = !critOpen) : null"
+              >
+                <td class="label-cell">
+                  <el-icon
+                    v-if="row.kind === 'crit'"
+                    class="expand-icon"
+                    :class="{ 'is-open': critOpen }"
+                    ><ArrowRight
+                  /></el-icon>
+                  {{ row.label }}
+                  <el-tooltip
+                    v-if="row.tooltip"
+                    :content="row.tooltip"
+                    placement="top"
+                    :show-after="80"
+                    popper-class="hit-detail-source-tooltip"
+                  >
+                    <span class="hint-icon" aria-hidden="true">ⓘ</span>
+                  </el-tooltip>
+                  <span v-if="row.detail" class="mult-detail">{{ row.detail }}</span>
+                </td>
+                <td class="value-cell mult-value">{{ row.value }}</td>
+              </tr>
+              <template v-if="row.kind === 'crit' && critOpen">
+                <tr class="sub-row">
+                  <td class="label-cell indent-1">{{ t('stats.crit_rate') }}</td>
+                  <td class="value-cell">{{ pct(breakdown.critRate) }}</td>
+                </tr>
+                <tr v-if="breakdown.critRateRaw > breakdown.critRate" class="sub-row dim">
+                  <td class="label-cell indent-2">{{ t('hitDetail.rawCritRate') }}</td>
+                  <td class="value-cell">{{ pct(breakdown.critRateRaw) }}</td>
+                </tr>
+                <tr
+                  v-for="(source, idx) in breakdown.critRateSources || []"
+                  :key="`crit-rate-${idx}`"
+                  class="sub-row dim"
                 >
-                  <span class="hint-icon" aria-hidden="true">ⓘ</span>
-                </el-tooltip>
-                <span v-if="row.detail" class="mult-detail">{{ row.detail }}</span>
-              </td>
-              <td class="value-cell mult-value">{{ row.value }}</td>
-            </tr>
+                  <td
+                    class="label-cell"
+                    :class="breakdown.critRateRaw > breakdown.critRate ? 'indent-3' : 'indent-2'"
+                  >
+                    {{ resolveSourceLabel(source.label) }}
+                  </td>
+                  <td class="value-cell">{{ formatCritSourceValue(source) }}</td>
+                </tr>
+                <tr v-if="breakdown.critRateRaw > breakdown.critRate" class="sub-row dim">
+                  <td class="label-cell indent-2">{{ t('hitDetail.critRateCap') }}</td>
+                  <td class="value-cell">{{ pct(breakdown.critRate) }}</td>
+                </tr>
+                <tr class="sub-row">
+                  <td class="label-cell indent-1">{{ t('stats.crit_dmg') }}</td>
+                  <td class="value-cell">{{ pct(breakdown.critDmg) }}</td>
+                </tr>
+                <tr
+                  v-for="(source, idx) in breakdown.critDmgSources || []"
+                  :key="`crit-dmg-${idx}`"
+                  class="sub-row dim"
+                >
+                  <td class="label-cell indent-2">{{ resolveSourceLabel(source.label) }}</td>
+                  <td class="value-cell">{{ formatCritSourceValue(source) }}</td>
+                </tr>
+              </template>
+            </template>
           </tbody>
         </table>
       </template>
@@ -671,6 +826,30 @@ html[data-theme='dark'] .hit-damage-detail-dialog .damage-value.forced {
 }
 html[data-theme='dark'] .hit-damage-detail-dialog .mult-value {
   color: #b8d4ff;
+}
+
+@media (max-width: 768px) {
+  .hit-damage-detail-dialog.el-dialog {
+    display: flex;
+    width: calc(100vw - 16px) !important;
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+    margin: 8px auto !important;
+    flex-direction: column;
+  }
+
+  .hit-damage-detail-dialog .el-dialog__header,
+  .hit-damage-detail-dialog .el-dialog__footer {
+    flex: 0 0 auto;
+  }
+
+  .hit-damage-detail-dialog .el-dialog__body {
+    min-height: 0;
+    flex: 1 1 auto;
+    padding: 12px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
 }
 </style>
 

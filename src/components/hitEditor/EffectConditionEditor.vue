@@ -2,11 +2,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import CustomNumberInput from '../CustomNumberInput.vue';
-import {
-  EFFECT_CONDITION_KINDS,
-  HP_COMPARES,
-  STACKS_COMPARES,
-} from '@/data/enums';
+import { EFFECT_CONDITION_KINDS, HP_COMPARES, STACKS_COMPARES } from '@/data/enums';
 import {
   collectStatusOptions,
   KNOWN_ENEMY_STATUS_KEYS,
@@ -50,9 +46,7 @@ function createCondition(kind, seed = {}) {
     const next = {
       kind,
       status:
-        typeof seed?.status === 'string' && seed.status.trim()
-          ? seed.status.trim()
-          : fallback,
+        typeof seed?.status === 'string' && seed.status.trim() ? seed.status.trim() : fallback,
     };
     if (seed?.stacks) next.stacks = seed.stacks;
     if (seed?.consume === true) next.consume = true;
@@ -244,6 +238,7 @@ function statusLabel(value) {
           @update:model-value="value => (kindValue = value)"
           size="small"
           clearable
+          :empty-values="[null, undefined]"
           class="effect-select-dark"
           popper-class="hit-editor-select-popper"
         >

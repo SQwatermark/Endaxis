@@ -17,6 +17,7 @@ export interface EnemyAfflictionMarker {
   hitData?: any;
   damageHits?: any[];
   sourceId?: string;
+  actionId?: string;
   carryoverKey?: string;
   disabled?: boolean;
 }
@@ -31,6 +32,7 @@ export interface EnemyAfflictionSegment {
   row: number;
   tracksComboState: boolean;
   sourceId?: string;
+  actionId?: string;
   /** Duration-bar color from projection (source-group aware). */
   color?: string;
 }
@@ -43,6 +45,7 @@ export interface EnemyAfflictionGroup {
 }
 
 const PHYSICAL_REACTION_KEYS = new Set(['lift', 'knockdown', 'breach', 'crush']);
+const PHYSICAL_MARKER_KEYS = new Set([...PHYSICAL_REACTION_KEYS, 'vulnerability']);
 const PHYSICAL_STACKING_KEYS = new Set(['lift', 'knockdown']);
 const PHYSICAL_CONSUMING_KEYS = new Set(['breach', 'crush']);
 const PHYSICAL_MARKER_PRIORITY: Record<string, number> = {
@@ -58,6 +61,7 @@ export type PhysicalMarkerLike = {
   stacks?: number;
   icon?: string | null;
   sourceId?: string;
+  actionId?: string;
   time?: number;
   row?: number;
 };
@@ -72,7 +76,7 @@ export function pickRepresentativePhysicalMarker(
   previousStacks: number,
   activeStacks: number,
 ): PhysicalMarkerLike | null {
-  const physicalMarkers = markers.filter(marker => PHYSICAL_REACTION_KEYS.has(marker.typeKey));
+  const physicalMarkers = markers.filter(marker => PHYSICAL_MARKER_KEYS.has(marker.typeKey));
   if (physicalMarkers.length === 0) return null;
 
   const byPriority = (a: PhysicalMarkerLike, b: PhysicalMarkerLike) =>
@@ -90,6 +94,7 @@ export function pickRepresentativePhysicalMarker(
         icon: controlMarker.icon ?? null,
         row: 0,
         sourceId: controlMarker.sourceId,
+        actionId: controlMarker.actionId,
       };
     }
 
@@ -100,6 +105,7 @@ export function pickRepresentativePhysicalMarker(
       icon: null,
       row: 0,
       sourceId: physicalMarkers[0]!.sourceId,
+      actionId: physicalMarkers[0]!.actionId,
     };
   }
 
@@ -116,6 +122,7 @@ export function pickRepresentativePhysicalMarker(
       icon: representative.icon ?? null,
       row: 0,
       sourceId: representative.sourceId,
+      actionId: representative.actionId,
     };
   }
 
@@ -127,19 +134,18 @@ export function pickRepresentativePhysicalMarker(
       icon: representative.icon ?? null,
       row: 0,
       sourceId: representative.sourceId,
+      actionId: representative.actionId,
     };
   }
 
   return {
     typeKey: representative.typeKey,
     time: representative.time,
-    stacks: Math.min(
-      4,
-      Math.max(activeStacks, previousStacks, Number(representative.stacks) || 1),
-    ),
+    stacks: Math.min(4, Math.max(activeStacks, previousStacks, Number(representative.stacks) || 1)),
     icon: representative.icon ?? null,
     row: 0,
     sourceId: representative.sourceId,
+    actionId: representative.actionId,
   };
 }
 
@@ -166,7 +172,7 @@ function getEnemySegmentTypeKey(segment: any) {
   const effect = segment?.effect;
   if (effect && Object.keys(effect).length > 0) {
     const resolved = resolveEffectDisplayKey(effect);
-    if (resolved) return resolved;
+    if (resolved && resolved !== 'status') return resolved;
   }
 
   const raw = String(segment?.typeKey || '');
@@ -200,6 +206,7 @@ export function projectEnemyAfflictionViz(layout: any) {
       row,
       tracksComboState: typeKey === 'vulnerability',
       sourceId: segment.sourceId,
+      actionId: segment.actionId,
       carryoverKey: segment.carryoverKey,
       disabled: segment.disabled === true,
       color: typeof segment.color === 'string' ? segment.color : undefined,
@@ -216,6 +223,7 @@ export function projectEnemyAfflictionViz(layout: any) {
           isDamageHit: !!segment.isDamageHit,
           hitData: segment.hitData,
           sourceId: segment.sourceId,
+          actionId: segment.actionId,
         });
       else out.physical.segments.push({ ...base, kind: 'physical' });
       continue;
@@ -232,6 +240,7 @@ export function projectEnemyAfflictionViz(layout: any) {
           isDamageHit: !!segment.isDamageHit,
           hitData: segment.hitData,
           sourceId: segment.sourceId,
+          actionId: segment.actionId,
         });
       else out.attachment.segments.push({ ...base, kind: 'attachment' });
       continue;
@@ -249,6 +258,7 @@ export function projectEnemyAfflictionViz(layout: any) {
           isDamageHit: !!segment.isDamageHit,
           hitData: segment.hitData,
           sourceId: segment.sourceId,
+          actionId: segment.actionId,
         });
       else out.anomalies.segments.push({ ...base, kind: 'anomaly' });
       continue;
@@ -266,6 +276,7 @@ export function projectEnemyAfflictionViz(layout: any) {
           isDamageHit: !!segment.isDamageHit,
           hitData: segment.hitData,
           sourceId: segment.sourceId,
+          actionId: segment.actionId,
         });
       else out.statuses.segments.push({ ...base, kind: 'status' });
     }
@@ -350,6 +361,7 @@ function normalizePhysicalMarkers(group: EnemyAfflictionGroup) {
           icon: picked.icon ?? null,
           row: Number(picked.row) || 0,
           sourceId: picked.sourceId,
+          actionId: picked.actionId,
         });
       }
 

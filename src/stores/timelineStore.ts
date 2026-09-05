@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed, watch, toRaw } from 'vue';
+import { ref, computed, watch, toRaw, nextTick } from 'vue';
 import { watchThrottled } from '@vueuse/core';
 import { createDefaultStats } from '@/simulation/defaultActorStats';
 import { simulate, type InitialEffect } from '@/simulation/simulator';
@@ -8,7 +8,7 @@ import { resetEnemyStaggerCarryover } from '@/simulation/state/EnemyState';
 import { resolveEffectValueStatic } from '@/simulation/events/effectDispatch';
 import { compileEndaxisScenario } from '@/simulation/compileEndaxisScenario';
 import { i18n } from '@/i18n';
-import { FRAME_DURATION, formatTimeWithFrames, snapTimeToFrame } from '@/utils/time';
+import { FRAME_DURATION, formatTimeWithFrames, snapTimeToFrame, timeToFrame } from '@/utils/time';
 import { isEquipmentArtificable } from '@/utils/equipmentLevels';
 import type {
   TimelineAction,
@@ -22,6 +22,7 @@ import type {
   ScenarioSnapshot,
   EnemyConfigState,
   SwitchEvent,
+  ComboCooldownEvent,
   CycleBoundary,
   UltEnhancerContext,
   UltEnhancer,
@@ -114,6 +115,7 @@ import {
 } from '@/stores/timeline/normalizers';
 import { useTimelineLayouts } from '@/stores/timeline/layouts';
 import { useTimelineSimulation } from '@/stores/timeline/simulation';
+import { resolveEffectiveCooldown } from '@/simulation/compiler/compileScenario';
 import { useShifts } from '@/stores/timeline/shifts';
 import { useTimelinePersistence } from '@/stores/timeline/persistence';
 import { useSkillLibrary } from '@/stores/timeline/skillLibrary';
@@ -261,6 +263,12 @@ function shiftSnapshotTimes(snapshot: ScenarioSnapshot | null | undefined, delta
     snapshot.switchEvents.forEach(shiftStartLike);
   }
 
+  if (Array.isArray(snapshot.comboCooldownEvents)) {
+    snapshot.comboCooldownEvents.forEach(event => {
+      event.time = shiftVal(event.time);
+    });
+  }
+
   if (snapshot.simulationEndline != null && Number.isFinite(Number(snapshot.simulationEndline))) {
     snapshot.simulationEndline = shiftVal(snapshot.simulationEndline);
   }
@@ -405,9 +413,8 @@ export const useTimelineStore = defineStore('timeline', () => {
     return normalizeEnemyConfig(DEFAULT_SYSTEM_CONSTANTS);
   }
 
-  const systemConstants = ref<EnemyConfigState>(createDefaultSystemConstantsState());
-  const customEnemyParams = ref<EnemyConfigState>(
-    normalizeEnemyConfig({
+  function createDefaultCustomEnemyParams() {
+    return normalizeEnemyConfig({
       maxStagger: 100,
       staggerNodeCount: 0,
       staggerNodeDuration: 2,
@@ -415,8 +422,11 @@ export const useTimelineStore = defineStore('timeline', () => {
       executionRecovery: 25,
       enemyHp: 100000,
       superArmor: 0,
-    }),
-  );
+    });
+  }
+
+  const systemConstants = ref<EnemyConfigState>(createDefaultSystemConstantsState());
+  const customEnemyParams = ref<EnemyConfigState>(createDefaultCustomEnemyParams());
 
   watch(
     systemConstants,
@@ -564,6 +574,7 @@ export const useTimelineStore = defineStore('timeline', () => {
   const cycleBoundaries = ref<CycleBoundary[]>([]);
 
   const activeScenarioId = ref('default_sc');
+  const isSwitchingScenario = ref(false);
   function normalizeEnemyLevel(level: unknown) {
     const num = Number(level);
     if ([1, 20, 40, 60, 80, 90].includes(num)) return num;
@@ -581,7 +592,12 @@ export const useTimelineStore = defineStore('timeline', () => {
   }
 
   const scenarioList = ref<ScenarioListEntry[]>([
-    { id: 'default_sc', name: tr('timeline.scenario.defaultName', { index: 1 }), data: null },
+    {
+      id: 'default_sc',
+      name: tr('timeline.scenario.defaultName', { index: 1 }),
+      data: null,
+      editorPrefs: { snapStep: FRAME_DURATION },
+    },
   ]);
 
   watchThrottled(
@@ -605,7 +621,7 @@ export const useTimelineStore = defineStore('timeline', () => {
   watchThrottled(
     [() => operatorStore.operators, () => weaponStore.weapons, () => gearStore.gears],
     () => {
-      if (isLoading.value) return;
+      if (isLoading.value || isSwitchingScenario.value) return;
       recomputeAllTrackOperatorStatuses();
       commitState();
     },
@@ -684,7 +700,7 @@ export const useTimelineStore = defineStore('timeline', () => {
   watch(
     contingencyContractTags,
     () => {
-      if (isLoading.value) return;
+      if (isLoading.value || isSwitchingScenario.value) return;
       recomputeAllTrackOperatorStatuses();
       commitState();
     },
@@ -694,7 +710,7 @@ export const useTimelineStore = defineStore('timeline', () => {
   watch(
     globalConfig,
     () => {
-      if (isLoading.value) return;
+      if (isLoading.value || isSwitchingScenario.value) return;
       recomputeAllTrackOperatorStatuses();
       commitState();
     },
@@ -1043,7 +1059,6 @@ export const useTimelineStore = defineStore('timeline', () => {
   type TimelineToolbarPrefs = {
     showCursorGuide?: boolean;
     isBoxSelectMode?: boolean;
-    snapStep?: number;
     enableConnectionTool?: boolean;
     buffLayoutMode?: 'compact' | 'loose';
   };
@@ -1059,7 +1074,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     }
   }
 
-  function normalizeToolbarSnapStep(value: unknown): number {
+  function normalizeScenarioSnapStep(value: unknown): number {
     const parsed = Number(value);
     if (parsed === COARSE_SNAP_STEP || parsed === FRAME_DURATION) return parsed;
     return FRAME_DURATION;
@@ -1090,16 +1105,17 @@ export const useTimelineStore = defineStore('timeline', () => {
 
   /** Migrate legacy single `customInitialGauge` into a per-operator map. */
   function resolveCustomInitialGaugesFromSnapshot(
-    snapshot: { customInitialGauges?: unknown; customInitialGauge?: unknown; tracks?: Track[] } | null | undefined,
+    snapshot:
+      | { customInitialGauges?: unknown; customInitialGauge?: unknown; tracks?: Track[] }
+      | null
+      | undefined,
   ): Record<string, number> {
     if (snapshot?.customInitialGauges != null) {
       return normalizeCustomInitialGauges(snapshot.customInitialGauges);
     }
     if (snapshot?.customInitialGauge == null) return {};
     const legacy = Math.max(0, Math.floor(Number(snapshot.customInitialGauge) || 0));
-    return Object.fromEntries(
-      (snapshot.tracks || []).filter(t => t?.id).map(t => [t.id!, legacy]),
-    );
+    return Object.fromEntries((snapshot.tracks || []).filter(t => t?.id).map(t => [t.id!, legacy]));
   }
 
   /** Scenario-scoped bulk initial ultimate-energy preset (toolbar control). */
@@ -1208,7 +1224,29 @@ export const useTimelineStore = defineStore('timeline', () => {
   const timelineViewLayers = ref(loadTimelineViewLayers());
   const durationBarColor = ref(loadDurationBarColor());
   const cursorPosition = ref({ x: 0, y: 0 });
-  const snapStep = ref(normalizeToolbarSnapStep(toolbarPrefs.snapStep));
+  const snapStep = ref(FRAME_DURATION);
+
+  function restoreScenarioEditorPrefs(scenario: ScenarioListEntry | null | undefined) {
+    const normalizedSnapStep = normalizeScenarioSnapStep(scenario?.editorPrefs?.snapStep);
+    snapStep.value = normalizedSnapStep;
+    if (scenario) {
+      scenario.editorPrefs = {
+        ...scenario.editorPrefs,
+        snapStep: normalizedSnapStep,
+      };
+    }
+  }
+
+  function setScenarioSnapStep(value: unknown) {
+    const normalizedSnapStep = normalizeScenarioSnapStep(value);
+    snapStep.value = normalizedSnapStep;
+    const scenario = scenarioList.value.find(item => item.id === activeScenarioId.value);
+    if (!scenario) return;
+    scenario.editorPrefs = {
+      ...scenario.editorPrefs,
+      snapStep: normalizedSnapStep,
+    };
+  }
 
   const draggingSkillData = ref<Record<string, unknown> | null>(null);
   const isLibraryPlaceMode = ref(false);
@@ -1221,6 +1259,8 @@ export const useTimelineStore = defineStore('timeline', () => {
   const selectedCycleBoundaryId = ref<string | null>(null);
   const switchEvents = ref<SwitchEvent[]>([]);
   const selectedSwitchEventId = ref<string | null>(null);
+  const comboCooldownEvents = ref<ComboCooldownEvent[]>([]);
+  const selectedComboCooldownEventId = ref<string | null>(null);
 
   const multiSelectedIds = ref<Set<string>>(new Set());
   const isBoxSelectMode = ref(Boolean(toolbarPrefs.isBoxSelectMode));
@@ -1378,6 +1418,10 @@ export const useTimelineStore = defineStore('timeline', () => {
   const historyStack = ref<string[]>([]);
   const historyIndex = ref(-1);
   const MAX_HISTORY = 50;
+  const canUndo = computed(() => historyIndex.value > 0);
+  const canRedo = computed(
+    () => historyIndex.value >= 0 && historyIndex.value < historyStack.value.length - 1,
+  );
   /** Suppress auto-commits while undoing/redoing (watchers would otherwise truncate the redo stack). */
   let isRestoringHistory = false;
   let restoreHistoryReleaseTimer: ReturnType<typeof setTimeout> | null = null;
@@ -1398,15 +1442,67 @@ export const useTimelineStore = defineStore('timeline', () => {
     }, 200);
   }
 
-  function commitState() {
-    if (isRestoringHistory) return;
+  const TRACK_STATUS_INPUT_KEYS = [
+    'id',
+    'operatorInstanceId',
+    'weaponId',
+    'weaponInstanceId',
+    'weaponCommon1Tier',
+    'weaponCommon2Tier',
+    'weaponBuffTier',
+    'weaponAppliedDeltas',
+    'equipmentAppliedDeltas',
+    'equipArmorId',
+    'equipGlovesId',
+    'equipAccessory1Id',
+    'equipAccessory2Id',
+    'equipArmorInstanceId',
+    'equipGlovesInstanceId',
+    'equipAccessory1InstanceId',
+    'equipAccessory2InstanceId',
+    'equipArmorRefineTier',
+    'equipGlovesRefineTier',
+    'equipAccessory1RefineTier',
+    'equipAccessory2RefineTier',
+  ] as const;
 
-    const currentScenario = scenarioList.value.find(s => s.id === activeScenarioId.value);
-    if (currentScenario) {
-      currentScenario.data = _createSnapshot() ?? null;
-    }
+  function getTrackStatusInputs(track: Partial<Track> | null | undefined) {
+    const source = (track || {}) as Record<string, unknown>;
+    return Object.fromEntries(TRACK_STATUS_INPUT_KEYS.map(key => [key, source[key]]));
+  }
 
-    const snapshot = JSON.stringify({
+  function hasTrackStatusInputsChanged(snapshot: ScenarioSnapshot) {
+    const nextContingencyTags = Array.isArray(snapshot.contingencyContractTags)
+      ? snapshot.contingencyContractTags.map(Number).filter(Number.isFinite)
+      : [];
+    const nextSystemConstants = snapshot.systemConstants
+      ? normalizeEnemyConfig(systemConstants.value, snapshot.systemConstants)
+      : systemConstants.value;
+
+    return !isSameJsonData(
+      {
+        tracks: tracks.value.map(getTrackStatusInputs),
+        characterOverrides: characterOverrides.value,
+        weaponOverrides: weaponOverrides.value,
+        equipmentCategoryOverrides: equipmentCategoryOverrides.value,
+        systemConstants: systemConstants.value,
+        contingencyContractTags: contingencyContractTags.value,
+        globalConfig: globalConfig.value,
+      },
+      {
+        tracks: (snapshot.tracks || []).map(getTrackStatusInputs),
+        characterOverrides: snapshot.characterOverrides || {},
+        weaponOverrides: snapshot.weaponOverrides || {},
+        equipmentCategoryOverrides: snapshot.equipmentCategoryOverrides || {},
+        systemConstants: nextSystemConstants,
+        contingencyContractTags: nextContingencyTags,
+        globalConfig: normalizeGlobalConfig(snapshot.globalConfig),
+      },
+    );
+  }
+
+  function _serializeSnapshot() {
+    return JSON.stringify({
       tracks: tracks.value,
       connections: connections.value,
       characterOverrides: characterOverrides.value,
@@ -1424,6 +1520,7 @@ export const useTimelineStore = defineStore('timeline', () => {
       customEnemyParams: customEnemyParams.value,
       cycleBoundaries: cycleBoundaries.value,
       switchEvents: switchEvents.value,
+      comboCooldownEvents: comboCooldownEvents.value,
       simulationEndline: simulationEndline.value,
       simulationStartline: simulationStartline.value,
       inheritedInitialEffects: inheritedInitialEffects.value,
@@ -1434,6 +1531,16 @@ export const useTimelineStore = defineStore('timeline', () => {
       weapons: weaponStore.weapons,
       gears: gearStore.gears,
     });
+  }
+
+  function commitState() {
+    if (isRestoringHistory) return;
+
+    const snapshot = _serializeSnapshot();
+    const currentScenario = scenarioList.value.find(s => s.id === activeScenarioId.value);
+    if (currentScenario) {
+      currentScenario.data = dropLegacyTimedStatusData(JSON.parse(snapshot)) ?? null;
+    }
 
     if (historyStack.value[historyIndex.value] === snapshot) {
       return;
@@ -1485,7 +1592,8 @@ export const useTimelineStore = defineStore('timeline', () => {
       shiftSnapshotTimes(snapshot, MIN_PREP_DURATION - rawPrep);
     }
     dropLegacyTimedStatusData(snapshot);
-    restoreArmoryFromSnapshot(snapshot);
+    const statusInputsChanged = hasTrackStatusInputsChanged(snapshot);
+    const armoryChanged = restoreArmoryFromSnapshot(snapshot);
     tracks.value = normalizeTracks(snapshot.tracks);
     connections.value = normalizeConnections(snapshot.connections);
     characterOverrides.value = snapshot.characterOverrides || {};
@@ -1528,6 +1636,7 @@ export const useTimelineStore = defineStore('timeline', () => {
 
     cycleBoundaries.value = snapshot.cycleBoundaries || [];
     switchEvents.value = snapshot.switchEvents || [];
+    comboCooldownEvents.value = snapshot.comboCooldownEvents || [];
     simulationEndline.value =
       snapshot.simulationEndline != null && Number.isFinite(Number(snapshot.simulationEndline))
         ? Number(snapshot.simulationEndline)
@@ -1548,7 +1657,9 @@ export const useTimelineStore = defineStore('timeline', () => {
     globalConfig.value = normalizeGlobalConfig(snapshot.globalConfig);
     initialGaugeMode.value = normalizeInitialGaugeMode(snapshot.initialGaugeMode);
     customInitialGauges.value = resolveCustomInitialGaugesFromSnapshot(snapshot);
-    recomputeAllTrackOperatorStatuses();
+    if (armoryChanged || statusInputsChanged) {
+      recomputeAllTrackOperatorStatuses();
+    }
     clearSelection();
   }
 
@@ -1557,60 +1668,23 @@ export const useTimelineStore = defineStore('timeline', () => {
   // ===================================================================================
 
   function _createSnapshot(): ScenarioSnapshot {
-    return dropLegacyTimedStatusData(
-      JSON.parse(
-        JSON.stringify({
-          tracks: tracks.value,
-          connections: connections.value,
-          characterOverrides: characterOverrides.value,
-          weaponOverrides: weaponOverrides.value,
-          equipmentCategoryOverrides: equipmentCategoryOverrides.value,
-          prepDuration: prepDuration.value,
-          prepExpanded: prepExpanded.value,
-          battleDuration: battleDuration.value,
-          trackRowHeightWeights: trackRowHeightWeights.value,
-          initialGaugeMode: initialGaugeMode.value,
-          customInitialGauges: customInitialGauges.value,
-          systemConstants: systemConstants.value,
-          activeEnemyId: activeEnemyId.value,
-          activeEnemyLevel: activeEnemyLevel.value,
-          customEnemyParams: customEnemyParams.value,
-          cycleBoundaries: cycleBoundaries.value,
-          switchEvents: switchEvents.value,
-          simulationEndline: simulationEndline.value,
-          simulationStartline: simulationStartline.value,
-          inheritedInitialEffects: inheritedInitialEffects.value,
-          inheritedInitialEnemyState: inheritedInitialEnemyState.value,
-          contingencyContractTags: contingencyContractTags.value,
-          globalConfig: globalConfig.value,
-          operators: operatorStore.operators,
-          weapons: weaponStore.weapons,
-          gears: gearStore.gears,
-        }),
-      ),
-    ) as ScenarioSnapshot;
+    return dropLegacyTimedStatusData(JSON.parse(_serializeSnapshot())) as ScenarioSnapshot;
   }
 
   function _loadSnapshot(data: ScenarioData | null | undefined) {
     if (!data) return;
-    const normalized = normalizePrepConfig(JSON.parse(JSON.stringify(data)));
+    const normalized = normalizePrepConfig(cloneJsonData(data));
     const incoming = dropLegacyTimedStatusData(normalized.snapshot);
     if (!incoming) return;
 
     restoreArmoryFromSnapshot(incoming);
-    const incomingTracks = incoming.tracks
-      ? JSON.parse(JSON.stringify(incoming.tracks))
-      : createDefaultTracks();
+    const incomingTracks = incoming.tracks || createDefaultTracks();
     tracks.value = normalizeTracks(incomingTracks);
-    connections.value = normalizeConnections(
-      JSON.parse(JSON.stringify(incoming.connections || [])),
-    );
+    connections.value = normalizeConnections(incoming.connections || []);
     normalizeComboLinksInTracks();
-    characterOverrides.value = JSON.parse(JSON.stringify(incoming.characterOverrides || {}));
-    weaponOverrides.value = JSON.parse(JSON.stringify(incoming.weaponOverrides || {}));
-    equipmentCategoryOverrides.value = JSON.parse(
-      JSON.stringify(incoming.equipmentCategoryOverrides || {}),
-    );
+    characterOverrides.value = incoming.characterOverrides || {};
+    weaponOverrides.value = incoming.weaponOverrides || {};
+    equipmentCategoryOverrides.value = incoming.equipmentCategoryOverrides || {};
     prepDuration.value = Math.max(MIN_PREP_DURATION, Number(incoming.prepDuration) || 0);
     prepExpanded.value = incoming.prepExpanded !== false;
     battleDuration.value =
@@ -1632,12 +1706,9 @@ export const useTimelineStore = defineStore('timeline', () => {
         incoming.customEnemyParams,
       );
     }
-    cycleBoundaries.value = incoming.cycleBoundaries
-      ? JSON.parse(JSON.stringify(incoming.cycleBoundaries))
-      : [];
-    switchEvents.value = incoming.switchEvents
-      ? JSON.parse(JSON.stringify(incoming.switchEvents))
-      : [];
+    cycleBoundaries.value = incoming.cycleBoundaries || [];
+    switchEvents.value = incoming.switchEvents || [];
+    comboCooldownEvents.value = incoming.comboCooldownEvents || [];
     simulationEndline.value =
       incoming.simulationEndline != null && Number.isFinite(Number(incoming.simulationEndline))
         ? Number(incoming.simulationEndline)
@@ -1647,11 +1718,9 @@ export const useTimelineStore = defineStore('timeline', () => {
         ? Number(incoming.simulationStartline)
         : null;
     inheritedInitialEffects.value = Array.isArray(incoming.inheritedInitialEffects)
-      ? JSON.parse(JSON.stringify(incoming.inheritedInitialEffects))
+      ? (incoming.inheritedInitialEffects as Record<string, unknown>[])
       : [];
-    inheritedInitialEnemyState.value = incoming.inheritedInitialEnemyState
-      ? JSON.parse(JSON.stringify(incoming.inheritedInitialEnemyState))
-      : null;
+    inheritedInitialEnemyState.value = incoming.inheritedInitialEnemyState || null;
     contingencyContractTags.value = Array.isArray(incoming.contingencyContractTags)
       ? incoming.contingencyContractTags.map(Number).filter(Number.isFinite)
       : [];
@@ -1660,6 +1729,72 @@ export const useTimelineStore = defineStore('timeline', () => {
     customInitialGauges.value = resolveCustomInitialGaugesFromSnapshot(incoming);
     recomputeAllTrackOperatorStatuses();
     clearSelection();
+  }
+
+  function createResetScenarioSnapshot(preserveLoadout: boolean): ScenarioSnapshot {
+    const currentSnapshot = preserveLoadout ? _createSnapshot() : null;
+    const resetTracks = preserveLoadout
+      ? normalizeTracks(currentSnapshot?.tracks).map(track => ({
+          ...track,
+          actions: [],
+          initialGauge: 0,
+          maxGaugeOverride: null,
+        }))
+      : createDefaultTracks();
+
+    return {
+      tracks: resetTracks,
+      connections: [],
+      characterOverrides: {},
+      weaponOverrides: {},
+      equipmentCategoryOverrides: {},
+      prepDuration: 5,
+      prepExpanded: true,
+      battleDuration: DEFAULT_BATTLE_DURATION,
+      trackRowHeightWeights: [],
+      initialGaugeMode: 'empty',
+      customInitialGauges: {},
+      systemConstants: createDefaultSystemConstantsState(),
+      activeEnemyId: 'custom',
+      activeEnemyLevel: 90,
+      customEnemyParams: createDefaultCustomEnemyParams(),
+      cycleBoundaries: [],
+      switchEvents: [],
+      comboCooldownEvents: [],
+      simulationEndline: null,
+      simulationStartline: null,
+      inheritedInitialEffects: [],
+      inheritedInitialEnemyState: null,
+      contingencyContractTags: [],
+      globalConfig: createEmptyGlobalConfig(),
+      operators: preserveLoadout ? cloneJsonData(currentSnapshot?.operators ?? []) : [],
+      weapons: preserveLoadout ? cloneJsonData(currentSnapshot?.weapons ?? []) : [],
+      gears: preserveLoadout ? cloneJsonData(currentSnapshot?.gears ?? []) : [],
+    };
+  }
+
+  function resetCurrentScenario({ preserveLoadout = false } = {}) {
+    const currentScenario = scenarioList.value.find(s => s.id === activeScenarioId.value);
+    if (!currentScenario) return;
+
+    const resetSnapshot = createResetScenarioSnapshot(preserveLoadout);
+    isSwitchingScenario.value = true;
+
+    try {
+      _loadSnapshot(resetSnapshot);
+      currentScenario.editorPrefs = { snapStep: FRAME_DURATION };
+      restoreScenarioEditorPrefs(currentScenario);
+      resetTimelineViewport();
+      historyStack.value = [];
+      historyIndex.value = -1;
+      commitState();
+    } finally {
+      void nextTick(() => {
+        setTimeout(() => {
+          isSwitchingScenario.value = false;
+        }, 0);
+      });
+    }
   }
 
   // ===================================================================================
@@ -1697,7 +1832,6 @@ export const useTimelineStore = defineStore('timeline', () => {
       const payload: TimelineToolbarPrefs = {
         showCursorGuide: showCursorGuide.value,
         isBoxSelectMode: isBoxSelectMode.value,
-        snapStep: snapStep.value,
         enableConnectionTool: enableConnectionTool.value,
         buffLayoutMode: buffLayoutMode.value,
       };
@@ -1707,12 +1841,9 @@ export const useTimelineStore = defineStore('timeline', () => {
     }
   }
 
-  watch(
-    [showCursorGuide, isBoxSelectMode, snapStep, enableConnectionTool, buffLayoutMode],
-    () => {
-      persistTimelineToolbarPrefs();
-    },
-  );
+  watch([showCursorGuide, isBoxSelectMode, enableConnectionTool, buffLayoutMode], () => {
+    persistTimelineToolbarPrefs();
+  });
 
   function toggleConnectionTool() {
     enableConnectionTool.value = !enableConnectionTool.value;
@@ -1734,10 +1865,6 @@ export const useTimelineStore = defineStore('timeline', () => {
     }
 
     buffLayoutMode.value = mode;
-  }
-
-  function toggleBuffLayoutMode() {
-    setBuffLayoutMode(buffLayoutMode.value === 'compact' ? 'loose' : 'compact');
   }
 
   function createConnection(
@@ -1763,25 +1890,36 @@ export const useTimelineStore = defineStore('timeline', () => {
   function switchScenario(targetId: string) {
     if (targetId === activeScenarioId.value) return;
 
-    const currentScenario = scenarioList.value.find(s => s.id === activeScenarioId.value);
-    if (currentScenario) {
-      currentScenario.data = _createSnapshot() ?? null;
-    }
-
     const targetScenario = scenarioList.value.find(s => s.id === targetId);
     if (!targetScenario) return;
 
-    if (targetScenario.data) {
-      _loadSnapshot(targetScenario.data);
-    } else {
-      targetScenario.data = _createSnapshot();
-    }
+    isSwitchingScenario.value = true;
 
-    activeScenarioId.value = targetId;
-    resetTimelineViewport();
-    historyStack.value = [];
-    historyIndex.value = -1;
-    commitState();
+    try {
+      const currentScenario = scenarioList.value.find(s => s.id === activeScenarioId.value);
+      if (currentScenario) {
+        currentScenario.data = _createSnapshot() ?? null;
+      }
+
+      if (targetScenario.data) {
+        _loadSnapshot(targetScenario.data);
+      } else {
+        targetScenario.data = _createSnapshot();
+      }
+
+      activeScenarioId.value = targetId;
+      restoreScenarioEditorPrefs(targetScenario);
+      resetTimelineViewport();
+      historyStack.value = [];
+      historyIndex.value = -1;
+      commitState();
+    } finally {
+      void nextTick(() => {
+        setTimeout(() => {
+          isSwitchingScenario.value = false;
+        }, 0);
+      });
+    }
   }
 
   function addScenario() {
@@ -1815,8 +1953,15 @@ export const useTimelineStore = defineStore('timeline', () => {
       inheritedInitialEnemyState: null,
     };
 
-    scenarioList.value.push({ id: newId, name: newName, data: emptySnapshot });
+    const newScenario: ScenarioListEntry = {
+      id: newId,
+      name: newName,
+      data: emptySnapshot,
+      editorPrefs: { snapStep: FRAME_DURATION },
+    };
+    scenarioList.value.push(newScenario);
     activeScenarioId.value = newId;
+    restoreScenarioEditorPrefs(newScenario);
     _loadSnapshot(emptySnapshot);
     resetTimelineViewport();
 
@@ -1838,8 +1983,17 @@ export const useTimelineStore = defineStore('timeline', () => {
     const newName = `${source.name} (${tr('timeline.scenario.copySuffix')})`;
     const newData = JSON.parse(JSON.stringify(source.data || _createSnapshot()));
 
-    scenarioList.value.push({ id: newId, name: newName, data: newData });
+    const newScenario: ScenarioListEntry = {
+      id: newId,
+      name: newName,
+      data: newData,
+      editorPrefs: {
+        snapStep: normalizeScenarioSnapStep(source.editorPrefs?.snapStep),
+      },
+    };
+    scenarioList.value.push(newScenario);
     activeScenarioId.value = newId;
+    restoreScenarioEditorPrefs(newScenario);
     _loadSnapshot(newData);
 
     historyStack.value = [];
@@ -2079,6 +2233,12 @@ export const useTimelineStore = defineStore('timeline', () => {
         ...event,
         time: shiftTime(event.time),
       }));
+    next.comboCooldownEvents = (next.comboCooldownEvents || [])
+      .filter(event => (Number(event.time) || 0) >= time - epsilon)
+      .map(event => ({
+        ...event,
+        time: shiftTime(event.time),
+      }));
 
     next.cycleBoundaries = [];
     next.simulationEndline = null;
@@ -2150,13 +2310,18 @@ export const useTimelineStore = defineStore('timeline', () => {
     const sourceName = currentScenario.name || tr('timeline.scenario.unnamed');
     const newName = `${sourceName} 继承 ${formatTimeLabel(boundaryTime)}`;
 
-    scenarioList.value.push({
+    const inheritedScenario: ScenarioListEntry = {
       id: newId,
       name: newName,
       data: newData,
-    });
+      editorPrefs: {
+        snapStep: normalizeScenarioSnapStep(currentScenario.editorPrefs?.snapStep),
+      },
+    };
+    scenarioList.value.push(inheritedScenario);
 
     activeScenarioId.value = newId;
+    restoreScenarioEditorPrefs(inheritedScenario);
     _loadSnapshot(newData);
     resetTimelineViewport();
 
@@ -2533,15 +2698,37 @@ export const useTimelineStore = defineStore('timeline', () => {
     projectTrackLoadoutFromInstances(track);
   }
 
+  function isSameJsonData(left: unknown, right: unknown) {
+    const rawLeft = left && typeof left === 'object' ? toRaw(left) : left;
+    const rawRight = right && typeof right === 'object' ? toRaw(right) : right;
+    return JSON.stringify(rawLeft) === JSON.stringify(rawRight);
+  }
+
   function restoreArmoryFromSnapshot(snapshot: ScenarioSnapshot | null | undefined) {
-    if (Array.isArray(snapshot?.operators)) operatorStore.setAll(snapshot.operators);
-    else operatorStore.clearAll();
+    const nextOperators = Array.isArray(snapshot?.operators) ? snapshot.operators : [];
+    const nextWeapons = Array.isArray(snapshot?.weapons) ? snapshot.weapons : [];
+    const nextGears = Array.isArray(snapshot?.gears) ? snapshot.gears : [];
+    let changed = false;
 
-    if (Array.isArray(snapshot?.weapons)) weaponStore.setAll(snapshot.weapons);
-    else weaponStore.clearAll();
+    if (!isSameJsonData(operatorStore.operators, nextOperators)) {
+      if (nextOperators.length > 0) operatorStore.setAll(nextOperators);
+      else operatorStore.clearAll();
+      changed = true;
+    }
 
-    if (Array.isArray(snapshot?.gears)) gearStore.setAll(snapshot.gears);
-    else gearStore.clearAll();
+    if (!isSameJsonData(weaponStore.weapons, nextWeapons)) {
+      if (nextWeapons.length > 0) weaponStore.setAll(nextWeapons);
+      else weaponStore.clearAll();
+      changed = true;
+    }
+
+    if (!isSameJsonData(gearStore.gears, nextGears)) {
+      if (nextGears.length > 0) gearStore.setAll(nextGears);
+      else gearStore.clearAll();
+      changed = true;
+    }
+
+    return changed;
   }
 
   interface TrackOperatorStatus {
@@ -2651,7 +2838,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     kind?: string;
     condition?: unknown;
     stat?: CollectEffectStat | null;
-    target?: string | { scope?: string; classes?: string[] } | null;
+    target?: string | { scope?: string; classes?: string[]; elements?: string[] } | null;
     id?: string;
     stacks?: number;
     maxStacks?: number;
@@ -2823,35 +3010,44 @@ export const useTimelineStore = defineStore('timeline', () => {
     const targetObj = typeof rawTarget === 'object' && rawTarget ? rawTarget : null;
     const scope = typeof rawTarget === 'string' ? rawTarget : targetObj?.scope;
     const allowedClasses = Array.isArray(targetObj?.classes) ? targetObj.classes : null;
-
-    const candidateTrackIds = [...trackMetaById.keys()].filter(trackId => {
-      if (!allowedClasses?.length) return true;
-      const trackClass = trackMetaById.get(trackId)?.class;
-      return !!trackClass && allowedClasses.includes(trackClass);
-    });
+    const allowedElements = Array.isArray(targetObj?.elements) ? targetObj.elements : null;
 
     if (scope === 'enemy') return ['boss'];
     if (!sourceTrackId) return [];
 
+    const allTrackIds = [...trackMetaById.keys()];
     const sourceElement = trackMetaById.get(sourceTrackId)?.element || null;
-    switch (scope) {
-      case 'team':
-        return candidateTrackIds;
-      case 'teamExcludeSelf':
-        return candidateTrackIds.filter(trackId => trackId !== sourceTrackId);
-      case 'teamExcludeSameElement':
-        return candidateTrackIds.filter(trackId => {
-          if (trackId === sourceTrackId) return false;
-          return trackMetaById.get(trackId)?.element !== sourceElement;
-        });
-      case 'owner':
-      case 'self':
-      case undefined:
-      case null:
-        return [sourceTrackId];
-      default:
-        return [sourceTrackId];
-    }
+
+    const scoped = (() => {
+      switch (scope) {
+        case 'team':
+          return allTrackIds;
+        case 'teamExcludeSelf':
+          return allTrackIds.filter(trackId => trackId !== sourceTrackId);
+        case 'teamExcludeSameElement':
+          return allTrackIds.filter(trackId => {
+            if (trackId === sourceTrackId) return false;
+            return trackMetaById.get(trackId)?.element !== sourceElement;
+          });
+        case 'statusRecipients':
+        case 'statusRecipientsExcludeSelf':
+          // Recipients only exist during trigger dispatch; a passive can never have them.
+          return [];
+        default:
+          // 'owner' | 'self' | undefined | null
+          return [sourceTrackId];
+      }
+    })();
+
+    // classes/elements narrow every scope; unknown class/element never matches a non-empty filter.
+    return scoped.filter(trackId => {
+      const meta = trackMetaById.get(trackId);
+      if (allowedClasses?.length && !(meta?.class && allowedClasses.includes(meta.class)))
+        return false;
+      if (allowedElements?.length && !(meta?.element && allowedElements.includes(meta.element)))
+        return false;
+      return true;
+    });
   }
 
   function buildInitialRuntimeEffectsFromCollected(
@@ -2974,7 +3170,11 @@ export const useTimelineStore = defineStore('timeline', () => {
       // only one member is consumed mid-reaction even if the other is still active.
       const removeCondition = {
         kind: 'not',
-        condition: { kind: cond.kind, status: cond.status, ...(cond.stacks ? { stacks: cond.stacks } : {}) },
+        condition: {
+          kind: cond.kind,
+          status: cond.status,
+          ...(cond.stacks ? { stacks: cond.stacks } : {}),
+        },
       };
       const isTeamScoped =
         effect.target === 'team' ||
@@ -3194,6 +3394,33 @@ export const useTimelineStore = defineStore('timeline', () => {
     };
   }
 
+  const comboCooldownByActorId = computed<Record<string, number>>(() => {
+    const result: Record<string, number> = {};
+    for (const track of tracks.value) {
+      if (!track.id) continue;
+      const patched = getTrackPatchedSkills(track);
+      const comboSkill = patched?.flatSkills?.comboSkill;
+      const levelKey = comboSkill?.levelKey;
+      const rawLevel = Number(levelKey ? patched?.operatorInstance?.skillLevels?.[levelKey] : 1);
+      const levelIndex = Math.max(0, Math.min((Number.isFinite(rawLevel) ? rawLevel : 1) - 1, 11));
+      const fallbackCooldown = Number(
+        track.actions.find(action => isComboLikeAction(action))?.cooldown,
+      );
+      const baseCooldown = resolveLevelNumber(
+        comboSkill?.cooldown,
+        levelIndex,
+        Number.isFinite(fallbackCooldown) ? fallbackCooldown : 0,
+      );
+      if (baseCooldown <= 0) continue;
+      result[track.id] = resolveEffectiveCooldown(
+        { type: 'comboSkill', cooldown: baseCooldown } as any,
+        track as any,
+        effectiveSystemConstants.value as any,
+      ).cooldown;
+    }
+    return result;
+  });
+
   function getActionSourceSkillKey(action: TimelineAction | null | undefined) {
     if (!action) return null;
     return action.sourceSkillKey || action.skillId || action.type || null;
@@ -3296,8 +3523,23 @@ export const useTimelineStore = defineStore('timeline', () => {
         { preserveCondition: true },
       );
 
-      if (Number.isFinite(refreshPayload.duration) && refreshPayload.duration > 0) {
-        action.duration = refreshPayload.duration;
+      const sheetDuration = Number(refreshPayload.duration);
+      if (Number.isFinite(sheetDuration) && sheetDuration >= 0) {
+        const currentDuration = Number(action.duration);
+        const previousSheetDuration = Number(action._sheetDurationBaseline);
+        const hasDurationBaseline = Number.isFinite(previousSheetDuration);
+
+        if (!hasDurationBaseline) {
+          // Legacy actions have no way to distinguish a sheet value from a user override.
+          // Preserve their current value once, then use this sheet snapshot going forward.
+          if (!Number.isFinite(currentDuration)) action.duration = sheetDuration;
+        } else if (
+          !Number.isFinite(currentDuration) ||
+          timeToFrame(currentDuration) === timeToFrame(previousSheetDuration)
+        ) {
+          action.duration = sheetDuration;
+        }
+        action._sheetDurationBaseline = sheetDuration;
       }
       if (refreshPayload.element) {
         action.element = refreshPayload.element;
@@ -4102,9 +4344,9 @@ export const useTimelineStore = defineStore('timeline', () => {
   }
   function toggleSnapStep() {
     if (snapStep.value > FRAME_DURATION) {
-      snapStep.value = FRAME_DURATION;
+      setScenarioSnapStep(FRAME_DURATION);
     } else {
-      snapStep.value = COARSE_SNAP_STEP;
+      setScenarioSnapStep(COARSE_SNAP_STEP);
     }
   }
 
@@ -4243,6 +4485,27 @@ export const useTimelineStore = defineStore('timeline', () => {
     }
   }
 
+  function addComboCooldownEvent(time: number, mode: ComboCooldownEvent['mode']) {
+    comboCooldownEvents.value.push({
+      id: `combo_cd_${uid()}`,
+      time: Math.max(0, snapTimeToFrame(Number(time) || 0)),
+      mode,
+    });
+    comboCooldownEvents.value.sort((a, b) => a.time - b.time);
+    commitState();
+  }
+
+  function updateComboCooldownEvent(id: string, time: number) {
+    const event = comboCooldownEvents.value.find(item => item.id === id);
+    if (event) event.time = Math.max(0, snapTimeToFrame(Number(time) || 0));
+  }
+
+  function selectComboCooldownEvent(id: string) {
+    const isSame = selectedComboCooldownEventId.value === id;
+    clearSelection();
+    if (!isSame) selectedComboCooldownEventId.value = id;
+  }
+
   function addCycleBoundary(time: number) {
     cycleBoundaries.value.push({
       id: `cb_${uid()}`,
@@ -4317,6 +4580,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     selectedAnomalyId.value = null;
     selectedCycleBoundaryId.value = null;
     selectedSwitchEventId.value = null;
+    selectedComboCooldownEventId.value = null;
     selectedLibrarySkillId.value = null;
     isEndlineSelected.value = false;
     isStartlineSelected.value = false;
@@ -4617,6 +4881,15 @@ export const useTimelineStore = defineStore('timeline', () => {
     if (selectedSwitchEventId.value) {
       switchEvents.value = switchEvents.value.filter(s => s.id !== selectedSwitchEventId.value);
       selectedSwitchEventId.value = null;
+      commitState();
+      return { total: 1 };
+    }
+
+    if (selectedComboCooldownEventId.value) {
+      comboCooldownEvents.value = comboCooldownEvents.value.filter(
+        event => event.id !== selectedComboCooldownEventId.value,
+      );
+      selectedComboCooldownEventId.value = null;
       commitState();
       return { total: 1 };
     }
@@ -5253,6 +5526,20 @@ export const useTimelineStore = defineStore('timeline', () => {
         return;
       }
 
+      if (selectedComboCooldownEventId.value) {
+        const event = comboCooldownEvents.value.find(
+          item => item.id === selectedComboCooldownEventId.value,
+        );
+        if (!event) return;
+        const newTime = Math.max(0, snapTimeToFrame(event.time + delta));
+        if (event.time !== newTime) {
+          event.time = newTime;
+          comboCooldownEvents.value.sort((a, b) => a.time - b.time);
+          commitState();
+        }
+        return;
+      }
+
       if (selectedCycleBoundaryId.value) {
         const boundary = cycleBoundaries.value.find(
           item => item.id === selectedCycleBoundaryId.value,
@@ -5596,6 +5883,8 @@ export const useTimelineStore = defineStore('timeline', () => {
     simulationEndline,
     lmdiAttributionMode,
     controlledOperatorSegments,
+    comboCooldownEvents,
+    comboCooldownByActorId,
     viewDuration,
     durationBarColor,
   });
@@ -5613,6 +5902,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     enemyAfflictionViz,
     operatorEffectLayouts,
     comboWindowLayouts,
+    comboCooldownIntervals,
     requisiteWarnings,
     gaugeSeriesByTrackId,
     timeContext,
@@ -5889,6 +6179,9 @@ export const useTimelineStore = defineStore('timeline', () => {
     switchEvents.value.forEach(e => {
       e.time = shiftVal(e.time);
     });
+    comboCooldownEvents.value.forEach(event => {
+      event.time = shiftVal(event.time);
+    });
     if (simulationEndline.value != null) {
       simulationEndline.value = shiftVal(simulationEndline.value);
     }
@@ -5923,6 +6216,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     customEnemyParams,
     cycleBoundaries,
     switchEvents,
+    comboCooldownEvents,
     inheritedInitialEffects,
     inheritedInitialEnemyState,
     contingencyContractTags,
@@ -5936,6 +6230,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     initialGaugeMode,
     customInitialGauges,
     isLoading,
+    isSwitchingScenario,
     historyStack,
     historyIndex,
     operatorStore,
@@ -5952,6 +6247,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     initializeOptimizerGameData,
     dropLegacyTimedStatusData,
     normalizePrepConfig,
+    restoreScenarioEditorPrefs,
   });
   const {
     initAutoSave,
@@ -6086,6 +6382,8 @@ export const useTimelineStore = defineStore('timeline', () => {
     copySelection,
     pasteSelection,
     removeCurrentSelection,
+    canUndo,
+    canRedo,
     undo,
     redo,
     commitState,
@@ -6093,6 +6391,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     initAutoSave,
     loadFromBrowser,
     resetProject,
+    resetCurrentScenario,
     selectedConnectionId,
     selectConnection,
     selectAnomaly,
@@ -6111,7 +6410,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     validConnectionTargetIds,
     createConnection,
     toggleConnectionTool,
-    toggleBuffLayoutMode,
+    setBuffLayoutMode,
     cycleBoundaries,
     selectedCycleBoundaryId,
     addCycleBoundary,
@@ -6137,6 +6436,11 @@ export const useTimelineStore = defineStore('timeline', () => {
     addSwitchEvent,
     updateSwitchEvent,
     selectSwitchEvent,
+    comboCooldownEvents,
+    selectedComboCooldownEventId,
+    addComboCooldownEvent,
+    updateComboCooldownEvent,
+    selectComboCooldownEvent,
     toggleActionLock,
     toggleActionDisable,
     setActionColor,
@@ -6161,6 +6465,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     enemyCategories,
     scenarioList,
     activeScenarioId,
+    isSwitchingScenario,
     switchScenario,
     addScenario,
     duplicateScenario,
@@ -6211,6 +6516,7 @@ export const useTimelineStore = defineStore('timeline', () => {
     enemyAfflictionViz,
     operatorEffectLayouts,
     comboWindowLayouts,
+    comboCooldownIntervals,
     requisiteWarnings,
     gaugeSeriesByTrackId,
     simLog,

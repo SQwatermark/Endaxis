@@ -1,5 +1,5 @@
 ﻿<script setup>
-import { onMounted, onUnmounted, ref, nextTick, computed, watch } from 'vue';
+import { onMounted, onUnmounted, ref, nextTick, computed, inject, watch } from 'vue';
 import { useTimelineStore } from '../stores/timelineStore.js';
 import { useShareProject } from '@/composables/useShareProject';
 import { useAppearance } from '@/composables/useAppearance';
@@ -7,6 +7,7 @@ import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
 import { snapdom } from '@zumer/snapdom';
 import { useI18n } from 'vue-i18n';
 import { ALL_GAME_TEXT_FAMILIES, setLocale } from '@/i18n';
+import { markBootReady } from '@/utils/bootLoader';
 
 // 组件引入
 import TimelineGrid from '../components/TimelineGrid.vue';
@@ -21,6 +22,7 @@ import SimLogPanel from '../components/SimLogPanel.vue';
 import DamageAnalysisDialog from '../components/DamageAnalysisDialog.vue';
 import LoadingTerminal from '../components/LoadingTerminal.vue';
 import SmallImageExportDialog from '../components/SmallImageExportDialog.vue';
+import TimelineDisplayMenu from '../components/TimelineDisplayMenu.vue';
 
 import { addMetadataToPng, readMetadataFromPng } from '../utils/pngUtils';
 import {
@@ -449,6 +451,7 @@ watch(
 );
 
 onMounted(() => {
+  markBootReady('view');
   restoreWorkbenchLayout();
   window.addEventListener('keydown', handleGlobalKeydown, true);
   window.addEventListener('resize', updateScrollMask); // 窗口缩放时重算
@@ -507,10 +510,18 @@ async function onFileSelected(event) {
 const isDragging = ref(false);
 const isInternalDrag = ref(false);
 let dragCounter = 0;
+const displayMenuOpen = ref(false);
 const moreMenuOpen = ref(false);
 const shortcutsDialogVisible = ref(false);
+const openTimelineResetDialog = inject('openTimelineResetDialog', () => {});
 
-const hasOperatorTracks = computed(() => store.teamTracksInfo.some(track => track.id));
+watch(displayMenuOpen, open => {
+  if (open) moreMenuOpen.value = false;
+});
+
+watch(moreMenuOpen, open => {
+  if (open) displayMenuOpen.value = false;
+});
 
 function closeMoreMenu() {
   moreMenuOpen.value = false;
@@ -525,7 +536,7 @@ function runMoreProjectAction(action) {
   closeMoreMenu();
   if (action === 'load') triggerImport();
   else if (action === 'receive') openImportShareDialog();
-  else if (action === 'reset') handleReset();
+  else if (action === 'reset') openTimelineResetDialog();
 }
 
 async function selectLocaleFromMore(next) {
@@ -971,20 +982,6 @@ async function processExport() {
     store.setTimelineShift(originalShift);
     loading.close();
   }
-}
-
-// === 重置与快捷键 ===
-function handleReset() {
-  ElMessageBox.confirm(t('timeline.reset.confirm'), t('common.warning'), {
-    confirmButtonText: t('timeline.reset.confirmButton'),
-    cancelButtonText: t('common.cancel'),
-    type: 'warning',
-  })
-    .then(() => {
-      store.resetProject();
-      ElMessage.success(t('timeline.reset.done'));
-    })
-    .catch(() => {});
 }
 
 // === 接收数据码逻辑 ===
@@ -1666,6 +1663,44 @@ onUnmounted(() => {
           </button>
 
           <el-popover
+            v-model:visible="displayMenuOpen"
+            placement="bottom-end"
+            :width="280"
+            trigger="click"
+            :show-arrow="true"
+            popper-class="header-more-popper"
+          >
+            <template #reference>
+              <button
+                class="ea-btn ea-btn--sm ea-btn--lift"
+                type="button"
+                :class="{ 'is-active': displayMenuOpen }"
+                :title="t('timeline.header.displayTooltip')"
+                :aria-expanded="displayMenuOpen"
+                :aria-label="t('timeline.header.display')"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                  <circle cx="12" cy="12" r="2.5" />
+                </svg>
+                {{ t('timeline.header.display') }}
+              </button>
+            </template>
+
+            <TimelineDisplayMenu />
+          </el-popover>
+
+          <el-popover
             v-model:visible="moreMenuOpen"
             placement="bottom-end"
             :width="280"
@@ -1704,218 +1739,96 @@ onUnmounted(() => {
             <div class="header-more-panel">
               <section class="header-more-section">
                 <h4 class="header-more-section__title">
-                  {{ t('timeline.header.sectionView') }}
+                  {{ t('timeline.header.sectionEditTools') }}
                 </h4>
-
-                <div class="header-more-view-block">
-                  <h5 class="header-more-subsection__title">
-                    {{ t('timeline.header.sectionViewLayers') }}
-                  </h5>
-                  <div class="header-more-checklist header-more-checklist--grid">
-                    <button
-                      v-for="layerId in store.TIMELINE_VIEW_LAYER_IDS"
-                      :key="layerId"
-                      type="button"
-                      class="header-more-check-row header-more-check-row--compact"
-                      @click="store.toggleTimelineViewLayer(layerId)"
-                    >
-                      <svg
-                        viewBox="0 0 16 16"
-                        width="12"
-                        height="12"
-                        fill="none"
-                        stroke="color-mix(in srgb, var(--ea-gold) 85%, transparent)"
-                        stroke-width="1.5"
-                        aria-hidden="true"
-                      >
-                        <rect x="1" y="1" width="14" height="14" rx="2" />
-                        <polyline
-                          v-if="store.isTimelineViewLayerVisible(layerId)"
-                          points="3,8 6.5,11.5 13,4.5"
-                          stroke-width="2"
-                        />
-                      </svg>
-                      <span>{{ t(`timeline.header.viewLayers.${layerId}`) }}</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="header-more-view-block header-more-view-block--follow">
-                  <h5 class="header-more-subsection__title">
-                    {{ t('timeline.header.sectionViewOperators') }}
-                  </h5>
-                  <div v-if="hasOperatorTracks" class="header-more-checklist header-more-checklist--grid">
-                    <template v-for="(track, index) in store.teamTracksInfo" :key="index">
-                      <button
-                        v-if="track.id"
-                        type="button"
-                        class="header-more-check-row header-more-check-row--compact"
-                        @click="store.toggleOperatorEffectsVisible(index)"
-                      >
-                        <svg
-                          viewBox="0 0 16 16"
-                          width="12"
-                          height="12"
-                          fill="none"
-                          :stroke="store.getCharacterElementColor(track.id)"
-                          stroke-width="1.5"
-                          aria-hidden="true"
-                        >
-                          <rect x="1" y="1" width="14" height="14" rx="2" />
-                          <polyline
-                            v-if="store.operatorEffectsVisible[index]"
-                            points="3,8 6.5,11.5 13,4.5"
-                            stroke-width="2"
-                          />
-                        </svg>
-                        <span>{{ track.name }}</span>
-                      </button>
-                    </template>
-                  </div>
-                  <p v-else class="header-more-empty">{{ t('timeline.header.hideEffectsEmpty') }}</p>
-                </div>
-
-                <div class="header-more-view-block">
-                  <h5 class="header-more-subsection__title">
-                    {{ t('timeline.header.sectionDurationBarColor') }}
-                  </h5>
-
-                  <div class="header-more-checklist">
-                    <button
-                      type="button"
-                      class="header-more-check-row"
-                      @click="store.toggleColoredDurationBars()"
-                    >
-                      <svg
-                        viewBox="0 0 16 16"
-                        width="12"
-                        height="12"
-                        fill="none"
-                        stroke="color-mix(in srgb, var(--ea-gold) 85%, transparent)"
-                        stroke-width="1.5"
-                        aria-hidden="true"
-                      >
-                        <rect x="1" y="1" width="14" height="14" rx="2" />
-                        <polyline
-                          v-if="store.durationBarColor.enabled"
-                          points="3,8 6.5,11.5 13,4.5"
-                          stroke-width="2"
-                        />
-                      </svg>
-                      <span>{{ t('timeline.header.coloredDurationBarsEnable') }}</span>
-                    </button>
-                  </div>
-
-                  <div
-                    v-if="store.durationBarColor.enabled"
-                    class="header-more-color-controls"
+                <div class="header-more-checklist header-more-checklist--grid">
+                  <button
+                    type="button"
+                    class="header-more-check-row header-more-tool-row"
+                    :class="{ 'is-active': store.isBoxSelectMode }"
+                    :aria-pressed="store.isBoxSelectMode"
+                    @click="store.toggleBoxSelectMode"
                   >
-                    <label class="header-more-tune-row">
-                      <span class="header-more-tune-row__label">
-                        {{ t('timeline.header.durationBarSaturation') }}
-                        <em>{{ store.durationBarColor.saturation }}%</em>
-                      </span>
-                      <div class="ea-range-row">
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          step="5"
-                          class="ea-range"
-                          :value="store.durationBarColor.saturation"
-                          @input="
-                            store.setDurationBarColorSaturation(
-                              Number(($event.target).value),
-                            )
-                          "
-                        />
-                      </div>
-                    </label>
-
-                    <label class="header-more-tune-row">
-                      <span class="header-more-tune-row__label">
-                        {{ t('timeline.header.durationBarLightness') }}
-                        <em>{{ store.durationBarColor.lightness }}%</em>
-                      </span>
-                      <div class="ea-range-row">
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          step="5"
-                          class="ea-range"
-                          :value="store.durationBarColor.lightness"
-                          @input="
-                            store.setDurationBarColorLightness(
-                              Number(($event.target).value),
-                            )
-                          "
-                        />
-                      </div>
-                    </label>
-
-                    <h5 class="header-more-subsection__title">
-                      {{ t('timeline.header.durationBarColorSources') }}
-                    </h5>
-                    <div class="header-more-checklist header-more-checklist--grid">
-                      <button
-                        v-for="sourceId in store.DURATION_BAR_COLOR_SOURCE_IDS"
-                        :key="sourceId"
-                        type="button"
-                        class="header-more-check-row header-more-check-row--compact"
-                        @click="store.toggleDurationBarColorSource(sourceId)"
-                      >
-                        <svg
-                          viewBox="0 0 16 16"
-                          width="12"
-                          height="12"
-                          fill="none"
-                          stroke="color-mix(in srgb, var(--ea-gold) 85%, transparent)"
-                          stroke-width="1.5"
-                          aria-hidden="true"
-                        >
-                          <rect x="1" y="1" width="14" height="14" rx="2" />
-                          <polyline
-                            v-if="store.durationBarColor.sources[sourceId]"
-                            points="3,8 6.5,11.5 13,4.5"
-                            stroke-width="2"
-                          />
-                        </svg>
-                        <span>{{ t(`timeline.header.durationBarColorSource.${sourceId}`) }}</span>
-                      </button>
-                    </div>
-
-                    <h5 class="header-more-subsection__title">
-                      {{ t('timeline.header.durationBarColorSurfaces') }}
-                    </h5>
-                    <div class="header-more-checklist header-more-checklist--grid">
-                      <button
-                        v-for="surfaceId in store.DURATION_BAR_COLOR_SURFACE_IDS"
-                        :key="surfaceId"
-                        type="button"
-                        class="header-more-check-row header-more-check-row--compact"
-                        @click="store.toggleDurationBarColorSurface(surfaceId)"
-                      >
-                        <svg
-                          viewBox="0 0 16 16"
-                          width="12"
-                          height="12"
-                          fill="none"
-                          stroke="color-mix(in srgb, var(--ea-gold) 85%, transparent)"
-                          stroke-width="1.5"
-                          aria-hidden="true"
-                        >
-                          <rect x="1" y="1" width="14" height="14" rx="2" />
-                          <polyline
-                            v-if="store.durationBarColor.surfaces[surfaceId]"
-                            points="3,8 6.5,11.5 13,4.5"
-                            stroke-width="2"
-                          />
-                        </svg>
-                        <span>{{ t(`timeline.header.durationBarColorSurface.${surfaceId}`) }}</span>
-                      </button>
-                    </div>
-                  </div>
+                    <svg
+                      class="header-more-tool-row__icon"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
+                      <rect x="7.5" y="7.5" width="9" height="9" stroke-dasharray="2 2" />
+                    </svg>
+                    <span class="header-more-tool-row__label">
+                      {{ t('timeline.header.editTools.boxSelect') }}
+                    </span>
+                    <svg
+                      class="header-more-tool-row__check"
+                      viewBox="0 0 16 16"
+                      width="13"
+                      height="13"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      aria-hidden="true"
+                    >
+                      <rect x="1" y="1" width="14" height="14" rx="2" />
+                      <polyline
+                        v-if="store.isBoxSelectMode"
+                        points="3,8 6.5,11.5 13,4.5"
+                        stroke-width="2"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="header-more-check-row header-more-tool-row"
+                    :class="{ 'is-active': store.enableConnectionTool }"
+                    :aria-pressed="store.enableConnectionTool"
+                    @click="store.toggleConnectionTool"
+                  >
+                    <svg
+                      class="header-more-tool-row__icon"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="5" cy="7" r="2.5" />
+                      <circle cx="19" cy="17" r="2.5" />
+                      <path d="M7.5 7c5.5 0 3.5 10 9 10" />
+                    </svg>
+                    <span class="header-more-tool-row__label">
+                      {{ t('timeline.header.editTools.connection') }}
+                    </span>
+                    <svg
+                      class="header-more-tool-row__check"
+                      viewBox="0 0 16 16"
+                      width="13"
+                      height="13"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      aria-hidden="true"
+                    >
+                      <rect x="1" y="1" width="14" height="14" rx="2" />
+                      <polyline
+                        v-if="store.enableConnectionTool"
+                        points="3,8 6.5,11.5 13,4.5"
+                        stroke-width="2"
+                      />
+                    </svg>
+                  </button>
                 </div>
               </section>
 
@@ -2018,15 +1931,6 @@ onUnmounted(() => {
                     >
                       {{ t('locale.enShort') }}
                     </button>
-                    <button
-                      type="button"
-                      class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-info header-more-locale__btn"
-                      :class="{ 'is-active': locale === 'ru' }"
-                      :title="t('locale.ru')"
-                      @click="selectLocaleFromMore('ru')"
-                    >
-                      {{ t('locale.ruShort') }}
-                    </button>
                   </div>
                   <button
                     type="button"
@@ -2053,7 +1957,11 @@ onUnmounted(() => {
                 </div>
                 <div class="header-more-pref-row header-more-pref-row--appearance">
                   <span class="header-more-appearance__label">{{ t('common.appearance') }}</span>
-                  <div class="header-more-appearance" role="group" :aria-label="t('common.appearance')">
+                  <div
+                    class="header-more-appearance"
+                    role="group"
+                    :aria-label="t('common.appearance')"
+                  >
                     <button
                       type="button"
                       class="ea-btn ea-btn--sm ea-btn--lift header-more-appearance__btn"
@@ -2877,21 +2785,21 @@ onUnmounted(() => {
 }
 
 /* Light mode: white UI glyphs → ink silhouette (assets are white-on-transparent). */
-:global(html[data-theme='light'] .activity-bar__image-icon){
+:global(html[data-theme='light'] .activity-bar__image-icon) {
   filter: brightness(0) opacity(0.72);
   opacity: 1;
 }
-:global(html[data-theme='light'] .activity-bar__button.is-active .activity-bar__image-icon){
+:global(html[data-theme='light'] .activity-bar__button.is-active .activity-bar__image-icon) {
   filter: brightness(0) opacity(0.92);
 }
 :global(html[data-theme='light'] .activity-bar__button:hover .activity-bar__image-icon),
-:global(html[data-theme='light'] .activity-bar__button.is-active:hover .activity-bar__image-icon){
+:global(html[data-theme='light'] .activity-bar__button.is-active:hover .activity-bar__image-icon) {
   filter: brightness(0) opacity(1);
   transform: translateY(-3px) scale(1.1);
 }
 :global(html[data-theme='light'] .header-more-action.ea-btn),
 :global(html[data-theme='light'] .header-more-locale__btn.ea-btn),
-:global(html[data-theme='light'] .header-more-appearance__btn.ea-btn){
+:global(html[data-theme='light'] .header-more-appearance__btn.ea-btn) {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -2950,6 +2858,10 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0;
+  max-height: min(760px, calc(100vh - 96px));
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
 }
 .header-more-section {
   display: flex;
@@ -2967,122 +2879,6 @@ onUnmounted(() => {
   font-weight: 700;
   letter-spacing: 0.5px;
   color: color-mix(in srgb, var(--ea-gold) 90%, transparent);
-}
-.header-more-view-block {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.header-more-view-block + .header-more-view-block {
-  margin-top: 10px;
-  padding-top: 12px;
-  border-top: 1px solid var(--ea-border-soft);
-}
-.header-more-view-block + .header-more-view-block.header-more-view-block--follow {
-  margin-top: 8px;
-  padding-top: 0;
-  border-top: none;
-}
-.header-more-subsection__title {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--ea-fg-muted);
-}
-.header-more-checklist {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  max-height: 168px;
-  overflow-y: auto;
-  border: 1px solid var(--ea-border-soft);
-  border-radius: 4px;
-  background: var(--ea-fill-soft);
-}
-.header-more-checklist--grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  max-height: none;
-  overflow: visible;
-}
-.header-more-checklist--grid .header-more-check-row {
-  border-bottom: 1px solid var(--ea-border-soft);
-}
-.header-more-checklist--grid .header-more-check-row:nth-child(odd) {
-  border-right: 1px solid var(--ea-border-soft);
-}
-.header-more-check-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  margin: 0;
-  padding: 7px 9px;
-  border: none;
-  border-bottom: 1px solid var(--ea-border-soft);
-  border-radius: 0;
-  background: transparent;
-  color: var(--ea-fg-secondary);
-  font-size: 12px;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-}
-.header-more-check-row--compact {
-  gap: 5px;
-  padding: 5px 7px;
-  font-size: 11px;
-  font-weight: 600;
-  min-width: 0;
-}
-.header-more-check-row--compact span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.header-more-check-row:last-child {
-  border-bottom: none;
-}
-.header-more-check-row:hover {
-  background: var(--ea-hover-fill);
-  color: var(--ea-fg);
-}
-.header-more-check-row svg {
-  flex-shrink: 0;
-}
-.header-more-color-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 2px 0 0;
-}
-.header-more-tune-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-  padding: 2px 2px 4px;
-  color: var(--ea-fg-secondary);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: default;
-}
-.header-more-tune-row__label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.header-more-tune-row__label em {
-  font-style: normal;
-  color: color-mix(in srgb, var(--ea-gold) 85%, transparent);
-  font-variant-numeric: tabular-nums;
-}
-.header-more-color-controls .header-more-subsection__title {
-  margin-top: 2px;
 }
 .header-more-actions {
   display: flex;
@@ -3111,12 +2907,6 @@ onUnmounted(() => {
   --ea-btn-bg-hover: rgba(255, 77, 79, 0.12);
   --ea-btn-border-hover: var(--ea-danger-soft);
   --ea-btn-color-hover: var(--ea-danger-soft);
-}
-.header-more-empty {
-  margin: 0;
-  padding: 8px;
-  font-size: 12px;
-  color: var(--ea-fg-faint);
 }
 .header-more-pref-row {
   display: flex;
@@ -3181,7 +2971,7 @@ onUnmounted(() => {
   color: #ffe38a;
 }
 :global(html[data-theme='light'] .header-more-locale__btn.ea-btn.is-active),
-:global(html[data-theme='light'] .header-more-appearance__btn.ea-btn.is-active){
+:global(html[data-theme='light'] .header-more-appearance__btn.ea-btn.is-active) {
   border-color: rgba(180, 140, 0, 0.55);
   background: rgba(180, 140, 0, 0.12);
   color: var(--ea-gold);

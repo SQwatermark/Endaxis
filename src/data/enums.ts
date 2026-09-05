@@ -12,20 +12,17 @@ export const COMBAT_SKILL_TYPES = Object.freeze([
 ] as const);
 export type CombatSkillType = (typeof COMBAT_SKILL_TYPES)[number];
 
-export const SKILL_TYPES = Object.freeze([
-  ...COMBAT_SKILL_TYPES,
-  'finalStrike',
-  'dive',
-] as const);
+export const SKILL_TYPES = Object.freeze([...COMBAT_SKILL_TYPES, 'finalStrike', 'dive'] as const);
 export type SkillType = (typeof SKILL_TYPES)[number];
 
 /** Stat / editor scopes beyond `SkillType` (e.g. finisher attribution, non-skill damage). */
-export const SKILL_TYPE_SCOPES = Object.freeze([
-  ...SKILL_TYPES,
-  'finisher',
-  'nonSkill',
-] as const);
+export const SKILL_TYPE_SCOPES = Object.freeze([...SKILL_TYPES, 'finisher', 'nonSkill'] as const);
 export type SkillTypeScope = (typeof SKILL_TYPE_SCOPES)[number];
+
+/** Sub-skill grouping. `'nonSkill'` = a released action that is not a skill: it consumes no Link,
+ *  no one-time charges, and its damage carries no skill-type attribution. */
+export const SUB_SKILL_GROUPS = Object.freeze([...COMBAT_SKILL_TYPES, 'nonSkill'] as const);
+export type SubSkillGroup = (typeof SUB_SKILL_GROUPS)[number];
 
 export const ARTS_ELEMENTS = Object.freeze(['heat', 'cryo', 'electric', 'nature'] as const);
 export type ArtsElement = (typeof ARTS_ELEMENTS)[number];
@@ -82,6 +79,8 @@ export const EFFECT_TARGET_SCOPES = Object.freeze([
   'enemy',
   'owner',
   'controlled',
+  'statusRecipients',
+  'statusRecipientsExcludeSelf',
 ] as const);
 export type EffectTargetScope = (typeof EFFECT_TARGET_SCOPES)[number];
 

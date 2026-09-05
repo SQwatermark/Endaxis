@@ -19,7 +19,6 @@
     "max": "拉满",
     "new": "新",
     "none": "无",
-    "noneParen": "（无）",
     "off": "关闭",
     "old": "旧",
     "on": "开启",
@@ -277,8 +276,6 @@
   "locale": {
     "en": "English",
     "enShort": "EN",
-    "ru": "Русский",
-    "ruShort": "RU",
     "zhCN": "简体中文",
     "zhCNShort": "中"
   },
@@ -353,13 +350,22 @@
     },
     "header": {
       "projectDirty": "项目有未导出修改",
+      "display": "显示",
+      "displayTooltip": "时间轴显示与辅助线",
       "more": "更多",
-      "moreTooltip": "视图、项目与偏好",
-      "sectionView": "视图",
+      "moreTooltip": "编辑工具、项目与偏好",
+      "sectionEditTools": "编辑工具",
       "sectionProject": "项目",
       "sectionPrefs": "偏好",
       "sectionViewLayers": "显示内容",
+      "sectionViewBehavior": "视图行为",
       "sectionViewOperators": "干员",
+      "cursorGuide": "辅助线",
+      "buffLayout": "Buff 排布",
+      "editTools": {
+        "boxSelect": "框选",
+        "connection": "连线编辑"
+      },
       "sectionDurationBarColor": "持续时间染色",
       "coloredDurationBarsEnable": "启用染色",
       "durationBarSaturation": "饱和度",
@@ -392,7 +398,7 @@
       "languageTooltip": "切换语言",
       "loadTooltip": "导入 .json 项目文件或 .png 图片",
       "receiveTooltip": "粘贴数据码导入项目",
-      "resetTooltip": "清空所有内容"
+      "resetTooltip": "选择重置范围"
     },
     "shortcuts": {
       "dialogTitle": "快捷键一览",
@@ -465,11 +471,38 @@
       "import": "导入",
       "importing": "导入中...",
       "more": "更多",
+      "undo": "撤销",
+      "redo": "重做",
       "loadout": {
         "title": "干员配装",
         "openAria": "查看 {name} 配装",
+        "selectOperator": "选择干员",
+        "operatorStatus": "干员",
         "weapon": "武器",
         "equipment": "装备"
+      },
+      "skillLibrary": {
+        "title": "干员技能库",
+        "selectTrack": "选择轨道后添加技能",
+        "empty": "当前干员没有可放置的技能",
+        "placeHint": "轻触已高亮的轨道位置进行放置",
+        "placed": "已放置“{name}”"
+      },
+      "timeSettings": {
+        "title": "时间轴设置",
+        "prepDuration": "战前准备时长",
+        "battleDuration": "战斗时间轴时长",
+        "seconds": "秒",
+        "expandPrep": "展开战前准备区"
+      },
+      "display": {
+        "title": "时间轴显示",
+        "showAllAttackSegments": "普攻全部段数",
+        "showAnomalies": "异常",
+        "showDurationBars": "持续时间",
+        "showFreezeEffects": "冻屏效果",
+        "showStaggerBreaks": "失衡",
+        "showOperationHints": "操作键位"
       },
       "actionInfo": {
         "title": "技能信息",
@@ -480,7 +513,13 @@
         "spCost": "技力消耗",
         "cooldown": "冷却时间",
         "gaugeCost": "充能消耗",
-        "hits": "判定点数"
+        "hits": "判定点数",
+        "totalDamage": "总伤害",
+        "damageHit": "判定点 {index}",
+        "noDamage": "当前模拟中未产生伤害",
+        "disable": "停用技能",
+        "enable": "启用技能",
+        "delete": "删除技能"
       },
       "app": {
         "timeline": "时间轴",
@@ -490,9 +529,17 @@
     },
     "loading": "正在加载资源...",
     "reset": {
-      "confirm": "确定要清空当前所有进度吗？这将清空所有方案数据。",
-      "confirmButton": "确定清空",
-      "done": "项目已重置"
+      "title": "选择重置范围",
+      "currentKeepLoadout": "重置当前方案并保留配装",
+      "currentKeepLoadoutDescription": "清空当前方案的时间轴与战斗设置，保留干员、武器和装备。",
+      "current": "重置当前方案",
+      "currentDescription": "清空当前方案的全部内容，其他方案不受影响。",
+      "all": "重置全部方案",
+      "allDescription": "删除所有方案及配装数据，并恢复为初始项目。",
+      "confirmButton": "确认重置",
+      "currentKeepLoadoutDone": "当前方案已重置，配装已保留",
+      "currentDone": "当前方案已重置",
+      "done": "全部方案已重置"
     },
     "scenario": {
       "addTooltip": "新建方案",
@@ -636,7 +683,6 @@
       "selectedCount": "选中了 {count} 个动作"
     },
     "toolbar": {
-      "boxSelect": "框选 (Ctrl+B)",
       "buffLayoutCompact": "紧凑",
       "buffLayoutLoose": "松散",
       "buffLayoutMode": "Buff 排布：{mode}",
@@ -645,6 +691,9 @@
       "connectionTool": "连线工具 (Alt+L)",
       "cursorGuide": "辅助线 (Ctrl+G)",
       "initialGauge": "初始充能：左键切换 0 / 充满 / 自定义（按干员记忆）；右键统一改所有干员充能",
+      "initialGaugeEmptyShort": "空",
+      "initialGaugeFullShort": "满",
+      "initialGaugeCustomShort": "自定义",
       "initialGaugeAppliedCustom": "初始充能：自定义（按干员）",
       "initialGaugeAppliedEmpty": "初始充能：0",
       "initialGaugeAppliedFull": "初始充能：充满",
@@ -741,6 +790,7 @@
     "enhanced": "强化{type}",
     "weapon": "武器",
     "set": "套装",
+    "nonSkill": "非技能",
     "unknown": "技能"
   },
   "enemyTier": {
@@ -760,6 +810,9 @@
     "setSourcePort": "设置 出点",
     "setTargetPort": "设置 入点",
     "globalOps": "全局操作",
+    "comboCooldownControl": "连携冷却",
+    "comboCooldownReadyAll": "所有连携冷却立即回转",
+    "comboCooldownStartAll": "所有连携强制进入冷却",
     "addCycleBoundary": "添加循环分界线",
     "addSimulationStartline": "添加模拟起始线",
     "removeSimulationStartline": "移除模拟起始线",
@@ -946,7 +999,10 @@
       "improvisedExplosive": "自制炸弹",
       "thunderlance": "雷枪",
       "thunderlanceEx": "强雷枪",
+      "consumeElectrification": "消耗导电",
       "wolvenBlood": "狼血",
+      "vocalistStance": "演唱姿态",
+      "cosmovoiceStance": "高歌姿态",
       "whirlpools": "涡流",
       "waterspouts": "水龙卷",
       "oldenStare": "古老图形",
@@ -957,6 +1013,7 @@
       "ultEnergyGain": "终结技充能",
       "spRecovery": "技力回复",
       "spReturn": "技力返还",
+      "firefangVesperwings": "衔火血翼",
       "pursuit": "追猎",
       "imprisonment": "囹圄",
       "natureCryoSusceptibility": "寒冷和自然脆弱",
@@ -991,7 +1048,9 @@
       "teamExcludeSameElement": "全队（不含同元素）",
       "enemy": "敌人",
       "owner": "持有者",
-      "controlled": "当前操控"
+      "controlled": "当前操控",
+      "statusRecipients": "状态接受者",
+      "statusRecipientsExcludeSelf": "状态接受者（不含自身）"
     },
     "statGroups": {
       "enemy": "敌人属性",
@@ -1019,7 +1078,7 @@
       "status": "其他",
       "amp": "增幅",
       "infliction": "法术附着",
-      "burst": "异常爆发",
+      "burst": "法术爆发",
       "reaction": "法术异常",
       "physicalStatus": "物理异常",
       "damageHit": "伤害命中",
@@ -1087,6 +1146,7 @@
       "stacksFromConsume": "层数取自消耗",
       "_condition": "判定点条件",
       "targetClasses": "职业限制",
+      "targetElements": "元素限制",
       "attribute": "属性类型",
       "conditionStatus": "状态",
       "conditionStacks": "层数约束",
@@ -1106,6 +1166,7 @@
     "basic": "基础",
     "effects": "效果",
     "advanced": "高级",
+    "advancedSettings": "高级设置",
     "generalSettings": "通用设置",
     "specialSettings": "特殊设置",
     "open": "编辑",
@@ -1346,11 +1407,19 @@
     "nonCritDamage": "非暴击伤害",
     "attack": "攻击",
     "multiplier": "技能倍率",
+    "baseMultiplier": "基础倍率",
+    "fixedMultiplier": "额外倍率",
+    "conditionalMultiplier": "条件倍率",
+    "attributeMultiplier": "属性加成",
+    "stackMultiplierDetail": "{stacks} 层 × {coefficient}",
+    "attributeMultiplierDetail": "{attribute} {value} × {coefficient}",
     "baseDamage": "基础伤害",
     "critRateScale": "暴击率缩放",
     "critRateScaleTooltip": "该命中使用额外暴击率缩放。",
     "dmgBonus": "伤害加成",
     "critMult": "暴击期望",
+    "rawCritRate": "原始暴击率",
+    "critRateCap": "暴击率上限",
     "ampBonus": "增幅",
     "directMult": "直接倍率",
     "susceptibility": "脆弱",
@@ -1369,6 +1438,9 @@
     "artsIntensityDetail": "{value} 点",
     "effectiveness": "异常效能"
   },
+  "skillNames": {
+    "stanceTermination": "姿态中止"
+  },
   "actionItem": {
     "damageHitTooltip": "伤害: {damage}",
     "lockedTitle": "位置已锁定",
@@ -1383,6 +1455,10 @@
       "enhancedBasicDuringUltimate": "终结技持续期间应释放强化普攻",
       "enhancedBattleDuringUltimate": "终结技持续期间应释放强化战技",
       "enhancedComboDuringUltimate": "终结技持续期间应释放强化连携",
+      "liinoStanceTerminationOnly": "只能在演唱姿态或高歌姿态期间释放姿态中止",
+      "liinoUseStanceTermination": "姿态持续期间应使用姿态中止",
+      "battleSkillOnCooldown": "战技仍在冷却",
+      "ultimateSkillOnCooldown": "终结技仍在冷却",
       "arcaneUltimateArcanaRequired": "无法释放终结技，需进行两次重击或处决"
     }
   },

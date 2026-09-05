@@ -1,4 +1,5 @@
 import type { ActionType, ResolvedHit, ConsumedStatEffect } from '../compiler/types';
+import type { SkillMultiplierDetail } from '@/data/types';
 import type {
   EnemyEffectApplyEvent,
   EnemyEffectExpireEvent,
@@ -86,6 +87,15 @@ export type StaggerChangeEvent = SimBaseEvent<
 /** Fires once at t=0 so `onBattleStart` triggers can apply effects at the start of the fight. */
 export type BattleStartEvent = SimBaseEvent<'BATTLE_START', {}>;
 
+export type ComboCooldownControlEvent = SimBaseEvent<
+  'COMBO_COOLDOWN_CONTROL',
+  {
+    eventId: string;
+    mode: 'ready' | 'cooldown';
+    cooldownByActorId: Record<string, number>;
+  }
+>;
+
 export type UltEnergyChangeEvent = SimBaseEvent<
   'ULT_ENERGY_CHANGE',
   {
@@ -119,6 +129,7 @@ export type DotTickSimEvent = SimBaseEvent<
     effectId: string;
     element: string;
     multiplier: number;
+    multiplierDetail?: SkillMultiplierDetail;
     /** Action type (e.g. 'comboSkill'). Matches `stat.skillTypes` on DOT-tick damage. */
     skillType?: string;
     /** Specific skillId (e.g. 'alesh-enhanced-combo'). Matches `stat.skillId` on DOT-tick damage. */
@@ -140,6 +151,7 @@ export type SimEvent =
   | StaggerChangeEvent
   | UltEnergyChangeEvent
   | BattleStartEvent
+  | ComboCooldownControlEvent
   // Enemy state events
   | EnemyEffectApplyEvent
   | EnemyEffectExpireEvent
@@ -253,6 +265,17 @@ export type SimLogEntry =
         actionId: string;
         actorId: string;
         stacks: number;
+      }
+    >
+  | SimLogEntryBase<
+      'SKILL_COOLDOWN_APPLY',
+      {
+        actorId: string;
+        cooldownKey: string;
+        duration: number;
+        expiresAt: number;
+        sourceActionId?: string;
+        sourceSkillId?: string;
       }
     >
   | SimLogEntryBase<

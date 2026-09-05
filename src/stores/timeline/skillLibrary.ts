@@ -193,6 +193,7 @@ export function useSkillLibrary(deps: SkillLibraryDeps) {
         element: (element as string) || activeChar.element || 'physical',
         icon: (icon as string) || '',
         duration,
+        _sheetDurationBaseline: duration,
         cooldown,
         spCost,
         gaugeCost,
@@ -211,6 +212,10 @@ export function useSkillLibrary(deps: SkillLibraryDeps) {
     const buildSkillDisplayName = (skill: Record<string, any>, isStandard: boolean) => {
       if (isStandard) {
         return getI18nSkillType(skill.type || 'unknown');
+      }
+      const localNameKey = skill?.name ? `skillNames.${skill.name}` : '';
+      if (localNameKey && i18n.global.te(localNameKey)) {
+        return String(i18n.global.t(localNameKey));
       }
       if (!isStandard && skill?.skillKey) {
         return getOperatorSubSkillName(activeChar.id, skill.skillKey, undefined, skill?.name);
@@ -236,7 +241,18 @@ export function useSkillLibrary(deps: SkillLibraryDeps) {
       const skillKey = skill.skillKey || skill.type;
       const cooldown = resolveLevelNumber(skill?.cooldown, levelIndex, 0);
       const segmentData = buildSegmentModels(skillIdBase, skill, levelIndex);
-      const skillRequisites = Array.isArray(skill.requisites) ? skill.requisites : [];
+      const authoredRequisites = Array.isArray(skill.requisites) ? skill.requisites : [];
+      const ultimateCooldownRequisite = {
+        id: 'ultimate-cooldown-ready',
+        condition: { kind: 'ultimateCooldownReady' },
+        messageKey: 'actionItem.requisiteTitle.ultimateSkillOnCooldown',
+      };
+      const skillRequisites =
+        skill.type === 'ultimate' &&
+        cooldown > 0 &&
+        !authoredRequisites.some(item => item?.id === ultimateCooldownRequisite.id)
+          ? [...authoredRequisites, ultimateCooldownRequisite]
+          : authoredRequisites;
       const mergeRequisites = (segmentInfo?: Record<string, unknown> | null) => {
         const segmentRequisites = Array.isArray(segmentInfo?.requisites)
           ? segmentInfo.requisites
@@ -250,7 +266,14 @@ export function useSkillLibrary(deps: SkillLibraryDeps) {
             ? Number(skill?.ultimateEnergyGain ?? DEFAULT_COMBO_SKILL_UE) || 0
             : Number(skill?.ultimateEnergyGain) || 0;
       const baseDefaults = {
-        spCost: skill.type === 'battleSkill' ? systemConstants.value.skillSpCostDefault : 0,
+        spCost:
+          skill.type === 'battleSkill'
+            ? resolveLevelNumber(
+                skill?.spCost,
+                levelIndex,
+                systemConstants.value.skillSpCostDefault,
+              )
+            : 0,
         gaugeCost: skill.type === 'ultimate' ? Number(skill?.ultimateEnergyCost) || 100 : 0,
         gaugeGain: gaugeGainDefault,
         teamGaugeGain: skill.type === 'battleSkill' ? gaugeGainDefault : 0,
@@ -468,9 +491,18 @@ export function useSkillLibrary(deps: SkillLibraryDeps) {
       .map(skill => buildStandardOrVariantSkill(skill, { isStandard: false }))
       .filter(isSkill);
 
+    // A nonSkill has no rank of its own, so it would sort last. Rank it by the skill it hangs off
+    // (`levelKey`) instead, keeping the sub-skill rule: variants sit under their parent skill.
+    const sortWeight = (skill: Record<string, unknown>) => {
+      const type = String(skill.type ?? '');
+      if (type !== 'nonSkill') return TYPE_ORDER[type] || 99;
+      const parent = flatSkills[String(skill.skillKey ?? '')]?.levelKey;
+      return TYPE_ORDER[String(parent ?? '')] || 99;
+    };
+
     const visibleSkills = [...standardSkills, ...variantSkills].sort((a, b) => {
-      const weightA = TYPE_ORDER[a.type as string] || 99;
-      const weightB = TYPE_ORDER[b.type as string] || 99;
+      const weightA = sortWeight(a);
+      const weightB = sortWeight(b);
 
       if (weightA !== weightB) {
         return weightA - weightB;

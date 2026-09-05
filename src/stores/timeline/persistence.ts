@@ -6,7 +6,7 @@
 // existing saved timelines and share codes must keep round-tripping, so the
 // logic is moved verbatim and only its store bindings are injected.
 
-import { toRaw } from 'vue';
+import { nextTick, toRaw } from 'vue';
 import type { Ref } from 'vue';
 import { watchThrottled } from '@vueuse/core';
 import { compressGzip, decompressGzip } from '@/utils/gzipUtils';
@@ -22,11 +22,13 @@ import type {
   EnemyConfigState,
   CycleBoundary,
   SwitchEvent,
+  ComboCooldownEvent,
 } from './types';
 import type { GlobalConfigState } from '@/data/globalConfig';
 import { createEmptyGlobalConfig } from '@/data/globalConfig';
 
 const tr = (key: string, params?: Record<string, unknown>) => i18n.global.t(key, params ?? {});
+const HISTORY_INIT_SETTLE_MS = 160;
 
 // ─── Dependencies ────────────────────────────────────────────────────────────
 
@@ -48,6 +50,7 @@ interface PersistenceDeps {
   customEnemyParams: Ref<EnemyConfigState>;
   cycleBoundaries: Ref<CycleBoundary[]>;
   switchEvents: Ref<SwitchEvent[]>;
+  comboCooldownEvents: Ref<ComboCooldownEvent[]>;
   simulationEndline: Ref<number | null>;
   simulationStartline: Ref<number | null>;
   inheritedInitialEffects: Ref<Record<string, unknown>[]>;
@@ -61,6 +64,7 @@ interface PersistenceDeps {
   initialGaugeMode: Ref<'empty' | 'full' | 'custom'>;
   customInitialGauges: Ref<Record<string, number>>;
   isLoading: Ref<boolean>;
+  isSwitchingScenario: Ref<boolean>;
   historyStack: Ref<string[]>;
   historyIndex: Ref<number>;
   operatorStore: ArmoryStoreLike & { operators: unknown };
@@ -81,6 +85,7 @@ interface PersistenceDeps {
   initializeOptimizerGameData: () => void;
   dropLegacyTimedStatusData: (snapshot: any) => any;
   normalizePrepConfig: (snapshot: any) => { snapshot: any; migrated: boolean };
+  restoreScenarioEditorPrefs: (scenario: ScenarioListEntry | null | undefined) => void;
 }
 
 // ─── Composable ──────────────────────────────────────────────────────────────
@@ -100,6 +105,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
     customEnemyParams,
     cycleBoundaries,
     switchEvents,
+    comboCooldownEvents,
     simulationEndline,
     simulationStartline,
     inheritedInitialEffects,
@@ -113,6 +119,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
     initialGaugeMode,
     customInitialGauges,
     isLoading,
+    isSwitchingScenario,
     historyStack,
     historyIndex,
     operatorStore,
@@ -129,9 +136,41 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
     initializeOptimizerGameData,
     dropLegacyTimedStatusData,
     normalizePrepConfig,
+    restoreScenarioEditorPrefs,
   } = deps;
 
   const STORAGE_KEY = 'endaxis_autosave';
+  let pendingAutoSaveId: number | null = null;
+  let pendingAutoSaveUsesIdleCallback = false;
+
+  function scheduleAutoSave(task: () => void) {
+    if (typeof window === 'undefined') {
+      task();
+      return;
+    }
+
+    if (pendingAutoSaveId != null) {
+      if (pendingAutoSaveUsesIdleCallback && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(pendingAutoSaveId);
+      } else {
+        window.clearTimeout(pendingAutoSaveId);
+      }
+    }
+
+    const run = () => {
+      pendingAutoSaveId = null;
+      pendingAutoSaveUsesIdleCallback = false;
+      task();
+    };
+
+    if (typeof window.requestIdleCallback === 'function') {
+      pendingAutoSaveUsesIdleCallback = true;
+      pendingAutoSaveId = window.requestIdleCallback(run, { timeout: 1_500 });
+    } else {
+      pendingAutoSaveUsesIdleCallback = false;
+      pendingAutoSaveId = window.setTimeout(run, 0);
+    }
+  }
 
   function initAutoSave() {
     watchThrottled(
@@ -149,6 +188,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
         customEnemyParams,
         cycleBoundaries,
         switchEvents,
+        comboCooldownEvents,
         simulationEndline,
         simulationStartline,
         inheritedInitialEffects,
@@ -161,6 +201,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
         () => operatorStore.operators,
         () => weaponStore.weapons,
         () => gearStore.gears,
+        isSwitchingScenario,
       ],
       ([
         newTracks,
@@ -176,6 +217,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
         newCustomParams,
         newBoundaries,
         newSwEvents,
+        newComboCooldownEvents,
         newSimEndline,
         newSimStartline,
         newInheritedInitialEffects,
@@ -188,64 +230,75 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
         newOperators,
         newWeapons,
         newGears,
+        switchingScenario,
       ]) => {
-        if (isLoading.value) return;
+        if (isLoading.value || switchingScenario) return;
 
-        const listToSave: any[] = JSON.parse(JSON.stringify(newScList));
-        listToSave.forEach(sc => {
-          if (sc?.data) dropLegacyTimedStatusData(sc.data);
-        });
-        const currentSc = listToSave.find(s => s.id === newActiveId);
+        scheduleAutoSave(() => {
+          if (isLoading.value || isSwitchingScenario.value) return;
 
-        if (currentSc) {
-          currentSc.data = {
-            tracks: newTracks,
-            connections: newConns,
-            operators: toRaw(newOperators),
-            weapons: toRaw(newWeapons),
-            gears: toRaw(newGears),
-            characterOverrides: newOverrides,
-            weaponOverrides: newWeaponOverrides,
-            equipmentCategoryOverrides: newEquipmentCatOverrides,
-            prepDuration: prepDuration.value,
-            prepExpanded: prepExpanded.value,
-            battleDuration: battleDuration.value,
-            trackRowHeightWeights: newTrackRowHeightWeights,
-            initialGaugeMode: newInitialGaugeMode,
-            customInitialGauges: newCustomInitialGauges,
+          const listToSave: any[] = JSON.parse(JSON.stringify(newScList));
+          listToSave.forEach(sc => {
+            if (sc?.data) dropLegacyTimedStatusData(sc.data);
+          });
+          const currentSc = listToSave.find(s => s.id === newActiveId);
+
+          if (currentSc) {
+            currentSc.data = {
+              tracks: newTracks,
+              connections: newConns,
+              operators: toRaw(newOperators),
+              weapons: toRaw(newWeapons),
+              gears: toRaw(newGears),
+              characterOverrides: newOverrides,
+              weaponOverrides: newWeaponOverrides,
+              equipmentCategoryOverrides: newEquipmentCatOverrides,
+              prepDuration: prepDuration.value,
+              prepExpanded: prepExpanded.value,
+              battleDuration: battleDuration.value,
+              trackRowHeightWeights: newTrackRowHeightWeights,
+              initialGaugeMode: newInitialGaugeMode,
+              customInitialGauges: newCustomInitialGauges,
+              systemConstants: newSys,
+              activeEnemyId: newEnemyId,
+              activeEnemyLevel: newEnemyLevel,
+              customEnemyParams: newCustomParams,
+              cycleBoundaries: newBoundaries,
+              switchEvents: newSwEvents,
+              comboCooldownEvents: newComboCooldownEvents,
+              simulationEndline: newSimEndline,
+              simulationStartline: newSimStartline,
+              inheritedInitialEffects: newInheritedInitialEffects,
+              inheritedInitialEnemyState: newInheritedInitialEnemyState,
+              contingencyContractTags: newContingencyContractTags,
+              globalConfig: newGlobalConfig,
+            };
+          }
+
+          const snapshot = {
+            version: '1.0.0',
+            timestamp: Date.now(),
+            scenarioList: listToSave,
+            activeScenarioId: newActiveId,
             systemConstants: newSys,
             activeEnemyId: newEnemyId,
             activeEnemyLevel: newEnemyLevel,
-            customEnemyParams: newCustomParams,
-            cycleBoundaries: newBoundaries,
-            switchEvents: newSwEvents,
-            simulationEndline: newSimEndline,
-            simulationStartline: newSimStartline,
-            inheritedInitialEffects: newInheritedInitialEffects,
-            inheritedInitialEnemyState: newInheritedInitialEnemyState,
-            contingencyContractTags: newContingencyContractTags,
-            globalConfig: newGlobalConfig,
           };
-        }
-
-        const snapshot = {
-          version: '1.0.0',
-          timestamp: Date.now(),
-          scenarioList: listToSave,
-          activeScenarioId: newActiveId,
-          systemConstants: newSys,
-          activeEnemyId: newEnemyId,
-          activeEnemyLevel: newEnemyLevel,
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeProjectData(snapshot)));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeProjectData(snapshot)));
+        });
       },
       { deep: true, throttle: 500 },
     );
   }
 
-  function loadFromBrowser() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
+  async function loadFromBrowser() {
+    isLoading.value = true;
+    let loaded = false;
+
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+
       try {
         const data = deserializeProjectData(JSON.parse(raw)) as {
           scenarioList?: any[];
@@ -274,6 +327,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
         activeScenarioId.value = data.activeScenarioId || scenarioList.value[0]!.id;
 
         const currentSc = scenarioList.value.find(s => s.id === activeScenarioId.value);
+        restoreScenarioEditorPrefs(currentSc);
         if (currentSc && currentSc.data) {
           _loadSnapshot(currentSc.data);
         } else {
@@ -296,15 +350,20 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
           recomputeAllTrackOperatorStatuses();
         }
 
-        historyStack.value = [];
-        historyIndex.value = -1;
-        commitState();
-        return true;
+        loaded = true;
       } catch (e) {
         console.error('Auto-save load failed:', e);
       }
+    } finally {
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, HISTORY_INIT_SETTLE_MS));
+      historyStack.value = [];
+      historyIndex.value = -1;
+      commitState();
+      isLoading.value = false;
     }
-    return false;
+
+    return loaded;
   }
 
   function resetProject() {
@@ -319,6 +378,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
     equipmentCategoryOverrides.value = {};
     cycleBoundaries.value = [];
     switchEvents.value = [];
+    comboCooldownEvents.value = [];
     simulationEndline.value = null;
     simulationStartline.value = null;
     inheritedInitialEffects.value = [];
@@ -336,9 +396,15 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
     activeEnemyLevel.value = 90;
     // Reset scenarios to the default single-scenario state.
     scenarioList.value = [
-      { id: 'default_sc', name: tr('timeline.scenario.defaultName', { index: 1 }), data: null },
+      {
+        id: 'default_sc',
+        name: tr('timeline.scenario.defaultName', { index: 1 }),
+        data: null,
+        editorPrefs: {},
+      },
     ];
     activeScenarioId.value = 'default_sc';
+    restoreScenarioEditorPrefs(scenarioList.value[0]);
 
     recomputeAllTrackOperatorStatuses();
     clearSelection();
@@ -399,6 +465,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
         customEnemyParams: customEnemyParams.value,
         cycleBoundaries: cycleBoundaries.value,
         switchEvents: switchEvents.value,
+        comboCooldownEvents: comboCooldownEvents.value,
         simulationEndline: simulationEndline.value,
         simulationStartline: simulationStartline.value,
         inheritedInitialEffects: inheritedInitialEffects.value,
@@ -503,6 +570,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
         activeScenarioId.value = validId;
 
         const currentSc = scenarioList.value.find(s => s.id === activeScenarioId.value);
+        restoreScenarioEditorPrefs(currentSc);
         if (currentSc && currentSc.data) {
           _loadSnapshot(currentSc.data);
         } else {
@@ -512,6 +580,7 @@ export function useTimelinePersistence(deps: PersistenceDeps) {
           weaponOverrides.value = {};
           cycleBoundaries.value = [];
           switchEvents.value = [];
+          comboCooldownEvents.value = [];
           simulationEndline.value = null;
           simulationStartline.value = null;
           equipmentCategoryOverrides.value = {};

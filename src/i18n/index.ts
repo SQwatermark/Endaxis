@@ -17,16 +17,16 @@ export function detectLocale(): SupportedLocale {
     // ignore
   }
 
+  // First visit: Chinese wins wherever it appears in the browser's list, not just when it is
+  // first — zh-CN is the source language, so a reader who lists it at all is better served by
+  // it than by English. Everyone else gets the English default.
   if (typeof navigator !== 'undefined') {
     const langs = Array.isArray(navigator.languages) ? navigator.languages : [];
-    for (const l of langs) {
-      const n = normalizeLocale(l);
-      if (SUPPORTED_LOCALES.includes(n)) return n;
-    }
-    return normalizeLocale(navigator.language);
+    const preferences = langs.length > 0 ? langs : [navigator.language];
+    if (preferences.some(lang => normalizeLocale(lang) === 'zh-CN')) return 'zh-CN';
   }
 
-  return 'zh-CN';
+  return 'en';
 }
 
 export const i18n = createI18n({

@@ -10,17 +10,14 @@ import type {
 } from './types';
 import { ATTR_MAP } from './baseValues';
 import { computeScalingBasis } from './scaling';
+import { passesDmgBonusSkillFilter, passesSkillFilter } from '@/data/filter';
 
 /** Intrinsic baseline label — StatDetailDialog translates via statDetail.baseSource. */
 export const STAT_SOURCE_BASE_LABEL = '__base__';
 
 const ATTR_KEYS = ['strength', 'agility', 'intellect', 'will'] as const;
 
-function pushStatSource(
-  list: StatSourceEntry[],
-  label: string | undefined,
-  value: number,
-): void {
+function pushStatSource(list: StatSourceEntry[], label: string | undefined, value: number): void {
   if (!Number.isFinite(value) || value === 0) return;
   const name = typeof label === 'string' && label.trim() ? label.trim() : STAT_SOURCE_BASE_LABEL;
   list.push({ label: name, value });
@@ -195,6 +192,8 @@ export function computeStats(
     for (const term of effect.scaling.additive ?? []) {
       if (typeof term === 'number') {
         additiveSum += term;
+      } else if ('value' in term) {
+        additiveSum += term.value;
       } else if ('basis' in term) {
         additiveSum += computeScalingBasis(term.basis, attrs) * term.coefficient;
       }
@@ -293,16 +292,13 @@ export function computeStats(
         if (targetSkillType != null) return false;
       } else {
         const types = stat.skillTypes;
-        const arr = Array.isArray(types) ? types : [types];
-        if (!targetSkillType || !arr.includes(targetSkillType as never)) {
-          // basicAttack scope also matches finalStrike and dive
-          if (!(
-            arr.includes('basicAttack' as never) &&
-            (targetSkillType === 'finalStrike' || targetSkillType === 'dive')
-          )) {
-            return false;
-          }
-        }
+        const arr = (Array.isArray(types) ? types : [types]) as string[];
+        if (!targetSkillType) return false;
+        const matches =
+          stat.modifier === 'dmgBonus'
+            ? passesDmgBonusSkillFilter(arr, targetSkillType)
+            : passesSkillFilter(arr, targetSkillType);
+        if (!matches) return false;
       }
     }
     if ('skillId' in stat && stat.skillId != null) {
@@ -433,6 +429,8 @@ export function computeStats(
           modifier: 'ampBonus',
           value: pct,
           elements: stat.elements as ScopedDamageModifier['elements'],
+          effectId,
+          sourceLabel,
         });
         break;
       case 'directMultiplier':
@@ -441,6 +439,8 @@ export function computeStats(
           value: val,
           skillTypes: stat.skillTypes as ScopedDamageModifier['skillTypes'],
           skillId: stat.skillId as ScopedDamageModifier['skillId'],
+          effectId,
+          sourceLabel,
         });
         break;
       case 'resistanceIgnore':

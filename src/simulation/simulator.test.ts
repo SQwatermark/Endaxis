@@ -10,10 +10,15 @@ import { projectEnemyAfflictionViz } from './projection/projectEnemyAfflictionVi
 import { projectActionBuffs } from './projection/projectActionBuffs';
 import { createDefaultStats } from '@/simulation/defaultActorStats';
 import { collectTriggerEffects, patchCombatSkills } from '@/data/collect';
+import { getOperatorPotentialName } from '@/data/gameText';
 import estellaSheet from '@/data/operators/estella';
 import perlicaSheet from '@/data/operators/perlica';
 import mifuSheet from '@/data/operators/mifu';
+import pogranichnikSheet from '@/data/operators/pogranichnik';
 import yvonneSheet from '@/data/operators/yvonne';
+import arcaneSheet from '@/data/operators/arcane';
+import aleshSheet from '@/data/operators/alesh';
+import { applyForm } from '@/data/forms';
 import { extractRawEntries, resolveHitsFromSheet } from '@/stores/timeline/resolveHits';
 import type { BaseStatValues } from '@/data/stats/types';
 import type { Effect, TriggerEffect } from '@/data/types';
@@ -1204,6 +1209,14 @@ describe('optimizer-native runtime parity', () => {
     expect(potential3.hit._damageBreakdown?.attack).toBeGreaterThan(
       potential2.hit._damageBreakdown?.attack ?? 0,
     );
+    expect(potential3.hit._damageBreakdown?.atkDetail?.atkPercentSources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: getOperatorPotentialName('perlica', 2),
+          value: 0.2,
+        }),
+      ]),
+    );
     expect(potential4.hit._expectedDamage).toBeGreaterThan(potential3.hit._expectedDamage ?? 0);
     expect(potential4.result.operatorLog).toEqual(
       expect.arrayContaining([
@@ -1212,6 +1225,7 @@ describe('optimizer-native runtime parity', () => {
           targetTrackId: 'perlica',
           value: 20,
           effect: expect.objectContaining({
+            name: getOperatorPotentialName('perlica', 2),
             stat: expect.objectContaining({ modifier: 'atkPercent' }),
           }),
         }),
@@ -1910,6 +1924,68 @@ describe('optimizer-native runtime parity', () => {
     );
   });
 
+  it.each([1, 2, 3, 4])(
+    'grants Pogranichnik combo ultimate energy after consuming %i vulnerability stacks',
+    consumedStacks => {
+      const comboHits = resolveOperatorSheetHits(pogranichnikSheet, 'comboSkill', 0, 11);
+      const result = runScenario([
+        createTrack('alpha', [
+          createAction('prime_pogranichnik_combo', 'battleSkill', {
+            startTime: 0,
+            hits: [
+              {
+                offset: 0,
+                spRecovery: 0,
+                spReturn: 0,
+                stagger: 0,
+                effects: [
+                  {
+                    id: 'pogranichnik-combo-tracker',
+                    kind: 'status',
+                    target: 'self',
+                    stacks: consumedStacks,
+                    maxStacks: 4,
+                    duration: 999,
+                    hide: true,
+                  } as Effect,
+                ],
+              },
+            ],
+          }),
+          createAction('pogranichnik_combo', 'comboSkill', {
+            startTime: 1,
+            duration: 3,
+            hits: comboHits,
+          }),
+        ]),
+      ]);
+
+      expect(result.state.snapshot().actors[0]?.resources.gauge).toBe(10);
+    },
+  );
+
+  it('grants Alesh enhanced combo 10 ultimate energy', () => {
+    const enhancedComboHits = resolveOperatorSheetHits(aleshSheet, 'alesh-enhanced-combo', 0, 11);
+    const result = runScenario([
+      createTrack('alesh', [
+        createAction('alesh_enhanced_combo', 'comboSkill', {
+          skillId: 'alesh-enhanced-combo',
+          duration: 1.3,
+          hits: enhancedComboHits,
+        }),
+      ]),
+    ]);
+
+    expect(result.simLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'ULT_ENERGY_CHANGE',
+          payload: expect.objectContaining({ actorId: 'alesh', change: 10 }),
+        }),
+      ]),
+    );
+  });
+
   it('projects optimizer-native logs through the UI result adapter', () => {
     const gearEffect: Effect = {
       id: 'adapter-gear-stack',
@@ -2362,9 +2438,7 @@ describe('optimizer-native runtime parity', () => {
 
     const linkApplies = result.operatorLog.filter(
       (entry: any) =>
-        entry.type === 'OPERATOR_EFFECT_APPLY' &&
-        entry.stat?.modifier === 'link' &&
-        !entry.silent,
+        entry.type === 'OPERATOR_EFFECT_APPLY' && entry.stat?.modifier === 'link' && !entry.silent,
     );
     expect(linkApplies.every((entry: any) => entry.id === 'link')).toBe(true);
 
@@ -2462,6 +2536,59 @@ describe('optimizer-native runtime parity', () => {
     // Pursuit must leave the window open; the real comboSkill then consumes it.
     expect(windowExpires).toHaveLength(1);
     expect(windowExpires[0]?.time).toBeCloseTo(1.5, 5);
+  });
+
+  it('does not alter combo cooldown when Camille pursuit is treated as comboSkill', () => {
+    const readyStatus: Effect = {
+      id: 'camille-hunter-pursuit-ready',
+      kind: 'status',
+      target: 'self',
+      duration: 10,
+    } as Effect;
+    const result = runScenario([
+      createTrack('camille', [
+        createAction('real-combo', 'comboSkill', {
+          startTime: 0,
+          cooldown: 20,
+        }),
+        createAction('setup-pursuit', 'battleSkill', {
+          startTime: 0.5,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [readyStatus],
+            },
+          ],
+        }),
+        createAction('pursuit', 'battleSkill', {
+          startTime: 1,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 100,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              treatAsSkillType: 'comboSkill',
+              _condition: { kind: 'operatorStatus', status: 'camille-hunter-pursuit-ready' },
+            },
+          ],
+        }),
+      ]),
+    ]);
+
+    expect(result.comboCooldownIntervals).toEqual([
+      expect.objectContaining({
+        actorId: 'camille',
+        sourceActionId: 'real-combo_inst',
+        start: 0,
+        end: 20,
+      }),
+    ]);
   });
 
   it('blocks positive ultimate energy gains during own ultimate enhancement window', () => {
@@ -2637,7 +2764,7 @@ describe('optimizer-native runtime parity', () => {
           stacks: 1,
           icon: null,
           sourceId: 'alpha',
-          effect: { kind: 'status', id: 'resistanceShred' },
+          effect: { kind: 'status', stat: { modifier: 'resistanceShred' } },
         },
       ],
     });
@@ -2664,6 +2791,31 @@ describe('optimizer-native runtime parity', () => {
     });
     expect(viz.anomalies.rowCount).toBe(2);
     expect(viz.statuses.rowCount).toBe(1);
+  });
+
+  it('keeps nameless enemy statuses in separate rows', () => {
+    // syntheticStatusEffect() builds {kind:'status', id, name: undefined} whenever an
+    // ENEMY_STATUS_APPLY arrives without an effect. Those resolve to the bare kind 'status',
+    // which used to merge every one of them into a single row and label.
+    const namelessSegment = (id: string, subRow: number) => ({
+      group: 4,
+      subRow,
+      start: 1,
+      end: 5,
+      stacks: 1,
+      icon: null,
+      typeKey: `state:${id}`,
+      effect: { kind: 'status', id, target: { scope: 'enemy' } },
+    });
+    const viz = projectEnemyAfflictionViz({
+      positionedSegments: [namelessSegment('boss-enrage', 0), namelessSegment('boss-shield', 1)],
+    });
+
+    expect(viz.statuses.segments.map((s: any) => s.typeKey)).toEqual([
+      'boss-enrage',
+      'boss-shield',
+    ]);
+    expect(viz.statuses.rowCount).toBe(2);
   });
 
   it('normalizes physical marker display without changing runtime effect state', () => {
@@ -2707,7 +2859,7 @@ describe('optimizer-native runtime parity', () => {
 });
 
 describe('global onActionStart target owner (Type-50 Yinglung)', () => {
-  it("applies oneTime to the trigger owner when a teammate starts a battle skill", () => {
+  it('applies oneTime to the trigger owner when a teammate starts a battle skill', () => {
     const yinglungTrigger: TriggerEffect = {
       trigger: { kind: 'onActionStart', skillTypes: 'battleSkill', triggerScope: 'global' },
       effects: [
@@ -2763,9 +2915,7 @@ describe('global onActionStart target owner (Type-50 Yinglung)', () => {
     );
 
     const comboHit = result.simLog.find(
-      entry =>
-        entry.type === 'DAMAGE_HIT' &&
-        entry.payload.actionId === 'wearer_combo_inst',
+      entry => entry.type === 'DAMAGE_HIT' && entry.payload.actionId === 'wearer_combo_inst',
     );
     expect(comboHit?.type).toBe('DAMAGE_HIT');
     if (comboHit?.type === 'DAMAGE_HIT') {
@@ -2777,9 +2927,7 @@ describe('global onActionStart target owner (Type-50 Yinglung)', () => {
         }),
       ]);
       expect(comboHit.payload.hitData._damageBreakdown?.dmgBonusSources).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ label: 'yinglungsEdge', value: 0.2 }),
-        ]),
+        expect.arrayContaining([expect.objectContaining({ label: 'yinglungsEdge', value: 0.2 })]),
       );
     }
 
@@ -3443,6 +3591,55 @@ describe('Contingency runtime enemy mechanics', () => {
       ),
     ).toBe(false);
   });
+
+  it.each(['lift', 'knockdown'] as const)(
+    'keeps forced %s reaction damage when super armor prevents control without vulnerability',
+    physicalType => {
+      const result = runScenario(
+        [
+          createTrack('alpha', [
+            createAction(`forced_${physicalType}`, 'ultimate', {
+              hits: [
+                {
+                  id: `${physicalType}_hit`,
+                  offset: 0,
+                  multiplier: 0,
+                  spRecovery: 0,
+                  spReturn: 0,
+                  stagger: 0,
+                  effects: [{ kind: 'physicalStatus', physicalType, forced: true } as Effect],
+                },
+              ],
+            }),
+          ]),
+        ],
+        undefined,
+        { systemConstants: { superArmor: 30 } },
+      );
+      const statusEvent = result.enemyLog.find(
+        (event: any) => event.type === 'PHYSICAL_STATUS' && event.physicalType === physicalType,
+      ) as any;
+      const reactionHit = result.simLog.find(
+        (entry: any) =>
+          entry.type === 'DAMAGE_HIT' &&
+          entry.payload.hitData._reactionMeta?.reactionType === physicalType,
+      ) as any;
+
+      expect(statusEvent.actualControl).toBe(false);
+      expect(reactionHit?.payload.hitData._reactionMeta).toMatchObject({
+        reactionType: physicalType,
+        level: 1,
+      });
+      expect(reactionHit?.payload.hitData._expectedDamage).toBeGreaterThan(0);
+      expect(result.enemyLog).toContainEqual(
+        expect.objectContaining({
+          type: 'VULNERABILITY_CHANGE',
+          stacks: 1,
+          trigger: physicalType,
+        }),
+      );
+    },
+  );
 });
 
 describe('external dmgBonus via initial effect (Poor Basics regression)', () => {
@@ -3764,9 +3961,7 @@ describe('beforeDamage enemy status freeze extension', () => {
                     duration: 10,
                     applyTiming: 'beforeDamage',
                     scaling: {
-                      additive: [
-                        { key: 'whirlpools', target: 'self', coefficient: 5 },
-                      ],
+                      additive: [{ key: 'whirlpools', target: 'self', coefficient: 5 }],
                     },
                     condition: {
                       kind: 'operatorStatus',
@@ -3869,9 +4064,7 @@ describe('beforeDamage enemy status freeze extension', () => {
 
     const result = runScenario(tracks);
     const applies = result.enemyLog.filter(
-      e =>
-        e.type === 'ENEMY_STATUS_APPLY' &&
-        (e.id === 'prison-marker' || e.id === 'combo-vuln'),
+      e => e.type === 'ENEMY_STATUS_APPLY' && (e.id === 'prison-marker' || e.id === 'combo-vuln'),
     );
     expect(applies).toHaveLength(2);
 
@@ -4018,10 +4211,7 @@ describe('independent enemy status instance ids', () => {
     // First expiry must still fire (was previously cancelled by the second grant).
     const firstExpire = result.enemyLog.find(
       e =>
-        e.type === 'ENEMY_EFFECT_EXPIRE' &&
-        e.kind === 'status' &&
-        e.id === first.id &&
-        !e.consumed,
+        e.type === 'ENEMY_EFFECT_EXPIRE' && e.kind === 'status' && e.id === first.id && !e.consumed,
     );
     expect(firstExpire?.time).toBeCloseTo(first.expiresAt, 1);
 
@@ -4039,7 +4229,129 @@ describe('independent enemy status instance ids', () => {
     expect(stacked / baseline).toBeCloseTo(1.2, 2);
   });
 
+  it('places both Yvonne combo energy gains on the first hit', () => {
+    const baseHits = resolveOperatorSheetHits(yvonneSheet, 'comboSkill');
+    const energyHits = baseHits.filter(hit =>
+      hit.effects?.some(effect => effect.kind === 'ultEnergyGain'),
+    );
+    expect(energyHits).toHaveLength(1);
+    expect(Number(energyHits[0]?.offset)).toBe(
+      Math.min(...baseHits.map(hit => Number(hit.offset))),
+    );
+    expect(
+      energyHits[0]?.effects
+        ?.filter(effect => effect.kind === 'ultEnergyGain')
+        .map(effect => effect.value),
+    ).toEqual([10, 10]);
+  });
+
+  it.each(['cryo', 'nature'] as const)(
+    'grants Yvonne battle-skill energy before consuming %s infliction',
+    element => {
+      const battleHits = resolveOperatorSheetHits(yvonneSheet, 'battleSkill');
+      const result = runScenario([
+        createTrack('yvonne', [
+          createAction('prime_infliction', 'basicAttack', {
+            startTime: 0,
+            element,
+            hits: [
+              {
+                offset: 0,
+                multiplier: 0,
+                spRecovery: 0,
+                spReturn: 0,
+                stagger: 0,
+                effects: [{ kind: 'infliction', element, stacks: 2 } as Effect],
+              },
+            ],
+          }),
+          createAction('yvonne_battle', 'battleSkill', {
+            startTime: 1,
+            element: 'cryo',
+            hits: battleHits,
+          }),
+        ]),
+      ]);
+
+      expect(result.state.snapshot().actors[0]?.resources.gauge).toBe(70);
+      expect(result.enemyLog).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: 'INFLICTION_CONSUMED',
+            element,
+            consumedStacks: 2,
+          }),
+          expect.objectContaining({
+            type: 'REACTION_TRIGGER',
+            reactionType: 'solidification',
+            level: 2,
+          }),
+        ]),
+      );
+    },
+  );
+
+  it('limits Yvonne Tech Combo damage bonus to the empowered final strike', () => {
+    const operator = createOperatorInstance('op_yvonne', 'yvonne');
+    operator.talentStates = { '0': 2 };
+    const tracks = [
+      createTrack('yvonne', [
+        createAction('activate_yvonne_t1', 'battleSkill', {
+          startTime: 0,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [
+                {
+                  kind: 'reaction',
+                  reactionType: 'solidification',
+                  forced: true,
+                } as Effect,
+              ],
+            },
+          ],
+        }),
+        createAction('yvonne_finisher', 'finisher', {
+          startTime: 1,
+          hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+        }),
+        createAction('yvonne_final_strike', 'basicAttack', {
+          startTime: 2,
+          hits: [{ offset: 0, multiplier: 100, spRecovery: 0, spReturn: 0, stagger: 0 }],
+        }),
+      ]),
+    ];
+    const team = createTeam(operator.id);
+    const triggerEffects = collectRuntimeTriggers(team, [operator], [], [], tracks);
+    const result = runScenario(tracks, registry(triggerEffects));
+    const finisherEntry = result.simLog.find(
+      entry => entry.type === 'DAMAGE_HIT' && entry.payload.actionId === 'yvonne_finisher_inst',
+    );
+    const finalStrikeEntry = result.simLog.find(
+      entry => entry.type === 'DAMAGE_HIT' && entry.payload.actionId === 'yvonne_final_strike_inst',
+    );
+
+    expect(finisherEntry?.type).toBe('DAMAGE_HIT');
+    expect(finalStrikeEntry?.type).toBe('DAMAGE_HIT');
+    if (finisherEntry?.type !== 'DAMAGE_HIT' || finalStrikeEntry?.type !== 'DAMAGE_HIT') {
+      throw new Error('Missing Yvonne finisher or final-strike damage hit');
+    }
+    expect(finisherEntry.payload.hitData._damageBreakdown?.dmgBonus).toBe(0);
+    expect(finalStrikeEntry.payload.hitData._damageBreakdown?.dmgBonus).toBe(0.5);
+  });
+
   it('arms enemyStatus conditional passives from ally apply and keeps OR buff through solidification', () => {
+    const battleHits = resolveOperatorSheetHits(yvonneSheet, 'battleSkill');
+    const battleHit = battleHits.find(hit => hit.id === 'yvonne-battle-hit');
+    const solidification = battleHit?.effects?.find(
+      effect => effect.kind === 'reaction' && effect.reactionType === 'solidification',
+    );
+    expect(solidification).toMatchObject({ applyTiming: 'beforeDamage' });
+
     const freezingPointTriggers = [
       {
         sourceTrackId: 'yvonne',
@@ -4053,15 +4365,38 @@ describe('independent enemy status instance ids', () => {
           effects: [
             {
               id: 'yvonne-p2-cryo',
+              name: 'Freezing Point',
               kind: 'status' as const,
               stat: { modifier: 'critDmg' as const },
               target: 'owner' as const,
-              value: 50,
+              value: 20,
               duration: 999,
               condition: {
                 kind: 'not' as const,
                 condition: { kind: 'operatorStatus' as const, status: 'yvonne-p2-cryo' },
               },
+            },
+          ],
+        },
+      },
+      {
+        sourceTrackId: 'yvonne',
+        triggerEffect: {
+          trigger: {
+            kind: 'onStatusApplied' as const,
+            status: 'solidification',
+            target: 'enemy' as const,
+            triggerScope: 'global' as const,
+          },
+          effects: [
+            {
+              id: 'yvonne-p2-solidification',
+              name: 'Freezing Point',
+              kind: 'status' as const,
+              stat: { modifier: 'critDmg' as const },
+              target: 'owner' as const,
+              value: 20,
+              duration: 999,
             },
           ],
         },
@@ -4174,23 +4509,8 @@ describe('independent enemy status instance ids', () => {
         createTrack('yvonne', [
           createAction('force_solidify', 'battleSkill', {
             startTime: 0.5,
-            hits: [
-              {
-                offset: 0,
-                multiplier: 1,
-                spRecovery: 0,
-                spReturn: 0,
-                stagger: 0,
-                effects: [
-                  {
-                    kind: 'reaction',
-                    reactionType: 'solidification',
-                    requiresInfliction: ['cryo'],
-                    forced: true,
-                  } as Effect,
-                ],
-              },
-            ],
+            element: 'cryo',
+            hits: battleHits,
           }),
           createAction('yvonne_ba', 'basicAttack', {
             startTime: 1,
@@ -4219,11 +4539,20 @@ describe('independent enemy status instance ids', () => {
 
     const removed = throughSolidify.operatorLog.some(
       entry =>
-        entry.type === 'OPERATOR_EFFECT_EXPIRE' &&
-        entry.id === 'yvonne-p2-cryo' &&
-        entry.time <= 1,
+        entry.type === 'OPERATOR_EFFECT_EXPIRE' && entry.id === 'yvonne-p2-cryo' && entry.time <= 1,
     );
     expect(removed).toBe(false);
+    const solidifyDamageEntry = throughSolidify.simLog.find(
+      entry => entry.type === 'DAMAGE_HIT' && entry.payload.actionId === 'force_solidify_inst',
+    );
+    expect(solidifyDamageEntry?.type).toBe('DAMAGE_HIT');
+    if (!solidifyDamageEntry || solidifyDamageEntry.type !== 'DAMAGE_HIT') {
+      throw new Error('Missing Yvonne battle-skill damage hit');
+    }
+    const freezingPointValues = solidifyDamageEntry.payload.hitData._damageBreakdown?.critDmgSources
+      ?.filter(source => source.label === 'Freezing Point')
+      .map(source => source.value);
+    expect(freezingPointValues).toEqual([0.2, 0.2]);
     expect(damageFor(throughSolidify, 'yvonne_ba_inst')).toBeGreaterThan(baseline);
   });
 });
@@ -4401,5 +4730,176 @@ describe('Yvonne potential 5 ultimate buffs', () => {
         }),
       ]),
     );
+  });
+
+  it('opens Alesh combo window when Endministrator Originium Crystals are consumed', () => {
+    const operator = createOperatorInstance('op_alesh', 'alesh');
+    const tracks = [
+      createTrack('alesh', [
+        createAction('apply_originium_crystals', 'comboSkill', {
+          startTime: 0,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [
+                {
+                  kind: 'status',
+                  id: 'endministrator-originium-crystals',
+                  target: 'enemy',
+                  duration: 10,
+                } as Effect,
+              ],
+            },
+          ],
+        }),
+        createAction('consume_originium_crystals', 'battleSkill', {
+          startTime: 1,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [
+                {
+                  kind: 'consume',
+                  enemyStatus: 'endministrator-originium-crystals',
+                } as Effect,
+              ],
+            },
+          ],
+        }),
+      ]),
+    ];
+    const team = createTeam(operator.id);
+    const triggerEffects = collectRuntimeTriggers(team, [operator], [], [], tracks);
+    const result = runScenario(tracks, registry(triggerEffects));
+
+    expect(result.enemyLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'ENEMY_EFFECT_EXPIRE',
+          id: 'endministrator-originium-crystals',
+          consumed: true,
+          time: 1,
+        }),
+      ]),
+    );
+    expect(result.operatorLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'OPERATOR_EFFECT_APPLY',
+          id: 'alesh-combo-window',
+          targetTrackId: 'alesh',
+          time: 1,
+        }),
+      ]),
+    );
+  });
+
+  it('grants Alesh talent energy when Endministrator applies Originium Crystals', () => {
+    const operator = createOperatorInstance('op_alesh', 'alesh');
+    operator.talentStates = { '0': 1 };
+    const tracks = [
+      createTrack('alesh', []),
+      createTrack('endministrator', [
+        createAction('apply_originium_crystals', 'comboSkill', {
+          startTime: 0,
+          hits: [
+            {
+              offset: 0,
+              multiplier: 0,
+              spRecovery: 0,
+              spReturn: 0,
+              stagger: 0,
+              effects: [
+                {
+                  kind: 'status',
+                  id: 'endministrator-originium-crystals',
+                  target: 'enemy',
+                  duration: 10,
+                } as Effect,
+              ],
+            },
+          ],
+        }),
+      ]),
+    ];
+    const team = createTeam(operator.id);
+    const triggerEffects = collectRuntimeTriggers(team, [operator], [], [], tracks);
+    const result = runScenario(tracks, registry(triggerEffects));
+
+    expect(result.simLog).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'ULT_ENERGY_CHANGE',
+          payload: expect.objectContaining({
+            actorId: 'alesh',
+            change: 3,
+            gauge: 3,
+          }),
+        }),
+      ]),
+    );
+  });
+
+  it('lets Arcane intelligence-form combo follow-up hits open Endministrator combo windows', () => {
+    const arcane = createOperatorInstance('op_arcane', 'arcane');
+    const endministrator = createOperatorInstance('op_endministrator', 'endministrator');
+    arcane.skillLevels = { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 };
+    endministrator.skillLevels = {
+      basicAttack: 12,
+      battleSkill: 12,
+      comboSkill: 12,
+      ultimate: 12,
+    };
+
+    const intelligenceForm = applyForm(arcaneSheet, 'int');
+    const comboHits = resolveOperatorSheetHits(intelligenceForm, 'comboSkill');
+    const battleHits = resolveOperatorSheetHits(intelligenceForm, 'battleSkill');
+    const tracks = [
+      createTrack('arcane', [
+        createAction('arcane_combo', 'comboSkill', {
+          startTime: 0,
+          element: 'nature',
+          hits: comboHits as any,
+        }),
+        createAction('arcane_battle', 'battleSkill', {
+          startTime: 1.2,
+          element: 'nature',
+          hits: battleHits as any,
+        }),
+      ]),
+      createTrack('endministrator', []),
+    ];
+    const team = createTeam(arcane.id);
+    team.slots[1]!.operatorId = endministrator.id;
+    const triggerEffects = collectRuntimeTriggers(team, [arcane, endministrator], [], [], tracks);
+    const result = runScenario(tracks, registry(triggerEffects));
+
+    const followUpHits = result.simLog.filter(
+      entry =>
+        entry.type === 'DAMAGE_HIT' &&
+        entry.payload.actionId === 'arcane_battle_inst' &&
+        entry.payload.hitData.triggered === true &&
+        entry.payload.hitData.canTriggerOnHit === true &&
+        entry.payload.hitData.skillType === 'comboSkill',
+    );
+    const windowApplies = result.operatorLog.filter(
+      entry =>
+        entry.type === 'OPERATOR_EFFECT_APPLY' &&
+        entry.id === 'endministrator-combo-window' &&
+        entry.targetTrackId === 'endministrator',
+    );
+
+    expect(followUpHits).toHaveLength(5);
+    for (const hit of followUpHits) {
+      expect(windowApplies.some(entry => Math.abs(entry.time - hit.time) < 0.001)).toBe(true);
+    }
   });
 });

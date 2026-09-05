@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { deserializeProjectData, serializeProjectData } from '@/utils/timeSerialization';
 import { resolveHitsFromSheet } from './resolveHits';
 
 describe('resolveHitsFromSheet persistence', () => {
@@ -82,6 +83,50 @@ describe('resolveHitsFromSheet persistence', () => {
 
     expect(resolved[0]?.multiplier).toBe(222);
   });
+
+  it('keeps a user-edited offset after serialization and sheet refresh', () => {
+    const first = resolveHitsFromSheet([], rawAtLevel(100) as any, 0, {
+      preserveCondition: true,
+    });
+    const edited = JSON.parse(JSON.stringify(first));
+    edited[0].offset = 10 / 30;
+    const restored = JSON.parse(JSON.stringify(edited));
+
+    const resolved = resolveHitsFromSheet(restored as any, rawAtLevel(140) as any, 0, {
+      preserveCondition: true,
+    });
+
+    expect(resolved).toHaveLength(1);
+    expect(resolved[0]?.offset).toBeCloseTo(10 / 30, 8);
+    expect(resolved[0]?.multiplier).toBe(140);
+    expect((resolved[0] as any)?._sheetBaseline).toMatchObject({ offset: 0.5 });
+  });
+
+  it.each([0.83, 0.77])(
+    'matches approximate sheet seconds %s to a frame-normalized baseline',
+    sheetOffset => {
+      const approximateSheetEntry = [
+        {
+          hit: { offset: sheetOffset, stagger: 10 },
+          element: 'electric',
+          multiplier: 100,
+          multiplierMode: 'each' as const,
+        },
+      ];
+      const first = resolveHitsFromSheet([], approximateSheetEntry as any, 0, {
+        preserveCondition: true,
+      });
+      (first[0] as any).offset = 10 / 60;
+      const restored = deserializeProjectData(serializeProjectData(first)) as any[];
+
+      const resolved = resolveHitsFromSheet(restored as any, approximateSheetEntry as any, 0, {
+        preserveCondition: true,
+      });
+
+      expect(resolved).toHaveLength(1);
+      expect(resolved[0]?.offset).toBeCloseTo(10 / 60, 8);
+    },
+  );
 
   it('still hydrates from the sheet when there is no stored hit', () => {
     const resolved = resolveHitsFromSheet([], rawAtLevel(100) as any, 0, {

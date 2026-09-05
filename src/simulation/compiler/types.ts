@@ -6,6 +6,7 @@ import type {
   EffectCondition,
   OperatorStat,
   ResolvedScalingDef,
+  SkillMultiplierDetail,
   SkillRequisite,
 } from '@/data/types';
 import type { DamageBreakdown } from '@/data/stats/computeDamage';
@@ -87,6 +88,7 @@ export type ActorStatKeys = keyof ActorStats;
 export interface ScenarioTrack {
   id: string;
   element?: string;
+  class?: string;
   actions: Action[];
 
   stats: ActorStats;
@@ -151,6 +153,7 @@ export interface Hit {
   _noDamage?: boolean;
   multiplier?: number;
   _multiplierScaling?: ResolvedScalingDef;
+  _multiplierDetail?: SkillMultiplierDetail;
   element?: string;
   spRecovery: number;
   spReturn: number;
@@ -169,6 +172,7 @@ export interface ResolvedHit extends Hit {
   time: number;
   triggered?: boolean;
   triggeredBy?: string;
+  canTriggerOnHit?: boolean;
   skillType?: string;
   skillId?: string;
   element?: string;
@@ -206,7 +210,7 @@ export interface ResolvedHit extends Hit {
 }
 
 export type ActionType =
-  'finisher' | 'dive' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'basicAttack';
+  'finisher' | 'dive' | 'battleSkill' | 'comboSkill' | 'ultimate' | 'basicAttack' | 'nonSkill';
 
 export function resolveOptimizerSkillType(action: { type?: ActionType | null }) {
   return action?.type || null;

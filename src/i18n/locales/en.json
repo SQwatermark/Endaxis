@@ -19,7 +19,6 @@
     "max": "Max",
     "new": "new",
     "none": "None",
-    "noneParen": "(none)",
     "off": "off",
     "old": "old",
     "on": "on",
@@ -277,8 +276,6 @@
   "locale": {
     "en": "English",
     "enShort": "EN",
-    "ru": "Русский",
-    "ruShort": "RU",
     "zhCN": "简体中文",
     "zhCNShort": "中"
   },
@@ -353,13 +350,22 @@
     },
     "header": {
       "projectDirty": "Project has unexported changes",
+      "display": "Display",
+      "displayTooltip": "Timeline display and guide line",
       "more": "More",
-      "moreTooltip": "View, project, and preferences",
-      "sectionView": "View",
+      "moreTooltip": "Editing tools, project, and preferences",
+      "sectionEditTools": "Editing tools",
       "sectionProject": "Project",
       "sectionPrefs": "Preferences",
       "sectionViewLayers": "Layers",
+      "sectionViewBehavior": "View behavior",
       "sectionViewOperators": "Operators",
+      "cursorGuide": "Guide line",
+      "buffLayout": "Buff layout",
+      "editTools": {
+        "boxSelect": "Box select",
+        "connection": "Connection editing"
+      },
       "sectionDurationBarColor": "Duration bar tint",
       "coloredDurationBarsEnable": "Enable tinting",
       "durationBarSaturation": "Saturation",
@@ -392,7 +398,7 @@
       "languageTooltip": "Language",
       "loadTooltip": "Import .json project file or .png image",
       "receiveTooltip": "Paste data code to import project",
-      "resetTooltip": "Clear all content"
+      "resetTooltip": "Choose reset scope"
     },
     "shortcuts": {
       "dialogTitle": "Keyboard Shortcuts",
@@ -465,11 +471,38 @@
       "import": "Import",
       "importing": "Importing...",
       "more": "More",
+      "undo": "Undo",
+      "redo": "Redo",
       "loadout": {
         "title": "Loadout",
         "openAria": "View {name}'s loadout",
+        "selectOperator": "Select Operator",
+        "operatorStatus": "Operator",
         "weapon": "Weapon",
         "equipment": "Equipment"
+      },
+      "skillLibrary": {
+        "title": "Operator Skill Library",
+        "selectTrack": "Select a track to add skills",
+        "empty": "This operator has no placeable skills",
+        "placeHint": "Tap a position on the highlighted track to place",
+        "placed": "Placed “{name}”"
+      },
+      "timeSettings": {
+        "title": "Timeline Settings",
+        "prepDuration": "Preparation duration",
+        "battleDuration": "Battle timeline duration",
+        "seconds": "sec",
+        "expandPrep": "Expand preparation area"
+      },
+      "display": {
+        "title": "Timeline Display",
+        "showAllAttackSegments": "All basic attack segments",
+        "showAnomalies": "Anomalies",
+        "showDurationBars": "Duration bars",
+        "showFreezeEffects": "Freeze effects",
+        "showStaggerBreaks": "Stagger breaks",
+        "showOperationHints": "Operation keycaps"
       },
       "actionInfo": {
         "title": "Skill Info",
@@ -480,7 +513,13 @@
         "spCost": "SP Cost",
         "cooldown": "Cooldown",
         "gaugeCost": "Ult Gauge Cost",
-        "hits": "Hit Points"
+        "hits": "Hit Points",
+        "totalDamage": "Total Damage",
+        "damageHit": "Hit {index}",
+        "noDamage": "No damage was dealt in the current simulation",
+        "disable": "Disable Skill",
+        "enable": "Enable Skill",
+        "delete": "Delete Skill"
       },
       "app": {
         "timeline": "Timeline",
@@ -490,9 +529,17 @@
     },
     "loading": "Loading resources...",
     "reset": {
-      "confirm": "Are you sure you want to clear all current progress? This will clear all plan data.",
-      "confirmButton": "Confirm Clear",
-      "done": "Project has been reset"
+      "title": "Choose Reset Scope",
+      "currentKeepLoadout": "Reset Current Project and Keep Loadout",
+      "currentKeepLoadoutDescription": "Clear the current timeline and combat settings while keeping operators, weapons, and gear.",
+      "current": "Reset Current Project",
+      "currentDescription": "Clear all content in the current project without affecting other projects.",
+      "all": "Reset All Projects",
+      "allDescription": "Delete all projects and loadout data, then restore the initial project.",
+      "confirmButton": "Confirm Reset",
+      "currentKeepLoadoutDone": "Current project reset; loadout preserved",
+      "currentDone": "Current project has been reset",
+      "done": "All projects have been reset"
     },
     "scenario": {
       "addTooltip": "New Project",
@@ -636,7 +683,6 @@
       "selectedCount": "{count} actions selected"
     },
     "toolbar": {
-      "boxSelect": "Box select (Ctrl+B)",
       "buffLayoutCompact": "Compact",
       "buffLayoutLoose": "Loose",
       "buffLayoutMode": "Buff layout: {mode}",
@@ -645,6 +691,9 @@
       "connectionTool": "Connection tool (Alt+L)",
       "cursorGuide": "Guide line (Ctrl+G)",
       "initialGauge": "Initial gauge: left-click cycles 0 / full / custom (per operator, remembered); right-click sets all operators",
+      "initialGaugeEmptyShort": "Empty",
+      "initialGaugeFullShort": "Full",
+      "initialGaugeCustomShort": "Custom",
       "initialGaugeAppliedCustom": "Initial gauge: custom (per operator)",
       "initialGaugeAppliedEmpty": "Initial gauge: 0",
       "initialGaugeAppliedFull": "Initial gauge: full",
@@ -741,6 +790,7 @@
     "enhanced": "Enhanced {type}",
     "weapon": "Weapon",
     "set": "Set",
+    "nonSkill": "Non-skill",
     "unknown": "Skill"
   },
   "enemyTier": {
@@ -760,6 +810,9 @@
     "setSourcePort": "Set Output Point",
     "setTargetPort": "Set Input Point",
     "globalOps": "Global Operations",
+    "comboCooldownControl": "Combo Cooldown",
+    "comboCooldownReadyAll": "Ready All Combo Cooldowns",
+    "comboCooldownStartAll": "Start All Combo Cooldowns",
     "addCycleBoundary": "Add Cycle Boundary",
     "addSimulationStartline": "Add Simulation Startline",
     "removeSimulationStartline": "Remove Simulation Startline",
@@ -832,7 +885,7 @@
       "solidification": "Solidification",
       "shatter": "Shatter",
       "combustion_dot": "Combustion DoT",
-      "artsBurst": "Element Burst",
+      "artsBurst": "Arts Burst",
       "atkPercent": "ATK%",
       "flatAtk": "Flat ATK",
       "dmgBonus": "DMG Bonus",
@@ -946,7 +999,10 @@
       "improvisedExplosive": "Improvised Explosive",
       "thunderlance": "Thunderlance",
       "thunderlanceEx": "Thunderlance EX",
+      "consumeElectrification": "Consumed Electrification",
       "wolvenBlood": "Wolven Blood",
+      "vocalistStance": "Vocalist Stance",
+      "cosmovoiceStance": "Cosmovoice Stance",
       "whirlpools": "Whirlpools",
       "waterspouts": "Waterspouts",
       "oldenStare": "Olden Stare",
@@ -957,6 +1013,7 @@
       "ultEnergyGain": "Ultimate Energy Gain",
       "spRecovery": "SP Recovery",
       "spReturn": "SP Return",
+      "firefangVesperwings": "Firefang Vesperwings",
       "pursuit": "Pursuit",
       "imprisonment": "Imprisonment",
       "natureCryoSusceptibility": "Cryo and Nature Susceptibility",
@@ -971,6 +1028,7 @@
     "basic": "Basic",
     "effects": "Effects",
     "advanced": "Advanced",
+    "advancedSettings": "Advanced settings",
     "generalSettings": "General",
     "specialSettings": "Special",
     "open": "Edit",
@@ -1015,7 +1073,9 @@
       "teamExcludeSameElement": "Team (exclude same element)",
       "enemy": "Enemy",
       "owner": "Owner",
-      "controlled": "Controlled"
+      "controlled": "Controlled",
+      "statusRecipients": "Status recipients",
+      "statusRecipientsExcludeSelf": "Status recipients (exclude self)"
     },
     "statGroups": {
       "enemy": "Enemy stats",
@@ -1111,6 +1171,7 @@
       "stacksFromConsume": "Stacks from consume",
       "_condition": "Hit condition",
       "targetClasses": "Class filter",
+      "targetElements": "Element filter",
       "attribute": "Attribute",
       "conditionStatus": "Status",
       "conditionStacks": "Stack constraint",
@@ -1346,11 +1407,19 @@
     "nonCritDamage": "Non-crit Damage",
     "attack": "Attack",
     "multiplier": "Skill Multiplier",
+    "baseMultiplier": "Base Multiplier",
+    "fixedMultiplier": "Bonus Multiplier",
+    "conditionalMultiplier": "Conditional Multiplier",
+    "attributeMultiplier": "Attribute Bonus",
+    "stackMultiplierDetail": "{stacks} stacks × {coefficient}",
+    "attributeMultiplierDetail": "{attribute} {value} × {coefficient}",
     "baseDamage": "Base Damage",
     "critRateScale": "Crit Rate Scale",
     "critRateScaleTooltip": "This hit uses an extra crit-rate scale.",
     "dmgBonus": "Damage Bonus",
     "critMult": "Crit Expectation",
+    "rawCritRate": "Raw CRIT Rate",
+    "critRateCap": "CRIT Rate Cap",
     "ampBonus": "Amp",
     "directMult": "Direct Multiplier",
     "susceptibility": "Susceptibility",
@@ -1369,6 +1438,9 @@
     "artsIntensityDetail": "{value} pts",
     "effectiveness": "Effectiveness"
   },
+  "skillNames": {
+    "stanceTermination": "End Stance"
+  },
   "actionItem": {
     "damageHitTooltip": "Damage: {damage}",
     "lockedTitle": "Locked",
@@ -1383,6 +1455,10 @@
       "enhancedBasicDuringUltimate": "Use enhanced basic attacks during the ultimate duration",
       "enhancedBattleDuringUltimate": "Use enhanced battle skills during the ultimate duration",
       "enhancedComboDuringUltimate": "Use enhanced combo skills during the ultimate duration",
+      "liinoStanceTerminationOnly": "End Stance can only be used during Vocalist or Cosmovoice Stance",
+      "liinoUseStanceTermination": "Use End Stance while a stance is active",
+      "battleSkillOnCooldown": "Battle skill is still on cooldown",
+      "ultimateSkillOnCooldown": "Ultimate is still on cooldown",
       "arcaneUltimateArcanaRequired": "Cannot release ultimate. Perform two heavy attacks or finishers first"
     }
   },

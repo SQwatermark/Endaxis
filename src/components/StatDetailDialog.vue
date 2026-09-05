@@ -205,7 +205,9 @@ function onClose() {
                 }"
               >
                 <td class="label-cell indent-1">
-                  <template v-if="src.kind === 'base'">{{ resolveSourceLabel(src.label) }}</template>
+                  <template v-if="src.kind === 'base'">{{
+                    resolveSourceLabel(src.label)
+                  }}</template>
                   <template v-else>{{
                     t('statDetail.fromSource', { name: resolveSourceLabel(src.label) })
                   }}</template>
@@ -340,7 +342,9 @@ function onClose() {
 
           <tr class="expandable-row" @click="critRateOpen = !critRateOpen">
             <td class="label-cell">
-              <el-icon class="expand-icon" :class="{ 'is-open': critRateOpen }"><ArrowRight /></el-icon>
+              <el-icon class="expand-icon" :class="{ 'is-open': critRateOpen }"
+                ><ArrowRight
+              /></el-icon>
               {{ t('stats.crit_rate') }}
             </td>
             <td class="value-cell">{{ pct(operatorStatus.critRate) }}</td>
@@ -360,7 +364,9 @@ function onClose() {
 
           <tr class="expandable-row" @click="critDmgOpen = !critDmgOpen">
             <td class="label-cell">
-              <el-icon class="expand-icon" :class="{ 'is-open': critDmgOpen }"><ArrowRight /></el-icon>
+              <el-icon class="expand-icon" :class="{ 'is-open': critDmgOpen }"
+                ><ArrowRight
+              /></el-icon>
               {{ t('stats.crit_dmg') }}
             </td>
             <td class="value-cell">{{ pct(operatorStatus.critDmg) }}</td>
@@ -396,10 +402,7 @@ function onClose() {
               </td>
               <td class="value-cell">+{{ Number(src.value).toFixed(1) }}</td>
             </tr>
-            <tr
-              v-if="!(operatorStatus.artsIntensitySources || []).length"
-              class="sub-row dim"
-            >
+            <tr v-if="!(operatorStatus.artsIntensitySources || []).length" class="sub-row dim">
               <td class="label-cell indent-1">{{ t('statDetail.noSources') }}</td>
               <td class="value-cell">—</td>
             </tr>
@@ -407,7 +410,9 @@ function onClose() {
 
           <tr class="expandable-row" @click="ultEffOpen = !ultEffOpen">
             <td class="label-cell">
-              <el-icon class="expand-icon" :class="{ 'is-open': ultEffOpen }"><ArrowRight /></el-icon>
+              <el-icon class="expand-icon" :class="{ 'is-open': ultEffOpen }"
+                ><ArrowRight
+              /></el-icon>
               {{ t('stats.ult_charge_eff') }}
             </td>
             <td class="value-cell">
@@ -436,7 +441,9 @@ function onClose() {
 
           <tr class="expandable-row" @click="comboCdOpen = !comboCdOpen">
             <td class="label-cell">
-              <el-icon class="expand-icon" :class="{ 'is-open': comboCdOpen }"><ArrowRight /></el-icon>
+              <el-icon class="expand-icon" :class="{ 'is-open': comboCdOpen }"
+                ><ArrowRight
+              /></el-icon>
               {{ t('statDetail.comboCdReduction') }}
             </td>
             <td class="value-cell">{{ comboCdReductionDisplay.toFixed(1) }}%</td>
@@ -566,7 +573,9 @@ function onClose() {
   vertical-align: -2px;
   color: var(--ea-fg-muted, #888);
   font-size: 12px;
-  transition: transform 0.18s ease, color 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    color 0.18s ease;
 }
 
 .expand-icon.is-open {
@@ -608,5 +617,30 @@ tr.is-sub {
 
 .sub-row {
   border-bottom-color: var(--ea-border-soft, rgba(255, 255, 255, 0.03)) !important;
+}
+</style>
+
+<style>
+@media (max-width: 768px) {
+  .stat-detail-dialog.el-dialog {
+    display: flex;
+    width: calc(100vw - 16px) !important;
+    max-width: none;
+    max-height: calc(100dvh - 16px);
+    margin: 8px auto !important;
+    flex-direction: column;
+  }
+
+  .stat-detail-dialog .el-dialog__header {
+    flex: 0 0 auto;
+  }
+
+  .stat-detail-dialog .el-dialog__body {
+    min-height: 0;
+    flex: 1 1 auto;
+    padding: 12px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
 }
 </style>

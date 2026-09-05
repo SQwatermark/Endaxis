@@ -48,8 +48,8 @@
         background: #1e1f22;
         color: #00e5ff;
         font-family:
-          "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-          "Courier New", monospace;
+          'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+          'Courier New', monospace;
         letter-spacing: 1px;
       }
 
@@ -93,6 +93,16 @@
         font-size: 13px;
         line-height: 1.3;
         color: #00e5ff;
+      }
+
+      .boot-loader.is-error .scanner,
+      .boot-loader.is-error .spinner {
+        animation: none;
+        opacity: 0.45;
+      }
+
+      .boot-loader.is-error .message {
+        color: #ff6b6b;
       }
 
       /* Match the surface revealed after the initial view is ready. */

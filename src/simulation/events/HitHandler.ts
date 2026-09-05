@@ -5,7 +5,7 @@ import type { TriggerRegistry } from '@/simulation/engine/TriggerRegistry';
 import type { OperatorEffectExpireEvent } from '@/simulation/engine/types';
 import {
   evaluateEffectCondition,
-  applyResolvedScaling,
+  applyResolvedScalingWithDetail,
   dispatchEnemyEffects,
   scheduleConsumption,
   conditionHasConsume,
@@ -34,12 +34,7 @@ import {
   computeLevelCoefficient,
   computeArtsIntensityDamageMult,
 } from '@/data/stats/computeReactionDamage';
-import {
-  isEnemyEffect,
-  type DamageElement,
-  type Effect,
-  type ResolvedEffect,
-} from '@/data/types';
+import { isEnemyEffect, type DamageElement, type Effect, type ResolvedEffect } from '@/data/types';
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
@@ -128,17 +123,26 @@ export class HitHandler implements EventHandler<HitEvent> {
     // Resolve multiplierScaling (attribute + stack based) at hit time.
     // Use a local variable — never mutate hit.multiplier, which is shared
     // across simulation runs via the compiled timeline.
-    const resolvedMultiplier =
+    const multiplierResolution =
       hit._multiplierScaling && hit.multiplier != null
-        ? applyResolvedScaling(
+        ? applyResolvedScalingWithDetail(
             hit.multiplier,
             hit._multiplierScaling,
             e.payload.sourceId,
             e.time,
             ctx,
             ctx.state.enemy.statusSnapshot(),
+            undefined,
+            e.payload.actionId,
           )
-        : hit.multiplier;
+        : hit.multiplier != null
+          ? {
+              value: hit.multiplier,
+              detail: hit._multiplierDetail,
+            }
+          : undefined;
+    const resolvedMultiplier = multiplierResolution?.value;
+    const multiplierDetail = multiplierResolution?.detail;
     // Evaluate condition against live enemy state before firing
     if (hit._condition) {
       const snap = ctx.state.enemy.statusSnapshot();
@@ -175,14 +179,25 @@ export class HitHandler implements EventHandler<HitEvent> {
         skillType: hit.skillType,
         skillId: hit.skillId,
         actionId: e.payload.actionId,
-        statusActionId: e.payload.actionId,
         spReason: 'hit',
         applyCooldownReduction: this.registry
           ? (eff, t, tid, c) => this.registry!.applyCooldownReduction(eff, t, tid, c)
           : undefined,
         onInstantHeal: this.registry
-          ? (id, stat, src, t, st) =>
-              this.registry!.onStatusApplied(id, stat, 'self', src, t, ctx, st, hit.skillId)
+          ? (id, stat, src, t, st, healRecipients) =>
+              this.registry!.onStatusApplied(
+                id,
+                stat,
+                'self',
+                src,
+                t,
+                ctx,
+                st,
+                hit.skillId,
+                undefined,
+                undefined,
+                healRecipients,
+              )
           : undefined,
       });
     }
@@ -203,17 +218,24 @@ export class HitHandler implements EventHandler<HitEvent> {
     if (earlyActorEffects?.length || earlyEnemyEffects?.length) {
       // Settle applies (and onStatusApplied follow-ups) before reading mods for damage.
       // Skip consumed expires so stack scaling still sees pre-consume state.
-      const isSameTimeEffectApply = (ev: {
-        type: string;
-        time: number;
-        consumed?: boolean;
-      }) =>
+      const isSameTimeEffectApply = (ev: { type: string; time: number; consumed?: boolean }) =>
         Number(ev.time) === Number(e.time) &&
         (ev.type === 'OPERATOR_EFFECT_APPLY' ||
           ev.type === 'ENEMY_EFFECT_APPLY' ||
           ((ev.type === 'OPERATOR_EFFECT_EXPIRE' || ev.type === 'ENEMY_EFFECT_EXPIRE') &&
             !ev.consumed));
       for (let i = 0; i < 8 && ctx.flushQueuedEvents(isSameTimeEffectApply) > 0; i++) {
+        /* cascade */
+      }
+    }
+
+    // A small number of hit triggers must update stats before their own hit is
+    // calculated. Default onHit triggers still run after damage.
+    if (hit.multiplier && this.registry) {
+      this.registry.onHit(e, ctx, 'beforeDamage');
+      const isSameTimeOperatorEffect = (ev: { type: string; time: number }) =>
+        Number(ev.time) === Number(e.time) && ev.type === 'OPERATOR_EFFECT_APPLY';
+      for (let i = 0; i < 8 && ctx.flushQueuedEvents(isSameTimeOperatorEffect) > 0; i++) {
         /* cascade */
       }
     }
@@ -229,9 +251,7 @@ export class HitHandler implements EventHandler<HitEvent> {
     // (e.g. Arcane cluster strike queued from onFinisher with the finisher's actionId).
     const action = ctx.getAction(e.payload.actionId);
     const finisherMult =
-      !hit.triggered &&
-      action?.node.type === 'finisher' &&
-      ctx.state.enemy.isBroken(e.time)
+      !hit.triggered && action?.node.type === 'finisher' && ctx.state.enemy.isBroken(e.time)
         ? (ctx.state.enemy.config.finisherMultiplier ?? 1)
         : 1;
     hit._finisherMult = finisherMult;
@@ -324,14 +344,18 @@ export class HitHandler implements EventHandler<HitEvent> {
       const reactionHitParams = {
         attack: operatorStatus.attack,
         multiplier: resolvedMultiplier,
+        multiplierDetail,
         critRate: noCrit ? 0 : operatorStatus.critRate,
+        critRateSources: noCrit ? [] : [...(operatorStatus.critRateSources ?? [])],
         critDmg: noCrit ? 0 : operatorStatus.critDmg,
+        critDmgSources: noCrit ? [] : [...(operatorStatus.critDmgSources ?? [])],
         dmgBonus: mods.dmgBonus,
         dmgBonusExternalMult: mods.dmgBonusExternalMult,
         dmgBonusSources: [...mods.dmgBonusSources],
         ampBonus: mods.ampBonus,
         ampBonusSources: [...mods.ampBonusSources],
         directMultiplier: mods.directMultiplier,
+        directMultiplierSources: [...mods.directMultiplierSources],
         enemyDef: ctx.enemyDef,
         resistanceIgnore: mods.resistanceIgnore,
         resistanceIgnoreSources: [...mods.resistanceIgnoreSources],
@@ -508,10 +532,18 @@ export class HitHandler implements EventHandler<HitEvent> {
       }
 
       const effectiveStatus =
-        hit._canCrit === false ? { ...operatorStatus, critRate: 0, critDmg: 0 } : operatorStatus;
+        hit._canCrit === false
+          ? {
+              ...operatorStatus,
+              critRate: 0,
+              critRateSources: [],
+              critDmg: 0,
+              critDmgSources: [],
+            }
+          : operatorStatus;
 
       const breakdown = computeHitDamageWithBreakdown(
-        { ...hit, multiplier: resolvedMultiplier },
+        { ...hit, multiplier: resolvedMultiplier, _multiplierDetail: multiplierDetail },
         effectiveStatus,
         ctx.enemyDef,
         enemyStatus,
@@ -669,7 +701,15 @@ export class HitHandler implements EventHandler<HitEvent> {
 
     // Schedule consumption at priority 3 (after all other checks at the same time)
     if (hit._condition && conditionHasConsume(hit._condition)) {
-      scheduleConsumption(hit._condition, e.time, sourceId, ctx, hit.skillType, hit.skillId);
+      scheduleConsumption(
+        hit._condition,
+        e.time,
+        sourceId,
+        ctx,
+        hit.skillType,
+        hit.skillId,
+        e.payload.actionId,
+      );
     }
 
     // Dispatch enemy-targeting effects from this hit
@@ -695,18 +735,29 @@ export class HitHandler implements EventHandler<HitEvent> {
       skillType: hit.skillType,
       skillId: hit.skillId,
       actionId: e.payload.actionId,
-      statusActionId: e.payload.actionId,
       spReason: 'hit',
       applyCooldownReduction: this.registry
         ? (eff, t, tid, c) => this.registry!.applyCooldownReduction(eff, t, tid, c)
         : undefined,
       onInstantHeal: this.registry
-        ? (id, stat, src, t, st) =>
-            this.registry!.onStatusApplied(id, stat, 'self', src, t, ctx, st, hit.skillId)
+        ? (id, stat, src, t, st, healRecipients) =>
+            this.registry!.onStatusApplied(
+              id,
+              stat,
+              'self',
+              src,
+              t,
+              ctx,
+              st,
+              hit.skillId,
+              undefined,
+              undefined,
+              healRecipients,
+            )
         : undefined,
     });
     // Fire onHit triggers from TriggerRegistry (skip no-damage hits)
-    if (hit.multiplier) this.registry?.onHit(e, ctx);
+    if (hit.multiplier) this.registry?.onHit(e, ctx, 'afterDamage');
     this.registry?.onFinalStrike(e, ctx);
     this.registry?.onDive(e, ctx);
     this.registry?.onFinisher(e, ctx);
@@ -729,7 +780,7 @@ export class HitHandler implements EventHandler<HitEvent> {
     const expireEvents = ctx.queue.collect(
       ev =>
         ev.type === 'OPERATOR_EFFECT_EXPIRE' &&
-        (ev as OperatorEffectExpireEvent).actionId === actionId,
+        (ev as OperatorEffectExpireEvent).durationActionId === actionId,
     ) as OperatorEffectExpireEvent[];
     for (const ev of expireEvents) {
       ctx.queue.enqueue({ ...ev, time: ev.time - extension }, 2);

@@ -149,6 +149,42 @@ describe('actionCombatIcons', () => {
 
     expect(badges.map(item => item.key)).toEqual(['combustion']);
   });
+
+  it('keeps a delayed burst on its originating action instead of the action at its event time', () => {
+    const viz = {
+      attachment: {
+        markers: [
+          {
+            typeKey: 'heat_burst',
+            time: 11.2,
+            stacks: 1,
+            sourceId: 'op_a',
+            actionId: 'attachment_skill',
+            icon: '/icons/icon_energy_fusion_fire.webp',
+          },
+        ],
+        segments: [],
+      },
+    };
+
+    const originBadges = collectActionCombatBadges({
+      action: { instanceId: 'attachment_skill' },
+      trackId: 'op_a',
+      startTime: 10,
+      endTime: 10.5,
+      viz,
+    });
+    const laterBadges = collectActionCombatBadges({
+      action: { instanceId: 'later_skill' },
+      trackId: 'op_a',
+      startTime: 11,
+      endTime: 12,
+      viz,
+    });
+
+    expect(originBadges.map(item => item.key)).toEqual(['heat_burst']);
+    expect(laterBadges).toEqual([]);
+  });
 });
 
 describe('projectEnemyAfflictionViz physical normalize', () => {
@@ -195,13 +231,73 @@ describe('projectEnemyAfflictionViz physical normalize', () => {
       expect.objectContaining({ typeKey: 'vulnerability', stacks: 1, time: 5 }),
     ]);
   });
+
+  it('shows direct vulnerability stack growth before a later lift marker', () => {
+    const viz = projectEnemyAfflictionViz({
+      positionedSegments: [
+        {
+          typeKey: 'physical_combo',
+          group: 0,
+          start: 1,
+          end: 1,
+          stacks: 1,
+          effect: { kind: 'physicalStatus', physicalType: 'vulnerability' },
+        },
+        {
+          typeKey: 'physical_combo',
+          group: 0,
+          start: 1,
+          end: 2,
+          stacks: 1,
+          effect: { kind: 'physicalStatus', physicalType: 'vulnerability' },
+        },
+        {
+          typeKey: 'physical_combo',
+          group: 0,
+          start: 2,
+          end: 2,
+          stacks: 1,
+          effect: { kind: 'physicalStatus', physicalType: 'vulnerability' },
+        },
+        {
+          typeKey: 'physical_combo',
+          group: 0,
+          start: 2,
+          end: 3,
+          stacks: 2,
+          effect: { kind: 'physicalStatus', physicalType: 'vulnerability' },
+        },
+        {
+          typeKey: 'physical_combo',
+          group: 0,
+          start: 3,
+          end: 3,
+          stacks: 1,
+          effect: { kind: 'physicalStatus', physicalType: 'lift' },
+        },
+        {
+          typeKey: 'physical_combo',
+          group: 0,
+          start: 3,
+          end: 8,
+          stacks: 3,
+          effect: { kind: 'physicalStatus', physicalType: 'vulnerability' },
+        },
+      ],
+    });
+
+    expect(viz.physical.markers).toEqual([
+      expect.objectContaining({ typeKey: 'vulnerability', time: 1, stacks: 1 }),
+      expect.objectContaining({ typeKey: 'vulnerability', time: 2, stacks: 2 }),
+      expect.objectContaining({ typeKey: 'lift', time: 3, stacks: 3 }),
+    ]);
+  });
 });
 
 describe('pickRepresentativePhysicalMarker', () => {
   it('preserves lift without prior stacks and seeds vulnerability otherwise', async () => {
-    const { pickRepresentativePhysicalMarker } = await import(
-      '@/simulation/projection/projectEnemyAfflictionViz'
-    );
+    const { pickRepresentativePhysicalMarker } =
+      await import('@/simulation/projection/projectEnemyAfflictionViz');
     expect(
       pickRepresentativePhysicalMarker([{ typeKey: 'lift', stacks: 1, time: 1 }], 0, 0),
     ).toMatchObject({ typeKey: 'lift', stacks: 1 });

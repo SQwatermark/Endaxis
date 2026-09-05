@@ -1,6 +1,6 @@
 import { resolveLeveledValue } from '@/data/timeline';
 import { resolveScalingDef } from '@/data/collect';
-import { snapTimeToFrame } from '@/utils/time';
+import { snapTimeToFrame, timeToFrame } from '@/utils/time';
 import { resolveEffectDisplayKey } from '@/utils/effectDisplay';
 import type { Hit as SheetHit, HitGroup, Segment } from '@/data/types';
 import type { Hit as ResolvedHit } from '@/simulation/compiler/types';
@@ -247,8 +247,18 @@ function takeStoredHitMatch(unusedStored: Dict[], rawHit: Dict | undefined): Dic
   }
 
   const offset = Number(rawHit.offset) || 0;
+  const byBaselineOffset = unusedStored.findIndex(hit => {
+    const baseline = hit?.[SHEET_BASELINE_KEY] as Dict | undefined;
+    return (
+      baseline != null &&
+      Object.prototype.hasOwnProperty.call(baseline, 'offset') &&
+      timeToFrame(Number(baseline.offset) || 0) === timeToFrame(offset)
+    );
+  });
+  if (byBaselineOffset >= 0) return unusedStored.splice(byBaselineOffset, 1)[0];
+
   const byOffset = unusedStored.findIndex(
-    hit => Math.abs((Number(hit?.offset) || 0) - offset) < 1e-9,
+    hit => timeToFrame(Number(hit?.offset) || 0) === timeToFrame(offset),
   );
   if (byOffset >= 0) return unusedStored.splice(byOffset, 1)[0];
 

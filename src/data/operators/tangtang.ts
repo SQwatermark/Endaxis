@@ -39,6 +39,7 @@ const sheet: OperatorSheet = {
               name: 'waterspouts',
               kind: 'damageOverTime',
               element: 'cryo',
+              skillType: 'battleSkill',
               multiplier: [133, 147, 160, 174, 187, 200, 214, 227, 240, 257, 277, 300],
               multiplierMode: 'split',
               multiplierScaling: {
@@ -59,20 +60,6 @@ const sheet: OperatorSheet = {
               kind: 'infliction',
               element: 'cryo',
               applyTiming: 'beforeDamage',
-            },
-            {
-              id: 'tangtang-waterspouts-sp-return',
-              kind: 'spReturn',
-              value: 0,
-              scaling: {
-                additive: [
-                  {
-                    key: 'tangtang-whirlpools',
-                    target: 'self',
-                    coefficient: 20,
-                  },
-                ],
-              },
             },
             {
               id: 'tangtang-waterspouts-susceptibility',
@@ -357,6 +344,7 @@ const sheet: OperatorSheet = {
                       name: 'waterspouts',
                       kind: 'damageOverTime',
                       element: 'cryo',
+                      skillType: 'battleSkill',
                       multiplier: [133, 147, 160, 174, 187, 200, 214, 227, 240, 257, 277, 300],
                       multiplierMode: 'split',
                       multiplierScaling: {

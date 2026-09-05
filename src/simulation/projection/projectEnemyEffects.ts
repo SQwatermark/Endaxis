@@ -12,11 +12,7 @@ import type {
 import type { EnemyStateEvent } from '@/simulation/engine/types';
 import type { SimLogEntry } from '@/simulation/events/event.types';
 import type { ResolvedHit } from '@/simulation/compiler/types';
-import {
-  getEffectIcon,
-  getEffectPresetKey,
-  resolveEffectDefaults,
-} from '@/data/effectPresets';
+import { getEffectIcon, getEffectPresetKey, resolveEffectDefaults } from '@/data/effectPresets';
 import { type ActivationWindow, buildApplyExpireWindows } from './projectTriggeredEffects';
 import { buildByTypeKey, layoutEffects, type EffectLayout } from './effectLayout';
 import { resolveDurationBarColor, type DurationBarColorOptions } from './sourceGroupBarColors';
@@ -41,6 +37,7 @@ interface EnemyEffectSegment {
   color: string;
   effect: Effect; // original effect data for reference
   sourceId: string; // operator/action source identifier
+  actionId?: string;
   carryoverKey?: string;
   disabled?: boolean;
   /** For stat debuffs: the stat field, used for same-stat affinity */
@@ -75,6 +72,7 @@ type InflictionTracker = {
   stacks: number;
   expiresAt: number;
   sourceId: string;
+  actionId?: string;
   carryoverKey?: string;
   disabled?: boolean;
 };
@@ -133,6 +131,7 @@ function makeInflictionSeg(
     color: barColor(eff, colorOpts),
     effect: eff,
     sourceId: t.sourceId,
+    actionId: t.actionId,
     carryoverKey: t.carryoverKey,
     disabled: t.disabled,
   };
@@ -321,6 +320,7 @@ export function projectFromSimLog(
             color: barColor(eff, colorOpts),
             effect: eff,
             sourceId: event.sourceId,
+            actionId: event.actionId,
             carryoverKey: event.carryoverKey,
             disabled: event.disabled,
           });
@@ -338,6 +338,7 @@ export function projectFromSimLog(
             stacks: Math.min(4, infliction.stacks + event.stacks),
             expiresAt: event.expiresAt ?? event.time + 20,
             sourceId: event.sourceId,
+            actionId: event.actionId,
             carryoverKey: event.carryoverKey,
             disabled: event.disabled,
           };
@@ -350,6 +351,7 @@ export function projectFromSimLog(
             stacks: Math.min(4, event.stacks),
             expiresAt: event.expiresAt ?? event.time + event.effectiveDuration,
             sourceId: event.sourceId,
+            actionId: event.actionId,
             carryoverKey: event.carryoverKey,
             disabled: event.disabled,
           };
@@ -414,6 +416,7 @@ export function projectFromSimLog(
           color: barColor(eff, colorOpts),
           effect: eff,
           sourceId: '',
+          actionId: event.actionId,
         });
         break;
       }

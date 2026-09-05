@@ -14,6 +14,11 @@ describe('statusOptions', () => {
   test('maps infliction ids to effects.name keys', () => {
     expect(resolveStatusLocaleKey('cryoInfliction')).toBe('cryo_infliction');
     expect(resolveStatusLocaleKey('vulnerability')).toBe('vulnerability');
+    expect(resolveStatusLocaleKey('zhuangfangyi-battle-bonus-multiplier-tracker')).toBe(
+      'consumeElectrification',
+    );
+    expect(resolveStatusLocaleKey('avywenna-thunderlance')).toBe('thunderlance');
+    expect(resolveStatusLocaleKey('tangtang-whirlpools')).toBe('whirlpools');
   });
 
   test('translates shared anomaly keys via effects.name only', () => {
@@ -28,7 +33,7 @@ describe('statusOptions', () => {
     expect(translateEffectName(t, te, 'ELEMENT_ELECTRIFICATION')).toBe('导电');
     expect(translateEffectName(t, te, 'PHYSICAL_BREACH')).toBe('碎甲');
     expect(translateEffectName(t, te, 'combustion_dot')).toBe('燃烧持续伤害');
-    expect(translateEffectName(t, te, 'artsBurst')).toBe('元素爆发');
+    expect(translateEffectName(t, te, 'artsBurst')).toBe('法术爆发');
     // Historical display aliases are no longer remapped
     expect(translateEffectName(t, te, 'conductive')).toBe('conductive');
     expect(translateEffectName(t, te, 'knockup')).toBe('knockup');

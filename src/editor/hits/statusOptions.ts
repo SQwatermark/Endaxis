@@ -59,6 +59,11 @@ export const STATUS_NAME_ALIASES = Object.freeze({
   PHYSICAL_LIFT: 'lift',
   PHYSICAL_CRUSH: 'crush',
   PHYSICAL_BREACH: 'breach',
+  // Runtime stack trackers used by skill multiplier scaling.
+  'avywenna-thunderlance': 'thunderlance',
+  'avywenna-thunderlance-ex': 'thunderlanceEx',
+  'tangtang-whirlpools': 'whirlpools',
+  'zhuangfangyi-battle-bonus-multiplier-tracker': 'consumeElectrification',
 } as const);
 
 export type StatusNameSource = {
@@ -159,11 +164,7 @@ export function mergeStatusNameRecords(
   return Object.fromEntries(map);
 }
 
-function visitEffect(
-  effect: unknown,
-  nameById: Map<string, string>,
-  ids: Set<string>,
-): void {
+function visitEffect(effect: unknown, nameById: Map<string, string>, ids: Set<string>): void {
   if (!effect || typeof effect !== 'object') return;
   const record = effect as StatusNameSource & {
     kind?: string;
@@ -187,22 +188,14 @@ function visitEffect(
   }
 }
 
-function visitTrigger(
-  trigger: unknown,
-  nameById: Map<string, string>,
-  ids: Set<string>,
-): void {
+function visitTrigger(trigger: unknown, nameById: Map<string, string>, ids: Set<string>): void {
   if (!trigger || typeof trigger !== 'object') return;
   const effects = (trigger as { effects?: unknown[] }).effects;
   if (!Array.isArray(effects)) return;
   for (const effect of effects) visitEffect(effect, nameById, ids);
 }
 
-function visitPatch(
-  patch: unknown,
-  nameById: Map<string, string>,
-  ids: Set<string>,
-): void {
+function visitPatch(patch: unknown, nameById: Map<string, string>, ids: Set<string>): void {
   if (!patch || typeof patch !== 'object') return;
   const record = patch as { kind?: string; effect?: unknown; hit?: { effects?: unknown[] } };
   if (record.kind === 'appendEffect' || record.kind === 'patchEffect') {
@@ -213,11 +206,7 @@ function visitPatch(
   }
 }
 
-function visitTalentLike(
-  entry: unknown,
-  nameById: Map<string, string>,
-  ids: Set<string>,
-): void {
+function visitTalentLike(entry: unknown, nameById: Map<string, string>, ids: Set<string>): void {
   if (!entry || typeof entry !== 'object') return;
   const record = entry as {
     effects?: unknown[];
@@ -235,11 +224,7 @@ function visitTalentLike(
   }
 }
 
-function visitSkill(
-  skill: unknown,
-  nameById: Map<string, string>,
-  ids: Set<string>,
-): void {
+function visitSkill(skill: unknown, nameById: Map<string, string>, ids: Set<string>): void {
   if (!skill || typeof skill !== 'object') return;
   const record = skill as {
     effects?: unknown[];

@@ -110,9 +110,7 @@ const themePaint = computed(() => {
   const fill = isLight
     ? solidFillForLightTrack(color, isAttack ? 0.7 : 0.48)
     : hexToRgba(color, 0.15);
-  const attackBorder = isLight
-    ? `1.5px solid ${color}`
-    : `1.5px solid ${hexToRgba(color, 0.4)}`;
+  const attackBorder = isLight ? `1.5px solid ${color}` : `1.5px solid ${hexToRgba(color, 0.4)}`;
   const glowAlpha = isLight ? 0.18 : 0.5;
   // Soft outer ring separates dashed skill edges from 1px grid lines.
   const edgeRing = isLight ? '0 0 0 1px rgba(26, 27, 30, 0.22)' : 'none';
@@ -175,26 +173,6 @@ function onDamageHitClick(hit) {
 
 // 冷却计算 — 使用编译器预计算的 effective cooldown，仅叠加运行时 sim 缩减
 
-const simCdReduction = computed(() => {
-  const log = store.simLog || store.simulation?.simLog || [];
-  return log
-    .filter(
-      entry => entry.type === 'CD_REDUCTION' && entry.payload?.actionId === props.action.instanceId,
-    )
-    .reduce((sum, entry) => sum + (Number(entry.payload?.reduction) || 0), 0);
-});
-
-/** Mid-action full clear (e.g. Rossi combo2 wiping combo1 remaining CD) → hide CD bar. */
-const cdClearedByInterrupt = computed(() => {
-  const log = store.simLog || store.simulation?.simLog || [];
-  return log.some(
-    entry =>
-      entry.type === 'CD_REDUCTION' &&
-      entry.payload?.actionId === props.action.instanceId &&
-      entry.payload?.clearedRemaining === true,
-  );
-});
-
 /** Compiled effective cooldown (after passive stats), or null if not yet compiled.
  *
  *  Naming trap: `action.cooldown` 原本存的是技能面板原始冷却 (如 25s)，
@@ -211,16 +189,44 @@ const compiledCooldown = computed(() => {
 
 const effectiveComboCooldown = computed(() => {
   if (props.action.type !== 'comboSkill') return 0;
-  if (cdClearedByInterrupt.value) return 0;
-  const compiled = compiledCooldown.value;
-  return compiled != null ? Math.max(0, compiled - simCdReduction.value) : 0;
+  const interval = store.comboCooldownIntervals?.find(
+    item => item.sourceActionId === props.action.instanceId,
+  );
+  if (interval) return Math.max(0, Number(interval.end) - Number(interval.start));
+  return 0;
 });
 
 const effectiveUltimateCooldown = computed(() => {
   if (props.action.type !== 'ultimate') return 0;
-  if (cdClearedByInterrupt.value) return 0;
+  let reduction = 0;
+  for (const entry of store.simLog || store.simulation?.simLog || []) {
+    if (entry.type !== 'CD_REDUCTION' || entry.payload?.actionId !== props.action.instanceId) {
+      continue;
+    }
+    if (entry.payload?.clearedRemaining === true) return 0;
+    reduction += Number(entry.payload?.reduction) || 0;
+  }
   const compiled = compiledCooldown.value;
-  return compiled != null ? Math.max(0, compiled - simCdReduction.value) : 0;
+  return compiled != null ? Math.max(0, compiled - reduction) : 0;
+});
+
+const SKILL_COOLDOWN_COLOR = '#ff6fae';
+
+const appliedSkillCooldown = computed(() => {
+  const log = store.simLog || store.simulation?.simLog || [];
+  const entry = log.find(
+    item =>
+      item.type === 'SKILL_COOLDOWN_APPLY' &&
+      item.payload?.sourceActionId === props.action.instanceId,
+  );
+  if (!entry) return null;
+
+  const startTime = Number(entry.time);
+  const expiresAt = Number(entry.payload?.expiresAt);
+  if (!Number.isFinite(startTime) || !Number.isFinite(expiresAt) || expiresAt <= startTime) {
+    return null;
+  }
+  return { startTime, duration: expiresAt - startTime };
 });
 
 /** Add a warning mark for any unmet prerequisites. */
@@ -383,11 +389,7 @@ const style = computed(() => {
     backgroundColor: fill,
     backdropFilter: glassBlur,
     color: textColor,
-    boxShadow: selected
-      ? `0 0 10px ${glow}`
-      : isLight
-        ? paint.edgeRing
-        : 'none',
+    boxShadow: selected ? `0 0 10px ${glow}` : isLight ? paint.edgeRing : 'none',
   };
 });
 
@@ -405,7 +407,7 @@ function getTrackingBarTransform(leftPx, rowIndex) {
   return `translate(${layout.bar.leftEdge + leftPx}px, ${layout.bar.relativeY + TRACKING_BAR_ROW_GAP * rowIndex}px)`;
 }
 
-function getCooldownStyle(cooldown, rowIndex) {
+function getCooldownStyle(cooldown, rowIndex, startOverride = null) {
   const layout = actionLayout.value;
   if (!layout) return { display: 'none' };
 
@@ -415,8 +417,8 @@ function getCooldownStyle(cooldown, rowIndex) {
 
   // Ultimate CD starts after the enhancement window (incl. Laevatain extensions),
   // not at cast / animation end. Non-enhanced ultimates still start after animation.
-  let cdStart = start;
-  if (props.action.type === 'ultimate') {
+  let cdStart = Number.isFinite(startOverride) ? startOverride : start;
+  if (!Number.isFinite(startOverride) && props.action.type === 'ultimate') {
     const metrics = store.getUltimateEnhancementMetrics?.(props.action.instanceId);
     if (metrics?.finalEnd != null) {
       cdStart = metrics.finalEnd;
@@ -435,12 +437,19 @@ function getCooldownStyle(cooldown, rowIndex) {
   };
 }
 
-const cdStyle = computed(() => {
-  return getCooldownStyle(effectiveComboCooldown.value, 0);
-});
-
 const ultCdStyle = computed(() => {
   return getCooldownStyle(effectiveUltimateCooldown.value, 1);
+});
+
+const appliedSkillCooldownRow = computed(() => {
+  if (props.action.type === 'ultimate') return 3;
+  return effectiveComboCooldown.value > 0 ? 1 : 0;
+});
+
+const appliedSkillCooldownStyle = computed(() => {
+  const cooldown = appliedSkillCooldown.value;
+  if (!cooldown) return { display: 'none' };
+  return getCooldownStyle(cooldown.duration, appliedSkillCooldownRow.value, cooldown.startTime);
 });
 
 // 强化时间样式
@@ -518,7 +527,10 @@ const customBarsToRender = computed(() => {
   const bars = props.action.customBars || [];
   const resolvedAction = store.compiledTimeline?.actionMap?.get(props.action.instanceId);
   const base = Number(resolvedAction?.realStartTime ?? props.action.startTime) || 0;
-  const baseRow = props.action.type === 'ultimate' ? 3 : effectiveComboCooldown.value > 0 ? 1 : 0;
+  let baseRow = props.action.type === 'ultimate' ? 3 : effectiveComboCooldown.value > 0 ? 1 : 0;
+  if (appliedSkillCooldown.value) {
+    baseRow = Math.max(baseRow, appliedSkillCooldownRow.value + 1);
+  }
 
   return bars
     .map((bar, index) => {
@@ -734,26 +746,6 @@ function handleActionDragStart(startPos, port) {
     @dragstart.prevent
   >
     <div
-      v-if="showDecorations && !isGhostMode && effectiveComboCooldown > 0"
-      class="cd-bar-container bottom-bar"
-      :style="cdStyle"
-    >
-      <div class="cd-line" :style="{ backgroundColor: themeColor }"></div>
-
-      <span class="cd-text" :style="{ color: themeColor }">{{
-        store.formatTimeLabel(effectiveComboCooldown)
-      }}</span>
-
-      <div
-        class="cd-end-mark"
-        :style="{
-          backgroundColor: themeColor,
-          zIndex: 1,
-        }"
-      ></div>
-    </div>
-
-    <div
       v-if="showDecorations && !isGhostMode && effectiveUltimateCooldown > 0"
       class="cd-bar-container bottom-bar"
       :style="ultCdStyle"
@@ -771,6 +763,18 @@ function handleActionDragStart(startPos, port) {
           zIndex: 1,
         }"
       ></div>
+    </div>
+
+    <div
+      v-if="showDecorations && !isGhostMode && appliedSkillCooldown"
+      class="cd-bar-container bottom-bar"
+      :style="appliedSkillCooldownStyle"
+    >
+      <div class="cd-line" :style="{ backgroundColor: SKILL_COOLDOWN_COLOR }"></div>
+      <span class="cd-text" :style="{ color: SKILL_COOLDOWN_COLOR }">
+        {{ store.formatTimeLabel(appliedSkillCooldown.duration) }}
+      </span>
+      <div class="cd-end-mark" :style="{ backgroundColor: SKILL_COOLDOWN_COLOR }"></div>
     </div>
 
     <div
@@ -973,7 +977,7 @@ function handleActionDragStart(startPos, port) {
 .action-item-wrapper:hover {
   filter: brightness(1.2);
 }
-:global(html[data-theme='light'] .action-item-wrapper:hover){
+:global(html[data-theme='light'] .action-item-wrapper:hover) {
   filter: brightness(1.04);
 }
 
@@ -1052,16 +1056,10 @@ function handleActionDragStart(startPos, port) {
 }
 
 :global(
-  html[data-theme='light']
-    .action-requisite-tooltip-popper.el-popper
-    .el-popper__arrow::before
+  html[data-theme='light'] .action-requisite-tooltip-popper.el-popper .el-popper__arrow::before
 ) {
   background: var(--ea-tooltip-bg, #ffffff) !important;
-  border-color: color-mix(
-    in srgb,
-    #e11d48 45%,
-    var(--ea-dialog-border, #d8dbe0)
-  ) !important;
+  border-color: color-mix(in srgb, #e11d48 45%, var(--ea-dialog-border, #d8dbe0)) !important;
 }
 
 .action-item-content {
