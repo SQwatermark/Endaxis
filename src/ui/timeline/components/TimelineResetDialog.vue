@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import ElFocusTrap from 'element-plus/es/components/focus-trap/index';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { useDialogInteractionBoundary } from '../../interaction/useDialogInteractionBoundary';
 
@@ -21,6 +22,8 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const selectedMode = ref<TimelineResetMode>('currentKeepLoadout');
+const dialogElement = ref<HTMLElement>();
+const cancelButton = ref<HTMLButtonElement>();
 useDialogInteractionBoundary(useInteractionSession(), () => props.modelValue, close);
 
 const options = computed(() => [
@@ -91,75 +94,89 @@ function confirm() {
   <Teleport to="body">
     <Transition name="timeline-reset-fade">
       <div v-if="modelValue" class="timeline-reset-overlay">
-        <section
-          class="timeline-reset-dialog"
-          role="dialog"
-          aria-modal="true"
-          :aria-label="t('reset.title')"
+        <ElFocusTrap
+          :trapped="modelValue"
+          loop
+          :focus-trap-el="dialogElement"
+          :focus-start-el="cancelButton"
         >
-          <header class="timeline-reset-dialog__header">
-            <h2 class="timeline-reset-dialog__title">{{ t('reset.title') }}</h2>
-            <button
-              type="button"
-              class="timeline-reset-dialog__close"
-              :aria-label="t('common.close')"
-              @click="close"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 6l12 12M18 6 6 18" />
-              </svg>
-            </button>
-          </header>
+          <section
+            ref="dialogElement"
+            tabindex="-1"
+            class="timeline-reset-dialog"
+            role="dialog"
+            aria-modal="true"
+            :aria-label="t('reset.title')"
+          >
+            <header class="timeline-reset-dialog__header">
+              <h2 class="timeline-reset-dialog__title">{{ t('reset.title') }}</h2>
+              <button
+                type="button"
+                class="timeline-reset-dialog__close"
+                :aria-label="t('common.close')"
+                @click="close"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6 6 18" />
+                </svg>
+              </button>
+            </header>
 
-          <div class="timeline-reset-options" role="radiogroup" :aria-label="t('reset.title')">
-            <button
-              v-for="option in options"
-              :key="option.mode"
-              type="button"
-              class="timeline-reset-option"
-              :class="{
-                'is-selected': selectedMode === option.mode,
-                'is-danger': option.mode === 'all',
-              }"
-              role="radio"
-              :aria-checked="selectedMode === option.mode"
-              @click="selectedMode = option.mode"
-            >
-              <span class="timeline-reset-option__icon" aria-hidden="true">
-                <svg v-if="option.icon === 'loadout'" viewBox="0 0 24 24">
-                  <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
-                  <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
-                  <path d="m16.5 15.5 1.5 1.5 3-3" />
-                </svg>
-                <svg v-else-if="option.icon === 'current'" viewBox="0 0 24 24">
-                  <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
-                  <path d="M3 3v5h5" />
-                </svg>
-                <svg v-else viewBox="0 0 24 24">
-                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 10v7M14 10v7" />
-                </svg>
-              </span>
-              <span class="timeline-reset-option__copy">
-                <strong>{{ option.title }}</strong>
-                <small>{{ option.description }}</small>
-              </span>
-              <span class="timeline-reset-option__radio" aria-hidden="true"></span>
-            </button>
-          </div>
+            <div class="timeline-reset-options" role="radiogroup" :aria-label="t('reset.title')">
+              <button
+                v-for="option in options"
+                :key="option.mode"
+                type="button"
+                class="timeline-reset-option"
+                :class="{
+                  'is-selected': selectedMode === option.mode,
+                  'is-danger': option.mode === 'all',
+                }"
+                role="radio"
+                :aria-checked="selectedMode === option.mode"
+                @click="selectedMode = option.mode"
+              >
+                <span class="timeline-reset-option__icon" aria-hidden="true">
+                  <svg v-if="option.icon === 'loadout'" viewBox="0 0 24 24">
+                    <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+                    <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+                    <path d="m16.5 15.5 1.5 1.5 3-3" />
+                  </svg>
+                  <svg v-else-if="option.icon === 'current'" viewBox="0 0 24 24">
+                    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+                    <path d="M3 3v5h5" />
+                  </svg>
+                  <svg v-else viewBox="0 0 24 24">
+                    <path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 10v7M14 10v7" />
+                  </svg>
+                </span>
+                <span class="timeline-reset-option__copy">
+                  <strong>{{ option.title }}</strong>
+                  <small>{{ option.description }}</small>
+                </span>
+                <span class="timeline-reset-option__radio" aria-hidden="true"></span>
+              </button>
+            </div>
 
-          <footer class="timeline-reset-dialog__footer">
-            <button type="button" class="ea-btn ea-btn--glass-rect" @click="close">
-              {{ t('common.cancel') }}
-            </button>
-            <button
-              type="button"
-              class="ea-btn ea-btn--glass-rect ea-btn--accent-red"
-              @click="confirm"
-            >
-              {{ t('reset.confirmButton') }}
-            </button>
-          </footer>
-        </section>
+            <footer class="timeline-reset-dialog__footer">
+              <button
+                ref="cancelButton"
+                type="button"
+                class="ea-btn ea-btn--glass-rect"
+                @click="close"
+              >
+                {{ t('common.cancel') }}
+              </button>
+              <button
+                type="button"
+                class="ea-btn ea-btn--glass-rect ea-btn--accent-red"
+                @click="confirm"
+              >
+                {{ t('reset.confirmButton') }}
+              </button>
+            </footer>
+          </section>
+        </ElFocusTrap>
       </div>
     </Transition>
   </Teleport>
