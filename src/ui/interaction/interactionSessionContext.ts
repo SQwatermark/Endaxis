@@ -11,18 +11,36 @@ const interactionSessionKey: InjectionKey<InteractionSession> = Symbol('workbenc
 /** Register a background-gesture barrier for a panel's actual open lifecycle. */
 export function useInteractionBarrier(session: InteractionSession, active: () => boolean): void {
   let release: (() => void) | undefined;
+  let revision = 0;
+  let disposed = false;
+  const releaseCurrent = () => {
+    const previous = release;
+    release = undefined;
+    previous?.();
+  };
+  onScopeDispose(() => {
+    disposed = true;
+    revision++;
+    releaseCurrent();
+  });
   watch(
     active,
     blocked => {
-      if (blocked) release ??= session.block();
-      else {
-        release?.();
-        release = undefined;
+      if (disposed) return;
+      const attempt = ++revision;
+      if (blocked) {
+        if (release) return;
+        // block() synchronously cancels the previous gesture. That callback may
+        // close/reopen this panel or dispose its scope before the lease returns.
+        const acquired = session.block();
+        if (disposed || attempt !== revision) acquired();
+        else release = acquired;
+      } else {
+        releaseCurrent();
       }
     },
     { immediate: true, flush: 'sync' },
   );
-  onScopeDispose(() => release?.());
 }
 
 export function provideInteractionSession(region?: InputRegion): InteractionSession {
