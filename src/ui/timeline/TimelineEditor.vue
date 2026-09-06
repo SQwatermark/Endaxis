@@ -3775,6 +3775,8 @@ function resolveLibraryDropRegion(event: DragEvent): HTMLElement | null {
     : null;
 }
 
+// Negotiate on entry too: a quick release after crossing a child/overlay may happen
+// before the browser sends its next dragover at the new target.
 function guardLibrarySkillDragOver(event: DragEvent): void {
   if (dragPayload.value?.kind !== 'librarySkill') return;
   event.preventDefault();
@@ -3815,6 +3817,7 @@ function beginSkillDrag(
   });
   window.addEventListener('drop', guardLibrarySkillDrop, true);
   window.addEventListener('dragover', guardLibrarySkillDragOver, true);
+  window.addEventListener('dragenter', guardLibrarySkillDragOver, true);
   const offsets = getDefaultLibraryDragOffsets();
   dragPayload.value = {
     kind: 'librarySkill',
@@ -3858,6 +3861,7 @@ function finishSkillDrag(): void {
   libraryDragLease = null;
   window.removeEventListener('drop', guardLibrarySkillDrop, true);
   window.removeEventListener('dragover', guardLibrarySkillDragOver, true);
+  window.removeEventListener('dragenter', guardLibrarySkillDragOver, true);
   if (dragPayload.value?.kind === 'librarySkill') dragPayload.value = null;
   removeLibraryDragGhost();
 }

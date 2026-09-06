@@ -96,6 +96,25 @@ describe('SkillLibraryCard legacy structure parity', () => {
     expect(editorSource).toContain('registerTrackDropRegion(track.trackIndex, element)');
   });
 
+  it('negotiates entry and over through the same region without committing or cancelling on hover', () => {
+    for (const type of ['dragenter', 'dragover']) {
+      expect(editorSource).toContain(
+        `window.addEventListener('${type}', guardLibrarySkillDragOver, true)`,
+      );
+      expect(editorSource).toContain(
+        `window.removeEventListener('${type}', guardLibrarySkillDragOver, true)`,
+      );
+    }
+    const negotiate = editorSource.slice(
+      editorSource.indexOf('function guardLibrarySkillDragOver('),
+      editorSource.indexOf('function guardLibrarySkillDrop('),
+    );
+    expect(negotiate).toContain('resolveLibraryDropRegion(event)');
+    expect(negotiate).toContain("? 'none' : 'copy'");
+    expect(negotiate).not.toContain('finishSkillDrag()');
+    expect(negotiate).not.toContain('placeGroup(');
+  });
+
   it('selects cards and segments for the inspector without entering placement mode', () => {
     expect(editorSource).toContain('function selectLibrarySkill(');
     expect(editorSource).toContain('@select="selectLibrarySkill(entry)"');
