@@ -24,7 +24,7 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).toContain('labels.weaponAttack');
     expect(source).toContain('labels.attackBonus');
     expect(source).toContain('detail.attackDetail.attackPercentSources');
-    expect(source).toContain('contributionSourceLabel(source)');
+    expect(source).toContain('contributionSourceLabel(source, detail.key)');
     expect(source).toContain('class="label-cell indent-4"');
     expect(source).toContain('labels.attributeBonus');
     expect(source).toContain('data.skillMultiplierPercent');

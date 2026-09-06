@@ -325,6 +325,8 @@ import {
   type TimelineHitEffectLabel,
 } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
+import { selectEnemyBurstDamageEntries } from './enemyBurstDamageGroups';
+import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
 import BattleLogPanel from './components/BattleLogPanel.vue';
 import TimelineShortcutHelpDialog from './components/TimelineShortcutHelpDialog.vue';
@@ -2421,16 +2423,13 @@ const enemyDamageDetailSequence = ref<number | null>(null);
 watch(simulationRun, () => {
   enemyDamageDetailSequence.value = null;
 });
-const enemyDamageDetailEntries = computed(
-  () =>
-    simulationRun.value?.receiptEntries.filter(
-      entry =>
-        entry.sequence === enemyDamageDetailSequence.value && entry.event === 'DamageApplied',
-    ) ?? [],
+const enemyDamageDetailEntries = computed(() =>
+  selectEnemyBurstDamageEntries(
+    simulationRun.value?.receiptEntries ?? [],
+    enemyDamageDetailSequence.value,
+  ),
 );
-const enemyDamageSourceDescription = computed(() => {
-  const entry = enemyDamageDetailEntries.value[0];
-  if (!entry) return undefined;
+function enemyDamageSourceDescription(entry: CombatReceiptEntry) {
   const sourceActionId =
     typeof entry.data?.sourceActionId === 'string' ? entry.data.sourceActionId : undefined;
   const index = scenario.value.tracks.findIndex(track => track?.id === entry.sourceId);
@@ -2443,7 +2442,12 @@ const enemyDamageSourceDescription = computed(() => {
   ]
     .filter(Boolean)
     .join(' · ');
-});
+}
+function enemyDamageOperatorPanel(entry: CombatReceiptEntry) {
+  return (
+    simulationRun.value?.operatorPanels.find(panel => panel.operatorId === entry.sourceId) ?? null
+  );
+}
 const hitDetail = computed(() => {
   const target = hitDetailTarget.value;
   const current = simulationRun.value;
@@ -2477,12 +2481,17 @@ const hitDetailOperatorPanel = computed(() => {
   return current.operatorPanels.find(panel => panel.operatorId === operatorId) ?? null;
 });
 
-function hitDetailContributionSourceLabel(entry: OperatorPanelContributionReceipt): string {
+function hitDetailContributionSourceLabel(
+  entry: OperatorPanelContributionReceipt,
+  sequence?: number,
+): string {
   const target = hitDetailTarget.value;
   const trackIndex =
     target?.trackIndex ??
     scenario.value.tracks.findIndex(
-      track => track?.id === enemyDamageDetailEntries.value[0]?.sourceId,
+      track =>
+        track?.id ===
+        enemyDamageDetailEntries.value.find(hit => hit.sequence === sequence)?.sourceId,
     );
   const operatorSlug = viewModel.value.tracks[trackIndex]?.operatorSlug ?? null;
   return resolveOperatorPanelContributionSourceLabel(entry, {
@@ -6053,6 +6062,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetSelectedCastDefinition"
   />
   <TimelineHitDetailDialog
+    :operator-panel-for-entry="hitDetailTarget === null ? enemyDamageOperatorPanel : undefined"
     :source-label="t('timeline.buffDetail.source')"
     :source-description="hitDetailTarget === null ? enemyDamageSourceDescription : undefined"
     :visible="hitDetailTarget !== null || enemyDamageDetailSequence !== null"

@@ -27,6 +27,7 @@ import { frameToTimelinePx } from '../timelineGeometry';
 import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from '../lastHitBuffSummary';
 import { layoutEnemyStatusRows } from '../enemyStatusRows';
+import { groupEnemyBurstDamageHits } from '../enemyBurstDamageGroups';
 import {
   projectAttachmentContinuations,
   projectAttachmentConversionLinks,
@@ -152,18 +153,23 @@ const markers = computed(() =>
 );
 
 const damageHits = computed(() =>
-  (props.viz.damageHits ?? []).map(entry => ({
-    sequence: entry.sequence,
-    x: pointX(entry.frame),
-    top:
-      SECTION_TOPBAR_HEIGHT +
-      ICON_TOP +
-      // 与附着行共用布局；伤害不参与图标横向错位。
-      statusRows.value.attachmentRow * EFFECT_ROW_PITCH +
-      ICON_SIZE -
-      3,
-    title: String(Math.floor(Number(entry.data?.expectedDamage ?? entry.data?.value ?? 0))),
-  })),
+  groupEnemyBurstDamageHits(props.viz.damageHits ?? []).map(group => {
+    const entry = group[0]!;
+    return {
+      sequence: entry.sequence,
+      x: pointX(entry.frame),
+      top:
+        SECTION_TOPBAR_HEIGHT +
+        ICON_TOP +
+        // 与附着行共用布局；伤害不参与图标横向错位。
+        statusRows.value.attachmentRow * EFFECT_ROW_PITCH +
+        ICON_SIZE -
+        3,
+      title: group
+        .map(hit => String(Math.floor(Number(hit.data?.expectedDamage ?? hit.data?.value ?? 0))))
+        .join(' / '),
+    };
+  }),
 );
 
 const attachmentContinuations = computed(() =>

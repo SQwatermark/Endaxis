@@ -13,11 +13,12 @@ const props = defineProps<{
   visible: boolean;
   forceCritical: boolean;
   allowForceCritical?: boolean;
-  sourceDescription?: string;
+  sourceDescription?: (entry: CombatReceiptEntry) => string | undefined;
   sourceLabel?: string;
   entries: readonly CombatReceiptEntry[];
   operatorPanel: ResolvedOperatorPanel | null;
-  contributionSourceLabel: (entry: OperatorPanelContributionReceipt) => string;
+  operatorPanelForEntry?: (entry: CombatReceiptEntry) => ResolvedOperatorPanel | null;
+  contributionSourceLabel: (entry: OperatorPanelContributionReceipt, sequence?: number) => string;
   damageTypeLabel: (value: string) => string;
   skillTypeLabel: (value: string) => string;
   labels: {
@@ -123,7 +124,10 @@ function differsFromOne(value: number): boolean {
   return Math.abs(value - 1) > 0.000_001;
 }
 
-function projectAttackDetail(data: CombatReceiptEntry['data']): AttackDetail | null {
+function projectAttackDetail(
+  data: CombatReceiptEntry['data'],
+  panel: ResolvedOperatorPanel | null,
+): AttackDetail | null {
   if (data === undefined || typeof data.attackDetailMainAttribute !== 'string') return null;
   if (typeof data.attackDetailSecondaryAttribute !== 'string') return null;
   const required = [
@@ -181,7 +185,7 @@ function projectAttackDetail(data: CombatReceiptEntry['data']): AttackDetail | n
     attackBonus: baseAttackTotal * attackPercent + flatAttack,
     flatAttack,
     attackPercent,
-    attackPercentSources: projectAttackPercentContributionSources(props.operatorPanel),
+    attackPercentSources: projectAttackPercentContributionSources(panel),
     attributeContributions,
   };
 }
@@ -212,8 +216,9 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
     const damageTakenMultiplier = finiteNumber(data.damageTakenMultiplier, 1);
     const resistanceMultiplier = finiteNumber(data.resistancePercentMultiplier, 1);
     const contextRows: DetailRow[] = [];
-    if (props.sourceDescription && props.sourceLabel) {
-      contextRows.push({ label: props.sourceLabel, value: props.sourceDescription });
+    const sourceDescription = props.sourceDescription?.(entry);
+    if (sourceDescription && props.sourceLabel) {
+      contextRows.push({ label: props.sourceLabel, value: sourceDescription });
     }
     if (skillType !== null) {
       contextRows.push({ label: props.labels.skillType, value: props.skillTypeLabel(skillType) });
@@ -280,7 +285,10 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
         nonCriticalDamage,
         canForceCritical: Math.abs(criticalDamage - nonCriticalDamage) > 0.000_001,
         attackValue: num(data.attack),
-        attackDetail: projectAttackDetail(entry.data),
+        attackDetail: projectAttackDetail(
+          entry.data,
+          props.operatorPanelForEntry ? props.operatorPanelForEntry(entry) : props.operatorPanel,
+        ),
         contextRows,
         baseRows,
         multiplierRows,
@@ -309,7 +317,11 @@ function onClose(): void {
     append-to-body
     @update:model-value="onClose"
   >
-    <div v-if="damageDetails.length > 0" class="hit-detail-content">
+    <div
+      v-if="damageDetails.length > 0"
+      class="hit-detail-content"
+      :class="{ 'is-multiple': damageDetails.length > 1 }"
+    >
       <template v-for="detail in damageDetails" :key="detail.key">
         <template v-if="detail.contextRows.length > 0">
           <div class="section-label">{{ labels.context }}</div>
@@ -402,7 +414,7 @@ function onClose(): void {
                 class="sub-row dim"
               >
                 <td class="label-cell indent-4">
-                  {{ labels.fromSource(contributionSourceLabel(source)) }}
+                  {{ labels.fromSource(contributionSourceLabel(source, detail.key)) }}
                 </td>
                 <td class="value-cell">{{ pct(source.value) }}</td>
               </tr>
@@ -479,6 +491,11 @@ function onClose(): void {
 .hit-detail-content {
   color: var(--ea-fg, #f0f0f0);
   font-size: 13px;
+}
+.hit-detail-content.is-multiple {
+  max-height: calc(80dvh - 120px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .section-label {
   margin: 12px 0 6px;
