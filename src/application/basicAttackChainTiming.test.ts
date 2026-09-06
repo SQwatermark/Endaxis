@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { OperatorDefinition } from '../core/game-data/operatorDefinition';
 import { createEmptyScenario } from '../core/project/createProject';
 import { lifeng, perlica } from '../data/operators';
+import * as operators from '../data/operators';
 import { gameDataRepository } from '../data/gameDataRepository';
 import { skillSettings } from '../data/combat/skillSettings';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
@@ -53,50 +54,100 @@ function createChain(operator: OperatorDefinition) {
 }
 
 describe('generated basic attack chain input timing', () => {
-  it('compacts to an actual interruption without moving the unselected interrupting skill', async () => {
-    const scenario = createChain(perlica);
-    scenario.tracks[0]!.skillCasts = scenario.tracks[0]!.skillCasts.slice(-1);
-    scenario.tracks[0]!.skillCasts[0]!.placement.startFrame = 1;
-    const battle = placeSkillGroup({
-      scenario,
-      trackIndex: 0,
-      operator: perlica,
-      skillGroupKey: 'battleSkill',
-      startFrame: 10,
-      ids: { allocate: () => 'unselected:battle' },
-    });
-    const placed = placeSkillGroup({
-      scenario: battle.scenario,
-      trackIndex: 0,
-      operator: perlica,
-      skillGroupKey: 'basicAttack',
-      skillKey: 'basicAttack1',
-      startFrame: 100,
-      ids: { allocate: () => 'selected:basic' },
-    });
-    const before = structuredClone(placed.scenario);
-    const result = await service.planSkillChain(
-      placed.scenario,
-      ['cast:3', 'selected:basic'],
-      240,
-      undefined,
-      'compact',
-    );
-    expect(result.status).toBe('planned');
-    if (result.status !== 'planned') return;
-    const interruption = result.run.receiptEntries.find(
-      entry => entry.event === 'SkillInterrupted' && entry.data?.castId === 'cast:3',
-    );
-    expect(interruption?.frame).toBe(10);
-    expect(
-      result.scenario.tracks[0]!.skillCasts.find(c => c.id === 'selected:basic')!.placement
-        .startFrame,
-    ).toBe(10);
-    expect(result.scenario.tracks[0]!.skillCasts.find(c => c.id === 'unselected:battle')).toEqual(
-      before.tracks[0]!.skillCasts.find(c => c.id === 'unselected:battle'),
-    );
-    expect(placed.scenario).toEqual(before);
-  });
+  it.each(
+    Object.values(operators).flatMap(operator =>
+      [-60, 0, 1].map(startFrame => ({ operator, startFrame })),
+    ),
+  )(
+    '$operator.slug compact layout at $startFrame is stable when applied twice',
+    async ({ operator, startFrame }) => {
+      const scenario = createChain(operator);
+      scenario.battle.durationFrames = 600;
+      scenario.tracks[0]!.skillCasts.forEach((cast, i) => {
+        cast.placement.startFrame = startFrame + i * 80;
+      });
+      const ids = scenario.tracks[0]!.skillCasts.map(cast => cast.id);
+      const before = structuredClone(scenario);
+      const first = await service.planSkillChain(scenario, ids, 600, undefined, 'compact');
+      expect(first.status).toBe('planned');
+      if (first.status !== 'planned') return;
+      const second = await service.planSkillChain(first.scenario, ids, 600, undefined, 'compact');
+      expect(second.status).toBe('planned');
+      if (second.status !== 'planned') return;
+      expect(second.scenario).toEqual(first.scenario);
+      expect(scenario).toEqual(before);
+      expect(first.scenario.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(startFrame);
+    },
+  );
+  it.each([false, true])(
+    'preserves same-frame document order when selected cast is first: %s',
+    async selectedFirst => {
+      const scenario = createChain(perlica);
+      scenario.tracks[0]!.skillCasts = scenario.tracks[0]!.skillCasts.slice(-1);
+      scenario.tracks[0]!.skillCasts[0]!.placement.startFrame = 1;
+      const battle = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: perlica,
+        skillGroupKey: 'battleSkill',
+        startFrame: 10,
+        ids: { allocate: () => 'unselected:battle' },
+      });
+      const placed = placeSkillGroup({
+        scenario: battle.scenario,
+        trackIndex: 0,
+        operator: perlica,
+        skillGroupKey: 'basicAttack',
+        skillKey: 'basicAttack1',
+        startFrame: 100,
+        ids: { allocate: () => 'selected:basic' },
+      });
+      if (selectedFirst) {
+        const casts = placed.scenario.tracks[0]!.skillCasts;
+        placed.scenario.tracks[0]!.skillCasts = [casts[0]!, casts[2]!, casts[1]!];
+      }
+      const before = structuredClone(placed.scenario);
+      const result = await service.planSkillChain(
+        placed.scenario,
+        ['cast:3', 'selected:basic'],
+        240,
+        undefined,
+        'compact',
+      );
+      expect(result.status).toBe('planned');
+      if (result.status !== 'planned') return;
+      const interruption = result.run.receiptEntries.find(
+        entry => entry.event === 'SkillInterrupted' && entry.data?.castId === 'cast:3',
+      );
+      expect(interruption?.frame).toBe(10);
+      expect(
+        result.scenario.tracks[0]!.skillCasts.find(c => c.id === 'selected:basic')!.placement
+          .startFrame,
+      ).toBe(10);
+      expect(result.scenario.tracks[0]!.skillCasts.find(c => c.id === 'unselected:battle')).toEqual(
+        before.tracks[0]!.skillCasts.find(c => c.id === 'unselected:battle'),
+      );
+      expect(placed.scenario).toEqual(before);
+      expect(
+        result.run.receiptEntries
+          .filter(entry => entry.event === 'SkillInputProcessed' && entry.frame === 10)
+          .map(entry => entry.data?.castId),
+      ).toEqual(
+        selectedFirst
+          ? ['selected:basic', 'unselected:battle']
+          : ['unselected:battle', 'selected:basic'],
+      );
+      const repeated = await service.planSkillChain(
+        result.scenario,
+        ['cast:3', 'selected:basic'],
+        240,
+        undefined,
+        'compact',
+      );
+      expect(repeated.status).toBe('planned');
+      if (repeated.status === 'planned') expect(repeated.scenario).toEqual(result.scenario);
+    },
+  );
   it('keeps the complete authored chain undoable when the planning service throws', async () => {
     const authored = createChain(perlica);
     const original = structuredClone(authored);
