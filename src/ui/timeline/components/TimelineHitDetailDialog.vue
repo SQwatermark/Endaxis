@@ -70,6 +70,7 @@ interface DamageDetail {
   readonly headline: number;
   readonly criticalDamage: number;
   readonly nonCriticalDamage: number;
+  readonly canCritical: boolean;
   readonly canForceCritical: boolean;
   readonly attackValue: string;
   readonly attackDetail: AttackDetail | null;
@@ -290,7 +291,9 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
         headline: expectedDamage,
         criticalDamage,
         nonCriticalDamage,
-        canForceCritical: Math.abs(criticalDamage - nonCriticalDamage) > 0.000_001,
+        canCritical: data.canCritical !== false,
+        canForceCritical:
+          data.canCritical !== false && Math.abs(criticalDamage - nonCriticalDamage) > 0.000_001,
         attackValue: num(data.attack),
         attackDetail: projectAttackDetail(
           entry.data,
@@ -346,15 +349,23 @@ function onClose(): void {
         <div class="damage-result">
           <div class="expected-damage">
             <span class="damage-label">{{
-              forceCritical ? labels.forcedDamage : labels.expectedDamage
+              forceCritical && detail.canForceCritical ? labels.forcedDamage : labels.expectedDamage
             }}</span>
-            <span class="damage-value" :class="{ forced: forceCritical }">{{
-              num(forceCritical ? detail.criticalDamage : detail.headline)
-            }}</span>
+            <span
+              class="damage-value"
+              :class="{ forced: forceCritical && detail.canForceCritical }"
+              >{{
+                num(
+                  forceCritical && detail.canForceCritical
+                    ? detail.criticalDamage
+                    : detail.headline,
+                )
+              }}</span
+            >
           </div>
           <table class="stat-table">
             <tbody>
-              <tr class="dim">
+              <tr v-if="detail.canCritical" class="dim">
                 <td class="label-cell">{{ labels.criticalDamage }}</td>
                 <td class="value-cell">{{ num(detail.criticalDamage) }}</td>
               </tr>

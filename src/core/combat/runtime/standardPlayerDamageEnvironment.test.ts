@@ -334,6 +334,7 @@ it.each(['burst', 'buff'] as const)(
           baseDamage: 700,
           finalAttackValue: 700,
           standardCalculation: true,
+          canCritical,
           skillMultiplierPercent: 100,
           enemyDefense: 200,
           enemyResistancePercent: 20,

@@ -1341,6 +1341,7 @@ export class StandardPlayerDamageEnvironment {
       result: damage,
       detail: {
         ...buffIdentity,
+        canCritical: payload.canCritical,
         ...freezeAttackScaledDamageReceiptDetail(
           formulaInput,
           damage,

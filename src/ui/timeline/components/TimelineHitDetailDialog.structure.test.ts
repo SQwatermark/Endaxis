@@ -3,6 +3,12 @@ import source from './TimelineHitDetailDialog.vue?raw';
 import editorSource from '../TimelineEditor.vue?raw';
 
 describe('TimelineHitDetailDialog structure', () => {
+  it('hides impossible critical results only with explicit permission and gates forced results per receipt', () => {
+    expect(source).toContain('canCritical: data.canCritical !== false');
+    expect(source).toContain('<tr v-if="detail.canCritical" class="dim">');
+    expect(source).toContain('forceCritical && detail.canForceCritical');
+    expect(source).not.toContain('canCritical: criticalRate > 0');
+  });
   it('resolves burst source names through the project template, not its icon asset identity', () => {
     const start = editorSource.indexOf('function enemyDamageSourceDescription(');
     const end = editorSource.indexOf('function enemyDamageOperatorPanel(', start);
