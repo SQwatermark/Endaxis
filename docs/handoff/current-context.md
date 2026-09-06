@@ -1,5 +1,20 @@
 # 当前任务快照
 
+#### 2026-09-07 导图类型选择浮层接入统一输入边界
+
+- StepTypePicker、CombatConditionTypePicker、EquipmentContributionTypePicker 复用
+  usePopoverInteractionBoundary，移除各自 DOM Escape 处理。步骤选择器按 open
+  登记，条件/装备选择器由挂载生命周期登记（父层 v-if 控制）。选择期间阻止底层
+  导图命令和工作台手势，Escape 只关闭选择器，关闭/卸载释放。
+- 没有把 useDialogInteractionBoundary 套在导图外层；导图仍需处理自己的历史和
+  剪贴板。当前仍是过渡优先级，不是任意嵌套深度的逻辑区域树。
+- 深色正式技能编辑弹窗实测：调度序列加号打开步骤选择器、Escape 后弹窗仍在；
+  释放条件加号打开条件选择器、Escape 同样只关选择器。最终取消技能编辑，未写
+  模板。装备选择器本轮接线/测试覆盖，未单独浏览器验收；未新增实际拖拽验证。
+- 浏览器另发现部分条件选项显示 timeline.skillEditing.conditionKinds.* 原始键
+  （如 eventOverheal 等），记录为后续语义/i18n 缺漏，不在输入边界任务里混改。
+- 896 项时间轴/键盘/交互测试及应用类型检查通过。
+
 #### 2026-09-07 子组件自有敌人/全局属性弹窗输入边界
 
 - 排查发现 EnemySettingsPanel 的 selectorVisible/statsVisible、GlobalResourcePanel

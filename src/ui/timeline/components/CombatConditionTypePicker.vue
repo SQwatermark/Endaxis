@@ -7,9 +7,16 @@ import {
   type CombatConditionKind,
 } from '../../../core/game-data/operatorDefinition';
 import { createCombatCondition } from '../combatConditionEditorViewModel';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 
 const props = defineProps<{ anchor: { readonly x: number; readonly y: number } }>();
 const emit = defineEmits<{ select: [condition: CombatCondition]; close: [] }>();
+usePopoverInteractionBoundary(
+  useInteractionSession(),
+  () => true,
+  () => emit('close'),
+);
 const { t } = useI18n({ useScope: 'global' });
 const popover = ref<HTMLElement>();
 const search = ref<HTMLInputElement>();
@@ -63,12 +70,7 @@ onBeforeUnmount(() => {
 
 <template>
   <Teleport to="body">
-    <div
-      ref="popover"
-      class="condition-type-picker"
-      :style="style"
-      @keydown.esc.stop="emit('close')"
-    >
+    <div ref="popover" class="condition-type-picker" :style="style">
       <header>
         <strong>选择条件类型</strong>
         <span>组合关系将在画布中展开</span>

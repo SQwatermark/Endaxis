@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, type CSSProperties } from 'vue';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import {
   EQUIPMENT_ABILITY_EVENTS,
   EQUIPMENT_DAMAGE_SCALE_TARGETS,
@@ -32,6 +34,11 @@ const emit = defineEmits<{
   close: [];
 }>();
 const popover = ref<HTMLElement>();
+usePopoverInteractionBoundary(
+  useInteractionSession(),
+  () => true,
+  () => emit('close'),
+);
 const style = ref<CSSProperties>({});
 const attributes = [
   ...OPERATOR_ATTRIBUTES,
@@ -113,12 +120,7 @@ onBeforeUnmount(() => {
 
 <template>
   <Teleport to="body">
-    <div
-      ref="popover"
-      class="equipment-type-picker"
-      :style="style"
-      @keydown.esc.stop="emit('close')"
-    >
+    <div ref="popover" class="equipment-type-picker" :style="style">
       <header>
         <strong>{{ mode === 'modifier' ? '选择属性修正类型' : '选择事件响应类型' }}</strong>
         <span>先明确结构类型，再进入节点 Inspector</span>

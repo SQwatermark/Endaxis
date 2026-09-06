@@ -3,9 +3,60 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
 import { createInteractionSession } from './interactionSession';
 import { usePopoverInteractionBoundary } from './usePopoverInteractionBoundary';
+import stepPicker from '../timeline/components/StepTypePicker.vue?raw';
+import conditionPicker from '../timeline/components/CombatConditionTypePicker.vue?raw';
+import equipmentPicker from '../timeline/components/EquipmentContributionTypePicker.vue?raw';
 
 describe('interactive popover ownership', () => {
   afterEach(() => vi.unstubAllGlobals());
+
+  it('gives a nested picker Escape before its dialog and resumes map commands after closing', () => {
+    const target = new EventTarget();
+    vi.stubGlobal('window', target);
+    const scope = effectScope();
+    const session = createInteractionSession();
+    const open = ref(true);
+    const map = vi.fn(() => true);
+    scope.run(() => {
+      useKeyboardShortcutScope({
+        id: 'structure-map',
+        priority: 200,
+        active: () => true,
+        handle: map,
+        handleClipboard: map,
+      });
+      usePopoverInteractionBoundary(
+        session,
+        () => open.value,
+        () => {
+          open.value = false;
+        },
+      );
+    });
+    try {
+      target.dispatchEvent(new Event('copy', { cancelable: true }));
+      expect(map).not.toHaveBeenCalled();
+      const escape = Object.assign(new Event('keydown', { cancelable: true }), { key: 'Escape' });
+      target.dispatchEvent(escape);
+      expect(escape.defaultPrevented).toBe(true);
+      expect(open.value).toBe(false);
+      expect(map).not.toHaveBeenCalled();
+      target.dispatchEvent(new Event('paste', { cancelable: true }));
+      expect(map).toHaveBeenCalledOnce();
+    } finally {
+      scope.stop();
+    }
+  });
+
+  it('registers all three type picker lifecycles instead of local Escape handlers', () => {
+    for (const source of [stepPicker, conditionPicker, equipmentPicker]) {
+      expect(source).toContain('usePopoverInteractionBoundary(');
+      expect(source).not.toContain('@keydown.esc');
+    }
+    expect(stepPicker).toContain('() => open.value');
+    expect(conditionPicker).toContain("() => emit('close')");
+    expect(equipmentPicker).toContain("() => emit('close')");
+  });
 
   it('blocks background keyboard, clipboard and gestures until Escape closes it', () => {
     const target = new EventTarget();

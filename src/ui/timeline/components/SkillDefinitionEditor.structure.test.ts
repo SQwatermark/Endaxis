@@ -282,7 +282,9 @@ describe('SkillDefinitionEditor structure', () => {
     expect(stepTypePickerSource).toContain('aria-haspopup="menu"');
     expect(stepTypePickerSource).toContain("emit('select', kind)");
     expect(stepTypePickerSource).toContain('props.anchor');
-    expect(stepTypePickerSource).toContain('@keydown.esc.stop="close"');
+    expect(stepTypePickerSource).toContain(
+      'usePopoverInteractionBoundary(useInteractionSession(), () => open.value, close)',
+    );
     expect(stepTypePickerSource).toContain("emit('close')");
 
     const listedKinds = STEP_TYPE_GROUPS.flatMap(group => group.kinds);

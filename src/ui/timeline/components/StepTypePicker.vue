@@ -12,6 +12,8 @@ import { useI18n } from 'vue-i18n';
 import { Plus, Search } from '@element-plus/icons-vue';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import { STEP_TYPE_GROUPS } from '../stepTypePickerCatalog';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 
 const props = defineProps<{
   disabled?: boolean;
@@ -27,6 +29,7 @@ const trigger = ref<HTMLButtonElement>();
 const popover = ref<HTMLElement>();
 const searchInput = ref<HTMLInputElement>();
 const open = ref(false);
+usePopoverInteractionBoundary(useInteractionSession(), () => open.value, close);
 const query = ref('');
 const popoverStyle = ref<CSSProperties>({});
 
@@ -108,7 +111,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="root" class="step-type-picker" :class="{ 'is-compact': compact }" @keydown.esc="close">
+  <div ref="root" class="step-type-picker" :class="{ 'is-compact': compact }">
     <button
       v-if="!hideTrigger"
       ref="trigger"
@@ -131,7 +134,6 @@ onBeforeUnmount(() => {
         :class="{ 'is-compact': props.compact }"
         :style="popoverStyle"
         role="menu"
-        @keydown.esc.stop="close"
       >
         <div class="step-type-picker__heading">
           <strong>{{ t('timeline.skillEditing.chooseStepType') }}</strong>
