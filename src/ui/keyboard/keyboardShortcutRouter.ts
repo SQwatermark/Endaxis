@@ -41,18 +41,21 @@ export function isKeyboardShortcutIsolationTarget(target: EventTarget | null): b
 }
 
 export class KeyboardShortcutRouter {
-  readonly #scopes = new Map<string, RegisteredKeyboardShortcutScope>();
+  // id is a diagnostic label, not a component-instance identity.
+  readonly #scopes = new Map<number, RegisteredKeyboardShortcutScope>();
   #nextOrder = 0;
 
   register(scope: KeyboardShortcutScope): () => void {
     const registered = { ...scope, order: this.#nextOrder++ };
-    this.#scopes.set(scope.id, registered);
+    this.#scopes.set(registered.order, registered);
     return () => {
-      if (this.#scopes.get(scope.id) === registered) this.#scopes.delete(scope.id);
+      this.#scopes.delete(registered.order);
     };
   }
 
   route(event: KeyboardEvent): boolean {
+    // An IME owns its composition keys; a previously handled event is not a new command.
+    if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return false;
     const activeScopes = [...this.#scopes.values()]
       .filter(scope => scope.active())
       .sort((left, right) => right.priority - left.priority || right.order - left.order);

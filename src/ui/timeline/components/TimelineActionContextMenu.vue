@@ -6,6 +6,7 @@
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { CopyDocument } from '@element-plus/icons-vue';
+import { useKeyboardShortcutScope } from '../../keyboard/keyboardShortcutRouter';
 
 const props = defineProps<{
   visible: boolean;
@@ -57,21 +58,27 @@ function closeFromOutside(event: PointerEvent): void {
   emit('close');
 }
 
-function closeFromKeyboard(event: KeyboardEvent): void {
-  if (props.visible && event.key === 'Escape') emit('close');
-}
+useKeyboardShortcutScope({
+  id: 'timeline-action-context-menu',
+  priority: 300,
+  active: () => props.visible,
+  blockLowerScopes: true,
+  handle: event => {
+    if (event.key !== 'Escape') return false;
+    emit('close');
+    return true;
+  },
+});
 
 watch(() => [props.visible, props.x, props.y], positionMenu, { immediate: true });
 
 onMounted(() => {
   window.addEventListener('pointerdown', closeFromOutside, true);
-  window.addEventListener('keydown', closeFromKeyboard);
   window.addEventListener('resize', positionMenu);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('pointerdown', closeFromOutside, true);
-  window.removeEventListener('keydown', closeFromKeyboard);
   window.removeEventListener('resize', positionMenu);
 });
 </script>
