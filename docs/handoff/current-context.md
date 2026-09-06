@@ -1,5 +1,20 @@
 # 当前任务快照
 
+#### 2026-09-07 装备/套装保存代理错误修复及三工作区保存验收
+
+- 正式 GearDefinitionWorkspaceDialog 浏览器保存复现 DataCloneError：不可变更新
+  展开 reactive 草稿后会残留嵌套代理，仅最外层 toRaw 不够。新增 UI 层
+  cloneEditorDefinition，递归解开定义的普通记录/数组代理后 structuredClone，
+  保留 undefined，不修改输入；WeakMap 保留共享/循环身份，不使用 JSON 丢字段。
+- 装备/套装初始化和保存、技能草稿输入和保存接入该函数。上一轮仅最外层
+  toRaw 的技能保存修正不足，本轮明确替换。纯协议/view-model 不依赖 Vue。
+- tmp/workspace-save-qa.html 使用正式组件、真实游戏定义、响应式 props 和工作台
+  根区域。浏览器依次修改装备/套装/武器展示名称并保存：均返回新定义、关闭弹窗，
+  页面显示原定义未变 true。只在内存接收事件，没有写项目文件；标签 45 已关闭。
+- 此为独立组件夹具保存验收，非完整时间轴项目持久化验收；未覆盖所有行为节点
+  和快捷键组合。临时夹具不进入 git。后续服务确认区域及剩余复杂嵌套仍待推进。
+- 最终 917 项相关回归及应用类型检查通过。
+
 #### 2026-09-07 干员/武器/装备/套装工作区模态区域迁移
 
 - 四个 DefinitionWorkspaceDialog 在整个 el-dialog 外使用无 DOM 的

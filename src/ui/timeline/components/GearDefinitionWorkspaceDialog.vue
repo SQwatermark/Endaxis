@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed, ref, watch } from 'vue';
+import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 import {
   GEAR_SLOT_TYPES,
   type EquipmentContributionDefinition,
@@ -46,7 +47,7 @@ watch(
 );
 
 function clone<T>(value: T): T {
-  return structuredClone(value);
+  return cloneEditorDefinition(value);
 }
 
 function updateBase(

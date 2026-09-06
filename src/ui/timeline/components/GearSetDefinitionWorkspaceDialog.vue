@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed, ref, watch } from 'vue';
+import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 import type {
   EquipmentContributionDefinition,
   GearSetDefinition,
@@ -18,7 +19,7 @@ const emit = defineEmits<{
   save: [definition: GearSetDefinition];
   reset: [];
 }>();
-const draft = ref<GearSetDefinition>(structuredClone(props.customDefinition));
+const draft = ref<GearSetDefinition>(cloneEditorDefinition(props.customDefinition));
 const issues = computed(() => validateGearSetDefinition(draft.value, '$.gearSet'));
 const isDirty = computed(
   () => JSON.stringify(draft.value) !== JSON.stringify(props.customDefinition),
@@ -27,7 +28,7 @@ const isDirty = computed(
 watch(
   () => props.visible,
   visible => {
-    if (visible) draft.value = structuredClone(props.customDefinition);
+    if (visible) draft.value = cloneEditorDefinition(props.customDefinition);
   },
   { immediate: true },
 );
@@ -42,7 +43,7 @@ function updateContribution(contribution: EquipmentContributionDefinition): void
 
 function save(): void {
   if (issues.value.length > 0) return;
-  emit('save', structuredClone(draft.value));
+  emit('save', cloneEditorDefinition(draft.value));
   emit('update:visible', false);
 }
 </script>

@@ -7,7 +7,8 @@
  * 统一命令入口严格校验，取消或恢复模板则直接丢弃草稿 / 删除整个 customDefinition。
  * 组件不解析编译产物，也不把天赋潜能等构筑效果写进自定义技能。
  */
-import { computed, nextTick, reactive, ref, shallowRef, watch, toRaw } from 'vue';
+import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue';
+import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 import { useI18n } from 'vue-i18n';
 import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/icons-vue';
 import {
@@ -148,8 +149,10 @@ const { t } = useI18n({ useScope: 'global' });
 
 const draft = reactive<{ value: SkillDefinition }>({
   value: createSkillEditorDraft(
-    toRaw(props.template),
-    props.customDefinition === undefined ? undefined : toRaw(props.customDefinition),
+    cloneEditorDefinition(props.template),
+    props.customDefinition === undefined
+      ? undefined
+      : cloneEditorDefinition(props.customDefinition),
   ),
 });
 const selectedSection = ref<EditorSection>('overview');
@@ -296,8 +299,10 @@ watch(
   () => [props.template, props.customDefinition],
   () => {
     draft.value = createSkillEditorDraft(
-      toRaw(props.template),
-      props.customDefinition === undefined ? undefined : toRaw(props.customDefinition),
+      cloneEditorDefinition(props.template),
+      props.customDefinition === undefined
+        ? undefined
+        : cloneEditorDefinition(props.customDefinition),
     );
     selectedSection.value = 'overview';
     selectedStructureNodeId.value = 'skill';
@@ -896,13 +901,15 @@ function removeSequence(): void {
 }
 
 function save(): void {
-  emit('save', structuredClone(toRaw(draft.value)));
+  emit('save', cloneEditorDefinition(draft.value));
 }
 
 function cancel(): void {
   draft.value = createSkillEditorDraft(
-    toRaw(props.template),
-    props.customDefinition === undefined ? undefined : toRaw(props.customDefinition),
+    cloneEditorDefinition(props.template),
+    props.customDefinition === undefined
+      ? undefined
+      : cloneEditorDefinition(props.customDefinition),
   );
   emit('cancel');
 }

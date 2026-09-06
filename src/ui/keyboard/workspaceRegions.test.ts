@@ -24,7 +24,7 @@ describe('definition workspace regions', () => {
     const draft = createSkillEditorDraft(toRaw(definition), undefined);
     expect(draft).not.toBe(toRaw(definition));
     expect(draft.scheduledSequences).not.toBe(definition.scheduledSequences);
-    expect(skillEditor.match(/toRaw\(props.template\)/g)).toHaveLength(3);
-    expect(skillEditor.match(/toRaw\(props.customDefinition\)/g)).toHaveLength(3);
+    expect(skillEditor.match(/cloneEditorDefinition\(props.template\)/g)).toHaveLength(3);
+    expect(skillEditor.match(/cloneEditorDefinition\(props.customDefinition\)/g)).toHaveLength(3);
   });
 });
