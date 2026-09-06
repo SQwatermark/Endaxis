@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
+import { replaceEquipmentContribution } from '../replaceEquipmentContribution';
 import { computed, ref, watch } from 'vue';
 import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 import {
@@ -26,9 +28,7 @@ const emit = defineEmits<{
 const draft = ref<GearDefinition>(clone(props.customDefinition));
 const selectedSection = ref<'base' | number>('base');
 const issues = computed(() => validateGearDefinition(draft.value, '$.gear'));
-const isDirty = computed(
-  () => JSON.stringify(draft.value) !== JSON.stringify(props.customDefinition),
-);
+const isDirty = computed(() => !editorDefinitionsEqual(draft.value, props.customDefinition));
 const selectedTraitIndex = computed(() =>
   typeof selectedSection.value === 'number' ? selectedSection.value : null,
 );
@@ -128,7 +128,7 @@ function updateTraitContribution(contribution: EquipmentContributionDefinition):
   const trait = selectedTrait.value;
   if (index === null || trait === undefined) return;
   const traits = [...draft.value.traits];
-  traits[index] = { ...trait, ...contribution };
+  traits[index] = replaceEquipmentContribution(trait, contribution);
   draft.value = { ...draft.value, traits };
 }
 

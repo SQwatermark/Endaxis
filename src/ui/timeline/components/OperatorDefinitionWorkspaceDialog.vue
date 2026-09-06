@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { computed, ref, watch } from 'vue';
 import {
   COMPARISON_OPERATORS,
@@ -202,8 +203,7 @@ const selectedBuffReferences = computed(() =>
   referencesToDefinition(definitionReferences.value, 'buff', selectedBuffId.value),
 );
 const isDirty = computed(
-  () =>
-    JSON.stringify(draft.value) !== JSON.stringify(props.customDefinition ?? props.baseDefinition),
+  () => !editorDefinitionsEqual(draft.value, props.customDefinition ?? props.baseDefinition),
 );
 const sectionLabel = computed(() => {
   if (section.value === 'panel') return '基础面板';

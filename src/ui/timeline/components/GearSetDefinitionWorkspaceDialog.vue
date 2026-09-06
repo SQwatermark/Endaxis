@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
+import { replaceEquipmentContribution } from '../replaceEquipmentContribution';
 import { computed, ref, watch } from 'vue';
 import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 import type {
@@ -21,9 +23,7 @@ const emit = defineEmits<{
 }>();
 const draft = ref<GearSetDefinition>(cloneEditorDefinition(props.customDefinition));
 const issues = computed(() => validateGearSetDefinition(draft.value, '$.gearSet'));
-const isDirty = computed(
-  () => JSON.stringify(draft.value) !== JSON.stringify(props.customDefinition),
-);
+const isDirty = computed(() => !editorDefinitionsEqual(draft.value, props.customDefinition));
 
 watch(
   () => props.visible,
@@ -38,7 +38,7 @@ function updateDisplayName(event: Event): void {
 }
 
 function updateContribution(contribution: EquipmentContributionDefinition): void {
-  draft.value = { ...draft.value, ...contribution };
+  draft.value = replaceEquipmentContribution(draft.value, contribution);
 }
 
 function save(): void {
@@ -80,7 +80,7 @@ function save(): void {
           <div class="summary">
             <span>属性修正 {{ draft.modifiers?.length ?? 0 }}</span>
             <span>事件响应 {{ draft.eventHandlers?.length ?? 0 }}</span>
-            <p>套装贡献稍后进入统一装备组件图；当前不会把事件序列展开为 JSON。</p>
+            <p>在下方组件图编辑套装行为；保存后影响项目内所有引用此套装的实例。</p>
           </div>
           <EquipmentContributionGraphEditor
             :contribution="draft"
