@@ -1,7 +1,10 @@
 <script setup lang="ts">
 /** Reusable free-roaming structure map used by the formal skill editor and its demo. */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import {
+  useInteractionBarrier,
+  useInteractionSession,
+} from '../../interaction/interactionSessionContext';
 import type { InteractionLease } from '../../interaction/interactionSession';
 import { observeNativeDragLifetime } from '../../interaction/nativeDragLifecycle';
 
@@ -123,6 +126,7 @@ const active = ref(false);
 const draggedNode = ref<MapNodeSource | null>(null);
 const dropHint = ref<{ readonly id: string; readonly placement: 'inside' | 'before' | 'after' }>();
 const contextMenu = ref<{ readonly node: MapNodeSource; readonly x: number; readonly y: number }>();
+useInteractionBarrier(interactionSession, () => contextMenu.value !== undefined);
 const contextMenuElement = ref<HTMLElement | null>(null);
 const dragOrigin = ref({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0, pointerId: -1 });
 const NODE_WIDTH = 220;
