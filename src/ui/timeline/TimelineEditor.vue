@@ -170,6 +170,7 @@ import {
   getWeaponActionIconPath,
 } from '../gameAssetPaths';
 import { placeSkillGroup } from './placeSkillGroup';
+import { SkillPlacementTransaction } from './skillPlacementTransaction';
 import {
   layoutSkillGroupPlacement,
   resolveSkillGroupPlacementSkills,
@@ -962,6 +963,11 @@ const simulationService = new ScenarioSimulationService({
     normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
   },
 });
+const skillPlacementTransaction = new SkillPlacementTransaction(
+  simulationService,
+  () => projectRevision.value,
+);
+onScopeDispose(() => skillPlacementTransaction.cancel());
 const {
   run: simulationRun,
   running: simulationRunning,
@@ -3484,6 +3490,7 @@ function hideCursorGuide(): void {
 }
 
 function beginLibraryPlacement(entry: TimelineSkillLibraryEntryViewModel, skillKey?: string): void {
+  skillPlacementTransaction.cancel();
   const placedSkillKey = skillKey ?? entry.placementSkillKey;
   libraryPlacement.value = {
     entryKey: entry.entryKey,
@@ -3496,7 +3503,8 @@ function beginLibraryPlacement(entry: TimelineSkillLibraryEntryViewModel, skillK
 }
 
 function cancelLibraryPlacement(): boolean {
-  if (libraryPlacement.value === null) return false;
+  const cancelledPending = skillPlacementTransaction.cancel();
+  if (libraryPlacement.value === null) return cancelledPending;
   libraryPlacement.value = null;
   placementPointer.value = null;
   return true;
@@ -3531,18 +3539,24 @@ function placePendingLibrarySkill(event: PointerEvent, trackIndex: TrackIndex): 
     -scenario.value.battle.prepFrames,
   );
   cursorFrame.value = frame;
-  placeGroup(placement.skillGroupKey, placement.skillKey, frame, trackIndex, placement.variantKey);
   cancelLibraryPlacement();
+  void placeGroup(
+    placement.skillGroupKey,
+    placement.skillKey,
+    frame,
+    trackIndex,
+    placement.variantKey,
+  );
   return true;
 }
 
-function placeGroup(
+async function placeGroup(
   skillGroupKey: string,
   skillKey?: string,
   startFrame = cursorFrame.value,
   trackIndex = selectedTrack.value,
   variantKey?: string,
-): void {
+): Promise<void> {
   const operatorSlug = viewModel.value.tracks[trackIndex]?.operatorSlug ?? null;
   const operator =
     operatorSlug === null ? null : editorGameDataRepository.getOperator(operatorSlug);
@@ -3557,11 +3571,25 @@ function placeGroup(
     startFrame,
     ids,
   });
-  commitScenario('placeSkillGroup', () => result.scenario);
+  let placedScenario = result.scenario;
+  if (result.skillCastIds.length > 1) {
+    try {
+      const planned = await skillPlacementTransaction.resolve(result);
+      if (planned === null) return;
+      placedScenario = planned.scenario;
+      if (planned.incomplete) ElMessage.warning(t('timeline.chainPlacementIncomplete'));
+    } catch (error) {
+      ElMessage.error(error instanceof Error ? error.message : t('timeline.chainPlacementFailed'));
+      return;
+    }
+  } else {
+    skillPlacementTransaction.cancel();
+  }
+  commitScenario('placeSkillGroup', () => placedScenario);
   const lastPlacedId = result.skillCastIds.at(-1);
   if (lastPlacedId === undefined) clearTimelineSelection();
   else applyActionSelection(selectTimelineAction(actionSelection.value, lastPlacedId, false));
-  const placed = result.scenario.tracks[trackIndex]?.skillCasts ?? [];
+  const placed = placedScenario.tracks[trackIndex]?.skillCasts ?? [];
   const last = placed.at(-1);
   if (last !== undefined) {
     const lastSkillDuration = resolvePlacedSkillDurationFrames(
@@ -3996,7 +4024,7 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
     maximumFrame: scenario.value.battle.durationFrames,
   });
   cursorFrame.value = frame;
-  placeGroup(payload.skillGroupKey, payload.skillKey, frame, trackIndex, payload.variantKey);
+  void placeGroup(payload.skillGroupKey, payload.skillKey, frame, trackIndex, payload.variantKey);
 }
 
 const resetDialogVisible = ref(false);

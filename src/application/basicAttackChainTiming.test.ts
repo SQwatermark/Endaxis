@@ -50,6 +50,51 @@ function createChain(operator: OperatorDefinition) {
 }
 
 describe('generated basic attack chain input timing', () => {
+  it.each([-60, 0, 1])(
+    'plans a hit-stop-aware chain at %s without rewriting existing placements',
+    async startFrame => {
+      const scenario = createChain(lifeng);
+      const casts = scenario.tracks[0]!.skillCasts;
+      casts.forEach(cast => {
+        cast.placement.startFrame += startFrame - 1;
+      });
+      const ids = casts.map(cast => cast.id);
+      const before = structuredClone(scenario);
+      const result = await service.planSkillChain(scenario, ids, 240);
+      expect(scenario).toEqual(before);
+      expect(result.status).toBe('planned');
+      if (result.status !== 'planned') return;
+      expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual(
+        [1, 28, 48, 68].map(frame => frame + startFrame - 1),
+      );
+      expect(result.run.availabilityDiagnostics).toEqual([]);
+      expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.id)).toEqual(ids);
+    },
+  );
+
+  it('returns incomplete at the requested horizon without moving the source chain', async () => {
+    const scenario = createChain(lifeng);
+    const before = structuredClone(scenario);
+    const ids = scenario.tracks[0]!.skillCasts.map(cast => cast.id);
+    const result = await service.planSkillChain(scenario, ids, 20);
+    expect(result).toEqual({ status: 'incomplete', unresolvedCastIds: ids.slice(1) });
+    expect(scenario).toEqual(before);
+  });
+
+  it('does not start planning an aborted request', async () => {
+    const scenario = createChain(lifeng);
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      service.planSkillChain(
+        scenario,
+        scenario.tracks[0]!.skillCasts.map(cast => cast.id),
+        240,
+        controller.signal,
+      ),
+    ).rejects.toThrow();
+  });
+
   it.each([
     { operator: perlica, expected: [1, 18, 37, 64] },
     { operator: lifeng, expected: [1, 28, 48, 68] },

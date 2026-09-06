@@ -299,6 +299,8 @@
     "zhCNShort": "中"
   },
   "timeline": {
+    "chainPlacementIncomplete": "Could not determine the full chain timing. Default spacing was used; check the skill block diagnostics.",
+    "chainPlacementFailed": "Could not calculate chain placement",
     "activityBar": {
       "library": "Operator Skill Library",
       "contract": "Contingency Contract",

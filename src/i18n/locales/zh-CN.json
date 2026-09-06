@@ -299,6 +299,8 @@
     "zhCNShort": "中"
   },
   "timeline": {
+    "chainPlacementIncomplete": "未能确定整条连段的接续时刻，已按默认间隔放置，请查看技能块诊断。",
+    "chainPlacementFailed": "连段放置计算失败",
     "activityBar": {
       "library": "干员技能库",
       "contract": "危机合约",

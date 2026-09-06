@@ -187,6 +187,89 @@ export class ScenarioSimulationService {
     return () => this.#performanceSubscribers.delete(subscriber);
   }
 
+  /**
+   * 只为新链产生显式帧建议。临时规划不缓存，不改原场景；正式复跑仍采用作者帧语义。
+   * 调用 UI 必须自行检查场景版本，再作为一次撤销事务提交返回的新场景。
+   */
+  async planSkillChain(
+    scenario: ScenarioDocument,
+    castIds: readonly string[],
+    endFrame: number,
+    signal?: AbortSignal,
+  ): Promise<
+    | { readonly status: 'incomplete'; readonly unresolvedCastIds: readonly string[] }
+    | {
+        readonly status: 'planned';
+        readonly scenario: ScenarioDocument;
+        readonly run: ScenarioSimulationRun;
+      }
+  > {
+    assertNotAborted(signal);
+    const candidate = structuredClone(scenario);
+    const result = this.#runSimulation(candidate, endFrame, castIds);
+    assertNotAborted(signal);
+    const frames = new Map<string, number>();
+    for (const entry of result.receiptEntries) {
+      if (
+        entry.event === 'SkillInputProcessed' &&
+        entry.data?.accepted === true &&
+        typeof entry.data.castId === 'string' &&
+        castIds.includes(entry.data.castId)
+      )
+        frames.set(entry.data.castId, entry.frame);
+    }
+    const unresolvedCastIds = castIds.filter(id => !frames.has(id));
+    if (unresolvedCastIds.length > 0) return { status: 'incomplete', unresolvedCastIds };
+    for (const track of candidate.tracks) {
+      for (const cast of track?.skillCasts ?? []) {
+        const frame = frames.get(cast.id);
+        if (frame !== undefined) cast.placement.startFrame = frame;
+      }
+    }
+    const run = await this.simulate(candidate, endFrame, signal);
+    // 临时规划与最终显式帧必须产生相同接续判定，不吞掉其他独立诊断。
+    const blockingReasons = new Set([
+      'skillInputMismatch',
+      'skillInputUnknown',
+      'skillInterruptUnavailable',
+      'skillInterruptUnknown',
+    ]);
+    const invalid = run.availabilityDiagnostics.filter(
+      d =>
+        d.receiptSequences.some(sequence => {
+          const entry = run.receiptEntries.find(e => e.sequence === sequence);
+          return typeof entry?.data?.castId === 'string' && castIds.includes(entry.data.castId);
+        }) && d.reasons.some(reason => blockingReasons.has(reason)),
+    );
+    if (invalid.length > 0) return { status: 'incomplete', unresolvedCastIds: [...castIds] };
+    return { status: 'planned', scenario: candidate, run };
+  }
+
+  #runSimulation(
+    scenario: ScenarioDocument,
+    endFrame: number,
+    continuationPlanCastIds?: readonly string[],
+  ): StandardPlayerDamageScenarioResult {
+    return runStandardPlayerDamageScenarioSimulation({
+      scenario,
+      endFrame,
+      ...(continuationPlanCastIds === undefined ? {} : { continuationPlanCastIds }),
+      criticalSamples: this.#options.criticalSamples!,
+      probabilitySamples: this.#options.probabilitySamples!,
+      resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,
+      elementalInflictionDocument: this.#options.elementalInflictionDocument,
+      ...(this.#options.spellInflictionSettings === undefined
+        ? {}
+        : { spellInflictionSettings: this.#options.spellInflictionSettings }),
+      compoundStatusFactories: this.#options.compoundStatusFactories,
+      options: {
+        index: this.#options.index,
+        resources: this.#options.resources,
+        mechanicAdapters: this.#options.mechanicAdapters,
+      },
+    });
+  }
+
   /** 执行一次标准玩家伤害模拟，并在同一份回执上完成全部投影。 */
   async simulate(
     scenario: ScenarioDocument,
@@ -225,23 +308,7 @@ export class ScenarioSimulationService {
       }
 
       simulationStartedAt = lookupEndedAt;
-      const result = runStandardPlayerDamageScenarioSimulation({
-        scenario,
-        endFrame,
-        criticalSamples: this.#options.criticalSamples!,
-        probabilitySamples: this.#options.probabilitySamples!,
-        resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,
-        elementalInflictionDocument: this.#options.elementalInflictionDocument,
-        ...(this.#options.spellInflictionSettings === undefined
-          ? {}
-          : { spellInflictionSettings: this.#options.spellInflictionSettings }),
-        compoundStatusFactories: this.#options.compoundStatusFactories,
-        options: {
-          index: this.#options.index,
-          resources: this.#options.resources,
-          mechanicAdapters: this.#options.mechanicAdapters,
-        },
-      });
+      const result = this.#runSimulation(scenario, endFrame);
       simulationEndedAt = this.#performanceNow();
       projectionStartedAt = simulationEndedAt;
       receiptCount = result.receiptEntries.length;

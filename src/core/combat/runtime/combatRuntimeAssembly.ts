@@ -298,6 +298,8 @@ export interface CombatRuntimeAssemblyOptions {
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
   readonly inputs?: readonly ScheduledSkillInput[];
+  /** 仅临时放置规划启用；正式存档模拟始终使用显式输入帧。 */
+  readonly continuationPlanCastIds?: readonly string[];
   /** 时间轴显式输入的受击事实；不执行敌方伤害或生命扣减。 */
   readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
   /**
@@ -1224,6 +1226,22 @@ export class CombatRuntimeAssembly {
       const inputRuntime = new CombatInputRuntime({
         clock: this.clock,
         inputs: options.inputs ?? [],
+        ...(options.continuationPlanCastIds === undefined
+          ? {}
+          : {
+              continuationPlan: {
+                castIds: options.continuationPlanCastIds,
+                canContinue: (input: ScheduledSkillInput) => {
+                  const ability = this.#requireAbilitySystem(input.operatorId);
+                  const resolution = ability.resolvePlayerInputSkill(input.skillId, input.action);
+                  return (
+                    resolution.status === 'matched' &&
+                    ability.evaluatePlayerInputInterruption(input.skillId, input.castId).status ===
+                      'allowed'
+                  );
+                },
+              },
+            }),
         receipt: this.receipt,
         tryStartSkill: (operatorId, skillId, castId, action) =>
           this.tryStartPlayerInput(operatorId, skillId, castId, action),

@@ -60,6 +60,8 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly compoundStatusFactories?: CompoundStatusFactoriesDocument;
   /** 原生 TimeManager 模式原值；值 2 使用未缩放默认时钟，其他值使用全局缩放时钟。 */
   readonly timeManagerDeltaMode?: number;
+  /** 临时规划实例专用，不进入项目协议或正式模拟缓存。 */
+  readonly continuationPlanCastIds?: readonly string[];
 }
 
 /** 本次模拟唯一敌人生命账本的初始与最终快照；投影和结果收集读取同一实例。 */
@@ -158,12 +160,29 @@ export function runStandardPlayerDamageScenarioSimulation(
   });
   assertStandardPlayerDamageCompatibility({
     operators: compiled.operators,
-    inputs: compiled.inputs,
+    // 规划可能早于静态建议帧；预检不能按尚未确定的后续帧漏掉实际会执行的步骤。
+    inputs:
+      input.continuationPlanCastIds === undefined
+        ? compiled.inputs
+        : compiled.inputs?.map(scheduled =>
+            scheduled.castId !== undefined &&
+            input.continuationPlanCastIds!.includes(scheduled.castId)
+              ? { ...scheduled, frame: compiled.initialFrame ?? 0 }
+              : scheduled,
+          ),
     endFrame: input.endFrame,
     supportsElementalInfliction: input.elementalInflictionDocument !== undefined,
     supportsKnockDown: true,
   });
-  const result = executeCompiledScenarioSimulation({ compiled, endFrame: input.endFrame });
+  const result = executeCompiledScenarioSimulation({
+    compiled: {
+      ...compiled,
+      ...(input.continuationPlanCastIds === undefined
+        ? {}
+        : { continuationPlanCastIds: input.continuationPlanCastIds }),
+    },
+    endFrame: input.endFrame,
+  });
   return Object.freeze({
     ...result,
     buffProgressCurves: environment.buffProgressCurves,
