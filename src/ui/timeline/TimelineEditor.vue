@@ -3721,6 +3721,7 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
     window.removeEventListener('pointerup', onFinish, true);
     window.removeEventListener('pointercancel', onCancel);
     captureTarget?.removeEventListener('lostpointercapture', onCancel);
+    window.removeEventListener('blur', onCancel);
     if (captureTarget?.hasPointerCapture(event.pointerId)) {
       captureTarget.releasePointerCapture(event.pointerId);
     }
@@ -3733,6 +3734,7 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
   window.addEventListener('pointerup', onFinish, true);
   window.addEventListener('pointercancel', onCancel);
   captureTarget?.addEventListener('lostpointercapture', onCancel);
+  window.addEventListener('blur', onCancel);
   window.addEventListener('keydown', onKeyDown, true);
 }
 

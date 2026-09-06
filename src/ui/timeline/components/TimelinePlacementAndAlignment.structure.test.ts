@@ -78,5 +78,7 @@ describe('Next timeline placement and alignment parity', () => {
     expect(begin).toContain("window.removeEventListener('pointerup', onFinish, true)");
     expect(begin).toContain("captureTarget?.removeEventListener('lostpointercapture', onCancel)");
     expect(begin).toContain('captureTarget.releasePointerCapture(event.pointerId)');
+    expect(begin).toContain("window.addEventListener('blur', onCancel)");
+    expect(begin).toContain("window.removeEventListener('blur', onCancel)");
   });
 });
