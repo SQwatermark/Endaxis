@@ -1236,6 +1236,14 @@ export class CombatRuntimeAssembly {
                 canContinue: (input: ScheduledSkillInput, previous: ScheduledSkillInput) => {
                   if (options.continuationPlanMode === 'compact') {
                     // 编辑边界而非释放许可：告警由最终正式模拟保留。
+                    const interruption = this.receipt.entries.find(
+                      entry =>
+                        entry.event === 'SkillInterrupted' &&
+                        entry.data?.castId === previous.castId,
+                    );
+                    // 固定输入在本帧已被消费；实际中断会立即裁切块体，不再等待原始显示边界。
+                    if (interruption !== undefined && interruption.frame <= this.clock.frame)
+                      return true;
                     const boundary = this.receipt.entries.find(
                       entry =>
                         entry.event === 'SkillOperableBoundaryReached' &&
