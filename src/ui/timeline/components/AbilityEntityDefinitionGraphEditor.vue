@@ -305,8 +305,7 @@ async function appendStep(kind: EditableCombatStepKind): Promise<void> {
 }
 function setLifetimeKind(event: Event): void {
   const kind = (event.target as HTMLSelectElement).value;
-  emit(
-    'update',
+  emitStructureUpdate(
     replaceStructureValueAtPath(
       props.definition,
       'lifetime',
@@ -324,7 +323,7 @@ function setLifetimeKind(event: Event): void {
 }
 function setLifetimeDurationValue(durationSeconds: AbilityEntityDefinitionNumber): void {
   if (props.definition.lifetime.kind !== 'limited') return;
-  emit('update', {
+  emitStructureUpdate({
     ...props.definition,
     lifetime: { kind: 'limited', durationSeconds },
   });
@@ -333,7 +332,7 @@ function setBornTags(bornTags: readonly GameplayTag[]): void {
   const next = { ...props.definition };
   if (bornTags.length === 0) delete next.bornTags;
   else next.bornTags = bornTags;
-  emit('update', next);
+  emitStructureUpdate(next);
 }
 function setOptionalDefinitionNumber(
   field: 'maxStackingCount',
@@ -342,7 +341,7 @@ function setOptionalDefinitionNumber(
   const next = { ...props.definition };
   if (value === undefined) delete next[field];
   else next[field] = value;
-  emit('update', next);
+  emitStructureUpdate(next);
 }
 function setDeathReleaseDelay(event: Event): void {
   const raw = (event.target as HTMLInputElement).value;
@@ -353,7 +352,7 @@ function setDeathReleaseDelay(event: Event): void {
     if (!Number.isFinite(value) || value < 0 || value >= 300) return;
     next.deathReleaseDelaySeconds = value;
   }
-  emit('update', next);
+  emitStructureUpdate(next);
 }
 async function updateChildSkillId(event: Event): Promise<void> {
   const childSkill = selectedChildSkill.value;
@@ -362,8 +361,7 @@ async function updateChildSkillId(event: Event): Promise<void> {
   const skillId = (event.target as HTMLInputElement).value.trim();
   if (skillId === '') return;
   if (childSkillPath === 'childSkill') {
-    emit(
-      'update',
+    emitStructureUpdate(
       replaceStructureValueAtPath(props.definition, childSkillPath, { ...childSkill, skillId }),
     );
     return;
@@ -389,7 +387,7 @@ function updateChildBlackboard(blackboard: NonNullable<SkillDefinition['blackboa
   const next = { ...childSkill };
   if (Object.keys(blackboard).length === 0) delete next.blackboard;
   else next.blackboard = blackboard;
-  emit('update', replaceStructureValueAtPath(props.definition, childSkillPath, next));
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, childSkillPath, next));
 }
 function updateSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): void {
   if (selectedSequence.value === undefined || selectedSequenceIndex.value === undefined) return;
@@ -401,10 +399,10 @@ function updateSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): vo
     if (!Number.isFinite(value) || value < 0) return;
     next[field] = value;
   }
-  emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, next));
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, next));
 }
 function updateStep(step: CombatStepDefinition): void {
-  emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, step));
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, step));
 }
 function updateCombatCondition(condition: CombatCondition): void {
   emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, condition));
@@ -999,7 +997,7 @@ async function deleteCurrent(): Promise<void> {
   gap: 10px;
   padding: 10px 12px;
 }
-input,
+input:not([type='checkbox']),
 select {
   min-width: 0;
   max-width: 100%;
@@ -1009,6 +1007,22 @@ select {
   border: 1px solid var(--ea-border);
   background: var(--ea-fill-input);
   color: var(--ea-fg);
+}
+.field-row--optional > span {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field-row--optional > :not(span) {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.field-row--optional input[type='checkbox'] {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
 }
 button {
   min-width: 28px;
