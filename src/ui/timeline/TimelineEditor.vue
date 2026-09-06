@@ -17,6 +17,7 @@ import {
 } from '../interaction/interactionSessionContext';
 import type { InteractionLease } from '../interaction/interactionSession';
 import { observeNativeDragLifetime } from '../interaction/nativeDragLifecycle';
+import { isInsideTimelineDropRegion } from './timelineDropRegion';
 import { normalizeDurationBarColorPrefs } from './durationBarColor';
 import { useI18n } from 'vue-i18n';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -542,6 +543,11 @@ const libraryPlacement = ref<TimelineLibraryPlacement | null>(null);
 const interactionSession = provideInteractionSession();
 let libraryDragLease: InteractionLease | null = null;
 let disposeLibraryDragLifetime: (() => void) | null = null;
+const trackDropRegions = new Map<TrackIndex, HTMLElement>();
+function registerTrackDropRegion(trackIndex: TrackIndex, element: unknown): void {
+  if (element instanceof HTMLElement) trackDropRegions.set(trackIndex, element);
+  else trackDropRegions.delete(trackIndex);
+}
 let libraryPlacementLease: InteractionLease | null = null;
 let trackOrderLease: InteractionLease | null = null;
 const selectedLibrarySkill = ref<{ entryKey: string; skillKey?: string } | null>(null);
@@ -3739,15 +3745,53 @@ function resolvePlacedSkillDurationFrames(
   return skillPlacementDisplayFrames(lastSkill?.timelineBlockFrames ?? 0);
 }
 
-/** 技能库的原生拖放只允许轨道接收，不能被输入框当作普通文本写入。 */
-function guardLibrarySkillDrop(event: DragEvent): void {
+function resolveLibraryDropRegion(event: DragEvent): HTMLElement | null {
+  const viewport = timelineScroll.value;
+  const lane = trackDropRegions.get(selectedTrack.value);
+  // Do not drop through an unrelated/teleported panel into the canvas behind it.
+  if (
+    viewport === null ||
+    lane === undefined ||
+    !lane.isConnected ||
+    !(event.target instanceof Node) ||
+    !viewport.contains(event.target)
+  )
+    return null;
+  const rect = viewport.getBoundingClientRect();
+  return isInsideTimelineDropRegion({
+    x: event.clientX,
+    y: event.clientY,
+    lane: lane.getBoundingClientRect(),
+    viewport: {
+      left: rect.left,
+      top: rect.top,
+      right: rect.left + viewport.clientWidth,
+      bottom: rect.top + viewport.clientHeight,
+    },
+    headerWidth: TIMELINE_TRACK_HEADER_WIDTH,
+    rulerHeight: TIMELINE_RULER_HEIGHT,
+  })
+    ? lane
+    : null;
+}
+
+function guardLibrarySkillDragOver(event: DragEvent): void {
   if (dragPayload.value?.kind !== 'librarySkill') return;
-  const target = event.target;
-  const lane = target instanceof Element ? target.closest('.track-lane') : null;
-  if (lane !== null && timelineScroll.value?.contains(lane)) return;
   event.preventDefault();
   event.stopPropagation();
-  finishSkillDrag();
+  if (event.dataTransfer !== null) {
+    event.dataTransfer.dropEffect = resolveLibraryDropRegion(event) === null ? 'none' : 'copy';
+  }
+}
+
+/** The active workbench routes the drop before child controls can consume its text payload. */
+function guardLibrarySkillDrop(event: DragEvent): void {
+  if (dragPayload.value?.kind !== 'librarySkill') return;
+  event.preventDefault();
+  event.stopPropagation();
+  const lane = resolveLibraryDropRegion(event);
+  if (lane === null) finishSkillDrag();
+  else dropTimelinePayload(event, selectedTrack.value, lane);
 }
 
 function beginSkillDrag(
@@ -3770,6 +3814,7 @@ function beginSkillDrag(
     if (lease.isCurrent()) finishSkillDrag();
   });
   window.addEventListener('drop', guardLibrarySkillDrop, true);
+  window.addEventListener('dragover', guardLibrarySkillDragOver, true);
   const offsets = getDefaultLibraryDragOffsets();
   dragPayload.value = {
     kind: 'librarySkill',
@@ -3812,6 +3857,7 @@ function finishSkillDrag(): void {
   libraryDragLease?.release();
   libraryDragLease = null;
   window.removeEventListener('drop', guardLibrarySkillDrop, true);
+  window.removeEventListener('dragover', guardLibrarySkillDragOver, true);
   if (dragPayload.value?.kind === 'librarySkill') dragPayload.value = null;
   removeLibraryDragGhost();
 }
@@ -4114,7 +4160,11 @@ function allowTimelinePayloadDrop(event: DragEvent): void {
   }
 }
 
-function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
+function dropTimelinePayload(
+  event: DragEvent,
+  trackIndex: TrackIndex,
+  dropRegion?: HTMLElement,
+): void {
   const payload = dragPayload.value;
   dragPayload.value = null;
   if (payload === null) return;
@@ -4127,7 +4177,7 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
   }
   finishSkillDrag();
   if (trackIndex !== selectedTrack.value) return;
-  const lane = event.currentTarget as HTMLElement;
+  const lane = dropRegion ?? (event.currentTarget as HTMLElement);
   const frame = resolveTimelineLibraryDropFrame({
     clientX: event.clientX,
     laneLeftPx: lane.getBoundingClientRect().left,
@@ -5366,6 +5416,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 "
               />
               <div
+                :ref="element => registerTrackDropRegion(track.trackIndex, element)"
                 class="track-lane"
                 :data-track-index="track.trackIndex"
                 :style="{

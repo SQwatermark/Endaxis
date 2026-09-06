@@ -77,7 +77,9 @@ describe('SkillLibraryCard legacy structure parity', () => {
       editorSource.indexOf('function beginSkillDrag('),
     );
     expect(guard).toContain("dragPayload.value?.kind !== 'librarySkill'");
-    expect(guard).toContain('timelineScroll.value?.contains(lane)');
+    expect(guard).toContain('resolveLibraryDropRegion(event)');
+    expect(guard).toContain('dropTimelinePayload(event, selectedTrack.value, lane)');
+    expect(guard).not.toContain("closest('.track-lane')");
     expect(guard).toContain('event.preventDefault()');
     expect(guard).toContain('event.stopPropagation()');
     expect(editorSource).toContain("window.addEventListener('drop', guardLibrarySkillDrop, true)");
@@ -85,6 +87,13 @@ describe('SkillLibraryCard legacy structure parity', () => {
       "window.removeEventListener('drop', guardLibrarySkillDrop, true)",
     );
     expect(editorSource).toContain('disposeLibraryDragLifetime?.()');
+    expect(editorSource).toContain(
+      "window.addEventListener('dragover', guardLibrarySkillDragOver, true)",
+    );
+    expect(editorSource).toContain(
+      "window.removeEventListener('dragover', guardLibrarySkillDragOver, true)",
+    );
+    expect(editorSource).toContain('registerTrackDropRegion(track.trackIndex, element)');
   });
 
   it('selects cards and segments for the inspector without entering placement mode', () => {

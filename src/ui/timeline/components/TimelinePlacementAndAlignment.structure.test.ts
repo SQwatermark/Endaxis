@@ -8,7 +8,7 @@ describe('Next timeline placement and alignment parity', () => {
     expect(editorSource).not.toContain('@select-segment="beginLibraryPlacement(entry, $event)"');
     expect(editorSource).toContain("kind: 'librarySkill'");
     expect(editorSource).toContain("event.dataTransfer.effectAllowed = 'copy'");
-    expect(editorSource).toContain('dropTimelinePayload(event: DragEvent');
+    expect(editorSource).toMatch(/dropTimelinePayload\(\s*event: DragEvent/);
     expect(editorSource).toContain('beginLibraryPlacement(entry);');
     expect(editorSource).toContain('placePendingLibrarySkill(event, trackIndex)');
     expect(editorSource).toContain("'is-library-placing': libraryPlacement !== null");
