@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import './definitionWorkspaceLayout.css';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { computed, ref, watch } from 'vue';
 import {
@@ -800,9 +801,10 @@ function openReferencedDefinition(reference: {
     <el-dialog
       :model-value="visible"
       width="min(1180px, calc(100vw - 48px))"
+      top="24px"
       append-to-body
       destroy-on-close
-      class="operator-definition-workspace"
+      class="operator-definition-workspace definition-workspace-dialog"
       @update:model-value="emit('update:visible', $event)"
     >
       <template #header>
@@ -842,7 +844,10 @@ function openReferencedDefinition(reference: {
           </button>
         </nav>
 
-        <main class="workspace-main">
+        <main
+          class="workspace-main"
+          :class="{ 'entity-editing': section === 'entities' && showEntityEditor }"
+        >
           <nav class="workspace-breadcrumbs" aria-label="当前位置">
             <button @click="selectSection('panel')">{{ draft.displayName ?? draft.slug }}</button>
             <span>›</span>
@@ -1519,7 +1524,11 @@ function openReferencedDefinition(reference: {
             <div v-else class="empty-state">这个干员还没有 Buff 定义。</div>
           </section>
 
-          <section v-else class="definition-section">
+          <section
+            v-else
+            class="definition-section"
+            :class="{ 'entity-editing-section': showEntityEditor }"
+          >
             <AbilityEntityDefinitionsDialog
               v-if="showEntityEditor"
               :visible="true"
@@ -1601,8 +1610,9 @@ function openReferencedDefinition(reference: {
 .workspace {
   display: grid;
   grid-template-columns: 210px minmax(0, 1fr);
-  height: min(720px, calc(100vh - 190px));
-  min-height: 520px;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
   border: 1px solid #3b3b3f;
   background: #171719;
 }
@@ -1632,6 +1642,8 @@ function openReferencedDefinition(reference: {
   font-style: normal;
 }
 .workspace-nav {
+  min-height: 0;
+  overflow: auto;
   padding: 12px;
   border-right: 1px solid #343438;
   background: #121214;
@@ -1672,6 +1684,22 @@ function openReferencedDefinition(reference: {
 .workspace-main {
   min-width: 0;
   overflow: auto;
+}
+.workspace-main.entity-editing {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.entity-editing .workspace-breadcrumbs {
+  flex: none;
+}
+.definition-section.entity-editing-section {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 10px;
 }
 .workspace-breadcrumbs {
   position: sticky;

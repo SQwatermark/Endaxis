@@ -81,6 +81,7 @@ const props = defineProps<{
   abilityEntityId: string;
   definition: AbilityEntityDefinition;
   skillLevel: number;
+  fillAvailable?: boolean;
 }>();
 const emit = defineEmits<{ update: [definition: AbilityEntityDefinition] }>();
 const selectedId = ref('entity');
@@ -694,7 +695,7 @@ async function deleteCurrent(): Promise<void> {
 </script>
 
 <template>
-  <div class="definition-graph-editor">
+  <div class="definition-graph-editor" :class="{ 'fill-available': fillAvailable }">
     <SkillStructureMindMap
       ref="map"
       :root="root"
@@ -1051,5 +1052,35 @@ button {
   .definition-graph-editor > :first-child {
     height: 420px;
   }
+}
+.definition-graph-editor.fill-available {
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 40%);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.fill-available > :first-child {
+  height: auto;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  container-type: inline-size;
+  container-name: entity-map;
+}
+.fill-available :deep(.map-toolbar) {
+  flex-wrap: wrap;
+  min-height: 38px;
+  gap: 6px;
+  padding: 6px 10px;
+}
+@container entity-map (max-width: 480px) {
+  .fill-available :deep(.map-gesture-hint) {
+    display: none;
+  }
+}
+.fill-available .definition-inspector {
+  min-height: 0;
+  padding: 10px;
+  overscroll-behavior: contain;
 }
 </style>

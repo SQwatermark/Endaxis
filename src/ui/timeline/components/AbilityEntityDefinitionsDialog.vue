@@ -294,6 +294,7 @@ function save(): void {
           </div>
           <div class="entity-workspace__scroll">
             <AbilityEntityDefinitionGraphEditor
+              fill-available
               :ability-entity-id="selectedId"
               :definition="selectedDefinition!"
               :skill-level="skillLevel"
@@ -334,6 +335,7 @@ function save(): void {
 .ability-entity-definitions-editor {
   display: flex;
   min-height: 0;
+  min-width: 0;
   flex: 1;
   flex-direction: column;
   gap: 10px;
@@ -358,7 +360,7 @@ function save(): void {
   display: grid;
   min-height: 0;
   flex: 1;
-  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-columns: clamp(150px, 20vw, 210px) minmax(0, 1fr);
   gap: 0;
   overflow: hidden;
   border: 1px solid var(--ea-border-soft);
@@ -485,9 +487,8 @@ function save(): void {
 .entity-workspace__scroll {
   min-height: 0;
   flex: 1;
-  padding: 16px;
-  overflow: auto;
-  scrollbar-gutter: stable;
+  padding: 6px;
+  overflow: hidden;
 }
 .entity-workspace__footer {
   justify-content: flex-end;
