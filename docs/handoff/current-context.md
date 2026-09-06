@@ -1,5 +1,12 @@
 # 当前任务快照
 
+#### 2026-09-06 主战技专属禁用身份闭合
+
+- 复刻库 skill-tag-checks.md 补记当前 native 核对：_InitSkills 把 SkillDataBundle.normalSkillId 写入 AbilitySystem.curNormalSkill；_OnNormalSkillChange 经 String.op_Inequality 比较后更新。Endaxis 既有严格来源解析和路由生成已接同一字段，不需要新增人工配置或从技能库反推。
+- AbilitySystem.currentNormalSkillId 读取原生 battleSkill 操作路由所指槽位的当前身份，换槽后同步变化；缺少路由时返回未知。仅实际评估技能身份相符且 nativeSkillType 为 normalSkill 时检查 DisableNormalSkill，沉默仍优先；其他 NormalSkill 不继承主战技专属禁用。沿用既有类型标签回执与告警，仍然执行作者技能。
+- 测试覆盖换槽身份变化、没有战技路由、主战技/非主战技/未知身份、非 NormalSkill，以及沉默短路。正式查询中 DisableNormalSkill 也包含沉默标签；测试分别安装，不能用全部查询标签冒充单一状态。扩大回归 2923 项及应用类型检查通过；复刻库证据文档提交 f133e3f，既存脏文件未合入。
+- 剩余重点为 BattleManager.ultimateSkillButtonActive 的生产者：当前只确认字段 +0x1f9 和 getter/setter，不能据此默认常开或等同于演出状态。此次未改生成数据及模拟生命周期，未做浏览器视觉验收。
+
 #### 2026-09-06 类型专用技能标签诊断
 
 - 复用复刻库 `skill-tag-checks.md` / Skill.CheckTag 的已确认分支和同一 GameplayTagPredefine：Attack/BreakingAttack 检查 InDisarmed，NormalSkill/UltimateSkill/ExtraActiveSkill 检查 InSilence，ComboSkill 先沉默后 DisableCastComboSkill，Dodge 检查 InDisableDash，AttachSkill/PassiveSkill 无额外类型查询。

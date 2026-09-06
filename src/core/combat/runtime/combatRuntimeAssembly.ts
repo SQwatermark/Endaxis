@@ -1365,7 +1365,14 @@ export class CombatRuntimeAssembly {
       // 公共门禁已经诊断；原生 CheckTag 在此短路，不再叠加类型专用原因。
       if (tagRules.getCommonSkillCastBlocker(target) === undefined) {
         const nativeSkillType = ability.nativeSkillTypeForSkill(interruptionSkillId);
-        const blocker = tagRules.getSkillTypeCastBlocker(target, nativeSkillType);
+        const currentNormalSkillId = ability.currentNormalSkillId;
+        const blocker = tagRules.getSkillTypeCastBlocker(
+          target,
+          nativeSkillType,
+          currentNormalSkillId === undefined
+            ? undefined
+            : interruptionSkillId === currentNormalSkillId,
+        );
         if (blocker !== undefined) {
           this.receipt.record({
             frame: this.clock.frame,

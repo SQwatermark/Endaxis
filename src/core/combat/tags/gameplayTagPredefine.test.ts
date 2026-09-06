@@ -19,6 +19,19 @@ function setup() {
 }
 
 describe('原生预定义标签的安装与退出', () => {
+  it('主战技禁用仅作用于身份相符的 NormalSkill，且沉默先短路', () => {
+    const table = new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE);
+    const target = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    // 查询同时含沉默；此夹具只安装主战技专属标签，单独测试身份条件。
+    target.addEntityTags([table.getQuery('DisableNormalSkill').tags[1]!]);
+    expect(table.getSkillTypeCastBlocker(target, 'normalSkill', true)).toBe('DisableNormalSkill');
+    expect(table.getSkillTypeCastBlocker(target, 'normalSkill', false)).toBeUndefined();
+    expect(table.getSkillTypeCastBlocker(target, 'normalSkill')).toBeUndefined();
+    expect(table.getSkillTypeCastBlocker(target, 'attachSkill', true)).toBeUndefined();
+    target.addEntityTags(table.getQuery('InSilence').tags);
+    expect(table.getSkillTypeCastBlocker(target, 'normalSkill', true)).toBe('InSilence');
+  });
+
   it.each([
     ['attack', ['InDisarmed']],
     ['breakingAttack', ['InDisarmed']],

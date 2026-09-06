@@ -57,11 +57,18 @@ export class GameplayTagPredefine {
     return undefined;
   }
 
-  /** 仅处理已闭合的类型标签查询；主战技身份和终结技按钮状态仍需独立输入。 */
+  /** 未导入主战技身份时不猜测；终结技按钮状态不属于标签查询。 */
   getSkillTypeCastBlocker(
     entity: Pick<EntityTags, 'matchesEntityTags'>,
     type: NativeSkillType,
-  ): 'InDisarmed' | 'InSilence' | 'DisableCastComboSkill' | 'InDisableDash' | undefined {
+    isCurrentNormalSkill?: boolean,
+  ):
+    | 'InDisarmed'
+    | 'InSilence'
+    | 'DisableNormalSkill'
+    | 'DisableCastComboSkill'
+    | 'InDisableDash'
+    | undefined {
     const matches = (name: string) => {
       const query = this.getQuery(name);
       return entity.matchesEntityTags(query.tags, query.queryType);
@@ -71,6 +78,10 @@ export class GameplayTagPredefine {
       case 'breakingAttack':
         return matches('InDisarmed') ? 'InDisarmed' : undefined;
       case 'normalSkill':
+        if (matches('InSilence')) return 'InSilence';
+        return isCurrentNormalSkill === true && matches('DisableNormalSkill')
+          ? 'DisableNormalSkill'
+          : undefined;
       case 'ultimateSkill':
       case 'extraActiveSkill':
         return matches('InSilence') ? 'InSilence' : undefined;

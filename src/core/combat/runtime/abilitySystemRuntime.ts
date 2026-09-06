@@ -357,6 +357,14 @@ export class AbilitySystemRuntime implements FrameRuntime {
       : undefined;
   }
 
+  /** CharacterData 原生战技路由的当前身份；缺少路由时不按 UI 分组猜测。 */
+  get currentNormalSkillId(): string | undefined {
+    const route = this.#playerActionRoutes?.battleSkill;
+    return route?.kind === 'skillSlot'
+      ? this.currentSkillKeyForSlot(route.skillSlotKey)
+      : undefined;
+  }
+
   /** 读取当前槽位身份；未知组不回退为基础技能。 */
   currentSkillKeyForSlot(skillGroupKey: string): string {
     const group = this.#skillSlotGroups.get(skillGroupKey);

@@ -430,11 +430,13 @@ describe('AbilitySystemRuntime', () => {
       },
     });
 
+    expect(ability.currentNormalSkillId).toBe('battleSkill');
     expect(ability.resolvePlayerInputSkill('battleSkill', 'battleSkill')).toEqual({
       status: 'matched',
       actualSkillKey: 'battleSkill',
     });
     ability.changeSkillSlot('normalSkillSlot', 'enhancedBattleSkill');
+    expect(ability.currentNormalSkillId).toBe('enhancedBattleSkill');
     expect(ability.resolvePlayerInputSkill('battleSkill', 'battleSkill')).toEqual({
       status: 'mismatched',
       actualSkillKey: 'enhancedBattleSkill',
@@ -453,6 +455,7 @@ describe('AbilitySystemRuntime', () => {
         basicAttack: { kind: 'basicAttack', skillKeys: ['attack1'] },
       },
     });
+    expect(ability.currentNormalSkillId).toBeUndefined();
 
     expect(ability.resolvePlayerInputSkill('attack1', 'basicAttack')).toEqual({
       status: 'unknown',
