@@ -1,5 +1,18 @@
 # 当前任务快照
 
+#### 2026-09-07 导图取消后的命令恢复与剩余手势盘点
+
+- 在真实 modal/session/router 与生产导图 setup 的组合测试中补充：拖动期间
+  不派发撤销，Escape 取消后恢复 undo/redo 命令；子选择浮层取消拖动、独占
+  Escape，关闭后可重新拖放和发出 undo；卸载清理 capture，迟到 capture 事件无效。
+  这证明命令派发与清理，不证明父编辑器的历史内容或浏览器原生落点。
+- 测试宿主节点使用 markRaw 保持 DOM 节点身份语义，避免 Vue 代理造成假失败。
+  本轮未修改生产逻辑，943 项相关测试与应用类型检查通过。
+- 只读盘点发现 TimeScaleCurveEditor 仍独立持有 pointer capture，没有统一
+  session/指针身份/卸载与 capture 丢失清理，且 moveDrag 每次 emit update 写草稿。
+  下一步应整体处理曲线拖动的预览、一次提交、取消、readonly/数据变更边界及
+  归属，不仅补 Escape。原生导图落点与父编辑器撤销仍待浏览器验收。
+
 #### 2026-09-07 导图右键菜单取消手势与组件逻辑回归
 
 - 复现遗漏：打开导图右键菜单后，structure-node-move lease 仍有效；新测试修复前

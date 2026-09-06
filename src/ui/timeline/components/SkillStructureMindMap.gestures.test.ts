@@ -1,10 +1,11 @@
-import { createRenderer, defineComponent, h, nextTick, ssrContextKey } from 'vue';
+import { createRenderer, defineComponent, h, markRaw, nextTick, ref, ssrContextKey } from 'vue';
 import type { ComponentOptions } from 'vue';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import type { InteractionSession } from '../../interaction/interactionSession';
+import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 
 // Mount production setup/lifecycle with a host renderer. Vitest compiles SFCs
 // for SSR, so templates are not executed here: this tests handler state and
@@ -84,6 +85,8 @@ async function mount() {
   let session!: InteractionSession;
   let state: any;
   const move = vi.fn();
+  const history = vi.fn();
+  const pickerOpen = ref(false);
   const child = (id: string) => ({
     id,
     label: id,
@@ -98,6 +101,13 @@ async function mount() {
   const Probe = defineComponent({
     setup() {
       session = useInteractionSession();
+      usePopoverInteractionBoundary(
+        session,
+        () => pickerOpen.value,
+        () => {
+          pickerOpen.value = false;
+        },
+      );
       return () =>
         h(
           {
@@ -108,7 +118,7 @@ async function mount() {
             },
             render: () => null,
           },
-          { root, onMoveNode: move },
+          { root, onMoveNode: move, onHistoryAction: history },
         );
     },
   });
@@ -123,25 +133,106 @@ async function mount() {
   const host = new Host('root');
   app.provide(ssrContextKey, {});
   app.mount(host);
-  cleanups.push(() => app.unmount());
+  let mounted = true;
+  const unmount = () => {
+    if (mounted) {
+      mounted = false;
+      app.unmount();
+    }
+  };
+  cleanups.push(unmount);
   await nextTick();
   const source = new Host('source');
   const target = new Host('target');
   target.props.onContextmenu = (e: unknown) => state.openContextMenu(e, root.children[1]);
   const handle = new Host('handle');
   handle.props.onDragend = state.endNodeDrag;
-  const viewport = new Host('viewport');
+  // Real DOM nodes are not proxied by Vue refs; keep the host node identity too.
+  const viewport = markRaw(new Host('viewport'));
   state.viewport.value = viewport;
+  state.shell.value = viewport;
   viewport.props.onPointerdown = state.startPan;
   viewport.props.onLostpointercapture = state.endPan;
   const start = () =>
     state.startNodeDrag(event({ dataTransfer: { setData: vi.fn() } }), root.children[0]);
   const drop = () =>
     state.dropOnNode(event({ currentTarget: target, clientY: 40 }), root.children[1]);
-  return { session, move, start, drop, handle, source, target, viewport };
+  const focus = () => state.trackActive({ type: 'focusin', target: viewport });
+  return {
+    session,
+    move,
+    history,
+    pickerOpen,
+    unmount,
+    focus,
+    start,
+    drop,
+    handle,
+    source,
+    target,
+    viewport,
+  };
+}
+
+function keydown(key: string, extra = {}) {
+  const event = new Event('keydown', { cancelable: true });
+  for (const [name, value] of Object.entries({ key, ...extra }))
+    Object.defineProperty(event, name, { value });
+  window.dispatchEvent(event);
+  return event;
 }
 
 describe('mounted structure map gesture ownership', () => {
+  it('routes Escape to the current gesture, then restores map history commands', async () => {
+    const f = await mount();
+    f.focus();
+    f.start();
+    keydown('z', { ctrlKey: true });
+    expect(f.history).not.toHaveBeenCalled();
+    expect(keydown('Escape').defaultPrevented).toBe(true);
+    expect(f.session.current).toBeNull();
+    f.drop();
+    expect(f.move).not.toHaveBeenCalled();
+    keydown('z', { ctrlKey: true });
+    keydown('z', { ctrlKey: true, shiftKey: true });
+    expect(f.history.mock.calls).toEqual([['undo'], ['redo']]);
+  });
+
+  it('a nested picker cancels the gesture, owns Escape and releases map commands on close', async () => {
+    const f = await mount();
+    f.focus();
+    f.start();
+    f.pickerOpen.value = true;
+    expect(f.session.current).toBeNull();
+    keydown('z', { ctrlKey: true });
+    expect(f.history).not.toHaveBeenCalled();
+    expect(keydown('Escape').defaultPrevented).toBe(true);
+    expect(f.pickerOpen.value).toBe(false);
+    f.start();
+    f.drop();
+    expect(f.move).toHaveBeenCalledOnce();
+    keydown('z', { ctrlKey: true });
+    expect(f.history).toHaveBeenCalledWith('undo');
+  });
+
+  it('unmount cancels the pan and late pointer events cannot resume it', async () => {
+    const f = await mount();
+    const pointer = event({
+      target: f.viewport,
+      button: 0,
+      pointerId: 1,
+      clientX: 20,
+      clientY: 20,
+    });
+    f.viewport.props.onPointerdown(pointer);
+    expect(f.viewport.hasPointerCapture(1)).toBe(true);
+    f.unmount();
+    expect(f.viewport.hasPointerCapture(1)).toBe(false);
+    expect(f.session.current).toBeNull();
+    f.viewport.props.onLostpointercapture(pointer);
+    expect(f.session.current).toBeNull();
+  });
+
   it('commits one compatible drop and releases the modal lease before another gesture', async () => {
     const f = await mount();
     f.start();
