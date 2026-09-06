@@ -16,6 +16,7 @@ import {
   useInteractionBarrier,
 } from '../interaction/interactionSessionContext';
 import type { InteractionLease } from '../interaction/interactionSession';
+import { observeNativeDragLifetime } from '../interaction/nativeDragLifecycle';
 import { normalizeDurationBarColorPrefs } from './durationBarColor';
 import { useI18n } from 'vue-i18n';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -540,7 +541,7 @@ interface TimelineLibraryPlacement {
 const libraryPlacement = ref<TimelineLibraryPlacement | null>(null);
 const interactionSession = provideInteractionSession();
 let libraryDragLease: InteractionLease | null = null;
-let libraryDragSource: EventTarget | null = null;
+let disposeLibraryDragLifetime: (() => void) | null = null;
 let libraryPlacementLease: InteractionLease | null = null;
 let trackOrderLease: InteractionLease | null = null;
 const selectedLibrarySkill = ref<{ entryKey: string; skillKey?: string } | null>(null);
@@ -3754,6 +3755,10 @@ function beginSkillDrag(
   entry: TimelineSkillLibraryEntryViewModel,
   skillKey?: string,
 ): void {
+  if (!(event.target instanceof Element) || !event.target.isConnected) {
+    event.preventDefault();
+    return;
+  }
   const placedSkillKey = skillKey ?? entry.placementSkillKey;
   const lease = interactionSession.tryStart('library-drag', finishSkillDrag);
   if (lease === null) {
@@ -3761,9 +3766,10 @@ function beginSkillDrag(
     return;
   }
   libraryDragLease = lease;
-  libraryDragSource = event.target;
+  disposeLibraryDragLifetime = observeNativeDragLifetime(event.target, () => {
+    if (lease.isCurrent()) finishSkillDrag();
+  });
   window.addEventListener('drop', guardLibrarySkillDrop, true);
-  window.addEventListener('dragend', finishSkillDrag, true);
   const offsets = getDefaultLibraryDragOffsets();
   dragPayload.value = {
     kind: 'librarySkill',
@@ -3800,13 +3806,12 @@ function beginSkillDrag(
   }
 }
 
-function finishSkillDrag(event?: DragEvent): void {
-  if (event !== undefined && event.target !== libraryDragSource) return;
+function finishSkillDrag(): void {
+  disposeLibraryDragLifetime?.();
+  disposeLibraryDragLifetime = null;
   libraryDragLease?.release();
   libraryDragLease = null;
-  libraryDragSource = null;
   window.removeEventListener('drop', guardLibrarySkillDrop, true);
-  window.removeEventListener('dragend', finishSkillDrag, true);
   if (dragPayload.value?.kind === 'librarySkill') dragPayload.value = null;
   removeLibraryDragGhost();
 }
@@ -4806,7 +4811,6 @@ function setPanelDialogVisible(visible: boolean): void {
               :segments="skillSegments(entry)"
               @dragstart="beginSkillDrag($event, entry)"
               @dragstart-segment="beginSkillDrag($event.event, entry, $event.skillKey)"
-              @dragend="finishSkillDrag"
               @select="selectLibrarySkill(entry)"
               @select-segment="selectLibrarySkill(entry, $event)"
             />

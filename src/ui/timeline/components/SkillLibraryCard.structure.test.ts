@@ -65,7 +65,9 @@ describe('SkillLibraryCard legacy structure parity', () => {
     expect(handler).toContain('skillLibraryTypeLabel(entry)');
     expect(handler).toContain('timelineSkillSegmentLabel(');
     expect(handler).not.toContain('? skillLibraryEntryName(entry)');
-    expect(editorSource).toContain('@dragend="finishSkillDrag"');
+    expect(handler).toContain('observeNativeDragLifetime(event.target');
+    expect(handler).toContain('if (lease.isCurrent()) finishSkillDrag()');
+    expect(editorSource).not.toContain('@dragend="finishSkillDrag"');
     expect(editorSource).not.toContain('@select="beginLibraryPlacement(entry)"');
   });
 
@@ -82,7 +84,7 @@ describe('SkillLibraryCard legacy structure parity', () => {
     expect(editorSource).toContain(
       "window.removeEventListener('drop', guardLibrarySkillDrop, true)",
     );
-    expect(editorSource).toContain("window.removeEventListener('dragend', finishSkillDrag, true)");
+    expect(editorSource).toContain('disposeLibraryDragLifetime?.()');
   });
 
   it('selects cards and segments for the inspector without entering placement mode', () => {
