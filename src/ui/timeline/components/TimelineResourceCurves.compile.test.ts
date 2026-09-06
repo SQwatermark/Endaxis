@@ -4,8 +4,18 @@ import source from './TimelineResourceCurves.vue?raw';
 import sectionsSource from './TimelineEnemyStatusSections.vue?raw';
 
 describe('TimelineResourceCurves compilation', () => {
+  it('uses measured SP height without clamping negative facts onto the display floor', () => {
+    expect(source).toContain("row.kind === 'sp' ? spBodyHeight.value : ROW_HEIGHT");
+    expect(source).toContain("row.kind === 'sp' ? rawRatio : clamp(rawRatio, 0, 1)");
+    expect(source).toContain('Math.round(height * 0.07)');
+    expect(source).toContain('Math.round(height * 0.09)');
+    expect(source).toContain('Math.max(topPadding, height - 18 - bottomPadding)');
+  });
+
   it('matches the old stagger dots, maximum line and 26px minimum body', () => {
-    expect(source).toMatch(/\.curve-row--poise \.curve-point\s*\{\s*stroke: none;/);
+    expect(source).toMatch(
+      /\.curve-row--poise \.curve-point,\s*\.curve-row--sp \.curve-point\s*\{\s*stroke: none;/,
+    );
     expect(source).toContain('class="poise-maximum-line"');
     expect(source).toContain('background: rgba(255, 156, 110, 0.32)');
     expect(sectionsSource).toContain('poise: 26');

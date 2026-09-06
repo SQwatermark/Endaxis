@@ -5515,6 +5515,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :timeline-width="timelineWidth"
                 :duration-frames="scenario.battle.durationFrames"
                 :cursor-frame="cursorFrame"
+                :sp-insufficient-label="t('resourceMonitor.sp.insufficient')"
                 :prep-frames="scenario.battle.prepFrames"
                 :prep-expanded="scenario.editor.prepExpanded"
                 :px-per-frame="pxPerFrame"

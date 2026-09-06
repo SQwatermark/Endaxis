@@ -41,6 +41,7 @@ const props = defineProps<{
   initialSpLabel?: string;
   spRecoveryLabel?: string;
   poiseBrokenLabel?: string;
+  spInsufficientLabel?: string;
 }>();
 
 const emit = defineEmits<{
@@ -48,17 +49,21 @@ const emit = defineEmits<{
 }>();
 
 const ROW_HEIGHT = 56;
+const SECTION_TOPBAR_HEIGHT = 14;
 const CHART_TOP = 0;
 const CHART_BOTTOM = 0;
 const POINT_RADIUS = 2;
 const root = ref<HTMLElement | null>(null);
 const poiseBodyHeight = ref(ROW_HEIGHT);
+const spBodyHeight = ref(ROW_HEIGHT);
 let sizeObserver: ResizeObserver | undefined;
 onMounted(() => {
   if (root.value === null) return;
   const update = () => {
     const chart = root.value?.querySelector('.curve-row--poise .curve-chart');
     if (chart) poiseBodyHeight.value = Math.max(1, chart.getBoundingClientRect().height);
+    const spChart = root.value?.querySelector('.curve-row--sp .curve-chart');
+    if (spChart) spBodyHeight.value = Math.max(1, spChart.getBoundingClientRect().height);
   };
   sizeObserver = new ResizeObserver(update);
   sizeObserver.observe(root.value);
@@ -139,7 +144,9 @@ function pointY(row: ResourceCurveRow, value: number): number {
   const chartHeight = rowHeight(row) - CHART_TOP - CHART_BOTTOM;
   const upperBound = row.maxValue > 0 ? row.maxValue : 1;
   const minimum = row.kind === 'sp' ? -SP_NEGATIVE_BUFFER : 0;
-  const ratio = clamp((value - minimum) / (upperBound - minimum), 0, 1);
+  const rawRatio = (value - minimum) / (upperBound - minimum);
+  // 技力可低于显示下界；由 SVG 裁切，不把不同负值伪造成同一条水平线。
+  const ratio = row.kind === 'sp' ? rawRatio : clamp(rawRatio, 0, 1);
   return CHART_TOP + (1 - ratio) * chartHeight;
 }
 
@@ -147,9 +154,10 @@ function baselineY(row: ResourceCurveRow): number {
   return pointY(row, 0);
 }
 
-/** 失衡 SVG 使用真实像素高度，避免拖高面板时拉伸条纹、文字和命中圆点。 */
+/** 资源 SVG 使用真实像素高度，避免拖高面板时拉伸条纹、文字和命中圆点。 */
 function rowHeight(row: ResourceCurveRow): number {
-  return row.kind === 'poise' ? poiseBodyHeight.value : ROW_HEIGHT;
+  if (row.kind === 'poise') return poiseBodyHeight.value;
+  return row.kind === 'sp' ? spBodyHeight.value : ROW_HEIGHT;
 }
 
 /** 失衡绘图补保持点与显示终点；不改变原始事实点、标记和读数。 */
@@ -200,6 +208,25 @@ function readoutValue(row: ResourceCurveRow): number {
   const value = valueAtCursor(row);
   return row.kind === 'poise' ? Math.round(value) : value;
 }
+const spWarnings = computed(() => {
+  const points = props.spCurve.points;
+  return points.flatMap((point, index) => {
+    const previous = points[index - 1];
+    if (point.source === 'autoRecovery' || point.value >= 0 || previous === undefined) return [];
+    if (point.value >= previous.value) return [];
+    const height = spBodyHeight.value;
+    const curveY = clamp(pointY(rows.value[0]!, previous.value), 0, height);
+    const gap = clamp(Math.round(height * 0.08), 4, 10);
+    const topPadding = clamp(Math.round(height * 0.07), 4, 10);
+    const bottomPadding = clamp(Math.round(height * 0.09), 6, 12);
+    const top = clamp(
+      curveY - 18 - gap,
+      topPadding,
+      Math.max(topPadding, height - 18 - bottomPadding),
+    );
+    return [{ frame: point.frame, top }];
+  });
+});
 </script>
 
 <template>
@@ -364,7 +391,7 @@ function readoutValue(row: ResourceCurveRow): number {
           x="0"
           :y="baselineY(row)"
           :width="width"
-          :height="Math.max(0, ROW_HEIGHT - CHART_BOTTOM - baselineY(row))"
+          :height="Math.max(0, rowHeight(row) - CHART_BOTTOM - baselineY(row))"
         />
         <path
           class="curve-fill"
@@ -384,6 +411,20 @@ function readoutValue(row: ResourceCurveRow): number {
           <title>{{ pointTitle(point) }}</title>
         </circle>
       </svg>
+      <span
+        v-for="(warning, index) in row.kind === 'sp' ? spWarnings : []"
+        :key="`sp-warning-${warning.frame}:${index}`"
+        class="sp-warning-tag"
+        :style="{
+          left: `${pointX(warning.frame)}px`,
+          top: `${SECTION_TOPBAR_HEIGHT + warning.top}px`,
+        }"
+      >
+        <svg viewBox="0 0 24 24" width="10" height="10" aria-hidden="true">
+          <path d="M12 3 2 21h20L12 3Zm0 5v7m0 3v.1" />
+        </svg>
+        {{ spInsufficientLabel }}
+      </span>
     </div>
   </div>
 </template>
@@ -575,7 +616,8 @@ function readoutValue(row: ResourceCurveRow): number {
   fill: #ff4d4f;
 }
 
-.curve-row--poise .curve-point {
+.curve-row--poise .curve-point,
+.curve-row--sp .curve-point {
   stroke: none;
 }
 
@@ -594,6 +636,37 @@ function readoutValue(row: ResourceCurveRow): number {
   font-weight: 900;
   letter-spacing: 1px;
   text-shadow: 0 0 2px #ff7a45;
+}
+
+.sp-warning-tag {
+  position: absolute;
+  z-index: 5;
+  min-width: 58px;
+  height: 18px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border: 1px solid rgb(255 77 79 / 30%);
+  border-radius: 4px;
+  background: rgb(0 0 0 / 80%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 50%);
+  color: #ff4d4f;
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.sp-warning-tag svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 @keyframes poise-broken-flash {
