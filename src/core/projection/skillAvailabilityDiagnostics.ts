@@ -12,6 +12,7 @@ export const SKILL_AVAILABILITY_DIAGNOSTIC_REASONS = [
   'skillInputUnknown',
   'skillInterruptUnavailable',
   'skillInterruptUnknown',
+  'ultimateInputDuringPresentation',
 ] as const;
 
 /** UI 可按稳定枚举映射本地化文本，核心投影不携带显示文案。 */
@@ -36,6 +37,7 @@ export interface SkillAvailabilityDiagnostic {
 }
 
 function readReason(event: string): SkillAvailabilityDiagnosticReason | undefined {
+  if (event === 'UltimateInputBlockedByPresentation') return 'ultimateInputDuringPresentation';
   if (event === 'SkillCostUnavailableAtStart') return 'resourceUnavailable';
   if (event === 'SkillCooldownUnavailableAtStart') return 'cooldownUnavailable';
   if (event === 'SkillInputResolvedToDifferentSkill') return 'skillInputMismatch';

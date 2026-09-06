@@ -1883,6 +1883,8 @@ function castWarningTitle(castId: string): string {
       if (reason === 'skillInputUnknown') return '缺少该操作的原生技能路由证据';
       if (reason.startsWith('skillInputUnknown:'))
         return `无法确定该操作会触发哪个技能：${formatPlayerInputEvidenceDetail(reason.slice('skillInputUnknown: '.length))}`;
+      if (reason === 'ultimateInputDuringPresentation')
+        return '演出期间原生终结技输入入口不接受再次释放；时间轴仍执行已放置技能';
       if (reason === 'skillInterruptUnavailable') return '当前技能尚不能被该操作中断';
       if (reason.startsWith('skillInterruptUnavailable:'))
         return `当前技能尚不能被该操作中断（${reason.slice('skillInterruptUnavailable: '.length)}）；时间轴仍执行已放置技能`;

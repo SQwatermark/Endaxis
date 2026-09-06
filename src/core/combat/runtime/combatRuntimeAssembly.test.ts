@@ -181,6 +181,39 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it.each(['basicAttack', 'battleSkill', 'comboSkill', 'ultimate', undefined] as const)(
+    'diagnoses only evidenced ultimate input during another operator presentation: %s',
+    action => {
+      const assembly = createAssembly([skill({ costs: [] })]);
+      assembly.ultimatePresentation.setActive(true, 'another-operator', 'cinematic');
+      expect(assembly.tryStartPlayerInput('operator', 'skill', undefined, action)).toBe(true);
+      expect(
+        assembly.receipt.entries.filter(
+          entry => entry.event === 'UltimateInputBlockedByPresentation',
+        ),
+      ).toHaveLength(action === 'ultimate' ? 1 : 0);
+      expect(assembly.receipt.entries).toContainEqual(
+        expect.objectContaining({ event: 'SkillStarted' }),
+      );
+    },
+  );
+
+  it('does not diagnose ultimate input after presentation ends or an internal cast during it', () => {
+    const assembly = createAssembly([skill({ costs: [] })]);
+    assembly.ultimatePresentation.setActive(true, 'another-operator', 'cinematic');
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    assembly.ultimatePresentation.setActive(false, 'another-operator', 'cinematic');
+    assembly.advanceFrame();
+    assembly.advanceFrame();
+    assembly.advanceFrame();
+    expect(assembly.tryStartPlayerInput('operator', 'skill', undefined, 'ultimate')).toBe(true);
+    expect(
+      assembly.receipt.entries.filter(
+        entry => entry.event === 'UltimateInputBlockedByPresentation',
+      ),
+    ).toHaveLength(0);
+  });
+
   it('resolves Buff lifecycle operations from a deferred unbound skill definition', () => {
     const container = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
     const buffRuntime = new BuffDefinitionOperationTarget(container, {

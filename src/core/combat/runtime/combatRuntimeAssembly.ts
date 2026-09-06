@@ -1292,6 +1292,17 @@ export class CombatRuntimeAssembly {
     action?: import('../../game-data/operatorDefinition').PlayerSkillInput,
   ): boolean {
     const ability = this.#requireAbilitySystem(operatorId);
+    // OnPressUltimateSkillStart checks inUltimateCasting before requesting a cast.
+    // This is an input diagnostic, not a general skill lifecycle/interruption gate.
+    if (action === 'ultimate' && this.ultimatePresentation.inUltimateCasting) {
+      this.receipt.record({
+        frame: this.clock.frame,
+        time: this.clock.time,
+        event: 'UltimateInputBlockedByPresentation',
+        sourceId: operatorId,
+        data: { skillId: expectedSkillId, ...(castId === undefined ? {} : { castId }) },
+      });
+    }
     // 原生连携输入由 HUD 当前候选决定具体技能；CharacterData 的 curComboSkill 只提供
     // 无候选时的静态槽位，不能覆盖已经打开的连携窗口阶段。
     const pendingCombo = action === 'comboSkill' ? this.comboWindows.first : undefined;

@@ -19,6 +19,24 @@ function receipt(
 }
 
 describe('projectSkillAvailabilityDiagnostics', () => {
+  it('projects presentation input diagnostics without mistaking the presentation itself for a failure', () => {
+    expect(
+      projectSkillAvailabilityDiagnostics([
+        receipt(0, 'UltimatePresentationChanged'),
+        receipt(1, 'UltimateInputBlockedByPresentation'),
+        receipt(2, 'SkillStarted'),
+      ]),
+    ).toEqual([
+      {
+        frame: 12,
+        sourceId: 'perlica',
+        skillId: 'battleSkill',
+        reasons: ['ultimateInputDuringPresentation'],
+        receiptSequences: [1],
+      },
+    ]);
+  });
+
   it('归约同一技能开始位置上的资源与冷却事实', () => {
     const diagnostics = projectSkillAvailabilityDiagnostics([
       receipt(0, 'SkillCooldownUnavailableAtStart'),
