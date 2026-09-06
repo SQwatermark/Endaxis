@@ -17,6 +17,27 @@ function buff(buffId: string, extras: Partial<BuffTimelineSegment> = {}): BuffTi
 }
 
 describe('enemy status presentation rows', () => {
+  it('never spreads neighboring frames into same-time slots or changes their timing', () => {
+    const markers = [
+      { kind: 'burst' as const, frame: 30 },
+      { kind: 'burst' as const, frame: 31 },
+      { kind: 'burst' as const, frame: 32 },
+      { kind: 'burst' as const, frame: 31 },
+    ];
+    const short = buff('electric', { startFrame: 30, endFrame: 31 });
+    const refreshed = buff('electric', { startFrame: 31, endFrame: 32, layers: 2 });
+    const before = JSON.stringify({ markers, short, refreshed });
+    const layout = layoutEnemyStatusRows([short, refreshed], markers, attachmentIds);
+    expect(layout.markerPositions).toEqual([
+      { row: 1, slot: 1 },
+      { row: 1, slot: 1 },
+      { row: 1, slot: 0 },
+      { row: 1, slot: 2 },
+    ]);
+    expect(layout.lanes.get(short)).toBe(layout.lanes.get(refreshed));
+    expect(JSON.stringify({ markers, short, refreshed })).toBe(before);
+  });
+
   it('reserves a new segment icon before placing same-frame transient icons', () => {
     const attachment = buff('electric', { startFrame: 10 });
     const anomaly = buff('conduct', { startFrame: 10, iconStyleInSquad: 'SpellAbnormal' });

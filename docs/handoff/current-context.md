@@ -1,5 +1,18 @@
 # 当前任务快照
 
+#### 2026-09-06 相邻帧密集图标的旧版规则边界
+
+- 已核对只读上游 ResourceMonitor afflictionItems 的坐标计算：leftBase 来自
+  timeToPx(startTime)，只有同时间组瞬时 marker 增加 slotIndex*(iconSize+2)，
+  伤害不随图标偏移；持续条宽度 max(0, timeToPx(end)-leftBase-iconSize-2)。
+- 因此不增加“相邻帧图标自动推开/拉长短持续条”的新版规则。近距离图标重叠
+  本身不等于模拟或坐标错误，不能通过改变事件显示时间修饰。新增相邻 30/31/32
+  帧回归，确保同帧占位不扩展为邻帧排队、不拆附着行、不改变输入时间。
+- 本轮不改生产布局；没有新增浏览器视觉验收。后续应回到完整监控区的缩放、
+  水平滚动与折叠组合核对，不继续扩展瞬时图标的特殊排列策略。
+- 完整 src/ui/timeline 测试集 822/822 通过，无失败/跳过；报告仅在
+  tmp/timeline-ui-regression.json，未提交中间产物。
+
 #### 2026-09-06 不同 Buff 共享详情与结果替换的浏览器隔离验收
 
 - tmp/receipt-lifecycle-qa 使用正式 TimelineEnemyEffects、TimelineHitDetailDialog、
