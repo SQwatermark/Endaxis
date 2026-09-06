@@ -10,6 +10,8 @@ describe('TimelineResourceCurves compilation', () => {
     expect(source).toContain('pointX(segment.endFrame) - pointX(segment.startFrame)');
     expect(source).toContain('<TimelineMonitorGrid');
     expect(source).toMatch(/<\/script>\s*<template>/);
+    expect(source).toContain("row.kind === 'poise' ? Math.round(value) : value");
+    expect(source).toContain('formatNumber(readoutValue(row))');
   });
 
   it('keeps the template, script bindings and scoped styles valid', () => {

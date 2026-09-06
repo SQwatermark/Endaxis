@@ -194,6 +194,12 @@ function valueAtCursor(row: ResourceCurveRow): number {
 function pointTitle(point: ResourceCurvePointView): string {
   return `${formatNumber(point.frame)}f / ${formatNumber(point.frame / 30)}s · ${formatNumber(point.value)}`;
 }
+
+/** 上游失衡读数与进度条采用取整后的末值；绘图和回执仍保留原精度。 */
+function readoutValue(row: ResourceCurveRow): number {
+  const value = valueAtCursor(row);
+  return row.kind === 'poise' ? Math.round(value) : value;
+}
 </script>
 
 <template>
@@ -253,13 +259,13 @@ function pointTitle(point: ResourceCurvePointView): string {
         <template v-else>
           <strong>{{ row.label }}</strong>
           <small
-            ><span>{{ formatNumber(valueAtCursor(row)) }}</span
+            ><span>{{ formatNumber(readoutValue(row)) }}</span
             ><span class="label-value-max">/{{ formatNumber(row.maxValue) }}</span></small
           >
           <span v-if="row.kind === 'poise'" class="label-readout-bar">
             <i
               :style="{
-                width: `${Math.max(0, Math.min(1, valueAtCursor(row) / Math.max(1, row.maxValue))) * 100}%`,
+                width: `${Math.max(0, Math.min(1, readoutValue(row) / Math.max(1, row.maxValue))) * 100}%`,
               }"
             ></i>
           </span>
