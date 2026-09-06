@@ -172,6 +172,7 @@ async function mount() {
   };
   return {
     session,
+    state,
     move,
     history,
     pickerOpen,
@@ -196,6 +197,23 @@ function keydown(key: string, extra = {}) {
 }
 
 describe('mounted structure map gesture ownership', () => {
+  it('preserves the wheel anchor through the real zoom handler including stage offset', async () => {
+    const f = await mount();
+    f.viewport.getBoundingClientRect = () => ({ left: 20, top: 30, height: 150 });
+    f.viewport.scrollLeft = 200;
+    f.viewport.scrollTop = 180;
+    f.state.stage.value = markRaw({ offsetLeft: 0, offsetTop: 22 });
+    const wheel = event({ ctrlKey: true, clientX: 130, clientY: 100, deltaY: -1 });
+    const before = (180 + 70 - 22) / 0.9;
+    await f.state.zoomAtPointer(wheel);
+    expect(wheel.preventDefault).toHaveBeenCalledOnce();
+    expect(f.state.zoom.value).toBe(1);
+    expect((f.viewport.scrollTop + 70 - 22) / f.state.zoom.value).toBeCloseTo(before);
+    await f.state.zoomAtPointer(event({ metaKey: true, clientX: 130, clientY: 100, deltaY: 1 }));
+    expect(f.viewport.scrollTop).toBeCloseTo(180);
+    expect(f.viewport.scrollLeft).toBeCloseTo(200);
+  });
+
   it('routes history from the inspector without allowing it through a picker', async () => {
     const f = await mount();
     f.focusInspector();

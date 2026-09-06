@@ -7,7 +7,7 @@ import {
 } from '../../interaction/interactionSessionContext';
 import type { InteractionLease } from '../../interaction/interactionSession';
 import { observeNativeDragLifetime } from '../../interaction/nativeDragLifecycle';
-import { mindMapNodeScroll } from '../mindMapViewport';
+import { mindMapAnchoredScroll, mindMapNodeScroll, mindMapWorldPoint } from '../mindMapViewport';
 
 const interactionSession = useInteractionSession();
 let nodeLease: InteractionLease | null = null;
@@ -519,12 +519,23 @@ async function zoomAtPointer(event: WheelEvent): Promise<void> {
   const rect = element.getBoundingClientRect();
   const pointerX = event.clientX - rect.left;
   const pointerY = event.clientY - rect.top;
-  const worldX = (element.scrollLeft + pointerX) / oldZoom;
-  const worldY = (element.scrollTop + pointerY) / oldZoom;
+  const pointer = { x: pointerX, y: pointerY };
+  const world = mindMapWorldPoint(
+    pointer,
+    { left: element.scrollLeft, top: element.scrollTop },
+    { left: stage.value?.offsetLeft ?? 0, top: stage.value?.offsetTop ?? 0 },
+    oldZoom,
+  );
   zoom.value = nextZoom;
   await nextTick();
-  element.scrollLeft = worldX * nextZoom - pointerX;
-  element.scrollTop = worldY * nextZoom - pointerY;
+  const scroll = mindMapAnchoredScroll(
+    world,
+    pointer,
+    { left: stage.value?.offsetLeft ?? 0, top: stage.value?.offsetTop ?? 0 },
+    nextZoom,
+  );
+  element.scrollLeft = scroll.left;
+  element.scrollTop = scroll.top;
 }
 
 async function centerRoot(): Promise<void> {
