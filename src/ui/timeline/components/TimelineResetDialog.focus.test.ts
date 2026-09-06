@@ -15,7 +15,7 @@ describe('reset dialog focus integration', () => {
 
   it('keeps Escape on the command router instead of registering a second close path', () => {
     expect(source).toContain(
-      'useDialogInteractionBoundary(useInteractionSession(), () => props.modelValue, close)',
+      'useDialogInteractionBoundary(session, () => props.modelValue, close, region)',
     );
     expect(source).not.toContain('@release-requested');
     expect(source).not.toContain("addEventListener('keydown'");
