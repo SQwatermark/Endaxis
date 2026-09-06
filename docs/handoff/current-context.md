@@ -6,6 +6,8 @@
 - 当前转向原生全屏演出输入限制。`HideUIAction.onlyBlockInput` 原先验证后丢弃，现以专用来源类型保留 true/false；仍未投影为运行时操作锁，不宣称已有完整支持。
 - 桌面本地 dump 可见 false 分支设置/清除 `PlayerController.inUltimateCasting`，true 分支发送独立 UICommonMask 请求。输入消费端、正式资源中的起止、重叠和热补丁行为仍待确认；不能把 TimeDilation 区间或整段终结技时长代入。
 - 研究已记入 `D:\Projects\combat-spec\docs\hide-ui-input-lifecycle.md`。本地 dump 日志曾跳过静态表重建，版本配对未完全认证；该目录名不能证明当前版本。复刻库另有既存未提交修改，本轮不合入或覆盖。
+- 后续确认 ToggleUI 发送 ON_TOGGLE_UI_ACTION，操作掩码 getter 另受全局 block 集合约束；尚未读通两者之间的 UI 订阅端。VFS 已后台启动（8765，--no-auto-rebuild），CommonMaskCtrl.lua 存在但仍是第二层密文；已定位 LuaCypher → XXTEA，未解密成功，不能把 preview 当成 Lua 源码。
+- hybrid 快照 e5944e88 的配置来源/charId 范围逐文件校验后，31 名干员的 35 个文件含演出相关动作，34 个 HideUI 全为 false（来源范围，不是可摆放技能覆盖率）。佩丽卡 HideUI 0–52 与 UltimateTime 0–50、自然时长 114 不同；弧光为 0–55 / 0–56 / 141。新增公共动作图回归保留这些独立边界，不按分类或全长合并。下一步优先读通 false 分支的 UI 消息消费，而非扩大其他分支。
 
 #### 2026-09-06 UI 复刻重新验收
 
