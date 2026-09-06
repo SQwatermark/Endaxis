@@ -1,5 +1,12 @@
 # 当前任务快照
 
+#### 2026-09-06 真实跨轨演出诊断回归
+
+- 使用正式 gameDataRepository、SkillSetting 和生产 ScenarioSimulationService，经技能库 placeSkillGroup 到 useScenarioSimulation 的技能块诊断映射，验证佩丽卡第 1 帧终结技、弧光分别第 2/53/54 帧终结技。前两者告警仅落到弧光技能块，最后一种无演出输入告警；三者均保留弧光 SkillStarted、DamageApplied 和作者放置帧，不因告警拒绝执行。
+- 第 53 帧输入先于本帧技能更新；但强行重叠弧光终结技后，其时间膨胀又会推迟佩丽卡 HideUI 的现实结束帧，本场景实测到 110。不可把单独释放的第 53 帧结束硬编码成全局锁长。测试对重叠情况检查结束回执和输入时序关系，只有不重叠场景断言第 53 帧结束；没有为适配测试更改运行时。
+- 4 文件 410 项通过（含全部 325 个正式可放置技能冒烟），应用类型检查通过。此前小型测试仓库未绑定公共 Buff，不能作为完整终结技夹具；新场景使用正式仓库而非手补 Buff。没有改生成产物，未做浏览器视觉验收。
+- 下一步仍是按证据细化其他输入路径与演出结束消费顺序；本轮只是补齐真实场景回归，不宣称统一操作锁或所有重叠行为已经完成游戏内验证。
+
 #### 2026-09-06 演出期间终结技输入诊断
 
 - 已消费复刻库 `docs/hide-ui-input-lifecycle.md` 中 OnPressUltimateSkillStart 对 inUltimateCasting 的明确证据：仅显式 ultimate 玩家操作在演出状态中记录 UltimateInputBlockedByPresentation，经统一可用性投影进入技能块感叹号说明；时间轴仍执行已放置技能，不阻止释放、不改变中断或后续效果。

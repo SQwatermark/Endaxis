@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import type { ScenarioDocument } from '../../core/project/schema';
 import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { perlica, zhuangFangyi } from '../../data/operators';
+import { arclight, perlica, zhuangFangyi } from '../../data/operators';
+import { gameDataRepository } from '../../data/gameDataRepository';
+import { skillSettings } from '../../data/combat/skillSettings';
 import { placeSkillGroup } from './placeSkillGroup';
 import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
 import { useScenarioSimulation, type UseScenarioSimulationResult } from './useScenarioSimulation';
@@ -32,7 +34,7 @@ async function waitFor(predicate: () => boolean, timeoutMs = 1000): Promise<void
   }
 }
 
-function createHarness(initial: ScenarioDocument) {
+function createHarness(initial: ScenarioDocument, simulationService = service) {
   const session = new ScenarioEditorSession(initial);
   const scenario = shallowRef<ScenarioDocument>(initial);
   session.subscribe(snapshot => {
@@ -41,7 +43,7 @@ function createHarness(initial: ScenarioDocument) {
   let result!: UseScenarioSimulationResult;
   const scope = effectScope();
   scope.run(() => {
-    result = useScenarioSimulation({ scenario, service, debounceMs: 0 });
+    result = useScenarioSimulation({ scenario, service: simulationService, debounceMs: 0 });
   });
   return { session, scenario, result, stop: () => scope.stop() };
 }
@@ -70,6 +72,100 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
+  it.each([
+    [2, true],
+    // Input precedes the update that would end Perlica's HideUI without a second cast.
+    [53, true],
+    [54, false],
+  ] as const)(
+    'locates cross-track ultimate presentation diagnostics at authored frame %s (blocked %s)',
+    async (secondFrame, blocked) => {
+      let initial = createPerlicaScenario();
+      const firstTrack = initial.tracks[0]!;
+      initial.tracks[1] = {
+        ...structuredClone(firstTrack),
+        id: 'track:1',
+        operator: { ...firstTrack.operator!, operatorSlug: arclight.slug },
+      };
+      let nextId = 0;
+      const ids = { allocate: (kind: string) => `${kind}:presentation:${nextId++}` };
+      const first = placeSkillGroup({
+        scenario: initial,
+        trackIndex: 0,
+        operator: perlica,
+        skillGroupKey: 'ultimate',
+        startFrame: 1,
+        ids,
+      });
+      const second = placeSkillGroup({
+        scenario: first.scenario,
+        trackIndex: 1,
+        operator: arclight,
+        skillGroupKey: 'ultimate',
+        startFrame: secondFrame,
+        ids,
+      });
+      initial = second.scenario;
+      const harness = createHarness(
+        initial,
+        new ScenarioSimulationService({
+          index: gameDataRepository,
+          spellInflictionSettings: skillSettings,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            ultimateEnergySystemUnlocked: true,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+          },
+        }),
+      );
+      try {
+        const succeeded = await harness.result.simulateNow();
+        expect(succeeded, String(harness.result.error.value)).toBe(true);
+        const diagnostics = harness.result.diagnosticsByCastId.value;
+        expect(diagnostics.get(first.skillCastIds[0]!) ?? []).not.toContain(
+          'ultimateInputDuringPresentation',
+        );
+        expect(
+          (diagnostics.get(second.skillCastIds[0]!) ?? []).includes(
+            'ultimateInputDuringPresentation',
+          ),
+        ).toBe(blocked);
+        const entries = harness.result.run.value!.receiptEntries;
+        const firstPresentationEnd = entries.filter(
+          entry =>
+            entry.event === 'UltimatePresentationChanged' &&
+            entry.sourceId === 'track:0' &&
+            entry.data?.active === false,
+        );
+        expect(firstPresentationEnd).toHaveLength(1);
+        // A forced overlapping ultimate introduces its own time dilation. Do not
+        // turn the isolated 52-local-frame interval into a fixed wall-time lock.
+        if (blocked) expect(firstPresentationEnd[0]!.frame).toBeGreaterThanOrEqual(secondFrame);
+        else expect(firstPresentationEnd[0]!.frame).toBe(53);
+        expect(entries).toContainEqual(
+          expect.objectContaining({
+            event: 'SkillStarted',
+            frame: secondFrame,
+            sourceId: 'track:1',
+          }),
+        );
+        expect(entries).toContainEqual(
+          expect.objectContaining({
+            event: 'DamageApplied',
+            sourceId: 'track:1',
+          }),
+        );
+        expect(
+          entries.filter(entry => entry.event === 'UltimateInputBlockedByPresentation'),
+        ).toHaveLength(blocked ? 1 : 0);
+        expect(initial.tracks[1]!.skillCasts[0]!.placement.startFrame).toBe(secondFrame);
+      } finally {
+        harness.stop();
+      }
+    },
+  );
+
   it('取消拖动恢复原场景后，不发布迟到的临时模拟结果', async () => {
     const initial = createPerlicaScenario();
     const scenario = shallowRef<ScenarioDocument>(initial);
