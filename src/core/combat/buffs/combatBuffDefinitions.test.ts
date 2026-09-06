@@ -840,7 +840,7 @@ describe('compileCombatBuffDefinitions', () => {
       buffs: [
         {
           id: 'status.damage',
-          stackingType: 'unique',
+          stackingType: 'unlimited',
           blackboard: { atk_scale: 0 },
           actions: {
             start: [
@@ -864,11 +864,12 @@ describe('compileCombatBuffDefinitions', () => {
     const definition = index.get('status.damage');
     if (definition === undefined) throw new Error('compiled test buff is missing');
 
-    new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>()).add(
-      definition,
-      'operator',
-      { blackboardValues: { atk_scale: 1.75 } },
-    );
+    const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
+    const first = container.add(definition, 'operator', {
+      blackboardValues: { atk_scale: 1.75 },
+      sourceActionId: 'cast:first',
+    });
+    if (first === null) throw new Error('first test buff was not added');
 
     expect(onDamage).toHaveBeenCalledWith({
       damageType: 'nature',
@@ -877,6 +878,41 @@ describe('compileCombatBuffDefinitions', () => {
       features: [],
       canCritical: true,
       sourceId: 'operator',
+      buffId: 'status.damage',
+      buffInstanceId: first.instanceId,
+      buffOwnerId: 'enemy',
+      sourceActionId: 'cast:first',
     });
+    const second = container.add(definition, 'operator', {
+      blackboardValues: { atk_scale: 2 },
+      sourceActionId: 'cast:second',
+    });
+    if (second === null) throw new Error('second test buff was not added');
+    expect(second.instanceId).not.toBe(first.instanceId);
+    expect(onDamage).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        buffInstanceId: second.instanceId,
+        buffOwnerId: 'enemy',
+        sourceActionId: 'cast:second',
+        attackScale: 2,
+      }),
+    );
+    const ally = new CombatBuffContainer('ally', new CombatAttributeSet<Attribute>()).add(
+      definition,
+      'operator',
+      { blackboardValues: { atk_scale: 3 } },
+    );
+    if (ally === null) throw new Error('ally test buff was not added');
+    expect(onDamage).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({
+        buffInstanceId: ally.instanceId,
+        buffOwnerId: 'ally',
+        buffId: 'status.damage',
+        sourceActionId: 'status.damage',
+        attackScale: 3,
+      }),
+    );
   });
 });

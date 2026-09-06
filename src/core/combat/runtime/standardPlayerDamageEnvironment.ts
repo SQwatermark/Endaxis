@@ -1282,14 +1282,13 @@ export class StandardPlayerDamageEnvironment {
   }
 
   /** 执行复合状态 Buff 生命周期中的原生 DamageAction。 */
-  #onBuffDamageTriggered(payload: {
-    readonly damageType: import('../../game-data/operatorDefinition').DamageType;
-    readonly attackScale: number;
-    readonly tags: readonly DamageTag[];
-    readonly features: readonly DamageFeature[];
-    readonly canCritical: boolean;
-    readonly sourceId: string;
-  }): void {
+  #onBuffDamageTriggered(
+    payload: Parameters<
+      NonNullable<
+        import('../buffs/combatBuffDefinitions').CombatBuffDefinitionCompilerPorts<string>['onAttackScaledDamageTriggered']
+      >
+    >[0],
+  ): void {
     const panel = this.#operatorPanels.get(payload.sourceId);
     if (panel === undefined) {
       throw new Error(`buff damage source operator '${payload.sourceId}' has no resolved panel`);
@@ -1330,6 +1329,12 @@ export class StandardPlayerDamageEnvironment {
         },
       }),
     );
+    const buffIdentity = {
+      buffId: payload.buffId,
+      buffInstanceId: payload.buffInstanceId,
+      buffOwnerId: payload.buffOwnerId,
+      sourceActionId: payload.sourceActionId,
+    };
     const state = executeHealthDamage({
       sourceId: payload.sourceId,
       targetId: 'enemy',
@@ -1337,6 +1342,7 @@ export class StandardPlayerDamageEnvironment {
       tags: payload.tags,
       features: payload.features,
       result: damage,
+      detail: buffIdentity,
       target: this.enemyVitals,
       clock: this.#requireClock(),
       receipt: this.#requireReceipt(),
@@ -1350,6 +1356,7 @@ export class StandardPlayerDamageEnvironment {
       sourceId: payload.sourceId,
       targetId: 'enemy',
       data: {
+        ...buffIdentity,
         damageType: payload.damageType,
         attackScale: payload.attackScale,
         value: damage.value,

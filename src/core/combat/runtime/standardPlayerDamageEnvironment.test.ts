@@ -317,6 +317,34 @@ it.each(['burst', 'buff'] as const)(
         entry => entry.event === 'DamageApplied',
       );
       expect(hits).toHaveLength(1);
+      if (route === 'buff') {
+        expect(hits[0]).toMatchObject({
+          sourceId: 'operator',
+          targetId: 'enemy',
+          data: {
+            buffId: 'burst.electric',
+            buffOwnerId: 'enemy',
+            buffInstanceId: expect.any(Number),
+            sourceActionId: expect.any(String),
+          },
+        });
+        const audits = (context.receipt as CombatReceiptCollector).entries.filter(
+          entry => entry.event === 'BuffDamageApplied',
+        );
+        expect(audits).toHaveLength(1);
+        const applied = (context.receipt as CombatReceiptCollector).entries.find(
+          entry => entry.event === 'BuffApplied' && entry.data?.buffId === 'burst.electric',
+        );
+        expect(applied).toBeDefined();
+        expect(hits[0]!.data!.buffInstanceId).toBe(applied!.data!.instanceId);
+        expect(hits[0]!.data!.buffOwnerId).toBe(applied!.targetId);
+        expect(hits[0]!.data!.sourceActionId).toBe(applied!.data!.sourceActionId);
+        for (const key of ['buffId', 'buffOwnerId', 'buffInstanceId', 'sourceActionId']) {
+          expect(audits[0]!.data![key]).toBe(hits[0]!.data![key]);
+        }
+      } else {
+        expect(hits[0]!.data).not.toHaveProperty('buffInstanceId');
+      }
       return hits[0]!.data;
     };
     expect(run(0.2, 1)).toMatchObject({ isCritical: false, criticalMultiplier: 1 });

@@ -43,6 +43,11 @@ export interface HealthDamageEventPayload {
 
 /** 旧版伤害详情能够直接显示、且已经由本次公式确定的冻结值。 */
 export interface HealthDamageReceiptDetail {
+  /** 执行伤害动作的真实 Buff 身份；所属实体不一定是伤害目标。 */
+  readonly buffId?: string;
+  readonly buffInstanceId?: number;
+  readonly buffOwnerId?: string;
+  readonly sourceActionId?: string;
   /** 本次伤害确由法术爆发执行器结算，不通过同帧事件推测。 */
   readonly spellBurstType?: string;
   readonly spellBurstEnhanceFactor?: number;

@@ -107,6 +107,10 @@ export interface CombatBuffDefinitionCompilerPorts<Key extends string> {
     readonly features: readonly DamageFeature[];
     readonly canCritical: boolean;
     readonly sourceId: string;
+    readonly buffId: string;
+    readonly buffInstanceId: number;
+    readonly buffOwnerId: string;
+    readonly sourceActionId: string;
   }) => void;
 }
 
@@ -1694,6 +1698,10 @@ function compileDefinitionActionList<Key extends string>(
             features: action.features,
             canCritical: action.canCritical,
             sourceId: buff.sourceId,
+            buffId: buff.definition.id,
+            buffInstanceId: buff.instanceId,
+            buffOwnerId: buff.owner.ownerId,
+            sourceActionId: buff.sourceActionId,
           });
       }
       case 'visualOnly':

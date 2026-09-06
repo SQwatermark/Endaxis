@@ -1,5 +1,18 @@
 # 当前任务快照
 
+#### 2026-09-06 Buff 伤害保留执行实例身份
+
+- dealAttackScaledDamage 从实际执行 Buff 传出 buffId、buffInstanceId、buffOwnerId、
+  sourceActionId；装配层直接复用编译端口参数类型，避免两处重复定义回调协议。
+- 同一身份写入实际 DamageApplied 和审计 BuffDamageApplied；没有新增伤害结算，
+  没有改公式、暴击随机流或事件发布。Buff 所属实体与伤害目标分开记录。
+- 81 项相关测试通过，并追加复跑 51 项装配测试：实际伤害身份与 BuffApplied
+  生命周期吻合；多个实例、不同所属实体、不同来源动作保留各自身份。
+  应用类型检查通过；测试夹具显式检查 Buff 添加结果，未使用非空断言绕过返回空值。
+- 此轮未改 UI、未进行浏览器视觉验收。下一步仍需冻结 Buff 伤害公式详情，再按
+  精确实例身份接状态行 hit。不能把所有 Buff 伤害认定为周期伤害，也不能把隐藏
+  helper Buff 猜配到可见状态行。法术爆发仍走独立回执识别逻辑。
+
 #### 2026-09-06 爆发来源自定义模板名与后续状态伤害边界
 
 - 爆发来源此前用 operatorAssetSlug 直接查游戏名，绕过了项目自定义模板 displayName。
