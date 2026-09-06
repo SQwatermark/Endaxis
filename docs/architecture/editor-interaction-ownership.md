@@ -8,6 +8,12 @@
 
 ### 2026-09-07 逻辑区域基础设施（页面尚未迁移）
 
+Vue 入口现为 useKeyboardInputRegion({label, parent?, modal?, active})，返回区域身份，
+向后代提供区域。scope 默认继承注入上下文，显式 region 优先。由于 Vue 组件不能
+注入自身刚 provide 的值，同一 setup 内的自有命令必须显式 region，不能假设自动
+继承。程序式服务确认也需要显式父区域。active 同步切换，组件 scope 释放时销毁；
+父先卸载后的子状态更新不会复活已失效身份。正式页面尚未调用根区域入口。
+
 KeyboardShortcutRouter.regions 创建独立身份的 InputRegion，父指针不可变；activate
 返回幂等释放函数，释放后恢复先前区域。活动模态存在时禁止激活其外部背景；
 dispose 父区域使所有后代失效，包括 Teleport 子区域。

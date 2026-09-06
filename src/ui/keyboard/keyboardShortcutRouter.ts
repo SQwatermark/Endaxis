@@ -1,5 +1,10 @@
 import { onScopeDispose, watchEffect } from 'vue';
 import { InputRegions, type InputRegion } from './inputRegions';
+import {
+  inheritedInputRegion,
+  useInputRegion,
+  type InputRegionOptions,
+} from './inputRegionContext';
 
 /**
  * 页面级快捷键作用域。优先级较高的活动作用域先获得按键，处理后不会继续穿透。
@@ -136,6 +141,9 @@ export class KeyboardShortcutRouter {
 }
 
 const pageKeyboardShortcutRouter = new KeyboardShortcutRouter();
+export function useKeyboardInputRegion(options: InputRegionOptions): InputRegion {
+  return useInputRegion(pageKeyboardShortcutRouter.regions, options);
+}
 let listening = false;
 let pageScopeCount = 0;
 
@@ -169,7 +177,10 @@ function ensurePageListener(): void {
 export function useKeyboardShortcutScope(scope: KeyboardShortcutScope): void {
   ensurePageListener();
   pageScopeCount += 1;
-  const unregister = pageKeyboardShortcutRouter.register(scope);
+  const unregister = pageKeyboardShortcutRouter.register({
+    ...scope,
+    region: scope.region ?? inheritedInputRegion(),
+  });
   const stopWatching = watchEffect(() => pageKeyboardShortcutRouter.revokeInactiveKeyboardState(), {
     flush: 'sync',
   });

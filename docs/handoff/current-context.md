@@ -1,5 +1,19 @@
 # 当前任务快照
 
+#### 2026-09-07 Vue 输入区域上下文和生命周期
+
+- useKeyboardInputRegion 绑定页面路由的区域注册表；useInputRegion 负责 Vue 同步
+  active 监听、激活租约释放、卸载销毁。组件 provide/inject 继承逻辑父区域，
+  不看 DOM，所以 Teleport 不会另建根。useKeyboardShortcutScope 自动继承上层
+  提供的区域，显式 region 优先；同一 setup 的自有 scope 必须显式传返回区域。
+- 父区域先销毁时，后代 active 的迟到更新直接忽略，不重新激活已失效身份；
+  后代稍后卸载可幂等清理。覆盖打开/关闭/重新打开/卸载和父先卸载的生命周期测试。
+- 909 项相关回归和应用类型检查通过；随后补充父销毁后的迟到 active 切换检查，
+  区域/上下文 6 项定向测试通过。没有浏览器验收，没有启用正式页面根区域。
+- 下一步整体迁移必须同时包括：TimelineEditor 自身 scope、共享手势作用域、
+  hasModalPanel 对应的编辑弹窗、子浮层和 service-modal；这些完整覆盖前不激活根。
+  特别是程序式确认不在 Vue 子树内，必须显式父区域，不能只依赖 inject。
+
 #### 2026-09-07 逻辑父子输入区域基础与统一候选集
 
 - 新增 InputRegions：稳定身份、不可变父关系、模态边界、激活租约、幂等释放、

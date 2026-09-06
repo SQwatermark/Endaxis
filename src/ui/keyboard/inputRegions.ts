@@ -6,6 +6,9 @@ export interface InputRegion {
 }
 
 export class InputRegions {
+  contains(region: InputRegion): boolean {
+    return this.#isLive(region);
+  }
   readonly #listeners = new Set<() => void>();
   onChange(listener: () => void): () => void {
     this.#listeners.add(listener);
