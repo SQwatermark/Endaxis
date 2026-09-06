@@ -1,6 +1,30 @@
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import type { DamageType } from '../../core/game-data/operatorDefinition';
 import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
+import type { PublishedScenarioSimulation } from './useScenarioSimulation';
+
+/** 分析的归属、统计区间和回执必须来自同一次发布，不能混入正在编辑的场景。 */
+export function projectPublishedTimelineDamageAnalysis(
+  published: PublishedScenarioSimulation | null,
+  operatorLabel: (slug: string | null) => string,
+  damageTypeLabel: (damageType: DamageType) => string,
+): TimelineDamageAnalysis {
+  if (published === null)
+    return {
+      totalDamage: 0,
+      rotationSeconds: 0,
+      dps: 0,
+      byOperator: [],
+      byDamageType: [],
+      unattributedDamage: 0,
+    };
+  return projectTimelineDamageAnalysis(
+    published.run.receiptEntries,
+    published.scenario,
+    index => operatorLabel(published.scenario.tracks[index]?.operator?.operatorSlug ?? null),
+    damageTypeLabel,
+  );
+}
 
 export interface TimelineDamageAnalysisEntry {
   readonly key: string;

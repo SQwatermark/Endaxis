@@ -343,7 +343,7 @@ import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
 import BattleLogPanel from './components/BattleLogPanel.vue';
 import TimelineShortcutHelpDialog from './components/TimelineShortcutHelpDialog.vue';
 import TimelineMarkerContextMenu from './components/TimelineMarkerContextMenu.vue';
-import { projectTimelineDamageAnalysis } from './timelineDamageAnalysis';
+import { projectPublishedTimelineDamageAnalysis } from './timelineDamageAnalysis';
 import {
   TIMELINE_VIEW_LAYER_IDS,
   normalizeTimelineViewLayers,
@@ -660,13 +660,9 @@ const activeProjectScenarioId = computed(() => {
   return projectSession.snapshot.project.activeScenarioId;
 });
 const damageAnalysis = computed(() =>
-  projectTimelineDamageAnalysis(
-    simulationRun.value?.receiptEntries ?? [],
-    scenario.value,
-    trackIndex => {
-      const track = viewModel.value.tracks[trackIndex];
-      return track === undefined ? `Operator ${trackIndex + 1}` : operatorName(track.operatorSlug);
-    },
+  projectPublishedTimelineDamageAnalysis(
+    publishedSimulation.value,
+    operatorName,
     damageElementLabel,
   ),
 );
@@ -1015,6 +1011,7 @@ const skillPlacementTransaction = new SkillPlacementTransaction(
 );
 onScopeDispose(() => skillPlacementTransaction.cancel());
 const {
+  published: publishedSimulation,
   run: simulationRun,
   running: simulationRunning,
   stale: simulationStale,
@@ -6247,7 +6244,16 @@ function setPanelDialogVisible(visible: boolean): void {
       contributionUnavailable: t('timeline.analysis.contributionUnavailable'),
     }"
     @update:visible="showDamageAnalysis = $event"
-  />
+  >
+    <template #status>
+      <TimelineSimulationStatus
+        :running="simulationRunning"
+        :stale="simulationStale"
+        :error="simulationError"
+        :has-result="simulationRun !== null"
+      />
+    </template>
+  </DamageAnalysisDialog>
   <TimelineShortcutHelpDialog
     :visible="showShortcutHelp"
     @update:visible="showShortcutHelp = $event"

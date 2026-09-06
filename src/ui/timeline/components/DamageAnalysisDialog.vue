@@ -49,6 +49,7 @@ function formatNumber(value: number): string {
         <strong class="analysis-title">{{ labels.title }}</strong>
       </template>
 
+      <slot name="status" />
       <div class="analysis-warning">{{ labels.warning }}</div>
       <div v-if="!hasData" class="analysis-empty">{{ labels.noData }}</div>
       <template v-else>
