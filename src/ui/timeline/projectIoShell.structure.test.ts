@@ -11,7 +11,7 @@ describe('Next project I/O shell', () => {
   });
 
   it('routes project files through the application open boundary', () => {
-    expect(editorSource).toContain('import { openProject, type OpenProjectResult }');
+    expect(editorSource).toContain('import { openProject }');
     expect(editorSource).toContain('await projectFileReader.read(file)');
     expect(editorSource).toContain('if (content === null) return');
     expect(editorSource).toContain('openProject(content,');
