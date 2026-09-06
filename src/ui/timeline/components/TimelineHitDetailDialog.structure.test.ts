@@ -18,7 +18,7 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(end).toBeGreaterThan(start);
     const body = editorSource.slice(start, end);
     expect(body).toContain('track?.operator?.operatorSlug');
-    expect(body).toContain('operatorName(operatorSlug)');
+    expect(body).toContain('publishedOperatorName(operatorSlug)');
     expect(body).not.toContain('operatorAssetSlug');
     expect(body).not.toContain('getOperatorGameName(');
   });

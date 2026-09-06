@@ -343,6 +343,10 @@ import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
 import BattleLogPanel from './components/BattleLogPanel.vue';
 import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
 import { capturePublishedBattleLog } from './publishedBattleLog';
+import {
+  capturePublishedOperatorMetadata,
+  type PublishedOperatorMetadata,
+} from './publishedOperatorMetadata';
 import TimelineShortcutHelpDialog from './components/TimelineShortcutHelpDialog.vue';
 import TimelineMarkerContextMenu from './components/TimelineMarkerContextMenu.vue';
 import { projectPublishedTimelineDamageAnalysis } from './timelineDamageAnalysis';
@@ -664,7 +668,7 @@ const activeProjectScenarioId = computed(() => {
 const damageAnalysis = computed(() =>
   projectPublishedTimelineDamageAnalysis(
     publishedSimulation.value,
-    operatorName,
+    publishedOperatorName,
     damageElementLabel,
   ),
 );
@@ -986,6 +990,7 @@ watch(selectedTrack, () => {
   };
 });
 const battleLogSnapshot = shallowRef<TimelineBattleLogSnapshot | null>(null);
+const publishedOperators = shallowRef<ReadonlyMap<string, PublishedOperatorMetadata>>(new Map());
 const simulationService = new ScenarioSimulationService({
   index: editorGameDataRepository,
   repositoryRevision: gameDataRepository.revision,
@@ -1021,16 +1026,26 @@ watch(
   published => {
     if (published === null) {
       battleLogSnapshot.value = null;
+      publishedOperators.value = new Map();
       return;
     }
-    battleLogSnapshot.value = capturePublishedBattleLog(published, editorGameDataRepository, {
-      skill: timelineCastLabel,
-      operator: name =>
-        name.displayName ??
-        (name.assetSlug === null
-          ? t('timeline.emptyTrack')
-          : getOperatorGameName(name.assetSlug, locale.value)),
-    });
+    publishedOperators.value = capturePublishedOperatorMetadata(
+      published.scenario,
+      editorGameDataRepository,
+    );
+    battleLogSnapshot.value = capturePublishedBattleLog(
+      published,
+      editorGameDataRepository,
+      publishedOperators.value,
+      {
+        skill: timelineCastLabel,
+        operator: name =>
+          name.displayName ??
+          (name.assetSlug === null
+            ? t('timeline.emptyTrack')
+            : getOperatorGameName(name.assetSlug, locale.value)),
+      },
+    );
   },
   { flush: 'sync' },
 );
@@ -2484,7 +2499,7 @@ function enemyDamageSourceDescription(entry: CombatReceiptEntry) {
   );
   const operatorSlug = track?.operator?.operatorSlug;
   return [
-    operatorSlug ? operatorName(operatorSlug) : entry.sourceId,
+    operatorSlug ? publishedOperatorName(operatorSlug) : entry.sourceId,
     buffSourceName({ sourceActionId }),
     typeof entry.data?.spellBurstType === 'string'
       ? t('battleLog.receiptTypes.SpellBurstApplied')
@@ -2545,7 +2560,7 @@ function hitDetailContributionSourceLabel(
     operator:
       operatorSlug === null || operatorSlug === undefined
         ? null
-        : (editorGameDataRepository.getOperator(operatorSlug) ?? null),
+        : (publishedOperators.value.get(operatorSlug) ?? null),
     locale: locale.value,
     translate: t,
   });
@@ -2624,6 +2639,12 @@ const cursorGuideLabelAlign = computed<'left' | 'right'>(() => {
   const viewportX = TIMELINE_TRACK_HEADER_WIDTH + guide.leftPx - timelineScrollLeft.value;
   return viewportX > timelineViewportWidth.value - 190 && viewportX > 190 ? 'left' : 'right';
 });
+
+function publishedOperatorName(slug: string | null): string {
+  if (slug === null) return t('timeline.emptyTrack');
+  const metadata = publishedOperators.value.get(slug);
+  return metadata?.displayName ?? getOperatorGameName(metadata?.assetSlug ?? slug, locale.value);
+}
 
 function operatorName(slug: string | null): string {
   if (slug === null) return t('timeline.emptyTrack');

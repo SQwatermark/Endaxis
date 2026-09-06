@@ -1,5 +1,18 @@
 # 当前任务快照
 
+#### 2026-09-07 共用结果来源元数据捕获边界
+
+- 新增 capturePublishedOperatorMetadata，在模拟发布时只捕获干员 slug/assetSlug/
+  displayName 与天赋、潜能 key/levels；不复制技能树，不在每次显示时读取新模板。
+- 分析的干员名称、敌人附加命中的干员名称、命中攻击贡献的天赋/潜能索引以及日志
+  名称共用此元数据。日志仍独立保留其发布时轨道/技能投影及延迟本地化规则。
+  OperatorPanelContributionPresentationContext 收窄到真正需要的字段，当前实例面板
+  仍可传完整定义，已发布结果则传捕获的最小结构。
+- 982 项相关回归及应用类型检查通过。捕获测试追加修改原定义名称、天赋key/levels
+  后快照不漂移的验证，断言未复制 skills。已有日志本地化回归仍通过。
+- 本轮为来源数据边界调整，无布局改动，未新增浏览器视觉验收。不宣称全部来源已
+  历史化：buffSourceName 的动作/合约说明仍有当前 viewModel/定义库读取，需继续核对。
+
 #### 2026-09-07 日志来源事实冻结，本地化显示不冻结
 
 - 收整 d98ad1be 遗留边界：捕获时不再只保存翻译后的字符串。capturePublishedBattleLog

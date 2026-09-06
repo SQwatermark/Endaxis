@@ -3,6 +3,7 @@ import { createEmptyScenario } from '../../core/project/createProject';
 import { perlica } from '../../data/operators';
 import type { PublishedScenarioSimulation } from './useScenarioSimulation';
 import { capturePublishedBattleLog } from './publishedBattleLog';
+import { capturePublishedOperatorMetadata } from './publishedOperatorMetadata';
 
 it('captures definition metadata once, while localization uses the captured identity', () => {
   const scenario = createEmptyScenario('test', 'test');
@@ -28,13 +29,20 @@ it('captures definition metadata once, while localization uses the captured iden
       },
     ],
   };
-  const definition = { ...perlica, displayName: 'captured custom name' };
+  const definition = {
+    ...perlica,
+    displayName: 'captured custom name',
+    talents: perlica.talents.map(talent => ({ ...talent })),
+  };
   const index = { getOperator: vi.fn(() => definition) };
   const entries: PublishedScenarioSimulation['run']['receiptEntries'] = [];
   let language = 'zh';
+  const operators = capturePublishedOperatorMetadata(scenario, index);
+  const originalTalent = { ...operators.get(perlica.slug)!.talents[0] };
   const snapshot = capturePublishedBattleLog(
     { scenario, run: { receiptEntries: entries } as unknown as PublishedScenarioSimulation['run'] },
     index,
+    operators,
     {
       skill: () => (language === 'zh' ? '战技' : 'Battle skill'),
       operator: name => `${name.displayName}:${language}`,
@@ -42,6 +50,10 @@ it('captures definition metadata once, while localization uses the captured iden
   );
   const reads = index.getOperator.mock.calls.length;
   definition.displayName = 'edited name';
+  definition.talents[0]!.key = 'edited-key';
+  definition.talents[0]!.levels = 99;
+  expect(operators.get(perlica.slug)!.talents[0]).toEqual(originalTalent);
+  expect(Object.keys(operators.get(perlica.slug)!)).not.toContain('skills');
   expect(snapshot.resolveCastOwners()[0]?.operatorLabel).toBe('captured custom name:zh');
   language = 'en';
   expect(snapshot.resolveCastOwners()[0]).toMatchObject({

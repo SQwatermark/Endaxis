@@ -1,4 +1,4 @@
-import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import type { PublishedOperatorMetadata } from './publishedOperatorMetadata';
 import type {
   OperatorPanelContributionReceipt,
   ResolvedOperatorPanel,
@@ -12,7 +12,7 @@ import {
 } from '../gameText';
 
 export interface OperatorPanelContributionPresentationContext {
-  readonly operator: OperatorDefinition | null;
+  readonly operator: Pick<PublishedOperatorMetadata, 'slug' | 'talents' | 'potentials'> | null;
   readonly locale: string;
   readonly translate: (key: string, params?: Record<string, unknown>) => string;
 }

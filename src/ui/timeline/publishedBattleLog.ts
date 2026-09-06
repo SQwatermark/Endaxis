@@ -1,5 +1,6 @@
 import type { PublishedScenarioSimulation } from './useScenarioSimulation';
 import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
+import type { PublishedOperatorMetadata } from './publishedOperatorMetadata';
 import {
   projectTimelineEditor,
   type TimelineOperatorIndex,
@@ -17,6 +18,7 @@ export interface PublishedOperatorName {
 export function capturePublishedBattleLog(
   published: PublishedScenarioSimulation,
   index: TimelineOperatorIndex,
+  operators: ReadonlyMap<string, PublishedOperatorMetadata>,
   labels: {
     skill: (cast: TimelineSkillCastViewModel, track: TimelineTrackViewModel) => string;
     operator: (name: PublishedOperatorName) => string;
@@ -24,7 +26,7 @@ export function capturePublishedBattleLog(
 ): TimelineBattleLogSnapshot {
   const view = projectTimelineEditor(published.scenario, index);
   const tracks = view.tracks.map(track => {
-    const definition = track.operatorSlug === null ? null : index.getOperator(track.operatorSlug);
+    const definition = track.operatorSlug === null ? null : operators.get(track.operatorSlug);
     return {
       track,
       name: {
