@@ -530,13 +530,20 @@ function save(): void {
 }
 @media (max-width: 760px) {
   .entity-workspace {
-    grid-template-columns: 1fr;
+    grid-template-columns: 150px minmax(0, 1fr);
   }
-  .entity-workspace__sidebar {
-    max-height: 220px;
+  .entity-reference-guard {
+    max-height: 48px;
+    box-sizing: border-box;
     overflow: auto;
-    border-right: 0;
-    border-bottom: 1px solid var(--ea-border-soft);
+    flex: none;
+  }
+  .entity-workspace__toolbar {
+    min-height: 36px;
+    padding: 0 8px;
+  }
+  .entity-workspace__heading span {
+    display: none;
   }
 }
 :global(.ability-entity-definitions-dialog) {

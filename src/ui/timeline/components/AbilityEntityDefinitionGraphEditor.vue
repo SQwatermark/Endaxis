@@ -1078,6 +1078,15 @@ button {
     display: none;
   }
 }
+@container entity-map (max-width: 320px) {
+  .fill-available :deep(.map-toolbar) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .fill-available :deep(.map-toolbar > *) {
+    flex-shrink: 0;
+  }
+}
 .fill-available .definition-inspector {
   min-height: 0;
   padding: 10px;

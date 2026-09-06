@@ -2133,4 +2133,30 @@ input:disabled {
     grid-template-columns: 1fr;
   }
 }
+@media (max-width: 760px) {
+  .entity-editing .workspace-breadcrumbs {
+    display: none;
+  }
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .workspace-nav {
+    display: flex;
+    padding: 4px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid #343438;
+  }
+  .workspace-nav .nav-caption {
+    display: none;
+  }
+  .workspace-nav button {
+    flex: none;
+    width: auto;
+    white-space: nowrap;
+    gap: 8px;
+    padding: 8px;
+  }
+}
 </style>
