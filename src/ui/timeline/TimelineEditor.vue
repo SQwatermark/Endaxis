@@ -190,6 +190,7 @@ import {
   projectTimelineTimeDilationBands,
 } from './timelineDisplayTime';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
+import { timelineVisibleSkillEnds } from './timelineVisibleSkillEnds';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
 import {
   createEmptyTimelineActionSelection,
@@ -1817,6 +1818,21 @@ function castActualStartFrame(castId: string, placementFrame: number): number {
 function castActualDurationFrame(castId: string, definitionDurationFrames: number): number {
   return skillCastActualDurationFrames.value.get(castId) ?? definitionDurationFrames;
 }
+
+const visibleSkillEndFrames = computed(() => {
+  const ends = new Map<string, number>();
+  for (const track of viewModel.value.tracks) {
+    for (const [id, end] of timelineVisibleSkillEnds(
+      track.skillCasts.map(cast => ({
+        id: cast.id,
+        startFrame: castActualStartFrame(cast.id, cast.startFrame),
+        durationFrames: castActualDurationFrame(cast.id, cast.durationFrames),
+      })),
+    ))
+      ends.set(id, end);
+  }
+  return ends;
+});
 
 function castActualDurationPending(castId: string, definitionDurationFrames: number): boolean {
   return (
@@ -5336,7 +5352,11 @@ function setPanelDialogVisible(visible: boolean): void {
                   :width="
                     timelineFrameSpanPx(
                       castActualStartFrame(cast.id, cast.startFrame),
-                      castActualDurationFrame(cast.id, cast.durationFrames),
+                      Math.max(
+                        0,
+                        (visibleSkillEndFrames.get(cast.id) ?? cast.startFrame) -
+                          castActualStartFrame(cast.id, cast.startFrame),
+                      ),
                     )
                   "
                   :stack-order="castIndex"

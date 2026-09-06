@@ -5,7 +5,7 @@ import source from './TimelineActionBlock.vue?raw';
 describe('TimelineActionBlock legacy visual parity', () => {
   it('keeps projected geometry and the legacy skill-type borders', () => {
     expect(source).toContain('left: `${props.left}px`');
-    expect(source).toContain('width: `${Math.max(1, props.width)}px`');
+    expect(source).toContain('width: `${Math.max(2, props.width)}px`');
     expect(source).toContain('height: 50px');
     expect(source).toContain('border: 2px dashed var(--action-accent)');
     expect(source).toContain("[data-skill-type='basicAttack']");

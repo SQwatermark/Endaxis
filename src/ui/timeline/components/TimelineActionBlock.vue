@@ -83,7 +83,7 @@ const showConnectionPorts = computed(() => {
 
 const blockStyle = computed(() => ({
   left: `${props.left}px`,
-  width: `${Math.max(1, props.width)}px`,
+  width: `${Math.max(2, props.width)}px`,
   zIndex: `calc(${props.moving ? 20000 : props.selected ? 10000 : 2} + ${props.stackOrder ?? 0})`,
   ...(props.color ? { '--action-accent': props.color } : {}),
 }));
