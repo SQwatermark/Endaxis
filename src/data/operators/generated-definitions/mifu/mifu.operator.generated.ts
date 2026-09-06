@@ -3302,6 +3302,7 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
         ),
         118,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 71),
       scheduled(
         0,
         sequence(

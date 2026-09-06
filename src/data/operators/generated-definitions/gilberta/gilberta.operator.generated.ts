@@ -1042,6 +1042,7 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
         ),
         3,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 53),
       scheduled(
         0,
         sequence(
@@ -1066,7 +1067,7 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0013_aglina_ultimate_skill:/scheduledSequences/2/sequence/steps/1',
+            'chr_0013_aglina_ultimate_skill:/scheduledSequences/3/sequence/steps/1',
           ),
         ),
         60,

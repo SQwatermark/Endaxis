@@ -4209,6 +4209,7 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
         ),
         64,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 61),
       scheduled(
         0,
         sequence(

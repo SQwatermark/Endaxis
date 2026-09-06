@@ -849,6 +849,7 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
         ),
         56,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 56),
       scheduled(
         0,
         sequence(

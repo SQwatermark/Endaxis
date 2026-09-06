@@ -1731,6 +1731,7 @@ export const antalUltimate: SkillDefinition = withSkillBlackboard(
         ),
         42,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 44),
       scheduled(
         0,
         sequence(

@@ -2159,6 +2159,7 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
         ),
         78,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 78),
       scheduled(
         0,
         sequence(

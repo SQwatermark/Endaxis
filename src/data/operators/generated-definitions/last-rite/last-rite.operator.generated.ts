@@ -990,6 +990,7 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
         ),
         85,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 85),
       scheduled(
         0,
         sequence(
@@ -1005,16 +1006,16 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         86,
         instantiateActionSequence(sharedActionSequence1, [
-          'chr_0026_lastrite_ultimate_skill:/scheduledSequences/4/sequence/steps/0/body/steps/0/whenTrue/steps/0',
-          'chr_0026_lastrite_ultimate_skill:/scheduledSequences/4/sequence/steps/0/body/steps/0/whenFalse/steps/0',
+          'chr_0026_lastrite_ultimate_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/whenTrue/steps/0',
+          'chr_0026_lastrite_ultimate_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/whenFalse/steps/0',
         ]),
         89,
       ),
       scheduled(
         105,
         instantiateActionSequence(sharedActionSequence1, [
-          'chr_0026_lastrite_ultimate_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/whenTrue/steps/0',
-          'chr_0026_lastrite_ultimate_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/whenFalse/steps/0',
+          'chr_0026_lastrite_ultimate_skill:/scheduledSequences/6/sequence/steps/0/body/steps/0/whenTrue/steps/0',
+          'chr_0026_lastrite_ultimate_skill:/scheduledSequences/6/sequence/steps/0/body/steps/0/whenFalse/steps/0',
         ]),
         108,
       ),
@@ -1049,7 +1050,7 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
                       ],
                       stagger: { kind: 'blackboard', key: 'poise2' },
                     },
-                    'chr_0026_lastrite_ultimate_skill:/scheduledSequences/6/sequence/steps/0/body/steps/0/whenTrue/steps/0',
+                    'chr_0026_lastrite_ultimate_skill:/scheduledSequences/7/sequence/steps/0/body/steps/0/whenTrue/steps/0',
                   ),
                 ),
                 sequence(
@@ -1062,7 +1063,7 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
                       features: ['canBreakWeakness'],
                       stagger: { kind: 'blackboard', key: 'poise2' },
                     },
-                    'chr_0026_lastrite_ultimate_skill:/scheduledSequences/6/sequence/steps/0/body/steps/0/whenFalse/steps/0',
+                    'chr_0026_lastrite_ultimate_skill:/scheduledSequences/7/sequence/steps/0/body/steps/0/whenFalse/steps/0',
                   ),
                 ),
                 { alwaysNext: true },

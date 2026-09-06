@@ -827,6 +827,7 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
         ),
         50,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 52),
       scheduled(
         58,
         sequence(
@@ -848,7 +849,7 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
               ],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0004_pelica_ultimate_skill:/scheduledSequences/2/sequence/steps/0',
+            'chr_0004_pelica_ultimate_skill:/scheduledSequences/3/sequence/steps/0',
           ),
         ),
         63,

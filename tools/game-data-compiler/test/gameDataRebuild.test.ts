@@ -8,10 +8,17 @@ import {
   parseRebuildArguments,
   compareCandidateFiles,
   GAME_DATA_REBUILD_BOUNDARIES,
+  GAME_DATA_CANDIDATE_TSCONFIG,
 } from '../scripts/rebuildGameData.ts';
 import { verifyGameDataSnapshot } from '../scripts/verifyGameDataSnapshot.ts';
 
 const roots: string[] = [];
+it('候选类型门禁使用当前应用配置，不引用已经删除的 Next 配置', async () => {
+  const config = JSON.parse(
+    await fs.readFile(new URL(`../../../${GAME_DATA_CANDIDATE_TSCONFIG}`, import.meta.url), 'utf8'),
+  );
+  expect(config.include).toContain('src/**/*.ts');
+});
 afterEach(async () => {
   vi.unstubAllGlobals();
   for (const root of roots.splice(0)) await fs.rm(root, { recursive: true, force: true });

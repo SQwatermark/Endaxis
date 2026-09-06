@@ -4696,6 +4696,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
         ),
         155,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 57),
       scheduled(
         0,
         sequence(
@@ -4777,7 +4778,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/11/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/12/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -4802,7 +4803,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/12/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/13/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -4827,7 +4828,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/13/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/14/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -4852,7 +4853,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/14/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/15/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -4877,7 +4878,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/15/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/16/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -4902,7 +4903,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/16/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/17/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -4927,7 +4928,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/17/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/18/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -4952,7 +4953,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/18/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/19/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -4977,7 +4978,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/19/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/20/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5002,7 +5003,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/20/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/21/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5027,7 +5028,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/21/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/22/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5052,7 +5053,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/22/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/23/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5077,7 +5078,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/23/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/24/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5102,7 +5103,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/24/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/25/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5127,7 +5128,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/25/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/26/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5152,7 +5153,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/26/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/27/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5177,7 +5178,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/27/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/28/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5202,7 +5203,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/28/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/29/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5227,7 +5228,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/29/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/30/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5252,7 +5253,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/30/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/31/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5277,7 +5278,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/31/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/32/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5302,7 +5303,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/32/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/33/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5327,7 +5328,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/33/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/34/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5352,7 +5353,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/34/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/35/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',
@@ -5377,7 +5378,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
               tags: ['ultimateSkill'],
               features: ['canBreakWeakness'],
             },
-            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/35/sequence/steps/1',
+            'chr_0028_wulfa_ultimate_skill:/scheduledSequences/36/sequence/steps/1',
           ),
           step('modifyActionValue', {
             key: 'hit_times',

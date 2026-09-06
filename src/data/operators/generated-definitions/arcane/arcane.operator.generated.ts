@@ -1553,6 +1553,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
         ),
         44,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 47),
       scheduled(
         0,
         sequence(
@@ -1933,7 +1934,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0032_lizhiyan_ultimate_skill:/scheduledSequences/8/sequence/steps/2',
+            'chr_0032_lizhiyan_ultimate_skill:/scheduledSequences/9/sequence/steps/2',
           ),
         ),
         47,
@@ -2380,6 +2381,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
         ),
         3,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 50),
       scheduled(
         0,
         sequence(

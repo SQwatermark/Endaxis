@@ -820,6 +820,7 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
         ),
         83,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 55),
       scheduled(
         0,
         sequence(

@@ -987,6 +987,7 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
         ),
         56,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 55),
       scheduled(
         0,
         sequence(

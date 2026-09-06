@@ -2231,6 +2231,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
         ),
         69,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 69),
       scheduled(
         75,
         sequence(
@@ -2244,7 +2245,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
                   tags: ['ultimateSkill'],
                   features: ['canBreakWeakness'],
                 },
-                'chr_0033_camille_ultimate_skill:/scheduledSequences/2/sequence/steps/0/body/steps/0',
+                'chr_0033_camille_ultimate_skill:/scheduledSequences/3/sequence/steps/0/body/steps/0',
               ),
             ),
             {
@@ -2272,7 +2273,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
                   tags: ['ultimateSkill'],
                   features: ['canBreakWeakness'],
                 },
-                'chr_0033_camille_ultimate_skill:/scheduledSequences/3/sequence/steps/0/body/steps/0',
+                'chr_0033_camille_ultimate_skill:/scheduledSequences/4/sequence/steps/0/body/steps/0',
               ),
             ),
             {
@@ -2334,7 +2335,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
                   features: ['canBreakWeakness'],
                   stagger: { kind: 'blackboard', key: 'poise' },
                 },
-                'chr_0033_camille_ultimate_skill:/scheduledSequences/4/sequence/steps/0/body/steps/2',
+                'chr_0033_camille_ultimate_skill:/scheduledSequences/5/sequence/steps/0/body/steps/2',
               ),
               step('startTimeDilation', {
                 scope: 'entity',

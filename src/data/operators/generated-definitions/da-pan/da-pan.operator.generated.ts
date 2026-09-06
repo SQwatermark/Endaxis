@@ -1235,6 +1235,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
         ),
         36,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 46),
       scheduled(
         0,
         sequence(

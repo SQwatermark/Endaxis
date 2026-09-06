@@ -1373,6 +1373,7 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
         ),
         3,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 45),
       scheduled(
         0,
         sequence(
@@ -1452,7 +1453,7 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0012_avywen_ultimate_skill:/scheduledSequences/4/sequence/steps/1',
+            'chr_0012_avywen_ultimate_skill:/scheduledSequences/5/sequence/steps/1',
           ),
           branch(
             {

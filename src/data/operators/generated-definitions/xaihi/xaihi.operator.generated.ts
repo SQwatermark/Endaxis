@@ -903,6 +903,7 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
         ),
         45,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 47),
       scheduled(
         0,
         sequence(

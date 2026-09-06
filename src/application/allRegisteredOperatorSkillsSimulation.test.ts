@@ -113,6 +113,16 @@ describe('所有正式干员技能逐项放置与模拟', () => {
       };
       const identity = skillIdentity({ operator, groupKey, variantKey, skill });
       const placementContext = placeRequiredSkillContext(scenario, identity, operator);
+      const presentationEnd =
+        groupKey !== 'ultimate'
+          ? undefined
+          : operator.slug === 'perlica'
+            ? 52
+            : operator.slug === 'arclight'
+              ? 55
+              : undefined;
+      // 精确演出回归使用已与真实来源探针对齐的零帧起点；非零起点的当帧推进另行核对。
+      const startFrame = presentationEnd === undefined ? placementContext.startFrame : 0;
       const placed = placeSkillGroup({
         scenario: placementContext.scenario,
         trackIndex: 0,
@@ -120,7 +130,7 @@ describe('所有正式干员技能逐项放置与模拟', () => {
         skillGroupKey: groupKey,
         ...(variantKey === undefined ? {} : { variantKey }),
         skillKey: skill.key,
-        startFrame: placementContext.startFrame,
+        startFrame,
         ids: {
           allocate: kind =>
             `${kind}:${operator.slug}:${groupKey}:${variantKey ?? 'base'}:${skill.key}`,
@@ -138,7 +148,20 @@ describe('所有正式干员技能逐项放置与模拟', () => {
       if (expectedFailure !== undefined) {
         await expect(service.simulate(placed, 3600)).rejects.toThrow(expectedFailure);
       } else {
-        await expect(service.simulate(placed, 3600)).resolves.toBeDefined();
+        const result = await service.simulate(placed, 3600);
+        expect(result).toBeDefined();
+        // 1.5.3 真实来源的独立 HideUI 结束帧；不能用 UltimateTime 的 50/56 帧代替。
+        // 固定正式产物门禁，避免只有需要本机来源的可选测试覆盖此链路。
+        if (presentationEnd !== undefined) {
+          expect(
+            result.receiptEntries
+              .filter(entry => entry.event === 'UltimatePresentationChanged')
+              .map(entry => [entry.frame, entry.data?.active]),
+          ).toEqual([
+            [startFrame, true],
+            [presentationEnd, false],
+          ]);
+        }
       }
     },
   );

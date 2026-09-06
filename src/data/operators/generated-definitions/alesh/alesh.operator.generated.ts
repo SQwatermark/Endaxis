@@ -1515,6 +1515,7 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
         ),
         110,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 77),
       scheduled(
         0,
         sequence(

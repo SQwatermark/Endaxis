@@ -867,6 +867,7 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
         ),
         90,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 48),
       scheduled(
         0,
         sequence(

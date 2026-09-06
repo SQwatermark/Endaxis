@@ -1440,6 +1440,7 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
         ),
         84,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 82),
       scheduled(
         0,
         sequence(

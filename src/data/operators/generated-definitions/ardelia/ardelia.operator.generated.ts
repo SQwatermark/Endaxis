@@ -1570,6 +1570,7 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
         ),
         80,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 80),
       scheduled(
         0,
         sequence(

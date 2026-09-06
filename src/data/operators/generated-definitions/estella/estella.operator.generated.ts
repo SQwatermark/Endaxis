@@ -901,6 +901,7 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
         ),
         3,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 54),
       scheduled(
         0,
         sequence(
@@ -1077,7 +1078,7 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
               features: ['canBreakWeakness'],
               stagger: { kind: 'blackboard', key: 'poise' },
             },
-            'chr_0021_whiten_ultimate_skill:/scheduledSequences/3/sequence/steps/3',
+            'chr_0021_whiten_ultimate_skill:/scheduledSequences/4/sequence/steps/3',
           ),
         ),
         57,

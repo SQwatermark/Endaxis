@@ -2,6 +2,12 @@
 
 #### 2026-09-06 技能宽度与演出操作锁调查
 
+- 正式干员已更新：候选 `tmp/hide-ui-candidate-qysEfN` 从 e5944e88 来源逐名生成两次并核对一致，公共 Buff 闭包同样重建/检查一致。潜能 0、5 各通过 325 单技能、198 技能库放置（含 38 连段）、31 整名组合轴，共各 554 场景，结束帧 3600。审计报告位于候选根目录 `audit-potential-0.json` / `audit-potential-5.json`，生成编排探针为忽略的 `tmp/build-hide-ui-candidate.ts`。固定曲线/公共来源目录沿用当前正式基线，不声称全资源零缓存重建。
+- 差分门禁确认 31 份产物只增加 32 个 HideUI 调度，以及调度插入引起的生成伤害路径编号变化；其余文本经规范化比较一致，公共 Buff 文件完全一致。候选 33 文件覆盖、480 数据根文件类型检查通过后，使用事务发布器仅替换 `src/data/operators/generated-definitions`，没有发布其他目录。正式数据现在能产生演出回执，仍未实施输入禁用诊断。
+- 同时修复完整重建流程仍引用已删除 `tsconfig.next.json` 的迁移遗漏，改用当前 `tsconfig.app.json`；增加实际配置存在且包含 `src/**/*.ts` 的回归。重建/候选类型门禁 24 项、生产编译器类型检查通过。该候选类型检查聚焦数据入口及传递依赖，不等同 Vue 视觉验证。
+- 发布后正式全技能 326 项通过（包含两个零帧演出精确断言），`npm run type-check` 通过；无浏览器视觉变更，本轮没有声称 UI 输入锁已验收。
+- 新发现边界需先核对：非零起点的当帧推进。佩丽卡/弧光终结技放在第 1 帧时演出回执为 1→52/55，不是直接相加的 1→53/56；零帧仍为 0→52/55。没有据此猜改模拟时钟。正式全技能测试新增的精确演出断言明确使用零帧起点；潜能 0/5 候选审计保留原本第 1 帧起点。下一步先检查请求消费与同帧 Skill Tick 的原生顺序，再决定是否修正边界，随后推进已确认的输入诊断。
+
 - 公共目录阻塞已修复：用 `generate:game-data:global-buffs` 从当前 VFS 重导出正式 GlobalBuff 目录，随后 `--check` 通过。两份源 SHA 与此前一致，严格差分仅新增 `globalModifiers: []` 和 `evidence.unsupportedAssets: []`，未手补资源。生成器写入前调用实际消费者 `parseGlobalBuffTemplateCatalogSource`，新增正式目录协议回归，防止导出/解析漂移。
 - 全量候选冒烟通过：设置 `ENDAXIS_HIDE_UI_SOURCE_ROOT=tmp/game-data-sources-hybrid-20260905` 和 `ENDAXIS_HIDE_UI_ALL_OPERATORS=1`，运行 `npx vitest run tools/game-data-compiler/test/hideUiRealOperatorRuntime.test.ts`，不再需要候选 GlobalBuff 路径覆盖。31 名均从经哈希验证的来源内存重建，并用正式公共目录、生产 ScenarioSimulationService 放置终结技，31 项通过；出现的演出开始/结束回执数量配对，佩丽卡/弧光额外保持 52/55 帧断言及伤害存在检查。此门禁不统计未触发的技能变体，不代表所有技能组合或伤害差分已验证。
 - 本轮公共 Buff 相关 14 项、架构边界 7 项及完整 `type-check:game-data` 通过。仅公共目录正式重生成，干员候选仍未发布、输入禁用诊断仍未接。下一步在候选全技能/组合门禁后发布干员，再接原生证据已确认的演出输入诊断，不把全屏显示或 TimeDilation 当统一拒绝依据。

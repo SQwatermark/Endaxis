@@ -757,6 +757,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
         ),
         90,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 56),
       scheduled(
         0,
         sequence(
@@ -790,7 +791,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
                       features: ['canBreakWeakness'],
                       stagger: { kind: 'blackboard', key: 'poise' },
                     },
-                    'chr_0022_bounda_ultimate_skill:/scheduledSequences/3/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0022_bounda_ultimate_skill:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   step('applyBuff', {
                     buffId: 'buff_chr_0022_bounda_ultimate_skill',
@@ -829,7 +830,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
                       tags: ['ultimateSkill'],
                       stagger: { kind: 'blackboard', key: 'poise' },
                     },
-                    'chr_0022_bounda_ultimate_skill:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0022_bounda_ultimate_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   step('applyBuff', {
                     buffId: 'buff_chr_0022_bounda_ultimate_skill',
@@ -868,7 +869,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
                       tags: ['ultimateSkill'],
                       stagger: { kind: 'blackboard', key: 'poise' },
                     },
-                    'chr_0022_bounda_ultimate_skill:/scheduledSequences/5/sequence/steps/0/body/steps/0/body/steps/0',
+                    'chr_0022_bounda_ultimate_skill:/scheduledSequences/6/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   step('applyBuff', {
                     buffId: 'buff_chr_0022_bounda_ultimate_skill',
@@ -938,7 +939,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
                       tags: ['ultimateSkill'],
                       stagger: { kind: 'blackboard', key: 'poise' },
                     },
-                    'chr_0022_bounda_ultimate_skill:/scheduledSequences/6/sequence/steps/0/body/steps/0/body/steps/1',
+                    'chr_0022_bounda_ultimate_skill:/scheduledSequences/7/sequence/steps/0/body/steps/0/body/steps/1',
                   ),
                   step('applyBuff', {
                     buffId: 'buff_chr_0022_bounda_ultimate_skill',

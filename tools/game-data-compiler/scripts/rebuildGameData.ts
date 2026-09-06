@@ -60,6 +60,8 @@ export interface RebuildArguments {
   readonly unityWorker?: string;
 }
 
+export const GAME_DATA_CANDIDATE_TSCONFIG = 'tsconfig.app.json';
+
 const GAME_DATA_PUBLISH_DIRECTORY_OUTPUTS = [
   'src/data/operators/generated-definitions',
   'src/data/buffs/generated',
@@ -708,7 +710,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             ...typeCheckCandidateOverlay({
               projectRoot: root,
               candidateRoot,
-              configFile: 'tsconfig.next.json',
+              configFile: GAME_DATA_CANDIDATE_TSCONFIG,
               replacementPaths: GAME_DATA_REBUILD_BOUNDARIES.flatMap(item => item.outputs),
             }),
             note: '所有已登记领域候选以未来正式路径进入 TypeScript 读视图；未覆盖工作树正式文件。',

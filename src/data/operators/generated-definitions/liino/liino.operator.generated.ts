@@ -4263,6 +4263,7 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
         ),
         80,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 77),
       scheduled(
         0,
         sequence(

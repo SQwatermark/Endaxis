@@ -1004,6 +1004,7 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
         ),
         65,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 60),
       scheduled(
         0,
         sequence(

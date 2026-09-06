@@ -2102,6 +2102,7 @@ export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
         ),
         1,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 61),
       scheduled(
         0,
         sequence(

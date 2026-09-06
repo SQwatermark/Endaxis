@@ -2334,6 +2334,7 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
         ),
         90,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 75),
       scheduled(
         0,
         sequence(

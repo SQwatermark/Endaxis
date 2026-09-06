@@ -1121,6 +1121,7 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
         ),
         105,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 38),
       scheduled(
         0,
         sequence(

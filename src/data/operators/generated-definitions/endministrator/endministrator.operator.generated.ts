@@ -1763,6 +1763,7 @@ export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
         ),
         55,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 44),
       scheduled(
         0,
         sequence(

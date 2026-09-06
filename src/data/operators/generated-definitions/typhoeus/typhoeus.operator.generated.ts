@@ -9578,6 +9578,7 @@ export const typhoeusUltimate: SkillDefinition = withSkillBlackboard(
         ),
         62,
       ),
+      scheduled(0, sequence(step('hideUi', { onlyBlockInput: false })), 62),
       scheduled(
         0,
         sequence(
