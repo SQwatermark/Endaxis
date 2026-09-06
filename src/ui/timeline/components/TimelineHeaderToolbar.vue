@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n';
 import TimelineDurationBarColorControls from './TimelineDurationBarColorControls.vue';
 import { resolveScenarioTabsScrollMask } from '../scenarioTabsScrollMask';
 import type { TimelineViewLayerId, TimelineViewLayers } from '../timelineViewLayers';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 
 const props = defineProps<{
   scenarioName: string;
@@ -78,6 +80,14 @@ const renameDraft = ref('');
 const renameInput = ref<HTMLInputElement | null>(null);
 const moreMenuOpen = ref(false);
 const displayMenuOpen = ref(false);
+usePopoverInteractionBoundary(
+  useInteractionSession(),
+  () => moreMenuOpen.value || displayMenuOpen.value,
+  () => {
+    moreMenuOpen.value = false;
+    displayMenuOpen.value = false;
+  },
+);
 watch(displayMenuOpen, open => {
   if (open) moreMenuOpen.value = false;
 });
