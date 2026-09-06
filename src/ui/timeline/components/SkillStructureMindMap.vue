@@ -1,6 +1,10 @@
 <script setup lang="ts">
 /** Reusable free-roaming structure map used by the formal skill editor and its demo. */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import {
+  isTextEditingTarget,
+  useKeyboardShortcutScope,
+} from '../../keyboard/keyboardShortcutRouter';
 
 interface MapReference {
   readonly kind: 'buff' | 'entity';
@@ -111,6 +115,7 @@ const active = ref(false);
 const draggedNode = ref<MapNodeSource | null>(null);
 const dropHint = ref<{ readonly id: string; readonly placement: 'inside' | 'before' | 'after' }>();
 const contextMenu = ref<{ readonly node: MapNodeSource; readonly x: number; readonly y: number }>();
+const contextMenuElement = ref<HTMLElement | null>(null);
 const dragOrigin = ref({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0, pointerId: -1 });
 const NODE_WIDTH = 220;
 const NODE_HEIGHT = 52;
@@ -274,49 +279,61 @@ function runNodeAction(action: 'delete' | 'copy' | 'paste', node: MapNodeSource)
   emit('nodeAction', action, node);
 }
 
-function handleKeyboard(event: KeyboardEvent): void {
-  if (
-    !active.value ||
-    event.target instanceof HTMLInputElement ||
-    event.target instanceof HTMLTextAreaElement
-  ) {
-    return;
-  }
-  const node = props.selectedId === undefined ? undefined : findNode(props.root, props.selectedId);
-  if (node === undefined) return;
+function handleKeyboard(event: KeyboardEvent): boolean {
+  if (isTextEditingTarget(event.target)) return false;
   const command = event.ctrlKey || event.metaKey;
   const key = event.key.toLocaleLowerCase();
   if (command && !event.altKey && key === 'z') {
-    event.preventDefault();
-    event.stopImmediatePropagation();
     emit('historyAction', event.shiftKey ? 'redo' : 'undo');
-  } else if (command && !event.altKey && key === 'y') {
-    event.preventDefault();
-    event.stopImmediatePropagation();
+    return true;
+  }
+  if (command && !event.altKey && key === 'y') {
     emit('historyAction', 'redo');
-  } else if (
+    return true;
+  }
+  const node =
+    contextMenu.value?.node ??
+    (props.selectedId === undefined ? undefined : findNode(props.root, props.selectedId));
+  if (node === undefined) return false;
+  if (
     (event.key === 'Delete' || event.key === 'Backspace') &&
     node.payloadKind !== undefined &&
     node.canDelete !== false
   ) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    emit('nodeAction', 'delete', node);
+    runNodeAction('delete', node);
   } else if (command && key === 'c' && node.payloadKind !== undefined && node.canCopy !== false) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    emit('nodeAction', 'copy', node);
+    runNodeAction('copy', node);
   } else if (
     command &&
     key === 'v' &&
     props.clipboardKind !== undefined &&
     node.acceptsChildKind === props.clipboardKind
   ) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    emit('nodeAction', 'paste', node);
-  }
+    runNodeAction('paste', node);
+  } else return false;
+  return true;
 }
+
+useKeyboardShortcutScope({
+  id: 'structure-map',
+  priority: 200,
+  active: () => active.value,
+  blockLowerScopes: true,
+  handle: handleKeyboard,
+});
+useKeyboardShortcutScope({
+  id: 'structure-map-menu',
+  priority: 300,
+  active: () => contextMenu.value !== undefined,
+  blockLowerScopes: true,
+  handle: event => {
+    if (event.key === 'Escape') {
+      contextMenu.value = undefined;
+      return true;
+    }
+    return handleKeyboard(event);
+  },
+});
 
 function findNode(node: MapNodeSource, id: string): MapNodeSource | undefined {
   if (node.id === id) return node;
@@ -327,20 +344,22 @@ function findNode(node: MapNodeSource, id: string): MapNodeSource | undefined {
   return undefined;
 }
 
-function trackActive(event: PointerEvent): void {
-  active.value = shell.value?.contains(event.target as Node) ?? false;
-  if (!contextMenu.value || !(event.target as HTMLElement).closest('.map-context-menu')) {
+function trackActive(event: Event): void {
+  const target = event.target;
+  const inMenu = target instanceof Node && (contextMenuElement.value?.contains(target) ?? false);
+  active.value = inMenu || (target instanceof Node && (shell.value?.contains(target) ?? false));
+  if (event.type === 'pointerdown' && !inMenu) {
     contextMenu.value = undefined;
   }
 }
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeyboard);
-  document.addEventListener('pointerdown', trackActive);
+  document.addEventListener('pointerdown', trackActive, true);
+  document.addEventListener('focusin', trackActive, true);
 });
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeyboard);
-  document.removeEventListener('pointerdown', trackActive);
+  document.removeEventListener('pointerdown', trackActive, true);
+  document.removeEventListener('focusin', trackActive, true);
 });
 
 function title(node: MapNodeSource): string {
@@ -645,6 +664,8 @@ watch(
     <Teleport to="body">
       <div
         v-if="contextMenu"
+        ref="contextMenuElement"
+        role="menu"
         class="map-context-menu"
         :style="{ left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }"
         @pointerdown.stop

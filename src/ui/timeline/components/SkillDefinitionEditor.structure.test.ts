@@ -249,7 +249,8 @@ describe('SkillDefinitionEditor structure', () => {
     expect(structureMapSource).toContain('node-drag-handle');
     expect(structureMapSource).toContain('transferCollapsedState');
     expect(structureMapSource).toContain("emit('historyAction', event.shiftKey ? 'redo' : 'undo')");
-    expect(structureMapSource).toContain('event.stopImmediatePropagation()');
+    expect(structureMapSource).toContain("id: 'structure-map'");
+    expect(structureMapSource).not.toContain("window.addEventListener('keydown'");
     for (const source of [editorSource, buffGraphEditorSource, abilityEntityGraphEditorSource]) {
       expect(source).toContain('transferCollapsedState(operation.source.id, movedNode.id)');
       expect(source).toContain('@history-action="restoreStructureHistory"');

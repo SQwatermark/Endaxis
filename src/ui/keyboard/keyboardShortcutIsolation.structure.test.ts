@@ -3,8 +3,20 @@ import routerSource from './keyboardShortcutRouter.ts?raw';
 import editorSource from '../timeline/TimelineEditor.vue?raw';
 import headerSource from '../timeline/components/TimelineHeaderToolbar.vue?raw';
 import menuSource from '../timeline/components/TimelineActionContextMenu.vue?raw';
+import mapSource from '../timeline/components/SkillStructureMindMap.vue?raw';
 
 describe('keyboard shortcut isolation integration', () => {
+  it('tracks keyboard focus and the specific teleported map menu without global key listeners', () => {
+    expect(mapSource).toContain("document.addEventListener('focusin', trackActive, true)");
+    expect(mapSource).toContain("document.addEventListener('pointerdown', trackActive, true)");
+    expect(mapSource).toContain('contextMenuElement.value?.contains(target)');
+    expect(mapSource).toContain('isTextEditingTarget(event.target)');
+    expect(mapSource).not.toContain("window.addEventListener('keydown'");
+    expect(mapSource).not.toContain('stopImmediatePropagation');
+    expect(mapSource.indexOf("emit('historyAction'")).toBeLessThan(
+      mapSource.indexOf('if (node === undefined) return false'),
+    );
+  });
   it('routes the timeline action menu through the shared dispatcher with an unhandled-key barrier', () => {
     expect(menuSource).toContain('useKeyboardShortcutScope({');
     expect(menuSource).toContain('active: () => props.visible');

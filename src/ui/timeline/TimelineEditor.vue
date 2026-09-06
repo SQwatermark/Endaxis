@@ -11,7 +11,10 @@ import {
   toRaw,
 } from 'vue';
 import { durationBarColorKey } from './durationBarColorContext';
-import { provideInteractionSession } from '../interaction/interactionSessionContext';
+import {
+  provideInteractionSession,
+  useInteractionBarrier,
+} from '../interaction/interactionSessionContext';
 import type { InteractionLease } from '../interaction/interactionSession';
 import { normalizeDurationBarColorPrefs } from './durationBarColor';
 import { useI18n } from 'vue-i18n';
@@ -4500,6 +4503,12 @@ const hasModalPanel = computed(
     buffDetailTarget.value !== null ||
     showShortcutHelp.value ||
     resetDialogVisible.value,
+);
+
+useInteractionBarrier(
+  interactionSession,
+  () =>
+    hasModalPanel.value || contextMenuTarget.value !== null || markerContextTarget.value !== null,
 );
 
 useKeyboardShortcutScope({

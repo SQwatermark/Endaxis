@@ -2,6 +2,30 @@ import { describe, expect, it, vi } from 'vitest';
 import { createInteractionSession } from './interactionSession';
 
 describe('workbench interaction ownership', () => {
+  it('blocks before cancelling, so a cancellation callback cannot restart a background gesture', () => {
+    const session = createInteractionSession();
+    const cancelled = vi.fn(() => {
+      expect(session.tryStart('replacement', vi.fn())).toBeNull();
+    });
+    session.tryStart('library-drag', cancelled);
+    const release = session.block();
+    expect(cancelled).toHaveBeenCalledOnce();
+    expect(session.current).toBeNull();
+    expect(session.tryStart('cast-move', vi.fn())).toBeNull();
+    release();
+    expect(session.tryStart('cast-move', vi.fn())).not.toBeNull();
+  });
+
+  it('releasing one overlay cannot release another overlay barrier', () => {
+    const session = createInteractionSession();
+    const first = session.block();
+    const second = session.block();
+    first();
+    first();
+    expect(session.tryStart('cast-move', vi.fn())).toBeNull();
+    second();
+    expect(session.tryStart('cast-move', vi.fn())).not.toBeNull();
+  });
   it.each(['track-order', 'workbench-resize', 'cast-move', 'library-placement'])(
     'does not allow %s to replace an active library drag',
     owner => {

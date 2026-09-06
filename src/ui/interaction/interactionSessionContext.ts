@@ -1,8 +1,25 @@
-import { inject, onScopeDispose, provide, type InjectionKey } from 'vue';
+import { inject, onScopeDispose, provide, watch, type InjectionKey } from 'vue';
 import { useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
 import { createInteractionSession, type InteractionSession } from './interactionSession';
 
 const interactionSessionKey: InjectionKey<InteractionSession> = Symbol('workbench-interaction');
+
+/** Register a background-gesture barrier for a panel's actual open lifecycle. */
+export function useInteractionBarrier(session: InteractionSession, active: () => boolean): void {
+  let release: (() => void) | undefined;
+  watch(
+    active,
+    blocked => {
+      if (blocked) release ??= session.block();
+      else {
+        release?.();
+        release = undefined;
+      }
+    },
+    { immediate: true, flush: 'sync' },
+  );
+  onScopeDispose(() => release?.());
+}
 
 export function provideInteractionSession(): InteractionSession {
   const session = createInteractionSession();

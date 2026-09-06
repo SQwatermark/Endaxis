@@ -9,13 +9,22 @@ export interface InteractionLease {
 /** One workbench, one editing gesture. Labels describe owners; leases identify attempts. */
 export function createInteractionSession() {
   const current = shallowRef<InteractionLease | null>(null);
+  const barriers = new Set<symbol>();
   let cancelCurrent: (() => void) | null = null;
+  function cancel(): boolean {
+    const callback = cancelCurrent;
+    if (callback === null) return false;
+    current.value = null;
+    cancelCurrent = null;
+    callback();
+    return true;
+  }
   return {
     get current() {
       return current.value;
     },
     tryStart(owner: string, onCancel: () => void): InteractionLease | null {
-      if (current.value !== null) return null;
+      if (current.value !== null || barriers.size > 0) return null;
       const lease: InteractionLease = {
         owner,
         isCurrent: () => current.value === lease,
@@ -29,14 +38,16 @@ export function createInteractionSession() {
       cancelCurrent = onCancel;
       return lease;
     },
-    cancel(): boolean {
-      const callback = cancelCurrent;
-      if (callback === null) return false;
-      current.value = null;
-      cancelCurrent = null;
-      callback();
-      return true;
+    /** A modal boundary blocks new gestures before cancelling the old owner's preview. */
+    block(): () => void {
+      const token = Symbol('interaction-barrier');
+      barriers.add(token);
+      cancel();
+      return () => {
+        barriers.delete(token);
+      };
     },
+    cancel,
   };
 }
 
