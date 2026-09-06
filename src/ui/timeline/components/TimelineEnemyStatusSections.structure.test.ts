@@ -10,8 +10,8 @@ import gridSource from './TimelineMonitorGrid.vue?raw';
 describe('TimelineEnemyStatusSections legacy layout contract', () => {
   it('shares the dynamic status height between CSS and divider resizing', () => {
     expect(source).toContain('monitorSectionBodyMinimums(props.afflictionMinimumHeight)');
-    expect(source).toContain('minimumBodyHeight.value[pair.upperKey]');
-    expect(source).toContain('minimumBodyHeight.value[pair.lowerKey]');
+    expect(source).toContain('resizeMonitorSectionBodies(');
+    expect(source).toContain('minimumBodyHeight.value');
     expect(source).toContain('minimumBodyHeight.affliction + MONITOR_SECTION_TOPBAR_HEIGHT');
   });
   it('uses defined foreground tokens for collapsed labels and expand arrows in both themes', () => {

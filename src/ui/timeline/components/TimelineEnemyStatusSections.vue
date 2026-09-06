@@ -7,6 +7,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import {
   MONITOR_SECTION_TOPBAR_HEIGHT,
   monitorSectionBodyMinimums,
+  resizeMonitorSectionBodies,
 } from '../monitorSectionMinimums';
 
 type SectionKey = 'affliction' | 'poise' | 'sp';
@@ -97,24 +98,24 @@ function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
   activeResizeLowerKey.value = lowerKey;
   const startY = event.clientY;
   const topbarHeight = MONITOR_SECTION_TOPBAR_HEIGHT;
-  const upperBody = Math.max(0, upper.clientHeight - topbarHeight);
-  const lowerBody = Math.max(0, lower.clientHeight - topbarHeight);
-  const bodyTotal = upperBody + lowerBody;
-  const weightTotal = sectionWeights[pair.upperKey] + sectionWeights[pair.lowerKey];
-  const requestedMinimumTotal =
-    minimumBodyHeight.value[pair.upperKey] + minimumBodyHeight.value[pair.lowerKey];
-  const minimumScale = Math.min(1, bodyTotal / Math.max(1, requestedMinimumTotal));
-  const upperMinimum = minimumBodyHeight.value[pair.upperKey] * minimumScale;
-  const lowerMinimum = minimumBodyHeight.value[pair.lowerKey] * minimumScale;
+  const bodies: Partial<Record<SectionKey, number>> = {};
+  for (const key of sectionKeys) {
+    if (collapsed[key]) continue;
+    const element = root.value.querySelector<HTMLElement>(`[data-section-key="${key}"]`);
+    if (element) bodies[key] = Math.max(0, element.clientHeight - topbarHeight);
+  }
 
   const onMove = (moveEvent: PointerEvent) => {
-    const nextUpperBody = Math.min(
-      bodyTotal - lowerMinimum,
-      Math.max(upperMinimum, upperBody + moveEvent.clientY - startY),
+    const nextBodies = resizeMonitorSectionBodies(
+      bodies,
+      pair.upperKey,
+      pair.lowerKey,
+      moveEvent.clientY - startY,
+      minimumBodyHeight.value,
     );
-    const nextLowerBody = bodyTotal - nextUpperBody;
-    sectionWeights[pair.upperKey] = weightTotal * (nextUpperBody / Math.max(1, bodyTotal));
-    sectionWeights[pair.lowerKey] = weightTotal * (nextLowerBody / Math.max(1, bodyTotal));
+    for (const key of sectionKeys) {
+      if (nextBodies[key] !== undefined) sectionWeights[key] = Math.max(0.1, nextBodies[key]);
+    }
   };
   const finish = () => {
     activeResizeLowerKey.value = null;
