@@ -187,7 +187,9 @@ watch(
           minHeight:
             key === 'affliction' && !collapsed[key]
               ? `${props.afflictionMinimumHeight ?? 60}px`
-              : undefined,
+              : key === 'poise' && !collapsed[key]
+                ? '60px'
+                : undefined,
         }"
       >
         <span v-if="collapsed[key]" class="section-summary">{{ props.labels[key] }}</span>

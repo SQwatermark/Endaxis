@@ -388,6 +388,17 @@ function pointTitle(point: ResourceCurvePointView): string {
   border-left: 3px solid #ff9c6e;
 }
 
+.curve-row--poise .curve-label strong {
+  font:
+    700 11px/1 Inter,
+    -apple-system,
+    sans-serif;
+}
+
+.curve-row--poise .curve-label small {
+  line-height: 1.1;
+}
+
 .curve-row--sp .curve-label {
   border-left: 3px solid var(--ea-gold);
 }
@@ -408,6 +419,7 @@ function pointTitle(point: ResourceCurvePointView): string {
   display: block;
   width: 100%;
   height: 5px;
+  flex-shrink: 0;
   overflow: hidden;
   background: var(--ea-fill-soft, rgb(255 255 255 / 8%));
 }
@@ -416,6 +428,7 @@ function pointTitle(point: ResourceCurvePointView): string {
   display: block;
   height: 100%;
   background: #d46b08;
+  transition: width 0.16s ease;
 }
 
 .resource-control-row {
