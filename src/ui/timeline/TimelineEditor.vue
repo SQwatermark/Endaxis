@@ -508,6 +508,8 @@ const displayedCompactTrackHeights = computed(() =>
 const timelineVerticalScrollbarWidth = ref(0);
 let timelineResizeObserver: ResizeObserver | null = null;
 const connectionDrag = ref<{
+  pointerId: number;
+  lease: InteractionLease;
   skillCastId: string;
   port: TimelineConnectionPort;
   pointer: { x: number; y: number };
@@ -2954,12 +2956,15 @@ function pointerInTimelineSurface(event: PointerEvent): { x: number; y: number }
 }
 
 function updateConnectionDrag(event: PointerEvent): void {
+  if (connectionDrag.value?.pointerId !== event.pointerId) return;
   const pointer = pointerInTimelineSurface(event);
   if (pointer === null || connectionDrag.value === null) return;
   connectionDrag.value = { ...connectionDrag.value, pointer };
 }
 
-function cancelConnectionDrag(): void {
+function cancelConnectionDrag(event?: PointerEvent): void {
+  if (event !== undefined && connectionDrag.value?.pointerId !== event.pointerId) return;
+  connectionDrag.value?.lease.release();
   connectionDrag.value = null;
   window.removeEventListener('pointermove', updateConnectionDrag);
   window.removeEventListener('pointerup', finishConnectionDrag);
@@ -2968,6 +2973,7 @@ function cancelConnectionDrag(): void {
 
 function finishConnectionDrag(event: PointerEvent): void {
   const drag = connectionDrag.value;
+  if (drag?.pointerId !== event.pointerId) return;
   cancelConnectionDrag();
   if (drag === null) return;
 
@@ -3016,10 +3022,12 @@ function beginConnectionDrag(
   skillCastId: string,
   port: TimelineConnectionPort,
 ): void {
-  if (!connectionToolEnabled.value) return;
+  if (!connectionToolEnabled.value || event.button !== 0) return;
   const pointer = pointerInTimelineSurface(event);
   if (pointer === null) return;
-  connectionDrag.value = { skillCastId, port, pointer };
+  const lease = interactionSession.tryStart('connection-drag', cancelConnectionDrag);
+  if (lease === null) return;
+  connectionDrag.value = { skillCastId, port, pointer, pointerId: event.pointerId, lease };
   window.addEventListener('pointermove', updateConnectionDrag);
   window.addEventListener('pointerup', finishConnectionDrag);
   window.addEventListener('pointercancel', cancelConnectionDrag);
@@ -3102,11 +3110,15 @@ function selectTimelinePosition(event: MouseEvent): void {
 
 const { marqueeStyle, beginMarqueeGesture, consumeLaneClickSuppression } =
   useTimelineMarqueeGesture({
+    interactionSession,
     surface: timelineSurface,
     getSelection: () => actionSelection.value,
     applySelection: applyActionSelection,
   });
-const { isPanning, beginViewportPan } = useTimelineViewportPan({ viewport: timelineScroll });
+const { isPanning, beginViewportPan } = useTimelineViewportPan({
+  viewport: timelineScroll,
+  interactionSession,
+});
 
 function handleTimelineLanePointerDown(event: PointerEvent): void {
   const trackIndex = Number((event.currentTarget as HTMLElement).dataset.trackIndex) as TrackIndex;
@@ -3319,8 +3331,12 @@ function beginTimelinePrepResize(event: PointerEvent): void {
   if (surface === null) return;
   event.preventDefault();
   event.stopPropagation();
-  stopTimelinePrepResize?.();
+  const lease = interactionSession.tryStart('timeline-prep-resize', () =>
+    stopTimelinePrepResize?.(),
+  );
+  if (lease === null) return;
   const update = (moveEvent: PointerEvent) => {
+    if (moveEvent.pointerId !== event.pointerId) return;
     const localPx =
       moveEvent.clientX - surface.getBoundingClientRect().left - TIMELINE_TRACK_HEADER_WIDTH;
     const frame = Math.max(
@@ -3330,13 +3346,14 @@ function beginTimelinePrepResize(event: PointerEvent): void {
     timelinePrepPreviewFrames.value = frame;
   };
   const teardownPrepResize = () => {
+    lease.release();
     window.removeEventListener('pointermove', update);
     window.removeEventListener('pointerup', finishPrepResize);
     window.removeEventListener('pointercancel', cancelPrepResize);
-    window.removeEventListener('keydown', cancelPrepResizeFromKeyboard, true);
     stopTimelinePrepResize = null;
   };
-  const finishPrepResize = () => {
+  const finishPrepResize = (finishEvent: PointerEvent) => {
+    if (finishEvent.pointerId !== event.pointerId) return;
     const frames = timelinePrepPreviewFrames.value;
     teardownPrepResize();
     if (frames !== null && frames !== scenario.value.battle.prepFrames) {
@@ -3344,21 +3361,16 @@ function beginTimelinePrepResize(event: PointerEvent): void {
     }
     timelinePrepPreviewFrames.value = null;
   };
-  const cancelPrepResize = () => {
+  const cancelPrepResize = (cancelEvent?: PointerEvent) => {
+    if (cancelEvent !== undefined && cancelEvent.pointerId !== event.pointerId) return;
     teardownPrepResize();
     timelinePrepPreviewFrames.value = null;
-  };
-  const cancelPrepResizeFromKeyboard = (keyEvent: KeyboardEvent) => {
-    if (keyEvent.key !== 'Escape') return;
-    keyEvent.preventDefault();
-    cancelPrepResize();
   };
   stopTimelinePrepResize = cancelPrepResize;
   timelinePrepPreviewFrames.value = scenario.value.battle.prepFrames;
   window.addEventListener('pointermove', update);
   window.addEventListener('pointerup', finishPrepResize);
   window.addEventListener('pointercancel', cancelPrepResize);
-  window.addEventListener('keydown', cancelPrepResizeFromKeyboard, true);
 }
 
 onScopeDispose(() => stopTimelinePrepResize?.());
@@ -3396,12 +3408,14 @@ function beginMarkerMove(
   trackIndex: TrackIndex = selectedTrack.value,
 ): void {
   if (event.button !== 0) return;
+  if (interactionSession.current !== null) return;
   event.preventDefault();
   event.stopPropagation();
   stopMarkerMove?.();
   if (trackIndex !== selectedTrack.value) selectedTrack.value = trackIndex;
   const surface = timelineSurface.value;
   if (surface === null) return;
+  const lease = interactionSession.tryStart('marker-move', () => stopMarkerMove?.())!;
   const grabOffsetPx =
     event.clientX -
     surface.getBoundingClientRect().left -
@@ -3453,10 +3467,10 @@ function beginMarkerMove(
   const move = (moveEvent: PointerEvent) =>
     update(moveEvent.pointerId, moveEvent.clientX, moveEvent.clientY);
   const cleanup = () => {
+    lease.release();
     window.removeEventListener('pointermove', move);
     window.removeEventListener('pointerup', finish);
     window.removeEventListener('pointercancel', cancel);
-    window.removeEventListener('keydown', keydown, true);
     if (markerMoveAutoScrollFrame !== null) cancelAnimationFrame(markerMoveAutoScrollFrame);
     markerMoveAutoScrollFrame = null;
     stopMarkerMove = null;
@@ -3466,11 +3480,6 @@ function beginMarkerMove(
     if (cancelEvent !== undefined && gesture?.pointerId !== cancelEvent.pointerId) return;
     markerMoveGesture.value = null;
     cleanup();
-  };
-  const keydown = (keyEvent: KeyboardEvent) => {
-    if (keyEvent.key !== 'Escape') return;
-    keyEvent.preventDefault();
-    cancel();
   };
   const finish = (finishEvent: PointerEvent) => {
     update(finishEvent.pointerId, finishEvent.clientX, finishEvent.clientY);
@@ -3498,7 +3507,6 @@ function beginMarkerMove(
   window.addEventListener('pointermove', move);
   window.addEventListener('pointerup', finish);
   window.addEventListener('pointercancel', cancel);
-  window.addEventListener('keydown', keydown, true);
 }
 
 function scheduleMarkerMoveAutoScroll(

@@ -11,9 +11,9 @@ describe('timeline marquee gesture integration', () => {
   });
 
   it('cancels a pending marquee on pointer cancellation or Escape', () => {
-    expect(source).toContain("keyEvent.key !== 'Escape'");
+    expect(source).toContain("interactionSession.tryStart('marquee', stop)");
     expect(source).toContain("window.addEventListener('pointercancel', onCancel)");
-    expect(source).toContain("window.addEventListener('keydown', onKeydown, true)");
-    expect(source).toContain("window.removeEventListener('keydown', onKeydown, true)");
+    expect(source).not.toContain("addEventListener('keydown'");
+    expect(source).toContain('lease.release()');
   });
 });

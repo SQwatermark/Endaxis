@@ -5,9 +5,11 @@
  * 的原生拖拽语义冲突。
  */
 import { onScopeDispose, ref, type Ref } from 'vue';
+import type { InteractionSession } from '../interaction/interactionSession';
 import { resolveTimelineViewportPan, type TimelineViewportPanOrigin } from './timelineViewportPan';
 
 export interface UseTimelineViewportPanOptions {
+  readonly interactionSession: InteractionSession;
   readonly viewport: Ref<HTMLElement | null>;
 }
 
@@ -44,7 +46,8 @@ export function useTimelineViewportPan(options: UseTimelineViewportPanOptions) {
       return false;
     }
     event.preventDefault();
-    stop();
+    const lease = options.interactionSession.tryStart('viewport-pan', stop);
+    if (lease === null) return false;
     const pointerId = event.pointerId;
     const origin: TimelineViewportPanOrigin = {
       pointerX: event.clientX,
@@ -62,21 +65,17 @@ export function useTimelineViewportPan(options: UseTimelineViewportPanOptions) {
     const finish = (finishEvent: PointerEvent) => {
       if (finishEvent.pointerId === pointerId) stop();
     };
-    const keydown = (keyEvent: KeyboardEvent) => {
-      if (keyEvent.key === 'Escape') stop();
-    };
     stopGesture = () => {
+      lease.release();
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', finish);
       window.removeEventListener('pointercancel', finish);
-      window.removeEventListener('keydown', keydown, true);
       isPanning.value = false;
       stopGesture = null;
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', finish);
     window.addEventListener('pointercancel', finish);
-    window.addEventListener('keydown', keydown, true);
     return true;
   }
 

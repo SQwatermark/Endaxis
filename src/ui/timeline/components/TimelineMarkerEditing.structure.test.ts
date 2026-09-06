@@ -63,7 +63,7 @@ describe('Next timeline marker editing structure', () => {
 
   it('cancels marker previews on pointer cancellation or Escape', () => {
     expect(editorSource).toContain("window.addEventListener('pointercancel', cancel)");
-    expect(editorSource).toContain("window.addEventListener('keydown', keydown, true)");
+    expect(editorSource).toContain("interactionSession.tryStart('marker-move'");
     expect(editorSource).toContain('stopMarkerMove = cancel');
     expect(editorSource).not.toContain("window.addEventListener('pointercancel', finish)");
   });

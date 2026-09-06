@@ -11,6 +11,7 @@ import {
   type TimelineMarqueeRectangle,
 } from './timelineMarqueeSelection';
 import type { TimelineActionSelection } from './timelineActionSelection';
+import type { InteractionSession } from '../interaction/interactionSession';
 
 const MARQUEE_DRAG_THRESHOLD_PX = 4;
 
@@ -25,6 +26,7 @@ interface TimelineMarqueeGesture {
 }
 
 export interface UseTimelineMarqueeGestureOptions {
+  readonly interactionSession: InteractionSession;
   readonly surface: Ref<HTMLElement | null>;
   readonly getSelection: () => TimelineActionSelection;
   readonly applySelection: (selection: TimelineActionSelection) => void;
@@ -111,7 +113,8 @@ export function useTimelineMarqueeGesture(options: UseTimelineMarqueeGestureOpti
     ) {
       return;
     }
-    stop();
+    const lease = options.interactionSession.tryStart('marquee', stop);
+    if (lease === null) return;
     gesture.value = {
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -128,24 +131,20 @@ export function useTimelineMarqueeGesture(options: UseTimelineMarqueeGestureOpti
       current.currentY = moveEvent.clientY;
     };
     const onFinish = (finishEvent: PointerEvent) => finish(finishEvent);
-    const onCancel = () => stop();
-    const onKeydown = (keyEvent: KeyboardEvent) => {
-      if (keyEvent.key !== 'Escape') return;
-      keyEvent.preventDefault();
-      stop();
+    const onCancel = (cancelEvent: PointerEvent) => {
+      if (cancelEvent.pointerId === event.pointerId) stop();
     };
     stopGesture = () => {
+      lease.release();
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onFinish);
       window.removeEventListener('pointercancel', onCancel);
-      window.removeEventListener('keydown', onKeydown, true);
       gesture.value = null;
       stopGesture = null;
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onFinish);
     window.addEventListener('pointercancel', onCancel);
-    window.addEventListener('keydown', onKeydown, true);
   }
 
   function consumeLaneClickSuppression(): boolean {

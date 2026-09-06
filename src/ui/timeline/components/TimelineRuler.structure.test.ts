@@ -28,8 +28,8 @@ describe('timeline ruler editing structure', () => {
     );
     expect(resize).toContain("window.addEventListener('pointerup', finish)");
     expect(resize).toContain("window.addEventListener('pointercancel', cancel)");
-    expect(resize).toContain("window.addEventListener('keydown', keydown, true)");
-    expect(resize).toContain("if (keyEvent.key !== 'Escape') return;");
+    expect(resize).toContain("interactionSession.tryStart('ruler-resize'");
+    expect(resize).not.toContain("addEventListener('keydown'");
     expect(resize).toContain('stopResize = cancel;');
     expect(resize).not.toContain("window.addEventListener('pointercancel', finish)");
 
@@ -37,9 +37,7 @@ describe('timeline ruler editing structure', () => {
       editorSource.indexOf('function beginTimelinePrepResize('),
       editorSource.indexOf('function setTimelineDurationFrames('),
     );
-    expect(mainPrepResize).toContain(
-      "window.addEventListener('keydown', cancelPrepResizeFromKeyboard, true)",
-    );
+    expect(mainPrepResize).toContain("interactionSession.tryStart('timeline-prep-resize'");
   });
 
   it('lets Escape close frame and duration inputs without applying their drafts', () => {

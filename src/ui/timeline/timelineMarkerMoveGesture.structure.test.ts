@@ -19,8 +19,8 @@ describe('timeline marker move gesture wiring', () => {
 
   it('cancels on pointer interruption or Escape without invoking the finish path', () => {
     expect(markerGesture).toContain("window.addEventListener('pointercancel', cancel)");
-    expect(markerGesture).toContain("window.addEventListener('keydown', keydown, true)");
-    expect(markerGesture).toContain("if (keyEvent.key !== 'Escape') return;");
+    expect(markerGesture).toContain("interactionSession.tryStart('marker-move'");
+    expect(markerGesture).not.toContain("addEventListener('keydown'");
     expect(markerGesture).not.toContain("window.addEventListener('pointercancel', finish)");
   });
 

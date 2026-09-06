@@ -8,7 +8,7 @@ describe('first workbench gesture ownership integration', () => {
     expect(editor).toContain('const interactionSession = provideInteractionSession()');
     expect(shell).toContain('const interactionSession = useInteractionSession()');
     for (const owner of ['library-drag', 'library-placement', 'cast-move', 'track-order']) {
-      expect(editor).toContain(`interactionSession.tryStart('${owner}'`);
+      expect(editor).toMatch(new RegExp(`interactionSession\\.tryStart\\(\\s*'${owner}'`));
     }
     expect(shell).toContain("interactionSession.tryStart('workbench-resize'");
     expect(shell).toContain('moveEvent.pointerId !== event.pointerId');

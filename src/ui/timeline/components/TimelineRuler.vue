@@ -3,6 +3,7 @@
  * 时间轴的实际战斗时间标尺与准备区边界。
  */
 import { computed, nextTick, onScopeDispose, ref } from 'vue';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { useI18n } from 'vue-i18n';
 import { PROJECT_FPS } from '../../../core/project/schema';
 import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from '../timelineGeometry';
@@ -11,6 +12,7 @@ import {
   type TimelineOperationMarkerInput,
 } from '../timelineOperationMarkers';
 import { projectTimelineRulerTicks } from '../timelineRulerTicks';
+const interactionSession = useInteractionSession();
 
 const MIN_BATTLE_DURATION_FRAMES = PROJECT_FPS * 30;
 const MAX_BATTLE_DURATION_FRAMES = PROJECT_FPS * 600;
@@ -84,9 +86,11 @@ function beginResize(kind: 'prep' | 'duration', event: PointerEvent): void {
   if (kind === 'prep' && !props.prepExpanded) return;
   event.preventDefault();
   event.stopPropagation();
-  stopResize?.();
+  const lease = interactionSession.tryStart('ruler-resize', () => stopResize?.());
+  if (lease === null) return;
   const ruler = (event.currentTarget as HTMLElement).closest('.ruler-content') as HTMLElement;
   const move = (moveEvent: PointerEvent) => {
+    if (moveEvent.pointerId !== event.pointerId) return;
     const localPx = moveEvent.clientX - ruler.getBoundingClientRect().left;
     if (kind === 'prep') {
       prepPreview.value = Math.max(0, snapFrame(localPx / props.pxPerFrame));
@@ -108,13 +112,14 @@ function beginResize(kind: 'prep' | 'duration', event: PointerEvent): void {
     }
   };
   const cleanup = () => {
+    lease.release();
     window.removeEventListener('pointermove', move);
     window.removeEventListener('pointerup', finish);
     window.removeEventListener('pointercancel', cancel);
-    window.removeEventListener('keydown', keydown, true);
     stopResize = null;
   };
-  const finish = () => {
+  const finish = (finishEvent: PointerEvent) => {
+    if (finishEvent.pointerId !== event.pointerId) return;
     const prep = prepPreview.value;
     const duration = durationPreview.value;
     prepPreview.value = null;
@@ -123,21 +128,16 @@ function beginResize(kind: 'prep' | 'duration', event: PointerEvent): void {
     if (kind === 'prep' && prep !== null) emit('setPrepFrames', prep);
     if (kind === 'duration' && duration !== null) emit('setDurationFrames', duration);
   };
-  const cancel = () => {
+  const cancel = (cancelEvent?: PointerEvent) => {
+    if (cancelEvent !== undefined && cancelEvent.pointerId !== event.pointerId) return;
     prepPreview.value = null;
     durationPreview.value = null;
     cleanup();
-  };
-  const keydown = (keyEvent: KeyboardEvent) => {
-    if (keyEvent.key !== 'Escape') return;
-    keyEvent.preventDefault();
-    cancel();
   };
   stopResize = cancel;
   window.addEventListener('pointermove', move);
   window.addEventListener('pointerup', finish);
   window.addEventListener('pointercancel', cancel);
-  window.addEventListener('keydown', keydown, true);
 }
 
 function openPrepEditor(): void {

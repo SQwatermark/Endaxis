@@ -18,9 +18,9 @@ describe('timeline viewport pan legacy interaction boundary', () => {
   });
 
   it('allows Escape and pointer cancellation to stop a pan', () => {
-    expect(source).toContain("keyEvent.key === 'Escape'");
+    expect(source).toContain("interactionSession.tryStart('viewport-pan', stop)");
     expect(source).toContain("window.addEventListener('pointercancel', finish)");
-    expect(source).toContain("window.removeEventListener('keydown', keydown, true)");
+    expect(source).not.toContain("addEventListener('keydown'");
   });
 
   it('renders the old four-edge dashed marquee without a content wash', () => {
