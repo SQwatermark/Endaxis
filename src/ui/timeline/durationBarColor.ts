@@ -1,17 +1,30 @@
 /** UI-only duration-bar preferences. No simulation or legacy store dependency. */
+import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 export const DURATION_COLOR_SOURCES = ['weapon', 'gearSet', 'operator', 'anomaly'] as const;
 export const DURATION_COLOR_SURFACES = ['track', 'enemy'] as const;
 export type DurationColorSource = (typeof DURATION_COLOR_SOURCES)[number];
 export type DurationColorSurface = (typeof DURATION_COLOR_SURFACES)[number];
-/** Existing visible-status identities; not used to invent status lifetimes. */
+/** 原生异常颜色语义，不枚举 Buff ID；同一异常的不同工厂输出共享颜色。 */
 const ANOMALY_COLORS: Readonly<Record<string, string>> = {
-  buff_common_energy_shard_attached_fire: '#ff5a5f',
-  buff_common_energy_shard_attached_pulse: '#ffec3d',
-  buff_common_energy_shard_attached_cryst: '#69c0ff',
-  buff_common_energy_shard_attached_natural: '#52c41a',
-  buff_common_pulse_pulse_conduct_triggered_do: '#ffec3d',
-  buff_common_natural_natural_corrupt_do: '#52c41a',
+  Fire: '#ff5a5f',
+  Pulse: '#ffec3d',
+  Cryst: '#69c0ff',
+  Natural: '#52c41a',
 };
+// 附着的原生 abnormalColorType 是 Physical，用已有 role.element 区分元素。
+const ELEMENT_COLOR_TYPES = {
+  heat: 'Fire',
+  electric: 'Pulse',
+  cryo: 'Cryst',
+  nature: 'Natural',
+} as const;
+const attachmentColors: Readonly<Record<string, string>> = Object.fromEntries(
+  elementalAttachments.buffs.flatMap(buff =>
+    buff.role?.kind === 'elementalAttachment'
+      ? [[buff.id, ANOMALY_COLORS[ELEMENT_COLOR_TYPES[buff.role.element]]!]]
+      : [],
+  ),
+);
 export interface DurationBarColorPrefs {
   enabled: boolean;
   saturation: number;
@@ -73,8 +86,12 @@ function hsl(hex: string): [number, number, number] {
 export function resolveDurationBarColor(
   prefs: DurationBarColorPrefs,
   surface: DurationColorSurface,
-  buff: { readonly buffId: string; readonly sourceActionId?: string },
-  anomalyColor = ANOMALY_COLORS[buff.buffId],
+  buff: {
+    readonly buffId: string;
+    readonly sourceActionId?: string;
+    readonly abnormalColorType?: string;
+  },
+  anomalyColor = attachmentColors[buff.buffId] ?? ANOMALY_COLORS[buff.abnormalColorType ?? ''],
 ): string {
   const neutral = '#8c8c8c';
   if (!prefs.enabled || !prefs.surfaces[surface]) return neutral;

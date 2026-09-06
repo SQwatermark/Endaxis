@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 import {
   durationColorSource,
   normalizeDurationBarColorPrefs,
@@ -20,7 +21,7 @@ describe('duration bar display preferences', () => {
     });
     expect(resolveDurationBarColor(prefs, 'track', { buffId: 'ordinary' })).toBe('#8c8c8c');
     expect(
-      resolveDurationBarColor(prefs, 'enemy', { buffId: 'buff_common_energy_shard_attached_fire' }),
+      resolveDurationBarColor(prefs, 'enemy', { buffId: 'attachment', abnormalColorType: 'Fire' }),
     ).toMatch(/^hsl\(/);
   });
   it('bounds corrupt persisted tuning and keeps independent default maps', () => {
@@ -73,8 +74,52 @@ describe('duration bar display preferences', () => {
     expect(resolveDurationBarColor(prefs, 'track', buff)).toMatch(/ 0%\)$/);
     prefs.sources.anomaly = false;
     expect(
-      resolveDurationBarColor(prefs, 'track', { buffId: 'buff_common_energy_shard_attached_fire' }),
+      resolveDurationBarColor(prefs, 'track', { buffId: 'attachment', abnormalColorType: 'Fire' }),
     ).toBe('#8c8c8c');
+  });
+  it.each(['Fire', 'Pulse', 'Cryst', 'Natural'])(
+    'colors %s factory outputs by native metadata, not IDs',
+    abnormalColorType => {
+      const prefs = normalizeDurationBarColorPrefs(undefined);
+      const color = resolveDurationBarColor(prefs, 'enemy', {
+        buffId: 'factory:one',
+        abnormalColorType,
+      });
+      expect(color).toMatch(/^hsl\(/);
+      expect(
+        resolveDurationBarColor(prefs, 'enemy', { buffId: 'factory:two', abnormalColorType }),
+      ).toBe(color);
+      expect(
+        resolveDurationBarColor(prefs, 'enemy', {
+          buffId: 'unrecognized-buff',
+        }),
+      ).toBe('#8c8c8c');
+      expect(
+        resolveDurationBarColor(prefs, 'enemy', {
+          buffId: 'unknown',
+          abnormalColorType: 'Unknown',
+        }),
+      ).toBe('#8c8c8c');
+      prefs.sources.anomaly = false;
+      expect(
+        resolveDurationBarColor(prefs, 'enemy', { buffId: 'factory:one', abnormalColorType }),
+      ).toBe('#8c8c8c');
+    },
+  );
+  it('uses exported attachment roles when native abnormal color is Physical', () => {
+    const prefs = normalizeDurationBarColorPrefs(undefined);
+    const attachments = elementalAttachments.buffs.filter(
+      buff => buff.role?.kind === 'elementalAttachment',
+    );
+    expect(attachments).toHaveLength(4);
+    const colors = attachments.map(buff =>
+      resolveDurationBarColor(prefs, 'enemy', {
+        buffId: buff.id,
+        abnormalColorType: buff.presentation?.abnormalColorType,
+      }),
+    );
+    expect(colors.every(color => color.startsWith('hsl('))).toBe(true);
+    expect(new Set(colors).size).toBe(4);
   });
   it('wires shared settings to track/enemy rendering and hides tuning when disabled', () => {
     expect(controls).toContain('v-if="prefs.enabled"');

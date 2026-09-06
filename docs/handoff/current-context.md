@@ -1,5 +1,16 @@
 # 当前任务快照
 
+#### 2026-09-06 附着组件实际渲染与异常颜色修正
+
+- 用独立 tmp/attachment-visual.html 加载正式模拟服务和实际 TimelineEnemyEffects，
+  验证佩丽卡连续战技叠层/爆发、佩丽卡→狼卫转换；不改浏览器现有方案。
+  深浅主题截图确认分区和渐变，分时截图确认光点移动；不是整页交互验收。
+- 实际发现燃烧条为灰色：旧颜色函数枚举少量 Buff ID。现在附着由现有 role.element
+  派生颜色（原生 abnormalColorType 为 Physical），异常由 abnormalColorType 派生；
+  删除固定 Buff ID 颜色表，不添加新 Buff 定义。按上游 ConnectionPath 补光点变色、
+  缓动、阴影和渐变末端不透明度。23 项相关测试及应用类型检查通过。
+- 临时视觉页被 git 忽略，不提交。物理代表图标合并、隐藏工厂子实例连线仍未完成。
+
 #### 2026-09-06 敌人附着行分区
 
 - 对照只读上游 ResourceMonitor 的 afflictionLayout / pushGroupedMarkers，新增

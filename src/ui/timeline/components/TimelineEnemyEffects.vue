@@ -307,7 +307,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
             <stop
               offset="100%"
               :stop-color="buff.endColor ?? buff.color ?? 'currentColor'"
-              stop-opacity="0.8"
+              stop-opacity="1"
             />
           </linearGradient>
         </defs>
@@ -317,15 +317,15 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
           class="attachment-continuation-line"
           :style="{ stroke: `url(#${buff.gradientId})` }"
         />
-        <circle r="2" cy="10" fill="currentColor">
-          <animate
-            attributeName="cx"
-            from="0"
-            :to="buff.barWidthPx + 2"
-            dur="1.5s"
-            repeatCount="indefinite"
-          />
-        </circle>
+        <circle
+          r="2"
+          class="attachment-continuation-dot"
+          :style="{
+            offsetPath: `path('M 0 10 H ${buff.barWidthPx + 2}')`,
+            '--start-color': buff.color,
+            '--end-color': buff.endColor,
+          }"
+        />
       </svg>
       <span
         v-else-if="buff.barWidthPx > 0"
@@ -351,6 +351,21 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
   stroke: rgb(0 0 0 / 30%);
   stroke-width: 3;
   fill: none;
+  filter: blur(2px);
+  transform: translateY(1px);
+}
+.attachment-continuation-dot {
+  animation: attachment-dot 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes attachment-dot {
+  from {
+    offset-distance: 0%;
+    fill: var(--start-color);
+  }
+  to {
+    offset-distance: 100%;
+    fill: var(--end-color);
+  }
 }
 .attachment-continuation-line {
   stroke: currentColor;
