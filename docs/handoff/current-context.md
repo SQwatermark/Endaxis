@@ -2,6 +2,8 @@
 
 #### 2026-09-06 技能宽度与演出操作锁调查
 
+- 复刻库开始落地已确认部分：新增 HideUiAction(false) 的演出布尔状态与 UI 显隐通知，CombatSimulation → AbilitySystem → 动作上下文绑定共享 PlayerController。4 项新增测试通过，确认演出结束不结束更长技能、不改变时钟；true 分支仍明确未支持 CommonMask。相关回归 39 通过、1 来源扫描测试因 FindRepositoryRoot 缺失失败。尚未注册原始解析器、未接 Endaxis 转换/输入诊断，不宣称全局输入锁完成；下一步先完成来源动作绑定，再消费已确认的门禁。
+
 - 普攻查询数字已从当前 metadata 常量核实为 6=InDisarmed、4=CantCastAnySkill、1500=InMediumOrHigherWater；不是演出锁。前两者复用公共可用性规则，水域在当前木桩模型不扩展。查询表来自 hybrid 中经哈希核实的 VFS 补充，不误称 AKEDB。BattleAction 演出消息还会先清理按钮按住状态再改挂输入组；这不等于中断已执行技能。剩余聚焦输入组与演出时钟/请求消费联动，不重复研究已确认的查询常量。
 
 - 最新核对：独立终结技公开入口 OnPressUltimateSkillStart 明确读取演出标志并提前返回，前述 IndividualUltimate 普通技能手势不是其反例。连携手柄分支检查独立的控制器指示器状态；普通攻击已追到状态机的标签查询、允许接续请求和技能类型检查。尚待输入组/查询来源闭合，不新增统一全局锁，不修改伤害、中断或显示裁切逻辑。完整 RVA 与证据边界见复刻库 hide-ui-input-lifecycle 文档末节。
