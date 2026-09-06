@@ -343,6 +343,7 @@ import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
 import BattleLogPanel from './components/BattleLogPanel.vue';
 import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
 import { capturePublishedBattleLog } from './publishedBattleLog';
+import { resolvePublishedBuffSource } from './publishedBuffSource';
 import {
   capturePublishedOperatorMetadata,
   type PublishedOperatorMetadata,
@@ -2500,7 +2501,7 @@ function enemyDamageSourceDescription(entry: CombatReceiptEntry) {
   const operatorSlug = track?.operator?.operatorSlug;
   return [
     operatorSlug ? publishedOperatorName(operatorSlug) : entry.sourceId,
-    buffSourceName({ sourceActionId }),
+    buffSourceName({ sourceActionId, sourceId: entry.sourceId }),
     typeof entry.data?.spellBurstType === 'string'
       ? t('battleLog.receiptTypes.SpellBurstApplied')
       : resolveBuffDisplayName(String(entry.data?.buffId ?? ''), { t, te }),
@@ -2678,7 +2679,7 @@ type BuffPresentationSource = {
 function contingencyContractBuffName(segment: BuffPresentationSource): string | undefined {
   const presentation = resolveContingencyContractBuffPresentation(
     segment.sourceActionId,
-    scenario.value.mechanics.selections,
+    publishedSimulation.value?.scenario.mechanics.selections ?? [],
   );
   return presentation === undefined
     ? undefined
@@ -2690,9 +2691,6 @@ function buffDisplayName(segment: BuffPresentationSource): string | undefined {
 }
 
 function buffSourceName(segment: BuffPresentationSource): string | undefined {
-  const sourceActionId = segment.sourceActionId;
-  if (sourceActionId === undefined) return undefined;
-
   const contractTagName = contingencyContractBuffName(segment);
   if (contractTagName !== undefined) {
     return formatContingencyContractBuffSourceName(
@@ -2701,87 +2699,30 @@ function buffSourceName(segment: BuffPresentationSource): string | undefined {
       contractTagName,
     );
   }
-
-  for (const track of viewModel.value.tracks) {
-    const cast = track.skillCasts.find(candidate => candidate.id === sourceActionId);
-    if (cast !== undefined) {
-      if (cast.source.kind === 'custom') return cast.source.name;
-      const assetSlug = track.operatorAssetSlug ?? track.operatorSlug;
-      return assetSlug === null
-        ? cast.source.skillKey
-        : getOperatorCombatSkillName(assetSlug, cast.source.skillKey, locale.value);
-    }
-  }
-
-  const equipmentMatch =
-    /^(?:equipment:|upgrade-initialization:)(weaponTrait|gearTrait|gearSet|weapon-trait|gear-trait|gear-set):([^:]+)/.exec(
-      sourceActionId,
-    );
-  if (equipmentMatch !== null) {
-    const [, kind, slug] = equipmentMatch;
-    if (kind === 'weapon-trait' || kind === 'weaponTrait') {
-      return getWeaponGameName(slug!, locale.value);
-    }
-    if (kind === 'gear-trait' || kind === 'gearTrait') {
-      return getGearPieceGameName(slug!, locale.value);
-    }
-    return getGearSetGameName(slug!, locale.value);
-  }
-
-  const track = viewModel.value.tracks.find(
-    candidate => candidate.operatorInstanceId === segment.sourceId,
+  const source = resolvePublishedBuffSource(
+    segment,
+    publishedSimulation.value?.scenario,
+    publishedOperators.value,
   );
-  if (track?.operatorSlug === null || track === undefined) return undefined;
-  const definition = editorGameDataRepository.getOperator(track.operatorSlug);
-  if (definition == null) return undefined;
-  const assetSlug = definition.assetSlug ?? track.operatorSlug;
-
-  const initializationMatch = /^upgrade-initialization:(talent|potential):([^:]+)$/.exec(
-    sourceActionId,
-  );
-  if (initializationMatch !== null) {
-    const [, kind, key] = initializationMatch;
-    if (kind === 'potential') {
-      const index = definition.potentials.findIndex(candidate => candidate.key === key);
-      return index < 0 ? undefined : getOperatorPotentialName(assetSlug, index, locale.value);
-    }
-    const index = definition.talents.findIndex(candidate => candidate.key === key);
-    if (index < 0) return undefined;
-    const flatIndex = definition.talents
-      .slice(0, index)
-      .reduce((sum, talent) => sum + talent.levels, 0);
-    return getOperatorTalentName(assetSlug, flatIndex, 0, locale.value);
+  if (source === undefined) return undefined;
+  switch (source.kind) {
+    case 'custom':
+      return source.name;
+    case 'skill':
+      return source.slug === null
+        ? source.key
+        : getOperatorCombatSkillName(source.slug, source.key, locale.value);
+    case 'weapon':
+      return getWeaponGameName(source.slug, locale.value);
+    case 'gear':
+      return getGearPieceGameName(source.slug, locale.value);
+    case 'gearSet':
+      return getGearSetGameName(source.slug, locale.value);
+    case 'talent':
+      return getOperatorTalentName(source.slug, source.index, 0, locale.value);
+    case 'potential':
+      return getOperatorPotentialName(source.slug, source.index, locale.value);
   }
-
-  if (sourceActionId.startsWith('passive:')) {
-    const passiveKey = sourceActionId.slice('passive:'.length);
-    const talentIndex = definition.talents.findIndex(talent =>
-      talent.passiveSkills?.some(passive => passive.key === passiveKey),
-    );
-    if (talentIndex >= 0) {
-      const flatIndex = definition.talents
-        .slice(0, talentIndex)
-        .reduce((sum, talent) => sum + talent.levels, 0);
-      return getOperatorTalentName(assetSlug, flatIndex, 0, locale.value);
-    }
-    const potentialIndex = definition.potentials.findIndex(potential =>
-      potential.passiveSkills?.some(passive => passive.key === passiveKey),
-    );
-    if (potentialIndex >= 0) {
-      return getOperatorPotentialName(assetSlug, potentialIndex, locale.value);
-    }
-  }
-
-  if (
-    definition.skillGroups.some(group =>
-      (Array.isArray(group.skills) ? group.skills : [group.skills]).some(
-        skill => skill.key === sourceActionId,
-      ),
-    )
-  ) {
-    return getOperatorCombatSkillName(assetSlug, sourceActionId, locale.value);
-  }
-  return undefined;
 }
 
 function openBuffDetail(target: BuffDetailTarget): void {

@@ -12,7 +12,17 @@ import {
 } from '../gameText';
 
 export interface OperatorPanelContributionPresentationContext {
-  readonly operator: Pick<PublishedOperatorMetadata, 'slug' | 'talents' | 'potentials'> | null;
+  readonly operator: {
+    readonly slug: string;
+    readonly talents: readonly Pick<
+      PublishedOperatorMetadata['talents'][number],
+      'key' | 'levels'
+    >[];
+    readonly potentials: readonly Pick<
+      PublishedOperatorMetadata['potentials'][number],
+      'key' | 'levels'
+    >[];
+  } | null;
   readonly locale: string;
   readonly translate: (key: string, params?: Record<string, unknown>) => string;
 }

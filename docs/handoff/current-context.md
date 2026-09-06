@@ -1,5 +1,18 @@
 # 当前任务快照
 
+#### 2026-09-07 Buff 来源说明改读已发布身份
+
+- resolvePublishedBuffSource 从根组件抽出身份解释：发布场景中的 cast/sourceId，
+  捕获元数据中的技能键和被动技能键，返回可本地化描述；不读取当前 viewModel 或
+  当前模板。不改技能、装备别名、天赋等级展平及潜能索引的既有解释规则。
+- 捕获元数据只增加 passiveKeys/skillKeys 字符串，不复制被动行为或技能树。合约
+  Buff 名称改用发布场景的 mechanics.selections，取消当前选择不会抹掉旧效果的名称。
+- 敌人附加伤害调用 buffSourceName 时补传 sourceId，原先仅传 sourceActionId，导致
+  依赖干员身份的被动/天赋来源不能定位。
+- 996 项相关回归及应用类型检查通过，新增14项覆盖技能块/技能键、天赋初始化及被动、潜能初始化
+  及被动、6种装备身份别名和无来源/无发布/未知身份。无布局变更，未新增视觉验收；
+  不将纯解析测试当成所有 Buff 详情实页验收。整体 UI 目标仍未完成。
+
 #### 2026-09-07 共用结果来源元数据捕获边界
 
 - 新增 capturePublishedOperatorMetadata，在模拟发布时只捕获干员 slug/assetSlug/

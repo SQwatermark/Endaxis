@@ -7,9 +7,14 @@ export interface PublishedOperatorMetadata {
   readonly slug: string;
   readonly assetSlug: string;
   readonly displayName: string | undefined;
-  readonly talents: readonly Pick<OperatorDefinition['talents'][number], 'key' | 'levels'>[];
-  readonly potentials: readonly Pick<OperatorDefinition['potentials'][number], 'key' | 'levels'>[];
+  readonly talents: readonly PublishedUpgradeMetadata[];
+  readonly potentials: readonly PublishedUpgradeMetadata[];
+  readonly skillKeys: readonly string[];
 }
+
+type PublishedUpgradeMetadata = Pick<OperatorDefinition['talents'][number], 'key' | 'levels'> & {
+  readonly passiveKeys: readonly string[];
+};
 
 export function capturePublishedOperatorMetadata(
   scenario: ScenarioDocument,
@@ -25,8 +30,19 @@ export function capturePublishedOperatorMetadata(
       slug: definition.slug,
       assetSlug: definition.assetSlug ?? slug,
       displayName: definition.displayName,
-      talents: definition.talents.map(({ key, levels }) => ({ key, levels })),
-      potentials: definition.potentials.map(({ key, levels }) => ({ key, levels })),
+      talents: definition.talents.map(({ key, levels, passiveSkills }) => ({
+        key,
+        levels,
+        passiveKeys: (passiveSkills ?? []).map(skill => skill.key),
+      })),
+      potentials: definition.potentials.map(({ key, levels, passiveSkills }) => ({
+        key,
+        levels,
+        passiveKeys: (passiveSkills ?? []).map(skill => skill.key),
+      })),
+      skillKeys: definition.skillGroups.flatMap(group =>
+        (Array.isArray(group.skills) ? group.skills : [group.skills]).map(skill => skill.key),
+      ),
     });
   }
   return result;
