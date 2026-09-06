@@ -5,6 +5,12 @@ import {
 } from './workbenchLayoutGeometry';
 
 describe('workbench bottom panel geometry', () => {
+  it.each([68, 800])('moves immediately from the visible height for saved request %i', saved => {
+    const displayed = resolveWorkbenchBottomHeight(1080, saved, false);
+    const delta = saved < displayed ? 40 : -40;
+    expect(resolveWorkbenchBottomHeight(1080, displayed + delta, false)).toBe(displayed + delta);
+    expect(resolveWorkbenchBottomHeight(1080, saved + delta, false)).toBe(displayed);
+  });
   it.each([
     [0, 240],
     [1, 180],

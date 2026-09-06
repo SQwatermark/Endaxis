@@ -168,7 +168,9 @@ function beginResize(target: NonNullable<typeof resizing.value>, event: PointerE
   const startY = event.clientY;
   const initialLeft = leftWidth.value;
   const initialRight = rightWidth.value;
-  const initialBottom = bottomHeight.value;
+  // Viewport/folding constraints can make the saved request differ from the visible panel.
+  // Drag from what the user grabbed, not from an off-screen requested height.
+  const initialBottom = effectiveBottomHeight.value;
   const onMove = (moveEvent: PointerEvent) => {
     if (target === 'left') {
       leftWidth.value = clamp(initialLeft + moveEvent.clientX - startX, 200, 480);

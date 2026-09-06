@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import source from './TimelineWorkbenchShell.vue?raw';
 
 describe('TimelineWorkbenchShell legacy behavior parity', () => {
+  it('starts bottom resizing at the displayed height after viewport clamping', () => {
+    expect(source).toContain('const initialBottom = effectiveBottomHeight.value;');
+    expect(source).not.toContain('const initialBottom = bottomHeight.value;');
+  });
   it('receives monitor folding count and preserves a 9px bottom resize target', () => {
     expect(source).toContain('props.collapsedMonitorSectionCount ?? 0');
     expect(source).toMatch(/\.bottom-resizer::after\s*\{[^}]*height: 9px/);
