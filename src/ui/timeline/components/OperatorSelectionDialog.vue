@@ -6,6 +6,7 @@
  * 不读取项目状态，也不负责创建或修改 Build。
  */
 import { computed, ref, watch } from 'vue';
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { Search } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { getGameClassName, getGameElementName, getOperatorGameName } from '@/data/gameText';
@@ -127,122 +128,124 @@ function clear(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    :title="t('timelineGrid.operatorDialog.title')"
-    width="600px"
-    align-center
-    class="char-selector-dialog"
-    append-to-body
-    @closed="emit('close')"
-  >
-    <div class="selector-header">
-      <div class="header-left-group">
-        <el-input
-          v-model="searchQuery"
-          :placeholder="t('timelineGrid.operatorDialog.searchPlaceholder')"
-          :prefix-icon="Search"
-          clearable
-          style="width: 180px"
-        />
-        <button
-          type="button"
-          class="ea-btn ea-btn--glass-cut ea-btn--glass-cut-danger ea-btn--cut-left ea-btn--lift"
-          :title="t('timelineGrid.operatorDialog.clearTrack')"
-          @click="clear"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="14"
-            height="14"
-            stroke="currentColor"
-            stroke-width="2"
-            fill="none"
-            aria-hidden="true"
+  <InputRegionBoundary label="operator-selection" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      :title="t('timelineGrid.operatorDialog.title')"
+      width="600px"
+      align-center
+      class="char-selector-dialog"
+      append-to-body
+      @closed="emit('close')"
+    >
+      <div class="selector-header">
+        <div class="header-left-group">
+          <el-input
+            v-model="searchQuery"
+            :placeholder="t('timelineGrid.operatorDialog.searchPlaceholder')"
+            :prefix-icon="Search"
+            clearable
+            style="width: 180px"
+          />
+          <button
+            type="button"
+            class="ea-btn ea-btn--glass-cut ea-btn--glass-cut-danger ea-btn--cut-left ea-btn--lift"
+            :title="t('timelineGrid.operatorDialog.clearTrack')"
+            @click="clear"
           >
-            <path d="M3 6h18" />
-            <path
-              d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-            />
-          </svg>
-          {{ t('common.unequip') }}
-        </button>
-      </div>
-      <div class="element-filters">
-        <button
-          v-for="element in elementFilters"
-          :key="element.value"
-          type="button"
-          class="ea-btn ea-btn--glass-cut"
-          :class="{ 'is-active': elementFilter === element.value }"
-          :style="{ '--ea-btn-accent': element.color }"
-          @click="elementFilter = element.value"
-        >
-          {{ element.label }}
-        </button>
-      </div>
-      <div class="class-filters">
-        <button
-          v-for="operatorClass in classFilters"
-          :key="operatorClass.value"
-          type="button"
-          class="ea-btn ea-btn--glass-cut"
-          :class="{ 'is-active': classFilter === operatorClass.value }"
-          @click="classFilter = operatorClass.value"
-        >
-          {{ operatorClass.label }}
-        </button>
-      </div>
-    </div>
-
-    <div class="roster-scroll-container">
-      <template v-for="group in groups" :key="group.level">
-        <div
-          class="rarity-header"
-          :class="`header-rarity-${group.level}`"
-          :style="{ color: rarityColor(group.level) }"
-        >
-          <span class="rarity-label">{{ group.level }} ★</span>
-          <div class="rarity-line"></div>
-        </div>
-        <div class="roster-grid">
-          <div
-            v-for="operator in group.list"
-            :key="operator.slug"
-            class="roster-card operator-roster-card"
-            :class="[
-              { 'is-selected': selectedSlugs.includes(operator.slug) },
-              `rarity-${operator.rarity}-style`,
-            ]"
-            @click="select(operator.slug)"
-          >
-            <div
-              class="card-avatar-wrapper"
-              :style="operator.rarity === 6 ? {} : { borderColor: rarityColor(operator.rarity) }"
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              aria-hidden="true"
             >
-              <OperatorSupportNotice :support="operator.support" compact />
-              <img :src="operator.avatar" alt="" loading="lazy" />
+              <path d="M3 6h18" />
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              />
+            </svg>
+            {{ t('common.unequip') }}
+          </button>
+        </div>
+        <div class="element-filters">
+          <button
+            v-for="element in elementFilters"
+            :key="element.value"
+            type="button"
+            class="ea-btn ea-btn--glass-cut"
+            :class="{ 'is-active': elementFilter === element.value }"
+            :style="{ '--ea-btn-accent': element.color }"
+            @click="elementFilter = element.value"
+          >
+            {{ element.label }}
+          </button>
+        </div>
+        <div class="class-filters">
+          <button
+            v-for="operatorClass in classFilters"
+            :key="operatorClass.value"
+            type="button"
+            class="ea-btn ea-btn--glass-cut"
+            :class="{ 'is-active': classFilter === operatorClass.value }"
+            @click="classFilter = operatorClass.value"
+          >
+            {{ operatorClass.label }}
+          </button>
+        </div>
+      </div>
+
+      <div class="roster-scroll-container">
+        <template v-for="group in groups" :key="group.level">
+          <div
+            class="rarity-header"
+            :class="`header-rarity-${group.level}`"
+            :style="{ color: rarityColor(group.level) }"
+          >
+            <span class="rarity-label">{{ group.level }} ★</span>
+            <div class="rarity-line"></div>
+          </div>
+          <div class="roster-grid">
+            <div
+              v-for="operator in group.list"
+              :key="operator.slug"
+              class="roster-card operator-roster-card"
+              :class="[
+                { 'is-selected': selectedSlugs.includes(operator.slug) },
+                `rarity-${operator.rarity}-style`,
+              ]"
+              @click="select(operator.slug)"
+            >
               <div
-                class="element-badge"
-                :class="{ 'is-physical': operator.element === 'physical' }"
-                :style="{ backgroundColor: elementColors[operator.element] }"
-                :title="operator.elementName"
+                class="card-avatar-wrapper"
+                :style="operator.rarity === 6 ? {} : { borderColor: rarityColor(operator.rarity) }"
               >
-                <img :src="getElementIconPath(operator.element)" alt="" loading="lazy" />
+                <OperatorSupportNotice :support="operator.support" compact />
+                <img :src="operator.avatar" alt="" loading="lazy" />
+                <div
+                  class="element-badge"
+                  :class="{ 'is-physical': operator.element === 'physical' }"
+                  :style="{ backgroundColor: elementColors[operator.element] }"
+                  :title="operator.elementName"
+                >
+                  <img :src="getElementIconPath(operator.element)" alt="" loading="lazy" />
+                </div>
+              </div>
+              <div class="card-name">{{ operator.name }}</div>
+              <div v-if="selectedSlugs.includes(operator.slug)" class="in-team-tag">
+                {{ t('timelineGrid.operatorDialog.inTeam') }}
               </div>
             </div>
-            <div class="card-name">{{ operator.name }}</div>
-            <div v-if="selectedSlugs.includes(operator.slug)" class="in-team-tag">
-              {{ t('timelineGrid.operatorDialog.inTeam') }}
-            </div>
           </div>
+        </template>
+        <div v-if="groups.length === 0" class="empty-roster">
+          {{ t('timelineGrid.operatorDialog.empty') }}
         </div>
-      </template>
-      <div v-if="groups.length === 0" class="empty-roster">
-        {{ t('timelineGrid.operatorDialog.empty') }}
       </div>
-    </div>
-  </el-dialog>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style src="./selectionDialog.css"></style>

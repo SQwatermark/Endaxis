@@ -4,6 +4,7 @@
  * 本组件只复刻旧版装备选择弹窗的定义浏览流程，不读取旧 store，也不把适配状态写入存档。
  */
 import { computed, ref, watch } from 'vue';
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { Search } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 import {
@@ -223,256 +224,264 @@ function clearGear(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    :title="labels.title"
-    width="600px"
-    align-center
-    class="char-selector-dialog"
-    append-to-body
-    @close="emit('close')"
-  >
-    <div class="selector-header">
-      <div class="header-left-group">
-        <el-input
-          v-model="searchQuery"
-          :placeholder="labels.searchPlaceholder"
-          :prefix-icon="Search"
-          clearable
-          style="width: 180px"
-        />
-        <button
-          type="button"
-          class="ea-btn ea-btn--glass-cut ea-btn--glass-cut-danger ea-btn--cut-left ea-btn--lift"
-          :disabled="selectedSlug === null"
-          :title="labels.unequip"
-          @click="clearGear"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="14"
-            height="14"
-            stroke="currentColor"
-            stroke-width="2"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path d="M3 6h18" />
-            <path
-              d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-            />
-          </svg>
-          {{ labels.unequip }}
-        </button>
-        <div class="equipment-tier-picker">
-          <span class="tier-label">{{ t('timelineGrid.equipmentDialog.refine') }}</span>
-          <div class="equipment-refine-buttons">
-            <button
-              v-for="tier in refineTiers"
-              :key="tier"
-              type="button"
-              class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold equipment-refine-btn"
-              :class="{ 'is-active': refineTier === tier }"
-              @click="setRefineTier(tier)"
-            >
-              {{ tier === 0 ? t('timelineGrid.equipmentDialog.refineBase') : tier }}
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="element-filters">
-        <button
-          type="button"
-          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-          :class="{ 'is-active': gearSetFilter === 'ALL' }"
-          :style="{ '--ea-btn-accent': '#2dd4bf' }"
-          @click="gearSetFilter = 'ALL'"
-        >
-          {{ t('timelineGrid.equipmentDialog.allCategories') }}
-        </button>
-        <button
-          type="button"
-          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-          :class="{ 'is-active': gearSetFilter === NO_SET_FILTER }"
-          :style="{ '--ea-btn-accent': '#888' }"
-          @click="gearSetFilter = NO_SET_FILTER"
-        >
-          {{ labels.noSet }}
-        </button>
-        <button
-          v-for="gearSet in gearSets"
-          :key="gearSet.slug"
-          type="button"
-          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-          :class="{ 'is-active': gearSetFilter === gearSet.slug }"
-          :style="{ '--ea-btn-accent': '#2dd4bf' }"
-          @click="gearSetFilter = gearSet.slug"
-        >
-          {{ gearSet.name }}
-        </button>
-      </div>
-      <div class="equipment-affix-filter-section">
-        <div class="equipment-affix-filter-strip">
+  <InputRegionBoundary label="gear-selection" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      :title="labels.title"
+      width="600px"
+      align-center
+      class="char-selector-dialog"
+      append-to-body
+      @close="emit('close')"
+    >
+      <div class="selector-header">
+        <div class="header-left-group">
+          <el-input
+            v-model="searchQuery"
+            :placeholder="labels.searchPlaceholder"
+            :prefix-icon="Search"
+            clearable
+            style="width: 180px"
+          />
           <button
             type="button"
-            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-            :class="{ 'is-active': affixFilter === 'ALL' }"
-            :style="{ '--ea-btn-accent': '#2dd4bf' }"
-            @click="affixFilter = 'ALL'"
+            class="ea-btn ea-btn--glass-cut ea-btn--glass-cut-danger ea-btn--cut-left ea-btn--lift"
+            :disabled="selectedSlug === null"
+            :title="labels.unequip"
+            @click="clearGear"
           >
-            {{ t('timelineGrid.equipmentDialog.allAffixes') }}
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path d="M3 6h18" />
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              />
+            </svg>
+            {{ labels.unequip }}
           </button>
-          <template
-            v-for="(group, groupIndex) in affixFilterGroups"
-            :key="`next_gear_affix_group_${group.key}`"
-          >
-            <span v-if="groupIndex > 0" class="equipment-affix-filter-divider" aria-hidden="true" />
-            <button
-              v-for="option in group.items"
-              :key="`next_gear_affix_filter_${option.value}`"
-              type="button"
-              class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-              :class="{ 'is-active': affixFilter === option.value }"
-              :style="{ '--ea-btn-accent': option.accent }"
-              @click="affixFilter = option.value"
-            >
-              {{ option.label }}
-            </button>
-          </template>
-        </div>
-      </div>
-      <div class="element-filters">
-        <button
-          type="button"
-          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-          :class="{ 'is-active': levelFilter === 'ALL' }"
-          :style="{ '--ea-btn-accent': '#2dd4bf' }"
-          @click="levelFilter = 'ALL'"
-        >
-          {{ t('timelineGrid.equipmentDialog.allLevels') }}
-        </button>
-        <button
-          v-for="level in levels"
-          :key="level"
-          type="button"
-          class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-          :class="{ 'is-active': levelFilter === level }"
-          :style="{ '--ea-btn-accent': getEquipmentLevelColor(level) }"
-          @click="levelFilter = level"
-        >
-          Lv{{ level }}
-        </button>
-      </div>
-    </div>
-
-    <div class="roster-scroll-container">
-      <template v-for="group in groups" :key="group.level">
-        <div class="rarity-header" :style="{ color: getEquipmentLevelColor(group.level) }">
-          <span class="rarity-label">Lv{{ group.level }}</span>
-          <div class="rarity-line"></div>
-        </div>
-        <div class="roster-grid">
-          <div
-            v-for="gear in group.items"
-            :key="gear.definition.slug"
-            class="roster-card equipment-roster-card"
-            :class="{ 'is-ability-match-both': gear.matchesOperatorAttributes }"
-            @click="selectGear(gear.definition.slug)"
-          >
-            <el-tooltip
-              placement="top-start"
-              effect="dark"
-              :show-after="160"
-              popper-class="equipment-selection-preview-popper"
-            >
-              <template #content>
-                <EquipmentSelectionTooltip
-                  :equipment="gear.legacyPreviewIdentity"
-                  :affix-rows="[...gear.previewRows]"
-                  :gear-set-name="gear.gearSetName === labels.noSet ? '' : gear.gearSetName"
-                  :gear-set-description="
-                    gear.gearSetSlug
-                      ? (getGearSetGameDescription(gear.gearSetSlug, locale) ?? '')
-                      : ''
-                  "
-                />
-                <div
-                  v-if="gear.isPartial"
-                  class="next-gear-preview__warning"
-                  :title="gear.supportSummary"
-                >
-                  {{ labels.partialSupport }}
-                </div>
-              </template>
-              <div class="selection-card-tooltip-target">
-                <div
-                  class="card-avatar-wrapper"
-                  :class="{ 'is-ability-match-both': gear.matchesOperatorAttributes }"
-                  :style="{ borderColor: getEquipmentLevelColor(gear.definition.levelRequirement) }"
-                >
-                  <div class="eq-affix-icon-stack">
-                    <div
-                      v-for="icon in gear.previewRows"
-                      :key="`next_gear_affix_${gear.definition.slug}_${icon.key}`"
-                      class="eq-affix-icon-cell"
-                      :class="{
-                        'has-img': Boolean(icon.src),
-                        'has-hollow-marker': icon.marker === 'hollow-dot',
-                      }"
-                      :title="icon.title"
-                    >
-                      <span class="eq-affix-icon-dot" aria-hidden="true"></span>
-                      <svg
-                        v-if="icon.marker === 'hollow-dot'"
-                        class="eq-affix-icon-hollow"
-                        viewBox="0 0 12 12"
-                        aria-hidden="true"
-                      >
-                        <circle
-                          cx="6"
-                          cy="6"
-                          r="3.25"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.5"
-                        />
-                      </svg>
-                      <img
-                        v-else-if="icon.src"
-                        class="eq-affix-icon-img"
-                        :src="icon.src"
-                        alt=""
-                        @error="
-                          ($event.currentTarget as HTMLImageElement)
-                            .closest('.eq-affix-icon-cell')
-                            ?.classList.add('img-failed')
-                        "
-                        @load="
-                          ($event.currentTarget as HTMLImageElement)
-                            .closest('.eq-affix-icon-cell')
-                            ?.classList.remove('img-failed')
-                        "
-                      />
-                    </div>
-                  </div>
-                  <img
-                    :src="gear.definition.iconPath || DEFAULT_GAME_ICON_PATH"
-                    :alt="gear.name"
-                    loading="lazy"
-                  />
-                </div>
-                <div class="card-name">{{ gear.name }}</div>
-              </div>
-            </el-tooltip>
-            <div v-if="selectedSlug === gear.definition.slug" class="in-team-tag weapon-equipped">
-              {{ t('timelineGrid.weaponDialog.equipped') }}
+          <div class="equipment-tier-picker">
+            <span class="tier-label">{{ t('timelineGrid.equipmentDialog.refine') }}</span>
+            <div class="equipment-refine-buttons">
+              <button
+                v-for="tier in refineTiers"
+                :key="tier"
+                type="button"
+                class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold equipment-refine-btn"
+                :class="{ 'is-active': refineTier === tier }"
+                @click="setRefineTier(tier)"
+              >
+                {{ tier === 0 ? t('timelineGrid.equipmentDialog.refineBase') : tier }}
+              </button>
             </div>
           </div>
         </div>
-      </template>
-      <div v-if="groups.length === 0" class="empty-roster">{{ labels.empty }}</div>
-    </div>
-  </el-dialog>
+        <div class="element-filters">
+          <button
+            type="button"
+            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+            :class="{ 'is-active': gearSetFilter === 'ALL' }"
+            :style="{ '--ea-btn-accent': '#2dd4bf' }"
+            @click="gearSetFilter = 'ALL'"
+          >
+            {{ t('timelineGrid.equipmentDialog.allCategories') }}
+          </button>
+          <button
+            type="button"
+            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+            :class="{ 'is-active': gearSetFilter === NO_SET_FILTER }"
+            :style="{ '--ea-btn-accent': '#888' }"
+            @click="gearSetFilter = NO_SET_FILTER"
+          >
+            {{ labels.noSet }}
+          </button>
+          <button
+            v-for="gearSet in gearSets"
+            :key="gearSet.slug"
+            type="button"
+            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+            :class="{ 'is-active': gearSetFilter === gearSet.slug }"
+            :style="{ '--ea-btn-accent': '#2dd4bf' }"
+            @click="gearSetFilter = gearSet.slug"
+          >
+            {{ gearSet.name }}
+          </button>
+        </div>
+        <div class="equipment-affix-filter-section">
+          <div class="equipment-affix-filter-strip">
+            <button
+              type="button"
+              class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+              :class="{ 'is-active': affixFilter === 'ALL' }"
+              :style="{ '--ea-btn-accent': '#2dd4bf' }"
+              @click="affixFilter = 'ALL'"
+            >
+              {{ t('timelineGrid.equipmentDialog.allAffixes') }}
+            </button>
+            <template
+              v-for="(group, groupIndex) in affixFilterGroups"
+              :key="`next_gear_affix_group_${group.key}`"
+            >
+              <span
+                v-if="groupIndex > 0"
+                class="equipment-affix-filter-divider"
+                aria-hidden="true"
+              />
+              <button
+                v-for="option in group.items"
+                :key="`next_gear_affix_filter_${option.value}`"
+                type="button"
+                class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+                :class="{ 'is-active': affixFilter === option.value }"
+                :style="{ '--ea-btn-accent': option.accent }"
+                @click="affixFilter = option.value"
+              >
+                {{ option.label }}
+              </button>
+            </template>
+          </div>
+        </div>
+        <div class="element-filters">
+          <button
+            type="button"
+            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+            :class="{ 'is-active': levelFilter === 'ALL' }"
+            :style="{ '--ea-btn-accent': '#2dd4bf' }"
+            @click="levelFilter = 'ALL'"
+          >
+            {{ t('timelineGrid.equipmentDialog.allLevels') }}
+          </button>
+          <button
+            v-for="level in levels"
+            :key="level"
+            type="button"
+            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
+            :class="{ 'is-active': levelFilter === level }"
+            :style="{ '--ea-btn-accent': getEquipmentLevelColor(level) }"
+            @click="levelFilter = level"
+          >
+            Lv{{ level }}
+          </button>
+        </div>
+      </div>
+
+      <div class="roster-scroll-container">
+        <template v-for="group in groups" :key="group.level">
+          <div class="rarity-header" :style="{ color: getEquipmentLevelColor(group.level) }">
+            <span class="rarity-label">Lv{{ group.level }}</span>
+            <div class="rarity-line"></div>
+          </div>
+          <div class="roster-grid">
+            <div
+              v-for="gear in group.items"
+              :key="gear.definition.slug"
+              class="roster-card equipment-roster-card"
+              :class="{ 'is-ability-match-both': gear.matchesOperatorAttributes }"
+              @click="selectGear(gear.definition.slug)"
+            >
+              <el-tooltip
+                placement="top-start"
+                effect="dark"
+                :show-after="160"
+                popper-class="equipment-selection-preview-popper"
+              >
+                <template #content>
+                  <EquipmentSelectionTooltip
+                    :equipment="gear.legacyPreviewIdentity"
+                    :affix-rows="[...gear.previewRows]"
+                    :gear-set-name="gear.gearSetName === labels.noSet ? '' : gear.gearSetName"
+                    :gear-set-description="
+                      gear.gearSetSlug
+                        ? (getGearSetGameDescription(gear.gearSetSlug, locale) ?? '')
+                        : ''
+                    "
+                  />
+                  <div
+                    v-if="gear.isPartial"
+                    class="next-gear-preview__warning"
+                    :title="gear.supportSummary"
+                  >
+                    {{ labels.partialSupport }}
+                  </div>
+                </template>
+                <div class="selection-card-tooltip-target">
+                  <div
+                    class="card-avatar-wrapper"
+                    :class="{ 'is-ability-match-both': gear.matchesOperatorAttributes }"
+                    :style="{
+                      borderColor: getEquipmentLevelColor(gear.definition.levelRequirement),
+                    }"
+                  >
+                    <div class="eq-affix-icon-stack">
+                      <div
+                        v-for="icon in gear.previewRows"
+                        :key="`next_gear_affix_${gear.definition.slug}_${icon.key}`"
+                        class="eq-affix-icon-cell"
+                        :class="{
+                          'has-img': Boolean(icon.src),
+                          'has-hollow-marker': icon.marker === 'hollow-dot',
+                        }"
+                        :title="icon.title"
+                      >
+                        <span class="eq-affix-icon-dot" aria-hidden="true"></span>
+                        <svg
+                          v-if="icon.marker === 'hollow-dot'"
+                          class="eq-affix-icon-hollow"
+                          viewBox="0 0 12 12"
+                          aria-hidden="true"
+                        >
+                          <circle
+                            cx="6"
+                            cy="6"
+                            r="3.25"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                          />
+                        </svg>
+                        <img
+                          v-else-if="icon.src"
+                          class="eq-affix-icon-img"
+                          :src="icon.src"
+                          alt=""
+                          @error="
+                            ($event.currentTarget as HTMLImageElement)
+                              .closest('.eq-affix-icon-cell')
+                              ?.classList.add('img-failed')
+                          "
+                          @load="
+                            ($event.currentTarget as HTMLImageElement)
+                              .closest('.eq-affix-icon-cell')
+                              ?.classList.remove('img-failed')
+                          "
+                        />
+                      </div>
+                    </div>
+                    <img
+                      :src="gear.definition.iconPath || DEFAULT_GAME_ICON_PATH"
+                      :alt="gear.name"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="card-name">{{ gear.name }}</div>
+                </div>
+              </el-tooltip>
+              <div v-if="selectedSlug === gear.definition.slug" class="in-team-tag weapon-equipped">
+                {{ t('timelineGrid.weaponDialog.equipped') }}
+              </div>
+            </div>
+          </div>
+        </template>
+        <div v-if="groups.length === 0" class="empty-roster">{{ labels.empty }}</div>
+      </div>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>

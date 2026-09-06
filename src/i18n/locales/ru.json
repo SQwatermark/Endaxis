@@ -1680,7 +1680,7 @@
       "refineBase": "Без доработки",
       "setBonusTitle": "Бонус комплекта",
       "setBonusEquipped": "Надето: {count}/{required}",
-      "searchPlaceholder": "Поиск по названию/ID...",
+      "searchPlaceholder": "Поиск по названию...",
       "title": "Выбор снаряжения - {slot}",
       "uncategorized": "Без категории",
       "unequipTooltip": "Снять предмет"

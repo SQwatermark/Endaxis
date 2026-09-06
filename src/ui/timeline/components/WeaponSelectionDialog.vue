@@ -4,7 +4,10 @@
  * 武器 Build 的创建和持久化仍由父层负责，组件内不依赖旧 store。
  */
 import { computed, ref, watch } from 'vue';
-import { useKeyboardShortcutScope } from '../../keyboard/keyboardShortcutRouter';
+import {
+  useKeyboardInputRegion,
+  useKeyboardShortcutScope,
+} from '../../keyboard/keyboardShortcutRouter';
 import { Search } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { getWeaponGameName } from '../../gameText';
@@ -53,9 +56,15 @@ interface WeaponRarityGroup {
 const { locale } = useI18n({ useScope: 'global' });
 const searchQuery = ref('');
 const fullPotential = ref(false);
+const region = useKeyboardInputRegion({
+  label: 'weapon-selection',
+  modal: true,
+  active: () => props.visible,
+});
 useKeyboardShortcutScope({
   id: 'weapon-selection',
-  priority: 1500,
+  region,
+  priority: 0,
   active: () => props.visible,
   blockLowerScopes: true,
   handle: () => false,

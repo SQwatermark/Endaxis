@@ -6075,7 +6075,7 @@ function setPanelDialogVisible(visible: boolean): void {
     :selected-slug="selectedWeaponSlug"
     :labels="{
       title: t('timeline.weaponDialog.title'),
-      searchPlaceholder: t('timeline.weaponDialog.searchPlaceholder'),
+      searchPlaceholder: t('timelineGrid.weaponDialog.searchPlaceholder'),
       unequip: t('common.unequip'),
       close: t('common.close'),
       empty: t('timeline.weaponDialog.empty'),

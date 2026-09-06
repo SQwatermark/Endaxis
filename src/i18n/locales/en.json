@@ -1722,7 +1722,7 @@
       "refineBase": "No Artificing",
       "setBonusTitle": "Set Bonus",
       "setBonusEquipped": "Equipped: {count}/{required}",
-      "searchPlaceholder": "Search equipment name/ID...",
+      "searchPlaceholder": "Search equipment name...",
       "title": "Select Equipment - {slot}",
       "uncategorized": "Uncategorized",
       "unequipTooltip": "Unequip current item"
