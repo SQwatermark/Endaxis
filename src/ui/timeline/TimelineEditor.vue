@@ -6186,7 +6186,8 @@ button:disabled {
 .prep-collapsed-entry,
 .prep-expanded-collapse {
   position: absolute;
-  z-index: 12;
+  /* 与轨道分隔线重合时，准备区按钮优先命中；仍低于固定轨道头和标尺。 */
+  z-index: 41;
   top: calc(60px + (100% - 60px) / 2);
   transform: translateY(-50%);
   display: flex;

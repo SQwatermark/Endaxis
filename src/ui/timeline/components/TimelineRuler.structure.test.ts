@@ -65,6 +65,15 @@ describe('timeline ruler editing structure', () => {
     expect(rulerSource).toContain("if (kind === 'prep' && !props.prepExpanded) return");
   });
 
+  it('keeps prep toggle controls above track resize hit areas', () => {
+    const layer = (selector: string) => {
+      const block = editorSource.slice(editorSource.indexOf(selector)).split('}')[0]!;
+      return Number(block.match(/z-index:\s*(\d+)/)?.[1]);
+    };
+    expect(layer('.prep-expanded-collapse {')).toBeGreaterThan(layer('.track-row-resizer {'));
+    expect(editorSource).toMatch(/\.prep-collapsed-entry,\s*\.prep-expanded-collapse/);
+  });
+
   it('projects the legacy operation key layer from Next timeline data', () => {
     expect(editorSource).toContain(':operations="rulerOperations"');
     expect(editorSource).toContain("cast.skillType === 'battleSkill'");
