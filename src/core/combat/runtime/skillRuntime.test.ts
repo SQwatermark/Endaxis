@@ -87,6 +87,19 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it.each([0, 3])('准备期释放免技力费用，包括跨越 0 帧的延迟扣费：%s', costFrame => {
+    const fixture = createBattleSkillRuntime(0, costFrame);
+    fixture.clock.initializeFrame(-1);
+    expect(fixture.runtime.tryStart()).toBe(true);
+    fixture.simulation.advanceFrames(4);
+    expect(fixture.resources.sp).toBe(0);
+    expect(fixture.resources.spRecoveryPauseRemaining).toBe(0);
+    expect(fixture.runtime.skillCastInfo.nonReturnedSpCost).toBe(0);
+    expect(fixture.receipt.entries.filter(entry => entry.event === 'SpChanged')).toEqual([]);
+    // 准备期免除的是技能费用，不屏蔽效果主动回技力。
+    expect(fixture.resources.gainSp(20).actualValue).toBe(20);
+  });
+
   it.each([false, true])('施法前事件只在需要的 Buff 旁路发布，asSkillCast=%s', asSkillCast => {
     const current = createBattleSkillRuntime(300);
     const ending = createBattleSkillRuntime(300, undefined, undefined, {

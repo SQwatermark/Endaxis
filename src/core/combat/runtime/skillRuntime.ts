@@ -350,6 +350,7 @@ export class SkillRuntime {
   #preparedSkipApplyCost = false;
   #preparedForceTimelinePayment = false;
   #forceTimelinePayment = false;
+  #preparationCast = false;
   #timelineFinishRequested = false;
   readonly #attachedBuffs = new Set<BuffApplicationHandle>();
   #pendingTransition: RuntimeSkillTransition | null = null;
@@ -666,6 +667,7 @@ export class SkillRuntime {
     this.#appliedCost = this.#preparedSkipApplyCost;
     this.#attemptedCost = this.#preparedSkipApplyCost;
     this.#forceTimelinePayment = this.#preparedForceTimelinePayment;
+    this.#preparationCast = this.#dependencies.clock.frame < 0;
     this.#timelineFinishRequested = false;
     this.#inheritedSkillCastInfo = this.#preparedSkillCastInfo;
     this.#nonReturnedSpCost = this.#preparedSkillCastInfo?.nonReturnedSpCost ?? 0;
@@ -796,14 +798,18 @@ export class SkillRuntime {
     this.#timeline?.tick(this.#passedFrames, deltaTime, this.#context);
   }
 
-  #resolvedCosts(): readonly CompiledSkillProgram['costs'][number][] {
-    return this.#dependencies.resolveCosts?.(this.#program.costs) ?? this.#program.costs;
+  #resolvedCosts(
+    preparation = this.#dependencies.clock.frame < 0,
+  ): readonly CompiledSkillProgram['costs'][number][] {
+    const costs = this.#dependencies.resolveCosts?.(this.#program.costs) ?? this.#program.costs;
+    // Endaxis 准备期技能免技力费用；终结技能量与技能自身资源效果仍按定义执行。
+    return preparation ? costs.filter(cost => cost.resource !== 'sp') : costs;
   }
 
   #applyCost(emitSkillEvent: boolean): boolean {
     const payment = this.#dependencies.resources.pay(
       this.#program.operatorId,
-      this.#resolvedCosts(),
+      this.#resolvedCosts(this.#preparationCast),
       { forceTimelinePayment: this.#forceTimelinePayment },
     );
     if (!payment.paid) {

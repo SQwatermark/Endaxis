@@ -10,6 +10,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import CustomNumberInput from '../../components/CustomNumberInput.vue';
 import { poiseProgressPoints } from '../poiseProgressPoints';
 import { poiseDisplayPoints } from '../poiseDisplayPoints';
+import { spDisplayPoints } from '../spDisplayPoints';
 import type { SharedSpCurve } from '../../../core/projection/resourceCurves';
 import type { EnemyHealthCurve } from '../../../core/projection/enemyHealthCurves';
 import type { PoiseCurve } from '../../../core/projection/poiseCurves';
@@ -160,8 +161,9 @@ function rowHeight(row: ResourceCurveRow): number {
   return row.kind === 'sp' ? spBodyHeight.value : ROW_HEIGHT;
 }
 
-/** 失衡绘图补保持点与显示终点；不改变原始事实点、标记和读数。 */
+/** 曲线绘图补瞬时跳变、保持段与显示终点；不改变原始事实点、标记和读数。 */
 function displayPoints(row: ResourceCurveRow): readonly ResourceCurvePointView[] {
+  if (row.kind === 'sp') return spDisplayPoints(row.points, -props.prepFrames, duration.value);
   return row.kind === 'poise' ? poiseDisplayPoints(row.points, duration.value) : row.points;
 }
 
@@ -181,7 +183,8 @@ function fillPath(row: ResourceCurveRow): string {
   const last = points.at(-1);
   if (last === undefined) return '';
   const coordinates = points.map(point => `${pointX(point.frame)} ${pointY(row, point.value)}`);
-  return `M 0 ${baselineY(row)} L ${coordinates.join(' L ')} L ${pointX(last.frame)} ${baselineY(row)} Z`;
+  const startX = row.kind === 'sp' ? pointX(points[0]!.frame) : 0;
+  return `M ${startX} ${baselineY(row)} L ${coordinates.join(' L ')} L ${pointX(last.frame)} ${baselineY(row)} Z`;
 }
 
 function formatNumber(value: number): string {

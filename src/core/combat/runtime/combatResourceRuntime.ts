@@ -16,6 +16,8 @@ export class CombatResourceRuntime implements FrameRuntime {
   ) {}
 
   advanceFrame(): void {
+    // Endaxis 准备期不推进自然恢复；到达 0 帧的区间仍属于准备期。
+    if (this.clock.frame <= 0) return;
     const change = this.resources.advanceInCombatSpRecovery(COMBAT_FRAME_INTERVAL);
     if (change.actualValue === 0) return;
     this.receipt.record({

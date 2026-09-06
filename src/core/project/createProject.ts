@@ -48,7 +48,7 @@ export function createEmptyScenario(id: string, name: string): ScenarioDocument 
       durationFrames: 3600,
       resourceRules: {
         maxSp: 300,
-        initialSp: 300,
+        initialSp: 200,
         spRecoveryPerSecond: 10,
         defaultSkillSpCost: 100,
       },

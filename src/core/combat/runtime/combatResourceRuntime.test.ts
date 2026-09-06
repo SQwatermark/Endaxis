@@ -24,6 +24,11 @@ describe('CombatResourceRuntime', () => {
     simulation.add(new CombatResourceRuntime(resources, clock, receipt));
     simulation.add({ advanceFrame: () => observedSp.push(resources.sp) });
 
+    clock.initializeFrame(-2);
+    simulation.advanceFrames(2);
+    expect(resources.sp).toBe(99);
+    expect(receipt.entries).toEqual([]);
+    observedSp.length = 0;
     simulation.advanceFrame();
 
     expect(observedSp).toEqual([100]);
