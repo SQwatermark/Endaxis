@@ -81,6 +81,7 @@ function save(): void {
             <strong>三件套贡献</strong><span>保存后影响项目内所有引用此套装的实例</span>
           </header>
           <EquipmentContributionGraphEditor
+            :key="draft.slug"
             fill-available
             :contribution="draft"
             :label="draft.displayName ?? draft.slug"

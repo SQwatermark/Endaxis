@@ -26,6 +26,7 @@ const emit = defineEmits<{
 
 const draft = ref<WeaponDefinition>(clone(props.customDefinition));
 const selectedSection = ref<'base' | number>('base');
+const contributionEditorRevision = ref(0);
 const issues = computed(() => validateWeaponDefinition(draft.value, '$.weapon'));
 const isDirty = computed(() => !editorDefinitionsEqual(draft.value, props.customDefinition));
 const selectedTraitIndex = computed(() =>
@@ -74,6 +75,7 @@ function addTrait(): void {
 function removeTrait(): void {
   const index = selectedTraitIndex.value;
   if (index === null) return;
+  contributionEditorRevision.value += 1;
   draft.value = { ...draft.value, traits: draft.value.traits.filter((_, i) => i !== index) };
   selectedSection.value =
     draft.value.traits.length === 0 ? 'base' : Math.min(index, draft.value.traits.length - 1);
@@ -260,6 +262,7 @@ function save(): void {
               </p>
             </div>
             <EquipmentContributionGraphEditor
+              :key="`${contributionEditorRevision}:${selectedTraitIndex}`"
               :contribution="selectedTrait"
               :label="selectedTrait.key"
               :level="selectedTrait.levelCount"

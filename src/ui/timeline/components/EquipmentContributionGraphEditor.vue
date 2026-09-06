@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, ref, shallowRef } from 'vue';
 import type {
   EquipmentAttribute,
   EquipmentContributionDefinition,
@@ -130,16 +130,8 @@ const handlerBlackboardEntries = computed(() =>
   Object.entries(selectedHandler.value?.blackboard ?? {}),
 );
 
-watch(
-  () => props.label,
-  () => {
-    selectedPath.value = '';
-    selectedId.value = 'equipment:contribution';
-    selectedPayloadKind.value = undefined;
-    undoStack.value = [];
-    redoStack.value = [];
-  },
-);
+// The host keys this editor by the active editing context. A display label is mutable
+// and is not an identity: renaming must not discard this context's history.
 
 function selectNode(node: {
   id: string;
