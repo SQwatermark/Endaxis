@@ -1,5 +1,19 @@
 # 当前任务快照
 
+#### 2026-09-06 元素状态链方向矩阵
+
+- 新增 elementalPresentationMatrix：控制时刻的测试干员，通过正式模拟服务、Buff
+  定义、SkillSetting 和反应配方覆盖 12 个方向；验证实际转换实例连接、输入图标、
+  输出图标/名称/颜色及自然到期。标准 12 配方均能连接，不需要扩展假想隐藏工厂链。
+- 四元素各覆盖 1→2→3→4→4 刷新、自然到期、到期后重新施加不连线；导电和腐蚀
+  按原生标签提前结束，持续段精确在实际 BuffFinished 收口，第二次结束不造重复事件。
+  新增 22 项，合计 68 项相关测试及应用类型检查通过。本轮只加回归，不修改生产逻辑；
+  不是全干员技能或浏览器整页验收。
+- 检查边界：consumeElementalReaction 管理独立反应容器，不等于当前原生 Buff。
+  导出弧光采用 finishBuffsByTag(Conduct, early)，故矩阵按实际操作检查生命周期。
+  原生标签结束是否需要额外消费瞬时图标仍待对照旧版与真实回执，不能直接用旧
+  ElementalReactionConsumed 代替。下一步优先在完整时间轴检查状态区交互/拥挤布局。
+
 #### 2026-09-06 复合状态 Buff 名称
 
 - buffDisplayName 从现有 compoundStatusFactories 的 incomingElement 派生法术异常
