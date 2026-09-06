@@ -1,5 +1,22 @@
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 
+/** 仅供块体显示裁切。自然结束不等于展示边界；中断也不取消独立效果。 */
+export function projectSkillCastInterruptionFrames(
+  entries: readonly CombatReceiptEntry[],
+): ReadonlyMap<string, number> {
+  const starts = projectSkillCastActualStartFrames(entries);
+  const ends = new Map<string, number>();
+  for (const entry of entries) {
+    if (entry.event !== 'SkillInterrupted') continue;
+    const castId = entry.data?.castId;
+    if (typeof castId !== 'string' || !starts.has(castId) || ends.has(castId)) continue;
+    if (entry.frame < starts.get(castId)!)
+      throw new Error(`cast '${castId}' interrupted before start`);
+    ends.set(castId, entry.frame);
+  }
+  return ends;
+}
+
 export interface TimelineTimeDilationBand {
   readonly instanceId: number;
   readonly kind: 'global' | 'entity';

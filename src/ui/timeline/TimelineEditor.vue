@@ -187,6 +187,7 @@ import {
   projectCastTimeDilationSegments,
   projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
+  projectSkillCastInterruptionFrames,
   projectTimelineTimeDilationBands,
 } from './timelineDisplayTime';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
@@ -1821,12 +1822,22 @@ function castActualDurationFrame(castId: string, definitionDurationFrames: numbe
 
 const visibleSkillEndFrames = computed(() => {
   const ends = new Map<string, number>();
+  const interruptions = projectSkillCastInterruptionFrames(
+    simulationRun.value?.receiptEntries ?? [],
+  );
   for (const track of viewModel.value.tracks) {
     for (const [id, end] of timelineVisibleSkillEnds(
       track.skillCasts.map(cast => ({
         id: cast.id,
         startFrame: castActualStartFrame(cast.id, cast.startFrame),
-        durationFrames: castActualDurationFrame(cast.id, cast.durationFrames),
+        durationFrames: Math.min(
+          castActualDurationFrame(cast.id, cast.durationFrames),
+          Math.max(
+            0,
+            (interruptions.get(cast.id) ?? Infinity) -
+              (skillCastActualStartFrames.value.get(cast.id) ?? cast.startFrame),
+          ),
+        ),
       })),
     ))
       ends.set(id, end);

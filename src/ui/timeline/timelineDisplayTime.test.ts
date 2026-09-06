@@ -4,6 +4,7 @@ import {
   projectCastTimeDilationSegments,
   projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
+  projectSkillCastInterruptionFrames,
   projectTimelineTimeDilationBands,
 } from './timelineDisplayTime';
 
@@ -17,6 +18,21 @@ function receipt(
 }
 
 describe('timeline display time', () => {
+  it('separates confirmed interruption from natural end and local display boundary', () => {
+    const entries = [
+      receipt(0, -10, 'SkillStarted', { castId: 'a' }),
+      receipt(1, -10, 'SkillInterrupted', { castId: 'a' }),
+      receipt(2, 0, 'SkillStarted', { castId: 'b' }),
+      receipt(3, 5, 'SkillEnded', { castId: 'b' }),
+      receipt(4, 20, 'SkillOperableBoundaryReached', { castId: 'a' }),
+      receipt(5, 30, 'SkillOperableBoundaryReached', { castId: 'b' }),
+    ];
+    expect([...projectSkillCastInterruptionFrames(entries)]).toEqual([['a', -10]]);
+    expect([...projectSkillCastActualDurationFrames(entries)]).toEqual([
+      ['a', 30],
+      ['b', 30],
+    ]);
+  });
   it('takes each cast start from the first matching SkillStarted receipt', () => {
     const starts = projectSkillCastActualStartFrames([
       receipt(0, 12, 'SkillStarted', { castId: 'cast:1' }),
