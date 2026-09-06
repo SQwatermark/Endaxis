@@ -1,7 +1,23 @@
 import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import { parseGlobalBuffTemplateCatalogSource } from '../src/source/globalBuffTemplate.ts';
 import { collectReferencedGlobalBuffIds } from '../scripts/generateGlobalBuffCatalog.ts';
 
 describe('GlobalBuff catalog reference closure', () => {
+  it('正式目录必须满足整名生成的公共来源协议', () => {
+    const catalog = JSON.parse(
+      fs.readFileSync(
+        new URL(
+          '../../../src/data/global-buffs/global-buff-templates.generated.json',
+          import.meta.url,
+        ),
+        'utf8',
+      ),
+    );
+    const parsed = parseGlobalBuffTemplateCatalogSource(catalog);
+    expect(parsed.byId.size).toBe(Object.keys(catalog.templates).length);
+    expect(parsed.byId.size).toBeGreaterThan(0);
+  });
   it('collects literal create and finish identities without treating unrelated strings as IDs', () => {
     expect(
       collectReferencedGlobalBuffIds({

@@ -15,7 +15,8 @@
         "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=34028",
         "sourceSha256": "f62ae685184a0714bf6d6664129a1b2b0035f0c5ba105771b6dd7fdafde035dc"
       }
-    ]
+    ],
+    "unsupportedAssets": []
   },
   "templates": {
     "global_buff_combo_trigger": {
@@ -63,6 +64,7 @@
         }
       ],
       "globalModifierCount": 0,
+      "globalModifiers": [],
       "globalEventCount": 0,
       "blackboard": [
         {
@@ -132,6 +134,7 @@
         }
       ],
       "globalModifierCount": 0,
+      "globalModifiers": [],
       "globalEventCount": 0,
       "blackboard": [
         {

@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { planOperatorDefinition } from '../scripts/planOperatorDefinition.ts';
 import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
@@ -10,13 +11,17 @@ import { loadSourceCatalog } from '../scripts/downloadGameDataSources.ts';
 
 // 显式真实来源门禁；普通单测不依赖本机 tmp，也不以正式干员产物补空。
 const sourceRoot = process.env.ENDAXIS_HIDE_UI_SOURCE_ROOT;
+const expectedEnds: Readonly<Record<string, number>> = { perlica: 52, arclight: 55 };
+const slugs: string[] =
+  process.env.ENDAXIS_HIDE_UI_ALL_OPERATORS === '1'
+    ? JSON.parse(
+        fs.readFileSync('tools/game-data-compiler/config/operators.json', 'utf8'),
+      ).operators.map((operator: { slug: string }) => operator.slug)
+    : ['perlica', 'arclight'];
 describe.skipIf(!sourceRoot)('真实整名 HideUI 转换与生产模拟', () => {
-  it.each([
-    ['perlica', 52],
-    ['arclight', 55],
-  ] as const)(
+  it.each(slugs)(
     '%s 保留演出区间并进入正式回执',
-    async (slug, endFrame) => {
+    async slug => {
       const root = sourceRoot!;
       const snapshot = await verifyGameDataSnapshot(
         root,
@@ -90,15 +95,21 @@ describe.skipIf(!sourceRoot)('真实整名 HideUI 转换与生产模拟', () => 
         },
         spellInflictionSettings: skillSettings,
       }).simulate(scenario, 300);
-      expect(
-        result.receiptEntries
-          .filter(entry => entry.event === 'UltimatePresentationChanged')
-          .map(entry => [entry.frame, entry.data?.active]),
-      ).toEqual([
-        [0, true],
-        [endFrame, false],
-      ]);
-      expect(result.receiptEntries.some(entry => entry.event === 'DamageApplied')).toBe(true);
+      const intervals = result.receiptEntries
+        .filter(entry => entry.event === 'UltimatePresentationChanged')
+        .map(entry => [entry.frame, entry.data?.active]);
+      const endFrame = expectedEnds[slug];
+      if (endFrame !== undefined) {
+        expect(intervals).toEqual([
+          [0, true],
+          [endFrame, false],
+        ]);
+        expect(result.receiptEntries.some(entry => entry.event === 'DamageApplied')).toBe(true);
+      }
+      // 整批模式是整名重建＋终结技放轴冒烟，不将未触发演出的变体算成演出覆盖。
+      expect(intervals.filter(([, active]) => active === true).length).toBe(
+        intervals.filter(([, active]) => active === false).length,
+      );
     },
     120_000,
   );

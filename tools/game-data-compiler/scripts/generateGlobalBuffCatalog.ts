@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseGlobalBuffDumpSource } from '../src/source/globalBuffDumpSource.ts';
+import { parseGlobalBuffTemplateCatalogSource } from '../src/source/globalBuffTemplate.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
 
 export async function generateGlobalBuffCatalog(args: {
@@ -66,15 +67,14 @@ export async function generateGlobalBuffCatalog(args: {
     templates[id] = source.template;
     assets.push({ id, path: expectedPath, sourceUrl, sourceSha256: source.sha256 });
   }
-  const content = `${JSON.stringify(
-    {
-      version: args.revision,
-      evidence: { source: 'vfs-index-browser', assets, unsupportedAssets },
-      templates,
-    },
-    null,
-    2,
-  )}\n`;
+  const catalog = {
+    version: args.revision,
+    evidence: { source: 'vfs-index-browser', assets, unsupportedAssets },
+    templates,
+  };
+  // 写入前通过实际消费者解析，避免导出结构与整名转换输入漂移。
+  parseGlobalBuffTemplateCatalogSource(catalog, args.output);
+  const content = `${JSON.stringify(catalog, null, 2)}\n`;
   if (args.check) {
     if ((await fs.readFile(args.output, 'utf8')).replaceAll('\r\n', '\n') !== content)
       throw new Error(`${args.output}: generated GlobalBuff catalog is stale`);

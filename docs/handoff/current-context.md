@@ -2,6 +2,10 @@
 
 #### 2026-09-06 技能宽度与演出操作锁调查
 
+- 公共目录阻塞已修复：用 `generate:game-data:global-buffs` 从当前 VFS 重导出正式 GlobalBuff 目录，随后 `--check` 通过。两份源 SHA 与此前一致，严格差分仅新增 `globalModifiers: []` 和 `evidence.unsupportedAssets: []`，未手补资源。生成器写入前调用实际消费者 `parseGlobalBuffTemplateCatalogSource`，新增正式目录协议回归，防止导出/解析漂移。
+- 全量候选冒烟通过：设置 `ENDAXIS_HIDE_UI_SOURCE_ROOT=tmp/game-data-sources-hybrid-20260905` 和 `ENDAXIS_HIDE_UI_ALL_OPERATORS=1`，运行 `npx vitest run tools/game-data-compiler/test/hideUiRealOperatorRuntime.test.ts`，不再需要候选 GlobalBuff 路径覆盖。31 名均从经哈希验证的来源内存重建，并用正式公共目录、生产 ScenarioSimulationService 放置终结技，31 项通过；出现的演出开始/结束回执数量配对，佩丽卡/弧光额外保持 52/55 帧断言及伤害存在检查。此门禁不统计未触发的技能变体，不代表所有技能组合或伤害差分已验证。
+- 本轮公共 Buff 相关 14 项、架构边界 7 项及完整 `type-check:game-data` 通过。仅公共目录正式重生成，干员候选仍未发布、输入禁用诊断仍未接。下一步在候选全技能/组合门禁后发布干员，再接原生证据已确认的演出输入诊断，不把全屏显示或 TimeDilation 当统一拒绝依据。
+
 - 真实整名验证：新增 `hideUiRealOperatorRuntime.test.ts`，显式指定 `ENDAXIS_HIDE_UI_SOURCE_ROOT=tmp/game-data-sources-hybrid-20260905`；逐文件校验并固定 e5944e88 快照，内存重建佩丽卡/弧光完整候选，实际放置终结技进入 ScenarioSimulationService。回执分别为 0→52、0→55 帧，均产生 DamageApplied；联合执行器 6 项通过。不把这两名探针说成全干员或输入限制完成。
 - 本轮发现正式 `src/data/global-buffs/global-buff-templates.generated.json` 缺少当前来源解析器必填的 `globalModifiers`，直接整名生成会失败。本次显式通过 `ENDAXIS_HIDE_UI_GLOBAL_BUFF_CATALOG=tmp/global-buff-catalog-current-schema.json` 使用已有重导出候选（同版本/同来源 SHA，包含该字段），未放宽解析、未手补正式资源。正式干员仍未重生成；下一步先从来源重导出并验证公共目录，避免发布混合格式，再扩展整批 HideUI 候选验证及已确认的输入诊断。测试仅验证演出回执与伤害存在，不宣称伤害完整差分或浏览器展示已验收。
 - 后续实际回读 VFS 两份 GlobalBuff preview，经 `parseGlobalBuffDumpSource` 校验原始 SHA 和候选模板深比较均通过。联合来源/执行器/真实整名探针 14 项通过；修正已有 HideUI 来源测试向两参数回调直接传三参数解析器的类型错误，显式传入该夹具的空初始黑板。
