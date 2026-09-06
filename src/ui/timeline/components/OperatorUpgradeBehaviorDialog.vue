@@ -35,6 +35,8 @@ const emit = defineEmits<{
 const draft = ref<OperatorUpgradeDefinition>(cloneStructureValue(props.upgrade));
 const category = ref<Category>('initialization');
 const selectedIndex = ref(0);
+const upgradeLevel = ref(1);
+const upgradeLevels = computed(() => Math.max(1, props.upgrade.levels ?? 1));
 const handlers = computed(() => draft.value.eventHandlers ?? []);
 const passives = computed(() => draft.value.passiveSkills ?? []);
 const selectedHandler = computed(() =>
@@ -42,6 +44,9 @@ const selectedHandler = computed(() =>
 );
 const selectedPassive = computed(() =>
   category.value === 'passiveSkills' ? passives.value[selectedIndex.value] : undefined,
+);
+const editingLevel = computed(() =>
+  selectedPassive.value?.levelSource === undefined ? upgradeLevel.value : props.skillLevel,
 );
 const selectedSequence = computed(() =>
   category.value === 'initialization'
@@ -56,6 +61,7 @@ watch(
     draft.value = cloneStructureValue(props.upgrade);
     category.value = 'initialization';
     selectedIndex.value = 0;
+    upgradeLevel.value = 1;
   },
   { immediate: true },
 );
@@ -200,6 +206,12 @@ function save(): void {
         <strong>养成行为 · {{ draft.key }}</strong
         ><small>初始化、事件监听与附属被动具有不同安装和执行时机。</small>
       </div>
+      <label v-if="selectedPassive?.levelSource === undefined">
+        编辑养成等级
+        <select v-model.number="upgradeLevel">
+          <option v-for="level in upgradeLevels" :key="level" :value="level">{{ level }}</option>
+        </select>
+      </label>
     </div>
     <div class="workspace">
       <aside>
@@ -381,18 +393,18 @@ function save(): void {
         <SkillBlackboardEditor
           v-if="selectedHandler"
           :blackboard="selectedHandler.blackboard ?? {}"
-          :skill-level="skillLevel"
+          :skill-level="editingLevel"
           @update="updateHandlerBlackboard"
         />
         <SkillBlackboardEditor
           v-if="selectedPassive"
           :blackboard="selectedPassive.blackboard ?? {}"
-          :skill-level="skillLevel"
+          :skill-level="editingLevel"
           @update="updatePassiveBlackboard"
         />
         <ActionSequenceEditor
           :sequence="selectedSequence"
-          :skill-level="skillLevel"
+          :skill-level="editingLevel"
           :create-step="createStep"
           :duplicate-step="duplicateStep"
           @update="updateSequence"

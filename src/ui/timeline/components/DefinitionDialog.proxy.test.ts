@@ -17,7 +17,10 @@ const cases = [
   {
     name: 'upgrade',
     component: Upgrade,
-    props: { upgrade: { key: 'qa', initializationSequence: { steps: [] } }, skillGroupKeys: [] },
+    props: {
+      upgrade: { key: 'qa', levels: 2, initializationSequence: { steps: [] } },
+      skillGroupKeys: [],
+    },
     draft: (p: any) => p.draft.value,
     edit: (p: any) => (p.draft.value.key = 'edited'),
   },
@@ -58,7 +61,7 @@ const cases = [
 
 it.each(cases)(
   '$name opens and saves proxy-backed definitions without aliasing or clone errors',
-  async ({ component, props, draft, edit }) => {
+  async ({ name, component, props, draft, edit }) => {
     const input = reactive(props);
     const original = JSON.stringify(input);
     const visible = ref(true);
@@ -89,7 +92,7 @@ it.each(cases)(
         h(wrapped, {
           ...input,
           visible: visible.value,
-          skillLevel: 1,
+          skillLevel: 12,
           level: 1,
           onSave: (value: unknown) => saved.push(value),
           'onUpdate:visible': (value: boolean) => (visible.value = value),
@@ -98,6 +101,12 @@ it.each(cases)(
     app.provide(ssrContextKey, { modules: new Set() });
     app.mount({});
     try {
+      if (name === 'upgrade') {
+        expect(panel.upgradeLevels.value).toBe(2);
+        expect(panel.editingLevel.value).toBe(1);
+        panel.upgradeLevel.value = 2;
+        expect(panel.editingLevel.value).toBe(2);
+      }
       const initialDraft = JSON.stringify(draft(panel));
       edit(panel);
       await nextTick();
