@@ -13,6 +13,7 @@ import EquipmentSelectionTooltip from './EquipmentSelectionTooltip.vue';
 import OperatorSkillTooltip from './OperatorSkillTooltip.vue';
 import { getGearDefinitionSelectionAffixRows } from '../gearAffixPresentation';
 import WeaponSelectionTooltip from './WeaponSelectionTooltip.vue';
+import { KeyboardShortcutRouter } from '../../keyboard/keyboardShortcutRouter';
 
 async function renderComponent(component: Component, props: Record<string, unknown>) {
   const app = createSSRApp({
@@ -80,6 +81,59 @@ describe('构筑 tooltip 渲染', () => {
     expect(html).toContain('weapon-selection-preview__skill');
     expect(html).toContain('主能力提升·小');
     expect(html).toContain('强攻·武装整备');
+  });
+
+  it('按住状态路由驱动满潜 tooltip，松开及遮挡恢复且不修改定义', async () => {
+    const weapon = gameDataRepository.getWeapon('wpn_lance_0014')!;
+    const original = JSON.stringify(weapon);
+    const router = new KeyboardShortcutRouter();
+    let fullPotential = false;
+    let covered = false;
+    router.register({
+      id: 'weapon-selection',
+      priority: 1500,
+      active: () => true,
+      blockLowerScopes: true,
+      handle: () => false,
+      observeKeyboardState: event => {
+        fullPotential = event?.ctrlKey ?? false;
+      },
+    });
+    router.register({
+      id: 'modal',
+      priority: 2000,
+      active: () => covered,
+      blockLowerScopes: true,
+      handle: () => false,
+    });
+    const renderPreview = () =>
+      renderComponent(WeaponSelectionTooltip, {
+        weapon,
+        name: '曜夜的首演',
+        fullPotential,
+      });
+    const normal = await renderPreview();
+    const down = Object.assign(new Event('keydown', { cancelable: true }), {
+      key: 'Control',
+      ctrlKey: true,
+    }) as KeyboardEvent;
+    router.route(down);
+    const full = await renderPreview();
+    expect(full).toContain('Lv9');
+    expect(full).toContain('+44.8%');
+    expect(down.defaultPrevented).toBe(false);
+    router.updateKeyboardState(
+      Object.assign(new Event('keyup'), {
+        key: 'Control',
+        ctrlKey: false,
+      }) as KeyboardEvent,
+    );
+    expect(await renderPreview()).toBe(normal);
+    router.route(down);
+    covered = true;
+    router.revokeInactiveKeyboardState();
+    expect(await renderPreview()).toBe(normal);
+    expect(JSON.stringify(weapon)).toBe(original);
   });
 
   it('全部当前武器 tooltip 不使用默认图标', async () => {
