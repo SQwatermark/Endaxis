@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import {
   MIN_TIMELINE_ZOOM_PERCENT,
   MAX_TIMELINE_ZOOM_PERCENT,
@@ -42,6 +44,13 @@ const emit = defineEmits<{
 const gaugeEditorOpen = ref(false);
 const gaugeDraft = ref('100');
 const gaugeInput = ref<HTMLInputElement | null>(null);
+usePopoverInteractionBoundary(
+  useInteractionSession(),
+  () => gaugeEditorOpen.value,
+  () => {
+    gaugeEditorOpen.value = false;
+  },
+);
 
 function toggleGaugeEditor(event: Event): void {
   event.preventDefault();
@@ -106,7 +115,6 @@ function applyGaugeDraft(): void {
             min="0"
             step="1"
             :aria-label="labels.initialGauge"
-            @keydown.esc.prevent="gaugeEditorOpen = false"
             @blur="applyGaugeDraft"
           />
         </form>

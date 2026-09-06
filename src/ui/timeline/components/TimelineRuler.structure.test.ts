@@ -41,8 +41,10 @@ describe('timeline ruler editing structure', () => {
   });
 
   it('lets Escape close frame and duration inputs without applying their drafts', () => {
-    expect(rulerSource).toContain('@keydown.esc.prevent="closePrepEditor"');
-    expect(rulerSource).toContain('@keydown.esc.prevent="closeDurationEditor"');
+    expect(rulerSource).toMatch(/\(\) => prepEditorOpen.value,\s*closePrepEditor/);
+    expect(rulerSource).toMatch(/\(\) => durationEditorOpen.value,\s*closeDurationEditor/);
+    expect(rulerSource).toContain('if (!prepEditorOpen.value) return');
+    expect(rulerSource).toContain('if (!durationEditorOpen.value) return');
   });
 
   it('keeps prep as a visual inset and exposes the legacy frame/second units', () => {

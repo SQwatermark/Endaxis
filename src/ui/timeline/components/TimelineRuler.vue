@@ -4,6 +4,7 @@
  */
 import { computed, nextTick, onScopeDispose, ref } from 'vue';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import { useI18n } from 'vue-i18n';
 import { PROJECT_FPS } from '../../../core/project/schema';
 import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from '../timelineGeometry';
@@ -39,6 +40,12 @@ const prepPreview = ref<number | null>(null);
 const durationPreview = ref<number | null>(null);
 const prepEditorOpen = ref(false);
 const durationEditorOpen = ref(false);
+usePopoverInteractionBoundary(interactionSession, () => prepEditorOpen.value, closePrepEditor);
+usePopoverInteractionBoundary(
+  interactionSession,
+  () => durationEditorOpen.value,
+  closeDurationEditor,
+);
 const prepDraft = ref('');
 const durationDraftSeconds = ref('');
 const prepInput = ref<HTMLInputElement | null>(null);
@@ -148,6 +155,7 @@ function openPrepEditor(): void {
 }
 
 function applyPrepDraft(): void {
+  if (!prepEditorOpen.value) return;
   const frames = Number(prepDraft.value);
   prepEditorOpen.value = false;
   if (Number.isInteger(frames) && frames >= 0) emit('setPrepFrames', frames);
@@ -166,6 +174,7 @@ function openDurationEditor(): void {
 }
 
 function applyDurationDraft(): void {
+  if (!durationEditorOpen.value) return;
   const seconds = Number(durationDraftSeconds.value);
   durationEditorOpen.value = false;
   const frames = Math.round(seconds * PROJECT_FPS);
@@ -295,7 +304,6 @@ function seek(event: MouseEvent): void {
           type="number"
           min="0"
           step="1"
-          @keydown.esc.prevent="closePrepEditor"
           @blur="applyPrepDraft"
         />
         <span>f</span>
@@ -314,7 +322,6 @@ function seek(event: MouseEvent): void {
           min="30"
           max="600"
           step="1"
-          @keydown.esc.prevent="closeDurationEditor"
           @blur="applyDurationDraft"
         />
         <span>s</span>
