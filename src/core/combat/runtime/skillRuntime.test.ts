@@ -87,6 +87,62 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it.each([1, 30])('展示宽度 %s 不裁切后续原生序列', timelineBlockFrames => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'display-is-not-lifetime',
+      timelineBlockFrames,
+      naturalDurationFrames: 20,
+      scheduledSequences: [
+        {
+          startFrame: 10,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'late-effect', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(10);
+    expect(fixture.operations.execute).toHaveBeenCalledOnce();
+    expect(fixture.runtime.state).toBe('casting');
+    fixture.simulation.advanceFrames(10);
+    expect(fixture.runtime.state).toBe('ended');
+  });
+
+  it('真实中断停止尚未到点的序列，而不是根据块体宽度停止', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'interrupted-sequence',
+      timelineBlockFrames: 1,
+      naturalDurationFrames: 20,
+      scheduledSequences: [
+        {
+          startFrame: 10,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: { flag: 'late-effect', value: true, target: 'caster' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(5);
+    fixture.runtime.interrupt('castNextSkill');
+    fixture.simulation.advanceFrames(20);
+    expect(fixture.operations.execute).not.toHaveBeenCalled();
+    expect(
+      fixture.receipt.entries.filter(entry => entry.event === 'SkillInterrupted'),
+    ).toHaveLength(1);
+  });
+
   it.each([0, 3])('准备期释放免技力费用，包括跨越 0 帧的延迟扣费：%s', costFrame => {
     const fixture = createBattleSkillRuntime(0, costFrame);
     fixture.clock.initializeFrame(-1);
