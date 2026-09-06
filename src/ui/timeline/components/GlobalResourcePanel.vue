@@ -11,8 +11,7 @@ import type {
   GlobalOperatorStatModifierDocument,
 } from '../../../core/project/schema';
 import type { EditableBattleResourceRule } from '../timelineDocumentCommands';
-import { useInteractionSession } from '../../interaction/interactionSessionContext';
-import { useDialogInteractionBoundary } from '../../interaction/useDialogInteractionBoundary';
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 
 const props = defineProps<{
   mode?: 'full' | 'modifiers';
@@ -33,7 +32,6 @@ const emit = defineEmits<{
 
 const { t } = useI18n({ useScope: 'global' });
 const editorVisible = ref(false);
-useDialogInteractionBoundary(useInteractionSession(), () => editorVisible.value);
 
 interface ModifierChoice {
   readonly modifier: GlobalOperatorStatModifier;
@@ -172,45 +170,47 @@ function emitNumber(field: EditableBattleResourceRule, event: Event): void {
         {{ t('timeline.globalModifiers.edit') }}
       </button>
     </section>
-    <el-dialog
-      v-model="editorVisible"
-      append-to-body
-      width="520px"
-      class="global-modifier-dialog"
-      :title="t('timeline.globalModifiers.title')"
-    >
-      <div class="modifier-editor">
-        <section v-for="choice in choices" :key="choice.modifier" class="modifier-group">
-          <header>
-            <span>{{ choiceLabel(choice) }}</span>
-            <small v-if="choice.skillType === 'comboSkill'">
-              {{ t('timeline.globalModifiers.comboOnly') }}
-            </small>
-            <button type="button" @click="addModifier(choice)">＋</button>
-          </header>
-          <div
-            v-for="modifier in modifiers.filter(item => item.modifier === choice.modifier)"
-            :key="modifier.id"
-            class="modifier-entry"
-          >
-            <input
-              type="number"
-              :max="choice.modifier === 'skillCooldownReduction' ? 99.999 : undefined"
-              :step="choice.percentage ? 0.1 : 1"
-              :value="choice.percentage ? modifier.value * 100 : modifier.value"
-              @change="updateModifierValue(modifier.id, $event)"
-            />
-            <span>{{ choice.percentage ? '%' : '' }}</span>
-            <button type="button" @click="removeModifier(modifier.id)">
-              {{ t('common.delete') }}
-            </button>
-          </div>
-        </section>
-      </div>
-      <template #footer>
-        <button type="button" @click="editorVisible = false">{{ t('common.close') }}</button>
-      </template>
-    </el-dialog>
+    <InputRegionBoundary label="global-modifiers" :active="editorVisible" modal>
+      <el-dialog
+        v-model="editorVisible"
+        append-to-body
+        width="520px"
+        class="global-modifier-dialog"
+        :title="t('timeline.globalModifiers.title')"
+      >
+        <div class="modifier-editor">
+          <section v-for="choice in choices" :key="choice.modifier" class="modifier-group">
+            <header>
+              <span>{{ choiceLabel(choice) }}</span>
+              <small v-if="choice.skillType === 'comboSkill'">
+                {{ t('timeline.globalModifiers.comboOnly') }}
+              </small>
+              <button type="button" @click="addModifier(choice)">＋</button>
+            </header>
+            <div
+              v-for="modifier in modifiers.filter(item => item.modifier === choice.modifier)"
+              :key="modifier.id"
+              class="modifier-entry"
+            >
+              <input
+                type="number"
+                :max="choice.modifier === 'skillCooldownReduction' ? 99.999 : undefined"
+                :step="choice.percentage ? 0.1 : 1"
+                :value="choice.percentage ? modifier.value * 100 : modifier.value"
+                @change="updateModifierValue(modifier.id, $event)"
+              />
+              <span>{{ choice.percentage ? '%' : '' }}</span>
+              <button type="button" @click="removeModifier(modifier.id)">
+                {{ t('common.delete') }}
+              </button>
+            </div>
+          </section>
+        </div>
+        <template #footer>
+          <button type="button" @click="editorVisible = false">{{ t('common.close') }}</button>
+        </template>
+      </el-dialog>
+    </InputRegionBoundary>
   </section>
 </template>
 

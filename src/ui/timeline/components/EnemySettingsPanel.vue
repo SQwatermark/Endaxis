@@ -10,8 +10,8 @@ import { useI18n } from 'vue-i18n';
 import type { EnemyDefinition, EnemyTier } from '../../../core/game-data/enemyDefinition';
 import type { EnemyDocument, EnemyEditableValues } from '../../../core/project/schema';
 import { DAMAGE_ELEMENTS } from '../../../core/game-data/operatorDefinition';
-import { useInteractionSession } from '../../interaction/interactionSessionContext';
-import { useDialogInteractionBoundary } from '../../interaction/useDialogInteractionBoundary';
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 
 const EDITABLE_RESISTANCE_DAMAGE_TYPES = DAMAGE_ELEMENTS;
 const { t } = useI18n();
@@ -68,14 +68,10 @@ const emit = defineEmits<{
 
 const selectorVisible = ref(false);
 const statsVisible = ref(false);
-useDialogInteractionBoundary(
-  useInteractionSession(),
-  () => selectorVisible.value || statsVisible.value,
-);
 const searchQuery = ref('');
 const tierFilter = ref<EnemyTier | 'all'>('all');
 const selectedLevel = ref(90);
-const draft = reactive<EnemyEditableValues>(structuredClone(props.enemy.editable));
+const draft = reactive<EnemyEditableValues>(cloneEditorDefinition(props.enemy.editable));
 
 const activeName = computed(() =>
   props.enemy.source.kind === 'custom'
@@ -108,7 +104,7 @@ watch(
   { immediate: true },
 );
 watch(statsVisible, visible => {
-  if (visible) Object.assign(draft, structuredClone(props.enemy.editable));
+  if (visible) Object.assign(draft, cloneEditorDefinition(props.enemy.editable));
 });
 
 function supportsLevel(enemy: EnemyDefinition): boolean {
@@ -127,7 +123,7 @@ function selectCustom(): void {
 }
 
 function saveDraft(): void {
-  emit('save', structuredClone(draft));
+  emit('save', cloneEditorDefinition(draft));
   statsVisible.value = false;
 }
 
@@ -206,217 +202,222 @@ function removeKnotThreshold(index: number): void {
       </button>
     </div>
 
-    <el-dialog
-      v-model="selectorVisible"
-      :title="labels.selectTitle"
-      width="640px"
-      align-center
-      append-to-body
-      class="char-selector-dialog next-enemy-selector"
-    >
-      <div class="selector-header">
-        <el-input
-          v-model="searchQuery"
-          :placeholder="labels.searchPlaceholder"
-          :prefix-icon="Search"
-          clearable
-        />
-        <span class="level-label">{{ labels.level }}</span>
-        <div class="level-buttons">
-          <button
-            v-for="level in LEVELS"
-            :key="level"
-            type="button"
-            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold"
-            :class="{ 'is-active': selectedLevel === level }"
-            @click="selectedLevel = level"
-          >
-            {{ level }}
-          </button>
-        </div>
-      </div>
-      <div class="tier-filters">
-        <button
-          type="button"
-          class="ea-btn ea-btn--glass-cut"
-          style="--ea-btn-accent: var(--ea-gold)"
-          :class="{ 'is-active': tierFilter === 'all' }"
-          @click="tierFilter = 'all'"
-        >
-          {{ labels.all }}
-        </button>
-        <button
-          v-for="tier in TIERS"
-          :key="tier.value"
-          type="button"
-          class="ea-btn ea-btn--glass-cut"
-          :class="{ 'is-active': tierFilter === tier.value }"
-          :style="{ '--ea-btn-accent': tier.color }"
-          @click="tierFilter = tier.value"
-        >
-          {{ labels.tier[tier.value] }}
-        </button>
-      </div>
-      <div class="enemy-grid">
-        <template
-          v-if="
-            tierFilter === 'all' &&
-            (searchQuery.trim() === '' ||
-              labels.custom.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase()))
-          "
-        >
-          <div class="group-header">
-            {{ t('resourceMonitor.enemy.specialGroup') }} <span>(1)</span>
-          </div>
-          <button
-            type="button"
-            class="enemy-card enemy-card--custom"
-            :class="{ selected: enemy.source.kind === 'custom' }"
-            @click="selectCustom"
-          >
-            <span class="card-avatar">?</span>
-            <span
-              ><strong>{{ labels.custom }}</strong
-              ><small>{{ labels.customDescription }}</small></span
-            >
-          </button>
-          <div class="group-separator" aria-hidden="true"></div>
-        </template>
-        <div v-if="filteredEnemies.length > 0" class="group-header group-header--standard">
-          {{ t('resourceMonitor.enemy.standardGroup') }} <span>({{ filteredEnemies.length }})</span>
-        </div>
-        <button
-          v-for="candidate in filteredEnemies"
-          :key="candidate.id"
-          type="button"
-          class="enemy-card"
-          :class="{
-            selected: definition?.id === candidate.id,
-            'has-tier': candidate.tier !== 'normal',
-          }"
-          :disabled="!supportsLevel(candidate)"
-          :style="{ '--tier-color': TIERS.find(tier => tier.value === candidate.tier)?.color }"
-          @click="selectDefinition(candidate)"
-        >
-          <span class="card-avatar">
-            <img v-if="candidate.iconPath" :src="candidate.iconPath" alt="" />
-            <span v-if="candidate.tier !== 'normal'" class="tier-strip">{{
-              labels.tier[candidate.tier]
-            }}</span>
-          </span>
-          <span>
-            <strong>{{ nameOf(candidate.id) }}</strong>
-            <small>{{
-              t('resourceMonitor.enemy.desc', {
-                max: candidate.stagger.maximum,
-                nodes: candidate.stagger.knotThresholds.length,
-              })
-            }}</small>
-          </span>
-        </button>
-        <div v-if="filteredEnemies.length === 0" class="empty-state">{{ labels.empty }}</div>
-      </div>
-    </el-dialog>
-
-    <el-dialog
-      v-model="statsVisible"
-      :title="labels.editStatsTitle"
-      width="440px"
-      align-center
-      append-to-body
-      class="armory-dialog next-enemy-stats-dialog"
-    >
-      <div class="stats-form">
-        <label
-          ><span>{{ labels.enemyHp }}</span
-          ><input v-model.number="draft.hp" type="number" min="1"
-        /></label>
-        <label
-          ><span>{{ labels.defense }}</span
-          ><input v-model.number="draft.defense" type="number" min="0"
-        /></label>
-        <label
-          ><span>{{ labels.finisherMultiplier }}</span
-          ><input v-model.number="draft.finisherMultiplier" type="number" min="0" step="0.05"
-        /></label>
-        <label
-          ><span>{{ labels.maximumStagger }}</span
-          ><input v-model.number="draft.stagger.maximum" type="number" min="0"
-        /></label>
-        <div class="knot-threshold-field">
-          <span>{{ labels.staggerNodes }}</span>
-          <div class="knot-threshold-list">
-            <div
-              v-for="(_, index) in draft.stagger.knotThresholds"
-              :key="index"
-              class="knot-threshold-row"
-            >
-              <input
-                v-model.number="draft.stagger.knotThresholds[index]"
-                type="number"
-                min="0.01"
-                max="0.99"
-                step="0.01"
-              />
-              <button type="button" :title="labels.close" @click="removeKnotThreshold(index)">
-                <el-icon><Delete /></el-icon>
-              </button>
-            </div>
+    <InputRegionBoundary label="enemy-selection" :active="selectorVisible" modal>
+      <el-dialog
+        v-model="selectorVisible"
+        :title="labels.selectTitle"
+        width="640px"
+        align-center
+        append-to-body
+        class="char-selector-dialog next-enemy-selector"
+      >
+        <div class="selector-header">
+          <el-input
+            v-model="searchQuery"
+            :placeholder="labels.searchPlaceholder"
+            :prefix-icon="Search"
+            clearable
+          />
+          <span class="level-label">{{ labels.level }}</span>
+          <div class="level-buttons">
             <button
+              v-for="level in LEVELS"
+              :key="level"
               type="button"
-              class="add-knot-button"
-              :disabled="!canAddKnotThreshold"
-              @click="addKnotThreshold"
+              class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold"
+              :class="{ 'is-active': selectedLevel === level }"
+              @click="selectedLevel = level"
             >
-              <el-icon><Plus /></el-icon>
-              {{ labels.staggerNodes }}
+              {{ level }}
             </button>
           </div>
         </div>
-        <label
-          ><span>{{ labels.nodeDuration }}</span
-          ><input
-            :value="draft.stagger.knotBreakDurationFrames / fps"
-            type="number"
-            min="0"
-            step="0.1"
-            @input="setDuration('knotBreakDurationFrames', $event)"
-        /></label>
-        <label
-          ><span>{{ labels.brokenDuration }}</span
-          ><input
-            :value="draft.stagger.brokenDurationFrames / fps"
-            type="number"
-            min="0"
-            step="0.1"
-            @input="setDuration('brokenDurationFrames', $event)"
-        /></label>
-        <label
-          ><span>{{ labels.finisherRecovery }}</span
-          ><input v-model.number="draft.stagger.finisherSpRecovery" type="number" min="0"
-        /></label>
-        <label
-          ><span>{{ labels.superArmor }}</span
-          ><input v-model.number="draft.superArmor" type="number" min="0"
-        /></label>
-        <div class="form-section-title">{{ labels.resistances }}</div>
-        <label v-for="type in EDITABLE_RESISTANCE_DAMAGE_TYPES" :key="type">
-          <span>{{ labels.resistance[type] }}</span>
-          <input
-            :value="draft.resistances[type] ?? 0"
-            type="number"
-            step="0.01"
-            @input="setDraftNumber(draft.resistances, type, $event)"
-          />
-        </label>
-      </div>
-      <template #footer>
-        <button type="button" @click="statsVisible = false">{{ labels.close }}</button>
-        <button type="button" class="primary-button" @click="saveDraft">
-          {{ labels.confirm }}
-        </button>
-      </template>
-    </el-dialog>
+        <div class="tier-filters">
+          <button
+            type="button"
+            class="ea-btn ea-btn--glass-cut"
+            style="--ea-btn-accent: var(--ea-gold)"
+            :class="{ 'is-active': tierFilter === 'all' }"
+            @click="tierFilter = 'all'"
+          >
+            {{ labels.all }}
+          </button>
+          <button
+            v-for="tier in TIERS"
+            :key="tier.value"
+            type="button"
+            class="ea-btn ea-btn--glass-cut"
+            :class="{ 'is-active': tierFilter === tier.value }"
+            :style="{ '--ea-btn-accent': tier.color }"
+            @click="tierFilter = tier.value"
+          >
+            {{ labels.tier[tier.value] }}
+          </button>
+        </div>
+        <div class="enemy-grid">
+          <template
+            v-if="
+              tierFilter === 'all' &&
+              (searchQuery.trim() === '' ||
+                labels.custom.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase()))
+            "
+          >
+            <div class="group-header">
+              {{ t('resourceMonitor.enemy.specialGroup') }} <span>(1)</span>
+            </div>
+            <button
+              type="button"
+              class="enemy-card enemy-card--custom"
+              :class="{ selected: enemy.source.kind === 'custom' }"
+              @click="selectCustom"
+            >
+              <span class="card-avatar">?</span>
+              <span
+                ><strong>{{ labels.custom }}</strong
+                ><small>{{ labels.customDescription }}</small></span
+              >
+            </button>
+            <div class="group-separator" aria-hidden="true"></div>
+          </template>
+          <div v-if="filteredEnemies.length > 0" class="group-header group-header--standard">
+            {{ t('resourceMonitor.enemy.standardGroup') }}
+            <span>({{ filteredEnemies.length }})</span>
+          </div>
+          <button
+            v-for="candidate in filteredEnemies"
+            :key="candidate.id"
+            type="button"
+            class="enemy-card"
+            :class="{
+              selected: definition?.id === candidate.id,
+              'has-tier': candidate.tier !== 'normal',
+            }"
+            :disabled="!supportsLevel(candidate)"
+            :style="{ '--tier-color': TIERS.find(tier => tier.value === candidate.tier)?.color }"
+            @click="selectDefinition(candidate)"
+          >
+            <span class="card-avatar">
+              <img v-if="candidate.iconPath" :src="candidate.iconPath" alt="" />
+              <span v-if="candidate.tier !== 'normal'" class="tier-strip">{{
+                labels.tier[candidate.tier]
+              }}</span>
+            </span>
+            <span>
+              <strong>{{ nameOf(candidate.id) }}</strong>
+              <small>{{
+                t('resourceMonitor.enemy.desc', {
+                  max: candidate.stagger.maximum,
+                  nodes: candidate.stagger.knotThresholds.length,
+                })
+              }}</small>
+            </span>
+          </button>
+          <div v-if="filteredEnemies.length === 0" class="empty-state">{{ labels.empty }}</div>
+        </div>
+      </el-dialog>
+    </InputRegionBoundary>
+
+    <InputRegionBoundary label="enemy-stats" :active="statsVisible" modal>
+      <el-dialog
+        v-model="statsVisible"
+        :title="labels.editStatsTitle"
+        width="440px"
+        align-center
+        append-to-body
+        class="armory-dialog next-enemy-stats-dialog"
+      >
+        <div class="stats-form">
+          <label
+            ><span>{{ labels.enemyHp }}</span
+            ><input v-model.number="draft.hp" type="number" min="1"
+          /></label>
+          <label
+            ><span>{{ labels.defense }}</span
+            ><input v-model.number="draft.defense" type="number" min="0"
+          /></label>
+          <label
+            ><span>{{ labels.finisherMultiplier }}</span
+            ><input v-model.number="draft.finisherMultiplier" type="number" min="0" step="0.05"
+          /></label>
+          <label
+            ><span>{{ labels.maximumStagger }}</span
+            ><input v-model.number="draft.stagger.maximum" type="number" min="0"
+          /></label>
+          <div class="knot-threshold-field">
+            <span>{{ labels.staggerNodes }}</span>
+            <div class="knot-threshold-list">
+              <div
+                v-for="(_, index) in draft.stagger.knotThresholds"
+                :key="index"
+                class="knot-threshold-row"
+              >
+                <input
+                  v-model.number="draft.stagger.knotThresholds[index]"
+                  type="number"
+                  min="0.01"
+                  max="0.99"
+                  step="0.01"
+                />
+                <button type="button" :title="labels.close" @click="removeKnotThreshold(index)">
+                  <el-icon><Delete /></el-icon>
+                </button>
+              </div>
+              <button
+                type="button"
+                class="add-knot-button"
+                :disabled="!canAddKnotThreshold"
+                @click="addKnotThreshold"
+              >
+                <el-icon><Plus /></el-icon>
+                {{ labels.staggerNodes }}
+              </button>
+            </div>
+          </div>
+          <label
+            ><span>{{ labels.nodeDuration }}</span
+            ><input
+              :value="draft.stagger.knotBreakDurationFrames / fps"
+              type="number"
+              min="0"
+              step="0.1"
+              @input="setDuration('knotBreakDurationFrames', $event)"
+          /></label>
+          <label
+            ><span>{{ labels.brokenDuration }}</span
+            ><input
+              :value="draft.stagger.brokenDurationFrames / fps"
+              type="number"
+              min="0"
+              step="0.1"
+              @input="setDuration('brokenDurationFrames', $event)"
+          /></label>
+          <label
+            ><span>{{ labels.finisherRecovery }}</span
+            ><input v-model.number="draft.stagger.finisherSpRecovery" type="number" min="0"
+          /></label>
+          <label
+            ><span>{{ labels.superArmor }}</span
+            ><input v-model.number="draft.superArmor" type="number" min="0"
+          /></label>
+          <div class="form-section-title">{{ labels.resistances }}</div>
+          <label v-for="type in EDITABLE_RESISTANCE_DAMAGE_TYPES" :key="type">
+            <span>{{ labels.resistance[type] }}</span>
+            <input
+              :value="draft.resistances[type] ?? 0"
+              type="number"
+              step="0.01"
+              @input="setDraftNumber(draft.resistances, type, $event)"
+            />
+          </label>
+        </div>
+        <template #footer>
+          <button type="button" @click="statsVisible = false">{{ labels.close }}</button>
+          <button type="button" class="primary-button" @click="saveDraft">
+            {{ labels.confirm }}
+          </button>
+        </template>
+      </el-dialog>
+    </InputRegionBoundary>
   </section>
 </template>
 

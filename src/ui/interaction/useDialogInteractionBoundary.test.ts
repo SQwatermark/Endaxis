@@ -108,9 +108,9 @@ describe('locally owned leaf dialog input', () => {
   });
 
   it('registers local enemy and global attribute dialog lifecycles', () => {
-    expect(enemy).toContain('() => selectorVisible.value || statsVisible.value');
-    expect(global).toContain(
-      'useDialogInteractionBoundary(useInteractionSession(), () => editorVisible.value)',
-    );
+    expect(enemy).toContain('label="enemy-selection" :active="selectorVisible" modal');
+    expect(enemy).toContain('label="enemy-stats" :active="statsVisible" modal');
+    expect(global).toContain('label="global-modifiers" :active="editorVisible" modal');
+    expect(enemy).toContain("emit('save', cloneEditorDefinition(draft))");
   });
 });
