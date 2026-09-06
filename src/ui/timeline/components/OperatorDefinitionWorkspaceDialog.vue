@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed, ref, watch } from 'vue';
 import {
   COMPARISON_OPERATORS,
@@ -795,786 +796,805 @@ function openReferencedDefinition(reference: {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    width="min(1180px, calc(100vw - 48px))"
-    append-to-body
-    destroy-on-close
-    class="operator-definition-workspace"
-    @update:model-value="emit('update:visible', $event)"
-  >
-    <template #header>
-      <div class="workspace-title">
-        <div>
-          <strong>自定义干员</strong><span>{{ draft.displayName ?? draft.slug }}</span>
-          <em v-if="isDirty">已修改</em>
+  <InputRegionBoundary label="operator-definition-workspace" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      width="min(1180px, calc(100vw - 48px))"
+      append-to-body
+      destroy-on-close
+      class="operator-definition-workspace"
+      @update:model-value="emit('update:visible', $event)"
+    >
+      <template #header>
+        <div class="workspace-title">
+          <div>
+            <strong>自定义干员</strong><span>{{ draft.displayName ?? draft.slug }}</span>
+            <em v-if="isDirty">已修改</em>
+          </div>
+          <small>编辑干员定义；这里的修改由所有引用该定义的干员实例共享。</small>
         </div>
-        <small>编辑干员定义；这里的修改由所有引用该定义的干员实例共享。</small>
-      </div>
-    </template>
+      </template>
 
-    <div class="workspace">
-      <nav class="workspace-nav">
-        <div class="nav-caption">定义结构</div>
-        <button :class="{ active: section === 'panel' }" @click="selectSection('panel')">
-          <span>基础面板</span><b>90 级</b>
-        </button>
-        <button :class="{ active: section === 'skills' }" @click="selectSection('skills')">
-          <span>技能与技能组</span><b>{{ draft.skillGroups.length }}</b>
-        </button>
-        <button
-          :class="{ active: section === 'progression' }"
-          @click="selectSection('progression')"
-        >
-          <span>天赋与潜能</span><b>{{ draft.talents.length + draft.potentials.length }}</b>
-        </button>
-        <button :class="{ active: section === 'runtime' }" @click="selectSection('runtime')">
-          <span>角色级运行数据</span><b>{{ entityBlackboardEntries.length }}</b>
-        </button>
-        <button :class="{ active: section === 'buffs' }" @click="selectSection('buffs')">
-          <span>Buff</span><b>{{ buffIds.length }}</b>
-        </button>
-        <button :class="{ active: section === 'entities' }" @click="selectSection('entities')">
-          <span>能力实体</span><b>{{ Object.keys(draft.abilityEntityDefinitions ?? {}).length }}</b>
-        </button>
-      </nav>
-
-      <main class="workspace-main">
-        <nav class="workspace-breadcrumbs" aria-label="当前位置">
-          <button @click="selectSection('panel')">{{ draft.displayName ?? draft.slug }}</button>
-          <span>›</span>
-          <button @click="selectSection(section)">{{ sectionLabel }}</button>
-          <template v-if="objectLabel">
-            <span>›</span><strong>{{ objectLabel }}</strong>
-          </template>
-          <template v-if="section === 'skills' && selectedSkill">
-            <span>›</span><strong>{{ selectedSkill.key }}</strong>
-          </template>
+      <div class="workspace">
+        <nav class="workspace-nav">
+          <div class="nav-caption">定义结构</div>
+          <button :class="{ active: section === 'panel' }" @click="selectSection('panel')">
+            <span>基础面板</span><b>90 级</b>
+          </button>
+          <button :class="{ active: section === 'skills' }" @click="selectSection('skills')">
+            <span>技能与技能组</span><b>{{ draft.skillGroups.length }}</b>
+          </button>
+          <button
+            :class="{ active: section === 'progression' }"
+            @click="selectSection('progression')"
+          >
+            <span>天赋与潜能</span><b>{{ draft.talents.length + draft.potentials.length }}</b>
+          </button>
+          <button :class="{ active: section === 'runtime' }" @click="selectSection('runtime')">
+            <span>角色级运行数据</span><b>{{ entityBlackboardEntries.length }}</b>
+          </button>
+          <button :class="{ active: section === 'buffs' }" @click="selectSection('buffs')">
+            <span>Buff</span><b>{{ buffIds.length }}</b>
+          </button>
+          <button :class="{ active: section === 'entities' }" @click="selectSection('entities')">
+            <span>能力实体</span
+            ><b>{{ Object.keys(draft.abilityEntityDefinitions ?? {}).length }}</b>
+          </button>
         </nav>
-        <section v-if="section === 'panel'" class="definition-section">
-          <header>
-            <div>
-              <h3>基础面板</h3>
-              <p>编辑原始成长表中的单级数值，不改变实例等级。</p>
-            </div>
-          </header>
-          <div class="identity-grid">
-            <label title="项目内稳定引用身份。创建模板时确定，修改会使既有引用失效。"
-              >模板 ID<input :value="draft.slug" disabled
-            /></label>
-            <label title="来源游戏数据身份，仅用于追溯和资源回退，不是项目内引用。"
-              >游戏 ID<input :value="draft.gameId" disabled
-            /></label>
-            <label
-              >展示名称<input
-                :value="draft.displayName ?? ''"
-                @change="updateIdentity('displayName', $event)"
-            /></label>
-            <label title="继承头像、技能图标和本地化文本时使用的内置干员身份。"
-              >资源来源<input
-                :value="draft.assetSlug ?? ''"
-                @change="updateIdentity('assetSlug', $event)"
-            /></label>
-            <label
-              >星级<select :value="draft.rarity" @change="updateIdentity('rarity', $event)">
-                <option v-for="value in OPERATOR_RARITIES" :key="value" :value="value">
-                  {{ value }} ★
-                </option>
-              </select></label
-            >
-            <label
-              >默认潜能<input
-                type="number"
-                min="0"
-                max="5"
-                step="1"
-                :value="draft.defaultPotential ?? 0"
-                @change="updateIdentity('defaultPotential', $event)"
-            /></label>
-            <label
-              >武器类型<select
-                :value="draft.weaponType"
-                @change="updateIdentity('weaponType', $event)"
-              >
-                <option v-for="value in OPERATOR_WEAPON_TYPES" :key="value" :value="value">
-                  {{ value }}
-                </option>
-              </select></label
-            >
-            <label
-              >元素<select :value="draft.element" @change="updateIdentity('element', $event)">
-                <option v-for="value in DAMAGE_ELEMENTS" :key="value" :value="value">
-                  {{ value }}
-                </option>
-              </select></label
-            >
-            <label
-              >职业<select :value="draft.role" @change="updateIdentity('role', $event)">
-                <option v-for="value in OPERATOR_ROLES" :key="value" :value="value">
-                  {{ value }}
-                </option>
-              </select></label
-            >
-            <label
-              >主属性<select
-                :value="draft.mainAttribute"
-                @change="updateIdentity('mainAttribute', $event)"
-              >
-                <option v-for="value in OPERATOR_ATTRIBUTES" :key="value" :value="value">
-                  {{ ATTRIBUTE_LABELS[value] }}
-                </option>
-              </select></label
-            >
-            <label
-              >副属性<select
-                :value="draft.secondaryAttribute"
-                @change="updateIdentity('secondaryAttribute', $event)"
-              >
-                <option v-for="value in OPERATOR_ATTRIBUTES" :key="value" :value="value">
-                  {{ ATTRIBUTE_LABELS[value] }}
-                </option>
-              </select></label
-            >
-          </div>
-          <div class="level-toolbar">
-            <span>正在编辑等级</span>
-            <input v-model.number="panelLevel" type="range" min="1" max="90" />
-            <strong>Lv.{{ panelLevel }}</strong>
-          </div>
-          <div class="stat-grid">
-            <label v-for="key in PANEL_ATTRIBUTE_KEYS" :key="key">
-              <span>{{ ATTRIBUTE_LABELS[key] }}</span>
-              <input
-                type="number"
-                step="0.01"
-                :value="draft.attributes[key][panelLevel - 1] ?? 0"
-                @input="updatePanelStat(key, $event)"
-              />
-            </label>
-          </div>
-          <div class="panel-subsection">
+
+        <main class="workspace-main">
+          <nav class="workspace-breadcrumbs" aria-label="当前位置">
+            <button @click="selectSection('panel')">{{ draft.displayName ?? draft.slug }}</button>
+            <span>›</span>
+            <button @click="selectSection(section)">{{ sectionLabel }}</button>
+            <template v-if="objectLabel">
+              <span>›</span><strong>{{ objectLabel }}</strong>
+            </template>
+            <template v-if="section === 'skills' && selectedSkill">
+              <span>›</span><strong>{{ selectedSkill.key }}</strong>
+            </template>
+          </nav>
+          <section v-if="section === 'panel'" class="definition-section">
             <header>
               <div>
-                <h3>信赖属性节点</h3>
-                <p>四个信赖节点提供的属性值；未自定义时使用全局主属性规则 10、15、15、20。</p>
+                <h3>基础面板</h3>
+                <p>编辑原始成长表中的单级数值，不改变实例等级。</p>
               </div>
-              <button
-                class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                @click="setTrustMode(draft.trustAttributeBonus === undefined)"
-              >
-                {{ draft.trustAttributeBonus === undefined ? '改为自定义规则' : '恢复全局规则' }}
-              </button>
             </header>
-            <template v-if="draft.trustAttributeBonus">
-              <label>
-                节点数值
-                <input
-                  :value="draft.trustAttributeBonus.values.join(', ')"
-                  @change="updateTrustValues"
-                />
-                <small>按节点顺序填写，使用英文逗号分隔。</small>
-              </label>
-              <fieldset class="attribute-chips">
-                <legend>每个节点增加的属性</legend>
-                <button
-                  v-for="attribute in TRUST_ATTRIBUTE_OPTIONS"
-                  :key="attribute"
-                  :class="{ active: draft.trustAttributeBonus.attributes.includes(attribute) }"
-                  @click="toggleTrustAttribute(attribute)"
-                >
-                  {{
-                    attribute === 'main'
-                      ? '当前主属性'
-                      : attribute === 'secondary'
-                        ? '当前副属性'
-                        : ATTRIBUTE_LABELS[attribute]
-                  }}
-                </button>
-              </fieldset>
-            </template>
-          </div>
-        </section>
-
-        <section v-else-if="section === 'skills'" class="definition-section split-section">
-          <aside class="object-list">
-            <input v-model="objectSearch" class="object-search" placeholder="搜索技能组…" />
-            <button
-              class="add-object"
-              :disabled="selectedGroup === undefined"
-              @click="duplicateGroup"
-            >
-              ＋ 复制当前技能组
-            </button>
-            <button
-              v-for="entry in filteredGroups"
-              :key="`${entry.group.key}:${entry.index}`"
-              :class="{ active: selectedGroupIndex === entry.index }"
-              @click="
-                selectedGroupIndex = entry.index;
-                selectedSkillIndex = 0;
-                showSkillEditor = false;
-              "
-            >
-              <span>{{ entry.group.key }}</span
-              ><small>{{ normalizeSkills(entry.group.skills).length }} 个技能</small>
-            </button>
-          </aside>
-          <div v-if="selectedGroup" class="object-editor">
-            <SkillDefinitionEditorDialog
-              v-if="showSkillEditor && selectedSkill"
-              embedded
-              :visible="true"
-              :title="selectedSkill.key"
-              :template-definition="selectedSkill"
-              :custom-definition="undefined"
-              :skill-level="skillLevel"
-              :ability-entity-ids="abilityEntityIds"
-              show-reference-pins
-              allow-invalid-save
-              @update:visible="showSkillEditor = $event"
-              @save="replaceSelectedSkill"
-              @reference="openReferencedDefinition"
-            />
-            <template v-else>
-              <header>
-                <div>
-                  <h3>技能组</h3>
-                  <p>技能组决定技能库放置单元与养成等级来源。</p>
-                </div>
-                <div class="object-toolbar">
-                  <button :disabled="selectedGroupIndex === 0" @click="moveGroup(-1)">上移</button>
-                  <button
-                    :disabled="selectedGroupIndex === draft.skillGroups.length - 1"
-                    @click="moveGroup(1)"
-                  >
-                    下移
-                  </button>
-                  <button class="danger-button" @click="removeGroup">删除组</button>
-                </div>
-              </header>
-              <div class="identity-grid three">
-                <label
-                  >组 ID<input :value="selectedGroup.key" @change="updateGroup('key', $event)"
-                /></label>
-                <label
-                  >技能类型<select
-                    :value="selectedGroup.skillType"
-                    @change="updateGroup('skillType', $event)"
-                  >
-                    <option v-for="value in SKILL_TYPES" :key="value">{{ value }}</option>
-                  </select></label
-                >
-                <label
-                  >等级来源<select
-                    :value="selectedGroup.levelSource"
-                    @change="updateGroup('levelSource', $event)"
-                  >
-                    <option v-for="value in SKILL_LEVEL_SOURCES" :key="value">{{ value }}</option>
-                  </select></label
-                >
-              </div>
-              <div class="skill-tabs">
-                <button
-                  v-for="(skill, index) in selectedGroupSkills"
-                  :key="`${skill.key}:${index}`"
-                  :class="{ active: selectedSkillIndex === index }"
-                  @click="
-                    selectedSkillIndex = index;
-                    showSkillEditor = false;
-                  "
-                >
-                  {{ skill.key }}
-                </button>
-                <button :disabled="selectedSkill === null" @click="duplicateSkill">
-                  ＋ 复制技能
-                </button>
-              </div>
-              <div v-if="selectedSkill" class="skill-summary">
-                <div>
-                  <strong>{{ selectedSkill.key }}</strong
-                  ><span
-                    >{{ selectedSkill.scheduledSequences.length }} 条时间线 ·
-                    {{ selectedSkill.timelineBlockFrames }} 帧</span
-                  >
-                </div>
-                <div class="skill-actions">
-                  <button :disabled="selectedSkillIndex === 0" @click="moveSkill(-1)">上移</button>
-                  <button
-                    :disabled="selectedSkillIndex === selectedGroupSkills.length - 1"
-                    @click="moveSkill(1)"
-                  >
-                    下移
-                  </button>
-                  <button class="danger-button" @click="removeSkill">删除</button>
-                  <button
-                    class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                    @click="showSkillEditor = true"
-                  >
-                    编辑完整技能
-                  </button>
-                </div>
-              </div>
-            </template>
-          </div>
-        </section>
-
-        <section v-else-if="section === 'progression'" class="definition-section split-section">
-          <aside class="object-list">
-            <div class="kind-tabs">
-              <button
-                :class="{ active: progressionKind === 'talents' }"
-                @click="
-                  progressionKind = 'talents';
-                  selectedUpgradeIndex = 0;
-                "
+            <div class="identity-grid">
+              <label title="项目内稳定引用身份。创建模板时确定，修改会使既有引用失效。"
+                >模板 ID<input :value="draft.slug" disabled
+              /></label>
+              <label title="来源游戏数据身份，仅用于追溯和资源回退，不是项目内引用。"
+                >游戏 ID<input :value="draft.gameId" disabled
+              /></label>
+              <label
+                >展示名称<input
+                  :value="draft.displayName ?? ''"
+                  @change="updateIdentity('displayName', $event)"
+              /></label>
+              <label title="继承头像、技能图标和本地化文本时使用的内置干员身份。"
+                >资源来源<input
+                  :value="draft.assetSlug ?? ''"
+                  @change="updateIdentity('assetSlug', $event)"
+              /></label>
+              <label
+                >星级<select :value="draft.rarity" @change="updateIdentity('rarity', $event)">
+                  <option v-for="value in OPERATOR_RARITIES" :key="value" :value="value">
+                    {{ value }} ★
+                  </option>
+                </select></label
               >
-                天赋
-              </button>
-              <button
-                :class="{ active: progressionKind === 'potentials' }"
-                @click="
-                  progressionKind = 'potentials';
-                  selectedUpgradeIndex = 0;
-                "
+              <label
+                >默认潜能<input
+                  type="number"
+                  min="0"
+                  max="5"
+                  step="1"
+                  :value="draft.defaultPotential ?? 0"
+                  @change="updateIdentity('defaultPotential', $event)"
+              /></label>
+              <label
+                >武器类型<select
+                  :value="draft.weaponType"
+                  @change="updateIdentity('weaponType', $event)"
+                >
+                  <option v-for="value in OPERATOR_WEAPON_TYPES" :key="value" :value="value">
+                    {{ value }}
+                  </option>
+                </select></label
               >
-                潜能
-              </button>
+              <label
+                >元素<select :value="draft.element" @change="updateIdentity('element', $event)">
+                  <option v-for="value in DAMAGE_ELEMENTS" :key="value" :value="value">
+                    {{ value }}
+                  </option>
+                </select></label
+              >
+              <label
+                >职业<select :value="draft.role" @change="updateIdentity('role', $event)">
+                  <option v-for="value in OPERATOR_ROLES" :key="value" :value="value">
+                    {{ value }}
+                  </option>
+                </select></label
+              >
+              <label
+                >主属性<select
+                  :value="draft.mainAttribute"
+                  @change="updateIdentity('mainAttribute', $event)"
+                >
+                  <option v-for="value in OPERATOR_ATTRIBUTES" :key="value" :value="value">
+                    {{ ATTRIBUTE_LABELS[value] }}
+                  </option>
+                </select></label
+              >
+              <label
+                >副属性<select
+                  :value="draft.secondaryAttribute"
+                  @change="updateIdentity('secondaryAttribute', $event)"
+                >
+                  <option v-for="value in OPERATOR_ATTRIBUTES" :key="value" :value="value">
+                    {{ ATTRIBUTE_LABELS[value] }}
+                  </option>
+                </select></label
+              >
             </div>
-            <button class="add-object" @click="addUpgrade">
-              ＋ 新增{{ progressionKind === 'talents' ? '天赋' : '潜能' }}
-            </button>
-            <button
-              v-for="(upgrade, index) in selectedUpgrades"
-              :key="`${upgrade.key}:${index}`"
-              :class="{ active: selectedUpgradeIndex === index }"
-              @click="
-                selectedUpgradeIndex = index;
-                showUpgradeBehaviorEditor = false;
-              "
-            >
-              <span>{{ upgrade.key }}</span
-              ><small>{{ upgrade.levels }} 级</small>
-            </button>
-          </aside>
-          <div v-if="selectedUpgrade" class="object-editor">
-            <OperatorUpgradeBehaviorDialog
-              v-if="showUpgradeBehaviorEditor"
-              :visible="true"
-              :upgrade="selectedUpgrade"
-              :skill-level="skillLevel"
-              :skill-group-keys="skillGroupKeys"
-              @update:visible="showUpgradeBehaviorEditor = $event"
-              @save="saveUpgradeBehavior"
-            />
-            <template v-else>
+            <div class="level-toolbar">
+              <span>正在编辑等级</span>
+              <input v-model.number="panelLevel" type="range" min="1" max="90" />
+              <strong>Lv.{{ panelLevel }}</strong>
+            </div>
+            <div class="stat-grid">
+              <label v-for="key in PANEL_ATTRIBUTE_KEYS" :key="key">
+                <span>{{ ATTRIBUTE_LABELS[key] }}</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  :value="draft.attributes[key][panelLevel - 1] ?? 0"
+                  @input="updatePanelStat(key, $event)"
+                />
+              </label>
+            </div>
+            <div class="panel-subsection">
               <header>
                 <div>
-                  <h3>{{ progressionKind === 'talents' ? '天赋' : '潜能' }}</h3>
-                  <p>等级决定逐级值的解析位置；行为结构在下一阶段进入养成导图。</p>
+                  <h3>信赖属性节点</h3>
+                  <p>四个信赖节点提供的属性值；未自定义时使用全局主属性规则 10、15、15、20。</p>
                 </div>
-                <div class="object-toolbar">
-                  <button :disabled="selectedUpgradeIndex === 0" @click="moveUpgrade(-1)">
-                    上移
-                  </button>
-                  <button
-                    :disabled="selectedUpgradeIndex === selectedUpgrades.length - 1"
-                    @click="moveUpgrade(1)"
-                  >
-                    下移
-                  </button>
-                  <button class="danger-button" @click="removeUpgrade">删除</button>
-                </div>
-              </header>
-              <div class="identity-grid">
-                <label
-                  >稳定 key<input
-                    :value="selectedUpgrade.key"
-                    @change="updateUpgrade('key', $event)"
-                /></label>
-                <label
-                  >等级数量<input
-                    type="number"
-                    min="1"
-                    step="1"
-                    :value="selectedUpgrade.levels"
-                    @change="updateUpgrade('levels', $event)"
-                /></label>
-                <label class="wide-field">
-                  固定模型下无可观察效果
-                  <select
-                    :value="selectedUpgrade.simulationNoEffect ?? ''"
-                    @change="updateUpgrade('simulationNoEffect', $event)"
-                  >
-                    <option value="">否，存在可模拟行为</option>
-                    <option value="uniqueEnemyHasNoAlternateTarget">唯一敌人没有其他目标</option>
-                    <option value="enemyDoesNotDealDamage">木桩敌人不造成伤害</option>
-                    <option value="enemyDoesNotInflictSpellStatusOnOperators">
-                      木桩敌人不对干员施加法术状态
-                    </option>
-                  </select>
-                  <small>只有已取证且在 Endaxis 固定模型中确实无可见结果时才能选择。</small>
-                </label>
-              </div>
-              <div class="structure-summary">
-                <span>构筑修正 {{ selectedUpgrade.modifiers?.length ?? 0 }}</span>
-                <span>事件响应 {{ selectedUpgrade.eventHandlers?.length ?? 0 }}</span>
-                <span>被动技能 {{ selectedUpgrade.passiveSkills?.length ?? 0 }}</span>
-                <span>初始化序列 {{ selectedUpgrade.initializationSequence ? 1 : 0 }}</span>
                 <button
                   class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                  @click="showUpgradeBehaviorEditor = true"
+                  @click="setTrustMode(draft.trustAttributeBonus === undefined)"
                 >
-                  编辑行为结构
+                  {{ draft.trustAttributeBonus === undefined ? '改为自定义规则' : '恢复全局规则' }}
                 </button>
-              </div>
-              <section class="modifier-workspace">
+              </header>
+              <template v-if="draft.trustAttributeBonus">
+                <label>
+                  节点数值
+                  <input
+                    :value="draft.trustAttributeBonus.values.join(', ')"
+                    @change="updateTrustValues"
+                  />
+                  <small>按节点顺序填写，使用英文逗号分隔。</small>
+                </label>
+                <fieldset class="attribute-chips">
+                  <legend>每个节点增加的属性</legend>
+                  <button
+                    v-for="attribute in TRUST_ATTRIBUTE_OPTIONS"
+                    :key="attribute"
+                    :class="{ active: draft.trustAttributeBonus.attributes.includes(attribute) }"
+                    @click="toggleTrustAttribute(attribute)"
+                  >
+                    {{
+                      attribute === 'main'
+                        ? '当前主属性'
+                        : attribute === 'secondary'
+                          ? '当前副属性'
+                          : ATTRIBUTE_LABELS[attribute]
+                    }}
+                  </button>
+                </fieldset>
+              </template>
+            </div>
+          </section>
+
+          <section v-else-if="section === 'skills'" class="definition-section split-section">
+            <aside class="object-list">
+              <input v-model="objectSearch" class="object-search" placeholder="搜索技能组…" />
+              <button
+                class="add-object"
+                :disabled="selectedGroup === undefined"
+                @click="duplicateGroup"
+              >
+                ＋ 复制当前技能组
+              </button>
+              <button
+                v-for="entry in filteredGroups"
+                :key="`${entry.group.key}:${entry.index}`"
+                :class="{ active: selectedGroupIndex === entry.index }"
+                @click="
+                  selectedGroupIndex = entry.index;
+                  selectedSkillIndex = 0;
+                  showSkillEditor = false;
+                "
+              >
+                <span>{{ entry.group.key }}</span
+                ><small>{{ normalizeSkills(entry.group.skills).length }} 个技能</small>
+              </button>
+            </aside>
+            <div v-if="selectedGroup" class="object-editor">
+              <SkillDefinitionEditorDialog
+                v-if="showSkillEditor && selectedSkill"
+                embedded
+                :visible="true"
+                :title="selectedSkill.key"
+                :template-definition="selectedSkill"
+                :custom-definition="undefined"
+                :skill-level="skillLevel"
+                :ability-entity-ids="abilityEntityIds"
+                show-reference-pins
+                allow-invalid-save
+                @update:visible="showSkillEditor = $event"
+                @save="replaceSelectedSkill"
+                @reference="openReferencedDefinition"
+              />
+              <template v-else>
                 <header>
                   <div>
-                    <h3>构筑修正</h3>
-                    <p>按列表顺序修改最终构筑或技能编译结果。</p>
+                    <h3>技能组</h3>
+                    <p>技能组决定技能库放置单元与养成等级来源。</p>
                   </div>
-                  <div class="modifier-add">
-                    <select v-model="newModifierKind">
-                      <option v-for="kind in UPGRADE_MODIFIER_KINDS" :key="kind" :value="kind">
-                        {{ kind }}
-                      </option></select
-                    ><button @click="addUpgradeModifier">＋ 添加</button>
+                  <div class="object-toolbar">
+                    <button :disabled="selectedGroupIndex === 0" @click="moveGroup(-1)">
+                      上移
+                    </button>
+                    <button
+                      :disabled="selectedGroupIndex === draft.skillGroups.length - 1"
+                      @click="moveGroup(1)"
+                    >
+                      下移
+                    </button>
+                    <button class="danger-button" @click="removeGroup">删除组</button>
                   </div>
                 </header>
-                <div class="modifier-tabs">
+                <div class="identity-grid three">
+                  <label
+                    >组 ID<input :value="selectedGroup.key" @change="updateGroup('key', $event)"
+                  /></label>
+                  <label
+                    >技能类型<select
+                      :value="selectedGroup.skillType"
+                      @change="updateGroup('skillType', $event)"
+                    >
+                      <option v-for="value in SKILL_TYPES" :key="value">{{ value }}</option>
+                    </select></label
+                  >
+                  <label
+                    >等级来源<select
+                      :value="selectedGroup.levelSource"
+                      @change="updateGroup('levelSource', $event)"
+                    >
+                      <option v-for="value in SKILL_LEVEL_SOURCES" :key="value">{{ value }}</option>
+                    </select></label
+                  >
+                </div>
+                <div class="skill-tabs">
                   <button
-                    v-for="(modifier, index) in selectedUpgrade.modifiers ?? []"
-                    :key="`${modifier.kind}:${index}`"
-                    :class="{ active: selectedModifierIndex === index }"
-                    @click="selectedModifierIndex = index"
-                  >
-                    {{ index + 1 }} · {{ modifier.kind }}
-                  </button>
-                </div>
-                <div v-if="selectedUpgradeModifier" class="modifier-toolbar">
-                  <button :disabled="selectedModifierIndex === 0" @click="moveUpgradeModifier(-1)">
-                    上移</button
-                  ><button
-                    :disabled="
-                      selectedModifierIndex === (selectedUpgrade.modifiers?.length ?? 0) - 1
+                    v-for="(skill, index) in selectedGroupSkills"
+                    :key="`${skill.key}:${index}`"
+                    :class="{ active: selectedSkillIndex === index }"
+                    @click="
+                      selectedSkillIndex = index;
+                      showSkillEditor = false;
                     "
-                    @click="moveUpgradeModifier(1)"
                   >
-                    下移</button
-                  ><span /><button class="danger-button" @click="removeUpgradeModifier">
-                    删除修正
+                    {{ skill.key }}
+                  </button>
+                  <button :disabled="selectedSkill === null" @click="duplicateSkill">
+                    ＋ 复制技能
                   </button>
                 </div>
-                <OperatorUpgradeModifierEditor
-                  v-if="selectedUpgradeModifier"
-                  :modifier="selectedUpgradeModifier"
-                  :skill-group-keys="skillGroupKeys"
-                  :passive-skill-keys="passiveSkillKeys"
-                  @update="updateUpgradeModifier"
-                />
-                <div v-else class="empty-state compact">当前养成项没有构筑修正。</div>
-              </section>
-            </template>
-          </div>
-          <div v-else class="empty-state">当前分类还没有定义。</div>
-        </section>
+                <div v-if="selectedSkill" class="skill-summary">
+                  <div>
+                    <strong>{{ selectedSkill.key }}</strong
+                    ><span
+                      >{{ selectedSkill.scheduledSequences.length }} 条时间线 ·
+                      {{ selectedSkill.timelineBlockFrames }} 帧</span
+                    >
+                  </div>
+                  <div class="skill-actions">
+                    <button :disabled="selectedSkillIndex === 0" @click="moveSkill(-1)">
+                      上移
+                    </button>
+                    <button
+                      :disabled="selectedSkillIndex === selectedGroupSkills.length - 1"
+                      @click="moveSkill(1)"
+                    >
+                      下移
+                    </button>
+                    <button class="danger-button" @click="removeSkill">删除</button>
+                    <button
+                      class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                      @click="showSkillEditor = true"
+                    >
+                      编辑完整技能
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </section>
 
-        <section v-else-if="section === 'runtime'" class="definition-section">
-          <OperatorComboDefinitionsDialog
-            v-if="showComboEditor"
-            :visible="true"
-            :conditions="draft.comboSkillConditions"
-            :skill-keys="comboSkillKeys"
-            :skill-level="skillLevel"
-            @update:visible="showComboEditor = $event"
-            @save="saveComboDefinitions"
-          />
-          <OperatorRuntimeBehaviorDialog
-            v-else-if="showRuntimeBehaviorEditor"
-            :visible="true"
-            :passive-skills="draft.passiveSkills"
-            :event-handlers="draft.eventHandlers"
-            :skill-level="skillLevel"
-            @update:visible="showRuntimeBehaviorEditor = $event"
-            @save="saveRuntimeBehaviors"
-          />
-          <template v-else>
-            <header>
-              <div>
-                <h3>角色实体黑板</h3>
-                <p>角色实例跨技能共享的字面初值；与每次技能释放重置的技能黑板不同。</p>
-              </div>
-              <button
-                class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                @click="addEntityBlackboardEntry"
-              >
-                ＋ 添加初值
-              </button>
-            </header>
-            <div class="entity-blackboard">
-              <div
-                v-for="([key, value], index) in entityBlackboardEntries"
-                :key="`${key}:${index}`"
-                class="entity-blackboard-row"
-              >
-                <label
-                  >键<input :value="key" @change="renameEntityBlackboardEntry(key, $event)"
-                /></label>
-                <label
-                  >值<input :value="value" @change="updateEntityBlackboardEntry(key, $event)"
-                /></label>
+          <section v-else-if="section === 'progression'" class="definition-section split-section">
+            <aside class="object-list">
+              <div class="kind-tabs">
                 <button
-                  :title="
-                    typeof value === 'number'
-                      ? '当前为数值，点击改为文本'
-                      : '当前为文本，点击改为数值'
+                  :class="{ active: progressionKind === 'talents' }"
+                  @click="
+                    progressionKind = 'talents';
+                    selectedUpgradeIndex = 0;
                   "
-                  @click="toggleEntityBlackboardEntryType(key)"
                 >
-                  {{ typeof value === 'number' ? '数值' : '文本' }}
+                  天赋
                 </button>
-                <button class="danger-button" @click="removeEntityBlackboardEntry(key)">
-                  删除
-                </button>
-              </div>
-              <div v-if="entityBlackboardEntries.length === 0" class="empty-state">
-                没有角色级字面初值。
-              </div>
-            </div>
-            <div class="runtime-boundary">
-              <strong>构筑条件初始化器</strong>
-              <p>在创建技能实例前比较最终构筑四维，并把结果写入角色实体黑板。</p>
-              <button
-                class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                @click="addEntityBlackboardInitializer"
-              >
-                ＋ 添加初始化器
-              </button>
-              <div
-                v-for="(initializer, index) in draft.entityBlackboardInitializers ?? []"
-                :key="`${initializer.key}:${index}`"
-                class="initializer-row"
-              >
-                <label
-                  >写入键<input
-                    :value="initializer.key"
-                    @change="updateEntityBlackboardInitializer(index, 'key', $event)"
-                /></label>
-                <label
-                  >左属性<select
-                    :value="initializer.condition.left"
-                    @change="updateEntityBlackboardInitializer(index, 'left', $event)"
-                  >
-                    <option
-                      v-for="attribute in OPERATOR_ATTRIBUTES"
-                      :key="attribute"
-                      :value="attribute"
-                    >
-                      {{ ATTRIBUTE_LABELS[attribute] }}
-                    </option>
-                  </select></label
+                <button
+                  :class="{ active: progressionKind === 'potentials' }"
+                  @click="
+                    progressionKind = 'potentials';
+                    selectedUpgradeIndex = 0;
+                  "
                 >
-                <label
-                  >比较<select
-                    :value="initializer.condition.operator"
-                    @change="updateEntityBlackboardInitializer(index, 'operator', $event)"
-                  >
-                    <option
-                      v-for="operator in COMPARISON_OPERATORS"
-                      :key="operator"
-                      :value="operator"
-                    >
-                      {{ operator }}
-                    </option>
-                  </select></label
-                >
-                <label
-                  >右属性<select
-                    :value="initializer.condition.right"
-                    @change="updateEntityBlackboardInitializer(index, 'right', $event)"
-                  >
-                    <option
-                      v-for="attribute in OPERATOR_ATTRIBUTES"
-                      :key="attribute"
-                      :value="attribute"
-                    >
-                      {{ ATTRIBUTE_LABELS[attribute] }}
-                    </option>
-                  </select></label
-                >
-                <label
-                  >成立值<input
-                    type="number"
-                    step="0.01"
-                    :value="initializer.trueValue"
-                    @change="updateEntityBlackboardInitializer(index, 'trueValue', $event)"
-                /></label>
-                <label
-                  >不成立值<input
-                    type="number"
-                    step="0.01"
-                    :value="initializer.falseValue"
-                    @change="updateEntityBlackboardInitializer(index, 'falseValue', $event)"
-                /></label>
-                <button class="danger-button" @click="removeEntityBlackboardInitializer(index)">
-                  删除
+                  潜能
                 </button>
               </div>
-            </div>
-            <div class="runtime-boundary">
-              <strong>角色级常驻行为</strong>
-              <span>基础被动 {{ draft.passiveSkills?.length ?? 0 }}</span>
-              <span>角色事件响应 {{ draft.eventHandlers?.length ?? 0 }}</span>
-              <button
-                class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                @click="showRuntimeBehaviorEditor = true"
-              >
-                编辑角色级行为
+              <button class="add-object" @click="addUpgrade">
+                ＋ 新增{{ progressionKind === 'talents' ? '天赋' : '潜能' }}
               </button>
-            </div>
-            <div class="runtime-boundary">
-              <strong>角色级连携结构</strong>
-              <span>连携条件 {{ draft.comboSkillConditions?.length ?? 0 }}</span>
-              <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="showComboEditor = true">
-                编辑连携定义
-              </button>
-            </div>
-          </template>
-        </section>
-
-        <section v-else-if="section === 'buffs'" class="definition-section split-section">
-          <aside class="object-list">
-            <input v-model="objectSearch" class="object-search" placeholder="搜索 Buff…" />
-            <button class="add-object" @click="addBuff">＋ 新增 Buff</button>
-            <button
-              v-for="id in filteredBuffIds"
-              :key="id"
-              :class="{ active: selectedBuffId === id }"
-              @click="selectedBuffId = id"
-            >
-              {{ id }}
-            </button>
-          </aside>
-          <div v-if="selectedBuffStep" class="object-editor">
-            <header>
-              <div>
-                <h3>{{ selectedBuffId }}</h3>
-                <p>干员级 Buff 蓝图；技能只通过 ID 引用。</p>
-              </div>
               <button
-                class="danger-button"
-                :disabled="selectedBuffReferences.length > 0"
-                :title="
-                  selectedBuffReferences.length > 0
-                    ? `仍有 ${selectedBuffReferences.length} 处引用，不能删除`
-                    : '删除 Buff 定义'
+                v-for="(upgrade, index) in selectedUpgrades"
+                :key="`${upgrade.key}:${index}`"
+                :class="{ active: selectedUpgradeIndex === index }"
+                @click="
+                  selectedUpgradeIndex = index;
+                  showUpgradeBehaviorEditor = false;
                 "
-                @click="removeBuff"
               >
-                删除
+                <span>{{ upgrade.key }}</span
+                ><small>{{ upgrade.levels }} 级</small>
               </button>
-            </header>
-            <div v-if="selectedBuffReferences.length" class="reference-guard">
-              <strong>仍有 {{ selectedBuffReferences.length }} 处引用</strong>
-              <span>先修改这些使用点，定义才可以删除。</span>
-              <button
-                v-for="reference in selectedBuffReferences"
-                :key="reference.path"
-                type="button"
-                @click="revealDefinitionReference(reference)"
-              >
-                <b>{{ reference.ownerKind }} · {{ reference.ownerId }}</b>
-                <code>{{ reference.path }}</code>
-              </button>
+            </aside>
+            <div v-if="selectedUpgrade" class="object-editor">
+              <OperatorUpgradeBehaviorDialog
+                v-if="showUpgradeBehaviorEditor"
+                :visible="true"
+                :upgrade="selectedUpgrade"
+                :skill-level="skillLevel"
+                :skill-group-keys="skillGroupKeys"
+                @update:visible="showUpgradeBehaviorEditor = $event"
+                @save="saveUpgradeBehavior"
+              />
+              <template v-else>
+                <header>
+                  <div>
+                    <h3>{{ progressionKind === 'talents' ? '天赋' : '潜能' }}</h3>
+                    <p>等级决定逐级值的解析位置；行为结构在下一阶段进入养成导图。</p>
+                  </div>
+                  <div class="object-toolbar">
+                    <button :disabled="selectedUpgradeIndex === 0" @click="moveUpgrade(-1)">
+                      上移
+                    </button>
+                    <button
+                      :disabled="selectedUpgradeIndex === selectedUpgrades.length - 1"
+                      @click="moveUpgrade(1)"
+                    >
+                      下移
+                    </button>
+                    <button class="danger-button" @click="removeUpgrade">删除</button>
+                  </div>
+                </header>
+                <div class="identity-grid">
+                  <label
+                    >稳定 key<input
+                      :value="selectedUpgrade.key"
+                      @change="updateUpgrade('key', $event)"
+                  /></label>
+                  <label
+                    >等级数量<input
+                      type="number"
+                      min="1"
+                      step="1"
+                      :value="selectedUpgrade.levels"
+                      @change="updateUpgrade('levels', $event)"
+                  /></label>
+                  <label class="wide-field">
+                    固定模型下无可观察效果
+                    <select
+                      :value="selectedUpgrade.simulationNoEffect ?? ''"
+                      @change="updateUpgrade('simulationNoEffect', $event)"
+                    >
+                      <option value="">否，存在可模拟行为</option>
+                      <option value="uniqueEnemyHasNoAlternateTarget">唯一敌人没有其他目标</option>
+                      <option value="enemyDoesNotDealDamage">木桩敌人不造成伤害</option>
+                      <option value="enemyDoesNotInflictSpellStatusOnOperators">
+                        木桩敌人不对干员施加法术状态
+                      </option>
+                    </select>
+                    <small>只有已取证且在 Endaxis 固定模型中确实无可见结果时才能选择。</small>
+                  </label>
+                </div>
+                <div class="structure-summary">
+                  <span>构筑修正 {{ selectedUpgrade.modifiers?.length ?? 0 }}</span>
+                  <span>事件响应 {{ selectedUpgrade.eventHandlers?.length ?? 0 }}</span>
+                  <span>被动技能 {{ selectedUpgrade.passiveSkills?.length ?? 0 }}</span>
+                  <span>初始化序列 {{ selectedUpgrade.initializationSequence ? 1 : 0 }}</span>
+                  <button
+                    class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                    @click="showUpgradeBehaviorEditor = true"
+                  >
+                    编辑行为结构
+                  </button>
+                </div>
+                <section class="modifier-workspace">
+                  <header>
+                    <div>
+                      <h3>构筑修正</h3>
+                      <p>按列表顺序修改最终构筑或技能编译结果。</p>
+                    </div>
+                    <div class="modifier-add">
+                      <select v-model="newModifierKind">
+                        <option v-for="kind in UPGRADE_MODIFIER_KINDS" :key="kind" :value="kind">
+                          {{ kind }}
+                        </option></select
+                      ><button @click="addUpgradeModifier">＋ 添加</button>
+                    </div>
+                  </header>
+                  <div class="modifier-tabs">
+                    <button
+                      v-for="(modifier, index) in selectedUpgrade.modifiers ?? []"
+                      :key="`${modifier.kind}:${index}`"
+                      :class="{ active: selectedModifierIndex === index }"
+                      @click="selectedModifierIndex = index"
+                    >
+                      {{ index + 1 }} · {{ modifier.kind }}
+                    </button>
+                  </div>
+                  <div v-if="selectedUpgradeModifier" class="modifier-toolbar">
+                    <button
+                      :disabled="selectedModifierIndex === 0"
+                      @click="moveUpgradeModifier(-1)"
+                    >
+                      上移</button
+                    ><button
+                      :disabled="
+                        selectedModifierIndex === (selectedUpgrade.modifiers?.length ?? 0) - 1
+                      "
+                      @click="moveUpgradeModifier(1)"
+                    >
+                      下移</button
+                    ><span /><button class="danger-button" @click="removeUpgradeModifier">
+                      删除修正
+                    </button>
+                  </div>
+                  <OperatorUpgradeModifierEditor
+                    v-if="selectedUpgradeModifier"
+                    :modifier="selectedUpgradeModifier"
+                    :skill-group-keys="skillGroupKeys"
+                    :passive-skill-keys="passiveSkillKeys"
+                    @update="updateUpgradeModifier"
+                  />
+                  <div v-else class="empty-state compact">当前养成项没有构筑修正。</div>
+                </section>
+              </template>
             </div>
-            <BuffDefinitionGraphEditor
-              :buff-id="selectedBuffId"
-              :definition="selectedBuff!"
+            <div v-else class="empty-state">当前分类还没有定义。</div>
+          </section>
+
+          <section v-else-if="section === 'runtime'" class="definition-section">
+            <OperatorComboDefinitionsDialog
+              v-if="showComboEditor"
+              :visible="true"
+              :conditions="draft.comboSkillConditions"
+              :skill-keys="comboSkillKeys"
               :skill-level="skillLevel"
-              @update="
-                updateBuffStep({
-                  kind: 'applyBuff',
-                  parameters: {
-                    buffId: selectedBuffId,
-                    target: 'caster',
-                    definition: $event,
-                  },
-                })
-              "
+              @update:visible="showComboEditor = $event"
+              @save="saveComboDefinitions"
             />
-          </div>
-          <div v-else class="empty-state">这个干员还没有 Buff 定义。</div>
-        </section>
-
-        <section v-else class="definition-section">
-          <AbilityEntityDefinitionsDialog
-            v-if="showEntityEditor"
-            :visible="true"
-            :base-definitions="{}"
-            :custom-definitions="draft.abilityEntityDefinitions"
-            :common-definitions="commonAbilityEntityDefinitions"
-            :skill-level="skillLevel"
-            :initial-selected-id="referencedEntityId"
-            :operator-definition="draft"
-            @update:visible="showEntityEditor = $event"
-            @save="saveEntities"
-            @reveal-reference="revealEntityDefinitionReference"
-          />
-          <template v-else>
-            <header>
-              <div>
-                <h3>能力实体</h3>
-                <p>能力实体是干员定义的附属对象，子技能按引用它的技能等级解析。</p>
+            <OperatorRuntimeBehaviorDialog
+              v-else-if="showRuntimeBehaviorEditor"
+              :visible="true"
+              :passive-skills="draft.passiveSkills"
+              :event-handlers="draft.eventHandlers"
+              :skill-level="skillLevel"
+              @update:visible="showRuntimeBehaviorEditor = $event"
+              @save="saveRuntimeBehaviors"
+            />
+            <template v-else>
+              <header>
+                <div>
+                  <h3>角色实体黑板</h3>
+                  <p>角色实例跨技能共享的字面初值；与每次技能释放重置的技能黑板不同。</p>
+                </div>
+                <button
+                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                  @click="addEntityBlackboardEntry"
+                >
+                  ＋ 添加初值
+                </button>
+              </header>
+              <div class="entity-blackboard">
+                <div
+                  v-for="([key, value], index) in entityBlackboardEntries"
+                  :key="`${key}:${index}`"
+                  class="entity-blackboard-row"
+                >
+                  <label
+                    >键<input :value="key" @change="renameEntityBlackboardEntry(key, $event)"
+                  /></label>
+                  <label
+                    >值<input :value="value" @change="updateEntityBlackboardEntry(key, $event)"
+                  /></label>
+                  <button
+                    :title="
+                      typeof value === 'number'
+                        ? '当前为数值，点击改为文本'
+                        : '当前为文本，点击改为数值'
+                    "
+                    @click="toggleEntityBlackboardEntryType(key)"
+                  >
+                    {{ typeof value === 'number' ? '数值' : '文本' }}
+                  </button>
+                  <button class="danger-button" @click="removeEntityBlackboardEntry(key)">
+                    删除
+                  </button>
+                </div>
+                <div v-if="entityBlackboardEntries.length === 0" class="empty-state">
+                  没有角色级字面初值。
+                </div>
               </div>
-            </header>
-            <div class="entity-summary">
-              <strong>{{ Object.keys(draft.abilityEntityDefinitions ?? {}).length }}</strong>
-              <span>个干员级能力实体</span>
-              <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="showEntityEditor = true">
-                编辑能力实体
-              </button>
-            </div>
-          </template>
-        </section>
-      </main>
-    </div>
+              <div class="runtime-boundary">
+                <strong>构筑条件初始化器</strong>
+                <p>在创建技能实例前比较最终构筑四维，并把结果写入角色实体黑板。</p>
+                <button
+                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                  @click="addEntityBlackboardInitializer"
+                >
+                  ＋ 添加初始化器
+                </button>
+                <div
+                  v-for="(initializer, index) in draft.entityBlackboardInitializers ?? []"
+                  :key="`${initializer.key}:${index}`"
+                  class="initializer-row"
+                >
+                  <label
+                    >写入键<input
+                      :value="initializer.key"
+                      @change="updateEntityBlackboardInitializer(index, 'key', $event)"
+                  /></label>
+                  <label
+                    >左属性<select
+                      :value="initializer.condition.left"
+                      @change="updateEntityBlackboardInitializer(index, 'left', $event)"
+                    >
+                      <option
+                        v-for="attribute in OPERATOR_ATTRIBUTES"
+                        :key="attribute"
+                        :value="attribute"
+                      >
+                        {{ ATTRIBUTE_LABELS[attribute] }}
+                      </option>
+                    </select></label
+                  >
+                  <label
+                    >比较<select
+                      :value="initializer.condition.operator"
+                      @change="updateEntityBlackboardInitializer(index, 'operator', $event)"
+                    >
+                      <option
+                        v-for="operator in COMPARISON_OPERATORS"
+                        :key="operator"
+                        :value="operator"
+                      >
+                        {{ operator }}
+                      </option>
+                    </select></label
+                  >
+                  <label
+                    >右属性<select
+                      :value="initializer.condition.right"
+                      @change="updateEntityBlackboardInitializer(index, 'right', $event)"
+                    >
+                      <option
+                        v-for="attribute in OPERATOR_ATTRIBUTES"
+                        :key="attribute"
+                        :value="attribute"
+                      >
+                        {{ ATTRIBUTE_LABELS[attribute] }}
+                      </option>
+                    </select></label
+                  >
+                  <label
+                    >成立值<input
+                      type="number"
+                      step="0.01"
+                      :value="initializer.trueValue"
+                      @change="updateEntityBlackboardInitializer(index, 'trueValue', $event)"
+                  /></label>
+                  <label
+                    >不成立值<input
+                      type="number"
+                      step="0.01"
+                      :value="initializer.falseValue"
+                      @change="updateEntityBlackboardInitializer(index, 'falseValue', $event)"
+                  /></label>
+                  <button class="danger-button" @click="removeEntityBlackboardInitializer(index)">
+                    删除
+                  </button>
+                </div>
+              </div>
+              <div class="runtime-boundary">
+                <strong>角色级常驻行为</strong>
+                <span>基础被动 {{ draft.passiveSkills?.length ?? 0 }}</span>
+                <span>角色事件响应 {{ draft.eventHandlers?.length ?? 0 }}</span>
+                <button
+                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                  @click="showRuntimeBehaviorEditor = true"
+                >
+                  编辑角色级行为
+                </button>
+              </div>
+              <div class="runtime-boundary">
+                <strong>角色级连携结构</strong>
+                <span>连携条件 {{ draft.comboSkillConditions?.length ?? 0 }}</span>
+                <button
+                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                  @click="showComboEditor = true"
+                >
+                  编辑连携定义
+                </button>
+              </div>
+            </template>
+          </section>
 
-    <template #footer>
-      <div v-if="showProblems && draftIssues.length" class="workspace-problems">
-        <button
-          v-for="issue in draftIssues"
-          :key="`${issue.path}:${issue.message}`"
-          @click="revealIssue(issue)"
-        >
-          <code>{{ issue.path }}</code
-          ><span>{{ issue.message }}</span>
-        </button>
+          <section v-else-if="section === 'buffs'" class="definition-section split-section">
+            <aside class="object-list">
+              <input v-model="objectSearch" class="object-search" placeholder="搜索 Buff…" />
+              <button class="add-object" @click="addBuff">＋ 新增 Buff</button>
+              <button
+                v-for="id in filteredBuffIds"
+                :key="id"
+                :class="{ active: selectedBuffId === id }"
+                @click="selectedBuffId = id"
+              >
+                {{ id }}
+              </button>
+            </aside>
+            <div v-if="selectedBuffStep" class="object-editor">
+              <header>
+                <div>
+                  <h3>{{ selectedBuffId }}</h3>
+                  <p>干员级 Buff 蓝图；技能只通过 ID 引用。</p>
+                </div>
+                <button
+                  class="danger-button"
+                  :disabled="selectedBuffReferences.length > 0"
+                  :title="
+                    selectedBuffReferences.length > 0
+                      ? `仍有 ${selectedBuffReferences.length} 处引用，不能删除`
+                      : '删除 Buff 定义'
+                  "
+                  @click="removeBuff"
+                >
+                  删除
+                </button>
+              </header>
+              <div v-if="selectedBuffReferences.length" class="reference-guard">
+                <strong>仍有 {{ selectedBuffReferences.length }} 处引用</strong>
+                <span>先修改这些使用点，定义才可以删除。</span>
+                <button
+                  v-for="reference in selectedBuffReferences"
+                  :key="reference.path"
+                  type="button"
+                  @click="revealDefinitionReference(reference)"
+                >
+                  <b>{{ reference.ownerKind }} · {{ reference.ownerId }}</b>
+                  <code>{{ reference.path }}</code>
+                </button>
+              </div>
+              <BuffDefinitionGraphEditor
+                :buff-id="selectedBuffId"
+                :definition="selectedBuff!"
+                :skill-level="skillLevel"
+                @update="
+                  updateBuffStep({
+                    kind: 'applyBuff',
+                    parameters: {
+                      buffId: selectedBuffId,
+                      target: 'caster',
+                      definition: $event,
+                    },
+                  })
+                "
+              />
+            </div>
+            <div v-else class="empty-state">这个干员还没有 Buff 定义。</div>
+          </section>
+
+          <section v-else class="definition-section">
+            <AbilityEntityDefinitionsDialog
+              v-if="showEntityEditor"
+              :visible="true"
+              :base-definitions="{}"
+              :custom-definitions="draft.abilityEntityDefinitions"
+              :common-definitions="commonAbilityEntityDefinitions"
+              :skill-level="skillLevel"
+              :initial-selected-id="referencedEntityId"
+              :operator-definition="draft"
+              @update:visible="showEntityEditor = $event"
+              @save="saveEntities"
+              @reveal-reference="revealEntityDefinitionReference"
+            />
+            <template v-else>
+              <header>
+                <div>
+                  <h3>能力实体</h3>
+                  <p>能力实体是干员定义的附属对象，子技能按引用它的技能等级解析。</p>
+                </div>
+              </header>
+              <div class="entity-summary">
+                <strong>{{ Object.keys(draft.abilityEntityDefinitions ?? {}).length }}</strong>
+                <span>个干员级能力实体</span>
+                <button
+                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                  @click="showEntityEditor = true"
+                >
+                  编辑能力实体
+                </button>
+              </div>
+            </template>
+          </section>
+        </main>
       </div>
-      <div class="workspace-footer">
-        <button
-          class="problem-summary"
-          :class="{ invalid: draftIssues.length > 0 }"
-          @click="showProblems = !showProblems"
-        >
-          {{ draftIssues.length > 0 ? `● ${draftIssues.length} 个问题` : '✓ 定义结构有效' }}
-        </button>
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
-          恢复游戏定义
-        </button>
-        <span />
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
-          取消
-        </button>
-        <button
-          class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
-          :disabled="!isDirty || draftIssues.length > 0"
-          @click="save"
-        >
-          保存干员定义
-        </button>
-      </div>
-    </template>
-  </el-dialog>
+
+      <template #footer>
+        <div v-if="showProblems && draftIssues.length" class="workspace-problems">
+          <button
+            v-for="issue in draftIssues"
+            :key="`${issue.path}:${issue.message}`"
+            @click="revealIssue(issue)"
+          >
+            <code>{{ issue.path }}</code
+            ><span>{{ issue.message }}</span>
+          </button>
+        </div>
+        <div class="workspace-footer">
+          <button
+            class="problem-summary"
+            :class="{ invalid: draftIssues.length > 0 }"
+            @click="showProblems = !showProblems"
+          >
+            {{ draftIssues.length > 0 ? `● ${draftIssues.length} 个问题` : '✓ 定义结构有效' }}
+          </button>
+          <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
+            恢复游戏定义
+          </button>
+          <span />
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            @click="emit('update:visible', false)"
+          >
+            取消
+          </button>
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
+            :disabled="!isDirty || draftIssues.length > 0"
+            @click="save"
+          >
+            保存干员定义
+          </button>
+        </div>
+      </template>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed, ref, watch } from 'vue';
 import {
   GEAR_SLOT_TYPES,
@@ -143,181 +144,186 @@ function editGearSet(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    width="min(900px, calc(100vw - 48px))"
-    append-to-body
-    destroy-on-close
-    class="gear-definition-dialog"
-    @update:model-value="emit('update:visible', $event)"
-  >
-    <template #header>
-      <div class="workspace-title">
-        <div>
-          <strong>自定义装备</strong><span>{{ draft.displayName ?? draft.slug }}</span>
+  <InputRegionBoundary label="gear-definition-workspace" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      width="min(900px, calc(100vw - 48px))"
+      append-to-body
+      destroy-on-close
+      class="gear-definition-dialog"
+      @update:model-value="emit('update:visible', $event)"
+    >
+      <template #header>
+        <div class="workspace-title">
+          <div>
+            <strong>自定义装备</strong><span>{{ draft.displayName ?? draft.slug }}</span>
+          </div>
+          <small>完整项目模板；当前只编辑所选层，词条行为保持原定义。</small>
         </div>
-        <small>完整项目模板；当前只编辑所选层，词条行为保持原定义。</small>
-      </div>
-    </template>
+      </template>
 
-    <div class="gear-workspace">
-      <aside class="gear-outliner">
-        <button :class="{ active: selectedSection === 'base' }" @click="selectedSection = 'base'">
-          <strong>基础定义</strong><small>{{ baseDefinition.slug }}</small>
-        </button>
-        <div class="outliner-caption">词条</div>
-        <button class="add-entry" type="button" @click="addTrait">＋ 新增词条</button>
-        <button
-          v-for="(trait, index) in draft.traits"
-          :key="`${trait.key}:${index}`"
-          :class="{ active: selectedSection === index }"
-          @click="selectedSection = index"
-        >
-          <strong>{{ trait.key }}</strong
-          ><small>{{ trait.levelCount }} 档</small>
-        </button>
-      </aside>
-
-      <main class="gear-inspector">
-        <section v-if="selectedSection === 'base'" class="definition-card">
-          <header><strong>装备模板</strong><span>物化定义</span></header>
-          <div class="field-grid">
-            <label title="项目内稳定引用身份。创建模板时确定，修改会使既有实例失去引用。"
-              >模板 ID<input :value="draft.slug" disabled
-            /></label>
-            <label
-              >展示名称<input
-                :value="draft.displayName ?? ''"
-                @change="updateBase('displayName', $event)"
-            /></label>
-            <label title="继承内置装备图标和本地化文本时使用的资源身份。"
-              >资源来源<input
-                :value="draft.assetSlug ?? ''"
-                @change="updateBase('assetSlug', $event)"
-            /></label>
-            <label title="由资源导出流程生成的 WebP 路径；留空时按资源来源回退。"
-              >图标路径<input
-                :value="draft.iconPath ?? ''"
-                @change="updateBase('iconPath', $event)"
-            /></label>
-            <label
-              >槽位<select :value="draft.slotType" @change="updateBase('slotType', $event)">
-                <option v-for="slotType in GEAR_SLOT_TYPES" :key="slotType" :value="slotType">
-                  {{ slotType }}
-                </option>
-              </select></label
-            >
-            <label
-              >等级需求<input
-                type="number"
-                min="0"
-                step="1"
-                :value="draft.levelRequirement"
-                @change="updateBase('levelRequirement', $event)"
-            /></label>
-            <label
-              >基础防御<input
-                type="number"
-                min="0"
-                step="1"
-                :value="draft.baseDefense"
-                @change="updateBase('baseDefense', $event)"
-            /></label>
-            <label
-              >套装<select
-                :value="draft.gearSetSlug ?? ''"
-                @change="updateBase('gearSetSlug', $event)"
-              >
-                <option value="">无套装</option>
-                <option v-for="id in gearSetIds" :key="id" :value="id">{{ id }}</option>
-              </select></label
-            >
-          </div>
-          <div class="nested-action">
-            <button
-              class="ea-btn ea-btn--sm ea-btn--glass-rect"
-              :disabled="draft.gearSetSlug === undefined || issues.length > 0"
-              @click="editGearSet"
-            >
-              {{
-                draft.gearSetSlug?.startsWith('project:gearSet:')
-                  ? '编辑套装定义'
-                  : '自定义当前套装'
-              }}
-            </button>
-            <small>进入套装模板前会先保存当前装备草稿。</small>
-          </div>
-        </section>
-
-        <section v-if="selectedTrait" class="definition-card">
-          <header>
-            <strong>当前词条</strong><span>第 {{ (selectedTraitIndex ?? 0) + 1 }} 条</span>
-          </header>
-          <div class="object-actions">
-            <button :disabled="selectedTraitIndex === 0" @click="moveTrait(-1)">上移</button>
-            <button
-              :disabled="selectedTraitIndex === draft.traits.length - 1"
-              @click="moveTrait(1)"
-            >
-              下移
-            </button>
-            <span />
-            <button class="danger" @click="removeTrait">删除词条</button>
-          </div>
-          <div class="field-grid">
-            <label
-              >稳定 key<input :value="selectedTrait.key" @change="updateTrait('key', $event)"
-            /></label>
-            <label
-              >档位数量<input
-                type="number"
-                min="1"
-                step="1"
-                :value="selectedTrait.levelCount"
-                @change="updateTrait('levelCount', $event)"
-            /></label>
-          </div>
-          <div class="contribution-summary">
-            <span>属性修正 {{ selectedTrait.modifiers?.length ?? 0 }}</span>
-            <span>事件响应 {{ selectedTrait.eventHandlers?.length ?? 0 }}</span>
-            <p>行为节点将在装备组件图中编辑；这里不提供原始 JSON 入口。</p>
-          </div>
-          <EquipmentContributionGraphEditor
-            :contribution="selectedTrait"
-            :label="selectedTrait.key"
-            :level="selectedTrait.levelCount"
-            @update="updateTraitContribution"
-          />
-        </section>
-      </main>
-    </div>
-
-    <template #footer>
-      <div class="workspace-footer">
-        <details v-if="issues.length" class="issues">
-          <summary>{{ issues.length }} 个结构问题</summary>
-          <code v-for="issue in issues" :key="`${issue.path}:${issue.message}`"
-            >{{ issue.path }} · {{ issue.message }}</code
+      <div class="gear-workspace">
+        <aside class="gear-outliner">
+          <button :class="{ active: selectedSection === 'base' }" @click="selectedSection = 'base'">
+            <strong>基础定义</strong><small>{{ baseDefinition.slug }}</small>
+          </button>
+          <div class="outliner-caption">词条</div>
+          <button class="add-entry" type="button" @click="addTrait">＋ 新增词条</button>
+          <button
+            v-for="(trait, index) in draft.traits"
+            :key="`${trait.key}:${index}`"
+            :class="{ active: selectedSection === index }"
+            @click="selectedSection = index"
           >
-        </details>
-        <span v-else class="valid">✓ 定义结构有效</span>
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
-          恢复游戏定义
-        </button>
-        <span class="spacer" />
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
-          取消
-        </button>
-        <button
-          class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
-          :disabled="!isDirty || issues.length > 0"
-          @click="save"
-        >
-          保存装备定义
-        </button>
+            <strong>{{ trait.key }}</strong
+            ><small>{{ trait.levelCount }} 档</small>
+          </button>
+        </aside>
+
+        <main class="gear-inspector">
+          <section v-if="selectedSection === 'base'" class="definition-card">
+            <header><strong>装备模板</strong><span>物化定义</span></header>
+            <div class="field-grid">
+              <label title="项目内稳定引用身份。创建模板时确定，修改会使既有实例失去引用。"
+                >模板 ID<input :value="draft.slug" disabled
+              /></label>
+              <label
+                >展示名称<input
+                  :value="draft.displayName ?? ''"
+                  @change="updateBase('displayName', $event)"
+              /></label>
+              <label title="继承内置装备图标和本地化文本时使用的资源身份。"
+                >资源来源<input
+                  :value="draft.assetSlug ?? ''"
+                  @change="updateBase('assetSlug', $event)"
+              /></label>
+              <label title="由资源导出流程生成的 WebP 路径；留空时按资源来源回退。"
+                >图标路径<input
+                  :value="draft.iconPath ?? ''"
+                  @change="updateBase('iconPath', $event)"
+              /></label>
+              <label
+                >槽位<select :value="draft.slotType" @change="updateBase('slotType', $event)">
+                  <option v-for="slotType in GEAR_SLOT_TYPES" :key="slotType" :value="slotType">
+                    {{ slotType }}
+                  </option>
+                </select></label
+              >
+              <label
+                >等级需求<input
+                  type="number"
+                  min="0"
+                  step="1"
+                  :value="draft.levelRequirement"
+                  @change="updateBase('levelRequirement', $event)"
+              /></label>
+              <label
+                >基础防御<input
+                  type="number"
+                  min="0"
+                  step="1"
+                  :value="draft.baseDefense"
+                  @change="updateBase('baseDefense', $event)"
+              /></label>
+              <label
+                >套装<select
+                  :value="draft.gearSetSlug ?? ''"
+                  @change="updateBase('gearSetSlug', $event)"
+                >
+                  <option value="">无套装</option>
+                  <option v-for="id in gearSetIds" :key="id" :value="id">{{ id }}</option>
+                </select></label
+              >
+            </div>
+            <div class="nested-action">
+              <button
+                class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                :disabled="draft.gearSetSlug === undefined || issues.length > 0"
+                @click="editGearSet"
+              >
+                {{
+                  draft.gearSetSlug?.startsWith('project:gearSet:')
+                    ? '编辑套装定义'
+                    : '自定义当前套装'
+                }}
+              </button>
+              <small>进入套装模板前会先保存当前装备草稿。</small>
+            </div>
+          </section>
+
+          <section v-if="selectedTrait" class="definition-card">
+            <header>
+              <strong>当前词条</strong><span>第 {{ (selectedTraitIndex ?? 0) + 1 }} 条</span>
+            </header>
+            <div class="object-actions">
+              <button :disabled="selectedTraitIndex === 0" @click="moveTrait(-1)">上移</button>
+              <button
+                :disabled="selectedTraitIndex === draft.traits.length - 1"
+                @click="moveTrait(1)"
+              >
+                下移
+              </button>
+              <span />
+              <button class="danger" @click="removeTrait">删除词条</button>
+            </div>
+            <div class="field-grid">
+              <label
+                >稳定 key<input :value="selectedTrait.key" @change="updateTrait('key', $event)"
+              /></label>
+              <label
+                >档位数量<input
+                  type="number"
+                  min="1"
+                  step="1"
+                  :value="selectedTrait.levelCount"
+                  @change="updateTrait('levelCount', $event)"
+              /></label>
+            </div>
+            <div class="contribution-summary">
+              <span>属性修正 {{ selectedTrait.modifiers?.length ?? 0 }}</span>
+              <span>事件响应 {{ selectedTrait.eventHandlers?.length ?? 0 }}</span>
+              <p>行为节点将在装备组件图中编辑；这里不提供原始 JSON 入口。</p>
+            </div>
+            <EquipmentContributionGraphEditor
+              :contribution="selectedTrait"
+              :label="selectedTrait.key"
+              :level="selectedTrait.levelCount"
+              @update="updateTraitContribution"
+            />
+          </section>
+        </main>
       </div>
-    </template>
-  </el-dialog>
+
+      <template #footer>
+        <div class="workspace-footer">
+          <details v-if="issues.length" class="issues">
+            <summary>{{ issues.length }} 个结构问题</summary>
+            <code v-for="issue in issues" :key="`${issue.path}:${issue.message}`"
+              >{{ issue.path }} · {{ issue.message }}</code
+            >
+          </details>
+          <span v-else class="valid">✓ 定义结构有效</span>
+          <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
+            恢复游戏定义
+          </button>
+          <span class="spacer" />
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            @click="emit('update:visible', false)"
+          >
+            取消
+          </button>
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
+            :disabled="!isDirty || issues.length > 0"
+            @click="save"
+          >
+            保存装备定义
+          </button>
+        </div>
+      </template>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>

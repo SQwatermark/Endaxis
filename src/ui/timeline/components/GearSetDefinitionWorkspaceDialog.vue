@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed, ref, watch } from 'vue';
 import type {
   EquipmentContributionDefinition,
@@ -47,72 +48,77 @@ function save(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    width="min(720px, calc(100vw - 48px))"
-    append-to-body
-    destroy-on-close
-    class="gear-set-definition-dialog"
-    @update:model-value="emit('update:visible', $event)"
-  >
-    <template #header>
-      <div class="title">
-        <strong>自定义套装</strong><span>{{ draft.displayName ?? draft.slug }}</span>
+  <InputRegionBoundary label="gear-set-definition-workspace" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      width="min(720px, calc(100vw - 48px))"
+      append-to-body
+      destroy-on-close
+      class="gear-set-definition-dialog"
+      @update:model-value="emit('update:visible', $event)"
+    >
+      <template #header>
+        <div class="title">
+          <strong>自定义套装</strong><span>{{ draft.displayName ?? draft.slug }}</span>
+        </div>
+      </template>
+      <div class="set-inspector">
+        <section>
+          <header>
+            <strong>套装模板</strong><span>来源 {{ baseDefinition.slug }}</span>
+          </header>
+          <div class="fields">
+            <label>模板 ID<input :value="draft.slug" disabled /></label>
+            <label
+              >展示名称<input :value="draft.displayName ?? ''" @change="updateDisplayName"
+            /></label>
+          </div>
+        </section>
+        <section>
+          <header><strong>三件套贡献</strong><span>行为保持完整</span></header>
+          <div class="summary">
+            <span>属性修正 {{ draft.modifiers?.length ?? 0 }}</span>
+            <span>事件响应 {{ draft.eventHandlers?.length ?? 0 }}</span>
+            <p>套装贡献稍后进入统一装备组件图；当前不会把事件序列展开为 JSON。</p>
+          </div>
+          <EquipmentContributionGraphEditor
+            :contribution="draft"
+            :label="draft.displayName ?? draft.slug"
+            :level="1"
+            @update="updateContribution"
+          />
+        </section>
       </div>
-    </template>
-    <div class="set-inspector">
-      <section>
-        <header>
-          <strong>套装模板</strong><span>来源 {{ baseDefinition.slug }}</span>
-        </header>
-        <div class="fields">
-          <label>模板 ID<input :value="draft.slug" disabled /></label>
-          <label
-            >展示名称<input :value="draft.displayName ?? ''" @change="updateDisplayName"
-          /></label>
-        </div>
-      </section>
-      <section>
-        <header><strong>三件套贡献</strong><span>行为保持完整</span></header>
-        <div class="summary">
-          <span>属性修正 {{ draft.modifiers?.length ?? 0 }}</span>
-          <span>事件响应 {{ draft.eventHandlers?.length ?? 0 }}</span>
-          <p>套装贡献稍后进入统一装备组件图；当前不会把事件序列展开为 JSON。</p>
-        </div>
-        <EquipmentContributionGraphEditor
-          :contribution="draft"
-          :label="draft.displayName ?? draft.slug"
-          :level="1"
-          @update="updateContribution"
-        />
-      </section>
-    </div>
-    <template #footer>
-      <div class="footer">
-        <details v-if="issues.length" class="issues">
-          <summary>{{ issues.length }} 个结构问题</summary>
-          <code v-for="issue in issues" :key="`${issue.path}:${issue.message}`"
-            >{{ issue.path }} · {{ issue.message }}</code
+      <template #footer>
+        <div class="footer">
+          <details v-if="issues.length" class="issues">
+            <summary>{{ issues.length }} 个结构问题</summary>
+            <code v-for="issue in issues" :key="`${issue.path}:${issue.message}`"
+              >{{ issue.path }} · {{ issue.message }}</code
+            >
+          </details>
+          <span v-else class="valid">✓ 定义结构有效</span>
+          <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
+            恢复游戏定义
+          </button>
+          <span class="spacer" />
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            @click="emit('update:visible', false)"
           >
-        </details>
-        <span v-else class="valid">✓ 定义结构有效</span>
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
-          恢复游戏定义
-        </button>
-        <span class="spacer" />
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
-          取消
-        </button>
-        <button
-          class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
-          :disabled="!isDirty || issues.length > 0"
-          @click="save"
-        >
-          保存套装定义
-        </button>
-      </div>
-    </template>
-  </el-dialog>
+            取消
+          </button>
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
+            :disabled="!isDirty || issues.length > 0"
+            @click="save"
+          >
+            保存套装定义
+          </button>
+        </div>
+      </template>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>

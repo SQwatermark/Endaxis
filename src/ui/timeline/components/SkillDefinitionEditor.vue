@@ -7,7 +7,7 @@
  * 统一命令入口严格校验，取消或恢复模板则直接丢弃草稿 / 删除整个 customDefinition。
  * 组件不解析编译产物，也不把天赋潜能等构筑效果写进自定义技能。
  */
-import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, reactive, ref, shallowRef, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/icons-vue';
 import {
@@ -147,7 +147,10 @@ const emit = defineEmits<{
 const { t } = useI18n({ useScope: 'global' });
 
 const draft = reactive<{ value: SkillDefinition }>({
-  value: createSkillEditorDraft(props.template, props.customDefinition),
+  value: createSkillEditorDraft(
+    toRaw(props.template),
+    props.customDefinition === undefined ? undefined : toRaw(props.customDefinition),
+  ),
 });
 const selectedSection = ref<EditorSection>('overview');
 const selectedStructureNodeId = ref('skill');
@@ -292,7 +295,10 @@ function setBlackboard(blackboard: NonNullable<SkillDefinition['blackboard']>): 
 watch(
   () => [props.template, props.customDefinition],
   () => {
-    draft.value = createSkillEditorDraft(props.template, props.customDefinition);
+    draft.value = createSkillEditorDraft(
+      toRaw(props.template),
+      props.customDefinition === undefined ? undefined : toRaw(props.customDefinition),
+    );
     selectedSection.value = 'overview';
     selectedStructureNodeId.value = 'skill';
     selectedStructureSourcePath.value = '';
@@ -890,11 +896,14 @@ function removeSequence(): void {
 }
 
 function save(): void {
-  emit('save', structuredClone(draft.value));
+  emit('save', structuredClone(toRaw(draft.value)));
 }
 
 function cancel(): void {
-  draft.value = createSkillEditorDraft(props.template, props.customDefinition);
+  draft.value = createSkillEditorDraft(
+    toRaw(props.template),
+    props.customDefinition === undefined ? undefined : toRaw(props.customDefinition),
+  );
   emit('cancel');
 }
 

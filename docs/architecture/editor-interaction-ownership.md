@@ -16,6 +16,10 @@
 拆为 modal 子区域，导图及其子浮层继承；embedded 分支不创建模态。该组件只有
 slot、不增加 DOM，原生 Element Plus 仍管理焦点。其余工作区尚待迁移。
 
+再后续：干员、武器、装备和套装定义工作区也已整体包入 modal 区域；干员中的
+嵌入式技能/Buff/能力实体编辑器继承工作区。只有干员内嵌技能入口完成本轮浏览器
+验证，其余工作区接线/测试覆盖，不能将迁移提交等同所有交互验收通过。
+
 Vue 入口现为 useKeyboardInputRegion({label, parent?, modal?, active})，返回区域身份，
 向后代提供区域。scope 默认继承注入上下文，显式 region 优先。由于 Vue 组件不能
 注入自身刚 provide 的值，同一 setup 内的自有命令必须显式 region，不能假设自动

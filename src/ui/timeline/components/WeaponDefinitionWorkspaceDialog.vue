@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed, ref, watch } from 'vue';
 import {
   WEAPON_RARITIES,
@@ -128,171 +129,176 @@ function save(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    width="min(980px, calc(100vw - 48px))"
-    append-to-body
-    destroy-on-close
-    class="weapon-definition-dialog"
-    @update:model-value="emit('update:visible', $event)"
-  >
-    <template #header>
-      <div class="workspace-title">
-        <div>
-          <strong>自定义武器</strong><span>{{ draft.displayName ?? draft.slug }}</span>
+  <InputRegionBoundary label="weapon-definition-workspace" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      width="min(980px, calc(100vw - 48px))"
+      append-to-body
+      destroy-on-close
+      class="weapon-definition-dialog"
+      @update:model-value="emit('update:visible', $event)"
+    >
+      <template #header>
+        <div class="workspace-title">
+          <div>
+            <strong>自定义武器</strong><span>{{ draft.displayName ?? draft.slug }}</span>
+          </div>
+          <small>完整项目模板；所有引用此模板的武器实例共享定义。</small>
         </div>
-        <small>完整项目模板；所有引用此模板的武器实例共享定义。</small>
-      </div>
-    </template>
+      </template>
 
-    <div class="weapon-workspace">
-      <aside class="weapon-outliner">
-        <button :class="{ active: selectedSection === 'base' }" @click="selectedSection = 'base'">
-          <strong>基础与成长</strong><small>6 个等级节点</small>
-        </button>
-        <div class="outliner-caption">词条</div>
-        <button class="add-entry" type="button" @click="addTrait">＋ 新增词条</button>
-        <button
-          v-for="(trait, index) in draft.traits"
-          :key="`${trait.key}:${index}`"
-          :class="{ active: selectedSection === index }"
-          @click="selectedSection = index"
-        >
-          <strong>{{ trait.key }}</strong
-          ><small>{{ trait.levelCount }} 级</small>
-        </button>
-      </aside>
-
-      <main class="weapon-inspector">
-        <section v-if="selectedSection === 'base'" class="definition-card">
-          <header><strong>模板身份</strong><span>物化定义</span></header>
-          <div class="field-grid">
-            <label title="项目内稳定引用身份。创建模板时确定，修改会使既有实例失去引用。"
-              >模板 ID<input :value="draft.slug" disabled
-            /></label>
-            <label
-              >展示名称<input
-                :value="draft.displayName ?? ''"
-                @change="updateIdentity('displayName', $event)"
-            /></label>
-            <label title="继承内置武器图标和本地化文本时使用的资源身份。"
-              >资源来源<input
-                :value="draft.assetSlug ?? ''"
-                @change="updateIdentity('assetSlug', $event)"
-            /></label>
-            <label title="由资源导出流程生成的 WebP 路径；留空时按资源来源回退。"
-              >图标路径<input
-                :value="draft.iconPath ?? ''"
-                @change="updateIdentity('iconPath', $event)"
-            /></label>
-            <label
-              >星级<select :value="draft.rarity" @change="updateIdentity('rarity', $event)">
-                <option v-for="rarity in WEAPON_RARITIES" :key="rarity" :value="rarity">
-                  {{ rarity }} ★
-                </option>
-              </select></label
-            >
-            <label
-              >武器类型<select
-                :value="draft.weaponType"
-                @change="updateIdentity('weaponType', $event)"
-              >
-                <option v-for="type in OPERATOR_WEAPON_TYPES" :key="type" :value="type">
-                  {{ type }}
-                </option>
-              </select></label
-            >
-          </div>
-        </section>
-
-        <section v-if="selectedSection === 'base'" class="definition-card">
-          <header><strong>基础攻击成长</strong><span>严格六节点</span></header>
-          <div class="attack-grid">
-            <label v-for="(level, index) in LEVEL_NODES" :key="level">
-              <span>Lv.{{ level }}</span>
-              <input
-                type="number"
-                min="0"
-                step="1"
-                :value="draft.baseAttackAtLevelNodes[index]"
-                @change="updateBaseAttack(index, $event)"
-              />
-            </label>
-          </div>
-        </section>
-
-        <section v-if="selectedTrait" class="definition-card">
-          <header>
-            <strong>当前词条</strong><span>第 {{ (selectedTraitIndex ?? 0) + 1 }} 条</span>
-          </header>
-          <div class="object-actions">
-            <button :disabled="selectedTraitIndex === 0" @click="moveTrait(-1)">上移</button>
-            <button
-              :disabled="selectedTraitIndex === draft.traits.length - 1"
-              @click="moveTrait(1)"
-            >
-              下移
-            </button>
-            <span />
-            <button class="danger" @click="removeTrait">删除词条</button>
-          </div>
-          <div class="field-grid">
-            <label
-              >稳定 key<input :value="selectedTrait.key" @change="updateTrait('key', $event)"
-            /></label>
-            <label
-              >等级数量<input
-                type="number"
-                min="1"
-                step="1"
-                :value="selectedTrait.levelCount"
-                @change="updateTrait('levelCount', $event)"
-            /></label>
-          </div>
-          <div class="contribution-summary">
-            <span>属性修正 {{ selectedTrait.modifiers?.length ?? 0 }}</span>
-            <span>事件响应 {{ selectedTrait.eventHandlers?.length ?? 0 }}</span>
-            <p>
-              词条行为完整保留在模板中；下一层行为节点将在装备组件图中编辑，本页不会把它们展开成
-              JSON 文本。
-            </p>
-          </div>
-          <EquipmentContributionGraphEditor
-            :contribution="selectedTrait"
-            :label="selectedTrait.key"
-            :level="selectedTrait.levelCount"
-            @update="updateTraitContribution"
-          />
-        </section>
-      </main>
-    </div>
-
-    <template #footer>
-      <div class="workspace-footer">
-        <details v-if="issues.length" class="issues">
-          <summary>{{ issues.length }} 个结构问题</summary>
-          <code v-for="issue in issues" :key="`${issue.path}:${issue.message}`"
-            >{{ issue.path }} · {{ issue.message }}</code
+      <div class="weapon-workspace">
+        <aside class="weapon-outliner">
+          <button :class="{ active: selectedSection === 'base' }" @click="selectedSection = 'base'">
+            <strong>基础与成长</strong><small>6 个等级节点</small>
+          </button>
+          <div class="outliner-caption">词条</div>
+          <button class="add-entry" type="button" @click="addTrait">＋ 新增词条</button>
+          <button
+            v-for="(trait, index) in draft.traits"
+            :key="`${trait.key}:${index}`"
+            :class="{ active: selectedSection === index }"
+            @click="selectedSection = index"
           >
-        </details>
-        <span v-else class="valid">✓ 定义结构有效</span>
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
-          恢复游戏定义
-        </button>
-        <span class="spacer" />
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
-          取消
-        </button>
-        <button
-          class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
-          :disabled="!isDirty || issues.length > 0"
-          @click="save"
-        >
-          保存武器定义
-        </button>
+            <strong>{{ trait.key }}</strong
+            ><small>{{ trait.levelCount }} 级</small>
+          </button>
+        </aside>
+
+        <main class="weapon-inspector">
+          <section v-if="selectedSection === 'base'" class="definition-card">
+            <header><strong>模板身份</strong><span>物化定义</span></header>
+            <div class="field-grid">
+              <label title="项目内稳定引用身份。创建模板时确定，修改会使既有实例失去引用。"
+                >模板 ID<input :value="draft.slug" disabled
+              /></label>
+              <label
+                >展示名称<input
+                  :value="draft.displayName ?? ''"
+                  @change="updateIdentity('displayName', $event)"
+              /></label>
+              <label title="继承内置武器图标和本地化文本时使用的资源身份。"
+                >资源来源<input
+                  :value="draft.assetSlug ?? ''"
+                  @change="updateIdentity('assetSlug', $event)"
+              /></label>
+              <label title="由资源导出流程生成的 WebP 路径；留空时按资源来源回退。"
+                >图标路径<input
+                  :value="draft.iconPath ?? ''"
+                  @change="updateIdentity('iconPath', $event)"
+              /></label>
+              <label
+                >星级<select :value="draft.rarity" @change="updateIdentity('rarity', $event)">
+                  <option v-for="rarity in WEAPON_RARITIES" :key="rarity" :value="rarity">
+                    {{ rarity }} ★
+                  </option>
+                </select></label
+              >
+              <label
+                >武器类型<select
+                  :value="draft.weaponType"
+                  @change="updateIdentity('weaponType', $event)"
+                >
+                  <option v-for="type in OPERATOR_WEAPON_TYPES" :key="type" :value="type">
+                    {{ type }}
+                  </option>
+                </select></label
+              >
+            </div>
+          </section>
+
+          <section v-if="selectedSection === 'base'" class="definition-card">
+            <header><strong>基础攻击成长</strong><span>严格六节点</span></header>
+            <div class="attack-grid">
+              <label v-for="(level, index) in LEVEL_NODES" :key="level">
+                <span>Lv.{{ level }}</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  :value="draft.baseAttackAtLevelNodes[index]"
+                  @change="updateBaseAttack(index, $event)"
+                />
+              </label>
+            </div>
+          </section>
+
+          <section v-if="selectedTrait" class="definition-card">
+            <header>
+              <strong>当前词条</strong><span>第 {{ (selectedTraitIndex ?? 0) + 1 }} 条</span>
+            </header>
+            <div class="object-actions">
+              <button :disabled="selectedTraitIndex === 0" @click="moveTrait(-1)">上移</button>
+              <button
+                :disabled="selectedTraitIndex === draft.traits.length - 1"
+                @click="moveTrait(1)"
+              >
+                下移
+              </button>
+              <span />
+              <button class="danger" @click="removeTrait">删除词条</button>
+            </div>
+            <div class="field-grid">
+              <label
+                >稳定 key<input :value="selectedTrait.key" @change="updateTrait('key', $event)"
+              /></label>
+              <label
+                >等级数量<input
+                  type="number"
+                  min="1"
+                  step="1"
+                  :value="selectedTrait.levelCount"
+                  @change="updateTrait('levelCount', $event)"
+              /></label>
+            </div>
+            <div class="contribution-summary">
+              <span>属性修正 {{ selectedTrait.modifiers?.length ?? 0 }}</span>
+              <span>事件响应 {{ selectedTrait.eventHandlers?.length ?? 0 }}</span>
+              <p>
+                词条行为完整保留在模板中；下一层行为节点将在装备组件图中编辑，本页不会把它们展开成
+                JSON 文本。
+              </p>
+            </div>
+            <EquipmentContributionGraphEditor
+              :contribution="selectedTrait"
+              :label="selectedTrait.key"
+              :level="selectedTrait.levelCount"
+              @update="updateTraitContribution"
+            />
+          </section>
+        </main>
       </div>
-    </template>
-  </el-dialog>
+
+      <template #footer>
+        <div class="workspace-footer">
+          <details v-if="issues.length" class="issues">
+            <summary>{{ issues.length }} 个结构问题</summary>
+            <code v-for="issue in issues" :key="`${issue.path}:${issue.message}`"
+              >{{ issue.path }} · {{ issue.message }}</code
+            >
+          </details>
+          <span v-else class="valid">✓ 定义结构有效</span>
+          <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
+            恢复游戏定义
+          </button>
+          <span class="spacer" />
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            @click="emit('update:visible', false)"
+          >
+            取消
+          </button>
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
+            :disabled="!isDirty || issues.length > 0"
+            @click="save"
+          >
+            保存武器定义
+          </button>
+        </div>
+      </template>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>
