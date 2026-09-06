@@ -3676,8 +3676,23 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
   };
   // 首次产生有效位移时立即模拟，不继承上一轮拖动的节流窗口。
   lastCastMoveSimulationAt = performance.now() - LIVE_SIMULATION_INTERVAL_MS;
-  const onMove = (moveEvent: PointerEvent) => updateCastMove(moveEvent);
-  const onFinish = (finishEvent: PointerEvent) => finishCastMove(finishEvent);
+  // 捕获到稳定的滚动容器，避免模拟刷新替换技能块或跨控件悬停抢走手势。
+  // 落点仍通过 elementFromPoint 解析，不依赖捕获后的 event.target。
+  const captureTarget = timelineScroll.value;
+  const onMove = (moveEvent: PointerEvent) => {
+    if (moveEvent.pointerId !== event.pointerId) return;
+    moveEvent.stopPropagation();
+    updateCastMove(moveEvent);
+    // 超过拖动阈值才接管，普通点击仍交给原技能块，不能丢失选择行为。
+    if (castMoveGesture.value?.dragStarted && !captureTarget?.hasPointerCapture(event.pointerId)) {
+      captureTarget?.setPointerCapture(event.pointerId);
+    }
+  };
+  const onFinish = (finishEvent: PointerEvent) => {
+    if (finishEvent.pointerId !== event.pointerId) return;
+    finishEvent.stopPropagation();
+    void finishCastMove(finishEvent);
+  };
   const onCancel = () => cancelCastMove();
   const onKeyDown = (keyEvent: KeyboardEvent) => {
     if (keyEvent.key !== 'Escape') return;
@@ -3685,17 +3700,22 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
     cancelCastMove();
   };
   stopCastMoveGesture = () => {
-    window.removeEventListener('pointermove', onMove);
-    window.removeEventListener('pointerup', onFinish);
+    window.removeEventListener('pointermove', onMove, true);
+    window.removeEventListener('pointerup', onFinish, true);
     window.removeEventListener('pointercancel', onCancel);
+    captureTarget?.removeEventListener('lostpointercapture', onCancel);
+    if (captureTarget?.hasPointerCapture(event.pointerId)) {
+      captureTarget.releasePointerCapture(event.pointerId);
+    }
     window.removeEventListener('keydown', onKeyDown, true);
     if (castMoveAutoScrollFrame !== null) cancelAnimationFrame(castMoveAutoScrollFrame);
     castMoveAutoScrollFrame = null;
     stopCastMoveGesture = null;
   };
-  window.addEventListener('pointermove', onMove);
-  window.addEventListener('pointerup', onFinish);
+  window.addEventListener('pointermove', onMove, true);
+  window.addEventListener('pointerup', onFinish, true);
   window.addEventListener('pointercancel', onCancel);
+  captureTarget?.addEventListener('lostpointercapture', onCancel);
   window.addEventListener('keydown', onKeyDown, true);
 }
 

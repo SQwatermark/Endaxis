@@ -64,4 +64,19 @@ describe('Next timeline placement and alignment parity', () => {
     expect(cancel).toContain('scenario.value = gesture.baseScenario');
     expect(cancel).not.toContain('commitScenario(');
   });
+
+  it('owns the pointer on a stable container until finish or cancellation', () => {
+    const begin = editorSource.slice(
+      editorSource.indexOf('function beginCastMove('),
+      editorSource.indexOf('function castMoveFrame('),
+    );
+    expect(begin).toContain('const captureTarget = timelineScroll.value;');
+    expect(begin).toContain('captureTarget?.setPointerCapture(event.pointerId)');
+    expect(begin).toContain("window.addEventListener('pointermove', onMove, true)");
+    expect(begin).toContain("window.removeEventListener('pointermove', onMove, true)");
+    expect(begin).toContain("window.addEventListener('pointerup', onFinish, true)");
+    expect(begin).toContain("window.removeEventListener('pointerup', onFinish, true)");
+    expect(begin).toContain("captureTarget?.removeEventListener('lostpointercapture', onCancel)");
+    expect(begin).toContain('captureTarget.releasePointerCapture(event.pointerId)');
+  });
 });

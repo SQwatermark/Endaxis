@@ -300,3 +300,9 @@ viewport 1920×1080、deviceScaleFactor 1，不读写用户浏览器项目。
 
 - 上游 `ResourceMonitor.vue` 的 warning-tag 在右侧 section-body 内，固定读数栏不被提示覆盖。新版提示 z-index 5 高于读数栏 2，横向滚动可越过边界覆盖输入区；改为与曲线同层 1，由固定读数栏遮挡。
 - Chrome 正式组件夹具验证准备区展开、折叠两种坐标映射，提示滚入读数栏后由其覆盖；已查看截图。另回归 66/140/250px 高度下提示位置、18px 高度、4px 圆点和低于 -40 的真实坐标。测试辅助文件仍仅保存在忽略的 tmp 中。
+
+### 轴上技能拖动的指针所有权
+
+- 原实现只有 window 冒泡监听，没有指针捕获；跨控件时会受子节点事件拦截及悬停浮层影响。改为捕获阶段监听，并在超过拖动阈值后捕获指针到稳定的 timelineScroll 容器，避免模拟刷新替换技能节点导致捕获丢失。落点继续使用 elementFromPoint，不将捕获目标误作落点。
+- 松手、Esc、pointercancel、lostpointercapture 均清理监听和捕获；普通点击不启用捕获。技能库仍使用浏览器原生 HTML 拖放，没有混用这套轴内移动协议。
+- Chrome 真实按住技能跨越拦截 pointermove/up 的测试控件、左侧面板后返回原轨道，移动成功；松手后控件重新收到事件；Esc 回滚通过。脚本为忽略的 tmp/ui-browser/cast-drag-capture.mjs。结构回归 6 项通过。
