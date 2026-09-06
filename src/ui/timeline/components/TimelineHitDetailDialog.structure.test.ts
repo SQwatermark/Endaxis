@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import source from './TimelineHitDetailDialog.vue?raw';
+import editorSource from '../TimelineEditor.vue?raw';
 
 describe('TimelineHitDetailDialog structure', () => {
+  it('resolves burst source names through the project template, not its icon asset identity', () => {
+    const start = editorSource.indexOf('function enemyDamageSourceDescription(');
+    const end = editorSource.indexOf('function enemyDamageOperatorPanel(', start);
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(end).toBeGreaterThan(start);
+    const body = editorSource.slice(start, end);
+    expect(body).toContain('track?.operatorSlug');
+    expect(body).toContain('operatorName(operatorSlug)');
+    expect(body).not.toContain('operatorAssetSlug');
+    expect(body).not.toContain('getOperatorGameName(');
+  });
   it('isolates per-receipt source panels and clears expansion when the receipt group changes', () => {
     expect(source).toContain('props.sourceDescription?.(entry)');
     expect(source).toContain('props.operatorPanelForEntry(entry)');

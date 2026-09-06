@@ -2434,9 +2434,9 @@ function enemyDamageSourceDescription(entry: CombatReceiptEntry) {
     typeof entry.data?.sourceActionId === 'string' ? entry.data.sourceActionId : undefined;
   const index = scenario.value.tracks.findIndex(track => track?.id === entry.sourceId);
   const track = viewModel.value.tracks[index];
-  const operatorSlug = track?.operatorAssetSlug ?? track?.operatorSlug;
+  const operatorSlug = track?.operatorSlug;
   return [
-    operatorSlug ? getOperatorGameName(operatorSlug, locale.value) : entry.sourceId,
+    operatorSlug ? operatorName(operatorSlug) : entry.sourceId,
     buffSourceName({ sourceActionId }),
     t('battleLog.receiptTypes.SpellBurstApplied'),
   ]
