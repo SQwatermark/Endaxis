@@ -1,5 +1,17 @@
 # 当前任务快照
 
+#### 2026-09-07 Buff 生命周期选择浮层与导图手势边界检查
+
+- BuffDefinitionGraphEditor 生命周期选择浮层接入 usePopoverInteractionBoundary，
+  Escape 不再依赖焦点落到浮层 DOM，Delete/剪贴板不向后面的导图派发。
+  未改变生命周期字段、添加逻辑、浮层位置或数据模型。
+- 新增区域内路由隔离检查；已有 helper 的键盘/剪贴板/手势生命周期测试继续
+  覆盖共享行为。本轮没有浏览器操作验收，不把接线测试当视觉或真实操作证明。
+- 只读确认 SkillStructureMindMap 原生节点拖动与 pointer 漫游仍独立维护状态。
+  下一步需要区域内手势归属，不能直接复用被模态打开屏蔽的时间轴根 session，
+  也不能仅加 window blur 补丁。需要一起覆盖子浮层取消、失焦、卸载、原生 dragend。
+- 最终 935 项相关回归、应用类型检查通过。
+
 #### 2026-09-07 共享屏障同步重入导致拖拽永久失效的修复
 
 - 新测试复现：useInteractionBarrier 打开时调用 session.block，取消旧手势回调

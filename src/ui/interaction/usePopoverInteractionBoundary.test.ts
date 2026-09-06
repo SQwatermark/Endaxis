@@ -1,11 +1,15 @@
 import { effectScope, ref } from 'vue';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
+import {
+  useKeyboardInputRegion,
+  useKeyboardShortcutScope,
+} from '../keyboard/keyboardShortcutRouter';
 import { createInteractionSession } from './interactionSession';
 import { usePopoverInteractionBoundary } from './usePopoverInteractionBoundary';
 import stepPicker from '../timeline/components/StepTypePicker.vue?raw';
 import conditionPicker from '../timeline/components/CombatConditionTypePicker.vue?raw';
 import equipmentPicker from '../timeline/components/EquipmentContributionTypePicker.vue?raw';
+import buffEditor from '../timeline/components/BuffDefinitionGraphEditor.vue?raw';
 
 describe('interactive popover ownership', () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -49,13 +53,61 @@ describe('interactive popover ownership', () => {
   });
 
   it('registers all three type picker lifecycles instead of local Escape handlers', () => {
-    for (const source of [stepPicker, conditionPicker, equipmentPicker]) {
+    for (const source of [stepPicker, conditionPicker, equipmentPicker, buffEditor]) {
       expect(source).toContain('usePopoverInteractionBoundary(');
       expect(source).not.toContain('@keydown.esc');
     }
     expect(stepPicker).toContain('() => open.value');
     expect(conditionPicker).toContain("() => emit('close')");
     expect(equipmentPicker).toContain("() => emit('close')");
+    expect(buffEditor).toContain("() => pendingMode.value === 'lifecycle'");
+  });
+
+  it('blocks modal graph Delete without requiring focus inside the lifecycle picker', () => {
+    const target = new EventTarget();
+    vi.stubGlobal('window', target);
+    const scope = effectScope();
+    const open = ref(true);
+    const graphDelete = vi.fn(() => true);
+    scope.run(() => {
+      const region = useKeyboardInputRegion({
+        label: 'buff-workspace',
+        parent: null,
+        modal: true,
+        active: () => true,
+      });
+      useKeyboardShortcutScope({
+        id: 'graph',
+        region,
+        priority: 200,
+        active: () => true,
+        handle: graphDelete,
+      });
+      // effectScope has no provide/inject; use an actual scope in the same modal region.
+      useKeyboardShortcutScope({
+        id: 'picker',
+        region,
+        priority: 400,
+        active: () => open.value,
+        blockLowerScopes: true,
+        handle: event => {
+          if (event.key !== 'Escape') return false;
+          open.value = false;
+          return true;
+        },
+      });
+    });
+    const key = (value: string) =>
+      target.dispatchEvent(
+        Object.assign(new Event('keydown', { cancelable: true }), { key: value }),
+      );
+    key('Delete');
+    expect(graphDelete).not.toHaveBeenCalled();
+    key('Escape');
+    expect(open.value).toBe(false);
+    key('Delete');
+    expect(graphDelete).toHaveBeenCalledOnce();
+    scope.stop();
   });
 
   it('blocks background keyboard, clipboard and gestures until Escape closes it', () => {

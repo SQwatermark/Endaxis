@@ -141,7 +141,8 @@ describe('SkillDefinitionEditor structure', () => {
     expect(abilityEntityGraphEditorSource).toContain("selectedId === 'entity:lifetime'");
     expect(abilityEntityGraphEditorSource).toContain('setLifetimeKind');
     expect(buffGraphEditorSource).toContain('lifecyclePickerStyle');
-    expect(buffGraphEditorSource).toContain('@keydown.esc.stop="pendingMode = \'\'"');
+    expect(buffGraphEditorSource).toContain('usePopoverInteractionBoundary(');
+    expect(buffGraphEditorSource).not.toContain('@keydown.esc');
   });
 
   it('Buff Inspector 渲染图标且清空路径时保留其余原生展示身份', () => {

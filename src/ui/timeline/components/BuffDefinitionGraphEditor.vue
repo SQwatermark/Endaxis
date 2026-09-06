@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import {
   computed,
   nextTick,
@@ -104,6 +106,13 @@ const emit = defineEmits<{ update: [definition: SkillBuffDefinition] }>();
 const selectedId = ref('buff');
 const selectedPath = ref('');
 const pendingMode = ref<'step' | 'lifecycle' | ''>('');
+usePopoverInteractionBoundary(
+  useInteractionSession(),
+  () => pendingMode.value === 'lifecycle',
+  () => {
+    pendingMode.value = '';
+  },
+);
 const pendingConditionTargetPath = ref('');
 const pickerKey = ref(0);
 const insertAnchor = ref({ x: 0, y: 0 });
@@ -702,7 +711,6 @@ async function deleteCurrent(): Promise<void> {
           ref="lifecyclePicker"
           class="lifecycle-picker"
           :style="lifecyclePickerStyle"
-          @keydown.esc.stop="pendingMode = ''"
           @pointerdown.stop
         >
           <strong>添加生命周期</strong>
