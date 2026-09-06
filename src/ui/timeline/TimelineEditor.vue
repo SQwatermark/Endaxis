@@ -8,6 +8,7 @@ import {
   ref,
   shallowRef,
   watch,
+  toRaw,
 } from 'vue';
 import { durationBarColorKey } from './durationBarColorContext';
 import { normalizeDurationBarColorPrefs } from './durationBarColor';
@@ -602,7 +603,12 @@ const markerMoveGesture = shallowRef<{
 let stopMarkerMove: (() => void) | null = null;
 let markerMoveAutoScrollFrame: number | null = null;
 
-const initialScenario = createTimelineSampleScenario();
+/** 初始方案只在挂载时读取；编辑会话不回写调用方传入的对象。 */
+const props = defineProps<{ initialScenario?: ScenarioDocument }>();
+const initialScenario =
+  props.initialScenario === undefined
+    ? createTimelineSampleScenario()
+    : structuredClone(toRaw(props.initialScenario));
 const initialProject = createEmptyProject({
   projectId: 'sample',
   createdWith: 'endaxis',

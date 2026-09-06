@@ -146,7 +146,7 @@ function seconds(frames: number): string {
 }
 
 .buff-detail__facts code {
-  color: var(--ea-gold);
+  color: var(--ea-fg);
   font-size: 12px;
 }
 </style>

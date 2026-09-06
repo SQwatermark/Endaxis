@@ -4,6 +4,9 @@ import statusSegmentSource from './TimelineStatusSegment.vue?raw';
 import buffBandsSource from './TimelineBuffBands.vue?raw';
 
 describe('Buff detail interaction structure', () => {
+  it('uses readable theme text for technical IDs rather than bright accent yellow', () => {
+    expect(detailDialogSource).toMatch(/\.buff-detail__facts code\s*\{\s*color: var\(--ea-fg\)/);
+  });
   it('opens one shared read-only detail dialog from the status icon', () => {
     expect(detailDialogSource).toContain('class="timeline-buff-detail-dialog"');
     expect(detailDialogSource).toContain('target.sourceName');
