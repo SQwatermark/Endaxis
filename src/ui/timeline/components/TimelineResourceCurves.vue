@@ -652,7 +652,8 @@ const spWarnings = computed(() => {
 
 .sp-warning-tag {
   position: absolute;
-  z-index: 5;
+  /* 与曲线同层，滚入左侧时由固定读数栏遮挡，不覆盖输入控件。 */
+  z-index: 1;
   min-width: 58px;
   height: 18px;
   box-sizing: border-box;
