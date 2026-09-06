@@ -36,6 +36,7 @@ const emit = defineEmits<{
 const draft = ref<OperatorUpgradeDefinition>(cloneStructureValue(props.upgrade));
 const category = ref<Category>('initialization');
 const selectedIndex = ref(0);
+const structureRevision = ref(0);
 const upgradeLevel = ref(1);
 const upgradeLevels = computed(() => Math.max(1, props.upgrade.levels ?? 1));
 const handlers = computed(() => draft.value.eventHandlers ?? []);
@@ -94,6 +95,7 @@ function defaultEvent(kind: UpgradeEvent['kind']): UpgradeEvent {
   return { kind: 'elementalAttachmentConsumed' };
 }
 function addItem(): void {
+  structureRevision.value++;
   if (category.value === 'initialization') {
     draft.value = { ...draft.value, initializationSequence: { steps: [] } };
     return;
@@ -178,6 +180,7 @@ function updatePassiveLevel(event: Event): void {
     });
 }
 function moveItem(offset: -1 | 1): void {
+  structureRevision.value++;
   const source = category.value === 'eventHandlers' ? [...handlers.value] : [...passives.value];
   const target = selectedIndex.value + offset;
   if (target < 0 || target >= source.length) return;
@@ -187,6 +190,7 @@ function moveItem(offset: -1 | 1): void {
   selectedIndex.value = target;
 }
 function removeItem(): void {
+  structureRevision.value++;
   if (category.value === 'initialization')
     draft.value = (({ initializationSequence: _removed, ...rest }) => rest)(draft.value);
   else if (category.value === 'eventHandlers')
@@ -404,6 +408,8 @@ function save(): void {
           @update="updatePassiveBlackboard"
         />
         <ActionSequenceEditor
+          standalone-history
+          :key="`${category}:${selectedIndex}:${structureRevision}`"
           :sequence="selectedSequence"
           :skill-level="editingLevel"
           :create-step="createStep"

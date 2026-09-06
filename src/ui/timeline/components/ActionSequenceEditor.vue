@@ -3,7 +3,10 @@
  * 编辑一条不带时间偏移的同步动作序列。
  * 技能调度、事件监听和 Buff 生命周期共用这里的步骤增删、排序、复制与参数编辑。
  */
-import { computed, ref, watch } from 'vue';
+import { computed, inject, provide, ref, watch } from 'vue';
+import { useDefinitionDraftHistory } from '../useDefinitionDraftHistory';
+import { ACTION_SEQUENCE_EDITOR_CONTEXT } from '../actionSequenceEditorContext';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { useI18n } from 'vue-i18n';
 import {
   ArrowDown,
@@ -34,8 +37,23 @@ const props = defineProps<{
   createStep: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep: (step: CombatStepDefinition) => CombatStepDefinition;
   selectedPath?: string;
+  /** Only standalone behavior hosts own history here; skill/graph hosts retain theirs. */
+  standaloneHistory?: boolean;
 }>();
 const emit = defineEmits<{ update: [sequence: ActionSequenceDefinition] }>();
+const nestedEditor = inject(ACTION_SEQUENCE_EDITOR_CONTEXT, false);
+provide(ACTION_SEQUENCE_EDITOR_CONTEXT, true);
+const editorRoot = ref<HTMLElement | null>(null);
+const history = useDefinitionDraftHistory(
+  () => props.sequence,
+  value => emit('update', value),
+);
+const ownsHistory = props.standaloneHistory === true && !nestedEditor;
+if (ownsHistory) useEditorHistoryShortcuts(editorRoot, history.restore);
+function publishSequence(value: ActionSequenceDefinition): void {
+  if (ownsHistory) history.commit(value);
+  else emit('update', value);
+}
 const { t } = useI18n({ useScope: 'global' });
 const selectedStepIndex = ref(0);
 const detailCollapsed = ref(false);
@@ -72,8 +90,7 @@ watch(
 
 function replaceStep(step: CombatStepDefinition): void {
   if (props.sequence.steps[selectedStepIndex.value] === undefined) return;
-  emit(
-    'update',
+  publishSequence(
     replaceStructureValueAtPath(props.sequence, `steps[${selectedStepIndex.value}]`, step),
   );
 }
@@ -87,7 +104,7 @@ function moveStep(offset: -1 | 1): void {
   );
   if (moved.root === props.sequence) return;
   selectedStepIndex.value += offset;
-  emit('update', moved.root);
+  publishSequence(moved.root);
 }
 
 function duplicateSelectedStep(): void {
@@ -99,7 +116,7 @@ function duplicateSelectedStep(): void {
     props.duplicateStep,
   );
   selectedStepIndex.value += 1;
-  emit('update', copied.root);
+  publishSequence(copied.root);
 }
 
 function removeSelectedStep(): void {
@@ -109,23 +126,41 @@ function removeSelectedStep(): void {
     0,
     Math.min(selectedStepIndex.value, sequence.steps.length - 1),
   );
-  emit('update', sequence);
+  publishSequence(sequence);
 }
 
 function appendStep(kind: EditableCombatStepKind): void {
   const added = appendCombatStepInStructure(props.sequence, '', props.createStep(kind));
   selectedStepIndex.value = added.root.steps.length - 1;
   detailCollapsed.value = false;
-  emit('update', added.root);
+  publishSequence(added.root);
 }
 </script>
 
 <template>
-  <div class="action-sequence-editor">
+  <div ref="editorRoot" class="action-sequence-editor">
     <div class="action-sequence-editor__steps">
       <div class="action-sequence-editor__list-heading">
         <strong>{{ t('timeline.skillEditing.steps') }}</strong>
         <span>{{ sequence.steps.length }}</span>
+        <template v-if="ownsHistory">
+          <button
+            type="button"
+            title="撤销序列编辑"
+            :disabled="!history.canUndo.value"
+            @click="history.restore('undo')"
+          >
+            ↶
+          </button>
+          <button
+            type="button"
+            title="重做序列编辑"
+            :disabled="!history.canRedo.value"
+            @click="history.restore('redo')"
+          >
+            ↷
+          </button>
+        </template>
       </div>
       <button
         v-for="(step, stepIndex) in sequence.steps"

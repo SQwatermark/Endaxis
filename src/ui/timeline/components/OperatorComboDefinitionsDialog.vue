@@ -26,6 +26,7 @@ const emit = defineEmits<{
   save: [value: { conditions?: readonly ComboSkillConditionDefinition[] }];
 }>();
 const selectedIndex = ref(0);
+const structureRevision = ref(0);
 const conditions = ref<ComboSkillConditionDefinition[]>([]);
 const selectedCondition = computed(() => conditions.value[selectedIndex.value]);
 
@@ -54,6 +55,7 @@ function duplicateStep(step: CombatStepDefinition): CombatStepDefinition {
   return duplicateSkillEditorDetachedStep(syntheticSkill(), step);
 }
 function addCondition(): void {
+  structureRevision.value++;
   const keys = new Set(conditions.value.map(value => value.key));
   let index = 1;
   while (keys.has(`custom-combo-condition-${index}`)) index += 1;
@@ -131,6 +133,7 @@ function removeInitialValue(key: string): void {
   updateCondition({ ...selectedCondition.value, initialValues: values });
 }
 function moveCondition(offset: -1 | 1): void {
+  structureRevision.value++;
   const target = selectedIndex.value + offset;
   if (target < 0 || target >= conditions.value.length) return;
   const next = [...conditions.value];
@@ -139,6 +142,7 @@ function moveCondition(offset: -1 | 1): void {
   selectedIndex.value = target;
 }
 function removeCondition(): void {
+  structureRevision.value++;
   conditions.value = conditions.value.filter((_, index) => index !== selectedIndex.value);
   selectedIndex.value = Math.max(0, Math.min(selectedIndex.value, conditions.value.length - 1));
 }
@@ -257,6 +261,8 @@ function save(): void {
           </div>
         </section>
         <ActionSequenceEditor
+          standalone-history
+          :key="`${selectedIndex}:${structureRevision}`"
           :sequence="selectedCondition.sequence"
           :skill-level="skillLevel"
           :create-step="createStep"

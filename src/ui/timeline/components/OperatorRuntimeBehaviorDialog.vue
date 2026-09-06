@@ -36,6 +36,7 @@ const emit = defineEmits<{
 type Category = 'passiveSkills' | 'eventHandlers';
 const category = ref<Category>('passiveSkills');
 const selectedIndex = ref(0);
+const structureRevision = ref(0);
 const passives = ref<OperatorPassiveSkillDefinition[]>([]);
 const handlers = ref<OperatorEventHandlerDefinition[]>([]);
 const items = computed(() =>
@@ -80,6 +81,7 @@ function duplicateStep(step: CombatStepDefinition): CombatStepDefinition {
 }
 
 function addItem(): void {
+  structureRevision.value++;
   if (category.value === 'passiveSkills') {
     const keys = new Set(passives.value.map(item => item.key));
     let index = 1;
@@ -154,6 +156,7 @@ function updateSequence(sequence: ActionSequenceDefinition): void {
 }
 
 function moveItem(offset: -1 | 1): void {
+  structureRevision.value++;
   const target = selectedIndex.value + offset;
   const source = category.value === 'passiveSkills' ? [...passives.value] : [...handlers.value];
   if (target < 0 || target >= source.length) return;
@@ -165,6 +168,7 @@ function moveItem(offset: -1 | 1): void {
 }
 
 function removeItem(): void {
+  structureRevision.value++;
   if (category.value === 'passiveSkills')
     passives.value = passives.value.filter((_, index) => index !== selectedIndex.value);
   else handlers.value = handlers.value.filter((_, index) => index !== selectedIndex.value);
@@ -268,6 +272,8 @@ function save(): void {
             ><span>严格按列表顺序执行</span>
           </header>
           <ActionSequenceEditor
+            standalone-history
+            :key="`${category}:${selectedIndex}:${structureRevision}`"
             :sequence="selectedSequence!"
             :skill-level="skillLevel"
             :create-step="createStep"
