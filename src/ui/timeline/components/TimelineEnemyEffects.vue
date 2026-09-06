@@ -26,12 +26,14 @@ import { frameToTimelinePx } from '../timelineGeometry';
 import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from '../lastHitBuffSummary';
 import { layoutEnemyMarkerLanes } from '../enemyMarkerLayout';
+import { projectAttachmentContinuations } from '../../../core/projection/attachmentContinuations';
 
 const { t, te } = useI18n();
 
 const props = defineProps<{
   viz: EnemyEffectViz;
   buffs: readonly PositionedBuffTimelineSegment[];
+  attachmentBuffIds?: ReadonlySet<string>;
   timelineWidth: number;
   durationFrames: number;
   prepFrames: number;
@@ -130,6 +132,9 @@ const markers = computed(() =>
   }),
 );
 
+const attachmentContinuations = computed(() =>
+  projectAttachmentContinuations(props.buffs, props.attachmentBuffIds ?? new Set()),
+);
 const buffs = computed(() =>
   props.buffs.map(buff => {
     const left = pointX(buff.startFrame);
@@ -158,6 +163,7 @@ const buffs = computed(() =>
     const icon = buff.iconPath ?? getIconAssetPath(buff.iconId);
     return {
       ...buff,
+      continuedAttachment: attachmentContinuations.value.has(buff),
       key: `${buff.buffId}:${buff.instanceId}:${buff.startFrame}`,
       icon,
       left,
@@ -264,8 +270,28 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
         <span v-else class="buff-fallback">+</span>
         <span class="anomaly-stacks">{{ Math.max(1, buff.layers) }}</span>
       </span>
+      <svg
+        v-if="buff.continuedAttachment && buff.barWidthPx > 0"
+        class="attachment-continuation"
+        :width="buff.barWidthPx + 2"
+        height="20"
+        :style="{ color: buff.color ?? 'var(--ea-fg-muted)' }"
+        aria-hidden="true"
+      >
+        <path :d="`M 0 10 H ${buff.barWidthPx + 2}`" class="attachment-continuation-shadow" />
+        <path :d="`M 0 10 H ${buff.barWidthPx + 2}`" class="attachment-continuation-line" />
+        <circle r="2" cy="10" fill="currentColor">
+          <animate
+            attributeName="cx"
+            from="0"
+            :to="buff.barWidthPx + 2"
+            dur="1.5s"
+            repeatCount="indefinite"
+          />
+        </circle>
+      </svg>
       <span
-        v-if="buff.barWidthPx > 0"
+        v-else-if="buff.barWidthPx > 0"
         class="anomaly-duration-bar generic-buff-bar"
         :style="{
           width: `${buff.barWidthPx}px`,
@@ -279,6 +305,32 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
 </template>
 
 <style scoped>
+.attachment-continuation {
+  overflow: visible;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+.attachment-continuation-shadow {
+  stroke: rgb(0 0 0 / 30%);
+  stroke-width: 3;
+  fill: none;
+}
+.attachment-continuation-line {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 10 5;
+  fill: none;
+  animation: attachment-flow 0.5s linear infinite;
+}
+@keyframes attachment-flow {
+  from {
+    stroke-dashoffset: 15;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
 .enemy-effects {
   position: relative;
   width: 100%;

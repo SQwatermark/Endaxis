@@ -102,6 +102,8 @@ import { resolveTimelineMarkerPointerFrame } from './timelineMarkerMoveGeometry'
 import { resolveOperatorPanelContributionSourceLabel } from './operatorPanelContributionPresentation';
 import type { OperatorPanelContributionReceipt } from '../../core/compiler/resolveOperatorPanel';
 import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
+import { elementalAttachments } from '../../data/buffs/elementalAttachments';
+
 import { SINGLE_ENEMY_TARGET_ID } from '../../core/projection/enemyHealthChangePoints';
 import { projectPoiseBrokenSegments } from '../../core/projection/poiseCurves';
 import { projectComboWindowTimelineViz } from '../../core/projection/comboWindowTimelineViz';
@@ -1969,6 +1971,11 @@ const hitActualFrames = computed(() =>
 );
 
 /** 敌人瞬时效果标记；附着和法术异常的持续展示统一由可见 Buff 生命周期负责。 */
+const attachmentBuffIds = new Set(
+  elementalAttachments.buffs
+    .filter(buff => buff.role?.kind === 'elementalAttachment')
+    .map(buff => buff.id),
+);
 const enemyEffectViz = computed(() => {
   const current = simulationRun.value;
   if (current === null) {
@@ -5631,6 +5638,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :duration-frames="scenario.battle.durationFrames"
                 v-if="combatHudSnapshot !== null"
                 :viz="enemyEffectViz"
+                :attachment-buff-ids="attachmentBuffIds"
                 :buffs="buffSegmentsForTarget('enemy')"
                 :source-name="buffSourceName"
                 :display-name="buffDisplayName"
