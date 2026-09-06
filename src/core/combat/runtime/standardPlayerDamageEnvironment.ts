@@ -58,6 +58,7 @@ import { ElementalReactionOperationExecutor } from './elementalReactionOperation
 import { executeSpellBurst } from './spellBurstRuntime';
 import { resolvePlayerActiveDamageInput } from '../damage/playerActiveDamageInput';
 import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
+import { freezeAttackScaledDamageReceiptDetail } from '../damage/attackScaledDamageReceiptDetail';
 import { executeHealthDamage } from '../damage/healthDamage';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
@@ -1304,31 +1305,27 @@ export class StandardPlayerDamageEnvironment {
         features: payload.features,
       },
     };
-    const damage = calculatePlayerActiveDamage(
-      resolvePlayerActiveDamageInput({
-        step,
-        finalAttackValue: attack * payload.attackScale,
-        attacker: {
-          attack,
-          criticalRate: payload.canCritical ? attributes.get('criticalRate') : 0,
-          criticalDamageIncrease: attributes.get('criticalDamageIncrease'),
-          weaknessDamageMultiplier: attributes.get('weaknessDamageMultiplier'),
-          igniteDamageMultiplier: 1,
-          physicalInflictionDamageMultiplier: 1,
-        },
-        defender: this.#requireEnemyIdentity().defenderAttributes,
-        runtime: {
-          runtimeExtensionMultiplier: 1,
-          appliesIgniteDamageMultiplier: payload.tags.includes('fireAbnormal'),
-          appliesPhysicalInflictionDamageMultiplier:
-            payload.features.includes('physicalInfliction'),
-          // 原生 DamageAction 明确禁止暴击时，不应推进暴击随机流；否则持续伤害会改变后续技能的暴击序列。
-          criticalSample: payload.canCritical
-            ? this.options.criticalSamples.nextCriticalSample()
-            : 1,
-        },
-      }),
-    );
+    const formulaInput = resolvePlayerActiveDamageInput({
+      step,
+      finalAttackValue: attack * payload.attackScale,
+      attacker: {
+        attack,
+        criticalRate: payload.canCritical ? attributes.get('criticalRate') : 0,
+        criticalDamageIncrease: attributes.get('criticalDamageIncrease'),
+        weaknessDamageMultiplier: attributes.get('weaknessDamageMultiplier'),
+        igniteDamageMultiplier: 1,
+        physicalInflictionDamageMultiplier: 1,
+      },
+      defender: this.#requireEnemyIdentity().defenderAttributes,
+      runtime: {
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: payload.tags.includes('fireAbnormal'),
+        appliesPhysicalInflictionDamageMultiplier: payload.features.includes('physicalInfliction'),
+        // 原生 DamageAction 明确禁止暴击时，不应推进暴击随机流；否则持续伤害会改变后续技能的暴击序列。
+        criticalSample: payload.canCritical ? this.options.criticalSamples.nextCriticalSample() : 1,
+      },
+    });
+    const damage = calculatePlayerActiveDamage(formulaInput);
     const buffIdentity = {
       buffId: payload.buffId,
       buffInstanceId: payload.buffInstanceId,
@@ -1342,7 +1339,16 @@ export class StandardPlayerDamageEnvironment {
       tags: payload.tags,
       features: payload.features,
       result: damage,
-      detail: buffIdentity,
+      detail: {
+        ...buffIdentity,
+        ...freezeAttackScaledDamageReceiptDetail(
+          formulaInput,
+          damage,
+          attack,
+          payload.attackScale,
+          panelAttackDetail(panel),
+        ),
+      },
       target: this.enemyVitals,
       clock: this.#requireClock(),
       receipt: this.#requireReceipt(),

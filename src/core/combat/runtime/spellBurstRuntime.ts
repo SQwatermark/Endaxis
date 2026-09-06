@@ -19,10 +19,8 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
 import type { CombatSkillCastInfo } from './skillCastInfo';
-import {
-  freezeAttackReceiptDetail,
-  type AttackReceiptSnapshot,
-} from '../damage/attackReceiptDetail';
+import type { AttackReceiptSnapshot } from '../damage/attackReceiptDetail';
+import { freezeAttackScaledDamageReceiptDetail } from '../damage/attackScaledDamageReceiptDetail';
 
 /** 一次爆发伤害需要的全部输入。 */
 export interface ExecuteSpellBurstInput {
@@ -136,9 +134,6 @@ export function executeSpellBurst(input: ExecuteSpellBurstInput): SpellBurstResu
     },
   });
   const damage = calculatePlayerActiveDamage(formulaInput);
-  const nonCriticalDamage = damage.value / damage.criticalMultiplier;
-  const criticalExpectationMultiplier =
-    1 + Math.min(Math.max(input.criticalRate, 0), 1) * input.criticalDamageIncrease;
   const stateChange = executeHealthDamage({
     ...(input.skillCastInfo === undefined ? {} : { skillCastInfo: input.skillCastInfo }),
     sourceId: input.sourceId,
@@ -152,35 +147,14 @@ export function executeSpellBurst(input: ExecuteSpellBurstInput): SpellBurstResu
       ...(input.skillCastInfo?.originCastId === undefined
         ? {}
         : { sourceActionId: input.skillCastInfo.originCastId }),
-      ...freezeAttackReceiptDetail(input.attack, input.attackDetail),
+      ...freezeAttackScaledDamageReceiptDetail(
+        formulaInput,
+        damage,
+        input.attack,
+        scale,
+        input.attackDetail,
+      ),
       spellBurstEnhanceFactor: enhanceFactor,
-      attack: input.attack,
-      baseDamage: input.attack * scale,
-      finalAttackValue: formulaInput.finalAttackValue,
-      standardCalculation: true,
-      skillMultiplierPercent: scale * 100,
-      calculationMultiplier: 1,
-      damageScaleMultiplier: 1,
-      criticalRate: input.criticalRate,
-      criticalDamageIncrease: input.criticalDamageIncrease,
-      criticalExpectationMultiplier,
-      nonCriticalDamage,
-      criticalDamage: nonCriticalDamage * (1 + input.criticalDamageIncrease),
-      expectedDamage: nonCriticalDamage * criticalExpectationMultiplier,
-      enemyDefense: formulaInput.defense,
-      enemyResistancePercent: formulaInput.resistancePercent,
-      damageTakenMultiplier: formulaInput.damageTakenMultiplier,
-      directDamageMultiplier:
-        damage.weaknessShelterMultiplier *
-        damage.runtimeExtensionMultiplier *
-        damage.igniteMultiplier *
-        damage.physicalInflictionMultiplier,
-      resistancePercentMultiplier:
-        input.definition.damageType === 'true'
-          ? 1
-          : Math.max(0, 1 - formulaInput.resistancePercent / 100),
-      weaknessDamageMultiplier: formulaInput.weaknessDamageMultiplier,
-      shelterDamageMultiplier: formulaInput.shelterDamageMultiplier,
     },
     target: input.target,
     clock: input.clock,

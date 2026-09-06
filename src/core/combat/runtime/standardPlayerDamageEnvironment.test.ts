@@ -222,14 +222,15 @@ it.each(['criticalRate', 'criticalDamageIncrease'] as const)(
 it.each(['burst', 'buff'] as const)(
   '%s 旁路读取完整暴击属性，不重复加入面板或继承技能加成',
   route => {
-    const run = (sample: number, finalMultiplier: number) => {
+    const run = (sample: number, finalMultiplier: number, canCritical = true) => {
+      const nextCriticalSample = vi.fn(() => sample);
       const base = createContext();
       const context = {
         ...base,
         program: { ...base.program, statModifiers: { criticalRate: 0.8 } },
       };
       const environment = new StandardPlayerDamageEnvironment({
-        criticalSamples: { nextCriticalSample: () => sample },
+        criticalSamples: { nextCriticalSample },
         resolveNonRandomRuntimeSnapshot: () => ({
           runtimeExtensionMultiplier: 1,
           appliesIgniteDamageMultiplier: false,
@@ -268,7 +269,7 @@ it.each(['burst', 'buff'] as const)(
                           attackScale: 1,
                           tags: [],
                           features: [],
-                          canCritical: true,
+                          canCritical,
                         },
                       ],
               },
@@ -328,6 +329,26 @@ it.each(['burst', 'buff'] as const)(
             sourceActionId: expect.any(String),
           },
         });
+        expect(hits[0]!.data).toMatchObject({
+          attack: 700,
+          baseDamage: 700,
+          finalAttackValue: 700,
+          standardCalculation: true,
+          skillMultiplierPercent: 100,
+          enemyDefense: 200,
+          enemyResistancePercent: 20,
+          criticalDamageIncrease: 1.2,
+        });
+        const detail = hits[0]!.data!;
+        expect(detail.nonCriticalDamage).toBeCloseTo((700 / 3) * 0.8);
+        expect(detail.expectedDamage).toBeCloseTo(
+          Number(detail.nonCriticalDamage) * Number(detail.criticalExpectationMultiplier),
+        );
+        if (!canCritical) {
+          expect(nextCriticalSample).not.toHaveBeenCalled();
+          expect(detail).toMatchObject({ criticalRate: 0, criticalExpectationMultiplier: 1 });
+          expect(detail.expectedDamage).toBe(detail.nonCriticalDamage);
+        }
         const audits = (context.receipt as CombatReceiptCollector).entries.filter(
           entry => entry.event === 'BuffDamageApplied',
         );
@@ -350,6 +371,8 @@ it.each(['burst', 'buff'] as const)(
     expect(run(0.2, 1)).toMatchObject({ isCritical: false, criticalMultiplier: 1 });
     expect(run(0.1, 1)).toMatchObject({ isCritical: true, criticalMultiplier: 2.2 });
     expect(run(0.1, 0)).toMatchObject({ isCritical: false, criticalMultiplier: 1 });
+    if (route === 'buff')
+      expect(run(0.1, 1, false)).toMatchObject({ isCritical: false, criticalMultiplier: 1 });
   },
 );
 
