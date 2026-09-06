@@ -1,5 +1,12 @@
 # 当前任务快照
 
+#### 2026-09-06 终结技按钮状态：原生初始化明确，场景动作按需接入
+
+- 复刻库新增 ultimate-skill-button-state.md：BattleManager 构造函数在 0x04351FF2 合并写入 +0x1f6..+0x1f9 为 true，终结技按钮原生初值明确。公开 SetUltimateSkillButtonActive 仅变化时写状态并通知；已确认场景动作 SetCharSkillButtonActive 用 mask 位 2 控制终结技，OnRelease 重新开启（非恢复栈）。它不是技能 HideUI 演出动作。
+- 生成来源快照 tmp/game-data-sources-hybrid-20260905 的 JSON 未找到该动作/字段引用；不代表全包场景中不存在。当前木桩没有该场景控制动作，按原生初始开启简化，不增加未知告警或作者开关，不把它当普通干员转换阻塞。将来有活动/场景真实引用时再接参数和生命周期。
+- 本轮仅研究及文档，没有改技能模拟。用 mmap 候选扫描加完整方法反汇编核对，排除了工厂对象相同字段偏移；直接调用扫描不能覆盖 Lua/反射/热补丁。临时探针保留在忽略的 tmp/，不提交游戏二进制或输出。
+- 后续不要继续为这个当前无实际输入的开关扩展系统。应回到实际技能操作的诊断可读性与真实场景验证：把已记录的 blocker、assessedSkillId 用于说明原因，核对技能替换后诊断是否指向正确技能；演出输入路径剩余边界保持证据说明，不扩大统一全局锁。
+
 #### 2026-09-06 主战技专属禁用身份闭合
 
 - 复刻库 skill-tag-checks.md 补记当前 native 核对：_InitSkills 把 SkillDataBundle.normalSkillId 写入 AbilitySystem.curNormalSkill；_OnNormalSkillChange 经 String.op_Inequality 比较后更新。Endaxis 既有严格来源解析和路由生成已接同一字段，不需要新增人工配置或从技能库反推。
