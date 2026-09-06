@@ -2,6 +2,8 @@
 
 #### 2026-09-06 技能宽度与演出操作锁调查
 
+- 最新：复刻库 HideUiActionDataAdapter 已严格解析必填 onlyBlockInput 与动作头，注册公共 Buff 动作分派，并验证解析结果进入技能时间线。定向 23 项通过；扩展回归 121 通过、1 项来源目录定位失败。true 分支解析保留、执行仍明确未支持 CommonMask。Endaxis TS 来源层已保留字段，但公共步骤/转换输出/运行时回执/UI 诊断仍待接入；不能将复刻库绑定当作 Endaxis 支持完成。
+
 - 复刻库开始落地已确认部分：新增 HideUiAction(false) 的演出布尔状态与 UI 显隐通知，CombatSimulation → AbilitySystem → 动作上下文绑定共享 PlayerController。4 项新增测试通过，确认演出结束不结束更长技能、不改变时钟；true 分支仍明确未支持 CommonMask。相关回归 39 通过、1 来源扫描测试因 FindRepositoryRoot 缺失失败。尚未注册原始解析器、未接 Endaxis 转换/输入诊断，不宣称全局输入锁完成；下一步先完成来源动作绑定，再消费已确认的门禁。
 
 - 普攻查询数字已从当前 metadata 常量核实为 6=InDisarmed、4=CantCastAnySkill、1500=InMediumOrHigherWater；不是演出锁。前两者复用公共可用性规则，水域在当前木桩模型不扩展。查询表来自 hybrid 中经哈希核实的 VFS 补充，不误称 AKEDB。BattleAction 演出消息还会先清理按钮按住状态再改挂输入组；这不等于中断已执行技能。剩余聚焦输入组与演出时钟/请求消费联动，不重复研究已确认的查询常量。
