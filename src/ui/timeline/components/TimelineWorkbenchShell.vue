@@ -4,6 +4,7 @@
  * 内容区只通过插槽接入；本组件不读取项目、时间轴或战斗状态。
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import {
   resolveWorkbenchBottomHeight,
   resolveWorkbenchBottomHeightBounds,
@@ -17,6 +18,7 @@ const WORKBENCH_LAYOUT_STORAGE_KEY = 'endaxis:timeline-workbench-layout:v1';
 const DEFAULT_LEFT_WIDTH = 200;
 const DEFAULT_RIGHT_WIDTH = 260;
 const DEFAULT_BOTTOM_HEIGHT = WORKBENCH_BOTTOM_DEFAULT_HEIGHT;
+const interactionSession = useInteractionSession();
 
 const props = defineProps<{
   collapsedMonitorSectionCount?: number;
@@ -161,6 +163,12 @@ function selectRight(tool: typeof rightTool.value): void {
 }
 
 function beginResize(target: NonNullable<typeof resizing.value>, event: PointerEvent): void {
+  if (event.button !== 0) return;
+  const lease = interactionSession.tryStart('workbench-resize', () => stopResize?.());
+  if (lease === null) {
+    event.preventDefault();
+    return;
+  }
   event.preventDefault();
   stopResize?.();
   resizing.value = target;
@@ -172,6 +180,7 @@ function beginResize(target: NonNullable<typeof resizing.value>, event: PointerE
   // Drag from what the user grabbed, not from an off-screen requested height.
   const initialBottom = effectiveBottomHeight.value;
   const onMove = (moveEvent: PointerEvent) => {
+    if (moveEvent.pointerId !== event.pointerId || !lease.isCurrent()) return;
     if (target === 'left') {
       leftWidth.value = clamp(initialLeft + moveEvent.clientX - startX, 200, 480);
     } else if (target === 'right') {
@@ -189,7 +198,9 @@ function beginResize(target: NonNullable<typeof resizing.value>, event: PointerE
       );
     }
   };
-  const finish = () => {
+  const finish = (finishEvent?: PointerEvent) => {
+    if (finishEvent !== undefined && finishEvent.pointerId !== event.pointerId) return;
+    lease.release();
     resizing.value = null;
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', finish);

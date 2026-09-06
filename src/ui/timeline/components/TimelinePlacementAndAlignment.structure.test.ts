@@ -62,8 +62,8 @@ describe('Next timeline placement and alignment parity', () => {
     );
 
     expect(begin).toContain("window.addEventListener('pointercancel', onCancel)");
-    expect(begin).toContain("if (keyEvent.key !== 'Escape') return;");
-    expect(begin).toContain("window.addEventListener('keydown', onKeyDown, true)");
+    expect(begin).toContain("interactionSession.tryStart('cast-move', cancelCastMove)");
+    expect(begin).not.toContain("window.addEventListener('keydown'");
     expect(cancel).toContain('scenario.value = gesture.baseScenario');
     expect(cancel).not.toContain('commitScenario(');
   });

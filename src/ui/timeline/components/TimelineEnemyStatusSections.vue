@@ -4,6 +4,7 @@
  * 本组件只负责段落折叠、比例调整与持久化，不解释任何战斗数据。
  */
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import {
   MONITOR_SECTION_TOPBAR_HEIGHT,
   monitorSectionBodyMinimums,
@@ -11,6 +12,7 @@ import {
 } from '../monitorSectionMinimums';
 
 type SectionKey = 'affliction' | 'poise' | 'sp';
+const interactionSession = useInteractionSession();
 
 const COLLAPSE_STORAGE_KEY = 'endaxis:resource-monitor-section-collapse:v1';
 const LAYOUT_STORAGE_KEY = 'endaxis:resource-monitor-sections:v1';
@@ -87,11 +89,18 @@ watch(
 );
 
 function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
+  if (event.button !== 0) return;
   const pair = resizePairForLower(lowerKey);
   if (pair === null || root.value === null) return;
   const upper = root.value.querySelector<HTMLElement>(`[data-section-key="${pair.upperKey}"]`);
   const lower = root.value.querySelector<HTMLElement>(`[data-section-key="${pair.lowerKey}"]`);
   if (upper === null || lower === null) return;
+
+  const lease = interactionSession.tryStart('monitor-section-resize', () => stopResize?.());
+  if (lease === null) {
+    event.preventDefault();
+    return;
+  }
 
   event.preventDefault();
   stopResize?.();
@@ -106,6 +115,7 @@ function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
   }
 
   const onMove = (moveEvent: PointerEvent) => {
+    if (moveEvent.pointerId !== event.pointerId || !lease.isCurrent()) return;
     const nextBodies = resizeMonitorSectionBodies(
       bodies,
       pair.upperKey,
@@ -117,7 +127,9 @@ function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
       if (nextBodies[key] !== undefined) sectionWeights[key] = Math.max(0.1, nextBodies[key]);
     }
   };
-  const finish = () => {
+  const finish = (finishEvent?: PointerEvent) => {
+    if (finishEvent !== undefined && finishEvent.pointerId !== event.pointerId) return;
+    lease.release();
     activeResizeLowerKey.value = null;
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', finish);

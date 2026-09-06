@@ -52,7 +52,11 @@ describe('SkillLibraryCard legacy structure parity', () => {
 
     expect(source).toContain('draggable="true"');
     expect(source).toContain('@dragend="$emit(\'dragend\', $event)"');
-    expect(handler).not.toContain('event.preventDefault();');
+    // Reject only a competing gesture; admitted native drags retain browser behavior.
+    expect(handler).toContain("interactionSession.tryStart('library-drag'");
+    expect(handler.slice(handler.indexOf('libraryDragLease = lease;'))).not.toContain(
+      'event.preventDefault();',
+    );
     expect(handler).not.toContain('beginLibraryPlacement(entry, skillKey);');
     expect(handler).toContain("kind: 'librarySkill'");
     expect(handler).toContain("event.dataTransfer.effectAllowed = 'copy'");

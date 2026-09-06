@@ -11,6 +11,8 @@ import {
   toRaw,
 } from 'vue';
 import { durationBarColorKey } from './durationBarColorContext';
+import { provideInteractionSession } from '../interaction/interactionSessionContext';
+import type { InteractionLease } from '../interaction/interactionSession';
 import { normalizeDurationBarColorPrefs } from './durationBarColor';
 import { useI18n } from 'vue-i18n';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -531,6 +533,11 @@ interface TimelineLibraryPlacement {
   readonly skillKey?: string;
 }
 const libraryPlacement = ref<TimelineLibraryPlacement | null>(null);
+const interactionSession = provideInteractionSession();
+let libraryDragLease: InteractionLease | null = null;
+let libraryDragSource: EventTarget | null = null;
+let libraryPlacementLease: InteractionLease | null = null;
+let trackOrderLease: InteractionLease | null = null;
 const selectedLibrarySkill = ref<{ entryKey: string; skillKey?: string } | null>(null);
 const placementPointer = ref<{ x: number; y: number } | null>(null);
 const alignmentGuide = ref<{
@@ -946,7 +953,7 @@ watch(selectedTrack, () => {
       entry.placementSkillKey === undefined,
   );
   if (replacement === undefined) {
-    libraryPlacement.value = null;
+    cancelLibraryPlacement();
     placementPointer.value = null;
     return;
   }
@@ -2239,6 +2246,8 @@ function trackEffectLayout(trackIndex: TrackIndex, targetId: string | null) {
 }
 
 interface CompactTrackResizeGesture {
+  readonly pointerId: number;
+  readonly lease: InteractionLease;
   readonly dividerIndex: TrackIndex;
   readonly startY: number;
   readonly initialHeights: readonly number[];
@@ -2247,32 +2256,28 @@ interface CompactTrackResizeGesture {
 
 const compactTrackResizeGesture = ref<CompactTrackResizeGesture | null>(null);
 
-function finishCompactTrackResize(): void {
+function finishCompactTrackResize(event?: PointerEvent): void {
   if (compactTrackResizeGesture.value === null) return;
+  if (event !== undefined && event.pointerId !== compactTrackResizeGesture.value.pointerId) return;
+  compactTrackResizeGesture.value.lease.release();
   compactTrackResizeGesture.value = null;
   document.documentElement.classList.remove('is-track-resizing');
   window.removeEventListener('pointermove', updateCompactTrackResize);
   window.removeEventListener('pointerup', finishCompactTrackResize);
   window.removeEventListener('pointercancel', cancelCompactTrackResize);
-  window.removeEventListener('keydown', cancelCompactTrackResizeFromKeyboard, true);
 }
 
-function cancelCompactTrackResize(): void {
+function cancelCompactTrackResize(event?: PointerEvent): void {
   const gesture = compactTrackResizeGesture.value;
+  if (event !== undefined && event.pointerId !== gesture?.pointerId) return;
   if (gesture !== null) compactTrackHeights.value = gesture.initialWeights;
   finishCompactTrackResize();
 }
 
-function cancelCompactTrackResizeFromKeyboard(event: KeyboardEvent): void {
-  if (event.key !== 'Escape') return;
-  event.preventDefault();
-  event.stopPropagation();
-  cancelCompactTrackResize();
-}
-
 function updateCompactTrackResize(event: PointerEvent): void {
   const gesture = compactTrackResizeGesture.value;
-  if (gesture === null) return;
+  if (gesture === null || event.pointerId !== gesture.pointerId || !gesture.lease.isCurrent())
+    return;
   compactTrackHeights.value = resizeTimelineTrackPair(
     gesture.initialHeights,
     gesture.dividerIndex,
@@ -2290,8 +2295,11 @@ function beginCompactTrackResize(event: PointerEvent, dividerIndex: TrackIndex):
   }
   event.preventDefault();
   event.stopPropagation();
-  finishCompactTrackResize();
+  const lease = interactionSession.tryStart('track-resize', cancelCompactTrackResize);
+  if (lease === null) return;
   compactTrackResizeGesture.value = {
+    pointerId: event.pointerId,
+    lease,
     dividerIndex,
     startY: event.clientY,
     initialHeights: displayedCompactTrackHeights.value,
@@ -2301,7 +2309,6 @@ function beginCompactTrackResize(event: PointerEvent, dividerIndex: TrackIndex):
   window.addEventListener('pointermove', updateCompactTrackResize);
   window.addEventListener('pointerup', finishCompactTrackResize);
   window.addEventListener('pointercancel', cancelCompactTrackResize);
-  window.addEventListener('keydown', cancelCompactTrackResizeFromKeyboard, true);
 }
 
 function resetCompactTrackLayout(): void {
@@ -3559,6 +3566,13 @@ function hideCursorGuide(): void {
 }
 
 function beginLibraryPlacement(entry: TimelineSkillLibraryEntryViewModel, skillKey?: string): void {
+  if (libraryPlacementLease === null) {
+    libraryPlacementLease = interactionSession.tryStart(
+      'library-placement',
+      cancelLibraryPlacement,
+    );
+    if (libraryPlacementLease === null) return;
+  }
   skillPlacementTransaction.cancel();
   const placedSkillKey = skillKey ?? entry.placementSkillKey;
   libraryPlacement.value = {
@@ -3572,6 +3586,8 @@ function beginLibraryPlacement(entry: TimelineSkillLibraryEntryViewModel, skillK
 }
 
 function cancelLibraryPlacement(): boolean {
+  libraryPlacementLease?.release();
+  libraryPlacementLease = null;
   const cancelledPending = skillPlacementTransaction.cancel();
   if (libraryPlacement.value === null) return cancelledPending;
   libraryPlacement.value = null;
@@ -3728,8 +3744,13 @@ function beginSkillDrag(
   skillKey?: string,
 ): void {
   const placedSkillKey = skillKey ?? entry.placementSkillKey;
-  cancelLibraryPlacement();
-  finishSkillDrag();
+  const lease = interactionSession.tryStart('library-drag', finishSkillDrag);
+  if (lease === null) {
+    event.preventDefault();
+    return;
+  }
+  libraryDragLease = lease;
+  libraryDragSource = event.target;
   window.addEventListener('drop', guardLibrarySkillDrop, true);
   window.addEventListener('dragend', finishSkillDrag, true);
   const offsets = getDefaultLibraryDragOffsets();
@@ -3768,7 +3789,11 @@ function beginSkillDrag(
   }
 }
 
-function finishSkillDrag(): void {
+function finishSkillDrag(event?: DragEvent): void {
+  if (event !== undefined && event.target !== libraryDragSource) return;
+  libraryDragLease?.release();
+  libraryDragLease = null;
+  libraryDragSource = null;
   window.removeEventListener('drop', guardLibrarySkillDrop, true);
   window.removeEventListener('dragend', finishSkillDrag, true);
   if (dragPayload.value?.kind === 'librarySkill') dragPayload.value = null;
@@ -3777,6 +3802,7 @@ function finishSkillDrag(): void {
 
 function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId: string): void {
   if (event.button !== 0) return;
+  if (interactionSession.current !== null) return;
   if (alignSelectedCastToTarget(event, skillCastId)) return;
   event.preventDefault();
   event.stopPropagation();
@@ -3836,6 +3862,7 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
   // 捕获到稳定的滚动容器，避免模拟刷新替换技能块或跨控件悬停抢走手势。
   // 落点仍通过 elementFromPoint 解析，不依赖捕获后的 event.target。
   const captureTarget = timelineScroll.value;
+  const lease = interactionSession.tryStart('cast-move', cancelCastMove)!;
   const onMove = (moveEvent: PointerEvent) => {
     if (moveEvent.pointerId !== event.pointerId) return;
     moveEvent.stopPropagation();
@@ -3851,12 +3878,8 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
     void finishCastMove(finishEvent);
   };
   const onCancel = () => cancelCastMove();
-  const onKeyDown = (keyEvent: KeyboardEvent) => {
-    if (keyEvent.key !== 'Escape') return;
-    keyEvent.preventDefault();
-    cancelCastMove();
-  };
   stopCastMoveGesture = () => {
+    lease.release();
     window.removeEventListener('pointermove', onMove, true);
     window.removeEventListener('pointerup', onFinish, true);
     window.removeEventListener('pointercancel', onCancel);
@@ -3865,7 +3888,6 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
     if (captureTarget?.hasPointerCapture(event.pointerId)) {
       captureTarget.releasePointerCapture(event.pointerId);
     }
-    window.removeEventListener('keydown', onKeyDown, true);
     if (castMoveAutoScrollFrame !== null) cancelAnimationFrame(castMoveAutoScrollFrame);
     castMoveAutoScrollFrame = null;
     stopCastMoveGesture = null;
@@ -3875,7 +3897,6 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
   window.addEventListener('pointercancel', onCancel);
   captureTarget?.addEventListener('lostpointercapture', onCancel);
   window.addEventListener('blur', onCancel);
-  window.addEventListener('keydown', onKeyDown, true);
 }
 
 function castMoveFrame(
@@ -4035,12 +4056,20 @@ function cancelCastMove(): void {
 }
 
 function beginTrackOrderDrag(event: DragEvent, trackIndex: TrackIndex): void {
+  const lease = interactionSession.tryStart('track-order', finishTrackOrderDrag);
+  if (lease === null) {
+    event.preventDefault();
+    return;
+  }
+  trackOrderLease = lease;
   dragPayload.value = { kind: 'trackOrder', trackIndex };
   trackOrderDropTarget.value = null;
   if (event.dataTransfer !== null) event.dataTransfer.effectAllowed = 'move';
 }
 
 function finishTrackOrderDrag(): void {
+  trackOrderLease?.release();
+  trackOrderLease = null;
   if (dragPayload.value?.kind === 'trackOrder') dragPayload.value = null;
   trackOrderDropTarget.value = null;
 }
@@ -4056,6 +4085,7 @@ function dropTrackOrder(event: DragEvent, trackIndex: TrackIndex): void {
   const payload = dragPayload.value;
   if (payload?.kind !== 'trackOrder') return;
   event.preventDefault();
+  finishTrackOrderDrag();
   dragPayload.value = null;
   trackOrderDropTarget.value = null;
   swapTrackOrder(payload.trackIndex, trackIndex);
@@ -4075,10 +4105,11 @@ function dropTimelinePayload(event: DragEvent, trackIndex: TrackIndex): void {
   event.preventDefault();
   trackOrderDropTarget.value = null;
   if (payload.kind === 'trackOrder') {
+    finishTrackOrderDrag();
     swapTrackOrder(payload.trackIndex, trackIndex);
     return;
   }
-  removeLibraryDragGhost();
+  finishSkillDrag();
   if (trackIndex !== selectedTrack.value) return;
   const lane = event.currentTarget as HTMLElement;
   const frame = resolveTimelineLibraryDropFrame({
