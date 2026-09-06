@@ -3,7 +3,8 @@
  * Next 时间轴的武器定义选择器。界面与旧时间轴保持一致，但只读取 Next 定义并返回稳定 slug；
  * 武器 Build 的创建和持久化仍由父层负责，组件内不依赖旧 store。
  */
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useKeyboardShortcutScope } from '../../keyboard/keyboardShortcutRouter';
 import { Search } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 import { getWeaponGameName } from '../../gameText';
@@ -52,6 +53,16 @@ interface WeaponRarityGroup {
 const { locale } = useI18n({ useScope: 'global' });
 const searchQuery = ref('');
 const fullPotential = ref(false);
+useKeyboardShortcutScope({
+  id: 'weapon-selection',
+  priority: 1500,
+  active: () => props.visible,
+  blockLowerScopes: true,
+  handle: () => false,
+  observeKeyboardState: event => {
+    fullPotential.value = event?.ctrlKey ?? false;
+  },
+});
 
 watch(
   () => props.visible,
@@ -116,30 +127,6 @@ function clear(): void {
 function handleDialogVisibility(value: boolean): void {
   if (!value) emit('close');
 }
-
-function handleKeyDown(event: KeyboardEvent): void {
-  if (event.key === 'Control') fullPotential.value = true;
-}
-
-function handleKeyUp(event: KeyboardEvent): void {
-  if (event.key === 'Control') fullPotential.value = false;
-}
-
-function resetModifierKey(): void {
-  fullPotential.value = false;
-}
-
-onMounted(() => {
-  window.addEventListener('keydown', handleKeyDown);
-  window.addEventListener('keyup', handleKeyUp);
-  window.addEventListener('blur', resetModifierKey);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyDown);
-  window.removeEventListener('keyup', handleKeyUp);
-  window.removeEventListener('blur', resetModifierKey);
-});
 </script>
 
 <template>

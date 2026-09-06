@@ -1,4 +1,4 @@
-import { onScopeDispose } from 'vue';
+import { onScopeDispose, watchEffect } from 'vue';
 
 /**
  * 页面级快捷键作用域。优先级较高的活动作用域先获得按键，处理后不会继续穿透。
@@ -11,6 +11,8 @@ export interface KeyboardShortcutScope {
   readonly handle: (event: KeyboardEvent) => boolean;
   /** Browser edit menus dispatch clipboard events without a keydown. Same owner, same commands. */
   readonly handleClipboard?: (event: ClipboardEvent) => boolean;
+  /** Passive held-key preview, never a command. null revokes ownership or clears focus. */
+  readonly observeKeyboardState?: (event: KeyboardEvent | null) => void;
   /** 当前作用域未处理该键时，是否仍阻止更低层页面快捷键接管。 */
   readonly blockLowerScopes?: boolean;
 }
@@ -56,9 +58,36 @@ export class KeyboardShortcutRouter {
   }
 
   route(event: KeyboardEvent): boolean {
+    this.updateKeyboardState(event);
     // An IME owns its composition keys; a previously handled event is not a new command.
     if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return false;
     return this.#dispatch(event, scope => scope.handle(event));
+  }
+
+  updateKeyboardState(event: KeyboardEvent | null): void {
+    const eligible = this.#keyboardStateOwners();
+    for (const scope of this.#scopes.values()) {
+      scope.observeKeyboardState?.(eligible.has(scope.order) ? event : null);
+    }
+  }
+
+  revokeInactiveKeyboardState(): void {
+    const eligible = this.#keyboardStateOwners();
+    for (const scope of this.#scopes.values()) {
+      if (!eligible.has(scope.order)) scope.observeKeyboardState?.(null);
+    }
+  }
+
+  #keyboardStateOwners(): Set<number> {
+    const owners = new Set<number>();
+    const active = [...this.#scopes.values()]
+      .filter(scope => scope.active())
+      .sort((a, b) => b.priority - a.priority || b.order - a.order);
+    for (const scope of active) {
+      owners.add(scope.order);
+      if (scope.blockLowerScopes) break;
+    }
+    return owners;
   }
 
   routeClipboard(event: ClipboardEvent): boolean {
@@ -100,11 +129,21 @@ function routePageClipboardEvent(event: ClipboardEvent): void {
   pageKeyboardShortcutRouter.routeClipboard(event);
 }
 
+function updatePageKeyboardState(event: KeyboardEvent): void {
+  pageKeyboardShortcutRouter.updateKeyboardState(event);
+}
+
+function clearPageKeyboardState(): void {
+  pageKeyboardShortcutRouter.updateKeyboardState(null);
+}
+
 function ensurePageListener(): void {
   if (listening || typeof window === 'undefined') return;
   window.addEventListener('keydown', routePageKeyboardEvent, true);
   window.addEventListener('copy', routePageClipboardEvent, true);
   window.addEventListener('paste', routePageClipboardEvent, true);
+  window.addEventListener('keyup', updatePageKeyboardState, true);
+  window.addEventListener('blur', clearPageKeyboardState);
   listening = true;
 }
 
@@ -113,13 +152,20 @@ export function useKeyboardShortcutScope(scope: KeyboardShortcutScope): void {
   ensurePageListener();
   pageScopeCount += 1;
   const unregister = pageKeyboardShortcutRouter.register(scope);
+  const stopWatching = watchEffect(() => pageKeyboardShortcutRouter.revokeInactiveKeyboardState(), {
+    flush: 'sync',
+  });
   onScopeDispose(() => {
+    stopWatching();
+    scope.observeKeyboardState?.(null);
     unregister();
     pageScopeCount -= 1;
     if (pageScopeCount === 0 && listening && typeof window !== 'undefined') {
       window.removeEventListener('keydown', routePageKeyboardEvent, true);
       window.removeEventListener('copy', routePageClipboardEvent, true);
       window.removeEventListener('paste', routePageClipboardEvent, true);
+      window.removeEventListener('keyup', updatePageKeyboardState, true);
+      window.removeEventListener('blur', clearPageKeyboardState);
       listening = false;
     }
   });

@@ -1,5 +1,20 @@
 # 当前任务快照
 
+#### 2026-09-07 武器满潜预览按住状态纳入路由
+
+- KeyboardShortcutScope 增加被动 observeKeyboardState，不作为命令消费事件。
+  keydown 与 keyup 共享路由入口，blur 清空；按既有优先级/屏障判定有权观察的
+  作用域。Vue 同步监听 active 状态，关闭或被更高屏障覆盖时无需等松键就撤销。
+  恢复显示不会复活旧按住状态，等待新键盘事件；卸载清除观察状态与监听。
+- WeaponSelectionDialog 移除独立 window keydown/keyup/blur，只有 visible 时
+  观察 ctrlKey，并阻止后台命令。handle 返回 false，保留搜索框原生快捷键及
+  Element Plus Escape。只改 tooltip 预览状态，不改武器定义、配装或数值。
+- 902 项时间轴/键盘/交互测试通过，包括按下/松开、失焦、关闭、遮挡和卸载。
+  应用类型检查通过。
+  尚未实际浏览器持续按 Ctrl 验证 tooltip 数值切换，不能据单测宣称视觉验收。
+- 仍沿用过渡优先级，不代表完整逻辑父子区域树已实现。下一步应补实际预览验收，
+  再集中处理区域树设计，避免继续增加散落的数字优先级。
+
 #### 2026-09-07 自定义重置框焦点进入/循环/返回
 
 - 复用当前安装的 Element Plus ElFocusTrap（与 ElDialog 同一焦点栈），不另建
