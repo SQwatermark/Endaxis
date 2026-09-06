@@ -9,7 +9,8 @@ describe('WeaponDefinitionWorkspaceDialog structure', () => {
     expect(timelineEditorSource).toContain('switchTrackToCompatibleWeaponTemplate');
     expect(timelineEditorSource).toContain('replaceProjectWeaponTemplateDefinition');
     expect(timelineEditorSource).toContain('@edit-definition="openWeaponDefinitionWorkspace"');
-    expect(timelineEditorSource).toContain('showWeaponDefinitionWorkspace.value ||');
+    expect(workspaceSource).toContain('<InputRegionBoundary');
+    expect(timelineEditorSource).not.toContain('showWeaponDefinitionWorkspace.value ||');
     expect(buildDialogSource).toContain("'edit-definition': []");
   });
 

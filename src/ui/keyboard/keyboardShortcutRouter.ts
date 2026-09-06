@@ -1,4 +1,4 @@
-import { onScopeDispose, watchEffect } from 'vue';
+import { onScopeDispose, readonly, shallowRef, watchEffect } from 'vue';
 import { InputRegions, type InputRegion } from './inputRegions';
 import {
   inheritedInputRegion,
@@ -199,6 +199,17 @@ export class KeyboardShortcutRouter {
 const pageKeyboardShortcutRouter = new KeyboardShortcutRouter();
 export function useKeyboardInputRegion(options: InputRegionOptions): InputRegion {
   return useInputRegion(pageKeyboardShortcutRouter.regions, options);
+}
+
+/** Gesture ownership uses the same modal path as keyboard and clipboard routing. */
+export function useInputRegionEligibility(region: InputRegion) {
+  const regions = pageKeyboardShortcutRouter.regions;
+  const eligible = shallowRef(regions.path().includes(region));
+  const unsubscribe = regions.onChange(() => {
+    eligible.value = regions.path().includes(region);
+  });
+  onScopeDispose(unsubscribe);
+  return readonly(eligible);
 }
 let listening = false;
 let pageScopeCount = 0;

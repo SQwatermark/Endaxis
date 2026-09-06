@@ -4554,19 +4554,10 @@ function cycleOccupiedTrack(direction: -1 | 1): boolean {
   return true;
 }
 
+// Transitional fallback only for panels not yet owning a modal input region.
+// Migrated selectors/build/template editors isolate keyboard and gestures by region.
 const hasModalPanel = computed(
   () =>
-    operatorDialogTrack.value !== null ||
-    weaponDialogTrack.value !== null ||
-    gearDialogTarget.value !== null ||
-    showOperatorBuildDialog.value ||
-    showOperatorDefinitionWorkspace.value ||
-    showWeaponDefinitionWorkspace.value ||
-    gearDefinitionWorkspaceSlot.value !== null ||
-    gearSetDefinitionWorkspaceId.value !== null ||
-    showSkillDefinitionEditor.value ||
-    showWeaponBuildDialog.value ||
-    showGearBuildDialog.value ||
     panelDialogTrack.value !== null ||
     hitDetailTarget.value !== null ||
     enemyDamageDetailSequence.value !== null ||

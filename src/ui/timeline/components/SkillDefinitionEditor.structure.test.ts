@@ -257,8 +257,10 @@ describe('SkillDefinitionEditor structure', () => {
       expect(source).toContain(':can-undo="canUndoStructure"');
       expect(source).toContain(':can-redo="canRedoStructure"');
     }
-    expect(timelineEditorSource).toContain('showOperatorDefinitionWorkspace.value ||');
-    expect(timelineEditorSource).toContain('showSkillDefinitionEditor.value ||');
+    // Modal region wiring is covered in workspaceRegions/InputRegionBoundary tests.
+    // The workbench must not duplicate migrated editor visibility as an input gate.
+    expect(timelineEditorSource).not.toContain('showOperatorDefinitionWorkspace.value ||');
+    expect(timelineEditorSource).not.toContain('showSkillDefinitionEditor.value ||');
   });
 
   it('结构图选择沿 sourcePath 精确定位顶层和递归步骤', () => {
