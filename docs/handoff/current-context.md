@@ -1,5 +1,12 @@
 # 当前任务快照
 
+#### 2026-09-06 公共技能标签门禁接入诊断
+
+- 核对复刻库 `docs/skill-tag-checks.md`、`Skill.CheckTag` 后发现：此前 TS 只有公共标签容器和预定义查询数据，并未把 CheckTag 消费到玩家输入诊断。旧记录中“已有公共可用性查询”不应解读为全部门禁已接。
+- 本次只接 CheckTag 的公共前缀：CantCastAnySkill 查询优先，其次 CantCastSkillWhenChanneling 标签。GameplayTagPredefine 读取游戏导出表，查询当前 Buff 共用实体标签；应用装配显式注入，核心不导入正式资源或手写标签路径。记录 SkillInputBlockedByCommonTag，再经统一诊断映射到技能块提示；仍强制执行作者放置的技能。
+- 定向 95 项及应用类型检查通过。检查顺序、标签移除恢复、仍然释放均有回归。扩大回归第一次出现 Vitest worker 启动/退出异常（已执行 2834 项无断言失败，但进程失败，不能视为通过），改用 maxWorkers=2 复跑，2912 项全部通过、进程退出 0。报告位于忽略的 tmp/，不得提交。
+- 边界：这不是完整 Skill.IsAvailable，也没有实现所有演出输入路径。类型专用的缴械、沉默、DisableNormalSkill/DisableCastComboSkill、终结技按钮状态等尚待消费；其中主战技身份和动态 nativeSkillType 必须使用实际运行时来源，不能按技能库分组推断。独立终结技演出诊断保留；不影响中断、hit 或持续效果。本轮未修改复刻库既存脏文件。
+
 #### 2026-09-06 真实跨轨演出诊断回归
 
 - 使用正式 gameDataRepository、SkillSetting 和生产 ScenarioSimulationService，经技能库 placeSkillGroup 到 useScenarioSimulation 的技能块诊断映射，验证佩丽卡第 1 帧终结技、弧光分别第 2/53/54 帧终结技。前两者告警仅落到弧光技能块，最后一种无演出输入告警；三者均保留弧光 SkillStarted、DamageApplied 和作者放置帧，不因告警拒绝执行。

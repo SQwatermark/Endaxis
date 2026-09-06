@@ -149,6 +149,7 @@ export function runStandardPlayerDamageScenarioSimulation(
     ...input.options,
     environment: {
       ...environment.runtimeOptions,
+      skillAvailabilityTags: new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE),
       timeDilation: {
         config: timeDilationRuntimeConfig,
         timeManagerDeltaMode: input.timeManagerDeltaMode ?? STANDARD_TIME_MANAGER_DELTA_MODE,

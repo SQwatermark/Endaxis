@@ -19,6 +19,22 @@ function setup() {
 }
 
 describe('原生预定义标签的安装与退出', () => {
+  it('公共施法门禁使用导出查询与实时实体标签，保留短路顺序', () => {
+    const table = new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE);
+    const target = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    expect(table.getCommonSkillCastBlocker(target)).toBeUndefined();
+    const channeling = table.getTag('CantCastSkillWhenChanneling');
+    target.addEntityTags([channeling]);
+    expect(table.getCommonSkillCastBlocker(target)).toBe('CantCastSkillWhenChanneling');
+    const query = table.getQuery('CantCastAnySkill');
+    target.addEntityTags(query.tags);
+    expect(table.getCommonSkillCastBlocker(target)).toBe('CantCastAnySkill');
+    target.removeEntityTags(query.tags);
+    expect(table.getCommonSkillCastBlocker(target)).toBe('CantCastSkillWhenChanneling');
+    target.removeEntityTags([channeling]);
+    expect(table.getCommonSkillCastBlocker(target)).toBeUndefined();
+  });
+
   it('真实全表已解析成可读路径，公共运行时直接消费且保持两道免疫门独立', () => {
     expect(Object.keys(GAMEPLAY_TAG_PREDEFINE.tags)).toHaveLength(179);
     expect(Object.keys(GAMEPLAY_TAG_PREDEFINE.queries)).toHaveLength(67);

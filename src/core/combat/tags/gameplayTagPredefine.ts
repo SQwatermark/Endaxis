@@ -45,6 +45,17 @@ export class GameplayTagPredefine {
     return query;
   }
 
+  /** Skill.CheckTag 的公共前缀；类型专用检查不在此冒充完成。 */
+  getCommonSkillCastBlocker(
+    entity: Pick<EntityTags, 'matchesEntityTags'>,
+  ): 'CantCastAnySkill' | 'CantCastSkillWhenChanneling' | undefined {
+    const query = this.getQuery('CantCastAnySkill');
+    if (entity.matchesEntityTags(query.tags, query.queryType)) return 'CantCastAnySkill';
+    if (entity.matchesEntityTags([this.getTag('CantCastSkillWhenChanneling')], 'hasAny'))
+      return 'CantCastSkillWhenChanneling';
+    return undefined;
+  }
+
   canAddTag(entity: EntityTags, tag: GameplayTag): boolean {
     const query = this.#immunity.get(tag);
     return query === undefined || !entity.matchesEntityTags(query.tags, query.queryType);

@@ -19,6 +19,16 @@ function receipt(
 }
 
 describe('projectSkillAvailabilityDiagnostics', () => {
+  it('projects common tag blockers alongside other availability diagnostics', () => {
+    expect(
+      projectSkillAvailabilityDiagnostics([
+        receipt(0, 'SkillInputBlockedByCommonTag'),
+        receipt(1, 'SkillCostUnavailableAtStart'),
+        receipt(2, 'SkillStarted'),
+      ])[0]?.reasons,
+    ).toEqual(['skillCommonTagUnavailable', 'resourceUnavailable']);
+  });
+
   it('projects presentation input diagnostics without mistaking the presentation itself for a failure', () => {
     expect(
       projectSkillAvailabilityDiagnostics([

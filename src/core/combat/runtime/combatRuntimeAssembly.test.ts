@@ -13,6 +13,8 @@ import {
 } from '../buffs/combatBuffDefinitions';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
+import { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
+import { GAMEPLAY_TAG_PREDEFINE } from '../../../data/combat/gameplayTagPredefine.generated';
 import { CombatStatusContainer } from '../status/combatStatuses';
 import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
@@ -135,8 +137,10 @@ function createAssembly(
   playerActionRoutes?: ConstructorParameters<
     typeof CombatRuntimeAssembly
   >[0]['operators'][number]['playerActionRoutes'],
+  skillAvailabilityTags?: GameplayTagPredefine,
 ): CombatRuntimeAssembly {
   return new CombatRuntimeAssembly({
+    ...(skillAvailabilityTags === undefined ? {} : { skillAvailabilityTags }),
     enemy,
     resources: {
       sp: 100,
@@ -181,6 +185,47 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('diagnoses current common tags without rejecting an authored skill', () => {
+    const table = new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE);
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    container.addEntityTags([table.getTag('CantCastSkillWhenChanneling')]);
+    const assembly = createAssembly(
+      [skill({ costs: [] })],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      () => asBuffRuntime(container),
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      table,
+    );
+    expect(assembly.tryStartPlayerInput('operator', 'skill', undefined, 'battleSkill')).toBe(true);
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillInputBlockedByCommonTag',
+        data: expect.objectContaining({ skillId: 'skill', blocker: 'CantCastSkillWhenChanneling' }),
+      }),
+    );
+    expect(assembly.receipt.entries.some(entry => entry.event === 'SkillStarted')).toBe(true);
+    container.removeEntityTags([table.getTag('CantCastSkillWhenChanneling')]);
+    assembly.advanceFrame();
+    assembly.advanceFrame();
+    assembly.advanceFrame();
+    expect(assembly.tryStartPlayerInput('operator', 'skill', undefined, 'battleSkill')).toBe(true);
+    expect(
+      assembly.receipt.entries.filter(entry => entry.event === 'SkillInputBlockedByCommonTag'),
+    ).toHaveLength(1);
+  });
+
   it.each(['basicAttack', 'battleSkill', 'comboSkill', 'ultimate', undefined] as const)(
     'diagnoses only evidenced ultimate input during another operator presentation: %s',
     action => {

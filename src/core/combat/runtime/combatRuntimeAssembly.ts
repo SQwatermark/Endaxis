@@ -246,6 +246,8 @@ export type CombatDamageExecutorContext =
   CombatOperationExecutorContext | EquipmentEventOperationExecutorContext;
 
 export interface CombatRuntimeAssemblyOptions {
+  /** 游戏预定义标签查询；仅诊断作者输入，不阻止时间轴强制释放。 */
+  readonly skillAvailabilityTags?: import('../tags/gameplayTagPredefine').GameplayTagPredefine;
   /** 准备期从负帧开始；省略时保持独立运行时原有的第 0 帧起点。 */
   readonly initialFrame?: number;
   readonly resources: CombatResourceSnapshot;
@@ -1292,6 +1294,21 @@ export class CombatRuntimeAssembly {
     action?: import('../../game-data/operatorDefinition').PlayerSkillInput,
   ): boolean {
     const ability = this.#requireAbilitySystem(operatorId);
+    const tagRules = this.#options.skillAvailabilityTags;
+    if (tagRules !== undefined) {
+      const blocker = tagRules.getCommonSkillCastBlocker(
+        this.#resolveBuffTarget('caster', operatorId),
+      );
+      if (blocker !== undefined) {
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'SkillInputBlockedByCommonTag',
+          sourceId: operatorId,
+          data: { skillId: expectedSkillId, blocker, ...(castId === undefined ? {} : { castId }) },
+        });
+      }
+    }
     // OnPressUltimateSkillStart checks inUltimateCasting before requesting a cast.
     // This is an input diagnostic, not a general skill lifecycle/interruption gate.
     if (action === 'ultimate' && this.ultimatePresentation.inUltimateCasting) {
