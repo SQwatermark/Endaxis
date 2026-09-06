@@ -18,6 +18,7 @@ import {
   type EditableCombatStepKind,
 } from '../skillDefinitionEditorViewModel';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
+import ActionSequenceGraphEditor from './ActionSequenceGraphEditor.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 
 type UpgradeHandler = NonNullable<OperatorUpgradeDefinition['eventHandlers']>[number];
@@ -37,6 +38,12 @@ const draft = ref<OperatorUpgradeDefinition>(cloneStructureValue(props.upgrade))
 const category = ref<Category>('initialization');
 const selectedIndex = ref(0);
 const structureRevision = ref(0);
+const sequenceView = ref<'graph' | 'form'>('graph');
+const formPath = ref('');
+watch([category, selectedIndex, structureRevision], () => {
+  sequenceView.value = 'graph';
+  formPath.value = '';
+});
 const upgradeLevel = ref(1);
 const upgradeLevels = computed(() => Math.max(1, props.upgrade.levels ?? 1));
 const handlers = computed(() => draft.value.eventHandlers ?? []);
@@ -271,143 +278,180 @@ function save(): void {
           </button></template
         >
       </aside>
-      <main v-if="selectedSequence">
-        <header>
-          <div>
-            <strong>{{
-              category === 'initialization'
-                ? '启用养成时执行一次'
-                : category === 'eventHandlers'
-                  ? '事件条件命中后执行'
-                  : '附属被动启用时执行'
-            }}</strong
-            ><small>不是时间轴可释放技能</small>
-          </div>
-          <div class="actions">
-            <button
-              v-if="category !== 'initialization'"
-              :disabled="selectedIndex === 0"
-              @click="moveItem(-1)"
-            >
-              上移</button
-            ><button
-              v-if="category !== 'initialization'"
-              :disabled="
-                selectedIndex ===
-                (category === 'eventHandlers' ? handlers.length : passives.length) - 1
-              "
-              @click="moveItem(1)"
-            >
-              下移</button
-            ><button class="danger" @click="removeItem">删除</button>
-          </div>
-        </header>
-        <section v-if="selectedHandler" class="fields">
-          <label
-            >事件类型<select :value="selectedHandler.event.kind" @change="updateEventKind">
-              <option value="reactionApplied">元素反应生效</option>
-              <option value="spGained">获得技力</option>
-              <option value="elementalAttachmentConsumed">元素附着被消耗</option>
-              <option value="buffConsumed">消费 Buff</option>
-              <option value="skillHit">技能命中</option>
-            </select></label
-          >
-          <label v-if="selectedHandler.event.kind === 'reactionApplied'"
-            >反应<select
-              :value="selectedHandler.event.reaction"
-              @change="patchEvent({ reaction: ($event.target as HTMLSelectElement).value })"
-            >
-              <option v-for="value in ELEMENTAL_REACTIONS" :key="value" :value="value">
-                {{ value }}
-              </option>
-            </select></label
-          >
-          <template v-if="selectedHandler.event.kind === 'spGained'"
-            ><label
-              >技力来源<select
-                :value="selectedHandler.event.source ?? ''"
-                @change="
-                  patchEvent({ source: ($event.target as HTMLSelectElement).value || undefined })
-                "
+      <main v-if="selectedSequence" :class="{ 'graph-main': sequenceView === 'graph' }">
+        <div class="behavior-metadata">
+          <header>
+            <div>
+              <strong>{{
+                category === 'initialization'
+                  ? '启用养成时执行一次'
+                  : category === 'eventHandlers'
+                    ? '事件条件命中后执行'
+                    : '附属被动启用时执行'
+              }}</strong
+              ><small>不是时间轴可释放技能</small>
+            </div>
+            <div class="actions">
+              <button
+                v-if="category !== 'initialization'"
+                :disabled="selectedIndex === 0"
+                @click="moveItem(-1)"
               >
-                <option value="">任意</option>
-                <option v-for="value in SP_GAIN_SOURCES" :key="value" :value="value">
+                上移</button
+              ><button
+                v-if="category !== 'initialization'"
+                :disabled="
+                  selectedIndex ===
+                  (category === 'eventHandlers' ? handlers.length : passives.length) - 1
+                "
+                @click="moveItem(1)"
+              >
+                下移</button
+              ><button class="danger" @click="removeItem">删除</button>
+            </div>
+          </header>
+          <section v-if="selectedHandler" class="fields">
+            <label
+              >事件类型<select :value="selectedHandler.event.kind" @change="updateEventKind">
+                <option value="reactionApplied">元素反应生效</option>
+                <option value="spGained">获得技力</option>
+                <option value="elementalAttachmentConsumed">元素附着被消耗</option>
+                <option value="buffConsumed">消费 Buff</option>
+                <option value="skillHit">技能命中</option>
+              </select></label
+            >
+            <label v-if="selectedHandler.event.kind === 'reactionApplied'"
+              >反应<select
+                :value="selectedHandler.event.reaction"
+                @change="patchEvent({ reaction: ($event.target as HTMLSelectElement).value })"
+              >
+                <option v-for="value in ELEMENTAL_REACTIONS" :key="value" :value="value">
                   {{ value }}
                 </option>
               </select></label
-            ><label
-              >获得方式<select
-                :value="selectedHandler.event.gainKind ?? ''"
+            >
+            <template v-if="selectedHandler.event.kind === 'spGained'"
+              ><label
+                >技力来源<select
+                  :value="selectedHandler.event.source ?? ''"
+                  @change="
+                    patchEvent({ source: ($event.target as HTMLSelectElement).value || undefined })
+                  "
+                >
+                  <option value="">任意</option>
+                  <option v-for="value in SP_GAIN_SOURCES" :key="value" :value="value">
+                    {{ value }}
+                  </option>
+                </select></label
+              ><label
+                >获得方式<select
+                  :value="selectedHandler.event.gainKind ?? ''"
+                  @change="
+                    patchEvent({
+                      gainKind: ($event.target as HTMLSelectElement).value || undefined,
+                    })
+                  "
+                >
+                  <option value="">任意</option>
+                  <option v-for="value in SP_GAIN_KINDS" :key="value" :value="value">
+                    {{ value }}
+                  </option>
+                </select></label
+              ></template
+            >
+            <label v-if="selectedHandler.event.kind === 'buffConsumed'"
+              >Buff ID<input
+                :value="selectedHandler.event.buffIds.join(', ')"
                 @change="
-                  patchEvent({ gainKind: ($event.target as HTMLSelectElement).value || undefined })
+                  patchEvent({
+                    buffIds: ($event.target as HTMLInputElement).value
+                      .split(',')
+                      .map(value => value.trim())
+                      .filter(Boolean),
+                  })
                 "
+              /><small>匹配被当前干员作为来源消费的明确 Buff 身份。</small></label
+            >
+            <template v-if="selectedHandler.event.kind === 'skillHit'"
+              ><label
+                >技能组<select
+                  :value="selectedHandler.event.skillGroupKey"
+                  @change="
+                    patchEvent({ skillGroupKey: ($event.target as HTMLSelectElement).value })
+                  "
+                >
+                  <option v-for="key in skillGroupKeys" :key="key" :value="key">{{ key }}</option>
+                </select></label
+              ><label
+                >来源范围<select
+                  :value="selectedHandler.event.scope"
+                  @change="patchEvent({ scope: ($event.target as HTMLSelectElement).value })"
+                >
+                  <option value="operator">当前干员</option>
+                  <option value="team">全队</option>
+                </select></label
+              ></template
+            >
+          </section>
+          <section v-if="selectedPassive" class="fields">
+            <label>稳定 key<input :value="selectedPassive.key" @change="updatePassiveKey" /></label
+            ><label
+              >等级来源<select
+                :value="selectedPassive.levelSource ?? ''"
+                @change="updatePassiveLevel"
               >
-                <option value="">任意</option>
-                <option v-for="value in SP_GAIN_KINDS" :key="value" :value="value">
+                <option value="">使用当前养成等级</option>
+                <option v-for="value in SKILL_LEVEL_SOURCES" :key="value" :value="value">
                   {{ value }}
                 </option>
               </select></label
-            ></template
-          >
-          <label v-if="selectedHandler.event.kind === 'buffConsumed'"
-            >Buff ID<input
-              :value="selectedHandler.event.buffIds.join(', ')"
-              @change="
-                patchEvent({
-                  buffIds: ($event.target as HTMLInputElement).value
-                    .split(',')
-                    .map(value => value.trim())
-                    .filter(Boolean),
-                })
-              "
-            /><small>匹配被当前干员作为来源消费的明确 Buff 身份。</small></label
-          >
-          <template v-if="selectedHandler.event.kind === 'skillHit'"
-            ><label
-              >技能组<select
-                :value="selectedHandler.event.skillGroupKey"
-                @change="patchEvent({ skillGroupKey: ($event.target as HTMLSelectElement).value })"
-              >
-                <option v-for="key in skillGroupKeys" :key="key" :value="key">{{ key }}</option>
-              </select></label
-            ><label
-              >来源范围<select
-                :value="selectedHandler.event.scope"
-                @change="patchEvent({ scope: ($event.target as HTMLSelectElement).value })"
-              >
-                <option value="operator">当前干员</option>
-                <option value="team">全队</option>
-              </select></label
-            ></template
-          >
-        </section>
-        <section v-if="selectedPassive" class="fields">
-          <label>稳定 key<input :value="selectedPassive.key" @change="updatePassiveKey" /></label
-          ><label
-            >等级来源<select
-              :value="selectedPassive.levelSource ?? ''"
-              @change="updatePassiveLevel"
             >
-              <option value="">使用当前养成等级</option>
-              <option v-for="value in SKILL_LEVEL_SOURCES" :key="value" :value="value">
-                {{ value }}
-              </option>
-            </select></label
+          </section>
+          <SkillBlackboardEditor
+            v-if="selectedHandler"
+            :blackboard="selectedHandler.blackboard ?? {}"
+            :skill-level="editingLevel"
+            @update="updateHandlerBlackboard"
+          />
+          <SkillBlackboardEditor
+            v-if="selectedPassive"
+            :blackboard="selectedPassive.blackboard ?? {}"
+            :skill-level="editingLevel"
+            @update="updatePassiveBlackboard"
+          />
+        </div>
+        <div class="sequence-view-tabs">
+          <button
+            type="button"
+            :class="{ active: sequenceView === 'graph' }"
+            @click="sequenceView = 'graph'"
           >
-        </section>
-        <SkillBlackboardEditor
-          v-if="selectedHandler"
-          :blackboard="selectedHandler.blackboard ?? {}"
+            结构导图
+          </button>
+          <button
+            type="button"
+            :class="{ active: sequenceView === 'form' }"
+            @click="sequenceView = 'form'"
+          >
+            完整表单
+          </button>
+        </div>
+        <ActionSequenceGraphEditor
+          v-if="sequenceView === 'graph'"
+          :key="`${category}:${selectedIndex}:${structureRevision}`"
+          :sequence="selectedSequence"
           :skill-level="editingLevel"
-          @update="updateHandlerBlackboard"
-        />
-        <SkillBlackboardEditor
-          v-if="selectedPassive"
-          :blackboard="selectedPassive.blackboard ?? {}"
-          :skill-level="editingLevel"
-          @update="updatePassiveBlackboard"
+          :create-step="createStep"
+          :duplicate-step="duplicateStep"
+          @update="updateSequence"
+          @details="
+            formPath = $event;
+            sequenceView = 'form';
+          "
         />
         <ActionSequenceEditor
+          v-else
+          :selected-path="formPath"
           standalone-history
           :key="`${category}:${selectedIndex}:${structureRevision}`"
           :sequence="selectedSequence"
@@ -433,6 +477,46 @@ function save(): void {
 .title {
   display: grid;
   gap: 4px;
+}
+main.graph-main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.graph-main > .behavior-metadata {
+  flex: 0 1 auto;
+  max-height: 35%;
+  overflow: auto;
+}
+.sequence-view-tabs {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  padding: 6px 0;
+}
+.sequence-view-tabs .active {
+  color: var(--ea-gold);
+  border-color: var(--ea-gold);
+}
+.sequence-view-tabs button {
+  border: 1px solid var(--ea-border);
+  color: var(--ea-fg);
+  background: var(--ea-fill-input);
+  padding: 4px 8px;
+}
+.behavior-metadata > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.behavior-metadata > header > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+.graph-main :deep(.sequence-graph) {
+  flex: 1;
+  height: auto;
+  min-height: 0;
 }
 .embedded-editor {
   min-width: 0;

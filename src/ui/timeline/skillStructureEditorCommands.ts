@@ -114,6 +114,19 @@ export function moveStructureArrayItem<T>(
   targetIndex?: number,
 ): { readonly root: T; readonly itemPath: string } {
   const source = arrayItem(sourceItemPath);
+  if (
+    targetArrayPath.startsWith(`${sourceItemPath}.`) ||
+    targetArrayPath.startsWith(`${sourceItemPath}[`)
+  )
+    throw new TypeError('cannot move an item into its own subtree');
+  // Removing a preceding sibling shifts the destination's ancestor index too.
+  const siblingPrefix = `${source.arrayPath}[`;
+  if (targetArrayPath.startsWith(siblingPrefix)) {
+    const suffix = targetArrayPath.slice(siblingPrefix.length);
+    const match = /^(\d+)\]/.exec(suffix);
+    if (match && Number(match[1]) > source.index)
+      targetArrayPath = `${siblingPrefix}${Number(match[1]) - 1}]${suffix.slice(match[0].length)}`;
+  }
   const next = clone(root);
   const sourceValues = [...(valueAtPath(next, source.arrayPath) as readonly unknown[])];
   const [value] = sourceValues.splice(source.index, 1);

@@ -13,6 +13,7 @@ import {
   appendCombatStepInStructure,
   duplicateCombatStepInStructure,
   moveCombatStepInStructure,
+  moveStructureArrayItem,
   removeCombatStepInStructure,
   replaceStructureValueAtPath,
   resolveStructureValue,
@@ -24,6 +25,18 @@ const branch: CombatStepDefinition = {
   parameters: { condition: { kind: 'all', conditions: [] } },
   whenTrue: { steps: [step] },
 };
+
+it('moves a preceding root step into the following branch without losing the destination', () => {
+  const original = { steps: [step, branch] };
+  const moved = moveStructureArrayItem(original, 'steps[0]', 'steps[1].whenTrue.steps');
+  expect(moved.itemPath).toBe('steps[0].whenTrue.steps[1]');
+  expect(moved.root.steps).toHaveLength(1);
+  expect(resolveStructureValue(moved.root, moved.itemPath)).toEqual(step);
+  expect(original.steps).toHaveLength(2);
+  expect(() => moveStructureArrayItem(original, 'steps[1]', 'steps[1].whenTrue.steps')).toThrow(
+    'own subtree',
+  );
+});
 
 it('projects a sequence directly, preserving the same child ports as a skill sequence', () => {
   const sequence = { steps: [branch] };
