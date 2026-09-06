@@ -61,9 +61,9 @@ export function provideInteractionSession(region?: InputRegion): InteractionSess
   const cancel = () => {
     session.cancel();
   };
-  window.addEventListener('blur', cancel);
+  if (typeof window !== 'undefined') window.addEventListener('blur', cancel);
   onScopeDispose(() => {
-    window.removeEventListener('blur', cancel);
+    if (typeof window !== 'undefined') window.removeEventListener('blur', cancel);
     session.cancel();
   });
   return session;

@@ -5,6 +5,7 @@ import dialog from '../timeline/components/SkillDefinitionEditorDialog.vue?raw';
 describe('skill modal region wiring', () => {
   it('registers the boundary fallback in its own region without adding layout DOM', () => {
     expect(boundary).toContain('useKeyboardInputRegion(');
+    expect(boundary).toContain('if (props.modal) provideInteractionSession(region)');
     expect(boundary).toContain('region,');
     expect(boundary).toContain('priority: -1');
     expect(boundary).toContain('handle: () => false');

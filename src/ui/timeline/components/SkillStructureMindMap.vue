@@ -1,6 +1,14 @@
 <script setup lang="ts">
 /** Reusable free-roaming structure map used by the formal skill editor and its demo. */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import type { InteractionLease } from '../../interaction/interactionSession';
+import { observeNativeDragLifetime } from '../../interaction/nativeDragLifecycle';
+
+const interactionSession = useInteractionSession();
+let nodeLease: InteractionLease | null = null;
+let panLease: InteractionLease | null = null;
+let stopNodeLifetime: (() => void) | undefined;
 import {
   isTextEditingTarget,
   useKeyboardShortcutScope,
@@ -244,9 +252,26 @@ function compatiblePlacement(event: DragEvent, target: MapNodeSource) {
 
 function startNodeDrag(event: DragEvent, node: MapNodeSource): void {
   if (node.payloadKind === undefined || node.canMove === false) return;
+  const lease = interactionSession.tryStart('structure-node-move', endNodeDrag);
+  if (!lease) {
+    event.preventDefault();
+    return;
+  }
+  nodeLease = lease;
   draggedNode.value = node;
   event.dataTransfer?.setData('text/plain', node.id);
   if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+  if (event.currentTarget instanceof Element)
+    stopNodeLifetime = observeNativeDragLifetime(event.currentTarget, endNodeDrag);
+}
+
+function endNodeDrag(): void {
+  stopNodeLifetime?.();
+  stopNodeLifetime = undefined;
+  nodeLease?.release();
+  nodeLease = null;
+  draggedNode.value = null;
+  dropHint.value = undefined;
 }
 
 function dragOverNode(event: DragEvent, node: MapNodeSource): void {
@@ -258,10 +283,10 @@ function dragOverNode(event: DragEvent, node: MapNodeSource): void {
 }
 
 function dropOnNode(event: DragEvent, target: MapNodeSource): void {
+  if (!nodeLease?.isCurrent()) return;
   const source = draggedNode.value;
   const placement = compatiblePlacement(event, target);
-  dropHint.value = undefined;
-  draggedNode.value = null;
+  endNodeDrag();
   if (source === null || placement === undefined) return;
   event.preventDefault();
   emit('moveNode', { source, target, placement });
@@ -373,6 +398,8 @@ onMounted(() => {
   document.addEventListener('focusin', trackActive, true);
 });
 onBeforeUnmount(() => {
+  endNodeDrag();
+  stopPan();
   document.removeEventListener('pointerdown', trackActive, true);
   document.removeEventListener('focusin', trackActive, true);
 });
@@ -430,6 +457,10 @@ function collapseAll(): void {
 function startPan(event: PointerEvent): void {
   const element = viewport.value;
   if (element === null || (event.target as HTMLElement).closest('.map-node') !== null) return;
+  if (event.button !== 0) return;
+  const lease = interactionSession.tryStart('structure-pan', stopPan);
+  if (!lease) return;
+  panLease = lease;
   dragging.value = true;
   dragOrigin.value = {
     x: event.clientX,
@@ -443,16 +474,29 @@ function startPan(event: PointerEvent): void {
 
 function movePan(event: PointerEvent): void {
   const element = viewport.value;
-  if (!dragging.value || element === null || event.pointerId !== dragOrigin.value.pointerId) return;
+  if (
+    !panLease?.isCurrent() ||
+    !dragging.value ||
+    element === null ||
+    event.pointerId !== dragOrigin.value.pointerId
+  )
+    return;
   element.scrollLeft = dragOrigin.value.scrollLeft - (event.clientX - dragOrigin.value.x);
   element.scrollTop = dragOrigin.value.scrollTop - (event.clientY - dragOrigin.value.y);
 }
 
 function endPan(event: PointerEvent): void {
-  const element = viewport.value;
   if (!dragging.value || event.pointerId !== dragOrigin.value.pointerId) return;
+  stopPan();
+}
+
+function stopPan(): void {
+  const element = viewport.value;
+  const pointerId = dragOrigin.value.pointerId;
   dragging.value = false;
-  if (element?.hasPointerCapture(event.pointerId)) element.releasePointerCapture(event.pointerId);
+  panLease?.release();
+  panLease = null;
+  if (element?.hasPointerCapture(pointerId)) element.releasePointerCapture(pointerId);
 }
 
 async function zoomAtPointer(event: WheelEvent): Promise<void> {
@@ -594,6 +638,7 @@ watch(
       @pointermove="movePan"
       @pointerup="endPan"
       @pointercancel="endPan"
+      @lostpointercapture="endPan"
       @wheel="zoomAtPointer"
     >
       <div class="map-legend"><i></i><span>固定字段端口</span></div>
@@ -639,10 +684,7 @@ watch(
               title="拖放以移动节点"
               @click.stop
               @dragstart.stop="startNodeDrag($event, node.source)"
-              @dragend.stop="
-                draggedNode = null;
-                dropHint = undefined;
-              "
+              @dragend.stop="endNodeDrag"
               >⠿</span
             >
             <span class="node-kind">{{ node.source.kind }}</span>

@@ -1,5 +1,20 @@
 # 当前任务快照
 
+#### 2026-09-07 模态内导图手势会话
+
+- InputRegionBoundary 的模态区域提供独立 interaction session：后台时间轴保持
+  屏蔽，弹窗内导图可以取得手势，子选择浮层屏障只取消所属弹窗内的当前手势。
+  provideInteractionSession 的 window blur 监听增加 SSR 环境保护。
+- SkillStructureMindMap 节点原生拖放、画布漫游接入 lease，接入原生 dragend/
+  源节点移除、pointer capture 丢失、卸载和共享取消路径；不改变节点移动数据语义。
+- 新增实际 effectScope 回归：后台被屏蔽时模态手势可用，子浮层取消并屏蔽手势，
+  关闭后恢复，关闭模态取消内部手势并恢复后台。936 项相关测试、应用类型检查通过。
+- 浏览器暗色正式技能编辑组件：空白处漫游使两个序列上移 200px。原生拖放诊断
+  确認进入 dragstart、成功取得 lease、dragend 清理，但此次浏览器 drag 未进入
+  drop，模板差异仍为 0；**不能据此认定节点重排/撤销验收通过**。临时诊断日志已移除。
+- 下一步先补完节点原生落点与撤销的实际验收、子浮层取消验收，再继续详情面板。
+  UI 质量主线仍未完成，尚未开始真实旧轴对比。
+
 #### 2026-09-07 Buff 生命周期选择浮层与导图手势边界检查
 
 - BuffDefinitionGraphEditor 生命周期选择浮层接入 usePopoverInteractionBoundary，
