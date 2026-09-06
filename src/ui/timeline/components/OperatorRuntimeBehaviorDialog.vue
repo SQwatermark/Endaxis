@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { cloneStructureValue } from '../skillStructureEditorCommands';
 import {
   SKILL_LEVEL_SOURCES,
   type ActionSequenceDefinition,
@@ -53,8 +54,8 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
-    passives.value = [...structuredClone(props.passiveSkills ?? [])];
-    handlers.value = [...structuredClone(props.eventHandlers ?? [])];
+    passives.value = cloneStructureValue([...(props.passiveSkills ?? [])]);
+    handlers.value = cloneStructureValue([...(props.eventHandlers ?? [])]);
     category.value = 'passiveSkills';
     selectedIndex.value = 0;
   },
@@ -171,8 +172,8 @@ function removeItem(): void {
 
 function save(): void {
   emit('save', {
-    passiveSkills: passives.value.length === 0 ? undefined : structuredClone(passives.value),
-    eventHandlers: handlers.value.length === 0 ? undefined : structuredClone(handlers.value),
+    passiveSkills: passives.value.length === 0 ? undefined : cloneStructureValue(passives.value),
+    eventHandlers: handlers.value.length === 0 ? undefined : cloneStructureValue(handlers.value),
   });
   emit('update:visible', false);
 }

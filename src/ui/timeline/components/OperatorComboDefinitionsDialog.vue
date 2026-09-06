@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { cloneStructureValue } from '../skillStructureEditorCommands';
 import {
   ABILITY_EVENTS,
   type ActionSequenceDefinition,
@@ -31,7 +32,7 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
-    conditions.value = [...structuredClone(props.conditions ?? [])];
+    conditions.value = cloneStructureValue([...(props.conditions ?? [])]);
     selectedIndex.value = 0;
   },
   { immediate: true },
@@ -142,7 +143,7 @@ function removeCondition(): void {
 }
 function save(): void {
   emit('save', {
-    conditions: conditions.value.length ? structuredClone(conditions.value) : undefined,
+    conditions: conditions.value.length ? cloneStructureValue(conditions.value) : undefined,
   });
   emit('update:visible', false);
 }

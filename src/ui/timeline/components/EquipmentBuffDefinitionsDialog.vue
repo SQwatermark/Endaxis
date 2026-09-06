@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { cloneStructureValue } from '../skillStructureEditorCommands';
 import type {
   CombatStepDefinition,
   OperatorBuffDefinitions,
@@ -45,7 +46,7 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
-    draft.value = structuredClone(props.definitions ?? {});
+    draft.value = cloneStructureValue(props.definitions ?? {});
     selectedId.value = Object.keys(draft.value).sort()[0] ?? '';
     search.value = '';
   },
@@ -96,12 +97,15 @@ function removeBuff(): void {
 
 function updateBuffStep(step: CombatStepDefinition): void {
   if (step.kind !== 'applyBuff' || step.parameters.definition === undefined) return;
-  draft.value = { ...draft.value, [selectedId.value]: structuredClone(step.parameters.definition) };
+  draft.value = {
+    ...draft.value,
+    [selectedId.value]: cloneStructureValue(step.parameters.definition),
+  };
 }
 
 function save(): void {
   const definitions =
-    Object.keys(draft.value).length === 0 ? undefined : structuredClone(draft.value);
+    Object.keys(draft.value).length === 0 ? undefined : cloneStructureValue(draft.value);
   emit('save', definitions);
   emit('update:visible', false);
 }

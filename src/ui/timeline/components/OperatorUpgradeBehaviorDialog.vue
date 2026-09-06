@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { cloneStructureValue } from '../skillStructureEditorCommands';
 import {
   ELEMENTAL_REACTIONS,
   SKILL_LEVEL_SOURCES,
@@ -31,7 +32,7 @@ const emit = defineEmits<{
   'update:visible': [visible: boolean];
   save: [upgrade: OperatorUpgradeDefinition];
 }>();
-const draft = ref<OperatorUpgradeDefinition>(structuredClone(props.upgrade));
+const draft = ref<OperatorUpgradeDefinition>(cloneStructureValue(props.upgrade));
 const category = ref<Category>('initialization');
 const selectedIndex = ref(0);
 const handlers = computed(() => draft.value.eventHandlers ?? []);
@@ -52,7 +53,7 @@ watch(
   () => [props.visible, props.upgrade] as const,
   ([visible]) => {
     if (!visible) return;
-    draft.value = structuredClone(props.upgrade);
+    draft.value = cloneStructureValue(props.upgrade);
     category.value = 'initialization';
     selectedIndex.value = 0;
   },
@@ -187,7 +188,7 @@ function removeItem(): void {
   selectedIndex.value = Math.max(0, selectedIndex.value - 1);
 }
 function save(): void {
-  emit('save', structuredClone(draft.value));
+  emit('save', cloneStructureValue(draft.value));
   emit('update:visible', false);
 }
 </script>
