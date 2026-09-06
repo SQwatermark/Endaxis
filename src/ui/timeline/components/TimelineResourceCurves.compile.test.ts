@@ -3,6 +3,15 @@ import { compileScript, compileStyle, compileTemplate, parse } from '@vue/compil
 import source from './TimelineResourceCurves.vue?raw';
 
 describe('TimelineResourceCurves compilation', () => {
+  it('renders receipt intervals using measured poise height and shared timeline coordinates', () => {
+    expect(source).toContain('new ResizeObserver(update)');
+    expect(source).toContain('sizeObserver?.disconnect()');
+    expect(source).toContain('rowHeight(row) / 2 + 4');
+    expect(source).toContain('pointX(segment.endFrame) - pointX(segment.startFrame)');
+    expect(source).toContain('<TimelineMonitorGrid');
+    expect(source).toMatch(/<\/script>\s*<template>/);
+  });
+
   it('keeps the template, script bindings and scoped styles valid', () => {
     const { descriptor, errors } = parse(source);
     expect(errors).toEqual([]);

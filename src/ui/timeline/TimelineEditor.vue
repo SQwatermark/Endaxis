@@ -103,6 +103,7 @@ import { resolveOperatorPanelContributionSourceLabel } from './operatorPanelCont
 import type { OperatorPanelContributionReceipt } from '../../core/compiler/resolveOperatorPanel';
 import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
 import { SINGLE_ENEMY_TARGET_ID } from '../../core/projection/enemyHealthChangePoints';
+import { projectPoiseBrokenSegments } from '../../core/projection/poiseCurves';
 import { projectComboWindowTimelineViz } from '../../core/projection/comboWindowTimelineViz';
 import { projectSkillCooldownTimelineViz } from '../../core/projection/skillCooldownTimelineViz';
 import { projectTimelineComboCooldowns } from '../../core/projection/timelineComboCooldowns';
@@ -1925,6 +1926,11 @@ const enemyEffectViz = computed(() => {
   // 拖动草稿会立即把模拟标脏，但上一份成功回执仍是比空白更稳定的视觉占位；
   // 新模拟完成后 simulationRun 会整体替换，效果条随之原子更新，避免来回闪烁。
   return projectEnemyEffectViz(current.receiptEntries, current.frame);
+});
+
+const poiseBrokenSegments = computed(() => {
+  const current = simulationRun.value;
+  return current === null ? [] : projectPoiseBrokenSegments(current.receiptEntries, current.frame);
 });
 
 /** 所有持续状态统一由原生可见 Buff 生命周期投影，Buff 实例就是稳定展示身份。 */
@@ -5486,13 +5492,15 @@ function setPanelDialogVisible(visible: boolean): void {
             </template>
             <template #poise>
               <TimelineResourceCurves
+                :poise-broken-segments="poiseBrokenSegments"
+                :poise-broken-label="t('resourceMonitor.stagger.weak')"
                 :sp-curve="simulationRun.resourceCurves.sp"
                 :poise-curve="simulationRun.poiseCurve"
                 :visible-kinds="['poise']"
                 :poise-label="t('resourceMonitor.modules.stagger')"
                 :timeline-width="timelineWidth"
                 :duration-frames="scenario.battle.durationFrames"
-                :cursor-frame="cursorFrame"
+                :cursor-frame="simulationRun.frame"
                 :prep-frames="scenario.battle.prepFrames"
                 :prep-expanded="scenario.editor.prepExpanded"
                 :px-per-frame="pxPerFrame"

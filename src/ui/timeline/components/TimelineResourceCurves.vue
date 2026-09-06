@@ -6,14 +6,16 @@
  * 横轴坐标和时间轴共用同一换算（准备区偏移 + 每帧像素），并跟随时间轴横向滚动，
  * 保证曲线和上方标尺、技能块位置一一对齐。每帧自动回复不单独标点。
  */
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import CustomNumberInput from '../../components/CustomNumberInput.vue';
 import { poiseProgressPoints } from '../poiseProgressPoints';
 import { poiseDisplayPoints } from '../poiseDisplayPoints';
 import type { SharedSpCurve } from '../../../core/projection/resourceCurves';
 import type { EnemyHealthCurve } from '../../../core/projection/enemyHealthCurves';
 import type { PoiseCurve } from '../../../core/projection/poiseCurves';
+import type { PoiseBrokenSegment } from '../../../core/projection/poiseCurves';
 import { frameToTimelinePx } from '../timelineGeometry';
+import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 
 const props = defineProps<{
   spCurve: SharedSpCurve;
@@ -28,6 +30,7 @@ const props = defineProps<{
   scrollLeft: number;
   enemyHealthCurve?: EnemyHealthCurve | null;
   poiseCurve?: PoiseCurve | null;
+  poiseBrokenSegments?: readonly PoiseBrokenSegment[];
   enemyHealthLabel?: string;
   poiseLabel?: string;
   spLabel?: string;
@@ -37,6 +40,7 @@ const props = defineProps<{
   spRecoveryPerSecond?: number;
   initialSpLabel?: string;
   spRecoveryLabel?: string;
+  poiseBrokenLabel?: string;
 }>();
 
 const emit = defineEmits<{
@@ -47,10 +51,22 @@ const ROW_HEIGHT = 56;
 const CHART_TOP = 0;
 const CHART_BOTTOM = 0;
 const POINT_RADIUS = 2;
+const root = ref<HTMLElement | null>(null);
+const poiseBodyHeight = ref(ROW_HEIGHT);
+let sizeObserver: ResizeObserver | undefined;
+onMounted(() => {
+  if (root.value === null) return;
+  const update = () => {
+    const chart = root.value?.querySelector('.curve-row--poise .curve-chart');
+    if (chart) poiseBodyHeight.value = Math.max(1, chart.getBoundingClientRect().height);
+  };
+  sizeObserver = new ResizeObserver(update);
+  sizeObserver.observe(root.value);
+  update();
+});
+onBeforeUnmount(() => sizeObserver?.disconnect());
 /** 旧版 ResourceMonitor 为技力 0 以下固定保留 40 点显示区。 */
 const SP_NEGATIVE_BUFFER = 40;
-/** 网格线间隔：5 秒 = 150 帧。 */
-const GRID_LINE_FRAME_STEP = 150;
 
 interface ResourceCurveRow {
   readonly key: string;
@@ -120,7 +136,7 @@ function clamp(value: number, minimum: number, maximum: number): number {
 }
 
 function pointY(row: ResourceCurveRow, value: number): number {
-  const chartHeight = ROW_HEIGHT - CHART_TOP - CHART_BOTTOM;
+  const chartHeight = rowHeight(row) - CHART_TOP - CHART_BOTTOM;
   const upperBound = row.maxValue > 0 ? row.maxValue : 1;
   const minimum = row.kind === 'sp' ? -SP_NEGATIVE_BUFFER : 0;
   const ratio = clamp((value - minimum) / (upperBound - minimum), 0, 1);
@@ -129,6 +145,11 @@ function pointY(row: ResourceCurveRow, value: number): number {
 
 function baselineY(row: ResourceCurveRow): number {
   return pointY(row, 0);
+}
+
+/** 失衡 SVG 使用真实像素高度，避免拖高面板时拉伸条纹、文字和命中圆点。 */
+function rowHeight(row: ResourceCurveRow): number {
+  return row.kind === 'poise' ? poiseBodyHeight.value : ROW_HEIGHT;
 }
 
 /** 失衡绘图补保持点与显示终点；不改变原始事实点、标记和读数。 */
@@ -140,7 +161,6 @@ function displayPoints(row: ResourceCurveRow): readonly ResourceCurvePointView[]
 function linePath(row: ResourceCurveRow): string {
   const [first, ...rest] = displayPoints(row);
   if (first === undefined) return '';
-
   let path = `M ${pointX(first.frame)} ${pointY(row, first.value)}`;
   for (const point of rest) {
     path += ` L ${pointX(point.frame)} ${pointY(row, point.value)}`;
@@ -155,15 +175,6 @@ function fillPath(row: ResourceCurveRow): string {
   const coordinates = points.map(point => `${pointX(point.frame)} ${pointY(row, point.value)}`);
   return `M 0 ${baselineY(row)} L ${coordinates.join(' L ')} L ${pointX(last.frame)} ${baselineY(row)} Z`;
 }
-
-/** 每 5 秒一条的纵向网格线，和上方标尺对齐。 */
-const gridLines = computed(() => {
-  const lines: number[] = [];
-  for (let frame = 0; frame <= duration.value; frame += GRID_LINE_FRAME_STEP) {
-    lines.push(pointX(frame));
-  }
-  return lines;
-});
 
 function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return String(value);
@@ -187,6 +198,7 @@ function pointTitle(point: ResourceCurvePointView): string {
 
 <template>
   <div
+    ref="root"
     class="resource-curves"
     :class="{ 'resource-curves--empty': !hasCurves }"
     :style="{ width: `${width}px` }"
@@ -199,6 +211,15 @@ function pointTitle(point: ResourceCurvePointView): string {
       class="curve-row"
       :class="`curve-row--${row.kind}`"
     >
+      <TimelineMonitorGrid
+        :width="width"
+        :duration-frames="durationFrames"
+        :prep-frames="prepFrames"
+        :prep-expanded="prepExpanded"
+        :px-per-frame="pxPerFrame"
+        :track-header-width="trackHeaderWidth"
+        :scroll-left="scrollLeft"
+      />
       <span class="curve-label" :style="{ width: `${trackHeaderWidth}px` }">
         <template
           v-if="row.kind === 'sp' && initialSp !== undefined && spRecoveryPerSecond !== undefined"
@@ -248,7 +269,7 @@ function pointTitle(point: ResourceCurvePointView): string {
         class="curve-chart"
         :width="width"
         height="100%"
-        :viewBox="`0 0 ${width} ${ROW_HEIGHT}`"
+        :viewBox="`0 0 ${width} ${rowHeight(row)}`"
         preserveAspectRatio="none"
         aria-hidden="true"
       >
@@ -265,16 +286,18 @@ function pointTitle(point: ResourceCurvePointView): string {
               :stop-opacity="row.kind === 'poise' ? 0.1 : 0.05"
             />
           </linearGradient>
+          <pattern
+            v-if="row.kind === 'poise'"
+            id="poise-broken-pattern"
+            width="10"
+            height="10"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <rect width="10" height="10" fill="#ff9c6e" fill-opacity="0.1" />
+            <rect width="2" height="10" fill="#ffd591" fill-opacity="0.6" />
+          </pattern>
         </defs>
-        <line
-          v-for="line in gridLines"
-          :key="`grid-${line}`"
-          class="guide-grid-line"
-          :x1="line"
-          y1="0"
-          :x2="line"
-          :y2="ROW_HEIGHT"
-        />
         <template v-if="row.kind === 'sp'">
           <line
             v-for="value in [300, 200, 100]"
@@ -300,6 +323,29 @@ function pointTitle(point: ResourceCurvePointView): string {
             0
           </text>
         </template>
+        <g v-if="row.kind === 'poise'">
+          <g
+            v-for="segment in poiseBrokenSegments ?? []"
+            :key="`${segment.startFrame}:${segment.endFrame}`"
+          >
+            <rect
+              :x="pointX(segment.startFrame)"
+              y="0"
+              :width="Math.max(0, pointX(segment.endFrame) - pointX(segment.startFrame))"
+              :height="rowHeight(row)"
+              fill="url(#poise-broken-pattern)"
+              class="poise-broken-zone"
+            />
+            <text
+              :x="(pointX(segment.startFrame) + pointX(segment.endFrame)) / 2"
+              :y="rowHeight(row) / 2 + 4"
+              class="poise-broken-label"
+              text-anchor="middle"
+            >
+              {{ poiseBrokenLabel }}
+            </text>
+          </g>
+        </g>
         <rect
           v-if="row.kind === 'sp'"
           class="sp-negative-zone"
@@ -457,6 +503,7 @@ function pointTitle(point: ResourceCurvePointView): string {
 
 .curve-chart {
   position: absolute;
+  z-index: 1;
   top: 14px;
   right: 0;
   bottom: 0;
@@ -480,12 +527,6 @@ function pointTitle(point: ResourceCurvePointView): string {
 
 .guide-label--zero {
   fill: #666;
-}
-
-.guide-grid-line {
-  stroke: rgb(255 255 255 / 6%);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
 }
 
 .curve-fill {
@@ -515,5 +556,27 @@ function pointTitle(point: ResourceCurvePointView): string {
 .sp-negative-zone {
   fill: #ff4d4f;
   fill-opacity: 0.09;
+}
+
+.poise-broken-zone {
+  animation: poise-broken-flash 2s infinite alternate;
+}
+
+.poise-broken-label {
+  fill: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-shadow: 0 0 2px #ff7a45;
+}
+
+@keyframes poise-broken-flash {
+  from {
+    fill-opacity: 0.1;
+  }
+
+  to {
+    fill-opacity: 0.3;
+  }
 }
 </style>
