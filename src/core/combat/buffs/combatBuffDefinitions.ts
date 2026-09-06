@@ -100,6 +100,7 @@ export interface CombatBuffDefinitionCompilerPorts<Key extends string> {
     readonly sourceId: string;
     readonly skillCastInfo?: import('../runtime/skillCastInfo').CombatSkillCastInfo;
   }) => void;
+  /** 伤害动作携带执行实例身份，供实际伤害回执关联生命周期；不是按元素推测的来源。 */
   readonly onAttackScaledDamageTriggered?: (payload: {
     readonly damageType: DamageType;
     readonly attackScale: number;

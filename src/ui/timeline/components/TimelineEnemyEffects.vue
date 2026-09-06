@@ -28,6 +28,7 @@ import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from '../lastHitBuffSummary';
 import { layoutEnemyStatusRows } from '../enemyStatusRows';
 import { groupEnemyBurstDamageHits } from '../enemyBurstDamageGroups';
+import { groupEnemyBuffDamageHits, findBuffDamageSegment } from '../enemyBuffDamageHits';
 import {
   projectAttachmentContinuations,
   projectAttachmentConversionLinks,
@@ -153,7 +154,17 @@ const markers = computed(() =>
 );
 
 const damageHits = computed(() =>
-  groupEnemyBurstDamageHits(props.viz.damageHits ?? []).map(group => {
+  [
+    ...groupEnemyBurstDamageHits(props.viz.damageHits ?? []).map(group => ({
+      group,
+      row: statusRows.value.attachmentRow,
+    })),
+    ...groupEnemyBuffDamageHits(props.viz.damageHits ?? []).flatMap(group => {
+      const segment = findBuffDamageSegment(group[0]!, props.buffs);
+      const row = segment === undefined ? undefined : statusRows.value.lanes.get(segment);
+      return row === undefined ? [] : [{ group, row }];
+    }),
+  ].map(({ group, row }) => {
     const entry = group[0]!;
     return {
       sequence: entry.sequence,
@@ -162,7 +173,7 @@ const damageHits = computed(() =>
         SECTION_TOPBAR_HEIGHT +
         ICON_TOP +
         // 与附着行共用布局；伤害不参与图标横向错位。
-        statusRows.value.attachmentRow * EFFECT_ROW_PITCH +
+        row * EFFECT_ROW_PITCH +
         ICON_SIZE -
         3,
       title: group

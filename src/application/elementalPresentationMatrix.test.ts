@@ -169,6 +169,23 @@ async function run(
   };
 }
 
+it('retains burning damage identity through the complete simulation pipeline', async () => {
+  const { receipts, segments, viz } = await run(['electric', 'heat']);
+  const damage = receipts.filter(entry => entry.event === 'DamageApplied');
+  expect(damage.length).toBeGreaterThan(0);
+  expect(viz.damageHits?.length).toBe(damage.length);
+  for (const hit of damage) {
+    expect(
+      segments.some(
+        segment =>
+          segment.buffId === hit.data?.buffId &&
+          segment.instanceId === hit.data?.buffInstanceId &&
+          segment.targetId === hit.data?.buffOwnerId,
+      ),
+    ).toBe(true);
+  }
+});
+
 it.each(compoundStatusFactories.factories)(
   'projects conversion $consumedElement → $incomingElement',
   async factory => {

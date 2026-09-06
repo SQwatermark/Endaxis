@@ -326,6 +326,8 @@ import {
 } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
 import { selectEnemyBurstDamageEntries } from './enemyBurstDamageGroups';
+import { selectEnemyBuffDamageEntries } from './enemyBuffDamageHits';
+import { resolveBuffDisplayName } from './buffDisplayName';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
 import BattleLogPanel from './components/BattleLogPanel.vue';
@@ -348,7 +350,7 @@ import {
   createTimelineSampleScenario,
 } from './timelineSampleScenario';
 
-const { t, locale } = useI18n({ useScope: 'global' });
+const { t, te, locale } = useI18n({ useScope: 'global' });
 const { appearance, setAppearance } = useAppearance();
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
 const TIMELINE_RULER_HEIGHT = 60;
@@ -2423,12 +2425,13 @@ const enemyDamageDetailSequence = ref<number | null>(null);
 watch(simulationRun, () => {
   enemyDamageDetailSequence.value = null;
 });
-const enemyDamageDetailEntries = computed(() =>
-  selectEnemyBurstDamageEntries(
-    simulationRun.value?.receiptEntries ?? [],
-    enemyDamageDetailSequence.value,
-  ),
-);
+const enemyDamageDetailEntries = computed(() => {
+  const entries = simulationRun.value?.receiptEntries ?? [];
+  const burst = selectEnemyBurstDamageEntries(entries, enemyDamageDetailSequence.value);
+  return burst.length
+    ? burst
+    : selectEnemyBuffDamageEntries(entries, enemyDamageDetailSequence.value);
+});
 function enemyDamageSourceDescription(entry: CombatReceiptEntry) {
   const sourceActionId =
     typeof entry.data?.sourceActionId === 'string' ? entry.data.sourceActionId : undefined;
@@ -2438,7 +2441,9 @@ function enemyDamageSourceDescription(entry: CombatReceiptEntry) {
   return [
     operatorSlug ? operatorName(operatorSlug) : entry.sourceId,
     buffSourceName({ sourceActionId }),
-    t('battleLog.receiptTypes.SpellBurstApplied'),
+    typeof entry.data?.spellBurstType === 'string'
+      ? t('battleLog.receiptTypes.SpellBurstApplied')
+      : resolveBuffDisplayName(String(entry.data?.buffId ?? ''), { t, te }),
   ]
     .filter(Boolean)
     .join(' · ');

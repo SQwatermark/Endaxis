@@ -6,6 +6,15 @@
  */
 import type { CombatReceiptEntry, CombatReceiptValue } from '../combat/receipt/combatReceipt';
 
+export function isBuffDamageReceipt(entry: CombatReceiptEntry): boolean {
+  return (
+    entry.event === 'DamageApplied' &&
+    typeof entry.data?.buffId === 'string' &&
+    typeof entry.data.buffOwnerId === 'string' &&
+    Number.isInteger(entry.data.buffInstanceId)
+  );
+}
+
 /** 一个不由持续 Buff 段表达的瞬时效果标记。 */
 export interface EnemyEffectMarker {
   readonly frame: number;
@@ -91,7 +100,10 @@ export function projectEnemyEffectViz(
   const damageHits: CombatReceiptEntry[] = [];
   const attachmentConversions: AttachmentConversion[] = [];
   for (const entry of entries) {
-    if (entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string') {
+    if (
+      (entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string') ||
+      isBuffDamageReceipt(entry)
+    ) {
       damageHits.push(entry);
       continue;
     }
