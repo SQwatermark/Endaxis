@@ -19,6 +19,33 @@ function setup() {
 }
 
 describe('原生预定义标签的安装与退出', () => {
+  it.each([
+    ['attack', ['InDisarmed']],
+    ['breakingAttack', ['InDisarmed']],
+    ['normalSkill', ['InSilence']],
+    ['comboSkill', ['InSilence', 'DisableCastComboSkill']],
+    ['ultimateSkill', ['InSilence']],
+    ['extraActiveSkill', ['InSilence']],
+    ['dodge', ['InDisableDash']],
+    ['attachSkill', []],
+    ['passiveSkill', []],
+  ] as const)('原生类型 %s 只消费相应的预定义查询', (type, expected) => {
+    const table = new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE);
+    for (const name of ['InDisarmed', 'InSilence', 'DisableCastComboSkill', 'InDisableDash']) {
+      const query = table.getQuery(name);
+      const target = {
+        matchesEntityTags: (tags: readonly string[], queryType: string) =>
+          tags === query.tags && queryType === query.queryType,
+      };
+      expect(table.getSkillTypeCastBlocker(target, type)).toBe(
+        (expected as readonly string[]).includes(name) ? name : undefined,
+      );
+    }
+    expect(table.getSkillTypeCastBlocker({ matchesEntityTags: () => true }, type)).toBe(
+      expected[0],
+    );
+  });
+
   it('公共施法门禁使用导出查询与实时实体标签，保留短路顺序', () => {
     const table = new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE);
     const target = new CombatBuffContainer('operator', new CombatAttributeSet<string>());

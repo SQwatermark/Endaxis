@@ -569,9 +569,12 @@ describe('AbilitySystemRuntime', () => {
 
     expect(ability.currentSkillType).toBe('ultimate');
     expect(ability.currentNativeSkillType).toBe('ultimateSkill');
+    expect(ability.nativeSkillTypeForSkill('ending')).toBe('ultimateSkill');
     ability.changeNativeSkillType('ending', 'attachSkill');
     expect(ability.currentSkillType).toBe('ultimate');
     expect(ability.currentNativeSkillType).toBe('attachSkill');
+    expect(ability.nativeSkillTypeForSkill('ending')).toBe('attachSkill');
+    expect(() => ability.nativeSkillTypeForSkill('missing')).toThrow('unknown ability skill');
   });
 
   it('resolves a chained input from native command mapping and allowed-next windows', () => {

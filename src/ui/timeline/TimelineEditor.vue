@@ -1887,6 +1887,8 @@ function castWarningTitle(castId: string): string {
         return '演出期间原生终结技输入入口不接受再次释放；时间轴仍执行已放置技能';
       if (reason === 'skillCommonTagUnavailable')
         return '干员当前标签状态禁止施法；时间轴仍执行已放置技能';
+      if (reason === 'skillTypeTagUnavailable')
+        return '干员当前标签状态禁止释放该类型技能；时间轴仍执行已放置技能';
       if (reason === 'skillInterruptUnavailable') return '当前技能尚不能被该操作中断';
       if (reason.startsWith('skillInterruptUnavailable:'))
         return `当前技能尚不能被该操作中断（${reason.slice('skillInterruptUnavailable: '.length)}）；时间轴仍执行已放置技能`;

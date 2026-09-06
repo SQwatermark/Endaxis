@@ -3,6 +3,7 @@ import type {
   GameplayTagQueryDefinition,
 } from '../../../../packages/game-data-contract/src/gameplayTags';
 import type { CombatBuffContainer } from '../buffs/combatBuffs';
+import type { NativeSkillType } from '../../game-data/operatorDefinition';
 import { assertGameplayTag, type GameplayTag } from './gameplayTags';
 
 /** 复用实体当前的标签存储，不另建一套与 Buff/条件查询分离的控制状态标签。 */
@@ -54,6 +55,34 @@ export class GameplayTagPredefine {
     if (entity.matchesEntityTags([this.getTag('CantCastSkillWhenChanneling')], 'hasAny'))
       return 'CantCastSkillWhenChanneling';
     return undefined;
+  }
+
+  /** 仅处理已闭合的类型标签查询；主战技身份和终结技按钮状态仍需独立输入。 */
+  getSkillTypeCastBlocker(
+    entity: Pick<EntityTags, 'matchesEntityTags'>,
+    type: NativeSkillType,
+  ): 'InDisarmed' | 'InSilence' | 'DisableCastComboSkill' | 'InDisableDash' | undefined {
+    const matches = (name: string) => {
+      const query = this.getQuery(name);
+      return entity.matchesEntityTags(query.tags, query.queryType);
+    };
+    switch (type) {
+      case 'attack':
+      case 'breakingAttack':
+        return matches('InDisarmed') ? 'InDisarmed' : undefined;
+      case 'normalSkill':
+      case 'ultimateSkill':
+      case 'extraActiveSkill':
+        return matches('InSilence') ? 'InSilence' : undefined;
+      case 'comboSkill':
+        if (matches('InSilence')) return 'InSilence';
+        return matches('DisableCastComboSkill') ? 'DisableCastComboSkill' : undefined;
+      case 'dodge':
+        return matches('InDisableDash') ? 'InDisableDash' : undefined;
+      case 'attachSkill':
+      case 'passiveSkill':
+        return undefined;
+    }
   }
 
   canAddTag(entity: EntityTags, tag: GameplayTag): boolean {

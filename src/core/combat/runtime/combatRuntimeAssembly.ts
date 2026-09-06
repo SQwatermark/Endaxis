@@ -1360,6 +1360,29 @@ export class CombatRuntimeAssembly {
       resolution.status === 'matched' || resolution.status === 'mismatched'
         ? resolution.actualSkillKey
         : expectedSkillId;
+    if (tagRules !== undefined) {
+      const target = this.#resolveBuffTarget('caster', operatorId);
+      // 公共门禁已经诊断；原生 CheckTag 在此短路，不再叠加类型专用原因。
+      if (tagRules.getCommonSkillCastBlocker(target) === undefined) {
+        const nativeSkillType = ability.nativeSkillTypeForSkill(interruptionSkillId);
+        const blocker = tagRules.getSkillTypeCastBlocker(target, nativeSkillType);
+        if (blocker !== undefined) {
+          this.receipt.record({
+            frame: this.clock.frame,
+            time: this.clock.time,
+            event: 'SkillInputBlockedByTypeTag',
+            sourceId: operatorId,
+            data: {
+              skillId: expectedSkillId,
+              assessedSkillId: interruptionSkillId,
+              nativeSkillType,
+              blocker,
+              ...(castId === undefined ? {} : { castId }),
+            },
+          });
+        }
+      }
+    }
     const interruption = ability.evaluatePlayerInputInterruption(
       interruptionSkillId,
       interruptionSkillId === expectedSkillId ? castId : undefined,

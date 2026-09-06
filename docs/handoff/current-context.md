@@ -1,5 +1,12 @@
 # 当前任务快照
 
+#### 2026-09-06 类型专用技能标签诊断
+
+- 复用复刻库 `skill-tag-checks.md` / Skill.CheckTag 的已确认分支和同一 GameplayTagPredefine：Attack/BreakingAttack 检查 InDisarmed，NormalSkill/UltimateSkill/ExtraActiveSkill 检查 InSilence，ComboSkill 先沉默后 DisableCastComboSkill，Dodge 检查 InDisableDash，AttachSkill/PassiveSkill 无额外类型查询。
+- AbilitySystem 新增按具体技能身份读取可变 nativeSkillType 的接口，ChangeSkillType 后立即反映新值。输入解析明确时按实际候选技能检查，未知时只检查作者指定技能；回执保留 assessedSkillId/nativeSkillType/blocker。公共标签门禁先短路，再发 SkillInputBlockedByTypeTag，经统一诊断投影到技能块，仍然执行作者放置技能。技能库分组和 playerAction 不用于推导此类型。
+- 回归覆盖全部 9 种原生类型与 4 类查询、连携短路顺序、动态类型变更、公共门禁优先、原生 Attack/玩家战技分类不一致时仍按原生类型检查、标签移除后恢复以及继续释放。扩大回归 2922 项、补强公共门禁短路测试后装配 67 项及应用类型检查通过。报告在忽略的 tmp/skill-type-tag-tests.json。
+- 尚缺 DisableNormalSkill 的 curNormalSkill 精确身份条件、UltimateSkillButtonActive 的状态生产者；此次不默认按钮常开，不把所有 NormalSkill 一并套上主战技禁用。未修改正式资源、伤害、中断或持续效果，未做浏览器视觉验收。
+
 #### 2026-09-06 公共技能标签门禁接入诊断
 
 - 核对复刻库 `docs/skill-tag-checks.md`、`Skill.CheckTag` 后发现：此前 TS 只有公共标签容器和预定义查询数据，并未把 CheckTag 消费到玩家输入诊断。旧记录中“已有公共可用性查询”不应解读为全部门禁已接。

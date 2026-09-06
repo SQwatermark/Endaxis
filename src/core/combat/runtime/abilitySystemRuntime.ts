@@ -335,6 +335,14 @@ export class AbilitySystemRuntime implements FrameRuntime {
       : undefined;
   }
 
+  /** 查询可变原生类型，不按技能库分组或玩家操作重新推断。 */
+  nativeSkillTypeForSkill(skillId: string): NativeSkillType {
+    const type = this.#nativeSkillTypeBySkillId.get(skillId);
+    if (type === undefined)
+      throw new Error(`unknown ability skill '${skillId}' for native SkillType query`);
+    return type;
+  }
+
   /** ChangeSkillType 修改同一原生技能身份的运行时类型，不改变玩家操作槽位。 */
   changeNativeSkillType(skillId: string, nativeSkillType: NativeSkillType): void {
     if (!this.#nativeSkillTypeBySkillId.has(skillId)) {

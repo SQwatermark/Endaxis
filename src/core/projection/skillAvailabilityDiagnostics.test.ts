@@ -27,6 +27,9 @@ describe('projectSkillAvailabilityDiagnostics', () => {
         receipt(2, 'SkillStarted'),
       ])[0]?.reasons,
     ).toEqual(['skillCommonTagUnavailable', 'resourceUnavailable']);
+    expect(
+      projectSkillAvailabilityDiagnostics([receipt(0, 'SkillInputBlockedByTypeTag')])[0]?.reasons,
+    ).toEqual(['skillTypeTagUnavailable']);
   });
 
   it('projects presentation input diagnostics without mistaking the presentation itself for a failure', () => {
