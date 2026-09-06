@@ -324,7 +324,7 @@ useKeyboardShortcutScope({
 useKeyboardShortcutScope({
   id: 'structure-map-menu',
   priority: 300,
-  active: () => contextMenu.value !== undefined,
+  active: () => active.value && contextMenu.value !== undefined,
   blockLowerScopes: true,
   handle: event => {
     if (event.key === 'Escape') {

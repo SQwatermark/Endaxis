@@ -17,6 +17,7 @@ import {
 } from '../interaction/interactionSessionContext';
 import type { InteractionLease } from '../interaction/interactionSession';
 import { observeNativeDragLifetime } from '../interaction/nativeDragLifecycle';
+import { useAsyncModalBoundary } from '../interaction/useAsyncModalBoundary';
 import { isInsideTimelineDropRegion } from './timelineDropRegion';
 import { normalizeDurationBarColorPrefs } from './durationBarColor';
 import { useI18n } from 'vue-i18n';
@@ -541,6 +542,7 @@ interface TimelineLibraryPlacement {
 }
 const libraryPlacement = ref<TimelineLibraryPlacement | null>(null);
 const interactionSession = provideInteractionSession();
+const serviceModalBoundary = useAsyncModalBoundary(interactionSession);
 let libraryDragLease: InteractionLease | null = null;
 let disposeLibraryDragLifetime: (() => void) | null = null;
 const trackDropRegions = new Map<TrackIndex, HTMLElement>();
@@ -744,11 +746,13 @@ function projectOpenFailureMessage(result: Exclude<OpenProjectResult, { ok: true
 async function requestOpenProject(): Promise<void> {
   if (projectDirty.value) {
     try {
-      await ElMessageBox.confirm('当前项目有尚未导出的修改。继续加载会替换整个项目。', '加载项目', {
-        confirmButtonText: '继续加载',
-        cancelButtonText: '取消',
-        type: 'warning',
-      });
+      await serviceModalBoundary.run(() =>
+        ElMessageBox.confirm('当前项目有尚未导出的修改。继续加载会替换整个项目。', '加载项目', {
+          confirmButtonText: '继续加载',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }),
+      );
     } catch {
       return;
     }
@@ -4272,14 +4276,16 @@ async function removeScenario(): Promise<void> {
     return;
   }
   try {
-    await ElMessageBox.confirm(
-      t('timeline.scenario.deleteConfirm'),
-      t('timeline.scenario.deleteTitle'),
-      {
-        confirmButtonText: t('common.delete'),
-        cancelButtonText: t('common.cancel'),
-        type: 'warning',
-      },
+    await serviceModalBoundary.run(() =>
+      ElMessageBox.confirm(
+        t('timeline.scenario.deleteConfirm'),
+        t('timeline.scenario.deleteTitle'),
+        {
+          confirmButtonText: t('common.delete'),
+          cancelButtonText: t('common.cancel'),
+          type: 'warning',
+        },
+      ),
     );
   } catch {
     return;

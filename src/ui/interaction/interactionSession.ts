@@ -42,7 +42,12 @@ export function createInteractionSession() {
     block(): () => void {
       const token = Symbol('interaction-barrier');
       barriers.add(token);
-      cancel();
+      try {
+        cancel();
+      } catch (error) {
+        barriers.delete(token);
+        throw error;
+      }
       return () => {
         barriers.delete(token);
       };
