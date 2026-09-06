@@ -1,8 +1,18 @@
 import type { InteractionSession } from './interactionSession';
 
 /** Service-created modals have a promise lifetime, rather than a component open prop. */
-export function createAsyncModalBoundary(session: InteractionSession) {
+export function createAsyncModalBoundary(
+  session: InteractionSession,
+  acquireInputBoundary: () => () => void = () => () => {},
+) {
   const pending = new Map<symbol, () => void>();
+  let releaseInput: (() => void) | undefined;
+  const releaseIdleInput = () => {
+    if (pending.size !== 0) return;
+    const release = releaseInput;
+    releaseInput = undefined;
+    release?.();
+  };
   let disposed = false;
   return {
     get active(): boolean {
@@ -15,6 +25,8 @@ export function createAsyncModalBoundary(session: InteractionSession) {
       pending.set(token, () => {});
       let release = () => {};
       try {
+        // Concurrent service promises share isolation until the last one settles.
+        releaseInput ??= acquireInputBoundary();
         release = session.block();
         if (disposed) throw new Error('Modal owner has been disposed');
         pending.set(token, release);
@@ -24,12 +36,14 @@ export function createAsyncModalBoundary(session: InteractionSession) {
       } finally {
         pending.delete(token);
         release();
+        releaseIdleInput();
       }
     },
     dispose(): void {
       disposed = true;
       for (const release of pending.values()) release();
       pending.clear();
+      releaseIdleInput();
     },
   };
 }

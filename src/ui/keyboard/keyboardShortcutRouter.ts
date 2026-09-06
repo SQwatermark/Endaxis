@@ -59,6 +59,62 @@ export class KeyboardShortcutRouter {
   // id is a diagnostic label, not a component-instance identity.
   readonly #scopes = new Map<number, RegisteredKeyboardShortcutScope>();
   #nextOrder = 0;
+  readonly #serviceRegions = new Map<
+    InputRegion,
+    {
+      children: number;
+      closed: boolean;
+      finalize: () => void;
+    }
+  >();
+
+  /** Service dialogs inherit the foreground at opening, not their caller's setup context. */
+  acquireModalBoundary(owner?: InputRegion): () => void {
+    const parent = this.regions.path()[0] ?? owner ?? null;
+    if (owner) {
+      let ancestor = parent;
+      while (ancestor && ancestor !== owner) ancestor = ancestor.parent;
+      if (!ancestor || !this.regions.contains(owner))
+        throw new Error('Modal owner is not in the active input branch');
+    }
+    const region = this.regions.create('service-modal', parent, true);
+    let ancestor = parent;
+    while (ancestor && !this.#serviceRegions.has(ancestor)) ancestor = ancestor.parent;
+    const parentService = ancestor ? this.#serviceRegions.get(ancestor) : undefined;
+    if (parentService) parentService.children++;
+    const unregister = this.register({
+      id: 'service-modal',
+      region,
+      priority: 0,
+      active: () => true,
+      blockLowerScopes: true,
+      handle: () => false,
+    });
+    const deactivate = this.regions.activate(region);
+    const entry = {
+      children: 0,
+      closed: false,
+      finalize: () => {
+        if (!entry.closed || entry.children !== 0) return;
+        this.#serviceRegions.delete(region);
+        this.regions.dispose(region);
+        if (parentService) {
+          parentService.children--;
+          parentService.finalize();
+        }
+      },
+    };
+    this.#serviceRegions.set(region, entry);
+    return () => {
+      if (entry.closed) return;
+      entry.closed = true;
+      unregister();
+      deactivate();
+      // A parent promise may settle before a nested service dialog. Keep its
+      // region identity alive until descendants close, but never reactivate it.
+      entry.finalize();
+    };
+  }
 
   register(scope: KeyboardShortcutScope): () => void {
     const registered = { ...scope, order: this.#nextOrder++ };
@@ -175,8 +231,7 @@ function ensurePageListener(): void {
 
 /** 注册随 Vue 作用域自动释放的页面级快捷键作用域。 */
 export function useKeyboardShortcutScope(scope: KeyboardShortcutScope): void {
-  ensurePageListener();
-  pageScopeCount += 1;
+  usePageKeyboardRouter();
   const unregister = pageKeyboardShortcutRouter.register({
     ...scope,
     region: scope.region ?? inheritedInputRegion(),
@@ -188,6 +243,19 @@ export function useKeyboardShortcutScope(scope: KeyboardShortcutScope): void {
     stopWatching();
     scope.observeKeyboardState?.(null);
     unregister();
+  });
+}
+
+export function useKeyboardModalBoundary(owner?: InputRegion): () => () => void {
+  usePageKeyboardRouter();
+  const parent = owner ?? inheritedInputRegion();
+  return () => pageKeyboardShortcutRouter.acquireModalBoundary(parent);
+}
+
+function usePageKeyboardRouter(): void {
+  ensurePageListener();
+  pageScopeCount += 1;
+  onScopeDispose(() => {
     pageScopeCount -= 1;
     if (pageScopeCount === 0 && listening && typeof window !== 'undefined') {
       window.removeEventListener('keydown', routePageKeyboardEvent, true);
