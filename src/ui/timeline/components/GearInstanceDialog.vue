@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /** Current-definition gear instance editor. Template editing remains a separate project-library action. */
 import { computed } from 'vue';
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useI18n } from 'vue-i18n';
 import './armoryDialog.css';
 import type { GearInstanceViewModel } from '../loadoutBuildViewModel';
@@ -68,90 +69,92 @@ function maxOut(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    width="560px"
-    append-to-body
-    class="armory-dialog next-armory-dialog"
-    @update:model-value="emit('update:visible', $event)"
-  >
-    <template v-if="gear">
-      <div class="layout">
-        <div class="header">
-          <div class="portrait-frame" :style="{ borderColor: levelColor }">
-            <img
-              :src="gear.definition.iconPath || DEFAULT_GAME_ICON_PATH"
-              :alt="name"
-              class="portrait"
-            />
-          </div>
-          <div class="header-info">
-            <div class="name">{{ name }}</div>
-            <div class="tags">
-              <span class="tag" :style="{ color: levelColor, borderColor: levelColor }">
-                Lv{{ gear.definition.levelRequirement }}
-              </span>
-              <span class="tag">{{ slotTypeName }}</span>
-              <span v-if="setName" class="tag">{{ setName }}</span>
+  <InputRegionBoundary label="gear-instance" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      width="560px"
+      append-to-body
+      class="armory-dialog next-armory-dialog"
+      @update:model-value="emit('update:visible', $event)"
+    >
+      <template v-if="gear">
+        <div class="layout">
+          <div class="header">
+            <div class="portrait-frame" :style="{ borderColor: levelColor }">
+              <img
+                :src="gear.definition.iconPath || DEFAULT_GAME_ICON_PATH"
+                :alt="name"
+                class="portrait"
+              />
             </div>
-            <div v-if="gear.definition.baseDefense" class="row">
-              <span class="section-label">{{ t('armory.common.defense') }}</span>
-              <span class="value">{{ gear.definition.baseDefense }}</span>
+            <div class="header-info">
+              <div class="name">{{ name }}</div>
+              <div class="tags">
+                <span class="tag" :style="{ color: levelColor, borderColor: levelColor }">
+                  Lv{{ gear.definition.levelRequirement }}
+                </span>
+                <span class="tag">{{ slotTypeName }}</span>
+                <span v-if="setName" class="tag">{{ setName }}</span>
+              </div>
+              <div v-if="gear.definition.baseDefense" class="row">
+                <span class="section-label">{{ t('armory.common.defense') }}</span>
+                <span class="value">{{ gear.definition.baseDefense }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">{{ t('armory.common.artificing') }}</div>
+            <div v-for="slot in traitSlots" :key="slot.traitIndex" class="stat-row">
+              <div class="stat-info">
+                <div v-for="row in slot.rows" :key="row.key" class="stat-line">
+                  <span class="stat-name">{{ row.label }}</span>
+                  <strong class="stat-value">{{ row.valueText }}</strong>
+                </div>
+              </div>
+              <div v-if="isArtificable" class="stat-bar-area">
+                <div class="stat-slots">
+                  <button
+                    v-for="level in slot.maximum"
+                    :key="level"
+                    type="button"
+                    class="ea-btn ea-btn--icon ea-btn--icon-22 ea-btn--glass-rect ea-btn--accent-gold art-slot"
+                    :class="{ 'is-active': level <= slot.current }"
+                    @click="setArtificingLevel(slot.traitIndex, level)"
+                  >
+                    <template v-if="level <= slot.current">/</template>
+                    <template v-else>&nbsp;</template>
+                  </button>
+                </div>
+                <span class="stat-level">{{ slot.current }}/{{ slot.maximum }}</span>
+              </div>
+              <div v-else class="stat-locked">{{ t('armory.common.requireLevel70') }}</div>
             </div>
           </div>
         </div>
+      </template>
 
-        <div class="section">
-          <div class="section-title">{{ t('armory.common.artificing') }}</div>
-          <div v-for="slot in traitSlots" :key="slot.traitIndex" class="stat-row">
-            <div class="stat-info">
-              <div v-for="row in slot.rows" :key="row.key" class="stat-line">
-                <span class="stat-name">{{ row.label }}</span>
-                <strong class="stat-value">{{ row.valueText }}</strong>
-              </div>
-            </div>
-            <div v-if="isArtificable" class="stat-bar-area">
-              <div class="stat-slots">
-                <button
-                  v-for="level in slot.maximum"
-                  :key="level"
-                  type="button"
-                  class="ea-btn ea-btn--icon ea-btn--icon-22 ea-btn--glass-rect ea-btn--accent-gold art-slot"
-                  :class="{ 'is-active': level <= slot.current }"
-                  @click="setArtificingLevel(slot.traitIndex, level)"
-                >
-                  <template v-if="level <= slot.current">/</template>
-                  <template v-else>&nbsp;</template>
-                </button>
-              </div>
-              <span class="stat-level">{{ slot.current }}/{{ slot.maximum }}</span>
-            </div>
-            <div v-else class="stat-locked">{{ t('armory.common.requireLevel70') }}</div>
-          </div>
+      <template #footer>
+        <div class="footer">
+          <button
+            v-if="isArtificable"
+            type="button"
+            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
+            @click="maxOut"
+          >
+            {{ t('common.max') }}
+          </button>
+          <button
+            type="button"
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            @click="emit('update:visible', false)"
+          >
+            {{ t('common.close') }}
+          </button>
         </div>
-      </div>
-    </template>
-
-    <template #footer>
-      <div class="footer">
-        <button
-          v-if="isArtificable"
-          type="button"
-          class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
-          @click="maxOut"
-        >
-          {{ t('common.max') }}
-        </button>
-        <button
-          type="button"
-          class="ea-btn ea-btn--sm ea-btn--glass-rect"
-          @click="emit('update:visible', false)"
-        >
-          {{ t('common.close') }}
-        </button>
-      </div>
-    </template>
-  </el-dialog>
+      </template>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>

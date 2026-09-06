@@ -6,6 +6,7 @@
  * `change` 事件交给父层持久化。这里不访问旧 Store，也不会为定义尚未提供的详情补造文本。
  */
 import { computed } from 'vue';
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useI18n } from 'vue-i18n';
 import './armoryDialog.css';
 import {
@@ -271,300 +272,307 @@ function maxOut(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    width="760px"
-    append-to-body
-    class="armory-dialog next-armory-dialog"
-    @update:model-value="emit('update:visible', $event)"
-  >
-    <template v-if="operator && definition">
-      <div class="layout">
-        <div class="header">
-          <button
-            type="button"
-            class="ea-btn ea-btn--sm ea-btn--glass-rect definition-entry"
-            @click="emit('edit-definition')"
-          >
-            {{
-              customDefinition === undefined
-                ? t('timeline.customDefinition.customizeOperator')
-                : t('timeline.customDefinition.editOperator')
-            }}
-          </button>
-          <div
-            class="portrait-frame"
-            :class="`rarity-${definition.rarity}-style`"
-            :style="definition.rarity === 6 ? {} : { borderColor: rarityColor }"
-          >
-            <img
-              :src="getOperatorAvatarPath(operator.definition.assetSlug ?? operator.operatorSlug)"
-              alt=""
-              class="portrait"
-            />
+  <InputRegionBoundary label="operator-build" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      width="760px"
+      append-to-body
+      class="armory-dialog next-armory-dialog"
+      @update:model-value="emit('update:visible', $event)"
+    >
+      <template v-if="operator && definition">
+        <div class="layout">
+          <div class="header">
+            <button
+              type="button"
+              class="ea-btn ea-btn--sm ea-btn--glass-rect definition-entry"
+              @click="emit('edit-definition')"
+            >
+              {{
+                customDefinition === undefined
+                  ? t('timeline.customDefinition.customizeOperator')
+                  : t('timeline.customDefinition.editOperator')
+              }}
+            </button>
+            <div
+              class="portrait-frame"
+              :class="`rarity-${definition.rarity}-style`"
+              :style="definition.rarity === 6 ? {} : { borderColor: rarityColor }"
+            >
+              <img
+                :src="getOperatorAvatarPath(operator.definition.assetSlug ?? operator.operatorSlug)"
+                alt=""
+                class="portrait"
+              />
+            </div>
+            <div class="header-info">
+              <div class="name-row">
+                <span class="name">{{
+                  operator.definition.displayName ??
+                  getOperatorGameName(
+                    operator.definition.assetSlug ?? operator.operatorSlug,
+                    locale,
+                  )
+                }}</span>
+                <span
+                  class="stars"
+                  :class="`header-rarity-${definition.rarity}`"
+                  :style="{ color: rarityColor }"
+                  >{{ '★'.repeat(definition.rarity) }}</span
+                >
+              </div>
+              <div class="tags">
+                <span class="tag">{{ getGameElementName(definition.element, locale) }}</span>
+                <span class="tag">{{ getGameClassName(definition.role, locale) }}</span>
+                <span class="tag">{{ getGameWeaponTypeName(definition.weaponType, locale) }}</span>
+              </div>
+              <div class="level-display">
+                <span class="level-num">{{ operator.level }}</span>
+                <span class="level-text">{{ t('armory.common.level') }}</span>
+              </div>
+              <div class="row">
+                <button
+                  type="button"
+                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                  :disabled="!canPromote"
+                  :style="operator.promoted ? { borderColor: rarityColor, color: rarityColor } : {}"
+                  @click="togglePromotion"
+                >
+                  {{ promotionLabel() }}
+                </button>
+              </div>
+              <div v-if="potentialCount > 0" class="row">
+                <span class="section-label">{{ t('armory.common.potential') }}</span>
+                <div class="diamonds">
+                  <el-tooltip
+                    v-for="level in potentialCount"
+                    :key="level"
+                    effect="dark"
+                    placement="top"
+                    :show-after="120"
+                    popper-class="operator-edit-tooltip-popper"
+                  >
+                    <template #content>
+                      <div class="operator-edit-tooltip">
+                        <div class="operator-edit-tooltip-title">{{ potentialName(level) }}</div>
+                        <GameRichTextRenderer
+                          v-if="potentialDescription(level)"
+                          class="operator-edit-tooltip-desc"
+                          :text="potentialDescription(level)"
+                          :locale="locale"
+                        />
+                      </div>
+                    </template>
+                    <button
+                      type="button"
+                      class="diamond"
+                      :class="{ active: operator.potential >= level }"
+                      :style="operator.potential >= level ? { background: potentialColor } : {}"
+                      @click="togglePotential(level)"
+                    />
+                  </el-tooltip>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="header-info">
-            <div class="name-row">
-              <span class="name">{{
-                operator.definition.displayName ??
-                getOperatorGameName(operator.definition.assetSlug ?? operator.operatorSlug, locale)
-              }}</span>
-              <span
-                class="stars"
-                :class="`header-rarity-${definition.rarity}`"
-                :style="{ color: rarityColor }"
-                >{{ '★'.repeat(definition.rarity) }}</span
-              >
-            </div>
-            <div class="tags">
-              <span class="tag">{{ getGameElementName(definition.element, locale) }}</span>
-              <span class="tag">{{ getGameClassName(definition.role, locale) }}</span>
-              <span class="tag">{{ getGameWeaponTypeName(definition.weaponType, locale) }}</span>
-            </div>
-            <div class="level-display">
-              <span class="level-num">{{ operator.level }}</span>
-              <span class="level-text">{{ t('armory.common.level') }}</span>
-            </div>
-            <div class="row">
-              <button
-                type="button"
-                class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                :disabled="!canPromote"
-                :style="operator.promoted ? { borderColor: rarityColor, color: rarityColor } : {}"
-                @click="togglePromotion"
-              >
-                {{ promotionLabel() }}
-              </button>
-            </div>
-            <div v-if="potentialCount > 0" class="row">
-              <span class="section-label">{{ t('armory.common.potential') }}</span>
-              <div class="diamonds">
+
+          <div class="level-selector">
+            <button
+              v-for="level in LEVELS"
+              :key="level"
+              type="button"
+              class="ea-btn ea-btn--sm ea-btn--glass-rect level-btn"
+              :style="
+                operator.level === level ? { borderColor: rarityColor, color: rarityColor } : {}
+              "
+              @click="handleLevelChange(level)"
+            >
+              Lv{{ level }}
+            </button>
+          </div>
+
+          <div class="section">
+            <div class="section-title">{{ t('armory.common.skills') }}</div>
+            <div class="skills-row">
+              <div v-for="source in availableSkillSources" :key="source" class="skill-card">
                 <el-tooltip
-                  v-for="level in potentialCount"
-                  :key="level"
-                  effect="dark"
                   placement="top"
+                  effect="dark"
                   :show-after="120"
+                  :enterable="true"
                   popper-class="operator-edit-tooltip-popper"
                 >
                   <template #content>
-                    <div class="operator-edit-tooltip">
-                      <div class="operator-edit-tooltip-title">{{ potentialName(level) }}</div>
-                      <GameRichTextRenderer
-                        v-if="potentialDescription(level)"
-                        class="operator-edit-tooltip-desc"
-                        :text="potentialDescription(level)"
-                        :locale="locale"
-                      />
-                    </div>
+                    <OperatorSkillTooltip
+                      :operator="definition"
+                      :operator-slug="operator.definition.assetSlug ?? operator.operatorSlug"
+                      :skill-key="source"
+                      :skill-level="operator.skillLevels[source] ?? 1"
+                      :skill-type-name="skillTypeName(source)"
+                    />
                   </template>
+                  <div class="skill-icon-frame">
+                    <img :src="skillIcon(source)" alt="" class="skill-icon" />
+                  </div>
+                </el-tooltip>
+                <div class="skill-name">{{ skillTypeName(source) }}</div>
+                <div class="skill-controls">
                   <button
                     type="button"
-                    class="diamond"
-                    :class="{ active: operator.potential >= level }"
-                    :style="operator.potential >= level ? { background: potentialColor } : {}"
-                    @click="togglePotential(level)"
+                    class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                    :disabled="(operator.skillLevels[source] ?? 1) <= 1"
+                    @click="setSkillLevel(source, (operator.skillLevels[source] ?? 1) - 1)"
+                  >
+                    -
+                  </button>
+                  <span class="skill-rank">{{
+                    formatOperatorSkillLevel(operator.skillLevels[source] ?? 1)
+                  }}</span>
+                  <button
+                    type="button"
+                    class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                    :disabled="(operator.skillLevels[source] ?? 1) >= skillMax"
+                    @click="setSkillLevel(source, (operator.skillLevels[source] ?? 1) + 1)"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">{{ t('armory.common.talents') }}</div>
+            <div class="talent-row">
+              <div class="talent-info">
+                <span class="talent-name">{{ t('armory.common.trust') }}</span>
+                <span v-if="trustAttributeLabel" class="talent-sub">{{ trustAttributeLabel }}</span>
+              </div>
+              <div class="talent-nodes">
+                <template v-for="level in 4" :key="level">
+                  <div
+                    v-if="level > 1"
+                    class="talent-chain"
+                    :class="{ active: operator.trustLevel >= level }"
                   />
-                </el-tooltip>
+                  <el-tooltip
+                    effect="dark"
+                    placement="top"
+                    :show-after="120"
+                    popper-class="operator-edit-tooltip-popper"
+                  >
+                    <template #content>
+                      <div class="operator-edit-tooltip">
+                        <div class="operator-edit-tooltip-desc">{{ trustDescription(level) }}</div>
+                      </div>
+                    </template>
+                    <span class="talent-node-tooltip-anchor">
+                      <button
+                        type="button"
+                        class="talent-node"
+                        :class="{
+                          active: operator.trustLevel >= level,
+                          disabled: level > maxTrust,
+                          'is-multi-attr': trustAttributeKeys.length > 1,
+                        }"
+                        :disabled="level > maxTrust"
+                        @click="setTrustLevel(level)"
+                      >
+                        <img
+                          v-for="attribute in trustAttributeKeys"
+                          :key="attribute"
+                          :src="getAttributeIconPath(attribute)"
+                          alt=""
+                          class="talent-icon"
+                        />
+                      </button>
+                    </span>
+                  </el-tooltip>
+                </template>
+              </div>
+            </div>
+
+            <div
+              v-for="(talent, groupIndex) in definition.talents"
+              :key="talent.key"
+              class="talent-row"
+            >
+              <div class="talent-info">
+                <span class="talent-name">{{ talentName(groupIndex) }}</span>
+              </div>
+              <div class="talent-nodes">
+                <template v-for="level in talent.levels" :key="level">
+                  <div
+                    v-if="level > 1"
+                    class="talent-chain"
+                    :class="{ active: (operator.talentStates[String(groupIndex)] ?? 0) >= level }"
+                  />
+                  <el-tooltip
+                    effect="dark"
+                    placement="top"
+                    :show-after="120"
+                    :disabled="!talentDescription(groupIndex, level)"
+                    popper-class="operator-edit-tooltip-popper"
+                  >
+                    <template #content>
+                      <div class="operator-edit-tooltip">
+                        <GameRichTextRenderer
+                          class="operator-edit-tooltip-desc"
+                          :text="talentDescription(groupIndex, level)"
+                          :locale="locale"
+                        />
+                      </div>
+                    </template>
+                    <span class="talent-node-tooltip-anchor">
+                      <button
+                        type="button"
+                        class="talent-node"
+                        :class="{
+                          active: (operator.talentStates[String(groupIndex)] ?? 0) >= level,
+                        }"
+                        @click="setTalentState(groupIndex, level)"
+                      >
+                        <img
+                          :src="
+                            getOperatorTalentIconPath(
+                              operator.definition.assetSlug ?? operator.operatorSlug,
+                              groupIndex + 1,
+                            )
+                          "
+                          alt=""
+                          class="talent-icon"
+                        />
+                      </button>
+                    </span>
+                  </el-tooltip>
+                </template>
               </div>
             </div>
           </div>
         </div>
+      </template>
 
-        <div class="level-selector">
+      <template #footer>
+        <div class="footer">
           <button
-            v-for="level in LEVELS"
-            :key="level"
             type="button"
-            class="ea-btn ea-btn--sm ea-btn--glass-rect level-btn"
-            :style="
-              operator.level === level ? { borderColor: rarityColor, color: rarityColor } : {}
-            "
-            @click="handleLevelChange(level)"
+            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
+            :disabled="operator === null"
+            @click="maxOut"
           >
-            Lv{{ level }}
+            {{ t('common.max') }}
+          </button>
+          <button
+            type="button"
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            @click="emit('update:visible', false)"
+          >
+            {{ t('common.close') }}
           </button>
         </div>
-
-        <div class="section">
-          <div class="section-title">{{ t('armory.common.skills') }}</div>
-          <div class="skills-row">
-            <div v-for="source in availableSkillSources" :key="source" class="skill-card">
-              <el-tooltip
-                placement="top"
-                effect="dark"
-                :show-after="120"
-                :enterable="true"
-                popper-class="operator-edit-tooltip-popper"
-              >
-                <template #content>
-                  <OperatorSkillTooltip
-                    :operator="definition"
-                    :operator-slug="operator.definition.assetSlug ?? operator.operatorSlug"
-                    :skill-key="source"
-                    :skill-level="operator.skillLevels[source] ?? 1"
-                    :skill-type-name="skillTypeName(source)"
-                  />
-                </template>
-                <div class="skill-icon-frame">
-                  <img :src="skillIcon(source)" alt="" class="skill-icon" />
-                </div>
-              </el-tooltip>
-              <div class="skill-name">{{ skillTypeName(source) }}</div>
-              <div class="skill-controls">
-                <button
-                  type="button"
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                  :disabled="(operator.skillLevels[source] ?? 1) <= 1"
-                  @click="setSkillLevel(source, (operator.skillLevels[source] ?? 1) - 1)"
-                >
-                  -
-                </button>
-                <span class="skill-rank">{{
-                  formatOperatorSkillLevel(operator.skillLevels[source] ?? 1)
-                }}</span>
-                <button
-                  type="button"
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                  :disabled="(operator.skillLevels[source] ?? 1) >= skillMax"
-                  @click="setSkillLevel(source, (operator.skillLevels[source] ?? 1) + 1)"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="section-title">{{ t('armory.common.talents') }}</div>
-          <div class="talent-row">
-            <div class="talent-info">
-              <span class="talent-name">{{ t('armory.common.trust') }}</span>
-              <span v-if="trustAttributeLabel" class="talent-sub">{{ trustAttributeLabel }}</span>
-            </div>
-            <div class="talent-nodes">
-              <template v-for="level in 4" :key="level">
-                <div
-                  v-if="level > 1"
-                  class="talent-chain"
-                  :class="{ active: operator.trustLevel >= level }"
-                />
-                <el-tooltip
-                  effect="dark"
-                  placement="top"
-                  :show-after="120"
-                  popper-class="operator-edit-tooltip-popper"
-                >
-                  <template #content>
-                    <div class="operator-edit-tooltip">
-                      <div class="operator-edit-tooltip-desc">{{ trustDescription(level) }}</div>
-                    </div>
-                  </template>
-                  <span class="talent-node-tooltip-anchor">
-                    <button
-                      type="button"
-                      class="talent-node"
-                      :class="{
-                        active: operator.trustLevel >= level,
-                        disabled: level > maxTrust,
-                        'is-multi-attr': trustAttributeKeys.length > 1,
-                      }"
-                      :disabled="level > maxTrust"
-                      @click="setTrustLevel(level)"
-                    >
-                      <img
-                        v-for="attribute in trustAttributeKeys"
-                        :key="attribute"
-                        :src="getAttributeIconPath(attribute)"
-                        alt=""
-                        class="talent-icon"
-                      />
-                    </button>
-                  </span>
-                </el-tooltip>
-              </template>
-            </div>
-          </div>
-
-          <div
-            v-for="(talent, groupIndex) in definition.talents"
-            :key="talent.key"
-            class="talent-row"
-          >
-            <div class="talent-info">
-              <span class="talent-name">{{ talentName(groupIndex) }}</span>
-            </div>
-            <div class="talent-nodes">
-              <template v-for="level in talent.levels" :key="level">
-                <div
-                  v-if="level > 1"
-                  class="talent-chain"
-                  :class="{ active: (operator.talentStates[String(groupIndex)] ?? 0) >= level }"
-                />
-                <el-tooltip
-                  effect="dark"
-                  placement="top"
-                  :show-after="120"
-                  :disabled="!talentDescription(groupIndex, level)"
-                  popper-class="operator-edit-tooltip-popper"
-                >
-                  <template #content>
-                    <div class="operator-edit-tooltip">
-                      <GameRichTextRenderer
-                        class="operator-edit-tooltip-desc"
-                        :text="talentDescription(groupIndex, level)"
-                        :locale="locale"
-                      />
-                    </div>
-                  </template>
-                  <span class="talent-node-tooltip-anchor">
-                    <button
-                      type="button"
-                      class="talent-node"
-                      :class="{ active: (operator.talentStates[String(groupIndex)] ?? 0) >= level }"
-                      @click="setTalentState(groupIndex, level)"
-                    >
-                      <img
-                        :src="
-                          getOperatorTalentIconPath(
-                            operator.definition.assetSlug ?? operator.operatorSlug,
-                            groupIndex + 1,
-                          )
-                        "
-                        alt=""
-                        class="talent-icon"
-                      />
-                    </button>
-                  </span>
-                </el-tooltip>
-              </template>
-            </div>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <template #footer>
-      <div class="footer">
-        <button
-          type="button"
-          class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
-          :disabled="operator === null"
-          @click="maxOut"
-        >
-          {{ t('common.max') }}
-        </button>
-        <button
-          type="button"
-          class="ea-btn ea-btn--sm ea-btn--glass-rect"
-          @click="emit('update:visible', false)"
-        >
-          {{ t('common.close') }}
-        </button>
-      </div>
-    </template>
-  </el-dialog>
+      </template>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>

@@ -4,6 +4,7 @@
  * 所有用户修改均通过事件交给父层持久化；组件本身不访问旧 Store，也不补造定义中不存在的数据。
  */
 import { computed } from 'vue';
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useI18n } from 'vue-i18n';
 import './armoryDialog.css';
 import {
@@ -207,161 +208,168 @@ function maxOut(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    width="700px"
-    append-to-body
-    class="armory-dialog next-armory-dialog"
-    @update:model-value="emit('update:visible', $event)"
-  >
-    <template v-if="weapon">
-      <div class="layout">
-        <div class="header">
-          <div
-            class="portrait-frame"
-            :class="`rarity-${weapon.definition.rarity}-style`"
-            :style="weapon.definition.rarity === 6 ? {} : { borderColor: rarityColor }"
-          >
-            <img
-              :src="weapon.definition.iconPath || DEFAULT_WEAPON_ICON_PATH"
-              alt=""
-              class="portrait"
-            />
-          </div>
-          <div class="header-info">
-            <div class="name-row">
-              <span class="name">{{ weaponDisplayName }}</span>
-              <span
-                class="stars"
-                :class="`header-rarity-${weapon.definition.rarity}`"
-                :style="{ color: rarityColor }"
-                >{{ '★'.repeat(weapon.definition.rarity) }}</span
-              >
+  <InputRegionBoundary label="weapon-build" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      width="700px"
+      append-to-body
+      class="armory-dialog next-armory-dialog"
+      @update:model-value="emit('update:visible', $event)"
+    >
+      <template v-if="weapon">
+        <div class="layout">
+          <div class="header">
+            <div
+              class="portrait-frame"
+              :class="`rarity-${weapon.definition.rarity}-style`"
+              :style="weapon.definition.rarity === 6 ? {} : { borderColor: rarityColor }"
+            >
+              <img
+                :src="weapon.definition.iconPath || DEFAULT_WEAPON_ICON_PATH"
+                alt=""
+                class="portrait"
+              />
             </div>
-            <div class="tags">
-              <span class="tag">{{
-                getGameWeaponTypeName(weapon.definition.weaponType, locale)
-              }}</span>
-            </div>
-            <div class="level-display">
-              <span class="level-num">{{ weapon.level }}</span>
-              <span class="level-text">{{ t('armory.common.level') }}</span>
-            </div>
-            <div v-if="baseAttack !== null" class="row">
-              <span class="section-label">{{ t('armory.common.baseAtk') }}</span>
-              <span class="value">{{ baseAttack }}</span>
-            </div>
-            <div class="row">
-              <button
-                class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                :disabled="!canTune"
-                :style="weapon.tuned ? { borderColor: rarityColor, color: rarityColor } : {}"
-                @click="toggleTuning"
-              >
-                {{ tuningLabel() }}
-              </button>
-            </div>
-            <div class="row">
-              <span class="section-label">{{ t('armory.common.potential') }}</span>
-              <div class="diamonds">
-                <button
-                  v-for="potential in 5"
-                  :key="potential"
-                  class="diamond"
-                  :class="{ active: weapon.potential >= potential }"
-                  :style="weapon.potential >= potential ? { background: potentialColor } : {}"
-                  @click="setPotential(potential)"
-                />
+            <div class="header-info">
+              <div class="name-row">
+                <span class="name">{{ weaponDisplayName }}</span>
+                <span
+                  class="stars"
+                  :class="`header-rarity-${weapon.definition.rarity}`"
+                  :style="{ color: rarityColor }"
+                  >{{ '★'.repeat(weapon.definition.rarity) }}</span
+                >
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="level-selector">
-          <button
-            v-for="level in LEVELS"
-            :key="level"
-            class="ea-btn ea-btn--sm ea-btn--glass-rect level-btn"
-            :style="
-              weapon.level === level
-                ? {
-                    borderColor: rarityColor,
-                    color: rarityColor,
-                    background: `color-mix(in srgb, ${rarityColor} 18%, var(--ea-dialog-bg, #fff))`,
-                  }
-                : {}
-            "
-            @click="handleLevelChange(level)"
-          >
-            Lv{{ level }}
-          </button>
-        </div>
-
-        <div class="section">
-          <div class="section-title">{{ t('armory.common.skills') }}</div>
-          <div v-for="key in traitKeys" :key="key" class="skill-row">
-            <div class="skill-row-main">
-              <div class="skill-info">
-                <span class="skill-name">{{ traitName(key) }}</span>
-                <span v-if="traitValueText(key)" class="skill-value">{{
-                  traitValueText(key)
+              <div class="tags">
+                <span class="tag">{{
+                  getGameWeaponTypeName(weapon.definition.weaponType, locale)
                 }}</span>
               </div>
-              <div class="skill-bar-area">
-                <div class="skill-slots">
+              <div class="level-display">
+                <span class="level-num">{{ weapon.level }}</span>
+                <span class="level-text">{{ t('armory.common.level') }}</span>
+              </div>
+              <div v-if="baseAttack !== null" class="row">
+                <span class="section-label">{{ t('armory.common.baseAtk') }}</span>
+                <span class="value">{{ baseAttack }}</span>
+              </div>
+              <div class="row">
+                <button
+                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                  :disabled="!canTune"
+                  :style="weapon.tuned ? { borderColor: rarityColor, color: rarityColor } : {}"
+                  @click="toggleTuning"
+                >
+                  {{ tuningLabel() }}
+                </button>
+              </div>
+              <div class="row">
+                <span class="section-label">{{ t('armory.common.potential') }}</span>
+                <div class="diamonds">
                   <button
-                    v-for="level in traitDisplayLevels(key)"
-                    :key="level"
-                    class="skill-slot"
-                    :class="slotClass(key, level)"
-                    :disabled="level <= traitBounds(key).min || level > traitBounds(key).max"
-                    @click="setTraitLevel(key, level)"
-                  >
-                    <template v-if="slotClass(key, level) === 'slot-locked'">&times;</template>
-                    <template v-else-if="slotClass(key, level) === 'slot-empty'">&nbsp;</template>
-                    <template v-else>/</template>
-                  </button>
+                    v-for="potential in 5"
+                    :key="potential"
+                    class="diamond"
+                    :class="{ active: weapon.potential >= potential }"
+                    :style="weapon.potential >= potential ? { background: potentialColor } : {}"
+                    @click="setPotential(potential)"
+                  />
                 </div>
-                <span class="skill-counter">{{ traitLevel(key) }}/{{ traitBounds(key).max }}</span>
               </div>
             </div>
-            <GameRichTextRenderer
-              v-if="traitDescription(key)"
-              class="skill-description"
-              :text="traitDescription(key)"
-              :locale="locale"
-            />
+          </div>
+
+          <div class="level-selector">
+            <button
+              v-for="level in LEVELS"
+              :key="level"
+              class="ea-btn ea-btn--sm ea-btn--glass-rect level-btn"
+              :style="
+                weapon.level === level
+                  ? {
+                      borderColor: rarityColor,
+                      color: rarityColor,
+                      background: `color-mix(in srgb, ${rarityColor} 18%, var(--ea-dialog-bg, #fff))`,
+                    }
+                  : {}
+              "
+              @click="handleLevelChange(level)"
+            >
+              Lv{{ level }}
+            </button>
+          </div>
+
+          <div class="section">
+            <div class="section-title">{{ t('armory.common.skills') }}</div>
+            <div v-for="key in traitKeys" :key="key" class="skill-row">
+              <div class="skill-row-main">
+                <div class="skill-info">
+                  <span class="skill-name">{{ traitName(key) }}</span>
+                  <span v-if="traitValueText(key)" class="skill-value">{{
+                    traitValueText(key)
+                  }}</span>
+                </div>
+                <div class="skill-bar-area">
+                  <div class="skill-slots">
+                    <button
+                      v-for="level in traitDisplayLevels(key)"
+                      :key="level"
+                      class="skill-slot"
+                      :class="slotClass(key, level)"
+                      :disabled="level <= traitBounds(key).min || level > traitBounds(key).max"
+                      @click="setTraitLevel(key, level)"
+                    >
+                      <template v-if="slotClass(key, level) === 'slot-locked'">&times;</template>
+                      <template v-else-if="slotClass(key, level) === 'slot-empty'">&nbsp;</template>
+                      <template v-else>/</template>
+                    </button>
+                  </div>
+                  <span class="skill-counter"
+                    >{{ traitLevel(key) }}/{{ traitBounds(key).max }}</span
+                  >
+                </div>
+              </div>
+              <GameRichTextRenderer
+                v-if="traitDescription(key)"
+                class="skill-description"
+                :text="traitDescription(key)"
+                :locale="locale"
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </template>
+      </template>
 
-    <template #footer>
-      <div class="footer">
-        <button
-          class="ea-btn ea-btn--sm ea-btn--glass-rect"
-          :disabled="weapon === null"
-          @click="emit('edit-definition')"
-        >
-          {{
-            customDefinition === undefined
-              ? t('timeline.customDefinition.customizeWeapon')
-              : t('timeline.customDefinition.editWeapon')
-          }}
-        </button>
-        <button
-          class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
-          :disabled="weapon === null"
-          @click="maxOut"
-        >
-          {{ t('common.max') }}
-        </button>
-        <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
-          {{ t('common.close') }}
-        </button>
-      </div>
-    </template>
-  </el-dialog>
+      <template #footer>
+        <div class="footer">
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            :disabled="weapon === null"
+            @click="emit('edit-definition')"
+          >
+            {{
+              customDefinition === undefined
+                ? t('timeline.customDefinition.customizeWeapon')
+                : t('timeline.customDefinition.editWeapon')
+            }}
+          </button>
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
+            :disabled="weapon === null"
+            @click="maxOut"
+          >
+            {{ t('common.max') }}
+          </button>
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            @click="emit('update:visible', false)"
+          >
+            {{ t('common.close') }}
+          </button>
+        </div>
+      </template>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>
