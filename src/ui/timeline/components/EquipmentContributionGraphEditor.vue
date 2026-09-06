@@ -76,6 +76,8 @@ const props = defineProps<{
   contribution: EquipmentContributionDefinition;
   label: string;
   level: number;
+  /** The host reserves a bounded workspace; only canvas and Inspector scroll. */
+  fillAvailable?: boolean;
 }>();
 const emit = defineEmits<{ update: [contribution: EquipmentContributionDefinition] }>();
 const selectedPath = ref('');
@@ -628,7 +630,11 @@ function toggleCooldownSkillType(skillType: SkillType): void {
 </script>
 
 <template>
-  <div v-if="!showBuffDefinitions" class="contribution-editor">
+  <div
+    v-if="!showBuffDefinitions"
+    class="contribution-editor"
+    :class="{ 'fill-available': fillAvailable }"
+  >
     <SkillStructureMindMap
       class="contribution-map"
       :root="structure"
@@ -995,6 +1001,27 @@ function toggleCooldownSkillType(skillType: SkillType): void {
   background: var(--ea-workbench-panel);
   container-type: inline-size;
 }
+.contribution-editor.fill-available {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.fill-available .contribution-map {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.fill-available :deep(.map-toolbar) {
+  min-height: 38px;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 10px;
+}
+.fill-available .contribution-inspector {
+  min-height: 0;
+  overscroll-behavior: contain;
+}
 header {
   display: flex;
   align-items: baseline;
@@ -1080,9 +1107,13 @@ legend {
 }
 .blackboard-row {
   display: grid;
-  grid-template-columns: minmax(90px, 1fr) minmax(80px, 0.8fr) 28px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) 28px;
   gap: 5px;
   margin-top: 7px;
+}
+.contribution-inspector header {
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
 }
 .blackboard-row button,
 .section-action {
@@ -1100,6 +1131,13 @@ legend {
   color: #e69a7a;
 }
 @media (max-width: 820px) {
+  .contribution-editor.fill-available {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 34%);
+  }
+  .fill-available .contribution-inspector {
+    border-left: 1px solid var(--ea-border-soft);
+    border-top: 0;
+  }
   .contribution-editor {
     grid-template-columns: 1fr;
   }
@@ -1107,6 +1145,12 @@ legend {
     min-height: 260px;
     border-left: 0;
     border-top: 1px solid var(--ea-border-soft);
+  }
+}
+@media (max-width: 560px) {
+  .contribution-editor.fill-available {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 </style>

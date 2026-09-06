@@ -14,6 +14,16 @@ import buffDefinitionGraphEditorSource from './BuffDefinitionGraphEditor.vue?raw
 import buffStepEditorSource from './BuffStepEditor.vue?raw';
 
 describe('GearDefinitionWorkspaceDialog structure', () => {
+  it('bounds the set workspace while letting the graph and Inspector own their scrolling', () => {
+    expect(gearSetWorkspaceSource).toContain('height: calc(100dvh - 48px)');
+    expect(gearSetWorkspaceSource).toContain('.gear-set-definition-dialog > .el-dialog__body');
+    expect(gearSetWorkspaceSource).toContain('fill-available');
+    expect(contributionEditorSource).toContain('fillAvailable?: boolean');
+    expect(contributionEditorSource).toContain('grid-template-rows: auto minmax(0, 1fr)');
+    expect(contributionEditorSource).toContain('.fill-available :deep(.map-toolbar)');
+    expect(contributionEditorSource).toContain('overscroll-behavior: contain');
+    expect(contributionEditorSource).toContain('minmax(0, 1fr) minmax(0, 0.8fr) 28px');
+  });
   it('materializes and switches a selected gear slot through the project library', () => {
     expect(timelineEditorSource).toContain('deriveProjectGearTemplate');
     expect(timelineEditorSource).toContain('switchTrackToCompatibleGearTemplate');

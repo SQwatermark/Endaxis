@@ -52,7 +52,8 @@ function save(): void {
   <InputRegionBoundary label="gear-set-definition-workspace" :active="visible" modal>
     <el-dialog
       :model-value="visible"
-      width="min(720px, calc(100vw - 48px))"
+      width="min(1280px, calc(100vw - 48px))"
+      top="24px"
       append-to-body
       destroy-on-close
       class="gear-set-definition-dialog"
@@ -64,7 +65,7 @@ function save(): void {
         </div>
       </template>
       <div class="set-inspector">
-        <section>
+        <section class="set-identity">
           <header>
             <strong>套装模板</strong><span>来源 {{ baseDefinition.slug }}</span>
           </header>
@@ -75,14 +76,12 @@ function save(): void {
             /></label>
           </div>
         </section>
-        <section>
-          <header><strong>三件套贡献</strong><span>行为保持完整</span></header>
-          <div class="summary">
-            <span>属性修正 {{ draft.modifiers?.length ?? 0 }}</span>
-            <span>事件响应 {{ draft.eventHandlers?.length ?? 0 }}</span>
-            <p>在下方组件图编辑套装行为；保存后影响项目内所有引用此套装的实例。</p>
-          </div>
+        <section class="set-contribution">
+          <header>
+            <strong>三件套贡献</strong><span>保存后影响项目内所有引用此套装的实例</span>
+          </header>
           <EquipmentContributionGraphEditor
+            fill-available
             :contribution="draft"
             :label="draft.displayName ?? draft.slug"
             :level="1"
@@ -137,14 +136,23 @@ function save(): void {
 }
 .set-inspector {
   display: grid;
-  gap: 14px;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+.set-contribution {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  min-width: 0;
 }
 section {
   border: 1px solid var(--ea-border-soft);
   background: var(--ea-fill-soft);
 }
 section header {
-  min-height: 42px;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -160,7 +168,7 @@ section header span {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
-  padding: 14px;
+  padding: 8px 12px;
 }
 label {
   min-width: 0;
@@ -178,22 +186,6 @@ input {
   background: var(--ea-fill-input);
   color: var(--ea-fg);
 }
-.summary {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 14px;
-}
-.summary > span {
-  padding: 4px 7px;
-  border: 1px solid var(--ea-border);
-  color: var(--ea-fg-secondary);
-}
-.summary p {
-  width: 100%;
-  margin: 4px 0 0;
-  color: var(--ea-fg-muted);
-}
 .footer {
   display: flex;
   align-items: center;
@@ -208,6 +200,8 @@ input {
 }
 .issues {
   color: #e69a7a;
+  max-height: 90px;
+  overflow: auto;
 }
 .issues code {
   display: block;
@@ -219,5 +213,25 @@ input {
   .fields {
     grid-template-columns: 1fr;
   }
+}
+</style>
+
+<style>
+/* Dialog owns viewport space; content must not push its save/cancel footer off screen. */
+.gear-set-definition-dialog {
+  height: calc(100dvh - 48px);
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.gear-set-definition-dialog > .el-dialog__header,
+.gear-set-definition-dialog > .el-dialog__footer {
+  flex: none;
+}
+.gear-set-definition-dialog > .el-dialog__body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 </style>
