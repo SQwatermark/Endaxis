@@ -5,7 +5,9 @@ import context from './interactionSessionContext.ts?raw';
 
 describe('first workbench gesture ownership integration', () => {
   it('provides one boundary to the editor and its shell', () => {
-    expect(editor).toContain('const interactionSession = provideInteractionSession()');
+    expect(editor).toContain(
+      'const interactionSession = provideInteractionSession(workbenchInputRegion)',
+    );
     expect(shell).toContain('const interactionSession = useInteractionSession()');
     for (const owner of ['library-drag', 'library-placement', 'cast-move', 'track-order']) {
       expect(editor).toMatch(new RegExp(`interactionSession\\.tryStart\\(\\s*'${owner}'`));

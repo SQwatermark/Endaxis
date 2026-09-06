@@ -1,6 +1,7 @@
 import { inject, onScopeDispose, provide, watch, type InjectionKey } from 'vue';
 import { useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
 import { createInteractionSession, type InteractionSession } from './interactionSession';
+import type { InputRegion } from '../keyboard/inputRegions';
 
 const interactionSessionKey: InjectionKey<InteractionSession> = Symbol('workbench-interaction');
 
@@ -21,11 +22,12 @@ export function useInteractionBarrier(session: InteractionSession, active: () =>
   onScopeDispose(() => release?.());
 }
 
-export function provideInteractionSession(): InteractionSession {
+export function provideInteractionSession(region?: InputRegion): InteractionSession {
   const session = createInteractionSession();
   provide(interactionSessionKey, session);
   useKeyboardShortcutScope({
     id: 'workbench-gesture',
+    region,
     priority: 1000,
     active: () => session.current !== null,
     blockLowerScopes: true,

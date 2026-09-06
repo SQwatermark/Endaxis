@@ -273,6 +273,7 @@ import {
 import {
   isKeyboardShortcutIsolationTarget,
   useKeyboardShortcutScope,
+  useKeyboardInputRegion,
 } from '../keyboard/keyboardShortcutRouter';
 import {
   skillLibrarySegmentLabel,
@@ -541,8 +542,13 @@ interface TimelineLibraryPlacement {
   readonly skillKey?: string;
 }
 const libraryPlacement = ref<TimelineLibraryPlacement | null>(null);
-const interactionSession = provideInteractionSession();
-const serviceModalBoundary = useAsyncModalBoundary(interactionSession);
+const workbenchInputRegion = useKeyboardInputRegion({
+  label: 'timeline-workbench',
+  parent: null,
+  active: () => true,
+});
+const interactionSession = provideInteractionSession(workbenchInputRegion);
+const serviceModalBoundary = useAsyncModalBoundary(interactionSession, workbenchInputRegion);
 let libraryDragLease: InteractionLease | null = null;
 let disposeLibraryDragLifetime: (() => void) | null = null;
 const trackDropRegions = new Map<TrackIndex, HTMLElement>();
@@ -4578,6 +4584,7 @@ useInteractionBarrier(
 
 useKeyboardShortcutScope({
   id: 'timeline-overlay',
+  region: workbenchInputRegion,
   priority: 100,
   active: () =>
     hasModalPanel.value || contextMenuTarget.value !== null || markerContextTarget.value !== null,
@@ -4587,6 +4594,7 @@ useKeyboardShortcutScope({
 
 useKeyboardShortcutScope({
   id: 'timeline-editor',
+  region: workbenchInputRegion,
   priority: 10,
   active: () =>
     !hasModalPanel.value && contextMenuTarget.value === null && markerContextTarget.value === null,

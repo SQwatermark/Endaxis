@@ -6,13 +6,17 @@
 
 ## 已确认的现状
 
-### 2026-09-07 逻辑区域基础设施（页面尚未迁移）
+### 2026-09-07 逻辑区域基础设施与根区域接入
+
+正式 TimelineEditor 已启用根区域。自身的 editor/overlay、手势和程序式模态 scope
+显式传该区域，后代继承。内部暂时全部属于同一根，保留旧优先级及屏障；因此是
+整组接入而非模态子树完成。根按挂载激活，多工作台焦点协调仍待实现。
 
 Vue 入口现为 useKeyboardInputRegion({label, parent?, modal?, active})，返回区域身份，
 向后代提供区域。scope 默认继承注入上下文，显式 region 优先。由于 Vue 组件不能
 注入自身刚 provide 的值，同一 setup 内的自有命令必须显式 region，不能假设自动
 继承。程序式服务确认也需要显式父区域。active 同步切换，组件 scope 释放时销毁；
-父先卸载后的子状态更新不会复活已失效身份。正式页面尚未调用根区域入口。
+父先卸载后的子状态更新不会复活已失效身份。
 
 KeyboardShortcutRouter.regions 创建独立身份的 InputRegion，父指针不可变；activate
 返回幂等释放函数，释放后恢复先前区域。活动模态存在时禁止激活其外部背景；
