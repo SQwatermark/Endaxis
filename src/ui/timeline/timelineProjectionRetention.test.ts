@@ -165,7 +165,7 @@ describe('Next timeline simulation projection retention', () => {
 
   it('blocks timeline shortcuts while the hit detail is open', () => {
     const modalGuard = projectionSource(
-      'const hasModalPanel = computed',
+      'const hasTimelineContextMenu = computed',
       '\nuseKeyboardShortcutScope',
     );
 

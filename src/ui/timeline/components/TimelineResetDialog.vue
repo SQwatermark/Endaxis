@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import ElFocusTrap from 'element-plus/es/components/focus-trap/index';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { useDialogInteractionBoundary } from '../../interaction/useDialogInteractionBoundary';
+import { useKeyboardInputRegion } from '../../keyboard/keyboardShortcutRouter';
 
 type TimelineResetMode = 'currentKeepLoadout' | 'current' | 'all';
 
@@ -24,7 +25,13 @@ const { t } = useI18n();
 const selectedMode = ref<TimelineResetMode>('currentKeepLoadout');
 const dialogElement = ref<HTMLElement>();
 const cancelButton = ref<HTMLButtonElement>();
-useDialogInteractionBoundary(useInteractionSession(), () => props.modelValue, close);
+const session = useInteractionSession();
+const region = useKeyboardInputRegion({
+  label: 'timeline-reset',
+  modal: true,
+  active: () => props.modelValue,
+});
+useDialogInteractionBoundary(session, () => props.modelValue, close, region);
 
 const options = computed(() => [
   {

@@ -4554,22 +4554,17 @@ function cycleOccupiedTrack(direction: -1 | 1): boolean {
   return true;
 }
 
-// Transitional fallback only for panels not yet owning a modal input region.
-// Migrated selectors/build/template editors isolate keyboard and gestures by region.
-const hasModalPanel = computed(() => resetDialogVisible.value);
-
-useInteractionBarrier(
-  interactionSession,
-  () =>
-    hasModalPanel.value || contextMenuTarget.value !== null || markerContextTarget.value !== null,
+const hasTimelineContextMenu = computed(
+  () => contextMenuTarget.value !== null || markerContextTarget.value !== null,
 );
+
+useInteractionBarrier(interactionSession, () => hasTimelineContextMenu.value);
 
 useKeyboardShortcutScope({
   id: 'timeline-overlay',
   region: workbenchInputRegion,
   priority: 100,
-  active: () =>
-    hasModalPanel.value || contextMenuTarget.value !== null || markerContextTarget.value !== null,
+  active: () => hasTimelineContextMenu.value,
   handle: () => false,
   blockLowerScopes: true,
 });
@@ -4578,8 +4573,7 @@ useKeyboardShortcutScope({
   id: 'timeline-editor',
   region: workbenchInputRegion,
   priority: 10,
-  active: () =>
-    !hasModalPanel.value && contextMenuTarget.value === null && markerContextTarget.value === null,
+  active: () => !hasTimelineContextMenu.value,
   handleClipboard: event => {
     if (isKeyboardShortcutIsolationTarget(event.target)) return false;
     if (event.type === 'copy') return copySelectedActions();

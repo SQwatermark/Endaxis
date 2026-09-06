@@ -44,7 +44,7 @@ describe('locally owned leaf dialog input', () => {
 
   it('routes reset and marker menu Escape without independent document/window listeners', () => {
     expect(reset).toContain(
-      'useDialogInteractionBoundary(useInteractionSession(), () => props.modelValue, close)',
+      'useDialogInteractionBoundary(session, () => props.modelValue, close, region)',
     );
     expect(markerMenu).toContain('usePopoverInteractionBoundary(');
     for (const source of [reset, markerMenu])
