@@ -331,10 +331,10 @@ import {
 import {
   projectHitEffectsByCast,
   projectTimelineHitActualFrames,
-  projectTimelineHitDetailEntries,
   type TimelineHitEffectLabel,
 } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
+import { projectPublishedHitDetail } from './publishedHitDetail';
 import { layoutEnemyDamageHits } from './enemyDamageHitLayout';
 import { useSimulationReceiptSelection } from './useSimulationReceiptSelection';
 import { resolveBuffDisplayName } from './buffDisplayName';
@@ -2463,6 +2463,9 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
 
 const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; hitId: string } | null>(null);
 const enemyDamageDetailSequence = useSimulationReceiptSelection(simulationRun);
+const publishedHitDetail = computed(() =>
+  projectPublishedHitDetail(publishedSimulation.value, hitDetailTarget.value),
+);
 const enemyDamageDetailEntries = computed(() => {
   if (enemyDamageDetailSequence.value === null) return [];
   const entries = simulationRun.value?.receiptEntries ?? [];
@@ -2480,9 +2483,10 @@ const enemyDamageDetailEntries = computed(() => {
 function enemyDamageSourceDescription(entry: CombatReceiptEntry) {
   const sourceActionId =
     typeof entry.data?.sourceActionId === 'string' ? entry.data.sourceActionId : undefined;
-  const index = scenario.value.tracks.findIndex(track => track?.id === entry.sourceId);
-  const track = viewModel.value.tracks[index];
-  const operatorSlug = track?.operatorSlug;
+  const track = publishedSimulation.value?.scenario.tracks.find(
+    track => track?.id === entry.sourceId,
+  );
+  const operatorSlug = track?.operator?.operatorSlug;
   return [
     operatorSlug ? operatorName(operatorSlug) : entry.sourceId,
     buffSourceName({ sourceActionId }),
@@ -2500,8 +2504,7 @@ function enemyDamageOperatorPanel(entry: CombatReceiptEntry) {
 }
 const hitDetail = computed(() => {
   const target = hitDetailTarget.value;
-  const current = simulationRun.value;
-  if (target === null || current === null) return null;
+  if (target === null) return null;
   const track = scenario.value.tracks[target.trackIndex];
   const cast = track?.skillCasts.find(candidate => candidate.id === target.castId);
   if (track === null || cast === undefined || track.operator === null) return null;
@@ -2510,8 +2513,7 @@ const hitDetail = computed(() => {
   );
   const marker = castModel?.hitMarkers.find(candidate => candidate.hitId === target.hitId) ?? null;
   if (marker === null) return null;
-  const entries = projectTimelineHitDetailEntries(current.receiptEntries, cast.id, marker.hitId);
-  return { cast, marker, entries };
+  return { cast, marker };
 });
 const hitDetailForceCritical = computed(() => {
   const detail = hitDetail.value;
@@ -2524,10 +2526,8 @@ const hitDetailOperatorPanel = computed(() => {
   const target = hitDetailTarget.value;
   const current = simulationRun.value;
   if (current === null) return null;
-  const operatorId =
-    target === null
-      ? enemyDamageDetailEntries.value[0]?.sourceId
-      : scenario.value.tracks[target.trackIndex]?.id;
+  if (target !== null) return publishedHitDetail.value?.operatorPanel ?? null;
+  const operatorId = enemyDamageDetailEntries.value[0]?.sourceId;
   return current.operatorPanels.find(panel => panel.operatorId === operatorId) ?? null;
 });
 
@@ -2536,14 +2536,15 @@ function hitDetailContributionSourceLabel(
   sequence?: number,
 ): string {
   const target = hitDetailTarget.value;
-  const trackIndex =
-    target?.trackIndex ??
-    scenario.value.tracks.findIndex(
-      track =>
-        track?.id ===
-        enemyDamageDetailEntries.value.find(hit => hit.sequence === sequence)?.sourceId,
-    );
-  const operatorSlug = viewModel.value.tracks[trackIndex]?.operatorSlug ?? null;
+  const track =
+    target !== null
+      ? publishedHitDetail.value?.track
+      : publishedSimulation.value?.scenario.tracks.find(
+          track =>
+            track?.id ===
+            enemyDamageDetailEntries.value.find(hit => hit.sequence === sequence)?.sourceId,
+        );
+  const operatorSlug = track?.operator?.operatorSlug ?? null;
   return resolveOperatorPanelContributionSourceLabel(entry, {
     operator:
       operatorSlug === null || operatorSlug === undefined
@@ -6187,7 +6188,9 @@ function setPanelDialogVisible(visible: boolean): void {
     :visible="hitDetailTarget !== null || enemyDamageDetailSequence !== null"
     :allow-force-critical="hitDetailTarget !== null"
     :force-critical="hitDetailForceCritical"
-    :entries="hitDetailTarget !== null ? (hitDetail?.entries ?? []) : enemyDamageDetailEntries"
+    :entries="
+      hitDetailTarget !== null ? (publishedHitDetail?.entries ?? []) : enemyDamageDetailEntries
+    "
     :operator-panel="hitDetailOperatorPanel"
     :contribution-source-label="hitDetailContributionSourceLabel"
     :damage-type-label="damageElementLabel"
@@ -6231,7 +6234,16 @@ function setPanelDialogVisible(visible: boolean): void {
       enemyDamageDetailSequence = null;
     "
     @toggle-force-critical="toggleHitDetailForceCritical"
-  />
+  >
+    <template #status>
+      <TimelineSimulationStatus
+        :running="simulationRunning"
+        :stale="simulationStale"
+        :error="simulationError"
+        :has-result="simulationRun !== null"
+      />
+    </template>
+  </TimelineHitDetailDialog>
   <TimelineBuffDetailDialog
     :visible="buffDetailTarget !== null"
     :target="buffDetailTarget"

@@ -329,6 +329,7 @@ function onClose(): void {
       append-to-body
       @update:model-value="onClose"
     >
+      <slot name="status" />
       <div
         v-if="damageDetails.length > 0"
         class="hit-detail-content"
