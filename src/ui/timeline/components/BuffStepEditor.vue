@@ -60,6 +60,7 @@ import {
 } from '../buffDefinitionEditorCommands';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
+import LevelValuesEditor from './LevelValuesEditor.vue';
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
 import BuffBlackboardEditor from './BuffBlackboardEditor.vue';
 import BuffAttributeModifierEditor from './BuffAttributeModifierEditor.vue';
@@ -120,9 +121,7 @@ watch(
 );
 
 const assignments = computed(() =>
-  Object.entries(props.step.parameters.blackboardAssignments ?? {}).map(
-    ([key, value]) => [key, toEditableOperand(value)] as const,
-  ),
+  Object.entries(props.step.parameters.blackboardAssignments ?? {}),
 );
 const operandLabels = () => ({
   constant: t('timeline.skillEditing.operandConstant'),
@@ -418,18 +417,10 @@ function renameAssignment(oldKey: string, event: Event): void {
   update({ ...props.step.parameters, blackboardAssignments: renamed });
 }
 
-function setAssignment(key: string, value: ActionValueOperand): void {
-  const previous = props.step.parameters.blackboardAssignments?.[key];
-  let next: LevelValues | ActionValueOperand = value;
-  if (value.kind === 'constant' && typeof previous === 'number') next = value.value;
-  else if (value.kind === 'constant' && Array.isArray(previous)) {
-    const values = [...previous];
-    values[Math.max(0, props.skillLevel - 1)] = value.value;
-    next = values;
-  }
+function setAssignment(key: string, value: ActionValueOperand | LevelValues): void {
   update({
     ...props.step.parameters,
-    blackboardAssignments: { ...props.step.parameters.blackboardAssignments, [key]: next },
+    blackboardAssignments: { ...props.step.parameters.blackboardAssignments, [key]: value },
   });
 }
 
@@ -439,6 +430,10 @@ function toEditableOperand(value: LevelValues | ActionValueOperand): ActionValue
     ? (value[Math.max(0, props.skillLevel - 1)] ?? value[0] ?? 0)
     : value;
   return { kind: 'constant', value: resolved };
+}
+
+function isLevelValues(value: LevelValues | ActionValueOperand): value is LevelValues {
+  return typeof value === 'number' || Array.isArray(value);
 }
 
 function removeAssignment(key: string): void {
@@ -836,11 +831,30 @@ function removeAssignment(key: string): void {
     </legend>
     <div v-for="[key, value] in assignments" :key="key" class="buff-assignment">
       <input type="text" :value="key" @change="renameAssignment(key, $event)" />
-      <ActionValueOperandEditor
-        :value="value"
-        :labels="operandLabels()"
-        @update="setAssignment(key, $event)"
-      />
+      <div v-if="isLevelValues(value)" class="buff-assignment__levels">
+        <LevelValuesEditor
+          :value="value"
+          :current-level="skillLevel"
+          @update="setAssignment(key, $event)"
+        />
+        <button type="button" @click="setAssignment(key, toEditableOperand(value))">
+          改为表达式（替换整个数值定义）
+        </button>
+      </div>
+      <div v-else class="buff-assignment__levels">
+        <ActionValueOperandEditor
+          :value="value"
+          :labels="operandLabels()"
+          @update="setAssignment(key, $event)"
+        />
+        <button
+          v-if="value.kind === 'constant'"
+          type="button"
+          @click="setAssignment(key, [value.value])"
+        >
+          改为逐级数值
+        </button>
+      </div>
       <button
         type="button"
         class="buff-assignment__remove"
@@ -868,6 +882,17 @@ function removeAssignment(key: string): void {
   grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 30px;
   gap: 8px;
   margin-bottom: 8px;
+}
+
+.buff-assignment__levels {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+.buff-assignment__levels > button {
+  height: auto;
+  min-height: 30px;
+  white-space: normal;
 }
 
 .buff-definition__grid {

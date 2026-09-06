@@ -1,16 +1,13 @@
 <script setup lang="ts">
 /**
  * 编辑技能每次释放时初始化的动作黑板。
- * 键是技能内部稳定身份，值可按技能等级变化；本组件只修改当前等级对应值。
+ * 键是技能内部稳定身份；逐级数值显式编辑，不隐式补齐不存在的等级。
  */
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { CaretBottom, CaretRight } from '@element-plus/icons-vue';
 import type { LevelValues } from '../../../core/game-data/operatorDefinition';
-import {
-  replaceLevelValueForEditor,
-  resolveLevelValueForEditor,
-} from '../skillDefinitionEditorViewModel';
+import LevelValuesEditor from './LevelValuesEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 
 const props = defineProps<{
@@ -51,12 +48,10 @@ function renameEntry(oldKey: string, event: Event): void {
   emit('update', next);
 }
 
-function setValue(key: string, value: LevelValues, event: Event): void {
-  const number = Number((event.target as HTMLInputElement).value);
-  if (!Number.isFinite(number)) return;
+function setValue(key: string, value: LevelValues): void {
   emit('update', {
     ...props.blackboard,
-    [key]: replaceLevelValueForEditor(value, props.skillLevel, number),
+    [key]: value,
   });
 }
 </script>
@@ -106,18 +101,17 @@ function setValue(key: string, value: LevelValues, event: Event): void {
           />
           <input type="text" :value="key" @change="renameEntry(key, $event)" />
         </label>
-        <label>
+        <div class="blackboard-entry__values">
           <EditorFieldLabel
             :label="t('timeline.skillEditing.value')"
             :help="t('timeline.skillEditing.fieldHelp.initialBlackboardValue')"
           />
-          <input
-            type="number"
-            step="0.01"
-            :value="resolveLevelValueForEditor(value, skillLevel) ?? 0"
-            @input="setValue(key, value, $event)"
+          <LevelValuesEditor
+            :value="value"
+            :current-level="skillLevel"
+            @update="setValue(key, $event)"
           />
-        </label>
+        </div>
         <button
           type="button"
           class="icon-button icon-button--danger"
@@ -176,7 +170,8 @@ function setValue(key: string, value: LevelValues, event: Event): void {
   border: 1px solid var(--ea-border-soft);
 }
 
-.blackboard-entry label {
+.blackboard-entry label,
+.blackboard-entry__values {
   display: grid;
   gap: 6px;
 }
