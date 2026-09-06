@@ -471,13 +471,34 @@ describe('skillDefinitionEditorViewModel', () => {
     ]);
   });
 
-  it('未自定义时不产生差异计数', () => {
+  it('未修改的模板草稿差异为零', () => {
     const template = templateDefinition();
     const draft = createSkillEditorDraft(template, undefined);
 
     const view = projectSkillEditor(template, draft, false);
     expect(view.customized).toBe(false);
     expect(view.diffCount).toBe(0);
+  });
+
+  it('首次编辑也显示结构差异，恢复原草稿后归零但不改保存身份', () => {
+    const template = templateDefinition();
+    const initial = createSkillEditorDraft(template, undefined);
+    const edited = { ...initial, scheduledSequences: initial.scheduledSequences.slice(1) };
+    expect(projectSkillEditor(template, edited, false).diffCount).toBeGreaterThan(0);
+    expect(projectSkillEditor(template, edited, false).customized).toBe(false);
+    expect(projectSkillEditor(template, initial, false).diffCount).toBe(0);
+    expect(projectSkillEditor(template, initial, true).customized).toBe(true);
+    expect(projectSkillEditor(template, initial, true).diffCount).toBe(0);
+    expect(template.scheduledSequences).toHaveLength(initial.scheduledSequences.length);
+  });
+
+  it('首次修改字段的差异不依赖是否已有自定义定义', () => {
+    const template = templateDefinition();
+    const edited = applySkillEditorField(createSkillEditorDraft(template, undefined), {
+      field: 'costFrame',
+      value: 8,
+    });
+    expect(projectSkillEditor(template, edited, false).diffCount).toBe(1);
   });
 
   it('自定义后统计草稿相对模板的差异数量', () => {

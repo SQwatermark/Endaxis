@@ -208,7 +208,8 @@ export function projectSkillEditor(
 ): SkillEditorViewModel {
   return {
     customized,
-    diffCount: customized ? diffSkillDefinition(template, draft).length : 0,
+    // Persisted override identity and current draft differences are independent.
+    diffCount: diffSkillDefinition(template, draft).length,
     timelineBlockFrames: draft.timelineBlockFrames,
     timelineBlockFramesChanged: draft.timelineBlockFrames !== template.timelineBlockFrames,
     enhancementStateBuffId: draft.enhancementStateBuffId,
