@@ -17,6 +17,42 @@ function buff(buffId: string, extras: Partial<BuffTimelineSegment> = {}): BuffTi
 }
 
 describe('enemy status presentation rows', () => {
+  it('grows for dense overlapping states instead of clipping them into fixed lanes', () => {
+    const states = Array.from({ length: 20 }, (_, index) =>
+      buff(`ordinary-${index}`, { instanceId: index + 1, startFrame: index }),
+    );
+    const inputOrder = [...states].reverse();
+    const result = layoutEnemyStatusRows(inputOrder, [], attachmentIds);
+    expect(result.rowCount).toBe(23);
+    expect(new Set(states.map(state => result.lanes.get(state))).size).toBe(20);
+    expect(inputOrder).toEqual([...states].reverse());
+    expect(states.every(state => state.endFrame === 100)).toBe(true);
+  });
+
+  it('keeps a stacked attachment and same-frame input icons above dense anomalies', () => {
+    const anomalies = Array.from({ length: 10 }, (_, index) =>
+      buff(`anomaly-${index}`, { iconStyleInSquad: 'SpellAbnormal' }),
+    );
+    const attachment = buff('electric', { layers: 4 });
+    const result = layoutEnemyStatusRows(
+      [...anomalies, attachment],
+      [
+        { kind: 'attachmentTrigger', frame: 10, element: 'heat' },
+        { kind: 'burst', frame: 10 },
+      ],
+      attachmentIds,
+    );
+    expect(result.lanes.get(attachment)).toBe(1);
+    expect(result.markerPositions).toEqual([
+      { row: 1, slot: 0 },
+      { row: 1, slot: 1 },
+    ]);
+    expect(anomalies.map(state => result.lanes.get(state))).toEqual([
+      2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+    ]);
+    expect(result.rowCount).toBe(12);
+  });
+
   it('places the incoming conversion attachment above the resulting anomaly', () => {
     const resultBuff = buff('result', { iconStyleInSquad: 'SpellAbnormal' });
     const result = layoutEnemyStatusRows(

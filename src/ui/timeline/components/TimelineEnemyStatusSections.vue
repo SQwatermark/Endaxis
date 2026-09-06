@@ -4,17 +4,16 @@
  * 本组件只负责段落折叠、比例调整与持久化，不解释任何战斗数据。
  */
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import {
+  MONITOR_SECTION_TOPBAR_HEIGHT,
+  monitorSectionBodyMinimums,
+} from '../monitorSectionMinimums';
 
 type SectionKey = 'affliction' | 'poise' | 'sp';
 
 const COLLAPSE_STORAGE_KEY = 'endaxis:resource-monitor-section-collapse:v1';
 const LAYOUT_STORAGE_KEY = 'endaxis:resource-monitor-sections:v1';
 const sectionKeys: readonly SectionKey[] = ['affliction', 'poise', 'sp'];
-const minimumBodyHeight: Readonly<Record<SectionKey, number>> = {
-  affliction: 46,
-  poise: 26,
-  sp: 52,
-};
 
 const props = defineProps<{
   labels: Record<SectionKey, string>;
@@ -23,6 +22,8 @@ const props = defineProps<{
   afflictionMinimumHeight?: number;
   expandAllToken?: number;
 }>();
+
+const minimumBodyHeight = computed(() => monitorSectionBodyMinimums(props.afflictionMinimumHeight));
 
 const emit = defineEmits<{
   collapsePanel: [];
@@ -95,15 +96,16 @@ function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
   stopResize?.();
   activeResizeLowerKey.value = lowerKey;
   const startY = event.clientY;
-  const topbarHeight = 14;
+  const topbarHeight = MONITOR_SECTION_TOPBAR_HEIGHT;
   const upperBody = Math.max(0, upper.clientHeight - topbarHeight);
   const lowerBody = Math.max(0, lower.clientHeight - topbarHeight);
   const bodyTotal = upperBody + lowerBody;
   const weightTotal = sectionWeights[pair.upperKey] + sectionWeights[pair.lowerKey];
-  const requestedMinimumTotal = minimumBodyHeight[pair.upperKey] + minimumBodyHeight[pair.lowerKey];
+  const requestedMinimumTotal =
+    minimumBodyHeight.value[pair.upperKey] + minimumBodyHeight.value[pair.lowerKey];
   const minimumScale = Math.min(1, bodyTotal / Math.max(1, requestedMinimumTotal));
-  const upperMinimum = minimumBodyHeight[pair.upperKey] * minimumScale;
-  const lowerMinimum = minimumBodyHeight[pair.lowerKey] * minimumScale;
+  const upperMinimum = minimumBodyHeight.value[pair.upperKey] * minimumScale;
+  const lowerMinimum = minimumBodyHeight.value[pair.lowerKey] * minimumScale;
 
   const onMove = (moveEvent: PointerEvent) => {
     const nextUpperBody = Math.min(
@@ -202,7 +204,7 @@ watch(
           '--section-weight': sectionWeights[key],
           minHeight:
             key === 'affliction' && !collapsed[key]
-              ? `${props.afflictionMinimumHeight ?? 60}px`
+              ? `${minimumBodyHeight.affliction + MONITOR_SECTION_TOPBAR_HEIGHT}px`
               : key === 'poise' && !collapsed[key]
                 ? '40px'
                 : undefined,
