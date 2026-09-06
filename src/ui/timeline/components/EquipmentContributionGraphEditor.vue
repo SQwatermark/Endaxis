@@ -1003,6 +1003,13 @@ function toggleCooldownSkillType(skillType: SkillType): void {
 .fill-available .contribution-map {
   min-height: 0;
   grid-template-rows: auto minmax(0, 1fr);
+  container-type: inline-size;
+  container-name: equipment-map;
+}
+@container equipment-map (max-width: 480px) {
+  .fill-available :deep(.map-gesture-hint) {
+    display: none;
+  }
 }
 .fill-available :deep(.map-toolbar) {
   min-height: 38px;

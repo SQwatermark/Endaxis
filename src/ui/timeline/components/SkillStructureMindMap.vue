@@ -581,7 +581,10 @@ watch(
   <div ref="shell" class="mind-map-shell">
     <div class="map-toolbar">
       <span>全局结构图</span>
-      <small> {{ layout.nodes.length }} / {{ totalNodeCount }} · 空白处漫游，抓手拖放节点 </small>
+      <small title="空白处漫游，抓手拖放节点">
+        {{ layout.nodes.length }} / {{ totalNodeCount }}
+        <span class="map-gesture-hint"> · 空白处漫游，抓手拖放节点</span>
+      </small>
       <div class="history-actions">
         <button
           :disabled="!canUndo"

@@ -5,6 +5,7 @@ import workspaceSource from './GearDefinitionWorkspaceDialog.vue?raw';
 import gearSetWorkspaceSource from './GearSetDefinitionWorkspaceDialog.vue?raw';
 import { readFileSync } from 'node:fs';
 import contributionEditorSource from './EquipmentContributionGraphEditor.vue?raw';
+import mindMapSource from './SkillStructureMindMap.vue?raw';
 import contributionTypePickerSource from './EquipmentContributionTypePicker.vue?raw';
 import eventTriggerEditorSource from './CombatEventTriggerEditor.vue?raw';
 import conditionTypePickerSource from './CombatConditionTypePicker.vue?raw';
@@ -20,6 +21,13 @@ const workspaceLayout = readFileSync(
 );
 
 describe('GearDefinitionWorkspaceDialog structure', () => {
+  it('keeps node counts and gesture help available in a narrow equipment canvas', () => {
+    expect(contributionEditorSource).toContain('container-name: equipment-map');
+    expect(contributionEditorSource).toContain('@container equipment-map (max-width: 480px)');
+    expect(mindMapSource).toContain('<small title="空白处漫游，抓手拖放节点">');
+    expect(mindMapSource).toContain('{{ layout.nodes.length }} / {{ totalNodeCount }}');
+    expect(mindMapSource).toContain('class="map-gesture-hint"');
+  });
   it('shares viewport ownership across equipment hosts without making base forms unscrollable', () => {
     for (const source of [workspaceSource, weaponWorkspaceSource]) {
       expect(source).toContain("import './definitionWorkspaceLayout.css'");
