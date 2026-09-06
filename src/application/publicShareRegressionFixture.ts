@@ -86,7 +86,9 @@ export function createLowStarShareRegressionScenario() {
       initialState: { ultimateEnergy: 0 },
       skillCasts: track.actions.map(([sourceFrame, skillKey], actionIndex) => {
         const id = `public-share:${index}:${actionIndex}`;
-        const frame = Math.round((sourceFrame / sourceFps) * PROJECT_FPS);
+        // Convert the original integer frame directly; legacy compiler millisecond rounding
+        // must not turn a 30 FPS half-frame tie into a different placement.
+        const frame = Math.round((sourceFrame * PROJECT_FPS) / sourceFps);
         quantization.push({
           castId: id,
           sourceFrame,

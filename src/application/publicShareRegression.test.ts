@@ -7,6 +7,16 @@ import { projectBuffTimelineViz } from '../core/projection/buffTimelineViz';
 import { projectEnemyEffectViz } from '../core/projection/enemyEffectViz';
 import { findBuffDamageSegment } from '../ui/timeline/enemyBuffDamageHits';
 
+it('does not quantize through legacy millisecond-rounded display times', () => {
+  const { quantization } = createLowStarShareRegressionScenario();
+  // Actual output of upstream 4dadc55f compileTimeline for source 623 / 60 is 10.383s.
+  // Rounding that display value again would incorrectly choose frame 311 instead of 312.
+  expect(quantization.find(row => row.sourceFrame === 623)?.frame).toBe(312);
+  expect(Math.round(10.383 * 30)).toBe(311);
+  expect(quantization.find(row => row.sourceFrame === 943)?.frame).toBe(472);
+  expect(quantization.find(row => row.sourceFrame === 965)?.frame).toBe(483);
+});
+
 it('runs the public low-star action sequence with native definitions without rewriting placements', async () => {
   const { scenario, quantization } = createLowStarShareRegressionScenario();
   expect(quantization).toHaveLength(35);
