@@ -17,6 +17,16 @@ export interface EnemyEffectMarker {
 
 export interface EnemyEffectViz {
   readonly markers: readonly EnemyEffectMarker[];
+  readonly attachmentConversions?: readonly AttachmentConversion[];
+}
+
+export interface AttachmentConversion {
+  readonly frame: number;
+  readonly targetId: string;
+  readonly consumedBuffId: string;
+  readonly consumedInstanceId: number;
+  readonly outputBuffId: string;
+  readonly outputInstanceId: number;
 }
 
 function requireData(entry: CombatReceiptEntry): Readonly<Record<string, CombatReceiptValue>> {
@@ -74,7 +84,21 @@ export function projectEnemyEffectViz(
     throw new RangeError('endFrame must be a non-negative integer');
   }
   const markers: EnemyEffectMarker[] = [];
+  const attachmentConversions: AttachmentConversion[] = [];
   for (const entry of entries) {
+    if (entry.event === 'ElementalAttachmentConverted') {
+      const data = requireData(entry);
+      if (!entry.targetId) throw new Error(`receipt ${entry.sequence} has no conversion target`);
+      attachmentConversions.push({
+        frame: entry.frame,
+        targetId: entry.targetId,
+        consumedBuffId: requireString(entry, data, 'consumedBuffId'),
+        consumedInstanceId: requireNumber(entry, data, 'consumedInstanceId'),
+        outputBuffId: requireString(entry, data, 'outputBuffId'),
+        outputInstanceId: requireNumber(entry, data, 'outputInstanceId'),
+      });
+      continue;
+    }
     if (entry.event === 'SpellBurstApplied') {
       const data = requireData(entry);
       markers.push({
@@ -95,5 +119,5 @@ export function projectEnemyEffectViz(
       });
     }
   }
-  return { markers };
+  return { markers, ...(attachmentConversions.length ? { attachmentConversions } : {}) };
 }

@@ -13,6 +13,7 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import type { ElementalInflictionBuffIdentity } from '../infliction/elementalInflictionBuffAdapter';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 type InflictionStep = Extract<RuntimeOperation, { kind: 'applyElementalInfliction' }>;
@@ -50,7 +51,7 @@ export interface ElementalInflictionOperationDependencies {
   readonly applyOperation: (
     operation: ElementalInflictionOperation,
     skillCastInfo: CombatSkillCastInfo | undefined,
-  ) => void;
+  ) => ElementalInflictionBuffIdentity | void;
   /** 原生 OnConsumeBuff 对应事实：附着层已从目标容器中实际移除后同步报告。 */
   readonly emitSemanticAttachmentConsumed?: (attachment: ExistingElementalAttachment) => void;
   /** 附着状态已经写入目标后，向统一语义事件层报告实际施加的元素。 */
@@ -120,11 +121,31 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     this.dependencies.emitTargetEvent('beforeTakeInfliction', payload);
     const existing = this.dependencies.getExistingAttachment();
     const operations = resolveElementalInfliction(step.parameters.element, existing);
+    let consumedInstance: ElementalInflictionBuffIdentity | void = undefined;
+    let outputInstance: ElementalInflictionBuffIdentity | void = undefined;
     for (const operation of operations) {
-      this.dependencies.applyOperation(operation, context?.skillCastInfo);
+      const instance = this.dependencies.applyOperation(operation, context?.skillCastInfo);
+      if (operation.kind === 'consumeAttachment') consumedInstance = instance;
+      if (operation.kind === 'createCompoundStatus') outputInstance = instance;
       if (operation.kind === 'consumeAttachment') {
         this.dependencies.emitSemanticAttachmentConsumed?.(operation.attachment);
       }
+    }
+    if (consumedInstance && outputInstance) {
+      this.dependencies.receipt.record({
+        frame: this.dependencies.clock.frame,
+        time: this.dependencies.clock.time,
+        event: 'ElementalAttachmentConverted',
+        sourceId: this.dependencies.sourceOperatorId,
+        targetId: this.dependencies.targetId,
+        data: {
+          consumedBuffId: consumedInstance.buffId,
+          consumedInstanceId: consumedInstance.instanceId,
+          outputBuffId: outputInstance.buffId,
+          outputInstanceId: outputInstance.instanceId,
+          incomingElement: step.parameters.element,
+        },
+      });
     }
     this.dependencies.emitSourceEvent('afterOutputInfliction', payload);
     this.dependencies.emitTargetEvent('afterTakeInfliction', payload);

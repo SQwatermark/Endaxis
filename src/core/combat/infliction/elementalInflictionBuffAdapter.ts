@@ -35,6 +35,12 @@ export interface ElementalInflictionStartedPayload {
   readonly layers: number;
 }
 
+/** 本次操作实际触及的实例；仅用于记录因果，不改变附着决策。 */
+export interface ElementalInflictionBuffIdentity {
+  readonly buffId: string;
+  readonly instanceId: number;
+}
+
 export interface ElementalBuffAppliedPayload {
   readonly skillCastInfo: CombatSkillCastInfo | null;
   readonly targetId: string;
@@ -82,14 +88,15 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     return match === undefined ? null : { element: match.element, layers: match.buff.enhanceCount };
   }
 
-  apply(operation: ElementalInflictionOperation, addOptions = this.addOptions): void {
+  apply(
+    operation: ElementalInflictionOperation,
+    addOptions = this.addOptions,
+  ): ElementalInflictionBuffIdentity | void {
     switch (operation.kind) {
       case 'addAttachment':
-        this.add(this.index.getAttachment(operation.element), addOptions);
-        return;
+        return this.add(this.index.getAttachment(operation.element), addOptions);
       case 'triggerBurst':
-        this.add(this.index.getBurst(operation.element), addOptions);
-        return;
+        return this.add(this.index.getBurst(operation.element), addOptions);
       case 'consumeAttachment': {
         const projected = this.#projectedAttachment;
         if (
@@ -102,7 +109,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
           throw new Error('projected elemental attachment could not be consumed');
         }
         this.#projectedAttachment = null;
-        return;
+        return { buffId: projected.definition.id, instanceId: projected.instanceId };
       }
       case 'createCompoundStatus':
         const inputBlackboard = {
@@ -115,7 +122,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
           operation.incomingElement,
           inputBlackboard,
         );
-        this.add(
+        return this.add(
           this.index.getCompoundStatus(operation.consumedElement, operation.incomingElement),
           {
             ...addOptions,
@@ -126,14 +133,13 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
             },
           },
         );
-        return;
     }
   }
 
   private add(
     definition: CombatBuffDefinition<Key>,
     options: CombatBuffAddOptions | undefined = this.addOptions,
-  ): void {
+  ): ElementalInflictionBuffIdentity | void {
     const event: ElementalBuffAppliedPayload = {
       targetId: this.target.ownerId,
       buffId: definition.id,
@@ -143,9 +149,11 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     };
     this.onBeforeOutputBuff?.(event);
     this.onBeforeAddedBuff?.(event);
-    if (this.target.add(definition, this.sourceId, options) === null) return;
+    const added = this.target.add(definition, this.sourceId, options);
+    if (added === null) return;
     this.onBuffApplied?.(event);
     this.onOutputBuff?.(event);
+    return { buffId: added.definition.id, instanceId: added.instanceId };
   }
 
   private findAttachment():

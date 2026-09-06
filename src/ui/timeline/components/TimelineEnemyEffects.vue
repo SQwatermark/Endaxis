@@ -4,7 +4,7 @@
  * 可见 Buff = 原生图标框 + 层数角标 + 45 度条纹时长条；爆发/反应消费 = 图标标记。
  * 坐标与资源曲线同一体系（准备区偏移 + 每帧像素 + 轨道头宽度，跟随时间轴滚动）。
  */
-import { computed, watch } from 'vue';
+import { computed, watch, useId } from 'vue';
 import { useDurationBarColor } from '../durationBarColorContext';
 import { resolveDurationBarColor } from '../durationBarColor';
 import { useI18n } from 'vue-i18n';
@@ -26,7 +26,10 @@ import { frameToTimelinePx } from '../timelineGeometry';
 import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from '../lastHitBuffSummary';
 import { layoutEnemyMarkerLanes } from '../enemyMarkerLayout';
-import { projectAttachmentContinuations } from '../../../core/projection/attachmentContinuations';
+import {
+  projectAttachmentContinuations,
+  projectAttachmentConversionLinks,
+} from '../../../core/projection/attachmentContinuations';
 
 const { t, te } = useI18n();
 
@@ -135,8 +138,12 @@ const markers = computed(() =>
 const attachmentContinuations = computed(() =>
   projectAttachmentContinuations(props.buffs, props.attachmentBuffIds ?? new Set()),
 );
+const conversionGradientPrefix = useId();
+const attachmentConversions = computed(() =>
+  projectAttachmentConversionLinks(props.buffs, props.viz.attachmentConversions ?? []),
+);
 const buffs = computed(() =>
-  props.buffs.map(buff => {
+  props.buffs.map((buff, index) => {
     const left = pointX(buff.startFrame);
     const right = pointX(buff.durationEndFrame ?? buff.endFrame);
     const sourceName = props.sourceName?.(buff);
@@ -163,7 +170,14 @@ const buffs = computed(() =>
     const icon = buff.iconPath ?? getIconAssetPath(buff.iconId);
     return {
       ...buff,
-      continuedAttachment: attachmentContinuations.value.has(buff),
+      continuedAttachment:
+        attachmentContinuations.value.has(buff) || attachmentConversions.value.has(buff),
+      gradientId: `${conversionGradientPrefix}-${index}`,
+      endColor: resolveDurationBarColor(
+        durationBarColor.value,
+        'enemy',
+        attachmentConversions.value.get(buff) ?? buff,
+      ),
       key: `${buff.buffId}:${buff.instanceId}:${buff.startFrame}`,
       icon,
       left,
@@ -278,8 +292,29 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
         :style="{ color: buff.color ?? 'var(--ea-fg-muted)' }"
         aria-hidden="true"
       >
+        <defs>
+          <linearGradient
+            :id="buff.gradientId"
+            gradientUnits="userSpaceOnUse"
+            x1="0"
+            y1="10"
+            :x2="buff.barWidthPx + 2"
+            y2="10"
+          >
+            <stop offset="0%" stop-color="currentColor" stop-opacity="0.8" />
+            <stop
+              offset="100%"
+              :stop-color="buff.endColor ?? buff.color ?? 'currentColor'"
+              stop-opacity="0.8"
+            />
+          </linearGradient>
+        </defs>
         <path :d="`M 0 10 H ${buff.barWidthPx + 2}`" class="attachment-continuation-shadow" />
-        <path :d="`M 0 10 H ${buff.barWidthPx + 2}`" class="attachment-continuation-line" />
+        <path
+          :d="`M 0 10 H ${buff.barWidthPx + 2}`"
+          class="attachment-continuation-line"
+          :style="{ stroke: `url(#${buff.gradientId})` }"
+        />
         <circle r="2" cy="10" fill="currentColor">
           <animate
             attributeName="cx"

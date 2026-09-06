@@ -15,6 +15,44 @@ const STEP: Extract<ResolvedCombatStep, { kind: 'applyElementalInfliction' }> = 
 };
 
 describe('ElementalInflictionOperationExecutor', () => {
+  it.each([true, false])(
+    'records exact conversion identities only when the output was added: %s',
+    succeeds => {
+      const record = vi.fn();
+      const executor = new ElementalInflictionOperationExecutor({
+        sourceOperatorId: 'operator',
+        targetId: 'enemy',
+        skillId: 'skill',
+        clock: new CombatClock(),
+        receipt: { record },
+        getExistingAttachment: () => ({ element: 'heat', layers: 2 }),
+        applyOperation: operation =>
+          operation.kind === 'consumeAttachment'
+            ? { buffId: 'old', instanceId: 7 }
+            : succeeds
+              ? { buffId: 'new', instanceId: 9 }
+              : undefined,
+        emitSourceEvent: vi.fn(),
+        emitTargetEvent: vi.fn(),
+        delegate: { execute: () => true, evaluate: () => false },
+      });
+      executor.execute(STEP);
+      const conversions = record.mock.calls
+        .map(([entry]) => entry)
+        .filter(entry => entry.event === 'ElementalAttachmentConverted');
+      expect(conversions).toHaveLength(succeeds ? 1 : 0);
+      if (succeeds)
+        expect(conversions[0]).toMatchObject({
+          targetId: 'enemy',
+          data: {
+            consumedBuffId: 'old',
+            consumedInstanceId: 7,
+            outputBuffId: 'new',
+            outputInstanceId: 9,
+          },
+        });
+    },
+  );
   it('把 Buff 触发的法术爆发保留来源与施放身份交给统一爆发运行时', () => {
     const triggerSpellBurst = vi.fn();
     const skillCastInfo = {

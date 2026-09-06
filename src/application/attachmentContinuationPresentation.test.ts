@@ -5,9 +5,13 @@ import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { skillSettings } from '../data/combat/skillSettings';
 import { ScenarioSimulationService } from './scenarioSimulationService';
 import { projectBuffTimelineViz } from '../core/projection/buffTimelineViz';
-import { projectAttachmentContinuations } from '../core/projection/attachmentContinuations';
+import {
+  projectAttachmentContinuations,
+  projectAttachmentConversionLinks,
+} from '../core/projection/attachmentContinuations';
+import { projectEnemyEffectViz } from '../core/projection/enemyEffectViz';
 
-it('connects actual repeated Perlica infliction without creating synthetic buff definitions', async () => {
+it.each(['repeat', 'convert'])('connects actual infliction instances: %s', async mode => {
   const scenario = createEmptyScenario('attachment', 'attachment');
   scenario.battle.durationFrames = 240;
   scenario.tracks[0] = {
@@ -30,6 +34,14 @@ it('connects actual repeated Perlica infliction without creating synthetic buff 
       placement: { startFrame },
     })),
   };
+  if (mode === 'convert') {
+    const second = structuredClone(scenario.tracks[0]!);
+    second.id = 'track:1';
+    second.operator!.operatorSlug = 'wulfgard';
+    second.skillCasts = second.skillCasts.slice(1);
+    scenario.tracks[1] = second;
+    scenario.tracks[0]!.skillCasts = scenario.tracks[0]!.skillCasts.slice(0, 1);
+  }
   const service = new ScenarioSimulationService({
     index: gameDataRepository,
     spellInflictionSettings: skillSettings,
@@ -41,6 +53,17 @@ it('connects actual repeated Perlica infliction without creating synthetic buff 
     },
   });
   const run = await service.simulate(scenario, 240);
+  if (mode === 'convert') {
+    const conversions = projectEnemyEffectViz(run.receiptEntries, 240).attachmentConversions ?? [];
+    expect(conversions).toHaveLength(1);
+    const allSegments = projectBuffTimelineViz(run.receiptEntries, 240);
+    const links = projectAttachmentConversionLinks(allSegments, conversions);
+    expect(links.size).toBe(1);
+    const [head, tail] = [...links][0]!;
+    expect(head.buffId).not.toBe(tail.buffId);
+    expect(head.endFrame).toBe(tail.startFrame);
+    return;
+  }
   const ids = new Set(
     elementalAttachments.buffs
       .filter(buff => buff.role?.kind === 'elementalAttachment')

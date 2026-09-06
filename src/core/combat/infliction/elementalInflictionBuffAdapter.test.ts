@@ -46,6 +46,22 @@ function createAdapter() {
 }
 
 describe('ElementalInflictionBuffAdapter', () => {
+  it('returns the actual consumed and created identities without looking them up after callbacks', () => {
+    const { adapter } = createAdapter();
+    const applied = adapter.apply({ kind: 'addAttachment', element: 'heat' });
+    expect(applied?.buffId).toBe('attachment.heat');
+    const existing = adapter.getExistingAttachment()!;
+    const consumed = adapter.apply({ kind: 'consumeAttachment', attachment: existing });
+    expect(consumed).toEqual(applied);
+    const output = adapter.apply({
+      kind: 'createCompoundStatus',
+      consumedElement: 'heat',
+      incomingElement: 'electric',
+      consumedLayers: existing.layers,
+    });
+    expect(output?.buffId).toBe('status.heat.electric');
+    expect(output?.instanceId).not.toBe(applied?.instanceId);
+  });
   it.each([
     { kind: 'addAttachment', element: 'cryo' },
     { kind: 'triggerBurst', element: 'heat' },
