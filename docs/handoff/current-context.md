@@ -1,5 +1,15 @@
 # 当前任务快照
 
+#### 2026-09-06 效果图标统一高于持续条
+
+- 用户要求所有效果 icon 位于所有持续 segment 上层。旧版 ResourceMonitor 的
+  anomaly-icon-box 为 z-index 10、持续条为 1；新版 effect-marker 错设为 1，
+  与后绘制的持续条同层，会被覆盖。现将 effect-marker 统一为 10，附着连线
+  显式设为 1；attachment-item 不创建独立堆叠上下文，hit 与 HUD 层级不变。
+- 2 项组件编译/层级回归测试通过。实际爆发验收页能加载，但内置浏览器视口过窄，
+  截图未覆盖右侧效果区，不作为视觉验收通过。本轮未改模拟或效果坐标。
+- Buff 伤害冻结详情及状态行 hit 接入仍待继续，本轮优先修复用户指出的覆盖问题。
+
 #### 2026-09-06 Buff 伤害保留执行实例身份
 
 - dealAttackScaledDamage 从实际执行 Buff 传出 buffId、buffInstanceId、buffOwnerId、

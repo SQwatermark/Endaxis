@@ -422,6 +422,8 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
 
 <style scoped>
 .attachment-continuation {
+  position: relative;
+  z-index: 1;
   overflow: visible;
   pointer-events: none;
   flex-shrink: 0;
@@ -611,7 +613,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
 
 .effect-marker {
   position: absolute;
-  z-index: 1;
+  z-index: 10;
   width: 20px;
   height: 20px;
   box-sizing: border-box;
