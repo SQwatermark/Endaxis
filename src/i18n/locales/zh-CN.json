@@ -1344,6 +1344,7 @@
         "listenForCombatEvents": "在外层调度项的起止帧之间注册临时事件监听器。技能结束或被打断时会立即注销。",
         "startTimeDilation": "启动普通时间膨胀。作用范围、持续时间、槽位、优先级和曲线共同决定最终时钟倍率。",
         "startUltimateTimeDilation": "启动终结技专用全局时间膨胀。施法者自动忽略该倍率，并在动作结束时停止。",
+        "hideUi": "原生 HideUIAction 区间，普通分支控制终结技演出状态，独立于时间膨胀。仅阻断输入分支尚需 CommonMask 协议，不能视为统一禁止施法。",
         "setIgnoreGlobalTimeScale": "在当前动作区间内设置能力实体是否忽略全局时间倍率；启用还原时会在动作结束后撤销。"
       },
       "damageType": "伤害类型",
@@ -1422,6 +1423,7 @@
         "spawnAbilityEntity": "生成能力实体",
         "startTimeDilation": "启动时间膨胀",
         "startUltimateTimeDilation": "启动终结技时间膨胀",
+        "hideUi": "隐藏战斗界面（原生区间）",
         "setIgnoreGlobalTimeScale": "忽略全局时间倍率",
         "applyElementalInfliction": "施加元素附着",
         "triggerSpellBurst": "触发术法爆发",

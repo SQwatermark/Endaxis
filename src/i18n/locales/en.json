@@ -1352,6 +1352,7 @@
         "listenForCombatEvents": "Registers temporary event listeners for the outer scheduled sequence interval. They are disposed when the skill ends or is interrupted.",
         "startTimeDilation": "Starts ordinary time dilation. Scope, duration, slot, priority, and curve determine the resulting clock scale.",
         "startUltimateTimeDilation": "Starts ultimate-specific global time dilation. The caster ignores it automatically and it stops when the action ends.",
+        "hideUi": "Native HideUIAction interval. The normal branch controls ultimate presentation independently of time dilation. The input-only branch still requires the CommonMask protocol; this is not a universal skill lock.",
         "setIgnoreGlobalTimeScale": "Controls whether ability entities ignore global time scale for this action interval, reverting it when configured."
       },
       "damageType": "Damage type",
@@ -1430,6 +1431,7 @@
         "spawnAbilityEntity": "Spawn ability entity",
         "startTimeDilation": "Start time dilation",
         "startUltimateTimeDilation": "Start ultimate time dilation",
+        "hideUi": "Hide battle UI (native interval)",
         "setIgnoreGlobalTimeScale": "Ignore global time scale",
         "applyElementalInfliction": "Apply infliction",
         "triggerSpellBurst": "Trigger spell burst",

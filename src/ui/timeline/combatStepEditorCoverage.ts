@@ -11,7 +11,8 @@ export type PendingCombatStepEditorPriority = 'visible-result' | 'runtime-struct
  */
 export const PENDING_COMBAT_STEP_EDITOR_KINDS = {
   'visible-result': [],
-  'runtime-structure': [],
+  // 已有原生区间执行，但尚无专用 Inspector；不能伪装为已可编辑或木桩无效果。
+  'runtime-structure': ['hideUi'],
   'stump-low': [],
 } as const satisfies Readonly<Record<PendingCombatStepEditorPriority, readonly CombatStepKind[]>>;
 
