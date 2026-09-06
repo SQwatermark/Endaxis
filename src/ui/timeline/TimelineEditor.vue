@@ -326,6 +326,7 @@ import {
 } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
 import { layoutEnemyDamageHits } from './enemyDamageHitLayout';
+import { useSimulationReceiptSelection } from './useSimulationReceiptSelection';
 import { resolveBuffDisplayName } from './buffDisplayName';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
@@ -2419,11 +2420,7 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
 }
 
 const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; hitId: string } | null>(null);
-const enemyDamageDetailSequence = ref<number | null>(null);
-// 回执序号只在一次模拟中稳定，重新模拟不能悄悄打开另一笔伤害。
-watch(simulationRun, () => {
-  enemyDamageDetailSequence.value = null;
-});
+const enemyDamageDetailSequence = useSimulationReceiptSelection(simulationRun);
 const enemyDamageDetailEntries = computed(() => {
   if (enemyDamageDetailSequence.value === null) return [];
   const entries = simulationRun.value?.receiptEntries ?? [];
