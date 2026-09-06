@@ -8,6 +8,8 @@
 - 研究已记入 `D:\Projects\combat-spec\docs\hide-ui-input-lifecycle.md`。本地 dump 日志曾跳过静态表重建，版本配对未完全认证；该目录名不能证明当前版本。复刻库另有既存未提交修改，本轮不合入或覆盖。
 - 后续确认 ToggleUI 发送 ON_TOGGLE_UI_ACTION，操作掩码 getter 另受全局 block 集合约束；尚未读通两者之间的 UI 订阅端。VFS 已后台启动（8765，--no-auto-rebuild），CommonMaskCtrl.lua 存在但仍是第二层密文；已定位 LuaCypher → XXTEA，未解密成功，不能把 preview 当成 Lua 源码。
 - hybrid 快照 e5944e88 的配置来源/charId 范围逐文件校验后，31 名干员的 35 个文件含演出相关动作，34 个 HideUI 全为 false（来源范围，不是可摆放技能覆盖率）。佩丽卡 HideUI 0–52 与 UltimateTime 0–50、自然时长 114 不同；弧光为 0–55 / 0–56 / 141。新增公共动作图回归保留这些独立边界，不按分类或全长合并。下一步优先读通 false 分支的 UI 消息消费，而非扩大其他分支。
+- 后续 **Lua 已解码成功**，前述读取障碍已解决。复刻库新增固定二进制/metadata 哈希门禁的 `tools/read_lua_source.py`（5 项测试），源码只读不提交游戏资源。UIManager 禁用公共 UI 输入组后，MainHud/BattleAction 会在终结技演出期间将普通攻击/技能输入组改挂 rootGroup，因此不能把隐藏 UI 简化为全部输入关闭。
+- native `PressHandlerLongPress.OnUpdate/OnPressEnd` 已确认读取 inUltimateCasting：演出期间不推进长按计时，松开时在后续施法前返回。还须核对独立终结技输入、拖动输入、普通攻击实际请求消费及连携；不把长按式按钮规则泛化成四类技能全部已闭合。研究与可复跑命令见复刻库 hide-ui-input-lifecycle 文档最后一节，本轮未改模拟规则。
 
 #### 2026-09-06 UI 复刻重新验收
 
