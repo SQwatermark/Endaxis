@@ -2,6 +2,8 @@
 
 #### 2026-09-06 技能宽度与演出操作锁调查
 
+- 最新核对：独立终结技公开入口 OnPressUltimateSkillStart 明确读取演出标志并提前返回，前述 IndividualUltimate 普通技能手势不是其反例。连携手柄分支检查独立的控制器指示器状态；普通攻击已追到状态机的标签查询、允许接续请求和技能类型检查。尚待输入组/查询来源闭合，不新增统一全局锁，不修改伤害、中断或显示裁切逻辑。完整 RVA 与证据边界见复刻库 hide-ui-input-lifecycle 文档末节。
+
 - 同轨块体裁切、真实中断回执上界与模拟生命周期隔离已完成阶段回归；显示宽度不能取消动作、hit 或后续效果。详见逐块核对记录末尾。
 - 当前转向原生全屏演出输入限制。`HideUIAction.onlyBlockInput` 原先验证后丢弃，现以专用来源类型保留 true/false；仍未投影为运行时操作锁，不宣称已有完整支持。
 - 桌面本地 dump 可见 false 分支设置/清除 `PlayerController.inUltimateCasting`，true 分支发送独立 UICommonMask 请求。输入消费端、正式资源中的起止、重叠和热补丁行为仍待确认；不能把 TimeDilation 区间或整段终结技时长代入。
