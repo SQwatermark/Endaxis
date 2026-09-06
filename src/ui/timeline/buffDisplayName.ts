@@ -1,4 +1,19 @@
 import { commonBuffPresentationNameKeys } from '../../data/buffs/generated/commonBuffPresentationNames.generated';
+import { compoundStatusFactories } from '../../data/buffs/compoundStatusFactories';
+
+// 反应方向来自已解析配方，而不是拆分 Buff ID 猜测。
+const COMPOUND_NAME_KEYS = {
+  heat: 'combustion',
+  electric: 'electrification',
+  cryo: 'solidification',
+  nature: 'corrosion',
+} as const;
+const compoundNameKeys: Readonly<Record<string, string>> = Object.fromEntries(
+  compoundStatusFactories.factories.flatMap(factory => [
+    [factory.id, COMPOUND_NAME_KEYS[factory.incomingElement]],
+    [factory.createdBuff.buffId, COMPOUND_NAME_KEYS[factory.incomingElement]],
+  ]),
+);
 
 export interface BuffDisplayI18n {
   readonly te: (key: string) => boolean;
@@ -96,7 +111,8 @@ export function resolveBuffDisplayName(
 ): string {
   // 公共 Buff 的产品配置是展示名的权威入口；运行时和投影只需提供稳定 Buff ID。
   const configuredNameKey =
-    commonBuffPresentationNameKeys[buffId as keyof typeof commonBuffPresentationNameKeys];
+    commonBuffPresentationNameKeys[buffId as keyof typeof commonBuffPresentationNameKeys] ??
+    compoundNameKeys[buffId];
   const key = configuredNameKey?.trim();
   if (key) {
     const effectKey = `effects.name.${key}`;

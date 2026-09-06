@@ -1,5 +1,13 @@
 # 当前任务快照
 
+#### 2026-09-06 复合状态 Buff 名称
+
+- buffDisplayName 从现有 compoundStatusFactories 的 incomingElement 派生法术异常
+  名称键，同时覆盖工厂 ID 与 createdBuff.buffId；不解析 ID 字符串、不手改生成物。
+  12 种配方输出按方向显示燃烧/导电/冻结/腐蚀，复用当前语言 effects.name 文本。
+  buff_common_pulse_natural_triggered 显示“导电”；未知 ID 保留透明回退。
+- 全配方及切换语言回归通过，公共显式命名优先级和来源/单属性回退不变。
+
 #### 2026-09-06 修复反应第二附着图标缺失
 
 - ElementalInflictionApplied 的 compoundStatus 结果投影为 attachmentTrigger 瞬时
