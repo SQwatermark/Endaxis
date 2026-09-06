@@ -8,6 +8,7 @@ import { useInteractionBarrier } from './interactionSessionContext';
 export function useDialogInteractionBoundary(
   session: InteractionSession,
   active: () => boolean,
+  close?: () => void,
 ): void {
   useInteractionBarrier(session, active);
   useKeyboardShortcutScope({
@@ -15,6 +16,10 @@ export function useDialogInteractionBoundary(
     priority: 1500,
     active,
     blockLowerScopes: true,
-    handle: () => false,
+    handle: event => {
+      if (event.key !== 'Escape' || close === undefined) return false;
+      close();
+      return true;
+    },
   });
 }

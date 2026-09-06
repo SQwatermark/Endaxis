@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { useDialogInteractionBoundary } from '../../interaction/useDialogInteractionBoundary';
 
 type TimelineResetMode = 'currentKeepLoadout' | 'current' | 'all';
 
@@ -19,6 +21,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const selectedMode = ref<TimelineResetMode>('currentKeepLoadout');
+useDialogInteractionBoundary(useInteractionSession(), () => props.modelValue, close);
 
 const options = computed(() => [
   {
@@ -54,10 +57,6 @@ function unlockBodyScroll() {
   bodyScrollLocked = false;
 }
 
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape') close();
-}
-
 watch(
   () => props.modelValue,
   open => {
@@ -65,14 +64,12 @@ watch(
 
     if (open) {
       selectedMode.value = 'currentKeepLoadout';
-      document.addEventListener('keydown', handleKeydown);
       if (props.lockScroll) {
         previousBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         bodyScrollLocked = true;
       }
     } else {
-      document.removeEventListener('keydown', handleKeydown);
       unlockBodyScroll();
     }
   },
@@ -80,7 +77,6 @@ watch(
 
 onUnmounted(() => {
   if (typeof document === 'undefined') return;
-  document.removeEventListener('keydown', handleKeydown);
   unlockBodyScroll();
 });
 

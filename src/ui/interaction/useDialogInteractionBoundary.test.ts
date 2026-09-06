@@ -6,9 +6,50 @@ import { usePopoverInteractionBoundary } from './usePopoverInteractionBoundary';
 import { useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
 import enemy from '../timeline/components/EnemySettingsPanel.vue?raw';
 import global from '../timeline/components/GlobalResourcePanel.vue?raw';
+import reset from '../timeline/components/TimelineResetDialog.vue?raw';
+import markerMenu from '../timeline/components/TimelineMarkerContextMenu.vue?raw';
 
 describe('locally owned leaf dialog input', () => {
   afterEach(() => vi.unstubAllGlobals());
+
+  it('closes only the custom dialog above a popover, then gives Escape back to the popover', () => {
+    const target = new EventTarget();
+    vi.stubGlobal('window', target);
+    const scope = effectScope();
+    const session = createInteractionSession();
+    const dialog = ref(true);
+    const closePopover = vi.fn();
+    const closeDialog = vi.fn(() => {
+      dialog.value = false;
+    });
+    scope.run(() => {
+      usePopoverInteractionBoundary(session, () => true, closePopover);
+      useDialogInteractionBoundary(session, () => dialog.value, closeDialog);
+    });
+    try {
+      const escape = () =>
+        Object.assign(new Event('keydown', { cancelable: true }), { key: 'Escape' });
+      const first = escape();
+      target.dispatchEvent(first);
+      expect(first.defaultPrevented).toBe(true);
+      expect(closeDialog).toHaveBeenCalledOnce();
+      expect(closePopover).not.toHaveBeenCalled();
+      target.dispatchEvent(escape());
+      expect(closePopover).toHaveBeenCalledOnce();
+      expect(closeDialog).toHaveBeenCalledOnce();
+    } finally {
+      scope.stop();
+    }
+  });
+
+  it('routes reset and marker menu Escape without independent document/window listeners', () => {
+    expect(reset).toContain(
+      'useDialogInteractionBoundary(useInteractionSession(), () => props.modelValue, close)',
+    );
+    expect(markerMenu).toContain('usePopoverInteractionBoundary(');
+    for (const source of [reset, markerMenu])
+      expect(source).not.toContain("addEventListener('keydown'");
+  });
 
   it('blocks background commands and leaves native Escape to the dialog above a popover', () => {
     const target = new EventTarget();

@@ -1,5 +1,19 @@
 # 当前任务快照
 
+#### 2026-09-07 重置框与标记菜单关闭命令统一路由
+
+- TimelineResetDialog 移除 document keydown，使用支持可选 close 的
+  useDialogInteractionBoundary；Element Plus 弹窗未传 close 时仍保留原生处理。
+  自定义重置框主动消费 Escape，高于背景普通浮层，不会先关底下的更多。
+- TimelineMarkerContextMenu 移除 window keydown，复用 popover 输入边界。
+  保留既有外部点击关闭、位置与菜单操作，不改外观和模拟。
+- 深色浏览器实测更多→重置，第一次 Escape 仅关重置、更多保留；第二次关更多。
+  没有确认重置，技能仍在。标记菜单本轮接线测试覆盖，未单独浏览器验证。
+- 898 项时间轴/键盘/交互测试及应用类型检查通过。
+- 待处理：浏览器显示重置框打开后焦点仍留在背景重置按钮，需补进入/返回及
+  键盘焦点约束；武器选择器 Ctrl 满潜预览仍有独立 keydown/keyup 监听，需按
+  输入归属管理按住状态，不能仅机械搬进普通命令路由。完整逻辑区域树仍未完成。
+
 #### 2026-09-07 导图类型选择浮层接入统一输入边界
 
 - StepTypePicker、CombatConditionTypePicker、EquipmentContributionTypePicker 复用

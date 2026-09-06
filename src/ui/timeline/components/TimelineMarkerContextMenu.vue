@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 const { t } = useI18n({ useScope: 'global' });
 
 const props = defineProps<{
@@ -42,6 +44,11 @@ const emit = defineEmits<{
   delete: [];
 }>();
 const menu = ref<HTMLElement | null>(null);
+usePopoverInteractionBoundary(
+  useInteractionSession(),
+  () => props.visible,
+  () => emit('close'),
+);
 const left = ref(0);
 const top = ref(0);
 
@@ -57,17 +64,12 @@ async function position(): Promise<void> {
 function outside(event: PointerEvent): void {
   if (props.visible && !menu.value?.contains(event.target as Node)) emit('close');
 }
-function keyboard(event: KeyboardEvent): void {
-  if (props.visible && event.key === 'Escape') emit('close');
-}
 watch(() => [props.visible, props.x, props.y], position, { immediate: true });
 onMounted(() => {
   window.addEventListener('pointerdown', outside, true);
-  window.addEventListener('keydown', keyboard);
 });
 onBeforeUnmount(() => {
   window.removeEventListener('pointerdown', outside, true);
-  window.removeEventListener('keydown', keyboard);
 });
 </script>
 
