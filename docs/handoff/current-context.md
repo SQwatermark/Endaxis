@@ -2,6 +2,11 @@
 
 #### 2026-09-06 技能宽度与演出操作锁调查
 
+- 真实整名验证：新增 `hideUiRealOperatorRuntime.test.ts`，显式指定 `ENDAXIS_HIDE_UI_SOURCE_ROOT=tmp/game-data-sources-hybrid-20260905`；逐文件校验并固定 e5944e88 快照，内存重建佩丽卡/弧光完整候选，实际放置终结技进入 ScenarioSimulationService。回执分别为 0→52、0→55 帧，均产生 DamageApplied；联合执行器 6 项通过。不把这两名探针说成全干员或输入限制完成。
+- 本轮发现正式 `src/data/global-buffs/global-buff-templates.generated.json` 缺少当前来源解析器必填的 `globalModifiers`，直接整名生成会失败。本次显式通过 `ENDAXIS_HIDE_UI_GLOBAL_BUFF_CATALOG=tmp/global-buff-catalog-current-schema.json` 使用已有重导出候选（同版本/同来源 SHA，包含该字段），未放宽解析、未手补正式资源。正式干员仍未重生成；下一步先从来源重导出并验证公共目录，避免发布混合格式，再扩展整批 HideUI 候选验证及已确认的输入诊断。测试仅验证演出回执与伤害存在，不宣称伤害完整差分或浏览器展示已验收。
+- 后续实际回读 VFS 两份 GlobalBuff preview，经 `parseGlobalBuffDumpSource` 校验原始 SHA 和候选模板深比较均通过。联合来源/执行器/真实整名探针 14 项通过；修正已有 HideUI 来源测试向两参数回调直接传三参数解析器的类型错误，显式传入该夹具的空初始黑板。
+- 扩展运行时及主动技能转换回归 75 文件 / 935 项通过，`npm run type-check:game-data` 通过；真实探针按候选天赋自身等级上限构筑，不硬填统一等级。未修改正式资源、技能显示宽度或中断判定。
+
 - 最新 TS 接通：公共 hideUi 步骤与必填 onlyBlockInput 校验、技能编译、独立 uiVisibility 来源分类及主动技能转换已实现，避免纯表现过滤丢掉区间。运行时共享 UltimatePresentationRuntime，按动作 Execute/End 记录 UltimatePresentationChanged（现实帧、来源动作、active/showUi），不依赖 TimeDilation、不自行建立引用计数。true 分支仍明确报 CommonMask 未支持。应用类型检查及生产编译器类型检查通过，定向 180 项、运行时 74 文件/876 项通过。
 - 尚未重新生成正式干员产物，未增加输入禁用诊断，未开放专门的 hideUi 图形编辑入口；不宣称浏览器效果或全局操作锁已完成。下一步先用真实来源重生成代表技能，核对条件/生命周期/回执，再接已确认的输入门禁。不得由块体裁切或 TimeDilation 区间推导演出起止。
 

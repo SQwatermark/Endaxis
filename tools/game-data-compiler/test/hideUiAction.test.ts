@@ -46,7 +46,7 @@ describe('HideUIAction source preservation', () => {
       },
       'fixture',
       {},
-      parseKnownNativeActionLeafSource,
+      (value, path) => parseKnownNativeActionLeafSource(value, path, {}),
     );
     expect(parsed.durationFrame).toBe(114);
     expect(
