@@ -1,0 +1,76 @@
+import { describe, expect, it } from 'vitest';
+import type { BuffTimelineSegment } from '../../core/projection/buffTimelineViz';
+import { layoutEnemyStatusRows } from './enemyStatusRows';
+
+const attachmentIds = new Set(['electric', 'heat']);
+function buff(buffId: string, extras: Partial<BuffTimelineSegment> = {}): BuffTimelineSegment {
+  return {
+    buffId,
+    targetId: 'enemy',
+    instanceId: 1,
+    startFrame: 0,
+    endFrame: 100,
+    layers: 1,
+    placement: 'upper',
+    ...extras,
+  };
+}
+
+describe('enemy status presentation rows', () => {
+  it('keeps attachment chains together irrespective of ordinary buff overlap or input order', () => {
+    const first = buff('electric', { endFrame: 30 });
+    const second = buff('electric', { startFrame: 30, layers: 2 });
+    const ordinary = buff('ordinary');
+    const result = layoutEnemyStatusRows([ordinary, second, first], [], attachmentIds);
+    expect(result.lanes.get(first)).toBe(1);
+    expect(result.lanes.get(second)).toBe(1);
+    expect(result.lanes.get(ordinary)).toBe(3);
+    expect(result.rowCount).toBe(4);
+    expect(first.endFrame).toBe(30);
+  });
+
+  it('uses explicit attachment identity ahead of native HUD metadata and retains unknown states', () => {
+    const attachment = buff('electric', { showInHeadBarAttached: true });
+    const physical = buff('physical', { showInHeadBarAttached: true });
+    const anomaly = buff('anomaly', { iconStyleInSquad: 'SpellAbnormal' });
+    const unknown = buff('unknown', { iconId: 'icon_battle_frozen' });
+    const result = layoutEnemyStatusRows(
+      [attachment, physical, anomaly, unknown],
+      [],
+      attachmentIds,
+    );
+    expect([physical, attachment, anomaly, unknown].map(item => result.lanes.get(item))).toEqual([
+      0, 1, 2, 3,
+    ]);
+  });
+
+  it('packs concurrent anomalies separately, reuses ended lanes, and places ordinary states after them', () => {
+    const a = buff('a', { iconStyleInSquad: 'SpellAbnormal' });
+    const b = buff('b', { iconStyleInSquad: 'SpellAbnormal', endFrame: 50 });
+    const c = buff('c', { iconStyleInSquad: 'SpellAbnormal', startFrame: 50 });
+    const ordinary = buff('ordinary');
+    const result = layoutEnemyStatusRows([a, b, c, ordinary], [], attachmentIds);
+    expect([a, b, c, ordinary].map(item => result.lanes.get(item))).toEqual([2, 3, 3, 4]);
+  });
+
+  it('puts bursts in the attachment row with same-time horizontal slots, not below every buff', () => {
+    const result = layoutEnemyStatusRows(
+      [buff('ordinary')],
+      [
+        { kind: 'burst', frame: 10 },
+        { kind: 'reactionConsumed', frame: 10 },
+        { kind: 'burst', frame: 10 },
+        { kind: 'burst', frame: 20 },
+      ],
+      attachmentIds,
+    );
+    expect(result.markerPositions).toEqual([
+      { row: 1, slot: 0 },
+      { row: 2, slot: 0 },
+      { row: 1, slot: 1 },
+      { row: 1, slot: 0 },
+    ]);
+    expect(result.rowCount).toBe(4);
+    expect(layoutEnemyStatusRows([], [], attachmentIds).rowCount).toBe(3);
+  });
+});

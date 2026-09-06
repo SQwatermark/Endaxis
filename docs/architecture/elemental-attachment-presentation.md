@@ -26,10 +26,23 @@ afflictionConnectionItems / reactedAttachmentKeys。
 当前渐变线消费已有颜色设置，使用 userSpaceOnUse 避免水平路径的零高包围盒导致
 SVG 渐变不可见。模板编译不等于视觉验收。
 
+## 已接入：附着行和瞬时图标分区
+
+`enemyStatusRows.ts` 负责纯展示布局，保留原始段对象供实例连线匹配。
+依据旧版 ResourceMonitor 的 afflictionLayout / pushGroupedMarkers：先头顶状态区，
+再附着区、异常区、普通状态区；前三个分区至少保留一行。附着所有切段同一行，
+爆发在附着行，反应消费在异常区，同帧瞬时图标横向错开 22px，时间锚点左对齐。
+
+分类优先使用 elementalAttachment role 对应的 ID 集合，再消费原生
+showInHeadBarAttached / iconStyleInSquad=SpellAbnormal，未知项保留在普通区，
+不根据 iconId 或名称推测。头顶区不等于新增“物理状态”语义；旧版物理代表图标
+合并尚未移植，目前重叠头顶状态仍分行保留，不擅自丢弃实例。异常和普通状态
+分别按持续时间避让，避免普通 Buff 改变附着链所在行。
+
 ## 剩余边界
 
 触发元素仅参与反应而未留下附着时只应显示瞬时节点；爆发与反应伤害继续与持续段
-区分。附着专用行与瞬时标记排版尚未整体完成；隐藏复合状态工厂通过回调产生可见
+区分。物理代表图标合并及密集瞬时节点的整体视觉验收尚未完成；隐藏复合状态工厂通过回调产生可见
 子 Buff 的场景，不能将根实例强行映射到任意同帧子项，后续需显式的输出关系。
 
 ## 验证

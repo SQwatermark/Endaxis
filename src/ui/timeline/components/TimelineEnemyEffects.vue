@@ -25,7 +25,7 @@ import {
 import { frameToTimelinePx } from '../timelineGeometry';
 import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from '../lastHitBuffSummary';
-import { layoutEnemyMarkerLanes } from '../enemyMarkerLayout';
+import { layoutEnemyStatusRows } from '../enemyStatusRows';
 import {
   projectAttachmentContinuations,
   projectAttachmentConversionLinks,
@@ -108,9 +108,8 @@ function pointX(frame: number): number {
 const width = computed(() => Math.max(1, props.trackHeaderWidth + props.timelineWidth));
 
 /** 爆发/反应标记：小图标框，hover 显示说明。 */
-const buffRowCount = computed(() => Math.max(0, ...props.buffs.map(buff => buff.lane + 1)));
-const markerLanes = computed(() =>
-  layoutEnemyMarkerLanes(props.viz.markers.map(marker => pointX(marker.frame) - ICON_SIZE / 2)),
+const statusRows = computed(() =>
+  layoutEnemyStatusRows(props.buffs, props.viz.markers, props.attachmentBuffIds ?? new Set()),
 );
 const markers = computed(() =>
   props.viz.markers.map((marker, index) => {
@@ -125,11 +124,13 @@ const markers = computed(() =>
     return {
       key: `${index}:${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
       icon,
-      x: pointX(marker.frame) - ICON_SIZE / 2,
+      x:
+        pointX(marker.frame) +
+        (statusRows.value.markerPositions[index]?.slot ?? 0) * (ICON_SIZE + 2),
       top:
         SECTION_TOPBAR_HEIGHT +
         ICON_TOP +
-        (buffRowCount.value + (markerLanes.value[index] ?? 0)) * EFFECT_ROW_PITCH,
+        (statusRows.value.markerPositions[index]?.row ?? 0) * EFFECT_ROW_PITCH,
       title,
     };
   }),
@@ -181,7 +182,10 @@ const buffs = computed(() =>
       key: `${buff.buffId}:${buff.instanceId}:${buff.startFrame}`,
       icon,
       left,
-      top: SECTION_TOPBAR_HEIGHT + ICON_TOP + buff.lane * EFFECT_ROW_PITCH,
+      top:
+        SECTION_TOPBAR_HEIGHT +
+        ICON_TOP +
+        (statusRows.value.lanes.get(buff) ?? 0) * EFFECT_ROW_PITCH,
       barWidthPx: Math.max(0, right - left - ICON_SIZE - 2),
       color: resolveDurationBarColor(durationBarColor.value, 'enemy', buff),
       title,
@@ -200,9 +204,7 @@ const buffs = computed(() =>
   }),
 );
 
-const rowCount = computed(
-  () => buffRowCount.value + Math.max(0, ...markerLanes.value.map(lane => lane + 1)),
-);
+const rowCount = computed(() => statusRows.value.rowCount);
 const minimumHeight = computed(() =>
   Math.max(
     SECTION_TOPBAR_HEIGHT + 46,
