@@ -1,5 +1,19 @@
 # 当前任务快照
 
+#### 2026-09-06 不同 Buff 共享详情与结果替换的浏览器隔离验收
+
+- tmp/receipt-lifecycle-qa 使用正式 TimelineEnemyEffects、TimelineHitDetailDialog、
+  layoutEnemyDamageHits、useSimulationReceiptSelection；两个合成 Buff 在同一行
+  边界帧分别产生 111/222。点击共享入口，浏览器显示 fixture-a / fixture-b 两份
+  独立来源和数值。弹窗打开时通过夹具按钮发布复用 sequence=1 的 999 新结果，
+  选择变为空且弹窗关闭（截图）；再次点击后只显示 999，无旧条目残留。
+- 深色初始化需要同时启用 Element Plus 的 html.dark；第一次夹具遗漏该 class，
+  出现白底，修正夹具后重新点击并截图。没有为此修改生产主题样式。
+- 这是正式组件 + 真实选择生命周期的浏览器隔离测试，输入为合成展示回执，
+  不是游戏机制证据，也不是整个 TimelineEditor 后台任务端到端测试。临时文件
+  未提交。本轮不修改生产代码；共享入口/详情/结果失效的当前专项验收结束，
+  后续回到状态栏相邻帧图标密集时的可读性，不继续反复验证同一案例。
+
 #### 2026-09-06 回执详情选择同步绑定已发布模拟
 
 - 提取 useSimulationReceiptSelection 用于敌人伤害详情。原默认 watcher 在 Vue
