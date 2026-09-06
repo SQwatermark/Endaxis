@@ -3,9 +3,22 @@ import {
   monitorSectionBodyMinimums,
   MONITOR_SECTION_TOPBAR_HEIGHT,
   resizeMonitorSectionBodies,
+  monitorInteractiveContentHeight,
+  MONITOR_RESIZE_HANDLE_REACH,
 } from './monitorSectionMinimums';
 
 describe('monitor section content minimums', () => {
+  it('reserves the separator hit band below the full damage button, not just its diamond', () => {
+    const top = 81;
+    const buttonBottom = top - 3 + 12;
+    const height = monitorInteractiveContentHeight(buttonBottom);
+    expect(height).toBe(96);
+    expect(height - MONITOR_RESIZE_HANDLE_REACH).toBe(buttonBottom);
+    expect(monitorSectionBodyMinimums(height).affliction + MONITOR_SECTION_TOPBAR_HEIGHT).toBe(
+      height,
+    );
+  });
+
   it('starts from constrained visible heights without moving the third section', () => {
     const bodies = { affliction: 202, poise: 40, sp: 100 };
     const minimums = monitorSectionBodyMinimums(216);

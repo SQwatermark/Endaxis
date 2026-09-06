@@ -1,6 +1,12 @@
 export type MonitorSectionKey = 'affliction' | 'poise' | 'sp';
 
 export const MONITOR_SECTION_TOPBAR_HEIGHT = 14;
+export const MONITOR_RESIZE_HANDLE_REACH = 6;
+
+/** Interactive content must end before the neighboring separator's hit band. */
+export function monitorInteractiveContentHeight(bottom: number): number {
+  return bottom + MONITOR_RESIZE_HANDLE_REACH;
+}
 
 /** 从实际显示高度开始拖动，不能复用已被 min-height 约束改变比例的旧权重。 */
 export function resizeMonitorSectionBodies(

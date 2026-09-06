@@ -7,12 +7,15 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import {
   MONITOR_SECTION_TOPBAR_HEIGHT,
+  MONITOR_RESIZE_HANDLE_REACH,
   monitorSectionBodyMinimums,
   resizeMonitorSectionBodies,
 } from '../monitorSectionMinimums';
 
 type SectionKey = 'affliction' | 'poise' | 'sp';
 const interactionSession = useInteractionSession();
+const resizeHandleTop = `${-MONITOR_RESIZE_HANDLE_REACH}px`;
+const resizeHandleHeight = `${MONITOR_RESIZE_HANDLE_REACH * 2}px`;
 
 const COLLAPSE_STORAGE_KEY = 'endaxis:resource-monitor-section-collapse:v1';
 const LAYOUT_STORAGE_KEY = 'endaxis:resource-monitor-sections:v1';
@@ -372,10 +375,10 @@ watch(
   content: '';
   position: absolute;
   z-index: 1;
-  top: -6px;
+  top: v-bind(resizeHandleTop);
   right: 0;
   left: 180px;
-  height: 12px;
+  height: v-bind(resizeHandleHeight);
   cursor: ns-resize;
 }
 

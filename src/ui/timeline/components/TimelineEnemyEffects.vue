@@ -28,6 +28,7 @@ import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from '../lastHitBuffSummary';
 import { layoutEnemyStatusRows } from '../enemyStatusRows';
 import { layoutEnemyDamageHits } from '../enemyDamageHitLayout';
+import { monitorInteractiveContentHeight } from '../monitorSectionMinimums';
 import {
   projectAttachmentContinuations,
   projectAttachmentConversionLinks,
@@ -253,6 +254,14 @@ const minimumHeight = computed(() =>
   Math.max(
     SECTION_TOPBAR_HEIGHT + 46,
     SECTION_TOPBAR_HEIGHT + rowCount.value * EFFECT_ROW_PITCH + 2,
+    // Last-row icon and hit targets must not overlap the section resize band.
+    monitorInteractiveContentHeight(
+      SECTION_TOPBAR_HEIGHT +
+        ICON_TOP +
+        Math.max(0, rowCount.value - 1) * EFFECT_ROW_PITCH +
+        ICON_SIZE,
+    ),
+    ...damageHits.value.map(hit => monitorInteractiveContentHeight(hit.top - 3 + 12)),
     // 156px 摘要宽度一行容纳7个18px图标；保留完整换行和底部内边距。
     visibleLastHitBuffs.value.length > 7 ? 106 : visibleLastHitBuffs.value.length > 0 ? 84 : 60,
   ),
