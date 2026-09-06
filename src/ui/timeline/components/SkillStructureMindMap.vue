@@ -279,10 +279,32 @@ function runNodeAction(action: 'delete' | 'copy' | 'paste', node: MapNodeSource)
   emit('nodeAction', action, node);
 }
 
+function clipboardNodeAction(command: 'copy' | 'paste'): boolean {
+  const node =
+    contextMenu.value?.node ??
+    (props.selectedId === undefined ? undefined : findNode(props.root, props.selectedId));
+  if (node === undefined) return false;
+  if (command === 'copy') {
+    if (node.payloadKind === undefined || node.canCopy === false) return false;
+  } else if (props.clipboardKind === undefined || node.acceptsChildKind !== props.clipboardKind) {
+    return false;
+  }
+  runNodeAction(command, node);
+  return true;
+}
+
+function handleClipboard(event: ClipboardEvent): boolean {
+  if (isTextEditingTarget(event.target)) return false;
+  return (event.type === 'copy' || event.type === 'paste') && clipboardNodeAction(event.type);
+}
+
 function handleKeyboard(event: KeyboardEvent): boolean {
   if (isTextEditingTarget(event.target)) return false;
   const command = event.ctrlKey || event.metaKey;
   const key = event.key.toLocaleLowerCase();
+  if (command && !event.altKey && (key === 'c' || key === 'v')) {
+    return clipboardNodeAction(key === 'c' ? 'copy' : 'paste');
+  }
   if (command && !event.altKey && key === 'z') {
     emit('historyAction', event.shiftKey ? 'redo' : 'undo');
     return true;
@@ -301,15 +323,6 @@ function handleKeyboard(event: KeyboardEvent): boolean {
     node.canDelete !== false
   ) {
     runNodeAction('delete', node);
-  } else if (command && key === 'c' && node.payloadKind !== undefined && node.canCopy !== false) {
-    runNodeAction('copy', node);
-  } else if (
-    command &&
-    key === 'v' &&
-    props.clipboardKind !== undefined &&
-    node.acceptsChildKind === props.clipboardKind
-  ) {
-    runNodeAction('paste', node);
   } else return false;
   return true;
 }
@@ -320,11 +333,13 @@ useKeyboardShortcutScope({
   active: () => active.value,
   blockLowerScopes: true,
   handle: handleKeyboard,
+  handleClipboard,
 });
 useKeyboardShortcutScope({
   id: 'structure-map-menu',
   priority: 300,
   active: () => active.value && contextMenu.value !== undefined,
+  handleClipboard,
   blockLowerScopes: true,
   handle: event => {
     if (event.key === 'Escape') {

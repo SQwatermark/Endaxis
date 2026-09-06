@@ -4590,6 +4590,13 @@ useKeyboardShortcutScope({
   priority: 10,
   active: () =>
     !hasModalPanel.value && contextMenuTarget.value === null && markerContextTarget.value === null,
+  handleClipboard: event => {
+    if (isKeyboardShortcutIsolationTarget(event.target)) return false;
+    if (event.type === 'copy') return copySelectedActions();
+    if (event.type !== 'paste' || timelineClipboard.value === null) return false;
+    pasteClipboardAtCursor();
+    return true;
+  },
   handle: event => {
     if (isKeyboardShortcutIsolationTarget(event.target)) return false;
     return handleTimelineEditorShortcut(event, {

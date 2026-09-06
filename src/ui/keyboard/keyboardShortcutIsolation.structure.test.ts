@@ -13,8 +13,9 @@ describe('keyboard shortcut isolation integration', () => {
     expect(mapSource).toContain('isTextEditingTarget(event.target)');
     expect(mapSource).not.toContain("window.addEventListener('keydown'");
     expect(mapSource).not.toContain('stopImmediatePropagation');
-    expect(mapSource.indexOf("emit('historyAction'")).toBeLessThan(
-      mapSource.indexOf('if (node === undefined) return false'),
+    const keyboard = mapSource.slice(mapSource.indexOf('function handleKeyboard('));
+    expect(keyboard.indexOf("emit('historyAction'")).toBeLessThan(
+      keyboard.indexOf('if (node === undefined) return false'),
     );
   });
   it('routes the timeline action menu through the shared dispatcher with an unhandled-key barrier', () => {

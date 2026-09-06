@@ -1,5 +1,25 @@
 # 当前任务快照
 
+#### 2026-09-07 原生剪贴板事件共用编辑命令与作用域
+
+- 浏览器证据明确：computer-use Ctrl+C 实际派发 copy 而非 keydown。原实现只有
+  keydown，所以未复制节点；这也暴露浏览器编辑菜单等无按键入口未接入的问题。
+- KeyboardShortcutRouter 增加原生 copy/paste 路由，复用同一作用域排序与屏障；
+  文本输入不接管，已处理事件不重复执行。不伪造 KeyboardEvent，不引入各组件
+  独立 window 监听。页面最后一个 scope 卸载时同时移除三类监听。
+- 导图按键与原生事件共用 clipboardNodeAction/runNodeAction，时间轴原生事件
+  调用既有 copySelectedActions/pasteClipboardAtCursor。保持应用内部剪贴板，
+  本轮不新增跨项目/系统剪贴板序列化格式，也不新增 cut 命令。
+- 正式深色导图浏览器验收：调度序列 Ctrl+C 出现“剪贴板：调度序列”；选根后
+  Ctrl+V 由 2 条→3 条（10→12 节点），Ctrl+Z 回到 2 条、Ctrl+Y 恢复 3 条。
+  工具要求虚拟剪贴板非空才派发 paste，临时写入 clipboard-event-qa，随后清空；
+  应用粘贴的是内部序列而非该文本。原浏览器剪贴板为空，没有覆盖用户内容。
+- Inspector 数值输入框 copy 的 defaultPrevented=false，Ctrl+Z 不撤销导图。
+  数值框未取得可复制文本，不据此声称系统剪贴板内容验收通过。测试草稿点取消，
+  没保存模板。主时间轴原生剪贴板入口本轮测试/接线覆盖，尚未单独浏览器验收。
+- 889 项时间轴/键盘/交互测试及应用类型检查通过。仍需普通 Element Plus 浮层
+  生命周期与逻辑父子区域模型；当前优先级/DOM 保护仍是过渡设施。
+
 #### 2026-09-06 程序式确认框的统一输入屏障
 
 - createAsyncModalBoundary/useAsyncModalBoundary 以确认 Promise 生命周期管理输入：

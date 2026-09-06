@@ -9,6 +9,8 @@ export interface KeyboardShortcutScope {
   readonly priority: number;
   readonly active: () => boolean;
   readonly handle: (event: KeyboardEvent) => boolean;
+  /** Browser edit menus dispatch clipboard events without a keydown. Same owner, same commands. */
+  readonly handleClipboard?: (event: ClipboardEvent) => boolean;
   /** 当前作用域未处理该键时，是否仍阻止更低层页面快捷键接管。 */
   readonly blockLowerScopes?: boolean;
 }
@@ -56,12 +58,26 @@ export class KeyboardShortcutRouter {
   route(event: KeyboardEvent): boolean {
     // An IME owns its composition keys; a previously handled event is not a new command.
     if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return false;
+    return this.#dispatch(event, scope => scope.handle(event));
+  }
+
+  routeClipboard(event: ClipboardEvent): boolean {
+    if (
+      event.defaultPrevented ||
+      (event.type !== 'copy' && event.type !== 'paste') ||
+      isTextEditingTarget(event.target)
+    )
+      return false;
+    return this.#dispatch(event, scope => scope.handleClipboard?.(event) ?? false);
+  }
+
+  #dispatch(event: Event, handle: (scope: RegisteredKeyboardShortcutScope) => boolean): boolean {
     const activeScopes = [...this.#scopes.values()]
       .filter(scope => scope.active())
       .sort((left, right) => right.priority - left.priority || right.order - left.order);
 
     for (const scope of activeScopes) {
-      if (scope.handle(event)) {
+      if (handle(scope)) {
         event.preventDefault();
         event.stopPropagation();
         return true;
@@ -80,9 +96,15 @@ function routePageKeyboardEvent(event: KeyboardEvent): void {
   pageKeyboardShortcutRouter.route(event);
 }
 
+function routePageClipboardEvent(event: ClipboardEvent): void {
+  pageKeyboardShortcutRouter.routeClipboard(event);
+}
+
 function ensurePageListener(): void {
   if (listening || typeof window === 'undefined') return;
   window.addEventListener('keydown', routePageKeyboardEvent, true);
+  window.addEventListener('copy', routePageClipboardEvent, true);
+  window.addEventListener('paste', routePageClipboardEvent, true);
   listening = true;
 }
 
@@ -96,6 +118,8 @@ export function useKeyboardShortcutScope(scope: KeyboardShortcutScope): void {
     pageScopeCount -= 1;
     if (pageScopeCount === 0 && listening && typeof window !== 'undefined') {
       window.removeEventListener('keydown', routePageKeyboardEvent, true);
+      window.removeEventListener('copy', routePageClipboardEvent, true);
+      window.removeEventListener('paste', routePageClipboardEvent, true);
       listening = false;
     }
   });
