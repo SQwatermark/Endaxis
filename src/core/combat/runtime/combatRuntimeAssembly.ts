@@ -884,8 +884,8 @@ export class CombatRuntimeAssembly {
           resolveActualFrame: () => this.clock.frame,
           onSkillOperableBoundaryReached: fact =>
             this.receipt.record({
-              frame: fact.actualEndFrame,
-              time: fact.actualEndFrame / COMBAT_FRAMES_PER_SECOND,
+              frame: fact.reachedAtFrame,
+              time: fact.reachedAtFrame / COMBAT_FRAMES_PER_SECOND,
               event: 'SkillOperableBoundaryReached',
               sourceId: operator.operatorId,
               data: {

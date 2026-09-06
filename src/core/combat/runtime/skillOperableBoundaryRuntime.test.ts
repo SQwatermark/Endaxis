@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SkillOperableBoundaryRuntime } from './skillOperableBoundaryRuntime';
 
 describe('SkillOperableBoundaryRuntime', () => {
-  it('scale=1：累计 30 次 1 帧后，在 frameEndExclusive=30 返回一次边界', () => {
+  it('scale=1：累计 30 次 1 帧后，在 updateFrame=30 返回一次边界', () => {
     const runtime = new SkillOperableBoundaryRuntime();
     runtime.begin('cast:normal', 30, 0);
 
@@ -10,7 +10,7 @@ describe('SkillOperableBoundaryRuntime', () => {
       expect(runtime.advance(1, frame)).toEqual([]);
     }
     expect(runtime.advance(1, 30)).toEqual([
-      { castId: 'cast:normal', durationFrames: 30, actualEndFrame: 30 },
+      { castId: 'cast:normal', durationFrames: 30, reachedAtFrame: 30 },
     ]);
     // 到达后移除，不得重复返回。
     expect(runtime.advance(1, 31)).toEqual([]);
@@ -26,7 +26,7 @@ describe('SkillOperableBoundaryRuntime', () => {
       expect(runtime.advance(0.5, frame)).toEqual([]);
     }
     expect(runtime.advance(0.5, 60)).toEqual([
-      { castId: 'cast:slowed', durationFrames: 30, actualEndFrame: 60 },
+      { castId: 'cast:slowed', durationFrames: 30, reachedAtFrame: 60 },
     ]);
   });
 
@@ -38,7 +38,7 @@ describe('SkillOperableBoundaryRuntime', () => {
       expect(runtime.advance(1, frame)).toEqual([]);
     }
     expect(runtime.advance(1, 30)).toEqual([
-      { castId: 'cast:excluded', durationFrames: 30, actualEndFrame: 30 },
+      { castId: 'cast:excluded', durationFrames: 30, reachedAtFrame: 30 },
     ]);
   });
 
@@ -50,7 +50,7 @@ describe('SkillOperableBoundaryRuntime', () => {
       expect(runtime.advance(0.2, frame)).toEqual([]);
     }
     expect(runtime.advance(0.2, 150)).toEqual([
-      { castId: 'cast:fractional', durationFrames: 30, actualEndFrame: 150 },
+      { castId: 'cast:fractional', durationFrames: 30, reachedAtFrame: 150 },
     ]);
   });
 
@@ -63,14 +63,14 @@ describe('SkillOperableBoundaryRuntime', () => {
       expect(runtime.advance(1, frame)).toEqual([]);
     }
     expect(runtime.advance(1, 10)).toEqual([
-      { castId: 'cast:short', durationFrames: 10, actualEndFrame: 10 },
+      { castId: 'cast:short', durationFrames: 10, reachedAtFrame: 10 },
     ]);
     // 短序列已经到达，但长序列仍继续累计；本模块不关心前者的 sequence 是否自然结束。
     for (let frame = 11; frame <= 19; frame += 1) {
       expect(runtime.advance(1, frame)).toEqual([]);
     }
     expect(runtime.advance(1, 20)).toEqual([
-      { castId: 'cast:long', durationFrames: 20, actualEndFrame: 20 },
+      { castId: 'cast:long', durationFrames: 20, reachedAtFrame: 20 },
     ]);
   });
 
@@ -87,7 +87,7 @@ describe('SkillOperableBoundaryRuntime', () => {
 
     expect(() => runtime.advance(-1, 1)).toThrow('deltaFrames');
     expect(() => runtime.advance(Number.POSITIVE_INFINITY, 1)).toThrow('deltaFrames');
-    expect(() => runtime.advance(1, 1.5)).toThrow('frameEndExclusive');
+    expect(() => runtime.advance(1, 1.5)).toThrow('updateFrame');
     expect(runtime.advance(1, -1)).toEqual([]);
 
     expect(runtime.advance(0, 10)).toEqual([]);
@@ -101,7 +101,7 @@ describe('SkillOperableBoundaryRuntime', () => {
     expect(runtime.advance(1, -3)).toEqual([]);
     expect(runtime.advance(1, -2)).toEqual([]);
     expect(runtime.advance(1, -1)).toEqual([
-      { castId: 'cast:prep', durationFrames: 2, actualEndFrame: -1 },
+      { castId: 'cast:prep', durationFrames: 2, reachedAtFrame: -1 },
     ]);
   });
 
@@ -112,7 +112,7 @@ describe('SkillOperableBoundaryRuntime', () => {
     expect(runtime.advance(1, 10)).toEqual([]);
     expect(runtime.advance(1, 11)).toEqual([]);
     expect(runtime.advance(1, 12)).toEqual([
-      { castId: 'cast:later', durationFrames: 2, actualEndFrame: 12 },
+      { castId: 'cast:later', durationFrames: 2, reachedAtFrame: 12 },
     ]);
   });
 });

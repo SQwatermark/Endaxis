@@ -5,17 +5,18 @@
  * 逻辑帧增量交给本模块累计；当某次释放累计到 `timelineBlockDurationFrames` 时，
  * 本模块返回一次不可变事实，供上层归约为该 castId 的实际结束帧。
  *
- * 本模块不读取 CombatClock，也不自行推导帧序。调用方必须显式传入已经算好的
- * `frameEndExclusive`（end-exclusive 实际帧），并保证它和当前实际帧的语义一致；
+ * 本模块不读取 CombatClock。调用方传入当前技能更新阶段的实际帧 `updateFrame`；
+ * 返回值是边界被观察到的帧，不是下一次输入帧或显示区间的 end-exclusive 端点。
  * 序列是否自然结束、技能是否仍处于 casting，都与本模块无关。
+ * 此处只跟踪显示用的局部边界，不能代替具体后续技能的原生中断/路由判断。
  */
 
 /** 一次释放到达可操作边界后返回给调用方的不可变事实。 */
 export interface SkillOperableBoundaryFact {
   readonly castId: string;
   readonly durationFrames: number;
-  /** end-exclusive 实际帧；由调用方按当前帧序约定显式给出。 */
-  readonly actualEndFrame: number;
+  /** 在技能更新阶段观察到边界的实际帧，当帧输入已经消费。 */
+  readonly reachedAtFrame: number;
 }
 
 interface PendingSkillOperableBoundary {
@@ -64,29 +65,29 @@ export class SkillOperableBoundaryRuntime {
 
   /**
    * 用本帧施法者 self-scaled 的逻辑帧增量推进全部 pending 项。
-   * `deltaFrames` 为 0 时不推进任何项；`frameEndExclusive` 仍会被校验。
+   * `deltaFrames` 为 0 时不推进任何项；`updateFrame` 仍会被校验。
    * 返回按 begin 登记顺序排列的本帧到达事实；每个 pending 项最多返回一次。
    */
-  advance(deltaFrames: number, frameEndExclusive: number): readonly SkillOperableBoundaryFact[] {
+  advance(deltaFrames: number, updateFrame: number): readonly SkillOperableBoundaryFact[] {
     if (!Number.isFinite(deltaFrames) || deltaFrames < 0) {
       throw new RangeError('deltaFrames must be a non-negative finite number');
     }
-    if (!Number.isInteger(frameEndExclusive)) {
-      throw new RangeError('frameEndExclusive must be an integer');
+    if (!Number.isInteger(updateFrame)) {
+      throw new RangeError('updateFrame must be an integer');
     }
     if (deltaFrames === 0) return [];
 
     const reached: SkillOperableBoundaryFact[] = [];
     for (const [castId, pending] of this.#pendingByCastId) {
       // 输入发生在本帧 AbilitySystem 推进之前；本帧启动的技能从下一实际帧区间开始累计。
-      if (pending.actualStartFrame >= frameEndExclusive) continue;
+      if (pending.actualStartFrame >= updateFrame) continue;
       pending.accumulatedFrames += deltaFrames;
       if (pending.accumulatedFrames + BOUNDARY_EPSILON_FRAMES < pending.durationFrames) continue;
       reached.push(
         Object.freeze({
           castId,
           durationFrames: pending.durationFrames,
-          actualEndFrame: frameEndExclusive,
+          reachedAtFrame: updateFrame,
         }),
       );
       this.#pendingByCastId.delete(castId);
