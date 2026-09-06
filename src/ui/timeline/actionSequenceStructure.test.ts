@@ -26,6 +26,29 @@ const branch: CombatStepDefinition = {
   whenTrue: { steps: [step] },
 };
 
+it('exposes inline Buff ports only in the sequence host that supplies their Inspector', () => {
+  const sequence: ActionSequenceDefinition = {
+    steps: [
+      {
+        kind: 'applyBuff',
+        parameters: { buffId: 'qa', definition: { stackingType: 'refresh', durationSeconds: 5 } },
+      },
+    ],
+  };
+  const standalone = buildActionSequenceMindMap(sequence);
+  const buff = [...indexSkillStructureNodes(standalone).values()].find(
+    node => node.sourcePath === 'steps[0].parameters.definition',
+  );
+  expect(buff).toMatchObject({ kind: '内联 Buff 定义', relationToParent: 'port' });
+  const embedded = buildSkillStructureMindMap(
+    { key: 'qa', timelineBlockFrames: 0, scheduledSequences: [{ startFrame: 0, sequence }] },
+    { blackboard: '', availability: '', sequence: '' },
+  );
+  expect(
+    [...indexSkillStructureNodes(embedded).values()].some(node => node.kind === '内联 Buff 定义'),
+  ).toBe(false);
+});
+
 it('moves a preceding root step into the following branch without losing the destination', () => {
   const original = { steps: [step, branch] };
   const moved = moveStructureArrayItem(original, 'steps[0]', 'steps[1].whenTrue.steps');

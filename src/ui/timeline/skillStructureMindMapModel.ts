@@ -12,7 +12,7 @@ import type {
   SkillGlobalBuffDefinition,
 } from '../../core/game-data/operatorDefinition';
 import type { EquipmentContributionDefinition } from '../../core/game-data/equipmentDefinition';
-import { structureRecordEntryPath } from './skillStructureEditorCommands';
+import { resolveStructureValue, structureRecordEntryPath } from './skillStructureEditorCommands';
 
 export type SkillStructureEditorSection = 'overview' | 'blackboard' | 'availability' | number;
 
@@ -211,7 +211,29 @@ export function buildActionSequenceMindMap(
     `${sequence.steps.length} 个直属步骤`,
     0,
   );
-  return root;
+  // Only this host currently has an Inspector for arbitrary inline Buff roots.
+  function expandInlineBuffs(node: SkillStructureNode): SkillStructureNode {
+    const children = node.children.map(expandInlineBuffs);
+    if (node.payloadKind === 'combatStep') {
+      const step = resolveStructureValue(sequence, node.sourcePath) as CombatStepDefinition;
+      if (step.kind === 'applyBuff' && step.parameters.definition !== undefined) {
+        children.push(
+          expandInlineBuffs(
+            inlineBuffDefinitionNode(
+              step.parameters.definition,
+              `${node.id}:definition`,
+              `${node.sourcePath}.parameters.definition`,
+              '内联 Buff',
+              typeof step.parameters.buffId === 'string' ? step.parameters.buffId : '动态 Buff',
+              0,
+            ),
+          ),
+        );
+      }
+    }
+    return { ...node, children };
+  }
+  return expandInlineBuffs(root);
 }
 
 function eventResponseNode(

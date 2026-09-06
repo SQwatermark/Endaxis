@@ -76,6 +76,41 @@ it('edits, copies, moves into a branch, and restores the sequence through actual
     expect(sequence.value.steps[1].whenFalse.steps).toHaveLength(1);
     expect(panel.history.canRedo.value).toBe(false);
     expect(original.steps).toHaveLength(2);
+    sequence.value = {
+      steps: [
+        { kind: 'listenForCombatEvents', parameters: { responses: [] } },
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'inline',
+            definition: { stackingType: 'refresh', durationSeconds: 5 },
+          },
+        },
+      ],
+    };
+    await nextTick();
+    panel.beginAdd(node('steps[0]'), { x: 10, y: 20 });
+    await nextTick();
+    const responsePath = 'steps[0].parameters.responses[0]';
+    expect(node(responsePath).payloadKind).toBe('eventResponse');
+    panel.selectNode(node(responsePath));
+    panel.updateValue({
+      ...sequence.value.steps[0].parameters.responses[0],
+      key: 'edited-response',
+    });
+    await nextTick();
+    expect(sequence.value.steps[0].parameters.responses[0].key).toBe('edited-response');
+    panel.selectNode(node('steps[1].parameters.definition'));
+    expect(panel.inlineBuff.value.parameters.definition.durationSeconds).toBe(5);
+    panel.updateInlineBuff({
+      kind: 'applyBuff',
+      parameters: { definition: { stackingType: 'refresh' } },
+    });
+    await nextTick();
+    expect(sequence.value.steps[1].parameters.definition.durationSeconds).toBeUndefined();
+    panel.history.restore('undo');
+    await nextTick();
+    expect(sequence.value.steps[1].parameters.definition.durationSeconds).toBe(5);
   } finally {
     app.unmount();
     vi.unstubAllGlobals();

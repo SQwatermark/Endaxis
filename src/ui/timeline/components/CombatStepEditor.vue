@@ -52,6 +52,7 @@ const props = defineProps<{
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
   selectedPath?: string;
   inspectorOnly?: boolean;
+  inlineBuffInGraph?: boolean;
 }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
@@ -223,6 +224,7 @@ function forward(step: CombatStepDefinition): void {
       </template>
       <template v-else-if="step.kind === 'applyBuff'">
         <BuffStepEditor
+          :inline-definition-in-graph="inlineBuffInGraph"
           :step="step"
           :skill-level="skillLevel"
           :create-step="createStep"

@@ -4,6 +4,15 @@ import type {
   ActionSequenceDefinition,
   CombatCondition,
   CombatStepDefinition,
+  CombatEventResponseDefinition,
+  CombatEventHandlerDefinition,
+  SkillGlobalBuffDefinition,
+  SkillGlobalBuffChildDefinition,
+  AbilityEntityChildSkillDefinition,
+  SkillBuffDefinition,
+  SkillBuffAbilityEventResponse,
+  SkillBuffIgniteEventResponse,
+  ScheduledSequenceDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import {
   buildActionSequenceMindMap,
@@ -21,7 +30,12 @@ import {
   replaceStructureValueAtPath,
   resolveStructureValue,
 } from '../skillStructureEditorCommands';
-import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
+import {
+  createCombatEventResponseDraft,
+  createBuffAbilityEventResponseDraft,
+  createBuffIgniteEventResponseDraft,
+  type EditableCombatStepKind,
+} from '../skillDefinitionEditorViewModel';
 import { useDefinitionDraftHistory } from '../useDefinitionDraftHistory';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
@@ -29,6 +43,14 @@ import CombatStepEditor from './CombatStepEditor.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import StepTypePicker from './StepTypePicker.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
+import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
+import SkillEventHandlerInspector from './SkillEventHandlerInspector.vue';
+import GlobalBuffDefinitionInspector from './GlobalBuffDefinitionInspector.vue';
+import GlobalBuffChildInspector from './GlobalBuffChildInspector.vue';
+import InlineAbilityEntityChildSkillInspector from './InlineAbilityEntityChildSkillInspector.vue';
+import BuffStepEditor from './BuffStepEditor.vue';
+import BuffEventResponseInspector from './BuffEventResponseInspector.vue';
+import ScheduledSequenceEditor from './ScheduledSequenceEditor.vue';
 
 const props = defineProps<{
   sequence: ActionSequenceDefinition;
@@ -57,6 +79,22 @@ const step = computed(() =>
 const condition = computed(() =>
   selected.value.payloadKind === 'combatCondition' ? (value.value as CombatCondition) : undefined,
 );
+const inlineBuff = computed<Extract<CombatStepDefinition, { kind: 'applyBuff' }> | undefined>(() =>
+  selected.value.kind === '内联 Buff 定义'
+    ? {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: String(selected.value.details.BuffID ?? ''),
+          target: 'caster',
+          definition: value.value as SkillBuffDefinition,
+        },
+      }
+    : undefined,
+);
+function updateInlineBuff(step: CombatStepDefinition): void {
+  if (step.kind === 'applyBuff' && step.parameters.definition !== undefined)
+    updateValue(step.parameters.definition);
+}
 const pending = ref<{
   node: SkillStructureNode;
   anchor: { x: number; y: number };
@@ -90,7 +128,38 @@ function beginAdd(source: { id: string }, anchor: { x: number; y: number }): voi
   selectNode(node);
   if (node.canAddChild === 'step' || node.canAddChild === 'combatCondition')
     pending.value = { node, anchor, kind: node.canAddChild === 'step' ? 'step' : 'condition' };
-  else emit('details', node.sourcePath);
+  else {
+    let payload: unknown;
+    let kind: SkillStructureNode['payloadKind'];
+    if (node.canAddChild === 'eventResponse') {
+      kind = 'eventResponse';
+      const existing = resolveStructureValue(
+        props.sequence,
+        `${node.sourcePath}.parameters.responses`,
+      ) as readonly CombatEventResponseDefinition[];
+      payload = createCombatEventResponseDraft(existing.map(item => item.key));
+    } else if (node.canAddChild === 'sequence') {
+      kind = 'scheduledSequence';
+      payload = { startFrame: 0, sequence: { steps: [] } };
+    } else if (node.canAddChild === 'globalBuffChild') {
+      kind = 'globalBuffChild';
+      payload = { buffId: '', blackboardAssignments: {} };
+    } else if (node.canAddChild === 'buffAbilityResponse') {
+      kind = 'buffAbilityResponse';
+      payload = createBuffAbilityEventResponseDraft();
+    } else if (node.canAddChild === 'buffIgniteResponse') {
+      kind = 'buffIgniteResponse';
+      payload = createBuffIgniteEventResponseDraft();
+    }
+    const path = kind ? childArray(node, kind) : undefined;
+    if (path === undefined) {
+      emit('details', node.sourcePath);
+      return;
+    }
+    const added = insertStructureArrayItem(props.sequence, path, payload);
+    history.commit(added.root);
+    void reveal(added.itemPath);
+  }
 }
 function appendStep(kind: EditableCombatStepKind): void {
   if (!pending.value) return;
@@ -244,6 +313,7 @@ async function moveNode(operation: {
         @close="pending = undefined"
       />
       <CombatStepEditor
+        inline-buff-in-graph
         v-if="step"
         :key="selected.sourcePath"
         :step="step"
@@ -259,6 +329,71 @@ async function moveNode(operation: {
         :condition="condition"
         :skill-level="skillLevel"
         layer-only
+        @update="updateValue"
+      />
+      <CombatEventResponseInspector
+        v-else-if="selected.payloadKind === 'eventResponse'"
+        :key="selected.sourcePath"
+        :response="value as CombatEventResponseDefinition"
+        @update="updateValue"
+      />
+      <SkillEventHandlerInspector
+        v-else-if="selected.payloadKind === 'skillEventHandler'"
+        :key="selected.sourcePath"
+        :handler="value as CombatEventHandlerDefinition"
+        @update="updateValue"
+      />
+      <GlobalBuffDefinitionInspector
+        v-else-if="selected.payloadKind === 'globalBuffDefinition'"
+        :key="selected.sourcePath"
+        :definition="value as SkillGlobalBuffDefinition"
+        @update="updateValue"
+      />
+      <GlobalBuffChildInspector
+        v-else-if="selected.payloadKind === 'globalBuffChild'"
+        :key="selected.sourcePath"
+        :child="value as SkillGlobalBuffChildDefinition"
+        @update="updateValue"
+      />
+      <InlineAbilityEntityChildSkillInspector
+        v-else-if="selected.payloadKind === 'childSkill'"
+        :key="selected.sourcePath"
+        :child-skill="value as AbilityEntityChildSkillDefinition"
+        :skill-level="skillLevel"
+        @update="updateValue"
+      />
+      <BuffStepEditor
+        v-else-if="inlineBuff"
+        :key="selected.sourcePath"
+        :step="inlineBuff"
+        :skill-level="skillLevel"
+        definition-only
+        inspector-only
+        @update="updateInlineBuff"
+      />
+      <BuffEventResponseInspector
+        v-else-if="selected.payloadKind === 'buffAbilityResponse'"
+        :key="selected.sourcePath"
+        kind="ability"
+        :response="value as SkillBuffAbilityEventResponse"
+        @update="updateValue"
+      />
+      <BuffEventResponseInspector
+        v-else-if="selected.payloadKind === 'buffIgniteResponse'"
+        :key="selected.sourcePath"
+        kind="ignite"
+        :response="value as SkillBuffIgniteEventResponse"
+        @update="updateValue"
+      />
+      <ScheduledSequenceEditor
+        v-else-if="selected.payloadKind === 'scheduledSequence'"
+        :key="selected.sourcePath"
+        :sequence="value as ScheduledSequenceDefinition"
+        :title="selected.label"
+        :skill-level="skillLevel"
+        :create-step="createStep"
+        :duplicate-step="duplicateStep"
+        inspector-only
         @update="updateValue"
       />
       <p v-else-if="selected.kind === '动作序列'">

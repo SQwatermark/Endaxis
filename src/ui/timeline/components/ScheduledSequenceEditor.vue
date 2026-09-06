@@ -21,6 +21,7 @@ const props = defineProps<{
   createStep: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep: (step: CombatStepDefinition) => CombatStepDefinition;
   selectedStepPath?: string;
+  inspectorOnly?: boolean;
 }>();
 const emit = defineEmits<{ update: [sequence: ScheduledSequenceDefinition] }>();
 const { t } = useI18n({ useScope: 'global' });
@@ -84,6 +85,7 @@ function setSequence(sequence: ScheduledSequenceDefinition['sequence']): void {
     </div>
     <div class="scheduled-sequence-editor__body">
       <ActionSequenceEditor
+        v-if="!inspectorOnly"
         :sequence="sequence.sequence"
         :skill-level="skillLevel"
         :create-step="createStep"
