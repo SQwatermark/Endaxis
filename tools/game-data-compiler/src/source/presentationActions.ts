@@ -90,7 +90,16 @@ function isPlainTargetReference(reference: TargetReferenceSource, targetSource: 
   );
 }
 
-export interface CameraPresentationActionSource {
+/** 保留原生输入限制分支，不能先认定为纯表现；运行时投影仍待消费端取证。 */
+export interface HideUiActionSource {
+  readonly kind: 'hideUi';
+  readonly onlyBlockInput: boolean;
+}
+
+export type CameraPresentationActionSource =
+  HideUiActionSource | OtherCameraPresentationActionSource;
+
+export interface OtherCameraPresentationActionSource {
   readonly kind:
     | 'cameraImpulse'
     | 'cameraControlState'
@@ -98,7 +107,6 @@ export interface CameraPresentationActionSource {
     | 'dynamicCameraControlState'
     | 'cameraRotate'
     | 'animatedCamera'
-    | 'hideUi'
     | 'ultimateShow'
     | 'weaponVisibility'
     | 'weaponAnimation'
@@ -899,14 +907,11 @@ function parseAnimatorParameterAction(value: unknown, path: string): void {
   requireNumber(action.floatValue, `${path}.floatValue`);
 }
 
-export function parseHideUiActionSource(
-  value: unknown,
-  path: string,
-): CameraPresentationActionSource {
+export function parseHideUiActionSource(value: unknown, path: string): HideUiActionSource {
   const action = requireRecord(value, path);
   requireExactFields(action, new Set([...ACTION_META_FIELDS, 'onlyBlockInput']), path);
-  requireBoolean(action.onlyBlockInput, `${path}.onlyBlockInput`);
-  return { kind: 'hideUi' };
+  const onlyBlockInput = requireBoolean(action.onlyBlockInput, `${path}.onlyBlockInput`);
+  return { kind: 'hideUi', onlyBlockInput };
 }
 
 export function parseUltimateShowActionSource(
@@ -1577,7 +1582,7 @@ export function parsePlayAnimationWithStepActionSource(
 export function parseCameraPresentationActionSource(
   value: unknown,
   path: string,
-  kind: CameraPresentationActionSource['kind'],
+  kind: OtherCameraPresentationActionSource['kind'],
 ): CameraPresentationActionSource {
   const action = requireRecord(value, path);
   const fields =

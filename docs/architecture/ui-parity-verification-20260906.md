@@ -359,3 +359,10 @@ viewport 1920×1080、deviceScaleFactor 1，不读写用户浏览器项目。
 - 核对 combat-spec 的 skill-end、timeline-lifecycle、create-buff-attaching-skill、clear-projectile-action 及对应运行时：真实中断通过 Timeline End 清理已运行序列，不再推进尚未启动项；Skill.AttachBuff 明确登记的实例才由技能结束统一 MarkFinish(Other)，不是按来源 ID 清空所有 Buff。
 - 新增 SkillRuntime 回归：timelineBlockFrames 分别为 1/30，原生自然时长均为 20，10 帧动作都正常执行；另在 5 帧真实中断后，10 帧动作不执行。技能、Timeline 生命周期和 Buff 执行器 110 项测试通过。运行逻辑没有修改，未从旧版视觉规则导入中断行为。
 - 证据边界：以上复刻库文档引用的是已记录的 1.4.4 原生路径，不是本轮重新反编译当前包。弹体仍限于已证明零距离同步回调的模型；涉及未结算飞行实例的清除仍不能泛化为无效果。能力实体和普通 Buff 的存续须继续由各自动作/生命周期配置判断，不能概括成“全部保留”或“全部删除”。
+
+### 演出输入限制：保留来源事实
+
+- 读取桌面本地 native 二进制，定位 HideUIAction Execute/OnEnd：onlyBlockInput=false 写入/清除 PlayerController.inUltimateCasting 并隐藏/恢复 UI；true 走 UICommonMaskData 请求，不能与前者合并。细节与 RVA 记入 combat-spec/docs/hide-ui-input-lifecycle.md。
+- onlyBlockInput 原先只校验后丢弃，现使用必填布尔值的专用来源类型保存。没有生成运行时锁、改变技能时间或取消伤害；presentation 家族到正式操作限制的迁移仍未完成。UltimateShowAction 也不能凭名字视作锁。
+- 来源解析新增 6 项回归，生产编译器类型检查通过。全编译器回归 158 文件通过、1680 项通过、18 项跳过；唯一失败套件 operatorDefinition 是交接已记录的本地 GlobalBuffTemplateCatalog 字段版本不匹配。本轮没有为通过测试放宽该严格检查。
+- 证据风险：dump 日志显示静态表曾跳过重建，尚未完成二进制/静态表/正式包版本配对与 IFix 热补丁确认。下一步先完成输入消费端及正式 SkillData 时间范围核对，再实现公共操作限制回执；本轮无 UI 改动，不宣称视觉验收。
