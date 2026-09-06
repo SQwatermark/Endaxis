@@ -18,6 +18,13 @@ import type {
   CombatStepDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
+import {
+  appendCombatStepInStructure,
+  duplicateCombatStepInStructure,
+  moveCombatStepInStructure,
+  removeCombatStepInStructure,
+  replaceStructureValueAtPath,
+} from '../skillStructureEditorCommands';
 import CombatStepEditor from './CombatStepEditor.vue';
 import StepTypePicker from './StepTypePicker.vue';
 
@@ -63,49 +70,53 @@ watch(
   { immediate: true },
 );
 
-function replaceSteps(steps: readonly CombatStepDefinition[]): void {
-  emit('update', { ...props.sequence, steps });
-}
-
 function replaceStep(step: CombatStepDefinition): void {
-  const steps = [...props.sequence.steps];
-  if (steps[selectedStepIndex.value] === undefined) return;
-  steps[selectedStepIndex.value] = step;
-  replaceSteps(steps);
+  if (props.sequence.steps[selectedStepIndex.value] === undefined) return;
+  emit(
+    'update',
+    replaceStructureValueAtPath(props.sequence, `steps[${selectedStepIndex.value}]`, step),
+  );
 }
 
 function moveStep(offset: -1 | 1): void {
-  const target = selectedStepIndex.value + offset;
-  const steps = [...props.sequence.steps];
-  if (target < 0 || target >= steps.length) return;
-  [steps[selectedStepIndex.value], steps[target]] = [
-    steps[target]!,
-    steps[selectedStepIndex.value]!,
-  ];
-  selectedStepIndex.value = target;
-  replaceSteps(steps);
+  if (props.sequence.steps[selectedStepIndex.value] === undefined) return;
+  const moved = moveCombatStepInStructure(
+    props.sequence,
+    `steps[${selectedStepIndex.value}]`,
+    offset,
+  );
+  if (moved.root === props.sequence) return;
+  selectedStepIndex.value += offset;
+  emit('update', moved.root);
 }
 
 function duplicateSelectedStep(): void {
   const source = props.sequence.steps[selectedStepIndex.value];
   if (source === undefined) return;
-  const steps = [...props.sequence.steps];
-  steps.splice(selectedStepIndex.value + 1, 0, props.duplicateStep(source));
+  const copied = duplicateCombatStepInStructure(
+    props.sequence,
+    `steps[${selectedStepIndex.value}]`,
+    props.duplicateStep,
+  );
   selectedStepIndex.value += 1;
-  replaceSteps(steps);
+  emit('update', copied.root);
 }
 
 function removeSelectedStep(): void {
-  const steps = props.sequence.steps.filter((_, index) => index !== selectedStepIndex.value);
-  selectedStepIndex.value = Math.max(0, Math.min(selectedStepIndex.value, steps.length - 1));
-  replaceSteps(steps);
+  if (props.sequence.steps[selectedStepIndex.value] === undefined) return;
+  const sequence = removeCombatStepInStructure(props.sequence, `steps[${selectedStepIndex.value}]`);
+  selectedStepIndex.value = Math.max(
+    0,
+    Math.min(selectedStepIndex.value, sequence.steps.length - 1),
+  );
+  emit('update', sequence);
 }
 
 function appendStep(kind: EditableCombatStepKind): void {
-  const steps = [...props.sequence.steps, props.createStep(kind)];
-  selectedStepIndex.value = steps.length - 1;
+  const added = appendCombatStepInStructure(props.sequence, '', props.createStep(kind));
+  selectedStepIndex.value = added.root.steps.length - 1;
   detailCollapsed.value = false;
-  replaceSteps(steps);
+  emit('update', added.root);
 }
 </script>
 

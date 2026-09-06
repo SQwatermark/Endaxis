@@ -184,12 +184,34 @@ function sequenceNode(
     details: { 步骤数: sequence.steps.length },
     editorSection,
     children: sequence.steps.map((step, index) =>
-      stepNode(step, `${id}:step:${index}`, `${sourcePath}.steps[${index}]`, index, editorSection),
+      stepNode(
+        step,
+        `${id}:step:${index}`,
+        `${sourcePath ? `${sourcePath}.` : ''}steps[${index}]`,
+        index,
+        editorSection,
+      ),
     ),
     canAddChild: 'step',
     acceptsChildKind: 'combatStep',
     relationToParent,
   };
+}
+
+/** An action sequence is a document in its own right, not a synthetic castable skill. */
+export function buildActionSequenceMindMap(
+  sequence: ActionSequenceDefinition,
+  label = '动作序列',
+): SkillStructureNode {
+  const { relationToParent: _relation, ...root } = sequenceNode(
+    sequence,
+    'action-sequence',
+    label,
+    '',
+    `${sequence.steps.length} 个直属步骤`,
+    0,
+  );
+  return root;
 }
 
 function eventResponseNode(

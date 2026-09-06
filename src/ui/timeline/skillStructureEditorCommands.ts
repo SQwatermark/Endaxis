@@ -155,6 +155,12 @@ export function appendCombatStepInStructure<T>(
 ): { readonly root: T; readonly stepPath: string } {
   const next = clone(root);
   const sequence = valueAtPath(next, sequencePath) as ActionSequenceDefinition | undefined;
+  if (sequencePath === '') {
+    return {
+      root: { ...next, steps: [...sequence!.steps, step] },
+      stepPath: `steps[${sequence!.steps.length}]`,
+    };
+  }
   if (sequence === undefined) {
     setAtPath(next, sequencePath, { steps: [step] });
     return { root: next, stepPath: `${sequencePath}.steps[0]` };
@@ -165,7 +171,7 @@ export function appendCombatStepInStructure<T>(
 }
 
 export function removeCombatStepInStructure<T>(root: T, path: string): T {
-  const match = /^(.*\.steps)\[(\d+)\]$/.exec(path);
+  const match = /^((?:.*\.)?steps)\[(\d+)\]$/.exec(path);
   if (match === null) throw new TypeError(`not a combat-step path: '${path}'`);
   const next = clone(root);
   const steps = valueAtPath(next, match[1]!) as readonly CombatStepDefinition[];
@@ -182,7 +188,7 @@ export function moveCombatStepInStructure<T>(
   path: string,
   offset: -1 | 1,
 ): { readonly root: T; readonly stepPath: string } {
-  const match = /^(.*\.steps)\[(\d+)\]$/.exec(path);
+  const match = /^((?:.*\.)?steps)\[(\d+)\]$/.exec(path);
   if (match === null) throw new TypeError(`not a combat-step path: '${path}'`);
   const next = clone(root);
   const steps = [...(valueAtPath(next, match[1]!) as readonly CombatStepDefinition[])];
@@ -199,7 +205,7 @@ export function duplicateCombatStepInStructure<T>(
   path: string,
   duplicate: (step: CombatStepDefinition) => CombatStepDefinition,
 ): { readonly root: T; readonly stepPath: string } {
-  const match = /^(.*\.steps)\[(\d+)\]$/.exec(path);
+  const match = /^((?:.*\.)?steps)\[(\d+)\]$/.exec(path);
   if (match === null) throw new TypeError(`not a combat-step path: '${path}'`);
   const next = clone(root);
   const steps = [...(valueAtPath(next, match[1]!) as readonly CombatStepDefinition[])];
