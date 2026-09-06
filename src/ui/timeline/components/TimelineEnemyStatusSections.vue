@@ -273,7 +273,7 @@ watch(
   height: 16px;
   padding: 0;
   border: 0;
-  color: var(--ea-text-muted, rgb(255 255 255 / 45%));
+  color: var(--ea-fg-secondary);
   background: transparent;
   cursor: pointer;
 }
@@ -293,6 +293,7 @@ watch(
   border-right: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
   transform: rotate(45deg);
+  opacity: 0.88;
 }
 
 .section-toggle:hover {
@@ -321,7 +322,7 @@ watch(
   box-sizing: border-box;
   height: 100%;
   width: 180px;
-  color: var(--ea-text-secondary, rgb(255 255 255 / 70%));
+  color: var(--ea-fg-secondary);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.4px;

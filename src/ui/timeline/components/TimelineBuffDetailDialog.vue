@@ -136,7 +136,7 @@ function seconds(frames: number): string {
 }
 
 .buff-detail__facts dt {
-  color: var(--ea-text-muted, #999);
+  color: var(--ea-fg-muted);
 }
 
 .buff-detail__facts dd {

@@ -8,6 +8,11 @@ import effectsSource from './TimelineEnemyEffects.vue?raw';
 import gridSource from './TimelineMonitorGrid.vue?raw';
 
 describe('TimelineEnemyStatusSections legacy layout contract', () => {
+  it('uses defined foreground tokens for collapsed labels and expand arrows in both themes', () => {
+    expect(source).toContain('opacity: 0.88');
+    expect(source).toContain('color: var(--ea-fg-secondary)');
+    expect(source).not.toContain('--ea-text-');
+  });
   it('expands sections on the shell notification without resetting their weights', () => {
     expect(source).toContain('() => props.expandAllToken');
     expect(source).toContain('for (const key of sectionKeys) collapsed[key] = false');
@@ -77,7 +82,9 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
   });
 
   it('lets enemy effect items scroll out of view and preserves legacy duration-bar feedback', () => {
-    expect(effectsSource).toContain('x: pointX(marker.frame) - ICON_SIZE / 2');
+    // 旧版非伤害瞬时图标左对齐时间点，同帧图标横向错开；不夹到视口边缘。
+    expect(effectsSource).toMatch(/x:\s*pointX\(marker.frame\)\s*\+/);
+    expect(effectsSource).toContain('statusRows.value.markerPositions[index]?.slot');
     expect(effectsSource).not.toContain('function clamp');
     expect(effectsSource).not.toContain('enemy-effects__empty');
     expect(effectsSource).toContain('.anomaly-duration-bar:hover');
