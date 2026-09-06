@@ -17,6 +17,45 @@ function buff(buffId: string, extras: Partial<BuffTimelineSegment> = {}): BuffTi
 }
 
 describe('enemy status presentation rows', () => {
+  it('reserves a new segment icon before placing same-frame transient icons', () => {
+    const attachment = buff('electric', { startFrame: 10 });
+    const anomaly = buff('conduct', { startFrame: 10, iconStyleInSquad: 'SpellAbnormal' });
+    const markers = [
+      { kind: 'burst' as const, frame: 10 },
+      { kind: 'attachmentTrigger' as const, frame: 10, element: 'heat' },
+      { kind: 'reactionConsumed' as const, frame: 10, level: 2 },
+      { kind: 'burst' as const, frame: 11 },
+    ];
+    const before = JSON.stringify({ attachment, anomaly, markers });
+    const result = layoutEnemyStatusRows([attachment, anomaly], markers, attachmentIds);
+    expect(result.markerPositions).toEqual([
+      { row: 1, slot: 1 },
+      { row: 1, slot: 2 },
+      { row: 2, slot: 1 },
+      { row: 1, slot: 0 },
+    ]);
+    expect(JSON.stringify({ attachment, anomaly, markers })).toBe(before);
+    expect(result.rowCount).toBe(3);
+  });
+
+  it('does not reserve an icon for an ended segment or a segment in another anomaly lane', () => {
+    const ended = buff('electric', { endFrame: 10 });
+    const firstAnomaly = buff('conduct', { iconStyleInSquad: 'SpellAbnormal' });
+    const secondAnomaly = buff('burn', { startFrame: 10, iconStyleInSquad: 'SpellAbnormal' });
+    const result = layoutEnemyStatusRows(
+      [ended, firstAnomaly, secondAnomaly],
+      [
+        { kind: 'burst', frame: 10 },
+        { kind: 'reactionConsumed', frame: 10, level: 1 },
+      ],
+      attachmentIds,
+    );
+    expect(result.markerPositions).toEqual([
+      { row: 1, slot: 0 },
+      { row: 2, slot: 0 },
+    ]);
+  });
+
   it('grows for dense overlapping states instead of clipping them into fixed lanes', () => {
     const states = Array.from({ length: 20 }, (_, index) =>
       buff(`ordinary-${index}`, { instanceId: index + 1, startFrame: index }),

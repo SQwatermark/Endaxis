@@ -41,6 +41,11 @@ export function layoutEnemyStatusRows<T extends BuffTimelineSegment>(
   }
   // 旧版同一分区同一时刻的瞬时图标横向错开，不另挤出垂直行。
   const slots = new Map<string, number>();
+  // 新版持续段与瞬时回执是独立展示身份。先为同帧开始的段保留第一个图标位，
+  // 只偏移瞬时图标；段起点、持续条终点和伤害入口仍使用真实帧坐标。
+  for (const buff of buffs) {
+    slots.set(`${lanes.get(buff)}:${buff.startFrame}`, 1);
+  }
   const markerPositions = markers.map(marker => {
     const row = marker.kind === 'reactionConsumed' ? anomalyRow : attachmentRow;
     const key = `${row}:${marker.frame}`;
