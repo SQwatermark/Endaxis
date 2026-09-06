@@ -342,6 +342,7 @@ import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt
 import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
 import BattleLogPanel from './components/BattleLogPanel.vue';
 import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
+import { capturePublishedBattleLog } from './publishedBattleLog';
 import TimelineShortcutHelpDialog from './components/TimelineShortcutHelpDialog.vue';
 import TimelineMarkerContextMenu from './components/TimelineMarkerContextMenu.vue';
 import { projectPublishedTimelineDamageAnalysis } from './timelineDamageAnalysis';
@@ -1022,19 +1023,14 @@ watch(
       battleLogSnapshot.value = null;
       return;
     }
-    // 在发布边界解析一次。后续模板编辑不能用新定义重新解释旧回执的来源。
-    const publishedView = projectTimelineEditor(published.scenario, editorGameDataRepository);
-    battleLogSnapshot.value = {
-      entries: published.run.receiptEntries,
-      castOwners: publishedView.tracks.flatMap(track =>
-        track.skillCasts.map(cast => ({
-          castId: cast.id,
-          label: timelineCastLabel(cast, track),
-          operatorLabel: operatorName(track.operatorSlug),
-          sourceId: track.operatorInstanceId,
-        })),
-      ),
-    };
+    battleLogSnapshot.value = capturePublishedBattleLog(published, editorGameDataRepository, {
+      skill: timelineCastLabel,
+      operator: name =>
+        name.displayName ??
+        (name.assetSlug === null
+          ? t('timeline.emptyTrack')
+          : getOperatorGameName(name.assetSlug, locale.value)),
+    });
   },
   { flush: 'sync' },
 );

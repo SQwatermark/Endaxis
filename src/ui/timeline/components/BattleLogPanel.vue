@@ -33,7 +33,7 @@ const { t } = useI18n({ useScope: 'global' });
 
 const snapshot = shallowRef<TimelineBattleLogSnapshot | null>(null);
 const entries = computed(() => snapshot.value?.entries ?? []);
-const castOwners = computed(() => snapshot.value?.castOwners ?? []);
+const castOwners = computed(() => snapshot.value?.resolveCastOwners() ?? []);
 const dirty = computed(() => props.log !== snapshot.value);
 const keyword = ref('');
 const selectedEvents = ref<ReadonlySet<string>>(new Set());

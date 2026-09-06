@@ -16,7 +16,9 @@ const log = (name: string, damage: number): TimelineBattleLogSnapshot => ({
       data: { castId: 'cast:1', value: damage, damageType: 'electric' },
     },
   ],
-  castOwners: [{ castId: 'cast:1', label: '战技', operatorLabel: name, sourceId: 'track:1' }],
+  resolveCastOwners: () => [
+    { castId: 'cast:1', label: '战技', operatorLabel: name, sourceId: 'track:1' },
+  ],
 });
 
 // Mounted production setup and watchers, deliberately without a DOM/template.
@@ -85,7 +87,7 @@ it('holds receipts, group labels and source labels until one explicit refresh', 
 it('loads the first publication but does not auto-refresh a published empty log', async () => {
   const f = await mount(null);
   try {
-    const empty = { entries: [], castOwners: [] };
+    const empty = { entries: [], resolveCastOwners: () => [] };
     f.current.value = empty;
     await nextTick();
     expect(f.panel.snapshot.value).toBe(empty);
@@ -97,6 +99,32 @@ it('loads the first publication but does not auto-refresh a published empty log'
     expect(f.panel.entries.value).toHaveLength(1);
     f.panel.clearEvents();
     expect(f.panel.filteredEntries.value).toHaveLength(0);
+  } finally {
+    f.stop();
+  }
+});
+
+it('relocalizes the retained snapshot without refreshing to a newer publication', async () => {
+  const language = shallowRef('zh');
+  const first = log('unused', 100);
+  const f = await mount({
+    ...first,
+    resolveCastOwners: () => [
+      {
+        castId: 'cast:1',
+        sourceId: 'track:1',
+        label: language.value === 'zh' ? '战技' : 'Battle skill',
+        operatorLabel: language.value === 'zh' ? '佩丽卡' : 'Perlica',
+      },
+    ],
+  });
+  try {
+    f.current.value = log('弧光', 500);
+    await nextTick();
+    language.value = 'en';
+    expect(f.panel.sourceLabel(first.entries[0])).toBe('Perlica · Battle skill');
+    expect(f.panel.groupedEntries.value[0].damage).toBe(100);
+    expect(f.panel.dirty.value).toBe(true);
   } finally {
     f.stop();
   }
