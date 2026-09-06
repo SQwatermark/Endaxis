@@ -2,6 +2,19 @@ import { expect, it } from 'vitest';
 import { compileScript, compileStyle, compileTemplate, parse } from '@vue/compiler-sfc';
 import source from './TimelineEnemyEffects.vue?raw';
 
+it('uses the same icon shell and badge for instantaneous and persistent effects', () => {
+  const marker = source.slice(
+    source.indexOf('v-for="marker in markers"'),
+    source.indexOf('v-for="buff in buffs"'),
+  );
+  expect(marker).toContain('class="anomaly-icon-box effect-marker"');
+  expect(marker).toContain('class="anomaly-icon"');
+  expect(marker).toContain('class="anomaly-stacks"');
+  expect(marker).toContain('{{ marker.badge }}');
+  expect(source).not.toContain('.effect-marker:hover');
+  expect(source).not.toContain('.marker-icon');
+});
+
 it('keeps every effect icon above every duration segment without per-item stacking contexts', () => {
   const rule = (selector: string) => source.slice(source.indexOf(`${selector} {`)).split('}')[0]!;
   for (const selector of ['.effect-marker', '.anomaly-icon-box']) {

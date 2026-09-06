@@ -141,6 +141,9 @@ const markers = computed(() =>
     return {
       key: `${index}:${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
       icon,
+      // Legacy markers also carry a badge. For an instantaneous input/burst this
+      // denotes one occurrence, not a newly created persistent attachment layer.
+      badge: marker.kind === 'reactionConsumed' ? marker.level : 1,
       x:
         pointX(marker.frame) +
         (statusRows.value.markerPositions[index]?.slot ?? 0) * (ICON_SIZE + 2),
@@ -320,11 +323,12 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
     <span
       v-for="marker in markers"
       :key="marker.key"
-      class="effect-marker"
+      class="anomaly-icon-box effect-marker"
       :style="{ left: `${marker.x}px`, top: `${marker.top}px` }"
       :title="marker.title"
     >
-      <img :src="marker.icon" class="marker-icon" alt="" />
+      <img :src="marker.icon" class="anomaly-icon" alt="" />
+      <span v-if="marker.badge !== undefined" class="anomaly-stacks">{{ marker.badge }}</span>
     </span>
     <div
       v-for="buff in buffs"
@@ -625,28 +629,5 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
 .effect-marker {
   position: absolute;
   z-index: 10;
-  width: 20px;
-  height: 20px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--ea-keycap-skill-bg, #333);
-  border: 1px solid var(--ea-keycap-skill-border, #999);
-  cursor: default;
-  transition:
-    filter 0.12s ease,
-    border-color 0.12s ease;
-}
-
-.effect-marker:hover {
-  filter: brightness(1.18);
-  border-color: rgb(255 255 255 / 95%);
-}
-
-.marker-icon {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 </style>
