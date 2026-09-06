@@ -12,6 +12,10 @@
 显式传该区域，后代继承。内部暂时全部属于同一根，保留旧优先级及屏障；因此是
 整组接入而非模态子树完成。根按挂载激活，多工作台焦点协调仍待实现。
 
+后续进度：SkillDefinitionEditorDialog 的独立弹窗分支已通过 InputRegionBoundary
+拆为 modal 子区域，导图及其子浮层继承；embedded 分支不创建模态。该组件只有
+slot、不增加 DOM，原生 Element Plus 仍管理焦点。其余工作区尚待迁移。
+
 Vue 入口现为 useKeyboardInputRegion({label, parent?, modal?, active})，返回区域身份，
 向后代提供区域。scope 默认继承注入上下文，显式 region 优先。由于 Vue 组件不能
 注入自身刚 provide 的值，同一 setup 内的自有命令必须显式 region，不能假设自动

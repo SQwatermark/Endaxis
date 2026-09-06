@@ -1,5 +1,19 @@
 # 当前任务快照
 
+#### 2026-09-07 技能编辑弹窗首个模态子树迁移
+
+- 新增无布局 DOM 的 InputRegionBoundary，通过 Vue 父子上下文为 slot 后代提供
+  模态区域，区域内部最低优先级 fallback 保留原生控件按键，不向背景兜底。
+- SkillDefinitionEditorDialog 仅 el-dialog 分支接入：导图、Inspector、类型选择器
+  继承 skill-definition-dialog 模态区域，工作台根已从候选路径排除。embedded
+  分支仍继承其原有父编辑器，不错误创建模态边界。
+- 深色正式夹具：删除序列 2→1、Ctrl+Z 恢复 2（10 节点）；加号类型选择器
+  Escape 只关闭自身；取消草稿后时间轴 Delete 生效，Ctrl+Z 恢复技能。
+  未保存模板或执行重置。909 项相关回归、应用类型检查通过，新增接线及区域
+  定向 6 项测试通过。本轮未新增实际拖放/原生剪贴板浏览器验证。
+- 其他编辑工作区仍在根区域使用过渡优先级。保留 hasModalPanel、手势屏障和
+  DOM 保护。下阶段迁移其他模态子树及服务确认父关系；不能假定所有模态已迁移。
+
 #### 2026-09-07 正式时间轴启用工作台根输入区域
 
 - TimelineEditor 创建并激活 timeline-workbench 根区域，组件自身的 editor/overlay、

@@ -7,6 +7,7 @@ import { computed, provide } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
 import SkillDefinitionEditor from './SkillDefinitionEditor.vue';
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { ABILITY_ENTITY_IDS_KEY } from '../abilityEntityEditorContext';
 
 const props = defineProps<{
@@ -82,19 +83,21 @@ const labels = () => ({
     class="skill-definition-dialog"
     @update:model-value="emit('update:visible', $event)"
   >
-    <SkillDefinitionEditor
-      v-if="templateDefinition !== null"
-      :template="templateDefinition"
-      :custom-definition="customDefinition"
-      :skill-level="skillLevel"
-      :buff-ids="buffIds"
-      :labels="labels()"
-      :show-reference-pins="showReferencePins"
-      :allow-invalid-save="allowInvalidSave"
-      @save="emit('save', $event)"
-      @cancel="emit('update:visible', false)"
-      @reset="emit('reset')"
-      @reference="emit('reference', $event)"
-    />
+    <InputRegionBoundary label="skill-definition-dialog" :active="visible" modal>
+      <SkillDefinitionEditor
+        v-if="templateDefinition !== null"
+        :template="templateDefinition"
+        :custom-definition="customDefinition"
+        :skill-level="skillLevel"
+        :buff-ids="buffIds"
+        :labels="labels()"
+        :show-reference-pins="showReferencePins"
+        :allow-invalid-save="allowInvalidSave"
+        @save="emit('save', $event)"
+        @cancel="emit('update:visible', false)"
+        @reset="emit('reset')"
+        @reference="emit('reference', $event)"
+      />
+    </InputRegionBoundary>
   </el-dialog>
 </template>
