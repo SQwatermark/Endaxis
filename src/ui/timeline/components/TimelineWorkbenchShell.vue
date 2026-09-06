@@ -39,6 +39,7 @@ const bottomCollapsed = ref(false);
 const leftWidth = ref(DEFAULT_LEFT_WIDTH);
 const rightWidth = ref(DEFAULT_RIGHT_WIDTH);
 const bottomHeight = ref(DEFAULT_BOTTOM_HEIGHT);
+const bottomExpandAllToken = ref(0);
 const bottomTool = ref<'global' | 'contract' | 'enemy'>('enemy');
 const rightTool = ref<'inspector' | 'performance' | 'battleLog'>('inspector');
 const resizing = ref<'left' | 'right' | 'bottom' | null>(null);
@@ -140,6 +141,7 @@ function selectBottom(tool: typeof bottomTool.value): void {
     return;
   }
   bottomTool.value = tool;
+  if (bottomCollapsed.value) bottomExpandAllToken.value += 1;
   bottomCollapsed.value = false;
 }
 
@@ -353,6 +355,7 @@ watch(
       ></div>
       <section v-show="!bottomCollapsed" class="bottom-panel">
         <button
+          v-if="bottomTool !== 'enemy'"
           type="button"
           class="bottom-panel-collapse"
           :title="props.labels.collapsePanel"
@@ -375,7 +378,12 @@ watch(
             </svg>
           </button>
         </div>
-        <slot name="bottom" :tool="bottomTool" :collapse-panel="collapseBottom" />
+        <slot
+          name="bottom"
+          :tool="bottomTool"
+          :collapse-panel="collapseBottom"
+          :expand-all-token="bottomExpandAllToken"
+        />
       </section>
     </main>
 

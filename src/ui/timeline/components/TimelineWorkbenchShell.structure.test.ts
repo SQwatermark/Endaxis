@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import source from './TimelineWorkbenchShell.vue?raw';
 
 describe('TimelineWorkbenchShell legacy behavior parity', () => {
+  it('notifies monitor sections when reopening the bottom panel from the activity bar', () => {
+    expect(source).toContain('if (bottomCollapsed.value) bottomExpandAllToken.value += 1');
+    expect(source).toContain(':expand-all-token="bottomExpandAllToken"');
+  });
   it('persists panel geometry, collapsed state and selected tools', () => {
     expect(source).toContain('WORKBENCH_LAYOUT_STORAGE_KEY');
     expect(source).toContain('window.localStorage.getItem');
@@ -125,6 +129,7 @@ describe('TimelineWorkbenchShell legacy behavior parity', () => {
     expect(source).toContain('@click="resetPanelSize(\'bottom\')"');
     expect(source).toContain('@click="toggleLeft"');
     expect(source).toContain('@click="rightCollapsed = true"');
+    expect(source).toContain('v-if="bottomTool !== \'enemy\'"');
     expect(source).toContain('class="bottom-panel-collapse"');
     expect(source).toContain('@click="collapseBottom"');
     expect(source).toContain('opacity: 0.18');

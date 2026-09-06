@@ -5,8 +5,14 @@ import shellSource from './TimelineWorkbenchShell.vue?raw';
 import curvesSource from './TimelineResourceCurves.vue?raw';
 import hudSource from './EnemyCombatHudSnapshot.vue?raw';
 import effectsSource from './TimelineEnemyEffects.vue?raw';
+import gridSource from './TimelineMonitorGrid.vue?raw';
 
 describe('TimelineEnemyStatusSections legacy layout contract', () => {
+  it('expands sections on the shell notification without resetting their weights', () => {
+    expect(source).toContain('() => props.expandAllToken');
+    expect(source).toContain('for (const key of sectionKeys) collapsed[key] = false');
+    expect(editorSource).toContain(':expand-all-token="expandAllToken"');
+  });
   it('anchors the collapsed stack to the bottom without spacing its rows apart', () => {
     expect(source).toContain('justify-content: safe flex-end');
     expect(source).toContain('flex: var(--section-weight) 1 14px');
@@ -28,6 +34,7 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
     expect(source).toContain('window.localStorage.setItem(COLLAPSE_STORAGE_KEY');
     expect(source).toContain('sectionKeys.every(sectionKey => next[sectionKey])');
     expect(source).toContain("emit('collapsePanel')");
+    expect(shellSource).toContain('v-if="bottomTool !== \'enemy\'"');
     expect(shellSource).toContain(':collapse-panel="collapseBottom"');
     expect(editorSource).toContain('@collapse-panel="collapsePanel"');
   });
@@ -50,14 +57,21 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
     expect(curvesSource).toContain('const CHART_TOP = 0');
     expect(curvesSource).toContain('const CHART_BOTTOM = 0');
     expect(curvesSource).toContain('function linePath');
-    expect(curvesSource).not.toContain('function stepPath');
-    expect(curvesSource).not.toContain('pointMarkerX');
     expect(curvesSource).toContain('function displayPoints');
     expect(curvesSource).toContain(
       "row.kind === 'poise' ? poiseDisplayPoints(row.points, duration.value) : row.points",
     );
+    expect(curvesSource).not.toContain('function stepPath');
+    expect(curvesSource).not.toContain('pointMarkerX');
+    expect(curvesSource).toContain('poise-broken-pattern');
+    expect(curvesSource).toContain('class="sp-warning-tag"');
+    expect(editorSource).toContain(':poise-broken-segments="poiseBrokenSegments"');
     expect(curvesSource).toContain('v-for="value in [300, 200, 100]"');
     expect(curvesSource).toContain('curve-fill-${row.kind}');
+    expect(editorSource).toContain('const enemyLastDamageFrame = computed');
+    expect(editorSource).toContain('frame: enemyLastDamageFrame.value ?? 0');
+    expect(effectsSource).toContain('summarizeLastHitBuffs(buffs.value, props.snapshotFrame)');
+    expect(effectsSource).toContain('class="last-hit-buffs"');
     expect(curvesSource).toContain('stroke-width: 2');
     expect(curvesSource).toContain('color: #ff7875');
   });
@@ -85,6 +99,16 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
   it('lets each visualization fill its complete section body without dead vertical space', () => {
     expect(source).toContain('.section-content > :deep(*)');
     expect(source).toContain('height: 100%');
+  });
+
+  it('shares the old prep tint, zero boundary and dashed five-second grid across monitor rows', () => {
+    expect(curvesSource).toContain('<TimelineMonitorGrid');
+    expect(effectsSource).toContain('<TimelineMonitorGrid');
+    expect(gridSource).toContain('const GRID_LINE_FRAME_STEP = 150');
+    expect(gridSource).toContain('class="monitor-grid__prep"');
+    expect(gridSource).toContain('class="monitor-grid__zero"');
+    expect(gridSource).toContain('stroke: #333');
+    expect(gridSource).toContain('stroke-dasharray: 2');
   });
 
   it('renders affliction, poise and SP in old-editor vertical order', () => {

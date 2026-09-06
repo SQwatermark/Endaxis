@@ -5408,7 +5408,7 @@ function setPanelDialogVisible(visible: boolean): void {
     </div>
     <div v-if="marqueeStyle" class="timeline-marquee" :style="marqueeStyle"></div>
 
-    <template #bottom="{ tool, collapsePanel }">
+    <template #bottom="{ tool, collapsePanel, expandAllToken }">
       <GlobalResourcePanel
         v-if="tool === 'global'"
         :rules="scenario.battle.resourceRules"
@@ -5445,6 +5445,7 @@ function setPanelDialogVisible(visible: boolean): void {
         </div>
         <div v-if="simulationRun !== null" class="simulation-curves">
           <TimelineEnemyStatusSections
+            :expand-all-token="expandAllToken"
             :affliction-minimum-height="enemyEffectsMinimumHeight"
             :labels="{
               affliction: t('resourceMonitor.modules.enemyStatus'),

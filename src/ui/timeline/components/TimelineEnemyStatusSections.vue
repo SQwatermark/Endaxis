@@ -21,6 +21,7 @@ const props = defineProps<{
   collapseLabel: string;
   expandLabel: string;
   afflictionMinimumHeight?: number;
+  expandAllToken?: number;
 }>();
 
 const emit = defineEmits<{
@@ -67,6 +68,14 @@ function toggle(key: SectionKey): void {
   }
   collapsed[key] = next[key];
 }
+
+// 侧栏重新打开监控区时恢复三段展开，但不重置拖动过的比例。
+watch(
+  () => props.expandAllToken,
+  () => {
+    for (const key of sectionKeys) collapsed[key] = false;
+  },
+);
 
 function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
   const pair = resizePairForLower(lowerKey);
