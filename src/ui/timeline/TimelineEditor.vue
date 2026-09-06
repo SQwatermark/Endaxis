@@ -656,6 +656,7 @@ onScopeDispose(() => {
   cancelConnectionDrag();
   cancelCastMove();
   stopMarkerMove?.();
+  finishSkillDrag();
   window.removeEventListener('beforeunload', protectUnsavedProject);
 });
 
@@ -3572,6 +3573,17 @@ function resolvePlacedSkillDurationFrames(
   return lastSkill?.timelineBlockFrames ?? 0;
 }
 
+/** 技能库的原生拖放只允许轨道接收，不能被输入框当作普通文本写入。 */
+function guardLibrarySkillDrop(event: DragEvent): void {
+  if (dragPayload.value?.kind !== 'librarySkill') return;
+  const target = event.target;
+  const lane = target instanceof Element ? target.closest('.track-lane') : null;
+  if (lane !== null && timelineScroll.value?.contains(lane)) return;
+  event.preventDefault();
+  event.stopPropagation();
+  finishSkillDrag();
+}
+
 function beginSkillDrag(
   event: DragEvent,
   entry: TimelineSkillLibraryEntryViewModel,
@@ -3579,6 +3591,9 @@ function beginSkillDrag(
 ): void {
   const placedSkillKey = skillKey ?? entry.placementSkillKey;
   cancelLibraryPlacement();
+  finishSkillDrag();
+  window.addEventListener('drop', guardLibrarySkillDrop, true);
+  window.addEventListener('dragend', finishSkillDrag, true);
   const offsets = getDefaultLibraryDragOffsets();
   dragPayload.value = {
     kind: 'librarySkill',
@@ -3614,6 +3629,8 @@ function beginSkillDrag(
 }
 
 function finishSkillDrag(): void {
+  window.removeEventListener('drop', guardLibrarySkillDrop, true);
+  window.removeEventListener('dragend', finishSkillDrag, true);
   if (dragPayload.value?.kind === 'librarySkill') dragPayload.value = null;
   removeLibraryDragGhost();
 }

@@ -306,3 +306,9 @@ viewport 1920×1080、deviceScaleFactor 1，不读写用户浏览器项目。
 - 原实现只有 window 冒泡监听，没有指针捕获；跨控件时会受子节点事件拦截及悬停浮层影响。改为捕获阶段监听，并在超过拖动阈值后捕获指针到稳定的 timelineScroll 容器，避免模拟刷新替换技能节点导致捕获丢失。落点继续使用 elementFromPoint，不将捕获目标误作落点。
 - 松手、Esc、pointercancel、lostpointercapture 均清理监听和捕获；普通点击不启用捕获。技能库仍使用浏览器原生 HTML 拖放，没有混用这套轴内移动协议。
 - Chrome 真实按住技能跨越拦截 pointermove/up 的测试控件、左侧面板后返回原轨道，移动成功；松手后控件重新收到事件；Esc 回滚通过。脚本为忽略的 tmp/ui-browser/cast-drag-capture.mjs。结构回归 6 项通过。
+
+### 技能库拖放与输入控件隔离
+
+- 实页复现原生拖放落入输入框后会写入 `battleSkill` 文本：技能库的 text/plain 载荷被浏览器当成文本接收。现在仅在技能库拖动期间监听捕获阶段 drop，非本时间轴轨道的落点阻止默认写入及事件传播；经过控件但未松手不取消拖放。
+- dragend 捕获监听及作用域销毁均释放守卫和拖动预览，保留原生拖放，不改成点击黏附放置。轨道正常接收仍走原有放置逻辑。
+- Chrome 真实拖动验证：输入框落点不写文本、不增加技能；经过输入框再返回轨道只新增一次；取消后仍可普通编辑输入框。相关回归脚本位于忽略的 tmp/ui-browser/library-drag-controls.mjs。

@@ -65,6 +65,22 @@ describe('SkillLibraryCard legacy structure parity', () => {
     expect(editorSource).not.toContain('@select="beginLibraryPlacement(entry)"');
   });
 
+  it('prevents native text drops outside timeline lanes and releases its guards', () => {
+    const guard = editorSource.slice(
+      editorSource.indexOf('function guardLibrarySkillDrop('),
+      editorSource.indexOf('function beginSkillDrag('),
+    );
+    expect(guard).toContain("dragPayload.value?.kind !== 'librarySkill'");
+    expect(guard).toContain('timelineScroll.value?.contains(lane)');
+    expect(guard).toContain('event.preventDefault()');
+    expect(guard).toContain('event.stopPropagation()');
+    expect(editorSource).toContain("window.addEventListener('drop', guardLibrarySkillDrop, true)");
+    expect(editorSource).toContain(
+      "window.removeEventListener('drop', guardLibrarySkillDrop, true)",
+    );
+    expect(editorSource).toContain("window.removeEventListener('dragend', finishSkillDrag, true)");
+  });
+
   it('selects cards and segments for the inspector without entering placement mode', () => {
     expect(editorSource).toContain('function selectLibrarySkill(');
     expect(editorSource).toContain('@select="selectLibrarySkill(entry)"');
