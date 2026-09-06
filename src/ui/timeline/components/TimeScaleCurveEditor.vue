@@ -216,7 +216,7 @@ function addKey(event: MouseEvent): void {
 }
 
 .curve-graph__plot {
-  fill: color-mix(in srgb, var(--ea-bg-panel, #17191d) 88%, transparent);
+  fill: color-mix(in srgb, var(--ea-panel) 88%, transparent);
   stroke: var(--ea-border-soft);
 }
 
@@ -233,7 +233,7 @@ function addKey(event: MouseEvent): void {
 }
 
 .curve-graph__key {
-  fill: var(--ea-bg-panel, #17191d);
+  fill: var(--ea-panel);
   stroke: var(--ea-accent, #d6a45f);
   stroke-width: 2;
   cursor: grab;
@@ -250,14 +250,14 @@ function addKey(event: MouseEvent): void {
 }
 
 .curve-graph__axis {
-  fill: var(--ea-text-muted);
+  fill: var(--ea-fg-muted);
   font-size: 11px;
 }
 
 .curve-graph__hint {
   display: block;
   margin: 4px 4px 0;
-  color: var(--ea-text-muted);
+  color: var(--ea-fg-muted);
   font-size: 12px;
 }
 </style>

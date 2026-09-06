@@ -1,5 +1,20 @@
 # 当前任务快照
 
+#### 2026-09-07 曲线真实拖动/撤销验收与 Inspector 历史快捷键
+
+- 暗色浏览器 tmp/curve-editor-qa 使用正式 SkillDefinitionEditor/曲线组件及模态区域。
+  初次实际拖动显示差异 0→2、撤销按钮可用，但留在 Inspector 按 Ctrl+Z 无效。
+  原因是历史快捷键仅由导图在其活动时处理。
+- 增加 useEditorHistoryShortcuts：整个技能工作区跟踪 pointer/focus 归属，优先级
+  低于导图/手势/选择器；仅接管非文本目标的历史快捷键，文本输入保留原生撤销。
+  组合测试覆盖 Inspector 历史命令和选择浮层屏蔽。
+- 修复后真实操作：中点拖至 time≈0.5658/value≈0.6412，差异 0→2；直接 Ctrl+Z
+  变 0，Ctrl+Shift+Z 变 2；在数值框 Ctrl+Z 不撤销整个草稿。一次拖动一次历史通过。
+- 暗色截图发现刻度使用未定义 --ea-text-muted，显示为黑色。改用 --ea-fg-muted，
+  背景改用有效 --ea-panel；复核截图及 computed fill 为 rgba(255,255,255,0.55)。
+- 955 项相关回归、应用类型检查通过。尚未操作验证按住指针途中 Escape、模态
+  叠加取消与原生导图落点；保留这些验收项，不宣称整个 UI 阶段完成。
+
 #### 2026-09-07 战斗步骤 Inspector 更新漏记历史
 
 - 核对曲线 update → TimeDilationStepEditor → replaceSelectedCombatStep 后发现父入口

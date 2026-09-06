@@ -9,6 +9,7 @@
  */
 import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue';
 import { cloneEditorDefinition } from '../../cloneEditorDefinition';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { useI18n } from 'vue-i18n';
 import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/icons-vue';
 import {
@@ -146,6 +147,8 @@ const emit = defineEmits<{
   reference: [reference: { readonly kind: 'buff' | 'entity'; readonly id: string }];
 }>();
 const { t } = useI18n({ useScope: 'global' });
+const editorRoot = ref<HTMLElement | null>(null);
+useEditorHistoryShortcuts(editorRoot, restoreStructureHistory);
 
 const draft = reactive<{ value: SkillDefinition }>({
   value: createSkillEditorDraft(
@@ -922,7 +925,7 @@ function reset(): void {
 </script>
 
 <template>
-  <section class="skill-editor">
+  <section ref="editorRoot" class="skill-editor">
     <header class="skill-editor__header">
       <div>
         <strong>{{ labels.section }}</strong>

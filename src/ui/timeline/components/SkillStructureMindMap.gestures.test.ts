@@ -6,6 +6,7 @@ import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import type { InteractionSession } from '../../interaction/interactionSession';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 
 // Mount production setup/lifecycle with a host renderer. Vitest compiles SFCs
 // for SSR, so templates are not executed here: this tests handler state and
@@ -86,6 +87,7 @@ async function mount() {
   let state: any;
   const move = vi.fn();
   const history = vi.fn();
+  const editorRoot = ref<HTMLElement | null>(null);
   const pickerOpen = ref(false);
   const child = (id: string) => ({
     id,
@@ -101,6 +103,7 @@ async function mount() {
   const Probe = defineComponent({
     setup() {
       session = useInteractionSession();
+      useEditorHistoryShortcuts(editorRoot, action => history(action));
       usePopoverInteractionBoundary(
         session,
         () => pickerOpen.value,
@@ -151,6 +154,10 @@ async function mount() {
   const viewport = markRaw(new Host('viewport'));
   state.viewport.value = viewport;
   state.shell.value = viewport;
+  const inspector = markRaw(new Host('inspector'));
+  const workspace = markRaw(new Host('workspace'));
+  workspace.children = [viewport, inspector];
+  editorRoot.value = workspace as unknown as HTMLElement;
   viewport.props.onPointerdown = state.startPan;
   viewport.props.onLostpointercapture = state.endPan;
   const start = () =>
@@ -158,6 +165,11 @@ async function mount() {
   const drop = () =>
     state.dropOnNode(event({ currentTarget: target, clientY: 40 }), root.children[1]);
   const focus = () => state.trackActive({ type: 'focusin', target: viewport });
+  const focusInspector = () => {
+    const focusEvent = new Event('focusin');
+    Object.defineProperty(focusEvent, 'target', { value: inspector });
+    document.dispatchEvent(focusEvent);
+  };
   return {
     session,
     move,
@@ -165,6 +177,7 @@ async function mount() {
     pickerOpen,
     unmount,
     focus,
+    focusInspector,
     start,
     drop,
     handle,
@@ -183,6 +196,19 @@ function keydown(key: string, extra = {}) {
 }
 
 describe('mounted structure map gesture ownership', () => {
+  it('routes history from the inspector without allowing it through a picker', async () => {
+    const f = await mount();
+    f.focusInspector();
+    keydown('z', { ctrlKey: true });
+    expect(f.history.mock.calls).toEqual([['undo']]);
+    f.pickerOpen.value = true;
+    keydown('z', { ctrlKey: true });
+    expect(f.history).toHaveBeenCalledOnce();
+    keydown('Escape');
+    keydown('y', { ctrlKey: true });
+    expect(f.history.mock.calls).toEqual([['undo'], ['redo']]);
+  });
+
   it('routes Escape to the current gesture, then restores map history commands', async () => {
     const f = await mount();
     f.focus();
