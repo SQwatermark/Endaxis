@@ -13,7 +13,6 @@ export const ABILITY_ENTITY_SAMPLE_CAST_ID = 'skillCast:sample:arclight-ultimate
 
 export function createTimelineSampleScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('sample:scenario:1', '方案 1');
-  scenario.battle.durationFrames = 900;
   scenario.tracks[0] = {
     id: 'track:sample:perlica',
     operator: {

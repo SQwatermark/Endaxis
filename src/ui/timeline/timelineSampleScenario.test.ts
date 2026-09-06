@@ -9,6 +9,9 @@ import {
 } from './timelineSampleScenario';
 
 describe('timelineSampleScenario', () => {
+  it('keeps the shared 120 second default on first launch', () => {
+    expect(createTimelineSampleScenario().battle.durationFrames).toBe(120 * 30);
+  });
   it('提供可直接编辑的真实生成能力实体子时间线', () => {
     const scenario = createTimelineSampleScenario();
     const track = scenario.tracks[ABILITY_ENTITY_SAMPLE_TRACK_INDEX]!;

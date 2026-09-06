@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { createEmptyProject, createEmptyScenario } from './createProject';
 
 describe('default team SP', () => {
+  it('starts new scenarios with a 120 second timeline', () => {
+    expect(createEmptyScenario('test', 'Test').battle.durationFrames).toBe(120 * 30);
+  });
   it('starts new scenarios at 200 without changing the 300 cap', () => {
     expect(createEmptyScenario('test', 'Test').battle.resourceRules).toMatchObject({
       initialSp: 200,
