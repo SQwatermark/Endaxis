@@ -177,8 +177,12 @@ const structureClipboard = shallowRef<
   | { readonly kind: 'skillEventHandler'; readonly value: CombatEventHandlerDefinition }
   | { readonly kind: 'globalBuffChild'; readonly value: SkillGlobalBuffChildDefinition }
 >();
-const structureUndoStack = shallowRef<SkillDefinition[]>([]);
-const structureRedoStack = shallowRef<SkillDefinition[]>([]);
+interface StructureHistoryEntry {
+  readonly definition: SkillDefinition;
+  readonly selectedPath: string;
+}
+const structureUndoStack = shallowRef<StructureHistoryEntry[]>([]);
+const structureRedoStack = shallowRef<StructureHistoryEntry[]>([]);
 const canUndoStructure = computed(() => structureUndoStack.value.length > 0);
 const canRedoStructure = computed(() => structureRedoStack.value.length > 0);
 
@@ -276,9 +280,16 @@ function duplicateNestedStep(step: Parameters<typeof duplicateSkillEditorDetache
 
 function commitStructureDraft(next: SkillDefinition): void {
   if (next === draft.value) return;
-  structureUndoStack.value = [...structureUndoStack.value, cloneStructureValue(draft.value)];
+  structureUndoStack.value = [...structureUndoStack.value, captureStructureHistory()];
   structureRedoStack.value = [];
   draft.value = next;
+}
+
+function captureStructureHistory(): StructureHistoryEntry {
+  return {
+    definition: cloneStructureValue(draft.value),
+    selectedPath: selectedStructureSourcePath.value,
+  };
 }
 
 async function restoreStructureHistory(action: 'undo' | 'redo'): Promise<void> {
@@ -287,9 +298,9 @@ async function restoreStructureHistory(action: 'undo' | 'redo'): Promise<void> {
   const snapshot = source.value.at(-1);
   if (snapshot === undefined) return;
   source.value = source.value.slice(0, -1);
-  target.value = [...target.value, cloneStructureValue(draft.value)];
-  draft.value = cloneStructureValue(snapshot);
-  await selectStructurePath('');
+  target.value = [...target.value, captureStructureHistory()];
+  draft.value = cloneStructureValue(snapshot.definition);
+  await selectStructurePath(snapshot.selectedPath);
 }
 
 function setBlackboard(blackboard: NonNullable<SkillDefinition['blackboard']>): void {

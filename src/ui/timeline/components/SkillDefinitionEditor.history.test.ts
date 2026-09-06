@@ -25,6 +25,10 @@ describe('skill inspector history integration', () => {
     ['cost resource', editor => editor.setCostResource(0, input('ultimateEnergy'))],
     ['add cost', editor => editor.appendCost()],
     ['remove cost', editor => editor.removeCost(0)],
+    [
+      'delete selected step',
+      editor => editor.runStructureNodeAction('delete', editor.selectedStructureNode.value),
+    ],
   ];
   it.each(edits)('records %s and restores the complete draft on undo/redo', async (_name, edit) => {
     const template: SkillDefinition = {
@@ -70,7 +74,8 @@ describe('skill inspector history integration', () => {
     await renderToString(app);
     await editor.selectStructurePath('scheduledSequences[0].sequence.steps[0]');
     const before = JSON.parse(JSON.stringify(editor.draft.value));
-    edit(editor);
+    await edit(editor);
+    const afterSelection = editor.selectedStructureSourcePath.value;
     const after = JSON.parse(JSON.stringify(editor.draft.value));
     expect(after).not.toEqual(before);
     expect(editor.structureUndoStack.value).toHaveLength(1);
@@ -79,10 +84,14 @@ describe('skill inspector history integration', () => {
     );
     await editor.restoreStructureHistory('undo');
     expect(editor.draft.value).toEqual(before);
+    expect(editor.selectedStructureSourcePath.value).toBe(
+      'scheduledSequences[0].sequence.steps[0]',
+    );
     editor.removeCost(999);
     expect(editor.structureUndoStack.value).toHaveLength(0);
     expect(editor.structureRedoStack.value).toHaveLength(1);
     await editor.restoreStructureHistory('redo');
     expect(editor.draft.value).toEqual(after);
+    expect(editor.selectedStructureSourcePath.value).toBe(afterSelection);
   });
 });
