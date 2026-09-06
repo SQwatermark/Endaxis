@@ -252,6 +252,23 @@ const strictTerminal: CombatOperationExecutor = {
 };
 
 /** 一场模拟独占的标准生命/失衡伤害环境；敌人生命账本由场景装配层注入并共享。 */
+function panelAttackDetail(panel: ResolvedOperatorPanel) {
+  if (panel.attackDetail === undefined) return undefined;
+  return {
+    panelAttack: panel.attack,
+    ...panel.attackDetail,
+    mainAttribute: panel.mainAttribute,
+    secondaryAttribute: panel.secondaryAttribute,
+    attributes: panel.attributes,
+    coefficients: Object.fromEntries(
+      Object.keys(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE).map(attribute => [
+        attribute,
+        (panel.mainAttribute === attribute ? MAIN_ATTRIBUTE_ATTACK_FACTOR : 0) +
+          (panel.secondaryAttribute === attribute ? SECONDARY_ATTRIBUTE_ATTACK_FACTOR : 0),
+      ]),
+    ) as Record<keyof typeof ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE, number>,
+  };
+}
 export class StandardPlayerDamageEnvironment {
   readonly runtimeOptions: EnvironmentOptions;
   readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
@@ -491,22 +508,7 @@ export class StandardPlayerDamageEnvironment {
       ...(context.panel?.attackDetail === undefined
         ? {}
         : {
-            attackDetail: {
-              panelAttack: context.panel.attack,
-              ...context.panel.attackDetail,
-              mainAttribute: context.panel.mainAttribute,
-              secondaryAttribute: context.panel.secondaryAttribute,
-              attributes: context.panel.attributes,
-              coefficients: Object.fromEntries(
-                Object.keys(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE).map(attribute => [
-                  attribute,
-                  (context.panel!.mainAttribute === attribute ? MAIN_ATTRIBUTE_ATTACK_FACTOR : 0) +
-                    (context.panel!.secondaryAttribute === attribute
-                      ? SECONDARY_ATTRIBUTE_ATTACK_FACTOR
-                      : 0),
-                ]),
-              ) as Record<keyof typeof ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE, number>,
-            },
+            attackDetail: panelAttackDetail(context.panel)!,
           }),
       captureAttributeSnapshots: step =>
         resolveStaticPlayerDamageSnapshots(
@@ -1259,6 +1261,7 @@ export class StandardPlayerDamageEnvironment {
       skillCastInfo: payload.skillCastInfo ?? null,
     });
     executeSpellBurst({
+      ...(panel.attackDetail === undefined ? {} : { attackDetail: panelAttackDetail(panel)! }),
       skillCastInfo: payload.skillCastInfo ?? null,
       definition,
       sourceId: payload.sourceId,

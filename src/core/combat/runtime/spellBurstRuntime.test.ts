@@ -89,6 +89,24 @@ describe('executeSpellBurst', () => {
       executeSpellBurst({
         definition: { ...definition, burstType, damageType },
         sourceId: 'operator',
+        skillCastInfo: {
+          skillCastId: 12,
+          originCastId: 'cast:original',
+          originSkillId: 'battle',
+          originSkillType: 'battleSkill',
+          nonReturnedSpCost: 100,
+        },
+        attackDetail: {
+          panelAttack: 1000,
+          operatorBaseAttack: 800,
+          weaponBaseAttack: 200,
+          attackPercent: 0,
+          flatAttack: 0,
+          mainAttribute: 'intellect',
+          secondaryAttribute: 'will',
+          attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
+          coefficients: { strength: 0, agility: 0, intellect: 0.005, will: 0.002 },
+        },
         attack: 1000,
         enhance: 2,
         criticalRate: 0.5,
@@ -107,6 +125,9 @@ describe('executeSpellBurst', () => {
       expect(hits).toHaveLength(1);
       expect(hits[0]?.data).toMatchObject({
         spellBurstType: burstType,
+        sourceActionId: 'cast:original',
+        attackDetailOperatorBase: 800,
+        attackDetailWeaponBase: 200,
         damageType,
         spellBurstEnhanceFactor: 2,
         attack: 1000,

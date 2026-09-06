@@ -19,9 +19,14 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import {
+  freezeAttackReceiptDetail,
+  type AttackReceiptSnapshot,
+} from '../damage/attackReceiptDetail';
 
 /** 一次爆发伤害需要的全部输入。 */
 export interface ExecuteSpellBurstInput {
+  readonly attackDetail?: AttackReceiptSnapshot;
   readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly definition: CombatBuffSpellBurstDefinition;
   readonly sourceId: string;
@@ -144,6 +149,10 @@ export function executeSpellBurst(input: ExecuteSpellBurstInput): SpellBurstResu
     result: damage,
     detail: {
       spellBurstType: input.definition.burstType,
+      ...(input.skillCastInfo?.originCastId === undefined
+        ? {}
+        : { sourceActionId: input.skillCastInfo.originCastId }),
+      ...freezeAttackReceiptDetail(input.attack, input.attackDetail),
       spellBurstEnhanceFactor: enhanceFactor,
       attack: input.attack,
       baseDamage: input.attack * scale,

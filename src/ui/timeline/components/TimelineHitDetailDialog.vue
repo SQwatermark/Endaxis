@@ -13,6 +13,8 @@ const props = defineProps<{
   visible: boolean;
   forceCritical: boolean;
   allowForceCritical?: boolean;
+  sourceDescription?: string;
+  sourceLabel?: string;
   entries: readonly CombatReceiptEntry[];
   operatorPanel: ResolvedOperatorPanel | null;
   contributionSourceLabel: (entry: OperatorPanelContributionReceipt) => string;
@@ -210,6 +212,9 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
     const damageTakenMultiplier = finiteNumber(data.damageTakenMultiplier, 1);
     const resistanceMultiplier = finiteNumber(data.resistancePercentMultiplier, 1);
     const contextRows: DetailRow[] = [];
+    if (props.sourceDescription && props.sourceLabel) {
+      contextRows.push({ label: props.sourceLabel, value: props.sourceDescription });
+    }
     if (skillType !== null) {
       contextRows.push({ label: props.labels.skillType, value: props.skillTypeLabel(skillType) });
     }

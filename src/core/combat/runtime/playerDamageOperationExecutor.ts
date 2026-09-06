@@ -4,13 +4,13 @@
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import { attributeModifierValues } from '../attributes/combatAttributes';
-import type {
-  ActionValueOperand,
-  OperatorAttribute,
-  SkillType,
-} from '../../game-data/operatorDefinition';
+import type { ActionValueOperand, SkillType } from '../../game-data/operatorDefinition';
 import { calculateBreakingAttackValue } from '../damage/breakingAttackDamage';
 import { executeHealthDamage } from '../damage/healthDamage';
+import {
+  freezeAttackReceiptDetail,
+  type AttackReceiptSnapshot,
+} from '../damage/attackReceiptDetail';
 import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
 import {
   PlayerDamageContext,
@@ -79,17 +79,7 @@ export interface PlayerDamageOperationDependencies {
   readonly receipt: CombatReceiptSink;
   readonly captureAttributeSnapshots: (step: DamageStep) => PlayerDamageAttributeSnapshots;
   readonly criticalSamples: CriticalSampleSource;
-  readonly attackDetail?: {
-    readonly panelAttack: number;
-    readonly operatorBaseAttack: number;
-    readonly weaponBaseAttack: number;
-    readonly attackPercent: number;
-    readonly flatAttack: number;
-    readonly mainAttribute: OperatorAttribute;
-    readonly secondaryAttribute: OperatorAttribute;
-    readonly attributes: Readonly<Record<OperatorAttribute, number>>;
-    readonly coefficients: Readonly<Record<OperatorAttribute, number>>;
-  };
+  readonly attackDetail?: AttackReceiptSnapshot;
   /** 场景显式指定的命中覆盖；只改变本次实际结算，不污染公式中的原始暴击率。 */
   readonly isCriticalForced?: (step: DamageStep) => boolean;
   readonly resolveNonRandomRuntimeSnapshot: (
@@ -297,9 +287,6 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           ? 1
           : Math.max(0, 1 - formulaInput.resistancePercent / 100);
       const attackDetail = this.dependencies.attackDetail;
-      const hasExactAttackDetail =
-        attackDetail !== undefined &&
-        Math.abs(attackDetail.panelAttack - context.attackerAttributes.attack) <= Number.EPSILON;
       const hitId =
         step.hitId ??
         (this.dependencies.castId === undefined || step.key === undefined
@@ -322,24 +309,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
             ? {}
             : { skillType: this.dependencies.skillType }),
           attack: context.attackerAttributes.attack,
-          ...(hasExactAttackDetail
-            ? {
-                attackDetailOperatorBase: attackDetail.operatorBaseAttack,
-                attackDetailWeaponBase: attackDetail.weaponBaseAttack,
-                attackDetailAttackPercent: attackDetail.attackPercent,
-                attackDetailFlatAttack: attackDetail.flatAttack,
-                attackDetailMainAttribute: attackDetail.mainAttribute,
-                attackDetailSecondaryAttribute: attackDetail.secondaryAttribute,
-                attackDetailStrength: attackDetail.attributes.strength,
-                attackDetailAgility: attackDetail.attributes.agility,
-                attackDetailIntellect: attackDetail.attributes.intellect,
-                attackDetailWill: attackDetail.attributes.will,
-                attackDetailStrengthCoefficient: attackDetail.coefficients.strength,
-                attackDetailAgilityCoefficient: attackDetail.coefficients.agility,
-                attackDetailIntellectCoefficient: attackDetail.coefficients.intellect,
-                attackDetailWillCoefficient: attackDetail.coefficients.will,
-              }
-            : {}),
+          ...freezeAttackReceiptDetail(context.attackerAttributes.attack, attackDetail),
           baseDamage: context.baseValue,
           finalAttackValue,
           standardCalculation,

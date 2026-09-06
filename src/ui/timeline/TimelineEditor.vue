@@ -2428,6 +2428,22 @@ const enemyDamageDetailEntries = computed(
         entry.sequence === enemyDamageDetailSequence.value && entry.event === 'DamageApplied',
     ) ?? [],
 );
+const enemyDamageSourceDescription = computed(() => {
+  const entry = enemyDamageDetailEntries.value[0];
+  if (!entry) return undefined;
+  const sourceActionId =
+    typeof entry.data?.sourceActionId === 'string' ? entry.data.sourceActionId : undefined;
+  const index = scenario.value.tracks.findIndex(track => track?.id === entry.sourceId);
+  const track = viewModel.value.tracks[index];
+  const operatorSlug = track?.operatorAssetSlug ?? track?.operatorSlug;
+  return [
+    operatorSlug ? getOperatorGameName(operatorSlug, locale.value) : entry.sourceId,
+    buffSourceName({ sourceActionId }),
+    t('battleLog.receiptTypes.SpellBurstApplied'),
+  ]
+    .filter(Boolean)
+    .join(' · ');
+});
 const hitDetail = computed(() => {
   const target = hitDetailTarget.value;
   const current = simulationRun.value;
@@ -2453,15 +2469,22 @@ const hitDetailForceCritical = computed(() => {
 const hitDetailOperatorPanel = computed(() => {
   const target = hitDetailTarget.value;
   const current = simulationRun.value;
-  if (target === null || current === null) return null;
-  const operatorId = scenario.value.tracks[target.trackIndex]?.id;
+  if (current === null) return null;
+  const operatorId =
+    target === null
+      ? enemyDamageDetailEntries.value[0]?.sourceId
+      : scenario.value.tracks[target.trackIndex]?.id;
   return current.operatorPanels.find(panel => panel.operatorId === operatorId) ?? null;
 });
 
 function hitDetailContributionSourceLabel(entry: OperatorPanelContributionReceipt): string {
   const target = hitDetailTarget.value;
-  const operatorSlug =
-    target === null ? null : viewModel.value.tracks[target.trackIndex]?.operatorSlug;
+  const trackIndex =
+    target?.trackIndex ??
+    scenario.value.tracks.findIndex(
+      track => track?.id === enemyDamageDetailEntries.value[0]?.sourceId,
+    );
+  const operatorSlug = viewModel.value.tracks[trackIndex]?.operatorSlug ?? null;
   return resolveOperatorPanelContributionSourceLabel(entry, {
     operator:
       operatorSlug === null || operatorSlug === undefined
@@ -6030,6 +6053,8 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetSelectedCastDefinition"
   />
   <TimelineHitDetailDialog
+    :source-label="t('timeline.buffDetail.source')"
+    :source-description="hitDetailTarget === null ? enemyDamageSourceDescription : undefined"
     :visible="hitDetailTarget !== null || enemyDamageDetailSequence !== null"
     :allow-force-critical="hitDetailTarget !== null"
     :force-critical="hitDetailForceCritical"
