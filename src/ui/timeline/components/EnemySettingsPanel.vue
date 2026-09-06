@@ -10,6 +10,8 @@ import { useI18n } from 'vue-i18n';
 import type { EnemyDefinition, EnemyTier } from '../../../core/game-data/enemyDefinition';
 import type { EnemyDocument, EnemyEditableValues } from '../../../core/project/schema';
 import { DAMAGE_ELEMENTS } from '../../../core/game-data/operatorDefinition';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { useDialogInteractionBoundary } from '../../interaction/useDialogInteractionBoundary';
 
 const EDITABLE_RESISTANCE_DAMAGE_TYPES = DAMAGE_ELEMENTS;
 const { t } = useI18n();
@@ -66,6 +68,10 @@ const emit = defineEmits<{
 
 const selectorVisible = ref(false);
 const statsVisible = ref(false);
+useDialogInteractionBoundary(
+  useInteractionSession(),
+  () => selectorVisible.value || statsVisible.value,
+);
 const searchQuery = ref('');
 const tierFilter = ref<EnemyTier | 'all'>('all');
 const selectedLevel = ref(90);

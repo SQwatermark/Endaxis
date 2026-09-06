@@ -11,6 +11,8 @@ import type {
   GlobalOperatorStatModifierDocument,
 } from '../../../core/project/schema';
 import type { EditableBattleResourceRule } from '../timelineDocumentCommands';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { useDialogInteractionBoundary } from '../../interaction/useDialogInteractionBoundary';
 
 const props = defineProps<{
   mode?: 'full' | 'modifiers';
@@ -31,6 +33,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n({ useScope: 'global' });
 const editorVisible = ref(false);
+useDialogInteractionBoundary(useInteractionSession(), () => editorVisible.value);
 
 interface ModifierChoice {
   readonly modifier: GlobalOperatorStatModifier;

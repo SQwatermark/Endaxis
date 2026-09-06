@@ -1,5 +1,23 @@
 # 当前任务快照
 
+#### 2026-09-07 子组件自有敌人/全局属性弹窗输入边界
+
+- 排查发现 EnemySettingsPanel 的 selectorVisible/statsVisible、GlobalResourcePanel
+  的 editorVisible 不在父 TimelineEditor.hasModalPanel 中，过去依赖 DOM 隔离，
+  没有同步取消或阻挡工作台手势。现在由持有开关的组件登记自身生命周期，
+  不继续向父组件追加开关清单。
+- useDialogInteractionBoundary 复用手势屏障和键盘/剪贴板路由，关闭/卸载释放。
+  Escape/Enter 等交给 Element Plus 的焦点/弹窗处理，不 preventDefault；优先级
+  高于普通 popover，避免弹窗上按 Escape 先关闭背景更多/显示。
+- 该入口仅用于不含嵌套命令编辑器的末端弹窗，不能套在技能导图外层，否则会
+  挡住子编辑器快捷键。1500 仍是过渡优先级，不是完整父子区域栈。
+- 深色正式夹具实测：敌人选择筛选按钮上 Delete 保留选中技能；敌人选择、
+  自定义属性、全局属性修正都可 Escape 关闭；全局属性弹窗内 Delete 同样保留
+  后台技能。未保存任何敌人/属性修改，恢复资源监控布局。没有新增实际拖拽
+  验证，取消/恢复、卸载释放和叠在 popover 上的路由由测试覆盖。
+- 894 项时间轴/键盘/交互测试及应用类型检查通过。后续重点仍是嵌套编辑器的
+  逻辑父子输入区域，以及选择器中残留的独立全局按键监听；未改外观/模拟。
+
 #### 2026-09-07 更多/显示浮层生命周期输入屏障
 
 - 新增 usePopoverInteractionBoundary，复用共享 InteractionSession 和键盘路由。
