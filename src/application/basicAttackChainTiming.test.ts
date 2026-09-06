@@ -6,6 +6,9 @@ import { gameDataRepository } from '../data/gameDataRepository';
 import { skillSettings } from '../data/combat/skillSettings';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { ScenarioSimulationService } from './scenarioSimulationService';
+import { resolveCompactSkillSelection } from '../ui/timeline/compactSkillSelection';
+import { SkillPlacementTransaction } from '../ui/timeline/skillPlacementTransaction';
+import { ScenarioEditorSession } from './editor/scenarioEditorSession';
 
 const service = new ScenarioSimulationService({
   index: gameDataRepository,
@@ -50,6 +53,86 @@ function createChain(operator: OperatorDefinition) {
 }
 
 describe('generated basic attack chain input timing', () => {
+  it('compacts Perlica heavy attack then battle skill despite the anchor input warning', async () => {
+    const scenario = createChain(perlica);
+    scenario.tracks[0]!.skillCasts = scenario.tracks[0]!.skillCasts.slice(-1);
+    scenario.tracks[0]!.skillCasts[0]!.placement.startFrame = 1;
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 100,
+      ids: { allocate: () => 'battle:probe' },
+    });
+    const result = await service.planSkillChain(
+      placed.scenario,
+      ['cast:3', 'battle:probe'],
+      240,
+      undefined,
+      'compact',
+    );
+    expect(result.status).toBe('planned');
+    if (result.status !== 'planned') return;
+    expect(result.scenario.tracks[0]!.skillCasts.map(c => c.placement.startFrame)).toEqual([1, 46]);
+    expect(
+      result.run.availabilityDiagnostics.some(
+        d => d.skillId === 'basicAttack4' && d.reasons.includes('skillInputMismatch'),
+      ),
+    ).toBe(true);
+    expect(
+      result.run.receiptEntries.filter(e => e.event === 'DamageApplied').map(e => e.frame),
+    ).toContain(28);
+  });
+  it('compacts selected existing casts in time order as one undoable operation', async () => {
+    const scenario = createChain(lifeng);
+    const casts = scenario.tracks[0]!.skillCasts;
+    casts.forEach((cast, i) => {
+      cast.placement.startFrame = 1 + i * 50;
+    });
+    const untouched = structuredClone(casts[0]!);
+    untouched.id = 'unselected';
+    untouched.placement.startFrame = 220;
+    casts.push(untouched);
+    // Document order need not equal time order.
+    scenario.tracks[0]!.skillCasts = [casts[2]!, casts[0]!, casts[3]!, casts[1]!, untouched];
+    const selection = resolveCompactSkillSelection(
+      scenario,
+      new Set(['cast:3', 'cast:1', 'cast:0', 'cast:2']),
+    );
+    expect(selection.ok).toBe(true);
+    if (!selection.ok) return;
+    const session = new ScenarioEditorSession(scenario);
+    const transaction = new SkillPlacementTransaction(service, () => session.snapshot.revision);
+    const result = await transaction.resolve(
+      { scenario, skillCastIds: selection.castIds },
+      'compact',
+    );
+    expect(result?.incomplete).toBe(false);
+    if (!result || result.incomplete) return;
+    const byId = new Map(result.scenario.tracks[0]!.skillCasts.map(cast => [cast.id, cast]));
+    expect(selection.castIds.map(id => byId.get(id)!.placement.startFrame)).toEqual([
+      1, 28, 49, 69,
+    ]);
+    expect(byId.get('unselected')).toEqual(untouched);
+    const run = await service.simulate(result.scenario, 240);
+    for (let i = 1; i < selection.castIds.length; i++) {
+      const boundary = run.receiptEntries.find(
+        entry =>
+          entry.event === 'SkillOperableBoundaryReached' &&
+          entry.data?.castId === selection.castIds[i - 1],
+      );
+      expect(boundary).toBeDefined();
+      expect(byId.get(selection.castIds[i]!)!.placement.startFrame).toBe(boundary!.frame + 1);
+    }
+    session.commit('compactSelectedSkills', () => result.scenario);
+    expect(session.undo()).toBe(true);
+    expect(session.snapshot.scenario).toEqual(scenario);
+    expect(session.canUndo).toBe(false);
+    expect(session.redo()).toBe(true);
+    expect(session.snapshot.scenario).toEqual(result.scenario);
+  });
+
   it.each([-60, 0, 1])(
     'plans a hit-stop-aware chain at %s without rewriting existing placements',
     async startFrame => {

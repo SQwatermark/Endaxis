@@ -299,6 +299,12 @@
     "zhCNShort": "中"
   },
   "timeline": {
+    "compactSelection": {
+      "label": "Compact selected skills",
+      "count": "Select at least two skills",
+      "mixed": "Select only skills on one track",
+      "incomplete": "Simulation could not provide all boundaries. Compacted using current block widths; simulation errors and warnings are preserved."
+    },
     "chainPlacementIncomplete": "Could not determine the full chain timing. Default spacing was used; check the skill block diagnostics.",
     "chainPlacementFailed": "Could not calculate chain placement",
     "activityBar": {

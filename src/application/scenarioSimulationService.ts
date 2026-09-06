@@ -196,6 +196,7 @@ export class ScenarioSimulationService {
     castIds: readonly string[],
     endFrame: number,
     signal?: AbortSignal,
+    mode: 'continuation' | 'compact' = 'continuation',
   ): Promise<
     | { readonly status: 'incomplete'; readonly unresolvedCastIds: readonly string[] }
     | {
@@ -206,13 +207,14 @@ export class ScenarioSimulationService {
   > {
     assertNotAborted(signal);
     const candidate = structuredClone(scenario);
-    const result = this.#runSimulation(candidate, endFrame, castIds);
+    const result = this.#runSimulation(candidate, endFrame, castIds, mode);
     assertNotAborted(signal);
     const frames = new Map<string, number>();
     for (const entry of result.receiptEntries) {
       if (
         entry.event === 'SkillInputProcessed' &&
-        entry.data?.accepted === true &&
+        entry.data !== undefined &&
+        (entry.data?.accepted === true || mode === 'compact') &&
         typeof entry.data.castId === 'string' &&
         castIds.includes(entry.data.castId)
       )
@@ -227,6 +229,7 @@ export class ScenarioSimulationService {
       }
     }
     const run = await this.simulate(candidate, endFrame, signal);
+    if (mode === 'compact') return { status: 'planned', scenario: candidate, run };
     // 临时规划与最终显式帧必须产生相同接续判定，不吞掉其他独立诊断。
     const blockingReasons = new Set([
       'skillInputMismatch',
@@ -249,11 +252,14 @@ export class ScenarioSimulationService {
     scenario: ScenarioDocument,
     endFrame: number,
     continuationPlanCastIds?: readonly string[],
+    continuationPlanMode: 'continuation' | 'compact' = 'continuation',
   ): StandardPlayerDamageScenarioResult {
     return runStandardPlayerDamageScenarioSimulation({
       scenario,
       endFrame,
-      ...(continuationPlanCastIds === undefined ? {} : { continuationPlanCastIds }),
+      ...(continuationPlanCastIds === undefined
+        ? {}
+        : { continuationPlanCastIds, continuationPlanMode }),
       criticalSamples: this.#options.criticalSamples!,
       probabilitySamples: this.#options.probabilitySamples!,
       resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,

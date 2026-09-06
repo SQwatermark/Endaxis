@@ -300,6 +300,7 @@ export interface CombatRuntimeAssemblyOptions {
   readonly inputs?: readonly ScheduledSkillInput[];
   /** 仅临时放置规划启用；正式存档模拟始终使用显式输入帧。 */
   readonly continuationPlanCastIds?: readonly string[];
+  readonly continuationPlanMode?: 'continuation' | 'compact';
   /** 时间轴显式输入的受击事实；不执行敌方伤害或生命扣减。 */
   readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
   /**
@@ -1231,7 +1232,32 @@ export class CombatRuntimeAssembly {
           : {
               continuationPlan: {
                 castIds: options.continuationPlanCastIds,
-                canContinue: (input: ScheduledSkillInput) => {
+                ignoreInputFailures: options.continuationPlanMode === 'compact',
+                canContinue: (input: ScheduledSkillInput, previous: ScheduledSkillInput) => {
+                  if (options.continuationPlanMode === 'compact') {
+                    // 编辑边界而非释放许可：告警由最终正式模拟保留。
+                    const boundary = this.receipt.entries.find(
+                      entry =>
+                        entry.event === 'SkillOperableBoundaryReached' &&
+                        entry.data?.castId === previous.castId,
+                    );
+                    if (boundary !== undefined) return boundary.frame < this.clock.frame;
+                    const processed = this.receipt.entries.find(
+                      entry =>
+                        entry.event === 'SkillInputProcessed' &&
+                        entry.data?.castId === previous.castId,
+                    );
+                    const program = this.#skillPrograms.get(
+                      `${previous.operatorId}\u0000${previous.skillId}\u0000${previous.castId ?? ''}`,
+                    );
+                    // 未能释放或零宽技能没有边界回执，仍按定义块宽继续排列并保留失败事实。
+                    return (
+                      program !== undefined &&
+                      (processed?.data?.accepted === false || program.timelineBlockFrames === 0) &&
+                      this.clock.frame >=
+                        previous.frame + Math.max(1, program.timelineBlockFrames + 1)
+                    );
+                  }
                   const ability = this.#requireAbilitySystem(input.operatorId);
                   const resolution = ability.resolvePlayerInputSkill(input.skillId, input.action);
                   return (

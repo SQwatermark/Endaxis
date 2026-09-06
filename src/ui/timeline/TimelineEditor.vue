@@ -172,6 +172,10 @@ import {
 import { placeSkillGroup } from './placeSkillGroup';
 import { SkillPlacementTransaction } from './skillPlacementTransaction';
 import {
+  resolveCompactSkillSelection,
+  compactSkillSelectionByWidths,
+} from './compactSkillSelection';
+import {
   layoutSkillGroupPlacement,
   resolveSkillGroupPlacementSkills,
   skillPlacementDisplayFrames,
@@ -4171,6 +4175,58 @@ function copyContextSelection(): void {
   contextMenuTarget.value = null;
 }
 
+const compactSelection = computed(() =>
+  resolveCompactSkillSelection(scenario.value, actionSelection.value.selectedIds),
+);
+
+async function compactSelectedSkills(): Promise<void> {
+  const selection = compactSelection.value;
+  contextMenuTarget.value = null;
+  if (!selection.ok) return;
+  const original = scenario.value;
+  const fallback = compactSkillSelectionByWidths(
+    original,
+    selection.castIds,
+    new Map(
+      viewModel.value.tracks.flatMap(track =>
+        track.skillCasts.map(
+          cast => [cast.id, castActualDurationFrame(cast.id, cast.durationFrames)] as const,
+        ),
+      ),
+    ),
+  );
+  let compacted = fallback;
+  try {
+    const result = await skillPlacementTransaction.resolve(
+      {
+        scenario: scenario.value,
+        skillCastIds: selection.castIds,
+      },
+      'compact',
+    );
+    if (result === null) return;
+    if (result.incomplete) {
+      ElMessage.warning(t('timeline.compactSelection.incomplete'));
+    } else compacted = result.scenario;
+  } catch (error) {
+    ElMessage.warning(t('timeline.compactSelection.incomplete'));
+    // 保留正式模拟错误的反馈，编辑仍按当前块宽完成。
+    if (error instanceof Error) ElMessage.error(error.message);
+  }
+  const originalFrames = new Map(
+    original.tracks.flatMap(track =>
+      (track?.skillCasts ?? []).map(cast => [cast.id, cast.placement.startFrame] as const),
+    ),
+  );
+  if (
+    !compacted.tracks.some(track =>
+      track?.skillCasts.some(cast => originalFrames.get(cast.id) !== cast.placement.startFrame),
+    )
+  )
+    return;
+  commitScenario('compactSelectedSkills', () => compacted);
+}
+
 function pasteClipboardAtCursor(): void {
   const clipboard = timelineClipboard.value;
   if (clipboard === null) return;
@@ -5762,6 +5818,11 @@ function setPanelDialogVisible(visible: boolean): void {
     :locked="selectedCastModel?.cast.presentation?.locked ?? false"
     :disabled="selectedCastModel?.cast.presentation?.disabled ?? false"
     :color="selectedCastModel?.cast.presentation?.color ?? null"
+    :compact-visible="actionSelection.selectedIds.size > 1"
+    :compact-disabled-reason="
+      compactSelection.ok ? undefined : t(`timeline.compactSelection.${compactSelection.reason}`)
+    "
+    @compact="compactSelectedSkills"
     @close="contextMenuTarget = null"
     @copy="copyContextSelection"
     @delete="deleteContextCast"

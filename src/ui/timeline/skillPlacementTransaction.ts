@@ -22,6 +22,7 @@ export class SkillPlacementTransaction {
 
   async resolve(
     placed: PlaceSkillGroupResult,
+    mode: 'continuation' | 'compact' = 'continuation',
   ): Promise<{ readonly scenario: ScenarioDocument; readonly incomplete: boolean } | null> {
     this.cancel();
     const request = this.#request;
@@ -37,6 +38,7 @@ export class SkillPlacementTransaction {
         placed.skillCastIds,
         placed.scenario.battle.durationFrames,
         controller.signal,
+        mode,
       );
       if (!isCurrent()) return null;
       return result.status === 'planned'

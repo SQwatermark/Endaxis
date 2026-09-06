@@ -32,6 +32,7 @@ export interface CombatInputRuntimeOptions {
   readonly continuationPlan?: {
     readonly castIds: readonly string[];
     readonly canContinue: (input: ScheduledSkillInput, previous: ScheduledSkillInput) => boolean;
+    readonly ignoreInputFailures?: boolean;
   };
 }
 
@@ -107,7 +108,8 @@ export class CombatInputRuntime implements FrameRuntime {
         anchor !== undefined &&
         input.castId !== anchor.castId &&
         input.operatorId === anchor.operatorId &&
-        this.#previousContinuationInput !== undefined
+        this.#previousContinuationInput !== undefined &&
+        this.#canContinue?.ignoreInputFailures !== true
       ) {
         // Never move a generated continuation past another authored operation on this operator.
         this.#continuationStopped = true;
@@ -115,7 +117,8 @@ export class CombatInputRuntime implements FrameRuntime {
       const accepted = this.#processInput(input);
       if (anchor !== undefined && input.castId === anchor.castId) {
         this.#previousContinuationInput = { ...input, frame: actualFrame };
-        if (!accepted) this.#continuationStopped = true;
+        if (!accepted && this.#canContinue?.ignoreInputFailures !== true)
+          this.#continuationStopped = true;
       }
     }
     const previous = this.#previousContinuationInput;
@@ -132,7 +135,8 @@ export class CombatInputRuntime implements FrameRuntime {
     // At most one continuation per real frame, including repeated applyCurrentFrame calls.
     this.#nextContinuationIndex += 1;
     this.#previousContinuationInput = input;
-    if (!this.#processInput(input)) this.#continuationStopped = true;
+    if (!this.#processInput(input) && this.#canContinue?.ignoreInputFailures !== true)
+      this.#continuationStopped = true;
   }
 
   #processInput(input: ScheduledSkillInput): boolean {

@@ -62,6 +62,7 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly timeManagerDeltaMode?: number;
   /** 临时规划实例专用，不进入项目协议或正式模拟缓存。 */
   readonly continuationPlanCastIds?: readonly string[];
+  readonly continuationPlanMode?: 'continuation' | 'compact';
 }
 
 /** 本次模拟唯一敌人生命账本的初始与最终快照；投影和结果收集读取同一实例。 */
@@ -179,7 +180,10 @@ export function runStandardPlayerDamageScenarioSimulation(
       ...compiled,
       ...(input.continuationPlanCastIds === undefined
         ? {}
-        : { continuationPlanCastIds: input.continuationPlanCastIds }),
+        : {
+            continuationPlanCastIds: input.continuationPlanCastIds,
+            continuationPlanMode: input.continuationPlanMode ?? 'continuation',
+          }),
     },
     endFrame: input.endFrame,
   });

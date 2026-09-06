@@ -15,11 +15,14 @@ const props = defineProps<{
   locked: boolean;
   disabled: boolean;
   color: string | null;
+  compactVisible?: boolean;
+  compactDisabledReason?: string;
 }>();
 
 const emit = defineEmits<{
   close: [];
   copy: [];
+  compact: [];
   delete: [];
   toggleLock: [];
   toggleDisabled: [];
@@ -103,6 +106,20 @@ onBeforeUnmount(() => {
         <kbd>Delete</kbd>
       </button>
       <div class="divider"></div>
+      <button
+        v-if="compactVisible"
+        class="menu-item"
+        type="button"
+        role="menuitem"
+        :disabled="Boolean(compactDisabledReason)"
+        :title="compactDisabledReason"
+        @click="$emit('compact')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 4v16M7 7h5v10H7zM15 7h6v10h-6z"></path>
+        </svg>
+        <span>{{ t('timeline.compactSelection.label') }}</span>
+      </button>
       <button class="menu-item" type="button" role="menuitem" @click="$emit('toggleLock')">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -188,6 +205,12 @@ onBeforeUnmount(() => {
 .menu-item:hover {
   background: #007fd4;
   color: #fff;
+}
+
+.menu-item:disabled {
+  color: #777;
+  background: transparent;
+  cursor: not-allowed;
 }
 
 .menu-item.delete-item:hover {

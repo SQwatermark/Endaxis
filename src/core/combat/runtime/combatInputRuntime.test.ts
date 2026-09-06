@@ -182,6 +182,38 @@ describe('CombatInputRuntime', () => {
     expect(receipt.entries.map(entry => entry.data?.castId)).toEqual(['a', 'x']);
   });
 
+  it('keeps compact planning through failed inputs and an intervening authored cast', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const runtime = new CombatInputRuntime({
+      clock,
+      receipt,
+      tryStartSkill: () => false,
+      inputs: [
+        chain()[0]!,
+        chain()[1]!,
+        { frame: 1, operatorId: 'operator', skillId: 'authored', castId: 'x' },
+        chain()[2]!,
+      ],
+      continuationPlan: {
+        castIds: ['a', 'b', 'c'],
+        ignoreInputFailures: true,
+        canContinue: () => true,
+      },
+    });
+    runtime.applyCurrentFrame();
+    for (let frame = 1; frame <= 3; frame += 1) {
+      clock.advanceFrame();
+      runtime.applyCurrentFrame();
+    }
+    expect(receipt.entries.map(entry => [entry.data?.castId, entry.data?.accepted])).toEqual([
+      ['a', false],
+      ['x', false],
+      ['b', false],
+      ['c', false],
+    ]);
+  });
+
   it.each(['a', 'b'])('stops when chain input %s fails', failedCastId => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
