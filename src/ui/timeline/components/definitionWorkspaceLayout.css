@@ -1,0 +1,44 @@
+/* Viewport space belongs to the workspace; forms, canvas and Inspector scroll independently. */
+.definition-workspace-dialog {
+  height: calc(100dvh - 48px);
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.definition-workspace-dialog > .el-dialog__header,
+.definition-workspace-dialog > .el-dialog__footer {
+  flex: none;
+}
+.definition-workspace-dialog > .el-dialog__body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.definition-workspace-dialog .issues {
+  max-height: 90px;
+  overflow: auto;
+}
+.definition-workspace-dialog .el-dialog__body .trait-inspector {
+  min-height: 0;
+  overflow: hidden;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.definition-workspace-dialog .el-dialog__body .trait-definition-card {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  margin: 0;
+  box-sizing: border-box;
+}
+.definition-workspace-dialog .trait-definition-card > header {
+  min-height: 30px;
+}
+.definition-workspace-dialog .trait-definition-card > .field-grid {
+  padding: 8px 12px;
+}
+.definition-workspace-dialog .trait-definition-card > .object-actions {
+  padding: 6px 12px 0;
+}

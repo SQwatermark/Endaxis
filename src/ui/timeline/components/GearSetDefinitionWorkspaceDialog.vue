@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import './definitionWorkspaceLayout.css';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { replaceEquipmentContribution } from '../replaceEquipmentContribution';
@@ -56,7 +57,7 @@ function save(): void {
       top="24px"
       append-to-body
       destroy-on-close
-      class="gear-set-definition-dialog"
+      class="gear-set-definition-dialog definition-workspace-dialog"
       @update:model-value="emit('update:visible', $event)"
     >
       <template #header>
@@ -214,25 +215,5 @@ input {
   .fields {
     grid-template-columns: 1fr;
   }
-}
-</style>
-
-<style>
-/* Dialog owns viewport space; content must not push its save/cancel footer off screen. */
-.gear-set-definition-dialog {
-  height: calc(100dvh - 48px);
-  margin-bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.gear-set-definition-dialog > .el-dialog__header,
-.gear-set-definition-dialog > .el-dialog__footer {
-  flex: none;
-}
-.gear-set-definition-dialog > .el-dialog__body {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
 }
 </style>

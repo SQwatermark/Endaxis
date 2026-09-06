@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import './definitionWorkspaceLayout.css';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { replaceEquipmentContribution } from '../replaceEquipmentContribution';
@@ -134,10 +135,11 @@ function save(): void {
   <InputRegionBoundary label="weapon-definition-workspace" :active="visible" modal>
     <el-dialog
       :model-value="visible"
-      width="min(980px, calc(100vw - 48px))"
+      width="min(1440px, calc(100vw - 48px))"
+      top="24px"
       append-to-body
       destroy-on-close
-      class="weapon-definition-dialog"
+      class="weapon-definition-dialog definition-workspace-dialog"
       @update:model-value="emit('update:visible', $event)"
     >
       <template #header>
@@ -167,7 +169,7 @@ function save(): void {
           </button>
         </aside>
 
-        <main class="weapon-inspector">
+        <main class="weapon-inspector" :class="{ 'trait-inspector': selectedTrait !== undefined }">
           <section v-if="selectedSection === 'base'" class="definition-card">
             <header><strong>模板身份</strong><span>物化定义</span></header>
             <div class="field-grid">
@@ -225,7 +227,7 @@ function save(): void {
             </div>
           </section>
 
-          <section v-if="selectedTrait" class="definition-card">
+          <section v-if="selectedTrait" class="definition-card trait-definition-card">
             <header>
               <strong>当前词条</strong><span>第 {{ (selectedTraitIndex ?? 0) + 1 }} 条</span>
             </header>
@@ -253,15 +255,8 @@ function save(): void {
                   @change="updateTrait('levelCount', $event)"
               /></label>
             </div>
-            <div class="contribution-summary">
-              <span>属性修正 {{ selectedTrait.modifiers?.length ?? 0 }}</span>
-              <span>事件响应 {{ selectedTrait.eventHandlers?.length ?? 0 }}</span>
-              <p>
-                词条行为完整保留在模板中；下一层行为节点将在装备组件图中编辑，本页不会把它们展开成
-                JSON 文本。
-              </p>
-            </div>
             <EquipmentContributionGraphEditor
+              fill-available
               :key="`${contributionEditorRevision}:${selectedTraitIndex}`"
               :contribution="selectedTrait"
               :label="selectedTrait.key"
@@ -324,9 +319,10 @@ function save(): void {
 }
 .weapon-workspace {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  height: min(650px, calc(100vh - 210px));
-  min-height: 480px;
+  grid-template-columns: clamp(130px, 16vw, 210px) minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
   border: 1px solid var(--ea-border-soft);
   background: var(--ea-workbench-panel);
 }
@@ -423,12 +419,6 @@ select {
   background: var(--ea-fill-input);
   color: var(--ea-fg);
 }
-.contribution-summary {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 14px;
-}
 .object-actions {
   display: flex;
   gap: 6px;
@@ -449,17 +439,6 @@ select {
 }
 .object-actions .danger {
   color: #e69a7a;
-}
-.contribution-summary > span {
-  padding: 4px 7px;
-  border: 1px solid var(--ea-border);
-  color: var(--ea-fg-secondary);
-}
-.contribution-summary p {
-  width: 100%;
-  margin: 4px 0 0;
-  color: var(--ea-fg-muted);
-  line-height: 1.5;
 }
 .workspace-footer {
   display: flex;
@@ -497,15 +476,12 @@ select {
 @media (max-width: 720px) {
   .weapon-workspace {
     grid-template-columns: 1fr;
-    height: auto;
+    grid-template-rows: minmax(0, 88px) minmax(0, 1fr);
   }
   .weapon-outliner {
     max-height: 180px;
     border-right: 0;
     border-bottom: 1px solid var(--ea-border-soft);
-  }
-  .weapon-inspector {
-    max-height: 520px;
   }
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import './definitionWorkspaceLayout.css';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { replaceEquipmentContribution } from '../replaceEquipmentContribution';
@@ -150,10 +151,11 @@ function editGearSet(): void {
   <InputRegionBoundary label="gear-definition-workspace" :active="visible" modal>
     <el-dialog
       :model-value="visible"
-      width="min(900px, calc(100vw - 48px))"
+      width="min(1440px, calc(100vw - 48px))"
+      top="24px"
       append-to-body
       destroy-on-close
-      class="gear-definition-dialog"
+      class="gear-definition-dialog definition-workspace-dialog"
       @update:model-value="emit('update:visible', $event)"
     >
       <template #header>
@@ -183,7 +185,7 @@ function editGearSet(): void {
           </button>
         </aside>
 
-        <main class="gear-inspector">
+        <main class="gear-inspector" :class="{ 'trait-inspector': selectedTrait !== undefined }">
           <section v-if="selectedSection === 'base'" class="definition-card">
             <header><strong>装备模板</strong><span>物化定义</span></header>
             <div class="field-grid">
@@ -254,7 +256,7 @@ function editGearSet(): void {
             </div>
           </section>
 
-          <section v-if="selectedTrait" class="definition-card">
+          <section v-if="selectedTrait" class="definition-card trait-definition-card">
             <header>
               <strong>当前词条</strong><span>第 {{ (selectedTraitIndex ?? 0) + 1 }} 条</span>
             </header>
@@ -282,12 +284,8 @@ function editGearSet(): void {
                   @change="updateTrait('levelCount', $event)"
               /></label>
             </div>
-            <div class="contribution-summary">
-              <span>属性修正 {{ selectedTrait.modifiers?.length ?? 0 }}</span>
-              <span>事件响应 {{ selectedTrait.eventHandlers?.length ?? 0 }}</span>
-              <p>行为节点将在装备组件图中编辑；这里不提供原始 JSON 入口。</p>
-            </div>
             <EquipmentContributionGraphEditor
+              fill-available
               :key="`${contributionEditorRevision}:${selectedTraitIndex}`"
               :contribution="selectedTrait"
               :label="selectedTrait.key"
@@ -350,9 +348,10 @@ function editGearSet(): void {
 }
 .gear-workspace {
   display: grid;
-  grid-template-columns: 210px minmax(0, 1fr);
-  min-height: 480px;
-  height: min(620px, calc(100vh - 210px));
+  grid-template-columns: clamp(130px, 16vw, 210px) minmax(0, 1fr);
+  min-height: 0;
+  height: 100%;
+  box-sizing: border-box;
   border: 1px solid var(--ea-border-soft);
   background: var(--ea-workbench-panel);
 }
@@ -445,12 +444,6 @@ select {
   background: var(--ea-fill-input);
   color: var(--ea-fg);
 }
-.contribution-summary {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 14px;
-}
 .object-actions {
   display: flex;
   gap: 6px;
@@ -480,17 +473,6 @@ select {
 }
 .nested-action small {
   color: var(--ea-fg-muted);
-}
-.contribution-summary > span {
-  padding: 4px 7px;
-  border: 1px solid var(--ea-border);
-  color: var(--ea-fg-secondary);
-}
-.contribution-summary p {
-  width: 100%;
-  margin: 4px 0 0;
-  color: var(--ea-fg-muted);
-  line-height: 1.5;
 }
 .workspace-footer {
   display: flex;
@@ -527,15 +509,12 @@ select {
 @media (max-width: 700px) {
   .gear-workspace {
     grid-template-columns: 1fr;
-    height: auto;
+    grid-template-rows: minmax(0, 88px) minmax(0, 1fr);
   }
   .gear-outliner {
     max-height: 180px;
     border-right: 0;
     border-bottom: 1px solid var(--ea-border-soft);
-  }
-  .gear-inspector {
-    max-height: 500px;
   }
 }
 </style>

@@ -3,6 +3,7 @@ import timelineEditorSource from '../TimelineEditor.vue?raw';
 import buildDialogSource from './GearLoadoutBuildDialog.vue?raw';
 import workspaceSource from './GearDefinitionWorkspaceDialog.vue?raw';
 import gearSetWorkspaceSource from './GearSetDefinitionWorkspaceDialog.vue?raw';
+import { readFileSync } from 'node:fs';
 import contributionEditorSource from './EquipmentContributionGraphEditor.vue?raw';
 import contributionTypePickerSource from './EquipmentContributionTypePicker.vue?raw';
 import eventTriggerEditorSource from './CombatEventTriggerEditor.vue?raw';
@@ -13,10 +14,26 @@ import equipmentBuffDialogSource from './EquipmentBuffDefinitionsDialog.vue?raw'
 import buffDefinitionGraphEditorSource from './BuffDefinitionGraphEditor.vue?raw';
 import buffStepEditorSource from './BuffStepEditor.vue?raw';
 
+const workspaceLayout = readFileSync(
+  new URL('./definitionWorkspaceLayout.css', import.meta.url),
+  'utf8',
+);
+
 describe('GearDefinitionWorkspaceDialog structure', () => {
+  it('shares viewport ownership across equipment hosts without making base forms unscrollable', () => {
+    for (const source of [workspaceSource, weaponWorkspaceSource]) {
+      expect(source).toContain("import './definitionWorkspaceLayout.css'");
+      expect(source).toContain("'trait-inspector': selectedTrait !== undefined");
+      expect(source).toContain('definition-card trait-definition-card');
+      expect(source).toContain('fill-available');
+      expect(source).not.toContain('min-height: 480px');
+    }
+    expect(workspaceLayout).toContain('.el-dialog__body .trait-inspector');
+    expect(gearSetWorkspaceSource).toContain('definition-workspace-dialog');
+  });
   it('bounds the set workspace while letting the graph and Inspector own their scrolling', () => {
-    expect(gearSetWorkspaceSource).toContain('height: calc(100dvh - 48px)');
-    expect(gearSetWorkspaceSource).toContain('.gear-set-definition-dialog > .el-dialog__body');
+    expect(workspaceLayout).toContain('height: calc(100dvh - 48px)');
+    expect(workspaceLayout).toContain('.definition-workspace-dialog > .el-dialog__body');
     expect(gearSetWorkspaceSource).toContain('fill-available');
     expect(contributionEditorSource).toContain('fillAvailable?: boolean');
     expect(contributionEditorSource).toContain('grid-template-rows: auto minmax(0, 1fr)');
