@@ -102,7 +102,8 @@ describe('Next timeline simulation projection retention', () => {
     expect(source).toContain(':rules="scenario.battle.resourceRules"');
     expect(source).toContain(':modifiers="scenario.globalConfig.modifiers"');
     expect(source).toContain(':cast="selectedCastModel?.cast ?? null"');
-    expect(source).toContain(':entries="simulationRun?.receiptEntries ?? []"');
+    expect(source).toContain(':log="battleLogSnapshot"');
+    expect(source).toContain('entries: published.run.receiptEntries');
     expect(source).toContain('<div v-else class="simulation-panel__empty">—</div>');
     expect(source).not.toContain('useTimelineStore');
     expect(source).not.toContain("from '../../stores/timelineStore'");

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type {
   CombatReceiptEntry,
@@ -9,6 +9,7 @@ import {
   projectTimelineBattleLogGroups,
   type TimelineBattleLogCastOwner,
   type TimelineBattleLogGroup,
+  type TimelineBattleLogSnapshot,
 } from '../timelineBattleLogProjection';
 import {
   matchTimelineBattleLogPreset,
@@ -19,10 +20,9 @@ import {
 import { summarizeTimelineBattleLogEntry } from '../timelineBattleLogEntrySummary';
 
 const props = defineProps<{
-  entries: readonly CombatReceiptEntry[];
+  log: TimelineBattleLogSnapshot | null;
   eventLabel: (event: string) => string;
   damageTypeLabel: (damageType: string) => string;
-  castOwners: readonly TimelineBattleLogCastOwner[];
   selectedCastId: string | null;
 }>();
 
@@ -31,8 +31,10 @@ const emit = defineEmits<{
 }>();
 const { t } = useI18n({ useScope: 'global' });
 
-const snapshot = ref<readonly CombatReceiptEntry[]>([]);
-const dirty = ref(false);
+const snapshot = shallowRef<TimelineBattleLogSnapshot | null>(null);
+const entries = computed(() => snapshot.value?.entries ?? []);
+const castOwners = computed(() => snapshot.value?.castOwners ?? []);
+const dirty = computed(() => props.log !== snapshot.value);
 const keyword = ref('');
 const selectedEvents = ref<ReadonlySet<string>>(new Set());
 const limit = ref<200 | 500 | 'all'>(200);
@@ -40,14 +42,14 @@ const openGroupKey = ref<string | null>(null);
 const groupElements = new Map<string, HTMLElement>();
 
 const availableEvents = computed(() =>
-  [...new Set(snapshot.value.map(entry => entry.event))].sort(),
+  [...new Set(entries.value.map(entry => entry.event))].sort(),
 );
 const normalizedKeyword = computed(() => keyword.value.trim().toLocaleLowerCase());
 const filteredEntries = computed(() => {
   const allowed = selectedEvents.value;
   const query = normalizedKeyword.value;
   if (availableEvents.value.length > 0 && allowed.size === 0) return [];
-  const matched = snapshot.value.filter(entry => {
+  const matched = entries.value.filter(entry => {
     if (!allowed.has(entry.event)) return false;
     if (query.length === 0) return true;
     return JSON.stringify(entry).toLocaleLowerCase().includes(query);
@@ -55,7 +57,7 @@ const filteredEntries = computed(() => {
   return limit.value === 'all' ? matched : matched.slice(-limit.value);
 });
 const groupedEntries = computed(() =>
-  projectTimelineBattleLogGroups(filteredEntries.value, props.castOwners),
+  projectTimelineBattleLogGroups(filteredEntries.value, castOwners.value),
 );
 const activePreset = computed(() =>
   matchTimelineBattleLogPreset(selectedEvents.value, availableEvents.value),
@@ -84,12 +86,12 @@ function syncSelectedCastGroup(): void {
 }
 
 watch(
-  () => props.entries,
-  entries => {
-    if (snapshot.value.length === 0) {
-      snapshot.value = entries;
-      selectedEvents.value = new Set(entries.map(entry => entry.event));
-    } else if (snapshot.value !== entries) dirty.value = true;
+  () => props.log,
+  log => {
+    if (snapshot.value === null && log !== null) {
+      snapshot.value = log;
+      selectedEvents.value = new Set(log.entries.map(entry => entry.event));
+    }
   },
   { immediate: true },
 );
@@ -99,11 +101,10 @@ watch(groupedEntries, syncSelectedCastGroup, { flush: 'post' });
 
 function refresh(): void {
   const previous = selectedEvents.value;
-  snapshot.value = props.entries;
-  const events = new Set(props.entries.map(entry => entry.event));
+  snapshot.value = props.log;
+  const events = new Set(entries.value.map(entry => entry.event));
   selectedEvents.value = new Set([...previous].filter(event => events.has(event)));
   if (selectedEvents.value.size === 0) selectedEvents.value = events;
-  dirty.value = false;
 }
 
 function toggleEvent(event: string): void {
@@ -149,10 +150,10 @@ function entrySummary(entry: CombatReceiptEntry): string {
   });
 }
 
-const ownerByCastId = computed(() => new Map(props.castOwners.map(owner => [owner.castId, owner])));
+const ownerByCastId = computed(() => new Map(castOwners.value.map(owner => [owner.castId, owner])));
 const ownerBySourceId = computed(() => {
   const result = new Map<string, TimelineBattleLogCastOwner>();
-  for (const owner of props.castOwners) {
+  for (const owner of castOwners.value) {
     if (owner.sourceId !== null && !result.has(owner.sourceId)) result.set(owner.sourceId, owner);
   }
   return result;
@@ -248,6 +249,7 @@ function locateEntry(group: TimelineBattleLogGroup, entry: CombatReceiptEntry): 
 
 <template>
   <section class="simlog-panel">
+    <slot name="status" />
     <header class="simlog-panel-header">
       <div class="header-main-row">
         <div class="header-title">

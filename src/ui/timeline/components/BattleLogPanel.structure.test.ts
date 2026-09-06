@@ -4,8 +4,8 @@ import editorSource from '../TimelineEditor.vue?raw';
 
 describe('BattleLogPanel structure', () => {
   it('keeps the legacy explicit-refresh, search and type-filter behavior', () => {
-    expect(source).toContain('const snapshot = ref');
-    expect(source).toContain('const dirty = ref');
+    expect(source).toContain('const snapshot = shallowRef');
+    expect(source).toContain('const dirty = computed');
     expect(source).toContain('@click="refresh"');
     expect(source).toContain('v-model="keyword"');
     expect(source).toContain('v-for="event in availableEvents"');

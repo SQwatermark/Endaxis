@@ -1,5 +1,11 @@
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 
+/** 手工刷新日志的完整单元：回执不能脱离它对应的技能/来源标签更新。 */
+export interface TimelineBattleLogSnapshot {
+  readonly entries: readonly CombatReceiptEntry[];
+  readonly castOwners: readonly TimelineBattleLogCastOwner[];
+}
+
 export interface TimelineBattleLogCastOwner {
   readonly castId: string;
   readonly label: string;
