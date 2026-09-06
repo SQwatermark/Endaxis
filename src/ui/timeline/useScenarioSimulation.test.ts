@@ -70,6 +70,50 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
+  it('取消拖动恢复原场景后，不发布迟到的临时模拟结果', async () => {
+    const initial = createPerlicaScenario();
+    const scenario = shallowRef<ScenarioDocument>(initial);
+    const restoredRun = {
+      availabilityDiagnostics: [],
+      executionDiagnostics: [],
+      comboWindowDiagnostics: [],
+    };
+    const previewRun = { ...restoredRun };
+    let resolvePreview!: (value: typeof previewRun) => void;
+    const fakeService = {
+      simulate: async (current: ScenarioDocument) =>
+        current === initial
+          ? restoredRun
+          : new Promise<typeof previewRun>(resolve => {
+              resolvePreview = resolve;
+            }),
+    } as unknown as ScenarioSimulationService;
+    const scope = effectScope();
+    let result!: UseScenarioSimulationResult;
+    scope.run(() => {
+      result = useScenarioSimulation({ scenario, service: fakeService, debounceMs: 10_000 });
+    });
+    try {
+      await result.simulateNow();
+      scenario.value = { ...initial, name: '拖动预览' };
+      await nextTick();
+      const preview = result.simulateNow();
+      scenario.value = initial;
+      await nextTick();
+      expect(await result.simulateNow()).toBe(true);
+      const restored = result.published.value;
+      resolvePreview(previewRun);
+      expect(await preview).toBe(false);
+      expect(result.published.value).toBe(restored);
+      expect(result.published.value?.scenario).toBe(initial);
+      expect(result.run.value).toBe(restoredRun);
+      expect(result.stale.value).toBe(false);
+      expect(result.running.value).toBe(false);
+    } finally {
+      scope.stop();
+    }
+  });
+
   it('uses the optional simulation end line as the execution boundary', async () => {
     const initial = createPerlicaScenario();
     initial.battle.simulationRange = { startFrame: 30, endFrame: 120 };
