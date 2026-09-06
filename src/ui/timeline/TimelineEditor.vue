@@ -325,8 +325,7 @@ import {
   type TimelineHitEffectLabel,
 } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
-import { selectEnemyBurstDamageEntries } from './enemyBurstDamageGroups';
-import { selectEnemyBuffDamageEntries } from './enemyBuffDamageHits';
+import { layoutEnemyDamageHits } from './enemyDamageHitLayout';
 import { resolveBuffDisplayName } from './buffDisplayName';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
@@ -2426,11 +2425,18 @@ watch(simulationRun, () => {
   enemyDamageDetailSequence.value = null;
 });
 const enemyDamageDetailEntries = computed(() => {
+  if (enemyDamageDetailSequence.value === null) return [];
   const entries = simulationRun.value?.receiptEntries ?? [];
-  const burst = selectEnemyBurstDamageEntries(entries, enemyDamageDetailSequence.value);
-  return burst.length
-    ? burst
-    : selectEnemyBuffDamageEntries(entries, enemyDamageDetailSequence.value);
+  return (
+    layoutEnemyDamageHits(
+      entries,
+      buffSegmentsForTarget('enemy'),
+      enemyEffectViz.value.markers,
+      attachmentBuffIds,
+    ).find(position =>
+      position.group.some(entry => entry.sequence === enemyDamageDetailSequence.value),
+    )?.group ?? []
+  );
 });
 function enemyDamageSourceDescription(entry: CombatReceiptEntry) {
   const sourceActionId =

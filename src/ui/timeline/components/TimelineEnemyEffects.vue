@@ -27,8 +27,7 @@ import { frameToTimelinePx } from '../timelineGeometry';
 import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from '../lastHitBuffSummary';
 import { layoutEnemyStatusRows } from '../enemyStatusRows';
-import { groupEnemyBurstDamageHits } from '../enemyBurstDamageGroups';
-import { groupEnemyBuffDamageHits, findBuffDamageSegment } from '../enemyBuffDamageHits';
+import { layoutEnemyDamageHits } from '../enemyDamageHitLayout';
 import {
   projectAttachmentContinuations,
   projectAttachmentConversionLinks,
@@ -157,17 +156,12 @@ const markers = computed(() =>
 );
 
 const damageHits = computed(() =>
-  [
-    ...groupEnemyBurstDamageHits(props.viz.damageHits ?? []).map(group => ({
-      group,
-      row: statusRows.value.attachmentRow,
-    })),
-    ...groupEnemyBuffDamageHits(props.viz.damageHits ?? []).flatMap(group => {
-      const segment = findBuffDamageSegment(group[0]!, props.buffs);
-      const row = segment === undefined ? undefined : statusRows.value.lanes.get(segment);
-      return row === undefined ? [] : [{ group, row }];
-    }),
-  ].map(({ group, row }) => {
+  layoutEnemyDamageHits(
+    props.viz.damageHits ?? [],
+    props.buffs,
+    props.viz.markers,
+    props.attachmentBuffIds ?? new Set(),
+  ).map(({ group, row }) => {
     const entry = group[0]!;
     return {
       sequence: entry.sequence,
