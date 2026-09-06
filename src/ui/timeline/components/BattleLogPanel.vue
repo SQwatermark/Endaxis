@@ -88,6 +88,11 @@ function syncSelectedCastGroup(): void {
 watch(
   () => props.log,
   log => {
+    if (log === null) {
+      snapshot.value = null;
+      selectedEvents.value = new Set();
+      return;
+    }
     if (snapshot.value === null && log !== null) {
       snapshot.value = log;
       selectedEvents.value = new Set(log.entries.map(entry => entry.event));

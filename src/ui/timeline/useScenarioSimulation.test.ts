@@ -73,6 +73,44 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
+  it('does not retain another scenario result while waiting or after failure', async () => {
+    const scenario = shallowRef(createPerlicaScenario());
+    let fail = false;
+    const fakeService = {
+      simulate: async () => {
+        if (fail) throw new Error('new scenario failed');
+        return {
+          availabilityDiagnostics: [],
+          executionDiagnostics: [],
+          comboWindowDiagnostics: [],
+        };
+      },
+    } as unknown as ScenarioSimulationService;
+    const scope = effectScope();
+    const result = scope.run(() =>
+      useScenarioSimulation({ scenario, service: fakeService, debounceMs: 10000 }),
+    )!;
+    try {
+      await result.simulateNow();
+      expect(result.published.value).not.toBeNull();
+      const originalId = scenario.value.id;
+      result.resetPublication();
+      expect(scenario.value.id).toBe(originalId);
+      expect(result.published.value).toBeNull();
+      await result.simulateNow();
+      expect(result.published.value).not.toBeNull();
+      scenario.value = { ...scenario.value, id: 'another-scenario' };
+      expect(result.published.value).toBeNull();
+      expect(result.run.value).toBeNull();
+      fail = true;
+      await result.simulateNow();
+      expect(result.error.value).toBe('new scenario failed');
+      expect(result.published.value).toBeNull();
+    } finally {
+      scope.stop();
+    }
+  });
+
   it.each(['resolve', 'reject'] as const)(
     'invalidates an in-flight run immediately across edit and undo (%s)',
     async completion => {
@@ -112,6 +150,13 @@ describe('useScenarioSimulation', () => {
         expect(await inFlight).toBe(false);
         expect(result.published.value).toBe(published);
         expect(result.stale.value).toBe(true);
+        expect(result.error.value).toBeNull();
+        const beforeImport = result.simulateNow();
+        result.resetPublication();
+        if (completion === 'resolve') resolve(run);
+        else reject(new Error('previous project failed'));
+        expect(await beforeImport).toBe(false);
+        expect(result.published.value).toBeNull();
         expect(result.error.value).toBeNull();
       } finally {
         scope.stop();

@@ -129,3 +129,20 @@ it('relocalizes the retained snapshot without refreshing to a newer publication'
     f.stop();
   }
 });
+
+it('clears the retained log when its publication scope is cleared', async () => {
+  const f = await mount(log('佩丽卡', 100));
+  try {
+    f.current.value = null;
+    await nextTick();
+    expect(f.panel.entries.value).toEqual([]);
+    expect(f.panel.castOwners.value).toEqual([]);
+    expect(f.panel.dirty.value).toBe(false);
+    f.current.value = log('弧光', 500);
+    await nextTick();
+    expect(f.panel.groupedEntries.value[0].damage).toBe(500);
+    expect(f.panel.sourceLabel(f.panel.entries.value[0])).toBe('弧光 · 战技');
+  } finally {
+    f.stop();
+  }
+});

@@ -53,6 +53,8 @@ export interface UseScenarioSimulationResult {
   /** 立即取消等待并执行一次模拟。 */
   /** 立即运行并返回本次结果是否成功成为新的已发布快照。 */
   readonly simulateNow: () => Promise<boolean>;
+  /** 导入/替换整个项目时清除结果，即使新项目复用了相同的方案 ID。 */
+  readonly resetPublication: () => void;
 }
 
 const DEFAULT_DEBOUNCE_MS = 150;
@@ -115,6 +117,10 @@ export function useScenarioSimulation(
     latestRunId += 1;
     running.value = false;
     error.value = null;
+    // 保留旧结果仅适用于同一方案的编辑，不能跨方案展示另一条轴的曲线。
+    if (publishedState.value?.scenario.id !== options.scenario.value.id) {
+      publishedState.value = null;
+    }
     // 场景一变化立即标脏，使诊断不再冒充当前结果；展示层仍可保留上一份投影，
     // 等新模拟完成后原子替换，避免时间映射和效果层在等待期间闪回默认状态。
     stale.value = true;
@@ -126,6 +132,16 @@ export function useScenarioSimulation(
 
   function simulateNow(): Promise<boolean> {
     return runSimulation();
+  }
+
+  function resetPublication(): void {
+    latestRunId += 1;
+    if (pendingTimer !== null) clearTimeout(pendingTimer);
+    pendingTimer = null;
+    publishedState.value = null;
+    running.value = false;
+    error.value = null;
+    stale.value = true;
   }
 
   const stopWatch = watch(
@@ -207,5 +223,6 @@ export function useScenarioSimulation(
     performanceSamples,
     diagnosticsByCastId,
     simulateNow,
+    resetPublication,
   };
 }

@@ -801,6 +801,7 @@ async function acceptOpenedProject(
   showWeaponDefinitionWorkspace.value = false;
   gearDefinitionWorkspaceSlot.value = null;
   gearSetDefinitionWorkspaceId.value = null;
+  resetSimulationPublication();
   projectSession.replaceProject(project);
   if (!gameDataRevisionUpdated) savedProjectSnapshot.value = project;
   projectDirty.value = gameDataRevisionUpdated;
@@ -1018,6 +1019,7 @@ const {
   performanceSamples: simulationPerformanceSamples,
   diagnosticsByCastId,
   simulateNow,
+  resetPublication: resetSimulationPublication,
 } = useScenarioSimulation({
   scenario,
   service: simulationService,
