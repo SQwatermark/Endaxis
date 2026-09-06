@@ -1,4 +1,5 @@
 import { onScopeDispose, watchEffect } from 'vue';
+import { InputRegions, type InputRegion } from './inputRegions';
 
 /**
  * 页面级快捷键作用域。优先级较高的活动作用域先获得按键，处理后不会继续穿透。
@@ -6,6 +7,7 @@ import { onScopeDispose, watchEffect } from 'vue';
  */
 export interface KeyboardShortcutScope {
   readonly id: string;
+  readonly region?: InputRegion;
   readonly priority: number;
   readonly active: () => boolean;
   readonly handle: (event: KeyboardEvent) => boolean;
@@ -45,6 +47,10 @@ export function isKeyboardShortcutIsolationTarget(target: EventTarget | null): b
 }
 
 export class KeyboardShortcutRouter {
+  readonly regions = new InputRegions();
+  constructor() {
+    this.regions.onChange(() => this.revokeInactiveKeyboardState());
+  }
   // id is a diagnostic label, not a component-instance identity.
   readonly #scopes = new Map<number, RegisteredKeyboardShortcutScope>();
   #nextOrder = 0;
@@ -80,14 +86,28 @@ export class KeyboardShortcutRouter {
 
   #keyboardStateOwners(): Set<number> {
     const owners = new Set<number>();
-    const active = [...this.#scopes.values()]
-      .filter(scope => scope.active())
-      .sort((a, b) => b.priority - a.priority || b.order - a.order);
+    const active = this.#candidates();
     for (const scope of active) {
       owners.add(scope.order);
       if (scope.blockLowerScopes) break;
     }
     return owners;
+  }
+
+  #candidates(): RegisteredKeyboardShortcutScope[] {
+    const path = this.regions.path();
+    return [...this.#scopes.values()]
+      .filter(
+        scope =>
+          scope.active() &&
+          (path.length === 0
+            ? scope.region === undefined
+            : scope.region !== undefined && path.includes(scope.region)),
+      )
+      .sort((a, b) => {
+        const depth = path.indexOf(a.region!) - path.indexOf(b.region!);
+        return depth || b.priority - a.priority || b.order - a.order;
+      });
   }
 
   routeClipboard(event: ClipboardEvent): boolean {
@@ -101,9 +121,7 @@ export class KeyboardShortcutRouter {
   }
 
   #dispatch(event: Event, handle: (scope: RegisteredKeyboardShortcutScope) => boolean): boolean {
-    const activeScopes = [...this.#scopes.values()]
-      .filter(scope => scope.active())
-      .sort((left, right) => right.priority - left.priority || right.order - left.order);
+    const activeScopes = this.#candidates();
 
     for (const scope of activeScopes) {
       if (handle(scope)) {
