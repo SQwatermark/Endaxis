@@ -27,6 +27,7 @@ export class SkillPlacementTransaction {
     readonly scenario: ScenarioDocument;
     readonly incomplete: boolean;
     readonly error?: unknown;
+    readonly plannedStartFrames?: ReadonlyMap<string, number>;
   } | null> {
     this.cancel();
     const request = this.#request;
@@ -47,7 +48,15 @@ export class SkillPlacementTransaction {
       if (!isCurrent()) return null;
       return result.status === 'planned'
         ? { scenario: result.scenario, incomplete: false }
-        : { scenario: placed.scenario, incomplete: true };
+        : {
+            scenario: placed.scenario,
+            incomplete: true,
+            ...(result.plannedStartFrames === undefined
+              ? {}
+              : {
+                  plannedStartFrames: result.plannedStartFrames,
+                }),
+          };
     } catch (error) {
       if (!isCurrent()) return null;
       // 规划只是编辑建议。失败保留作者布局及原始错误，不能成为编辑门禁。

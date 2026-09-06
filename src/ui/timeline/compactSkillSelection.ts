@@ -29,6 +29,7 @@ export function compactSkillSelectionByWidths(
   scenario: ScenarioDocument,
   castIds: readonly string[],
   widths: ReadonlyMap<string, number>,
+  plannedStartFrames: ReadonlyMap<string, number> = new Map(),
 ): ScenarioDocument {
   const casts = new Map(
     scenario.tracks.flatMap(track =>
@@ -40,6 +41,8 @@ export function compactSkillSelectionByWidths(
   let frame = first.placement.startFrame;
   const starts = new Map<string, number>();
   for (const id of castIds) {
+    // 保留模拟已确认的前缀；最早技能始终锚定作者原时刻。
+    if (id !== first.id) frame = plannedStartFrames.get(id) ?? frame;
     starts.set(id, frame);
     frame += widths.get(id) ?? 0;
   }

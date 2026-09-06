@@ -188,7 +188,8 @@ export class ScenarioSimulationService {
   }
 
   /**
-   * 只为新链产生显式帧建议。临时规划不缓存，不改原场景；正式复跑仍采用作者帧语义。
+   * 为新链放置或已选技能紧凑排列产生显式帧建议。临时规划不缓存，不改原场景。
+   * compact 可返回已计算前缀供编辑器补齐剩余布局；正式复跑仍采用作者帧语义。
    * 调用 UI 必须自行检查场景版本，再作为一次撤销事务提交返回的新场景。
    */
   async planSkillChain(
@@ -198,7 +199,12 @@ export class ScenarioSimulationService {
     signal?: AbortSignal,
     mode: 'continuation' | 'compact' = 'continuation',
   ): Promise<
-    | { readonly status: 'incomplete'; readonly unresolvedCastIds: readonly string[] }
+    | {
+        readonly status: 'incomplete';
+        readonly unresolvedCastIds: readonly string[];
+        /** 紧凑排列已确认的前缀；其余技能仍由编辑器按块宽完成，不代表模拟合法。 */
+        readonly plannedStartFrames?: ReadonlyMap<string, number>;
+      }
     | {
         readonly status: 'planned';
         readonly scenario: ScenarioDocument;
@@ -221,7 +227,12 @@ export class ScenarioSimulationService {
         frames.set(entry.data.castId, entry.frame);
     }
     const unresolvedCastIds = castIds.filter(id => !frames.has(id));
-    if (unresolvedCastIds.length > 0) return { status: 'incomplete', unresolvedCastIds };
+    if (unresolvedCastIds.length > 0)
+      return {
+        status: 'incomplete',
+        unresolvedCastIds,
+        ...(mode === 'compact' ? { plannedStartFrames: frames } : {}),
+      };
     for (const track of candidate.tracks) {
       for (const cast of track?.skillCasts ?? []) {
         const frame = frames.get(cast.id);

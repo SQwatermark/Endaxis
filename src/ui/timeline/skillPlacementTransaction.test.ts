@@ -23,6 +23,17 @@ function setup() {
 }
 
 describe('SkillPlacementTransaction', () => {
+  it('passes partial compact timing through without committing partial document changes', async () => {
+    const { transaction, pending, placed } = setup();
+    const result = transaction.resolve(placed, 'compact');
+    const plannedStartFrames = new Map([['a', 0]]);
+    pending[0]!({ status: 'incomplete', unresolvedCastIds: ['b'], plannedStartFrames });
+    expect(await result).toEqual({
+      scenario: placed.scenario,
+      incomplete: true,
+      plannedStartFrames,
+    });
+  });
   it.each(['continuation', 'compact'] as const)(
     'preserves editing and the error when %s planning fails',
     async mode => {

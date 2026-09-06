@@ -236,6 +236,42 @@ describe('generated basic attack chain input timing', () => {
     expect(scenario).toEqual(before);
   });
 
+  it('retains the simulated compact prefix when the horizon ends before the last cast', async () => {
+    const scenario = createChain(lifeng);
+    const before = structuredClone(scenario);
+    const ids = scenario.tracks[0]!.skillCasts.map(cast => cast.id);
+    const result = await service.planSkillChain(scenario, ids, 55, undefined, 'compact');
+    expect(result).toEqual({
+      status: 'incomplete',
+      unresolvedCastIds: [ids[3]],
+      plannedStartFrames: new Map([
+        [ids[0], 1],
+        [ids[1], 28],
+        [ids[2], 49],
+      ]),
+    });
+    expect(scenario).toEqual(before);
+  });
+
+  it.each([-60, 0, 1])(
+    'compacts at %s without clamping the author anchor to combat start',
+    async startFrame => {
+      const scenario = createChain(lifeng);
+      scenario.tracks[0]!.skillCasts.forEach((cast, index) => {
+        cast.placement.startFrame = startFrame + index * 50;
+      });
+      const before = structuredClone(scenario);
+      const ids = scenario.tracks[0]!.skillCasts.map(cast => cast.id);
+      const result = await service.planSkillChain(scenario, ids, 240, undefined, 'compact');
+      expect(result.status).toBe('planned');
+      if (result.status !== 'planned') return;
+      expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual(
+        [0, 27, 48, 68].map(offset => startFrame + offset),
+      );
+      expect(scenario).toEqual(before);
+    },
+  );
+
   it('does not start planning an aborted request', async () => {
     const scenario = createChain(lifeng);
     const controller = new AbortController();

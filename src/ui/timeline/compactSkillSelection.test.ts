@@ -27,6 +27,26 @@ function fixture() {
 }
 
 describe('compact selection', () => {
+  it('keeps the known prefix and completes the unknown tail without moving the anchor', () => {
+    const scenario = fixture();
+    const result = compactSkillSelectionByWidths(
+      scenario,
+      ['first', 'late', 'tie'],
+      new Map([
+        ['first', 10],
+        ['late', 20],
+      ]),
+      new Map([
+        ['first', 999],
+        ['late', 15],
+      ]),
+    );
+    expect(result.tracks[0]!.skillCasts.map(c => c.placement.startFrame)).toEqual([15, -20, 35]);
+    expect(scenario.tracks[0]!.skillCasts.map(c => c.placement.startFrame)).toEqual([
+      100, -20, 100,
+    ]);
+    expect(result.tracks[1]).toEqual(scenario.tracks[1]);
+  });
   it('falls back to block widths without mutating the source or unselected casts', () => {
     const scenario = fixture();
     scenario.tracks[0]!.skillCasts[0]!.presentation = { disabled: true };

@@ -4183,26 +4183,24 @@ async function compactSelectedSkills(): Promise<void> {
   contextMenuTarget.value = null;
   if (!selection.ok) return;
   const original = scenario.value;
-  const fallback = compactSkillSelectionByWidths(
-    original,
-    selection.castIds,
-    new Map(
-      viewModel.value.tracks.flatMap(track =>
-        track.skillCasts.map(
-          cast => [cast.id, castActualDurationFrame(cast.id, cast.durationFrames)] as const,
-        ),
+  const widths = new Map(
+    viewModel.value.tracks.flatMap(track =>
+      track.skillCasts.map(
+        cast => [cast.id, castActualDurationFrame(cast.id, cast.durationFrames)] as const,
       ),
     ),
   );
-  let compacted = fallback;
   const result = await skillPlacementTransaction.resolve(
     { scenario: original, skillCastIds: selection.castIds },
     'compact',
   );
   if (result === null) return;
+  const compacted = result.incomplete
+    ? compactSkillSelectionByWidths(original, selection.castIds, widths, result.plannedStartFrames)
+    : result.scenario;
   if (result.incomplete) {
     ElMessage.warning(t('timeline.compactSelection.incomplete'));
-  } else compacted = result.scenario;
+  }
   if ('error' in result)
     ElMessage.error(
       result.error instanceof Error ? result.error.message : t('timeline.chainPlacementFailed'),
