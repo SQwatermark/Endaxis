@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** 结构与视觉以旧版 HitDamageDetailDialog 为规格；UI 只投影回执冻结值。 */
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { ArrowRight } from '@element-plus/icons-vue';
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 import type {
@@ -99,6 +99,13 @@ interface AttackDetail {
 }
 
 const openAttackDetails = ref<ReadonlySet<number>>(new Set());
+// 回执序号只在当前结果内有效；换一组结果后不能继承上一组的展开状态。
+watch(
+  () => props.entries,
+  () => {
+    openAttackDetails.value = new Set();
+  },
+);
 
 function finiteNumber(value: unknown, fallback = 0): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;

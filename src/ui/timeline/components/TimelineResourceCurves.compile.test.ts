@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { compileScript, compileStyle, compileTemplate, parse } from '@vue/compiler-sfc';
 import source from './TimelineResourceCurves.vue?raw';
 import sectionsSource from './TimelineEnemyStatusSections.vue?raw';
+import { monitorSectionBodyMinimums } from '../monitorSectionMinimums';
 
 describe('TimelineResourceCurves compilation', () => {
   it('uses the theme gold and legacy SP title typography', () => {
@@ -23,7 +24,8 @@ describe('TimelineResourceCurves compilation', () => {
     );
     expect(source).toContain('class="poise-maximum-line"');
     expect(source).toContain('background: rgba(255, 156, 110, 0.32)');
-    expect(sectionsSource).toContain('poise: 26');
+    expect(monitorSectionBodyMinimums().poise).toBe(26);
+    expect(sectionsSource).toContain('monitorSectionBodyMinimums(props.afflictionMinimumHeight)');
     expect(sectionsSource).toMatch(/key === 'poise' && !collapsed\[key\]\s*\? '40px'/);
   });
   it('renders receipt intervals using measured poise height and shared timeline coordinates', () => {

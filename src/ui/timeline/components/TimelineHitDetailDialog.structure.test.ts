@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest';
 import source from './TimelineHitDetailDialog.vue?raw';
 
 describe('TimelineHitDetailDialog structure', () => {
+  it('isolates per-receipt source panels and clears expansion when the receipt group changes', () => {
+    expect(source).toContain('props.sourceDescription?.(entry)');
+    expect(source).toContain('props.operatorPanelForEntry(entry)');
+    expect(source).toContain('() => props.entries');
+    expect(source).toContain('openAttackDetails.value = new Set()');
+    expect(source).toContain("'is-multiple': damageDetails.length > 1");
+  });
   it('follows the legacy context-result-base-multiplier hierarchy using receipt facts', () => {
     expect(source).toContain('<el-dialog');
     expect(source).toContain('class="hit-damage-detail-dialog"');

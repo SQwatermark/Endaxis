@@ -1,5 +1,18 @@
 # 当前任务快照
 
+#### 2026-09-06 爆发详情回归与时间轴全量测试
+
+- 更换伤害回执组时清除攻击明细展开集合，避免重新模拟复用 sequence 后继承旧展开状态。
+  补上逐回执来源/面板解析及多笔滚动的结构断言。
+- 修复监控区重构留下的过时测试：26px 失衡内容下限从共享函数验证，不再要求它
+  内联存在于 Vue 源码。行为要求未放宽。
+- 完整 src/ui/timeline 测试：808 项中 805 通过、3 失败。未将全套报告为通过。
+  待办：timelineProjectionRetention 仍断言 compactHeight 直接取 compactTrackHeights，
+  实现已用 displayedCompactTrackHeights；combatStepEditorCoverage 与
+  SkillDefinitionEditor.structure 两项缺 hideUi 的覆盖分类/三语言名称。
+  这些不在本轮爆发详情范围，未顺手修改。报告位于忽略的 tmp/timeline-regression.json。
+- 本轮是回归和展开状态修复，没有新增浏览器视觉验收，不宣称敌人监控区全部完成。
+
 #### 2026-09-06 同帧爆发共用入口，详情逐笔保留
 
 - 旧版伤害菱形不横向错位，同帧会重叠；新版本不移动实际时间，改为同目标/同帧
