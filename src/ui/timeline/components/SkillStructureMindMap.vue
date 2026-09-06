@@ -7,6 +7,7 @@ import {
 } from '../../interaction/interactionSessionContext';
 import type { InteractionLease } from '../../interaction/interactionSession';
 import { observeNativeDragLifetime } from '../../interaction/nativeDragLifecycle';
+import { mindMapNodeScroll } from '../mindMapViewport';
 
 const interactionSession = useInteractionSession();
 let nodeLease: InteractionLease | null = null;
@@ -119,6 +120,7 @@ const emit = defineEmits<{
 
 const zoom = ref(0.9);
 const viewport = ref<HTMLElement | null>(null);
+const stage = ref<HTMLElement | null>(null);
 const collapsedIds = ref<ReadonlySet<string>>(new Set());
 const dragging = ref(false);
 const shell = ref<HTMLElement | null>(null);
@@ -530,8 +532,18 @@ async function centerRoot(): Promise<void> {
   const element = viewport.value;
   const rootNode = layout.value.nodes.find(node => node.source.id === props.root.id);
   if (element === null || rootNode === undefined) return;
-  element.scrollLeft = Math.max(0, rootNode.x * zoom.value - 36);
-  element.scrollTop = Math.max(0, rootNode.y * zoom.value - 54);
+  positionNodeInViewport(element, rootNode);
+}
+
+function positionNodeInViewport(element: HTMLElement, node: { x: number; y: number }): void {
+  const scroll = mindMapNodeScroll(
+    { ...node, width: NODE_WIDTH, height: NODE_HEIGHT },
+    { width: element.clientWidth, height: element.clientHeight },
+    zoom.value,
+    { left: stage.value?.offsetLeft ?? 0, top: stage.value?.offsetTop ?? 0 },
+  );
+  element.scrollLeft = scroll.left;
+  element.scrollTop = scroll.top;
 }
 
 async function revealNode(id: string): Promise<void> {
@@ -551,10 +563,7 @@ async function revealNode(id: string): Promise<void> {
   const element = viewport.value;
   const target = layout.value.nodes.find(node => node.source.id === id);
   if (element === null || target === undefined) return;
-  const targetLeft = target.x * zoom.value;
-  const targetTop = target.y * zoom.value;
-  element.scrollLeft = Math.max(0, targetLeft - element.clientWidth * 0.28);
-  element.scrollTop = Math.max(0, targetTop - element.clientHeight * 0.4);
+  positionNodeInViewport(element, target);
 }
 
 function transferCollapsedState(fromId: string, toId: string): void {
@@ -651,6 +660,7 @@ watch(
       <div class="map-legend"><i></i><span>固定字段端口</span></div>
       <div
         class="map-stage"
+        ref="stage"
         :style="{ width: `${layout.width * zoom}px`, height: `${layout.height * zoom}px` }"
       >
         <div
