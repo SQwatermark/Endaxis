@@ -76,6 +76,49 @@ describe('resolveSpellBurstEnhanceFactor', () => {
 });
 
 describe('executeSpellBurst', () => {
+  it.each([
+    ['Fire', 'heat'],
+    ['Pulse', 'electric'],
+    ['Cryst', 'cryo'],
+    ['Natural', 'nature'],
+  ] as const)(
+    'freezes %s burst damage identity and detail without a second health write',
+    (burstType, damageType) => {
+      const receipt = new CombatReceiptCollector();
+      const target = createVitals();
+      executeSpellBurst({
+        definition: { ...definition, burstType, damageType },
+        sourceId: 'operator',
+        attack: 1000,
+        enhance: 2,
+        criticalRate: 0.5,
+        criticalDamageIncrease: 0.5,
+        weaknessDamageMultiplier: 1,
+        criticalSample: 1,
+        settings: createSkillSettingSource(settings()),
+        defender: defender(),
+        target,
+        clock: new CombatClock(),
+        receipt,
+        emitSourceEvent: () => undefined,
+        emitTargetEvent: () => undefined,
+      });
+      const hits = receipt.entries.filter(entry => entry.event === 'DamageApplied');
+      expect(hits).toHaveLength(1);
+      expect(hits[0]?.data).toMatchObject({
+        spellBurstType: burstType,
+        damageType,
+        spellBurstEnhanceFactor: 2,
+        attack: 1000,
+        skillMultiplierPercent: 300,
+        nonCriticalDamage: 3000,
+        criticalDamage: 4500,
+        expectedDamage: 3750,
+        value: 3000,
+      });
+      expect(target.health).toBe(7000);
+    },
+  );
   it('按 SkillSetting 倍率与增强公式造成标准伤害', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();

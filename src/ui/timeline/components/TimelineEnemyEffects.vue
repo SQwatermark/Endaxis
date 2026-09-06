@@ -72,6 +72,7 @@ const props = defineProps<{
   }) => string | undefined;
 }>();
 const emit = defineEmits<{
+  'open-damage-detail': [sequence: number];
   'open-buff-detail': [target: BuffDetailTarget];
   'minimum-height': [height: number];
 }>();
@@ -148,6 +149,21 @@ const markers = computed(() =>
       title,
     };
   }),
+);
+
+const damageHits = computed(() =>
+  (props.viz.damageHits ?? []).map(entry => ({
+    sequence: entry.sequence,
+    x: pointX(entry.frame),
+    top:
+      SECTION_TOPBAR_HEIGHT +
+      ICON_TOP +
+      // 与附着行共用布局；伤害不参与图标横向错位。
+      statusRows.value.attachmentRow * EFFECT_ROW_PITCH +
+      ICON_SIZE -
+      3,
+    title: String(Math.floor(Number(entry.data?.expectedDamage ?? entry.data?.value ?? 0))),
+  })),
 );
 
 const attachmentContinuations = computed(() =>
@@ -272,6 +288,18 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
         </strong>
       </span>
     </EnemyCombatHudSnapshot>
+    <button
+      v-for="hit in damageHits"
+      :key="`damage:${hit.sequence}`"
+      class="enemy-damage-hit"
+      :style="{ left: `${hit.x}px`, top: `${hit.top}px` }"
+      :title="hit.title"
+      :aria-label="`${hit.title}`"
+      @mousedown.stop="emit('open-damage-detail', hit.sequence)"
+      @keydown.enter.prevent="emit('open-damage-detail', hit.sequence)"
+    >
+      <span class="enemy-damage-diamond"></span>
+    </button>
     <span
       v-for="marker in markers"
       :key="marker.key"
@@ -354,6 +382,37 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
     </div>
   </div>
 </template>
+
+<style scoped>
+.enemy-damage-hit {
+  position: absolute;
+  z-index: 15;
+  width: 12px;
+  height: 12px;
+  padding: 3px;
+  margin: -3px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.enemy-damage-diamond {
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border: 1px solid #666;
+  box-sizing: border-box;
+  transform: rotate(45deg);
+  pointer-events: none;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.enemy-damage-hit:hover .enemy-damage-diamond {
+  background: var(--ea-gold);
+  border-color: #fff;
+  box-shadow: 0 0 4px color-mix(in srgb, var(--ea-gold) 80%, transparent);
+  transform: rotate(45deg) scale(1.3);
+}
+</style>
 
 <style scoped>
 .attachment-continuation {

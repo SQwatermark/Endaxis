@@ -40,6 +40,7 @@ describe('TimelineHitDetailDialog structure', () => {
   });
 
   it('uses the legacy dialog shell and force-critical footer interaction', () => {
+    expect(source).toContain('canForceCritical && allowForceCritical !== false');
     expect(source).toContain(':model-value="visible"');
     expect(source).toContain('width="420px"');
     expect(source).toContain('@update:model-value="onClose"');

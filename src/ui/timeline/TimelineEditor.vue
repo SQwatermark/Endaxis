@@ -2416,6 +2416,18 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
 }
 
 const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; hitId: string } | null>(null);
+const enemyDamageDetailSequence = ref<number | null>(null);
+// 回执序号只在一次模拟中稳定，重新模拟不能悄悄打开另一笔伤害。
+watch(simulationRun, () => {
+  enemyDamageDetailSequence.value = null;
+});
+const enemyDamageDetailEntries = computed(
+  () =>
+    simulationRun.value?.receiptEntries.filter(
+      entry =>
+        entry.sequence === enemyDamageDetailSequence.value && entry.event === 'DamageApplied',
+    ) ?? [],
+);
 const hitDetail = computed(() => {
   const target = hitDetailTarget.value;
   const current = simulationRun.value;
@@ -4404,6 +4416,7 @@ const hasModalPanel = computed(
     showGearBuildDialog.value ||
     panelDialogTrack.value !== null ||
     hitDetailTarget.value !== null ||
+    enemyDamageDetailSequence.value !== null ||
     showDamageAnalysis.value ||
     buffDetailTarget.value !== null ||
     showShortcutHelp.value ||
@@ -5640,6 +5653,10 @@ function setPanelDialogVisible(visible: boolean): void {
           >
             <template #affliction>
               <TimelineEnemyEffects
+                @open-damage-detail="
+                  hitDetailTarget = null;
+                  enemyDamageDetailSequence = $event;
+                "
                 @minimum-height="enemyEffectsMinimumHeight = $event"
                 :duration-frames="scenario.battle.durationFrames"
                 v-if="combatHudSnapshot !== null"
@@ -6013,9 +6030,10 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetSelectedCastDefinition"
   />
   <TimelineHitDetailDialog
-    :visible="hitDetailTarget !== null"
+    :visible="hitDetailTarget !== null || enemyDamageDetailSequence !== null"
+    :allow-force-critical="hitDetailTarget !== null"
     :force-critical="hitDetailForceCritical"
-    :entries="hitDetail?.entries ?? []"
+    :entries="hitDetailTarget !== null ? (hitDetail?.entries ?? []) : enemyDamageDetailEntries"
     :operator-panel="hitDetailOperatorPanel"
     :contribution-source-label="hitDetailContributionSourceLabel"
     :damage-type-label="damageElementLabel"
@@ -6054,7 +6072,10 @@ function setPanelDialogVisible(visible: boolean): void {
       resistanceMultiplier: t('hitDetail.resMult'),
       defenseDetail: (value: number) => t('hitDetail.defDetail', { def: value }),
     }"
-    @close="hitDetailTarget = null"
+    @close="
+      hitDetailTarget = null;
+      enemyDamageDetailSequence = null;
+    "
     @toggle-force-critical="toggleHitDetailForceCritical"
   />
   <TimelineBuffDetailDialog

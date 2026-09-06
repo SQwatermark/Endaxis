@@ -19,6 +19,8 @@ export interface EnemyEffectMarker {
 
 export interface EnemyEffectViz {
   readonly markers: readonly EnemyEffectMarker[];
+  /** 实际伤害回执本身提供身份与详情，不按时间匹配爆发图标。 */
+  readonly damageHits?: readonly CombatReceiptEntry[];
   readonly attachmentConversions?: readonly AttachmentConversion[];
 }
 
@@ -86,8 +88,13 @@ export function projectEnemyEffectViz(
     throw new RangeError('endFrame must be a non-negative integer');
   }
   const markers: EnemyEffectMarker[] = [];
+  const damageHits: CombatReceiptEntry[] = [];
   const attachmentConversions: AttachmentConversion[] = [];
   for (const entry of entries) {
+    if (entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string') {
+      damageHits.push(entry);
+      continue;
+    }
     if (entry.event === 'ElementalInflictionApplied') {
       const data = requireData(entry);
       if (data.outcomeKind === 'compoundStatus') {
@@ -132,5 +139,9 @@ export function projectEnemyEffectViz(
       });
     }
   }
-  return { markers, ...(attachmentConversions.length ? { attachmentConversions } : {}) };
+  return {
+    markers,
+    ...(damageHits.length ? { damageHits } : {}),
+    ...(attachmentConversions.length ? { attachmentConversions } : {}),
+  };
 }

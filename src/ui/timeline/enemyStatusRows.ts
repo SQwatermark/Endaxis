@@ -48,5 +48,5 @@ export function layoutEnemyStatusRows<T extends BuffTimelineSegment>(
     slots.set(key, slot + 1);
     return { row, slot };
   });
-  return { lanes, markerPositions, rowCount: offset };
+  return { lanes, markerPositions, attachmentRow, rowCount: offset };
 }

@@ -12,6 +12,24 @@ function receipt(
 }
 
 describe('projectEnemyEffectViz', () => {
+  it('retains exact burst receipts including zero damage and never guesses by frame', () => {
+    const ordinary = receipt(0, 20, 'DamageApplied', { value: 123 });
+    const first = receipt(1, 20, 'DamageApplied', { spellBurstType: 'Pulse', value: 400 });
+    const second = receipt(2, 20, 'DamageApplied', { spellBurstType: 'Pulse', value: 0 });
+    const result = projectEnemyEffectViz(
+      [
+        ordinary,
+        first,
+        second,
+        receipt(3, 20, 'SpellBurstApplied', { burstType: 'Pulse' }),
+        receipt(4, 40, 'SpellBurstApplied', { burstType: 'Fire' }),
+      ],
+      90,
+    );
+    expect(result.damageHits).toEqual([first, second]);
+    expect(result.damageHits?.[0]).toBe(first);
+    expect(result.markers).toHaveLength(2);
+  });
   it.each(['heat', 'electric', 'cryo', 'nature'])(
     'shows the incoming %s conversion attachment without fabricating a duration',
     element => {

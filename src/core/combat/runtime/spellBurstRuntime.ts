@@ -131,6 +131,9 @@ export function executeSpellBurst(input: ExecuteSpellBurstInput): SpellBurstResu
     },
   });
   const damage = calculatePlayerActiveDamage(formulaInput);
+  const nonCriticalDamage = damage.value / damage.criticalMultiplier;
+  const criticalExpectationMultiplier =
+    1 + Math.min(Math.max(input.criticalRate, 0), 1) * input.criticalDamageIncrease;
   const stateChange = executeHealthDamage({
     ...(input.skillCastInfo === undefined ? {} : { skillCastInfo: input.skillCastInfo }),
     sourceId: input.sourceId,
@@ -139,6 +142,37 @@ export function executeSpellBurst(input: ExecuteSpellBurstInput): SpellBurstResu
     tags: [],
     features: [],
     result: damage,
+    detail: {
+      spellBurstType: input.definition.burstType,
+      spellBurstEnhanceFactor: enhanceFactor,
+      attack: input.attack,
+      baseDamage: input.attack * scale,
+      finalAttackValue: formulaInput.finalAttackValue,
+      standardCalculation: true,
+      skillMultiplierPercent: scale * 100,
+      calculationMultiplier: 1,
+      damageScaleMultiplier: 1,
+      criticalRate: input.criticalRate,
+      criticalDamageIncrease: input.criticalDamageIncrease,
+      criticalExpectationMultiplier,
+      nonCriticalDamage,
+      criticalDamage: nonCriticalDamage * (1 + input.criticalDamageIncrease),
+      expectedDamage: nonCriticalDamage * criticalExpectationMultiplier,
+      enemyDefense: formulaInput.defense,
+      enemyResistancePercent: formulaInput.resistancePercent,
+      damageTakenMultiplier: formulaInput.damageTakenMultiplier,
+      directDamageMultiplier:
+        damage.weaknessShelterMultiplier *
+        damage.runtimeExtensionMultiplier *
+        damage.igniteMultiplier *
+        damage.physicalInflictionMultiplier,
+      resistancePercentMultiplier:
+        input.definition.damageType === 'true'
+          ? 1
+          : Math.max(0, 1 - formulaInput.resistancePercent / 100),
+      weaknessDamageMultiplier: formulaInput.weaknessDamageMultiplier,
+      shelterDamageMultiplier: formulaInput.shelterDamageMultiplier,
+    },
     target: input.target,
     clock: input.clock,
     receipt: input.receipt,

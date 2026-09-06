@@ -12,6 +12,7 @@ import { projectAttackPercentContributionSources } from '../operatorPanelContrib
 const props = defineProps<{
   visible: boolean;
   forceCritical: boolean;
+  allowForceCritical?: boolean;
   entries: readonly CombatReceiptEntry[];
   operatorPanel: ResolvedOperatorPanel | null;
   contributionSourceLabel: (entry: OperatorPanelContributionReceipt) => string;
@@ -453,7 +454,10 @@ function onClose(): void {
 
     <template #footer>
       <div class="dialog-footer">
-        <label v-if="canForceCritical" class="ea-check-rect ea-check-rect--sm force-crit-check">
+        <label
+          v-if="canForceCritical && allowForceCritical !== false"
+          class="ea-check-rect ea-check-rect--sm force-crit-check"
+        >
           <input
             type="checkbox"
             :checked="forceCritical"
