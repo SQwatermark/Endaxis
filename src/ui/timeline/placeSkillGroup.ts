@@ -5,7 +5,7 @@
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 import type { ScenarioDocument, SkillCastDocument, TrackIndex } from '../../core/project/schema';
 import { resolveUniquePlayerActionForSkill } from '../../core/game-data/resolvePlayerActionRoute';
-import { resolveSkillGroupPlacementSkills } from './skillGroupPlacement';
+import { layoutSkillGroupPlacement, resolveSkillGroupPlacementSkills } from './skillGroupPlacement';
 
 /** 放置命令生成稳定文档身份所需的端口。 */
 export type TimelineDocumentIdKind =
@@ -43,7 +43,7 @@ export interface PlaceSkillGroupResult {
 
 /**
  * 按技能组声明顺序放置一个技能或技能链。
- * 多段普攻等序列以前一段块宽为下一段起点，不擅自加入动画空隙。
+ * 多段序列使用默认放置布局，保留技能更新到下一次输入之间的边界帧。
  * 不展开 `LevelValues`，不预编译；技能定义在编译时按当前等级重新解析。
  */
 export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupResult {
@@ -69,9 +69,9 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
 
   const skills = resolveSkillGroupPlacementSkills(group, input.variantKey, input.skillKey);
   const created: SkillCastDocument[] = [];
-  let nextStartFrame = input.startFrame;
+  const layout = layoutSkillGroupPlacement(skills);
 
-  skills.forEach(skill => {
+  skills.forEach((skill, index) => {
     const skillCastId = input.ids.allocate('skillCast');
     const action = resolveUniquePlayerActionForSkill(input.operator, skill.key);
     created.push({
@@ -82,9 +82,8 @@ export function placeSkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupRes
         skillKey: skill.key,
         ...(action === undefined ? {} : { action }),
       },
-      placement: { startFrame: nextStartFrame },
+      placement: { startFrame: input.startFrame + layout.offsets[index]! },
     });
-    nextStartFrame += skill.timelineBlockFrames;
   });
 
   const tracks = [...input.scenario.tracks] as ScenarioDocument['tracks'];

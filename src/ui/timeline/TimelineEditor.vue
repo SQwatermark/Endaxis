@@ -170,7 +170,11 @@ import {
   getWeaponActionIconPath,
 } from '../gameAssetPaths';
 import { placeSkillGroup } from './placeSkillGroup';
-import { resolveSkillGroupPlacementSkills } from './skillGroupPlacement';
+import {
+  layoutSkillGroupPlacement,
+  resolveSkillGroupPlacementSkills,
+  skillPlacementDisplayFrames,
+} from './skillGroupPlacement';
 import { createProjectDocumentIdAllocator } from './projectDocumentIdAllocator';
 import {
   projectTimelineEditor,
@@ -1817,7 +1821,10 @@ function castActualStartFrame(castId: string, placementFrame: number): number {
 }
 
 function castActualDurationFrame(castId: string, definitionDurationFrames: number): number {
-  return skillCastActualDurationFrames.value.get(castId) ?? definitionDurationFrames;
+  return (
+    skillCastActualDurationFrames.value.get(castId) ??
+    skillPlacementDisplayFrames(definitionDurationFrames)
+  );
 }
 
 const visibleSkillEndFrames = computed(() => {
@@ -2770,9 +2777,9 @@ function skillDisplayIcon(skillType: string, operatorSlug: string | null): strin
 }
 
 function skillDurationSeconds(entry: TimelineSkillLibraryEntryViewModel): number {
-  const frames = entry.skills
-    .filter(skill => entry.groupPlacementSkillKeys.includes(skill.skillKey))
-    .reduce((total, skill) => total + skill.timelineBlockFrames, 0);
+  const frames = layoutSkillGroupPlacement(
+    entry.skills.filter(skill => entry.groupPlacementSkillKeys.includes(skill.skillKey)),
+  ).durationFrames;
   return Math.round((frames / 30) * 1000) / 1000;
 }
 
@@ -2821,11 +2828,13 @@ function selectedLibrarySkillDurationFrames(): number {
   if (entry === null) return 0;
   const skillKey = selectedLibrarySkill.value?.skillKey;
   if (skillKey !== undefined) {
-    return entry.skills.find(skill => skill.skillKey === skillKey)?.timelineBlockFrames ?? 0;
+    return skillPlacementDisplayFrames(
+      entry.skills.find(skill => skill.skillKey === skillKey)?.timelineBlockFrames ?? 0,
+    );
   }
-  return entry.skills
-    .filter(skill => entry.groupPlacementSkillKeys.includes(skill.skillKey))
-    .reduce((total, skill) => total + skill.timelineBlockFrames, 0);
+  return layoutSkillGroupPlacement(
+    entry.skills.filter(skill => entry.groupPlacementSkillKeys.includes(skill.skillKey)),
+  ).durationFrames;
 }
 
 function isTrackIdentitySelected(trackIndex: TrackIndex): boolean {
@@ -3603,7 +3612,7 @@ function resolvePlacedSkillDurationFrames(
   const group = operator.skillGroups.find(g => g.key === skillGroupKey);
   if (group === undefined) return 0;
   const lastSkill = resolveSkillGroupPlacementSkills(group, variantKey, skillKey).at(-1);
-  return lastSkill?.timelineBlockFrames ?? 0;
+  return skillPlacementDisplayFrames(lastSkill?.timelineBlockFrames ?? 0);
 }
 
 /** 技能库的原生拖放只允许轨道接收，不能被输入框当作普通文本写入。 */
@@ -3643,7 +3652,9 @@ function beginSkillDrag(
   const durationSeconds =
     draggedSkill === undefined
       ? skillDurationSeconds(entry)
-      : Math.round((draggedSkill.timelineBlockFrames / PROJECT_FPS) * 1000) / 1000;
+      : Math.round(
+          (skillPlacementDisplayFrames(draggedSkill.timelineBlockFrames) / PROJECT_FPS) * 1000,
+        ) / 1000;
   const label =
     placedSkillKey === undefined
       ? skillLibraryTypeLabel(entry)

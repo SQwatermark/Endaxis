@@ -69,9 +69,9 @@ describe('placeSkillGroup', () => {
     const skills = Array.isArray(basicAttack.skills) ? basicAttack.skills : [basicAttack.skills];
     expect(casts.map(cast => cast.placement.startFrame)).toEqual([
       30,
-      30 + skills[0]!.timelineBlockFrames,
-      30 + skills[0]!.timelineBlockFrames + skills[1]!.timelineBlockFrames,
-      30 +
+      31 + skills[0]!.timelineBlockFrames,
+      32 + skills[0]!.timelineBlockFrames + skills[1]!.timelineBlockFrames,
+      33 +
         skills[0]!.timelineBlockFrames +
         skills[1]!.timelineBlockFrames +
         skills[2]!.timelineBlockFrames,
@@ -194,7 +194,7 @@ describe('placeSkillGroup', () => {
       ),
     ).toEqual(['battleSkill1', 'battleSkill2', 'battleSkill3']);
     expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual([
-      10, 21, 49,
+      10, 22, 51,
     ]);
   });
 

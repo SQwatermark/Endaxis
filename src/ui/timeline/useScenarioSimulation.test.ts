@@ -7,6 +7,7 @@ import { arclight, perlica, zhuangFangyi } from '../../data/operators';
 import { gameDataRepository } from '../../data/gameDataRepository';
 import { skillSettings } from '../../data/combat/skillSettings';
 import { placeSkillGroup } from './placeSkillGroup';
+import { projectSkillCastActualDurationFrames } from './timelineDisplayTime';
 import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
 import { useScenarioSimulation, type UseScenarioSimulationResult } from './useScenarioSimulation';
 
@@ -72,6 +73,58 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
+  it.each([-60, 0, 1, 30])(
+    'a freshly placed basic attack chain at %s does not diagnose its own default spacing as blocked',
+    async startFrame => {
+      const initial = createPerlicaScenario();
+      const placed = placeSkillGroup({
+        scenario: initial,
+        trackIndex: 0,
+        operator: perlica,
+        skillGroupKey: 'basicAttack',
+        startFrame,
+        ids: {
+          allocate: (() => {
+            let id = 0;
+            return () => `chain:${id++}`;
+          })(),
+        },
+      });
+      const harness = createHarness(placed.scenario);
+      try {
+        expect(await harness.result.simulateNow(), harness.result.error.value ?? '').toBe(true);
+        expect(
+          harness.result.run.value!.availabilityDiagnostics.filter(d =>
+            d.reasons.includes('skillInterruptUnavailable'),
+          ),
+        ).toEqual([]);
+        expect(harness.scenario.value.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(
+          startFrame,
+        );
+        const casts = placed.scenario.tracks[0]!.skillCasts;
+        const durations = projectSkillCastActualDurationFrames(
+          harness.result.run.value!.receiptEntries,
+        );
+        for (let index = 0; index < casts.length - 1; index++) {
+          expect(casts[index]!.placement.startFrame + durations.get(casts[index]!.id)!).toBe(
+            casts[index + 1]!.placement.startFrame,
+          );
+        }
+        // 修的是新链布局，不是取消校验：作者主动提前一帧仍得到原生中断诊断。
+        const early = structuredClone(placed.scenario);
+        early.tracks[0]!.skillCasts[1]!.placement.startFrame -= 1;
+        const earlyRun = await service.simulate(early, 300);
+        expect(
+          earlyRun.availabilityDiagnostics.some(
+            d => d.skillId === 'basicAttack2' && d.reasons.includes('skillInterruptUnavailable'),
+          ),
+        ).toBe(true);
+      } finally {
+        harness.stop();
+      }
+    },
+  );
+
   it.each([
     [2, true],
     // Input precedes the update that would end Perlica's HideUI without a second cast.

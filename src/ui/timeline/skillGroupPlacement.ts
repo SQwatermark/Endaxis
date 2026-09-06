@@ -19,6 +19,28 @@ export interface SkillGroupLibraryPlacement {
   readonly enhanced: boolean;
 }
 
+/** 局部边界在技能更新后到达；默认块体覆盖至下一次输入，零宽内部技能仍保持零宽。 */
+export function skillPlacementDisplayFrames(localBoundaryFrames: number): number {
+  return localBoundaryFrames > 0 ? localBoundaryFrames + 1 : 0;
+}
+
+/**
+ * 新放置链的默认布局，不读取或改写已有技能块。
+ * 释放帧的技能 delta 为零，输入又先于技能更新，因此下一段默认晚一个输入边界。
+ * 这里仍是未计攻速、时间膨胀的放置建议，不保证任意战斗状态下都可续段。
+ */
+export function layoutSkillGroupPlacement(
+  skills: readonly Pick<SkillDefinition, 'timelineBlockFrames'>[],
+): { readonly offsets: readonly number[]; readonly durationFrames: number } {
+  const offsets: number[] = [];
+  let durationFrames = 0;
+  skills.forEach(skill => {
+    offsets.push(durationFrames);
+    durationFrames += skillPlacementDisplayFrames(skill.timelineBlockFrames);
+  });
+  return { offsets, durationFrames };
+}
+
 function asSkills(value: SkillDefinition | readonly SkillDefinition[]): readonly SkillDefinition[] {
   return Array.isArray(value) ? value : [value as SkillDefinition];
 }

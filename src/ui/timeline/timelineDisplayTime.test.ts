@@ -29,8 +29,8 @@ describe('timeline display time', () => {
     ];
     expect([...projectSkillCastInterruptionFrames(entries)]).toEqual([['a', -10]]);
     expect([...projectSkillCastActualDurationFrames(entries)]).toEqual([
-      ['a', 30],
-      ['b', 30],
+      ['a', 31],
+      ['b', 31],
     ]);
   });
   it('takes each cast start from the first matching SkillStarted receipt', () => {
@@ -61,8 +61,8 @@ describe('timeline display time', () => {
     ]);
 
     expect([...durations]).toEqual([
-      ['cast:normal', 30],
-      ['cast:slowed', 60],
+      ['cast:normal', 31],
+      ['cast:slowed', 61],
     ]);
   });
 

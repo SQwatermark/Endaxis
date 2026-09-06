@@ -1469,7 +1469,7 @@ describe('registered generated operators', () => {
       ids: { allocate: kind => `${kind}:yvonne` },
     }).scenario;
     expect(placed.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual([
-      1, 17, 31, 51, 75,
+      1, 18, 33, 54, 79,
     ]);
 
     const result = runStandardPlayerDamageScenarioSimulation({
