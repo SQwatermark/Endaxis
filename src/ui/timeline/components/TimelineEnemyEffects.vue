@@ -319,7 +319,8 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
       :title="hit.title"
       :aria-label="`${hit.title}`"
       @mousedown.stop="emit('open-damage-detail', hit.sequence)"
-      @keydown.enter.prevent="emit('open-damage-detail', hit.sequence)"
+      @keydown.enter.stop.prevent="emit('open-damage-detail', hit.sequence)"
+      @keydown.space.stop.prevent="emit('open-damage-detail', hit.sequence)"
     >
       <span class="enemy-damage-diamond"></span>
     </button>

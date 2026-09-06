@@ -2,6 +2,16 @@ import { expect, it } from 'vitest';
 import { compileScript, compileStyle, compileTemplate, parse } from '@vue/compiler-sfc';
 import source from './TimelineEnemyEffects.vue?raw';
 
+it('keeps legacy mouse-down activation and handles both keyboard activation keys', () => {
+  const hit = source.slice(
+    source.indexOf('v-for="hit in damageHits"'),
+    source.indexOf('v-for="marker in markers"'),
+  );
+  expect(hit).toContain('@mousedown.stop="emit(\'open-damage-detail\', hit.sequence)"');
+  expect(hit).toContain('@keydown.enter.stop.prevent="emit(\'open-damage-detail\', hit.sequence)"');
+  expect(hit).toContain('@keydown.space.stop.prevent="emit(\'open-damage-detail\', hit.sequence)"');
+});
+
 it('uses the same icon shell and badge for instantaneous and persistent effects', () => {
   const marker = source.slice(
     source.indexOf('v-for="marker in markers"'),
