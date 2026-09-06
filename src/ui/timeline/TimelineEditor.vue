@@ -3788,10 +3788,19 @@ function updateCastMoveAt(
   if (!fromAutoScroll) scheduleCastMoveAutoScroll();
   const frame = castMoveFrame(clientX, clientY, gesture);
   if (frame === null) return;
-  if (
-    frame.placementFrame === gesture.previewFrame &&
-    frame.actualFrame === gesture.previewActualFrame
-  ) {
+  const movedScenario = moveSkillCasts(
+    gesture.baseScenario,
+    new Set(gesture.skillCastIds),
+    gesture.trackIndex,
+    gesture.skillCastId,
+    frame.placementFrame,
+  );
+  // 多选按共享位移整体限位。预览必须使用命令实际采用的落点，不能让主块单独越界。
+  const placedFrame = movedScenario.tracks[gesture.trackIndex]!.skillCasts.find(
+    cast => cast.id === gesture.skillCastId,
+  )!.placement.startFrame;
+  const actualFrame = frame.actualFrame + placedFrame - frame.placementFrame;
+  if (placedFrame === gesture.previewFrame && actualFrame === gesture.previewActualFrame) {
     return;
   }
   if (!gesture.moved) {
@@ -3803,19 +3812,13 @@ function updateCastMoveAt(
   }
   castMoveGesture.value = {
     ...gesture,
-    previewFrame: frame.placementFrame,
-    previewActualFrame: frame.actualFrame,
+    previewFrame: placedFrame,
+    previewActualFrame: actualFrame,
   };
-  if (frame.placementFrame !== gesture.previewFrame) {
-    scenario.value = moveSkillCasts(
-      gesture.baseScenario,
-      new Set(gesture.skillCastIds),
-      gesture.trackIndex,
-      gesture.skillCastId,
-      frame.placementFrame,
-    );
+  if (placedFrame !== gesture.previewFrame) {
+    scenario.value = movedScenario;
   }
-  cursorFrame.value = frame.placementFrame;
+  cursorFrame.value = placedFrame;
 
   // 连续拖动时节流而不是防抖：鼠标不停移动，模拟也会持续得到中间位置。
   const now = performance.now();

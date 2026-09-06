@@ -41,7 +41,10 @@ describe('Next timeline placement and alignment parity', () => {
     );
 
     expect(update).toContain('gesture.baseScenario');
-    expect(update).toContain('scenario.value = moveSkillCasts(');
+    expect(update).toContain('const movedScenario = moveSkillCasts(');
+    expect(update).toContain('scenario.value = movedScenario;');
+    expect(update).toContain('previewFrame: placedFrame');
+    expect(update).toContain('frame.actualFrame + placedFrame - frame.placementFrame');
     expect(update).not.toContain('commitScenario(');
     expect(finish.match(/commitScenario\('moveSkillCasts'/g)).toHaveLength(1);
     expect(finish).toContain('const finalScenario = scenario.value;');
