@@ -111,6 +111,10 @@ export function useScenarioSimulation(
 
   function scheduleSimulation(): void {
     if (pendingTimer !== null) clearTimeout(pendingTimer);
+    // 编辑即作废正在计算的版本，包含 A→B→撤销回 A 的情况；不能只比较对象引用。
+    latestRunId += 1;
+    running.value = false;
+    error.value = null;
     // 场景一变化立即标脏，使诊断不再冒充当前结果；展示层仍可保留上一份投影，
     // 等新模拟完成后原子替换，避免时间映射和效果层在等待期间闪回默认状态。
     stale.value = true;
@@ -127,7 +131,7 @@ export function useScenarioSimulation(
   const stopWatch = watch(
     () => options.scenario.value,
     () => scheduleSimulation(),
-    { immediate: true },
+    { immediate: true, flush: 'sync' },
   );
 
   onScopeDispose(() => {
@@ -141,7 +145,7 @@ export function useScenarioSimulation(
     ReadonlyMap<string, readonly TimelineSkillDiagnosticReason[]>
   >(() => {
     const snapshot = publishedState.value;
-    if (snapshot === null) return new Map();
+    if (snapshot === null || stale.value) return new Map();
     const current = snapshot.run;
     const scenario = snapshot.scenario;
 

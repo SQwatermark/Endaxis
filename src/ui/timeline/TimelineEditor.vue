@@ -69,6 +69,7 @@ import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import TimelineResourceCurves from './components/TimelineResourceCurves.vue';
+import TimelineSimulationStatus from './components/TimelineSimulationStatus.vue';
 import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
 import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vue';
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
@@ -5761,26 +5762,12 @@ function setPanelDialogVisible(visible: boolean): void {
         @set-modifiers="setGlobalModifiers"
       />
       <section v-else-if="tool === 'enemy'" class="simulation-panel">
-        <div v-if="simulationRunning || simulationError !== null" class="simulation-status">
-          <span
-            v-if="simulationRunning"
-            class="simulation-status__item simulation-status__item--running"
-          >
-            {{ t('timeline.simulating') }}
-          </span>
-          <span
-            v-else-if="simulationStale && simulationRun !== null"
-            class="simulation-status__item simulation-status__item--muted"
-          >
-            …
-          </span>
-          <span
-            v-if="simulationError !== null"
-            class="simulation-status__item simulation-status__item--error"
-          >
-            {{ t('timeline.simulationFailed') }}：{{ simulationError }}
-          </span>
-        </div>
+        <TimelineSimulationStatus
+          :running="simulationRunning"
+          :stale="simulationStale"
+          :error="simulationError"
+          :has-result="simulationRun !== null"
+        />
         <div v-if="simulationRun !== null" class="simulation-curves">
           <TimelineEnemyStatusSections
             @collapsed-count-change="collapsedMonitorSectionCount = $event"
@@ -6903,43 +6890,6 @@ button:disabled {
   min-width: 0;
   display: flex;
   flex-direction: column;
-}
-
-.simulation-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border-bottom: 1px solid var(--ea-border-soft);
-  font-size: 11px;
-}
-
-.simulation-status__item--running {
-  color: var(--ea-gold);
-}
-
-.simulation-status__item--muted {
-  color: var(--ea-fg-muted);
-}
-
-.simulation-status__item--error {
-  color: #f5222d;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.simulation-status__button {
-  margin-left: auto;
-  height: 22px;
-  padding: 0 8px;
-  border: 1px solid var(--ea-border);
-  border-radius: 2px;
-  background: var(--ea-fill-soft);
-  color: inherit;
-  font: inherit;
-  font-size: 11px;
-  cursor: pointer;
 }
 
 .simulation-curves {

@@ -1544,6 +1544,8 @@
       }
     },
     "simulating": "Симуляция…",
+    "simulationPending": "Ожидание симуляции…",
+    "simulationPreviousResult": "Показаны предыдущие результаты (устарели)",
     "simulationFailed": "Ошибка симуляции",
     "reSimulate": "Заново",
     "performance": {

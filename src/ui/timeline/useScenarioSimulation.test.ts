@@ -73,6 +73,86 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
+  it.each(['resolve', 'reject'] as const)(
+    'invalidates an in-flight run immediately across edit and undo (%s)',
+    async completion => {
+      const initial = createPerlicaScenario();
+      const scenario = shallowRef(initial);
+      const run = {
+        availabilityDiagnostics: [],
+        executionDiagnostics: [],
+        comboWindowDiagnostics: [],
+      };
+      let resolve!: (value: typeof run) => void;
+      let reject!: (reason: Error) => void;
+      let calls = 0;
+      const fakeService = {
+        simulate: async () => {
+          if (++calls === 1) return run;
+          return new Promise<typeof run>((yes, no) => {
+            resolve = yes;
+            reject = no;
+          });
+        },
+      } as unknown as ScenarioSimulationService;
+      const scope = effectScope();
+      const result = scope.run(() =>
+        useScenarioSimulation({ scenario, service: fakeService, debounceMs: 10_000 }),
+      )!;
+      try {
+        await result.simulateNow();
+        const published = result.published.value;
+        const inFlight = result.simulateNow();
+        scenario.value = { ...initial, name: 'edited' };
+        scenario.value = initial;
+        expect(result.running.value).toBe(false);
+        expect(result.stale.value).toBe(true);
+        if (completion === 'resolve') resolve(run);
+        else reject(new Error('obsolete failure'));
+        expect(await inFlight).toBe(false);
+        expect(result.published.value).toBe(published);
+        expect(result.stale.value).toBe(true);
+        expect(result.error.value).toBeNull();
+      } finally {
+        scope.stop();
+      }
+    },
+  );
+
+  it('clears the previous failure as soon as the user edits, without discarding the snapshot', async () => {
+    const scenario = shallowRef(createPerlicaScenario());
+    let fail = false;
+    const fakeService = {
+      simulate: async () => {
+        if (fail) throw new Error('old failure');
+        return {
+          availabilityDiagnostics: [],
+          executionDiagnostics: [],
+          comboWindowDiagnostics: [],
+        };
+      },
+    } as unknown as ScenarioSimulationService;
+    const scope = effectScope();
+    const result = scope.run(() =>
+      useScenarioSimulation({ scenario, service: fakeService, debounceMs: 10_000 }),
+    )!;
+    try {
+      await result.simulateNow();
+      const previous = result.published.value;
+      fail = true;
+      scenario.value = { ...scenario.value, name: 'invalid' };
+      await result.simulateNow();
+      expect(result.error.value).toBe('old failure');
+      scenario.value = { ...scenario.value, name: 'correcting' };
+      expect(result.error.value).toBeNull();
+      expect(result.stale.value).toBe(true);
+      expect(result.running.value).toBe(false);
+      expect(result.published.value).toBe(previous);
+    } finally {
+      scope.stop();
+    }
+  });
+
   it.each([-60, 0, 1, 30])(
     'a freshly placed basic attack chain at %s does not diagnose its own default spacing as blocked',
     async startFrame => {
@@ -507,6 +587,12 @@ describe('useScenarioSimulation', () => {
       const cast = session.snapshot.scenario.tracks[0]?.skillCasts[0];
       const castId = cast?.id ?? 'missing';
       expect(result.diagnosticsByCastId.value.get(castId)).toEqual(['resourceUnavailable']);
+      const previous = result.published.value;
+      scenario.value = { ...scenario.value, name: 'edited' };
+      // 无需等待下一次渲染或模拟，旧警告立即退出当前编辑文档。
+      expect(result.stale.value).toBe(true);
+      expect(result.diagnosticsByCastId.value.size).toBe(0);
+      expect(result.published.value).toBe(previous);
     } finally {
       scope.stop();
     }

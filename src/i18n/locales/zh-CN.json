@@ -1574,6 +1574,8 @@
       }
     },
     "simulating": "模拟中…",
+    "simulationPending": "等待模拟…",
+    "simulationPreviousResult": "当前显示上次结果（已过期）",
     "simulationFailed": "模拟失败",
     "reSimulate": "重新模拟",
     "performance": {

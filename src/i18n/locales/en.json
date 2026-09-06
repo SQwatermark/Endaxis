@@ -1586,6 +1586,8 @@
       }
     },
     "simulating": "Simulating…",
+    "simulationPending": "Simulation pending…",
+    "simulationPreviousResult": "Showing previous results (outdated)",
     "simulationFailed": "Simulation failed",
     "reSimulate": "Re-simulate",
     "performance": {
