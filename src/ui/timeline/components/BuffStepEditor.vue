@@ -889,7 +889,7 @@ function removeAssignment(key: string): void {
   display: grid;
   gap: 6px;
 }
-.buff-assignment__levels > button {
+.buff-assignment .buff-assignment__levels > button {
   height: auto;
   min-height: 30px;
   white-space: normal;

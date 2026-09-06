@@ -89,6 +89,11 @@ const showEntityEditor = ref(false);
 const showRuntimeBehaviorEditor = ref(false);
 const showUpgradeBehaviorEditor = ref(false);
 const showComboEditor = ref(false);
+const editingBehavior = computed(
+  () =>
+    (section.value === 'progression' && showUpgradeBehaviorEditor.value) ||
+    (section.value === 'runtime' && (showRuntimeBehaviorEditor.value || showComboEditor.value)),
+);
 const referencedEntityId = ref('');
 const objectSearch = ref('');
 const showProblems = ref(false);
@@ -817,8 +822,8 @@ function openReferencedDefinition(reference: {
         </div>
       </template>
 
-      <div class="workspace">
-        <nav class="workspace-nav">
+      <div class="workspace" :class="{ 'behavior-focused': editingBehavior }">
+        <nav v-if="!editingBehavior" class="workspace-nav">
           <div class="nav-caption">定义结构</div>
           <button :class="{ active: section === 'panel' }" @click="selectSection('panel')">
             <span>基础面板</span><b>90 级</b>
@@ -848,12 +853,17 @@ function openReferencedDefinition(reference: {
           class="workspace-main"
           :class="{
             'entity-editing': (section === 'entities' && showEntityEditor) || section === 'buffs',
+            'behavior-editing': editingBehavior,
           }"
         >
           <nav class="workspace-breadcrumbs" aria-label="当前位置">
-            <button @click="selectSection('panel')">{{ draft.displayName ?? draft.slug }}</button>
+            <button :disabled="editingBehavior" @click="selectSection('panel')">
+              {{ draft.displayName ?? draft.slug }}
+            </button>
             <span>›</span>
-            <button @click="selectSection(section)">{{ sectionLabel }}</button>
+            <button :disabled="editingBehavior" @click="selectSection(section)">
+              {{ sectionLabel }}
+            </button>
             <template v-if="objectLabel">
               <span>›</span><strong>{{ objectLabel }}</strong>
             </template>
@@ -1132,8 +1142,12 @@ function openReferencedDefinition(reference: {
             </div>
           </section>
 
-          <section v-else-if="section === 'progression'" class="definition-section split-section">
-            <aside class="object-list">
+          <section
+            v-else-if="section === 'progression'"
+            class="definition-section split-section"
+            :class="{ 'behavior-editing-section': editingBehavior }"
+          >
+            <aside v-if="!editingBehavior" class="object-list">
               <div class="kind-tabs">
                 <button
                   :class="{ active: progressionKind === 'talents' }"
@@ -1174,6 +1188,7 @@ function openReferencedDefinition(reference: {
               <OperatorUpgradeBehaviorDialog
                 v-if="showUpgradeBehaviorEditor"
                 :visible="true"
+                fill-available
                 :upgrade="selectedUpgrade"
                 :skill-level="skillLevel"
                 :skill-group-keys="skillGroupKeys"
@@ -1296,10 +1311,15 @@ function openReferencedDefinition(reference: {
             <div v-else class="empty-state">当前分类还没有定义。</div>
           </section>
 
-          <section v-else-if="section === 'runtime'" class="definition-section">
+          <section
+            v-else-if="section === 'runtime'"
+            class="definition-section"
+            :class="{ 'behavior-editing-section': editingBehavior }"
+          >
             <OperatorComboDefinitionsDialog
               v-if="showComboEditor"
               :visible="true"
+              fill-available
               :conditions="draft.comboSkillConditions"
               :skill-keys="comboSkillKeys"
               :skill-level="skillLevel"
@@ -1309,6 +1329,7 @@ function openReferencedDefinition(reference: {
             <OperatorRuntimeBehaviorDialog
               v-else-if="showRuntimeBehaviorEditor"
               :visible="true"
+              fill-available
               :passive-skills="draft.passiveSkills"
               :event-handlers="draft.eventHandlers"
               :skill-level="skillLevel"
@@ -1571,7 +1592,10 @@ function openReferencedDefinition(reference: {
       </div>
 
       <template #footer>
-        <div v-if="showProblems && draftIssues.length" class="workspace-problems">
+        <div
+          v-if="!editingBehavior && showProblems && draftIssues.length"
+          class="workspace-problems"
+        >
           <button
             v-for="issue in draftIssues"
             :key="`${issue.path}:${issue.message}`"
@@ -1581,7 +1605,10 @@ function openReferencedDefinition(reference: {
             ><span>{{ issue.message }}</span>
           </button>
         </div>
-        <div class="workspace-footer">
+        <p v-if="editingBehavior" class="behavior-draft-note">
+          当前编辑行为草稿；保存行为返回后，再保存干员定义。取消行为仅丢弃本次行为修改。
+        </p>
+        <div v-else class="workspace-footer">
           <button
             class="problem-summary"
             :class="{ invalid: draftIssues.length > 0 }"
@@ -1690,6 +1717,43 @@ function openReferencedDefinition(reference: {
 .workspace-main {
   min-width: 0;
   overflow: auto;
+}
+.workspace.behavior-focused {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.workspace-main.behavior-editing {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.behavior-editing .workspace-breadcrumbs {
+  flex: none;
+}
+.workspace-breadcrumbs button:disabled {
+  cursor: default;
+}
+.definition-section.behavior-editing-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  padding: 0 10px;
+}
+.behavior-editing-section > .object-editor {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+}
+.behavior-draft-note {
+  margin: 0;
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+  text-align: left;
 }
 .workspace-main.entity-editing {
   display: flex;

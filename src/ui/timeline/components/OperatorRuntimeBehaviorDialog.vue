@@ -18,6 +18,7 @@ import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 
 const props = defineProps<{
   visible: boolean;
+  fillAvailable?: boolean;
   passiveSkills?: readonly OperatorPassiveSkillDefinition[];
   eventHandlers?: readonly OperatorEventHandlerDefinition[];
   skillLevel: number;
@@ -180,7 +181,7 @@ function save(): void {
 </script>
 
 <template>
-  <section v-if="visible" class="embedded-editor">
+  <section v-if="visible" class="embedded-editor" :class="{ 'fill-available': fillAvailable }">
     <div class="embedded-header">
       <div class="title">
         <strong>角色级行为</strong
@@ -429,3 +430,4 @@ select {
   }
 }
 </style>
+<style scoped src="./behaviorDefinitionWorkspace.css"></style>

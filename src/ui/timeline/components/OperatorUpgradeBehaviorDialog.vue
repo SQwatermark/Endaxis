@@ -24,6 +24,7 @@ type UpgradeHandler = NonNullable<OperatorUpgradeDefinition['eventHandlers']>[nu
 type Category = 'initialization' | 'eventHandlers' | 'passiveSkills';
 const props = defineProps<{
   visible: boolean;
+  fillAvailable?: boolean;
   upgrade: OperatorUpgradeDefinition;
   skillLevel: number;
   skillGroupKeys: readonly string[];
@@ -200,7 +201,7 @@ function save(): void {
 </script>
 
 <template>
-  <section v-if="visible" class="embedded-editor">
+  <section v-if="visible" class="embedded-editor" :class="{ 'fill-available': fillAvailable }">
     <div class="embedded-header">
       <div class="title">
         <strong>养成行为 · {{ draft.key }}</strong
@@ -544,3 +545,4 @@ select {
   }
 }
 </style>
+<style scoped src="./behaviorDefinitionWorkspace.css"></style>

@@ -37,3 +37,23 @@ it('shares graph viewport constraints while keeping Buff form fields responsive'
   expect(buffForm).toContain('@container (max-width: 360px)');
   expect(buffForm).toContain('min-inline-size: 0');
 });
+
+it('gives behavior drafts a focused workspace with a single commit scope', () => {
+  expect(workspace).toContain('v-if="!editingBehavior" class="workspace-nav"');
+  expect(workspace).toContain('v-if="!editingBehavior" class="object-list"');
+  expect(workspace).toContain('v-else class="workspace-footer"');
+  expect(workspace).toContain(':disabled="editingBehavior"');
+  const shared = readFileSync(
+    new URL('./behaviorDefinitionWorkspace.css', import.meta.url),
+    'utf8',
+  );
+  expect(shared).toContain('grid-template-rows: auto minmax(0, 1fr) auto');
+  for (const name of [
+    'OperatorUpgradeBehaviorDialog',
+    'OperatorRuntimeBehaviorDialog',
+    'OperatorComboDefinitionsDialog',
+  ]) {
+    const source = readFileSync(new URL(`./${name}.vue`, import.meta.url), 'utf8');
+    expect(source).toContain('<style scoped src="./behaviorDefinitionWorkspace.css">');
+  }
+});

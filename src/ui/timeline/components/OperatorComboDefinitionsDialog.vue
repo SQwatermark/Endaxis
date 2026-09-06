@@ -16,6 +16,7 @@ import ActionSequenceEditor from './ActionSequenceEditor.vue';
 
 const props = defineProps<{
   visible: boolean;
+  fillAvailable?: boolean;
   conditions?: readonly ComboSkillConditionDefinition[];
   skillKeys: readonly string[];
   skillLevel: number;
@@ -150,7 +151,7 @@ function save(): void {
 </script>
 
 <template>
-  <section v-if="visible" class="embedded-editor">
+  <section v-if="visible" class="embedded-editor" :class="{ 'fill-available': fillAvailable }">
     <div class="embedded-header title">
       <strong>角色原生连携条件</strong>
       <small>条件来自角色模板，统一使用战斗事件、上下文条件与动作序列。</small>
@@ -420,3 +421,4 @@ select {
   }
 }
 </style>
+<style scoped src="./behaviorDefinitionWorkspace.css"></style>

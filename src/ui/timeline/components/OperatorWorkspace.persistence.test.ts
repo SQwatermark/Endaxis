@@ -96,6 +96,21 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     });
   };
   try {
+    // Focus is scoped to the active section; leaving/canceling does not alter the draft.
+    const initial = JSON.stringify(panel.draft.value);
+    for (const [section, flag] of [
+      ['progression', 'showUpgradeBehaviorEditor'],
+      ['runtime', 'showRuntimeBehaviorEditor'],
+      ['runtime', 'showComboEditor'],
+    ]) {
+      panel.selectSection(section);
+      expect(panel.editingBehavior.value).toBe(false);
+      panel[flag!].value = true;
+      expect(panel.editingBehavior.value).toBe(true);
+      panel[flag!].value = false;
+      expect(panel.editingBehavior.value).toBe(false);
+      expect(JSON.stringify(panel.draft.value)).toBe(initial);
+    }
     edit();
     await nextTick();
     expect(currentDefinition().buffDefinitions!.qa!.durationSeconds).toBe(10);
