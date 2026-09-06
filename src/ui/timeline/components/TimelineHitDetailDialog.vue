@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 /** 结构与视觉以旧版 HitDamageDetailDialog 为规格；UI 只投影回执冻结值。 */
 import { computed, ref, watch } from 'vue';
 import { ArrowRight } from '@element-plus/icons-vue';
@@ -318,191 +319,195 @@ function onClose(): void {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    :title="labels.dialogTitle"
-    width="420px"
-    class="hit-damage-detail-dialog"
-    :close-on-click-modal="true"
-    append-to-body
-    @update:model-value="onClose"
-  >
-    <div
-      v-if="damageDetails.length > 0"
-      class="hit-detail-content"
-      :class="{ 'is-multiple': damageDetails.length > 1 }"
+  <InputRegionBoundary label="TimelineHitDetailDialog" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      :title="labels.dialogTitle"
+      width="420px"
+      class="hit-damage-detail-dialog"
+      :close-on-click-modal="true"
+      append-to-body
+      @update:model-value="onClose"
     >
-      <template v-for="detail in damageDetails" :key="detail.key">
-        <template v-if="detail.contextRows.length > 0">
-          <div class="section-label">{{ labels.context }}</div>
+      <div
+        v-if="damageDetails.length > 0"
+        class="hit-detail-content"
+        :class="{ 'is-multiple': damageDetails.length > 1 }"
+      >
+        <template v-for="detail in damageDetails" :key="detail.key">
+          <template v-if="detail.contextRows.length > 0">
+            <div class="section-label">{{ labels.context }}</div>
+            <table class="stat-table">
+              <tbody>
+                <tr v-for="row in detail.contextRows" :key="row.label">
+                  <td class="label-cell">{{ row.label }}</td>
+                  <td class="value-cell">{{ row.value }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+
+          <div class="section-label">{{ labels.result }}</div>
+          <div class="damage-result">
+            <div class="expected-damage">
+              <span class="damage-label">{{
+                forceCritical && detail.canForceCritical
+                  ? labels.forcedDamage
+                  : labels.expectedDamage
+              }}</span>
+              <span
+                class="damage-value"
+                :class="{ forced: forceCritical && detail.canForceCritical }"
+                >{{
+                  num(
+                    forceCritical && detail.canForceCritical
+                      ? detail.criticalDamage
+                      : detail.headline,
+                  )
+                }}</span
+              >
+            </div>
+            <table class="stat-table">
+              <tbody>
+                <tr v-if="detail.canCritical" class="dim">
+                  <td class="label-cell">{{ labels.criticalDamage }}</td>
+                  <td class="value-cell">{{ num(detail.criticalDamage) }}</td>
+                </tr>
+                <tr class="dim">
+                  <td class="label-cell">{{ labels.nonCriticalDamage }}</td>
+                  <td class="value-cell">{{ num(detail.nonCriticalDamage) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-label">{{ labels.base }}</div>
           <table class="stat-table">
             <tbody>
-              <tr v-for="row in detail.contextRows" :key="row.label">
+              <tr
+                class="expandable-row"
+                :class="{ 'is-disabled': detail.attackDetail === null }"
+                @click="detail.attackDetail === null ? undefined : toggleAttackDetail(detail.key)"
+              >
+                <td class="label-cell">
+                  <el-icon
+                    v-if="detail.attackDetail !== null"
+                    class="expand-icon"
+                    :class="{ 'is-open': openAttackDetails.has(detail.key) }"
+                  >
+                    <ArrowRight />
+                  </el-icon>
+                  {{ labels.attack }}
+                </td>
+                <td class="value-cell">{{ detail.attackValue }}</td>
+              </tr>
+              <template v-if="openAttackDetails.has(detail.key) && detail.attackDetail !== null">
+                <tr class="sub-row">
+                  <td class="label-cell indent-1">{{ labels.basicTotal }}</td>
+                  <td class="value-cell">{{ ceilNum(detail.attackDetail.basicTotal) }}</td>
+                </tr>
+                <tr class="sub-row">
+                  <td class="label-cell indent-2">{{ labels.baseAttack }}</td>
+                  <td class="value-cell">{{ ceilNum(detail.attackDetail.baseAttackTotal) }}</td>
+                </tr>
+                <tr class="sub-row dim">
+                  <td class="label-cell indent-3">{{ labels.operatorAttack }}</td>
+                  <td class="value-cell">{{ ceilNum(detail.attackDetail.operatorBaseAttack) }}</td>
+                </tr>
+                <tr class="sub-row dim">
+                  <td class="label-cell indent-3">{{ labels.weaponAttack }}</td>
+                  <td class="value-cell">{{ ceilNum(detail.attackDetail.weaponBaseAttack) }}</td>
+                </tr>
+                <tr class="sub-row">
+                  <td class="label-cell indent-2">{{ labels.attackBonus }}</td>
+                  <td class="value-cell">+{{ ceilNum(detail.attackDetail.attackBonus) }}</td>
+                </tr>
+                <tr class="sub-row dim">
+                  <td class="label-cell indent-3">{{ labels.flatAttack }}</td>
+                  <td class="value-cell">+{{ ceilNum(detail.attackDetail.flatAttack) }}</td>
+                </tr>
+                <tr class="sub-row dim">
+                  <td class="label-cell indent-3">{{ labels.percentageAttack }}</td>
+                  <td class="value-cell">{{ pct(detail.attackDetail.attackPercent) }}</td>
+                </tr>
+                <tr
+                  v-for="(source, sourceIndex) in detail.attackDetail.attackPercentSources"
+                  :key="`attack-percent:${sourceIndex}`"
+                  class="sub-row dim"
+                >
+                  <td class="label-cell indent-4">
+                    {{ labels.fromSource(contributionSourceLabel(source, detail.key)) }}
+                  </td>
+                  <td class="value-cell">{{ pct(source.value) }}</td>
+                </tr>
+                <tr class="sub-row">
+                  <td class="label-cell indent-1">{{ labels.attributeBonus }}</td>
+                  <td class="value-cell">
+                    +{{
+                      (
+                        detail.attackDetail.attributeContributions.reduce(
+                          (sum, row) => sum + row.contribution,
+                          0,
+                        ) * 100
+                      ).toFixed(1)
+                    }}%
+                  </td>
+                </tr>
+                <tr
+                  v-for="row in detail.attackDetail.attributeContributions"
+                  :key="row.key"
+                  class="sub-row dim"
+                  :class="{ 'is-main': row.isMain, 'is-sub': row.isSecondary }"
+                >
+                  <td class="label-cell indent-2">
+                    {{ labels.fromSource(labels.attributeLabel(row.key)) }}
+                  </td>
+                  <td class="value-cell">+{{ (row.contribution * 100).toFixed(1) }}%</td>
+                </tr>
+              </template>
+              <tr
+                v-for="row in detail.baseRows"
+                :key="row.label"
+                :class="{ bold: row.label === labels.baseDamage }"
+              >
                 <td class="label-cell">{{ row.label }}</td>
                 <td class="value-cell">{{ row.value }}</td>
               </tr>
             </tbody>
           </table>
-        </template>
 
-        <div class="section-label">{{ labels.result }}</div>
-        <div class="damage-result">
-          <div class="expected-damage">
-            <span class="damage-label">{{
-              forceCritical && detail.canForceCritical ? labels.forcedDamage : labels.expectedDamage
-            }}</span>
-            <span
-              class="damage-value"
-              :class="{ forced: forceCritical && detail.canForceCritical }"
-              >{{
-                num(
-                  forceCritical && detail.canForceCritical
-                    ? detail.criticalDamage
-                    : detail.headline,
-                )
-              }}</span
-            >
-          </div>
+          <div class="section-label">{{ labels.multipliers }}</div>
           <table class="stat-table">
             <tbody>
-              <tr v-if="detail.canCritical" class="dim">
-                <td class="label-cell">{{ labels.criticalDamage }}</td>
-                <td class="value-cell">{{ num(detail.criticalDamage) }}</td>
-              </tr>
-              <tr class="dim">
-                <td class="label-cell">{{ labels.nonCriticalDamage }}</td>
-                <td class="value-cell">{{ num(detail.nonCriticalDamage) }}</td>
+              <tr v-for="row in detail.multiplierRows" :key="row.label">
+                <td class="label-cell">
+                  {{ row.label }}<span v-if="row.detail" class="mult-detail">{{ row.detail }}</span>
+                </td>
+                <td class="value-cell mult-value">{{ row.value }}</td>
               </tr>
             </tbody>
           </table>
-        </div>
-
-        <div class="section-label">{{ labels.base }}</div>
-        <table class="stat-table">
-          <tbody>
-            <tr
-              class="expandable-row"
-              :class="{ 'is-disabled': detail.attackDetail === null }"
-              @click="detail.attackDetail === null ? undefined : toggleAttackDetail(detail.key)"
-            >
-              <td class="label-cell">
-                <el-icon
-                  v-if="detail.attackDetail !== null"
-                  class="expand-icon"
-                  :class="{ 'is-open': openAttackDetails.has(detail.key) }"
-                >
-                  <ArrowRight />
-                </el-icon>
-                {{ labels.attack }}
-              </td>
-              <td class="value-cell">{{ detail.attackValue }}</td>
-            </tr>
-            <template v-if="openAttackDetails.has(detail.key) && detail.attackDetail !== null">
-              <tr class="sub-row">
-                <td class="label-cell indent-1">{{ labels.basicTotal }}</td>
-                <td class="value-cell">{{ ceilNum(detail.attackDetail.basicTotal) }}</td>
-              </tr>
-              <tr class="sub-row">
-                <td class="label-cell indent-2">{{ labels.baseAttack }}</td>
-                <td class="value-cell">{{ ceilNum(detail.attackDetail.baseAttackTotal) }}</td>
-              </tr>
-              <tr class="sub-row dim">
-                <td class="label-cell indent-3">{{ labels.operatorAttack }}</td>
-                <td class="value-cell">{{ ceilNum(detail.attackDetail.operatorBaseAttack) }}</td>
-              </tr>
-              <tr class="sub-row dim">
-                <td class="label-cell indent-3">{{ labels.weaponAttack }}</td>
-                <td class="value-cell">{{ ceilNum(detail.attackDetail.weaponBaseAttack) }}</td>
-              </tr>
-              <tr class="sub-row">
-                <td class="label-cell indent-2">{{ labels.attackBonus }}</td>
-                <td class="value-cell">+{{ ceilNum(detail.attackDetail.attackBonus) }}</td>
-              </tr>
-              <tr class="sub-row dim">
-                <td class="label-cell indent-3">{{ labels.flatAttack }}</td>
-                <td class="value-cell">+{{ ceilNum(detail.attackDetail.flatAttack) }}</td>
-              </tr>
-              <tr class="sub-row dim">
-                <td class="label-cell indent-3">{{ labels.percentageAttack }}</td>
-                <td class="value-cell">{{ pct(detail.attackDetail.attackPercent) }}</td>
-              </tr>
-              <tr
-                v-for="(source, sourceIndex) in detail.attackDetail.attackPercentSources"
-                :key="`attack-percent:${sourceIndex}`"
-                class="sub-row dim"
-              >
-                <td class="label-cell indent-4">
-                  {{ labels.fromSource(contributionSourceLabel(source, detail.key)) }}
-                </td>
-                <td class="value-cell">{{ pct(source.value) }}</td>
-              </tr>
-              <tr class="sub-row">
-                <td class="label-cell indent-1">{{ labels.attributeBonus }}</td>
-                <td class="value-cell">
-                  +{{
-                    (
-                      detail.attackDetail.attributeContributions.reduce(
-                        (sum, row) => sum + row.contribution,
-                        0,
-                      ) * 100
-                    ).toFixed(1)
-                  }}%
-                </td>
-              </tr>
-              <tr
-                v-for="row in detail.attackDetail.attributeContributions"
-                :key="row.key"
-                class="sub-row dim"
-                :class="{ 'is-main': row.isMain, 'is-sub': row.isSecondary }"
-              >
-                <td class="label-cell indent-2">
-                  {{ labels.fromSource(labels.attributeLabel(row.key)) }}
-                </td>
-                <td class="value-cell">+{{ (row.contribution * 100).toFixed(1) }}%</td>
-              </tr>
-            </template>
-            <tr
-              v-for="row in detail.baseRows"
-              :key="row.label"
-              :class="{ bold: row.label === labels.baseDamage }"
-            >
-              <td class="label-cell">{{ row.label }}</td>
-              <td class="value-cell">{{ row.value }}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="section-label">{{ labels.multipliers }}</div>
-        <table class="stat-table">
-          <tbody>
-            <tr v-for="row in detail.multiplierRows" :key="row.label">
-              <td class="label-cell">
-                {{ row.label }}<span v-if="row.detail" class="mult-detail">{{ row.detail }}</span>
-              </td>
-              <td class="value-cell mult-value">{{ row.value }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </template>
-    </div>
-    <div v-else class="hit-detail-empty">—</div>
-
-    <template #footer>
-      <div class="dialog-footer">
-        <label
-          v-if="canForceCritical && allowForceCritical !== false"
-          class="ea-check-rect ea-check-rect--sm force-crit-check"
-        >
-          <input
-            type="checkbox"
-            :checked="forceCritical"
-            @change="emit('toggleForceCritical', ($event.target as HTMLInputElement).checked)"
-          />
-          <span>{{ labels.forceCrit }}</span>
-        </label>
+        </template>
       </div>
-    </template>
-  </el-dialog>
+      <div v-else class="hit-detail-empty">—</div>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <label
+            v-if="canForceCritical && allowForceCritical !== false"
+            class="ea-check-rect ea-check-rect--sm force-crit-check"
+          >
+            <input
+              type="checkbox"
+              :checked="forceCritical"
+              @change="emit('toggleForceCritical', ($event.target as HTMLInputElement).checked)"
+            />
+            <span>{{ labels.forceCrit }}</span>
+          </label>
+        </div>
+      </template>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>

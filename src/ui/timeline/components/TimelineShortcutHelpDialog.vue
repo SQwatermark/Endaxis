@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -65,24 +66,26 @@ const sections = computed(() => [
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    :title="t('timeline.shortcuts.dialogTitle')"
-    width="min(720px, 90vw)"
-    append-to-body
-    class="timeline-shortcuts-dialog"
-    @update:model-value="$emit('update:visible', $event)"
-  >
-    <div class="shortcut-sections">
-      <section v-for="section in sections" :key="section.title">
-        <h3>{{ section.title }}</h3>
-        <div v-for="item in section.items" :key="item[0]" class="shortcut-row">
-          <kbd>{{ item[0] }}</kbd
-          ><span>{{ item[1] }}</span>
-        </div>
-      </section>
-    </div>
-  </el-dialog>
+  <InputRegionBoundary label="TimelineShortcutHelpDialog" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      :title="t('timeline.shortcuts.dialogTitle')"
+      width="min(720px, 90vw)"
+      append-to-body
+      class="timeline-shortcuts-dialog"
+      @update:model-value="$emit('update:visible', $event)"
+    >
+      <div class="shortcut-sections">
+        <section v-for="section in sections" :key="section.title">
+          <h3>{{ section.title }}</h3>
+          <div v-for="item in section.items" :key="item[0]" class="shortcut-row">
+            <kbd>{{ item[0] }}</kbd
+            ><span>{{ item[1] }}</span>
+          </div>
+        </section>
+      </div>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>

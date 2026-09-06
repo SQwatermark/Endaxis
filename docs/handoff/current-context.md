@@ -1,5 +1,18 @@
 # 当前任务快照
 
+#### 2026-09-07 详情/分析/帮助模态区域
+
+- OperatorPanelDialog、TimelineHitDetailDialog（含敌人伤害复用）、TimelineBuffDetailDialog、
+  DamageAnalysisDialog、TimelineShortcutHelpDialog 用无 DOM 模态区域包围完整弹窗。
+  根 hasModalPanel 移除对应六个重复条件，当前只剩重置的过渡判断。
+- 未改变数据投影、折叠、样式或 Enter/Escape 原生处理。更新了旧测试对根命中
+  详情布尔枚举的断言，改查详情自己的模态区域。
+- 931 项相关回归及应用类型检查通过。浏览器实际打开佩丽卡属性详情和伤害分析，
+  Delete 未删除原技能，Escape 返回入口，原战技仍存在。标签 51 已关闭。
+- 本轮尝试 AX 命中点点击未打开伤害详情，不作为命中详情验收；Buff、帮助及
+  命中详情本轮尚未浏览器验收，也未验证关闭后重新选中技能的删除恢复。
+  不因自动测试通过而宣称这些切片已经完整验收。未保存项目。
+
 #### 2026-09-07 首次技能草稿的差异反馈修复
 
 - projectSkillEditor 不再用“已保存自定义定义”作为差异计算开关。customized

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import source from './TimelineEditor.vue?raw';
 import actionBlockSource from './components/TimelineActionBlock.vue?raw';
+import hitDetailSource from './components/TimelineHitDetailDialog.vue?raw';
 
 function projectionSource(startMarker: string, endMarker: string): string {
   const start = source.indexOf(startMarker);
@@ -168,7 +169,9 @@ describe('Next timeline simulation projection retention', () => {
       '\nuseKeyboardShortcutScope',
     );
 
-    expect(modalGuard).toContain('hitDetailTarget.value !== null');
+    expect(modalGuard).not.toContain('hitDetailTarget.value !== null');
+    expect(hitDetailSource).toContain('<InputRegionBoundary');
+    expect(hitDetailSource).toContain(':active="visible" modal');
   });
 
   it('feeds the matching published operator panel into the legacy-shaped hit detail', () => {

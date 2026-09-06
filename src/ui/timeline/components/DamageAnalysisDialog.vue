@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed } from 'vue';
 import type { TimelineDamageAnalysis } from '../timelineDamageAnalysis';
 
@@ -34,70 +35,72 @@ function formatNumber(value: number): string {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    width="min(1180px, 92vw)"
-    top="5vh"
-    append-to-body
-    destroy-on-close
-    class="next-damage-analysis-dialog"
-    @update:model-value="$emit('update:visible', $event)"
-  >
-    <template #header>
-      <strong class="analysis-title">{{ labels.title }}</strong>
-    </template>
+  <InputRegionBoundary label="DamageAnalysisDialog" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      width="min(1180px, 92vw)"
+      top="5vh"
+      append-to-body
+      destroy-on-close
+      class="next-damage-analysis-dialog"
+      @update:model-value="$emit('update:visible', $event)"
+    >
+      <template #header>
+        <strong class="analysis-title">{{ labels.title }}</strong>
+      </template>
 
-    <div class="analysis-warning">{{ labels.warning }}</div>
-    <div v-if="!hasData" class="analysis-empty">{{ labels.noData }}</div>
-    <template v-else>
-      <div class="analysis-cards">
-        <section class="analysis-card">
-          <h3>{{ labels.damageByOperator }}</h3>
-          <div class="bar-list">
-            <div v-for="entry in analysis.byOperator" :key="entry.key" class="bar-row">
-              <span :title="entry.label">{{ entry.label }}</span>
-              <div><i :style="{ width: `${entry.ratio * 100}%` }"></i></div>
-              <b>{{ formatNumber(entry.value) }}</b>
+      <div class="analysis-warning">{{ labels.warning }}</div>
+      <div v-if="!hasData" class="analysis-empty">{{ labels.noData }}</div>
+      <template v-else>
+        <div class="analysis-cards">
+          <section class="analysis-card">
+            <h3>{{ labels.damageByOperator }}</h3>
+            <div class="bar-list">
+              <div v-for="entry in analysis.byOperator" :key="entry.key" class="bar-row">
+                <span :title="entry.label">{{ entry.label }}</span>
+                <div><i :style="{ width: `${entry.ratio * 100}%` }"></i></div>
+                <b>{{ formatNumber(entry.value) }}</b>
+              </div>
+              <div v-if="analysis.unattributedDamage > 0" class="analysis-note">
+                {{ labels.unattributedDamage(formatNumber(analysis.unattributedDamage)) }}
+              </div>
             </div>
-            <div v-if="analysis.unattributedDamage > 0" class="analysis-note">
-              {{ labels.unattributedDamage(formatNumber(analysis.unattributedDamage)) }}
+          </section>
+
+          <section class="analysis-card analysis-card--muted">
+            <h3>{{ labels.contributionByOperator }}</h3>
+            <p>{{ labels.contributionUnavailable }}</p>
+          </section>
+
+          <section class="analysis-card">
+            <h3>{{ labels.damageByElement }}</h3>
+            <div class="bar-list">
+              <div v-for="entry in analysis.byDamageType" :key="entry.key" class="bar-row">
+                <span :title="entry.label">{{ entry.label }}</span>
+                <div><i :style="{ width: `${entry.ratio * 100}%` }"></i></div>
+                <b>{{ formatNumber(entry.value) }}</b>
+              </div>
             </div>
+          </section>
+        </div>
+
+        <div class="analysis-summary">
+          <div>
+            <span>{{ labels.totalDamage }}</span
+            ><strong>{{ formatNumber(analysis.totalDamage) }}</strong>
           </div>
-        </section>
-
-        <section class="analysis-card analysis-card--muted">
-          <h3>{{ labels.contributionByOperator }}</h3>
-          <p>{{ labels.contributionUnavailable }}</p>
-        </section>
-
-        <section class="analysis-card">
-          <h3>{{ labels.damageByElement }}</h3>
-          <div class="bar-list">
-            <div v-for="entry in analysis.byDamageType" :key="entry.key" class="bar-row">
-              <span :title="entry.label">{{ entry.label }}</span>
-              <div><i :style="{ width: `${entry.ratio * 100}%` }"></i></div>
-              <b>{{ formatNumber(entry.value) }}</b>
-            </div>
+          <div>
+            <span>{{ labels.rotationTime }}</span
+            ><strong>{{ analysis.rotationSeconds.toFixed(2) }}s</strong>
           </div>
-        </section>
-      </div>
-
-      <div class="analysis-summary">
-        <div>
-          <span>{{ labels.totalDamage }}</span
-          ><strong>{{ formatNumber(analysis.totalDamage) }}</strong>
+          <div>
+            <span>{{ labels.dps }}</span
+            ><strong>{{ formatNumber(analysis.dps) }}</strong>
+          </div>
         </div>
-        <div>
-          <span>{{ labels.rotationTime }}</span
-          ><strong>{{ analysis.rotationSeconds.toFixed(2) }}s</strong>
-        </div>
-        <div>
-          <span>{{ labels.dps }}</span
-          ><strong>{{ formatNumber(analysis.dps) }}</strong>
-        </div>
-      </div>
-    </template>
-  </el-dialog>
+      </template>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>

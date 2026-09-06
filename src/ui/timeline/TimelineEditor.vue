@@ -4556,16 +4556,7 @@ function cycleOccupiedTrack(direction: -1 | 1): boolean {
 
 // Transitional fallback only for panels not yet owning a modal input region.
 // Migrated selectors/build/template editors isolate keyboard and gestures by region.
-const hasModalPanel = computed(
-  () =>
-    panelDialogTrack.value !== null ||
-    hitDetailTarget.value !== null ||
-    enemyDamageDetailSequence.value !== null ||
-    showDamageAnalysis.value ||
-    buffDetailTarget.value !== null ||
-    showShortcutHelp.value ||
-    resetDialogVisible.value,
-);
+const hasModalPanel = computed(() => resetDialogVisible.value);
 
 useInteractionBarrier(
   interactionSession,

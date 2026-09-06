@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 /**
  * 展示 Next Build Resolver 生成的静态面板及来源回执。
  *
@@ -142,76 +143,78 @@ const statRows = computed<readonly StatRow[]>(() => {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    :title="t('statDetail.title', { name: operatorName })"
-    width="420px"
-    class="stat-detail-dialog next-panel-dialog"
-    append-to-body
-    @update:model-value="$emit('update:visible', $event)"
-  >
-    <div v-if="panel" class="panel-content">
-      <section>
-        <h3>{{ t('statDetail.attributes') }}</h3>
-        <table>
-          <tbody>
-            <template v-for="row in attributeRows" :key="row.key">
-              <tr class="summary-row" @click="toggle(row.key)">
-                <td>
-                  <el-icon class="expand-icon" :class="{ open: expanded.has(row.key) }">
-                    <ArrowRight />
-                  </el-icon>
-                  {{ row.label }}
-                  <span v-if="operator?.mainAttribute === row.key" class="badge main">{{
-                    t('statDetail.main')
-                  }}</span>
-                  <span v-if="operator?.secondaryAttribute === row.key" class="badge sub">{{
-                    t('statDetail.sub')
-                  }}</span>
-                </td>
-                <td>{{ row.value }}</td>
-              </tr>
-              <tr
-                v-for="(source, index) in expanded.has(row.key) ? sourcesFor(row.key) : []"
-                :key="`${row.key}:${index}`"
-                class="source-row"
-              >
-                <td>{{ sourceLabel(source) }}</td>
-                <td>{{ sourceValue(source) }}</td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-      </section>
+  <InputRegionBoundary label="OperatorPanelDialog" :active="visible" modal>
+    <el-dialog
+      :model-value="visible"
+      :title="t('statDetail.title', { name: operatorName })"
+      width="420px"
+      class="stat-detail-dialog next-panel-dialog"
+      append-to-body
+      @update:model-value="$emit('update:visible', $event)"
+    >
+      <div v-if="panel" class="panel-content">
+        <section>
+          <h3>{{ t('statDetail.attributes') }}</h3>
+          <table>
+            <tbody>
+              <template v-for="row in attributeRows" :key="row.key">
+                <tr class="summary-row" @click="toggle(row.key)">
+                  <td>
+                    <el-icon class="expand-icon" :class="{ open: expanded.has(row.key) }">
+                      <ArrowRight />
+                    </el-icon>
+                    {{ row.label }}
+                    <span v-if="operator?.mainAttribute === row.key" class="badge main">{{
+                      t('statDetail.main')
+                    }}</span>
+                    <span v-if="operator?.secondaryAttribute === row.key" class="badge sub">{{
+                      t('statDetail.sub')
+                    }}</span>
+                  </td>
+                  <td>{{ row.value }}</td>
+                </tr>
+                <tr
+                  v-for="(source, index) in expanded.has(row.key) ? sourcesFor(row.key) : []"
+                  :key="`${row.key}:${index}`"
+                  class="source-row"
+                >
+                  <td>{{ sourceLabel(source) }}</td>
+                  <td>{{ sourceValue(source) }}</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </section>
 
-      <section>
-        <h3>{{ t('statDetail.stats') }}</h3>
-        <table>
-          <tbody>
-            <template v-for="row in statRows" :key="row.key">
-              <tr class="summary-row" @click="toggle(row.key)">
-                <td>
-                  <el-icon class="expand-icon" :class="{ open: expanded.has(row.key) }">
-                    <ArrowRight />
-                  </el-icon>
-                  {{ row.label }}
-                </td>
-                <td>{{ row.value }}</td>
-              </tr>
-              <tr
-                v-for="(source, index) in expanded.has(row.key) ? sourcesFor(row.key) : []"
-                :key="`${row.key}:${index}`"
-                class="source-row"
-              >
-                <td>{{ sourceLabel(source) }}</td>
-                <td>{{ sourceValue(source) }}</td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
-      </section>
-    </div>
-  </el-dialog>
+        <section>
+          <h3>{{ t('statDetail.stats') }}</h3>
+          <table>
+            <tbody>
+              <template v-for="row in statRows" :key="row.key">
+                <tr class="summary-row" @click="toggle(row.key)">
+                  <td>
+                    <el-icon class="expand-icon" :class="{ open: expanded.has(row.key) }">
+                      <ArrowRight />
+                    </el-icon>
+                    {{ row.label }}
+                  </td>
+                  <td>{{ row.value }}</td>
+                </tr>
+                <tr
+                  v-for="(source, index) in expanded.has(row.key) ? sourcesFor(row.key) : []"
+                  :key="`${row.key}:${index}`"
+                  class="source-row"
+                >
+                  <td>{{ sourceLabel(source) }}</td>
+                  <td>{{ sourceValue(source) }}</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </el-dialog>
+  </InputRegionBoundary>
 </template>
 
 <style scoped>
