@@ -63,7 +63,10 @@ showInHeadBarAttached / iconStyleInSquad=SpellAbnormal，未知项保留在普�
 - 导电和腐蚀按原生标签提前结束时，持续段与 BuffFinished 同帧，重复结束不产生第二次
   生命周期结束。初次用 consumeElementalReaction 检查失败，原因是它属于独立反应容器；
   当前导出弧光实际使用 finishBuffsByTag，测试改为该实际路径而未修改生产语义。
-- 原生 Buff 消费的额外瞬时图标仍待检查。这轮矩阵不等于浏览器整页或全部物理状态验收。
+- 后续已核对：旧版 ENEMY_EFFECT_EXPIRE/debuff 只截短持续段，REACTION_TRIGGER 仅
+  shatter 生成瞬时节点。导电/腐蚀普通消费不补额外图标。正式狼卫→佩丽卡→弧光战技
+  验证导电段在 BuffFinished(early) 同帧结束且保留转换连线。
+  这不等于浏览器整页或全部物理状态验收；碎冰须单独核对真实触发输出。
 
 2026-09-06 后续实际组件验证：tmp/attachment-visual.html 调用正式模拟服务，加载实际
 TimelineEnemyEffects（摘要生命值为测试占位，不用于生命曲线验收）。连续佩丽卡战技
