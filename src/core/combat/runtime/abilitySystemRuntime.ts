@@ -65,6 +65,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   ): void;
   /** 时间膨胀启用后分别推进技能时间线和冷却。 */
   advance?(timelineDeltaSeconds: number, cooldownDeltaSeconds: number): void;
+  readonly startedInCurrentFrame?: boolean;
 }
 
 /** Buff 运行时按定义为每个实例选择默认、全局或实体时钟。 */
@@ -738,17 +739,27 @@ export class AbilitySystemRuntime implements FrameRuntime {
     }
     if (this.#skillTickPlan !== undefined) {
       for (const entry of this.#skillTickPlan) {
-        entry.advanceCooldown(deltas.skillCooldownDeltaSeconds);
+        // 同一个原生技能的多次摆放共享冷却，任一实例当帧 DoCast 都保护该账本。
+        // 仅归零增量，不跳过 Tick：零时刻条件/动作仍有生命周期语义。
+        entry.advanceCooldown(
+          entry.skills.some(skill => skill.startedInCurrentFrame)
+            ? 0
+            : deltas.skillCooldownDeltaSeconds,
+        );
         for (const skill of entry.skills) {
           // 此模式下冷却由目录唯一推进，技能实例不能再推进第二次。
-          if (skill.advance !== undefined) skill.advance(deltas.selfScaledDeltaSeconds, 0);
+          if (skill.advance !== undefined)
+            skill.advance(skill.startedInCurrentFrame ? 0 : deltas.selfScaledDeltaSeconds, 0);
           else skill.advanceFrame();
         }
       }
     } else {
       for (const skill of this.#skills) {
         if (skill.advance !== undefined) {
-          skill.advance(deltas.selfScaledDeltaSeconds, deltas.skillCooldownDeltaSeconds);
+          skill.advance(
+            skill.startedInCurrentFrame ? 0 : deltas.selfScaledDeltaSeconds,
+            skill.startedInCurrentFrame ? 0 : deltas.skillCooldownDeltaSeconds,
+          );
         } else {
           skill.advanceFrame();
         }

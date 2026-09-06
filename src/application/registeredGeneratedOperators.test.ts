@@ -659,7 +659,7 @@ describe('registered generated operators', () => {
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'AbilityEntitySpawned',
-        frame: 45,
+        frame: 46,
         sourceId: 'track:avywenna:ultimate',
         data: expect.objectContaining({
           abilityEntityId: 'abilityentity_chr_0012_avywen_ultimate_skill_lance',
@@ -669,7 +669,7 @@ describe('registered generated operators', () => {
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'DamageApplied',
-        frame: 51,
+        frame: 52,
         sourceId: 'track:avywenna:ultimate',
         targetId: 'enemy',
       }),
@@ -677,7 +677,7 @@ describe('registered generated operators', () => {
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'TimeDilationEnded',
-        frame: 45,
+        frame: 46,
         sourceId: 'track:avywenna:ultimate',
         data: expect.objectContaining({ slot: 'ultimate' }),
       }),
@@ -747,7 +747,7 @@ describe('registered generated operators', () => {
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'DamageApplied',
-        frame: 46,
+        frame: 47,
         sourceId: 'track:avywenna:return',
         targetId: 'enemy',
       }),
@@ -932,7 +932,7 @@ describe('registered generated operators', () => {
     );
     expect(windows).toHaveLength(1);
     expect(windows[0]).toMatchObject({
-      frame: 118,
+      frame: 119,
       data: { nextSkillKey: 'comboSkill' },
     });
   });
@@ -1805,7 +1805,7 @@ describe('registered generated operators', () => {
     );
 
     expect(hits).toHaveLength(4);
-    expect(hits.map(entry => entry.frame)).toEqual([59, 63, 67, 72]);
+    expect(hits.map(entry => entry.frame)).toEqual([60, 64, 68, 73]);
     expect(hits.every(entry => Number(entry.data?.value) > 0)).toBe(true);
     expect(fluorite.conversionSupport).toEqual({
       completeness: 'complete',
@@ -2278,7 +2278,7 @@ describe('registered generated operators', () => {
     ).toEqual([
       expect.objectContaining({
         castId: ultimateCastId,
-        startFrame: 78,
+        startFrame: 79,
         endFrame: 300,
         completed: false,
       }),
@@ -2381,7 +2381,8 @@ describe('registered generated operators', () => {
       operator: zhuangFangyi,
       skillGroupKey: 'basicAttack',
       skillKey: 'basicAttack2',
-      startFrame: 16,
+      // 第一段施放当帧不推进；接续窗口要在下一次输入阶段才能观察到。
+      startFrame: 17,
       ids,
     }).scenario;
 
@@ -2504,7 +2505,7 @@ describe('registered generated operators', () => {
     const visibleMarkers = castModel.hitMarkers.filter(marker => actualHitFrames.has(marker.hitId));
     // 原生 sword_triggerd 先把总数减一；只有一把剑时普通段的 index < count 不成立，
     // 仅 index == count 的最后一剑生效。旧 Python 产物曾错误裁掉这两层条件而重复结算。
-    expect(visibleMarkers.map(marker => actualHitFrames.get(marker.hitId))).toEqual([28]);
+    expect(visibleMarkers.map(marker => actualHitFrames.get(marker.hitId))).toEqual([29]);
     expect(
       projectHitEffectsByCast(
         placed,
@@ -3497,7 +3498,7 @@ describe('registered generated operators', () => {
     const opened = result.receiptEntries.find(
       entry => entry.event === 'ComboWindowOpened' && entry.sourceId === 'track:sample:2',
     );
-    expect(opened?.frame).toBe(103);
+    expect(opened?.frame).toBe(104);
     const consumed = result.receiptEntries.find(
       entry => entry.event === 'ComboWindowConsumed' && entry.sourceId === 'track:sample:2',
     );

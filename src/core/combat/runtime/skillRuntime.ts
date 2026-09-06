@@ -340,6 +340,7 @@ export class SkillRuntime {
   #timeline: TimelineActionProcessor | null = null;
   #state: RuntimeSkillState = 'ready';
   #passedFrames = 0;
+  #castStartFrame: number | undefined;
   #appliedCost = false;
   #attemptedCost = false;
   #nonReturnedSpCost = 0;
@@ -434,6 +435,11 @@ export class SkillRuntime {
 
   get passedFrames(): number {
     return this.#passedFrames;
+  }
+
+  /** 原生比较 Unity frameCount；固定宿主一次更新映射一帧，不使用技能局部帧。 */
+  get startedInCurrentFrame(): boolean {
+    return this.#castStartFrame === this.#dependencies.clock.frame;
   }
 
   /** 原生 canInterrupt 的时间分支；当前全量 SkillData 未出现 MarkCanInterruptAction。 */
@@ -664,6 +670,7 @@ export class SkillRuntime {
     this.#operationContext.damageCalculationSnapshots!.clear();
     this.#timeline.reset(this.#context);
     this.#passedFrames = 0;
+    this.#castStartFrame = this.#dependencies.clock.frame;
     this.#appliedCost = this.#preparedSkipApplyCost;
     this.#attemptedCost = this.#preparedSkipApplyCost;
     this.#forceTimelinePayment = this.#preparedForceTimelinePayment;
@@ -696,7 +703,7 @@ export class SkillRuntime {
     this.advance(COMBAT_FRAME_INTERVAL, COMBAT_FRAME_INTERVAL);
   }
 
-  /** 技能时间线和冷却使用不同原生时钟；输入单位均为秒。 */
+  /** 低层显式增量入口，单位秒；AbilitySystem 分派负责施放当帧保护及共享冷却。 */
   advance(timelineDeltaSeconds: number, cooldownDeltaSeconds: number): void {
     if (
       !Number.isFinite(timelineDeltaSeconds) ||

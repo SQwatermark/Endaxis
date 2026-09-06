@@ -121,8 +121,7 @@ describe('所有正式干员技能逐项放置与模拟', () => {
             : operator.slug === 'arclight'
               ? 55
               : undefined;
-      // 精确演出回归使用已与真实来源探针对齐的零帧起点；非零起点的当帧推进另行核对。
-      const startFrame = presentationEnd === undefined ? placementContext.startFrame : 0;
+      const startFrame = placementContext.startFrame;
       const placed = placeSkillGroup({
         scenario: placementContext.scenario,
         trackIndex: 0,
@@ -159,7 +158,7 @@ describe('所有正式干员技能逐项放置与模拟', () => {
               .map(entry => [entry.frame, entry.data?.active]),
           ).toEqual([
             [startFrame, true],
-            [presentationEnd, false],
+            [startFrame + presentationEnd, false],
           ]);
         }
       }

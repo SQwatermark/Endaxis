@@ -45,6 +45,38 @@ class FixtureRuntime implements AbilitySkillRuntime {
 }
 
 describe('AbilitySystemRuntime', () => {
+  it('施放当帧两路增量归零，共享冷却只归零该技能，仍调用动作更新', () => {
+    const events: string[] = [];
+    const current = Object.assign(new FixtureRuntime('current', events), {
+      startedInCurrentFrame: true,
+      advance: (timeline: number, cooldown: number) =>
+        events.push(`current:${timeline}:${cooldown}`),
+    });
+    const other = Object.assign(new FixtureRuntime('other', events), {
+      startedInCurrentFrame: false,
+      advance: (timeline: number, cooldown: number) => events.push(`other:${timeline}:${cooldown}`),
+    });
+    const ability = new AbilitySystemRuntime({
+      skills: [current, other],
+      skillTickPlan: ['current', 'other'].map(skillId => ({
+        skillId,
+        advanceCooldown: delta => events.push(`cd:${skillId}:${delta}`),
+      })),
+    });
+    ability.advanceFrame();
+    expect(events).toEqual([
+      'cd:current:0',
+      'current:0:0',
+      `cd:other:${1 / 30}`,
+      `other:${1 / 30}:0`,
+    ]);
+    events.length = 0;
+    current.startedInCurrentFrame = false;
+    ability.advanceFrame();
+    expect(events[0]).toBe(`cd:current:${1 / 30}`);
+    expect(events[1]).toBe(`current:${1 / 30}:0`);
+  });
+
   it('目录按每个身份先冷却再动作，空槽只推进冷却，重复放置不重复推进', () => {
     const events: string[] = [];
     const ability = new AbilitySystemRuntime({

@@ -530,7 +530,11 @@ describe('SkillRuntime', () => {
     });
 
     expect(ability.tryStartSkill('enhancedBasicAttack1')).toBe(true);
-    for (let frame = 0; frame < 22; frame++) ability.advanceFrame();
+    for (let frame = 0; frame < 22; frame++) {
+      first.clock.advanceFrame();
+      second.clock.advanceFrame();
+      ability.advanceFrame();
+    }
 
     expect(first.runtime.state).toBe('casting');
     expect(ability.resolvePlayerInputSkill('enhancedBasicAttack2', 'basicAttack')).toEqual({

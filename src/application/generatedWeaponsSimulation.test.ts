@@ -35,7 +35,7 @@ describe('生成武器的正式模拟门禁', () => {
       entry =>
         entry.event === 'DamageApplied' &&
         entry.sourceId === 'track:weapon-owner' &&
-        entry.frame === 457,
+        entry.frame === 458,
     );
     expect(returnHits).toHaveLength(3);
     expect(returnHits.every(entry => entry.data?.damageType === 'electric')).toBe(true);

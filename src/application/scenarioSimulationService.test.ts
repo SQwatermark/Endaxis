@@ -215,7 +215,7 @@ describe('ScenarioSimulationService', () => {
     const opened = run.receiptEntries.find(entry => entry.event === 'ComboWindowOpened');
     const consumed = run.receiptEntries.find(entry => entry.event === 'ComboWindowConsumed');
 
-    expect(opened).toMatchObject({ frame: 27, sourceId: 'track:1' });
+    expect(opened).toMatchObject({ frame: 28, sourceId: 'track:1' });
     expect(consumed).toMatchObject({ frame: 30, sourceId: 'track:1' });
     expect(opened!.sequence).toBeLessThan(consumed!.sequence);
     expect(run.comboWindowDiagnostics).toEqual([]);

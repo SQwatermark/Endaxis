@@ -1344,8 +1344,8 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         .map(entry => entry.frame);
     };
 
-    expect(simulate(true)).toEqual([6, 8, 13, 15, 23]);
-    expect(simulate(false)).toEqual([6, 9, 14, 16, 24]);
+    expect(simulate(true)).toEqual([7, 9, 14, 16, 24]);
+    expect(simulate(false)).toEqual([7, 10, 15, 17, 25]);
   });
 
   it('runs Rossi delayed combo Buff trigger and local interval damage', () => {
@@ -2158,7 +2158,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         entry => entry.data?.castId === 'skillCast:1' && typeof entry.data.hitId === 'string',
       ),
     ).toBe(true);
-    expect(arclightDamage.map(entry => entry.frame)).toEqual([63, 119]);
+    expect(arclightDamage.map(entry => entry.frame)).toEqual([64, 120]);
   });
 
   it('accepts the generated Arclight battle skill Buff and entity-tag operations', () => {

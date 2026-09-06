@@ -44,7 +44,7 @@ describe('生成武器的目标状态与层数伤害分支', () => {
       expect(gains).toHaveLength(layers > 0 ? 1 : 0);
       if (layers > 0)
         expect(gains[0]).toMatchObject({
-          frame: 60,
+          frame: 61,
           sourceId: 'track:state-owner',
           targetId: 'track:state-owner',
         });

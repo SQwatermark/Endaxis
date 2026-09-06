@@ -90,7 +90,8 @@ describe('生成反应武器的连续触发生命周期', () => {
         const { active, baseline } = await simulatePair('wpn_pistol_0005', tier, plans);
         const buffs = applications(active, 'buff_wpn_pistol_0005_valid');
         expect(buffs).toHaveLength(2);
-        expect(buffs.map(buff => buff.frame)).toEqual([1, 301]);
+        // 宿主第 1 帧施放，局部第 1/301 帧在后续更新到达。
+        expect(buffs.map(buff => buff.frame)).toEqual([2, 302]);
         for (const buff of buffs) {
           expect(buff).toMatchObject({
             sourceId: 'track:reaction:0',
@@ -127,7 +128,7 @@ describe('生成反应武器的连续触发生命周期', () => {
         { holder: true, reactions: [1, 1, 2, 4, 5, 301], hits: [3, 6, 302, 603, 606, 902] },
       ]);
       const buffs = applications(active, 'buff_wpn_sword_0010_valid');
-      expect(buffs.map(buff => buff.frame)).toEqual([1, 5, 301]);
+      expect(buffs.map(buff => buff.frame)).toEqual([2, 6, 302]);
       // 六次真实复合状态申请只有三次通过 marker；不是后续反应未执行造成的假阴性。
       expect(
         active.filter(
@@ -138,7 +139,7 @@ describe('生成反应武器的连续触发生命周期', () => {
       ).toHaveLength(6);
       const ends = finishes(active, 'buff_wpn_sword_0010_valid');
       expect(ends).toHaveLength(3);
-      expect(ends[0]).toMatchObject({ frame: 301, data: { reason: 'other' } });
+      expect(ends[0]).toMatchObject({ frame: 302, data: { reason: 'other' } });
       for (const index of [1, 2]) {
         expect(ends[index]!.data?.reason).toBe('lifetime');
         expect(ends[index]!.time - buffs[index]!.time).toBeCloseTo(20, 1);
