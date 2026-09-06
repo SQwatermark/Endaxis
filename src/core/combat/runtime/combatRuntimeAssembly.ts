@@ -2,6 +2,8 @@
  * 将已解析资源和已编译技能组装成一次可执行的战斗运行时。
  * 这里只负责依赖接线与原生阶段顺序，不解析存档，也不为还没做通的战斗操作提供默认行为。
  */
+import { UltimatePresentationRuntime } from './ultimatePresentationRuntime';
+import { HideUiOperationExecutor } from './hideUiOperationExecutor';
 import type {
   CompiledComboSkillConditionProgram,
   CompiledOperatorInitializationProgram,
@@ -444,6 +446,7 @@ export class CombatRuntimeAssembly {
   readonly clock = new CombatClock();
   readonly resources: CombatResources;
   readonly receipt: CombatReceiptCollector;
+  readonly ultimatePresentation: UltimatePresentationRuntime;
   /** 全场唯一的连携窗口队列；诊断和投影应读取它，不得自行重算窗口顺序。 */
   readonly comboWindows: ComboWindowRuntime;
   /** 配装、连携和养成监听器共用的语义事件中心。 */
@@ -522,6 +525,7 @@ export class CombatRuntimeAssembly {
       ultimateEnergyGainMultiplier: options.resolveUltimateEnergyGainMultiplier,
     });
     this.receipt = options.receipt ?? new CombatReceiptCollector();
+    this.ultimatePresentation = new UltimatePresentationRuntime(this.clock, this.receipt);
     this.globalBuffs = new GlobalBuffRuntime(
       () => this.#requirePartyBuffTargets(),
       (sourceOperatorId, buffId) => {
@@ -2161,7 +2165,7 @@ export class CombatRuntimeAssembly {
         program.abilityEntityDefinitions?.[abilityEntityId] ??
         definitionOperator.abilityEntityDefinitions?.[abilityEntityId],
     );
-    const timeDilationOperations = this.#wrapTimeDilationOperations(
+    const timeDilationOperations = this.#wrapPresentationAndTimeOperations(
       abilityEntityOperations,
       operatorId,
       program.skillId,
@@ -2467,7 +2471,7 @@ export class CombatRuntimeAssembly {
       },
       abilityEntityId => operator.abilityEntityDefinitions?.[abilityEntityId],
     );
-    const timeDilationOperations = this.#wrapTimeDilationOperations(
+    const timeDilationOperations = this.#wrapPresentationAndTimeOperations(
       abilityEntityOperations,
       operatorId,
       sourceActionId,
@@ -2703,12 +2707,18 @@ export class CombatRuntimeAssembly {
     return abilitySystem;
   }
 
-  #wrapTimeDilationOperations(
+  #wrapPresentationAndTimeOperations(
     delegate: CombatOperationExecutor,
     operatorId: string,
     sourceActionId: string,
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
   ): CombatOperationExecutor {
+    delegate = new HideUiOperationExecutor(
+      this.ultimatePresentation,
+      operatorId,
+      sourceActionId,
+      delegate,
+    );
     if (this.timeDilation === null) return delegate;
     return new TimeDilationOperationExecutor({
       runtime: this.timeDilation,

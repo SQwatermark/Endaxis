@@ -246,6 +246,7 @@ export interface ResolvedCombatStepParameters {
   createAbilityEntityTimedMarker: CombatStepParameters['createAbilityEntityTimedMarker'];
   startTimeDilation: CombatStepParameters['startTimeDilation'];
   startUltimateTimeDilation: CombatStepParameters['startUltimateTimeDilation'];
+  hideUi: CombatStepParameters['hideUi'];
   setIgnoreGlobalTimeScale: CombatStepParameters['setIgnoreGlobalTimeScale'];
   storeCurrentTimelineFrame: CombatStepParameters['storeCurrentTimelineFrame'];
   storeEventSpGainAmount: CombatStepParameters['storeEventSpGainAmount'];

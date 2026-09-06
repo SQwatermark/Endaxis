@@ -404,6 +404,7 @@ function inspectSequence(
       case 'adjustSkillCooldown':
       case 'startTimeDilation':
       case 'startUltimateTimeDilation':
+      case 'hideUi':
       case 'setIgnoreGlobalTimeScale':
         return;
       case 'listenForCombatEvents':

@@ -2,6 +2,9 @@
 
 #### 2026-09-06 技能宽度与演出操作锁调查
 
+- 最新 TS 接通：公共 hideUi 步骤与必填 onlyBlockInput 校验、技能编译、独立 uiVisibility 来源分类及主动技能转换已实现，避免纯表现过滤丢掉区间。运行时共享 UltimatePresentationRuntime，按动作 Execute/End 记录 UltimatePresentationChanged（现实帧、来源动作、active/showUi），不依赖 TimeDilation、不自行建立引用计数。true 分支仍明确报 CommonMask 未支持。应用类型检查及生产编译器类型检查通过，定向 180 项、运行时 74 文件/876 项通过。
+- 尚未重新生成正式干员产物，未增加输入禁用诊断，未开放专门的 hideUi 图形编辑入口；不宣称浏览器效果或全局操作锁已完成。下一步先用真实来源重生成代表技能，核对条件/生命周期/回执，再接已确认的输入门禁。不得由块体裁切或 TimeDilation 区间推导演出起止。
+
 - 最新：复刻库 HideUiActionDataAdapter 已严格解析必填 onlyBlockInput 与动作头，注册公共 Buff 动作分派，并验证解析结果进入技能时间线。定向 23 项通过；扩展回归 121 通过、1 项来源目录定位失败。true 分支解析保留、执行仍明确未支持 CommonMask。Endaxis TS 来源层已保留字段，但公共步骤/转换输出/运行时回执/UI 诊断仍待接入；不能将复刻库绑定当作 Endaxis 支持完成。
 
 - 复刻库开始落地已确认部分：新增 HideUiAction(false) 的演出布尔状态与 UI 显隐通知，CombatSimulation → AbilitySystem → 动作上下文绑定共享 PlayerController。4 项新增测试通过，确认演出结束不结束更长技能、不改变时钟；true 分支仍明确未支持 CommonMask。相关回归 39 通过、1 来源扫描测试因 FindRepositoryRoot 缺失失败。尚未注册原始解析器、未接 Endaxis 转换/输入诊断，不宣称全局输入锁完成；下一步先完成来源动作绑定，再消费已确认的门禁。

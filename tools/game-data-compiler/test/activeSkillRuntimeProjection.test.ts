@@ -23,6 +23,23 @@ const ACTIVE_CONTEXT = {
   fixedHittableTargetCount: 0,
 } as const;
 
+describe('HideUI active source projection', () => {
+  it.each([false, true])('保留独立动作区间与分支 %s，不作为纯表现过滤', onlyBlockInput => {
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([meta('HideUIAction', { onlyBlockInput })]),
+      sourcePath: 'active.hide-ui',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+    });
+    expect(result.scheduledSequences).toHaveLength(1);
+    expect(result.scheduledSequences[0]).toMatchObject({
+      startFrame: 5,
+      endFrame: 8,
+      sequence: { steps: [{ kind: 'hideUi', parameters: { onlyBlockInput } }] },
+    });
+  });
+});
+
 function activeWithLaunch() {
   const skill = activeSkillFixture('chr_0012_avywen_normal_skill');
   skill.actionGroupData = {

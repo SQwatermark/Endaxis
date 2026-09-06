@@ -650,6 +650,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'startUltimateTimeDilation':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'hideUi':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'setIgnoreGlobalTimeScale':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'storeCurrentTimelineFrame':

@@ -579,6 +579,10 @@ export type KnownNativeActionLeafSource =
         | SetIgnoreGlobalTimeScaleActionSource
         | SealTimeDilationActionSource;
     }
+  | {
+      readonly family: 'uiVisibility';
+      readonly action: Extract<CameraPresentationActionSource, { kind: 'hideUi' }>;
+    }
   | { readonly family: 'damage'; readonly action: DamageActionSource }
   | {
       readonly family: 'presentation';
@@ -1114,7 +1118,7 @@ export function tryParseKnownNativeActionLeafSource(
       };
     case 'HideUIAction':
       return {
-        family: 'presentation',
+        family: 'uiVisibility',
         action: parseHideUiActionSource(value, path),
       };
     case 'UltimateShowAction':

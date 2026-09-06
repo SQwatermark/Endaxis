@@ -282,6 +282,7 @@ export type CompiledBuffStepSource =
   | Step<'startCurrentAbilityEntityChildSkillById'>
   | Step<'startTimeDilation', GlobalTimeDilation | EntityTimeDilation>
   | Step<'setIgnoreGlobalTimeScale'>
+  | Step<'hideUi'>
   | Step<
       'startUltimateTimeDilation',
       Pick<Parameters<'startUltimateTimeDilation'>, 'priority' | 'targetScale'> & {

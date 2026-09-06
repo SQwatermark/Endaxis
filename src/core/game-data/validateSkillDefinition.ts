@@ -2852,6 +2852,9 @@ function validateCombatStep(
       }
       break;
     }
+    case 'hideUi':
+      requireBoolean(parameters, 'onlyBlockInput', `${path}.parameters`, out);
+      break;
     case 'startUltimateTimeDilation': {
       const parameterPath = `${path}.parameters`;
       requireInteger(parameters, 'priority', parameterPath, out);

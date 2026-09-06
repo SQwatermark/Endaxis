@@ -87,6 +87,11 @@ export function compileActionNode(
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
   }
+  if (node.body.value.family === 'uiVisibility') {
+    return [
+      { kind: 'hideUi', parameters: { onlyBlockInput: node.body.value.action.onlyBlockInput } },
+    ];
+  }
   if (node.body.value.family === 'physicalInfliction') {
     return [
       node.body.value.action.kind === 'knockDown'

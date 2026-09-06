@@ -664,6 +664,8 @@ export interface CombatStepParameters {
     ignoredTargets: readonly TimeDilationIgnoreTarget[];
     ignoredAbilityEntityTargets?: readonly AbilityEntityTargetQuery[];
   };
+  /** 原生 HideUIAction；区间生命周期独立于时间膨胀，不代表全部操作不可用。 */
+  hideUi: { onlyBlockInput: boolean };
   /** 在动作区间内切换目标能力实体是否忽略全局时间倍率。 */
   setIgnoreGlobalTimeScale: {
     abilityEntityTargets: readonly AbilityEntityTargetQuery[];
@@ -937,6 +939,7 @@ export const COMBAT_STEP_KINDS = [
   'createAbilityEntityTimedMarker',
   'startTimeDilation',
   'startUltimateTimeDilation',
+  'hideUi',
   'setIgnoreGlobalTimeScale',
   'storeCurrentTimelineFrame',
   'storeEventSpGainAmount',
