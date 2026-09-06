@@ -6188,6 +6188,7 @@ function setPanelDialogVisible(visible: boolean): void {
     :visible="hitDetailTarget !== null || enemyDamageDetailSequence !== null"
     :allow-force-critical="hitDetailTarget !== null"
     :force-critical="hitDetailForceCritical"
+    :result-force-critical="publishedHitDetail?.forcedCritical ?? false"
     :entries="
       hitDetailTarget !== null ? (publishedHitDetail?.entries ?? []) : enemyDamageDetailEntries
     "

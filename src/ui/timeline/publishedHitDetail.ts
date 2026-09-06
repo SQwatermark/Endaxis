@@ -1,5 +1,6 @@
 import type { PublishedScenarioSimulation } from './useScenarioSimulation';
 import { projectTimelineHitDetailEntries } from './timelineHitEffects';
+import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
 
 /** 技能身份跨换轨保持稳定；查看旧结果不能使用当前轨道下标查找旧面板。 */
 export function projectPublishedHitDetail(
@@ -13,6 +14,9 @@ export function projectPublishedHitDetail(
     return {
       track,
       cast,
+      forcedCritical: (cast.simulationInputs?.forcedCriticalStepKeys ?? []).some(
+        key => deriveHitId(cast.id, key) === target.hitId,
+      ),
       entries: projectTimelineHitDetailEntries(published.run.receiptEntries, cast.id, target.hitId),
       operatorPanel:
         published.run.operatorPanels.find(panel => panel.operatorId === track.id) ?? null,

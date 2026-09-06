@@ -13,6 +13,8 @@ import { projectAttackPercentContributionSources } from '../operatorPanelContrib
 const props = defineProps<{
   visible: boolean;
   forceCritical: boolean;
+  /** 结果区使用发布快照；forceCritical 仅表示当前编辑中的复选框。 */
+  resultForceCritical: boolean;
   allowForceCritical?: boolean;
   sourceDescription?: (entry: CombatReceiptEntry) => string | undefined;
   sourceLabel?: string;
@@ -352,16 +354,16 @@ function onClose(): void {
           <div class="damage-result">
             <div class="expected-damage">
               <span class="damage-label">{{
-                forceCritical && detail.canForceCritical
+                resultForceCritical && detail.canForceCritical
                   ? labels.forcedDamage
                   : labels.expectedDamage
               }}</span>
               <span
                 class="damage-value"
-                :class="{ forced: forceCritical && detail.canForceCritical }"
+                :class="{ forced: resultForceCritical && detail.canForceCritical }"
                 >{{
                   num(
-                    forceCritical && detail.canForceCritical
+                    resultForceCritical && detail.canForceCritical
                       ? detail.criticalDamage
                       : detail.headline,
                   )
