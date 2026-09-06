@@ -875,6 +875,20 @@ function removeAssignment(key: string): void {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px 16px;
 }
+.buff-definition {
+  min-inline-size: 0;
+}
+@container (max-width: 650px) {
+  .buff-definition__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@container (max-width: 360px) {
+  .buff-definition .buff-definition__grid > label {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+}
 
 .buff-definition__grid label {
   min-width: 0;

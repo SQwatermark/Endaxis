@@ -1,5 +1,18 @@
 # 当前任务快照
 
+#### 2026-09-07 正式 Buff 工作区受限布局与字段可读性
+
+- Buff页原保留560px高、最小660px宽导图，未跟随宿主剩余空间。现在Buff页也接入
+  受限主内容，列表/引用说明/Inspector独立滚动；头部和项目保存页脚不再被撑走。
+- 实体Graph已验证的fillAvailable样式提取到definitionGraphViewport.css，以scoped
+  style供Buff/实体共用；只共享视口规则，不合并异构数据编辑器或历史。原实体样式
+  保持同等规则，container名改为通用definition-map，布局源码回归改读取共享文件。
+- 深色1280×720完整工作台先截图发现Buff根表单双列导致标签和输入叠压；BuffStepEditor
+  按容器650px改单列、360px下标签置顶，fieldset取消隐式最小宽度。复截图确认字段
+  可读，正式叠加组键输入layout-qa并保存成功。页面关闭，临时数据不入git。
+- 窄屏Buff页、其他类型Inspector仍需继续检查；不能将实体页窄屏证据沿用至Buff。
+- 1037项相关回归、应用类型检查通过（类型检查后仅补充表单CSS与测试）。
+
 #### 2026-09-07 导图鼠标锚点缩放的原点统一
 
 - 继续追踪上轮map-stage偏移，zoomAtPointer仍以viewport顶部作世界坐标原点，

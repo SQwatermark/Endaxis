@@ -846,7 +846,9 @@ function openReferencedDefinition(reference: {
 
         <main
           class="workspace-main"
-          :class="{ 'entity-editing': section === 'entities' && showEntityEditor }"
+          :class="{
+            'entity-editing': (section === 'entities' && showEntityEditor) || section === 'buffs',
+          }"
         >
           <nav class="workspace-breadcrumbs" aria-label="当前位置">
             <button @click="selectSection('panel')">{{ draft.displayName ?? draft.slug }}</button>
@@ -1460,7 +1462,10 @@ function openReferencedDefinition(reference: {
             </template>
           </section>
 
-          <section v-else-if="section === 'buffs'" class="definition-section split-section">
+          <section
+            v-else-if="section === 'buffs'"
+            class="definition-section split-section buff-editing-section"
+          >
             <aside class="object-list">
               <input v-model="objectSearch" class="object-search" placeholder="搜索 Buff…" />
               <button class="add-object" @click="addBuff">＋ 新增 Buff</button>
@@ -1506,6 +1511,7 @@ function openReferencedDefinition(reference: {
                 </button>
               </div>
               <BuffDefinitionGraphEditor
+                fill-available
                 :buff-id="selectedBuffId"
                 :definition="selectedBuff!"
                 :skill-level="skillLevel"
@@ -2158,5 +2164,38 @@ input:disabled {
     gap: 8px;
     padding: 8px;
   }
+}
+.definition-section.buff-editing-section {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  grid-template-columns: clamp(150px, 18vw, 210px) minmax(0, 1fr);
+  gap: 8px;
+}
+.buff-editing-section > .object-list {
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+}
+.buff-editing-section > .object-editor {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px;
+}
+.buff-editing-section > .object-editor > header {
+  flex: none;
+  margin-bottom: 8px;
+}
+.buff-editing-section .reference-guard {
+  flex: none;
+  max-height: 60px;
+  overflow: auto;
+  box-sizing: border-box;
+}
+.buff-editing-section :deep(.definition-graph-editor.fill-available) {
+  flex: 1;
+  height: auto;
 }
 </style>

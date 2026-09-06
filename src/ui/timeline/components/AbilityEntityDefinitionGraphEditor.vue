@@ -1053,43 +1053,5 @@ button {
     height: 420px;
   }
 }
-.definition-graph-editor.fill-available {
-  height: 100%;
-  min-height: 0;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 40%);
-  overflow: hidden;
-  box-sizing: border-box;
-}
-.fill-available > :first-child {
-  height: auto;
-  min-height: 0;
-  grid-template-rows: auto minmax(0, 1fr);
-  container-type: inline-size;
-  container-name: entity-map;
-}
-.fill-available :deep(.map-toolbar) {
-  flex-wrap: wrap;
-  min-height: 38px;
-  gap: 6px;
-  padding: 6px 10px;
-}
-@container entity-map (max-width: 480px) {
-  .fill-available :deep(.map-gesture-hint) {
-    display: none;
-  }
-}
-@container entity-map (max-width: 320px) {
-  .fill-available :deep(.map-toolbar) {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
-  .fill-available :deep(.map-toolbar > *) {
-    flex-shrink: 0;
-  }
-}
-.fill-available .definition-inspector {
-  min-height: 0;
-  padding: 10px;
-  overscroll-behavior: contain;
-}
 </style>
+<style scoped src="./definitionGraphViewport.css"></style>

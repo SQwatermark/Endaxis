@@ -101,6 +101,7 @@ const props = defineProps<{
   buffId: string;
   definition: SkillBuffDefinition;
   skillLevel: number;
+  fillAvailable?: boolean;
 }>();
 const emit = defineEmits<{ update: [definition: SkillBuffDefinition] }>();
 const selectedId = ref('buff');
@@ -674,7 +675,7 @@ async function deleteCurrent(): Promise<void> {
 </script>
 
 <template>
-  <div class="definition-graph-editor">
+  <div class="definition-graph-editor" :class="{ 'fill-available': fillAvailable }">
     <SkillStructureMindMap
       ref="map"
       :root="root"
@@ -968,6 +969,7 @@ button {
   }
 }
 </style>
+<style scoped src="./definitionGraphViewport.css"></style>
 
 <style>
 .lifecycle-picker {
