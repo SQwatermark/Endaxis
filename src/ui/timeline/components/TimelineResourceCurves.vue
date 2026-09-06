@@ -463,6 +463,10 @@ const spWarnings = computed(() => {
   color: #e0492f;
 }
 
+.curve-row--sp {
+  color: var(--ea-gold);
+}
+
 .curve-row--poise {
   color: #ff7875;
 }
@@ -504,7 +508,8 @@ const spWarnings = computed(() => {
   border-left: 3px solid #ff9c6e;
 }
 
-.curve-row--poise .curve-label strong {
+.curve-row--poise .curve-label strong,
+.curve-row--sp .curve-label strong {
   font:
     700 11px/1 Inter,
     -apple-system,
@@ -517,6 +522,10 @@ const spWarnings = computed(() => {
 
 .curve-row--sp .curve-label {
   border-left: 3px solid var(--ea-gold);
+  font-family:
+    Inter,
+    -apple-system,
+    sans-serif;
 }
 
 .curve-label small {

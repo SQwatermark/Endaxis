@@ -4,6 +4,11 @@ import source from './TimelineResourceCurves.vue?raw';
 import sectionsSource from './TimelineEnemyStatusSections.vue?raw';
 
 describe('TimelineResourceCurves compilation', () => {
+  it('uses the theme gold and legacy SP title typography', () => {
+    expect(source).toMatch(/\.curve-row--sp\s*\{\s*color: var\(--ea-gold\)/);
+    expect(source).toMatch(/\.curve-row--sp \.curve-label strong\s*\{\s*font:\s*700 11px\/1 Inter/);
+  });
+
   it('uses measured SP height without clamping negative facts onto the display floor', () => {
     expect(source).toContain("row.kind === 'sp' ? spBodyHeight.value : ROW_HEIGHT");
     expect(source).toContain("row.kind === 'sp' ? rawRatio : clamp(rawRatio, 0, 1)");
