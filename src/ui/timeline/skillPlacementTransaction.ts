@@ -23,7 +23,11 @@ export class SkillPlacementTransaction {
   async resolve(
     placed: PlaceSkillGroupResult,
     mode: 'continuation' | 'compact' = 'continuation',
-  ): Promise<{ readonly scenario: ScenarioDocument; readonly incomplete: boolean } | null> {
+  ): Promise<{
+    readonly scenario: ScenarioDocument;
+    readonly incomplete: boolean;
+    readonly error?: unknown;
+  } | null> {
     this.cancel();
     const request = this.#request;
     const revision = this.getRevision();
@@ -46,7 +50,8 @@ export class SkillPlacementTransaction {
         : { scenario: placed.scenario, incomplete: true };
     } catch (error) {
       if (!isCurrent()) return null;
-      throw error;
+      // 规划只是编辑建议。失败保留作者布局及原始错误，不能成为编辑门禁。
+      return { scenario: placed.scenario, incomplete: true, error };
     } finally {
       if (request === this.#request) this.#controller = null;
     }

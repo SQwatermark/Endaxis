@@ -53,6 +53,34 @@ function createChain(operator: OperatorDefinition) {
 }
 
 describe('generated basic attack chain input timing', () => {
+  it('keeps the complete authored chain undoable when the planning service throws', async () => {
+    const authored = createChain(perlica);
+    const original = structuredClone(authored);
+    original.tracks[0]!.skillCasts = [];
+    const session = new ScenarioEditorSession(original);
+    const error = new Error('unsupported simulation data');
+    const transaction = new SkillPlacementTransaction(
+      {
+        planSkillChain: () => {
+          throw error;
+        },
+      },
+      () => session.snapshot.revision,
+    );
+    const result = await transaction.resolve({
+      scenario: authored,
+      skillCastIds: authored.tracks[0]!.skillCasts.map(cast => cast.id),
+    });
+    expect(result).toEqual({ scenario: authored, incomplete: true, error });
+    if (!result) return;
+    session.commit('placeSkillGroup', () => result.scenario);
+    expect(session.snapshot.scenario).toEqual(authored);
+    expect(session.undo()).toBe(true);
+    expect(session.snapshot.scenario).toEqual(original);
+    expect(session.canUndo).toBe(false);
+    expect(session.redo()).toBe(true);
+    expect(session.snapshot.scenario).toEqual(authored);
+  });
   it('compacts Perlica heavy attack then battle skill despite the anchor input warning', async () => {
     const scenario = createChain(perlica);
     scenario.tracks[0]!.skillCasts = scenario.tracks[0]!.skillCasts.slice(-1);

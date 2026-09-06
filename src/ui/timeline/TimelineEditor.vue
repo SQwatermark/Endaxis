@@ -3577,15 +3577,14 @@ async function placeGroup(
   });
   let placedScenario = result.scenario;
   if (result.skillCastIds.length > 1) {
-    try {
-      const planned = await skillPlacementTransaction.resolve(result);
-      if (planned === null) return;
-      placedScenario = planned.scenario;
-      if (planned.incomplete) ElMessage.warning(t('timeline.chainPlacementIncomplete'));
-    } catch (error) {
-      ElMessage.error(error instanceof Error ? error.message : t('timeline.chainPlacementFailed'));
-      return;
-    }
+    const planned = await skillPlacementTransaction.resolve(result);
+    if (planned === null) return;
+    placedScenario = planned.scenario;
+    if (planned.incomplete) ElMessage.warning(t('timeline.chainPlacementIncomplete'));
+    if ('error' in planned)
+      ElMessage.error(
+        planned.error instanceof Error ? planned.error.message : t('timeline.chainPlacementFailed'),
+      );
   } else {
     skillPlacementTransaction.cancel();
   }
@@ -4196,23 +4195,18 @@ async function compactSelectedSkills(): Promise<void> {
     ),
   );
   let compacted = fallback;
-  try {
-    const result = await skillPlacementTransaction.resolve(
-      {
-        scenario: scenario.value,
-        skillCastIds: selection.castIds,
-      },
-      'compact',
-    );
-    if (result === null) return;
-    if (result.incomplete) {
-      ElMessage.warning(t('timeline.compactSelection.incomplete'));
-    } else compacted = result.scenario;
-  } catch (error) {
+  const result = await skillPlacementTransaction.resolve(
+    { scenario: original, skillCastIds: selection.castIds },
+    'compact',
+  );
+  if (result === null) return;
+  if (result.incomplete) {
     ElMessage.warning(t('timeline.compactSelection.incomplete'));
-    // 保留正式模拟错误的反馈，编辑仍按当前块宽完成。
-    if (error instanceof Error) ElMessage.error(error.message);
-  }
+  } else compacted = result.scenario;
+  if ('error' in result)
+    ElMessage.error(
+      result.error instanceof Error ? result.error.message : t('timeline.chainPlacementFailed'),
+    );
   const originalFrames = new Map(
     original.tracks.flatMap(track =>
       (track?.skillCasts ?? []).map(cast => [cast.id, cast.placement.startFrame] as const),

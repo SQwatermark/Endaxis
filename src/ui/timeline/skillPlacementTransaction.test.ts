@@ -7,15 +7,49 @@ type Result = Awaited<ReturnType<ScenarioSimulationService['planSkillChain']>>;
 function setup() {
   let revision = 0;
   const pending: ((result: Result) => void)[] = [];
+  const failures: ((error: unknown) => void)[] = [];
   const service = {
-    planSkillChain: vi.fn(() => new Promise<Result>(resolve => pending.push(resolve))),
+    planSkillChain: vi.fn(
+      () =>
+        new Promise<Result>((resolve, reject) => {
+          pending.push(resolve);
+          failures.push(reject);
+        }),
+    ),
   };
   const transaction = new SkillPlacementTransaction(service, () => revision);
   const placed = { scenario: createEmptyScenario('scenario', 'test'), skillCastIds: ['a', 'b'] };
-  return { transaction, service, pending, placed, edit: () => revision++ };
+  return { transaction, service, pending, failures, placed, edit: () => revision++ };
 }
 
 describe('SkillPlacementTransaction', () => {
+  it.each(['continuation', 'compact'] as const)(
+    'preserves editing and the error when %s planning fails',
+    async mode => {
+      const { transaction, failures, placed } = setup();
+      const error = new Error('missing simulation input');
+      const result = transaction.resolve(placed, mode);
+      failures[0]!(error);
+      expect(await result).toEqual({ scenario: placed.scenario, incomplete: true, error });
+    },
+  );
+  it.each(['edit', 'cancel', 'newer'] as const)(
+    'does not fall back over newer state after %s',
+    async reason => {
+      const { transaction, pending, failures, placed, edit } = setup();
+      const first = transaction.resolve(placed);
+      let second: ReturnType<typeof transaction.resolve> | undefined;
+      if (reason === 'edit') edit();
+      if (reason === 'cancel') transaction.cancel();
+      if (reason === 'newer') second = transaction.resolve(placed);
+      failures[0]!(new Error('late simulation failure'));
+      expect(await first).toBeNull();
+      if (second) {
+        pending[1]!({ status: 'incomplete', unresolvedCastIds: ['b'] });
+        expect(await second).not.toBeNull();
+      }
+    },
+  );
   it('preserves default author placement when planning is unresolved', async () => {
     const { transaction, pending, placed } = setup();
     const result = transaction.resolve(placed);
