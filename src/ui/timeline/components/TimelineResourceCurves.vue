@@ -9,6 +9,7 @@
 import { computed } from 'vue';
 import CustomNumberInput from '../../components/CustomNumberInput.vue';
 import { poiseProgressPoints } from '../poiseProgressPoints';
+import { poiseDisplayPoints } from '../poiseDisplayPoints';
 import type { SharedSpCurve } from '../../../core/projection/resourceCurves';
 import type { EnemyHealthCurve } from '../../../core/projection/enemyHealthCurves';
 import type { PoiseCurve } from '../../../core/projection/poiseCurves';
@@ -130,9 +131,14 @@ function baselineY(row: ResourceCurveRow): number {
   return pointY(row, 0);
 }
 
+/** 失衡绘图补保持点与显示终点；不改变原始事实点、标记和读数。 */
+function displayPoints(row: ResourceCurveRow): readonly ResourceCurvePointView[] {
+  return row.kind === 'poise' ? poiseDisplayPoints(row.points, duration.value) : row.points;
+}
+
 /** 旧版资源监控器直接连接相邻事实点；同帧的连续事实自然形成竖直线。 */
 function linePath(row: ResourceCurveRow): string {
-  const [first, ...rest] = row.points;
+  const [first, ...rest] = displayPoints(row);
   if (first === undefined) return '';
 
   let path = `M ${pointX(first.frame)} ${pointY(row, first.value)}`;
@@ -143,10 +149,11 @@ function linePath(row: ResourceCurveRow): string {
 }
 
 function fillPath(row: ResourceCurveRow): string {
-  const last = row.points.at(-1);
+  const points = displayPoints(row);
+  const last = points.at(-1);
   if (last === undefined) return '';
-  const points = row.points.map(point => `${pointX(point.frame)} ${pointY(row, point.value)}`);
-  return `M 0 ${baselineY(row)} L ${points.join(' L ')} L ${pointX(last.frame)} ${baselineY(row)} Z`;
+  const coordinates = points.map(point => `${pointX(point.frame)} ${pointY(row, point.value)}`);
+  return `M 0 ${baselineY(row)} L ${coordinates.join(' L ')} L ${pointX(last.frame)} ${baselineY(row)} Z`;
 }
 
 /** 每 5 秒一条的纵向网格线，和上方标尺对齐。 */

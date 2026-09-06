@@ -52,6 +52,10 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
     expect(curvesSource).toContain('function linePath');
     expect(curvesSource).not.toContain('function stepPath');
     expect(curvesSource).not.toContain('pointMarkerX');
+    expect(curvesSource).toContain('function displayPoints');
+    expect(curvesSource).toContain(
+      "row.kind === 'poise' ? poiseDisplayPoints(row.points, duration.value) : row.points",
+    );
     expect(curvesSource).toContain('v-for="value in [300, 200, 100]"');
     expect(curvesSource).toContain('curve-fill-${row.kind}');
     expect(curvesSource).toContain('stroke-width: 2');
