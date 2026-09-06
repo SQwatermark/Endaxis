@@ -1,5 +1,16 @@
 # 当前任务快照
 
+#### 2026-09-07 战斗步骤 Inspector 更新漏记历史
+
+- 核对曲线 update → TimeDilationStepEditor → replaceSelectedCombatStep 后发现父入口
+  直接修改 draft，未调用 commitStructureDraft。即使曲线只发出一次更新也没有撤销。
+- 该入口改用现有历史命令，与条件等 Inspector 一致，不新建另一套曲线历史。
+  新增生产 SkillDefinitionEditor setup 集成测试；修复前“撤销栈应有一项”失败，
+  修复后记录一项，undo/redo 恢复完整草稿，原始模板保持不变。
+- 这是父草稿/历史处理函数的证据，不是浏览器输入与渲染验证。曲线实际拖动及
+  Inspector 焦点下快捷键归属仍需检查，不能仅凭处理函数通过宣称完整撤销体验。
+- 954 项相关回归与应用类型检查通过。
+
 #### 2026-09-07 时间膨胀曲线拖动归属与一次提交
 
 - TimeScaleCurveEditor 接入区域 session。useTimeScaleCurveDrag 管理 pointer 身份、

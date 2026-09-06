@@ -526,7 +526,9 @@ function setSelectedSequenceFrame(field: 'startFrame' | 'endFrame', event: Event
 
 function replaceSelectedCombatStep(step: CombatStepDefinition): void {
   if (selectedCombatStep.value === undefined) return;
-  draft.value = replaceCombatStepAtPath(draft.value, selectedStructureSourcePath.value, step);
+  commitStructureDraft(
+    replaceCombatStepAtPath(draft.value, selectedStructureSourcePath.value, step),
+  );
 }
 
 function replaceSelectedCombatCondition(condition: CombatCondition): void {
