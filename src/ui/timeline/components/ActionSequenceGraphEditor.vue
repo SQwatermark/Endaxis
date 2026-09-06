@@ -36,7 +36,10 @@ import {
   createBuffIgniteEventResponseDraft,
   type EditableCombatStepKind,
 } from '../skillDefinitionEditorViewModel';
-import { useDefinitionDraftHistory } from '../useDefinitionDraftHistory';
+import {
+  useDefinitionDraftHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import CombatStepEditor from './CombatStepEditor.vue';
@@ -57,16 +60,19 @@ const props = defineProps<{
   skillLevel: number;
   createStep: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep: (step: CombatStepDefinition) => CombatStepDefinition;
+  sharedHistory?: DefinitionDraftHistory<ActionSequenceDefinition>;
 }>();
 const emit = defineEmits<{
   update: [sequence: ActionSequenceDefinition];
   details: [path: string];
 }>();
 const shell = ref<HTMLElement | null>(null);
-const history = useDefinitionDraftHistory(
-  () => props.sequence,
-  value => emit('update', value),
-);
+const history =
+  props.sharedHistory ??
+  useDefinitionDraftHistory(
+    () => props.sequence,
+    value => emit('update', value),
+  );
 useEditorHistoryShortcuts(shell, history.restore);
 const root = computed(() => buildActionSequenceMindMap(props.sequence));
 const nodes = computed(() => indexSkillStructureNodes(root.value));

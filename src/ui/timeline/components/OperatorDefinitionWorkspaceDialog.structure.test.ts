@@ -3,6 +3,7 @@ import workspaceSource from './OperatorDefinitionWorkspaceDialog.vue?raw';
 import runtimeBehaviorSource from './OperatorRuntimeBehaviorDialog.vue?raw';
 import upgradeModifierSource from './OperatorUpgradeModifierEditor.vue?raw';
 import upgradeBehaviorSource from './OperatorUpgradeBehaviorDialog.vue?raw';
+import sequenceWorkspaceSource from './ActionSequenceWorkspace.vue?raw';
 import comboDefinitionsSource from './OperatorComboDefinitionsDialog.vue?raw';
 import skillEditorDialogSource from './SkillDefinitionEditorDialog.vue?raw';
 import abilityEntityDefinitionsSource from './AbilityEntityDefinitionsDialog.vue?raw';
@@ -87,7 +88,10 @@ describe('OperatorDefinitionWorkspaceDialog structure', () => {
     expect(upgradeBehaviorSource).toContain('获得技力');
     expect(upgradeBehaviorSource).toContain('消费 Buff');
     expect(upgradeBehaviorSource).toContain('SkillBlackboardEditor');
-    expect(upgradeBehaviorSource).toContain('ActionSequenceEditor');
+    expect(upgradeBehaviorSource).toContain('ActionSequenceWorkspace');
+    expect(sequenceWorkspaceSource).toContain('ActionSequenceEditor');
+    expect(sequenceWorkspaceSource).toContain('ActionSequenceGraphEditor');
+    expect(sequenceWorkspaceSource.match(/:shared-history="history"/g)).toHaveLength(2);
     expect(upgradeBehaviorSource).not.toContain('<textarea');
   });
 

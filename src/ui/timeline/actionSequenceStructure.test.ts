@@ -31,7 +31,11 @@ it('exposes inline Buff ports only in the sequence host that supplies their Insp
     steps: [
       {
         kind: 'applyBuff',
-        parameters: { buffId: 'qa', definition: { stackingType: 'refresh', durationSeconds: 5 } },
+        parameters: {
+          buffId: 'qa',
+          target: 'caster',
+          definition: { stackingType: 'refresh', durationSeconds: 5 },
+        },
       },
     ],
   };

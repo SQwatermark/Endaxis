@@ -17,8 +17,7 @@ import {
   duplicateSkillEditorDetachedStep,
   type EditableCombatStepKind,
 } from '../skillDefinitionEditorViewModel';
-import ActionSequenceEditor from './ActionSequenceEditor.vue';
-import ActionSequenceGraphEditor from './ActionSequenceGraphEditor.vue';
+import ActionSequenceWorkspace from './ActionSequenceWorkspace.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 
 type UpgradeHandler = NonNullable<OperatorUpgradeDefinition['eventHandlers']>[number];
@@ -38,12 +37,6 @@ const draft = ref<OperatorUpgradeDefinition>(cloneStructureValue(props.upgrade))
 const category = ref<Category>('initialization');
 const selectedIndex = ref(0);
 const structureRevision = ref(0);
-const sequenceView = ref<'graph' | 'form'>('graph');
-const formPath = ref('');
-watch([category, selectedIndex, structureRevision], () => {
-  sequenceView.value = 'graph';
-  formPath.value = '';
-});
 const upgradeLevel = ref(1);
 const upgradeLevels = computed(() => Math.max(1, props.upgrade.levels ?? 1));
 const handlers = computed(() => draft.value.eventHandlers ?? []);
@@ -278,7 +271,7 @@ function save(): void {
           </button></template
         >
       </aside>
-      <main v-if="selectedSequence" :class="{ 'graph-main': sequenceView === 'graph' }">
+      <main v-if="selectedSequence" class="graph-main">
         <div class="behavior-metadata">
           <header>
             <div>
@@ -420,39 +413,7 @@ function save(): void {
             @update="updatePassiveBlackboard"
           />
         </div>
-        <div class="sequence-view-tabs">
-          <button
-            type="button"
-            :class="{ active: sequenceView === 'graph' }"
-            @click="sequenceView = 'graph'"
-          >
-            结构导图
-          </button>
-          <button
-            type="button"
-            :class="{ active: sequenceView === 'form' }"
-            @click="sequenceView = 'form'"
-          >
-            完整表单
-          </button>
-        </div>
-        <ActionSequenceGraphEditor
-          v-if="sequenceView === 'graph'"
-          :key="`${category}:${selectedIndex}:${structureRevision}`"
-          :sequence="selectedSequence"
-          :skill-level="editingLevel"
-          :create-step="createStep"
-          :duplicate-step="duplicateStep"
-          @update="updateSequence"
-          @details="
-            formPath = $event;
-            sequenceView = 'form';
-          "
-        />
-        <ActionSequenceEditor
-          v-else
-          :selected-path="formPath"
-          standalone-history
+        <ActionSequenceWorkspace
           :key="`${category}:${selectedIndex}:${structureRevision}`"
           :sequence="selectedSequence"
           :skill-level="editingLevel"
@@ -488,22 +449,6 @@ main.graph-main {
   max-height: 35%;
   overflow: auto;
 }
-.sequence-view-tabs {
-  display: flex;
-  flex: none;
-  gap: 6px;
-  padding: 6px 0;
-}
-.sequence-view-tabs .active {
-  color: var(--ea-gold);
-  border-color: var(--ea-gold);
-}
-.sequence-view-tabs button {
-  border: 1px solid var(--ea-border);
-  color: var(--ea-fg);
-  background: var(--ea-fill-input);
-  padding: 4px 8px;
-}
 .behavior-metadata > header {
   display: flex;
   justify-content: space-between;
@@ -512,11 +457,6 @@ main.graph-main {
 .behavior-metadata > header > div:first-child {
   display: grid;
   gap: 3px;
-}
-.graph-main :deep(.sequence-graph) {
-  flex: 1;
-  height: auto;
-  min-height: 0;
 }
 .embedded-editor {
   min-width: 0;

@@ -4,7 +4,10 @@
  * 技能调度、事件监听和 Buff 生命周期共用这里的步骤增删、排序、复制与参数编辑。
  */
 import { computed, inject, provide, ref, watch } from 'vue';
-import { useDefinitionDraftHistory } from '../useDefinitionDraftHistory';
+import {
+  useDefinitionDraftHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
 import { ACTION_SEQUENCE_EDITOR_CONTEXT } from '../actionSequenceEditorContext';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { useI18n } from 'vue-i18n';
@@ -39,15 +42,18 @@ const props = defineProps<{
   selectedPath?: string;
   /** Only standalone behavior hosts own history here; skill/graph hosts retain theirs. */
   standaloneHistory?: boolean;
+  sharedHistory?: DefinitionDraftHistory<ActionSequenceDefinition>;
 }>();
 const emit = defineEmits<{ update: [sequence: ActionSequenceDefinition] }>();
 const nestedEditor = inject(ACTION_SEQUENCE_EDITOR_CONTEXT, false);
 provide(ACTION_SEQUENCE_EDITOR_CONTEXT, true);
 const editorRoot = ref<HTMLElement | null>(null);
-const history = useDefinitionDraftHistory(
-  () => props.sequence,
-  value => emit('update', value),
-);
+const history =
+  props.sharedHistory ??
+  useDefinitionDraftHistory(
+    () => props.sequence,
+    value => emit('update', value),
+  );
 const ownsHistory = props.standaloneHistory === true && !nestedEditor;
 if (ownsHistory) useEditorHistoryShortcuts(editorRoot, history.restore);
 function publishSequence(value: ActionSequenceDefinition): void {

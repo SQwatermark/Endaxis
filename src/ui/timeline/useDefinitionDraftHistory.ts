@@ -1,10 +1,20 @@
-import { computed, shallowRef, watch } from 'vue';
+import { computed, shallowRef, watch, type ComputedRef } from 'vue';
 import { editorDefinitionsEqual } from '../editorDefinitionsEqual';
 import { cloneStructureValue } from './skillStructureEditorCommands';
 
+export interface DefinitionDraftHistory<T> {
+  commit(value: T): void;
+  restore(action: 'undo' | 'redo'): void;
+  readonly canUndo: ComputedRef<boolean>;
+  readonly canRedo: ComputedRef<boolean>;
+}
+
 /** History belongs to one mounted editing context. Hosts key instances by object identity.
  * An unrelated parent replacement also resets history instead of replaying old snapshots into it. */
-export function useDefinitionDraftHistory<T>(read: () => T, publish: (value: T) => void) {
+export function useDefinitionDraftHistory<T>(
+  read: () => T,
+  publish: (value: T) => void,
+): DefinitionDraftHistory<T> {
   const past = shallowRef<T[]>([]);
   const future = shallowRef<T[]>([]);
   let expected = cloneStructureValue(read());
