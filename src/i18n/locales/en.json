@@ -1081,7 +1081,7 @@
       "timeDilationSlot": "Slot",
       "invalidTimeDilationSlot": "Invalid GameplayTag (source value)",
       "unknownTimeDilationSlot": "Unregistered native slot",
-      "timeScaleCurveEditingHint": "Drag key points; double-click the graph to add one",
+      "timeScaleCurveEditingHint": "Drag key points; release to apply, Esc to cancel. Double-click the graph to add one",
       "timeDilationPriority": "Priority",
       "unknownTimeDilationPriority": "Unregistered native priority value",
       "timeDilationTargetScale": "Target time scale",

@@ -1073,7 +1073,7 @@
       "timeDilationSlot": "槽位",
       "invalidTimeDilationSlot": "无效 GameplayTag（源数据值）",
       "unknownTimeDilationSlot": "未登记的原生槽位",
-      "timeScaleCurveEditingHint": "拖动关键点；双击曲线区域添加关键点",
+      "timeScaleCurveEditingHint": "拖动关键点，松手提交，Esc 取消；双击曲线区域添加关键点",
       "timeDilationPriority": "优先级",
       "unknownTimeDilationPriority": "未登记的原生优先级值",
       "timeDilationTargetScale": "目标时间倍率",

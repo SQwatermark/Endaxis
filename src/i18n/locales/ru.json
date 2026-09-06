@@ -1036,7 +1036,7 @@
       "unknownGameplayTag": "Пользовательский тег вне каталога этой версии",
       "buffApplyTags": "GameplayTag активного экземпляра Buff. Проект и симуляция используют одинаковые читаемые пути.",
       "buffExtendTags": "Теги сопоставления продления Buff",
-      "timeScaleCurveEditingHint": "Перетаскивайте ключи; двойной щелчок добавляет ключ",
+      "timeScaleCurveEditingHint": "Перетаскивайте ключи; отпустите для применения, Esc — отмена. Двойной щелчок добавляет ключ",
       "timeDilationPriority": "Приоритет",
       "unknownTimeDilationPriority": "Незарегистрированное нативное значение приоритета",
       "timeDilationTargetScale": "Целевой масштаб времени",

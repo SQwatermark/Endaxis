@@ -3,6 +3,8 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { TimeScaleCurveKeyDefinition } from '../../../core/game-data/operatorDefinition';
 import { evaluateTimeScaleCurve } from '../../../core/combat/runtime/timeScaleCurve';
+import { useInteractionSession } from '../../interaction/interactionSessionContext';
+import { useTimeScaleCurveDrag } from '../useTimeScaleCurveDrag';
 
 const WIDTH = 520;
 const HEIGHT = 220;
@@ -20,13 +22,14 @@ const emit = defineEmits<{ update: [keys: readonly TimeScaleCurveKeyDefinition[]
 const { t } = useI18n({ useScope: 'global' });
 
 const svg = ref<SVGSVGElement>();
-const draggedIndex = ref<number>();
-const draggedDomain = ref<{
-  minTime: number;
-  maxTime: number;
-  minValue: number;
-  maxValue: number;
-}>();
+const drag = useTimeScaleCurveDrag({
+  session: useInteractionSession(),
+  keys: () => props.keys,
+  readonly: () => props.readonly,
+  commit: keys => emit('update', keys),
+});
+const draggedIndex = drag.index;
+const displayKeys = computed(() => drag.preview.value ?? props.keys);
 
 const domain = computed(() => {
   const times = props.keys.map(key => key.time);
@@ -49,7 +52,7 @@ const domain = computed(() => {
 
 const plotWidth = WIDTH - PADDING.left - PADDING.right;
 const plotHeight = HEIGHT - PADDING.top - PADDING.bottom;
-const displayDomain = computed(() => draggedDomain.value ?? domain.value);
+const displayDomain = domain;
 
 function xFor(time: number): number {
   return (
@@ -70,12 +73,12 @@ function yFor(value: number): number {
 }
 
 const curvePath = computed(() => {
-  if (props.keys.length === 0) return '';
+  if (displayKeys.value.length === 0) return '';
   const start = displayDomain.value.minTime;
   const end = displayDomain.value.maxTime;
   return Array.from({ length: 161 }, (_, index) => {
     const time = start + ((end - start) * index) / 160;
-    const value = evaluateTimeScaleCurve(props.keys, time);
+    const value = evaluateTimeScaleCurve(displayKeys.value, time);
     return `${index === 0 ? 'M' : 'L'} ${xFor(time).toFixed(2)} ${yFor(value).toFixed(2)}`;
   }).join(' ');
 });
@@ -98,31 +101,16 @@ function pointerValue(event: PointerEvent): { time: number; value: number } | un
 }
 
 function startDrag(index: number, event: PointerEvent): void {
-  if (props.readonly) return;
-  draggedIndex.value = index;
-  draggedDomain.value = { ...domain.value };
-  svg.value?.setPointerCapture(event.pointerId);
+  if (svg.value) drag.start(index, event, svg.value);
 }
 
 function moveDrag(event: PointerEvent): void {
-  const index = draggedIndex.value;
   const point = pointerValue(event);
-  if (props.readonly || index === undefined || point === undefined) return;
-  const previousTime = props.keys[index - 1]?.time ?? Number.NEGATIVE_INFINITY;
-  const nextTime = props.keys[index + 1]?.time ?? Number.POSITIVE_INFINITY;
-  const time = Math.min(nextTime - TIME_EPSILON, Math.max(previousTime + TIME_EPSILON, point.time));
-  const keys = props.keys.map((key, keyIndex) =>
-    keyIndex === index ? { ...key, time, value: point.value } : key,
-  );
-  emit('update', keys);
+  if (point) drag.move(event.pointerId, point);
 }
 
 function endDrag(event: PointerEvent): void {
-  if (draggedIndex.value === undefined) return;
-  draggedIndex.value = undefined;
-  draggedDomain.value = undefined;
-  if (svg.value?.hasPointerCapture(event.pointerId))
-    svg.value.releasePointerCapture(event.pointerId);
+  drag.finish(event.pointerId);
 }
 
 function addKey(event: MouseEvent): void {
@@ -157,7 +145,8 @@ function addKey(event: MouseEvent): void {
       :aria-label="t('timeline.skillEditing.timeDilationCurve')"
       @pointermove="moveDrag"
       @pointerup="endDrag"
-      @pointercancel="endDrag"
+      @pointercancel="drag.cancelPointer($event.pointerId)"
+      @lostpointercapture="drag.cancelPointer($event.pointerId)"
       @dblclick="addKey"
     >
       <rect
@@ -186,7 +175,7 @@ function addKey(event: MouseEvent): void {
         :y2="yFor(tick)"
       />
       <path class="curve-graph__line" :d="curvePath" />
-      <g v-for="(key, index) in keys" :key="index">
+      <g v-for="(key, index) in displayKeys" :key="index">
         <circle
           class="curve-graph__key"
           :class="{ 'curve-graph__key--dragging': draggedIndex === index }"
