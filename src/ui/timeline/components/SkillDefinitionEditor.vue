@@ -275,6 +275,7 @@ function duplicateNestedStep(step: Parameters<typeof duplicateSkillEditorDetache
 }
 
 function commitStructureDraft(next: SkillDefinition): void {
+  if (next === draft.value) return;
   structureUndoStack.value = [...structureUndoStack.value, cloneStructureValue(draft.value)];
   structureRedoStack.value = [];
   draft.value = next;
@@ -295,7 +296,7 @@ function setBlackboard(blackboard: NonNullable<SkillDefinition['blackboard']>): 
   const next = { ...draft.value };
   if (Object.keys(blackboard).length === 0) delete next.blackboard;
   else next.blackboard = blackboard;
-  draft.value = next;
+  commitStructureDraft(next);
 }
 
 watch(
@@ -322,37 +323,38 @@ function setField(
   const raw = (event.target as HTMLInputElement).value;
   const value = raw === '' ? undefined : Number(raw);
   if (value !== undefined && !Number.isFinite(value)) return;
-  draft.value = applySkillEditorField(draft.value, {
-    field,
-    value: value === undefined ? undefined : Math.round(value),
-  });
+  commitStructureDraft(
+    applySkillEditorField(draft.value, {
+      field,
+      value: value === undefined ? undefined : Math.round(value),
+    }),
+  );
 }
 
 function setEnhancementStateBuffId(event: Event): void {
-  draft.value = applySkillEditorEnhancementStateBuffId(
-    draft.value,
-    (event.target as HTMLInputElement).value,
+  commitStructureDraft(
+    applySkillEditorEnhancementStateBuffId(draft.value, (event.target as HTMLInputElement).value),
   );
 }
 
 function setCostValue(index: number, event: Event): void {
   const value = Number((event.target as HTMLInputElement).value);
   if (!Number.isFinite(value)) return;
-  draft.value = applySkillEditorCost(draft.value, index, { value: Math.round(value) });
+  commitStructureDraft(applySkillEditorCost(draft.value, index, { value: Math.round(value) }));
 }
 
 function setCostResource(index: number, event: Event): void {
   const resource = (event.target as HTMLSelectElement).value as CombatResource;
   if (!COMBAT_RESOURCES.includes(resource)) return;
-  draft.value = applySkillEditorCost(draft.value, index, { resource });
+  commitStructureDraft(applySkillEditorCost(draft.value, index, { resource }));
 }
 
 function appendCost(): void {
-  draft.value = appendSkillEditorCost(draft.value);
+  commitStructureDraft(appendSkillEditorCost(draft.value));
 }
 
 function removeCost(index: number): void {
-  draft.value = removeSkillEditorCost(draft.value, index);
+  commitStructureDraft(removeSkillEditorCost(draft.value, index));
 }
 
 function selectStructureNode(node: { readonly id: string }): void {

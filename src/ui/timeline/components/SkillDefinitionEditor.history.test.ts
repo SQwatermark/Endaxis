@@ -6,10 +6,31 @@ import SkillDefinitionEditor from './SkillDefinitionEditor.vue';
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
 
 describe('skill inspector history integration', () => {
-  it('records a combat-step replacement and restores the complete draft on undo/redo', async () => {
+  const input = (value: string) => ({ target: { value } });
+  const edits: [string, (editor: any) => void][] = [
+    [
+      'combat step',
+      editor =>
+        editor.replaceSelectedCombatStep({
+          kind: 'finishCurrentAbilityEntityWhenSourceDies',
+          parameters: {},
+        }),
+    ],
+    ['width', editor => editor.setField('timelineBlockFrames', input('20'))],
+    ['cooldown', editor => editor.setField('cooldownFrames', input('40'))],
+    ['cost frame', editor => editor.setField('costFrame', input('2'))],
+    ['enhancement buff', editor => editor.setEnhancementStateBuffId(input('custom-buff'))],
+    ['blackboard', editor => editor.setBlackboard({ test: 1 })],
+    ['cost value', editor => editor.setCostValue(0, input('25'))],
+    ['cost resource', editor => editor.setCostResource(0, input('ultimateEnergy'))],
+    ['add cost', editor => editor.appendCost()],
+    ['remove cost', editor => editor.removeCost(0)],
+  ];
+  it.each(edits)('records %s and restores the complete draft on undo/redo', async (_name, edit) => {
     const template: SkillDefinition = {
       key: 'test',
       timelineBlockFrames: 10,
+      costs: [{ resource: 'sp', value: 10 }],
       scheduledSequences: [
         {
           startFrame: 0,
@@ -49,10 +70,7 @@ describe('skill inspector history integration', () => {
     await renderToString(app);
     await editor.selectStructurePath('scheduledSequences[0].sequence.steps[0]');
     const before = JSON.parse(JSON.stringify(editor.draft.value));
-    editor.replaceSelectedCombatStep({
-      kind: 'finishCurrentAbilityEntityWhenSourceDies',
-      parameters: {},
-    });
+    edit(editor);
     const after = JSON.parse(JSON.stringify(editor.draft.value));
     expect(after).not.toEqual(before);
     expect(editor.structureUndoStack.value).toHaveLength(1);
@@ -61,6 +79,9 @@ describe('skill inspector history integration', () => {
     );
     await editor.restoreStructureHistory('undo');
     expect(editor.draft.value).toEqual(before);
+    editor.removeCost(999);
+    expect(editor.structureUndoStack.value).toHaveLength(0);
+    expect(editor.structureRedoStack.value).toHaveLength(1);
     await editor.restoreStructureHistory('redo');
     expect(editor.draft.value).toEqual(after);
   });
