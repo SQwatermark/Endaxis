@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { compileScript, compileStyle, compileTemplate, parse } from '@vue/compiler-sfc';
 import source from './TimelineResourceCurves.vue?raw';
+import sectionsSource from './TimelineEnemyStatusSections.vue?raw';
 
 describe('TimelineResourceCurves compilation', () => {
+  it('matches the old stagger dots, maximum line and 26px minimum body', () => {
+    expect(source).toMatch(/\.curve-row--poise \.curve-point\s*\{\s*stroke: none;/);
+    expect(source).toContain('class="poise-maximum-line"');
+    expect(source).toContain('background: rgba(255, 156, 110, 0.32)');
+    expect(sectionsSource).toContain('poise: 26');
+    expect(sectionsSource).toMatch(/key === 'poise' && !collapsed\[key\]\s*\? '40px'/);
+  });
   it('renders receipt intervals using measured poise height and shared timeline coordinates', () => {
     expect(source).toContain('new ResizeObserver(update)');
     expect(source).toContain('sizeObserver?.disconnect()');

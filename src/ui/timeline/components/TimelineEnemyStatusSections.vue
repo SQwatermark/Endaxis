@@ -188,7 +188,7 @@ watch(
             key === 'affliction' && !collapsed[key]
               ? `${props.afflictionMinimumHeight ?? 60}px`
               : key === 'poise' && !collapsed[key]
-                ? '60px'
+                ? '40px'
                 : undefined,
         }"
       >

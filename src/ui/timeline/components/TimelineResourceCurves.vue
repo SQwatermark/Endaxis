@@ -217,6 +217,12 @@ function readoutValue(row: ResourceCurveRow): number {
       class="curve-row"
       :class="`curve-row--${row.kind}`"
     >
+      <div
+        v-if="row.kind === 'poise'"
+        class="poise-maximum-line"
+        :style="{ left: `${trackHeaderWidth}px` }"
+        aria-hidden="true"
+      ></div>
       <TimelineMonitorGrid
         :width="width"
         :duration-frames="durationFrames"
@@ -420,6 +426,16 @@ function readoutValue(row: ResourceCurveRow): number {
   color: #ff7875;
 }
 
+.poise-maximum-line {
+  position: absolute;
+  right: 0;
+  top: 14px;
+  height: 1px;
+  background: rgba(255, 156, 110, 0.32);
+  z-index: 2;
+  pointer-events: none;
+}
+
 .curve-label {
   position: absolute;
   inset: 0 auto 0 0;
@@ -557,6 +573,10 @@ function readoutValue(row: ResourceCurveRow): number {
 
 .curve-point.is-negative {
   fill: #ff4d4f;
+}
+
+.curve-row--poise .curve-point {
+  stroke: none;
 }
 
 .sp-negative-zone {
