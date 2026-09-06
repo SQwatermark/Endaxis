@@ -162,6 +162,7 @@ import { createEmptyProject } from '../../core/project/createProject';
 import { serializeProjectDocument } from '../../core/project/serialization';
 import { openProject, type OpenProjectResult } from '../../application/openProject';
 import { downloadProjectJson } from './downloadProjectJson';
+import { createProjectFileReader } from './projectFileReader';
 import { gameDataRepository } from '../../data/gameDataRepository';
 import { skillSettings } from '../../data/combat/skillSettings';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
@@ -675,6 +676,8 @@ const damageAnalysis = computed(() =>
 );
 const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
 const savedProjectSnapshot = shallowRef(initialProject);
+const projectFileReader = createProjectFileReader(() => projectSession.snapshot.revision);
+onScopeDispose(() => projectFileReader.dispose());
 const projectDirty = ref(false);
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
 const timelinePrepPreviewFrames = ref<number | null>(null);
@@ -775,13 +778,12 @@ async function handleProjectFileChange(event: Event): Promise<void> {
   const file = input.files?.[0];
   input.value = '';
   if (file === undefined) return;
-  const editingProject = projectSession.snapshot.project;
   try {
-    const result = openProject(await file.text(), {
+    const content = await projectFileReader.read(file);
+    if (content === null) return;
+    const result = openProject(content, {
       gameDataRepository: gameDataRepository,
     });
-    if (projectSession.snapshot.project !== editingProject)
-      throw new Error('读取文件期间当前项目已变化，请重新加载');
     if (!result.ok) {
       ElMessage.error(projectOpenFailureMessage(result));
       return;

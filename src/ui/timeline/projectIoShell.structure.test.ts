@@ -12,7 +12,11 @@ describe('Next project I/O shell', () => {
 
   it('routes project files through the application open boundary', () => {
     expect(editorSource).toContain('import { openProject, type OpenProjectResult }');
-    expect(editorSource).toContain('openProject(await file.text()');
+    expect(editorSource).toContain('await projectFileReader.read(file)');
+    expect(editorSource).toContain('if (content === null) return');
+    expect(editorSource).toContain('openProject(content,');
+    expect(editorSource).toContain('projectSession.snapshot.revision');
+    expect(editorSource).toContain('onScopeDispose(() => projectFileReader.dispose())');
     expect(editorSource).toContain('projectSession.replaceProject(project)');
     expect(editorSource).toContain('type="file"');
     expect(editorSource).toContain('@change="handleProjectFileChange"');
