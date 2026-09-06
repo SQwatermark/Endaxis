@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../combat/receipt/combatReceipt';
 import type { PoiseChangePoint } from './poiseChangePoints';
-import { projectPoiseCurve, projectPoiseCurveFromReceipt } from './poiseCurves';
+import {
+  projectPoiseBrokenSegments,
+  projectPoiseCurve,
+  projectPoiseCurveFromReceipt,
+} from './poiseCurves';
 
 const INITIAL = { poise: 300, maxPoise: 300 };
 
@@ -151,5 +155,102 @@ describe('projectPoiseCurve', () => {
         },
       ]),
     ).toThrow('restored to 250, expected 300');
+  });
+});
+
+describe('projectPoiseBrokenSegments', () => {
+  it('ignores non-break hits and repeated hits, preserves separate cycles and clips future facts', () => {
+    const fact = (
+      frame: number,
+      event: string,
+      data: CombatReceiptEntry['data'],
+    ): CombatReceiptEntry => ({
+      sequence: frame,
+      frame,
+      time: frame / 30,
+      event,
+      data,
+    });
+    const entries = [
+      fact(1, 'PoiseApplied', { brokePoise: false, hasPoiseBrokenTag: false }),
+      fact(10, 'PoiseApplied', { brokePoise: true, hasPoiseBrokenTag: true }),
+      fact(11, 'PoiseApplied', { brokePoise: false, hasPoiseBrokenTag: true }),
+      fact(20, 'PoiseRecovered', { hasPoiseBrokenTag: false }),
+      fact(30, 'PoiseApplied', { brokePoise: true, hasPoiseBrokenTag: true }),
+      fact(50, 'PoiseBrokenTagEnded', { hasPoiseBrokenTag: false }),
+    ];
+    expect(projectPoiseBrokenSegments(entries, 40)).toEqual([
+      { startFrame: 10, endFrame: 20 },
+      { startFrame: 30, endFrame: 40 },
+    ]);
+    expect(projectPoiseBrokenSegments(entries, 9)).toEqual([]);
+  });
+
+  it('preserves a same-frame tag end without inventing a visible duration', () => {
+    expect(
+      projectPoiseBrokenSegments(
+        [
+          {
+            sequence: 1,
+            frame: 10,
+            time: 1 / 3,
+            event: 'PoiseApplied',
+            data: { brokePoise: true, hasPoiseBrokenTag: true },
+          },
+          {
+            sequence: 2,
+            frame: 10,
+            time: 1 / 3,
+            event: 'PoiseBrokenTagEnded',
+            data: { hasPoiseBrokenTag: false },
+          },
+        ],
+        20,
+      ),
+    ).toEqual([{ startFrame: 10, endFrame: 10 }]);
+  });
+
+  it('keeps the stripe active until the broken tag actually ends', () => {
+    const entries: CombatReceiptEntry[] = [
+      {
+        sequence: 0,
+        frame: 20,
+        time: 20 / 30,
+        event: 'PoiseApplied',
+        data: { brokePoise: true, hasPoiseBrokenTag: true },
+      },
+      {
+        sequence: 1,
+        frame: 50,
+        time: 50 / 30,
+        event: 'PoiseRecovered',
+        data: { hasPoiseBrokenTag: true },
+      },
+      {
+        sequence: 2,
+        frame: 65,
+        time: 65 / 30,
+        event: 'PoiseBrokenTagEnded',
+        data: { hasPoiseBrokenTag: false },
+      },
+    ];
+    expect(projectPoiseBrokenSegments(entries, 90)).toEqual([{ startFrame: 20, endFrame: 65 }]);
+  });
+
+  it('closes an open interval at the projection boundary', () => {
+    expect(
+      projectPoiseBrokenSegments(
+        [
+          {
+            sequence: 0,
+            frame: 20,
+            time: 20 / 30,
+            event: 'PoiseApplied',
+            data: { brokePoise: true, hasPoiseBrokenTag: true },
+          },
+        ],
+        70,
+      ),
+    ).toEqual([{ startFrame: 20, endFrame: 70 }]);
   });
 });

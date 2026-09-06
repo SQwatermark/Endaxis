@@ -13,6 +13,12 @@ export interface PoiseCurve {
   readonly points: readonly ResourceCurvePoint[];
 }
 
+/** 敌人处于失衡标签中的事实区间；只用于复刻资源监控器的条纹背景。 */
+export interface PoiseBrokenSegment {
+  readonly startFrame: number;
+  readonly endFrame: number;
+}
+
 /** 曲线初始失衡；调用方必须传和这次模拟完全一致的敌人数值。 */
 export interface PoiseCurveInitial {
   readonly poise: number;
@@ -146,4 +152,50 @@ export function projectPoiseRecoveredPoints(
     });
   }
   return points;
+}
+
+function optionalBoolean(
+  data: Readonly<Record<string, CombatReceiptValue>> | undefined,
+  key: string,
+): boolean | undefined {
+  const value = data?.[key];
+  return typeof value === 'boolean' ? value : undefined;
+}
+
+/**
+ * 旧版的失衡条纹从破韧持续到失衡标签结束。新版不从曲线形状反推状态，
+ * 只消费运行时已经记录的 `brokePoise` / `hasPoiseBrokenTag` 事实。
+ */
+export function projectPoiseBrokenSegments(
+  entries: readonly CombatReceiptEntry[],
+  endFrame: number,
+): readonly PoiseBrokenSegment[] {
+  if (!Number.isInteger(endFrame) || endFrame < 0) {
+    throw new RangeError('poise broken segment endFrame must be a non-negative integer');
+  }
+  const segments: PoiseBrokenSegment[] = [];
+  let startFrame: number | null = null;
+
+  for (const entry of entries) {
+    if (entry.frame > endFrame) break;
+    if (entry.event === 'PoiseApplied') {
+      if (
+        startFrame === null &&
+        optionalBoolean(entry.data, 'brokePoise') === true &&
+        optionalBoolean(entry.data, 'hasPoiseBrokenTag') === true
+      ) {
+        startFrame = entry.frame;
+      }
+      continue;
+    }
+    const endsBrokenTag =
+      (entry.event === 'PoiseRecovered' || entry.event === 'PoiseBrokenTagEnded') &&
+      optionalBoolean(entry.data, 'hasPoiseBrokenTag') === false;
+    if (!endsBrokenTag || startFrame === null) continue;
+    segments.push({ startFrame, endFrame: entry.frame });
+    startFrame = null;
+  }
+
+  if (startFrame !== null) segments.push({ startFrame, endFrame });
+  return segments;
 }

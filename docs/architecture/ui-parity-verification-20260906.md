@@ -234,4 +234,11 @@ viewport 1920×1080、deviceScaleFactor 1，不读写用户浏览器项目。
 - Chrome 实页中展开/收起两种按钮中心 Y=469.5，位于第二条分隔线 Y=464 的 10px 命中区内。elementFromPoint、真实鼠标点击均优先命中按钮，旁边分隔线仍能拖动。
 - 验证时发现上一轮部分暂存提交恢复未暂存补丁后，ResourceCurves 的 pattern、rect、警告 span 和 CSS 声明错位，导致 Invalid end tag。已恢复合法结构，新增组件编译回归测试；此类提交必须在提交后重新加载实页验证，不能只验证提交前状态。
 
+### 失衡状态区间与面板高度
+
+- 核对上游 ResourceMonitor 的 lockZones、stun-pattern-monitor 和 2s alternate 动画；新版区间由 brokePoise/hasPoiseBrokenTag 回执投影，不能从曲线是否到顶反推。
+- 补齐重复命中不重开区间、独立多次失衡、投影末帧截断、同帧结束不人为加宽的测试；并回归真实 CombatVitalsRuntime 的恢复与标签结束顺序。
+- 正式组件 Chrome 夹具发现固定 56px viewBox 会纵向拉伸文字。工作区已改为失衡图使用实际像素高度：70px/140px 面板中文字边界高度均为14px，条纹仍45度；已查看截图。技力绘图坐标不随本次修改。
+- 再次检查未暂存恢复内容，修复 spWarnings 落到 script 外、网格落入 label、测试嵌套等错位。资源组件及其接线仍在工作区，待剩余边界验收后整体提交，避免继续局部暂存破坏恢复位置。
+
 当前已有底部未提交改动尚未通过本轮完整审计，不可称“底部监控区完成”。
