@@ -2921,7 +2921,10 @@ function isTrackIdentitySelected(trackIndex: TrackIndex): boolean {
 }
 
 function locateBattleLogEntry(frame: number, castId: string | null): void {
-  const targetFrame = Math.max(0, Math.min(scenario.value.battle.durationFrames, frame));
+  const targetFrame = Math.max(
+    -scenario.value.battle.prepFrames,
+    Math.min(scenario.value.battle.durationFrames, frame),
+  );
   cursorFrame.value = targetFrame;
   if (castId !== null) {
     for (const track of viewModel.value.tracks) {

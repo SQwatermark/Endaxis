@@ -25,6 +25,7 @@ const log = (name: string, damage: number): TimelineBattleLogSnapshot => ({
 // Browser rendering and pointer/keyboard activation are separate verification.
 async function mount(initial: TimelineBattleLogSnapshot | null) {
   const current = shallowRef(initial);
+  const locations: Array<{ frame: number; castId: string | null }> = [];
   let panel: any;
   const renderer = createRenderer<object, object>({
     insert() {},
@@ -53,14 +54,34 @@ async function mount(initial: TimelineBattleLogSnapshot | null) {
         selectedCastId: null,
         eventLabel: String,
         damageTypeLabel: String,
+        onLocate: (frame: number, castId: string | null) => locations.push({ frame, castId }),
       }),
   });
   app.use(createI18n({ legacy: false, locale: 'en', messages: { en: {} } }));
   app.provide(ssrContextKey, { modules: new Set() });
   app.mount({});
   await nextTick();
-  return { current, panel, stop: () => app.unmount() };
+  return { current, panel, locations, stop: () => app.unmount() };
 }
+
+it('locates preparation receipts at their negative frame without toggling the group closed', async () => {
+  const initial = log('佩丽卡', 100);
+  const entry = { ...initial.entries[0]!, frame: -60, time: -2 };
+  const f = await mount({ ...initial, entries: [entry] });
+  try {
+    const group = f.panel.groupedEntries.value[0];
+    const event = { preventDefault() {} };
+    f.panel.locateGroup(group, event);
+    f.panel.locateGroup(group, event);
+    expect(f.panel.openGroupKey.value).toBe(group.key);
+    f.panel.locateEntry(group, entry);
+    expect(f.locations).toEqual(
+      Array.from({ length: 3 }, () => ({ frame: -60, castId: 'cast:1' })),
+    );
+  } finally {
+    f.stop();
+  }
+});
 
 it('holds receipts, group labels and source labels until one explicit refresh', async () => {
   const first = log('佩丽卡', 100);

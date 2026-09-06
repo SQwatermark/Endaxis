@@ -12,6 +12,16 @@ function projectionSource(startMarker: string, endMarker: string): string {
 }
 
 describe('Next timeline simulation projection retention', () => {
+  it('keeps preparation frames when navigating from a published battle log', () => {
+    const navigation = projectionSource(
+      'function locateBattleLogEntry',
+      '\nfunction pointerInTimelineSurface',
+    );
+    expect(navigation).toContain('-scenario.value.battle.prepFrames');
+    expect(navigation).toContain('Math.min(scenario.value.battle.durationFrames, frame)');
+    expect(navigation).toContain('timelineFramePx(targetFrame)');
+    expect(navigation).not.toContain('Math.max(0, Math.min');
+  });
   it('keeps cast starts and time-dilation bands while a drag simulation is pending', () => {
     const projections = projectionSource(
       'const skillCastActualStartFrames = computed',
