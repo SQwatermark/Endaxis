@@ -54,7 +54,8 @@ it.each(['repeat', 'convert'])('connects actual infliction instances: %s', async
   });
   const run = await service.simulate(scenario, 240);
   if (mode === 'convert') {
-    const conversions = projectEnemyEffectViz(run.receiptEntries, 240).attachmentConversions ?? [];
+    const viz = projectEnemyEffectViz(run.receiptEntries, 240);
+    const conversions = viz.attachmentConversions ?? [];
     expect(conversions).toHaveLength(1);
     const allSegments = projectBuffTimelineViz(run.receiptEntries, 240);
     const links = projectAttachmentConversionLinks(allSegments, conversions);
@@ -62,6 +63,9 @@ it.each(['repeat', 'convert'])('connects actual infliction instances: %s', async
     const [head, tail] = [...links][0]!;
     expect(head.buffId).not.toBe(tail.buffId);
     expect(head.endFrame).toBe(tail.startFrame);
+    expect(viz.markers.filter(marker => marker.kind === 'attachmentTrigger')).toEqual([
+      { frame: head.endFrame, kind: 'attachmentTrigger', element: 'heat' },
+    ]);
     return;
   }
   const ids = new Set(

@@ -17,6 +17,16 @@ function buff(buffId: string, extras: Partial<BuffTimelineSegment> = {}): BuffTi
 }
 
 describe('enemy status presentation rows', () => {
+  it('places the incoming conversion attachment above the resulting anomaly', () => {
+    const resultBuff = buff('result', { iconStyleInSquad: 'SpellAbnormal' });
+    const result = layoutEnemyStatusRows(
+      [resultBuff],
+      [{ kind: 'attachmentTrigger', frame: 0, element: 'electric' }],
+      attachmentIds,
+    );
+    expect(result.markerPositions).toEqual([{ row: 1, slot: 0 }]);
+    expect(result.lanes.get(resultBuff)).toBe(2);
+  });
   it('keeps attachment chains together irrespective of ordinary buff overlap or input order', () => {
     const first = buff('electric', { endFrame: 30 });
     const second = buff('electric', { startFrame: 30, layers: 2 });

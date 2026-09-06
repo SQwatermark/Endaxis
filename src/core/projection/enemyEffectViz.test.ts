@@ -12,6 +12,32 @@ function receipt(
 }
 
 describe('projectEnemyEffectViz', () => {
+  it.each(['heat', 'electric', 'cryo', 'nature'])(
+    'shows the incoming %s conversion attachment without fabricating a duration',
+    element => {
+      const result = projectEnemyEffectViz(
+        [
+          receipt(0, 20, 'ElementalInflictionApplied', {
+            requestedElement: element,
+            outcomeKind: 'compoundStatus',
+            currentLayers: 0,
+          }),
+          receipt(1, 30, 'ElementalInflictionApplied', {
+            requestedElement: element,
+            outcomeKind: 'attachmentOnly',
+            currentLayers: 1,
+          }),
+          receipt(2, 40, 'ElementalInflictionApplied', {
+            requestedElement: element,
+            outcomeKind: 'burst',
+            currentLayers: 2,
+          }),
+        ],
+        90,
+      );
+      expect(result).toEqual({ markers: [{ frame: 20, kind: 'attachmentTrigger', element }] });
+    },
+  );
   it('只投影爆发和成功消费等瞬时标记', () => {
     expect(
       projectEnemyEffectViz(

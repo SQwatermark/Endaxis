@@ -5,6 +5,7 @@
  * 坐标与资源曲线同一体系（准备区偏移 + 每帧像素 + 轨道头宽度，跟随时间轴滚动）。
  */
 import { computed, watch, useId } from 'vue';
+import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
 import { useDurationBarColor } from '../durationBarColorContext';
 import { resolveDurationBarColor } from '../durationBarColor';
 import { useI18n } from 'vue-i18n';
@@ -113,14 +114,27 @@ const statusRows = computed(() =>
 );
 const markers = computed(() =>
   props.viz.markers.map((marker, index) => {
+    const attachment =
+      marker.kind === 'attachmentTrigger'
+        ? elementalAttachments.buffs.find(
+            buff =>
+              buff.role?.kind === 'elementalAttachment' && buff.role.element === marker.element,
+          )
+        : undefined;
     const icon =
-      marker.kind === 'burst'
-        ? (getSpellBurstIconPath(marker.burstType) ?? DEFAULT_GAME_ICON_PATH)
-        : (getElementalReactionIconPath(marker.reaction) ?? DEFAULT_GAME_ICON_PATH);
+      marker.kind === 'attachmentTrigger'
+        ? (attachment?.presentation?.iconPath ??
+          getIconAssetPath(attachment?.presentation?.iconId) ??
+          DEFAULT_GAME_ICON_PATH)
+        : marker.kind === 'burst'
+          ? (getSpellBurstIconPath(marker.burstType) ?? DEFAULT_GAME_ICON_PATH)
+          : (getElementalReactionIconPath(marker.reaction) ?? DEFAULT_GAME_ICON_PATH);
     const title =
-      marker.kind === 'burst'
-        ? `${props.labels.burst} ${marker.burstType ?? ''}`
-        : `${props.labels.reactionConsumed} ${effectName(configuredNameKey(REACTION_BUFF_IDS[marker.reaction ?? '']), marker.reaction ?? '')}`;
+      marker.kind === 'attachmentTrigger'
+        ? resolveBuffDisplayName(attachment?.id ?? marker.element ?? '', { t, te })
+        : marker.kind === 'burst'
+          ? `${props.labels.burst} ${marker.burstType ?? ''}`
+          : `${props.labels.reactionConsumed} ${effectName(configuredNameKey(REACTION_BUFF_IDS[marker.reaction ?? '']), marker.reaction ?? '')}`;
     return {
       key: `${index}:${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
       icon,

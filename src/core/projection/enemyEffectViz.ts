@@ -9,7 +9,9 @@ import type { CombatReceiptEntry, CombatReceiptValue } from '../combat/receipt/c
 /** 一个不由持续 Buff 段表达的瞬时效果标记。 */
 export interface EnemyEffectMarker {
   readonly frame: number;
-  readonly kind: 'burst' | 'reactionConsumed';
+  readonly kind: 'burst' | 'reactionConsumed' | 'attachmentTrigger';
+  /** 只参与转换的输入元素，不代表创建了持续附着。 */
+  readonly element?: string;
   readonly burstType?: string;
   readonly reaction?: string;
   readonly level?: number;
@@ -86,6 +88,17 @@ export function projectEnemyEffectViz(
   const markers: EnemyEffectMarker[] = [];
   const attachmentConversions: AttachmentConversion[] = [];
   for (const entry of entries) {
+    if (entry.event === 'ElementalInflictionApplied') {
+      const data = requireData(entry);
+      if (data.outcomeKind === 'compoundStatus') {
+        markers.push({
+          frame: entry.frame,
+          kind: 'attachmentTrigger',
+          element: requireString(entry, data, 'requestedElement'),
+        });
+      }
+      continue;
+    }
     if (entry.event === 'ElementalAttachmentConverted') {
       const data = requireData(entry);
       if (!entry.targetId) throw new Error(`receipt ${entry.sequence} has no conversion target`);

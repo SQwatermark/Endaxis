@@ -42,7 +42,7 @@ export function layoutEnemyStatusRows<T extends BuffTimelineSegment>(
   // 旧版同一分区同一时刻的瞬时图标横向错开，不另挤出垂直行。
   const slots = new Map<string, number>();
   const markerPositions = markers.map(marker => {
-    const row = marker.kind === 'burst' ? attachmentRow : anomalyRow;
+    const row = marker.kind === 'reactionConsumed' ? anomalyRow : attachmentRow;
     const key = `${row}:${marker.frame}`;
     const slot = slots.get(key) ?? 0;
     slots.set(key, slot + 1);

@@ -45,6 +45,12 @@ showInHeadBarAttached / iconStyleInSquad=SpellAbnormal，未知项保留在普�
 区分。物理代表图标合并及密集瞬时节点的整体视觉验收尚未完成；隐藏复合状态工厂通过回调产生可见
 子 Buff 的场景，不能将根实例强行映射到任意同帧子项，后续需显式的输出关系。
 
+2026-09-06 已补参与反应的第二元素图标：旧版 triggerOnly 对应零时长输入节点；
+新版从 ElementalInflictionApplied.outcomeKind=compoundStatus 提取 requestedElement，
+只生成 attachmentTrigger 瞬时标记。图标由现有附着 role 对应的定义提供，放在附着行，
+与下方实际反应状态起点对齐。不依赖反应输出 Buff 可见性，不伪造持续实例。
+普通施加和同元素爆发不重复生成此标记。实际佩丽卡→狼卫组件截图确认显示。
+
 ## 验证
 
 2026-09-06 后续实际组件验证：tmp/attachment-visual.html 调用正式模拟服务，加载实际

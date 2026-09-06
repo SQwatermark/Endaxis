@@ -1,5 +1,14 @@
 # 当前任务快照
 
+#### 2026-09-06 修复反应第二附着图标缺失
+
+- ElementalInflictionApplied 的 compoundStatus 结果投影为 attachmentTrigger 瞬时
+  图标，使用 requestedElement 查现有附着 role 对应的导出图标。放在附着行，
+  与下方反应结果起点对齐；不伪造持续段或叠层，不更改反应模拟。
+- 普通施加和同元素爆发不重复生成该图标。覆盖四种输入元素、正式佩丽卡→狼卫
+  回执，以及输入图标/异常结果的分区位置。独立真实组件截图已确认图标显示。
+  18 项相关测试及应用类型检查通过。
+
 #### 2026-09-06 附着组件实际渲染与异常颜色修正
 
 - 用独立 tmp/attachment-visual.html 加载正式模拟服务和实际 TimelineEnemyEffects，
