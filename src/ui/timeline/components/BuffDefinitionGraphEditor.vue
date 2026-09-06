@@ -370,7 +370,7 @@ function updateSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): vo
     if (!Number.isFinite(value) || value < 0) return;
     next[field] = value;
   }
-  emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, next));
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, next));
 }
 async function addLifecycle(key: (typeof LIFECYCLE_KEYS)[number]): Promise<void> {
   emitStructureUpdate(
@@ -392,16 +392,16 @@ async function appendResponse(kind: 'buffAbilityResponse' | 'buffIgniteResponse'
 }
 function updateRootStep(step: CombatStepDefinition): void {
   if (step.kind === 'applyBuff' && step.parameters.definition !== undefined) {
-    emit('update', step.parameters.definition);
+    emitStructureUpdate(step.parameters.definition);
   }
 }
 function updateStep(step: CombatStepDefinition): void {
-  emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, step));
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, step));
 }
 function updateResponse(
   response: SkillBuffAbilityEventResponse | SkillBuffIgniteEventResponse,
 ): void {
-  emit('update', replaceStructureValueAtPath(props.definition, selectedPath.value, response));
+  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, response));
 }
 function updateCombatCondition(condition: CombatCondition): void {
   emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, condition));
