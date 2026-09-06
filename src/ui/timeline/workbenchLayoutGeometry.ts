@@ -16,6 +16,7 @@ export interface WorkbenchBottomHeightBounds {
 export function resolveWorkbenchBottomHeightBounds(
   workbenchHeight: number,
   fallbackHeight: number,
+  collapsedSectionCount = 0,
 ): WorkbenchBottomHeightBounds {
   const maximum =
     workbenchHeight > 0
@@ -28,7 +29,11 @@ export function resolveWorkbenchBottomHeightBounds(
         )
       : Math.max(0, fallbackHeight);
   return {
-    minimum: Math.min(WORKBENCH_BOTTOM_DEFAULT_HEIGHT, maximum),
+    minimum: Math.min(
+      WORKBENCH_BOTTOM_DEFAULT_HEIGHT *
+        (1 - Math.min(2, Math.max(0, collapsedSectionCount)) * 0.25),
+      maximum,
+    ),
     maximum,
   };
 }
@@ -37,9 +42,14 @@ export function resolveWorkbenchBottomHeight(
   workbenchHeight: number,
   requestedHeight: number,
   collapsed: boolean,
+  collapsedSectionCount = 0,
 ): number {
   if (collapsed) return 0;
-  const bounds = resolveWorkbenchBottomHeightBounds(workbenchHeight, requestedHeight);
+  const bounds = resolveWorkbenchBottomHeightBounds(
+    workbenchHeight,
+    requestedHeight,
+    collapsedSectionCount,
+  );
   return Math.round(
     Math.min(bounds.maximum, Math.max(bounds.minimum, Math.max(0, requestedHeight))),
   );

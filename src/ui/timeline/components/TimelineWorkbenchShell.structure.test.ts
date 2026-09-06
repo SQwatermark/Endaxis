@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import source from './TimelineWorkbenchShell.vue?raw';
 
 describe('TimelineWorkbenchShell legacy behavior parity', () => {
+  it('receives monitor folding count and preserves a 9px bottom resize target', () => {
+    expect(source).toContain('props.collapsedMonitorSectionCount ?? 0');
+    expect(source).toMatch(/\.bottom-resizer::after\s*\{[^}]*height: 9px/);
+  });
   it('notifies monitor sections when reopening the bottom panel from the activity bar', () => {
     expect(source).toContain('if (bottomCollapsed.value) bottomExpandAllToken.value += 1');
     expect(source).toContain(':expand-all-token="bottomExpandAllToken"');

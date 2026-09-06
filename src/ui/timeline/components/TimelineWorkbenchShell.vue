@@ -19,6 +19,7 @@ const DEFAULT_RIGHT_WIDTH = 260;
 const DEFAULT_BOTTOM_HEIGHT = WORKBENCH_BOTTOM_DEFAULT_HEIGHT;
 
 const props = defineProps<{
+  collapsedMonitorSectionCount?: number;
   labels: {
     library: string;
     globalConfig: string;
@@ -57,6 +58,7 @@ const effectiveBottomHeight = computed(() => {
     workbenchHeight.value,
     bottomHeight.value,
     bottomCollapsed.value,
+    bottomTool.value === 'enemy' ? (props.collapsedMonitorSectionCount ?? 0) : 0,
   );
 });
 
@@ -176,6 +178,7 @@ function beginResize(target: NonNullable<typeof resizing.value>, event: PointerE
       const bounds = resolveWorkbenchBottomHeightBounds(
         workbenchRef.value?.clientHeight ?? 0,
         initialBottom,
+        bottomTool.value === 'enemy' ? (props.collapsedMonitorSectionCount ?? 0) : 0,
       );
       bottomHeight.value = clamp(
         initialBottom - moveEvent.clientY + startY,
@@ -350,6 +353,7 @@ watch(
       <div
         v-show="!bottomCollapsed"
         class="bottom-resizer"
+        :class="{ 'is-active': resizing === 'bottom' }"
         @pointerdown="beginResize('bottom', $event)"
         @dblclick="resetPanelSize('bottom')"
       ></div>
@@ -779,10 +783,36 @@ watch(
 }
 
 .bottom-resizer {
+  position: relative;
+  z-index: 30;
   grid-row: 3;
   background: var(--ea-border-soft);
   cursor: ns-resize;
   touch-action: none;
+}
+
+.bottom-resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 9px;
+  transform: translateY(-50%);
+}
+
+.bottom-resizer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: var(--ea-active-fill);
+  transition: opacity 0.12s ease;
+}
+
+.bottom-resizer:hover::before,
+.bottom-resizer.is-active::before {
+  opacity: 1;
 }
 
 .bottom-panel {

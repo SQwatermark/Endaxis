@@ -1986,6 +1986,7 @@ const operatorControlTimeline = computed(() =>
 
 /** 旧版底部摘要固定取最后一次敌人受伤时刻，而不是跟随隐藏的编辑光标。 */
 const enemyEffectsMinimumHeight = ref(60);
+const collapsedMonitorSectionCount = ref(0);
 const enemyLastDamageFrame = computed(() => {
   const current = simulationRun.value;
   if (current === null) return null;
@@ -4458,6 +4459,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @change="handleProjectFileChange"
   />
   <TimelineWorkbenchShell
+    :collapsed-monitor-section-count="collapsedMonitorSectionCount"
     :labels="{
       library: t('timeline.activityBar.library'),
       globalConfig: t('timeline.activityBar.globalConfig'),
@@ -5445,6 +5447,7 @@ function setPanelDialogVisible(visible: boolean): void {
         </div>
         <div v-if="simulationRun !== null" class="simulation-curves">
           <TimelineEnemyStatusSections
+            @collapsed-count-change="collapsedMonitorSectionCount = $event"
             :expand-all-token="expandAllToken"
             :affliction-minimum-height="enemyEffectsMinimumHeight"
             :labels="{

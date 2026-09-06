@@ -6,6 +6,16 @@ import {
 
 describe('workbench bottom panel geometry', () => {
   it.each([
+    [0, 240],
+    [1, 180],
+    [2, 120],
+  ])('uses the legacy minimum with %i folded sections', (count, minimum) => {
+    expect(resolveWorkbenchBottomHeightBounds(1080, 240, count).minimum).toBe(minimum);
+    expect(resolveWorkbenchBottomHeight(1080, 1, false, count)).toBe(minimum);
+    expect(resolveWorkbenchBottomHeight(720, 1, false, count)).toBe(68);
+    expect(resolveWorkbenchBottomHeight(1080, 1, true, count)).toBe(0);
+  });
+  it.each([
     ['unmeasured root', 0, 240, false, 240],
     ['short 720px root', 720, 240, false, 68],
     ['exact default capacity', 892, 240, false, 240],

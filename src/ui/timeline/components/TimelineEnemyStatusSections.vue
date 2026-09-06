@@ -26,6 +26,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   collapsePanel: [];
+  collapsedCountChange: [count: number];
 }>();
 
 const collapsed = reactive<Record<SectionKey, boolean>>({
@@ -33,6 +34,12 @@ const collapsed = reactive<Record<SectionKey, boolean>>({
   poise: false,
   sp: false,
 });
+
+watch(
+  () => sectionKeys.filter(key => collapsed[key]).length,
+  count => emit('collapsedCountChange', count),
+  { immediate: true },
+);
 const sectionWeights = reactive<Record<SectionKey, number>>({
   affliction: 2,
   poise: 1,
