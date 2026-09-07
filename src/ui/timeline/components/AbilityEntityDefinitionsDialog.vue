@@ -35,11 +35,13 @@ const props = defineProps<{
   initialSelectedId?: string;
   operatorDefinition?: OperatorDefinition;
   sharedHistory?: DefinitionDraftHistory<OperatorAbilityEntityDefinitions>;
+  paged?: boolean;
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
   save: [definitions: OperatorAbilityEntityDefinitions];
   'reveal-reference': [reference: OperatorDefinitionReference];
+  'detail-change': [open: boolean];
 }>();
 const { t } = useI18n({ useScope: 'global' });
 
@@ -53,6 +55,12 @@ const draft = computed({
 });
 const editorRoot = ref<HTMLElement | null>(null);
 const selectedId = ref('');
+const detailOpen = ref(false);
+watch(detailOpen, open => emit('detail-change', open));
+function openDefinition(id: string): void {
+  selectedId.value = id;
+  detailOpen.value = mergedDefinitions.value[id] !== undefined;
+}
 const newId = ref('');
 const filterText = ref('');
 const mergedDefinitions = computed<Record<string, AbilityEntityDefinition>>(() => ({
@@ -103,6 +111,9 @@ watch(
     if (location?.objectId && mergedDefinitions.value[location.objectId]) {
       selectedId.value = location.objectId;
       filterText.value = '';
+      detailOpen.value = true;
+    } else if (props.paged) {
+      detailOpen.value = false;
     }
   },
   // 根草稿通过 props 下传，恢复选择必须等待本次根数据更新完成。
@@ -154,6 +165,7 @@ watch(
         : (ids[0] ?? '');
     newId.value = nextCustomId(ids);
     filterText.value = '';
+    detailOpen.value = Boolean(props.initialSelectedId && ids.includes(props.initialSelectedId));
   },
   { immediate: true },
 );
@@ -164,6 +176,9 @@ watch(
     if (id && mergedDefinitions.value[id]) {
       selectedId.value = id;
       filterText.value = '';
+      detailOpen.value = true;
+    } else if (props.paged) {
+      detailOpen.value = false;
     }
   },
 );
@@ -201,6 +216,7 @@ function addDefinition(): void {
     { path: '', objectId: id },
   );
   selectedId.value = id;
+  detailOpen.value = true;
   newId.value = nextCustomId([...allIds.value, id]);
 }
 
@@ -213,6 +229,7 @@ function duplicateDefinition(): void {
     { path: '', objectId: id },
   );
   selectedId.value = id;
+  detailOpen.value = true;
   newId.value = nextCustomId([...allIds.value, id]);
 }
 
@@ -225,11 +242,13 @@ function removeOrResetDefinition(): void {
   history.commit(next, { path: '', objectId: id });
   if (props.baseDefinitions[id] === undefined)
     selectedId.value = Object.keys({ ...props.baseDefinitions, ...next }).sort()[0] ?? '';
+  if (props.baseDefinitions[id] === undefined) detailOpen.value = false;
 }
 
 function revealReference(reference: OperatorDefinitionReference): void {
   if (reference.ownerKind === 'entity') {
     selectedId.value = reference.ownerId;
+    detailOpen.value = true;
     filterText.value = '';
     return;
   }
@@ -257,8 +276,8 @@ function save(): void {
         ← 返回能力实体概览
       </button>
     </header>
-    <div class="entity-workspace">
-      <aside class="entity-workspace__sidebar">
+    <div class="entity-workspace" :class="{ 'entity-workspace--paged': paged }">
+      <aside v-if="!paged || !detailOpen" class="entity-workspace__sidebar">
         <div class="entity-workspace__create">
           <input v-model="newId" type="text" @keydown.enter.prevent="addDefinition" />
           <button
@@ -288,7 +307,7 @@ function save(): void {
             class="entity-workspace__item"
             :class="{ active: id === selectedId }"
             :title="id"
-            @click="selectedId = id"
+            @click="openDefinition(id)"
           >
             <span class="entity-workspace__item-id">{{ id }}</span>
             <span v-if="draft[id]" class="entity-workspace__badge">
@@ -317,9 +336,17 @@ function save(): void {
         </div>
       </aside>
 
-      <main class="entity-workspace__editor">
+      <main v-if="!paged || detailOpen" class="entity-workspace__editor">
         <template v-if="editingStep">
           <div class="entity-workspace__toolbar">
+            <button
+              v-if="paged"
+              type="button"
+              class="ea-btn ea-btn--sm"
+              @click="detailOpen = false"
+            >
+              ← 返回能力实体列表
+            </button>
             <strong>{{ selectedId }}</strong>
             <span v-if="selectedIsBase && !selectedIsOverride" class="entity-workspace__source">
               {{ t('timeline.skillEditing.abilityEntityGenerated') }}
@@ -460,6 +487,15 @@ function save(): void {
   border-right: 1px solid var(--ea-border-soft);
   background: var(--ea-fill-soft);
 }
+.entity-workspace.entity-workspace--paged {
+  grid-template-columns: minmax(0, 1fr);
+}
+.entity-workspace--paged .entity-workspace__sidebar {
+  border-right: 0;
+}
+.entity-workspace--paged .entity-workspace__create {
+  max-width: 560px;
+}
 .entity-workspace__create {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -586,6 +622,10 @@ function save(): void {
   color: var(--el-color-danger);
 }
 .entity-reference-guard {
+  max-height: 64px;
+  flex: none;
+  overflow: auto;
+  box-sizing: border-box;
   display: grid;
   gap: 5px;
   min-width: 0;

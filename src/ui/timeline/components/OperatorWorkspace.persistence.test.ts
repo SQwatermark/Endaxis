@@ -86,7 +86,7 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
   app.mount({});
   const edit = () => {
     panel.selectSection('buffs');
-    panel.selectedBuffId.value = 'qa';
+    panel.openBuffDetail('qa');
     panel.updateBuffStep({
       kind: 'applyBuff',
       parameters: { definition: { stackingType: 'refresh' } },
@@ -102,6 +102,35 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
   try {
     // Focus is scoped to the active section; leaving/canceling does not alter the draft.
     const initial = JSON.stringify(panel.draft.value);
+    panel.selectSection('buffs');
+    expect(panel.buffDetailOpen.value).toBe(false);
+    panel.openBuffDetail('qa');
+    expect(panel.focusedPage.value).toBe(true);
+    // 详情只改变页面，不进入旧的子草稿保存模式，也不产生历史。
+    expect(panel.editingFocusedDefinition.value).toBe(false);
+    expect(panel.history.canUndo.value).toBe(false);
+    panel.buffDetailOpen.value = false;
+    expect(JSON.stringify(panel.draft.value)).toBe(initial);
+    panel.addBuff();
+    const addedId = panel.selectedBuffId.value;
+    panel.history.restore('undo');
+    await nextTick();
+    expect(panel.buffDetailOpen.value).toBe(false);
+    panel.history.restore('redo');
+    await nextTick();
+    expect(panel.buffDetailOpen.value).toBe(true);
+    expect(panel.selectedBuffId.value).toBe(addedId);
+    panel.removeBuff();
+    expect(panel.buffDetailOpen.value).toBe(false);
+    panel.history.restore('undo');
+    await nextTick();
+    expect(panel.buffDetailOpen.value).toBe(true);
+    expect(panel.selectedBuffId.value).toBe(addedId);
+    // 重新打开根草稿以继续原项目保存验证。
+    visible.value = false;
+    await nextTick();
+    visible.value = true;
+    await nextTick();
     for (const [section, flag] of [
       ['progression', 'showUpgradeBehaviorEditor'],
       ['runtime', 'showRuntimeBehaviorEditor'],
@@ -128,6 +157,7 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     panel.entityHistory.restore('undo');
     await nextTick();
     expect(panel.section.value).toBe('buffs');
+    expect(panel.buffDetailOpen.value).toBe(true);
     expect(panel.draft.value.buffDefinitions.qa.durationSeconds).toBe(10);
     panel.entityHistory.restore('redo');
     panel.entityHistory.restore('redo');

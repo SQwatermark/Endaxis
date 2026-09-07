@@ -100,6 +100,8 @@ const panelLevel = ref(90);
 const selectedGroupIndex = ref(0);
 const selectedSkillIndex = ref(0);
 const selectedBuffId = ref('');
+const buffDetailOpen = ref(false);
+const entityDetailOpen = ref(false);
 const showSkillEditor = ref(false);
 const showRuntimeBehaviorEditor = ref(false);
 const showUpgradeBehaviorEditor = ref(false);
@@ -112,6 +114,13 @@ const editingBehavior = computed(
 const editingFocusedDefinition = computed(
   () => editingBehavior.value || (section.value === 'skills' && showSkillEditor.value),
 );
+// 保存范围不因进入详情改变；这里只决定页面布局，不接管子草稿生命周期。
+const editingPeerDefinition = computed(
+  () =>
+    (section.value === 'buffs' && buffDetailOpen.value) ||
+    (section.value === 'entities' && entityDetailOpen.value),
+);
+const focusedPage = computed(() => editingFocusedDefinition.value || editingPeerDefinition.value);
 const referencedEntityId = ref('');
 const objectSearch = ref('');
 const showProblems = ref(false);
@@ -126,6 +135,8 @@ watch(
     if (!visible) return;
     draft.value = clone(props.customDefinition ?? props.baseDefinition);
     section.value = 'panel';
+    buffDetailOpen.value = false;
+    entityDetailOpen.value = false;
     selectedGroupIndex.value = 0;
     selectedSkillIndex.value = 0;
     selectedBuffId.value = Object.keys(draft.value.buffDefinitions ?? {}).sort()[0] ?? '';
@@ -239,7 +250,7 @@ const sectionLabel = computed(() => {
 });
 const objectLabel = computed(() => {
   if (section.value === 'skills') return selectedGroup.value?.key ?? '';
-  if (section.value === 'buffs') return selectedBuffId.value;
+  if (section.value === 'buffs') return buffDetailOpen.value ? selectedBuffId.value : '';
   return '';
 });
 
@@ -287,7 +298,7 @@ watch(
   location => {
     if (!location?.section) return;
     selectSection(location.section as Section);
-    if (location.section === 'buffs' && location.objectId) selectedBuffId.value = location.objectId;
+    if (location.section === 'buffs' && location.objectId) openBuffDetail(location.objectId);
     if (location.section === 'entities' && location.objectId)
       referencedEntityId.value = location.objectId;
   },
@@ -737,25 +748,38 @@ function addBuff(): void {
   let index = 1;
   while (existing.has(`custom-buff-${index}`)) index += 1;
   const id = `custom-buff-${index}`;
-  commitDraft({
-    ...draft.value,
-    buffDefinitions: {
-      ...(draft.value.buffDefinitions ?? {}),
-      [id]: { stackingType: 'refresh', durationSeconds: 10 },
+  history.commit(
+    {
+      ...draft.value,
+      buffDefinitions: {
+        ...(draft.value.buffDefinitions ?? {}),
+        [id]: { stackingType: 'refresh', durationSeconds: 10 },
+      },
     },
-  });
+    { path: '', section: 'buffs', objectId: id },
+  );
   selectedBuffId.value = id;
+  buffDetailOpen.value = true;
 }
 
 function removeBuff(): void {
   if (selectedBuffId.value === '' || selectedBuffReferences.value.length > 0) return;
   const next = { ...(draft.value.buffDefinitions ?? {}) };
   delete next[selectedBuffId.value];
-  commitDraft({
-    ...draft.value,
-    buffDefinitions: Object.keys(next).length === 0 ? undefined : next,
-  });
+  history.commit(
+    {
+      ...draft.value,
+      buffDefinitions: Object.keys(next).length === 0 ? undefined : next,
+    },
+    { path: '', section: 'buffs', objectId: selectedBuffId.value },
+  );
   selectedBuffId.value = Object.keys(next).sort()[0] ?? '';
+  buffDetailOpen.value = false;
+}
+
+function openBuffDetail(id: string): void {
+  selectedBuffId.value = id;
+  buffDetailOpen.value = draft.value.buffDefinitions?.[id] !== undefined;
 }
 
 function revealDefinitionReference(reference: OperatorDefinitionReference): void {
@@ -772,6 +796,7 @@ function revealDefinitionReference(reference: OperatorDefinitionReference): void
   if (reference.ownerKind === 'buff') {
     section.value = 'buffs';
     selectedBuffId.value = reference.ownerId;
+    openBuffDetail(reference.ownerId);
     objectSearch.value = reference.ownerId;
     return;
   }
@@ -824,6 +849,9 @@ function save(): void {
 
 function selectSection(value: Section): void {
   section.value = value;
+  buffDetailOpen.value = false;
+  entityDetailOpen.value = false;
+  referencedEntityId.value = '';
   objectSearch.value = '';
   showRuntimeBehaviorEditor.value = false;
   showUpgradeBehaviorEditor.value = false;
@@ -847,6 +875,7 @@ function openReferencedDefinition(reference: {
   if (reference.kind === 'buff') {
     section.value = 'buffs';
     selectedBuffId.value = reference.id;
+    openBuffDetail(reference.id);
     objectSearch.value = reference.id;
     return;
   }
@@ -876,12 +905,8 @@ function openReferencedDefinition(reference: {
         </div>
       </template>
 
-      <div
-        ref="workspaceRoot"
-        class="workspace"
-        :class="{ 'definition-focused': editingFocusedDefinition }"
-      >
-        <nav v-if="!editingFocusedDefinition" class="workspace-nav">
+      <div ref="workspaceRoot" class="workspace" :class="{ 'definition-focused': focusedPage }">
+        <nav v-if="!focusedPage" class="workspace-nav">
           <div class="nav-caption">定义结构</div>
           <button :class="{ active: section === 'panel' }" @click="selectSection('panel')">
             <span>基础面板</span><b>90 级</b>
@@ -912,10 +937,13 @@ function openReferencedDefinition(reference: {
           :class="{
             'entity-editing': section === 'entities' || section === 'buffs',
             'behavior-editing': editingBehavior,
-            'focused-editing': editingFocusedDefinition,
+            'focused-editing': focusedPage,
           }"
         >
           <nav class="workspace-breadcrumbs" aria-label="当前位置">
+            <button v-if="section === 'buffs' && buffDetailOpen" @click="buffDetailOpen = false">
+              ← 返回 Buff 列表
+            </button>
             <button :disabled="editingFocusedDefinition" @click="selectSection('panel')">
               {{ draft.displayName ?? draft.slug }}
             </button>
@@ -1549,21 +1577,24 @@ function openReferencedDefinition(reference: {
 
           <section
             v-else-if="section === 'buffs'"
-            class="definition-section split-section buff-editing-section"
+            class="definition-section split-section buff-editing-section peer-definition-page"
           >
-            <aside class="object-list">
+            <aside v-if="!buffDetailOpen" class="object-list">
+              <h3>Buff 定义</h3>
+              <p>选择对象进入详情；所有修改统一保存到干员定义。</p>
               <input v-model="objectSearch" class="object-search" placeholder="搜索 Buff…" />
               <button class="add-object" @click="addBuff">＋ 新增 Buff</button>
               <button
                 v-for="id in filteredBuffIds"
                 :key="id"
                 :class="{ active: selectedBuffId === id }"
-                @click="selectedBuffId = id"
+                @click="openBuffDetail(id)"
               >
                 {{ id }}
               </button>
+              <p v-if="filteredBuffIds.length === 0" class="empty-state">没有匹配的 Buff 定义。</p>
             </aside>
-            <div v-if="selectedBuffStep" class="object-editor">
+            <div v-else-if="selectedBuffStep" class="object-editor">
               <header>
                 <div>
                   <h3>{{ selectedBuffId }}</h3>
@@ -1618,6 +1649,7 @@ function openReferencedDefinition(reference: {
 
           <section v-else class="definition-section entity-editing-section">
             <AbilityEntityDefinitionsDialog
+              paged
               :visible="true"
               :base-definitions="{}"
               :custom-definitions="draft.abilityEntityDefinitions"
@@ -1626,6 +1658,7 @@ function openReferencedDefinition(reference: {
               :initial-selected-id="referencedEntityId"
               :operator-definition="draft"
               :shared-history="entityHistory"
+              @detail-change="entityDetailOpen = $event"
               @reveal-reference="revealEntityDefinitionReference"
             />
           </section>
@@ -2308,6 +2341,12 @@ input:disabled {
   overflow: hidden;
   grid-template-columns: clamp(150px, 18vw, 210px) minmax(0, 1fr);
   gap: 8px;
+}
+.definition-section.buff-editing-section.peer-definition-page {
+  grid-template-columns: minmax(0, 1fr);
+}
+.peer-definition-page > .object-list {
+  border-right: 0;
 }
 .buff-editing-section > .object-list {
   min-height: 0;

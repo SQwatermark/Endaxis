@@ -47,9 +47,7 @@ describe('definition workspace layout contract', () => {
 
   it('removes ancestor navigation and commit controls while editing a focused child definition', () => {
     expect(operatorSource).toContain('const editingFocusedDefinition = computed(');
-    expect(operatorSource).toContain(
-      '<nav v-if="!editingFocusedDefinition" class="workspace-nav">',
-    );
+    expect(operatorSource).toContain('<nav v-if="!focusedPage" class="workspace-nav">');
     expect(operatorSource).toContain('<aside v-if="!showSkillEditor" class="object-list">');
     expect(operatorSource).toContain(
       'v-else-if="!editingFocusedDefinition" class="workspace-footer"',

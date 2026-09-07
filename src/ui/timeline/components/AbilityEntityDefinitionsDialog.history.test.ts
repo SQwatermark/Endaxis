@@ -50,6 +50,7 @@ it('edits the owner draft directly and restores entity edits without a secondary
       return () =>
         h(wrapped, {
           visible: true,
+          paged: true,
           baseDefinitions: {},
           customDefinitions: definitions.value,
           skillLevel: 1,
@@ -62,6 +63,10 @@ it('edits the owner draft directly and restores entity edits without a secondary
   app.provide(ssrContextKey, { modules: new Set() });
   app.mount({});
   try {
+    expect(panel.detailOpen.value).toBe(false);
+    panel.openDefinition('first');
+    expect(panel.detailOpen.value).toBe(true);
+    expect(history!.canUndo.value).toBe(false);
     panel.selectedDefinitionHistory.commit({ lifetime: { kind: 'limited', durationSeconds: 25 } });
     await nextTick();
     expect(definitions.value.first!.lifetime).toEqual({ kind: 'limited', durationSeconds: 25 });
@@ -80,9 +85,11 @@ it('edits the owner draft directly and restores entity edits without a secondary
     history!.restore('undo');
     await nextTick();
     expect(definitions.value['new-entity']).toBeUndefined();
+    expect(panel.detailOpen.value).toBe(false);
     history!.restore('redo');
     await nextTick();
     expect(panel.selectedId.value).toBe('new-entity');
+    expect(panel.detailOpen.value).toBe(true);
     panel.removeOrResetDefinition();
     await nextTick();
     expect(definitions.value['new-entity']).toBeUndefined();

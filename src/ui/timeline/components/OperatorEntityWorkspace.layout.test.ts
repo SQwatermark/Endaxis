@@ -43,7 +43,7 @@ it('shares graph viewport constraints while keeping Buff form fields responsive'
 
 it('gives behavior drafts a focused workspace with a single commit scope', () => {
   expect(workspace).toContain('const editingFocusedDefinition = computed(');
-  expect(workspace).toContain('v-if="!editingFocusedDefinition" class="workspace-nav"');
+  expect(workspace).toContain('v-if="!focusedPage" class="workspace-nav"');
   expect(workspace).toContain('v-if="!editingBehavior" class="object-list"');
   expect(workspace).toContain('v-else-if="!editingFocusedDefinition" class="workspace-footer"');
   expect(workspace).toContain(':disabled="editingFocusedDefinition"');
