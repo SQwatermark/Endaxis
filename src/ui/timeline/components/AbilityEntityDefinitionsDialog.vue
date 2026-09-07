@@ -213,7 +213,7 @@ function addDefinition(): void {
       ...draft.value,
       [id]: { lifetime: { kind: 'limited', durationSeconds: 10 } },
     },
-    { path: '', objectId: id },
+    { path: '', objectId: id, operation: 'add' },
   );
   selectedId.value = id;
   detailOpen.value = true;
@@ -226,7 +226,7 @@ function duplicateDefinition(): void {
   const id = nextCustomId();
   history.commit(
     { ...draft.value, [id]: cloneProjectJson(definition) },
-    { path: '', objectId: id },
+    { path: '', objectId: id, operation: 'duplicate' },
   );
   selectedId.value = id;
   detailOpen.value = true;
@@ -239,7 +239,11 @@ function removeOrResetDefinition(): void {
   if (props.baseDefinitions[id] === undefined && selectedReferences.value.length > 0) return;
   const next = { ...draft.value };
   delete next[id];
-  history.commit(next, { path: '', objectId: id });
+  history.commit(next, {
+    path: '',
+    objectId: id,
+    operation: props.baseDefinitions[id] ? 'reset' : 'remove',
+  });
   if (props.baseDefinitions[id] === undefined)
     selectedId.value = Object.keys({ ...props.baseDefinitions, ...next }).sort()[0] ?? '';
   if (props.baseDefinitions[id] === undefined) detailOpen.value = false;

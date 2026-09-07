@@ -16,8 +16,12 @@ it('isolates property location segments and keeps them through undo and redo', (
   const propertyPath: (string | number)[] = ['parameters', 'items', 0, 'a.b'];
   try {
     history.commit({ count: 2 }, { path: 'steps[0]', propertyPath });
+    expect(history.undoLocation?.value?.path).toBe('steps[0]');
+    expect(history.redoLocation?.value).toBeUndefined();
     propertyPath.push('mutated');
     history.restore('undo');
+    expect(history.undoLocation?.value).toBeUndefined();
+    expect(history.redoLocation?.value?.path).toBe('steps[0]');
     expect(history.restoredLocation?.value).toEqual({
       path: 'steps[0]',
       propertyPath: ['parameters', 'items', 0, 'a.b'],

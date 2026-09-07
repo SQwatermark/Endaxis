@@ -732,6 +732,7 @@ async function deleteCurrent(): Promise<void> {
       <BuffStepEditor
         v-if="selectedId === 'buff'"
         :step="editingStep"
+        :definition-binding="editing.property.value"
         :skill-level="skillLevel"
         :create-step="createStep"
         :duplicate-step="duplicateStep"

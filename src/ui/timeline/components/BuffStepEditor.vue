@@ -91,6 +91,7 @@ type BuffLifecycleKey = (typeof BUFF_LIFECYCLE_KEYS)[number];
 const props = defineProps<{
   step: BuffStep;
   parametersBinding?: DefinitionProperty;
+  definitionBinding?: DefinitionProperty;
   skillLevel: number;
   /** 作为干员级 Buff 蓝图编辑器使用时，隐藏施加目标、实例覆盖和内联开关。 */
   definitionOnly?: boolean;
@@ -173,6 +174,16 @@ function setDefinitionScalar(
   field: 'durationSeconds' | 'triggerIntervalSeconds' | 'maxStackCount' | 'maxTriggerCount',
   value: BuffDuration | undefined,
 ): void {
+  if (props.definitionBinding) {
+    props.definitionBinding.update(
+      current =>
+        current === undefined
+          ? current
+          : replaceBuffDefinitionScalar(current as SkillBuffDefinition, field, value),
+      [...props.definitionBinding.path, field],
+    );
+    return;
+  }
   const definition = props.step.parameters.definition;
   if (definition === undefined) return;
   setDefinition(replaceBuffDefinitionScalar(definition, field, value));
@@ -440,6 +451,11 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
           <BuffDefinitionScalarEditor
             :value="step.parameters.definition.durationSeconds"
             :minimum="0"
+            :data-property-path="
+              definitionBinding
+                ? JSON.stringify([...definitionBinding.path, 'durationSeconds'])
+                : undefined
+            "
             @update="setDefinitionScalar('durationSeconds', $event)"
           />
         </label>
@@ -449,6 +465,11 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
             :value="step.parameters.definition.maxStackCount"
             integer
             :minimum="0"
+            :data-property-path="
+              definitionBinding
+                ? JSON.stringify([...definitionBinding.path, 'maxStackCount'])
+                : undefined
+            "
             @update="setDefinitionScalar('maxStackCount', $event)"
           />
         </label>
@@ -457,6 +478,11 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
           <BuffDefinitionScalarEditor
             :value="step.parameters.definition.triggerIntervalSeconds"
             :minimum="0"
+            :data-property-path="
+              definitionBinding
+                ? JSON.stringify([...definitionBinding.path, 'triggerIntervalSeconds'])
+                : undefined
+            "
             @update="setDefinitionScalar('triggerIntervalSeconds', $event)"
           />
         </label>
@@ -466,6 +492,11 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
             :value="step.parameters.definition.maxTriggerCount"
             integer
             :minimum="-1"
+            :data-property-path="
+              definitionBinding
+                ? JSON.stringify([...definitionBinding.path, 'maxTriggerCount'])
+                : undefined
+            "
             @update="setDefinitionScalar('maxTriggerCount', $event)"
           />
         </label>

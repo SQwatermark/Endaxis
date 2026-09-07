@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import { describeDefinitionHistory } from '../definitionHistoryPresentation';
 import './definitionWorkspaceLayout.css';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { computed, markRaw, ref, watch } from 'vue';
@@ -756,7 +757,7 @@ function addBuff(): void {
         [id]: { stackingType: 'refresh', durationSeconds: 10 },
       },
     },
-    { path: '', section: 'buffs', objectId: id },
+    { path: '', section: 'buffs', objectId: id, operation: 'add' },
   );
   selectedBuffId.value = id;
   buffDetailOpen.value = true;
@@ -771,7 +772,7 @@ function removeBuff(): void {
       ...draft.value,
       buffDefinitions: Object.keys(next).length === 0 ? undefined : next,
     },
-    { path: '', section: 'buffs', objectId: selectedBuffId.value },
+    { path: '', section: 'buffs', objectId: selectedBuffId.value, operation: 'remove' },
   );
   selectedBuffId.value = Object.keys(next).sort()[0] ?? '';
   buffDetailOpen.value = false;
@@ -1696,6 +1697,11 @@ function openReferencedDefinition(reference: {
           <button
             class="ea-btn ea-btn--sm ea-btn--glass-rect"
             :disabled="!history.canUndo.value"
+            :title="
+              history.canUndo.value
+                ? `撤销：${describeDefinitionHistory(history.undoLocation?.value)}`
+                : '没有可撤销的修改'
+            "
             @click="history.restore('undo')"
           >
             撤销
@@ -1703,11 +1709,25 @@ function openReferencedDefinition(reference: {
           <button
             class="ea-btn ea-btn--sm ea-btn--glass-rect"
             :disabled="!history.canRedo.value"
+            :title="
+              history.canRedo.value
+                ? `重做：${describeDefinitionHistory(history.redoLocation?.value)}`
+                : '没有可重做的修改'
+            "
             @click="history.restore('redo')"
           >
             重做
           </button>
-          <span />
+          <span
+            class="history-description"
+            :title="describeDefinitionHistory(history.undoLocation?.value)"
+          >
+            {{
+              history.canUndo.value
+                ? `撤销：${describeDefinitionHistory(history.undoLocation?.value)}`
+                : ''
+            }}
+          </span>
           <button
             class="ea-btn ea-btn--sm ea-btn--glass-rect"
             @click="emit('update:visible', false)"
@@ -2218,6 +2238,14 @@ input:disabled {
   place-items: center;
   color: #777;
   min-height: 300px;
+}
+.history-description {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ea-fg-muted);
+  font-size: 11px;
 }
 .workspace-footer {
   display: grid;

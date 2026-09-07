@@ -9,6 +9,7 @@ export interface DefinitionHistoryLocation {
   readonly propertyPath?: readonly (string | number)[];
   readonly section?: string;
   readonly objectId?: string;
+  readonly operation?: 'add' | 'duplicate' | 'remove' | 'reset' | 'edit';
 }
 
 export interface DefinitionDraftHistory<T> {
@@ -19,6 +20,8 @@ export interface DefinitionDraftHistory<T> {
   readonly canUndo: ComputedRef<boolean>;
   readonly canRedo: ComputedRef<boolean>;
   readonly restoredLocation?: ShallowRef<DefinitionHistoryLocation | undefined>;
+  readonly undoLocation?: ComputedRef<DefinitionHistoryLocation | undefined>;
+  readonly redoLocation?: ComputedRef<DefinitionHistoryLocation | undefined>;
 }
 
 /** History belongs to one mounted editing context. Hosts key instances by object identity.
@@ -83,6 +86,8 @@ export function useDefinitionDraftHistory<T>(
     commit,
     restore,
     restoredLocation,
+    undoLocation: computed(() => past.value.at(-1)?.location),
+    redoLocation: computed(() => future.value.at(-1)?.location),
     atLocation(location, edit) {
       const previous = pendingLocation;
       pendingLocation = location;
@@ -125,7 +130,13 @@ export function useDefinitionDraft<T>(initial: T) {
 export function projectDefinitionHistory<T>(
   parent: Pick<
     DefinitionDraftHistory<unknown>,
-    'restore' | 'canUndo' | 'canRedo' | 'restoredLocation' | 'atLocation'
+    | 'restore'
+    | 'canUndo'
+    | 'canRedo'
+    | 'restoredLocation'
+    | 'atLocation'
+    | 'undoLocation'
+    | 'redoLocation'
   >,
   commit: (value: T, location?: DefinitionHistoryLocation) => void,
   locate?: () => Omit<DefinitionHistoryLocation, 'path'>,
@@ -140,5 +151,7 @@ export function projectDefinitionHistory<T>(
     canUndo: parent.canUndo,
     canRedo: parent.canRedo,
     restoredLocation: parent.restoredLocation,
+    undoLocation: parent.undoLocation,
+    redoLocation: parent.redoLocation,
   });
 }
