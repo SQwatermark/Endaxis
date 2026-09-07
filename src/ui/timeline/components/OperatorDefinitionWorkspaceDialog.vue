@@ -3,7 +3,8 @@ import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { describeDefinitionHistory } from '../definitionHistoryPresentation';
 import './definitionWorkspaceLayout.css';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
-import { computed, markRaw, ref, watch } from 'vue';
+import { computed, markRaw, provide, ref, watch } from 'vue';
+import { createDefinitionViewState, definitionViewStateKey } from '../definitionViewState';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import {
   COMPARISON_OPERATORS,
@@ -86,6 +87,8 @@ const emit = defineEmits<{
 }>();
 
 const section = ref<Section>('panel');
+const viewStates = createDefinitionViewState();
+provide(definitionViewStateKey, viewStates);
 const draft = ref<OperatorDefinition>(clone(props.baseDefinition));
 const workspaceRoot = ref<HTMLElement | null>(null);
 const history = markRaw(
@@ -134,6 +137,7 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
+    viewStates.clear();
     draft.value = clone(props.customDefinition ?? props.baseDefinition);
     section.value = 'panel';
     buffDetailOpen.value = false;

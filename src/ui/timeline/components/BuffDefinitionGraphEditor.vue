@@ -687,6 +687,7 @@ async function deleteCurrent(): Promise<void> {
     <SkillStructureMindMap
       ref="map"
       :root="root"
+      :view-state-key="`buff:${buffId}`"
       :selected-id="selectedId"
       :show-reference-pins="false"
       :clipboard-kind="structureClipboard?.kind"

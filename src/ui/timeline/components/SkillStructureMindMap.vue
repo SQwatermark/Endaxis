@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /** Reusable free-roaming structure map used by the formal skill editor and its demo. */
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { definitionViewStateKey } from '../definitionViewState';
 import {
   useInteractionBarrier,
   useInteractionSession,
@@ -95,6 +96,7 @@ const props = withDefaults(
   defineProps<{
     root: MapNodeSource;
     selectedId?: string;
+    viewStateKey?: string;
     showReferencePins?: boolean;
     clipboardKind?: MapNodeSource['payloadKind'];
     canUndo?: boolean;
@@ -119,6 +121,19 @@ const emit = defineEmits<{
 }>();
 
 const zoom = ref(0.9);
+const viewStates = inject(definitionViewStateKey, undefined);
+let viewGeneration = viewStates?.generation;
+let activeViewKey: string | undefined;
+let viewRevision = 0;
+function rememberView(): void {
+  if (!activeViewKey || !viewport.value || viewGeneration !== viewStates?.generation) return;
+  viewStates?.write(activeViewKey, {
+    zoom: zoom.value,
+    collapsedIds: [...collapsedIds.value],
+    left: viewport.value.scrollLeft,
+    top: viewport.value.scrollTop,
+  });
+}
 const viewport = ref<HTMLElement | null>(null);
 const stage = ref<HTMLElement | null>(null);
 const collapsedIds = ref<ReadonlySet<string>>(new Set());
@@ -404,6 +419,8 @@ onMounted(() => {
   document.addEventListener('focusin', trackActive, true);
 });
 onBeforeUnmount(() => {
+  rememberView();
+  viewRevision++;
   endNodeDrag();
   stopPan();
   document.removeEventListener('pointerdown', trackActive, true);
@@ -588,10 +605,25 @@ function transferCollapsedState(fromId: string, toId: string): void {
 defineExpose({ revealNode, transferCollapsedState });
 
 watch(
-  () => props.root.id,
-  () => {
-    expandTwoLevels();
-    void centerRoot();
+  [() => props.root.id, () => props.viewStateKey],
+  async () => {
+    rememberView();
+    activeViewKey = props.viewStateKey;
+    viewGeneration = viewStates?.generation;
+    const revision = ++viewRevision;
+    const saved = activeViewKey ? viewStates?.read(activeViewKey) : undefined;
+    if (!saved) {
+      zoom.value = 0.9;
+      expandTwoLevels();
+      await centerRoot();
+      return;
+    }
+    zoom.value = saved.zoom;
+    collapsedIds.value = new Set(saved.collapsedIds.filter(id => findNode(props.root, id)));
+    await nextTick();
+    if (revision !== viewRevision || !viewport.value) return;
+    viewport.value.scrollLeft = saved.left;
+    viewport.value.scrollTop = saved.top;
   },
   { immediate: true, flush: 'post' },
 );
