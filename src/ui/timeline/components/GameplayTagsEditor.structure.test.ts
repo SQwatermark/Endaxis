@@ -5,6 +5,8 @@ import conditionSource from './CombatConditionEditor.vue?raw';
 import tagEditorSource from './GameplayTagsEditor.vue?raw';
 import healSource from './HealStepEditor.vue?raw';
 import resourceSource from './ResourceStepEditor.vue?raw';
+import { conditionInspectorFields } from '../conditionInspectorSchema';
+import { defaultInspectorEditors } from '../inspectorEditors';
 
 describe('GameplayTagsEditor structure', () => {
   it('offers the versioned path catalog without numeric identities', () => {
@@ -16,10 +18,19 @@ describe('GameplayTagsEditor structure', () => {
   });
 
   it('replaces every editable raw GameplayTag number list', () => {
-    for (const source of [buffManagementSource, conditionSource, healSource, resourceSource]) {
+    for (const source of [buffManagementSource, healSource, resourceSource]) {
       expect(source).toContain('GameplayTagsEditor');
     }
-    expect(conditionSource).toContain("condition.kind === 'eventBuffTagsMatch'");
+    expect(conditionSource).toContain('InspectorFields');
+    for (const [kind, key] of [
+      ['eventBuffTagsMatch', 'buffTags'],
+      ['entityTagMatch', 'tags'],
+    ] as const) {
+      const field = conditionInspectorFields(kind)!.find(field => field.key === key)!;
+      expect(field.editor).toBe('textList');
+      expect(field.widget).toBe('gameplayTags');
+    }
+    expect(defaultInspectorEditors.gameplayTags).toBeDefined();
     expect(buffEditorSource).toContain("setDefinitionTags('applyTags', $event)");
     expect(buffEditorSource).toContain("setDefinitionTags('extendTags', $event)");
   });

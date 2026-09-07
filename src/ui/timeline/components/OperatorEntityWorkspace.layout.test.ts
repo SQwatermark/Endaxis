@@ -10,15 +10,18 @@ const layout = readFileSync(new URL('./definitionGraphViewport.css', import.meta
 it('allocates entity editing inside the shared viewport shell without fixed graph dimensions', () => {
   expect(workspace).toContain("import './definitionWorkspaceLayout.css'");
   expect(workspace).toContain('operator-definition-workspace definition-workspace-dialog');
-  expect(workspace).toContain('top="24px"');
+  expect(workspace).toContain('top="16px"');
   expect(workspace).not.toContain('min-height: 520px');
-  expect(workspace).toContain("section === 'entities' && showEntityEditor");
+  expect(workspace).toContain("section === 'entities' || section === 'buffs'");
+  expect(workspace).not.toContain('showEntityEditor');
+  expect(workspace).toContain(':shared-history="entityHistory"');
+  expect(entities).toContain('v-if="!sharedHistory"');
   expect(workspace).toContain('entity-editing-section');
   expect(entities).toContain('fill-available');
   expect(entities).not.toContain('grid-template-columns: 320px');
   expect(graph).toContain('fillAvailable?: boolean');
   expect(layout).toContain('.definition-graph-editor.fill-available');
-  expect(layout).toContain('grid-template-columns: minmax(0, 1fr) minmax(220px, 40%)');
+  expect(layout).toContain('var(--definition-inspector-width');
   expect(layout).toContain('grid-template-rows: auto minmax(0, 1fr)');
 });
 
@@ -39,10 +42,11 @@ it('shares graph viewport constraints while keeping Buff form fields responsive'
 });
 
 it('gives behavior drafts a focused workspace with a single commit scope', () => {
-  expect(workspace).toContain('v-if="!editingBehavior" class="workspace-nav"');
+  expect(workspace).toContain('const editingFocusedDefinition = computed(');
+  expect(workspace).toContain('v-if="!editingFocusedDefinition" class="workspace-nav"');
   expect(workspace).toContain('v-if="!editingBehavior" class="object-list"');
-  expect(workspace).toContain('v-else class="workspace-footer"');
-  expect(workspace).toContain(':disabled="editingBehavior"');
+  expect(workspace).toContain('v-else-if="!editingFocusedDefinition" class="workspace-footer"');
+  expect(workspace).toContain(':disabled="editingFocusedDefinition"');
   const shared = readFileSync(
     new URL('./behaviorDefinitionWorkspace.css', import.meta.url),
     'utf8',

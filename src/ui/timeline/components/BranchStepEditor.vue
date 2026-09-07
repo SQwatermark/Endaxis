@@ -14,6 +14,7 @@ import type {
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
+import type { InspectorPropertyPath } from '../inspectorProperty';
 import StepTypePicker from './StepTypePicker.vue';
 
 const RecursiveStepEditor = defineAsyncComponent(() => import('./CombatStepEditor.vue'));
@@ -29,12 +30,46 @@ const props = defineProps<{
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
   selectedPath?: string;
+  restoredPropertyPath?: InspectorPropertyPath;
   inspectorOnly?: boolean;
 }>();
-const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
+const emit = defineEmits<{
+  update: [step: CombatStepDefinition, propertyPath?: InspectorPropertyPath];
+}>();
 const { t } = useI18n({ useScope: 'global' });
 const selectedBranch = ref<BranchName>(props.step.kind === 'conditional' ? 'whenTrue' : 'body');
 const selectedIndex = ref(0);
+const restoredChildPath = ref<InspectorPropertyPath>();
+function selectChild(branch: BranchName, index: number) {
+  // 用户主动导航后，不把旧历史请求带入新挂载的子编辑器。
+  restoredChildPath.value = undefined;
+  selectedBranch.value = branch;
+  selectedIndex.value = index;
+}
+watch(
+  () => props.restoredPropertyPath,
+  path => {
+    restoredChildPath.value = undefined;
+    if (!path || path[1] !== 'steps' || typeof path[2] !== 'number') return;
+    const branch = path[0];
+    if (props.step.kind === 'conditional') {
+      if (branch !== 'whenTrue' && branch !== 'whenFalse') return;
+    } else if (branch !== 'body') return;
+    const items =
+      props.step.kind === 'conditional'
+        ? props.step[branch as 'whenTrue' | 'whenFalse']?.steps
+        : props.step.body.steps;
+    if (!Number.isInteger(path[2]) || !items?.[path[2]]) return;
+    selectedBranch.value = branch as BranchName;
+    selectedIndex.value = path[2];
+    restoredChildPath.value = path.slice(3);
+  },
+  { immediate: true, flush: 'post' },
+);
+const restoredConditionPath = computed(() => {
+  const path = props.restoredPropertyPath;
+  return path?.[0] === 'parameters' && path[1] === 'condition' ? path.slice(2) : undefined;
+});
 
 const steps = computed(() => {
   if (props.step.kind !== 'conditional') return props.step.body.steps;
@@ -63,9 +98,13 @@ watch(
   { immediate: true },
 );
 
-function setCondition(condition: CombatCondition): void {
+function setCondition(condition: CombatCondition, propertyPath: InspectorPropertyPath = []): void {
   if (props.step.kind !== 'conditional') return;
-  emit('update', { ...props.step, parameters: { ...props.step.parameters, condition } });
+  emit('update', { ...props.step, parameters: { ...props.step.parameters, condition } }, [
+    'parameters',
+    'condition',
+    ...propertyPath,
+  ]);
 }
 
 function setScopeKey(event: Event): void {
@@ -131,13 +170,24 @@ function setRepeatNumber(
   });
 }
 
-function replaceBranchSteps(nextSteps: readonly CombatStepDefinition[]): void {
+function replaceBranchSteps(
+  nextSteps: readonly CombatStepDefinition[],
+  propertyPath?: InspectorPropertyPath,
+): void {
   if (props.step.kind !== 'conditional') {
-    emit('update', { ...props.step, body: { steps: nextSteps } });
+    emit('update', { ...props.step, body: { ...props.step.body, steps: nextSteps } }, propertyPath);
   } else if (selectedBranch.value === 'whenFalse') {
-    emit('update', { ...props.step, whenFalse: { steps: nextSteps } });
+    emit(
+      'update',
+      { ...props.step, whenFalse: { ...props.step.whenFalse, steps: nextSteps } },
+      propertyPath,
+    );
   } else {
-    emit('update', { ...props.step, whenTrue: { steps: nextSteps } });
+    emit(
+      'update',
+      { ...props.step, whenTrue: { ...props.step.whenTrue, steps: nextSteps } },
+      propertyPath,
+    );
   }
 }
 
@@ -147,10 +197,11 @@ function appendStep(kind: EditableCombatStepKind): void {
   selectedIndex.value = steps.value.length;
 }
 
-function replaceStep(step: CombatStepDefinition): void {
+function replaceStep(step: CombatStepDefinition, propertyPath: InspectorPropertyPath = []): void {
+  if (!steps.value[selectedIndex.value]) return;
   const next = [...steps.value];
   next[selectedIndex.value] = step;
-  replaceBranchSteps(next);
+  replaceBranchSteps(next, [selectedBranch.value, 'steps', selectedIndex.value, ...propertyPath]);
 }
 
 function removeStep(index: number): void {
@@ -162,6 +213,7 @@ function removeStep(index: number): void {
 <template>
   <div class="branch-editor">
     <CombatConditionEditor
+      :restored-property-path="restoredConditionPath"
       v-if="step.kind === 'conditional' && !inspectorOnly"
       :condition="step.parameters.condition"
       @update="setCondition"
@@ -258,20 +310,14 @@ function removeStep(index: number): void {
       <button
         type="button"
         :class="{ active: selectedBranch === 'whenTrue' }"
-        @click="
-          selectedBranch = 'whenTrue';
-          selectedIndex = 0;
-        "
+        @click="selectChild('whenTrue', 0)"
       >
         {{ t('timeline.skillEditing.whenTrue') }}
       </button>
       <button
         type="button"
         :class="{ active: selectedBranch === 'whenFalse' }"
-        @click="
-          selectedBranch = 'whenFalse';
-          selectedIndex = 0;
-        "
+        @click="selectChild('whenFalse', 0)"
       >
         {{ t('timeline.skillEditing.whenFalse') }}
       </button>
@@ -284,7 +330,7 @@ function removeStep(index: number): void {
           :key="`${item.kind}-${index}`"
           type="button"
           :class="{ active: selectedIndex === index }"
-          @click="selectedIndex = index"
+          @click="selectChild(selectedBranch, index)"
         >
           {{ index + 1 }}. {{ t(`timeline.skillEditing.stepKinds.${item.kind}`) }}
           <span @click.stop="removeStep(index)">×</span>
@@ -298,6 +344,7 @@ function removeStep(index: number): void {
         :create-step="createStep"
         :duplicate-step="duplicateStep"
         :selected-path="nestedSelectedPath"
+        :restored-property-path="restoredChildPath"
         @update="replaceStep"
       />
     </div>

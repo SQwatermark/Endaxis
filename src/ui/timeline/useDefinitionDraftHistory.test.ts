@@ -2,6 +2,38 @@ import { effectScope, shallowRef } from 'vue';
 import { expect, it } from 'vitest';
 import { useDefinitionDraftHistory } from './useDefinitionDraftHistory';
 
+it('isolates property location segments and keeps them through undo and redo', () => {
+  const scope = effectScope();
+  const value = shallowRef({ count: 1 });
+  const history = scope.run(() =>
+    useDefinitionDraftHistory(
+      () => value.value,
+      next => {
+        value.value = next;
+      },
+    ),
+  )!;
+  const propertyPath: (string | number)[] = ['parameters', 'items', 0, 'a.b'];
+  try {
+    history.commit({ count: 2 }, { path: 'steps[0]', propertyPath });
+    propertyPath.push('mutated');
+    history.restore('undo');
+    expect(history.restoredLocation?.value).toEqual({
+      path: 'steps[0]',
+      propertyPath: ['parameters', 'items', 0, 'a.b'],
+    });
+    history.restore('redo');
+    expect(history.restoredLocation?.value?.propertyPath).toEqual([
+      'parameters',
+      'items',
+      0,
+      'a.b',
+    ]);
+  } finally {
+    scope.stop();
+  }
+});
+
 it('isolates history snapshots, invalidates redo after a new edit and resets on external replacement', () => {
   const scope = effectScope();
   const value = shallowRef({ steps: [1] });

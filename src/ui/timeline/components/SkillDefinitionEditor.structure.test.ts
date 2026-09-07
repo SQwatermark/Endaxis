@@ -10,7 +10,6 @@ import stepTypePickerSource from './StepTypePicker.vue?raw';
 import conditionTypePickerSource from './CombatConditionTypePicker.vue?raw';
 import conditionEditorSource from './CombatConditionEditor.vue?raw';
 import responseInspectorSource from './CombatEventResponseInspector.vue?raw';
-import skillHandlerInspectorSource from './SkillEventHandlerInspector.vue?raw';
 import globalBuffStepEditorSource from './GlobalBuffStepEditor.vue?raw';
 import globalBuffDefinitionInspectorSource from './GlobalBuffDefinitionInspector.vue?raw';
 import globalBuffChildInspectorSource from './GlobalBuffChildInspector.vue?raw';
@@ -255,8 +254,8 @@ describe('SkillDefinitionEditor structure', () => {
     for (const source of [editorSource, buffGraphEditorSource, abilityEntityGraphEditorSource]) {
       expect(source).toContain('transferCollapsedState(operation.source.id, movedNode.id)');
       expect(source).toContain('@history-action="restoreStructureHistory"');
-      expect(source).toContain(':can-undo="canUndoStructure"');
-      expect(source).toContain(':can-redo="canRedoStructure"');
+      expect(source).toMatch(/:can-undo="(?:canUndoStructure|history.canUndo.value)"/);
+      expect(source).toMatch(/:can-redo="(?:canRedoStructure|history.canRedo.value)"/);
     }
     // Modal region wiring is covered in workspaceRegions/InputRegionBoundary tests.
     // The workbench must not duplicate migrated editor visibility as an input gate.
@@ -303,7 +302,8 @@ describe('SkillDefinitionEditor structure', () => {
     expect(editorSource).not.toContain('SkillAvailabilityEditor');
     expect(branchEditorSource).toContain("step.kind === 'conditional' && !inspectorOnly");
     expect(conditionTypePickerSource).toContain('COMBAT_CONDITION_KINDS');
-    expect(conditionEditorSource).toContain('!layerOnly && condition.kind');
+    expect(conditionEditorSource).toMatch(/<Workspace\b[\s\S]*?v-if="!layerOnly"/);
+    expect(conditionEditorSource).not.toContain('RecursiveConditionEditor');
   });
 
   it('临时事件监听器把响应、条件和序列展开到技能导图', () => {
@@ -321,9 +321,10 @@ describe('SkillDefinitionEditor structure', () => {
     expect(editorSource).toContain('selectedSkillEventHandler');
     expect(editorSource).toContain('appendSkillEventHandler');
     expect(editorSource).toContain('createSkillEventHandlerDraft');
-    expect(editorSource).toContain('SkillEventHandlerInspector');
-    expect(skillHandlerInspectorSource).toContain('CombatEventTriggerEditor');
-    expect(skillHandlerInspectorSource).not.toContain('ScheduledSequenceEditor');
+    expect(editorSource).toContain(':response="selectedSkillEventHandler"');
+    expect(responseInspectorSource).toContain('CombatEventTriggerEditor');
+    expect(responseInspectorSource).not.toContain('ScheduledSequenceEditor');
+    expect(responseInspectorSource).toContain(":binding=\"binding.child('event')\"");
   });
 
   it('顶层与递归步骤参数都提供统一折叠入口', () => {

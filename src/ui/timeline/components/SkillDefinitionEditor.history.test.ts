@@ -9,6 +9,18 @@ describe('skill inspector history integration', () => {
   const input = (value: string) => ({ target: { value } });
   const edits: [string, (editor: any) => void][] = [
     [
+      'direct property handle',
+      editor =>
+        editor.editContext.root
+          .child('scheduledSequences')
+          .child(0)
+          .child('sequence')
+          .child('steps')
+          .child(0)
+          .child('kind')
+          .update(() => 'finishCurrentAbilityEntityWhenSourceDies'),
+    ],
+    [
       'combat step',
       editor =>
         editor.replaceSelectedCombatStep({
@@ -79,6 +91,12 @@ describe('skill inspector history integration', () => {
     const after = JSON.parse(JSON.stringify(editor.draft.value));
     expect(after).not.toEqual(before);
     expect(editor.structureUndoStack.value).toHaveLength(1);
+    if (_name === 'direct property handle') {
+      expect(editor.structureUndoStack.value[0].propertyPath).toEqual(['kind']);
+      expect(editor.structureUndoStack.value[0].selectedPath).toBe(
+        'scheduledSequences[0].sequence.steps[0]',
+      );
+    }
     expect(template.scheduledSequences[0]!.sequence.steps[0]!.kind).toBe(
       'finishCurrentAbilityEntity',
     );

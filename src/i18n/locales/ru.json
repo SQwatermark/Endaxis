@@ -21,6 +21,7 @@
     "confirmButton": "Сбросить"
   },
   "common": {
+    "add": "Добавить",
     "cancel": "Отмена",
     "close": "Закрыть",
     "confirm": "ОК",
@@ -623,6 +624,89 @@
       "enemyWeaknessSet": "Установить уязвимость"
     },
     "skillEditing": {
+      "queryParameters": "Параметры запроса",
+      "conditionStructureInGraph": "Изменяйте дочерние условия и их порядок на графе.",
+      "unionListValue": "Список",
+      "spValueOutputKey": "Ключ значения после эффективности",
+      "realDeltaOutputKey": "Ключ фактического изменения SP",
+      "finalHealOutputKey": "Ключ скорректированного лечения",
+      "realHealOutputKey": "Ключ фактического прироста HP",
+      "capturedShieldValue": "Значение щита",
+      "buffRemainingOperand": "Операнд оставшегося времени",
+      "buffFinishReason": "Причина завершения",
+      "buffTimePaused": "Приостановить таймер текущего Buff",
+      "buffRuntimeContextHelp": "Текущий Buff и Buff события определяются контекстом жизненного цикла или события. Без контекста симуляция выдаёт ошибку, а не выбирает произвольный Buff.",
+      "buffDurationOperations": { "assign": "Задать", "add": "Добавить", "multiply": "Умножить" },
+      "buffFinishReasons": { "early": "Досрочно", "other": "Другое", "absorbed": "Поглощён" },
+      "entityRemainingSeconds": "Новое оставшееся время, с",
+      "entityTemplateChildSkillId": "ID дочернего навыка шаблона",
+      "sourceAttributeSelector": "Атрибут источника",
+      "sourceAttributeStage": "Этап атрибута",
+      "sourceEntityProperty": "Свойство сущности",
+      "sourceUseFloor": "Округлить вниз",
+      "contributionFields": {
+        "key": "Стабильный ключ",
+        "priority": "Нативный приоритет",
+        "priorityHelp": "Без значения используется приоритет по умолчанию; при равенстве — порядок регистрации.",
+        "abilityEvent": "Событие AbilitySystem",
+        "blackboard": "Доска действий события",
+        "blackboardHelp": "Значения определяются уровнем эффекта и копируются для каждого события.",
+        "initializationBlackboard": "Доска кадра 0",
+        "initializationBlackboardHelp": "Значения инициализации по уровню эффекта. Удаление последней записи удаляет поле."
+      },
+      "modifierFields": {
+        "damageTypes": "Типы урона (минимум один)",
+        "skillTypes": "Фильтр типов навыков",
+        "attribute": "Атрибут",
+        "operation": "Операция",
+        "stat": "Характеристика",
+        "target": "Цель модификатора",
+        "slot": "Слот формулы",
+        "value": "Значения по уровням",
+        "slotHelp": "При отсутствии используется BaseAddition; при включении выбран baseAddition.",
+        "options": { "flat": "Фиксированное значение", "percent": "Процент" }
+      },
+      "sourceDivisor": "Делитель",
+      "sourceMultiplier": "Множитель",
+      "sourceBase": "Базовое значение",
+      "sourceArithmeticHelp": "С округлением: floor(источник / делитель), затем умножение и прибавление базы. Без округления делитель не читается.",
+      "sourceAttributeKinds": {
+        "specific": "Ключ атрибута",
+        "main": "Основной атрибут",
+        "secondary": "Вторичный атрибут",
+        "all": "Все атрибуты"
+      },
+      "sourceAttributeStages": {
+        "armedNonConverted": "После снаряжения, до преобразования",
+        "finalNonConverted": "Итоговый, до преобразования"
+      },
+      "sourceEntityProperties": {
+        "currentHealth": "Текущее здоровье",
+        "maxHealth": "Максимальное здоровье",
+        "currentPoise": "Текущее равновесие"
+      },
+      "ignoreGlobalTimeScale": "Игнорировать глобальный масштаб времени",
+      "revertTimeScaleOnEnd": "Восстановить при завершении действия",
+      "ignoreGlobalTimeScaleHelp": "Меняет источник времени выбранных сущностей, а не глобальный масштаб. Пустой запрос не означает все сущности. Новый запрос выбирает текущую сущность; можно выбрать созданные владельцем или Context.",
+      "healthFloorMode": "Режим минимума здоровья",
+      "healthFloorValue": "Минимум здоровья / доля",
+      "healthFloorHelp": "Абсолютный режим задаёт здоровье, относительный — долю максимального здоровья. Действует до завершения действия; выбирается наибольший минимум.",
+      "healthFloorModes": {
+        "absolute": "Абсолютное здоровье",
+        "maxHealthRatio": "Доля максимального здоровья"
+      },
+      "shieldCaptureValues": {
+        "gained": "Фактически полученный щит",
+        "current": "Текущий суммарный конечный щит"
+      },
+      "timeDomain": { "self": "Часы сущности способности", "global": "Общие боевые часы" },
+      "markerTimeDomain": "Часы таймера",
+      "noStepParameters": "У этого шага нет редактируемых параметров.",
+      "nextSkillKey": "Указанный следующий навык",
+      "nextSkillKeyFromSlot": "Текущий слот комбо-навыка",
+      "unionLevelValues": "Одно значение / значения по уровням",
+      "unionUnknownValue": "Неизвестная форма значения",
+      "unsupportedConditionStructure": "Это вложенное условие пока не поддерживается автоматическим редактором. Данные сохранены.",
       "section": "Логика навыка",
       "diffCount": "Отличий от текущего шаблона: {count}",
       "reset": "Восстановить шаблон",
@@ -902,6 +986,13 @@
       "buffCount": "Количество созданий",
       "buffSource": "Источник",
       "buffTargets": {
+        "controlledOperator": "Управляемый оперативник",
+        "eventTarget": "Цель события",
+        "eventSource": "Источник события",
+        "buffOwner": "Владелец Buff",
+        "buffSource": "Источник Buff",
+        "currentTarget": "Текущая цель",
+        "partyExceptCasterAndSameCharacterType": "Союзники, кроме заклинателя и того же типа персонажа",
         "caster": "Исполнитель",
         "enemy": "Враг",
         "party": "Все операторы",
@@ -913,6 +1004,9 @@
       "inheritSkillCast": "Наследовать источник навыка",
       "buffAssignments": "Начальные значения таблицы",
       "addAssignment": "Добавить значение",
+      "assignmentTargetKey": "Целевой ключ доски",
+      "assignmentToExpression": "Преобразовать в выражение (заменить всё определение значения)",
+      "assignmentToLevels": "Преобразовать в значения по уровням",
       "deleteAssignment": "Удалить значение",
       "buffQueryKind": "Поиск по стабильному ID Buff либо по читаемым путям тегов и правилу сопоставления.",
       "buffQueryKinds": {

@@ -4,6 +4,9 @@ import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { replaceEquipmentContribution } from '../replaceEquipmentContribution';
 import { computed, ref, watch } from 'vue';
+import { useDefinitionDraft, projectDefinitionHistory } from '../useDefinitionDraftHistory';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
+import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 import type {
   EquipmentContributionDefinition,
@@ -22,14 +25,25 @@ const emit = defineEmits<{
   save: [definition: GearSetDefinition];
   reset: [];
 }>();
-const draft = ref<GearSetDefinition>(cloneEditorDefinition(props.customDefinition));
+const {
+  draft,
+  history,
+  reset: resetDraft,
+} = useDefinitionDraft<GearSetDefinition>(props.customDefinition);
+const editorRoot = ref<HTMLElement | null>(null);
+useEditorHistoryShortcuts(editorRoot, history.restore);
+const contributionHistory = projectDefinitionHistory<EquipmentContributionDefinition>(
+  history,
+  updateContribution,
+);
+
 const issues = computed(() => validateGearSetDefinition(draft.value, '$.gearSet'));
 const isDirty = computed(() => !editorDefinitionsEqual(draft.value, props.customDefinition));
 
 watch(
   () => props.visible,
   visible => {
-    if (visible) draft.value = cloneEditorDefinition(props.customDefinition);
+    if (visible) resetDraft(props.customDefinition);
   },
   { immediate: true },
 );
@@ -53,8 +67,8 @@ function save(): void {
   <InputRegionBoundary label="gear-set-definition-workspace" :active="visible" modal>
     <el-dialog
       :model-value="visible"
-      width="min(1280px, calc(100vw - 48px))"
-      top="24px"
+      width="min(1600px, calc(100vw - 32px))"
+      top="16px"
       append-to-body
       destroy-on-close
       class="gear-set-definition-dialog definition-workspace-dialog"
@@ -65,7 +79,7 @@ function save(): void {
           <strong>自定义套装</strong><span>{{ draft.displayName ?? draft.slug }}</span>
         </div>
       </template>
-      <div class="set-inspector">
+      <div ref="editorRoot" class="set-inspector">
         <section class="set-identity">
           <header>
             <strong>套装模板</strong><span>来源 {{ baseDefinition.slug }}</span>
@@ -82,6 +96,7 @@ function save(): void {
             <strong>三件套贡献</strong><span>保存后影响项目内所有引用此套装的实例</span>
           </header>
           <EquipmentContributionGraphEditor
+            :shared-history="contributionHistory"
             :key="draft.slug"
             fill-available
             :contribution="draft"
@@ -93,6 +108,7 @@ function save(): void {
       </div>
       <template #footer>
         <div class="footer">
+          <DefinitionHistoryControls :history="history" />
           <details v-if="issues.length" class="issues">
             <summary>{{ issues.length }} 个结构问题</summary>
             <code v-for="issue in issues" :key="`${issue.path}:${issue.message}`"

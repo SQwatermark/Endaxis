@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { useDefinitionDraft, projectDefinitionHistory } from '../useDefinitionDraftHistory';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
+import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import { cloneStructureValue } from '../skillStructureEditorCommands';
 import {
   ABILITY_EVENTS,
@@ -12,7 +15,7 @@ import {
   duplicateSkillEditorDetachedStep,
   type EditableCombatStepKind,
 } from '../skillDefinitionEditorViewModel';
-import ActionSequenceEditor from './ActionSequenceEditor.vue';
+import ActionSequenceWorkspace from './ActionSequenceWorkspace.vue';
 
 const props = defineProps<{
   visible: boolean;
@@ -27,14 +30,34 @@ const emit = defineEmits<{
 }>();
 const selectedIndex = ref(0);
 const structureRevision = ref(0);
-const conditions = ref<ComboSkillConditionDefinition[]>([]);
+const {
+  draft: conditions,
+  history,
+  reset: resetConditions,
+} = useDefinitionDraft<ComboSkillConditionDefinition[]>([]);
+const editorRoot = ref<HTMLElement | null>(null);
+useEditorHistoryShortcuts(editorRoot, history.restore);
+const sequenceHistory = projectDefinitionHistory<ActionSequenceDefinition>(
+  history,
+  updateSequence,
+  () => ({ objectId: String(selectedIndex.value) }),
+);
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (!location) return;
+
+    if (location.objectId !== undefined) selectedIndex.value = Number(location.objectId);
+  },
+  { flush: 'sync' },
+);
 const selectedCondition = computed(() => conditions.value[selectedIndex.value]);
 
 watch(
   () => props.visible,
   visible => {
     if (!visible) return;
-    conditions.value = cloneStructureValue([...(props.conditions ?? [])]);
+    resetConditions([...(props.conditions ?? [])]);
     selectedIndex.value = 0;
   },
   { immediate: true },
@@ -155,8 +178,19 @@ function save(): void {
 </script>
 
 <template>
-  <section v-if="visible" class="embedded-editor" :class="{ 'fill-available': fillAvailable }">
+  <section
+    v-if="visible"
+    ref="editorRoot"
+    class="embedded-editor"
+    :class="{ 'fill-available': fillAvailable }"
+  >
     <div class="embedded-header title">
+      <button
+        class="definition-focused-back ea-btn ea-btn--sm"
+        @click="emit('update:visible', false)"
+      >
+        ← 返回角色级运行数据
+      </button>
       <strong>角色原生连携条件</strong>
       <small>条件来自角色模板，统一使用战斗事件、上下文条件与动作序列。</small>
     </div>
@@ -260,8 +294,9 @@ function save(): void {
             <button class="danger" @click="removeInitialValue(key)">×</button>
           </div>
         </section>
-        <ActionSequenceEditor
-          standalone-history
+        <ActionSequenceWorkspace
+          class="behavior-sequence"
+          :shared-history="sequenceHistory"
           :key="`${selectedIndex}:${structureRevision}`"
           :sequence="selectedCondition.sequence"
           :skill-level="skillLevel"
@@ -273,6 +308,7 @@ function save(): void {
       <main v-else class="empty">当前干员没有连携条件。</main>
     </div>
     <div class="embedded-footer">
+      <DefinitionHistoryControls :history="history" />
       <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
         取消
       </button>
@@ -284,6 +320,11 @@ function save(): void {
 </template>
 
 <style scoped>
+.behavior-sequence {
+  height: 520px;
+  min-height: 380px;
+  flex: none;
+}
 .title {
   display: grid;
   gap: 4px;

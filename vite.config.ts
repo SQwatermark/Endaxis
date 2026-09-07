@@ -4,10 +4,11 @@ import { fileURLToPath, URL } from 'node:url';
 import { configDefaults, defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
+import { inspectorSchemaPlugin } from './tools/inspector-schema/vitePlugin';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueDevTools()],
+  plugins: [inspectorSchemaPlugin(), vue(), vueDevTools()],
   base: '/',
   resolve: {
     alias: {

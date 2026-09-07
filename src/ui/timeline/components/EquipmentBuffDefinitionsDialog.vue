@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, markRaw, ref, watch } from 'vue';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
+import {
+  useDefinitionDraftHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
+import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import { cloneStructureValue } from '../skillStructureEditorCommands';
 import type {
   CombatStepDefinition,
   OperatorBuffDefinitions,
+  SkillBuffDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import BuffDefinitionGraphEditor from './BuffDefinitionGraphEditor.vue';
 
@@ -20,6 +27,38 @@ const emit = defineEmits<{
 }>();
 
 const draft = ref<OperatorBuffDefinitions>({});
+const editorRoot = ref<HTMLElement | null>(null);
+const history = markRaw(
+  useDefinitionDraftHistory(
+    () => draft.value,
+    value => {
+      draft.value = value;
+    },
+  ),
+);
+const selectedHistory = markRaw<DefinitionDraftHistory<SkillBuffDefinition>>({
+  commit(value, location) {
+    history.commit(
+      { ...draft.value, [selectedId.value]: value },
+      { ...location, path: location?.path ?? '', objectId: selectedId.value },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: history.restoredLocation,
+});
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (location?.objectId && draft.value[location.objectId]) {
+      selectedId.value = location.objectId;
+      search.value = '';
+    }
+  },
+  { flush: 'sync' },
+);
+useEditorHistoryShortcuts(editorRoot, history.restore);
 const selectedId = ref('');
 const search = ref('');
 const ids = computed(() => Object.keys(draft.value).sort());
@@ -80,10 +119,10 @@ function addBuff(): void {
   let index = 1;
   while (existing.has(`custom-buff-${index}`)) index += 1;
   const id = `custom-buff-${index}`;
-  draft.value = {
+  history.commit({
     ...draft.value,
     [id]: { stackingType: 'refresh', durationSeconds: 10 },
-  };
+  });
   selectedId.value = id;
 }
 
@@ -91,16 +130,16 @@ function removeBuff(): void {
   if (selectedId.value === '' || references.value.length > 0) return;
   const next = { ...draft.value };
   delete next[selectedId.value];
-  draft.value = next;
+  history.commit(next);
   selectedId.value = Object.keys(next).sort()[0] ?? '';
 }
 
 function updateBuffStep(step: CombatStepDefinition): void {
   if (step.kind !== 'applyBuff' || step.parameters.definition === undefined) return;
-  draft.value = {
+  history.commit({
     ...draft.value,
     [selectedId.value]: cloneStructureValue(step.parameters.definition),
-  };
+  });
 }
 
 function save(): void {
@@ -112,12 +151,18 @@ function save(): void {
 </script>
 
 <template>
-  <section v-if="visible" class="embedded-editor">
+  <section v-if="visible" ref="editorRoot" class="embedded-editor">
     <div class="embedded-header">
       <div class="title">
         <strong>附属 Buff 定义</strong>
         <small>这些蓝图属于当前装备贡献；行为步骤只通过稳定 Buff ID 引用。</small>
       </div>
+      <button
+        class="definition-focused-back ea-btn ea-btn--sm"
+        @click="emit('update:visible', false)"
+      >
+        ← 返回所属效果
+      </button>
     </div>
     <div class="workspace">
       <aside>
@@ -155,6 +200,7 @@ function save(): void {
           :buff-id="selectedId"
           :definition="selectedDefinition!"
           :skill-level="level"
+          :shared-history="selectedHistory"
           @update="
             updateBuffStep({
               kind: 'applyBuff',
@@ -166,6 +212,7 @@ function save(): void {
       <main v-else class="empty">当前贡献还没有附属 Buff。</main>
     </div>
     <div class="embedded-footer">
+      <DefinitionHistoryControls :history="history" />
       <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
         取消
       </button>

@@ -8,9 +8,12 @@ import type { CombatCondition } from '../../../core/game-data/operatorDefinition
 import { createCombatCondition } from '../combatConditionEditorViewModel';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
+import type { InspectorPropertyPath } from '../inspectorProperty';
 
 defineProps<{ availability: CombatCondition | undefined }>();
-const emit = defineEmits<{ update: [availability: CombatCondition | undefined] }>();
+const emit = defineEmits<{
+  update: [availability: CombatCondition | undefined, propertyPath?: InspectorPropertyPath];
+}>();
 const { t } = useI18n({ useScope: 'global' });
 
 function toggle(enabled: boolean): void {
@@ -35,7 +38,7 @@ function toggle(enabled: boolean): void {
     <CombatConditionEditor
       v-if="availability !== undefined"
       :condition="availability"
-      @update="emit('update', $event)"
+      @update="(next, path) => emit('update', next, path)"
     />
   </section>
 </template>

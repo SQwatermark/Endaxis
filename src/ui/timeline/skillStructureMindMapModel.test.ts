@@ -2,17 +2,72 @@ import { describe, expect, it } from 'vitest';
 import type {
   AbilityEntityDefinition,
   SkillDefinition,
+  SkillBuffDefinition,
 } from '../../core/game-data/operatorDefinition';
 import {
   buildAbilityEntityStructureMindMap,
+  buildActionSequenceMindMap,
   buildBuffStructureMindMap,
   buildEquipmentContributionMindMap,
   buildSkillStructureMindMap,
   findSkillStructureNodeForPath,
   indexSkillStructureNodes,
 } from './skillStructureMindMapModel';
+import { appendCombatStepInStructure, resolveStructureValue } from './skillStructureEditorCommands';
 
 describe('skillStructureMindMapModel', () => {
+  it('伤害修正条件程序复用序列节点，独立与内联 Buff 均保留真实路径', () => {
+    const definition: SkillBuffDefinition = {
+      stackingType: 'refresh',
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          processors: [],
+          conditionProgram: {
+            steps: [
+              {
+                kind: 'listenForCombatEvents',
+                parameters: {
+                  responses: [
+                    { key: 'response', event: { kind: 'operatorHit' }, sequence: { steps: [] } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const path = 'damageModifiers[0].conditionProgram';
+    const root = buildBuffStructureMindMap('test', definition);
+    const node = findSkillStructureNodeForPath(root, path);
+    expect(node.sourcePath).toBe(path);
+    expect(node.canAddChild).toBe('step');
+    const responsePath = `${path}.steps[0].parameters.responses[0]`;
+    expect(findSkillStructureNodeForPath(root, responsePath).payloadKind).toBe('eventResponse');
+    const changed = appendCombatStepInStructure(definition, path, {
+      kind: 'finishCurrentBuff',
+      parameters: { reason: 'early' },
+    });
+    expect((resolveStructureValue(changed.root, path) as { steps: unknown[] }).steps).toHaveLength(
+      2,
+    );
+    expect(definition.damageModifiers![0]!.conditionProgram!.steps).toHaveLength(1);
+    const inline = buildActionSequenceMindMap({
+      steps: [
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'test',
+            target: 'enemy',
+            definition,
+          },
+        },
+      ],
+    });
+    const inlinePath = `steps[0].parameters.definition.${responsePath}`;
+    expect(findSkillStructureNodeForPath(inline, inlinePath).sourcePath).toBe(inlinePath);
+  });
   it('把具名能力实体子技能分别展开为成员，并保留各自完整结构路径', () => {
     const definition: AbilityEntityDefinition = {
       lifetime: { kind: 'limited', durationSeconds: 50 },

@@ -4,6 +4,9 @@ import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { replaceEquipmentContribution } from '../replaceEquipmentContribution';
 import { computed, ref, watch } from 'vue';
+import { useDefinitionDraft, projectDefinitionHistory } from '../useDefinitionDraftHistory';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
+import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 import {
   GEAR_SLOT_TYPES,
@@ -26,7 +29,25 @@ const emit = defineEmits<{
   'edit-gear-set': [definition: GearDefinition];
 }>();
 
-const draft = ref<GearDefinition>(clone(props.customDefinition));
+const {
+  draft,
+  history,
+  reset: resetDraft,
+} = useDefinitionDraft<GearDefinition>(props.customDefinition);
+const editorRoot = ref<HTMLElement | null>(null);
+useEditorHistoryShortcuts(editorRoot, history.restore);
+const contributionHistory = projectDefinitionHistory<EquipmentContributionDefinition>(
+  history,
+  updateTraitContribution,
+  () => ({ objectId: String(selectedTraitIndex.value) }),
+);
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (location?.objectId !== undefined) selectedSection.value = Number(location.objectId);
+  },
+  { flush: 'sync' },
+);
 const selectedSection = ref<'base' | number>('base');
 const contributionEditorRevision = ref(0);
 const issues = computed(() => validateGearDefinition(draft.value, '$.gear'));
@@ -42,7 +63,7 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
-    draft.value = clone(props.customDefinition);
+    resetDraft(props.customDefinition);
     selectedSection.value = 'base';
   },
   { immediate: true },
@@ -151,8 +172,8 @@ function editGearSet(): void {
   <InputRegionBoundary label="gear-definition-workspace" :active="visible" modal>
     <el-dialog
       :model-value="visible"
-      width="min(1440px, calc(100vw - 48px))"
-      top="24px"
+      width="min(1600px, calc(100vw - 32px))"
+      top="16px"
       append-to-body
       destroy-on-close
       class="gear-definition-dialog definition-workspace-dialog"
@@ -167,7 +188,7 @@ function editGearSet(): void {
         </div>
       </template>
 
-      <div class="gear-workspace">
+      <div ref="editorRoot" class="gear-workspace">
         <aside class="gear-outliner">
           <button :class="{ active: selectedSection === 'base' }" @click="selectedSection = 'base'">
             <strong>基础定义</strong><small>{{ baseDefinition.slug }}</small>
@@ -285,6 +306,7 @@ function editGearSet(): void {
               /></label>
             </div>
             <EquipmentContributionGraphEditor
+              :shared-history="contributionHistory"
               fill-available
               :key="`${contributionEditorRevision}:${selectedTraitIndex}`"
               :contribution="selectedTrait"
@@ -298,6 +320,7 @@ function editGearSet(): void {
 
       <template #footer>
         <div class="workspace-footer">
+          <DefinitionHistoryControls :history="history" />
           <details v-if="issues.length" class="issues">
             <summary>{{ issues.length }} 个结构问题</summary>
             <code v-for="issue in issues" :key="`${issue.path}:${issue.message}`"
@@ -348,7 +371,7 @@ function editGearSet(): void {
 }
 .gear-workspace {
   display: grid;
-  grid-template-columns: clamp(130px, 16vw, 210px) minmax(0, 1fr);
+  grid-template-columns: var(--definition-outliner-width, clamp(180px, 15vw, 240px)) minmax(0, 1fr);
   min-height: 0;
   height: 100%;
   box-sizing: border-box;

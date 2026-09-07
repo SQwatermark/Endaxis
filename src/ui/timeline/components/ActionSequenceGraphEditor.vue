@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, shallowRef } from 'vue';
+import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import type {
   ActionSequenceDefinition,
   CombatCondition,
@@ -18,6 +18,7 @@ import {
   buildActionSequenceMindMap,
   indexSkillStructureNodes,
   findSkillStructureNodeForPath,
+  locateStructureProperty,
   type SkillStructureNode,
 } from '../skillStructureMindMapModel';
 import {
@@ -29,7 +30,11 @@ import {
   removeStructureArrayItem,
   replaceStructureValueAtPath,
   resolveStructureValue,
+  structurePathSegments,
 } from '../skillStructureEditorCommands';
+import { createDefinitionEditContext } from '../definitionEditContext';
+import DefinitionPropertyScope from './DefinitionPropertyScope.vue';
+import { stepInspectorFields } from '../stepInspectorSchema';
 import {
   createCombatEventResponseDraft,
   createBuffAbilityEventResponseDraft,
@@ -43,11 +48,12 @@ import {
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import CombatStepEditor from './CombatStepEditor.vue';
+import type { InspectorPropertyPath } from '../inspectorProperty';
+import { useInspectorPropertyReveal } from '../useInspectorPropertyReveal';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import StepTypePicker from './StepTypePicker.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
-import SkillEventHandlerInspector from './SkillEventHandlerInspector.vue';
 import GlobalBuffDefinitionInspector from './GlobalBuffDefinitionInspector.vue';
 import GlobalBuffChildInspector from './GlobalBuffChildInspector.vue';
 import InlineAbilityEntityChildSkillInspector from './InlineAbilityEntityChildSkillInspector.vue';
@@ -57,6 +63,7 @@ import ScheduledSequenceEditor from './ScheduledSequenceEditor.vue';
 
 const props = defineProps<{
   sequence: ActionSequenceDefinition;
+  selectedPath?: string;
   skillLevel: number;
   createStep: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep: (step: CombatStepDefinition) => CombatStepDefinition;
@@ -67,6 +74,7 @@ const emit = defineEmits<{
   details: [path: string];
 }>();
 const shell = ref<HTMLElement | null>(null);
+const revealProperty = useInspectorPropertyReveal(shell);
 const history =
   props.sharedHistory ??
   useDefinitionDraftHistory(
@@ -79,6 +87,15 @@ const nodes = computed(() => indexSkillStructureNodes(root.value));
 const selectedId = ref('action-sequence');
 const selected = computed(() => nodes.value.get(selectedId.value) ?? root.value);
 const value = computed(() => resolveStructureValue(props.sequence, selected.value.sourcePath));
+const editContext = createDefinitionEditContext({
+  read: () => props.sequence,
+  commit(next, focus) {
+    history.commit(next, locateStructureProperty(root.value, focus));
+  },
+});
+const selectedProperty = computed(() =>
+  editContext.at(structurePathSegments(selected.value.sourcePath)),
+);
 const step = computed(() =>
   selected.value.payloadKind === 'combatStep' ? (value.value as CombatStepDefinition) : undefined,
 );
@@ -116,6 +133,7 @@ const map = ref<{
 } | null>(null);
 
 function selectNode(node: { id: string }): void {
+  void revealProperty();
   selectedId.value = node.id;
   pending.value = undefined;
 }
@@ -124,9 +142,47 @@ async function reveal(path: string): Promise<void> {
   selectedId.value = findSkillStructureNodeForPath(root.value, path).id;
   await map.value?.revealNode(selectedId.value);
 }
-function updateValue(next: unknown): void {
+watch(
+  () => props.selectedPath,
+  path => {
+    if (path !== undefined) void reveal(path);
+  },
+  { immediate: true },
+);
+function commit(value: ActionSequenceDefinition, propertyPath?: InspectorPropertyPath): void {
+  history.commit(value, { path: selected.value.sourcePath, propertyPath });
+}
+let initialHistoryLocation = true;
+watch(
+  () => history.restoredLocation?.value,
+  async location => {
+    const initial = initialHistoryLocation;
+    initialHistoryLocation = false;
+    // 重新进入图时显式导航优先于上一次撤销留下的位置，后续撤销照常定位。
+    if (!location || (initial && props.selectedPath !== undefined)) return;
+    await revealProperty();
+    await reveal(location.path);
+    if (history.restoredLocation?.value === location && location.propertyPath) {
+      const bound =
+        condition.value ||
+        selected.value.payloadKind === 'eventResponse' ||
+        selected.value.payloadKind === 'skillEventHandler' ||
+        (step.value && (step.value.kind === 'applyBuff' || stepInspectorFields(step.value.kind)));
+      await revealProperty(
+        bound
+          ? [...structurePathSegments(location.path), ...location.propertyPath]
+          : location.propertyPath,
+      );
+    }
+  },
+  { flush: 'post', immediate: true },
+);
+function updateValue(next: unknown, propertyPath?: InspectorPropertyPath): void {
   if (selected.value.sourcePath === '') return;
-  history.commit(replaceStructureValueAtPath(props.sequence, selected.value.sourcePath, next));
+  commit(
+    replaceStructureValueAtPath(props.sequence, selected.value.sourcePath, next),
+    propertyPath,
+  );
 }
 function beginAdd(source: { id: string }, anchor: { x: number; y: number }): void {
   const node = nodes.value.get(source.id);
@@ -163,7 +219,7 @@ function beginAdd(source: { id: string }, anchor: { x: number; y: number }): voi
       return;
     }
     const added = insertStructureArrayItem(props.sequence, path, payload);
-    history.commit(added.root);
+    commit(added.root);
     void reveal(added.itemPath);
   }
 }
@@ -176,7 +232,7 @@ function appendStep(kind: EditableCombatStepKind): void {
     props.createStep(kind),
   );
   pending.value = undefined;
-  history.commit(result.root);
+  commit(result.root);
   void reveal(result.stepPath);
 }
 function appendCondition(condition: CombatCondition): void {
@@ -189,10 +245,10 @@ function appendCondition(condition: CombatCondition): void {
       `${node.sourcePath}.conditions`,
       condition,
     );
-    history.commit(added.root);
+    commit(added.root);
     void reveal(added.itemPath);
   } else {
-    history.commit(replaceStructureValueAtPath(props.sequence, node.sourcePath, condition));
+    commit(replaceStructureValueAtPath(props.sequence, node.sourcePath, condition));
     void reveal(node.sourcePath);
   }
 }
@@ -220,7 +276,7 @@ function nodeAction(action: 'copy' | 'paste' | 'delete', source: { id: string })
       value: cloneStructureValue(resolveStructureValue(props.sequence, node.sourcePath)),
     };
   } else if (action === 'delete' && node.canDelete !== false && node.sourcePath) {
-    history.commit(
+    commit(
       /\[\d+\]$/.test(node.sourcePath)
         ? removeStructureArrayItem(props.sequence, node.sourcePath)
         : deleteStructureValueAtPath(props.sequence, node.sourcePath),
@@ -245,7 +301,7 @@ function nodeAction(action: 'copy' | 'paste' | 'delete', source: { id: string })
         ? props.duplicateStep(clipboard.value.value as CombatStepDefinition)
         : cloneStructureValue(clipboard.value.value);
     const added = insertStructureArrayItem(props.sequence, path, payload, index);
-    history.commit(added.root);
+    commit(added.root);
     void reveal(added.itemPath);
   }
 }
@@ -275,7 +331,7 @@ async function moveNode(operation: {
   )
     return;
   const result = moveStructureArrayItem(props.sequence, source.sourcePath, arrayPath, index);
-  history.commit(result.root);
+  commit(result.root);
   await nextTick();
   const moved = findSkillStructureNodeForPath(root.value, result.itemPath);
   map.value?.transferCollapsedState(source.id, moved.id);
@@ -318,36 +374,38 @@ async function moveNode(operation: {
         @select="appendCondition"
         @close="pending = undefined"
       />
-      <CombatStepEditor
-        inline-buff-in-graph
-        v-if="step"
-        :key="selected.sourcePath"
-        :step="step"
-        :skill-level="skillLevel"
-        :show-header="false"
-        inspector-only
-        :create-step="createStep"
-        :duplicate-step="duplicateStep"
-        @update="updateValue"
-      />
-      <CombatConditionEditor
-        v-else-if="condition"
-        :condition="condition"
-        :skill-level="skillLevel"
-        layer-only
-        @update="updateValue"
-      />
+      <DefinitionPropertyScope v-if="step || condition" :property="selectedProperty">
+        <CombatStepEditor
+          inline-buff-in-graph
+          v-if="step"
+          :key="selected.sourcePath"
+          :step="step"
+          :skill-level="skillLevel"
+          :show-header="false"
+          inspector-only
+          :create-step="createStep"
+          :duplicate-step="duplicateStep"
+          @update="updateValue"
+        />
+        <CombatConditionEditor
+          v-else-if="condition"
+          :condition="condition"
+          :skill-level="skillLevel"
+          layer-only
+        />
+      </DefinitionPropertyScope>
       <CombatEventResponseInspector
         v-else-if="selected.payloadKind === 'eventResponse'"
         :key="selected.sourcePath"
         :response="value as CombatEventResponseDefinition"
-        @update="updateValue"
+        :binding="selectedProperty"
       />
-      <SkillEventHandlerInspector
+      <CombatEventResponseInspector
         v-else-if="selected.payloadKind === 'skillEventHandler'"
         :key="selected.sourcePath"
-        :handler="value as CombatEventHandlerDefinition"
-        @update="updateValue"
+        :response="value as CombatEventHandlerDefinition"
+        :binding="selectedProperty"
+        scheduled
       />
       <GlobalBuffDefinitionInspector
         v-else-if="selected.payloadKind === 'globalBuffDefinition'"
@@ -416,7 +474,9 @@ async function moveNode(operation: {
   min-height: 320px;
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 42%);
+  grid-template-columns:
+    minmax(0, 1fr)
+    var(--definition-inspector-width, clamp(320px, 25vw, 420px));
   border: 1px solid var(--ea-border-soft);
 }
 .sequence-graph > :first-child {

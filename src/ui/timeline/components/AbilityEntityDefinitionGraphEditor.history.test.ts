@@ -1,9 +1,10 @@
 import { createRenderer, h, nextTick, shallowRef, ssrContextKey, type ComponentOptions } from 'vue';
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import Graph from './AbilityEntityDefinitionGraphEditor.vue';
 import type { AbilityEntityDefinition } from '../../../core/game-data/operatorDefinition';
 
 it('keeps all entity Inspector changes in the same undo/redo transaction history', async () => {
+  vi.stubGlobal('document', { addEventListener() {}, removeEventListener() {} });
   const initial = (): AbilityEntityDefinition => ({
     lifetime: { kind: 'limited', durationSeconds: 10 },
     childSkill: {
@@ -82,7 +83,7 @@ it('keeps all entity Inspector changes in the same undo/redo transaction history
       },
       () => {
         select('childSkill.scheduledSequences[0].sequence.steps[0]');
-        panel.updateStep({ kind: 'finishCurrentAbilityEntity', parameters: {} });
+        panel.editing.property.value.child('kind').update(() => 'finishCurrentAbilityEntity');
       },
     ];
     for (const edit of edits) {
@@ -100,11 +101,12 @@ it('keeps all entity Inspector changes in the same undo/redo transaction history
       await panel.restoreStructureHistory('undo');
       await edit();
       await nextTick();
-      expect(panel.canRedoStructure.value).toBe(false);
+      expect(panel.history.canRedo.value).toBe(false);
       await panel.restoreStructureHistory('redo');
       expect(definition.value).toEqual(after);
     }
   } finally {
     app.unmount();
+    vi.unstubAllGlobals();
   }
 });

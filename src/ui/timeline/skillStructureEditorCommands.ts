@@ -14,7 +14,7 @@ export function cloneStructureValue<T>(value: T): T {
   return clone(value);
 }
 
-function tokens(path: string): readonly PathToken[] {
+export function structurePathSegments(path: string): readonly PathToken[] {
   const result: PathToken[] = [];
   let offset = 0;
   while (offset < path.length) {
@@ -49,7 +49,7 @@ export function structureRecordEntryPath(recordPath: string, key: string): strin
 
 function valueAtPath(root: unknown, path: string): unknown {
   let value = root;
-  for (const token of tokens(path)) {
+  for (const token of structurePathSegments(path)) {
     if (value === undefined || value === null) return undefined;
     value = (value as Record<PathToken, unknown>)[token];
   }
@@ -57,7 +57,7 @@ function valueAtPath(root: unknown, path: string): unknown {
 }
 
 function setAtPath(root: unknown, path: string, value: unknown): void {
-  const parts = tokens(path);
+  const parts = structurePathSegments(path);
   if (parts.length === 0) throw new TypeError('cannot replace the skill root through a child path');
   let parent = root as Record<PathToken, unknown>;
   for (const token of parts.slice(0, -1)) {
@@ -68,7 +68,7 @@ function setAtPath(root: unknown, path: string, value: unknown): void {
 }
 
 function deleteAtPath(root: unknown, path: string): void {
-  const parts = tokens(path);
+  const parts = structurePathSegments(path);
   if (parts.length === 0) throw new TypeError('cannot delete the structure root');
   let parent = root as Record<PathToken, unknown>;
   for (const token of parts.slice(0, -1)) {

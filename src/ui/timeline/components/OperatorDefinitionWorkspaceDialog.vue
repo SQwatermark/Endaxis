@@ -2,7 +2,8 @@
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import './definitionWorkspaceLayout.css';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
-import { computed, ref, watch } from 'vue';
+import { computed, markRaw, ref, watch } from 'vue';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import {
   COMPARISON_OPERATORS,
   COMBAT_RESOURCES,
@@ -20,6 +21,7 @@ import {
   type OperatorBuffDefinitions,
   type OperatorDefinition,
   type OperatorUpgradeDefinition,
+  type SkillBuffDefinition,
   type UpgradeModifierDefinition,
   type SkillDefinition,
   type SkillGroupDefinition,
@@ -39,6 +41,10 @@ import OperatorRuntimeBehaviorDialog from './OperatorRuntimeBehaviorDialog.vue';
 import OperatorUpgradeModifierEditor from './OperatorUpgradeModifierEditor.vue';
 import OperatorUpgradeBehaviorDialog from './OperatorUpgradeBehaviorDialog.vue';
 import OperatorComboDefinitionsDialog from './OperatorComboDefinitionsDialog.vue';
+import {
+  useDefinitionDraftHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
 
 type Section = 'panel' | 'skills' | 'progression' | 'runtime' | 'buffs' | 'entities';
 type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
@@ -80,12 +86,21 @@ const emit = defineEmits<{
 
 const section = ref<Section>('panel');
 const draft = ref<OperatorDefinition>(clone(props.baseDefinition));
+const workspaceRoot = ref<HTMLElement | null>(null);
+const history = markRaw(
+  useDefinitionDraftHistory(
+    () => draft.value,
+    value => {
+      draft.value = value;
+    },
+  ),
+);
+useEditorHistoryShortcuts(workspaceRoot, history.restore);
 const panelLevel = ref(90);
 const selectedGroupIndex = ref(0);
 const selectedSkillIndex = ref(0);
 const selectedBuffId = ref('');
 const showSkillEditor = ref(false);
-const showEntityEditor = ref(false);
 const showRuntimeBehaviorEditor = ref(false);
 const showUpgradeBehaviorEditor = ref(false);
 const showComboEditor = ref(false);
@@ -93,6 +108,9 @@ const editingBehavior = computed(
   () =>
     (section.value === 'progression' && showUpgradeBehaviorEditor.value) ||
     (section.value === 'runtime' && (showRuntimeBehaviorEditor.value || showComboEditor.value)),
+);
+const editingFocusedDefinition = computed(
+  () => editingBehavior.value || (section.value === 'skills' && showSkillEditor.value),
 );
 const referencedEntityId = ref('');
 const objectSearch = ref('');
@@ -229,24 +247,71 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
+function commitDraft(value: OperatorDefinition): void {
+  history.commit(value, { path: '', section: section.value, objectId: objectLabel.value });
+}
+
+const selectedBuffHistory = markRaw<DefinitionDraftHistory<SkillBuffDefinition>>({
+  commit(value, location) {
+    if (selectedBuffId.value === '') return;
+    history.commit(
+      {
+        ...draft.value,
+        buffDefinitions: {
+          ...(draft.value.buffDefinitions ?? {}),
+          [selectedBuffId.value]: clone(value),
+        },
+      },
+      { ...location, path: location?.path ?? '', section: 'buffs', objectId: selectedBuffId.value },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: history.restoredLocation,
+});
+const entityHistory = markRaw<DefinitionDraftHistory<OperatorAbilityEntityDefinitions>>({
+  commit(value, location) {
+    history.commit(
+      { ...draft.value, abilityEntityDefinitions: Object.keys(value).length ? value : undefined },
+      { ...location, path: location?.path ?? '', section: 'entities' },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: history.restoredLocation,
+});
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (!location?.section) return;
+    selectSection(location.section as Section);
+    if (location.section === 'buffs' && location.objectId) selectedBuffId.value = location.objectId;
+    if (location.section === 'entities' && location.objectId)
+      referencedEntityId.value = location.objectId;
+  },
+  { flush: 'sync' },
+);
+
 function setTrustMode(custom: boolean): void {
-  draft.value = {
+  commitDraft({
     ...draft.value,
     trustAttributeBonus: custom ? clone(DEFAULT_TRUST_ATTRIBUTE_BONUS) : undefined,
-  };
+  });
 }
 
 function updateTrustValues(event: Event): void {
   const tokens = (event.target as HTMLInputElement).value.split(',').map(value => value.trim());
   const values = tokens.map(Number);
   if (tokens.some(value => value === '') || values.some(value => !Number.isFinite(value))) return;
-  draft.value = {
+  commitDraft({
     ...draft.value,
     trustAttributeBonus: {
       ...(draft.value.trustAttributeBonus ?? DEFAULT_TRUST_ATTRIBUTE_BONUS),
       values,
     },
-  };
+  });
 }
 
 function toggleTrustAttribute(attribute: (typeof TRUST_ATTRIBUTE_OPTIONS)[number]): void {
@@ -255,14 +320,14 @@ function toggleTrustAttribute(attribute: (typeof TRUST_ATTRIBUTE_OPTIONS)[number
     ? current.attributes.filter(value => value !== attribute)
     : [...current.attributes, attribute];
   if (attributes.length === 0) return;
-  draft.value = { ...draft.value, trustAttributeBonus: { ...current, attributes } };
+  commitDraft({ ...draft.value, trustAttributeBonus: { ...current, attributes } });
 }
 
 function replaceUpgrades(
   kind: 'talents' | 'potentials',
   upgrades: readonly OperatorUpgradeDefinition[],
 ): void {
-  draft.value = { ...draft.value, [kind]: upgrades };
+  commitDraft({ ...draft.value, [kind]: upgrades });
 }
 
 function addUpgrade(): void {
@@ -422,7 +487,7 @@ function addEntityBlackboardEntry(): void {
   let index = 1;
   while (`EntityBB_custom_${index}` in values) index += 1;
   values[`EntityBB_custom_${index}`] = 0;
-  draft.value = { ...draft.value, entityBlackboard: values };
+  commitDraft({ ...draft.value, entityBlackboard: values });
 }
 
 function renameEntityBlackboardEntry(oldKey: string, event: Event): void {
@@ -434,7 +499,7 @@ function renameEntityBlackboardEntry(oldKey: string, event: Event): void {
       value,
     ]),
   );
-  draft.value = { ...draft.value, entityBlackboard: values };
+  commitDraft({ ...draft.value, entityBlackboard: values });
 }
 
 function updateEntityBlackboardEntry(key: string, event: Event): void {
@@ -444,10 +509,10 @@ function updateEntityBlackboardEntry(key: string, event: Event): void {
     typeof current === 'number' && raw.trim() !== '' && Number.isFinite(Number(raw))
       ? Number(raw)
       : raw;
-  draft.value = {
+  commitDraft({
     ...draft.value,
     entityBlackboard: { ...(draft.value.entityBlackboard ?? {}), [key]: value },
-  };
+  });
 }
 
 function toggleEntityBlackboardEntryType(key: string): void {
@@ -459,19 +524,19 @@ function toggleEntityBlackboardEntryType(key: string): void {
       : Number.isFinite(Number(current))
         ? Number(current)
         : 0;
-  draft.value = {
+  commitDraft({
     ...draft.value,
     entityBlackboard: { ...(draft.value.entityBlackboard ?? {}), [key]: value },
-  };
+  });
 }
 
 function removeEntityBlackboardEntry(key: string): void {
   const values = { ...(draft.value.entityBlackboard ?? {}) };
   delete values[key];
-  draft.value = {
+  commitDraft({
     ...draft.value,
     entityBlackboard: Object.keys(values).length === 0 ? undefined : values,
-  };
+  });
 }
 
 function addEntityBlackboardInitializer(): void {
@@ -490,7 +555,7 @@ function addEntityBlackboardInitializer(): void {
     trueValue: 1,
     falseValue: 0,
   });
-  draft.value = { ...draft.value, entityBlackboardInitializers: entries };
+  commitDraft({ ...draft.value, entityBlackboardInitializers: entries });
 }
 
 function updateEntityBlackboardInitializer(
@@ -506,15 +571,15 @@ function updateEntityBlackboardInitializer(
   else if (field === 'trueValue' || field === 'falseValue')
     entries[index] = { ...entry, [field]: Number(raw) };
   else entries[index] = { ...entry, condition: { ...entry.condition, [field]: raw } };
-  draft.value = { ...draft.value, entityBlackboardInitializers: entries };
+  commitDraft({ ...draft.value, entityBlackboardInitializers: entries });
 }
 
 function removeEntityBlackboardInitializer(index: number): void {
   const entries = (draft.value.entityBlackboardInitializers ?? []).filter((_, i) => i !== index);
-  draft.value = {
+  commitDraft({
     ...draft.value,
     entityBlackboardInitializers: entries.length === 0 ? undefined : entries,
-  };
+  });
 }
 
 function normalizeSkills(
@@ -530,10 +595,10 @@ function updatePanelStat(key: keyof OperatorDefinition['attributes'], event: Eve
   const index = panelLevel.value - 1;
   const values = [...draft.value.attributes[key]];
   values[index] = value;
-  draft.value = {
+  commitDraft({
     ...draft.value,
     attributes: { ...draft.value.attributes, [key]: values },
-  };
+  });
 }
 
 function updateIdentity(
@@ -551,13 +616,13 @@ function updateIdentity(
 ): void {
   const raw = (event.target as HTMLInputElement | HTMLSelectElement).value;
   const value = field === 'rarity' || field === 'defaultPotential' ? Number(raw) : raw;
-  draft.value = { ...draft.value, [field]: value } as OperatorDefinition;
+  commitDraft({ ...draft.value, [field]: value } as OperatorDefinition);
 }
 
 function replaceGroup(index: number, group: SkillGroupDefinition): void {
   const next = [...draft.value.skillGroups];
   next[index] = group;
-  draft.value = { ...draft.value, skillGroups: next };
+  commitDraft({ ...draft.value, skillGroups: next });
 }
 
 function uniqueKey(base: string, existing: readonly string[]): string {
@@ -577,7 +642,7 @@ function duplicateGroup(): void {
   );
   const groups = [...draft.value.skillGroups];
   groups.splice(selectedGroupIndex.value + 1, 0, copy);
-  draft.value = { ...draft.value, skillGroups: groups };
+  commitDraft({ ...draft.value, skillGroups: groups });
   selectedGroupIndex.value += 1;
   selectedSkillIndex.value = 0;
 }
@@ -585,7 +650,7 @@ function duplicateGroup(): void {
 function removeGroup(): void {
   if (selectedGroup.value === undefined) return;
   const groups = draft.value.skillGroups.filter((_, index) => index !== selectedGroupIndex.value);
-  draft.value = { ...draft.value, skillGroups: groups };
+  commitDraft({ ...draft.value, skillGroups: groups });
   selectedGroupIndex.value = Math.max(0, Math.min(selectedGroupIndex.value, groups.length - 1));
   selectedSkillIndex.value = 0;
 }
@@ -596,7 +661,7 @@ function moveGroup(offset: -1 | 1): void {
   if (target < 0 || target >= draft.value.skillGroups.length) return;
   const groups = [...draft.value.skillGroups];
   [groups[source], groups[target]] = [groups[target]!, groups[source]!];
-  draft.value = { ...draft.value, skillGroups: groups };
+  commitDraft({ ...draft.value, skillGroups: groups });
   selectedGroupIndex.value = target;
 }
 
@@ -658,13 +723,13 @@ function moveSkill(offset: -1 | 1): void {
 
 function updateBuffStep(step: CombatStepDefinition): void {
   if (step.kind !== 'applyBuff' || step.parameters.definition === undefined) return;
-  draft.value = {
+  commitDraft({
     ...draft.value,
     buffDefinitions: {
       ...(draft.value.buffDefinitions ?? {}),
       [selectedBuffId.value]: clone(step.parameters.definition),
     },
-  };
+  });
 }
 
 function addBuff(): void {
@@ -672,13 +737,13 @@ function addBuff(): void {
   let index = 1;
   while (existing.has(`custom-buff-${index}`)) index += 1;
   const id = `custom-buff-${index}`;
-  draft.value = {
+  commitDraft({
     ...draft.value,
     buffDefinitions: {
       ...(draft.value.buffDefinitions ?? {}),
       [id]: { stackingType: 'refresh', durationSeconds: 10 },
     },
-  };
+  });
   selectedBuffId.value = id;
 }
 
@@ -686,10 +751,10 @@ function removeBuff(): void {
   if (selectedBuffId.value === '' || selectedBuffReferences.value.length > 0) return;
   const next = { ...(draft.value.buffDefinitions ?? {}) };
   delete next[selectedBuffId.value];
-  draft.value = {
+  commitDraft({
     ...draft.value,
     buffDefinitions: Object.keys(next).length === 0 ? undefined : next,
-  };
+  });
   selectedBuffId.value = Object.keys(next).sort()[0] ?? '';
 }
 
@@ -713,7 +778,6 @@ function revealDefinitionReference(reference: OperatorDefinitionReference): void
   if (reference.ownerKind === 'entity') {
     section.value = 'entities';
     referencedEntityId.value = reference.ownerId;
-    showEntityEditor.value = true;
     return;
   }
   if (reference.ownerKind === 'upgrade') {
@@ -732,33 +796,24 @@ function revealDefinitionReference(reference: OperatorDefinitionReference): void
 }
 
 function revealEntityDefinitionReference(reference: OperatorDefinitionReference): void {
-  showEntityEditor.value = false;
   revealDefinitionReference(reference);
-}
-
-function saveEntities(definitions: OperatorAbilityEntityDefinitions): void {
-  draft.value = {
-    ...draft.value,
-    abilityEntityDefinitions: Object.keys(definitions).length === 0 ? undefined : definitions,
-  };
-  showEntityEditor.value = false;
 }
 
 function saveRuntimeBehaviors(value: {
   passiveSkills?: OperatorDefinition['passiveSkills'];
   eventHandlers?: OperatorDefinition['eventHandlers'];
 }): void {
-  draft.value = { ...draft.value, ...value };
+  commitDraft({ ...draft.value, ...value });
   showRuntimeBehaviorEditor.value = false;
 }
 
 function saveComboDefinitions(value: {
   conditions?: OperatorDefinition['comboSkillConditions'];
 }): void {
-  draft.value = {
+  commitDraft({
     ...draft.value,
     comboSkillConditions: value.conditions,
-  };
+  });
   showComboEditor.value = false;
 }
 
@@ -797,7 +852,6 @@ function openReferencedDefinition(reference: {
   }
   section.value = 'entities';
   referencedEntityId.value = reference.id;
-  showEntityEditor.value = true;
 }
 </script>
 
@@ -805,8 +859,8 @@ function openReferencedDefinition(reference: {
   <InputRegionBoundary label="operator-definition-workspace" :active="visible" modal>
     <el-dialog
       :model-value="visible"
-      width="min(1180px, calc(100vw - 48px))"
-      top="24px"
+      width="min(1600px, calc(100vw - 32px))"
+      top="16px"
       append-to-body
       destroy-on-close
       class="operator-definition-workspace definition-workspace-dialog"
@@ -822,8 +876,12 @@ function openReferencedDefinition(reference: {
         </div>
       </template>
 
-      <div class="workspace" :class="{ 'behavior-focused': editingBehavior }">
-        <nav v-if="!editingBehavior" class="workspace-nav">
+      <div
+        ref="workspaceRoot"
+        class="workspace"
+        :class="{ 'definition-focused': editingFocusedDefinition }"
+      >
+        <nav v-if="!editingFocusedDefinition" class="workspace-nav">
           <div class="nav-caption">定义结构</div>
           <button :class="{ active: section === 'panel' }" @click="selectSection('panel')">
             <span>基础面板</span><b>90 级</b>
@@ -852,16 +910,17 @@ function openReferencedDefinition(reference: {
         <main
           class="workspace-main"
           :class="{
-            'entity-editing': (section === 'entities' && showEntityEditor) || section === 'buffs',
+            'entity-editing': section === 'entities' || section === 'buffs',
             'behavior-editing': editingBehavior,
+            'focused-editing': editingFocusedDefinition,
           }"
         >
           <nav class="workspace-breadcrumbs" aria-label="当前位置">
-            <button :disabled="editingBehavior" @click="selectSection('panel')">
+            <button :disabled="editingFocusedDefinition" @click="selectSection('panel')">
               {{ draft.displayName ?? draft.slug }}
             </button>
             <span>›</span>
-            <button :disabled="editingBehavior" @click="selectSection(section)">
+            <button :disabled="editingFocusedDefinition" @click="selectSection(section)">
               {{ sectionLabel }}
             </button>
             <template v-if="objectLabel">
@@ -1015,8 +1074,12 @@ function openReferencedDefinition(reference: {
             </div>
           </section>
 
-          <section v-else-if="section === 'skills'" class="definition-section split-section">
-            <aside class="object-list">
+          <section
+            v-else-if="section === 'skills'"
+            class="definition-section split-section"
+            :class="{ 'focused-definition-section': showSkillEditor }"
+          >
+            <aside v-if="!showSkillEditor" class="object-list">
               <input v-model="objectSearch" class="object-search" placeholder="搜索技能组…" />
               <button
                 class="add-object"
@@ -1051,6 +1114,7 @@ function openReferencedDefinition(reference: {
                 :ability-entity-ids="abilityEntityIds"
                 show-reference-pins
                 allow-invalid-save
+                back-label="返回技能与技能组"
                 @update:visible="showSkillEditor = $event"
                 @save="replaceSelectedSkill"
                 @reference="openReferencedDefinition"
@@ -1536,6 +1600,7 @@ function openReferencedDefinition(reference: {
                 :buff-id="selectedBuffId"
                 :definition="selectedBuff!"
                 :skill-level="skillLevel"
+                :shared-history="selectedBuffHistory"
                 @update="
                   updateBuffStep({
                     kind: 'applyBuff',
@@ -1551,13 +1616,8 @@ function openReferencedDefinition(reference: {
             <div v-else class="empty-state">这个干员还没有 Buff 定义。</div>
           </section>
 
-          <section
-            v-else
-            class="definition-section"
-            :class="{ 'entity-editing-section': showEntityEditor }"
-          >
+          <section v-else class="definition-section entity-editing-section">
             <AbilityEntityDefinitionsDialog
-              v-if="showEntityEditor"
               :visible="true"
               :base-definitions="{}"
               :custom-definitions="draft.abilityEntityDefinitions"
@@ -1565,35 +1625,16 @@ function openReferencedDefinition(reference: {
               :skill-level="skillLevel"
               :initial-selected-id="referencedEntityId"
               :operator-definition="draft"
-              @update:visible="showEntityEditor = $event"
-              @save="saveEntities"
+              :shared-history="entityHistory"
               @reveal-reference="revealEntityDefinitionReference"
             />
-            <template v-else>
-              <header>
-                <div>
-                  <h3>能力实体</h3>
-                  <p>能力实体是干员定义的附属对象，子技能按引用它的技能等级解析。</p>
-                </div>
-              </header>
-              <div class="entity-summary">
-                <strong>{{ Object.keys(draft.abilityEntityDefinitions ?? {}).length }}</strong>
-                <span>个干员级能力实体</span>
-                <button
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                  @click="showEntityEditor = true"
-                >
-                  编辑能力实体
-                </button>
-              </div>
-            </template>
           </section>
         </main>
       </div>
 
       <template #footer>
         <div
-          v-if="!editingBehavior && showProblems && draftIssues.length"
+          v-if="!editingFocusedDefinition && showProblems && draftIssues.length"
           class="workspace-problems"
         >
           <button
@@ -1608,7 +1649,7 @@ function openReferencedDefinition(reference: {
         <p v-if="editingBehavior" class="behavior-draft-note">
           当前编辑行为草稿；保存行为返回后，再保存干员定义。取消行为仅丢弃本次行为修改。
         </p>
-        <div v-else class="workspace-footer">
+        <div v-else-if="!editingFocusedDefinition" class="workspace-footer">
           <button
             class="problem-summary"
             :class="{ invalid: draftIssues.length > 0 }"
@@ -1618,6 +1659,20 @@ function openReferencedDefinition(reference: {
           </button>
           <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
             恢复游戏定义
+          </button>
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            :disabled="!history.canUndo.value"
+            @click="history.restore('undo')"
+          >
+            撤销
+          </button>
+          <button
+            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+            :disabled="!history.canRedo.value"
+            @click="history.restore('redo')"
+          >
+            重做
           </button>
           <span />
           <button
@@ -1642,7 +1697,7 @@ function openReferencedDefinition(reference: {
 <style scoped>
 .workspace {
   display: grid;
-  grid-template-columns: 210px minmax(0, 1fr);
+  grid-template-columns: var(--definition-outliner-width, 210px) minmax(0, 1fr);
   height: 100%;
   min-height: 0;
   box-sizing: border-box;
@@ -1718,7 +1773,7 @@ function openReferencedDefinition(reference: {
   min-width: 0;
   overflow: auto;
 }
-.workspace.behavior-focused {
+.workspace.definition-focused {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
@@ -1727,6 +1782,15 @@ function openReferencedDefinition(reference: {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+}
+.workspace-main.focused-editing {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.focused-editing .workspace-breadcrumbs {
+  flex: none;
 }
 .behavior-editing .workspace-breadcrumbs {
   flex: none;
@@ -1748,6 +1812,26 @@ function openReferencedDefinition(reference: {
   display: flex;
   padding: 0;
   overflow: hidden;
+}
+.definition-section.focused-definition-section {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  padding: 0 10px;
+  overflow: hidden;
+}
+.focused-definition-section > .object-editor {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.focused-definition-section :deep(.skill-editor) {
+  flex: 1;
+  height: 100%;
+  min-height: 0;
 }
 .behavior-draft-note {
   margin: 0;
@@ -1909,7 +1993,7 @@ input:disabled {
 }
 .split-section {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: var(--definition-outliner-width, 240px) minmax(0, 1fr);
   gap: 20px;
   padding: 0;
   min-height: 100%;
@@ -2072,8 +2156,7 @@ input:disabled {
   color: #f1dd4e;
   border-color: #b5a62e;
 }
-.skill-summary,
-.entity-summary {
+.skill-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2090,16 +2173,6 @@ input:disabled {
 .skill-summary span {
   color: #888;
 }
-.entity-summary {
-  justify-content: flex-start;
-}
-.entity-summary strong {
-  font-size: 30px;
-  color: #f1dd4e;
-}
-.entity-summary button {
-  margin-left: auto;
-}
 .danger-button {
   color: #e18d8d;
   border: 1px solid #684040;
@@ -2115,7 +2188,7 @@ input:disabled {
 }
 .workspace-footer {
   display: grid;
-  grid-template-columns: auto auto 1fr auto auto;
+  grid-template-columns: auto auto auto auto 1fr auto auto;
   gap: 10px;
 }
 .problem-summary {

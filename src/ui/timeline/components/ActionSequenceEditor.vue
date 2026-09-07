@@ -33,6 +33,7 @@ import {
 } from '../skillStructureEditorCommands';
 import CombatStepEditor from './CombatStepEditor.vue';
 import StepTypePicker from './StepTypePicker.vue';
+import type { InspectorPropertyPath } from '../inspectorProperty';
 
 const props = defineProps<{
   sequence: ActionSequenceDefinition;
@@ -40,11 +41,15 @@ const props = defineProps<{
   createStep: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep: (step: CombatStepDefinition) => CombatStepDefinition;
   selectedPath?: string;
+  /** 嵌套宿主传入相对序列根的恢复路径，不在此创建历史事务。 */
+  restoredPropertyPath?: InspectorPropertyPath;
   /** Only standalone behavior hosts own history here; skill/graph hosts retain theirs. */
   standaloneHistory?: boolean;
   sharedHistory?: DefinitionDraftHistory<ActionSequenceDefinition>;
 }>();
-const emit = defineEmits<{ update: [sequence: ActionSequenceDefinition] }>();
+const emit = defineEmits<{
+  update: [sequence: ActionSequenceDefinition, propertyPath?: InspectorPropertyPath];
+}>();
 const nestedEditor = inject(ACTION_SEQUENCE_EDITOR_CONTEXT, false);
 provide(ACTION_SEQUENCE_EDITOR_CONTEXT, true);
 const editorRoot = ref<HTMLElement | null>(null);
@@ -56,13 +61,51 @@ const history =
   );
 const ownsHistory = props.standaloneHistory === true && !nestedEditor;
 if (ownsHistory) useEditorHistoryShortcuts(editorRoot, history.restore);
-function publishSequence(value: ActionSequenceDefinition): void {
-  if (ownsHistory) history.commit(value);
-  else emit('update', value);
+function publishSequence(
+  value: ActionSequenceDefinition,
+  propertyPath?: InspectorPropertyPath,
+): void {
+  if (ownsHistory)
+    history.commit(value, { path: `steps[${selectedStepIndex.value}]`, propertyPath });
+  else emit('update', value, ['steps', selectedStepIndex.value, ...(propertyPath ?? [])]);
 }
 const { t } = useI18n({ useScope: 'global' });
 const selectedStepIndex = ref(0);
 const detailCollapsed = ref(false);
+const restoredStepPath = ref<InspectorPropertyPath>();
+watch(
+  () => props.restoredPropertyPath,
+  path => {
+    restoredStepPath.value = undefined;
+    if (
+      path?.[0] !== 'steps' ||
+      typeof path[1] !== 'number' ||
+      !Number.isInteger(path[1]) ||
+      !props.sequence.steps[path[1]]
+    )
+      return;
+    selectedStepIndex.value = path[1];
+    detailCollapsed.value = false;
+    restoredStepPath.value = path.slice(2);
+  },
+  { immediate: true, flush: 'post' },
+);
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (!ownsHistory) return;
+    restoredStepPath.value = undefined;
+    const match = location?.path.match(/^steps\[(\d+)\]/);
+    if (!match) return;
+    selectedStepIndex.value = Math.max(
+      0,
+      Math.min(Number(match[1]), props.sequence.steps.length - 1),
+    );
+    detailCollapsed.value = false;
+    restoredStepPath.value = location?.propertyPath;
+  },
+  { flush: 'post', immediate: true },
+);
 const nestedSelectedPath = computed(() => {
   const match = props.selectedPath?.match(/^steps\[(\d+)\](?:\.(.*))?$/);
   if (match === null || match === undefined || Number(match[1]) !== selectedStepIndex.value) {
@@ -94,10 +137,11 @@ watch(
   { immediate: true },
 );
 
-function replaceStep(step: CombatStepDefinition): void {
+function replaceStep(step: CombatStepDefinition, propertyPath?: InspectorPropertyPath): void {
   if (props.sequence.steps[selectedStepIndex.value] === undefined) return;
   publishSequence(
     replaceStructureValueAtPath(props.sequence, `steps[${selectedStepIndex.value}]`, step),
+    propertyPath,
   );
 }
 
@@ -173,7 +217,10 @@ function appendStep(kind: EditableCombatStepKind): void {
         :key="`${step.kind}-${step.key ?? ''}-${stepIndex}`"
         type="button"
         :class="{ 'is-active': selectedStepIndex === stepIndex }"
-        @click="selectedStepIndex = stepIndex"
+        @click="
+          selectedStepIndex = stepIndex;
+          restoredStepPath = undefined;
+        "
       >
         <span>{{ stepIndex + 1 }}</span>
         <strong>{{ t(`timeline.skillEditing.stepKinds.${step.kind}`) }}</strong>
@@ -245,6 +292,7 @@ function appendStep(kind: EditableCombatStepKind): void {
         :create-step="createStep"
         :duplicate-step="duplicateStep"
         :selected-path="nestedSelectedPath"
+        :restored-property-path="restoredStepPath"
         @update="replaceStep"
       />
     </div>

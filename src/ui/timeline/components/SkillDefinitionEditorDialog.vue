@@ -4,6 +4,7 @@
  * 弹窗关闭不会写场景，只有 save 事件会把完整定义交给编辑器命令层校验。
  */
 import { computed, provide } from 'vue';
+import './definitionWorkspaceLayout.css';
 import { useI18n } from 'vue-i18n';
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
 import SkillDefinitionEditor from './SkillDefinitionEditor.vue';
@@ -21,6 +22,7 @@ const props = defineProps<{
   buffIds?: readonly string[];
   showReferencePins?: boolean;
   allowInvalidSave?: boolean;
+  backLabel?: string;
 }>();
 
 const emit = defineEmits<{
@@ -68,6 +70,7 @@ const labels = () => ({
     :labels="labels()"
     :show-reference-pins="showReferencePins"
     :allow-invalid-save="allowInvalidSave"
+    :back-label="backLabel"
     @save="emit('save', $event)"
     @cancel="emit('update:visible', false)"
     @reset="emit('reset')"
@@ -77,10 +80,11 @@ const labels = () => ({
     v-else
     :model-value="visible"
     :title="`${t('timeline.skillEditing.section')} · ${title}`"
-    width="min(1500px, 96vw)"
+    width="min(1600px, calc(100vw - 32px))"
+    top="16px"
     append-to-body
     destroy-on-close
-    class="skill-definition-dialog"
+    class="skill-definition-dialog definition-workspace-dialog definition-workspace-dialog--skill"
     @update:model-value="emit('update:visible', $event)"
   >
     <InputRegionBoundary label="skill-definition-dialog" :active="visible" modal>
@@ -93,6 +97,7 @@ const labels = () => ({
         :labels="labels()"
         :show-reference-pins="showReferencePins"
         :allow-invalid-save="allowInvalidSave"
+        :back-label="backLabel"
         @save="emit('save', $event)"
         @cancel="emit('update:visible', false)"
         @reset="emit('reset')"

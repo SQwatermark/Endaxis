@@ -49,15 +49,35 @@ it('keeps history across label changes and discards it when the host changes edi
     expect(contribution.value).not.toHaveProperty('initializationSequence');
     label.value = 'renamed';
     await nextTick();
-    expect(panel.undoStack.value).toHaveLength(1);
+    expect(panel.history.canUndo.value).toBe(true);
     await panel.restoreHistory('undo');
     expect(contribution.value.initializationSequence).toEqual({ steps: [] });
+    // 属性句柄与结构操作共用宿主历史；字段定位不需要逐层转发事件。
+    panel.editing.context.root.child('initializationSequence').child('steps').update(() => [
+      { kind: 'storeCurrentTimelineFrame', parameters: { outputKey: 'before' } },
+    ]);
+    await nextTick();
+    await panel.selectPath('initializationSequence.steps[0]');
+    panel.editing.property.value.child('parameters').child('outputKey').update(() => 'after');
+    await nextTick();
+    expect(contribution.value.initializationSequence.steps[0].parameters.outputKey).toBe('after');
+    await panel.selectPath('');
+    await panel.restoreHistory('undo');
+    await nextTick();
+    expect(contribution.value.initializationSequence.steps[0].parameters.outputKey).toBe('before');
+    expect(panel.selectedPath.value).toBe('initializationSequence.steps[0]');
+    expect(panel.history.restoredLocation.value).toMatchObject({
+      path: 'initializationSequence.steps[0]',
+      propertyPath: ['parameters', 'outputKey'],
+    });
     await panel.restoreHistory('redo');
+    expect(contribution.value.initializationSequence.steps[0].parameters.outputKey).toBe('after');
+    await panel.removeInitializationSequence();
     expect(contribution.value).not.toHaveProperty('initializationSequence');
     context.value = '0:1'; // A different trait, same display label.
     contribution.value = { initializationBlackboard: { other: 2 } };
     await nextTick();
-    expect(panel.undoStack.value).toHaveLength(0);
+    expect(panel.history.canUndo.value).toBe(false);
     await panel.restoreHistory('undo');
     expect(contribution.value).toEqual({ initializationBlackboard: { other: 2 } });
     panel.createInitializationSequence();
@@ -65,8 +85,8 @@ it('keeps history across label changes and discards it when the host changes edi
     context.value = '1:1'; // Deletion replaces the selected trait at the same index.
     contribution.value = {};
     await nextTick();
-    expect(panel.undoStack.value).toHaveLength(0);
-    expect(panel.redoStack.value).toHaveLength(0);
+    expect(panel.history.canUndo.value).toBe(false);
+    expect(panel.history.canRedo.value).toBe(false);
   } finally {
     app.unmount();
   }

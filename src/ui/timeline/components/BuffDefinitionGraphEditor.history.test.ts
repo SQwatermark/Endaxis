@@ -56,7 +56,7 @@ it('records Inspector edits and invalidates redo when editing after undo', async
       },
       () => {
         panel.selectedPath.value = 'lifecycleSequences.start.steps[0]';
-        panel.updateStep({ kind: 'finishCurrentAbilityEntity', parameters: {} });
+        panel.editing.property.value.child('kind').update(() => 'finishCurrentAbilityEntity');
       },
       () => {
         panel.selectedPath.value = 'abilityEventResponses[0]';
@@ -85,7 +85,7 @@ it('records Inspector edits and invalidates redo when editing after undo', async
       await panel.restoreStructureHistory('undo');
       edit();
       await nextTick();
-      expect(panel.canRedoStructure.value).toBe(false);
+      expect(panel.history.canRedo.value).toBe(false);
       await panel.restoreStructureHistory('redo');
       expect(definition.value).toEqual(edited);
     }

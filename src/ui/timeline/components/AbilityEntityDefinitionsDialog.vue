@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, provide, ref, watch } from 'vue';
+import { computed, markRaw, provide, ref, watch } from 'vue';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { useI18n } from 'vue-i18n';
 import type {
   AbilityEntityDefinition,
@@ -15,6 +16,10 @@ import {
   type OperatorDefinitionReference,
 } from '../operatorDefinitionReferences';
 import AbilityEntityDefinitionGraphEditor from './AbilityEntityDefinitionGraphEditor.vue';
+import {
+  useDefinitionDraftHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
 
 type SpawnAbilityEntityStep = Extract<
   CombatStepDefinition,
@@ -29,6 +34,7 @@ const props = defineProps<{
   skillLevel: number;
   initialSelectedId?: string;
   operatorDefinition?: OperatorDefinition;
+  sharedHistory?: DefinitionDraftHistory<OperatorAbilityEntityDefinitions>;
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
@@ -37,7 +43,15 @@ const emit = defineEmits<{
 }>();
 const { t } = useI18n({ useScope: 'global' });
 
-const draft = ref<Record<string, AbilityEntityDefinition>>({});
+const localDraft = ref<Record<string, AbilityEntityDefinition>>({});
+// 嵌入根工作区时直接读取根草稿；独立入口才拥有本地草稿和保存操作。
+const draft = computed({
+  get: () => (props.sharedHistory ? (props.customDefinitions ?? {}) : localDraft.value),
+  set: value => {
+    if (!props.sharedHistory) localDraft.value = value;
+  },
+});
+const editorRoot = ref<HTMLElement | null>(null);
 const selectedId = ref('');
 const newId = ref('');
 const filterText = ref('');
@@ -60,6 +74,41 @@ const canAdd = computed(() => {
   return id.length > 0 && !allIds.value.includes(id);
 });
 provide(ABILITY_ENTITY_IDS_KEY, allIds);
+const history = markRaw(
+  props.sharedHistory ??
+    useDefinitionDraftHistory(
+      () => draft.value,
+      value => {
+        draft.value = value;
+      },
+    ),
+);
+const selectedDefinitionHistory = markRaw<DefinitionDraftHistory<AbilityEntityDefinition>>({
+  commit(value, location) {
+    if (selectedId.value === '') return;
+    history.commit(
+      { ...draft.value, [selectedId.value]: cloneProjectJson(value) },
+      { ...location, path: location?.path ?? '', objectId: selectedId.value },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: history.restoredLocation,
+});
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (props.sharedHistory && location?.section !== 'entities') return;
+    if (location?.objectId && mergedDefinitions.value[location.objectId]) {
+      selectedId.value = location.objectId;
+      filterText.value = '';
+    }
+  },
+  // 根草稿通过 props 下传，恢复选择必须等待本次根数据更新完成。
+  { flush: 'post' },
+);
+useEditorHistoryShortcuts(editorRoot, history.restore);
 
 const selectedDefinition = computed(() => mergedDefinitions.value[selectedId.value]);
 const selectedIsOverride = computed(() => draft.value[selectedId.value] !== undefined);
@@ -97,7 +146,7 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
-    draft.value = cloneProjectJson(props.customDefinitions ?? {});
+    if (!props.sharedHistory) draft.value = cloneProjectJson(props.customDefinitions ?? {});
     const ids = Object.keys({ ...props.baseDefinitions, ...draft.value }).sort();
     selectedId.value =
       props.initialSelectedId !== undefined && ids.includes(props.initialSelectedId)
@@ -107,6 +156,16 @@ watch(
     filterText.value = '';
   },
   { immediate: true },
+);
+
+watch(
+  () => props.initialSelectedId,
+  id => {
+    if (id && mergedDefinitions.value[id]) {
+      selectedId.value = id;
+      filterText.value = '';
+    }
+  },
 );
 
 function nextCustomId(existing = allIds.value): string {
@@ -128,19 +187,19 @@ function cloneProjectJson<T>(value: T): T {
 
 function updateDefinition(step: CombatStepDefinition): void {
   if (step.kind !== 'spawnAbilityEntity' || step.parameters.definition === undefined) return;
-  draft.value = {
-    ...draft.value,
-    [selectedId.value]: cloneProjectJson(step.parameters.definition),
-  };
+  selectedDefinitionHistory.commit(step.parameters.definition);
 }
 
 function addDefinition(): void {
   const id = newId.value.trim();
   if (id.length === 0 || allIds.value.includes(id)) return;
-  draft.value = {
-    ...draft.value,
-    [id]: { lifetime: { kind: 'limited', durationSeconds: 10 } },
-  };
+  history.commit(
+    {
+      ...draft.value,
+      [id]: { lifetime: { kind: 'limited', durationSeconds: 10 } },
+    },
+    { path: '', objectId: id },
+  );
   selectedId.value = id;
   newId.value = nextCustomId([...allIds.value, id]);
 }
@@ -149,7 +208,10 @@ function duplicateDefinition(): void {
   const definition = selectedDefinition.value;
   if (definition === undefined) return;
   const id = nextCustomId();
-  draft.value = { ...draft.value, [id]: cloneProjectJson(definition) };
+  history.commit(
+    { ...draft.value, [id]: cloneProjectJson(definition) },
+    { path: '', objectId: id },
+  );
   selectedId.value = id;
   newId.value = nextCustomId([...allIds.value, id]);
 }
@@ -160,8 +222,9 @@ function removeOrResetDefinition(): void {
   if (props.baseDefinitions[id] === undefined && selectedReferences.value.length > 0) return;
   const next = { ...draft.value };
   delete next[id];
-  draft.value = next;
-  if (props.baseDefinitions[id] === undefined) selectedId.value = operatorIds.value[0] ?? '';
+  history.commit(next, { path: '', objectId: id });
+  if (props.baseDefinitions[id] === undefined)
+    selectedId.value = Object.keys({ ...props.baseDefinitions, ...next }).sort()[0] ?? '';
 }
 
 function revealReference(reference: OperatorDefinitionReference): void {
@@ -180,14 +243,18 @@ function save(): void {
 </script>
 
 <template>
-  <section v-if="visible" class="ability-entity-definitions-editor">
-    <header class="entity-workspace__heading">
+  <section v-if="visible" ref="editorRoot" class="ability-entity-definitions-editor">
+    <header v-if="!sharedHistory" class="definition-focused-header entity-workspace__heading">
       <div>
         <strong>{{ t('timeline.skillEditing.abilityEntityObjects') }}</strong>
         <span>选择定义只切换当前画布，不会打开新的面板。</span>
       </div>
-      <button type="button" class="ea-btn ea-btn--sm" @click="emit('update:visible', false)">
-        返回能力实体概览
+      <button
+        type="button"
+        class="definition-focused-back ea-btn ea-btn--sm"
+        @click="emit('update:visible', false)"
+      >
+        ← 返回能力实体概览
       </button>
     </header>
     <div class="entity-workspace">
@@ -298,6 +365,7 @@ function save(): void {
               :ability-entity-id="selectedId"
               :definition="selectedDefinition!"
               :skill-level="skillLevel"
+              :shared-history="selectedDefinitionHistory"
               @update="
                 updateDefinition({
                   kind: 'spawnAbilityEntity',
@@ -317,10 +385,27 @@ function save(): void {
       </main>
     </div>
 
-    <div class="entity-workspace__footer">
+    <div v-if="!sharedHistory" class="entity-workspace__footer">
       <span v-if="validationIssues.length" class="entity-workspace__error">
         {{ t('timeline.skillEditing.validationIssueCount', { count: validationIssues.length }) }}
       </span>
+      <button
+        type="button"
+        class="ea-btn ea-btn--sm"
+        :disabled="!history.canUndo.value"
+        @click="history.restore('undo')"
+      >
+        撤销
+      </button>
+      <button
+        type="button"
+        class="ea-btn ea-btn--sm"
+        :disabled="!history.canRedo.value"
+        @click="history.restore('redo')"
+      >
+        重做
+      </button>
+      <span class="entity-workspace__footer-spacer" />
       <button type="button" class="ea-btn ea-btn--sm" @click="emit('update:visible', false)">
         {{ t('timeline.skillEditing.cancel') }}
       </button>
@@ -360,7 +445,7 @@ function save(): void {
   display: grid;
   min-height: 0;
   flex: 1;
-  grid-template-columns: clamp(150px, 20vw, 210px) minmax(0, 1fr);
+  grid-template-columns: var(--definition-outliner-width, clamp(180px, 15vw, 240px)) minmax(0, 1fr);
   gap: 0;
   overflow: hidden;
   border: 1px solid var(--ea-border-soft);
@@ -492,6 +577,9 @@ function save(): void {
 }
 .entity-workspace__footer {
   justify-content: flex-end;
+}
+.entity-workspace__footer-spacer {
+  flex: 1;
 }
 .entity-workspace__error {
   margin-right: auto;

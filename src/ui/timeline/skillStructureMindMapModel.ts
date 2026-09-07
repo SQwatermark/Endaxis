@@ -12,7 +12,28 @@ import type {
   SkillGlobalBuffDefinition,
 } from '../../core/game-data/operatorDefinition';
 import type { EquipmentContributionDefinition } from '../../core/game-data/equipmentDefinition';
-import { resolveStructureValue, structureRecordEntryPath } from './skillStructureEditorCommands';
+import {
+  resolveStructureValue,
+  structureRecordEntryPath,
+  structurePathSegments,
+} from './skillStructureEditorCommands';
+
+/** 图视图统一把根属性路径分解为所属节点与节点内字段，不推测用户操作来源。 */
+export function locateStructureProperty(
+  root: SkillStructureNode,
+  focus: readonly (string | number)[],
+) {
+  let target = root;
+  let consumed = 0;
+  for (const node of indexSkillStructureNodes(root).values()) {
+    const path = structurePathSegments(node.sourcePath);
+    if (path.length > consumed && path.every((part, index) => focus[index] === part)) {
+      target = node;
+      consumed = path.length;
+    }
+  }
+  return { path: target.sourcePath, propertyPath: focus.slice(consumed) };
+}
 
 export type SkillStructureEditorSection = 'overview' | 'blackboard' | 'availability' | number;
 
@@ -107,6 +128,11 @@ function describeCondition(value: unknown, depth = 0): string {
     .slice(0, 3)
     .map(([key, entry]) => `${key}=${describeCondition(entry, depth + 1)}`);
   return parameters.length === 0 ? kind : `${kind}(${parameters.join(', ')})`;
+}
+
+/** 独立条件工作区与技能/事件导图共用同一个节点投影。 */
+export function buildCombatConditionMindMap(condition: CombatCondition): SkillStructureNode {
+  return conditionNode(condition, 'condition', 'condition', condition.kind, 0, false, false);
 }
 
 function conditionNode(
@@ -976,6 +1002,21 @@ export function buildBuffStructureMindMap(
         relationToParent: 'port',
       },
       ...lifecycleNodes,
+      // 条件程序也是有序动作序列，复用相同节点与编辑命令，不在属性表单递归展开。
+      ...(definition.damageModifiers ?? []).flatMap((modifier, index) =>
+        modifier.conditionProgram === undefined
+          ? []
+          : [
+              sequenceNode(
+                modifier.conditionProgram,
+                `buff:damage-modifier:${index}:condition-program`,
+                `伤害修正 ${index + 1} · 条件程序`,
+                `damageModifiers[${index}].conditionProgram`,
+                `${modifier.conditionProgram.steps.length} 个直属步骤`,
+                index,
+              ),
+            ],
+      ),
       {
         id: 'buff:ability-responses',
         label: 'Ability 事件响应',

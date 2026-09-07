@@ -12,6 +12,7 @@ import {
   type CSSProperties,
 } from 'vue';
 import { ArrowDown, ArrowUp, CopyDocument, Delete } from '@element-plus/icons-vue';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import type {
   CombatCondition,
   CombatEventResponseDefinition,
@@ -54,8 +55,14 @@ import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
 import CombatStepEditor from './CombatStepEditor.vue';
+import DefinitionPropertyScope from './DefinitionPropertyScope.vue';
+import { useDefinitionGraphEditing } from '../useDefinitionGraphEditing';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import StepTypePicker from './StepTypePicker.vue';
+import {
+  useDefinitionDraftHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
 
 const LIFECYCLE_KEYS = [
   'start',
@@ -102,8 +109,10 @@ const props = defineProps<{
   definition: SkillBuffDefinition;
   skillLevel: number;
   fillAvailable?: boolean;
+  sharedHistory?: DefinitionDraftHistory<SkillBuffDefinition>;
 }>();
 const emit = defineEmits<{ update: [definition: SkillBuffDefinition] }>();
+const editorRoot = ref<HTMLElement | null>(null);
 const selectedId = ref('buff');
 const selectedPath = ref('');
 const pendingMode = ref<'step' | 'lifecycle' | ''>('');
@@ -125,10 +134,12 @@ const structureClipboard = shallowRef<
   | { readonly kind: 'buffAbilityResponse'; readonly value: SkillBuffAbilityEventResponse }
   | { readonly kind: 'buffIgniteResponse'; readonly value: SkillBuffIgniteEventResponse }
 >();
-const structureUndoStack = shallowRef<SkillBuffDefinition[]>([]);
-const structureRedoStack = shallowRef<SkillBuffDefinition[]>([]);
-const canUndoStructure = computed(() => structureUndoStack.value.length > 0);
-const canRedoStructure = computed(() => structureRedoStack.value.length > 0);
+const localHistory = useDefinitionDraftHistory(
+  () => props.definition,
+  value => emit('update', value),
+);
+const history = props.sharedHistory ?? localHistory;
+useEditorHistoryShortcuts(editorRoot, history.restore, () => props.sharedHistory === undefined);
 const lifecyclePicker = ref<HTMLElement>();
 const map = ref<{
   revealNode: (id: string) => Promise<void>;
@@ -136,6 +147,14 @@ const map = ref<{
 } | null>(null);
 const root = computed(() => buildBuffStructureMindMap(props.buffId, props.definition));
 const nodeIndex = computed(() => indexSkillStructureNodes(root.value));
+const editing = useDefinitionGraphEditing({
+  read: () => props.definition,
+  history,
+  root,
+  selectedPath,
+  element: editorRoot,
+  selectPath,
+});
 const selectedNode = computed(() => nodeIndex.value.get(selectedId.value));
 const selectedStep = computed(() =>
   selectedNode.value?.kind === '战斗步骤'
@@ -207,8 +226,6 @@ watch(
     selectedPath.value = '';
     pendingMode.value = '';
     pendingConditionTargetPath.value = '';
-    structureUndoStack.value = [];
-    structureRedoStack.value = [];
   },
 );
 
@@ -240,21 +257,14 @@ function duplicateStep(step: CombatStepDefinition): CombatStepDefinition {
   return duplicateSkillEditorDetachedStep(context(), step);
 }
 function emitStructureUpdate(definition: SkillBuffDefinition): void {
-  structureUndoStack.value = [...structureUndoStack.value, cloneStructureValue(props.definition)];
-  structureRedoStack.value = [];
-  emit('update', definition);
+  history.commit(definition, { path: selectedPath.value });
 }
 async function restoreStructureHistory(action: 'undo' | 'redo'): Promise<void> {
-  const source = action === 'undo' ? structureUndoStack : structureRedoStack;
-  const target = action === 'undo' ? structureRedoStack : structureUndoStack;
-  const snapshot = source.value.at(-1);
-  if (snapshot === undefined) return;
-  source.value = source.value.slice(0, -1);
-  target.value = [...target.value, cloneStructureValue(props.definition)];
-  emit('update', cloneStructureValue(snapshot));
-  await selectPath('');
+  history.restore(action);
 }
+
 function selectNode(node: { readonly id: string }): void {
+  editing.cancelReveal();
   const target = nodeIndex.value.get(node.id);
   if (target === undefined) return;
   selectedId.value = target.id;
@@ -402,12 +412,6 @@ function updateStep(step: CombatStepDefinition): void {
 function updateResponse(
   response: SkillBuffAbilityEventResponse | SkillBuffIgniteEventResponse,
 ): void {
-  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, response));
-}
-function updateCombatCondition(condition: CombatCondition): void {
-  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, condition));
-}
-function updateEventResponse(response: CombatEventResponseDefinition): void {
   emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, response));
 }
 async function moveStep(offset: -1 | 1): Promise<void> {
@@ -675,15 +679,19 @@ async function deleteCurrent(): Promise<void> {
 </script>
 
 <template>
-  <div class="definition-graph-editor" :class="{ 'fill-available': fillAvailable }">
+  <div
+    ref="editorRoot"
+    class="definition-graph-editor"
+    :class="{ 'fill-available': fillAvailable }"
+  >
     <SkillStructureMindMap
       ref="map"
       :root="root"
       :selected-id="selectedId"
       :show-reference-pins="false"
       :clipboard-kind="structureClipboard?.kind"
-      :can-undo="canUndoStructure"
-      :can-redo="canRedoStructure"
+      :can-undo="history.canUndo.value"
+      :can-redo="history.canRedo.value"
       @select="selectNode"
       @add-child="beginAdd"
       @move-node="moveStructureNode"
@@ -741,12 +749,13 @@ async function deleteCurrent(): Promise<void> {
             <el-icon><Delete /></el-icon>
           </button>
         </header>
-        <CombatConditionEditor
-          :condition="selectedCombatCondition"
-          :skill-level="skillLevel"
-          layer-only
-          @update="updateCombatCondition"
-        />
+        <DefinitionPropertyScope :property="editing.property.value">
+          <CombatConditionEditor
+            :condition="selectedCombatCondition"
+            :skill-level="skillLevel"
+            layer-only
+          />
+        </DefinitionPropertyScope>
       </section>
 
       <section v-else-if="selectedEventResponse" class="node-card response-card">
@@ -760,7 +769,7 @@ async function deleteCurrent(): Promise<void> {
         </header>
         <CombatEventResponseInspector
           :response="selectedEventResponse"
-          @update="updateEventResponse"
+          :binding="editing.property.value"
         />
       </section>
 
@@ -784,15 +793,17 @@ async function deleteCurrent(): Promise<void> {
             </button>
           </div>
         </header>
-        <CombatStepEditor
-          :step="selectedStep"
-          :skill-level="skillLevel"
-          :create-step="createStep"
-          :duplicate-step="duplicateStep"
-          :show-header="false"
-          inspector-only
-          @update="updateStep"
-        />
+        <DefinitionPropertyScope :property="editing.property.value">
+          <CombatStepEditor
+            :step="selectedStep"
+            :skill-level="skillLevel"
+            :create-step="createStep"
+            :duplicate-step="duplicateStep"
+            :show-header="false"
+            inspector-only
+            @update="updateStep"
+          />
+        </DefinitionPropertyScope>
       </section>
 
       <section v-else-if="selectedSequence" class="node-card">

@@ -17,6 +17,7 @@
     "confirmButton": "Reset"
   },
   "common": {
+    "add": "Add",
     "cancel": "Cancel",
     "close": "Close",
     "confirm": "Confirm",
@@ -667,6 +668,89 @@
       "enemyWeaknessSet": "Set weakness"
     },
     "skillEditing": {
+      "queryParameters": "Query parameters",
+      "conditionStructureInGraph": "Edit child conditions and their order in the graph.",
+      "unionListValue": "List",
+      "spValueOutputKey": "Post-efficiency Value output key",
+      "realDeltaOutputKey": "Actual SP change output key",
+      "finalHealOutputKey": "Adjusted healing output key",
+      "realHealOutputKey": "Actual HP increase output key",
+      "capturedShieldValue": "Shield value",
+      "buffRemainingOperand": "Remaining duration operand",
+      "buffFinishReason": "Finish reason",
+      "buffTimePaused": "Pause current Buff timer",
+      "buffRuntimeContextHelp": "Current and event Buffs come from the executing lifecycle or event context. Missing context produces a simulation error; no arbitrary Buff is selected.",
+      "buffDurationOperations": { "assign": "Assign", "add": "Add", "multiply": "Multiply" },
+      "buffFinishReasons": { "early": "Early", "other": "Other", "absorbed": "Absorbed" },
+      "entityRemainingSeconds": "New remaining seconds",
+      "entityTemplateChildSkillId": "Template child skill ID",
+      "sourceAttributeSelector": "Source attribute",
+      "sourceAttributeStage": "Attribute stage",
+      "sourceEntityProperty": "Entity property",
+      "sourceUseFloor": "Round result down",
+      "contributionFields": {
+        "key": "Stable key",
+        "priority": "Native priority",
+        "priorityHelp": "When omitted, uses runtime default priority; ties follow registration order.",
+        "abilityEvent": "AbilitySystem event",
+        "blackboard": "Event action blackboard",
+        "blackboardHelp": "Resolved at trait level and copied into each event response's action blackboard.",
+        "initializationBlackboard": "Frame 0 blackboard",
+        "initializationBlackboardHelp": "Resolved at trait level for frame 0 initialization. Removing the last entry omits this field."
+      },
+      "modifierFields": {
+        "damageTypes": "Damage types (at least one)",
+        "skillTypes": "Skill type filter",
+        "attribute": "Attribute",
+        "operation": "Operation",
+        "stat": "Panel stat",
+        "target": "Modifier target",
+        "slot": "Formula slot",
+        "value": "Level values",
+        "slotHelp": "Omitted means legacy BaseAddition; enabling selects baseAddition.",
+        "options": { "flat": "Flat", "percent": "Percent" }
+      },
+      "sourceDivisor": "Divisor",
+      "sourceMultiplier": "Multiplier",
+      "sourceBase": "Base value",
+      "sourceArithmeticHelp": "With rounding enabled: floor(source / divisor), then multiply and add the base. Without rounding, the divisor is not read.",
+      "sourceAttributeKinds": {
+        "specific": "Specific attribute key",
+        "main": "Main attribute",
+        "secondary": "Secondary attribute",
+        "all": "All attributes"
+      },
+      "sourceAttributeStages": {
+        "armedNonConverted": "Armed, before conversion",
+        "finalNonConverted": "Final, before conversion"
+      },
+      "sourceEntityProperties": {
+        "currentHealth": "Current health",
+        "maxHealth": "Maximum health",
+        "currentPoise": "Current poise"
+      },
+      "ignoreGlobalTimeScale": "Ignore global time scale",
+      "revertTimeScaleOnEnd": "Restore when the action ends",
+      "ignoreGlobalTimeScaleHelp": "Changes the clock source of matching ability entities, not the global scale. Empty queries do not mean all entities. New queries start with the current entity; choose owner-spawned or Context as needed.",
+      "healthFloorMode": "Health floor mode",
+      "healthFloorValue": "Health floor value / ratio",
+      "healthFloorHelp": "Absolute mode uses health points; ratio mode uses a fraction of maximum health. Applies during the action lifetime; the highest concurrent floor wins.",
+      "healthFloorModes": {
+        "absolute": "Absolute health",
+        "maxHealthRatio": "Maximum health ratio"
+      },
+      "shieldCaptureValues": {
+        "gained": "Shield actually gained",
+        "current": "Current finite shield total"
+      },
+      "timeDomain": { "self": "Ability entity clock", "global": "Shared combat clock" },
+      "markerTimeDomain": "Timer clock",
+      "noStepParameters": "This step has no editable parameters.",
+      "nextSkillKey": "Explicit next skill",
+      "nextSkillKeyFromSlot": "Current combo skill slot",
+      "unionLevelValues": "Single / per-level values",
+      "unionUnknownValue": "Unrecognized value form",
+      "unsupportedConditionStructure": "This nested condition is not yet supported by the automatic editor. Its data is preserved.",
       "section": "Skill Logic",
       "diffCount": "{count} differences from the current template",
       "reset": "Restore Template",
@@ -946,6 +1030,13 @@
       "buffCount": "Creation count",
       "buffSource": "Source entity",
       "buffTargets": {
+        "controlledOperator": "Controlled operator",
+        "eventTarget": "Event target",
+        "eventSource": "Event source",
+        "buffOwner": "Buff owner",
+        "buffSource": "Buff source",
+        "currentTarget": "Current target",
+        "partyExceptCasterAndSameCharacterType": "Party except caster and same character type",
         "caster": "Caster",
         "enemy": "Enemy",
         "party": "All operators",
@@ -957,6 +1048,9 @@
       "inheritSkillCast": "Inherit skill-cast identity",
       "buffAssignments": "Initial blackboard assignments",
       "addAssignment": "Add assignment",
+      "assignmentTargetKey": "Target blackboard key",
+      "assignmentToExpression": "Convert to expression (replace the entire value definition)",
+      "assignmentToLevels": "Convert to per-level values",
       "deleteAssignment": "Delete assignment",
       "buffQueryKind": "Query stable Buff identities, or readable tag paths with a matching rule.",
       "buffQueryKinds": {

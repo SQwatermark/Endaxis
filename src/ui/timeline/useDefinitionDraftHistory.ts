@@ -1,12 +1,24 @@
-import { computed, shallowRef, watch, type ComputedRef } from 'vue';
+import { computed, markRaw, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue';
 import { editorDefinitionsEqual } from '../editorDefinitionsEqual';
 import { cloneStructureValue } from './skillStructureEditorCommands';
 
+/** 记录产生修改的视图位置；仅浏览节点不会新增历史。 */
+export interface DefinitionHistoryLocation {
+  readonly path: string;
+  /** 所属节点内的精确属性位置；不拼进旧的字符串节点路径。 */
+  readonly propertyPath?: readonly (string | number)[];
+  readonly section?: string;
+  readonly objectId?: string;
+}
+
 export interface DefinitionDraftHistory<T> {
-  commit(value: T): void;
+  commit(value: T, location?: DefinitionHistoryLocation): void;
   restore(action: 'undo' | 'redo'): void;
+  reset?(value: T): void;
+  atLocation?(location: DefinitionHistoryLocation | undefined, edit: () => void): void;
   readonly canUndo: ComputedRef<boolean>;
   readonly canRedo: ComputedRef<boolean>;
+  readonly restoredLocation?: ShallowRef<DefinitionHistoryLocation | undefined>;
 }
 
 /** History belongs to one mounted editing context. Hosts key instances by object identity.
@@ -15,8 +27,11 @@ export function useDefinitionDraftHistory<T>(
   read: () => T,
   publish: (value: T) => void,
 ): DefinitionDraftHistory<T> {
-  const past = shallowRef<T[]>([]);
-  const future = shallowRef<T[]>([]);
+  type Entry = { value: T; location?: DefinitionHistoryLocation };
+  const past = shallowRef<Entry[]>([]);
+  const future = shallowRef<Entry[]>([]);
+  const restoredLocation = shallowRef<DefinitionHistoryLocation>();
+  let pendingLocation: DefinitionHistoryLocation | undefined;
   let expected = cloneStructureValue(read());
   watch(
     read,
@@ -24,6 +39,7 @@ export function useDefinitionDraftHistory<T>(
       if (!editorDefinitionsEqual(value, expected)) {
         past.value = [];
         future.value = [];
+        restoredLocation.value = undefined;
       }
       expected = cloneStructureValue(value);
     },
@@ -34,9 +50,18 @@ export function useDefinitionDraftHistory<T>(
     expected = cloneStructureValue(value);
     publish(cloneStructureValue(value));
   }
-  function commit(value: T): void {
+  function commit(value: T, location = pendingLocation): void {
     if (editorDefinitionsEqual(value, read())) return;
-    past.value = [...past.value, cloneStructureValue(read())];
+    past.value = [
+      ...past.value,
+      {
+        value: cloneStructureValue(read()),
+        location: location && {
+          ...location,
+          propertyPath: location.propertyPath && [...location.propertyPath],
+        },
+      },
+    ];
     future.value = [];
     send(value);
   }
@@ -46,13 +71,74 @@ export function useDefinitionDraftHistory<T>(
     const value = source.value.at(-1);
     if (value === undefined) return;
     source.value = source.value.slice(0, -1);
-    target.value = [...target.value, cloneStructureValue(read())];
-    send(value);
+    target.value = [
+      ...target.value,
+      { value: cloneStructureValue(read()), location: value.location },
+    ];
+    send(value.value);
+    // 重做也定位到这次修改的位置，不能捕获用户后来浏览的节点。
+    restoredLocation.value = value.location && { ...value.location };
   }
   return {
     commit,
     restore,
+    restoredLocation,
+    atLocation(location, edit) {
+      const previous = pendingLocation;
+      pendingLocation = location;
+      try {
+        edit();
+      } finally {
+        pendingLocation = previous;
+      }
+    },
+    reset(value) {
+      past.value = [];
+      future.value = [];
+      restoredLocation.value = undefined;
+      send(value);
+    },
     canUndo: computed(() => past.value.length > 0),
     canRedo: computed(() => future.value.length > 0),
   };
+}
+
+/** 一个保存范围只有一个草稿；字段替换统一提交历史，打开另一份定义时显式重置。 */
+export function useDefinitionDraft<T>(initial: T) {
+  const current = shallowRef<T>(cloneStructureValue(initial));
+  const history = markRaw(
+    useDefinitionDraftHistory<T>(
+      () => current.value,
+      value => {
+        current.value = value;
+      },
+    ),
+  );
+  const draft = computed<T>({
+    get: () => current.value,
+    set: value => history.commit(value),
+  });
+  return { draft, history, reset: (value: T) => history.reset!(value) };
+}
+
+/** 子视图借用所属草稿的撤销游标，只负责把局部值交给父级更新入口。 */
+export function projectDefinitionHistory<T>(
+  parent: Pick<
+    DefinitionDraftHistory<unknown>,
+    'restore' | 'canUndo' | 'canRedo' | 'restoredLocation' | 'atLocation'
+  >,
+  commit: (value: T, location?: DefinitionHistoryLocation) => void,
+  locate?: () => Omit<DefinitionHistoryLocation, 'path'>,
+): DefinitionDraftHistory<T> {
+  return markRaw({
+    commit(value, location) {
+      const target = { ...location, ...locate?.(), path: location?.path ?? '' };
+      if (parent.atLocation) parent.atLocation(target, () => commit(value, target));
+      else commit(value, target);
+    },
+    restore: parent.restore,
+    canUndo: parent.canUndo,
+    canRedo: parent.canRedo,
+    restoredLocation: parent.restoredLocation,
+  });
 }

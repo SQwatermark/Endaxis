@@ -1,7 +1,14 @@
-/* Viewport space belongs to the workspace; forms, canvas and Inspector scroll independently. */
+/* 定义编辑器只使用这一套外壳尺寸。实例配置弹窗不套用这些规则。 */
+.definition-focused-back {
+  flex: none;
+  border-color: var(--ea-gold);
+  white-space: nowrap;
+}
 .definition-workspace-dialog {
-  height: calc(100dvh - 48px);
-  margin-bottom: 24px;
+  --definition-outliner-width: clamp(180px, 15vw, 240px);
+  --definition-inspector-width: clamp(320px, 25vw, 420px);
+  height: calc(100dvh - 32px);
+  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -14,6 +21,10 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+.definition-workspace-dialog--skill .skill-editor {
+  height: 100%;
+  min-height: 0;
 }
 .definition-workspace-dialog .issues {
   max-height: 90px;

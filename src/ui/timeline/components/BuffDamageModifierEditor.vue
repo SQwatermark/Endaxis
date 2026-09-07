@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
+import { definitionStructureNavigationKey } from '../definitionStructureNavigation';
 import type {
   BuffDuration,
   SkillBuffDefinitionDamageModifier as CombatBuffDefinitionDamageModifier,
@@ -21,6 +22,7 @@ import {
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
 import BuffDamageModifierConditionEditor from './BuffDamageModifierConditionEditor.vue';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
+const navigateStructure = inject(definitionStructureNavigationKey, undefined);
 
 const props = defineProps<{
   modifiers: readonly CombatBuffDefinitionDamageModifier[];
@@ -293,8 +295,15 @@ function fullValue(
       />
       <section v-if="modifier.conditionProgram" class="condition-program">
         <p>按顺序判断条件并计算当前 Buff 黑板；序列最终返回值决定是否应用下方处理器。</p>
+        <button
+          v-if="navigateStructure?.canNavigate(modifier.conditionProgram)"
+          type="button"
+          @click="navigateStructure?.(modifier.conditionProgram)"
+        >
+          在主图中编辑条件程序
+        </button>
         <ActionSequenceEditor
-          v-if="createStep && duplicateStep"
+          v-else-if="createStep && duplicateStep"
           :sequence="modifier.conditionProgram"
           :skill-level="skillLevel"
           :create-step="createStep"

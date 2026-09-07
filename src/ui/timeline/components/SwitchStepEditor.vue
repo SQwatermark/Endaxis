@@ -9,6 +9,7 @@ import type {
 } from '../../../core/game-data/operatorDefinition';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
+import type { InspectorPropertyPath } from '../inspectorProperty';
 
 const SequenceEditor = defineAsyncComponent(() => import('./ActionSequenceEditor.vue'));
 type SwitchStep = Extract<CombatStepDefinition, { kind: 'switch' }>;
@@ -18,9 +19,24 @@ const props = defineProps<{
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
   selectedPath?: string;
+  restoredPropertyPath?: InspectorPropertyPath;
   inspectorOnly?: boolean;
 }>();
-const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
+const emit = defineEmits<{
+  update: [step: CombatStepDefinition, propertyPath?: InspectorPropertyPath];
+}>();
+// 只将请求交给命中的候选，避免所有序列同时抢选中与焦点。
+const restoredOption = computed(() => {
+  const path = props.restoredPropertyPath;
+  if (
+    path?.[0] !== 'options' ||
+    typeof path[1] !== 'number' ||
+    path[2] !== 'sequence' ||
+    !props.step.options[path[1]]
+  )
+    return undefined;
+  return { index: path[1], path: path.slice(3) };
+});
 const { t } = useI18n({ useScope: 'global' });
 const labels = computed(() => ({
   constant: t('timeline.skillEditing.operandConstant'),
@@ -40,17 +56,26 @@ function setAlwaysNext(event: Event): void {
     },
   });
 }
-function replaceOptions(options: SwitchStep['options']): void {
-  emit('update', { ...props.step, options });
+function replaceOptions(
+  options: SwitchStep['options'],
+  propertyPath?: InspectorPropertyPath,
+): void {
+  emit('update', { ...props.step, options }, propertyPath);
 }
 function setValue(index: number, value: ActionValueOperand): void {
   replaceOptions(
     props.step.options.map((option, at) => (at === index ? { ...option, value } : option)),
   );
 }
-function setSequence(index: number, sequence: ActionSequenceDefinition): void {
+function setSequence(
+  index: number,
+  sequence: ActionSequenceDefinition,
+  propertyPath: InspectorPropertyPath = [],
+): void {
+  if (!props.step.options[index]) return;
   replaceOptions(
     props.step.options.map((option, at) => (at === index ? { ...option, sequence } : option)),
+    ['options', index, 'sequence', ...propertyPath],
   );
 }
 function move(index: number, offset: -1 | 1): void {
@@ -121,7 +146,10 @@ function childPath(index: number): string {
         :labels="labels"
         @update="setValue(index, $event)"
       />
-      <details v-if="!inspectorOnly && createStep && duplicateStep" :open="!!childPath(index)">
+      <details
+        v-if="!inspectorOnly && createStep && duplicateStep"
+        :open="!!childPath(index) || restoredOption?.index === index"
+      >
         <summary>
           {{ t('timeline.skillEditing.steps') }} ({{ option.sequence.steps.length }})
         </summary>
@@ -131,7 +159,10 @@ function childPath(index: number): string {
           :create-step="createStep"
           :duplicate-step="duplicateStep"
           :selected-path="childPath(index)"
-          @update="setSequence(index, $event)"
+          :restored-property-path="
+            restoredOption?.index === index ? restoredOption.path : undefined
+          "
+          @update="(sequence, path) => setSequence(index, sequence, path)"
         />
       </details>
     </section>

@@ -4,10 +4,14 @@
  * 监听起止时间由外层调度项决定；这里仅维护事件匹配、条件和同步响应顺序。
  */
 import { useI18n } from 'vue-i18n';
+import { computed, inject } from 'vue';
+import { definitionStructureNavigationKey } from '../definitionStructureNavigation';
+import { createDefinitionEditContext, type DefinitionProperty } from '../definitionEditContext';
+import { eventOwnerInspectorFields } from '../eventInspectorSchema';
+import InspectorFields from './InspectorFields.vue';
 import type {
   CombatCondition,
   CombatEventResponseDefinition,
-  CombatEventTrigger,
   CombatStepDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import { createCombatCondition } from '../combatConditionEditorViewModel';
@@ -16,46 +20,57 @@ import { createCombatEventResponseDraft } from '../skillDefinitionEditorViewMode
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatEventTriggerEditor from './CombatEventTriggerEditor.vue';
-import EditorFieldLabel from './EditorFieldLabel.vue';
 
 type ListenerStep = Extract<CombatStepDefinition, { kind: 'listenForCombatEvents' }>;
 
 const props = defineProps<{
   step: ListenerStep;
+  parametersBinding?: DefinitionProperty;
   skillLevel: number;
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
 }>();
 const emit = defineEmits<{ update: [step: ListenerStep] }>();
 const { t } = useI18n({ useScope: 'global' });
+const navigateStructure = inject(definitionStructureNavigationKey, undefined);
+// 未迁移的完整表单只保留一个根更新适配，不为字段再建历史或逐层转发事件。
+const fallback = createDefinitionEditContext({
+  read: () => props.step,
+  commit: next => emit('update', next),
+});
+const parameters = computed(() => props.parametersBinding ?? fallback.root.child('parameters'));
+const responseFields = eventOwnerInspectorFields<CombatEventResponseDefinition>(false);
+function responseProperty(index: number) {
+  return parameters.value.child('responses').child(index);
+}
 
-function replaceResponses(responses: readonly CombatEventResponseDefinition[]): void {
-  emit('update', { ...props.step, parameters: { responses } });
+function changeResponses(
+  change: (
+    responses: readonly CombatEventResponseDefinition[],
+  ) => readonly CombatEventResponseDefinition[],
+): void {
+  parameters.value
+    .child('responses')
+    .update(current => change(current as readonly CombatEventResponseDefinition[]));
 }
 
 function replaceResponse(index: number, response: CombatEventResponseDefinition): void {
-  replaceResponses(
-    props.step.parameters.responses.map((item, itemIndex) =>
-      itemIndex === index ? response : item,
-    ),
-  );
+  responseProperty(index).update(() => response);
 }
 
 function addResponse(): void {
-  replaceResponses([
-    ...props.step.parameters.responses,
-    createCombatEventResponseDraft(props.step.parameters.responses.map(response => response.key)),
+  changeResponses(responses => [
+    ...responses,
+    createCombatEventResponseDraft(responses.map(response => response.key)),
   ]);
 }
 
 function removeResponse(index: number): void {
-  if (props.step.parameters.responses.length <= 1) return;
-  replaceResponses(props.step.parameters.responses.filter((_, itemIndex) => itemIndex !== index));
-}
-
-function setEvent(index: number, event: CombatEventTrigger): void {
-  const response = props.step.parameters.responses[index];
-  if (response !== undefined) replaceResponse(index, { ...response, event });
+  changeResponses(responses =>
+    responses.length <= 1 || responses[index] === undefined
+      ? responses
+      : responses.filter((_, itemIndex) => itemIndex !== index),
+  );
 }
 
 function toggleCondition(index: number, enabled: boolean): void {
@@ -74,7 +89,11 @@ function setCondition(index: number, condition: CombatCondition): void {
 </script>
 
 <template>
-  <div class="event-listener-editor">
+  <div v-if="navigateStructure?.canNavigate(step)" class="event-listener-editor">
+    <p>{{ t('timeline.skillEditing.eventListenerWindowHint') }}</p>
+    <button type="button" @click="navigateStructure?.(step)">在主图中编辑事件响应</button>
+  </div>
+  <div v-else class="event-listener-editor">
     <p>{{ t('timeline.skillEditing.eventListenerWindowHint') }}</p>
     <article
       v-for="(response, index) in step.parameters.responses"
@@ -90,20 +109,15 @@ function setCondition(index: number, condition: CombatCondition): void {
           ×
         </button>
       </header>
-      <label class="event-listener-editor__key">
-        <EditorFieldLabel
-          :label="t('timeline.skillEditing.handlerKey')"
-          :help="t('timeline.skillEditing.fieldHelp.handlerKey')"
-        />
-        <input
-          type="text"
-          :value="response.key"
-          @input="
-            replaceResponse(index, { ...response, key: ($event.target as HTMLInputElement).value })
-          "
-        />
-      </label>
-      <CombatEventTriggerEditor :event="response.event" @update="setEvent(index, $event)" />
+      <InspectorFields
+        :value="response"
+        :fields="responseFields"
+        :binding="responseProperty(index)"
+      />
+      <CombatEventTriggerEditor
+        :event="response.event"
+        :binding="responseProperty(index).child('event')"
+      />
       <label class="event-listener-editor__condition">
         <input
           type="checkbox"
@@ -163,12 +177,6 @@ function setCondition(index: number, condition: CombatCondition): void {
 .event-listener-editor button:disabled {
   opacity: 0.35;
   cursor: default;
-}
-.event-listener-editor__key {
-  display: grid;
-  grid-template-columns: 140px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
 }
 .event-listener-editor__condition {
   display: flex;

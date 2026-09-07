@@ -13,7 +13,10 @@ import {
   duplicateSkillEditorDetachedStep,
   type EditableCombatStepKind,
 } from '../skillDefinitionEditorViewModel';
-import ActionSequenceEditor from './ActionSequenceEditor.vue';
+import ActionSequenceWorkspace from './ActionSequenceWorkspace.vue';
+import { useDefinitionDraft, projectDefinitionHistory } from '../useDefinitionDraftHistory';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
+import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 
 const props = defineProps<{
@@ -37,8 +40,42 @@ type Category = 'passiveSkills' | 'eventHandlers';
 const category = ref<Category>('passiveSkills');
 const selectedIndex = ref(0);
 const structureRevision = ref(0);
-const passives = ref<OperatorPassiveSkillDefinition[]>([]);
-const handlers = ref<OperatorEventHandlerDefinition[]>([]);
+const {
+  draft,
+  history,
+  reset: resetDraft,
+} = useDefinitionDraft<{
+  passives: OperatorPassiveSkillDefinition[];
+  handlers: OperatorEventHandlerDefinition[];
+}>({ passives: [], handlers: [] });
+const passives = computed({
+  get: () => draft.value.passives,
+  set: value => {
+    draft.value = { ...draft.value, passives: value };
+  },
+});
+const handlers = computed({
+  get: () => draft.value.handlers,
+  set: value => {
+    draft.value = { ...draft.value, handlers: value };
+  },
+});
+const editorRoot = ref<HTMLElement | null>(null);
+useEditorHistoryShortcuts(editorRoot, history.restore);
+const sequenceHistory = projectDefinitionHistory<ActionSequenceDefinition>(
+  history,
+  updateSequence,
+  () => ({ section: category.value, objectId: String(selectedIndex.value) }),
+);
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (!location) return;
+    if (location.section) category.value = location.section as Category;
+    if (location.objectId !== undefined) selectedIndex.value = Number(location.objectId);
+  },
+  { flush: 'sync' },
+);
 const items = computed(() =>
   category.value === 'passiveSkills' ? passives.value : handlers.value,
 );
@@ -56,8 +93,10 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
-    passives.value = cloneStructureValue([...(props.passiveSkills ?? [])]);
-    handlers.value = cloneStructureValue([...(props.eventHandlers ?? [])]);
+    resetDraft({
+      passives: [...(props.passiveSkills ?? [])],
+      handlers: [...(props.eventHandlers ?? [])],
+    });
     category.value = 'passiveSkills';
     selectedIndex.value = 0;
   },
@@ -185,8 +224,19 @@ function save(): void {
 </script>
 
 <template>
-  <section v-if="visible" class="embedded-editor" :class="{ 'fill-available': fillAvailable }">
+  <section
+    v-if="visible"
+    ref="editorRoot"
+    class="embedded-editor"
+    :class="{ 'fill-available': fillAvailable }"
+  >
     <div class="embedded-header">
+      <button
+        class="definition-focused-back ea-btn ea-btn--sm"
+        @click="emit('update:visible', false)"
+      >
+        ← 返回角色级运行数据
+      </button>
       <div class="title">
         <strong>角色级行为</strong
         ><small>这些行为随角色进入战斗安装，不属于任何时间轴技能块。</small>
@@ -271,8 +321,9 @@ function save(): void {
             <strong>{{ selectedPassive ? '启用序列' : '响应序列' }}</strong
             ><span>严格按列表顺序执行</span>
           </header>
-          <ActionSequenceEditor
-            standalone-history
+          <ActionSequenceWorkspace
+            class="behavior-sequence"
+            :shared-history="sequenceHistory"
             :key="`${category}:${selectedIndex}:${structureRevision}`"
             :sequence="selectedSequence!"
             :skill-level="skillLevel"
@@ -285,6 +336,7 @@ function save(): void {
       <main v-else class="empty">当前分类还没有角色级行为。</main>
     </div>
     <div class="embedded-footer">
+      <DefinitionHistoryControls :history="history" />
       <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
         取消</button
       ><button class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill" @click="save">
@@ -295,6 +347,11 @@ function save(): void {
 </template>
 
 <style scoped>
+.behavior-sequence {
+  height: 520px;
+  min-height: 380px;
+  flex: none;
+}
 .title {
   display: grid;
   gap: 4px;

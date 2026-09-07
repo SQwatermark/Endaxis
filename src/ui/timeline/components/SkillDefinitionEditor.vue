@@ -10,6 +10,7 @@
 import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue';
 import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
+import { useDefinitionStructureNavigation } from '../definitionStructureNavigation';
 import { useI18n } from 'vue-i18n';
 import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/icons-vue';
 import {
@@ -50,6 +51,7 @@ import {
   buildSkillStructureMindMap,
   findSkillStructureNodeForPath,
   indexSkillStructureNodes,
+  locateStructureProperty,
 } from '../skillStructureMindMapModel';
 import {
   appendCombatStepAtSequencePath,
@@ -65,12 +67,17 @@ import {
   replaceStructureValueAtPath,
   resolveSkillStructureValue,
   resolveStructureValue,
+  structurePathSegments,
 } from '../skillStructureEditorCommands';
+import { createDefinitionEditContext } from '../definitionEditContext';
+import DefinitionPropertyScope from './DefinitionPropertyScope.vue';
+import { stepInspectorFields } from '../stepInspectorSchema';
 import CombatStepEditor from './CombatStepEditor.vue';
+import type { InspectorPropertyPath } from '../inspectorProperty';
+import { useInspectorPropertyReveal } from '../useInspectorPropertyReveal';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
-import SkillEventHandlerInspector from './SkillEventHandlerInspector.vue';
 import GlobalBuffChildInspector from './GlobalBuffChildInspector.vue';
 import GlobalBuffDefinitionInspector from './GlobalBuffDefinitionInspector.vue';
 import InlineAbilityEntityChildSkillInspector from './InlineAbilityEntityChildSkillInspector.vue';
@@ -138,6 +145,7 @@ const props = defineProps<{
   showReferencePins?: boolean;
   allowInvalidSave?: boolean;
   buffIds?: readonly string[];
+  backLabel?: string;
 }>();
 
 const emit = defineEmits<{
@@ -149,6 +157,7 @@ const emit = defineEmits<{
 const { t } = useI18n({ useScope: 'global' });
 const editorRoot = ref<HTMLElement | null>(null);
 useEditorHistoryShortcuts(editorRoot, restoreStructureHistory);
+const revealProperty = useInspectorPropertyReveal(editorRoot);
 
 const draft = reactive<{ value: SkillDefinition }>({
   value: createSkillEditorDraft(
@@ -180,6 +189,7 @@ const structureClipboard = shallowRef<
 interface StructureHistoryEntry {
   readonly definition: SkillDefinition;
   readonly selectedPath: string;
+  readonly propertyPath?: InspectorPropertyPath;
 }
 const structureUndoStack = shallowRef<StructureHistoryEntry[]>([]);
 const structureRedoStack = shallowRef<StructureHistoryEntry[]>([]);
@@ -200,6 +210,17 @@ const structureRoot = computed(() =>
   }),
 );
 const structureNodeIndex = computed(() => indexSkillStructureNodes(structureRoot.value));
+useDefinitionStructureNavigation(structureRoot, () => draft.value, selectStructurePath);
+const editContext = createDefinitionEditContext({
+  read: () => draft.value,
+  commit(next, focus) {
+    const location = locateStructureProperty(structureRoot.value, focus);
+    commitStructureDraft(next, location.propertyPath, location.path);
+  },
+});
+const selectedProperty = computed(() =>
+  editContext.at(structurePathSegments(selectedStructureSourcePath.value)),
+);
 const selectedStructureNode = computed(() =>
   structureNodeIndex.value.get(selectedStructureNodeId.value),
 );
@@ -278,9 +299,16 @@ function duplicateNestedStep(step: Parameters<typeof duplicateSkillEditorDetache
   return duplicateSkillEditorDetachedStep(draft.value, step);
 }
 
-function commitStructureDraft(next: SkillDefinition): void {
+function commitStructureDraft(
+  next: SkillDefinition,
+  propertyPath?: InspectorPropertyPath,
+  selectedPath = selectedStructureSourcePath.value,
+): void {
   if (next === draft.value) return;
-  structureUndoStack.value = [...structureUndoStack.value, captureStructureHistory()];
+  structureUndoStack.value = [
+    ...structureUndoStack.value,
+    { ...captureStructureHistory(), selectedPath, propertyPath: propertyPath && [...propertyPath] },
+  ];
   structureRedoStack.value = [];
   draft.value = next;
 }
@@ -292,15 +320,39 @@ function captureStructureHistory(): StructureHistoryEntry {
   };
 }
 
+let restoreRevision = 0;
 async function restoreStructureHistory(action: 'undo' | 'redo'): Promise<void> {
+  const revision = ++restoreRevision;
+  void revealProperty();
   const source = action === 'undo' ? structureUndoStack : structureRedoStack;
   const target = action === 'undo' ? structureRedoStack : structureUndoStack;
   const snapshot = source.value.at(-1);
   if (snapshot === undefined) return;
   source.value = source.value.slice(0, -1);
-  target.value = [...target.value, captureStructureHistory()];
+  target.value = [
+    ...target.value,
+    {
+      definition: cloneStructureValue(draft.value),
+      selectedPath: snapshot.selectedPath,
+      propertyPath: snapshot.propertyPath,
+    },
+  ];
   draft.value = cloneStructureValue(snapshot.definition);
   await selectStructurePath(snapshot.selectedPath);
+  if (revision === restoreRevision && snapshot.propertyPath) {
+    const bound =
+      selectedCombatCondition.value ||
+      selectedEventResponse.value ||
+      selectedSkillEventHandler.value ||
+      (selectedCombatStep.value &&
+        (selectedCombatStep.value.kind === 'applyBuff' ||
+          stepInspectorFields(selectedCombatStep.value.kind)));
+    await revealProperty(
+      bound
+        ? [...structurePathSegments(snapshot.selectedPath), ...snapshot.propertyPath]
+        : snapshot.propertyPath,
+    );
+  }
 }
 
 function setBlackboard(blackboard: NonNullable<SkillDefinition['blackboard']>): void {
@@ -369,6 +421,7 @@ function removeCost(index: number): void {
 }
 
 function selectStructureNode(node: { readonly id: string }): void {
+  void revealProperty();
   const target = structureNodeIndex.value.get(node.id);
   if (target === undefined) return;
   selectedStructureNodeId.value = target.id;
@@ -540,31 +593,14 @@ function setSelectedSequenceFrame(field: 'startFrame' | 'endFrame', event: Event
   replaceSelectedSequence(next);
 }
 
-function replaceSelectedCombatStep(step: CombatStepDefinition): void {
+function replaceSelectedCombatStep(
+  step: CombatStepDefinition,
+  propertyPath?: InspectorPropertyPath,
+): void {
   if (selectedCombatStep.value === undefined) return;
   commitStructureDraft(
     replaceCombatStepAtPath(draft.value, selectedStructureSourcePath.value, step),
-  );
-}
-
-function replaceSelectedCombatCondition(condition: CombatCondition): void {
-  if (selectedCombatCondition.value === undefined) return;
-  commitStructureDraft(
-    replaceStructureValueAtPath(draft.value, selectedStructureSourcePath.value, condition),
-  );
-}
-
-function replaceSelectedEventResponse(response: CombatEventResponseDefinition): void {
-  if (selectedEventResponse.value === undefined) return;
-  commitStructureDraft(
-    replaceStructureValueAtPath(draft.value, selectedStructureSourcePath.value, response),
-  );
-}
-
-function replaceSelectedSkillEventHandler(handler: CombatEventHandlerDefinition): void {
-  if (selectedSkillEventHandler.value === undefined) return;
-  commitStructureDraft(
-    replaceStructureValueAtPath(draft.value, selectedStructureSourcePath.value, handler),
+    propertyPath,
   );
 }
 
@@ -947,6 +983,14 @@ function reset(): void {
       <div class="skill-editor__status">
         <span v-if="customized">{{ labels.customized }}</span>
         <span>{{ t('timeline.skillEditing.diffCount', { count: view.diffCount }) }}</span>
+        <button
+          v-if="backLabel"
+          type="button"
+          class="definition-focused-back ea-btn ea-btn--sm"
+          @click="cancel"
+        >
+          ← {{ backLabel }}
+        </button>
       </div>
     </header>
 
@@ -1146,23 +1190,21 @@ function reset(): void {
           @update="setBlackboard"
         />
 
-        <CombatConditionEditor
-          v-else-if="selectedCombatCondition"
-          :condition="selectedCombatCondition"
-          layer-only
-          @update="replaceSelectedCombatCondition"
-        />
+        <DefinitionPropertyScope v-else-if="selectedCombatCondition" :property="selectedProperty">
+          <CombatConditionEditor :condition="selectedCombatCondition" layer-only />
+        </DefinitionPropertyScope>
 
         <CombatEventResponseInspector
           v-else-if="selectedEventResponse"
           :response="selectedEventResponse"
-          @update="replaceSelectedEventResponse"
+          :binding="selectedProperty"
         />
 
-        <SkillEventHandlerInspector
+        <CombatEventResponseInspector
           v-else-if="selectedSkillEventHandler"
-          :handler="selectedSkillEventHandler"
-          @update="replaceSelectedSkillEventHandler"
+          :response="selectedSkillEventHandler"
+          :binding="selectedProperty"
+          scheduled
         />
 
         <GlobalBuffDefinitionInspector
@@ -1295,15 +1337,17 @@ function reset(): void {
               </button>
             </div>
           </header>
-          <CombatStepEditor
-            :step="selectedCombatStep"
-            :skill-level="skillLevel"
-            :create-step="createNestedStep"
-            :duplicate-step="duplicateNestedStep"
-            :show-header="false"
-            inspector-only
-            @update="replaceSelectedCombatStep"
-          />
+          <DefinitionPropertyScope :property="selectedProperty">
+            <CombatStepEditor
+              :step="selectedCombatStep"
+              :skill-level="skillLevel"
+              :create-step="createNestedStep"
+              :duplicate-step="duplicateNestedStep"
+              :show-header="false"
+              inspector-only
+              @update="replaceSelectedCombatStep"
+            />
+          </DefinitionPropertyScope>
           <p v-if="selectedStructureNode?.children.length" class="node-inspector__hint">
             分支和子步骤在左侧导图中编辑。
           </p>
@@ -1445,7 +1489,9 @@ function reset(): void {
   min-height: 0;
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(520px, 1.45fr) minmax(380px, 0.85fr);
+  grid-template-columns:
+    minmax(0, 1fr)
+    var(--definition-inspector-width, clamp(320px, 25vw, 420px));
 }
 
 .skill-editor__map {

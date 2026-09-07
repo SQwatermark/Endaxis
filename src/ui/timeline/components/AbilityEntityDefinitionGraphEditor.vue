@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import { ArrowDown, ArrowUp, CopyDocument, Delete } from '@element-plus/icons-vue';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import type {
   AbilityEntityDefinition,
   AbilityEntityChildSkillDefinition,
@@ -37,6 +38,8 @@ import {
   structureRecordEntryPath,
 } from '../skillStructureEditorCommands';
 import CombatStepEditor from './CombatStepEditor.vue';
+import DefinitionPropertyScope from './DefinitionPropertyScope.vue';
+import { useDefinitionGraphEditing } from '../useDefinitionGraphEditing';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
@@ -46,6 +49,10 @@ import StepTypePicker from './StepTypePicker.vue';
 import AbilityEntityDefinitionNumberEditor from './AbilityEntityDefinitionNumberEditor.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
+import {
+  useDefinitionDraftHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
 
 type StructureOperationNode = {
   readonly id: string;
@@ -82,8 +89,10 @@ const props = defineProps<{
   definition: AbilityEntityDefinition;
   skillLevel: number;
   fillAvailable?: boolean;
+  sharedHistory?: DefinitionDraftHistory<AbilityEntityDefinition>;
 }>();
 const emit = defineEmits<{ update: [definition: AbilityEntityDefinition] }>();
+const editorRoot = ref<HTMLElement | null>(null);
 const selectedId = ref('entity');
 const selectedPath = ref('');
 const pendingStep = ref(false);
@@ -96,10 +105,12 @@ const structureClipboard = shallowRef<
   | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
   | { readonly kind: 'eventResponse'; readonly value: CombatEventResponseDefinition }
 >();
-const structureUndoStack = shallowRef<AbilityEntityDefinition[]>([]);
-const structureRedoStack = shallowRef<AbilityEntityDefinition[]>([]);
-const canUndoStructure = computed(() => structureUndoStack.value.length > 0);
-const canRedoStructure = computed(() => structureRedoStack.value.length > 0);
+const localHistory = useDefinitionDraftHistory(
+  () => props.definition,
+  value => emit('update', value),
+);
+const history = props.sharedHistory ?? localHistory;
+useEditorHistoryShortcuts(editorRoot, history.restore, () => props.sharedHistory === undefined);
 const map = ref<{
   revealNode: (id: string) => Promise<void>;
   transferCollapsedState: (fromId: string, toId: string) => void;
@@ -108,6 +119,14 @@ const root = computed(() =>
   buildAbilityEntityStructureMindMap(props.abilityEntityId, props.definition),
 );
 const nodeIndex = computed(() => indexSkillStructureNodes(root.value));
+const editing = useDefinitionGraphEditing({
+  read: () => props.definition,
+  history,
+  root,
+  selectedPath,
+  element: editorRoot,
+  selectPath,
+});
 const selectedNode = computed(() => nodeIndex.value.get(selectedId.value));
 const selectedStep = computed(() =>
   selectedNode.value?.kind === '战斗步骤'
@@ -160,8 +179,6 @@ watch(
     selectedPath.value = '';
     pendingStep.value = false;
     pendingConditionTargetPath.value = '';
-    structureUndoStack.value = [];
-    structureRedoStack.value = [];
   },
 );
 
@@ -179,21 +196,14 @@ function duplicateStep(step: CombatStepDefinition): CombatStepDefinition {
   return duplicateSkillEditorDetachedStep(context(), step);
 }
 function emitStructureUpdate(definition: AbilityEntityDefinition): void {
-  structureUndoStack.value = [...structureUndoStack.value, cloneStructureValue(props.definition)];
-  structureRedoStack.value = [];
-  emit('update', definition);
+  history.commit(definition, { path: selectedPath.value });
 }
 async function restoreStructureHistory(action: 'undo' | 'redo'): Promise<void> {
-  const source = action === 'undo' ? structureUndoStack : structureRedoStack;
-  const target = action === 'undo' ? structureRedoStack : structureUndoStack;
-  const snapshot = source.value.at(-1);
-  if (snapshot === undefined) return;
-  source.value = source.value.slice(0, -1);
-  target.value = [...target.value, cloneStructureValue(props.definition)];
-  emit('update', cloneStructureValue(snapshot));
-  await selectPath('');
+  history.restore(action);
 }
+
 function selectNode(node: { readonly id: string }): void {
+  editing.cancelReveal();
   const target = nodeIndex.value.get(node.id);
   if (target === undefined) return;
   selectedId.value = target.id;
@@ -404,12 +414,6 @@ function updateSequenceFrame(field: 'startFrame' | 'endFrame', event: Event): vo
 }
 function updateStep(step: CombatStepDefinition): void {
   emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, step));
-}
-function updateCombatCondition(condition: CombatCondition): void {
-  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, condition));
-}
-function updateEventResponse(response: CombatEventResponseDefinition): void {
-  emitStructureUpdate(replaceStructureValueAtPath(props.definition, selectedPath.value, response));
 }
 async function moveSequence(offset: -1 | 1): Promise<void> {
   const childSkill = selectedChildSkill.value;
@@ -695,15 +699,19 @@ async function deleteCurrent(): Promise<void> {
 </script>
 
 <template>
-  <div class="definition-graph-editor" :class="{ 'fill-available': fillAvailable }">
+  <div
+    ref="editorRoot"
+    class="definition-graph-editor"
+    :class="{ 'fill-available': fillAvailable }"
+  >
     <SkillStructureMindMap
       ref="map"
       :root="root"
       :selected-id="selectedId"
       :show-reference-pins="false"
       :clipboard-kind="structureClipboard?.kind"
-      :can-undo="canUndoStructure"
-      :can-redo="canRedoStructure"
+      :can-undo="history.canUndo.value"
+      :can-redo="history.canRedo.value"
       @select="selectNode"
       @add-child="beginAdd"
       @move-node="moveStructureNode"
@@ -865,12 +873,13 @@ async function deleteCurrent(): Promise<void> {
             <el-icon><Delete /></el-icon>
           </button>
         </header>
-        <CombatConditionEditor
-          :condition="selectedCombatCondition"
-          :skill-level="skillLevel"
-          layer-only
-          @update="updateCombatCondition"
-        />
+        <DefinitionPropertyScope :property="editing.property.value">
+          <CombatConditionEditor
+            :condition="selectedCombatCondition"
+            :skill-level="skillLevel"
+            layer-only
+          />
+        </DefinitionPropertyScope>
       </section>
       <section v-else-if="selectedEventResponse" class="node-card response-card">
         <header>
@@ -883,7 +892,7 @@ async function deleteCurrent(): Promise<void> {
         </header>
         <CombatEventResponseInspector
           :response="selectedEventResponse"
-          @update="updateEventResponse"
+          :binding="editing.property.value"
         />
       </section>
       <section v-else-if="selectedStep" class="node-card">
@@ -906,15 +915,17 @@ async function deleteCurrent(): Promise<void> {
             </button>
           </div>
         </header>
-        <CombatStepEditor
-          :step="selectedStep"
-          :skill-level="skillLevel"
-          :create-step="createStep"
-          :duplicate-step="duplicateStep"
-          :show-header="false"
-          inspector-only
-          @update="updateStep"
-        />
+        <DefinitionPropertyScope :property="editing.property.value">
+          <CombatStepEditor
+            :step="selectedStep"
+            :skill-level="skillLevel"
+            :create-step="createStep"
+            :duplicate-step="duplicateStep"
+            :show-header="false"
+            inspector-only
+            @update="updateStep"
+          />
+        </DefinitionPropertyScope>
       </section>
       <section v-else class="node-card">
         <header>

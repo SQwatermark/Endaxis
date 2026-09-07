@@ -2,7 +2,9 @@
 .definition-graph-editor.fill-available {
   height: 100%;
   min-height: 0;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 40%);
+  grid-template-columns:
+    minmax(0, 1fr)
+    var(--definition-inspector-width, clamp(320px, 25vw, 420px));
   overflow: hidden;
   box-sizing: border-box;
 }

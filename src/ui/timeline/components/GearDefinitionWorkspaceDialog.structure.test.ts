@@ -40,14 +40,14 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(gearSetWorkspaceSource).toContain('definition-workspace-dialog');
   });
   it('bounds the set workspace while letting the graph and Inspector own their scrolling', () => {
-    expect(workspaceLayout).toContain('height: calc(100dvh - 48px)');
+    expect(workspaceLayout).toContain('height: calc(100dvh - 32px)');
     expect(workspaceLayout).toContain('.definition-workspace-dialog > .el-dialog__body');
     expect(gearSetWorkspaceSource).toContain('fill-available');
     expect(contributionEditorSource).toContain('fillAvailable?: boolean');
     expect(contributionEditorSource).toContain('grid-template-rows: auto minmax(0, 1fr)');
     expect(contributionEditorSource).toContain('.fill-available :deep(.map-toolbar)');
     expect(contributionEditorSource).toContain('overscroll-behavior: contain');
-    expect(contributionEditorSource).toContain('minmax(0, 1fr) minmax(0, 0.8fr) 28px');
+    expect(contributionEditorSource).not.toContain('.blackboard-row');
   });
   it('materializes and switches a selected gear slot through the project library', () => {
     expect(timelineEditorSource).toContain('deriveProjectGearTemplate');
@@ -125,7 +125,7 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
   });
 
   it('edits every top-level contribution field without a raw JSON escape hatch', () => {
-    expect(contributionEditorSource).toContain('initializationBlackboardEntries');
+    expect(contributionEditorSource).toContain(':fields="contributionBlackboardFields"');
     expect(contributionEditorSource).toContain('createInitializationSequence');
     expect(contributionEditorSource).toContain('EquipmentBuffDefinitionsDialog');
     expect(contributionEditorSource).toContain('不属于技能的初始黑板');
@@ -159,21 +159,16 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionTypePickerSource).toContain('EQUIPMENT_PANEL_STATS');
     expect(contributionTypePickerSource).toContain('DAMAGE_TYPES');
     expect(contributionTypePickerSource).toContain('EDITABLE_COMBAT_EVENT_TRIGGER_KINDS');
-    expect(eventTriggerEditorSource).toContain('createCombatEventTriggerDraft');
+    expect(eventTriggerEditorSource).toContain('eventInspectorFields');
+    expect(eventTriggerEditorSource).toContain(':binding="binding"');
   });
 
   it('edits every modifier variant in the layer-local inspector', () => {
-    expect(contributionEditorSource).toContain('modifierAttributes');
-    expect(contributionEditorSource).toContain('setModifierOperation');
-    expect(contributionEditorSource).toContain('EQUIPMENT_PANEL_STATS');
-    expect(contributionEditorSource).toContain('toggleDamageType');
-    expect(contributionEditorSource).toContain('toggleSkillType');
-    expect(contributionEditorSource).toContain('clearSkillTypeFilter');
-    expect(contributionEditorSource).toContain("selectedModifier.kind === 'damageScale'");
-    expect(contributionEditorSource).toContain("selectedModifier.kind === 'staticHealingIncrease'");
-    expect(contributionEditorSource).toContain(
-      "selectedModifier.kind === 'skillCooldownMultiplier'",
-    );
+    expect(contributionEditorSource).toContain(':fields="modifierInspectorFields(selectedModifier)"');
+    expect(contributionEditorSource).toContain(':binding="editing.property.value"');
+    expect(contributionEditorSource).not.toContain('function toggleDamageType');
+    expect(contributionEditorSource).not.toContain('function toggleSkillType');
+    expect(contributionEditorSource).not.toContain('function clearSkillTypeFilter');
     expect(contributionTypePickerSource).toContain('EQUIPMENT_DAMAGE_SCALE_TARGETS');
     expect(contributionTypePickerSource).toContain('chooseStaticHealingIncrease');
     expect(contributionTypePickerSource).toContain('chooseSkillCooldownMultiplier');
@@ -183,9 +178,10 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
   it('edits both handler event families plus priority and per-level blackboard', () => {
     expect(contributionTypePickerSource).toContain('chooseAbilityHandler');
     expect(contributionTypePickerSource).toContain('EQUIPMENT_ABILITY_EVENTS');
-    expect(contributionEditorSource).toContain('setHandlerPriority');
-    expect(contributionEditorSource).toContain('handlerBlackboardEntries');
-    expect(contributionEditorSource).toContain('addHandlerBlackboardEntry');
+    expect(contributionEditorSource).toContain(':fields="handlerInspectorFields(selectedHandler)"');
+    expect(contributionEditorSource).toContain(':current-level="level"');
+    expect(contributionEditorSource).not.toContain('function setHandlerPriority');
+    expect(contributionEditorSource).not.toContain('function addHandlerBlackboardEntry');
   });
 
   it('projects event conditions into the map and keeps their inspector layer-local', () => {
@@ -195,6 +191,7 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionEditorSource).toContain('layer-only');
     expect(conditionTypePickerSource).toContain('COMBAT_CONDITION_KINDS');
     expect(conditionTypePickerSource).toContain('createCombatCondition');
-    expect(conditionEditorSource).toContain('!layerOnly && condition.kind');
+    expect(conditionEditorSource).toMatch(/<Workspace\b[\s\S]*?v-if="!layerOnly"/);
+    expect(conditionEditorSource).not.toContain('RecursiveConditionEditor');
   });
 });

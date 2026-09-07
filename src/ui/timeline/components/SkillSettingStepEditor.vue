@@ -1,19 +1,16 @@
 <script setup lang="ts">
-/** 原生 SkillSetting 四列取值和来源属性换算的语义化编辑器。 */
+/** SkillSetting 专用四列与增强公式编辑；普通属性读取已由公共字段负责。 */
 import type {
   ActionValueOperand,
   CombatStepDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 
-type SourceValueStep = Extract<
-  CombatStepDefinition,
-  { kind: 'readSkillSettingData' | 'storeSourceAttributeValue' | 'storeEntityPropertyValue' }
->;
-type SettingStep = Extract<SourceValueStep, { kind: 'readSkillSettingData' }>;
+type SettingStep = Extract<CombatStepDefinition, { kind: 'readSkillSettingData' }>;
+
 type SettingItem = SettingStep['parameters']['items'][number];
 
-const props = defineProps<{ step: SourceValueStep }>();
+const props = defineProps<{ step: SettingStep }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 
 const operandLabels = {
@@ -137,96 +134,10 @@ function removeSettingItem(index: number): void {
     parameters: { items: props.step.parameters.items.filter((_, current) => current !== index) },
   });
 }
-
-function setAttributeKind(event: Event): void {
-  if (props.step.kind !== 'storeSourceAttributeValue') return;
-  const kind = (event.target as HTMLSelectElement).value as
-    'specific' | 'main' | 'secondary' | 'all';
-  emit('update', {
-    ...props.step,
-    parameters: {
-      ...props.step.parameters,
-      attribute: kind === 'specific' ? { kind, key: 'strength' } : { kind },
-    },
-  });
-}
-
-function setAttributeKey(event: Event): void {
-  if (
-    props.step.kind !== 'storeSourceAttributeValue' ||
-    props.step.parameters.attribute.kind !== 'specific'
-  )
-    return;
-  emit('update', {
-    ...props.step,
-    parameters: {
-      ...props.step.parameters,
-      attribute: { kind: 'specific', key: (event.target as HTMLInputElement).value },
-    },
-  });
-}
-
-function setAttributeStage(event: Event): void {
-  if (props.step.kind !== 'storeSourceAttributeValue') return;
-  const stage = (event.target as HTMLSelectElement).value as
-    'armedNonConverted' | 'finalNonConverted';
-  emit('update', { ...props.step, parameters: { ...props.step.parameters, stage } });
-}
-
-function setAttributeOperand(
-  field: 'divisor' | 'multiplier' | 'base',
-  value: ActionValueOperand,
-): void {
-  if (
-    props.step.kind !== 'storeSourceAttributeValue' &&
-    props.step.kind !== 'storeEntityPropertyValue'
-  )
-    return;
-  if (props.step.kind === 'storeSourceAttributeValue') {
-    emit('update', { ...props.step, parameters: { ...props.step.parameters, [field]: value } });
-  } else {
-    emit('update', { ...props.step, parameters: { ...props.step.parameters, [field]: value } });
-  }
-}
-
-function setAttributeText(event: Event): void {
-  if (
-    props.step.kind !== 'storeSourceAttributeValue' &&
-    props.step.kind !== 'storeEntityPropertyValue'
-  )
-    return;
-  const targetKey = (event.target as HTMLInputElement).value;
-  if (props.step.kind === 'storeSourceAttributeValue') {
-    emit('update', { ...props.step, parameters: { ...props.step.parameters, targetKey } });
-  } else {
-    emit('update', { ...props.step, parameters: { ...props.step.parameters, targetKey } });
-  }
-}
-
-function setUseFloor(event: Event): void {
-  if (
-    props.step.kind !== 'storeSourceAttributeValue' &&
-    props.step.kind !== 'storeEntityPropertyValue'
-  )
-    return;
-  const useFloor = (event.target as HTMLInputElement).checked;
-  if (props.step.kind === 'storeSourceAttributeValue') {
-    emit('update', { ...props.step, parameters: { ...props.step.parameters, useFloor } });
-  } else {
-    emit('update', { ...props.step, parameters: { ...props.step.parameters, useFloor } });
-  }
-}
-
-function setEntityProperty(event: Event): void {
-  if (props.step.kind !== 'storeEntityPropertyValue') return;
-  const property = (event.target as HTMLSelectElement).value as
-    'currentHealth' | 'maxHealth' | 'currentPoise';
-  emit('update', { ...props.step, parameters: { ...props.step.parameters, property } });
-}
 </script>
 
 <template>
-  <div v-if="step.kind === 'readSkillSettingData'" class="source-value-editor">
+  <div class="source-value-editor">
     <article v-for="(item, index) in step.parameters.items" :key="index" class="setting-item">
       <header>
         <strong>SkillSetting 项 {{ index + 1 }}</strong>
@@ -304,76 +215,6 @@ function setEntityProperty(event: Event): void {
       添加 SkillSetting 项
     </button>
     <p>每项固定保存四列原始值；运行时列号可以来自常量或动作黑板，编辑器不会猜当前应选哪一列。</p>
-  </div>
-
-  <div v-else class="step-editor__grid">
-    <label v-if="step.kind === 'storeSourceAttributeValue'">
-      <span>来源属性选择</span>
-      <select :value="step.parameters.attribute.kind" @change="setAttributeKind">
-        <option value="specific">指定属性键</option>
-        <option value="main">主属性</option>
-        <option value="secondary">副属性</option>
-        <option value="all">全属性聚合</option>
-      </select>
-    </label>
-    <label
-      v-if="
-        step.kind === 'storeSourceAttributeValue' && step.parameters.attribute.kind === 'specific'
-      "
-    >
-      <span>属性键</span>
-      <input :value="step.parameters.attribute.key" @input="setAttributeKey" />
-    </label>
-    <label v-if="step.kind === 'storeSourceAttributeValue'">
-      <span>属性阶段</span>
-      <select :value="step.parameters.stage" @change="setAttributeStage">
-        <option value="armedNonConverted">装备后、转化前</option>
-        <option value="finalNonConverted">最终、转化前</option>
-      </select>
-    </label>
-    <label v-else>
-      <span>实体属性</span>
-      <select :value="step.parameters.property" @change="setEntityProperty">
-        <option value="currentHealth">当前生命</option>
-        <option value="maxHealth">最大生命</option>
-        <option value="currentPoise">当前失衡值</option>
-      </select>
-    </label>
-    <label>
-      <span>写入动作黑板键</span>
-      <input :value="step.parameters.targetKey" @input="setAttributeText" />
-    </label>
-    <label class="step-editor__check step-editor__check--field">
-      <input type="checkbox" :checked="step.parameters.useFloor" @change="setUseFloor" />
-      <span>结果向下取整</span>
-    </label>
-    <label class="step-editor__operand">
-      <span>除数</span>
-      <ActionValueOperandEditor
-        :value="step.parameters.divisor"
-        :labels="operandLabels"
-        @update="setAttributeOperand('divisor', $event)"
-      />
-    </label>
-    <label class="step-editor__operand">
-      <span>乘数</span>
-      <ActionValueOperandEditor
-        :value="step.parameters.multiplier"
-        :labels="operandLabels"
-        @update="setAttributeOperand('multiplier', $event)"
-      />
-    </label>
-    <label class="step-editor__operand">
-      <span>基值</span>
-      <ActionValueOperandEditor
-        :value="step.parameters.base"
-        :labels="operandLabels"
-        @update="setAttributeOperand('base', $event)"
-      />
-    </label>
-    <p class="source-value-editor__note">
-      原生语义：启用取整时先计算 floor(来源值 ÷ 除数)，随后乘以乘数并加上基值；未启用时不读取除数。
-    </p>
   </div>
 </template>
 

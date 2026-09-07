@@ -39,6 +39,7 @@ it('retains one history across graph/form unmounts and does not replay into a re
         createStep,
         duplicateStep,
         sharedHistory: workspace.history,
+        selectedPath: workspace.graphPath.value,
         standaloneHistory: true,
       }),
   };
@@ -71,23 +72,33 @@ it('retains one history across graph/form unmounts and does not replay into a re
   try {
     const history = workspace.history;
     child.selectNode({ id: 'action-sequence:step:0' });
-    child.updateValue({ ...initial.steps[0], key: 'graph-edit' });
+    // 图中自动字段直接提交根句柄，不经步骤组件 update 转发。
+    child.editContext.root.child('steps').child(0).child('key').update(() => 'graph-edit');
     await nextTick();
     workspace.showDetails('steps[0]');
     await nextTick();
     expect(workspace.formPath.value).toBe('steps[0]');
     expect(child.history).toBe(history);
-    child.replaceStep({ ...initial.steps[0], key: 'form-edit' });
+    child.replaceStep({ ...initial.steps[0], key: 'form-edit' }, ['key']);
     await nextTick();
-    workspace.view.value = 'graph';
+    expect(workspace.navigateStructure.canNavigate(sequence.value.steps[0])).toBe(true);
+    expect(workspace.view.value).toBe('form');
+    expect(workspace.navigateStructure.canNavigate(initial.steps[0])).toBe(false);
+    expect(workspace.navigateStructure(sequence.value.steps[0])).toBe(true);
     await nextTick();
+    await nextTick();
+    expect(workspace.graphPath.value).toBe('steps[0]');
+    expect(child.selected.value.sourcePath).toBe('steps[0]');
+    expect(workspace.navigateStructure(initial.steps[0])).toBe(false);
     expect(child.history).toBe(history);
     child.history.restore('undo');
     await nextTick();
     expect(sequence.value.steps[0].key).toBe('graph-edit');
+    expect(history.restoredLocation.value).toEqual({ path: 'steps[0]', propertyPath: ['key'] });
     child.history.restore('undo');
     await nextTick();
     expect(sequence.value).toEqual(initial);
+    expect(history.restoredLocation.value).toEqual({ path: 'steps[0]', propertyPath: ['key'] });
     child.history.restore('redo');
     await nextTick();
     child.history.restore('redo');
@@ -97,6 +108,12 @@ it('retains one history across graph/form unmounts and does not replay into a re
     await nextTick();
     expect(history.canUndo.value).toBe(false);
     expect(history.canRedo.value).toBe(false);
+    // 同一个对象被两处引用时，不猜应跳向哪一处。
+    const shared = { ...initial.steps[0] };
+    sequence.value = { steps: [shared, shared] };
+    await nextTick();
+    expect(workspace.navigateStructure.canNavigate(shared)).toBe(false);
+    expect(workspace.navigateStructure(shared)).toBe(false);
   } finally {
     app.unmount();
     vi.unstubAllGlobals();

@@ -29,15 +29,9 @@ import type {
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
-  BUFF_APPLICATION_TARGETS,
-  COMBAT_TARGETS,
   type ActionSequenceDefinition,
   type ActionBlackboardValue,
-  type ActionValueOperand,
-  type BuffApplicationTarget,
   type CombatStepDefinition,
-  type CombatTarget,
-  type LevelValues,
   type SkillBuffDefinition,
   type SkillBuffLifecycleSequences,
 } from '../../../core/game-data/operatorDefinition';
@@ -58,9 +52,14 @@ import {
   setBuffDefinitionKeywordEnhancements as replaceBuffDefinitionKeywordEnhancements,
   setBuffDefinitionAdvancedProperties as replaceBuffDefinitionAdvancedProperties,
 } from '../buffDefinitionEditorCommands';
+import InspectorFields from './InspectorFields.vue';
+import type { DefinitionProperty } from '../definitionEditContext';
+import {
+  applyBuffInspectorFields,
+  applyBuffAssignmentFields,
+  validateApplyBuffInspector,
+} from '../combatInspectorFields';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
-import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
-import LevelValuesEditor from './LevelValuesEditor.vue';
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
 import BuffBlackboardEditor from './BuffBlackboardEditor.vue';
 import BuffAttributeModifierEditor from './BuffAttributeModifierEditor.vue';
@@ -77,8 +76,6 @@ import EditorFieldLabel from './EditorFieldLabel.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
 type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
-type OptionalField =
-  'count' | 'source' | 'durationSeconds' | 'effectiveness' | 'inheritSourceSkillCastInfo';
 const BUFF_LIFECYCLE_KEYS = [
   'start',
   'enable',
@@ -93,6 +90,7 @@ type BuffLifecycleKey = (typeof BUFF_LIFECYCLE_KEYS)[number];
 
 const props = defineProps<{
   step: BuffStep;
+  parametersBinding?: DefinitionProperty;
   skillLevel: number;
   /** 作为干员级 Buff 蓝图编辑器使用时，隐藏施加目标、实例覆盖和内联开关。 */
   definitionOnly?: boolean;
@@ -122,37 +120,8 @@ watch(
   { immediate: true },
 );
 
-const assignments = computed(() =>
-  Object.entries(props.step.parameters.blackboardAssignments ?? {}),
-);
-const operandLabels = () => ({
-  constant: t('timeline.skillEditing.operandConstant'),
-  blackboard: t('timeline.skillEditing.operandBlackboard'),
-  blackboardKey: t('timeline.skillEditing.operandBlackboardKey'),
-  constantValue: t('timeline.skillEditing.operandConstantValue'),
-});
-
 function update(parameters: BuffStep['parameters']): void {
   emit('update', { ...props.step, parameters });
-}
-
-function setBuffId(event: Event): void {
-  const value = (event.target as HTMLInputElement).value;
-  update({
-    ...props.step.parameters,
-    buffId: typeof props.step.parameters.buffId === 'string' ? value : { blackboardKey: value },
-  });
-}
-
-function setBuffIdKind(event: Event): void {
-  const parameters = { ...props.step.parameters };
-  if ((event.target as HTMLSelectElement).value === 'blackboard') {
-    parameters.buffId = { blackboardKey: '' };
-    delete parameters.definition;
-    delete parameters.durationSeconds;
-    delete parameters.effectiveness;
-  } else parameters.buffId = '';
-  update(parameters);
 }
 
 function setDefinition(definition: SkillBuffDefinition | undefined): void {
@@ -354,234 +323,17 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
   const enabled = (event.target as HTMLInputElement).checked;
   setLifecycleSequence(key, enabled ? { steps: [] } : undefined);
 }
-
-function setTarget(event: Event): void {
-  const target = (event.target as HTMLSelectElement).value as BuffApplicationTarget;
-  if (!BUFF_APPLICATION_TARGETS.includes(target)) return;
-  update({ ...props.step.parameters, target });
-}
-
-function setSource(event: Event): void {
-  const source = (event.target as HTMLSelectElement).value as CombatTarget;
-  if (!COMBAT_TARGETS.includes(source)) return;
-  update({ ...props.step.parameters, source });
-}
-
-function setOperand(field: 'count', value: ActionValueOperand): void {
-  update({ ...props.step.parameters, [field]: value });
-}
-
-function setNumber(field: 'durationSeconds' | 'effectiveness', event: Event): void {
-  const value = Number((event.target as HTMLInputElement).value);
-  if (!Number.isFinite(value)) return;
-  update({ ...props.step.parameters, [field]: value });
-}
-
-function setInherit(event: Event): void {
-  update({
-    ...props.step.parameters,
-    inheritSourceSkillCastInfo: (event.target as HTMLInputElement).checked,
-  });
-}
-
-function toggleOptional(field: OptionalField, event: Event): void {
-  const enabled = (event.target as HTMLInputElement).checked;
-  const parameters = { ...props.step.parameters };
-  if (!enabled) {
-    delete parameters[field];
-    update(parameters);
-    return;
-  }
-  if (field === 'count') parameters.count = { kind: 'constant', value: 1 };
-  else if (field === 'source') parameters.source = 'caster';
-  else if (field === 'durationSeconds') parameters.durationSeconds = 0;
-  else if (field === 'effectiveness') parameters.effectiveness = 1;
-  else parameters.inheritSourceSkillCastInfo = false;
-  update(parameters);
-}
-
-function appendAssignment(): void {
-  const current = { ...(props.step.parameters.blackboardAssignments ?? {}) };
-  let index = 1;
-  while (`custom-${index}` in current) index += 1;
-  current[`custom-${index}`] = { kind: 'constant', value: 0 };
-  update({ ...props.step.parameters, blackboardAssignments: current });
-}
-
-function renameAssignment(oldKey: string, event: Event): void {
-  const newKey = (event.target as HTMLInputElement).value;
-  if (newKey === oldKey || newKey.length === 0) return;
-  const current = props.step.parameters.blackboardAssignments ?? {};
-  if (newKey in current) return;
-  const renamed: Record<string, LevelValues | ActionValueOperand> = {};
-  for (const [key, value] of Object.entries(current))
-    renamed[key === oldKey ? newKey : key] = value;
-  update({ ...props.step.parameters, blackboardAssignments: renamed });
-}
-
-function setAssignment(key: string, value: ActionValueOperand | LevelValues): void {
-  update({
-    ...props.step.parameters,
-    blackboardAssignments: { ...props.step.parameters.blackboardAssignments, [key]: value },
-  });
-}
-
-function toEditableOperand(value: LevelValues | ActionValueOperand): ActionValueOperand {
-  if (typeof value === 'object' && 'kind' in value) return value;
-  const resolved = Array.isArray(value)
-    ? (value[Math.max(0, props.skillLevel - 1)] ?? value[0] ?? 0)
-    : value;
-  return { kind: 'constant', value: resolved };
-}
-
-function isLevelValues(value: LevelValues | ActionValueOperand): value is LevelValues {
-  return typeof value === 'number' || Array.isArray(value);
-}
-
-function removeAssignment(key: string): void {
-  const current = { ...(props.step.parameters.blackboardAssignments ?? {}) };
-  delete current[key];
-  const parameters = { ...props.step.parameters };
-  if (Object.keys(current).length === 0) delete parameters.blackboardAssignments;
-  else parameters.blackboardAssignments = current;
-  update(parameters);
-}
 </script>
 
 <template>
   <div v-if="!definitionOnly" class="step-editor__grid">
-    <label>
-      <EditorFieldLabel
-        :label="t('timeline.skillEditing.buffId')"
-        :help="t('timeline.skillEditing.fieldHelp.buffId')"
-      />
-      <select
-        :value="typeof step.parameters.buffId === 'string' ? 'constant' : 'blackboard'"
-        @change="setBuffIdKind"
-      >
-        <option value="constant">{{ operandLabels().constant }}</option>
-        <option value="blackboard">{{ operandLabels().blackboard }}</option>
-      </select>
-      <input
-        type="text"
-        :aria-label="
-          typeof step.parameters.buffId === 'string'
-            ? t('timeline.skillEditing.buffId')
-            : operandLabels().blackboardKey
-        "
-        :value="
-          typeof step.parameters.buffId === 'string'
-            ? step.parameters.buffId
-            : step.parameters.buffId.blackboardKey
-        "
-        @input="setBuffId"
-      />
-    </label>
-    <label>
-      <EditorFieldLabel
-        :label="t('timeline.skillEditing.target')"
-        :help="t('timeline.skillEditing.fieldHelp.buffTarget')"
-      />
-      <select :value="step.parameters.target" @change="setTarget">
-        <option v-for="target in BUFF_APPLICATION_TARGETS" :key="target" :value="target">
-          {{ t(`timeline.skillEditing.buffTargets.${target}`) }}
-        </option>
-      </select>
-    </label>
-
-    <label class="step-editor__optional">
-      <span
-        ><input
-          type="checkbox"
-          :checked="step.parameters.count !== undefined"
-          @change="toggleOptional('count', $event)"
-      /></span>
-      <EditorFieldLabel
-        :label="t('timeline.skillEditing.buffCount')"
-        :help="t('timeline.skillEditing.fieldHelp.buffCount')"
-      />
-      <ActionValueOperandEditor
-        v-if="step.parameters.count"
-        :value="step.parameters.count"
-        :labels="operandLabels()"
-        @update="setOperand('count', $event)"
-      />
-    </label>
-    <label class="step-editor__optional">
-      <span
-        ><input
-          type="checkbox"
-          :checked="step.parameters.source !== undefined"
-          @change="toggleOptional('source', $event)"
-      /></span>
-      <EditorFieldLabel
-        :label="t('timeline.skillEditing.buffSource')"
-        :help="t('timeline.skillEditing.fieldHelp.buffSource')"
-      />
-      <select v-if="step.parameters.source" :value="step.parameters.source" @change="setSource">
-        <option v-for="source in COMBAT_TARGETS" :key="source" :value="source">
-          {{ t(`timeline.skillEditing.targets.${source}`) }}
-        </option>
-      </select>
-    </label>
-    <label class="step-editor__optional">
-      <span
-        ><input
-          type="checkbox"
-          :checked="step.parameters.durationSeconds !== undefined"
-          :disabled="typeof step.parameters.buffId !== 'string'"
-          @change="toggleOptional('durationSeconds', $event)"
-      /></span>
-      <EditorFieldLabel
-        :label="t('timeline.skillEditing.durationSeconds')"
-        :help="t('timeline.skillEditing.fieldHelp.buffDuration')"
-      />
-      <input
-        v-if="step.parameters.durationSeconds !== undefined"
-        type="number"
-        step="0.01"
-        :value="step.parameters.durationSeconds"
-        @input="setNumber('durationSeconds', $event)"
-      />
-    </label>
-    <label class="step-editor__optional">
-      <span
-        ><input
-          type="checkbox"
-          :checked="step.parameters.effectiveness !== undefined"
-          :disabled="typeof step.parameters.buffId !== 'string'"
-          @change="toggleOptional('effectiveness', $event)"
-      /></span>
-      <EditorFieldLabel
-        :label="t('timeline.skillEditing.effectiveness')"
-        :help="t('timeline.skillEditing.fieldHelp.buffEffectiveness')"
-      />
-      <input
-        v-if="step.parameters.effectiveness !== undefined"
-        type="number"
-        step="0.01"
-        :value="step.parameters.effectiveness"
-        @input="setNumber('effectiveness', $event)"
-      />
-    </label>
-    <label class="step-editor__optional">
-      <span
-        ><input
-          type="checkbox"
-          :checked="step.parameters.inheritSourceSkillCastInfo !== undefined"
-          @change="toggleOptional('inheritSourceSkillCastInfo', $event)"
-      /></span>
-      <EditorFieldLabel
-        :label="t('timeline.skillEditing.inheritSkillCast')"
-        :help="t('timeline.skillEditing.fieldHelp.inheritSkillCast')"
-      />
-      <input
-        v-if="step.parameters.inheritSourceSkillCastInfo !== undefined"
-        type="checkbox"
-        :checked="step.parameters.inheritSourceSkillCastInfo"
-        @change="setInherit"
-      />
-    </label>
+    <InspectorFields
+      :binding="parametersBinding"
+      :value="step.parameters"
+      :fields="applyBuffInspectorFields"
+      :validate="validateApplyBuffInspector"
+      @update="update"
+    />
   </div>
 
   <fieldset class="buff-definition">
@@ -834,52 +586,15 @@ function removeAssignment(key: string): void {
     />
   </fieldset>
 
-  <fieldset v-if="!definitionOnly" class="buff-assignments">
-    <legend>
-      <EditorFieldLabel
-        :label="t('timeline.skillEditing.buffAssignments')"
-        :help="t('timeline.skillEditing.fieldHelp.buffAssignments')"
-      />
-    </legend>
-    <div v-for="[key, value] in assignments" :key="key" class="buff-assignment">
-      <input type="text" :value="key" @change="renameAssignment(key, $event)" />
-      <div v-if="isLevelValues(value)" class="buff-assignment__levels">
-        <LevelValuesEditor
-          :value="value"
-          :current-level="skillLevel"
-          @update="setAssignment(key, $event)"
-        />
-        <button type="button" @click="setAssignment(key, toEditableOperand(value))">
-          改为表达式（替换整个数值定义）
-        </button>
-      </div>
-      <div v-else class="buff-assignment__levels">
-        <ActionValueOperandEditor
-          :value="value"
-          :labels="operandLabels()"
-          @update="setAssignment(key, $event)"
-        />
-        <button
-          v-if="value.kind === 'constant'"
-          type="button"
-          @click="setAssignment(key, [value.value])"
-        >
-          改为逐级数值
-        </button>
-      </div>
-      <button
-        type="button"
-        class="buff-assignment__remove"
-        :title="t('timeline.skillEditing.deleteAssignment')"
-        @click="removeAssignment(key)"
-      >
-        ×
-      </button>
-    </div>
-    <button type="button" class="buff-assignment__add" @click="appendAssignment">
-      {{ t('timeline.skillEditing.addAssignment') }}
-    </button>
-  </fieldset>
+  <InspectorFields
+    :binding="parametersBinding"
+    v-if="!definitionOnly"
+    :value="step.parameters"
+    :fields="applyBuffAssignmentFields"
+    :validate="validateApplyBuffInspector"
+    :current-level="skillLevel"
+    @update="update"
+  />
 </template>
 
 <style scoped>
@@ -887,24 +602,6 @@ function removeAssignment(key: string): void {
   grid-column: 1 / -1;
   display: grid !important;
   grid-template-columns: 18px minmax(130px, 180px) minmax(0, 1fr) !important;
-}
-
-.buff-assignment {
-  display: grid;
-  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 30px;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.buff-assignment__levels {
-  min-width: 0;
-  display: grid;
-  gap: 6px;
-}
-.buff-assignment .buff-assignment__levels > button {
-  height: auto;
-  min-height: 30px;
-  white-space: normal;
 }
 
 .buff-definition__grid {
@@ -980,23 +677,5 @@ function removeAssignment(key: string): void {
   .buff-lifecycle__tabs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
-
-.buff-assignment input,
-.buff-assignment button,
-.buff-assignment__add {
-  min-width: 0;
-  height: 30px;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-fill-input, #16161a);
-  color: var(--ea-fg);
-}
-
-.buff-assignment__remove {
-  color: var(--ea-danger, #ff5c5c);
-}
-.buff-assignment__add {
-  padding: 0 12px;
 }
 </style>

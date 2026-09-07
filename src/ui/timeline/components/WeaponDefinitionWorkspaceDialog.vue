@@ -4,6 +4,9 @@ import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { replaceEquipmentContribution } from '../replaceEquipmentContribution';
 import { computed, ref, watch } from 'vue';
+import { useDefinitionDraft, projectDefinitionHistory } from '../useDefinitionDraftHistory';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
+import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import {
   WEAPON_RARITIES,
   type EquipmentContributionDefinition,
@@ -25,7 +28,25 @@ const emit = defineEmits<{
   reset: [];
 }>();
 
-const draft = ref<WeaponDefinition>(clone(props.customDefinition));
+const {
+  draft,
+  history,
+  reset: resetDraft,
+} = useDefinitionDraft<WeaponDefinition>(props.customDefinition);
+const editorRoot = ref<HTMLElement | null>(null);
+useEditorHistoryShortcuts(editorRoot, history.restore);
+const contributionHistory = projectDefinitionHistory<EquipmentContributionDefinition>(
+  history,
+  updateTraitContribution,
+  () => ({ objectId: String(selectedTraitIndex.value) }),
+);
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (location?.objectId !== undefined) selectedSection.value = Number(location.objectId);
+  },
+  { flush: 'sync' },
+);
 const selectedSection = ref<'base' | number>('base');
 const contributionEditorRevision = ref(0);
 const issues = computed(() => validateWeaponDefinition(draft.value, '$.weapon'));
@@ -41,7 +62,7 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
-    draft.value = clone(props.customDefinition);
+    resetDraft(props.customDefinition);
     selectedSection.value = 'base';
   },
   { immediate: true },
@@ -135,8 +156,8 @@ function save(): void {
   <InputRegionBoundary label="weapon-definition-workspace" :active="visible" modal>
     <el-dialog
       :model-value="visible"
-      width="min(1440px, calc(100vw - 48px))"
-      top="24px"
+      width="min(1600px, calc(100vw - 32px))"
+      top="16px"
       append-to-body
       destroy-on-close
       class="weapon-definition-dialog definition-workspace-dialog"
@@ -151,7 +172,7 @@ function save(): void {
         </div>
       </template>
 
-      <div class="weapon-workspace">
+      <div ref="editorRoot" class="weapon-workspace">
         <aside class="weapon-outliner">
           <button :class="{ active: selectedSection === 'base' }" @click="selectedSection = 'base'">
             <strong>基础与成长</strong><small>6 个等级节点</small>
@@ -256,6 +277,7 @@ function save(): void {
               /></label>
             </div>
             <EquipmentContributionGraphEditor
+              :shared-history="contributionHistory"
               fill-available
               :key="`${contributionEditorRevision}:${selectedTraitIndex}`"
               :contribution="selectedTrait"
@@ -269,6 +291,7 @@ function save(): void {
 
       <template #footer>
         <div class="workspace-footer">
+          <DefinitionHistoryControls :history="history" />
           <details v-if="issues.length" class="issues">
             <summary>{{ issues.length }} 个结构问题</summary>
             <code v-for="issue in issues" :key="`${issue.path}:${issue.message}`"
@@ -319,7 +342,7 @@ function save(): void {
 }
 .weapon-workspace {
   display: grid;
-  grid-template-columns: clamp(130px, 16vw, 210px) minmax(0, 1fr);
+  grid-template-columns: var(--definition-outliner-width, clamp(180px, 15vw, 240px)) minmax(0, 1fr);
   height: 100%;
   min-height: 0;
   box-sizing: border-box;

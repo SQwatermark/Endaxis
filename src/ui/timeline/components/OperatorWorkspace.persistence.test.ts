@@ -85,15 +85,19 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
   app.provide(ssrContextKey, { modules: new Set() });
   app.mount({});
   const edit = () => {
+    panel.selectSection('buffs');
     panel.selectedBuffId.value = 'qa';
     panel.updateBuffStep({
       kind: 'applyBuff',
       parameters: { definition: { stackingType: 'refresh' } },
     });
-    panel.saveEntities({
-      ...perlica.abilityEntityDefinitions,
-      qa: { lifetime: { kind: 'infinite' } },
-    });
+    panel.entityHistory.commit(
+      {
+        ...perlica.abilityEntityDefinitions,
+        qa: { lifetime: { kind: 'infinite' } },
+      },
+      { path: '', objectId: 'qa' },
+    );
   };
   try {
     // Focus is scoped to the active section; leaving/canceling does not alter the draft.
@@ -116,6 +120,18 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     expect(currentDefinition().buffDefinitions!.qa!.durationSeconds).toBe(10);
     expect(currentDefinition().abilityEntityDefinitions!.qa!.deathReleaseDelaySeconds).toBe(2);
     expect(saves).toBe(0);
+    // 两类附属定义共用根历史，切换分类不要求先保存。
+    panel.entityHistory.restore('undo');
+    await nextTick();
+    expect(panel.section.value).toBe('entities');
+    expect(panel.draft.value.abilityEntityDefinitions.qa.deathReleaseDelaySeconds).toBe(2);
+    panel.entityHistory.restore('undo');
+    await nextTick();
+    expect(panel.section.value).toBe('buffs');
+    expect(panel.draft.value.buffDefinitions.qa.durationSeconds).toBe(10);
+    panel.entityHistory.restore('redo');
+    panel.entityHistory.restore('redo');
+    await nextTick();
     visible.value = false;
     await nextTick();
     visible.value = true;

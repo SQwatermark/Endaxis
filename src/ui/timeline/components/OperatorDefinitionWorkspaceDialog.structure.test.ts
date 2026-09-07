@@ -59,7 +59,8 @@ describe('OperatorDefinitionWorkspaceDialog structure', () => {
 
   it('edits character-installed passive and event sequences outside timeline skills', () => {
     expect(workspaceSource).toContain('OperatorRuntimeBehaviorDialog');
-    expect(runtimeBehaviorSource).toContain('ActionSequenceEditor');
+    expect(runtimeBehaviorSource).toContain('ActionSequenceWorkspace');
+    expect(runtimeBehaviorSource).toContain(':shared-history="sequenceHistory"');
     expect(runtimeBehaviorSource).toContain('SkillBlackboardEditor');
     expect(runtimeBehaviorSource).toContain('这些行为随角色进入战斗安装');
     expect(runtimeBehaviorSource).toContain('角色创建时启用一次');
@@ -102,7 +103,8 @@ describe('OperatorDefinitionWorkspaceDialog structure', () => {
     expect(abilityEntityDefinitionsSource).not.toContain('<el-dialog');
     expect(skillEditorDialogSource).toContain('v-if="embedded && visible');
     expect(workspaceSource).toContain('v-if="showSkillEditor && selectedSkill"');
-    expect(workspaceSource).toContain('v-if="showEntityEditor"');
+    expect(workspaceSource).toContain(':shared-history="entityHistory"');
+    expect(workspaceSource).not.toContain('showEntityEditor');
     expect(workspaceSource).toContain('v-if="showComboEditor"');
     expect(workspaceSource).toContain('v-else-if="showRuntimeBehaviorEditor"');
   });

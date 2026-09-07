@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "pretype-check": "node --experimental-strip-types tools/inspector-schema/prepare.ts",
     "build": "vite build",
     "preview": "vite preview",
     "export:game-icons": "node --experimental-strip-types tools/game-data-compiler/scripts/exportReferencedGameIcons.ts",

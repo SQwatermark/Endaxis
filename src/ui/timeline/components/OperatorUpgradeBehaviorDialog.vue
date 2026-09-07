@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { useDefinitionDraft, projectDefinitionHistory } from '../useDefinitionDraftHistory';
+import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
+import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import { cloneStructureValue } from '../skillStructureEditorCommands';
 import {
   ELEMENTAL_REACTIONS,
@@ -33,7 +36,27 @@ const emit = defineEmits<{
   'update:visible': [visible: boolean];
   save: [upgrade: OperatorUpgradeDefinition];
 }>();
-const draft = ref<OperatorUpgradeDefinition>(cloneStructureValue(props.upgrade));
+const {
+  draft,
+  history,
+  reset: resetDraft,
+} = useDefinitionDraft<OperatorUpgradeDefinition>(props.upgrade);
+const editorRoot = ref<HTMLElement | null>(null);
+useEditorHistoryShortcuts(editorRoot, history.restore);
+const sequenceHistory = projectDefinitionHistory<ActionSequenceDefinition>(
+  history,
+  updateSequence,
+  () => ({ section: category.value, objectId: String(selectedIndex.value) }),
+);
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (!location) return;
+    if (location.section) category.value = location.section as Category;
+    if (location.objectId !== undefined) selectedIndex.value = Number(location.objectId);
+  },
+  { flush: 'sync' },
+);
 const category = ref<Category>('initialization');
 const selectedIndex = ref(0);
 const structureRevision = ref(0);
@@ -60,7 +83,7 @@ watch(
   () => [props.visible, props.upgrade] as const,
   ([visible]) => {
     if (!visible) return;
-    draft.value = cloneStructureValue(props.upgrade);
+    resetDraft(props.upgrade);
     category.value = 'initialization';
     selectedIndex.value = 0;
     upgradeLevel.value = 1;
@@ -205,8 +228,19 @@ function save(): void {
 </script>
 
 <template>
-  <section v-if="visible" class="embedded-editor" :class="{ 'fill-available': fillAvailable }">
+  <section
+    v-if="visible"
+    ref="editorRoot"
+    class="embedded-editor"
+    :class="{ 'fill-available': fillAvailable }"
+  >
     <div class="embedded-header">
+      <button
+        class="definition-focused-back ea-btn ea-btn--sm"
+        @click="emit('update:visible', false)"
+      >
+        ← 返回天赋与潜能
+      </button>
       <div class="title">
         <strong>养成行为 · {{ draft.key }}</strong
         ><small>初始化、事件监听与附属被动具有不同安装和执行时机。</small>
@@ -416,6 +450,7 @@ function save(): void {
         <ActionSequenceWorkspace
           :key="`${category}:${selectedIndex}:${structureRevision}`"
           :sequence="selectedSequence"
+          :shared-history="sequenceHistory"
           :skill-level="editingLevel"
           :create-step="createStep"
           :duplicate-step="duplicateStep"
@@ -425,6 +460,7 @@ function save(): void {
       <main v-else class="empty">当前分类没有行为定义。</main>
     </div>
     <div class="embedded-footer">
+      <DefinitionHistoryControls :history="history" />
       <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
         取消</button
       ><button class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill" @click="save">

@@ -2,13 +2,18 @@
 /**
  * 战斗步骤编辑器的统一入口。
  *
- * 本组件只负责按 kind 路由到对应专用子编辑器，并绘制统一的外框与标题；
- * 具体字段编辑逻辑落在按领域拆分的子编辑器中，避免这里堆叠参数处理函数。
+ * 图内参数优先使用契约生成的 Schema；尚不能完整表达的参数及完整表单回退专用编辑器。
+ * 结构入口不随参数迁移消失，所有更新仍交由原宿主管理。
  */
-import { computed, ref } from 'vue';
+import { computed, inject, provide, ref, watch } from 'vue';
+import { definitionPropertyKey } from '../definitionEditContext';
 import { useI18n } from 'vue-i18n';
 import { CaretBottom, CaretRight } from '@element-plus/icons-vue';
 import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
+import InspectorFields from './InspectorFields.vue';
+import type { InspectorPropertyPath } from '../inspectorProperty';
+import { useInspectorPropertyReveal } from '../useInspectorPropertyReveal';
+import { stepInspectorFields, validateStepInspector } from '../stepInspectorSchema';
 import ActionValueStepEditor from './ActionValueStepEditor.vue';
 import DamageStepEditor from './DamageStepEditor.vue';
 import HealStepEditor from './HealStepEditor.vue';
@@ -25,22 +30,15 @@ import EditorHelpHint from './EditorHelpHint.vue';
 import EventListenerStepEditor from './EventListenerStepEditor.vue';
 import TimeDilationStepEditor from './TimeDilationStepEditor.vue';
 import AbilityEntityStepEditor from './AbilityEntityStepEditor.vue';
-import SkillCooldownStepEditor from './SkillCooldownStepEditor.vue';
 import PhysicalInflictionStepEditor from './PhysicalInflictionStepEditor.vue';
 import SkillRoutingStepEditor from './SkillRoutingStepEditor.vue';
 import ActionDispatchStepEditor from './ActionDispatchStepEditor.vue';
 import BuffLifecycleOperationStepEditor from './BuffLifecycleOperationStepEditor.vue';
-import BuffRuntimeStateStepEditor from './BuffRuntimeStateStepEditor.vue';
-import SourceValueStepEditor from './SourceValueStepEditor.vue';
-import HealthFloorStepEditor from './HealthFloorStepEditor.vue';
-import AbilityEntityTimedMarkerStepEditor from './AbilityEntityTimedMarkerStepEditor.vue';
-import BlackboardCaptureStepEditor from './BlackboardCaptureStepEditor.vue';
-import IgnoreGlobalTimeScaleStepEditor from './IgnoreGlobalTimeScaleStepEditor.vue';
+import SkillSettingStepEditor from './SkillSettingStepEditor.vue';
 import KnockDownStepEditor from './KnockDownStepEditor.vue';
 import GlobalBuffStepEditor from './GlobalBuffStepEditor.vue';
 import TargetContextStepEditor from './TargetContextStepEditor.vue';
 import ForEachContextTargetStepEditor from './ForEachContextTargetStepEditor.vue';
-import AbilityEntityLifecycleStepEditor from './AbilityEntityLifecycleStepEditor.vue';
 import StructuredControlStepEditor from './StructuredControlStepEditor.vue';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 
@@ -51,22 +49,86 @@ const props = defineProps<{
   createStep?: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
   selectedPath?: string;
+  restoredPropertyPath?: InspectorPropertyPath;
   inspectorOnly?: boolean;
   inlineBuffInGraph?: boolean;
 }>();
-const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
+const emit = defineEmits<{
+  update: [step: CombatStepDefinition, propertyPath?: InspectorPropertyPath];
+}>();
 const { t } = useI18n({ useScope: 'global' });
 const collapsed = ref(false);
+const definitionProperty = inject(definitionPropertyKey, undefined);
+// 当前作用域只绑定这个步骤，尚未迁移的嵌套入口不得误用父步骤句柄。
+provide(definitionPropertyKey, undefined);
+const parametersBinding = computed(() => definitionProperty?.value.child('parameters'));
+const editorRoot = ref<HTMLElement | null>(null);
+const revealProperty = useInspectorPropertyReveal(editorRoot);
+const automaticFields = computed(() => {
+  // 已完成完整面板迁移的类型不再保留专用组件；其他类型仍须先核对结构入口。
+  if (
+    [
+      'createAbilityEntityTimedMarker',
+      'storeCurrentTimelineFrame',
+      'storeEventSpGainAmount',
+      'storeEventHealValues',
+      'storeShieldValue',
+      'setHealthFloor',
+      'adjustSkillCooldown',
+      'setIgnoreGlobalTimeScale',
+      'storeSourceAttributeValue',
+      'storeEntityPropertyValue',
+      'readAbilityEntityRemainingDuration',
+      'setAbilityEntityRemainingDuration',
+      'finishCurrentAbilityEntity',
+      'finishActionOwnerAbilityEntity',
+      'finishCurrentAbilityEntityWhenSourceDies',
+      'startCurrentAbilityEntityChildSkillById',
+      'readEventBuffBlackboard',
+      'readCurrentBuffRemainingDuration',
+      'readBuffRemainingDuration',
+      'setCurrentBuffRemainingDuration',
+      'refreshCurrentBuffAttributeModifiers',
+      'finishCurrentBuff',
+      'setCurrentBuffTimePaused',
+    ].includes(props.step.kind)
+  )
+    return stepInspectorFields<CombatStepDefinition['kind']>(props.step.kind);
+  return props.inspectorOnly
+    ? stepInspectorFields<CombatStepDefinition['kind']>(props.step.kind)
+    : undefined;
+});
+watch(
+  () => props.restoredPropertyPath,
+  path => {
+    void revealProperty();
+    if (!path) return;
+    collapsed.value = false;
+    // 结构容器由子编辑器选中目标；本层只定位自己的自动参数字段。
+    if (automaticFields.value) void revealProperty(path);
+  },
+  { immediate: true, flush: 'post' },
+);
+function updateParameters(
+  parameters: CombatStepDefinition['parameters'],
+  propertyPath?: InspectorPropertyPath,
+) {
+  // kind 与原步骤身份不变；参数结构来自该 kind 的契约生成物。
+  emit('update', { ...props.step, parameters } as CombatStepDefinition, propertyPath);
+}
+function validateParameters(parameters: CombatStepDefinition['parameters']) {
+  return validateStepInspector({ ...props.step, parameters } as CombatStepDefinition);
+}
 
 const stepHelp = computed(() => t(`timeline.skillEditing.stepHelp.${props.step.kind}`));
 
-function forward(step: CombatStepDefinition): void {
-  emit('update', step);
+function forward(step: CombatStepDefinition, propertyPath?: InspectorPropertyPath): void {
+  emit('update', step, propertyPath);
 }
 </script>
 
 <template>
-  <section class="step-editor">
+  <section ref="editorRoot" class="step-editor">
     <header v-if="showHeader !== false">
       <div>
         <span>{{ t('timeline.skillEditing.stepParameters') }}</span>
@@ -87,13 +149,21 @@ function forward(step: CombatStepDefinition): void {
     </header>
 
     <div v-show="!collapsed" class="step-editor__body">
+      <p v-if="automaticFields?.length === 0">{{ t('timeline.skillEditing.noStepParameters') }}</p>
+      <InspectorFields
+        :binding="parametersBinding"
+        v-if="automaticFields"
+        :value="step.parameters"
+        :property-path="['parameters']"
+        :fields="automaticFields"
+        :validate="validateParameters"
+        :current-level="skillLevel"
+        @update="updateParameters"
+      />
       <template
-        v-if="step.kind === 'startTimeDilation' || step.kind === 'startUltimateTimeDilation'"
+        v-else-if="step.kind === 'startTimeDilation' || step.kind === 'startUltimateTimeDilation'"
       >
         <TimeDilationStepEditor :step="step" @update="forward" />
-      </template>
-      <template v-else-if="step.kind === 'setIgnoreGlobalTimeScale'">
-        <IgnoreGlobalTimeScaleStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="
@@ -107,18 +177,6 @@ function forward(step: CombatStepDefinition): void {
       </template>
       <template v-else-if="step.kind === 'forEachContextTarget'">
         <ForEachContextTargetStepEditor :step="step" @update="forward" />
-      </template>
-      <template
-        v-else-if="
-          step.kind === 'readAbilityEntityRemainingDuration' ||
-          step.kind === 'setAbilityEntityRemainingDuration' ||
-          step.kind === 'finishCurrentAbilityEntity' ||
-          step.kind === 'finishActionOwnerAbilityEntity' ||
-          step.kind === 'finishCurrentAbilityEntityWhenSourceDies' ||
-          step.kind === 'startCurrentAbilityEntityChildSkillById'
-        "
-      >
-        <AbilityEntityLifecycleStepEditor :step="step" @update="forward" />
       </template>
       <template v-else-if="step.kind === 'startCurrentAbilityEntityChildSkill'">
         <p class="step-editor__unsupported">
@@ -139,6 +197,7 @@ function forward(step: CombatStepDefinition): void {
       </template>
       <template v-else-if="step.kind === 'switch'">
         <SwitchStepEditor
+          :restored-property-path="restoredPropertyPath"
           :step="step"
           :skill-level="skillLevel"
           :create-step="createStep"
@@ -147,9 +206,6 @@ function forward(step: CombatStepDefinition): void {
           :inspector-only="inspectorOnly"
           @update="forward"
         />
-      </template>
-      <template v-else-if="step.kind === 'adjustSkillCooldown'">
-        <SkillCooldownStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="
@@ -185,27 +241,8 @@ function forward(step: CombatStepDefinition): void {
       >
         <ActionValueStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
       </template>
-      <template
-        v-else-if="
-          step.kind === 'readSkillSettingData' ||
-          step.kind === 'storeSourceAttributeValue' ||
-          step.kind === 'storeEntityPropertyValue'
-        "
-      >
-        <SourceValueStepEditor :step="step" @update="forward" />
-      </template>
-      <template v-else-if="step.kind === 'setHealthFloor'">
-        <HealthFloorStepEditor :step="step" @update="forward" />
-      </template>
-      <template
-        v-else-if="
-          step.kind === 'storeCurrentTimelineFrame' ||
-          step.kind === 'storeEventSpGainAmount' ||
-          step.kind === 'storeEventHealValues' ||
-          step.kind === 'storeShieldValue'
-        "
-      >
-        <BlackboardCaptureStepEditor :step="step" @update="forward" />
+      <template v-else-if="step.kind === 'readSkillSettingData'">
+        <SkillSettingStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="step.kind === 'changeResource' || step.kind === 'changeResourceByActionValue'"
@@ -224,6 +261,7 @@ function forward(step: CombatStepDefinition): void {
       </template>
       <template v-else-if="step.kind === 'applyBuff'">
         <BuffStepEditor
+          :parameters-binding="parametersBinding"
           :inline-definition-in-graph="inlineBuffInGraph"
           :step="step"
           :skill-level="skillLevel"
@@ -253,19 +291,6 @@ function forward(step: CombatStepDefinition): void {
         "
       >
         <BuffManagementStepEditor :step="step" @update="forward" />
-      </template>
-      <template
-        v-else-if="
-          step.kind === 'readEventBuffBlackboard' ||
-          step.kind === 'readCurrentBuffRemainingDuration' ||
-          step.kind === 'readBuffRemainingDuration' ||
-          step.kind === 'setCurrentBuffRemainingDuration' ||
-          step.kind === 'refreshCurrentBuffAttributeModifiers' ||
-          step.kind === 'finishCurrentBuff' ||
-          step.kind === 'setCurrentBuffTimePaused'
-        "
-      >
-        <BuffRuntimeStateStepEditor :step="step" @update="forward" />
       </template>
       <template
         v-else-if="
@@ -300,15 +325,13 @@ function forward(step: CombatStepDefinition): void {
       >
         <MechanicStepEditor :step="step" :skill-level="skillLevel" @update="forward" />
       </template>
-      <template v-else-if="step.kind === 'createAbilityEntityTimedMarker'">
-        <AbilityEntityTimedMarkerStepEditor :step="step" @update="forward" />
-      </template>
       <template
         v-else-if="
           step.kind === 'conditional' || step.kind === 'once' || step.kind === 'repeatEachTick'
         "
       >
         <BranchStepEditor
+          :restored-property-path="restoredPropertyPath"
           :step="step"
           :skill-level="skillLevel"
           :create-step="createStep"
@@ -322,6 +345,7 @@ function forward(step: CombatStepDefinition): void {
         <EventListenerStepEditor
           v-if="!inspectorOnly"
           :step="step"
+          :parameters-binding="parametersBinding"
           :skill-level="skillLevel"
           :create-step="createStep"
           :duplicate-step="duplicateStep"

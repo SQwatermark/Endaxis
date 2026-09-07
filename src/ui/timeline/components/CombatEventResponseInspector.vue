@@ -1,36 +1,33 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import type {
   CombatEventResponseDefinition,
-  CombatEventTrigger,
+  CombatEventHandlerDefinition,
 } from '../../../core/game-data/operatorDefinition';
+import type { DefinitionProperty } from '../definitionEditContext';
+import { eventOwnerInspectorFields } from '../eventInspectorSchema';
+import InspectorFields from './InspectorFields.vue';
 import CombatEventTriggerEditor from './CombatEventTriggerEditor.vue';
 
-const props = defineProps<{ response: CombatEventResponseDefinition }>();
-const emit = defineEmits<{ update: [response: CombatEventResponseDefinition] }>();
-
-function setKey(event: Event): void {
-  emit('update', { ...props.response, key: (event.target as HTMLInputElement).value });
-}
-
-function setEvent(event: CombatEventTrigger): void {
-  emit('update', { ...props.response, event });
-}
+type EventOwner = CombatEventResponseDefinition | CombatEventHandlerDefinition;
+const props = defineProps<{
+  response: EventOwner;
+  binding: DefinitionProperty;
+  scheduled?: boolean;
+}>();
+const fields = computed(() => eventOwnerInspectorFields<EventOwner>(props.scheduled === true));
 </script>
-
 <template>
   <section class="response-inspector">
     <header>
-      <strong>事件响应</strong><span>{{ response.event.kind }}</span>
+      <strong>{{ scheduled ? '技能事件响应' : '事件响应' }}</strong
+      ><span>{{ response.event.kind }}</span>
     </header>
-    <label>
-      <span>稳定 key</span>
-      <input :value="response.key" @change="setKey" />
-    </label>
-    <CombatEventTriggerEditor :event="response.event" @update="setEvent" />
-    <p>可选条件与响应序列在画布中作为子节点编辑。</p>
+    <InspectorFields :value="response" :binding="binding" :fields="fields" />
+    <CombatEventTriggerEditor :event="response.event" :binding="binding.child('event')" />
+    <p>可选条件与{{ scheduled ? '调度' : '响应' }}序列在画布中作为子节点编辑。</p>
   </section>
 </template>
-
 <style scoped>
 .response-inspector {
   min-width: 0;
@@ -46,22 +43,9 @@ header {
   border-bottom: 1px solid var(--ea-border-soft);
 }
 header span,
-label span,
 p {
   color: var(--ea-fg-muted);
   font-size: 11px;
-}
-label {
-  display: grid;
-  gap: 6px;
-}
-input {
-  width: 100%;
-  height: 32px;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-fill-input);
-  color: var(--ea-fg);
 }
 p {
   margin: 0;

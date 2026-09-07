@@ -1,30 +1,46 @@
 <script setup lang="ts">
-import { markRaw, ref } from 'vue';
+import { computed, markRaw, ref } from 'vue';
+import { useDefinitionStructureNavigation } from '../definitionStructureNavigation';
+import { buildActionSequenceMindMap } from '../skillStructureMindMapModel';
 import type {
   ActionSequenceDefinition,
   CombatStepDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
-import { useDefinitionDraftHistory } from '../useDefinitionDraftHistory';
+import {
+  useDefinitionDraftHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
 import ActionSequenceGraphEditor from './ActionSequenceGraphEditor.vue';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
 
 const props = defineProps<{
   sequence: ActionSequenceDefinition;
   skillLevel: number;
+  sharedHistory?: DefinitionDraftHistory<ActionSequenceDefinition>;
   createStep: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep: (step: CombatStepDefinition) => CombatStepDefinition;
 }>();
 const emit = defineEmits<{ update: [sequence: ActionSequenceDefinition] }>();
 // The host keys this workspace by editing context, not by mutable labels or view mode.
 const history = markRaw(
-  useDefinitionDraftHistory(
-    () => props.sequence,
-    value => emit('update', value),
-  ),
+  props.sharedHistory ??
+    useDefinitionDraftHistory(
+      () => props.sequence,
+      value => emit('update', value),
+    ),
 );
 const view = ref<'graph' | 'form'>('graph');
 const formPath = ref('');
+const graphPath = ref<string>();
+const navigateStructure = useDefinitionStructureNavigation(
+  computed(() => buildActionSequenceMindMap(props.sequence)),
+  () => props.sequence,
+  path => {
+    graphPath.value = path;
+    view.value = 'graph';
+  },
+);
 function showDetails(path: string): void {
   formPath.value = path;
   view.value = 'form';
@@ -34,7 +50,11 @@ function showDetails(path: string): void {
 <template>
   <section class="sequence-workspace">
     <nav class="sequence-view-tabs" aria-label="序列编辑视图">
-      <button type="button" :class="{ active: view === 'graph' }" @click="view = 'graph'">
+      <button
+        type="button"
+        :class="{ active: view === 'graph' }"
+        @click="navigateStructure(sequence)"
+      >
         结构导图
       </button>
       <button type="button" :class="{ active: view === 'form' }" @click="view = 'form'">
@@ -48,6 +68,7 @@ function showDetails(path: string): void {
       :create-step="createStep"
       :duplicate-step="duplicateStep"
       :shared-history="history"
+      :selected-path="graphPath"
       @details="showDetails"
     />
     <div v-else class="sequence-form-scroll">
