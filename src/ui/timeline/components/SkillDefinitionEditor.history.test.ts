@@ -1,11 +1,60 @@
-import { createSSRApp, h, type ComponentOptions } from 'vue';
+import { computed, createSSRApp, h, type ComponentOptions } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { createI18n } from 'vue-i18n';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import SkillDefinitionEditor from './SkillDefinitionEditor.vue';
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
 
 describe('skill inspector history integration', () => {
+  it('delegates embedded edits and history commands to the owning definition without a local transaction', async () => {
+    const template: SkillDefinition = {
+      key: 'shared',
+      timelineBlockFrames: 10,
+      scheduledSequences: [],
+    };
+    const sharedHistory = {
+      commit: vi.fn(),
+      restore: vi.fn(),
+      canUndo: computed(() => true),
+      canRedo: computed(() => false),
+    };
+    let editor: any;
+    const app = createSSRApp({
+      render: () =>
+        h(
+          {
+            ...(SkillDefinitionEditor as ComponentOptions),
+            setup(props: any, context: any) {
+              editor = (SkillDefinitionEditor as any).setup(props, context);
+              return editor;
+            },
+            ssrRender: () => {},
+          },
+          { template, customDefinition: undefined, skillLevel: 1, labels: {}, sharedHistory },
+        ),
+    });
+    app.use(
+      createI18n({
+        legacy: false,
+        locale: 'en',
+        messages: {},
+        missingWarn: false,
+        fallbackWarn: false,
+      }),
+    );
+    await renderToString(app);
+    editor.setField('timelineBlockFrames', { target: { value: '20' } });
+    expect(sharedHistory.commit).toHaveBeenCalledWith(
+      { ...template, timelineBlockFrames: 20 },
+      { path: '', propertyPath: undefined },
+    );
+    expect(editor.structureUndoStack.value).toHaveLength(0);
+    expect(editor.draft.value).toBe(template);
+    expect(editor.canUndoStructure.value).toBe(true);
+    await editor.restoreStructureHistory('undo');
+    expect(sharedHistory.restore).toHaveBeenCalledWith('undo');
+    expect(template.timelineBlockFrames).toBe(10);
+  });
   const input = (value: string) => ({ target: { value } });
   const edits: [string, (editor: any) => void][] = [
     [

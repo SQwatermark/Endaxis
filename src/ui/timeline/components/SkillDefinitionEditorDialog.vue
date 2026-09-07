@@ -8,6 +8,7 @@ import './definitionWorkspaceLayout.css';
 import { useI18n } from 'vue-i18n';
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
 import SkillDefinitionEditor from './SkillDefinitionEditor.vue';
+import type { DefinitionDraftHistory } from '../useDefinitionDraftHistory';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { ABILITY_ENTITY_IDS_KEY } from '../abilityEntityEditorContext';
 
@@ -23,6 +24,8 @@ const props = defineProps<{
   showReferencePins?: boolean;
   allowInvalidSave?: boolean;
   backLabel?: string;
+  sharedHistory?: DefinitionDraftHistory<SkillDefinition>;
+  viewStateKey?: string;
 }>();
 
 const emit = defineEmits<{
@@ -71,6 +74,8 @@ const labels = () => ({
     :show-reference-pins="showReferencePins"
     :allow-invalid-save="allowInvalidSave"
     :back-label="backLabel"
+    :shared-history="sharedHistory"
+    :view-state-key="viewStateKey"
     @save="emit('save', $event)"
     @cancel="emit('update:visible', false)"
     @reset="emit('reset')"

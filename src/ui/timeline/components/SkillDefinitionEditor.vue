@@ -3,12 +3,14 @@
  * 技能逻辑编辑工作区，编辑单个技能块的完整 SkillDefinition 草稿。
  *
  * 本组件只负责草稿渲染与用户输入收集：它把模板和（可选的）自定义定义投影为
- * 可编辑字段与只读结构摘要，所有修改都作用在隔离草稿上；保存时把完整草稿交给
+ * 可编辑字段与只读结构摘要。独立入口修改隔离草稿；嵌入根定义时读写共享草稿与历史。
+ * 独立入口保存时把完整草稿交给
  * 统一命令入口严格校验，取消或恢复模板则直接丢弃草稿 / 删除整个 customDefinition。
  * 组件不解析编译产物，也不把天赋潜能等构筑效果写进自定义技能。
  */
 import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue';
 import { cloneEditorDefinition } from '../../cloneEditorDefinition';
+import type { DefinitionDraftHistory } from '../useDefinitionDraftHistory';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { useDefinitionStructureNavigation } from '../definitionStructureNavigation';
 import { useI18n } from 'vue-i18n';
@@ -146,6 +148,8 @@ const props = defineProps<{
   allowInvalidSave?: boolean;
   buffIds?: readonly string[];
   backLabel?: string;
+  sharedHistory?: DefinitionDraftHistory<SkillDefinition>;
+  viewStateKey?: string;
 }>();
 
 const emit = defineEmits<{
@@ -159,7 +163,7 @@ const editorRoot = ref<HTMLElement | null>(null);
 useEditorHistoryShortcuts(editorRoot, restoreStructureHistory);
 const revealProperty = useInspectorPropertyReveal(editorRoot);
 
-const draft = reactive<{ value: SkillDefinition }>({
+const localDraft = reactive<{ value: SkillDefinition }>({
   value: createSkillEditorDraft(
     cloneEditorDefinition(props.template),
     props.customDefinition === undefined
@@ -167,6 +171,15 @@ const draft = reactive<{ value: SkillDefinition }>({
       : cloneEditorDefinition(props.customDefinition),
   ),
 });
+// 嵌入定义工作区时读取根的最新对象；独立技能覆盖入口仍保留自身草稿。
+const draft = {
+  get value(): SkillDefinition {
+    return props.sharedHistory ? props.template : localDraft.value;
+  },
+  set value(value: SkillDefinition) {
+    localDraft.value = value;
+  },
+};
 const selectedSection = ref<EditorSection>('overview');
 const selectedStructureNodeId = ref('skill');
 const selectedStructureSourcePath = ref('');
@@ -193,8 +206,12 @@ interface StructureHistoryEntry {
 }
 const structureUndoStack = shallowRef<StructureHistoryEntry[]>([]);
 const structureRedoStack = shallowRef<StructureHistoryEntry[]>([]);
-const canUndoStructure = computed(() => structureUndoStack.value.length > 0);
-const canRedoStructure = computed(() => structureRedoStack.value.length > 0);
+const canUndoStructure = computed(
+  () => props.sharedHistory?.canUndo.value ?? structureUndoStack.value.length > 0,
+);
+const canRedoStructure = computed(
+  () => props.sharedHistory?.canRedo.value ?? structureRedoStack.value.length > 0,
+);
 
 const customized = computed(() => props.customDefinition !== undefined);
 
@@ -305,6 +322,10 @@ function commitStructureDraft(
   selectedPath = selectedStructureSourcePath.value,
 ): void {
   if (next === draft.value) return;
+  if (props.sharedHistory) {
+    props.sharedHistory.commit(next, { path: selectedPath, propertyPath });
+    return;
+  }
   structureUndoStack.value = [
     ...structureUndoStack.value,
     { ...captureStructureHistory(), selectedPath, propertyPath: propertyPath && [...propertyPath] },
@@ -322,6 +343,10 @@ function captureStructureHistory(): StructureHistoryEntry {
 
 let restoreRevision = 0;
 async function restoreStructureHistory(action: 'undo' | 'redo'): Promise<void> {
+  if (props.sharedHistory) {
+    props.sharedHistory.restore(action);
+    return;
+  }
   const revision = ++restoreRevision;
   void revealProperty();
   const source = action === 'undo' ? structureUndoStack : structureRedoStack;
@@ -365,6 +390,7 @@ function setBlackboard(blackboard: NonNullable<SkillDefinition['blackboard']>): 
 watch(
   () => [props.template, props.customDefinition],
   () => {
+    if (props.sharedHistory) return;
     draft.value = createSkillEditorDraft(
       cloneEditorDefinition(props.template),
       props.customDefinition === undefined
@@ -377,6 +403,35 @@ watch(
     structureUndoStack.value = [];
     structureRedoStack.value = [];
   },
+);
+
+watch(
+  () => props.sharedHistory?.restoredLocation?.value,
+  async location => {
+    if (
+      !location ||
+      (location.section && location.section !== 'skills') ||
+      (location.objectId && location.objectId !== props.template.key)
+    )
+      return;
+    const revision = ++restoreRevision;
+    await selectStructurePath(location.path);
+    if (revision === restoreRevision && location.propertyPath) {
+      const bound =
+        selectedCombatCondition.value ||
+        selectedEventResponse.value ||
+        selectedSkillEventHandler.value ||
+        (selectedCombatStep.value &&
+          (selectedCombatStep.value.kind === 'applyBuff' ||
+            stepInspectorFields(selectedCombatStep.value.kind)));
+      await revealProperty(
+        bound
+          ? [...structurePathSegments(location.path), ...location.propertyPath]
+          : location.propertyPath,
+      );
+    }
+  },
+  { immediate: true, flush: 'post' },
 );
 
 function setField(
@@ -999,6 +1054,7 @@ function reset(): void {
         ref="structureMap"
         class="skill-editor__map"
         :root="structureRoot"
+        :view-state-key="viewStateKey"
         :selected-id="selectedStructureNodeId"
         :show-reference-pins="showReferencePins"
         :clipboard-kind="structureClipboard?.kind"
@@ -1384,7 +1440,7 @@ function reset(): void {
       </main>
     </div>
 
-    <footer class="skill-editor__footer">
+    <footer v-if="!sharedHistory" class="skill-editor__footer">
       <div class="skill-editor__footer-status">
         <span v-if="customized">{{
           t('timeline.skillEditing.diffCount', { count: view.diffCount })

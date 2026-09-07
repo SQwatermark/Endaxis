@@ -42,6 +42,7 @@ const emit = defineEmits<{
   save: [definitions: OperatorAbilityEntityDefinitions];
   'reveal-reference': [reference: OperatorDefinitionReference];
   'detail-change': [open: boolean];
+  'selection-change': [id: string];
 }>();
 const { t } = useI18n({ useScope: 'global' });
 
@@ -59,6 +60,7 @@ const detailOpen = ref(false);
 watch(detailOpen, open => emit('detail-change', open));
 function openDefinition(id: string): void {
   selectedId.value = id;
+  emit('selection-change', id);
   detailOpen.value = mergedDefinitions.value[id] !== undefined;
 }
 const newId = ref('');
@@ -217,6 +219,7 @@ function addDefinition(): void {
   );
   selectedId.value = id;
   detailOpen.value = true;
+  emit('selection-change', id);
   newId.value = nextCustomId([...allIds.value, id]);
 }
 
@@ -230,6 +233,7 @@ function duplicateDefinition(): void {
   );
   selectedId.value = id;
   detailOpen.value = true;
+  emit('selection-change', id);
   newId.value = nextCustomId([...allIds.value, id]);
 }
 
@@ -250,6 +254,10 @@ function removeOrResetDefinition(): void {
 }
 
 function revealReference(reference: OperatorDefinitionReference): void {
+  if (props.paged) {
+    emit('reveal-reference', reference);
+    return;
+  }
   if (reference.ownerKind === 'entity') {
     selectedId.value = reference.ownerId;
     detailOpen.value = true;

@@ -9,6 +9,7 @@ export interface DefinitionHistoryLocation {
   readonly propertyPath?: readonly (string | number)[];
   readonly section?: string;
   readonly objectId?: string;
+  readonly skillGroupKey?: string;
   readonly operation?: 'add' | 'duplicate' | 'remove' | 'reset' | 'edit';
 }
 

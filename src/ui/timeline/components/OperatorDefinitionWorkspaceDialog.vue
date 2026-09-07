@@ -87,6 +87,8 @@ const emit = defineEmits<{
 }>();
 
 const section = ref<Section>('panel');
+const referenceOrigins = ref<ReferenceOrigin[]>([]);
+const externalReferenceNotice = ref('');
 const viewStates = createDefinitionViewState();
 provide(definitionViewStateKey, viewStates);
 const draft = ref<OperatorDefinition>(clone(props.baseDefinition));
@@ -115,12 +117,11 @@ const editingBehavior = computed(
     (section.value === 'progression' && showUpgradeBehaviorEditor.value) ||
     (section.value === 'runtime' && (showRuntimeBehaviorEditor.value || showComboEditor.value)),
 );
-const editingFocusedDefinition = computed(
-  () => editingBehavior.value || (section.value === 'skills' && showSkillEditor.value),
-);
+const editingFocusedDefinition = computed(() => editingBehavior.value);
 // 保存范围不因进入详情改变；这里只决定页面布局，不接管子草稿生命周期。
 const editingPeerDefinition = computed(
   () =>
+    (section.value === 'skills' && showSkillEditor.value) ||
     (section.value === 'buffs' && buffDetailOpen.value) ||
     (section.value === 'entities' && entityDetailOpen.value),
 );
@@ -138,7 +139,9 @@ watch(
   visible => {
     if (!visible) return;
     viewStates.clear();
-    draft.value = clone(props.customDefinition ?? props.baseDefinition);
+    referenceOrigins.value = [];
+    externalReferenceNotice.value = '';
+    history.reset!(clone(props.customDefinition ?? props.baseDefinition));
     section.value = 'panel';
     buffDetailOpen.value = false;
     entityDetailOpen.value = false;
@@ -298,11 +301,54 @@ const entityHistory = markRaw<DefinitionDraftHistory<OperatorAbilityEntityDefini
   canRedo: history.canRedo,
   restoredLocation: history.restoredLocation,
 });
+const selectedSkillHistory = markRaw<DefinitionDraftHistory<SkillDefinition>>({
+  commit(value, location) {
+    const group = selectedGroup.value;
+    if (!group || !selectedSkill.value) return;
+    const skills = [...selectedGroupSkills.value];
+    const originalKey = selectedSkill.value.key;
+    skills[selectedSkillIndex.value] = clone(value);
+    const groups = [...draft.value.skillGroups];
+    groups[selectedGroupIndex.value] = {
+      ...group,
+      skills: Array.isArray(group.skills) ? skills : skills[0]!,
+    };
+    history.commit(
+      { ...draft.value, skillGroups: groups },
+      {
+        ...location,
+        path: location?.path ?? '',
+        section: 'skills',
+        objectId: originalKey,
+        skillGroupKey: group.key,
+      },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: history.restoredLocation,
+});
 watch(
   () => history.restoredLocation?.value,
   location => {
     if (!location?.section) return;
     selectSection(location.section as Section);
+    if (location.section === 'skills' && location.skillGroupKey) {
+      const groupIndex = draft.value.skillGroups.findIndex(
+        group => group.key === location.skillGroupKey,
+      );
+      if (groupIndex >= 0) {
+        selectedGroupIndex.value = groupIndex;
+        const skillIndex = normalizeSkills(draft.value.skillGroups[groupIndex]!.skills).findIndex(
+          skill => skill.key === location.objectId,
+        );
+        if (skillIndex >= 0) {
+          selectedSkillIndex.value = skillIndex;
+          showSkillEditor.value = true;
+        }
+      }
+    }
     if (location.section === 'buffs' && location.objectId) openBuffDetail(location.objectId);
     if (location.section === 'entities' && location.objectId)
       referencedEntityId.value = location.objectId;
@@ -690,18 +736,6 @@ function updateGroup(field: 'key' | 'skillType' | 'levelSource', event: Event): 
   } as SkillGroupDefinition);
 }
 
-function replaceSelectedSkill(skill: SkillDefinition): void {
-  const group = selectedGroup.value;
-  if (group === undefined) return;
-  const skills = [...selectedGroupSkills.value];
-  skills[selectedSkillIndex.value] = skill;
-  replaceGroup(selectedGroupIndex.value, {
-    ...group,
-    skills: Array.isArray(group.skills) ? skills : skills[0]!,
-  });
-  showSkillEditor.value = false;
-}
-
 function duplicateSkill(): void {
   const group = selectedGroup.value;
   const skill = selectedSkill.value;
@@ -788,6 +822,7 @@ function openBuffDetail(id: string): void {
 }
 
 function revealDefinitionReference(reference: OperatorDefinitionReference): void {
+  rememberReferenceOrigin();
   if (reference.ownerKind === 'skill') {
     const match = /^skillGroups\[(\d+)\]\.skills\[(\d+)\]/.exec(reference.path);
     if (match === null) return;
@@ -853,10 +888,13 @@ function save(): void {
 }
 
 function selectSection(value: Section): void {
+  externalReferenceNotice.value = '';
+  referenceOrigins.value = [];
   section.value = value;
   buffDetailOpen.value = false;
   entityDetailOpen.value = false;
   referencedEntityId.value = '';
+  showSkillEditor.value = false;
   objectSearch.value = '';
   showRuntimeBehaviorEditor.value = false;
   showUpgradeBehaviorEditor.value = false;
@@ -876,8 +914,15 @@ function openReferencedDefinition(reference: {
   readonly kind: 'buff' | 'entity';
   readonly id: string;
 }): void {
+  rememberReferenceOrigin();
+  externalReferenceNotice.value = '';
   showSkillEditor.value = false;
   if (reference.kind === 'buff') {
+    if (!draft.value.buffDefinitions?.[reference.id]) {
+      externalReferenceNotice.value = props.commonBuffDefinitions?.[reference.id]
+        ? `公有 Buff「${reference.id}」为只读游戏定义，不属于当前干员的可编辑对象。`
+        : `当前目录中未找到 Buff「${reference.id}」。`;
+    }
     section.value = 'buffs';
     selectedBuffId.value = reference.id;
     openBuffDetail(reference.id);
@@ -885,7 +930,60 @@ function openReferencedDefinition(reference: {
     return;
   }
   section.value = 'entities';
+  if (!draft.value.abilityEntityDefinitions?.[reference.id]) {
+    externalReferenceNotice.value = props.commonAbilityEntityDefinitions?.[reference.id]
+      ? `公有能力实体「${reference.id}」为只读游戏定义，不属于当前干员的可编辑对象。`
+      : `当前目录中未找到能力实体「${reference.id}」。`;
+  }
   referencedEntityId.value = reference.id;
+}
+
+type ReferenceOrigin = {
+  section: Section;
+  group: string;
+  skill: string;
+  search: string;
+  buff: string;
+  entity: string;
+  skillOpen: boolean;
+  buffOpen: boolean;
+};
+function rememberReferenceOrigin(): void {
+  referenceOrigins.value = [
+    ...referenceOrigins.value,
+    {
+      section: section.value,
+      group: selectedGroup.value?.key ?? '',
+      skill: selectedSkill.value?.key ?? '',
+      search: objectSearch.value,
+      buff: selectedBuffId.value,
+      entity: referencedEntityId.value,
+      skillOpen: showSkillEditor.value,
+      buffOpen: buffDetailOpen.value,
+    },
+  ];
+}
+function returnToReferenceOrigin(): void {
+  const origin = referenceOrigins.value.at(-1);
+  if (!origin) return;
+  externalReferenceNotice.value = '';
+  referenceOrigins.value = referenceOrigins.value.slice(0, -1);
+  section.value = origin.section;
+  const groupIndex = draft.value.skillGroups.findIndex(group => group.key === origin.group);
+  const skillIndex =
+    groupIndex < 0
+      ? -1
+      : normalizeSkills(draft.value.skillGroups[groupIndex]!.skills).findIndex(
+          skill => skill.key === origin.skill,
+        );
+  selectedGroupIndex.value = Math.max(0, groupIndex);
+  selectedSkillIndex.value = Math.max(0, skillIndex);
+  objectSearch.value = origin.search;
+  selectedBuffId.value = origin.buff;
+  referencedEntityId.value = origin.entity;
+  showSkillEditor.value = origin.skillOpen && skillIndex >= 0;
+  buffDetailOpen.value =
+    origin.buffOpen && draft.value.buffDefinitions?.[origin.buff] !== undefined;
 }
 </script>
 
@@ -946,6 +1044,9 @@ function openReferencedDefinition(reference: {
           }"
         >
           <nav class="workspace-breadcrumbs" aria-label="当前位置">
+            <button v-if="referenceOrigins.length" @click="returnToReferenceOrigin">
+              ← 返回上一对象
+            </button>
             <button v-if="section === 'buffs' && buffDetailOpen" @click="buffDetailOpen = false">
               ← 返回 Buff 列表
             </button>
@@ -963,6 +1064,9 @@ function openReferencedDefinition(reference: {
               <span>›</span><strong>{{ selectedSkill.key }}</strong>
             </template>
           </nav>
+          <p v-if="externalReferenceNotice" class="reference-notice">
+            {{ externalReferenceNotice }}
+          </p>
           <section v-if="section === 'panel'" class="definition-section">
             <header>
               <div>
@@ -1142,6 +1246,9 @@ function openReferencedDefinition(reference: {
                 :visible="true"
                 :title="selectedSkill.key"
                 :template-definition="selectedSkill"
+                :key="`${selectedGroup.key}/${selectedSkill.key}`"
+                :shared-history="selectedSkillHistory"
+                :view-state-key="`skill:${selectedGroup.key}:${selectedSkill.key}`"
                 :custom-definition="undefined"
                 :skill-level="skillLevel"
                 :ability-entity-ids="abilityEntityIds"
@@ -1149,7 +1256,6 @@ function openReferencedDefinition(reference: {
                 allow-invalid-save
                 back-label="返回技能与技能组"
                 @update:visible="showSkillEditor = $event"
-                @save="replaceSelectedSkill"
                 @reference="openReferencedDefinition"
               />
               <template v-else>
@@ -1664,6 +1770,7 @@ function openReferencedDefinition(reference: {
               :operator-definition="draft"
               :shared-history="entityHistory"
               @detail-change="entityDetailOpen = $event"
+              @selection-change="referencedEntityId = $event"
               @reveal-reference="revealEntityDefinitionReference"
             />
           </section>
@@ -2250,6 +2357,14 @@ input:disabled {
   white-space: nowrap;
   color: var(--ea-fg-muted);
   font-size: 11px;
+}
+.reference-notice {
+  flex: none;
+  padding: 8px 12px;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--ea-fg-muted);
+  font-size: 12px;
 }
 .workspace-footer {
   display: grid;

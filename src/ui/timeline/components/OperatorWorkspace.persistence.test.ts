@@ -102,6 +102,26 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
   try {
     // Focus is scoped to the active section; leaving/canceling does not alter the draft.
     const initial = JSON.stringify(panel.draft.value);
+    panel.selectSection('skills');
+    panel.showSkillEditor.value = true;
+    const originalSkill = panel.selectedSkill.value;
+    panel.selectedSkillHistory.commit({ ...originalSkill, timelineBlockFrames: 123 }, { path: '' });
+    await nextTick();
+    expect(panel.selectedSkill.value.timelineBlockFrames).toBe(123);
+    expect(panel.showSkillEditor.value).toBe(true);
+    panel.openReferencedDefinition({ kind: 'buff', id: 'qa' });
+    expect(panel.referenceOrigins.value).toHaveLength(1);
+    panel.returnToReferenceOrigin();
+    expect(panel.section.value).toBe('skills');
+    expect(panel.showSkillEditor.value).toBe(true);
+    expect(panel.selectedSkill.value.timelineBlockFrames).toBe(123);
+    panel.selectSection('buffs');
+    panel.history.restore('undo');
+    await nextTick();
+    expect(panel.section.value).toBe('skills');
+    expect(panel.showSkillEditor.value).toBe(true);
+    expect(panel.selectedSkill.value).toEqual(originalSkill);
+    expect(panel.history.canUndo.value).toBe(false);
     panel.selectSection('buffs');
     expect(panel.buffDetailOpen.value).toBe(false);
     panel.openBuffDetail('qa');
@@ -168,6 +188,8 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     await nextTick();
     expect(panel.isDirty.value).toBe(false);
     expect(panel.draft.value).toEqual(definition.value);
+    expect(panel.history.canUndo.value).toBe(false);
+    expect(panel.history.canRedo.value).toBe(false);
     edit();
     await nextTick();
     panel.save();
@@ -192,6 +214,7 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     await nextTick();
     expect(panel.isDirty.value).toBe(false);
     expect(panel.draft.value.buffDefinitions.qa).not.toHaveProperty('durationSeconds');
+    expect(panel.history.canUndo.value).toBe(false);
     expect(panel.draft.value.abilityEntityDefinitions.qa).not.toHaveProperty(
       'deathReleaseDelaySeconds',
     );
