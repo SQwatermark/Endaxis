@@ -1,5 +1,21 @@
 # 当前任务快照
 
+## 2026-09-09：剩余基础被动差集分类及卡缪事件入口阻塞
+
+四个剩余入口不是同一种缺口。卡缪listen_normal_skill原生监听OnAbilityEntityFinished，
+按实体标签清EntityBB_bat_spawned并结束bat_duration_icon，还安装combo_2_type（把连携2
+设为ComboSkill）。正式定义无此监听；试接基础被动后完整生成在passiveSkillDefinition.ts
+明确报unsupported operator passive event，未生成文件，试验配置已撤销。
+公共AbilityEvent协议、映射和运行时已有该事件，规格spawn-ability-entity.md也有来源/目标
+证据；缺的是干员被动入口目前只投影三个CombatEventTrigger语义事件。下一步应设计复用
+已有AbilityEvent注册链，不加卡缪特判，不强塞为spGained等不相干事件。
+
+艾尔黛拉漏掉的是队伍施法监听/连携计数/30秒计时链，涉及EntityBB_skill_bg_type，不能
+当视觉被动省略。洛茜cape_stack_effect目前无属性/伤害/治疗/失衡/全局修正，无标签/图标/
+动作/时间轴，只受能量阈值增减层；暂列表现候选，仍须排查外部读取才可认定完全无影响。
+卡缪default_ring仅两条模型MeshGroup显隐且无上述战斗载荷，可按模型表现省略，勿为它
+扩展战斗系统。本轮未改生产代码或新增测试，仅记录来源审计和实际生成失败边界。
+
 ## 2026-09-09：别礼基础被动已生成接入，正式原轴资源重算
 
 在operators.json登记原生chr_0026_lastrite_passive后，沿现有完整干员编译器重新生成。

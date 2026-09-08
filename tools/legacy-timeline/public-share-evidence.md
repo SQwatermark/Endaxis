@@ -1,5 +1,37 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：基础被动差集不能统一当作漏伤修复
+
+在b165331d之后继续检查同批SkillData/BuffData与正式生成文件，结果如下：
+
+- 艾尔黛拉passive_combo_skill安装trigger_aura，再给队伍安装trigger_listener。
+  listener监听OnBeforeCastSkill，排除来源本人；连携分支StoreSkillDamageType后创建
+  trigger_count和trigger_timer，其他战技/终结技结束计时Buff。count读写
+  EntityBB_skill_bg_type并创建trigger_succeed，timer在30秒结束时重置黑板；succeed
+  结束时清timer。正式定义只有该黑板初值99，没有上述Buff。该链具有状态意义，不能以
+  “非直接伤害”省略；具体连携窗口差异仍待验证。
+- 卡缪passive_listen_normal_skill除安装combo_2_type外，还注册OnAbilityEntityFinished：
+  CheckTagMatch(Target)通过后把Owner的EntityBB_bat_spawned设0，结束Source上的
+  buff_chr_0033_camille_normal_skill_bat_duration_icon。combo_2_type的DuringBuffEnable
+  则对chr_0033_camille_combo_skill_2执行ChangeSkillType=ComboSkill。当前正式定义无这些根。
+- 实际给卡缪配置basePassiveSkillIds后运行完整生成，失败于
+  passiveSkillDefinition.ts:341：unsupported operator passive event "OnAbilityEntityFinished"。
+  未写出候选/正式定义；试验配置撤销，不提交一个不能生成的清单。
+  公共映射abilityEventProjection.ts已有OnAbilityEntityFinished→abilityEntityFinished，
+  combatRuntimeAssembly也发布事件；规格spawn-ability-entity.md确认来源角色为Source、
+  被释放实体为Target、在ClearSource之前通知。因此应补干员被动对既有AbilityEvent链的
+  消费入口，不能重复定义事件或伪装为现有三个语义事件之一。
+- 卡缪default_ring根只有MeshGroup2隐藏/MeshGroup3显示；无Buff图标、标签、属性、伤害、
+  治疗、失衡、全局修正、护盾或其他事件/时间轴。当前木桩与二维UI不需要角色模型显隐。
+  Buff SHA256=24866feb04de5ce691f5e70b9023181cd94c2263183fd498b6d5f19d1698aa97。
+- 洛茜passive_usp_detect按主控与能量阈值维护cape_stack_effect。该终端Buff同样没有上述
+  战斗载荷，也没有动作，SHA256=a10c0bdb2fdd7e413d80082c0358eb364d753e29747828eef9c88bc8a2f30c6d。
+  暂列表现候选；还未审计其他资产是否读取其存在/层数，不声称已证明无模拟影响。
+
+本轮没有生产修复、没有新增或重跑测试；取得了真实生成阻塞与具体公共入口差异。优先处理
+卡缪有可观察清理副作用的事件接入，再检查艾尔黛拉的状态生产者/窗口消费者；不要为模型
+显隐先扩展OnSquadUspChange或其他无当前收益机制。
+
 ## 2026-09-09：修复别礼基础被动入口并验证正式原轴
 
 沿上一节证据，把chr_0026_lastrite_passive登记到basePassiveSkillIds，经现有
