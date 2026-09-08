@@ -753,6 +753,28 @@ tmp/public-last-rite-final/project.json；SHA256
 原生命中与后续效果是否正确保留，再顺着附着检查四人的连携开窗。
 这只是调查入口，不是已确认根因；不移动技能、不放宽门禁、不直接按旧总伤害补倍率。
 
+# 2026-09-09 补充：公开原轴回能效率快照差异
+
+公开轴6a8db78895147370855b45ed，原始解码存档
+`tmp/public-6a8db78895147370855b45ed-project.json`保存赛希/艾尔黛拉
+`stats.ult_charge_eff=144.5`，诀为189.1。只读旧4dadc55f的
+`src/stores/timeline/normalizers.ts:110`仅在没有传入stats时用gaugeEfficiency填充；
+`src/simulation/events/UltEnergyHandler.ts:15`直接以快照效率计算回能。
+原日志`tmp/public-resource-old.log`首笔赛希通用6.5回能为9.3925，等于6.5×1.445。
+
+旧装备源码`src/data/gearpieces/no-set-bonuses/rift-trekker-gloves.ts`和
+`redeemer-armor.ts`精锻3仍为27.857142857、16.714285714，并不是仅存一位小数。
+新版正式生成定义对应`item_equip_t4_parts_wuling02_hand_01`和
+`item_equip_t4_parts_wuling01_body_02`，精锻3修正分别
+0.2785714285714286、0.16714285714285715。重构效率为1.4457142857142857，
+6.5倍为9.397142857142857，float32乘法为9.39714241027832，精确对应
+`tmp/public-camille-passive-final.json`第16帧赛希UltimateEnergyChanged。
+
+结论：这笔小差额由旧存档面板快照和新版重新按装备构筑解释，不改回能运行时、不把新版
+效率强行舍入到旧快照。旧存档144.5如何产生（当时数据/计算/编辑）尚无证据，不能进一步
+宣称是旧版某个舍入函数的问题。诀的12.2915→12.294285774230957及完整资源走势仍需
+独立核对，不由本条赛希算式自动判定。本轮只做源码/回执与算术核对，无生产修改或新测试。
+
 # 2026-09-09 补充：洛茜披风链的直接引用边界
 
 来源：`tmp/game-data-sources-hybrid-20260905`。逐值解析6239份JSON，扫描
