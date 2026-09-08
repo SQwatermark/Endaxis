@@ -103,6 +103,12 @@ export interface ResolvedOperatorPanel {
   };
   /** 运行时重新计算攻击派生倍率所需的、尚未乘四维倍率的攻击值。 */
   readonly attackBeforeAttributeScalar: number;
+  /** 模拟初始化使用基础槽位，不从展示用 attackDetail 反推攻击公式。 */
+  readonly attackBase?: {
+    readonly rawValue: number;
+    readonly baseMultiplier: number;
+    readonly baseFinalAddition: number;
+  };
   readonly mainAttribute: OperatorAttribute;
   readonly secondaryAttribute: OperatorAttribute;
   readonly health: number;
@@ -519,6 +525,11 @@ export function resolveOperatorPanel(
       flatAttack: values.panelStats.attackFlat,
     },
     attackBeforeAttributeScalar,
+    attackBase: {
+      rawValue: values.operatorBaseAttack + values.weaponBaseAttack,
+      baseMultiplier: values.panelStats.attackPercent,
+      baseFinalAddition: values.panelStats.attackFlat,
+    },
     mainAttribute: build.operator.mainAttribute,
     secondaryAttribute: build.operator.secondaryAttribute,
     health,

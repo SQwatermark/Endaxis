@@ -19,6 +19,29 @@ const input: OperatorAttackDerivationInput = {
 };
 
 describe('operator attack attributes', () => {
+  it('adds build and runtime attack multipliers in one native slot and preserves flat additions', () => {
+    const build = {
+      ...input,
+      attackBeforeAttributeScalar: 714 * 1.312 + 20,
+      attackBase: { rawValue: 714, baseMultiplier: 0.312, baseFinalAddition: 20 },
+    };
+    const attributes = createOperatorAttackAttributes(build);
+    expect(attributes.get('Atk')).toBeCloseTo(build.attackBeforeAttributeScalar);
+    const buff = new CombatAttributeModifier(
+      'Atk',
+      attributeModifierValues('baseMultiplier', 0.2),
+      ATTRIBUTE_MODIFIER_SOURCES.buff,
+      'runtime',
+    );
+    attributes.addModifier(buff);
+    expect(attributes.get('Atk')).toBeCloseTo(714 * (1 + 0.312 + 0.2) + 20);
+    expect(resolveOperatorAttack(build, attributes)).toBe(
+      Math.floor((714 * 1.512 + 20) * (1 + 120 * Math.fround(0.005) + 200 * Math.fround(0.002))),
+    );
+    attributes.removeModifier(buff);
+    expect(attributes.get('Atk')).toBeCloseTo(build.attackBeforeAttributeScalar);
+  });
+
   it('keeps combo cooldown period and recovery scalars as distinct native attributes', () => {
     const attributes = createOperatorAttackAttributes(input);
 

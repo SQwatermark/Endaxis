@@ -53,6 +53,12 @@ export type OperatorRuntimeAttribute =
 export interface OperatorAttackDerivationInput {
   readonly attributes: Readonly<Record<OperatorAttribute, number>>;
   readonly attackBeforeAttributeScalar: number;
+  /** 正式构筑保留原生基础槽位；仅提供预计算基数的合成环境可省略。 */
+  readonly attackBase?: {
+    readonly rawValue: number;
+    readonly baseMultiplier: number;
+    readonly baseFinalAddition: number;
+  };
   /** 构筑完成后的面板防御；原生 MultiplyAttributeCalculation 使用 Def 键读取。 */
   readonly defense?: number;
   /** 面板术法强度就是原生 PhysicalAndSpellInflictionEnhance(87) 的构筑期值。 */
@@ -76,7 +82,24 @@ export function createOperatorAttackAttributes(
 ): CombatAttributeSet<OperatorRuntimeAttribute> {
   const result = new CombatAttributeSet<OperatorRuntimeAttribute>();
   // 原生 Atk/BaseMultiplier Buff（例如佩丽卡潜能 3）修正的是属性换算前攻击基数。
-  result.define('Atk', input.attackBeforeAttributeScalar, { minimum: 0, maximum: 1000000 });
+  result.define('Atk', input.attackBase?.rawValue ?? input.attackBeforeAttributeScalar, {
+    minimum: 0,
+    maximum: 1000000,
+  });
+  if (input.attackBase !== undefined) {
+    // 不把静态倍率烘焙进 rawValue，否则同槽 Buff 会被错误地乘到静态倍率上。
+    // 原始来源仍保存在构筑 receipt；这里恢复聚合后的 Deck 基础槽位。
+    for (const slot of ['baseMultiplier', 'baseFinalAddition'] as const) {
+      result.addModifier(
+        new CombatAttributeModifier(
+          'Atk',
+          attributeModifierValues(slot, input.attackBase[slot]),
+          ATTRIBUTE_MODIFIER_SOURCES.deck,
+          'deck',
+        ),
+      );
+    }
+  }
   result.define('Def', input.defense ?? 0, { minimum: 0, maximum: 1000000 });
   result.define('PhysicalAndSpellInflictionEnhance', input.artsIntensity ?? 0, {
     minimum: 0,
