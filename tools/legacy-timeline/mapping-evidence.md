@@ -3,6 +3,35 @@
 2026-09-08；来源为用户提供的 Endaxis_Timeline_2026-08-31.json。
 配置保存对象身份及已核实的单动作变体，不提交完整用户存档及派生数据。
 
+## 2026-09-08：弭弗连携后第一段战技身份差异
+
+方案4：连携205帧，第一段战技406帧。映射配置将旧 segmentIndex=1 保留为
+battleSkill1，不能因运行时槽位改变而把映射改成第二段。
+
+原始资源（本地忽略目录 tmp/game-data-sources-hybrid-20260905）：
+
+- SkillData/chr_0031_mifu_combo_skill.json：27帧 CreateBuffAction 向 Owner 创建
+  buff_chr_0031_mifu_normalskill_2；SHA256
+  `943D8C091FE5660B54112949A8CABB8782D3813DAAD6E85DE05936E39E015B90`。
+- BuffData/buff_chr_0031_mifu_normalskill_2.json：Limited，duration=15，
+  useTimeDilationDt=false；DuringBuffEnable 的 ChangeSkillAction 改到第二段，
+  specificRevertedSkillId=true，恢复 chr_0031_mifu_normalskill_1，不继承原冷却进度；SHA256
+  `731EF27E8CBAAAEE86E4BD3EA7B35C57A74B901DC1CE52118387865B291739EE`。
+- 生成 mifu.operator.generated.ts 的 comboSkill scheduledSequences 与
+  skillSlotReplacement 已表达这些数据，没有本轮新造规则或修改生成产物。
+
+正式回归 mifuComboSkillRoute.test.ts 通过真实连携产生替换：200帧第一段得到
+skillInputMismatch / actualSkillId=battleSkill2；同刻第二段没有身份告警；900帧第一段
+没有身份告警，并验证同一替换Buff以lifetime结束。三例均 accepted=true、实际有指定
+施法的伤害，场景文档不变。这里只断言身份告警，未把连携窗口等其他告警隐藏掉。
+结论：这是原存档操作与当前原生路由的差异，不是导入时丢失段数，也不应自动替换。
+
+另重新读取全部中断回执 currentSkillTimelineFrame：诀 A3→A4 在
+49/160/271/782/893/1004/1615/1800帧均读到局部21帧，生成 allowedNextSkills 从22帧开始。
+既有 realAxisInterruptionRegression.test.ts 对照已覆盖此边界及队友膨胀下A4提前截断。
+这是当前调度规则的可复现解释，不等于原生同帧输入/推进顺序已取得完整证据。
+仍须核对其余中断、3项资源及7项窗口告警，不能因这一条身份差异闭合就宣布三轴全部无问题。
+
 ## 2026-09-08：汤汤多水体矩阵、诀八次追击分账
 
 快照回执修复后重算同一第三轴：汤汤三次战技分别17/41/41次，倍率和为480/1080/1080%，
