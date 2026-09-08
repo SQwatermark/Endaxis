@@ -15,6 +15,15 @@ it('keeps reviewed weapon and gear identities resolvable in the current reposito
   // 共享图标不等于同一装备；T1 手套不能落到基础款。
   expect(mappings.gears['eternal-xiranite-gloves-t1']).toBe('item_equip_t4_suit_usp02_hand_02');
 });
+it('public sample weapon asset identities do not assume matching native ID suffixes', () => {
+  for (const [slug, assetSlug] of [
+    ['detonation-unit', 'wpn_artsunit_0010'],
+    ['dreams-of-the-starry-beach', 'wpn_artsunit_0013'],
+    ['khravengger', 'wpn_greatsword_0013'],
+  ] as const) {
+    expect(gameDataRepository.getWeapon(mappings.weapons[slug])?.assetSlug).toBe(assetSlug);
+  }
+});
 it('keeps each reviewed skill mapping unique and points to an existing group member', () => {
   for (const [slug, rules] of Object.entries(mappings.skills)) {
     const definition = gameDataRepository.getOperator(slug)!;
@@ -43,4 +52,9 @@ it('keeps each reviewed skill mapping unique and points to an existing group mem
       .filter(r => r.source.sourceSkillKey === 'battleSkill')
       .map(r => r.target.skillKey),
   ).toEqual(['battleSkill1', 'battleSkill2', 'battleSkill3']);
+  expect(
+    mappings.skills['last-rite']
+      .filter(r => r.source.sourceSkillKey === 'basicAttack')
+      .map(r => r.target.skillKey),
+  ).toEqual(['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4']);
 });

@@ -18,9 +18,14 @@
     "perlica": "perlica",
     "xaihi": "xaihi",
     "arcane": "arcane",
-    "tangtang": "tangtang"
+    "tangtang": "tangtang",
+    "ardelia": "ardelia",
+    "last-rite": "last-rite"
   },
   "weapons": {
+    "dreams-of-the-starry-beach": "wpn_funnel_0013",
+    "khravengger": "wpn_claym_0013",
+    "detonation-unit": "wpn_funnel_0008",
     "lupine-scarlet": "wpn_sword_0022",
     "blessing-of-lustrous-carmine": "wpn_lance_0015",
     "amaranthine-tassel": "wpn_claym_0017",
@@ -34,6 +39,14 @@
     "fluorescent-roc": "wpn_funnel_0003"
   },
   "gears": {
+    "eternal-xiranite-light-armor": "item_equip_t4_suit_usp02_body_03",
+    "eternal-xiranite-wraps": "item_equip_t4_suit_usp02_hand_03",
+    "rift-trekker-gloves": "item_equip_t4_parts_wuling02_hand_01",
+    "thertech-plating": "item_equip_t4_suit_poise01_body_01",
+    "tide-surge-gauntlets": "item_equip_t4_suit_burst01_hand_01",
+    "hanging-river-o2-tube": "item_equip_t4_suit_burst01_edc_01",
+    "frontiers-extra-o2-tube-t1": "item_equip_t4_suit_atb01_edc_06",
+    "pulser-labs-calibrator": "item_equip_t4_suit_pulse_cryst01_edc_02",
     "mi-security-armor-t1": "item_equip_t4_suit_criti01_body_06",
     "mi-security-scope-t1": "item_equip_t4_suit_criti01_edc_06",
     "redeemer-gloves": "item_equip_t4_parts_wuling01_hand_01",
@@ -67,6 +80,134 @@
     "eternal-xiranite-power-core": "item_equip_t4_suit_usp02_edc_01"
   },
   "skills": {
+    "ardelia": [
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      }
+    ],
+    "last-rite": [
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack1"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 2
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack2"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 3
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack3"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 4
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack4"
+        }
+      }
+    ],
     "rossi": [
       {
         "source": {
