@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   parseSkillSettingDumpSource,
+  parseSkillSettingResourceSource,
   renderSkillSettingDocument,
 } from '../src/source/skillSettingDumpSource.ts';
 
@@ -37,6 +38,47 @@ const dump = `MonoBehaviour Base
 `;
 
 describe('SkillSetting TypeTree source', () => {
+  const resources = [
+    '\tfloat atbRecoverInterval = 0.5',
+    '\tfloat atbGainEfficiency = 1',
+    '\tfloat atbConsumedDefaultUspGainSelf = 0.065',
+    '\tfloat atbConsumedDefaultUspGainOther = 0.065',
+  ].join('\n');
+
+  it('reads native resource scalars without replacing them with constructor defaults', () => {
+    expect(parseSkillSettingResourceSource(resources, 'resources')).toEqual({
+      atbRecoverInterval: 0.5,
+      atbGainEfficiency: 1,
+      atbConsumedDefaultUspGainSelf: 0.065,
+      atbConsumedDefaultUspGainOther: 0.065,
+    });
+    expect(
+      parseSkillSettingResourceSource(resources.replace('0.5', '0'), 'zero').atbRecoverInterval,
+    ).toBe(0);
+  });
+
+  it.each(['NaN', 'Infinity', '-1', '', ' '])('rejects invalid resource values %j', value => {
+    expect(() =>
+      parseSkillSettingResourceSource(resources.replace('0.5', value), 'invalid'),
+    ).toThrow();
+  });
+
+  it('rejects missing, nested-only or duplicate resource fields', () => {
+    expect(() => parseSkillSettingResourceSource('', 'missing')).toThrow('atbRecoverInterval');
+    expect(() =>
+      parseSkillSettingResourceSource(
+        resources.replace('\tfloat atbRecoverInterval', '\t\tfloat atbRecoverInterval'),
+        'nested',
+      ),
+    ).toThrow();
+    expect(() =>
+      parseSkillSettingResourceSource(
+        `${resources}\n\tfloat atbRecoverInterval = 1.5`,
+        'duplicate',
+      ),
+    ).toThrow();
+  });
+
   it('extracts the exact infliction subset and renders the runtime document', () => {
     const source = parseSkillSettingDumpSource(dump, 'SkillSetting.fixture');
     expect(source).toMatchObject({

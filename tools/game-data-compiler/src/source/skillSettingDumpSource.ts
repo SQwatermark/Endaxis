@@ -1,5 +1,35 @@
 import { createHash } from 'node:crypto';
 
+/** Native resource scalars, kept separate from the infliction lookup table. */
+export interface SkillSettingResourceSource {
+  readonly atbRecoverInterval: number;
+  readonly atbGainEfficiency: number;
+  readonly atbConsumedDefaultUspGainSelf: number;
+  readonly atbConsumedDefaultUspGainOther: number;
+}
+
+export function parseSkillSettingResourceSource(
+  text: string,
+  sourcePath: string,
+): SkillSettingResourceSource {
+  const read = (name: keyof SkillSettingResourceSource) => {
+    const matches = [...text.matchAll(new RegExp(`^\\tfloat ${name} = ([^\\r\\n]+)\\r?$`, 'gm'))];
+    if (matches.length !== 1)
+      throw new Error(`${sourcePath}.${name}: expected exactly one root float`);
+    const raw = matches[0]![1]!.trim();
+    if (raw.length === 0) throw new Error(`${sourcePath}.${name}: empty resource value`);
+    const value = finiteNumber(raw, `${sourcePath}.${name}`);
+    if (value < 0) throw new Error(`${sourcePath}.${name}: expected non-negative value`);
+    return value;
+  };
+  return {
+    atbRecoverInterval: read('atbRecoverInterval'),
+    atbGainEfficiency: read('atbGainEfficiency'),
+    atbConsumedDefaultUspGainSelf: read('atbConsumedDefaultUspGainSelf'),
+    atbConsumedDefaultUspGainOther: read('atbConsumedDefaultUspGainOther'),
+  };
+}
+
 export interface SkillSettingDumpSource {
   readonly data: readonly {
     readonly key: string;

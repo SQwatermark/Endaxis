@@ -1,5 +1,18 @@
 # 当前任务快照
 
+## 2026-09-09：已找到SkillSetting暂停0.5来源，严格读取已补、生产尚未接入
+
+tmp/skillsetting-current-preview.txt包含atbRecoverInterval=0.5、atbGainEfficiency=1、
+atbConsumedDefaultUspGainSelf/Other均0.065。整份文本SHA256为
+5bdaa39cad7b4d29df0de038d4d15d353fc25ea3440bd8186df95c884677bc68。
+将其经现有附着读取/渲染与正式1.5.3@9913107-5 JSON逐结构比较完全相等；这证明当前
+附着子集一致，不独立证明完整文件版本身份。此前未找到实际值的状态已推进，勿重复搜索。
+新增parseSkillSettingResourceSource严格读取4个根float，缺失/重复/负值/非有限/空白拒绝，
+允许0且不使用构造默认值；9项测试通过，实际预览读取成功。尚未接入renderSkillSettingDocument、
+正式JSON、编译器catalog/root严格校验、核心读取及editorSimulationService，生产仍1.5。
+下一阶段应贯通这些边界、以同源重新生成并重跑四条原轴；不要只把页面常量改0.5，亦不能
+将“读取已实现”宣称恢复暂停已修复。本轮未跑完整类型/视觉或重算原轴。
+
 ## 2026-09-09：公开轴技力差额分类与暂停常量待取源
 
 旧/新六次战技扣费均-600、三次返还均+90；旧七次别礼重击+210，新原轴非主控没有这些
