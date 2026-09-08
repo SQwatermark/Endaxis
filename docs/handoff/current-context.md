@@ -1,5 +1,24 @@
 # 当前任务快照
 
+## 2026-09-09：别礼基础被动已生成接入，正式原轴资源重算
+
+在operators.json登记原生chr_0026_lastrite_passive后，沿现有完整干员编译器重新生成。
+正式定义新增passiveSkills安装及对应Buff的restrictUltimateEnergyRecovery，无运行时特判。
+生产数据回归覆盖：自身/队友战技通用6.5回能拒绝、专属16获准、100帧不足能量仍扣16至0，
+原始输入不变、0执行错误。realAxisInterruptionRegression.test.ts共16项通过；再次生成--check通过。
+
+原始公开轴新报告tmp/public-last-rite-passive-fixed-original.json：伤害821184.9467385851、
+79笔，availability14/combo8/execution0，均与修复前相同；别礼实际正向回能合计
+161.1500005722046→128，拒绝记录2→8。自由编辑允许强制释放，所以资源纠错不必改变伤害。
+未切换主控、未重排技能，也未修改combat-spec（已有完整机制证据）。
+
+横向检查当前来源30份runtime-template（不是31名全部）：剩余未登记enabledPassiveSkills为
+艾尔黛拉chr_0025_ardelia_passive_combo_skill、洛茜chr_0028_wulfa_passive_cape、
+卡缪chr_0033_camille_passive_listen_normal_skill及passive_default_ring。下一步核对是否有
+其他入口覆盖及木桩有效行为，不能仅凭未登记宣称全部都漏模拟，也不能批量静默省略。
+应用vue-tsc通过；三条私有轴重算为693530.8131581588/210、337938.8820469209/194、
+1996820.2804914764/265，均与前次基线一致，execution全部0。未跑全量/视觉。
+
 ## 2026-09-09：资源审计发现别礼基础被动漏接（未修复）
 
 公开轴正式原始输入已开始资源对账。重新执行只读旧4dadc55f仍2777215、0告警。

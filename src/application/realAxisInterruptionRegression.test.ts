@@ -12,6 +12,55 @@ const resources = {
   normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
 };
 
+it('别礼原生基础被动拒绝通用回能，保留专属回能与不足能量时的强制扣费', async () => {
+  const scenario = createEmptyScenario('last-rite-recovery', '公开轴回能来源最小回归');
+  scenario.tracks[0] = track('xaihi', [['battleSkill', 'battleSkill', 3]]);
+  scenario.tracks[1] = track('last-rite', [
+    ['battleSkill', 'battleSkill', 16],
+    ['ultimate', 'ultimate', 100],
+  ]);
+  const before = JSON.stringify(scenario);
+  const result = await new ScenarioSimulationService({
+    index: gameDataRepository,
+    spellInflictionSettings: skillSettings,
+    resources,
+  }).simulate(scenario, 110);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  expect(result.receiptEntries).toContainEqual(
+    expect.objectContaining({
+      event: 'BuffApplied',
+      targetId: 'last-rite',
+      data: expect.objectContaining({ buffId: 'buff_chr_0026_lastrite_passive' }),
+    }),
+  );
+  const energy = result.receiptEntries.filter(
+    e => e.event === 'UltimateEnergyChanged' && e.targetId === 'last-rite',
+  );
+  for (const sourceId of ['xaihi', 'last-rite']) {
+    expect(energy).toContainEqual(
+      expect.objectContaining({
+        sourceId,
+        data: expect.objectContaining({ baseValue: 6.5, applied: false, actualValue: 0 }),
+      }),
+    );
+  }
+  expect(energy).toContainEqual(
+    expect.objectContaining({
+      frame: 16,
+      sourceId: 'last-rite',
+      data: expect.objectContaining({ baseValue: 16, applied: true, actualValue: 16 }),
+    }),
+  );
+  expect(energy).toContainEqual(
+    expect.objectContaining({
+      frame: 100,
+      sourceId: 'last-rite',
+      data: expect.objectContaining({ actualValue: -16, currentValue: 0 }),
+    }),
+  );
+});
+
 it('赛希晶体的 SourceFinder 使治疗和增幅来自赛希，监听光环仍来自晶体', async () => {
   const scenario = createEmptyScenario('xaihi-enhance-source', '晶体增幅来源');
   const healer = track('xaihi', [['battleSkill', 'battleSkill', 1]]);

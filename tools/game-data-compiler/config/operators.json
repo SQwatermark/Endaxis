@@ -4764,6 +4764,7 @@
       "exportName": "lastRiteGeneratedSource",
       "gameId": "LASTRITE",
       "charId": "chr_0026_lastrite",
+      "basePassiveSkillIds": ["chr_0026_lastrite_passive"],
       "talents": [
         {
           "index": 0,

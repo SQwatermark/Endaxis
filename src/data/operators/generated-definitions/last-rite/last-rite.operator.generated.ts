@@ -1623,6 +1623,18 @@ export default {
     },
   ],
   entityBlackboard: { EntityBB_ns_atb: 0, EntityBB_ns_atkscale1: 0, EntityBB_ns_atkscale2: 0 },
+  passiveSkills: [
+    {
+      key: 'chr_0026_lastrite_passive',
+      enableSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0026_lastrite_passive',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+        }),
+      ),
+    },
+  ],
   buffDefinitions: {
     buff_chr_0026_lastrite_combo_skill_hitstop: {
       stackingType: 'stack',
@@ -2200,6 +2212,24 @@ export default {
           ),
         },
       ],
+    },
+    buff_chr_0026_lastrite_passive: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+      lifecycleSequences: {
+        enable: sequence(
+          step('restrictUltimateEnergyRecovery', {
+            target: 'caster',
+            allowedRecoveryTags: ['Skill/Character/chr_0026_lastrite'],
+            clearUltimateEnergyOnEnd: false,
+          }),
+        ),
+      },
     },
     buff_chr_0026_lastrite_talent_1: {
       stackingType: 'unique',
