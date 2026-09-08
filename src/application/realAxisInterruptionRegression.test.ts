@@ -413,6 +413,38 @@ it.each([true, false])('赫拉芬格连携增益要求目标已有寒冷附着�
   } else expect(applied).toEqual([]);
 });
 
+it.each([true, false])('爆破单元区分同元素爆发与异色反应（同元素=%s）', async sameElement => {
+  const scenario = createEmptyScenario('detonation-burst-gate', '爆发与异色反应');
+  scenario.tracks[0] = sameElement
+    ? track('xaihi', [['comboSkill', 'comboSkill', 1]])
+    : track('perlica', [['battleSkill', 'battleSkill', 1]]);
+  scenario.tracks[0]!.id = 'primer';
+  scenario.tracks[0]!.skillCasts[0]!.id = 'primer-combo';
+  const owner = track('xaihi', [['comboSkill', 'comboSkill', 100]]);
+  owner.weapon = {
+    weaponSlug: 'wpn_funnel_0008',
+    level: 90,
+    tuned: true,
+    potential: 0,
+    traitLevels: [9, 9, 6],
+  };
+  scenario.tracks[1] = owner;
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 250);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  const infliction = result.receiptEntries.find(
+    e => e.event === 'ElementalInflictionApplied' && e.sourceId === 'xaihi',
+  );
+  expect(infliction?.data?.outcomeKind).toBe(sameElement ? 'burst' : 'compoundStatus');
+  const buffs = result.receiptEntries.filter(
+    e =>
+      e.event === 'BuffApplied' && e.data?.buffId === 'buff_wpn_funnel_0008_magic_damage_taken_up',
+  );
+  if (sameElement) expect(buffs).toHaveLength(1);
+  else expect(buffs).toEqual([]);
+});
+
 it('赫拉芬格战技附着增益使用15秒默认时钟，不被全屏终结技顺延', async () => {
   async function simulate(withUltimate: boolean) {
     const scenario = createEmptyScenario('khravengger-clock', '武器增益默认时钟');
