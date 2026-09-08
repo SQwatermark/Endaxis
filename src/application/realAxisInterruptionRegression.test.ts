@@ -193,7 +193,7 @@ it('别礼原生基础被动拒绝通用回能，保留专属回能与不足能�
   );
 });
 
-it('赛希晶体的 SourceFinder 使治疗和增幅来自赛希，监听光环仍来自晶体', async () => {
+it.each([true, false])('赛希晶体仅被主控重击消费且正确保留来源（主控=%s）', async controlled => {
   const scenario = createEmptyScenario('xaihi-enhance-source', '晶体增幅来源');
   const healer = track('xaihi', [['battleSkill', 'battleSkill', 1]]);
   healer.operator!.potential = 1;
@@ -205,19 +205,47 @@ it('赛希晶体的 SourceFinder 使治疗和增幅来自赛希，监听光环�
   };
   scenario.tracks[0] = track('arcane', [['basicAttack', 'basicAttack5', 120]]);
   scenario.tracks[1] = healer;
-  scenario.battle.controlSwitches = [{ id: 'control:arcane', frame: 0, trackIndex: 0 }];
+  scenario.battle.controlSwitches = [
+    { id: 'control:actor', frame: 0, trackIndex: controlled ? 0 : 1 },
+  ];
+  const before = JSON.stringify(scenario);
   const result = await new ScenarioSimulationService({
     index: gameDataRepository,
     spellInflictionSettings: skillSettings,
     resources,
   }).simulate(scenario, 300);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
   const entries = result.receiptEntries;
+  expect(entries.some(e => e.event === 'DamageApplied' && e.sourceId === 'arcane')).toBe(true);
+  expect(entries).toContainEqual(
+    expect.objectContaining({
+      event: 'BuffApplied',
+      targetId: 'arcane',
+      data: expect.objectContaining({ buffId: 'buff_chr_0011_seraph_normal_skill_heal' }),
+    }),
+  );
   const carrier = entries.find(
     e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_common_affixes_enhance_spell',
   );
   const parent = entries.find(
     e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0011_seraph_potential_1_atkup',
   );
+  if (!controlled) {
+    expect(parent).toBeUndefined();
+    expect(carrier).toBeUndefined();
+    expect(
+      entries.some(
+        e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0011_seraph_mainchr_heal',
+      ),
+    ).toBe(false);
+    expect(
+      entries.some(
+        e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0011_seraph_combo_count',
+      ),
+    ).toBe(false);
+    return;
+  }
   expect(parent).toBeDefined();
   expect(carrier).toBeDefined();
   expect(carrier!.sourceId).toBe('xaihi');

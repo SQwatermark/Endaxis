@@ -1,5 +1,29 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：原轴缺少赛希辅助晶体增幅的主控条件已验证
+
+旧xaihi.ts用全局onFinalStrike消费队伍xaihi-auxiliary-crystal，再给重击者增幅，
+满级15%加潜能1的5%=20%。原始BuffData.buff_chr_0011_seraph_normal_skill_heal的
+beforeOutputDamage动作链则依次检查：Owner上无0.3秒标记、Source无finishball_04、
+CheckMainCharacterCondition(Owner)、DamageDecorateMask.HasAny(2097152重击)。
+通过后才查赛希所属晶体、向晶体添加combo_count、向Owner添加mainchr_heal并写防重标记。
+该源文件SHA256为9a079c1dc6afbda97190f7752d908bed67fc86baae01bfd30b95833cec33e15e。
+
+mainchr_heal触发治疗，满血判断通过后添加potential_1_atkup，后者Enable时创建
+buff_common_affixes_enhance_spell，rate读atk_up。命名含potential_1不表示该整个节点
+只在潜能1存在；判断与数值应以动作/黑板为准。正式生成定义保留以上链，没有把满血治疗
+或非伤害行为直接丢弃。
+
+原轴41/835帧均给全队四人应用normal_skill_heal，所以不是晶体光环漏发；全轴未应用
+mainchr_heal、combo_count、potential_1_atkup和enhance_spell。诀为主控，重击均由别礼
+执行，因此未通过Owner主控检查，不能给别礼补旧20%。此结论来自赛希自身数据，不借用
+别礼战技的类似条件。原轴终结技增幅乘数1.541530013而非旧1.74153的该0.20差额已归因。
+
+扩展已有来源回归为主控/非主控两种：相同诀重击、赛希战技与构筑，只切诊断主控目标；
+双方光环与伤害均发生、输入均未修改、执行异常0。主控得到赛希来源治疗/增幅/装备效果，
+非主控没有消费计数、治疗Buff或增幅。该回归文件24项通过，无跳过/预期失败；未修改
+生产逻辑、没有将诊断切控写回原轴。未跑全套、类型检查或新增视觉验收。
+
 ## 2026-09-09：原始轴终结技乘区重取，不能套用主控诊断表
 
 重新运行tmp/compare-axis-damage.mjs，输入public-last-rite-arcana-corrected/project.json，
