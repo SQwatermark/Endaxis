@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, test } from 'vitest';
 import { ensureLocaleResources } from '../i18n';
 import {
   getOperatorCombatSkillDescription,
+  getOperatorCombatSkillName,
   getOperatorCombatSkillFormKeys,
   getOperatorFormName,
   getOperatorGameName,
@@ -19,6 +20,13 @@ describe('game text localization', () => {
 
   test('zh localizes Blessing of Lustrous Carmine', () => {
     expect(getWeaponGameName('blessing-of-lustrous-carmine', 'zh-CN')).toBe('镀红祝福');
+  });
+
+  test('missing derived skill title can use its explicit level-source title without overriding native titles', () => {
+    const fallback = getOperatorCombatSkillName('arcane', 'ultimate', 'zh-CN');
+    expect(fallback).toBe('破晦');
+    expect(getOperatorCombatSkillName('arcane', 'arcana', 'zh-CN', fallback)).toBe('破晦');
+    expect(getOperatorCombatSkillName('arcane', 'ultimate', 'zh-CN', 'unused')).toBe('破晦');
   });
 
   test('zh localizes Blessing of Lustrous Carmine skill entries', () => {

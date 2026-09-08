@@ -10,6 +10,8 @@ export interface PublishedOperatorMetadata {
   readonly talents: readonly PublishedUpgradeMetadata[];
   readonly potentials: readonly PublishedUpgradeMetadata[];
   readonly skillKeys: readonly string[];
+  /** 单个技能自己的等级来源，用作缺少独立本地化标题时的显示回退。 */
+  readonly skillLevelSources?: Readonly<Record<string, string>>;
 }
 
 type PublishedUpgradeMetadata = Pick<OperatorDefinition['talents'][number], 'levels'> & {
@@ -40,6 +42,13 @@ export function capturePublishedOperatorMetadata(
       })),
       skillKeys: definition.skillGroups.flatMap(group =>
         (Array.isArray(group.skills) ? group.skills : [group.skills]).map(skill => skill.key),
+      ),
+      skillLevelSources: Object.fromEntries(
+        definition.skillGroups.flatMap(group =>
+          (Array.isArray(group.skills) ? group.skills : [group.skills])
+            .filter(skill => skill.levelSource !== undefined)
+            .map(skill => [skill.key, skill.levelSource!]),
+        ),
       ),
     });
   }

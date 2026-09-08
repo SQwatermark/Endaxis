@@ -64,6 +64,17 @@ const metadata: PublishedOperatorMetadata = {
 };
 const operators = new Map([['custom', metadata]]);
 
+it('keeps the skill identity while carrying its own level-source title fallback', () => {
+  const withTitles = new Map([
+    ['custom', { ...metadata, skillLevelSources: { skill: 'ultimate' } }],
+  ]);
+  for (const sourceActionId of ['cast', 'skill']) {
+    expect(
+      resolvePublishedBuffSource({ sourceActionId, sourceId: 'track' }, scenario, withTitles),
+    ).toEqual({ kind: 'skill', slug: 'native', key: 'skill', fallbackKey: 'ultimate' });
+  }
+});
+
 it.each([
   ['cast', { kind: 'skill', slug: 'native', key: 'skill' }],
   ['skill', { kind: 'skill', slug: 'native', key: 'skill' }],

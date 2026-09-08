@@ -2704,7 +2704,14 @@ function buffSourceName(segment: BuffPresentationSource): string | undefined {
     case 'skill':
       return source.slug === null
         ? source.key
-        : getOperatorCombatSkillName(source.slug, source.key, locale.value);
+        : getOperatorCombatSkillName(
+            source.slug,
+            source.key,
+            locale.value,
+            source.fallbackKey === undefined
+              ? undefined
+              : getOperatorCombatSkillName(source.slug, source.fallbackKey, locale.value),
+          );
     case 'weapon':
       return getWeaponGameName(source.slug, locale.value);
     case 'gear':

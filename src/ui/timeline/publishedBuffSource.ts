@@ -17,7 +17,7 @@ export function capturePublishedWeaponSources(
 
 export type PublishedBuffSource =
   | { kind: 'custom'; name: string }
-  | { kind: 'skill'; slug: string | null; key: string }
+  | { kind: 'skill'; slug: string | null; key: string; fallbackKey?: string }
   | { kind: 'weapon' | 'gear' | 'gearSet'; slug: string }
   | { kind: 'talent' | 'potential'; slug: string; index: number };
 
@@ -39,6 +39,10 @@ export function resolvePublishedBuffSource(
       kind: 'skill',
       slug: slug === undefined ? null : (operators.get(slug)?.assetSlug ?? slug),
       key: cast.source.skillKey,
+      ...(slug !== undefined &&
+      operators.get(slug)?.skillLevelSources?.[cast.source.skillKey] !== undefined
+        ? { fallbackKey: operators.get(slug)!.skillLevelSources![cast.source.skillKey]! }
+        : {}),
     };
   }
   const equipment =
@@ -79,6 +83,13 @@ export function resolvePublishedBuffSource(
       };
   }
   return metadata.skillKeys.includes(id)
-    ? { kind: 'skill', slug: metadata.assetSlug, key: id }
+    ? {
+        kind: 'skill',
+        slug: metadata.assetSlug,
+        key: id,
+        ...(metadata.skillLevelSources?.[id] === undefined
+          ? {}
+          : { fallbackKey: metadata.skillLevelSources[id] }),
+      }
     : undefined;
 }

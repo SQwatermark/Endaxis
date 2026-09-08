@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-09：派生技能Buff来源使用明确的技能标题回退
+
+原生CharGrowthTable将chr_0032_lizhiyan_ultimate_skill2列入破晦终结技组；SkillData
+skillName为空，SkillPatchTable的skillName.id=0。现有exportGameLocales.py只导出四类
+combatSkills，故getOperatorCombatSkillName直接查arcana只能人性化成Arcana。
+发布干员元数据现在同时捕获单个技能自身levelSource，来源保留原skill key并携带
+fallbackKey；优先独立本地化标题，缺失才使用对应等级来源标题。此轴回退显示破晦，
+不是猜造第二段独立名称，也不改变技能身份、等级或任何模拟逻辑。若以后原始数据
+补齐独立标题，可直接优先使用。2文件24项测试通过，无跳过/预期失败；完整应用
+vue-tsc通过，未做新视觉验收。不要称第二段独立标题已完整导出；未推送。
+
 ## 2026-09-09：武器Buff来源补齐发布时的显示身份
 
 原轴Wpn Funnel 0016来自来源解析直接把运行时slug交给游戏文本查询。定义明确提供
