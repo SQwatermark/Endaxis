@@ -234,6 +234,21 @@ describe('CombatResources', () => {
     expect(resources.sp).toBe(65);
   });
 
+  it('replaces an unfinished recovery pause on the next SP payment instead of accumulating it', () => {
+    const resources = createResources();
+    expect(resources.pay('source', [{ resource: 'sp', value: 20 }]).paid).toBe(true);
+    expect(resources.advanceInCombatSpRecovery(0.4).actualValue).toBe(0);
+    expect(resources.spRecoveryPauseRemaining).toBeCloseTo(0.6);
+
+    expect(resources.pay('source', [{ resource: 'sp', value: 20 }]).paid).toBe(true);
+    expect(resources.spRecoveryPauseRemaining).toBe(1);
+    expect(resources.advanceInCombatSpRecovery(0.5).actualValue).toBe(0);
+    expect(resources.advanceInCombatSpRecovery(0.5).actualValue).toBe(0);
+    expect(resources.sp).toBe(60);
+    expect(resources.advanceInCombatSpRecovery(0.1).actualValue).toBe(1);
+    expect(resources.sp).toBe(61);
+  });
+
   it('applies active GlobalBuff modifiers to natural SP recovery only while registered', () => {
     const resources = createResources();
     const modifier = new SharedSpRecoveryModifier('multiplier', -0.5);
