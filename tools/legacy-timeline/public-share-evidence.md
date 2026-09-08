@@ -1,5 +1,36 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：艾尔黛拉终结技6对12来自旧版固定命中表与木桩弹体限频
+
+同一公开轴6a8db78895147370855b45ed：旧版伤害命中44.166/44.966/45.766/
+49.433/50.233/51.033秒，共6笔，每笔165%。新版原轴和别礼主控诊断的命中帧均为
+1328/1340/1352/1364/1374/1465/1477/1489/1501/1513/1525/1537，共12笔，
+均来自同一个ultimate cast、每笔165%；两组输入的增益不同，不能混用伤害总数。
+
+旧版4dadc55f的src/data/operators/ardelia.ts手写duration=4、hitCount=5，三潜
+patchTick改为6；src/data/collect.ts的expandTickGroup按duration/(hitCount-1)
+等分，即三潜每0.8秒一击，再经旧统一时停映射得到上述实际时刻。不是原生弹体计数。
+
+当前SkillData/chr_0025_ardelia_ultimate_skill.json的timelineActions[7]和[8]
+都是81至201本地帧、triggerInterval=0.1的独立Channeling动作。SHA256：
+E765CBEEF51C484D4A921714963C71C0F4DBE152C63719A0522D19D93C3F1B8B。
+弹体回调检查敌方ArdeliaUltMark不存在才伤害，随后建立interval=0.3的同名标记，
+autoFinishByAction=false。回调来源及SHA见下面独立回调修复记录。
+combat-spec/docs/timed-marker-lifecycle.md证明标记属于目标AbilitySystem，
+HasMarker读取该目标有效项；不是各弹体私有标记，动作结束也不清除false配置的标记。
+
+因此新版12笔不是两条发射流各自重复造成同帧伤害。新版本将随机空间点/范围命中按
+既定木桩模型简化，弹体能命中唯一敌人，伤害次数由标记到期及发射节奏限制。不能将
+当前12笔宣称为真实游戏任意敌人体型/位置下的固定命中次数，也不能为了旧版6笔裁掉
+另一条原生发射流。精确逐帧限频和空间命中仍有模型边界，本轮不改生产模拟。
+
+ardeliaUltimateCallbacks.test.ts扩为零潜/三潜：固定概率样本仍使治疗分支失败，
+确定伤害继续；命中数分别大于旧手写5/6，全部165%，无同帧重复、相邻至少9帧，
+可观察到not(markerPresent)失败；输入JSON不变、0执行错误。首次新增断言误读了
+回执层级（记录根not而非内部markerPresent）导致2失败，修正观察方式后两个文件
+15项全部通过，无跳过/预期失败。没有重跑全量/类型检查或视觉验收。
+临时提取脚本tmp/inspect-ardelia-hits.mjs；下一步继续各技能反应伤害与增益来源归因。
+
 ## 2026-09-09：别礼第四轮普攻A2第二击被后续即时输入截断
 
 对象仍是6a8db78895147370855b45ed；此项分析使用明确标注的别礼主控对照
