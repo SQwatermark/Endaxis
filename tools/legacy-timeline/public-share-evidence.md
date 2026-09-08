@@ -1,5 +1,18 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：为来源修复补上原生processing技能编号入口
+
+SkillAffix所需编号现由AbilitySystemRuntime.currentProcessingSkillCastId提供：临时
+处理技能优先，否则为仍在执行的当前技能。本次候选的预分配编号独立暴露，不读普通
+来源或事件。正常beforeCast使用临时作用域；SkillRuntime的SwitchToBuff只有
+asSkillCast=true才临时覆盖，范围包含before、费用、动作和skillEnd，false维持原当前
+技能。作用域以finally恢复。依据现有spec身份文档及Runtime/Skill.cs旁路执行路径。
+
+四项回归覆盖当前42/候选73的两类旁路，以及普通/旁路抛错后的身份恢复；相邻129项通过。
+这是来源缺陷修复的前置接口，不是SkillAffix消费或赫拉芬格修复：Buff普通来源、affix
+记录、结束匹配和生成定义尚未切换，正式轴伤害不应因此变化。下一步从动作层绑定该
+编号，不能回到从事件或普通来源猜编号的方案。
+
 ## 2026-09-09：确认CreateBuff来源缺陷；先隔离被动Buff执行状态，来源修复尚未落地
 
 上一节赫拉芬格分支已定位为新版公共运行时缺陷。原始

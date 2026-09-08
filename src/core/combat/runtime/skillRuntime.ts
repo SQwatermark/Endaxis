@@ -495,6 +495,10 @@ export class SkillRuntime {
     };
   }
 
+  get processingSkillCastId(): number | undefined {
+    return this.#preparedSkillCastId || this.#skillCastId || undefined;
+  }
+
   get operations(): CombatOperationExecutor {
     return this.#dependencies.operations;
   }
@@ -575,6 +579,7 @@ export class SkillRuntime {
       readonly canInterrupt: boolean;
     },
     beforeCastStart?: () => void,
+    withProcessingSkill: (execute: () => void) => void = execute => execute(),
   ): boolean {
     const route = this.#program.switchToBuffCast;
     if (
@@ -622,15 +627,20 @@ export class SkillRuntime {
         remainingFrames: this.#cooldown.snapshot.remainingFrames,
       });
     }
-    if (route.asSkillCast) {
-      beforeCastStart?.();
-      this.#applyCost(true);
-    }
-    this.#sequenceRuntime
-      .createSequence(route.sequence, routeContext)
-      .executeInstant(this.#context);
-    this.record('SkillSwitchedToBuff', { asSkillCast: route.asSkillCast });
-    if (route.asSkillCast) this.#emitSkillEnd();
+    const executeRoute = () => {
+      if (route.asSkillCast) {
+        beforeCastStart?.();
+        this.#applyCost(true);
+      }
+      this.#sequenceRuntime
+        .createSequence(route.sequence, routeContext)
+        .executeInstant(this.#context);
+      this.record('SkillSwitchedToBuff', { asSkillCast: route.asSkillCast });
+      if (route.asSkillCast) this.#emitSkillEnd();
+    };
+    // 非施法旁路仍处理当前技能；只有 AsSkillCast 临时覆盖至自身，包含结束事件。
+    if (route.asSkillCast) withProcessingSkill(executeRoute);
+    else executeRoute();
     this.#preparedStartBlackboard = {};
     this.#preparedSkillCastId = 0;
     this.#afterCastStart = undefined;

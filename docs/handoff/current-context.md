@@ -1,5 +1,25 @@
 # 当前任务快照
 
+## 2026-09-09：SkillAffix前置身份入口已补，尚未切换Buff消费
+
+AbilitySystemRuntime新增currentProcessingSkillCastId：同步临时processing技能优先，
+否则读取仍在执行的currentSkill。SkillRuntime显式暴露本次预分配/当前释放编号，
+不借用事件或Buff普通来源。正常施放的beforeCast回调使用候选技能作用域；
+SwitchToBuff只有asSkillCast=true才覆盖到自身，覆盖施放前、费用、Buff动作和结束事件，
+false仍保留原当前技能；finally恢复，异常也不泄漏临时身份。
+
+依据现有combat-spec的skill-affix-identity-2026-09-04.md及Skill.cs的SwitchToBuff路径。
+新增4项真实SkillRuntime回归：42→73→42、非施法旁路维持42、普通/旁路异常恢复，
+相邻AbilitySystem/Skill/Assembly共129项通过。此次没有改Buff声明、构造或生成数据，
+赫拉芬格来源问题仍未修复，三项it.fails必须继续保留。
+下一步将SkillAffix动作记录连接到这个入口，并同步结束匹配/转换语义；不能在构造时
+从普通来源复制编号。随后再恢复CreateBuff来源修正和真实轴回归。
+转换器具体入口：buffRuntimeProjection.ts的splitDirectSkillAffixSequence删除
+DuringBuffEnable序列末尾的SkillAffix，再提前变成构造字段与自动skillEnd监听。
+这还丢失动作执行顺序/前序失败语义，后续应恢复为动作级记录及生命周期，不能只把
+构造字段改名为processing来源。原生引用延寿分支仍须单独明确支持边界。
+本轮应用vue-tsc与diff检查通过；未重跑全量套件，未重新声明真实轴伤害结果。
+
 ## 2026-09-09：赫拉芬格来源缺陷已确认，SkillAffix前置债务必须先拆
 
 CreateBuff原生读取动作环境FillSkillCastInfo，而当前解释器优先读取事件来源，导致别礼

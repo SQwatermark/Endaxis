@@ -87,6 +87,89 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it.each([false, true])(
+    'Buff旁路processing身份独立且覆盖到结束事件：asSkillCast=%s',
+    asSkillCast => {
+      const current = createBattleSkillRuntime(300);
+      current.runtime.prepareSkillCastId(42);
+      let ability: AbilitySystemRuntime;
+      const observed: [string, number | undefined][] = [];
+      const route = createBattleSkillRuntime(
+        300,
+        undefined,
+        undefined,
+        {
+          key: 'processing-route',
+          timelineBlockFrames: 1,
+          switchToBuffCast: {
+            asSkillCast,
+            currentSkillTypes: ['battleSkill'],
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'probe', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+          scheduledSequences: [],
+        },
+        () => observed.push(['end', ability.currentProcessingSkillCastId]),
+      );
+      route.runtime.prepareSkillCastId(73);
+      vi.mocked(route.operations.execute).mockImplementation(() => {
+        observed.push(['body', ability.currentProcessingSkillCastId]);
+        return true;
+      });
+      ability = new AbilitySystemRuntime({ skills: [current.runtime, route.runtime] });
+      expect(ability.currentProcessingSkillCastId).toBeUndefined();
+      ability.tryStartSkill(current.runtime.skillId);
+      expect(ability.currentProcessingSkillCastId).toBe(42);
+      ability.prepareBeforeSkillCastStart(route.runtime.skillId, undefined, () => {
+        observed.push(['before', ability.currentProcessingSkillCastId]);
+        expect(ability.currentSkillId).toBe(current.runtime.skillId);
+      });
+      expect(ability.tryStartSkill(route.runtime.skillId)).toBe(true);
+      expect(observed).toEqual(
+        asSkillCast
+          ? [
+              ['before', 73],
+              ['body', 73],
+              ['end', 73],
+            ]
+          : [['body', 42]],
+      );
+      expect(ability.currentProcessingSkillCastId).toBe(42);
+      expect(current.runtime.skillCastInfo.skillCastId).toBe(42);
+      current.runtime.interrupt('castNextSkill');
+      expect(ability.currentProcessingSkillCastId).toBeUndefined();
+    },
+  );
+
+  it.each(['regular', 'buff-route'] as const)('processing临时覆盖在异常后恢复：%s', kind => {
+    const current = createBattleSkillRuntime(300);
+    current.runtime.prepareSkillCastId(42);
+    const next = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'next',
+      timelineBlockFrames: 1,
+      scheduledSequences: [],
+      ...(kind === 'buff-route'
+        ? { switchToBuffCast: { asSkillCast: true, sequence: { steps: [] } } }
+        : {}),
+    });
+    next.runtime.prepareSkillCastId(73);
+    const ability = new AbilitySystemRuntime({ skills: [current.runtime, next.runtime] });
+    ability.tryStartSkill(current.runtime.skillId);
+    ability.prepareBeforeSkillCastStart('next', undefined, () => {
+      expect(ability.currentProcessingSkillCastId).toBe(73);
+      throw new Error('fixture-before-cast');
+    });
+    expect(() => ability.tryStartSkill('next')).toThrow('fixture-before-cast');
+    expect(ability.currentProcessingSkillCastId).toBe(42);
+    expect(ability.currentSkillId).toBe(current.runtime.skillId);
+  });
+
   it.each([1, 30])('展示宽度 %s 不裁切后续原生序列', timelineBlockFrames => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'display-is-not-lifetime',

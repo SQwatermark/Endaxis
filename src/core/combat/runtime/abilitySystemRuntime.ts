@@ -37,6 +37,8 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   /** 原生当前技能可打断状态；只有读取 mustBeforeExclusiveTime 的切换路径才要求提供。 */
   readonly canInterrupt?: boolean;
   readonly skillCastInfo?: CombatSkillCastInfo;
+  /** 当前或已预分配的本次释放编号；不读取 Buff/事件的普通来源。 */
+  readonly processingSkillCastId?: number;
   canStart(): boolean;
   /** 本次启动前合并进动作黑板的运行时参数，例如连携候选携带的黑板。 */
   prepareStartBlackboard?(values: Readonly<Record<string, number>>): void;
@@ -57,6 +59,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
       readonly canInterrupt: boolean;
     },
     beforeCastStart?: () => void,
+    withProcessingSkill?: (execute: () => void) => void,
   ): boolean;
   tryStart(): boolean;
   interrupt(
@@ -190,6 +193,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
   readonly #onSkillOperableBoundaryReached?: (fact: SkillOperableBoundaryFact) => void;
   readonly #registeredOperableBoundaryCastIds = new Set<string>();
   #currentSkill: AbilitySkillRuntime | null = null;
+  #processingSkill: AbilitySkillRuntime | null = null;
   readonly #beforeCastStarts = new Map<AbilitySkillRuntime, () => void>();
   #postSkillCastRequest: PostSkillCastRequest | null = null;
 
@@ -323,6 +327,24 @@ export class AbilitySystemRuntime implements FrameRuntime {
 
   get currentSkillId(): string | null {
     return this.#currentSkill?.skillId ?? null;
+  }
+
+  /** 原生 curProcessingSkill：同步临时技能优先，随后回到仍在执行的当前技能。 */
+  get currentProcessingSkillCastId(): number | undefined {
+    const skill =
+      this.#processingSkill ??
+      (this.#currentSkill?.state === 'casting' ? this.#currentSkill : null);
+    return skill?.processingSkillCastId;
+  }
+
+  #withProcessingSkill(skill: AbilitySkillRuntime, execute: () => void): void {
+    const previous = this.#processingSkill;
+    this.#processingSkill = skill;
+    try {
+      execute();
+    } finally {
+      this.#processingSkill = previous;
+    }
   }
 
   get currentSkillType(): SkillType | undefined {
@@ -725,12 +747,13 @@ export class AbilitySystemRuntime implements FrameRuntime {
               },
             },
         beforeCastStart,
+        execute => this.#withProcessingSkill(skill, execute),
       ) === true
     ) {
       return true;
     }
 
-    beforeCastStart?.();
+    if (beforeCastStart !== undefined) this.#withProcessingSkill(skill, beforeCastStart);
     this.#currentSkill = skill;
     if (previousSkill !== null) this.#interruptForNextSkill(previousSkill, skill);
     if (!skill.tryStart()) {
