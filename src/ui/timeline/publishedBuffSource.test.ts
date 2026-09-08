@@ -1,7 +1,32 @@
 import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { PublishedOperatorMetadata } from './publishedOperatorMetadata';
-import { resolvePublishedBuffSource } from './publishedBuffSource';
+import { capturePublishedWeaponSources, resolvePublishedBuffSource } from './publishedBuffSource';
+
+it('captures native weapon presentation identity and custom names without retaining mutable definitions', () => {
+  const weapon = { slug: 'wpn_funnel_0016', assetSlug: 'wpn_artsunit_0016' };
+  const captured = capturePublishedWeaponSources([
+    weapon,
+    { slug: 'custom', displayName: '自定义武器' },
+  ]);
+  weapon.assetSlug = 'changed-after-publication';
+  expect(
+    resolvePublishedBuffSource(
+      { sourceActionId: 'upgrade-initialization:weapon-trait:wpn_funnel_0016:skill3' },
+      scenario,
+      operators,
+      captured,
+    ),
+  ).toEqual({ kind: 'weapon', slug: 'wpn_artsunit_0016' });
+  expect(
+    resolvePublishedBuffSource(
+      { sourceActionId: 'equipment:weaponTrait:custom:skill3' },
+      scenario,
+      operators,
+      captured,
+    ),
+  ).toEqual({ kind: 'custom', name: '自定义武器' });
+});
 
 const scenario = createEmptyScenario('test', 'test');
 scenario.tracks[0] = {

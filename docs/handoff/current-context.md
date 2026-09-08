@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-09：武器Buff来源补齐发布时的显示身份
+
+原轴Wpn Funnel 0016来自来源解析直接把运行时slug交给游戏文本查询。定义明确提供
+assetSlug=wpn_artsunit_0016，名称表亦用该键；不是缺游戏资源。发布结果时捕获武器
+slug→显示身份/自定义名，解析来源时使用捕获值，不在看旧结果时读取当前模板。
+publishedBuffSource与gameText共2文件22项通过，无跳过/预期失败；新增测试修改原
+定义后发布身份不变，并覆盖自定义武器名称。完整应用vue-tsc通过；未做新视觉验收。
+Arcana是派生技能key而非干员名称；该技能只有sourceSkillId等身份，中文combatSkills
+没有arcana条目，不能用干员名或猜测名称替换。此项仍待处理，未推送。
+
 ## 2026-09-09：公开原轴三处效果命中完成正式页面点验
 
 在 tmp/public-full-visual.html 的正式 TimelineEditor 深色页面，用 SCALE30%、收起

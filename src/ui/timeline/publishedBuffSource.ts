@@ -1,6 +1,20 @@
 import type { ScenarioDocument } from '../../core/project/schema';
 import type { PublishedOperatorMetadata } from './publishedOperatorMetadata';
 
+/** 冻结本次发布的武器显示身份；后续模板编辑不能改变旧结果的来源。 */
+export function capturePublishedWeaponSources(
+  weapons: readonly { slug: string; assetSlug?: string; displayName?: string }[],
+): ReadonlyMap<string, PublishedBuffSource> {
+  return new Map(
+    weapons.map(weapon => [
+      weapon.slug,
+      weapon.displayName
+        ? { kind: 'custom' as const, name: weapon.displayName }
+        : { kind: 'weapon' as const, slug: weapon.assetSlug ?? weapon.slug },
+    ]),
+  );
+}
+
 export type PublishedBuffSource =
   | { kind: 'custom'; name: string }
   | { kind: 'skill'; slug: string | null; key: string }
@@ -12,6 +26,7 @@ export function resolvePublishedBuffSource(
   source: { sourceActionId?: string; sourceId?: string },
   scenario: ScenarioDocument | undefined,
   operators: ReadonlyMap<string, PublishedOperatorMetadata>,
+  weapons: ReadonlyMap<string, PublishedBuffSource> = new Map(),
 ): PublishedBuffSource | undefined {
   const id = source.sourceActionId;
   if (id === undefined || scenario === undefined) return undefined;
@@ -30,6 +45,8 @@ export function resolvePublishedBuffSource(
     /^(?:equipment:|upgrade-initialization:)(weaponTrait|gearTrait|gearSet|weapon-trait|gear-trait|gear-set):([^:]+)/.exec(
       id,
     );
+  if (equipment?.[1]?.startsWith('weapon') && weapons.has(equipment[2]!))
+    return weapons.get(equipment[2]!);
   if (equipment)
     return {
       kind: equipment[1]!.startsWith('weapon')

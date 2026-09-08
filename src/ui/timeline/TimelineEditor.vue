@@ -345,7 +345,7 @@ import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
 import BattleLogPanel from './components/BattleLogPanel.vue';
 import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
 import { capturePublishedBattleLog } from './publishedBattleLog';
-import { resolvePublishedBuffSource } from './publishedBuffSource';
+import { capturePublishedWeaponSources, resolvePublishedBuffSource } from './publishedBuffSource';
 import { isEnemyTimelineBuffVisible } from './enemyStatusRows';
 import {
   capturePublishedOperatorMetadata,
@@ -972,6 +972,9 @@ watch(selectedTrack, () => {
 });
 const battleLogSnapshot = shallowRef<TimelineBattleLogSnapshot | null>(null);
 const publishedOperators = shallowRef<ReadonlyMap<string, PublishedOperatorMetadata>>(new Map());
+const publishedWeaponSources = shallowRef<ReturnType<typeof capturePublishedWeaponSources>>(
+  new Map(),
+);
 const simulationService = new WorkerScenarioSimulationService(
   new Worker(new URL('../../application/scenarioSimulation.worker.ts', import.meta.url), {
     type: 'module',
@@ -1005,11 +1008,15 @@ watch(
     if (published === null) {
       battleLogSnapshot.value = null;
       publishedOperators.value = new Map();
+      publishedWeaponSources.value = new Map();
       return;
     }
     publishedOperators.value = capturePublishedOperatorMetadata(
       published.scenario,
       editorGameDataRepository,
+    );
+    publishedWeaponSources.value = capturePublishedWeaponSources(
+      editorGameDataRepository.getWeapons(),
     );
     battleLogSnapshot.value = capturePublishedBattleLog(
       published,
@@ -2688,6 +2695,7 @@ function buffSourceName(segment: BuffPresentationSource): string | undefined {
     segment,
     publishedSimulation.value?.scenario,
     publishedOperators.value,
+    publishedWeaponSources.value,
   );
   if (source === undefined) return undefined;
   switch (source.kind) {
