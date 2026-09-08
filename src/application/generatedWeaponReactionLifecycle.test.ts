@@ -14,6 +14,7 @@ import { generatedWeaponDefinitions } from '../data/equipment/generated-weapons/
 import { gameDataRepository } from '../data/gameDataRepository';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { ScenarioSimulationService } from './scenarioSimulationService';
+import { staticEquipmentContribution } from './testSupport/staticEquipmentContribution';
 
 // 边界测试使用受控技能排程，不冒充真实干员动作时序。武器、公共反应定义、装备安装、
 // 附着消费、接收方 Buff 事件和最终 hit 全部走生产管线，不直接发布事件或手加武器 Buff。
@@ -249,7 +250,7 @@ async function simulatePair(slug: string, tier: number, plans: readonly ActorPla
   const weapon: WeaponDefinition = generatedWeaponDefinitions.find(weapon => weapon.slug === slug)!;
   const baselineWeapon: WeaponDefinition = {
     ...weapon,
-    traits: weapon.traits.map(({ initializationSequence: _init, ...trait }) => trait),
+    traits: weapon.traits.map(staticEquipmentContribution),
   };
   const run = async (definition: WeaponDefinition) => {
     let scenario = createEmptyScenario('reaction-lifecycle', '受控反应时序边界');

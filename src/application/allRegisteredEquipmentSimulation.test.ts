@@ -10,6 +10,7 @@ import { skillSettings } from '../data/combat/skillSettings';
 import { createGameDataRepository, gameDataRepository } from '../data/gameDataRepository';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { ScenarioSimulationService } from './scenarioSimulationService';
+import { staticEquipmentContribution } from './testSupport/staticEquipmentContribution';
 
 const weapons = gameDataRepository.getWeapons();
 const gears = gameDataRepository.getGears();
@@ -365,12 +366,7 @@ function createRepositoryWithoutGearSetRuntime(gearSetSlug: string) {
     gears: gameDataRepository.getGears(),
     gearSets: gameDataRepository.getGearSets().map(definition => {
       if (definition.slug !== gearSetSlug) return definition;
-      const {
-        buffDefinitions: _buffDefinitions,
-        initializationSequence: _initializationSequence,
-        ...staticOnly
-      } = definition;
-      return staticOnly;
+      return staticEquipmentContribution(definition);
     }),
     commonBuffDefinitions: gameDataRepository.getCommonBuffDefinitions?.(),
     commonAbilityEntityDefinitions: gameDataRepository.getCommonAbilityEntityDefinitions?.(),

@@ -9,6 +9,7 @@ import { generatedWeaponDefinitions } from '../data/equipment/generated-weapons/
 import { createGameDataRepository, gameDataRepository } from '../data/gameDataRepository';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { ScenarioSimulationService } from './scenarioSimulationService';
+import { staticEquipmentContribution } from './testSupport/staticEquipmentContribution';
 
 // 候选定义必须实际经过生产编译/战斗环境；不借用旧武器行为，也不依赖本地原始资源。
 const candidates: readonly WeaponDefinition[] = generatedWeaponDefinitions;
@@ -30,6 +31,11 @@ describe('生成武器的正式模拟门禁', () => {
       attributes: { ...source.attributes, will: source.attributes.will.map(() => 1000) },
     };
     const active = await simulateWeapon(weapon, operator, ['comboSkill', 'comboSkill']);
+    const baseline = await simulateWeapon(
+      { ...weapon, traits: weapon.traits.map(staticEquipmentContribution) },
+      operator,
+      ['comboSkill', 'comboSkill'],
+    );
     const burst = (run: typeof active) =>
       run.receiptEntries.find(
         e => e.event === 'DamageApplied' && e.data?.spellBurstType === 'Cryst',
@@ -44,6 +50,14 @@ describe('生成武器的正式模拟门禁', () => {
     expect(active.receiptEntries.indexOf(buff!)).toBeLessThan(active.receiptEntries.indexOf(hit!));
     expect(active.executionDiagnostics).toEqual([]);
     expect(hit!.data?.damageScaleMultiplier).toBeCloseTo(1.168);
+    expect(burst(baseline)?.data?.damageScaleMultiplier).toBeCloseTo(1);
+    expect(burst(baseline)?.data?.attack).toBe(hit!.data?.attack);
+    expect(
+      baseline.receiptEntries.some(
+        e => e.event === 'BuffApplied' && String(e.data?.buffId).startsWith('buff_wpn_funnel_0016'),
+      ),
+    ).toBe(false);
+    expect(baseline.executionDiagnostics).toEqual([]);
   });
   it.each([1, 9])('艾维文娜连续排轴 %i：三把连携枪由战技回收并执行正式回调伤害', async tier => {
     const weapon = candidates.find(item => item.slug === 'wpn_lance_0006')!;
@@ -87,7 +101,7 @@ describe('生成武器的正式模拟门禁', () => {
       const levels = weapon.traits.map(() => tier);
       const disabled = {
         ...weapon,
-        traits: weapon.traits.map(({ initializationSequence: _init, ...trait }) => trait),
+        traits: weapon.traits.map(staticEquipmentContribution),
       };
       const result = await simulateWeapon(weapon, owner, groups, levels, [teammate], options);
       const baseline = await simulateWeapon(disabled, owner, groups, levels, [teammate], options);
@@ -181,7 +195,7 @@ describe('生成武器的正式模拟门禁', () => {
     const options = { teammateSkillGroup: 'battleSkill', teammateStartFrames: [1, 300] };
     const disabled = {
       ...weapon,
-      traits: weapon.traits.map(({ initializationSequence: _init, ...trait }) => trait),
+      traits: weapon.traits.map(staticEquipmentContribution),
     };
     const teammates = [repository.getOperator('perlica')!, teammate];
     const result = await simulateWeapon(weapon, owner, groups, levels, teammates, options);
@@ -225,7 +239,7 @@ describe('生成武器的正式模拟门禁', () => {
     const operator = repository.getOperator('lifeng')!;
     const disabled = {
       ...weapon,
-      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+      traits: weapon.traits.map(staticEquipmentContribution),
     };
     // 正式物理控制先破防、再次命中才形成倒地；第二次战技才会触发物理异常武器事件。
     const skillGroups = ['battleSkill', 'battleSkill'];
@@ -273,7 +287,7 @@ describe('生成武器的正式模拟门禁', () => {
     const operator = repository.getOperator('da-pan')!;
     const disabled = {
       ...weapon,
-      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+      traits: weapon.traits.map(staticEquipmentContribution),
     };
     const active = await simulateWeapon(weapon, operator, [
       'battleSkill',
@@ -382,7 +396,7 @@ describe('生成武器的正式模拟门禁', () => {
     const weapon = candidates.find(item => item.slug === 'wpn_funnel_0003')!;
     const disabled = {
       ...weapon,
-      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+      traits: weapon.traits.map(staticEquipmentContribution),
     };
     const result = await simulateWeapon(disabled, repository.getOperator('arcane')!, [
       'comboSkill',
@@ -399,7 +413,7 @@ describe('生成武器的正式模拟门禁', () => {
     const weapon = candidates.find(item => item.slug === 'wpn_funnel_0003')!;
     const disabled = {
       ...weapon,
-      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+      traits: weapon.traits.map(staticEquipmentContribution),
     };
     const result = await simulateWeapon(disabled, repository.getOperator('arcane')!, [
       'battleSkill',
@@ -442,7 +456,7 @@ describe('生成武器的正式模拟门禁', () => {
     const teammates = ['antal', 'wulfgard', 'xaihi'].map(slug => repository.getOperator(slug)!);
     const disabled = {
       ...weapon,
-      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+      traits: weapon.traits.map(staticEquipmentContribution),
     };
     const active = await simulateWeapon(weapon, owner, ['ultimate'], undefined, teammates);
     const baseline = await simulateWeapon(disabled, owner, ['ultimate'], undefined, teammates);
@@ -474,7 +488,7 @@ describe('生成武器的正式模拟门禁', () => {
       repository.getOperators().find(item => item.weaponType === 'greatsword')!;
     const disabled: WeaponDefinition = {
       ...weapon,
-      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+      traits: weapon.traits.map(staticEquipmentContribution),
     };
     const active = await simulateWeapon(weapon, operator, ['battleSkill', 'basicAttack']);
     const baseline = await simulateWeapon(disabled, operator, ['battleSkill', 'basicAttack']);
@@ -539,7 +553,7 @@ describe('生成武器的正式模拟门禁', () => {
     const operator = repository.getOperator('wulfgard')!;
     const disabled: WeaponDefinition = {
       ...weapon,
-      traits: weapon.traits.map(({ eventHandlers: _events, ...trait }) => trait),
+      traits: weapon.traits.map(staticEquipmentContribution),
     };
     const groups = ['battleSkill', 'comboSkill', 'basicAttack'];
     const active = await simulateWeapon(weapon, operator, groups);

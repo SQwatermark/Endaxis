@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-09：静态装备对照修复，未发现定义替换/缓存缺陷
+
+根因是四二式肃阵还有skill3:event:1:sequence:0的enterFight监听，单删初始化仍在
+入战时安装will分支。compileEquipment分别编译eventHandlers/initializationSequence，
+equipmentEventRuntime分别注册/执行；传入getWeapon定义确实生效，没有证据说明被绕过。
+前轮0.448攻击来自静态panelStat词条，本应保留，不能把它当作初始化未禁用的证据。
+
+新增测试专用staticEquipmentContribution统一移除初始化序列/黑板、事件监听及Buff
+资源，保留静态modifiers。两个武器测试文件与全注册装备套装对照共用。首爆对照新增
+断言：武器Buff为零、伤害乘区1，对照与启用组attack相同；启用组仍1.168且Buff先于hit。
+三文件1338项通过，无跳过/预期失败；不是全量套件，也没有视觉验收。正式模拟和数据
+均未修改，不需要改写真实轴伤害报告。后续回到公开轴剩余伤害乘区/状态展示对账。
+应用vue-tsc通过；随后同文件其余7处仅删除eventHandlers的禁用构造也统一使用helper，
+避免反方向遗漏初始化入口。类型检查后仅替换同类型helper调用，相关三文件再次重跑。
+
 ## 2026-09-09：四二式肃阵前置增益应作用于触发爆发
 
 原始cryst_cryst_triggered动作顺序为TriggerSpellBurstEventAction→ReadSkillSettingData

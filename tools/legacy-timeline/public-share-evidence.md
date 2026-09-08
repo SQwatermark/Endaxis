@@ -1,5 +1,24 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：武器禁用对照的问题是遗漏enterFight，不是生产缓存
+
+四二式肃阵生成skill3另含abilityEvent=enterFight，key=skill3:event:1:sequence:0，
+按智识/意志重新安装wisd/will Buff。删除initializationSequence没有移除这一入口，
+所以前轮对照继续触发爆发增益。compileEquipment.ts同时编译两种入口，
+equipmentEventRuntime.ts独立注册事件；当前没有证据支持getWeapon被绕过或缓存错用。
+前轮回执attackPercent=0.448是静态词条，不应因关闭动态行为而消失，纠正先前疑点。
+
+新增src/application/testSupport/staticEquipmentContribution.ts统一构造静态贡献：
+移除初始化序列/初始化黑板/eventHandlers/Buff定义，保留身份、等级与modifiers。
+generatedWeaponsSimulation、generatedWeaponReactionLifecycle及
+allRegisteredEquipmentSimulation的相应对照使用同一helper，不修改生产协议/运行时。
+四二式肃阵回归补真正静态对照：无任何该武器Buff、首爆乘区1、attack与启用组一致；
+启用组首爆乘区1.168且Buff回执先于伤害。原生前置事件结论因此得到有效对照支持。
+三个文件1338项全部通过，无跳过/预期失败。不是全量套件或视觉验收；不影响正式轴
+报告数值。下一步继续剩余伤害/状态差异，不把测试辅助问题扩展为未经证明的生产修复。
+应用vue-tsc通过。同文件其余7处只删除eventHandlers的禁用对照也统一使用helper，
+不再分别假设某把武器只有初始化或只有事件入口；随后重新运行相关三文件。
+
 ## 2026-09-09：四二式肃阵爆发前监听与旧版后置派发不同
 
 原始buff_common_cryst_cryst_triggered.json中同一序列先TriggerSpellBurstEventAction
