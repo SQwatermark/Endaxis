@@ -383,6 +383,36 @@ it.each([
   expect(normal.end - normal.start).toBeLessThanOrEqual(seconds * 30);
 });
 
+it.each([true, false])('赫拉芬格连携增益要求目标已有寒冷附着（附着=%s）', async withCryo => {
+  const scenario = createEmptyScenario('khravengger-cryo-gate', '连携目标附着条件');
+  scenario.tracks[0] = track('xaihi', withCryo ? [['comboSkill', 'comboSkill', 10]] : []);
+  const owner = track('last-rite', [['comboSkill', 'comboSkill', 100]]);
+  owner.weapon = {
+    weaponSlug: 'wpn_claym_0013',
+    level: 90,
+    tuned: true,
+    potential: 0,
+    traitLevels: [9, 9, 4],
+  };
+  scenario.tracks[1] = owner;
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 250);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  expect(
+    result.receiptEntries.some(e => e.event === 'DamageApplied' && e.sourceId === 'last-rite'),
+  ).toBe(true);
+  const applied = result.receiptEntries.filter(
+    e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_wpn_claym_0013_combo_skill',
+  );
+  if (withCryo) {
+    // The 0.1-second marker is a hit debounce, not a once-per-cast guard.
+    expect(applied).toHaveLength(2);
+    expect(applied[1]!.frame - applied[0]!.frame).toBeGreaterThanOrEqual(3);
+    for (const entry of applied) expect(entry.targetId).toBe('last-rite');
+  } else expect(applied).toEqual([]);
+});
+
 it('赫拉芬格战技附着增益使用15秒默认时钟，不被全屏终结技顺延', async () => {
   async function simulate(withUltimate: boolean) {
     const scenario = createEmptyScenario('khravengger-clock', '武器增益默认时钟');
