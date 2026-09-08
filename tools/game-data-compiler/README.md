@@ -884,7 +884,7 @@ npm run generate:game-data:operator-active-skills -- --complete `
   --buff-data-root tmp/game-data-sources/BuffData `
   --ability-entity-catalog tmp/game-data-sources/AbilityEntityData `
   --gameplay-tag-catalog src/data/combat/gameplayTagCatalog.generated.ts `
-  --time-dilation-catalog src/data/combat/timeDilationCatalog.ts `
+  --time-dilation-catalog src/data/combat/timeDilationCatalog.generated.ts `
   --global-buff-catalog src/data/global-buffs/global-buff-templates.generated.json `
   --skill-setting-catalog src/data/combat/skill-setting.generated.json `
   --slug avywenna `

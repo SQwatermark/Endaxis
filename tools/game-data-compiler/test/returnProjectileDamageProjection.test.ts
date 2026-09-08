@@ -408,6 +408,27 @@ describe('公共回调伤害投影', () => {
     const key =
       graph.actionGroup.timelineActions[0]!.sequence.actions[0]!.body.value.action
         .inlineCurveKeys[0]!;
+    const independent = compileImmediateProjectileCallbackSkillSource({
+      graph: {
+        ...graph,
+        actionGroup: {
+          ...graph.actionGroup,
+          timelineActions: [
+            ...graph.actionGroup.timelineActions,
+            ...graph.actionGroup.timelineActions,
+          ],
+        },
+      },
+      context: returnProjectionContext,
+      extensions: { resolveTimeDilationPriority: () => 10 },
+    });
+    expect(independent.sequence.steps).toHaveLength(2);
+    for (const step of independent.sequence.steps)
+      expect(step).toMatchObject({
+        kind: 'withActionBlackboardScope',
+        parameters: { alwaysNext: true, shareParentBlackboard: true },
+        body: { steps: [{ kind: 'startTimeDilation' }] },
+      });
     for (const mode of [0, 1, 2, 3]) {
       key.weightedMode = mode;
       const step = compileImmediateProjectileCallbackSkillSource({
@@ -455,6 +476,62 @@ describe('公共回调伤害投影', () => {
         extensions: { resolveTimeDilationPriority: () => 10 },
       }),
     ).toThrow('delayed projectile callback reads action blackboard');
+    const scheduled: { startFrame: number; endFrame: number; sequence: unknown }[] = [];
+    const runtime = parseProjectileRuntimeSource(
+      {
+        ...runtimeFixtures[0]!,
+        hitOnReach: true,
+        blockLayerDef: { value: 1, name: 'WallAndGround' },
+      },
+      'delayed.projectile',
+    );
+    compileZeroDistanceFirstTickHitProjectileSource({
+      sourcePath: 'delayed.launch',
+      launch: {
+        ...launch,
+        assignEntityBlackboard: false,
+        assignments: [],
+        callbacks: launch.callbacks.map(callback => ({
+          ...callback,
+          enabled: callback.event === 'hit',
+          skillId: callback.event === 'hit' ? graph.skillId : callback.skillId,
+        })),
+        target: { ...launch.target, targetSource: 'Source', targetGroupKey: '' },
+      },
+      runtime,
+      template: null,
+      hitGraph: {
+        ...graph,
+        declaredBlackboard: [{ key: 'dynamic_duration', value: 0.2, isDynamic: false }],
+        actionGroup: {
+          ...graph.actionGroup,
+          timelineActions: [
+            graph.actionGroup.timelineActions[0]!,
+            { ...graph.actionGroup.timelineActions[0]!, endFrame: 12 },
+          ],
+        },
+      },
+      callbackContext: {
+        ...returnProjectionContext,
+        scheduleRelativeProjectileCallback: item => scheduled.push(item),
+      },
+      callbackExtensions: { resolveTimeDilationPriority: () => 10 },
+    });
+    expect(scheduled).toMatchObject([
+      { startFrame: 1, endFrame: 15 },
+      { startFrame: 1, endFrame: 12 },
+    ]);
+    for (const item of scheduled) {
+      expect(item.sequence).toMatchObject({
+        steps: [
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: { initialValues: { dynamic_duration: 0.2 }, alwaysNext: true },
+            body: { steps: [{ kind: 'startTimeDilation' }] },
+          },
+        ],
+      });
+    }
   });
 
   it('公共序列入口只在宿主提供投射物投影扩展时消费 LaunchProjectile', () => {

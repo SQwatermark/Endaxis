@@ -71,7 +71,7 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
         { lifetime: 'execution', alwaysNext: true },
       ),
     ),
-    undefined,
+    {},
     { lifetime: 'execution' },
   ),
 );
@@ -132,44 +132,37 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
         { lifetime: 'execution', alwaysNext: true },
       ),
     ),
-    undefined,
+    {},
     { lifetime: 'execution' },
   ),
 );
 
-const sharedActionSequence5: ActionSequenceDefinition = sequence(
+const sharedActionSequence6: ActionSequenceDefinition = sequence(
   branch(
     {
-      kind: 'actionValueCompare',
-      left: { kind: 'blackboard', key: 'exist_talent_1', fallback: 0 },
-      operator: 'greaterOrEqual',
-      right: { kind: 'constant', value: 1 },
+      kind: 'all',
+      conditions: [
+        {
+          kind: 'actionValueCompare',
+          left: { kind: 'blackboard', key: 'potential_3', fallback: 0 },
+          operator: 'equal',
+          right: { kind: 'constant', value: 1 },
+        },
+        {
+          kind: 'actionValueCompare',
+          left: { kind: 'blackboard', key: 'EntityBB_bounced', fallback: 0 },
+          operator: 'equal',
+          right: { kind: 'constant', value: 0 },
+        },
+      ],
     },
     sequence(
-      branch(
-        {
-          kind: 'entityTagMatch',
-          target: 'enemy',
-          tagQueryType: 'hasAny',
-          tags: [
-            'Skill/Character/Common/SpellInflict/CrystInflict',
-            'Skill/Character/Common/SpellStatus/Frozen',
-          ],
-        },
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0011_seraph_talent_1_crystup',
-            target: 'enemy',
-            inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              cryst_up: { kind: 'blackboard', key: 'cryst_up' },
-              duration: { kind: 'blackboard', key: 'duration' },
-            },
-          }),
-        ),
-        undefined,
-        { alwaysNext: true },
-      ),
+      step('modifyActionValue', {
+        key: 'EntityBB_bounced',
+        operation: 'assign',
+        value: { kind: 'constant', value: 1 },
+      }),
+      step('mergeContextTargets', { saveToContextKey: 'extra_target', sources: [] }),
     ),
     undefined,
     { alwaysNext: true },
@@ -201,6 +194,70 @@ const sharedActionSequence5: ActionSequenceDefinition = sequence(
     coefficient: { kind: 'constant', value: 1 },
     recipient: 'caster',
   }),
+);
+
+const sharedActionSequence5: ActionSequenceDefinition = sequence(
+  {
+    kind: 'withActionBlackboardScope',
+    parameters: {
+      scopeKey: 'chr_0011_seraph_combo_skill_projhit:immediate-timeline:0',
+      lifetime: 'execution',
+      alwaysNext: true,
+      shareParentBlackboard: true,
+      initialValues: {},
+      inheritParent: true,
+    },
+    body: sequence(
+      branch(
+        {
+          kind: 'actionValueCompare',
+          left: { kind: 'blackboard', key: 'exist_talent_1', fallback: 0 },
+          operator: 'greaterOrEqual',
+          right: { kind: 'constant', value: 1 },
+        },
+        sequence(
+          branch(
+            {
+              kind: 'entityTagMatch',
+              target: 'enemy',
+              tagQueryType: 'hasAny',
+              tags: [
+                'Skill/Character/Common/SpellInflict/CrystInflict',
+                'Skill/Character/Common/SpellStatus/Frozen',
+              ],
+            },
+            sequence(
+              step('applyBuff', {
+                buffId: 'buff_chr_0011_seraph_talent_1_crystup',
+                target: 'enemy',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  cryst_up: { kind: 'blackboard', key: 'cryst_up' },
+                  duration: { kind: 'blackboard', key: 'duration' },
+                },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        undefined,
+        { alwaysNext: true },
+      ),
+    ),
+  },
+  {
+    kind: 'withActionBlackboardScope',
+    parameters: {
+      scopeKey: 'chr_0011_seraph_combo_skill_projhit:immediate-timeline:1',
+      lifetime: 'execution',
+      alwaysNext: true,
+      shareParentBlackboard: true,
+      initialValues: {},
+      inheritParent: true,
+    },
+    body: instantiateActionSequence(sharedActionSequence6, ['\u0000endaxis-generated-identity:0']),
+  },
 );
 
 const sharedActionSequence4: ActionSequenceDefinition = sequence(
@@ -238,7 +295,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
     ]),
-    undefined,
+    {},
     { lifetime: 'execution' },
   ),
 );
@@ -782,12 +839,12 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
             instantiateActionSequence(sharedActionSequence3, [
               'SkillData.chr_0011_seraph_combo_skill.actionGroupData.timelineActions[2]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0011_seraph_combo_skill',
               'SkillData.chr_0011_seraph_combo_skill.actionGroupData.timelineActions[2]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0011_seraph_combo_skill_projhit',
-              'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenTrue/steps/2/body/steps/0/body/steps/2',
+              'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenTrue/steps/2/body/steps/0/body/steps/1/body/steps/2',
             ]),
             instantiateActionSequence(sharedActionSequence3, [
               'SkillData.chr_0011_seraph_combo_skill.actionGroupData.timelineActions[2]._sequenceActionData.actionData[1].failActions.actionData[0]:projectile_chr_0011_seraph_combo_skill',
               'SkillData.chr_0011_seraph_combo_skill.actionGroupData.timelineActions[2]._sequenceActionData.actionData[1].failActions.actionData[0]:chr_0011_seraph_combo_skill_projhit',
-              'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenFalse/steps/2/body/steps/0/body/steps/2',
+              'chr_0011_seraph_combo_skill:/scheduledSequences/1/sequence/steps/1/whenFalse/steps/2/body/steps/0/body/steps/1/body/steps/2',
             ]),
             { alwaysNext: true },
           ),

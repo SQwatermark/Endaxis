@@ -16,73 +16,99 @@ import {
 } from '../../definitionHelpers';
 
 const sharedActionSequence1: ActionSequenceDefinition = sequence(
-  step('startTimeDilation', {
-    scope: 'global',
-    durationSeconds: { kind: 'constant', value: 0.2 },
-    slot: 'TimeDilation/Layer/Entity/HitStop',
-    priority: 10,
-    curve: {
-      kind: 'inline',
-      keys: [
-        {
-          time: 0,
-          value: 0.2,
-          inTangent: 0.04379496,
-          outTangent: 0.04379496,
-          weightedMode: 0,
-          inWeight: 0,
-          outWeight: 0,
-        },
-        {
-          time: 0.8847446,
-          value: 0.2387474,
-          inTangent: 0.04379496,
-          outTangent: 6.604918,
-          weightedMode: 0,
-          inWeight: 0,
-          outWeight: 0,
-        },
-        {
-          time: 1,
-          value: 1,
-          inTangent: 6.604918,
-          outTangent: 6.604918,
-          weightedMode: 0,
-          inWeight: 0,
-          outWeight: 0,
-        },
-      ],
+  {
+    kind: 'withActionBlackboardScope',
+    parameters: {
+      scopeKey: 'chr_0012_avywen_combo_skill_lance_back_reach:immediate-timeline:0',
+      lifetime: 'execution',
+      alwaysNext: true,
+      shareParentBlackboard: true,
+      initialValues: {},
+      inheritParent: true,
     },
-    finishByAction: false,
-    ignoredTargets: ['controlled'],
-  }),
-  branch(
-    {
-      kind: 'actionValueCompare',
-      left: { kind: 'blackboard', key: 'EntityBB_talent0', fallback: 0 },
-      operator: 'greater',
-      right: { kind: 'constant', value: 0 },
+    body: sequence(
+      step('startTimeDilation', {
+        scope: 'global',
+        durationSeconds: { kind: 'constant', value: 0.2 },
+        slot: 'TimeDilation/Layer/Entity/HitStop',
+        priority: 10,
+        curve: {
+          kind: 'inline',
+          keys: [
+            {
+              time: 0,
+              value: 0.2,
+              inTangent: 0.04379496,
+              outTangent: 0.04379496,
+              weightedMode: 0,
+              inWeight: 0,
+              outWeight: 0,
+            },
+            {
+              time: 0.8847446,
+              value: 0.2387474,
+              inTangent: 0.04379496,
+              outTangent: 6.604918,
+              weightedMode: 0,
+              inWeight: 0,
+              outWeight: 0,
+            },
+            {
+              time: 1,
+              value: 1,
+              inTangent: 6.604918,
+              outTangent: 6.604918,
+              weightedMode: 0,
+              inWeight: 0,
+              outWeight: 0,
+            },
+          ],
+        },
+        finishByAction: false,
+        ignoredTargets: ['controlled'],
+      }),
+    ),
+  },
+  {
+    kind: 'withActionBlackboardScope',
+    parameters: {
+      scopeKey: 'chr_0012_avywen_combo_skill_lance_back_reach:immediate-timeline:1',
+      lifetime: 'execution',
+      alwaysNext: true,
+      shareParentBlackboard: true,
+      initialValues: {},
+      inheritParent: true,
     },
-    sequence(
+    body: sequence(
       branch(
         {
-          kind: 'buffIdStackCompare',
-          target: 'caster',
-          buffIds: ['buff_chr_0012_avywen_talent_0'],
-          operator: 'greaterOrEqual',
-          value: { kind: 'constant', value: 1 },
+          kind: 'actionValueCompare',
+          left: { kind: 'blackboard', key: 'EntityBB_talent0', fallback: 0 },
+          operator: 'greater',
+          right: { kind: 'constant', value: 0 },
         },
         sequence(
-          step('changeResourceByActionValue', {
-            resource: 'ultimateEnergy',
-            amount: { kind: 'blackboard', key: 'EntityBB_talent0' },
-            coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
-          }),
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0012_avywen_talent_0'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'ultimateEnergy',
+                amount: { kind: 'blackboard', key: 'EntityBB_talent0' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'caster',
+              }),
+            ),
+          ),
         ),
       ),
     ),
-  ),
+  },
 );
 
 export const avywennaBasicAttack1: SkillDefinition = withSkillBlackboard(

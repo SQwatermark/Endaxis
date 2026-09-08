@@ -99,8 +99,8 @@ describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
       entry => entry.event === 'ElementalInflictionApplied',
     );
     expect(inflictions).toHaveLength(2);
-    // 第 1 帧执行起始项并进入首 tick；相对第 30 帧的后续项在实际第 30 帧到达。
-    expect(inflictions.map(entry => entry.frame)).toEqual([1, 30]);
+    // 探针在第1帧输入；技能相对第30帧对应战斗第31帧，不在输入帧提前推进。
+    expect(inflictions.map(entry => entry.frame)).toEqual([1, 31]);
     for (const entry of inflictions)
       expect(entry).toMatchObject({
         sourceId: 'track:buff',
@@ -114,7 +114,7 @@ describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
     const root = 'buff_chr_0012_avywen_ultimate_skill_debuff';
     const carrier = 'buff_common_affixes_vulnerable_pulse';
     const child = 'buff_common_affixes_vulnerable_pulse_default_child';
-    const expiryFrame = 10 + 10 * COMBAT_FRAMES_PER_SECOND;
+    const expiryFrame = 1 + 10 + 10 * COMBAT_FRAMES_PER_SECOND;
     const closure = compileStandardStumpBuffClosure(
       [root],
       {
@@ -197,7 +197,7 @@ describe('艾维文娜原始 Buff → 公共编译 → 生产模拟', () => {
     const added = result.receiptEntries.filter(entry => entry.event === 'BuffApplied');
     expect(added.map(entry => entry.data!.buffId)).toEqual([child, carrier, root]);
     expect(added.map(entry => entry.sourceId)).toEqual(['enemy', 'track:buff', 'track:buff']);
-    expect(added.every(entry => entry.targetId === 'enemy' && entry.frame === 10)).toBe(true);
+    expect(added.every(entry => entry.targetId === 'enemy' && entry.frame === 11)).toBe(true);
     const finished = result.receiptEntries.filter(entry => entry.event === 'BuffFinished');
     expect(finished.map(entry => entry.data!.buffId).sort()).toEqual([root, carrier, child].sort());
     expect(finished.map(entry => ({ id: entry.data!.buffId, frame: entry.frame }))).toEqual([

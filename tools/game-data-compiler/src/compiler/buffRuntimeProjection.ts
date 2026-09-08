@@ -1,4 +1,5 @@
 import { projectGameplayTags } from './combatProjectionCommon.ts';
+import { mergeIndependentActionSequencesSource } from './independentActionSequences.ts';
 import { buffHasNoAffixIdentityWriter } from './buffCastIdentityProof.ts';
 import { projectPureDamageModifierCondition } from './damageModifierConditionProjection.ts';
 import {
@@ -3166,24 +3167,10 @@ function signed(value: number, negate: boolean): number {
 function mergeSequences(
   sequences: readonly CompiledBuffSequenceSource[],
 ): CompiledBuffSequenceSource {
-  if (sequences.length <= 1) return sequences[0] ?? { steps: [] };
   // BuffEventAction / IgniteEventAction 的 actions 数组是彼此独立的回调序列：
   // 单个回调可以按原生返回值短路自身，但失败不能阻止后续回调执行。
   // 它们仍属于同一 Buff 实例，必须共享 Buff direct blackboard，不能把前一回调的写入丢掉。
-  return {
-    steps: sequences.map((body, index) => ({
-      kind: 'withActionBlackboardScope' as const,
-      parameters: {
-        scopeKey: `native-buff-callback:${index}`,
-        lifetime: 'execution' as const,
-        alwaysNext: true,
-        shareParentBlackboard: true,
-        initialValues: {},
-        inheritParent: true,
-      },
-      body,
-    })),
-  };
+  return mergeIndependentActionSequencesSource(sequences, 'native-buff-callback');
 }
 
 const STACKING_TYPES: Record<BuffStackingTypeSource, BuffStackingType> = {

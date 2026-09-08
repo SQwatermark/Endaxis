@@ -17,48 +17,7 @@ import {
   withSkillBlackboard,
 } from '../../definitionHelpers';
 
-const sharedActionSequence43: ActionSequenceDefinition = sequence(
-  branch(
-    {
-      kind: 'actionValueCompare',
-      left: { kind: 'constant', value: 1 },
-      operator: 'greaterOrEqual',
-      right: { kind: 'constant', value: 1 },
-    },
-    sequence(
-      step('applyBuff', {
-        buffId: 'buff_chr_0034_typhoea_combo_skill_arrow_hittimes',
-        target: 'enemy',
-        inheritSourceSkillCastInfo: true,
-      }),
-      step('calculateActionValue', {
-        key: 'atk_scale',
-        operation: 'divide',
-        left: { kind: 'blackboard', key: 'atk_scale' },
-        right: { kind: 'constant', value: 7 },
-      }),
-      step(
-        'dealDamage',
-        {
-          damageType: 'nature',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: ['comboSkill'],
-          features: ['canBreakWeakness'],
-          stagger: { kind: 'blackboard', key: 'poise' },
-        },
-        '\u0000endaxis-generated-identity:0',
-      ),
-    ),
-  ),
-  step('spawnAbilityEntity', {
-    abilityEntityId: 'abilityentity_chr_0034_typhoea_combo_presistdamage',
-    childSkillId: 'chr_0034_typhoea_combo_persistentdamage',
-    inheritActionBlackboard: true,
-    dieWhenSourceDies: false,
-  }),
-);
-
-const sharedActionSequence37: ActionSequenceDefinition = sequence(
+const sharedActionSequence38: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -271,7 +230,7 @@ const sharedActionSequence24: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence46: ActionSequenceDefinition = sequence(
+const sharedActionSequence47: ActionSequenceDefinition = sequence(
   step('calculateActionValue', {
     key: 'trigger_times',
     operation: 'add',
@@ -311,18 +270,18 @@ const sharedActionSequence46: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence40: ActionSequenceDefinition = sequence(
+const sharedActionSequence41: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
     { atb: 0, atk_scale: 0, duration: 0, hit_index: 0 },
     true,
-    instantiateActionSequence(sharedActionSequence37, ['\u0000endaxis-generated-identity:1']),
+    instantiateActionSequence(sharedActionSequence38, ['\u0000endaxis-generated-identity:1']),
     undefined,
     { lifetime: 'execution', alwaysNext: true },
   ),
 );
 
-const sharedActionSequence36: ActionSequenceDefinition = sequence(
+const sharedActionSequence37: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
     {
@@ -335,67 +294,111 @@ const sharedActionSequence36: ActionSequenceDefinition = sequence(
       spellinflict_damage_add: 0.3,
     },
     true,
-    instantiateActionSequence(sharedActionSequence37, ['\u0000endaxis-generated-identity:1']),
+    instantiateActionSequence(sharedActionSequence38, ['\u0000endaxis-generated-identity:1']),
     undefined,
     { lifetime: 'execution', alwaysNext: true },
   ),
 );
 
-const sharedActionSequence42: ActionSequenceDefinition = sequence(
+const sharedActionSequence40: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
-    {
-      atb: 0,
-      atk_scale: 0,
-      atk_scale_persistent: 0,
-      hit_index: 0,
-      naturalinflect_stack: 0,
-      persistent_naturalburst_increase: 0,
-      persistent_slow: 0,
-      persistent_time: 0,
-      poise: 10,
-      recover_bufftime: 12,
-      usp: 0,
-    },
+    {},
     true,
-    instantiateActionSequence(sharedActionSequence43, ['\u0000endaxis-generated-identity:1']),
-    undefined,
-    { lifetime: 'execution', alwaysNext: true },
+    instantiateActionSequence(sharedActionSequence41, [
+      '\u0000endaxis-generated-identity:1',
+      '\u0000endaxis-generated-identity:2',
+    ]),
+    {},
+    { lifetime: 'execution' },
+  ),
+);
+
+const sharedActionSequence44: ActionSequenceDefinition = sequence(
+  {
+    kind: 'withActionBlackboardScope',
+    parameters: {
+      scopeKey: 'chr_0034_typhoea_combo_01_projhit:immediate-timeline:0',
+      lifetime: 'execution',
+      alwaysNext: true,
+      shareParentBlackboard: true,
+      initialValues: {},
+      inheritParent: true,
+    },
+    body: sequence(
+      branch(
+        {
+          kind: 'actionValueCompare',
+          left: { kind: 'constant', value: 1 },
+          operator: 'greaterOrEqual',
+          right: { kind: 'constant', value: 1 },
+        },
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0034_typhoea_combo_skill_arrow_hittimes',
+            target: 'enemy',
+            inheritSourceSkillCastInfo: true,
+          }),
+          step('calculateActionValue', {
+            key: 'atk_scale',
+            operation: 'divide',
+            left: { kind: 'blackboard', key: 'atk_scale' },
+            right: { kind: 'constant', value: 7 },
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+            },
+            '\u0000endaxis-generated-identity:0',
+          ),
+        ),
+      ),
+    ),
+  },
+  {
+    kind: 'withActionBlackboardScope',
+    parameters: {
+      scopeKey: 'chr_0034_typhoea_combo_01_projhit:immediate-timeline:1',
+      lifetime: 'execution',
+      alwaysNext: true,
+      shareParentBlackboard: true,
+      initialValues: {},
+      inheritParent: true,
+    },
+    body: sequence(
+      step('spawnAbilityEntity', {
+        abilityEntityId: 'abilityentity_chr_0034_typhoea_combo_presistdamage',
+        childSkillId: 'chr_0034_typhoea_combo_persistentdamage',
+        inheritActionBlackboard: true,
+        dieWhenSourceDies: false,
+      }),
+    ),
+  },
+);
+
+const sharedActionSequence36: ActionSequenceDefinition = sequence(
+  withActionBlackboardScope(
+    '\u0000endaxis-generated-identity:0',
+    {},
+    true,
+    instantiateActionSequence(sharedActionSequence37, [
+      '\u0000endaxis-generated-identity:1',
+      '\u0000endaxis-generated-identity:2',
+    ]),
+    {},
+    { lifetime: 'execution' },
   ),
 );
 
 const sharedActionSequence39: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    {},
-    true,
-    instantiateActionSequence(sharedActionSequence40, [
-      '\u0000endaxis-generated-identity:1',
-      '\u0000endaxis-generated-identity:2',
-    ]),
-    {},
-    { lifetime: 'execution' },
-  ),
-);
-
-const sharedActionSequence35: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    {},
-    true,
-    instantiateActionSequence(sharedActionSequence36, [
-      '\u0000endaxis-generated-identity:1',
-      '\u0000endaxis-generated-identity:2',
-    ]),
-    {},
-    { lifetime: 'execution' },
-  ),
-);
-
-const sharedActionSequence38: ActionSequenceDefinition = sequence(
   forEachTarget(
     'enemy',
-    instantiateActionSequence(sharedActionSequence39, [
+    instantiateActionSequence(sharedActionSequence40, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -426,10 +429,10 @@ const sharedActionSequence13: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence34: ActionSequenceDefinition = sequence(
+const sharedActionSequence35: ActionSequenceDefinition = sequence(
   forEachTarget(
     'enemy',
-    instantiateActionSequence(sharedActionSequence35, [
+    instantiateActionSequence(sharedActionSequence36, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -437,7 +440,7 @@ const sharedActionSequence34: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence44: ActionSequenceDefinition = sequence({
+const sharedActionSequence45: ActionSequenceDefinition = sequence({
   kind: 'switch',
   parameters: {
     choice: { kind: 'blackboard', key: 'EntityBB_floating_attack_index' },
@@ -519,7 +522,30 @@ const sharedActionSequence44: ActionSequenceDefinition = sequence({
   ],
 });
 
-const sharedActionSequence41: ActionSequenceDefinition = sequence(
+const sharedActionSequence43: ActionSequenceDefinition = sequence(
+  withActionBlackboardScope(
+    '\u0000endaxis-generated-identity:0',
+    {
+      atb: 0,
+      atk_scale: 0,
+      atk_scale_persistent: 0,
+      hit_index: 0,
+      naturalinflect_stack: 0,
+      persistent_naturalburst_increase: 0,
+      persistent_slow: 0,
+      persistent_time: 0,
+      poise: 10,
+      recover_bufftime: 12,
+      usp: 0,
+    },
+    true,
+    instantiateActionSequence(sharedActionSequence44, ['\u0000endaxis-generated-identity:1']),
+    undefined,
+    { lifetime: 'execution', alwaysNext: true },
+  ),
+);
+
+const sharedActionSequence42: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -623,7 +649,7 @@ const sharedActionSequence41: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence45: ActionSequenceDefinition = sequence(
+const sharedActionSequence46: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'buffIdStackCompare',
@@ -632,7 +658,7 @@ const sharedActionSequence45: ActionSequenceDefinition = sequence(
       operator: 'equal',
       value: { kind: 'constant', value: 0 },
     },
-    sharedActionSequence46,
+    sharedActionSequence47,
     sequence(
       branch(
         {
@@ -1017,7 +1043,7 @@ const sharedActionSequence11: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence32: ActionSequenceDefinition = sequence(
+const sharedActionSequence33: ActionSequenceDefinition = sequence(
   step('readBuffStackCount', {
     target: 'enemy',
     outputKey: 'buff_stack',
@@ -1180,6 +1206,22 @@ const sharedActionSequence10: ActionSequenceDefinition = sequence(
   ),
 );
 
+const sharedActionSequence32: ActionSequenceDefinition = sequence(
+  branch(
+    {
+      kind: 'buffIdStackCompare',
+      target: 'enemy',
+      buffIds: ['buff_chr_0034_typhoea_floatingattack_damagetaken'],
+      operator: 'equal',
+      value: { kind: 'constant', value: 0 },
+    },
+    instantiateActionSequence(sharedActionSequence33, [
+      '\u0000endaxis-generated-identity:0',
+      '\u0000endaxis-generated-identity:1',
+    ]),
+  ),
+);
+
 const sharedActionSequence9: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
@@ -1196,29 +1238,44 @@ const sharedActionSequence9: ActionSequenceDefinition = sequence(
 );
 
 const sharedActionSequence31: ActionSequenceDefinition = sequence(
-  branch(
-    {
-      kind: 'buffIdStackCompare',
-      target: 'enemy',
-      buffIds: ['buff_chr_0034_typhoea_floatingattack_damagetaken'],
-      operator: 'equal',
-      value: { kind: 'constant', value: 0 },
+  {
+    kind: 'withActionBlackboardScope',
+    parameters: {
+      scopeKey: 'chr_0034_typhoea_floating_attack5_01_projhit:immediate-timeline:0',
+      lifetime: 'execution',
+      alwaysNext: true,
+      shareParentBlackboard: true,
+      initialValues: {},
+      inheritParent: true,
     },
-    instantiateActionSequence(sharedActionSequence32, [
+    body: instantiateActionSequence(sharedActionSequence32, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
     ]),
-  ),
-  branch(
-    { kind: 'casterControlled' },
-    sequence(
-      step('applyBuff', {
-        buffId: 'buff_chr_0034_typhoea_normal_skill_hitstop',
-        target: 'caster',
-        inheritSourceSkillCastInfo: true,
-      }),
+  },
+  {
+    kind: 'withActionBlackboardScope',
+    parameters: {
+      scopeKey: 'chr_0034_typhoea_floating_attack5_01_projhit:immediate-timeline:1',
+      lifetime: 'execution',
+      alwaysNext: true,
+      shareParentBlackboard: true,
+      initialValues: {},
+      inheritParent: true,
+    },
+    body: sequence(
+      branch(
+        { kind: 'casterControlled' },
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0034_typhoea_normal_skill_hitstop',
+            target: 'caster',
+            inheritSourceSkillCastInfo: true,
+          }),
+        ),
+      ),
     ),
-  ),
+  },
 );
 
 const sharedActionSequence30: ActionSequenceDefinition = sequence(
@@ -1385,7 +1442,7 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence33: ActionSequenceDefinition = sequence(
+const sharedActionSequence34: ActionSequenceDefinition = sequence(
   step('modifyActionValue', {
     key: 'enhence_arrow',
     operation: 'assign',
@@ -1748,7 +1805,7 @@ const sharedActionSequence25: ActionSequenceDefinition = sequence(
       '\u0000endaxis-generated-identity:22',
       '\u0000endaxis-generated-identity:23',
     ]),
-    instantiateActionSequence(sharedActionSequence33, [
+    instantiateActionSequence(sharedActionSequence34, [
       '\u0000endaxis-generated-identity:24',
       '\u0000endaxis-generated-identity:25',
       '\u0000endaxis-generated-identity:26',
@@ -7922,12 +7979,12 @@ export const typhoeusFloatingAttack5: SkillDefinition = withSkillBlackboard(
             instantiateActionSequence(sharedActionSequence25, [
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].succeedActions.actionData[1].succeedActions.actionData[3].succeedActions.actionData[0].action.actionData[0].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_05_enhence',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].succeedActions.actionData[1].succeedActions.actionData[3].succeedActions.actionData[0].action.actionData[0].succeedActions.actionData[0]:chr_0034_typhoea_floating_attack5_01_projhit',
-              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenTrue/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenTrue/steps/0',
-              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenTrue/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenFalse/steps/0',
+              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenTrue/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenTrue/steps/0',
+              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenTrue/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenFalse/steps/0',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].succeedActions.actionData[1].succeedActions.actionData[3].succeedActions.actionData[0].action.actionData[0].failActions.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_05',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].succeedActions.actionData[1].succeedActions.actionData[3].succeedActions.actionData[0].action.actionData[0].failActions.actionData[0]:chr_0034_typhoea_floating_attack5_01_projhit',
-              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenTrue/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenTrue/steps/0',
-              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenTrue/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenFalse/steps/0',
+              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenTrue/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenTrue/steps/0',
+              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenTrue/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenFalse/steps/0',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].succeedActions.actionData[1].succeedActions.actionData[3].failActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_enhence_ontarget',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].succeedActions.actionData[1].succeedActions.actionData[3].failActions.actionData[0].succeedActions.actionData[0]:chr_0034_typhoea_floating_attack1_01_projhit',
               'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenTrue/steps/0/whenTrue/steps/2/whenFalse/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenTrue/steps/4/whenTrue/steps/0',
@@ -7956,12 +8013,12 @@ export const typhoeusFloatingAttack5: SkillDefinition = withSkillBlackboard(
             instantiateActionSequence(sharedActionSequence25, [
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].failActions.actionData[1].succeedActions.actionData[3].succeedActions.actionData[0].action.actionData[0].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_05_enhence',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].failActions.actionData[1].succeedActions.actionData[3].succeedActions.actionData[0].action.actionData[0].succeedActions.actionData[0]:chr_0034_typhoea_floating_attack5_01_projhit',
-              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenFalse/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenTrue/steps/0',
-              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenFalse/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenFalse/steps/0',
+              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenFalse/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenTrue/steps/0',
+              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenFalse/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenFalse/steps/0',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].failActions.actionData[1].succeedActions.actionData[3].succeedActions.actionData[0].action.actionData[0].failActions.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_05',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].failActions.actionData[1].succeedActions.actionData[3].succeedActions.actionData[0].action.actionData[0].failActions.actionData[0]:chr_0034_typhoea_floating_attack5_01_projhit',
-              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenFalse/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenTrue/steps/0',
-              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenFalse/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenFalse/steps/0',
+              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenFalse/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenTrue/steps/0',
+              'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenFalse/steps/0/whenTrue/steps/2/whenTrue/steps/0/body/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/5/whenFalse/steps/0',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].failActions.actionData[1].succeedActions.actionData[3].failActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_enhence_ontarget',
               'SkillData.chr_0034_typhoea_floating_attack5.actionGroupData.timelineActions[3]._sequenceActionData.actionData[6].failActions.actionData[1].succeedActions.actionData[3].failActions.actionData[0].succeedActions.actionData[0]:chr_0034_typhoea_floating_attack1_01_projhit',
               'chr_0034_typhoea_floating_attack5:/scheduledSequences/1/sequence/steps/5/whenFalse/steps/0/whenTrue/steps/2/whenFalse/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/whenTrue/steps/4/whenTrue/steps/0',
@@ -8468,7 +8525,7 @@ export const typhoeusBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             { kind: 'casterControlled' },
-            instantiateActionSequence(sharedActionSequence34, [
+            instantiateActionSequence(sharedActionSequence35, [
               'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0].action.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_00',
               'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0].action.actionData[0]:chr_0034_typhoea_normal_skill_attack1_projhit',
               'chr_0034_typhoea_normal_skill_floating_start:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
@@ -8481,7 +8538,7 @@ export const typhoeusBattleSkill: SkillDefinition = withSkillBlackboard(
                   operator: 'greaterOrEqual',
                   value: 1,
                 },
-                instantiateActionSequence(sharedActionSequence34, [
+                instantiateActionSequence(sharedActionSequence35, [
                   'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].failActions.actionData[0].succeedActions.actionData[0].action.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_00',
                   'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].failActions.actionData[0].succeedActions.actionData[0].action.actionData[0]:chr_0034_typhoea_normal_skill_attack1_projhit',
                   'chr_0034_typhoea_normal_skill_floating_start:/scheduledSequences/3/sequence/steps/0/whenFalse/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
@@ -8491,7 +8548,7 @@ export const typhoeusBattleSkill: SkillDefinition = withSkillBlackboard(
                     'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].failActions.actionData[0].failActions.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_00',
                     {},
                     true,
-                    instantiateActionSequence(sharedActionSequence36, [
+                    instantiateActionSequence(sharedActionSequence37, [
                       'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].failActions.actionData[0].failActions.actionData[0]:chr_0034_typhoea_normal_skill_attack1_projhit',
                       'chr_0034_typhoea_normal_skill_floating_start:/scheduledSequences/3/sequence/steps/0/whenFalse/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
                     ]),
@@ -8502,7 +8559,7 @@ export const typhoeusBattleSkill: SkillDefinition = withSkillBlackboard(
                     'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].failActions.actionData[0].failActions.actionData[2]:projectile_chr_0034_typhoea_archery_floating_attack_00',
                     {},
                     true,
-                    instantiateActionSequence(sharedActionSequence36, [
+                    instantiateActionSequence(sharedActionSequence37, [
                       'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].failActions.actionData[0].failActions.actionData[2]:chr_0034_typhoea_normal_skill_attack1_projhit',
                       'chr_0034_typhoea_normal_skill_floating_start:/scheduledSequences/3/sequence/steps/0/whenFalse/steps/0/whenFalse/steps/1/body/steps/0/body/steps/0/whenTrue/steps/2',
                     ]),
@@ -8523,7 +8580,7 @@ export const typhoeusBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             { kind: 'casterControlled' },
-            instantiateActionSequence(sharedActionSequence38, [
+            instantiateActionSequence(sharedActionSequence39, [
               'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0].action.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_00',
               'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0].action.actionData[0]:chr_0034_typhoea_normal_skill_attack2_projhit',
               'chr_0034_typhoea_normal_skill_floating_start:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
@@ -8536,7 +8593,7 @@ export const typhoeusBattleSkill: SkillDefinition = withSkillBlackboard(
                   operator: 'greaterOrEqual',
                   value: 1,
                 },
-                instantiateActionSequence(sharedActionSequence38, [
+                instantiateActionSequence(sharedActionSequence39, [
                   'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].failActions.actionData[0].succeedActions.actionData[0].action.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_00',
                   'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].failActions.actionData[0].succeedActions.actionData[0].action.actionData[0]:chr_0034_typhoea_normal_skill_attack2_projhit',
                   'chr_0034_typhoea_normal_skill_floating_start:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
@@ -8546,7 +8603,7 @@ export const typhoeusBattleSkill: SkillDefinition = withSkillBlackboard(
                     'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].failActions.actionData[0].failActions.actionData[0]:projectile_chr_0034_typhoea_archery_floating_attack_00',
                     {},
                     true,
-                    instantiateActionSequence(sharedActionSequence40, [
+                    instantiateActionSequence(sharedActionSequence41, [
                       'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].failActions.actionData[0].failActions.actionData[0]:chr_0034_typhoea_normal_skill_attack2_projhit',
                       'chr_0034_typhoea_normal_skill_floating_start:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/0/whenFalse/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
                     ]),
@@ -8557,7 +8614,7 @@ export const typhoeusBattleSkill: SkillDefinition = withSkillBlackboard(
                     'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].failActions.actionData[0].failActions.actionData[2]:projectile_chr_0034_typhoea_archery_floating_attack_00',
                     {},
                     true,
-                    instantiateActionSequence(sharedActionSequence40, [
+                    instantiateActionSequence(sharedActionSequence41, [
                       'SkillData.chr_0034_typhoea_normal_skill_floating_start.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].failActions.actionData[0].failActions.actionData[2]:chr_0034_typhoea_normal_skill_attack2_projhit',
                       'chr_0034_typhoea_normal_skill_floating_start:/scheduledSequences/4/sequence/steps/0/whenFalse/steps/0/whenFalse/steps/1/body/steps/0/body/steps/0/whenTrue/steps/2',
                     ]),
@@ -8995,7 +9052,7 @@ export const typhoeusComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         40,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skill:/scheduledSequences/2/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9007,7 +9064,7 @@ export const typhoeusComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         43,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[21]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[21]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skill:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9019,7 +9076,7 @@ export const typhoeusComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         44,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[23]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[23]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skill:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9031,7 +9088,7 @@ export const typhoeusComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         45,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[25]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[25]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skill:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9043,7 +9100,7 @@ export const typhoeusComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         47,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[27]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[27]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skill:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9055,7 +9112,7 @@ export const typhoeusComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         49,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[29]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[29]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skill:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9095,9 +9152,9 @@ export const typhoeusComboSkill: SkillDefinition = withSkillBlackboard(
             'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[30]._sequenceActionData.actionData[4].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_1',
             {},
             true,
-            instantiateActionSequence(sharedActionSequence42, [
+            instantiateActionSequence(sharedActionSequence43, [
               'SkillData.chr_0034_typhoea_combo_skill.actionGroupData.timelineActions[30]._sequenceActionData.actionData[4].succeedActions.actionData[0]:chr_0034_typhoea_combo_01_projhit',
-              'chr_0034_typhoea_combo_skill:/scheduledSequences/8/sequence/steps/4/body/steps/0/body/steps/0/whenTrue/steps/2',
+              'chr_0034_typhoea_combo_skill:/scheduledSequences/8/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
             ]),
             {},
             { lifetime: 'execution' },
@@ -9222,7 +9279,7 @@ export const typhoeusFloatingComboSkill: SkillDefinition = withSkillBlackboard(
         ),
         3,
       ),
-      scheduled(67, sharedActionSequence44, 70),
+      scheduled(67, sharedActionSequence45, 70),
       scheduled(
         0,
         sequence(
@@ -9241,7 +9298,7 @@ export const typhoeusFloatingComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         39,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[24]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[24]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skillfloating:/scheduledSequences/5/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9253,7 +9310,7 @@ export const typhoeusFloatingComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         43,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[26]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[26]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skillfloating:/scheduledSequences/6/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9265,7 +9322,7 @@ export const typhoeusFloatingComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         44,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[28]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[28]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skillfloating:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9277,7 +9334,7 @@ export const typhoeusFloatingComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         45,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[30]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[30]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skillfloating:/scheduledSequences/8/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9289,7 +9346,7 @@ export const typhoeusFloatingComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         47,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[32]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[32]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skillfloating:/scheduledSequences/9/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9301,7 +9358,7 @@ export const typhoeusFloatingComboSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         49,
-        instantiateActionSequence(sharedActionSequence41, [
+        instantiateActionSequence(sharedActionSequence42, [
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[34]._sequenceActionData.actionData[1].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_2',
           'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[34]._sequenceActionData.actionData[1].succeedActions.actionData[0]:chr_0034_typhoea_combo_02_projhit',
           'chr_0034_typhoea_combo_skillfloating:/scheduledSequences/10/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/1',
@@ -9318,9 +9375,9 @@ export const typhoeusFloatingComboSkill: SkillDefinition = withSkillBlackboard(
             'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[35]._sequenceActionData.actionData[0].succeedActions.actionData[0]:projectile_chr_0034_typhoea_archery_combo_1',
             {},
             true,
-            instantiateActionSequence(sharedActionSequence42, [
+            instantiateActionSequence(sharedActionSequence43, [
               'SkillData.chr_0034_typhoea_combo_skillfloating.actionGroupData.timelineActions[35]._sequenceActionData.actionData[0].succeedActions.actionData[0]:chr_0034_typhoea_combo_01_projhit',
-              'chr_0034_typhoea_combo_skillfloating:/scheduledSequences/11/sequence/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
+              'chr_0034_typhoea_combo_skillfloating:/scheduledSequences/11/sequence/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
             ]),
             {},
             { lifetime: 'execution' },
@@ -9676,7 +9733,7 @@ export const typhoeusUltimate: SkillDefinition = withSkillBlackboard(
                   operator: 'greaterOrEqual',
                   value: { kind: 'constant', value: 1 },
                 },
-                sharedActionSequence44,
+                sharedActionSequence45,
               ),
             ),
             sequence({
@@ -11623,7 +11680,7 @@ export default {
                     operator: 'less',
                     right: { kind: 'constant', value: 5 },
                   },
-                  sharedActionSequence45,
+                  sharedActionSequence46,
                   sequence(
                     branch(
                       {
@@ -11646,7 +11703,7 @@ export default {
                           },
                         ],
                       },
-                      sharedActionSequence45,
+                      sharedActionSequence46,
                       undefined,
                       { alwaysNext: true },
                     ),

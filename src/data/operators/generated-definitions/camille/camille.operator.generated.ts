@@ -573,7 +573,7 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
         22,
         sequence(
           withActionBlackboardScope(
-            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:2',
+            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:2:0',
             { atk_scale_2: 0.1 },
             true,
             sequence(
@@ -597,7 +597,7 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
         24,
         sequence(
           withActionBlackboardScope(
-            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:4',
+            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:4:1',
             { atk_scale_2: 0.1 },
             true,
             sequence(
@@ -621,7 +621,7 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
         26,
         sequence(
           withActionBlackboardScope(
-            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:6',
+            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:6:2',
             { atk_scale_2: 0.1 },
             true,
             sequence(
@@ -645,7 +645,7 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
         28,
         sequence(
           withActionBlackboardScope(
-            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:8',
+            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:8:3',
             { atk_scale_2: 0.1 },
             true,
             sequence(
@@ -669,7 +669,7 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
         30,
         sequence(
           withActionBlackboardScope(
-            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:10',
+            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:10:4',
             { atk_scale_2: 0.1 },
             true,
             sequence(
@@ -693,7 +693,7 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
         32,
         sequence(
           withActionBlackboardScope(
-            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:12',
+            'SkillData.chr_0033_camille_attack4.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0]:chr_0033_camille_attack4_projhit:delayed:12:5',
             { atk_scale_2: 0.1 },
             true,
             sequence(
@@ -2944,7 +2944,7 @@ export default {
         finish: sequence(
           step('mergeContextTargets', {
             saveToContextKey: 'src',
-            sources: [{ kind: 'target', target: 'buffSource' }],
+            sources: [{ kind: 'abilitySystemSource', owner: 'actionOwner' }],
           }),
           step('finishCurrentAbilityEntity', {}),
         ),

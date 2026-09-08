@@ -1,4 +1,5 @@
 import type { DeclaredBlackboardValueSource } from '../source/blackboard.ts';
+import { mergeIndependentActionSequencesSource } from './independentActionSequences.ts';
 import type { ProjectileLaunchActionSource } from '../source/referenceActions.ts';
 import type { ProjectileRuntimeSource } from '../source/projectileRuntime.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
@@ -601,11 +602,12 @@ export function compileImmediateProjectileCallbackSkillSource(input: {
   return {
     skillId: graph.skillId,
     declaredBlackboard: graph.declaredBlackboard,
-    sequence: {
-      steps: timelines
-        .filter(timeline => timeline.startFrame === 0)
-        .flatMap(timeline => timeline.sequence.steps),
-    },
+    sequence: mergeIndependentActionSequencesSource(
+      timelines
+        .filter(timeline => timeline.startFrame === 0 && timeline.sequence.steps.length > 0)
+        .map(timeline => timeline.sequence),
+      `${graph.skillId}:immediate-timeline`,
+    ),
     delayedSequences: timelines.filter(
       timeline => timeline.startFrame !== 0 && timeline.sequence.steps.length > 0,
     ),
@@ -679,14 +681,10 @@ function scheduleDelayedProjectileCallbackSource(
       return [value.key, value.value] as const;
     }),
   );
-  const grouped = new Map<number, { endFrame: number; steps: CompiledBuffStepSource[] }>();
-  for (const item of callback.delayedSequences) {
-    const entry = grouped.get(item.startFrame) ?? { endFrame: item.endFrame, steps: [] };
-    entry.endFrame = Math.max(entry.endFrame, item.endFrame);
-    entry.steps.push(...item.sequence.steps);
-    grouped.set(item.startFrame, entry);
-  }
-  for (const [startFrame, item] of grouped) {
+  // 即便起点相同，每个原生时间轴节点也有自己的失败边界和结束帧。
+  // 这条路径已拒绝跨回调写黑板；每个节点可独立恢复同一声明值。
+  for (const [index, item] of callback.delayedSequences.entries()) {
+    const startFrame = item.startFrame;
     schedule({
       startFrame,
       endFrame: item.endFrame,
@@ -695,13 +693,13 @@ function scheduleDelayedProjectileCallbackSource(
           {
             kind: 'withActionBlackboardScope',
             parameters: {
-              scopeKey: `${sourcePath}:${callback.skillId}:delayed:${startFrame}`,
+              scopeKey: `${sourcePath}:${callback.skillId}:delayed:${startFrame}:${index}`,
               lifetime: 'execution',
               alwaysNext: true,
               initialValues,
               inheritParent: launch.assignBlackboard,
             },
-            body: { steps: item.steps },
+            body: item.sequence,
           },
         ],
       },

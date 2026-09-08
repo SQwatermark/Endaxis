@@ -261,6 +261,18 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   ),
 );
 
+const sharedActionSequence11: ActionSequenceDefinition = sequence(
+  branch(
+    {
+      kind: 'actionValueCompare',
+      left: { kind: 'constant', value: 1 },
+      operator: 'greaterOrEqual',
+      right: { kind: 'constant', value: 1 },
+    },
+    sharedActionSequence12,
+  ),
+);
+
 const sharedActionSequence4: ActionSequenceDefinition = sequence(
   {
     kind: 'withActionBlackboardScope',
@@ -353,7 +365,7 @@ const sharedActionSequence4: ActionSequenceDefinition = sequence(
   },
 );
 
-const sharedActionSequence10: ActionSequenceDefinition = sequence(
+const sharedActionSequence9: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -419,7 +431,7 @@ const sharedActionSequence10: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence9: ActionSequenceDefinition = sequence(
+const sharedActionSequence8: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -454,7 +466,7 @@ const sharedActionSequence9: ActionSequenceDefinition = sequence(
         '\u0000endaxis-generated-identity:0',
       ),
     ),
-    instantiateActionSequence(sharedActionSequence10, [
+    instantiateActionSequence(sharedActionSequence9, [
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
     ]),
@@ -462,7 +474,7 @@ const sharedActionSequence9: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence11: ActionSequenceDefinition = sequence(
+const sharedActionSequence10: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -470,7 +482,7 @@ const sharedActionSequence11: ActionSequenceDefinition = sequence(
       operator: 'greater',
       right: { kind: 'constant', value: 0.5 },
     },
-    instantiateActionSequence(sharedActionSequence9, [
+    instantiateActionSequence(sharedActionSequence8, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -492,7 +504,7 @@ const sharedActionSequence11: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence8: ActionSequenceDefinition = sequence(
+const sharedActionSequence7: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -500,12 +512,12 @@ const sharedActionSequence8: ActionSequenceDefinition = sequence(
       operator: 'greater',
       right: { kind: 'constant', value: 0.5 },
     },
-    instantiateActionSequence(sharedActionSequence9, [
+    instantiateActionSequence(sharedActionSequence8, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
     ]),
-    instantiateActionSequence(sharedActionSequence11, [
+    instantiateActionSequence(sharedActionSequence10, [
       '\u0000endaxis-generated-identity:3',
       '\u0000endaxis-generated-identity:4',
       '\u0000endaxis-generated-identity:5',
@@ -515,7 +527,7 @@ const sharedActionSequence8: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence7: ActionSequenceDefinition = sequence(
+const sharedActionSequence6: ActionSequenceDefinition = sequence(
   step('calculateActionValue', {
     key: 'atk_scale_once',
     operation: 'multiply',
@@ -548,7 +560,7 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
         },
       ],
     },
-    instantiateActionSequence(sharedActionSequence8, [
+    instantiateActionSequence(sharedActionSequence7, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -574,9 +586,9 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence6: ActionSequenceDefinition = sequence(
+const sharedActionSequence5: ActionSequenceDefinition = sequence(
   repeatEachTick(
-    instantiateActionSequence(sharedActionSequence7, [
+    instantiateActionSequence(sharedActionSequence6, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -594,58 +606,6 @@ const sharedActionSequence6: ActionSequenceDefinition = sequence(
         targetTriggerIntervalSeconds: 0.033,
       },
     },
-  ),
-  branch(
-    {
-      kind: 'actionValueCompare',
-      left: { kind: 'constant', value: 1 },
-      operator: 'greaterOrEqual',
-      right: { kind: 'constant', value: 1 },
-    },
-    sharedActionSequence12,
-  ),
-);
-
-const sharedActionSequence5: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    {
-      atb_return: 10,
-      atk_scale_3: 3,
-      atk_scale_bleed: 0,
-      atk_scale_once: 0,
-      bleed_critical_damage_interval: 2,
-      bleed_critical_damage_scale: 1,
-      damage_up: 0,
-      duration: 0,
-      duration_bleed: 0,
-      fire_duration: 0,
-      heal_scale: 0.005,
-      hit_bleed_num: 0,
-      poise_2: 0,
-      potential_upgrade: 0,
-      skillimbue: 0,
-      talent_1_1: 0,
-      talent_1_2: 0,
-      talent_2_1: 0,
-      talent_2_2: 0,
-      talent2_burning_damage_scale: 1.5,
-      usp: 0,
-      usp_2: 0,
-    },
-    true,
-    instantiateActionSequence(sharedActionSequence6, [
-      '\u0000endaxis-generated-identity:1',
-      '\u0000endaxis-generated-identity:2',
-      '\u0000endaxis-generated-identity:3',
-      '\u0000endaxis-generated-identity:4',
-      '\u0000endaxis-generated-identity:5',
-      '\u0000endaxis-generated-identity:6',
-      '\u0000endaxis-generated-identity:7',
-      '\u0000endaxis-generated-identity:8',
-    ]),
-    undefined,
-    { lifetime: 'execution', alwaysNext: true },
   ),
 );
 
@@ -2246,18 +2206,74 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
             'SkillData.chr_0028_wulfa_normal_skill.actionGroupData.timelineActions[26]._sequenceActionData.actionData[2]:projectile_chr_0028_wulfa_normalskill_2',
             {},
             true,
-            instantiateActionSequence(sharedActionSequence5, [
-              'SkillData.chr_0028_wulfa_normal_skill.actionGroupData.timelineActions[26]._sequenceActionData.actionData[2]:chr_0028_wulfa_normal_skill_projhit2',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenFalse/steps/0',
-            ]),
-            undefined,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0028_wulfa_normal_skill.actionGroupData.timelineActions[26]._sequenceActionData.actionData[2]:chr_0028_wulfa_normal_skill_projhit2',
+                {
+                  atb_return: 10,
+                  atk_scale_3: 3,
+                  atk_scale_bleed: 0,
+                  atk_scale_once: 0,
+                  bleed_critical_damage_interval: 2,
+                  bleed_critical_damage_scale: 1,
+                  damage_up: 0,
+                  duration: 0,
+                  duration_bleed: 0,
+                  fire_duration: 0,
+                  heal_scale: 0.005,
+                  hit_bleed_num: 0,
+                  poise_2: 0,
+                  potential_upgrade: 0,
+                  skillimbue: 0,
+                  talent_1_1: 0,
+                  talent_1_2: 0,
+                  talent_2_1: 0,
+                  talent_2_2: 0,
+                  talent2_burning_damage_scale: 1.5,
+                  usp: 0,
+                  usp_2: 0,
+                },
+                true,
+                sequence(
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'chr_0028_wulfa_normal_skill_projhit2:immediate-timeline:0',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: instantiateActionSequence(sharedActionSequence5, [
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenFalse/steps/0',
+                    ]),
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'chr_0028_wulfa_normal_skill_projhit2:immediate-timeline:1',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sharedActionSequence11,
+                  },
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            {},
             { lifetime: 'execution' },
           ),
           withActionBlackboardScope(
@@ -2293,158 +2309,299 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 },
                 true,
                 sequence(
-                  repeatEachTick(
-                    sequence(
-                      step('calculateActionValue', {
-                        key: 'atk_scale_once',
-                        operation: 'multiply',
-                        left: { kind: 'blackboard', key: 'atk_scale_3' },
-                        right: { kind: 'constant', value: 0.25 },
-                      }),
-                      step('calculateActionValue', {
-                        key: 'poise_2',
-                        operation: 'multiply',
-                        left: { kind: 'blackboard', key: 'poise_2' },
-                        right: { kind: 'constant', value: 0.25 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0028_wulfa_tut_normalskill_success',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                        finishByAction: true,
-                      }),
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'chr_0028_wulfa_normal_skill_projhit3:immediate-timeline:0',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
+                      repeatEachTick(
+                        sequence(
+                          step('calculateActionValue', {
+                            key: 'atk_scale_once',
+                            operation: 'multiply',
+                            left: { kind: 'blackboard', key: 'atk_scale_3' },
+                            right: { kind: 'constant', value: 0.25 },
+                          }),
+                          step('calculateActionValue', {
+                            key: 'poise_2',
+                            operation: 'multiply',
+                            left: { kind: 'blackboard', key: 'poise_2' },
+                            right: { kind: 'constant', value: 0.25 },
+                          }),
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_tut_normalskill_success',
+                            target: 'caster',
+                            inheritSourceSkillCastInfo: true,
+                            finishByAction: true,
+                          }),
+                          branch(
+                            {
+                              kind: 'all',
+                              conditions: [
+                                {
+                                  kind: 'buffIdStackCompare',
+                                  target: 'enemy',
+                                  buffIds: ['buff_chr_0028_wulfa_normal_smarttarget'],
+                                  operator: 'greater',
+                                  value: { kind: 'constant', value: 0.5 },
+                                },
+                                {
+                                  kind: 'buffIdStackCompare',
+                                  target: 'caster',
+                                  buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
+                                  operator: 'equal',
+                                  value: { kind: 'constant', value: 1 },
+                                },
+                              ],
+                            },
+                            instantiateActionSequence(sharedActionSequence7, [
+                              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
+                              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
+                              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
+                              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
+                              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
+                            ]),
+                            sequence(
+                              step(
+                                'dealDamage',
+                                {
+                                  damageType: 'heat',
+                                  attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+                                  tags: ['normalSkill'],
+                                  features: ['canBreakWeakness'],
+                                  stagger: { kind: 'blackboard', key: 'poise_2' },
+                                },
+                                'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenFalse/steps/0',
+                              ),
+                            ),
+                            { alwaysNext: true },
+                          ),
+                        ),
+                        {
+                          nativeChanneling: {
+                            executeEachFrame: true,
+                            triggerIntervalSeconds: 0.033,
+                            maxCountPerTarget: 1,
+                            targetTriggerIntervalSeconds: 0.033,
+                          },
+                        },
+                      ),
+                    ),
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'chr_0028_wulfa_normal_skill_projhit3:immediate-timeline:1',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
                       branch(
                         {
-                          kind: 'all',
-                          conditions: [
+                          kind: 'actionValueCompare',
+                          left: { kind: 'constant', value: 1 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                        sequence(
+                          branch(
                             {
                               kind: 'buffIdStackCompare',
                               target: 'enemy',
-                              buffIds: ['buff_chr_0028_wulfa_normal_smarttarget'],
-                              operator: 'greater',
-                              value: { kind: 'constant', value: 0.5 },
-                            },
-                            {
-                              kind: 'buffIdStackCompare',
-                              target: 'caster',
-                              buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
-                              operator: 'equal',
+                              buffIds: ['buff_chr_0028_wulfa_normal_bleed'],
+                              operator: 'greaterOrEqual',
                               value: { kind: 'constant', value: 1 },
                             },
-                          ],
-                        },
-                        instantiateActionSequence(sharedActionSequence8, [
-                          'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
-                          'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
-                          'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
-                          'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenTrue/steps/1',
-                          'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
-                          'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
-                          'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
-                        ]),
-                        sequence(
-                          step(
-                            'dealDamage',
-                            {
-                              damageType: 'heat',
-                              attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-                              tags: ['normalSkill'],
-                              features: ['canBreakWeakness'],
-                              stagger: { kind: 'blackboard', key: 'poise_2' },
-                            },
-                            'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/3/whenFalse/steps/0',
+                            sequence(
+                              step('calculateActionValue', {
+                                key: 'hit_bleed_num',
+                                operation: 'add',
+                                left: { kind: 'blackboard', key: 'hit_bleed_num' },
+                                right: { kind: 'constant', value: 1 },
+                              }),
+                            ),
                           ),
                         ),
-                        { alwaysNext: true },
                       ),
                     ),
-                    {
-                      nativeChanneling: {
-                        executeEachFrame: true,
-                        triggerIntervalSeconds: 0.033,
-                        maxCountPerTarget: 1,
-                        targetTriggerIntervalSeconds: 0.033,
-                      },
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'chr_0028_wulfa_normal_skill_projhit3:immediate-timeline:2',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
                     },
-                  ),
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                    sequence(
-                      branch(
-                        {
-                          kind: 'buffIdStackCompare',
-                          target: 'enemy',
-                          buffIds: ['buff_chr_0028_wulfa_normal_bleed'],
-                          operator: 'greaterOrEqual',
-                          value: { kind: 'constant', value: 1 },
-                        },
-                        sequence(
-                          step('calculateActionValue', {
-                            key: 'hit_bleed_num',
-                            operation: 'add',
-                            left: { kind: 'blackboard', key: 'hit_bleed_num' },
-                            right: { kind: 'constant', value: 1 },
-                          }),
-                        ),
-                      ),
-                    ),
-                  ),
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                    sharedActionSequence12,
-                  ),
+                    body: sharedActionSequence11,
+                  },
                 ),
                 undefined,
                 { lifetime: 'execution', alwaysNext: true },
               ),
             ),
-            undefined,
+            {},
             { lifetime: 'execution' },
           ),
           withActionBlackboardScope(
             'SkillData.chr_0028_wulfa_normal_skill.actionGroupData.timelineActions[26]._sequenceActionData.actionData[4]:projectile_chr_0028_wulfa_normalskill_4',
             {},
             true,
-            instantiateActionSequence(sharedActionSequence5, [
-              'SkillData.chr_0028_wulfa_normal_skill.actionGroupData.timelineActions[26]._sequenceActionData.actionData[4]:chr_0028_wulfa_normal_skill_projhit4',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenFalse/steps/0',
-            ]),
-            undefined,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0028_wulfa_normal_skill.actionGroupData.timelineActions[26]._sequenceActionData.actionData[4]:chr_0028_wulfa_normal_skill_projhit4',
+                {
+                  atb_return: 10,
+                  atk_scale_3: 3,
+                  atk_scale_bleed: 0,
+                  atk_scale_once: 0,
+                  bleed_critical_damage_interval: 2,
+                  bleed_critical_damage_scale: 1,
+                  damage_up: 0,
+                  duration: 0,
+                  duration_bleed: 0,
+                  fire_duration: 0,
+                  heal_scale: 0.005,
+                  hit_bleed_num: 0,
+                  poise_2: 0,
+                  potential_upgrade: 0,
+                  skillimbue: 0,
+                  talent_1_1: 0,
+                  talent_1_2: 0,
+                  talent_2_1: 0,
+                  talent_2_2: 0,
+                  talent2_burning_damage_scale: 1.5,
+                  usp: 0,
+                  usp_2: 0,
+                },
+                true,
+                sequence(
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'chr_0028_wulfa_normal_skill_projhit4:immediate-timeline:0',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: instantiateActionSequence(sharedActionSequence5, [
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenFalse/steps/0',
+                    ]),
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'chr_0028_wulfa_normal_skill_projhit4:immediate-timeline:1',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sharedActionSequence11,
+                  },
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            {},
             { lifetime: 'execution' },
           ),
           withActionBlackboardScope(
             'SkillData.chr_0028_wulfa_normal_skill.actionGroupData.timelineActions[26]._sequenceActionData.actionData[5]:projectile_chr_0028_wulfa_normalskill_5',
             {},
             true,
-            instantiateActionSequence(sharedActionSequence5, [
-              'SkillData.chr_0028_wulfa_normal_skill.actionGroupData.timelineActions[26]._sequenceActionData.actionData[5]:chr_0028_wulfa_normal_skill_projhit5',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
-              'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenFalse/steps/0',
-            ]),
-            undefined,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0028_wulfa_normal_skill.actionGroupData.timelineActions[26]._sequenceActionData.actionData[5]:chr_0028_wulfa_normal_skill_projhit5',
+                {
+                  atb_return: 10,
+                  atk_scale_3: 3,
+                  atk_scale_bleed: 0,
+                  atk_scale_once: 0,
+                  bleed_critical_damage_interval: 2,
+                  bleed_critical_damage_scale: 1,
+                  damage_up: 0,
+                  duration: 0,
+                  duration_bleed: 0,
+                  fire_duration: 0,
+                  heal_scale: 0.005,
+                  hit_bleed_num: 0,
+                  poise_2: 0,
+                  potential_upgrade: 0,
+                  skillimbue: 0,
+                  talent_1_1: 0,
+                  talent_1_2: 0,
+                  talent_2_1: 0,
+                  talent_2_2: 0,
+                  talent2_burning_damage_scale: 1.5,
+                  usp: 0,
+                  usp_2: 0,
+                },
+                true,
+                sequence(
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'chr_0028_wulfa_normal_skill_projhit5:immediate-timeline:0',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: instantiateActionSequence(sharedActionSequence5, [
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
+                      'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenFalse/steps/0',
+                    ]),
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'chr_0028_wulfa_normal_skill_projhit5:immediate-timeline:1',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sharedActionSequence11,
+                  },
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            {},
             { lifetime: 'execution' },
           ),
         ),
