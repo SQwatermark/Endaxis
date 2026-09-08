@@ -2,10 +2,10 @@ import { expect, it } from 'vitest';
 import { appendBuffGraphChild } from './buffDamageModifierGraph';
 import { buildActionSequenceMindMap, indexSkillStructureNodes } from './skillStructureMindMapModel';
 import { moveBuffGraphNode, pasteBuffGraphNode } from './buffGraphOperations';
-import { resolveStructureValue } from './skillStructureEditorCommands';
+import { replaceStructureValueAtPath, resolveStructureValue } from './skillStructureEditorCommands';
 import type { ActionSequenceDefinition } from '../../core/game-data/operatorDefinition';
 
-it('keeps shields and absorption rules in distinct array ports with full nested paths', () => {
+it('keeps shields in the graph and absorption parameters in their Inspector', () => {
   const original: ActionSequenceDefinition = {
     steps: [
       {
@@ -25,34 +25,36 @@ it('keeps shields and absorption rules in distinct array ports with full nested 
   const added = appendBuffGraphChild(original, prefix);
   const member = find(added.root, added.itemPath);
   expect(member.payloadKind).toBe('buffShield');
-  expect(member.children.map(node => node.sourcePath)).toEqual([`${prefix}[0].damageAbsorptions`]);
-  const absorption = appendBuffGraphChild(added.root, `${prefix}[0].damageAbsorptions`);
+  expect(member.children).toEqual([]);
+  const absorption = {
+    root: replaceStructureValueAtPath(added.root, `${prefix}[0].damageAbsorptions`, [
+      { damageType: 'physical', ratio: 1, scale: 1 },
+    ]),
+    itemPath: `${prefix}[0].damageAbsorptions[0]`,
+  };
   expect(resolveStructureValue(absorption.root, absorption.itemPath)).toEqual({
     damageType: 'physical',
     ratio: 1,
     scale: 1,
   });
-  const copy = pasteBuffGraphNode(
-    absorption.root,
-    find(absorption.root, `${prefix}[0].damageAbsorptions`),
-    {
-      kind: 'buffShieldAbsorption',
-      value: resolveStructureValue(absorption.root, absorption.itemPath),
-    },
-  )!;
-  expect(resolveStructureValue(copy.root, `${prefix}[0].damageAbsorptions`)).toHaveLength(2);
+  const copy = pasteBuffGraphNode(absorption.root, find(absorption.root, prefix), {
+    kind: 'buffShield',
+    value: resolveStructureValue(absorption.root, added.itemPath),
+  })!;
+  expect(resolveStructureValue(copy.root, prefix)).toHaveLength(2);
+  expect(resolveStructureValue(copy.root, `${prefix}[1].damageAbsorptions`)).toHaveLength(1);
   expect(
     pasteBuffGraphNode(copy.root, find(copy.root, prefix), {
-      kind: 'buffShieldAbsorption',
+      kind: 'buffDamageModifier',
       value: {},
     }),
   ).toBeUndefined();
   const moved = moveBuffGraphNode(
     copy.root,
     find(copy.root, copy.itemPath),
-    find(copy.root, absorption.itemPath),
+    find(copy.root, added.itemPath),
     'before',
   )!;
-  expect(moved.itemPath).toBe(absorption.itemPath);
+  expect(moved.itemPath).toBe(added.itemPath);
   expect(resolveStructureValue(original, prefix)).toBeUndefined();
 });

@@ -108,6 +108,7 @@ export interface CombatBuffDefinitionCompilerPorts<Key extends string> {
     readonly features: readonly DamageFeature[];
     readonly canCritical: boolean;
     readonly sourceId: string;
+    readonly skillCastInfo?: import('../runtime/skillCastInfo').CombatSkillCastInfo;
     readonly buffId: string;
     readonly buffInstanceId: number;
     readonly buffOwnerId: string;
@@ -1700,6 +1701,7 @@ function compileDefinitionActionList<Key extends string>(
             canCritical: action.canCritical,
             sourceId: buff.sourceId,
             buffId: buff.definition.id,
+            skillCastInfo: buff.skillCastInfo ?? undefined,
             buffInstanceId: buff.instanceId,
             buffOwnerId: buff.owner.ownerId,
             sourceActionId: buff.sourceActionId,

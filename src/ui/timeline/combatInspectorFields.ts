@@ -62,6 +62,23 @@ export const applyBuffInspectorFields = [
     create: () => 'caster',
     labelKey: `${prefix}buffSource`,
     helpKey: `${prefix}fieldHelp.buffSource`,
+    replace(value, source) {
+      const next = { ...value, source };
+      if (source !== undefined) delete next.sourceContextKey;
+      return next;
+    },
+  }),
+  buff('sourceContextKey', {
+    editor: 'text',
+    optional: true,
+    create: () => 'source',
+    labelKey: `${prefix}buffSourceContextKey`,
+    helpKey: `${prefix}fieldHelp.buffSourceContextKey`,
+    replace(value, sourceContextKey) {
+      const next = { ...value, sourceContextKey };
+      if (sourceContextKey !== undefined) delete next.source;
+      return next;
+    },
   }),
   buff('durationSeconds', {
     editor: 'number',

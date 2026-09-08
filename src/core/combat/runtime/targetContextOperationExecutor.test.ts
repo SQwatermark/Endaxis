@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatVitals } from './combatVitals';
 import { RuntimeTargetContext } from './runtimeTargetContext';
@@ -23,6 +23,64 @@ function vitals(health: number): CombatVitals {
 }
 
 describe('TargetContextOperationExecutor', () => {
+  it('SourceFinder 区分动作宿主与来源，只查一层并保留能力实体身份', () => {
+    const recursive = vi.fn(() => 'operator:root');
+    const query = vi.fn((id: string) =>
+      id === 'ability-entity:2'
+        ? { kind: 'abilityEntity' as const, instanceId: 1 }
+        : { kind: 'operator' as const, operatorId: id },
+    );
+    const executor = new TargetContextOperationExecutor(
+      'operator:root',
+      terminal,
+      recursive,
+      undefined,
+      query,
+    );
+    const targetContext = new RuntimeTargetContext();
+    const context = {
+      targetContext,
+      blackboard: new ActionBlackboard(),
+      buffOwnerId: 'operator:recipient',
+      buffSourceId: 'ability-entity:3',
+      actionSourceId: 'ability-entity:2',
+    };
+    for (const owner of ['actionSource', 'actionOwner'] as const) {
+      executor.execute(
+        {
+          kind: 'mergeContextTargets',
+          parameters: {
+            saveToContextKey: owner,
+            sources: [{ kind: 'abilitySystemSource', owner }],
+          },
+        },
+        context,
+      );
+    }
+    expect(targetContext.get('actionSource')).toEqual([{ kind: 'abilityEntity', instanceId: 1 }]);
+    expect(targetContext.get('actionOwner')).toEqual([
+      { kind: 'operator', operatorId: 'operator:recipient' },
+    ]);
+    expect(query.mock.calls).toEqual([['ability-entity:2'], ['operator:recipient']]);
+    expect(recursive).not.toHaveBeenCalled();
+    expect(context.buffSourceId).toBe('ability-entity:3');
+  });
+
+  it('未装配单层来源端口时明确失败，不能偷用递归解析器或原样返回', () => {
+    const executor = new TargetContextOperationExecutor('operator', terminal);
+    expect(() =>
+      executor.execute(
+        {
+          kind: 'mergeContextTargets',
+          parameters: {
+            saveToContextKey: 'source',
+            sources: [{ kind: 'abilitySystemSource', owner: 'actionSource' }],
+          },
+        },
+        { targetContext: new RuntimeTargetContext(), blackboard: new ActionBlackboard() },
+      ),
+    ).toThrow('single-level AbilitySystem source query');
+  });
   it('snapshots the controlled identity, then excludes it from lowest-health selection', () => {
     const ledgers = new Map([
       ['operator:main', vitals(100)],

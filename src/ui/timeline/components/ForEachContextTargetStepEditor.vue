@@ -35,7 +35,7 @@ function setMode(event: Event): void {
           })
         "
     /></label>
-    <p>循环 Body 在左侧导图中添加和选择；每轮会设置稳定的 currentTarget。</p>
+    <p>在左侧循环节点上添加动作，直接选择其下的动作编辑；每轮会设置稳定的 currentTarget。</p>
   </div>
 </template>
 

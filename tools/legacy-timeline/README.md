@@ -1,0 +1,63 @@
+# 旧时间轴离线转换工具
+
+当前阶段：独立转换入口及映射配置已建立，真实三轴已转换并通过首轮运行检查，
+不是完整旧格式兼容器，也没有接回产品打开入口。
+
+## 使用
+
+在仓库根目录执行：
+
+```powershell
+npm run convert:legacy-timeline -- "C:\Users\sqwat\Downloads\Endaxis_Timeline_2026-08-31.json" tmp/converted-axis --mappings tools/legacy-timeline/mappings.example.json
+```
+
+输出目录必须不存在，父目录须存在。只写新目录，不覆盖旧存档。
+成功输出 project.json 和 report.json；有遗漏/目标校验失败只输出报告并以非零状态结束。
+示例配置只演示字段。三个真实轴改用 mappings.2026-08-31.json；
+依据、告警与未验证边界见 [映射及运行检查](mapping-evidence.md)。
+未传配置可用来发现未映射内容。
+
+## 映射配置
+
+- operators：旧干员 ID → 当前 operatorSlug；同名可省略，目标仍须存在。
+- weapons：旧武器 slug → 当前原生武器 ID。
+- gears：旧单件装备 ID → 当前单件装备 ID；不按套装名或图片相似度猜测。
+- enemies：旧敌人 ID → 当前定义 ID，按定义的 gameId 核对；未知敌人禁止静默降级为普通敌人。
+  保留存档战斗数值覆盖，但身份、图标与战斗分类取已匹配定义。
+- skills：按**旧干员 ID**分组的规则数组，每条包含 source 和 target。
+  source 精确匹配 skillId、sourceSkillKey、type、segmentIndex、variantKey；
+  缺省字段表示旧动作中也未提供，不是通配符。target 是当前项目的技能引用。
+  段号和变体必须逐项确认，不能将换槽、强化、自定义动作默认为基础技能。
+- actions：按“方案ID/轨道下标/动作下标”的单动作覆盖，优先于 skills；
+  仅供明确核对后的例外映射，不依赖可能重复的旧 action.id。
+
+不得把缺失身份自动变成默认配装或删除技能后宣称成功。
+映射只解决身份，不证明新旧版本行为或数值相同。
+
+## 边界与实现来源
+
+projectConversion.ts 的输入字段搬运以历史提交 9ec608cc 的迁移器为起点，
+仅保留在本工具内；不恢复旧游戏代码或运行时。
+sourcePreparation.ts 单独规格化时间及映射；convert.ts 调用当前正式项目/游戏数据校验。
+CLI 用无监听、无 HTTP 服务的 Vite 模块加载当前仓库。
+
+- 支持 version=1.0.0 的 scenarioList，frame 单位必须有有效 fps；
+  未标单位按旧 timeSerialization.ts 的秒存档约定处理。
+- 只量化实际搬运字段：直接由源帧换算到当前 PROJECT_FPS，报告保留误差。
+  绝对时刻先减去原始 prepDuration，以开战为 0；时长不平移。报告 sourceOrigin 记录这一变换。
+  startTime 与 logicalStartTime 不同时先阻塞，不猜旧加载后的冻屏时间语义。
+- 养成、配装、输入坐标和场景配置转换；旧 hits、Buff、面板及伤害快照不搬运。
+- 非空覆盖定义、连接、继承状态、合约、全局修正暂不支持，显式阻塞。
+- 使用当前游戏定义重算；这不是旧版本模拟器复刻，不证明最终屏幕时间一致。
+- 真实三轴已完成显式身份映射；尚未完成伤害、Buff 寿命逐 cast 对照。
+- 旧格式的其他变体、字段缺省规则和异常输入仍需扩展审计，不宣称任意旧存档均可保真转换。
+
+验证：
+
+```powershell
+npx vitest run tools/legacy-timeline --maxWorkers=1 --silent
+npx tsc -p tools/legacy-timeline/tsconfig.json
+```
+
+下一步调查映射记录中的路由/衔接告警，再推进旧快照与当前回执逐 cast 对照。
+完整源存档和运行报告留在 tmp，不提交私人存档或派生结果。

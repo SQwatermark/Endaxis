@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import type { InspectorPropertyPath } from '../inspectorProperty';
 import type {
   BuffDuration,
   BuffShieldDefinition,
@@ -7,15 +8,23 @@ import type {
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
 import BuffShieldAbsorptionInspector from './BuffShieldAbsorptionInspector.vue';
 import { createBuffShield, createBuffShieldAbsorption } from '../buffShieldGraph';
+import { cloneStructureValue } from '../skillStructureEditorCommands';
 
-const props = defineProps<{ shields: readonly BuffShieldDefinition[]; singleEntry?: boolean }>();
-const emit = defineEmits<{ update: [shields: readonly BuffShieldDefinition[]] }>();
+const props = defineProps<{
+  shields: readonly BuffShieldDefinition[];
+  singleEntry?: boolean;
+  propertyPath?: InspectorPropertyPath;
+}>();
+const emit = defineEmits<{
+  update: [shields: readonly BuffShieldDefinition[], field?: 'damageAbsorptions'];
+}>();
 const collapsed = ref(true);
 
-function replace(index: number, shield: BuffShieldDefinition): void {
+function replace(index: number, shield: BuffShieldDefinition, field?: 'damageAbsorptions'): void {
   emit(
     'update',
     props.shields.map((item, itemIndex) => (itemIndex === index ? shield : item)),
+    field,
   );
 }
 function add(): void {
@@ -59,10 +68,14 @@ function setScalar(callback: (value: BuffDuration) => void, value: BuffDuration 
   if (value !== undefined) callback(value);
 }
 function addAbsorption(index: number, shield: BuffShieldDefinition): void {
-  replace(index, {
-    ...shield,
-    damageAbsorptions: [...shield.damageAbsorptions, createBuffShieldAbsorption()],
-  });
+  replace(
+    index,
+    {
+      ...shield,
+      damageAbsorptions: [...shield.damageAbsorptions, createBuffShieldAbsorption()],
+    },
+    'damageAbsorptions',
+  );
 }
 function replaceAbsorption(
   index: number,
@@ -70,24 +83,53 @@ function replaceAbsorption(
   absorptionIndex: number,
   patch: Partial<BuffShieldDefinition['damageAbsorptions'][number]>,
 ): void {
-  replace(index, {
-    ...shield,
-    damageAbsorptions: shield.damageAbsorptions.map((item, itemIndex) =>
-      itemIndex === absorptionIndex ? { ...item, ...patch } : item,
-    ),
-  });
+  replace(
+    index,
+    {
+      ...shield,
+      damageAbsorptions: shield.damageAbsorptions.map((item, itemIndex) =>
+        itemIndex === absorptionIndex ? { ...item, ...patch } : item,
+      ),
+    },
+    'damageAbsorptions',
+  );
 }
 function removeAbsorption(
   index: number,
   shield: BuffShieldDefinition,
   absorptionIndex: number,
 ): void {
-  replace(index, {
-    ...shield,
-    damageAbsorptions: shield.damageAbsorptions.filter(
-      (_, itemIndex) => itemIndex !== absorptionIndex,
-    ),
-  });
+  replace(
+    index,
+    {
+      ...shield,
+      damageAbsorptions: shield.damageAbsorptions.filter(
+        (_, itemIndex) => itemIndex !== absorptionIndex,
+      ),
+    },
+    'damageAbsorptions',
+  );
+}
+
+function moveAbsorption(
+  index: number,
+  shield: BuffShieldDefinition,
+  from: number,
+  offset: -1 | 1,
+): void {
+  const to = from + offset;
+  if (to < 0 || to >= shield.damageAbsorptions.length) return;
+  const entries = [...shield.damageAbsorptions];
+  [entries[from], entries[to]] = [entries[to]!, entries[from]!];
+  replace(index, { ...shield, damageAbsorptions: entries }, 'damageAbsorptions');
+}
+
+function duplicateAbsorption(index: number, shield: BuffShieldDefinition, from: number): void {
+  const entries = [...shield.damageAbsorptions];
+  const entry = entries[from];
+  if (!entry) return;
+  entries.splice(from + 1, 0, cloneStructureValue(entry));
+  replace(index, { ...shield, damageAbsorptions: entries }, 'damageAbsorptions');
 }
 </script>
 
@@ -244,10 +286,14 @@ function removeAbsorption(
           "
         /><span>替换受击效果证据位</span></label
       >
-      <fieldset v-if="!singleEntry" class="absorptions">
-        <legend>
-          分伤害类型吸收 <button type="button" @click="addAbsorption(index, shield)">＋</button>
-        </legend>
+      <details
+        class="absorptions"
+        :data-property-path="propertyPath && JSON.stringify([...propertyPath, 'damageAbsorptions'])"
+      >
+        <summary>
+          分伤害类型吸收 <small>{{ shield.damageAbsorptions.length }}</small>
+        </summary>
+        <button type="button" @click="addAbsorption(index, shield)">＋ 添加规则</button>
         <div
           v-for="(absorption, absorptionIndex) in shield.damageAbsorptions"
           :key="absorptionIndex"
@@ -256,9 +302,40 @@ function removeAbsorption(
             :absorption="absorption"
             @update="replaceAbsorption(index, shield, absorptionIndex, $event)"
           />
-          <button type="button" @click="removeAbsorption(index, shield, absorptionIndex)">×</button>
+          <div class="absorption-actions">
+            <button
+              type="button"
+              title="上移"
+              :disabled="absorptionIndex === 0"
+              @click="moveAbsorption(index, shield, absorptionIndex, -1)"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              title="下移"
+              :disabled="absorptionIndex === shield.damageAbsorptions.length - 1"
+              @click="moveAbsorption(index, shield, absorptionIndex, 1)"
+            >
+              ↓
+            </button>
+            <button
+              type="button"
+              title="复制规则"
+              @click="duplicateAbsorption(index, shield, absorptionIndex)"
+            >
+              复制
+            </button>
+            <button
+              type="button"
+              title="删除规则"
+              @click="removeAbsorption(index, shield, absorptionIndex)"
+            >
+              ×
+            </button>
+          </div>
         </div>
-      </fieldset>
+      </details>
     </article>
   </section>
 </template>
@@ -318,9 +395,18 @@ function removeAbsorption(
 }
 .absorptions > div {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 30px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
   margin-top: 6px;
+}
+.absorptions summary {
+  cursor: pointer;
+  padding: 8px;
+}
+.absorption-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
 }
 .single-entry {
   margin-top: 0;

@@ -4,6 +4,9 @@ import { CombatClock } from '../runtime/combatClock';
 import { CombatVitals } from '../runtime/combatVitals';
 import type { PlayerActiveDamageResult } from './playerActiveDamage';
 import { executeHealthDamage } from './healthDamage';
+import type { DamageTag } from '../../game-data/operatorDefinition';
+import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { groupEnemyBurstDamageHits } from '../../../ui/timeline/enemyBurstDamageGroups';
 
 function createDamageResult(value: number): PlayerActiveDamageResult {
   return {
@@ -20,6 +23,45 @@ function createDamageResult(value: number): PlayerActiveDamageResult {
 }
 
 describe('executeHealthDamage', () => {
+  it.each([
+    [['fireBurst'], 'Fire'],
+    [['electricBurst'], 'Pulse'],
+    [['cryoBurst'], 'Cryst'],
+    [['natureBurst'], 'Natural'],
+    [['cryoBurst', 'cryoBurst', 'comboSkill'], 'Cryst'],
+    [['comboSkill', 'cryoAbnormal'], undefined],
+    [['fireBurst', 'electricBurst'], undefined],
+    [[], undefined],
+  ] as const)('伤害标签 %j 决定爆发回执分类，不依赖伤害元素或技能类型', (tags, expected) => {
+    const receipt = new CombatReceiptCollector();
+    const target = new CombatVitals({
+      health: 100,
+      maxHealth: 100,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    executeHealthDamage({
+      sourceId: 'operator',
+      targetId: 'enemy',
+      damageType: 'electric',
+      tags: tags as readonly DamageTag[],
+      result: createDamageResult(1),
+      target,
+      clock: new CombatClock(),
+      receipt,
+      detail: { skillType: 'comboSkill' },
+      emitSourceEvent: () => undefined,
+      emitTargetEvent: () => undefined,
+    });
+    expect(receipt.entries).toHaveLength(1);
+    expect(receipt.entries[0]!.data?.spellBurstType).toBe(expected);
+    expect(groupEnemyBurstDamageHits(receipt.entries)).toHaveLength(expected === undefined ? 0 : 1);
+    expect(target.health).toBe(99);
+  });
   it.each([
     undefined,
     null,

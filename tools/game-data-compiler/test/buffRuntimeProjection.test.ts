@@ -14,8 +14,91 @@ import { collectBuffSpawnedAbilityEntityContextKeys } from '../src/compiler/stan
 import type { NativeSequenceSource } from '../src/source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
 import { buffHasNoAffixIdentityWriter } from '../src/compiler/buffCastIdentityProof.ts';
+import { compileActionNode } from '../src/compiler/combatActionLeafProjection.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('施加 Buff 的 Context 接收者保留查询身份，与来源分别解析', () => {
+    const node = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[1]!;
+    if (node.body.kind !== 'leaf' || node.body.value.family !== 'buffApplication')
+      throw new Error('missing Buff application fixture');
+    const steps = compileActionNode(
+      {
+        ...node,
+        body: {
+          kind: 'leaf',
+          value: {
+            ...node.body.value,
+            action: {
+              ...node.body.value.action,
+              target: { ...fixedTarget('Context'), targetGroupKey: 'recipient' },
+              buffSource: 'ContextTarget',
+              contextKey: 'source',
+            },
+          },
+        },
+      },
+      new Set(),
+      new Map([
+        ['recipient', 'sourceFinderResult'],
+        ['source', 'sourceFinderResult'],
+      ]),
+    );
+    expect(steps).toHaveLength(1);
+    expect(steps[0]).toMatchObject({
+      kind: 'forEachContextTarget',
+      parameters: { contextKey: 'recipient' },
+      body: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: { target: 'currentTarget', sourceContextKey: 'source' },
+          },
+        ],
+      },
+    });
+  });
+  it('结束 Buff 保留 SourceFinder 的 Context 身份，不重新读取 buffSource', () => {
+    const metadata = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[0]!.metadata;
+    const steps = compileActionNode(
+      {
+        sourcePath: 'fixture.finishQueriedSource',
+        metadata,
+        body: {
+          kind: 'leaf',
+          value: {
+            family: 'buffFinish',
+            action: {
+              kind: 'buffFinishById',
+              owner: { ...fixedTarget('Context'), targetGroupKey: 'queried' },
+              buffIds: ['buff.fixture'],
+              finishAll: true,
+              finishLayerCount: { value: 1, blackboardKey: null, levelValues: null },
+              limitSource: false,
+              buffSource: fixedTarget('Source'),
+              isFinishedEarly: false,
+              finishSource: fixedTarget('Source'),
+            },
+          },
+        },
+      },
+      new Set(),
+      new Map([['queried', 'sourceFinderResult']]),
+    );
+    expect(steps).toEqual([
+      {
+        kind: 'forEachContextTarget',
+        parameters: { contextKey: 'queried' },
+        body: {
+          steps: [
+            {
+              kind: 'finishBuffsById',
+              parameters: { target: 'currentTarget', buffIds: ['buff.fixture'], reason: 'other' },
+            },
+          ],
+        },
+      },
+    ]);
+  });
   it('没有 affix 写入的 Buff 事件按自身来源施法限定计数', () => {
     const source = sourceFixture();
     const sequence = source.graph.abilityEvents[0]!.actions[0]!;
@@ -3330,7 +3413,7 @@ describe('公共 Buff 运行时投影', () => {
     ]);
   });
 
-  it('主动技能的敌人 NoGuard 存在性映射到木桩破防状态', () => {
+  it.each(['Context', 'Target'])('NoGuard 的 %s 查询保留 Buff 计数而非失衡判断', targetSource => {
     const source = sourceFixture();
     const nativeSequence = source.graph.abilityEvents[0]!.actions[0]!;
     const countCondition = {
@@ -3343,8 +3426,8 @@ describe('公共 Buff 运行时投影', () => {
           action: {
             kind: 'buffStack' as const,
             sourceType: 'CheckBuffStackNumAdvanced',
-            targetSource: 'Context',
-            targetGroupKey: 'smart_target',
+            targetSource,
+            targetGroupKey: targetSource === 'Context' ? 'smart_target' : '',
             buffCheckType: 'Tag',
             buffIds: [],
             tagQueryType: 'hasAny' as const,
@@ -3373,8 +3456,12 @@ describe('公共 Buff 运行时投影', () => {
       kind: 'conditional',
       parameters: {
         condition: {
-          kind: 'targetStaggered',
+          kind: 'buffStackCompare',
           target: 'enemy',
+          tagQueryType: 'hasAny',
+          buffTags: ['Skill/Character/Common/NoGuard'],
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
         },
       },
     });

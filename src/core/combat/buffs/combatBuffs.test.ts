@@ -24,6 +24,66 @@ import { ActionBlackboard } from '../runtime/actionBlackboard';
 
 type Attribute = 'attack';
 
+it.each([-1, -0.00002, -0.00001, -0.000001, 0, 0.5])(
+  '有限配置在本次赋值 duration=%s 后按原生负阈值解析寿命',
+  duration => {
+    const container = new CombatBuffContainer<Attribute>(
+      'owner',
+      new CombatAttributeSet<Attribute>(),
+    );
+    const buff = container.add(
+      {
+        id: 'duration-boundary',
+        stackingType: 'unlimited',
+        durationSeconds: { blackboardKey: 'duration' },
+        blackboard: { duration: 10 },
+      },
+      'source',
+      { blackboardValues: { duration } },
+    )!;
+    const infinite = Math.fround(duration) < Math.fround(-0.00001);
+    expect(buff.remainingDuration).toBe(infinite ? null : duration);
+    expect(buff.blackboard.getNumber('duration')).toBe(duration);
+    buff.tick(1);
+    expect(buff.isFinished).toBe(!infinite);
+    if (infinite) {
+      buff.rawSetRemainingDuration(5);
+      expect(buff.remainingDuration).toBeNull();
+    }
+  },
+);
+
+it('输出黑板收集发生在赋值后、寿命求值前，刷新旧实例不重播', () => {
+  let calls = 0;
+  const container = new CombatBuffContainer<Attribute>(
+    'enemy',
+    new CombatAttributeSet<Attribute>(),
+    undefined,
+    null,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    (_definition, source, blackboard) => {
+      expect(source).toBe('source');
+      calls++;
+      blackboard.assignDynamic('duration', blackboard.getNumber('duration')! + 5);
+    },
+  );
+  const definition: CombatBuffDefinition<Attribute> = {
+    id: 'collected',
+    stackingType: 'refresh',
+    durationSeconds: { blackboardKey: 'duration' },
+    blackboard: { duration: 1 },
+  };
+  const first = container.add(definition, 'source', { blackboardValues: { duration: 10 } })!;
+  expect(first.remainingDuration).toBe(15);
+  expect(container.add(definition, 'source', { blackboardValues: { duration: 10 } })).toBe(first);
+  expect(calls).toBe(1);
+  expect(definition.blackboard).toEqual({ duration: 1 });
+});
+
 function requireAddedBuff<T>(buff: T | null): T {
   if (buff === null) throw new Error('test fixture buff was unexpectedly rejected');
   return buff;
@@ -250,7 +310,7 @@ describe('CombatBuffContainer', () => {
     ).toThrow("targets distinct buff source 'source'");
   });
 
-  it('有限 Buff 接受原生负时长并在首次 Tick 的生命周期阶段结束', () => {
+  it('有限配置的负时长转为无限，仍允许显式结束', () => {
     const events: string[] = [];
     const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
     const buff = requireAddedBuff(
@@ -269,11 +329,14 @@ describe('CombatBuffContainer', () => {
     );
 
     expect(buff.isFinished).toBe(false);
-    expect(buff.remainingDuration).toBe(-1);
+    expect(buff.remainingDuration).toBeNull();
     expect(events).toEqual(['start']);
 
     buff.tick(0);
 
+    expect(buff.isFinished).toBe(false);
+    expect(events).toEqual(['start']);
+    buff.finish('other');
     expect(buff.isFinished).toBe(true);
     expect(events).toEqual(['start', 'finish']);
   });
@@ -770,7 +833,7 @@ describe('CombatBuffContainer', () => {
     expect(infinite.remainingDuration).toBeNull();
   });
 
-  it('applies a negative native Extend duration to the existing instance', () => {
+  it('Extend 的本次负时长初始化为无限，旧实例随之成为无限', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     const container = new CombatBuffContainer('operator', attributes);
     const definition: CombatBuffDefinition<Attribute> = {
@@ -784,7 +847,7 @@ describe('CombatBuffContainer', () => {
     container.add(definition, 'second-source', {
       blackboardValues: { duration: -3 },
     });
-    expect(existing.remainingDuration).toBe(7);
+    expect(existing.remainingDuration).toBeNull();
     expect(container.buffs).toEqual([existing]);
   });
 

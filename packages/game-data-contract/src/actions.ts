@@ -155,6 +155,8 @@ export interface CombatStepParameters {
           readonly target: 'caster' | 'enemy' | 'eventTarget' | 'buffSource' | 'currentTarget';
         }
       | { readonly kind: 'context'; readonly contextKey: string }
+      /** 原生 SourceFinder：先选动作来源/宿主，再查询其单层 AbilitySystem.source。 */
+      | { readonly kind: 'abilitySystemSource'; readonly owner: 'actionSource' | 'actionOwner' }
     )[];
   };
   /** 查询当前队伍并把当时的实例身份快照覆盖写入 Context；后续消费者不得重新选人。 */
@@ -406,6 +408,8 @@ export interface CombatStepParameters {
      * 该字段与接收 Buff 的 `target` 相互独立，只应在原生动作显式改写来源时配置。
      */
     source?: BuffApplicationSource;
+    /** 已确定为单一目标的 Context 来源，与 source 互斥；保留查询结果的实例身份。 */
+    sourceContextKey?: string;
     /**
      * 原生 Buff 图标的倒计时来源。它只改变可视倒计时，不改变 Buff 自身生命周期；
      * 来源在施加边沿解析成稳定实例身份，同名 TimedMarker 重建不会串线。
@@ -846,7 +850,11 @@ export interface CombatStepParameters {
   openComboWindow:
     | { nextSkillKey: string }
     /** TriggerComboSkillAction 读取 owner 当前 ComboSkill 槽，不携带静态技能 ID。 */
-    | { nextSkillKeyFromSlot: 'comboSkill' };
+    | {
+        nextSkillKeyFromSlot: 'comboSkill';
+        /** 原生 owner 为 Context 时取该组首个角色；省略时为当前执行干员。 */
+        ownerContextKey?: string;
+      };
   /** 切换稳定技能组后续释放所使用的技能形态；当前已启动的释放不受影响。 */
   changeSkillSlot: {
     skillGroupKey: string;

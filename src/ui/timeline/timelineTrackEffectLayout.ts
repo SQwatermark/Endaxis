@@ -22,6 +22,17 @@ export const TIMELINE_BUFF_LANE_PITCH = 22;
 export const TIMELINE_TRACK_MIN_HEIGHT = TIMELINE_TRACK_BASE_HEIGHT;
 
 const BUFF_LAYER_MARGIN = 8;
+/** 技能底边以下保留连携窗口/冷却线及其时长文字，Buff 不进入此区域。 */
+const TRACK_DECORATION_SPACE = 24;
+const BUFF_ICON_SIZE = 18;
+/** 旧版下方容器距边缘 2px，图标在 24px 行内另缩进 3px。 */
+const LOWER_BUFF_EDGE_INSET = 5;
+
+/** 与旧版一致：下方状态从轨道外缘向上排列，不从技能底边向下挤占附属标记。 */
+export function timelineLowerBuffTop(actionTop: number, lane: number): number {
+  const trackHeight = actionTop * 2 + 50;
+  return trackHeight - LOWER_BUFF_EDGE_INSET - BUFF_ICON_SIZE - lane * TIMELINE_BUFF_LANE_PITCH;
+}
 
 /** 紧凑轨道按已有高度比例填满可视区域；不增加额外的上下空白。 */
 export function resolveCompactTrackHeights(
@@ -78,7 +89,7 @@ export function projectTimelineTrackEffectLayout(
       : 0;
   const lowerNeed =
     input.lowerLaneCount > 0
-      ? Math.floor(input.lowerLaneCount) * TIMELINE_BUFF_LANE_PITCH + BUFF_LAYER_MARGIN
+      ? Math.floor(input.lowerLaneCount) * TIMELINE_BUFF_LANE_PITCH + TRACK_DECORATION_SPACE
       : 0;
   const padding = Math.max(baselinePadding, upperNeed, lowerNeed);
 

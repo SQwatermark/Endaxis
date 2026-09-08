@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';
+import {
+  presentStructureMap,
+  structureChildActionTarget,
+  type StructureMapNode as MapNodeSource,
+} from '../structureMapPresentation';
 /** Reusable free-roaming structure map used by the formal skill editor and its demo. */
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { definitionViewStateKey } from '../definitionViewState';
@@ -23,25 +27,6 @@ import {
 interface MapReference {
   readonly kind: 'buff' | 'entity';
   readonly id: string;
-}
-
-interface MapNodeSource {
-  readonly id: string;
-  readonly label: string;
-  readonly kind: string;
-  readonly summary: string;
-  readonly sourcePath: string;
-  readonly details: Readonly<Record<string, unknown>>;
-  readonly children: readonly MapNodeSource[];
-  readonly editorSection?: 'overview' | 'blackboard' | 'availability' | number;
-  readonly reference?: MapReference;
-  readonly canAddChild?: StructureNodeContract['canAddChild'];
-  readonly payloadKind?: StructureNodeContract['payloadKind'];
-  readonly acceptsChildKind?: StructureNodeContract['acceptsChildKind'];
-  readonly canDelete?: boolean;
-  readonly canMove?: boolean;
-  readonly canCopy?: boolean;
-  readonly relationToParent?: 'port' | 'member';
 }
 
 interface PositionedNode {
@@ -87,6 +72,7 @@ const emit = defineEmits<{
   historyAction: [action: 'undo' | 'redo'];
 }>();
 
+const presentedRoot = computed(() => presentStructureMap(props.root));
 const zoom = ref(0.9);
 const viewStates = inject(definitionViewStateKey, undefined);
 let viewGeneration = viewStates?.generation;
@@ -148,7 +134,7 @@ const layout = computed(() => {
     return positioned;
   }
 
-  visit(props.root, 0);
+  visit(presentedRoot.value, 0);
   nodes.sort((left, right) => left.y - right.y);
   return {
     nodes,
@@ -164,11 +150,11 @@ const totalNodeCount = computed(() => {
     count += 1;
     node.children.forEach(visit);
   }
-  visit(props.root);
+  visit(presentedRoot.value);
   return count;
 });
 const selectedNode = computed(() =>
-  props.selectedId === undefined ? undefined : findNode(props.root, props.selectedId),
+  props.selectedId === undefined ? undefined : findNode(presentedRoot.value, props.selectedId),
 );
 const clipboardLabel = computed(() => {
   if (props.clipboardKind === 'upgradeModifier') return '构筑修正';
@@ -182,13 +168,6 @@ const clipboardLabel = computed(() => {
   if (props.clipboardKind === 'combatCondition') return '战斗条件';
   if (props.clipboardKind === 'buffDamageModifier') return '伤害修正器';
   if (props.clipboardKind === 'buffShield') return '护盾';
-  if (props.clipboardKind === 'buffProtection') return '持续保护';
-  if (props.clipboardKind === 'buffRole') return '元素语义';
-  if (props.clipboardKind === 'buffSpellBurst') return '法术爆发参数';
-  if (props.clipboardKind === 'buffPresentation') return 'Buff 表现';
-  if (props.clipboardKind === 'buffChildPresentation') return '子 Buff 表现';
-  if (props.clipboardKind === 'buffPresentationOrder') return '表现排序';
-  if (props.clipboardKind === 'buffShieldAbsorption') return '伤害吸收规则';
   if (props.clipboardKind === 'buffHealModifier') return '治疗修正器';
   if (props.clipboardKind === 'buffHealProcessor') return '治疗处理器';
   if (props.clipboardKind === 'buffHealCondition') return '治疗条件';
@@ -240,7 +219,7 @@ function nodeClass(node: MapNodeSource): Readonly<Record<string, boolean>> {
     reference: node.reference !== undefined,
     port: node.relationToParent === 'port',
     collapsed: collapsedIds.value.has(node.id),
-    selected: node.id === props.selectedId,
+    selected: node.id === selectedNode.value?.id,
     'drop-inside': dropHint.value?.id === node.id && dropHint.value.placement === 'inside',
     'drop-before': dropHint.value?.id === node.id && dropHint.value.placement === 'before',
     'drop-after': dropHint.value?.id === node.id && dropHint.value.placement === 'after',
@@ -301,7 +280,11 @@ function dropOnNode(event: DragEvent, target: MapNodeSource): void {
   endNodeDrag();
   if (source === null || placement === undefined) return;
   event.preventDefault();
-  emit('moveNode', { source, target, placement });
+  emit('moveNode', {
+    source,
+    target: placement === 'inside' ? structureChildActionTarget(target) : target,
+    placement,
+  });
 }
 
 function openContextMenu(event: MouseEvent, node: MapNodeSource): void {
@@ -313,13 +296,13 @@ function openContextMenu(event: MouseEvent, node: MapNodeSource): void {
 
 function runNodeAction(action: 'delete' | 'copy' | 'paste', node: MapNodeSource): void {
   contextMenu.value = undefined;
-  emit('nodeAction', action, node);
+  emit('nodeAction', action, action === 'paste' ? structureChildActionTarget(node) : node);
 }
 
 function clipboardNodeAction(command: 'copy' | 'paste'): boolean {
   const node =
     contextMenu.value?.node ??
-    (props.selectedId === undefined ? undefined : findNode(props.root, props.selectedId));
+    (props.selectedId === undefined ? undefined : findNode(presentedRoot.value, props.selectedId));
   if (node === undefined) return false;
   if (command === 'copy') {
     if (node.payloadKind === undefined || node.canCopy === false) return false;
@@ -352,7 +335,7 @@ function handleKeyboard(event: KeyboardEvent): boolean {
   }
   const node =
     contextMenu.value?.node ??
-    (props.selectedId === undefined ? undefined : findNode(props.root, props.selectedId));
+    (props.selectedId === undefined ? undefined : findNode(presentedRoot.value, props.selectedId));
   if (node === undefined) return false;
   if (
     (event.key === 'Delete' || event.key === 'Backspace') &&
@@ -387,7 +370,7 @@ useKeyboardShortcutScope({
 });
 
 function findNode(node: MapNodeSource, id: string): MapNodeSource | undefined {
-  if (node.id === id) return node;
+  if (node.id === id || node.childActionTarget?.id === id) return node;
   for (const child of node.children) {
     const match = findNode(child, id);
     if (match !== undefined) return match;
@@ -453,7 +436,7 @@ function expandTwoLevels(): void {
     if (depth >= 2 && node.children.length > 0) ids.add(node.id);
     node.children.forEach(child => visit(child, depth + 1));
   }
-  visit(props.root, 0);
+  visit(presentedRoot.value, 0);
   collapsedIds.value = ids;
 }
 
@@ -463,7 +446,7 @@ function collapseAll(): void {
     if (node.children.length > 0) ids.add(node.id);
     node.children.forEach(visit);
   }
-  visit(props.root);
+  visit(presentedRoot.value);
   collapsedIds.value = ids;
 }
 
@@ -591,19 +574,21 @@ function positionNodeInViewport(element: HTMLElement, node: { x: number; y: numb
 async function revealNode(id: string): Promise<void> {
   const ancestors: string[] = [];
   function find(node: MapNodeSource, path: readonly string[]): boolean {
-    if (node.id === id) {
+    if (node.id === id || node.childActionTarget?.id === id) {
       ancestors.push(...path);
       return true;
     }
     return node.children.some(child => find(child, [...path, node.id]));
   }
-  if (!find(props.root, [])) return;
+  if (!find(presentedRoot.value, [])) return;
   const next = new Set(collapsedIds.value);
   ancestors.forEach(ancestorId => next.delete(ancestorId));
   collapsedIds.value = next;
   await nextTick();
   const element = viewport.value;
-  const target = layout.value.nodes.find(node => node.source.id === id);
+  const target = layout.value.nodes.find(
+    node => node.source.id === id || node.source.childActionTarget?.id === id,
+  );
   if (element === null || target === undefined) return;
   positionNodeInViewport(element, target);
 }
@@ -634,10 +619,12 @@ watch(
       return;
     }
     zoom.value = saved.zoom;
-    collapsedIds.value = new Set(saved.collapsedIds.filter(id => findNode(props.root, id)));
+    collapsedIds.value = new Set(
+      saved.collapsedIds.filter(id => findNode(presentedRoot.value, id)),
+    );
     // Returning to an object restores its local selection, not a document edit.
     // A caller that already selected a specific node (history/diagnostics) wins.
-    const savedSelection = saved.selectedId && findNode(props.root, saved.selectedId);
+    const savedSelection = saved.selectedId && findNode(presentedRoot.value, saved.selectedId);
     if (savedSelection && (!props.selectedId || props.selectedId === props.root.id))
       emit('select', savedSelection);
     await nextTick();
@@ -782,7 +769,12 @@ watch(
               v-if="node.source.canAddChild"
               class="add-child"
               title="添加子节点"
-              @click.stop="emit('addChild', node.source, { x: $event.clientX, y: $event.clientY })"
+              @click.stop="
+                emit('addChild', structureChildActionTarget(node.source), {
+                  x: $event.clientX,
+                  y: $event.clientY,
+                })
+              "
             >
               +
             </button>

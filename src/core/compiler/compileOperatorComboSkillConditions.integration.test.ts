@@ -13,10 +13,7 @@ import { createGameDataRepository } from '../../data/gameDataRepository';
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 import { skillSettings } from '../../data/combat/skillSettings';
 import { commonBuffDefinitions } from '../../data/buffs/commonDefinitions';
-import {
-  timeDilationRuntimeConfig,
-  STANDARD_TIME_MANAGER_DELTA_MODE,
-} from '../../data/combat/timeDilationConfig';
+import { timeDilationRuntimeConfig } from '../../data/combat/timeDilationConfig';
 import { createEmptyProject } from '../project/createProject';
 import {
   deriveProjectOperatorTemplate,
@@ -255,7 +252,6 @@ describe('原生条件经正式项目定义进入实际附着', () => {
             ...environment.runtimeOptions,
             timeDilation: {
               config: timeDilationRuntimeConfig,
-              timeManagerDeltaMode: STANDARD_TIME_MANAGER_DELTA_MODE,
             },
             onPendingComboCondition: (operatorId, program, value) => {
               expect(operatorId).toBe('owner');

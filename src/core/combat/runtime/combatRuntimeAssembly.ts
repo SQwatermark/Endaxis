@@ -269,7 +269,6 @@ export interface CombatRuntimeAssemblyOptions {
   /** 缺省表示场景不启用时间膨胀；存在相关技能步骤时必须配置。 */
   readonly timeDilation?: {
     readonly config: TimeDilationRuntimeConfig;
-    readonly timeManagerDeltaMode: number;
   };
   /**
    * 敌人生命与失衡账本的逐帧推进器；由环境创建并交给装配根，装配层不猜测推进顺序。
@@ -903,7 +902,6 @@ export class CombatRuntimeAssembly {
                   this.timeDilation!.getAbilityTickDeltas(
                     operator.operatorId,
                     COMBAT_FRAME_INTERVAL,
-                    options.timeDilation!.timeManagerDeltaMode,
                   ),
               }),
         }),
@@ -1171,11 +1169,7 @@ export class CombatRuntimeAssembly {
                     selfScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
                     skillCooldownDeltaSeconds: COMBAT_FRAME_INTERVAL,
                   }
-                : this.timeDilation.getAbilityTickDeltas(
-                    entityId,
-                    COMBAT_FRAME_INTERVAL,
-                    options.timeDilation!.timeManagerDeltaMode,
-                  ),
+                : this.timeDilation.getAbilityTickDeltas(entityId, COMBAT_FRAME_INTERVAL),
             );
           }
         },
@@ -1191,11 +1185,7 @@ export class CombatRuntimeAssembly {
             return;
           }
           this.#enemyBuffRuntime.advanceWithDeltas(
-            this.timeDilation.getAbilityTickDeltas(
-              'enemy',
-              COMBAT_FRAME_INTERVAL,
-              options.timeDilation!.timeManagerDeltaMode,
-            ),
+            this.timeDilation.getAbilityTickDeltas('enemy', COMBAT_FRAME_INTERVAL),
           );
         },
       });
@@ -1456,6 +1446,11 @@ export class CombatRuntimeAssembly {
           skillId: expectedSkillId,
           assessedSkillId: interruptionSkillId,
           currentSkillId: interruption.currentSkillKey,
+          // 保存输入阶段实际读到的局部帧，不用两个全局输入时刻相减推测。
+          // 膨胀与同帧推进顺序都会使这两个量不同。
+          ...(ability.currentSkillTimelineFrame === undefined
+            ? {}
+            : { currentSkillTimelineFrame: ability.currentSkillTimelineFrame }),
           ...(castId === undefined ? {} : { castId }),
         },
       });
@@ -2257,6 +2252,7 @@ export class CombatRuntimeAssembly {
           return resolveOperatorVitals(candidate);
         },
       },
+      id => this.#findAbilitySystemSource(id),
     );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
@@ -2381,7 +2377,8 @@ export class CombatRuntimeAssembly {
       operatorId,
       this.comboWindows,
       controlConditions,
-      skillGroupKey => this.#requireAbilitySystem(operatorId).currentSkillKeyForSlot(skillGroupKey),
+      (skillGroupKey, ownerId) =>
+        this.#requireAbilitySystem(ownerId).currentSkillKeyForSlot(skillGroupKey),
     );
     const eventConditions = new EventContextConditionExecutor(
       comboWindowOperations,
@@ -2565,6 +2562,7 @@ export class CombatRuntimeAssembly {
           return options.resolveOperatorVitals(candidate);
         },
       },
+      id => this.#findAbilitySystemSource(id),
     );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
@@ -2682,7 +2680,8 @@ export class CombatRuntimeAssembly {
       operatorId,
       this.comboWindows,
       controlConditions,
-      skillGroupKey => this.#requireAbilitySystem(operatorId).currentSkillKeyForSlot(skillGroupKey),
+      (skillGroupKey, ownerId) =>
+        this.#requireAbilitySystem(ownerId).currentSkillKeyForSlot(skillGroupKey),
     );
     const eventConditions = new EventContextConditionExecutor(
       comboWindowOperations,
@@ -3009,6 +3008,20 @@ export class CombatRuntimeAssembly {
       return this.#resolveAbilitySystemSourceId(logicalAbilityEntityRuntimeId(source.instanceId));
     }
     throw new Error('spatial points cannot be AbilitySystem sources');
+  }
+
+  /** SourceFinder 读取一层 source；能力实体来源仍是实体时保留身份，不递归追祖先。 */
+  #findAbilitySystemSource(ownerId: string): RuntimeTargetRef {
+    const match = /^ability-entity:(\d+)$/.exec(ownerId);
+    if (match === null)
+      return ownerId === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: ownerId };
+    const source = this.abilityEntities.snapshot({
+      kind: 'abilityEntity',
+      instanceId: Number(match[1]),
+    }).source;
+    if (source.kind === 'spatialPoint')
+      throw new Error('spatial points cannot be AbilitySystem sources');
+    return source;
   }
 
   #resolveAbilityEntityBuffTarget(

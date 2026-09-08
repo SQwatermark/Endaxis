@@ -14,14 +14,8 @@ import { BUFF_FLAT_COLLECTIONS, type BuffFlatCollectionKey } from './buffFlatCol
 import { appendBuffCalculationChild } from './buffCalculationModifierGraph';
 import { isBuffGraphPayload } from './buffGraphOperations';
 import { appendBuffShieldChild } from './buffShieldGraph';
-import { appendBuffOptionalObject } from './buffOptionalObjectGraph';
-import { appendBuffPresentationChild } from './buffPresentationGraph';
 
 export function appendBuffGraphChild<T>(document: T, path: string): { root: T; itemPath: string } {
-  const optional = appendBuffOptionalObject(document, path);
-  if (optional) return optional;
-  const presentation = appendBuffPresentationChild(document, path);
-  if (presentation) return presentation;
   const shield = appendBuffShieldChild(document, path);
   if (shield) return shield;
   const calculation = appendBuffCalculationChild(document, path);

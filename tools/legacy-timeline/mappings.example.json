@@ -1,0 +1,22 @@
+{
+  "operators": { "perlica": "perlica" },
+  "skills": {
+    "perlica": [
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      }
+    ]
+  },
+  "weapons": { "lupine-scarlet": "wpn_sword_0022" },
+  "gears": {},
+  "actions": {}
+}

@@ -1787,7 +1787,14 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
           repeatEachTick(
             sequence(
               branch(
-                { kind: 'targetStaggered', target: 'enemy' },
+                {
+                  kind: 'buffStackCompare',
+                  target: 'enemy',
+                  tagQueryType: 'hasAny',
+                  buffTags: ['Skill/Character/Common/NoGuard'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
                 sequence(
                   step('modifyActionValue', {
                     key: 'FollowAttackTrigger',
@@ -2250,7 +2257,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
               'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
               'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/2/whenFalse/steps/0',
             ]),
-            {},
+            undefined,
             { lifetime: 'execution' },
           ),
           withActionBlackboardScope(
@@ -2401,7 +2408,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                 { lifetime: 'execution', alwaysNext: true },
               ),
             ),
-            {},
+            undefined,
             { lifetime: 'execution' },
           ),
           withActionBlackboardScope(
@@ -2419,7 +2426,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
               'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
               'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/2/whenFalse/steps/0',
             ]),
-            {},
+            undefined,
             { lifetime: 'execution' },
           ),
           withActionBlackboardScope(
@@ -2437,7 +2444,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
               'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/0',
               'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/2/whenFalse/steps/0',
             ]),
-            {},
+            undefined,
             { lifetime: 'execution' },
           ),
         ),

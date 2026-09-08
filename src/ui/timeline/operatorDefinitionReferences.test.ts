@@ -5,6 +5,51 @@ import {
   referencesToDefinition,
 } from './operatorDefinitionReferences';
 
+it('结束实例的 ID 保留使用处索引，但不与创建定义依赖混为一类', () => {
+  const operator = definition();
+  operator.skillGroups = [
+    {
+      key: 'qa',
+      skillType: 'battleSkill',
+      levelSource: 'battleSkill',
+      skills: {
+        key: 'qa',
+        timelineBlockFrames: 1,
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'once',
+                  parameters: { scopeKey: 'qa' },
+                  body: {
+                    steps: [
+                      {
+                        kind: 'finishBuffsById',
+                        parameters: { target: 'caster', buffIds: ['same-id'], reason: 'other' },
+                      },
+                      { kind: 'applyBuff', parameters: { target: 'caster', buffId: 'same-id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ];
+  const refs = referencesToDefinition(
+    collectOperatorDefinitionReferences(operator),
+    'buff',
+    'same-id',
+  );
+  expect(refs).toHaveLength(2);
+  expect(refs.find(ref => ref.path.endsWith('buffIds[0]'))?.usage).toBe('instanceFilter');
+  expect(refs.find(ref => ref.path.endsWith('buffId'))?.usage).toBeUndefined();
+});
+
 it('tracks all passive UI Buff references using their actual contract fields', () => {
   const operator = definition();
   const cases: NonNullable<OperatorDefinition['passiveUi']>[] = [

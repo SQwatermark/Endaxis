@@ -526,7 +526,11 @@ describe('生成武器的正式模拟门禁', () => {
         entry =>
           entry.event === 'BuffApplied' && entry.data?.buffId === 'buff_wpn_pistol_0004_atk_up',
       );
-    expect(active.receiptEntries.some(entry => entry.event === 'SpellBurstApplied')).toBe(true);
+    expect(
+      active.receiptEntries.some(
+        entry => entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string',
+      ),
+    ).toBe(true);
     expect(activations(active).length).toBeGreaterThan(0);
     expect(activations(baseline)).toHaveLength(0);
     expect(activations(battleOnly)).toHaveLength(0);

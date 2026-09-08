@@ -44,7 +44,7 @@ const enemy: CombatEnemyProgram = {
   },
 };
 
-function setup(timeManagerDeltaMode = 2, requests = 2) {
+function setup(requests = 2) {
   const elapsed = vi.fn((control: OrdinaryKnockDownRuntime) => control.exit());
   const environment = new StandardPlayerDamageEnvironment({
     criticalSamples: { nextCriticalSample: () => 1 },
@@ -118,7 +118,7 @@ function setup(timeManagerDeltaMode = 2, requests = 2) {
       control = bound.enemyControlRuntime as OrdinaryKnockDownRuntime;
       return bound;
     },
-    timeDilation: { config: {}, timeManagerDeltaMode },
+    timeDilation: { config: {} },
     resources: {
       sp: 0,
       maxSp: 300,
@@ -178,7 +178,7 @@ function setup(timeManagerDeltaMode = 2, requests = 2) {
 
 describe('标准战斗环境的普通倒地显式装配', () => {
   it('第一次只破防，不触发专属事件或天赋响应', () => {
-    const s = setup(2, 1);
+    const s = setup(1);
     const after = vi.fn();
     s.environment.eventsFor('operator').registerAction('afterOutputKnockDown', 1, after);
     s.start();
@@ -231,8 +231,8 @@ describe('标准战斗环境的普通倒地显式装配', () => {
     ).toBe(1);
   });
 
-  it.each([0, 2])('实体时钟乘全局与自身倍率，不跟随 TimeManager 模式 %s 的默认 Buff 时钟', mode => {
-    const s = setup(mode);
+  it('实体时钟乘全局与自身倍率，不跟随默认 Buff 时钟', () => {
+    const s = setup();
     s.start();
     s.assembly.timeDilation!.startGlobal({
       durationSeconds: 10,
@@ -252,7 +252,7 @@ describe('标准战斗环境的普通倒地显式装配', () => {
     expect(s.elapsed).not.toHaveBeenCalled();
   });
 
-  it('全局冻屏暂停倒地计时，但模式 2 默认 Buff 仍可到期', () => {
+  it('全局冻屏暂停倒地计时，但默认 Buff 仍可到期', () => {
     const s = setup();
     s.start();
     s.assembly.timeDilation!.startGlobal({

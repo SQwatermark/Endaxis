@@ -1301,6 +1301,71 @@ describe('validateSkillDefinition', () => {
     );
   });
 
+  it.each(['actionSource', 'actionOwner', 'recursiveSource'])(
+    '校验单层来源查询的宿主 %s',
+    owner => {
+      const skill = baseSkill();
+      skill.scheduledSequences = [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'mergeContextTargets',
+                parameters: {
+                  saveToContextKey: 'source',
+                  sources: [{ kind: 'abilitySystemSource', owner }],
+                },
+              },
+            ],
+          },
+        },
+      ];
+      const errors = validateSkillDefinition(skill);
+      if (owner === 'recursiveSource')
+        expect(errors).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              path: '$.scheduledSequences[0].sequence.steps[0].parameters.sources[0].owner',
+            }),
+          ]),
+        );
+      else expect(errors).toEqual([]);
+    },
+  );
+
+  it.each([false, true])('Context Buff 来源与直接来源互斥：%s', conflicting => {
+    const skill = baseSkill();
+    skill.scheduledSequences = [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff',
+              parameters: {
+                buffId: 'test',
+                target: 'caster',
+                sourceContextKey: 'queried',
+                ...(conflicting ? { source: 'caster' } : {}),
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const errors = validateSkillDefinition(skill);
+    if (conflicting)
+      expect(errors).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: '$.scheduledSequences[0].sequence.steps[0].parameters.source',
+          }),
+        ]),
+      );
+    else expect(errors).toEqual([]);
+  });
+
   it('validates Buff-source context targets and contextual ability-entity owners', () => {
     const skill = baseSkill();
     skill.scheduledSequences = [

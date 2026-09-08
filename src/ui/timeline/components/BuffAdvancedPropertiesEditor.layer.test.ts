@@ -2,27 +2,23 @@ import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { expect, it } from 'vitest';
 import Editor from './BuffAdvancedPropertiesEditor.vue';
-import { BUFF_OPTIONAL_OBJECTS } from '../buffOptionalObjectGraph';
+import { BUFF_OPTIONAL_OBJECTS } from '../buffOptionalPropertyDefaults';
 
-it.each(['sustainedProtection', 'role', 'spellBurst'] as const)(
-  'renders only the selected %s fields without collection framing',
-  async layer => {
-    const html = await renderToString(
-      createSSRApp({
-        render: () =>
-          h(Editor, {
-            layer,
-            sustainedProtection: BUFF_OPTIONAL_OBJECTS.sustainedProtection.create(),
-            role: BUFF_OPTIONAL_OBJECTS.role.create(),
-            spellBurst: BUFF_OPTIONAL_OBJECTS.spellBurst.create(),
-          }),
-      }),
-    );
-    expect(html).not.toContain('高级原生语义');
-    expect(html).not.toContain('<legend');
-    expect(html).not.toContain('SkillAffix');
-    expect(html.includes('冲击抗性')).toBe(layer === 'sustainedProtection');
-    expect(html.includes('角色类型')).toBe(layer === 'role');
-    expect(html.includes('SkillSetting 数据键')).toBe(layer === 'spellBurst');
-  },
-);
+it('根 Inspector 每组独立折叠，字段保持挂载并提供统一历史定位路径', async () => {
+  const html = await renderToString(
+    createSSRApp({
+      render: () =>
+        h(Editor, {
+          propertyPath: ['definition'],
+          sustainedProtection: BUFF_OPTIONAL_OBJECTS.sustainedProtection.create(),
+          role: BUFF_OPTIONAL_OBJECTS.role.create(),
+          spellBurst: BUFF_OPTIONAL_OBJECTS.spellBurst.create(),
+        }),
+    }),
+  );
+  expect(html.match(/<details/g)).toHaveLength(4);
+  expect(html).not.toContain('<details open');
+  expect(html).toContain('冲击抗性');
+  expect(html).toContain('SkillSetting 数据键');
+  expect(html).toContain('data-property-path="[&quot;definition&quot;,&quot;role&quot;]"');
+});

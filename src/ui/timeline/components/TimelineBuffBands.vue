@@ -11,6 +11,7 @@ import type { BuffDetailTarget } from '../buffDetail';
 import TimelineStatusSegment from './TimelineStatusSegment.vue';
 import { getIconAssetPath } from '../../gameAssetPaths';
 import { frameToTimelinePx } from '../timelineGeometry';
+import { timelineLowerBuffTop } from '../timelineTrackEffectLayout';
 
 const props = defineProps<{
   segments: readonly PositionedBuffTimelineSegment[];
@@ -39,7 +40,6 @@ const BAR_GAP = 2;
 const LANE_PITCH = 22;
 const ACTION_TOP_FALLBACK = 55;
 const UPPER_OFFSET_FROM_ACTION = 24;
-const LOWER_OFFSET_FROM_ACTION = 55;
 
 const items = computed(() =>
   props.segments.map(segment => {
@@ -88,9 +88,7 @@ const items = computed(() =>
           ? (props.actionTop ?? ACTION_TOP_FALLBACK) -
             UPPER_OFFSET_FROM_ACTION -
             segment.lane * LANE_PITCH
-          : (props.actionTop ?? ACTION_TOP_FALLBACK) +
-            LOWER_OFFSET_FROM_ACTION +
-            segment.lane * LANE_PITCH,
+          : timelineLowerBuffTop(props.actionTop ?? ACTION_TOP_FALLBACK, segment.lane),
       width: Math.max(0, right - left - ICON_SIZE - BAR_GAP * 2),
       icon,
       detail: {

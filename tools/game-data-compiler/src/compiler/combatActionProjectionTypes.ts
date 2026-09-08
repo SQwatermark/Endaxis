@@ -449,6 +449,7 @@ export type CompiledBuffStepSource =
           | 'caster'
           | 'enemy'
           | 'currentAbilityEntity'
+          | 'currentTarget'
           | 'party'
           | 'partyExceptCaster';
         readonly reason: 'early' | 'absorbed' | 'other';

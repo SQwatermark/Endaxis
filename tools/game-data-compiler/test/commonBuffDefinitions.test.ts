@@ -1,13 +1,25 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { describe, expect, it } from 'vitest';
 import {
   mergeCommonBuffDefinitions,
   readPresentationNameKeys,
   renderCommonBuffPresentationNamesSource,
+  readSystemBuffRoots,
 } from '../scripts/generateCommonBuffDefinitions.ts';
 
 describe('公共 Buff 独立所有权', () => {
+  it('系统爆发根独立于干员引用，清单不包含手写动作或倍率', () => {
+    expect(
+      readSystemBuffRoots(path.resolve('tools/game-data-compiler/config/systemBuffRoots.json')),
+    ).toEqual([
+      'buff_common_fire_fire_triggered',
+      'buff_common_pulse_pulse_triggered',
+      'buff_common_cryst_cryst_triggered',
+      'buff_common_natural_natural_triggered',
+    ]);
+  });
   it('相同 ID 的相同定义只保留一份，冲突定义严格失败', () => {
     const first = { stackingType: 'stack', priority: 0 };
     expect(
@@ -22,6 +34,22 @@ describe('公共 Buff 独立所有权', () => {
         { slug: 'b', definitions: { common: { ...first, priority: 1 } } },
       ]),
     ).toThrow("common Buff 'common' differs between 'a' and 'b'");
+  });
+
+  it.each([
+    [['buff_common_test', 'buff_common_test'], 'duplicate system Buff roots'],
+    [['buff_chr_0011_test'], 'invalid system Buff root'],
+    [['buff_common_test/../../other'], 'invalid system Buff root'],
+    [[{ id: 'buff_common_test', damage: 100 }], 'expected string'],
+  ])('系统根拒绝重复、非公共身份和内嵌行为：%j', (roots, message) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'endaxis-system-roots-'));
+    try {
+      const file = path.join(directory, 'roots.json');
+      fs.writeFileSync(file, JSON.stringify(roots));
+      expect(() => readSystemBuffRoots(file)).toThrow(message);
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true });
+    }
   });
 
   it('正式干员生成文件不再导出公共 Buff', () => {

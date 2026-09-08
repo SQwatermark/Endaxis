@@ -7,7 +7,10 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
     readonly operatorId: string,
     readonly windows: ComboWindowRuntime,
     readonly delegate: CombatOperationExecutor,
-    readonly resolveCurrentSkillKey: (skillGroupKey: 'comboSkill') => string = () => {
+    readonly resolveCurrentSkillKey: (
+      skillGroupKey: 'comboSkill',
+      operatorId: string,
+    ) => string = () => {
       throw new Error('current combo skill slot resolver is unavailable');
     },
   ) {}
@@ -17,11 +20,20 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
     context?: CombatOperationContext,
   ): boolean {
     if (step.kind === 'openComboWindow') {
+      let ownerId = this.operatorId;
+      if ('ownerContextKey' in step.parameters && step.parameters.ownerContextKey !== undefined) {
+        if (context?.targetContext === undefined)
+          throw new Error('combo window owner requires target context');
+        const owner = context.targetContext.get(step.parameters.ownerContextKey)[0];
+        // 原生只取首个 owner，并要求角色；不能回退到触发者或改找组内其他角色。
+        if (owner?.kind !== 'operator') return true;
+        ownerId = owner.operatorId;
+      }
       this.windows.open(
-        this.operatorId,
+        ownerId,
         'nextSkillKey' in step.parameters
           ? step.parameters.nextSkillKey
-          : this.resolveCurrentSkillKey(step.parameters.nextSkillKeyFromSlot),
+          : this.resolveCurrentSkillKey(step.parameters.nextSkillKeyFromSlot, ownerId),
       );
       return true;
     }

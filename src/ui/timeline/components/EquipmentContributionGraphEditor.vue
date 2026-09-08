@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';
-import { computed, nextTick, ref, shallowRef } from 'vue';
+import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import { useDefinitionGraphEditing } from '../useDefinitionGraphEditing';
 import DefinitionPropertyScope from './DefinitionPropertyScope.vue';
 import InspectorFields from './InspectorFields.vue';
@@ -87,6 +87,13 @@ const history =
   );
 useEditorHistoryShortcuts(editorRoot, history.restore, () => props.sharedHistory === undefined);
 const showBuffDefinitions = ref(false);
+watch(
+  () => history.restoredLocation?.value,
+  location => {
+    if (location) showBuffDefinitions.value = location.page?.startsWith('buff:') === true;
+  },
+  { immediate: true, flush: 'sync' },
+);
 const clipboard = shallowRef<
   | { readonly kind: 'equipmentModifier'; readonly value: EquipmentModifierDefinition }
   | { readonly kind: 'equipmentHandler'; readonly value: EquipmentEventHandlerDefinition }
@@ -357,17 +364,6 @@ async function removeInitializationSequence(): Promise<void> {
   commit(deleteStructureValueAtPath(props.contribution, 'initializationSequence'));
   await selectPath('');
 }
-
-function saveBuffDefinitions(
-  definitions: EquipmentContributionDefinition['buffDefinitions'],
-): void {
-  const next =
-    definitions === undefined
-      ? (({ buffDefinitions: _removed, ...rest }) => rest)(props.contribution)
-      : { ...props.contribution, buffDefinitions: definitions };
-  commit(next);
-  showBuffDefinitions.value = false;
-}
 </script>
 
 <template>
@@ -506,11 +502,12 @@ function saveBuffDefinitions(
   <EquipmentBuffDefinitionsDialog
     v-else
     :visible="true"
-    :definitions="contribution.buffDefinitions"
+    :contribution="contribution"
+    :shared-history="history"
+    :manage-keyboard="sharedHistory === undefined"
     :reference-root="contribution"
     :level="level"
     @update:visible="showBuffDefinitions = $event"
-    @save="saveBuffDefinitions"
   />
 </template>
 

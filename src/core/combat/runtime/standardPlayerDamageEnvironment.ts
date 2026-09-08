@@ -20,7 +20,6 @@ import {
 import {
   ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
   createOperatorAttackAttributes,
-  resolveOperatorAttack,
 } from '../attributes/operatorAttackAttributes';
 import {
   MAIN_ATTRIBUTE_ATTACK_FACTOR,
@@ -56,10 +55,6 @@ import {
 import { ComboSkillConditionRuntime } from './comboSkillConditionRuntime';
 import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
 import { executeSpellBurst } from './spellBurstRuntime';
-import { resolvePlayerActiveDamageInput } from '../damage/playerActiveDamageInput';
-import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
-import { freezeAttackScaledDamageReceiptDetail } from '../damage/attackScaledDamageReceiptDetail';
-import { executeHealthDamage } from '../damage/healthDamage';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
@@ -72,7 +67,10 @@ import type {
 } from './combatRuntimeAssembly';
 import { CombatVitals } from './combatVitals';
 import { CombatVitalsRuntime } from './combatVitalsRuntime';
-import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
+import {
+  PlayerDamageOperationExecutor,
+  type PlayerDamageOperationDependencies,
+} from './playerDamageOperationExecutor';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { FrameRuntime } from './combatSimulation';
 import {
@@ -184,6 +182,7 @@ export type StandardPlayerDamageEvent =
   | 'poiseZero'
   | 'beforeOutputInfliction'
   | 'beforeOutputSpellBurst'
+  | 'beforeTakeSpellBurst'
   | 'beforeTakeInfliction'
   | 'afterOutputInfliction'
   | 'afterTakeInfliction'
@@ -317,6 +316,30 @@ export class StandardPlayerDamageEnvironment {
           gainedValue,
           currentValue,
         }),
+      (definition, sourceId, blackboard) => {
+        // 原生来源侧收集发生在 Buff.Reset；直接施加与反应创建共用此处。
+        const modifier = this.#reactionModifiers
+          .get(sourceId)
+          ?.find(m => m.reaction === 'corrosion');
+        if (
+          modifier === undefined ||
+          !this.#enemyBuffs.tagRegistry.query(
+            definition.applyTags ?? [],
+            ['Skill/Character/Common/SpellStatus/Corrupt'],
+            'hasAny',
+          )
+        )
+          return;
+        const duration = blackboard.getNumber('duration');
+        if (duration !== undefined && duration > 0)
+          blackboard.assignDynamic('duration', duration + modifier.durationSecondsAddition);
+        const maximum = blackboard.getNumber('max_def_decrease');
+        if (maximum !== undefined)
+          blackboard.assignDynamic(
+            'max_def_decrease',
+            maximum * (1 + modifier.effectivenessAddition),
+          );
+      },
     );
     this.#enemyBuffRuntime = new BuffDefinitionOperationTarget(
       this.#enemyBuffs,
@@ -477,6 +500,53 @@ export class StandardPlayerDamageEnvironment {
     return dispatcher;
   }
 
+  /** 主动技能与 Buff 伤害共用双方修正器、即时属性和准备事件接线。 */
+  #damagePreparationPorts(
+    operatorId: string,
+    operatorBuffs: CombatBuffContainer<string>,
+  ): Pick<
+    import('./playerDamageOperationExecutor').PlayerDamageOperationDependencies,
+    | 'applyDamageModifiers'
+    | 'addInstantAttributeModifier'
+    | 'clearInstantAttributeModifiers'
+    | 'emitPreparationEvent'
+  > {
+    return {
+      applyDamageModifiers: (timing, side, damageContext) =>
+        this.#buffContainer(side, operatorBuffs).applyDamageModifiers(
+          timing,
+          side,
+          damageContext,
+          (condition, resolveNumber) =>
+            this.#evaluateDamageModifierCondition(
+              condition,
+              operatorBuffs,
+              damageContext,
+              resolveNumber,
+            ),
+        ),
+      addInstantAttributeModifier: (side, request) => {
+        const attributes = this.#buffContainer(side, operatorBuffs).attributes;
+        if (!attributes.has(request.attribute)) {
+          throw new Error(
+            `instant attribute '${request.attribute}' is not available on the ${side} side`,
+          );
+        }
+        attributes.addModifier(
+          new CombatAttributeModifier(
+            request.attribute,
+            request.values,
+            ATTRIBUTE_MODIFIER_SOURCES.instant,
+            request.timing,
+          ),
+        );
+      },
+      clearInstantAttributeModifiers: side =>
+        this.#buffContainer(side, operatorBuffs).attributes.clearInstantModifiers(),
+      emitPreparationEvent: (event, payload) => this.#emit(operatorId, event, payload),
+    };
+  }
+
   #createOperationExecutor(context: CombatDamageExecutorContext): CombatOperationExecutor {
     const program = 'program' in context ? context.program : undefined;
     const operatorId =
@@ -524,38 +594,7 @@ export class StandardPlayerDamageEnvironment {
         (program?.simulationInputs?.forcedCriticalStepKeys ?? []).includes(step.key),
       resolveNonRandomRuntimeSnapshot: step =>
         this.options.resolveNonRandomRuntimeSnapshot(context, step),
-      applyDamageModifiers: (timing, side, damageContext) =>
-        this.#buffContainer(side, operatorBuffs).applyDamageModifiers(
-          timing,
-          side,
-          damageContext,
-          (condition, resolveNumber) =>
-            this.#evaluateDamageModifierCondition(
-              condition,
-              operatorBuffs,
-              damageContext,
-              resolveNumber,
-            ),
-        ),
-      addInstantAttributeModifier: (side, request) => {
-        const attributes = this.#buffContainer(side, operatorBuffs).attributes;
-        if (!attributes.has(request.attribute)) {
-          throw new Error(
-            `instant attribute '${request.attribute}' is not available on the ${side} side`,
-          );
-        }
-        attributes.addModifier(
-          new CombatAttributeModifier(
-            request.attribute,
-            request.values,
-            ATTRIBUTE_MODIFIER_SOURCES.instant,
-            request.timing,
-          ),
-        );
-      },
-      clearInstantAttributeModifiers: side =>
-        this.#buffContainer(side, operatorBuffs).attributes.clearInstantModifiers(),
-      emitPreparationEvent: (event, payload) => this.#emit(operatorId, event, payload),
+      ...this.#damagePreparationPorts(operatorId, operatorBuffs),
       // PoiseDamageOutputScalar 的基础值为 1；构筑面板保存 BaseAddition 的增量。
       resolvePoiseMultipliers: () => ({
         output: 1 + (context.panel?.staggerDamagePercent ?? 0),
@@ -803,8 +842,27 @@ export class StandardPlayerDamageEnvironment {
       clock: context.clock,
       receipt: context.receipt,
       getExistingAttachment: () => adapter.getExistingAttachment(),
-      applyOperation: (operation: ElementalInflictionOperation, skillCastInfo) =>
-        adapter.apply(operation, { skillCastInfo }),
+      applyOperation: (operation: ElementalInflictionOperation, skillCastInfo) => {
+        if (operation.kind === 'triggerBurst') {
+          // 元素目录只提供系统身份；已生成的完整定义必须独占执行，不能再叠加旧聚合回调。
+          const buffId = this.#ensureElementalDefinitions().getBurst(operation.element).id;
+          const definition = context.buffDefinitions?.[buffId];
+          if (definition !== undefined) {
+            const buff = this.#enemyBuffRuntime.applyScoped({
+              buffId,
+              definition,
+              sourceId: context.program.operatorId,
+              definitionOwnerId: context.program.operatorId,
+              sourceActionId: context.program.skillId,
+              blackboardValues: {},
+              skillCastInfo,
+            });
+            return buff === null ? undefined : { buffId, instanceId: buff.instanceId };
+          }
+        }
+        // 未迁移的定义继续走兼容目录；定义存在但无效时直接失败，不回退掩盖错误。
+        return adapter.apply(operation, { skillCastInfo });
+      },
       emitSemanticAttachmentConsumed: attachment =>
         context.semanticEvents.emit({
           kind: 'elementalAttachmentConsumed',
@@ -819,7 +877,8 @@ export class StandardPlayerDamageEnvironment {
           sourceOperatorId: context.program.operatorId,
           elements: [element],
         }),
-      triggerSpellBurst: payload => this.#onSpellBurstTriggered(payload),
+      // 原生 TriggerSpellBurstEventAction 只发布事件；后续 DamageAction 自己结算伤害。
+      triggerSpellBurst: payload => this.#emitSpellBurstEvents(payload),
       emitSourceEvent: (event, payload) =>
         this.#emitInfliction(context.program.operatorId, event, payload),
       emitTargetEvent: (event, payload) => this.#emitInfliction('enemy', event, payload),
@@ -1110,40 +1169,26 @@ export class StandardPlayerDamageEnvironment {
                 );
               }
               const blackboard = { ...result.blackboardValues } as Record<string, number>;
+              // 腐蚀已由有原生事件证据的公共初始化入口处理；其他既有反应配置保持原入口。
               const reaction =
-                incomingElement === 'nature'
-                  ? 'corrosion'
-                  : incomingElement === 'electric'
-                    ? 'electrification'
-                    : incomingElement === 'cryo'
-                      ? 'frozen'
-                      : 'burning';
+                incomingElement === 'electric'
+                  ? 'electrification'
+                  : incomingElement === 'cryo'
+                    ? 'frozen'
+                    : incomingElement === 'heat'
+                      ? 'burning'
+                      : null;
               const modifier = this.#reactionModifiers
                 .get(operatorId)
-                ?.find(candidate => candidate.reaction === reaction);
+                ?.find(m => m.reaction === reaction);
               if (modifier !== undefined) {
-                if (typeof blackboard.duration !== 'number') {
+                if (typeof blackboard.duration !== 'number')
                   throw new Error(`reaction '${reaction}' has no numeric duration output`);
-                }
+                if (modifier.effectivenessAddition !== 0)
+                  throw new Error(
+                    `reaction '${reaction}' effectiveness modifier has no connected factory output`,
+                  );
                 blackboard.duration += modifier.durationSecondsAddition;
-                if (modifier.effectivenessAddition !== 0) {
-                  if (reaction !== 'corrosion') {
-                    throw new Error(
-                      `reaction '${reaction}' effectiveness modifier has no connected factory output`,
-                    );
-                  }
-                  const multiplier = 1 + modifier.effectivenessAddition;
-                  for (const key of [
-                    'def_decrease_tick',
-                    'max_def_decrease',
-                    'start_def_decrease',
-                  ]) {
-                    if (typeof blackboard[key] !== 'number') {
-                      throw new Error(`corrosion factory has no numeric '${key}' output`);
-                    }
-                    blackboard[key] *= multiplier;
-                  }
-                }
               }
               return blackboard;
             };
@@ -1232,7 +1277,23 @@ export class StandardPlayerDamageEnvironment {
     }, 0);
   }
 
-  /** 爆发 Buff 触发时执行爆发伤害；数据缺失处明确报错，不假装打出伤害。 */
+  /** 原生事件动作按来源、目标顺序发布，不读取倍率、不抽随机数、不造成伤害。 */
+  #emitSpellBurstEvents(payload: {
+    readonly burstType: string;
+    readonly sourceId: string;
+    readonly skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo;
+  }): void {
+    const event = {
+      sourceId: payload.sourceId,
+      targetId: 'enemy',
+      burstType: payload.burstType,
+      skillCastInfo: payload.skillCastInfo ?? null,
+    };
+    this.#emit(payload.sourceId, 'beforeOutputSpellBurst', event);
+    this.#emit('enemy', 'beforeTakeSpellBurst', event);
+  }
+
+  /** 旧语义目录聚合了事件、倍率读取与伤害；只允许该目录端口调用此兼容入口。 */
   #onSpellBurstTriggered(payload: {
     readonly burstType: string;
     readonly sourceId: string;
@@ -1255,34 +1316,60 @@ export class StandardPlayerDamageEnvironment {
     const settings = this.#ensureSkillSettings();
     const operatorAttributes = this.#operatorBuffRuntime(payload.sourceId, panel).container
       .attributes;
-    this.#emit(payload.sourceId, 'beforeOutputSpellBurst', {
-      sourceId: payload.sourceId,
-      targetId: 'enemy',
-      burstType: payload.burstType,
-      skillCastInfo: payload.skillCastInfo ?? null,
-    });
+    this.#emitSpellBurstEvents(payload);
     executeSpellBurst({
-      ...(panel.attackDetail === undefined ? {} : { attackDetail: panelAttackDetail(panel)! }),
-      skillCastInfo: payload.skillCastInfo ?? null,
       definition,
-      sourceId: payload.sourceId,
-      attack: resolveOperatorAttack(panel, operatorAttributes),
       enhance: operatorAttributes.get('PhysicalAndSpellInflictionEnhance'),
-      criticalRate: operatorAttributes.get('criticalRate'),
-      criticalDamageIncrease: operatorAttributes.get('criticalDamageIncrease'),
-      weaknessDamageMultiplier: operatorAttributes.get('weaknessDamageMultiplier'),
-      criticalSample: this.options.criticalSamples.nextCriticalSample(),
       settings,
-      defender: this.#requireEnemyIdentity().defenderAttributes,
-      target: this.enemyVitals,
-      clock: this.#requireClock(),
-      receipt: this.#requireReceipt(),
-      emitSourceEvent: (event, eventPayload) => this.#emit(payload.sourceId, event, eventPayload),
-      emitTargetEvent: (event, eventPayload) => this.#emit('enemy', event, eventPayload),
+      damage: this.#auxiliaryDamageDependencies(payload.sourceId, payload.skillCastInfo),
     });
   }
 
-  /** 执行复合状态 Buff 生命周期中的原生 DamageAction。 */
+  /** 独立伤害共用来源属性、准备事件、伤害处理器和护盾，不伪造技能运行上下文。 */
+  #auxiliaryDamageDependencies(
+    sourceId: string,
+    skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo,
+  ): PlayerDamageOperationDependencies {
+    const panel = this.#operatorPanels.get(sourceId);
+    if (panel === undefined)
+      throw new Error(`damage source operator '${sourceId}' has no resolved panel`);
+    const operatorBuffs = this.#operatorBuffRuntime(sourceId, panel).container;
+    return {
+      ...this.#damagePreparationPorts(sourceId, operatorBuffs),
+      sourceOperatorId: sourceId,
+      ...(skillCastInfo === undefined
+        ? {}
+        : { skillCastInfo, sourceActionId: skillCastInfo.originCastId }),
+      targetId: 'enemy',
+      targetVitals: this.enemyVitals,
+      clock: this.#requireClock(),
+      receipt: this.#requireReceipt(),
+      ...(panel.attackDetail === undefined ? {} : { attackDetail: panelAttackDetail(panel)! }),
+      captureAttributeSnapshots: step =>
+        resolveStaticPlayerDamageSnapshots(
+          { operatorId: sourceId, panel, enemy: this.#requireEnemyIdentity() },
+          step,
+          operatorBuffs.attributes,
+          this.#enemyAttributes,
+        ),
+      criticalSamples: this.options.criticalSamples,
+      resolveNonRandomRuntimeSnapshot: step => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: step.parameters.tags.includes('fireAbnormal'),
+        appliesPhysicalInflictionDamageMultiplier:
+          step.parameters.features?.includes('physicalInfliction') ?? false,
+      }),
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: (event, payload) => this.#emit(sourceId, event, payload),
+      emitHealthTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
+      absorbHealthDamage: (type, value) => this.#enemyBuffs.absorbDamage(type, value),
+      emitPoiseSourceEvent: (event, payload) => this.#emit(sourceId, event, payload),
+      emitPoiseTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
+      delegate: strictTerminal,
+    };
+  }
+
+  /** 执行法术异常等 Buff 生命周期中的原生 DamageAction。 */
   #onBuffDamageTriggered(
     payload: Parameters<
       NonNullable<
@@ -1290,73 +1377,52 @@ export class StandardPlayerDamageEnvironment {
       >
     >[0],
   ): void {
-    const panel = this.#operatorPanels.get(payload.sourceId);
-    if (panel === undefined) {
-      throw new Error(`buff damage source operator '${payload.sourceId}' has no resolved panel`);
-    }
-    const attributes = this.#operatorBuffRuntime(payload.sourceId, panel).container.attributes;
-    const attack = resolveOperatorAttack(panel, attributes);
-    const step = {
-      kind: 'dealDamage' as const,
-      parameters: {
-        damageType: payload.damageType,
-        attackScale: payload.attackScale,
-        tags: payload.tags,
-        features: payload.features,
-      },
-    };
-    const formulaInput = resolvePlayerActiveDamageInput({
-      step,
-      finalAttackValue: attack * payload.attackScale,
-      attacker: {
-        attack,
-        criticalRate: payload.canCritical ? attributes.get('criticalRate') : 0,
-        criticalDamageIncrease: attributes.get('criticalDamageIncrease'),
-        weaknessDamageMultiplier: attributes.get('weaknessDamageMultiplier'),
-        igniteDamageMultiplier: 1,
-        physicalInflictionDamageMultiplier: 1,
-      },
-      defender: this.#requireEnemyIdentity().defenderAttributes,
-      runtime: {
-        runtimeExtensionMultiplier: 1,
-        appliesIgniteDamageMultiplier: payload.tags.includes('fireAbnormal'),
-        appliesPhysicalInflictionDamageMultiplier: payload.features.includes('physicalInfliction'),
-        // 原生 DamageAction 明确禁止暴击时，不应推进暴击随机流；否则持续伤害会改变后续技能的暴击序列。
-        criticalSample: payload.canCritical ? this.options.criticalSamples.nextCriticalSample() : 1,
-      },
-    });
-    const damage = calculatePlayerActiveDamage(formulaInput);
+    const dependencies = this.#auxiliaryDamageDependencies(payload.sourceId, payload.skillCastInfo);
     const buffIdentity = {
       buffId: payload.buffId,
       buffInstanceId: payload.buffInstanceId,
       buffOwnerId: payload.buffOwnerId,
       sourceActionId: payload.sourceActionId,
     };
-    const state = executeHealthDamage({
-      sourceId: payload.sourceId,
-      targetId: 'enemy',
-      damageType: payload.damageType,
-      tags: payload.tags,
-      features: payload.features,
-      result: damage,
-      detail: {
-        ...buffIdentity,
-        canCritical: payload.canCritical,
-        ...freezeAttackScaledDamageReceiptDetail(
-          formulaInput,
-          damage,
-          attack,
-          payload.attackScale,
-          panelAttackDetail(panel),
-        ),
+    const receipt = this.#requireReceipt();
+    let applied: import('../receipt/combatReceipt').CombatReceiptEntry['data'];
+    // 仅补充本次 Buff 身份；结算数值与事件仍由公共执行器产生。
+    const damage = new PlayerDamageOperationExecutor({
+      ...dependencies,
+      sourceActionId: payload.sourceActionId,
+      receipt: {
+        record: entry => {
+          if (entry.event === 'DamageApplied') {
+            applied = entry.data;
+            receipt.record({
+              ...entry,
+              data: { ...entry.data, ...buffIdentity, canCritical: payload.canCritical },
+            });
+          } else receipt.record(entry);
+        },
       },
-      target: this.enemyVitals,
-      clock: this.#requireClock(),
-      receipt: this.#requireReceipt(),
-      emitSourceEvent: (event, eventPayload) => this.#emit(payload.sourceId, event, eventPayload),
-      emitTargetEvent: (event, eventPayload) => this.#emit('enemy', event, eventPayload),
+      captureAttributeSnapshots: step => {
+        const snapshots = dependencies.captureAttributeSnapshots(step);
+        // 目录中的 canCritical=false 来自原生 unit 即时暴击率覆盖；不推进随机流。
+        return payload.canCritical
+          ? snapshots
+          : {
+              ...snapshots,
+              attacker: { ...snapshots.attacker, criticalRate: 0 },
+            };
+      },
     });
-    this.#requireReceipt().record({
+    damage.execute({
+      kind: 'dealDamage',
+      parameters: {
+        damageType: payload.damageType,
+        attackScale: payload.attackScale,
+        tags: payload.tags,
+        features: payload.features,
+      },
+    });
+    if (applied === undefined) throw new Error('Buff damage executor produced no damage receipt');
+    receipt.record({
       frame: this.#requireClock().frame,
       time: this.#requireClock().time,
       event: 'BuffDamageApplied',
@@ -1366,9 +1432,9 @@ export class StandardPlayerDamageEnvironment {
         ...buffIdentity,
         damageType: payload.damageType,
         attackScale: payload.attackScale,
-        value: damage.value,
-        actualDamage: state.actualDamage,
-        remainingHealth: state.currentHealth,
+        value: applied.value!,
+        actualDamage: applied.actualDamage!,
+        remainingHealth: applied.remainingHealth!,
       },
     });
   }

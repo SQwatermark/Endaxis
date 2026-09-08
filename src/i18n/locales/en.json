@@ -1038,6 +1038,7 @@
       "buffMaxTriggerCount": "Maximum trigger count",
       "buffCount": "Creation count",
       "buffSource": "Source entity",
+      "buffSourceContextKey": "Source Context key",
       "buffTargets": {
         "controlledOperator": "Controlled operator",
         "eventTarget": "Event target",
@@ -1329,6 +1330,7 @@
         "buffTarget": "Entity receiving the Buff. Party creates one instance for each operator.",
         "buffCount": "Number of Buff instances created by this step, supplied by a constant or action blackboard value.",
         "buffSource": "Source entity of the Buff, independent from its recipient. Empty inherits the current action source.",
+        "buffSourceContextKey": "Use the single previously queried entity as the source. Mutually exclusive with a direct source; no new operator lookup.",
         "buffDuration": "Overrides the Buff definition's duration in seconds. Disabled uses the Buff's own rule.",
         "buffEffectiveness": "Overrides the effectiveness passed to Buff mechanics. Disabled uses the default strength.",
         "inheritSkillCast": "Copies the current skill-cast identity into the new Buff so it can track its source skill.",

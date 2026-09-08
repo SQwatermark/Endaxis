@@ -48,6 +48,88 @@ const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
   parameters: { damageType: 'electric', attackScale: 1, tags: ['normalSkill'] },
 };
 
+it.each([
+  ['heat', 'fire', 'Fire', 'fireBurst'],
+  ['electric', 'pulse', 'Pulse', 'electricBurst'],
+  ['cryo', 'cryst', 'Cryst', 'cryoBurst'],
+  ['nature', 'natural', 'Natural', 'natureBurst'],
+] as const)(
+  '生成的%s爆发独占完整生命周期，重复施加仍各结算一次',
+  (element, idPart, burstType, tag) => {
+    const buffId = `buff_common_${idPart}_${idPart}_triggered`;
+    const base = createContext();
+    const context: CombatOperationExecutorContext = {
+      ...base,
+      buffDefinitions: {
+        [buffId]: {
+          stackingType: 'unlimited',
+          priority: 0,
+          durationSeconds: 5,
+          triggerIntervalSeconds: 1,
+          waitFirstTriggerInterval: true,
+          maxTriggerCount: 1,
+          lifecycleSequences: {
+            trigger: compileActionSequence(
+              {
+                steps: [
+                  { kind: 'triggerSpellBurst', parameters: { burstType } },
+                  {
+                    kind: 'dealDamage',
+                    parameters: { damageType: element, attackScale: 1, tags: [tag] },
+                  },
+                ],
+              },
+              1,
+            ),
+          },
+        },
+      },
+    };
+    // 故意不提供旧聚合入口的 SkillSetting：若误执行兼容回调，测试必须失败。
+    const environment = new StandardPlayerDamageEnvironment({
+      ...createEnvironment().options,
+      elementalInflictionDocument: elementalAttachments,
+    });
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
+    const target = environment.runtimeOptions.enemyBuffRuntime;
+    if (!(target instanceof BuffDefinitionOperationTarget))
+      throw new Error('missing enemy Buff runtime');
+    const sources: string[] = [];
+    target.configureLifecycleOperations(source => {
+      sources.push(source.sourceId);
+      return executor;
+    });
+    const events: string[] = [];
+    environment
+      .eventsFor('operator')
+      .registerAction('beforeOutputSpellBurst', 0, () => events.push('source'));
+    environment
+      .eventsFor('enemy')
+      .registerAction('beforeTakeSpellBurst', 0, () => events.push('target'));
+    // 首次建立附着，随后两次同元素输入分别触发爆发，原有附着不会被同元素爆发消费。
+    for (let index = 0; index < 3; index++) {
+      executor.execute({
+        kind: 'applyElementalInfliction',
+        parameters: { element, isExtra: false },
+      });
+    }
+    const receipt = context.receipt as CombatReceiptCollector;
+    expect(receipt.entries.filter(entry => entry.event === 'DamageApplied')).toHaveLength(0);
+    for (let frame = 0; frame < 61; frame++) target.advanceFrame();
+    expect(events).toEqual(['source', 'target', 'source', 'target']);
+    expect(sources.length).toBeGreaterThan(0);
+    expect(new Set(sources)).toEqual(new Set(['operator']));
+    expect(receipt.entries.filter(entry => entry.event === 'DamageApplied')).toHaveLength(2);
+    expect(
+      receipt.entries
+        .filter(entry => entry.event === 'DamageApplied')
+        .map(entry => entry.data?.spellBurstType),
+    ).toEqual([burstType, burstType]);
+    for (let frame = 0; frame < 300; frame++) target.advanceFrame();
+    expect(receipt.entries.filter(entry => entry.event === 'DamageApplied')).toHaveLength(2);
+  },
+);
+
 const testEnemy: CombatEnemyProgram = {
   source: { kind: 'custom', level: 90 },
   rank: 'mob',
@@ -157,6 +239,285 @@ function createEquipmentContext(): EquipmentEventOperationExecutorContext {
     },
   };
 }
+
+it('原生爆发事件不隐式造成伤害，后续 DamageAction 只结算一次', () => {
+  const context = createContext();
+  // 不提供 SkillSetting，事件动作本身不应依赖伤害倍率目录。
+  const environment = new StandardPlayerDamageEnvironment({
+    ...createEnvironment().options,
+    elementalInflictionDocument: elementalAttachments,
+  });
+  const executor = environment.runtimeOptions.createOperationExecutor(context);
+  const events: string[] = [];
+  environment
+    .eventsFor('operator')
+    .registerAction('beforeOutputSpellBurst', 0, () => events.push('source'));
+  environment
+    .eventsFor('enemy')
+    .registerAction('beforeTakeSpellBurst', 0, () => events.push('target'));
+  const samples = vi.spyOn(environment.options.criticalSamples, 'nextCriticalSample');
+  const initialHealth = environment.enemyVitals.health;
+  expect(
+    executor.execute({ kind: 'triggerSpellBurst', parameters: { burstType: 'Natural' } }),
+  ).toBe(true);
+  expect(events).toEqual(['source', 'target']);
+  expect(samples).not.toHaveBeenCalled();
+  expect(environment.enemyVitals.health).toBe(initialHealth);
+  const receipt = context.receipt as CombatReceiptCollector;
+  expect(
+    receipt.entries.some(
+      entry => entry.event === 'DamageApplied' || entry.event === 'SpellBurstApplied',
+    ),
+  ).toBe(false);
+  executor.execute(damageStep);
+  expect(receipt.entries.filter(entry => entry.event === 'DamageApplied')).toHaveLength(1);
+});
+
+it.each([
+  ['buff', true],
+  ['buff', false],
+  ['burst', true],
+] as const)('%s伤害共用双方乘区，canCritical=%s保留随机数边界', (route, canCritical) => {
+  const environment = new StandardPlayerDamageEnvironment({
+    ...createEnvironment().options,
+    spellInflictionSettings: createSkillSettings(),
+    elementalInflictionDocument: {
+      schemaVersion: 1,
+      revision: 'damage-pipeline-test',
+      buffs: [
+        {
+          id: 'attachment.pipeline',
+          stackingType: 'unlimited',
+          role: { kind: 'elementalAttachment', element: 'electric' },
+          spellBurst: {
+            burstType: 'Pulse',
+            damageType: 'electric',
+            skillSettingDataKey: '法术爆发伤害倍率',
+            skillSettingColumn: 1,
+            atkScaleBase: 50,
+          },
+          actions: {
+            start:
+              route === 'burst'
+                ? [{ kind: 'triggerSpellBurst', burstType: 'Pulse' }]
+                : [
+                    {
+                      kind: 'dealAttackScaledDamage',
+                      damageType: 'electric',
+                      attackScale: 1,
+                      tags: ['electricAbnormal'],
+                      features: [],
+                      canCritical,
+                    },
+                  ],
+          },
+        },
+      ],
+    },
+  });
+  const context = createContext();
+  const executor = environment.runtimeOptions.createOperationExecutor(context);
+  const source = environment.runtimeOptions.createOperatorBuffRuntime!(
+    'operator',
+    context.panel,
+    [],
+  );
+  if (!(source instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  source.container.add(
+    {
+      id: 'source-scale',
+      stackingType: 'unlimited',
+      attributeModifiers: [
+        {
+          attribute: 'electricDamageIncrease',
+          timing: 'runtime',
+          values: attributeModifierValues('baseAddition', 0.5),
+        },
+      ],
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 0.2 }],
+        },
+      ],
+    },
+    'operator',
+  );
+  const target = environment.runtimeOptions.enemyBuffRuntime;
+  if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  target.container.add(
+    {
+      id: 'target-scale',
+      stackingType: 'unlimited',
+      damageModifiers: [
+        {
+          enabledSide: 'defender',
+          processors: [{ kind: 'damageScale', side: 'defender', zone: 'normal', addition: 0.3 }],
+        },
+      ],
+    },
+    'operator',
+  );
+  const samples = vi.spyOn(environment.options.criticalSamples, 'nextCriticalSample');
+  const absorb = vi
+    .spyOn(target.container, 'absorbDamage')
+    .mockImplementation((_type, value) => value / 2);
+  const initialHealth = environment.enemyVitals.health;
+  const preparation = vi.fn();
+  environment.eventsFor('operator').registerAction('beforeDamageAction', 0, preparation);
+  const skillBlackboard = new ActionBlackboard();
+  executor.execute(
+    {
+      kind: 'applyElementalInfliction',
+      parameters: { element: 'electric', isExtra: false },
+    },
+    {
+      blackboard: skillBlackboard,
+      skillCastInfo: {
+        skillCastId: 42,
+        originSkillId: 'attachment-source',
+        originSkillType: 'battleSkill',
+        nonReturnedSpCost: 100,
+      },
+    },
+  );
+  const entries = (context.receipt as CombatReceiptCollector).entries;
+  const hit = entries.find(e => e.event === 'DamageApplied')!;
+  expect(hit.data?.damageScaleMultiplier).toBeCloseTo(2.21);
+  expect(absorb).toHaveBeenCalledOnce();
+  expect(absorb.mock.calls[0]![0]).toBe('electric');
+  expect(hit.data?.actualDamage).toBeCloseTo(absorb.mock.calls[0]![1] / 2);
+  expect(initialHealth - environment.enemyVitals.health).toBeCloseTo(
+    Number(hit.data?.actualDamage),
+  );
+  if (route === 'buff') {
+    expect(hit.data?.buffId).toBe('attachment.pipeline');
+    expect(hit.data?.canCritical).toBe(canCritical);
+  } else expect(hit.data?.spellBurstType).toBe('Pulse');
+  expect(preparation).toHaveBeenCalledOnce();
+  expect(preparation.mock.calls[0]![0].payload.skillCastId).toBe(42);
+  expect(skillBlackboard.snapshot()).toEqual({});
+  expect(samples).toHaveBeenCalledTimes(canCritical ? 1 : 0);
+  expect(
+    entries.find(e => e.event === (route === 'buff' ? 'BuffDamageApplied' : 'SpellBurstApplied'))
+      ?.data?.actualDamage,
+  ).toBe(hit.data?.actualDamage);
+});
+
+it.each([15, 0, -1])('腐蚀输出收集仅延长正时长%s，并只提高减抗上限', duration => {
+  const environment = createEnvironment();
+  environment.runtimeOptions.createOperationExecutor(createContext());
+  environment.runtimeOptions.createOperatorBuffRuntime!('operator', createContext().panel, [
+    { reaction: 'corrosion', durationSecondsAddition: 10, effectivenessAddition: 0.2 },
+  ]);
+  const target = environment.runtimeOptions.enemyBuffRuntime;
+  if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  const input = {
+    duration,
+    max_def_decrease: 0.2,
+    start_def_decrease: 0.05,
+    def_decrease_tick: 0.01,
+  };
+  target.apply({
+    buffId: 'collected-corrosion',
+    sourceId: 'operator',
+    blackboardValues: input,
+    definition: {
+      stackingType: 'stack',
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
+    },
+  });
+  const buff = target.container.buffs[0]!;
+  expect(buff.blackboard.getNumber('duration')).toBe(duration > 0 ? duration + 10 : duration);
+  expect(buff.blackboard.getNumber('max_def_decrease')).toBeCloseTo(0.24);
+  expect(buff.blackboard.getNumber('start_def_decrease')).toBe(0.05);
+  expect(buff.blackboard.getNumber('def_decrease_tick')).toBe(0.01);
+  expect(input.duration).toBe(duration);
+});
+
+it('反应工厂创建的腐蚀也经过公共收集，时长与上限不会重复加成', () => {
+  // 使用明确的工厂输入隔离创建链，不依赖某个干员战技是否实际施加附着。
+  const values = {
+    duration: 15,
+    max_def_decrease: 0.2,
+    start_def_decrease: 0.05,
+    def_decrease_tick: 0.01,
+  };
+  const environment = new StandardPlayerDamageEnvironment({
+    criticalSamples: { nextCriticalSample: () => 1 },
+    resolveNonRandomRuntimeSnapshot: () => ({
+      runtimeExtensionMultiplier: 1,
+      appliesIgniteDamageMultiplier: false,
+      appliesPhysicalInflictionDamageMultiplier: false,
+    }),
+    enemyVitals: createEnemyCombatVitals(testEnemy),
+    spellInflictionSettings: skillSettings,
+    elementalInflictionDocument: {
+      schemaVersion: 1,
+      revision: 'test',
+      buffs: [
+        {
+          id: 'attachment.electric',
+          stackingType: 'enhanceAndRefresh',
+          durationSeconds: 10,
+          role: { kind: 'elementalAttachment', element: 'electric' },
+        },
+        {
+          id: 'status.corrosion',
+          stackingType: 'stack',
+          durationSeconds: { blackboardKey: 'duration' },
+          applyTags: ['Skill/Character/Common/SpellStatus/Corrupt'],
+          role: { kind: 'compoundStatus', consumedElement: 'electric', incomingElement: 'nature' },
+        },
+      ],
+    },
+    compoundStatusFactories: {
+      schemaVersion: 1,
+      revision: 'test',
+      factories: [
+        {
+          id: 'factory.corrosion',
+          consumedElement: 'electric',
+          incomingElement: 'nature',
+          durationSeconds: 0.1,
+          blackboard: values,
+          skillSettingLookups: [],
+          createdBuff: {
+            buffId: 'status.corrosion',
+            blackboardAssignments: Object.keys(values).map(key => ({
+              targetKey: key,
+              inputKey: key,
+            })),
+          },
+        },
+      ],
+    },
+  });
+  const context = createContext();
+  const executor = environment.runtimeOptions.createOperationExecutor(context);
+  environment.runtimeOptions.createOperatorBuffRuntime!('operator', context.panel, [
+    { reaction: 'corrosion', durationSecondsAddition: 10, effectivenessAddition: 0.2 },
+  ]);
+  for (const element of ['electric', 'nature'] as const) {
+    expect(
+      executor.execute({
+        kind: 'applyElementalInfliction',
+        parameters: { element, isExtra: false },
+      }),
+    ).toBe(true);
+  }
+  const target = environment.runtimeOptions.enemyBuffRuntime;
+  if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  const buff = target.container.buffs.find(
+    buff => buff.blackboard.getNumber('max_def_decrease') !== undefined,
+  )!;
+  expect(buff).toBeDefined();
+  expect(buff.blackboard.getNumber('duration')).toBe(25);
+  expect(buff.blackboard.getNumber('max_def_decrease')).toBeCloseTo(0.24);
+  expect(buff.blackboard.getNumber('start_def_decrease')).toBe(0.05);
+  expect(buff.blackboard.getNumber('def_decrease_tick')).toBe(0.01);
+});
 
 it.each(['criticalRate', 'criticalDamageIncrease'] as const)(
   '即时 %s 最终乘法作用于完整面板，结束后下一击恢复',
@@ -367,6 +728,7 @@ it.each(['burst', 'buff'] as const)(
       } else {
         expect(hits[0]!.data).not.toHaveProperty('buffInstanceId');
       }
+      if (finalMultiplier === 0) expect(nextCriticalSample).not.toHaveBeenCalled();
       return hits[0]!.data;
     };
     expect(run(0.2, 1)).toMatchObject({ isCritical: false, criticalMultiplier: 1 });

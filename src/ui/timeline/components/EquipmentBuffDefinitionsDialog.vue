@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, markRaw, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import {
-  useDefinitionDraftHistory,
+  projectDefinitionHistory,
   type DefinitionDraftHistory,
+  type DefinitionHistoryLocation,
 } from '../useDefinitionDraftHistory';
-import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
+import type { EquipmentContributionDefinition } from '../../../core/game-data/equipmentDefinition';
 import { cloneStructureValue } from '../skillStructureEditorCommands';
 import type {
   CombatStepDefinition,
@@ -17,50 +18,52 @@ import BuffDefinitionGraphEditor from './BuffDefinitionGraphEditor.vue';
 type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
 const props = defineProps<{
   visible: boolean;
-  definitions?: OperatorBuffDefinitions;
+  contribution: EquipmentContributionDefinition;
+  sharedHistory: DefinitionDraftHistory<EquipmentContributionDefinition>;
+  manageKeyboard?: boolean;
   referenceRoot: unknown;
   level: number;
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
-  save: [definitions: OperatorBuffDefinitions | undefined];
 }>();
 
-const draft = ref<OperatorBuffDefinitions>({});
+// 页面只读所属贡献，不另建保存范围或可写副本。
+const draft = computed(() => props.contribution.buffDefinitions ?? {});
+const history = props.sharedHistory;
 const editorRoot = ref<HTMLElement | null>(null);
-const history = markRaw(
-  useDefinitionDraftHistory(
-    () => draft.value,
-    value => {
-      draft.value = value;
-    },
-  ),
-);
-const selectedHistory = markRaw<DefinitionDraftHistory<SkillBuffDefinition>>({
-  commit(value, location) {
-    history.commit(
-      { ...draft.value, [selectedId.value]: value },
-      { ...location, path: location?.path ?? '', objectId: selectedId.value },
-    );
+const selectedId = ref('');
+const search = ref('');
+function commitDefinitions(
+  definitions: OperatorBuffDefinitions,
+  location?: DefinitionHistoryLocation,
+): void {
+  const { buffDefinitions: _previous, ...rest } = props.contribution;
+  history.commit(
+    Object.keys(definitions).length ? { ...rest, buffDefinitions: definitions } : rest,
+    location,
+  );
+}
+const selectedHistory = projectDefinitionHistory<SkillBuffDefinition>(
+  history,
+  (value, location) => {
+    commitDefinitions({ ...draft.value, [selectedId.value]: value }, location);
   },
-  restore: history.restore,
-  canUndo: history.canUndo,
-  canRedo: history.canRedo,
-  restoredLocation: history.restoredLocation,
-});
+  // objectId 留给外层效果索引；Buff 页身份不能覆盖它。
+  () => ({ page: `buff:${selectedId.value}` }),
+);
 watch(
   () => history.restoredLocation?.value,
   location => {
-    if (location?.objectId && draft.value[location.objectId]) {
-      selectedId.value = location.objectId;
+    const id = location?.page?.startsWith('buff:') ? location.page.slice(5) : undefined;
+    if (id) {
+      selectedId.value = draft.value[id] ? id : (Object.keys(draft.value).sort()[0] ?? '');
       search.value = '';
     }
   },
-  { flush: 'sync' },
+  { flush: 'post', immediate: true },
 );
-useEditorHistoryShortcuts(editorRoot, history.restore);
-const selectedId = ref('');
-const search = ref('');
+useEditorHistoryShortcuts(editorRoot, history.restore, () => props.manageKeyboard === true);
 const ids = computed(() => Object.keys(draft.value).sort());
 const filteredIds = computed(() => {
   const query = search.value.trim().toLocaleLowerCase();
@@ -85,8 +88,9 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
-    draft.value = cloneStructureValue(props.definitions ?? {});
-    selectedId.value = Object.keys(draft.value).sort()[0] ?? '';
+    const page = history.restoredLocation?.value?.page;
+    const id = page?.startsWith('buff:') ? page.slice(5) : '';
+    selectedId.value = draft.value[id] ? id : (Object.keys(draft.value).sort()[0] ?? '');
     search.value = '';
   },
   { immediate: true },
@@ -119,10 +123,13 @@ function addBuff(): void {
   let index = 1;
   while (existing.has(`custom-buff-${index}`)) index += 1;
   const id = `custom-buff-${index}`;
-  history.commit({
-    ...draft.value,
-    [id]: { stackingType: 'refresh', durationSeconds: 10 },
-  });
+  commitDefinitions(
+    {
+      ...draft.value,
+      [id]: { stackingType: 'refresh', durationSeconds: 10 },
+    },
+    { path: '', page: `buff:${id}`, operation: 'add' },
+  );
   selectedId.value = id;
 }
 
@@ -130,23 +137,13 @@ function removeBuff(): void {
   if (selectedId.value === '' || references.value.length > 0) return;
   const next = { ...draft.value };
   delete next[selectedId.value];
-  history.commit(next);
+  commitDefinitions(next, { path: '', page: `buff:${selectedId.value}`, operation: 'remove' });
   selectedId.value = Object.keys(next).sort()[0] ?? '';
 }
 
 function updateBuffStep(step: CombatStepDefinition): void {
   if (step.kind !== 'applyBuff' || step.parameters.definition === undefined) return;
-  history.commit({
-    ...draft.value,
-    [selectedId.value]: cloneStructureValue(step.parameters.definition),
-  });
-}
-
-function save(): void {
-  const definitions =
-    Object.keys(draft.value).length === 0 ? undefined : cloneStructureValue(draft.value);
-  emit('save', definitions);
-  emit('update:visible', false);
+  selectedHistory.commit(cloneStructureValue(step.parameters.definition), { path: '' });
 }
 </script>
 
@@ -212,13 +209,7 @@ function save(): void {
       <main v-else class="empty">当前贡献还没有附属 Buff。</main>
     </div>
     <div class="embedded-footer">
-      <DefinitionHistoryControls :history="history" />
-      <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
-        取消
-      </button>
-      <button class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill" @click="save">
-        保存 Buff 定义
-      </button>
+      <small>修改已进入所属定义草稿；由外层统一保存或取消。</small>
     </div>
   </section>
 </template>

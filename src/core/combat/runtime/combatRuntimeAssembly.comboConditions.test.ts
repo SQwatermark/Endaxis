@@ -615,7 +615,7 @@ describe('assembly 原生常驻连携条件', () => {
     const f = setup();
     const assembly = new CombatRuntimeAssembly({
       ...f.options,
-      timeDilation: { config: {}, timeManagerDeltaMode: 2 },
+      timeDilation: { config: {} },
     });
     assembly.timeDilation!.startGlobal({
       durationSeconds: 10,

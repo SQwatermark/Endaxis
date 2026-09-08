@@ -22,7 +22,8 @@ export type ProjectedTargetGroup =
   | 'party'
   | 'partyExceptCaster'
   | 'abilityEntity'
-  | 'buffSource'
+  /** SourceFinder 写入的动态单层来源结果，不能折叠为运行时 buffSource。 */
+  | 'sourceFinderResult'
   | 'controlledOperator'
   | 'contextOperator'
   | 'lowestHealthRatioOperatorExceptCaster'

@@ -17,6 +17,8 @@ export interface OperatorDefinitionReference {
   readonly path: string;
   readonly ownerKind: OperatorDefinitionReferenceOwnerKind;
   readonly ownerId: string;
+  /** 仅筛选已有实例，不依赖从定义目录创建对象；仍保留导航与使用处索引。 */
+  readonly usage?: 'instanceFilter';
 }
 
 type ReferenceSource = OperatorDefinition;
@@ -44,6 +46,7 @@ function collectValueReferences(
   path: string,
   owner: ReferenceOwner,
   output: OperatorDefinitionReference[],
+  instanceFilter = false,
 ): void {
   if (value === null || typeof value !== 'object') return;
   if (Array.isArray(value)) {
@@ -72,6 +75,7 @@ function collectValueReferences(
           path: `${childPath}[${index}]`,
           ownerKind: owner.kind,
           ownerId: owner.id,
+          ...(instanceFilter ? { usage: 'instanceFilter' as const } : {}),
         });
       });
     } else if (
@@ -98,7 +102,14 @@ function collectValueReferences(
         });
       });
     }
-    collectValueReferences(child, childPath, owner, output);
+    // 只识别具体动作的直接参数，不能将整个子树里的 buffId 都当作可缺失的引用。
+    collectValueReferences(
+      child,
+      childPath,
+      owner,
+      output,
+      property === 'parameters' && 'kind' in value && value.kind === 'finishBuffsById',
+    );
   }
 }
 

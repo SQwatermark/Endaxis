@@ -14,7 +14,11 @@ import {
   parseProjectDocument,
   serializeProjectDocument,
 } from '../../../core/project/serialization';
-import type { OperatorDefinition } from '../../../core/game-data/operatorDefinition';
+import type {
+  OperatorDefinition,
+  SkillBuffDefinition,
+} from '../../../core/game-data/operatorDefinition';
+import { createBuffShield } from '../buffShieldGraph';
 
 it('keeps canceled Buff/entity drafts isolated and persists full replacement snapshots in one project transaction', async () => {
   const id = 'project:operator:objects-qa';
@@ -86,12 +90,38 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
   app.provide(ssrContextKey, { modules: new Set() });
   app.use(createI18n({ legacy: false, locale: 'zh-CN', messages: {} }));
   app.mount({});
+  // 移回 Inspector 的属性仍属于完整 Buff 定义，随根保存及项目文件往返，不由图节点另行持久化。
+  const migratedBuff: SkillBuffDefinition = {
+    stackingType: 'refresh',
+    presentation: {
+      visible: true,
+      orderPriority: { useDirectoryValue: false, value: 7, category: 'qa' },
+    },
+    childPresentations: [{ buffId: 'qa-child', presentation: { visible: false } }],
+    sustainedProtection: { target: 'owner', superArmor: 0, impactResistance: 2 },
+    role: { kind: 'elementalAttachment', element: 'electric' },
+    spellBurst: {
+      burstType: 'Pulse',
+      damageType: 'electric',
+      skillSettingDataKey: 'qa',
+      skillSettingColumn: 1,
+      atkScaleBase: 0,
+    },
+    shields: [
+      {
+        ...createBuffShield(),
+        damageAbsorptions: [
+          { damageType: 'physical', ratio: { blackboardKey: 'ratio' }, scale: 1 },
+        ],
+      },
+    ],
+  };
   const edit = () => {
     panel.selectSection('buffs');
     panel.openBuffDetail('qa');
     panel.updateBuffStep({
       kind: 'applyBuff',
-      parameters: { definition: { stackingType: 'refresh' } },
+      parameters: { definition: migratedBuff },
     });
     panel.entityHistory.commit(
       {
@@ -102,6 +132,45 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     );
   };
   try {
+    // 同一 ID 的结束操作可无定义，施加操作仍须阻止根保存；嵌套不改变引用职责。
+    const originalDraft = panel.draft.value;
+    panel.history.commit({
+      ...originalDraft,
+      skillGroups: [
+        {
+          key: 'qa-reference',
+          skillType: 'battleSkill',
+          levelSource: 'battleSkill',
+          skills: {
+            key: 'qa-reference',
+            timelineBlockFrames: 1,
+            scheduledSequences: [
+              {
+                startFrame: 0,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'finishBuffsById',
+                      parameters: { target: 'caster', buffIds: ['qa-missing'], reason: 'other' },
+                    },
+                    { kind: 'applyBuff', parameters: { target: 'caster', buffId: 'qa-missing' } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const missingIssues = panel.draftIssues.value.filter((issue: { message: string }) =>
+      issue.message.includes("'qa-missing'"),
+    );
+    expect(missingIssues).toHaveLength(1);
+    expect(missingIssues[0].path).toBe(
+      'skillGroups[0].skills.scheduledSequences[0].sequence.steps[1].parameters.buffId',
+    );
+    panel.history.restore('undo');
+    await nextTick();
     // Focus is scoped to the active section; leaving/canceling does not alter the draft.
     const initial = JSON.stringify(panel.draft.value);
     panel.selectSection('skills');
@@ -264,7 +333,7 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) throw new Error('saved project must reload');
     const objects = getProjectDefinitionLibrary(loaded.value).operators[id]!.definition;
-    expect(objects.buffDefinitions!.qa).toEqual({ stackingType: 'refresh' });
+    expect(objects.buffDefinitions!.qa).toEqual(migratedBuff);
     expect(objects.abilityEntityDefinitions!.qa).toEqual({ lifetime: { kind: 'infinite' } });
     expect(objects.skillGroups).toEqual(
       getProjectDefinitionLibrary(project).operators[id]!.definition.skillGroups,
@@ -278,6 +347,7 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     await nextTick();
     expect(panel.isDirty.value).toBe(false);
     expect(panel.draft.value.buffDefinitions.qa).not.toHaveProperty('durationSeconds');
+    expect(panel.draft.value.buffDefinitions.qa).toEqual(migratedBuff);
     expect(panel.history.canUndo.value).toBe(false);
     expect(panel.draft.value.abilityEntityDefinitions.qa).not.toHaveProperty(
       'deathReleaseDelaySeconds',

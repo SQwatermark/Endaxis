@@ -1208,6 +1208,11 @@ function validateCombatStep(
           const sourceKind = requireString(sourceRecord, 'kind', sourcePath, out);
           if (sourceKind === 'context') {
             requireString(sourceRecord, 'contextKey', sourcePath, out);
+          } else if (sourceKind === 'abilitySystemSource') {
+            const owner = requireString(sourceRecord, 'owner', sourcePath, out);
+            if (owner !== null && owner !== 'actionSource' && owner !== 'actionOwner') {
+              push(out, `${sourcePath}.owner`, 'unknown AbilitySystem source query owner');
+            }
           } else if (sourceKind === 'target') {
             const target = requireString(sourceRecord, 'target', sourcePath, out);
             if (
@@ -1729,6 +1734,15 @@ function validateCombatStep(
       validateGameplayTags(parameters.tags, `${path}.parameters.tags`, out, true);
       break;
     case 'applyBuff': {
+      if (parameters.sourceContextKey !== undefined) {
+        requireString(parameters, 'sourceContextKey', `${path}.parameters`, out);
+        if (parameters.source !== undefined)
+          push(
+            out,
+            `${path}.parameters.source`,
+            'source and sourceContextKey are mutually exclusive',
+          );
+      }
       const dynamicId = typeof parameters.buffId === 'object' && parameters.buffId !== null;
       const buffId = dynamicId
         ? null
@@ -3242,6 +3256,11 @@ function validateCombatStep(
       }
       break;
     case 'openComboWindow':
+      if (parameters.ownerContextKey !== undefined) {
+        requireString(parameters, 'ownerContextKey', `${path}.parameters`, out);
+        if (parameters.nextSkillKeyFromSlot !== 'comboSkill')
+          push(out, `${path}.parameters.ownerContextKey`, 'requires current combo slot lookup');
+      }
       if (parameters.nextSkillKeyFromSlot === 'comboSkill') {
         if (parameters.nextSkillKey !== undefined)
           push(out, `${path}.parameters.nextSkillKey`, 'must be omitted for slot lookup');

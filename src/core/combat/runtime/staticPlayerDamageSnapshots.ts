@@ -84,8 +84,12 @@ function includesValue<T>(filter: T | readonly T[], value: T): boolean {
   return Array.isArray(filter) ? filter.includes(value) : filter === value;
 }
 
+type DamageSnapshotContext =
+  | CombatDamageExecutorContext
+  | (Pick<CombatDamageExecutorContext, 'panel' | 'enemy'> & { readonly operatorId: string });
+
 function resolveStaticDamageScales(
-  context: CombatDamageExecutorContext,
+  context: DamageSnapshotContext,
   step: DamageStep,
 ): DamageScaleAttributeSnapshot {
   const result = emptyDamageScaleSnapshot();
@@ -117,7 +121,7 @@ function resolveStaticDamageScales(
 
 /** 为一次标准玩家主动伤害冻结当前已闭环的静态攻防属性。 */
 export function resolveStaticPlayerDamageSnapshots(
-  context: CombatDamageExecutorContext,
+  context: DamageSnapshotContext,
   step: DamageStep,
   operatorAttributes: CombatAttributeSet<string>,
   enemyAttributes?: CombatAttributeSet<string>,

@@ -50,6 +50,7 @@ it.each(cases)(
   '$name replaces graph snapshots, saves deletions, and resets canceled drafts on reopen',
   async ({ name, component, definition }) => {
     const visible = shallowRef(true);
+    const customDefinition = shallowRef<any>(definition);
     const saved: any[] = [];
     let panel: any;
     const renderer = createRenderer<object, object>({
@@ -77,7 +78,7 @@ it.each(cases)(
         h(wrapped, {
           visible: visible.value,
           baseDefinition: definition,
-          customDefinition: definition,
+          customDefinition: customDefinition.value,
           gearSetIds: [],
           onSave: (value: unknown) => saved.push(value),
           'onUpdate:visible': (value: boolean) => {
@@ -123,6 +124,36 @@ it.each(cases)(
       await nextTick();
       expect(panel.isDirty.value).toBe(false);
       expect(saved).toHaveLength(1);
+      expect(JSON.stringify(definition)).toBe(before);
+      // 附属 Buff 工作区的保存结果必须随最外层武器/装备/套装完整保存。
+      const buff = {
+        stackingType: 'refresh',
+        presentation: { orderPriority: { useDirectoryValue: false, value: 7, category: 'qa' } },
+        childPresentations: [{ buffId: 'child', presentation: { visible: false } }],
+        sustainedProtection: { target: 'owner', superArmor: 0, impactResistance: 2 },
+      };
+      const complete = { ...contribution, buffDefinitions: { qa: buff } };
+      if (name !== 'set') panel.selectedSection.value = 0;
+      panel.contributionHistory.commit(complete, { path: 'buffDefinitions' });
+      panel.history.restore('undo');
+      expect(owned().buffDefinitions).toBeUndefined();
+      panel.history.restore('redo');
+      expect(owned().buffDefinitions.qa).toEqual(buff);
+      expect(panel.issues.value).toEqual([]);
+      panel.save();
+      await nextTick();
+      expect(saved).toHaveLength(2);
+      customDefinition.value = saved[1];
+      visible.value = true;
+      await nextTick();
+      expect(owned().buffDefinitions.qa).toEqual(buff);
+      update({});
+      visible.value = false;
+      await nextTick();
+      visible.value = true;
+      await nextTick();
+      expect(owned().buffDefinitions.qa).toEqual(buff);
+      expect(saved).toHaveLength(2);
       expect(JSON.stringify(definition)).toBe(before);
     } finally {
       app.unmount();

@@ -4,6 +4,7 @@ import {
   resizeTimelineTrackPair,
   resolveCompactTrackHeights,
   TIMELINE_TRACK_MIN_HEIGHT,
+  timelineLowerBuffTop,
 } from './timelineTrackEffectLayout';
 
 describe('timeline track effect layout', () => {
@@ -23,7 +24,7 @@ describe('timeline track effect layout', () => {
         upperLaneCount: 5,
         lowerLaneCount: 6,
       }),
-    ).toEqual({ height: 330, actionTop: 140 });
+    ).toEqual({ height: 362, actionTop: 156 });
   });
 
   it('treats a compact row-height override as a baseline rather than a clipping boundary', () => {
@@ -34,7 +35,7 @@ describe('timeline track effect layout', () => {
         upperLaneCount: 8,
         lowerLaneCount: 9,
       }),
-    ).toEqual({ height: 462, actionTop: 206 });
+    ).toEqual({ height: 494, actionTop: 222 });
   });
 
   it('resizes adjacent compact rows without changing their pair total', () => {
@@ -47,14 +48,14 @@ describe('timeline track effect layout', () => {
     expect(resizeTimelineTrackPair(original, 1, 20)).toBe(original);
   });
 
-  it('keeps the legacy baseline while both sides fit in two lanes', () => {
+  it('reserves space for combo decorations even with two lower lanes', () => {
     expect(
       projectTimelineTrackEffectLayout({
         mode: 'loose',
         upperLaneCount: 2,
         lowerLaneCount: 2,
       }),
-    ).toEqual({ height: 160, actionTop: 55 });
+    ).toEqual({ height: 186, actionTop: 68 });
   });
 
   it('uses the larger side as symmetric padding and keeps the action centered', () => {
@@ -64,7 +65,7 @@ describe('timeline track effect layout', () => {
         upperLaneCount: 4,
         lowerLaneCount: 5,
       }),
-    ).toEqual({ height: 286, actionTop: 118 });
+    ).toEqual({ height: 318, actionTop: 134 });
   });
 
   it('keeps shortened rows large enough for the complete identity controls and effects', () => {
@@ -76,5 +77,24 @@ describe('timeline track effect layout', () => {
         lowerLaneCount: 1,
       }),
     ).toEqual({ height: 160, actionTop: 55 });
+  });
+
+  it('stacks lower buffs inward from the edge without covering combo lines or labels', () => {
+    for (const mode of ['compact', 'loose'] as const) {
+      for (const count of [1, 2, 6, 12]) {
+        const { height, actionTop } = projectTimelineTrackEffectLayout({
+          mode,
+          upperLaneCount: 3,
+          lowerLaneCount: count,
+        });
+        expect(timelineLowerBuffTop(actionTop, 0) + 18).toBe(height - 5);
+        const nearestBuffTop = timelineLowerBuffTop(actionTop, count - 1);
+        // 冷却线在技能底边 +7px，文字再下移4px、高10px。
+        expect(nearestBuffTop).toBeGreaterThan(actionTop + 50 + 7 + 4 + 10);
+        if (count > 1) {
+          expect(timelineLowerBuffTop(actionTop, 0) - timelineLowerBuffTop(actionTop, 1)).toBe(22);
+        }
+      }
+    }
   });
 });

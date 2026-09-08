@@ -47,12 +47,12 @@ const props = withDefaults(
     presentation?: CombatBuffPresentation;
     title?: string;
     initiallyCollapsed?: boolean;
-    layerOnly?: boolean;
+    /** 子表现中的 presentation 是必填对象，不能单独移除。 */
+    required?: boolean;
   }>(),
   { title: 'Buff 展示身份', initiallyCollapsed: true },
 );
 const emit = defineEmits<{ update: [presentation: CombatBuffPresentation | undefined] }>();
-const collapsed = ref(props.initiallyCollapsed);
 const failedIconPath = ref('');
 const previewIconPath = computed(() => {
   const path = props.presentation?.iconPath;
@@ -65,10 +65,8 @@ watch(
 );
 
 function commit(presentation: CombatBuffPresentation): void {
-  emit(
-    'update',
-    !props.layerOnly && Object.keys(presentation).length === 0 ? undefined : presentation,
-  );
+  // 清空字段不等于移除对象；移除只能通过显式开关执行。
+  emit('update', presentation);
 }
 
 function setText(
@@ -114,146 +112,131 @@ function setOrderPriority(field: 'useDirectoryValue' | 'value' | 'category', eve
 </script>
 
 <template>
-  <section class="presentation-editor" :class="{ 'layer-only': layerOnly }">
-    <header v-if="!layerOnly">
-      <button type="button" @click="collapsed = !collapsed">
-        {{ collapsed ? '▸' : '▾' }} {{ title }}
-        <span>{{ Object.keys(presentation ?? {}).length }}</span>
-      </button>
-    </header>
-    <div v-if="layerOnly || !collapsed" class="presentation-content">
-      <div class="presentation-identity">
-        <span class="presentation-icon" :class="{ 'is-hidden': presentation?.visible === false }">
-          <img
-            v-if="previewIconPath"
-            :src="previewIconPath"
-            :alt="presentation?.iconId ?? title"
-            @error="failedIconPath = previewIconPath"
-          />
-          <span v-else>BUFF</span>
-        </span>
-        <div>
+  <details class="presentation-editor" :open="!initiallyCollapsed">
+    <summary>
+      {{ title }}
+      <span>{{ Object.keys(presentation ?? {}).length }}</span>
+    </summary>
+    <div class="presentation-content">
+      <label v-if="!required">
+        <input
+          type="checkbox"
+          :checked="presentation !== undefined"
+          @change="emit('update', ($event.target as HTMLInputElement).checked ? {} : undefined)"
+        />启用表现定义
+      </label>
+      <template v-if="presentation !== undefined || required">
+        <div class="presentation-identity">
+          <span class="presentation-icon" :class="{ 'is-hidden': presentation?.visible === false }">
+            <img
+              v-if="previewIconPath"
+              :src="previewIconPath"
+              :alt="presentation?.iconId ?? title"
+              @error="failedIconPath = previewIconPath"
+            />
+            <span v-else>BUFF</span>
+          </span>
+          <div>
+            <label
+              ><span>图标 ID</span
+              ><input
+                type="text"
+                :value="presentation?.iconId ?? ''"
+                @input="setText('iconId', $event)"
+            /></label>
+            <label
+              ><span>图标路径</span
+              ><input
+                type="text"
+                :value="presentation?.iconPath ?? ''"
+                @input="setText('iconPath', $event)"
+            /></label>
+          </div>
+        </div>
+        <div class="boolean-rules">
+          <label v-for="field in BOOLEAN_FIELDS" :key="field">
+            <span>{{ BOOLEAN_LABELS[field] }}</span>
+            <select
+              :value="presentation?.[field] === undefined ? '' : String(presentation[field])"
+              @change="setBoolean(field, $event)"
+            >
+              <option value="">未设置</option>
+              <option value="true">是</option>
+              <option value="false">否</option>
+            </select>
+          </label>
+        </div>
+        <div class="text-rules">
           <label
-            ><span>图标 ID</span
+            ><span>生命栏 VFX 类型</span
             ><input
               type="text"
-              :value="presentation?.iconId ?? ''"
-              @input="setText('iconId', $event)"
+              :value="presentation?.charHpBarVfxType ?? ''"
+              @input="setText('charHpBarVfxType', $event)"
           /></label>
           <label
-            ><span>图标路径</span
+            ><span>队伍图标样式</span
             ><input
               type="text"
-              :value="presentation?.iconPath ?? ''"
-              @input="setText('iconPath', $event)"
+              :value="presentation?.iconStyleInSquad ?? ''"
+              @input="setText('iconStyleInSquad', $event)"
+          /></label>
+          <label
+            ><span>异常颜色类型</span
+            ><input
+              type="text"
+              :value="presentation?.abnormalColorType ?? ''"
+              @input="setText('abnormalColorType', $event)"
           /></label>
         </div>
-      </div>
-      <div class="boolean-rules">
-        <label v-for="field in BOOLEAN_FIELDS" :key="field">
-          <span>{{ BOOLEAN_LABELS[field] }}</span>
-          <select
-            :value="presentation?.[field] === undefined ? '' : String(presentation[field])"
-            @change="setBoolean(field, $event)"
-          >
-            <option value="">未设置</option>
-            <option value="true">是</option>
-            <option value="false">否</option>
-          </select>
-        </label>
-      </div>
-      <div class="text-rules">
-        <label
-          ><span>生命栏 VFX 类型</span
-          ><input
-            type="text"
-            :value="presentation?.charHpBarVfxType ?? ''"
-            @input="setText('charHpBarVfxType', $event)"
-        /></label>
-        <label
-          ><span>队伍图标样式</span
-          ><input
-            type="text"
-            :value="presentation?.iconStyleInSquad ?? ''"
-            @input="setText('iconStyleInSquad', $event)"
-        /></label>
-        <label
-          ><span>异常颜色类型</span
-          ><input
-            type="text"
-            :value="presentation?.abnormalColorType ?? ''"
-            @input="setText('abnormalColorType', $event)"
-        /></label>
-      </div>
-      <fieldset v-if="!layerOnly" class="order-priority">
-        <legend>
-          <label
-            ><input
-              type="checkbox"
-              :checked="presentation?.orderPriority !== undefined"
-              @change="toggleOrderPriority"
-            />排序优先级</label
-          >
-        </legend>
-        <template v-if="presentation?.orderPriority">
-          <label
-            ><span>使用目录值</span
-            ><input
-              type="checkbox"
-              :checked="presentation.orderPriority.useDirectoryValue"
-              @change="setOrderPriority('useDirectoryValue', $event)"
-          /></label>
-          <label
-            ><span>数值</span
-            ><input
-              type="number"
-              step="1"
-              :value="presentation.orderPriority.value"
-              @input="setOrderPriority('value', $event)"
-          /></label>
-          <label
-            ><span>分类</span
-            ><input
-              type="text"
-              :value="presentation.orderPriority.category"
-              @input="setOrderPriority('category', $event)"
-          /></label>
-        </template>
-      </fieldset>
+        <fieldset class="order-priority">
+          <legend>
+            <label
+              ><input
+                type="checkbox"
+                :checked="presentation?.orderPriority !== undefined"
+                @change="toggleOrderPriority"
+              />排序优先级</label
+            >
+          </legend>
+          <template v-if="presentation?.orderPriority">
+            <label
+              ><span>使用目录值</span
+              ><input
+                type="checkbox"
+                :checked="presentation.orderPriority.useDirectoryValue"
+                @change="setOrderPriority('useDirectoryValue', $event)"
+            /></label>
+            <label
+              ><span>数值</span
+              ><input
+                type="number"
+                step="1"
+                :value="presentation.orderPriority.value"
+                @input="setOrderPriority('value', $event)"
+            /></label>
+            <label
+              ><span>分类</span
+              ><input
+                type="text"
+                :value="presentation.orderPriority.category"
+                @input="setOrderPriority('category', $event)"
+            /></label>
+          </template>
+        </fieldset>
+      </template>
     </div>
-  </section>
+  </details>
 </template>
 
 <style scoped>
-.layer-only.presentation-editor {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-.layer-only .presentation-content {
-  margin: 0;
-}
-.layer-only .presentation-identity > div,
-.layer-only .boolean-rules,
-.layer-only .text-rules {
-  grid-template-columns: minmax(0, 1fr);
-}
-.layer-only .presentation-identity label,
-.layer-only .boolean-rules label,
-.layer-only .text-rules label {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 4px;
-}
-.layer-only .boolean-rules label {
-  grid-template-columns: minmax(0, 1fr) 80px;
-  gap: 8px;
-}
 .presentation-editor {
   margin-top: 12px;
   border-top: 1px solid var(--ea-border-soft);
   padding-top: 10px;
 }
-.presentation-editor > header button {
+.presentation-editor > summary {
+  cursor: pointer;
   width: 100%;
   text-align: left;
 }
@@ -281,7 +264,7 @@ function setOrderPriority(field: 'useDirectoryValue' | 'value' | 'category', eve
 .boolean-rules,
 .text-rules {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 7px 12px;
 }
 .presentation-identity label,
@@ -303,6 +286,10 @@ function setOrderPriority(field: 'useDirectoryValue' | 'value' | 'category', eve
   color: var(--ea-fg-muted);
   font-size: 9px;
 }
+.presentation-identity label {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
 .presentation-icon.is-hidden {
   opacity: 0.42;
 }
@@ -313,7 +300,7 @@ function setOrderPriority(field: 'useDirectoryValue' | 'value' | 'category', eve
 }
 .order-priority {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   border: 1px solid var(--ea-border-soft);
 }

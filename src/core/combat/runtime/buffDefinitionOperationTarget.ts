@@ -4,6 +4,7 @@
  */
 import {
   CombatBuffContainer,
+  type CombatBuff,
   type BuffFinishReason,
   type CombatBuffDefinition,
 } from '../buffs/combatBuffs';
@@ -75,7 +76,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.#apply(request) !== null;
   }
 
-  applyScoped(request: BuffApplicationRequest): BuffApplicationHandle | null {
+  applyScoped(request: BuffApplicationRequest): CombatBuff<Key> | null {
     // 返回稳定的实例句柄，使重复施加/刷新后的 Skill.AttachBuff 可以按身份去重。
     return this.#apply(request);
   }

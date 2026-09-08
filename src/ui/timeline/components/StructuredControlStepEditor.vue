@@ -139,7 +139,7 @@ function setShareParent(event: Event): void {
           :labels="labels"
           @update="emit('update', { ...step, parameters: { ...step.parameters, count: $event } })"
       /></label>
-      <p>循环 Body 从左侧导图添加和选择；每轮创建新的子步骤实例。</p>
+      <p>在左侧循环节点上添加动作，直接选择其下的动作编辑；每轮创建新的子步骤实例。</p>
     </template>
     <template v-else-if="step.kind === 'scheduleProjectileFinishCallback'">
       <label
@@ -158,7 +158,7 @@ function setShareParent(event: Event): void {
             })
           "
       /></label>
-      <p>回调 Body 从左侧导图添加和选择；其寿命独立于发射技能。</p>
+      <p>在左侧回调节点上添加动作，直接选择其下的动作编辑；其寿命独立于发射技能。</p>
     </template>
     <template v-else>
       <label
@@ -198,7 +198,7 @@ function setShareParent(event: Event): void {
               alwaysNext: ($event.target as HTMLInputElement).checked,
             })
           "
-        />忽略 Body 的短路结果</label
+        />忽略子动作序列的短路结果</label
       >
       <label class="structured-control__toggle"
         ><input
@@ -243,7 +243,7 @@ function setShareParent(event: Event): void {
           @update="setEntityAssignments"
         />
       </template>
-      <p>Body 从左侧导图添加和选择。</p>
+      <p>在左侧当前节点上添加动作，直接选择其下的动作编辑。</p>
     </template>
   </div>
 </template>

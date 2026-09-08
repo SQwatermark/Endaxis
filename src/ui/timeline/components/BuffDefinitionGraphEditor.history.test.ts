@@ -150,7 +150,6 @@ it('records Inspector edits and invalidates redo when editing after undo', async
       'healModifiers',
       'poiseModifiers',
       'shields',
-      'childPresentations',
     ]) {
       const before = definition.value;
       await panel.beginAdd(find(key), { x: 0, y: 0 });
@@ -171,29 +170,46 @@ it('records Inspector edits and invalidates redo when editing after undo', async
       expect(find(key).children).toHaveLength(2);
       expect(before[key]).toBeUndefined();
     }
-    await panel.beginAdd(find('shields[0].damageAbsorptions'), { x: 0, y: 0 });
+    const beforeAbsorption = definition.value;
+    panel.selectNode(find('shields[0]'));
+    panel.editing.property.value
+      .child('damageAbsorptions')
+      .update(() => [{ damageType: 'physical', ratio: 1, scale: 1 }]);
     await nextTick();
-    const beforeAbsorptionDelete = definition.value;
-    await panel.runStructureNodeAction('delete', find('shields[0].damageAbsorptions[0]'));
-    expect(find('shields[0].damageAbsorptions').children).toEqual([]);
+    expect(definition.value.shields[0].damageAbsorptions).toHaveLength(1);
     await panel.restoreStructureHistory('undo');
-    expect(definition.value).toEqual(beforeAbsorptionDelete);
-    for (const path of [
-      'presentation',
-      'presentation.orderPriority',
-      'childPresentations[0].presentation.orderPriority',
-      'sustainedProtection',
-      'role',
-      'spellBurst',
-    ]) {
-      await panel.beginAdd(find(path), { x: 0, y: 0 });
-      await nextTick();
+    await nextTick();
+    await nextTick();
+    expect(definition.value).toEqual(beforeAbsorption);
+    expect(panel.selectedPath.value).toBe('shields[0]');
+    await panel.restoreStructureHistory('redo');
+    expect(definition.value.shields[0].damageAbsorptions).toHaveLength(1);
+    // 表现回到根 Inspector，编辑仍进入同一个历史，并以根属性定位。
+    for (const [key, value] of Object.entries({
+      presentation: { orderPriority: { useDirectoryValue: false, value: 3, category: '' } },
+      childPresentations: [{ buffId: 'child', presentation: {} }],
+      sustainedProtection: { target: 'owner', superArmor: 0, impactResistance: 2 },
+      role: { kind: 'elementalAttachment', element: 'heat' },
+      spellBurst: {
+        burstType: 'Fire',
+        damageType: 'heat',
+        skillSettingDataKey: 'test',
+        skillSettingColumn: 1,
+        atkScaleBase: 0,
+      },
+    })) {
       const before = definition.value;
-      expect(find(path).canDelete).toBe(true);
-      await panel.runStructureNodeAction('delete', find(path));
-      expect(find(path).canAddChild).toBe('buffMember');
+      panel.selectNode({ id: 'buff' });
+      panel.editing.context.root.update((current: any) => ({ ...current, [key]: value }), [key]);
+      await nextTick();
+      expect(definition.value[key]).toEqual(value);
       await panel.restoreStructureHistory('undo');
       expect(definition.value).toEqual(before);
+      await nextTick();
+      await nextTick();
+      expect(panel.selectedId.value).toBe('buff');
+      await panel.restoreStructureHistory('redo');
+      expect(definition.value[key]).toEqual(value);
     }
   } finally {
     app.unmount();

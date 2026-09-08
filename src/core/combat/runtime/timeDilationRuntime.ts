@@ -280,20 +280,14 @@ export class TimeDilationRuntime implements FrameRuntime {
   }
 
   /** 按原生 AbilitySystem.PreLateTick 分支生成本实体使用的四路时钟。 */
-  getAbilityTickDeltas(
-    operatorId: string,
-    rawDeltaSeconds: number,
-    timeManagerDeltaMode: number,
-  ): AbilityTickDeltas {
+  getAbilityTickDeltas(operatorId: string, rawDeltaSeconds: number): AbilityTickDeltas {
     if (!Number.isFinite(rawDeltaSeconds) || rawDeltaSeconds < 0) {
       throw new RangeError('raw delta seconds must be a non-negative finite number');
     }
-    if (!Number.isInteger(timeManagerDeltaMode)) {
-      throw new TypeError('time-manager delta mode must be an integer');
-    }
     const globalScaledDeltaSeconds = rawDeltaSeconds * this.currentGlobalScale;
-    const defaultDeltaSeconds =
-      timeManagerDeltaMode === 2 ? rawDeltaSeconds : globalScaledDeltaSeconds;
+    // 本管理器只注册 TimeDilation 来源；原生对此原因使用未缩放的默认时间。
+    // 无膨胀时倍率为 1，两者等价。菜单暂停等其他缩放来源不在本模拟范围内。
+    const defaultDeltaSeconds = rawDeltaSeconds;
     return {
       defaultDeltaSeconds,
       globalScaledDeltaSeconds,

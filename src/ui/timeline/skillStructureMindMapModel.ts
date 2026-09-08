@@ -16,8 +16,6 @@ import { buildBuffDamageModifierGraph } from './buffDamageModifierGraph';
 import { buildBuffFlatCollectionGraph } from './buffFlatCollectionGraph';
 import { buildBuffCalculationModifierGraph } from './buffCalculationModifierGraph';
 import { buildBuffShieldGraph } from './buffShieldGraph';
-import { buildBuffOptionalObjects } from './buffOptionalObjectGraph';
-import { buildBuffPresentationGraph } from './buffPresentationGraph';
 import type { EquipmentContributionDefinition } from '../../core/game-data/equipmentDefinition';
 import {
   resolveStructureValue,
@@ -73,13 +71,6 @@ export interface SkillStructureNode {
     | 'globalBuffChild';
   readonly payloadKind?:
     | 'buffShield'
-    | 'buffShieldAbsorption'
-    | 'buffPresentation'
-    | 'buffChildPresentation'
-    | 'buffPresentationOrder'
-    | 'buffProtection'
-    | 'buffRole'
-    | 'buffSpellBurst'
     | 'buffHealModifier'
     | 'buffHealProcessor'
     | 'buffHealCondition'
@@ -109,13 +100,6 @@ export interface SkillStructureNode {
     | 'globalBuffChild';
   readonly acceptsChildKind?:
     | 'buffShield'
-    | 'buffShieldAbsorption'
-    | 'buffPresentation'
-    | 'buffChildPresentation'
-    | 'buffPresentationOrder'
-    | 'buffProtection'
-    | 'buffRole'
-    | 'buffSpellBurst'
     | 'buffHealModifier'
     | 'buffHealProcessor'
     | 'buffHealCondition'
@@ -1130,8 +1114,6 @@ export function buildBuffStructureMindMap(
       ...buildBuffFlatCollectionGraph(definition),
       ...buildBuffCalculationModifierGraph(definition),
       buildBuffShieldGraph(definition.shields ?? []),
-      ...buildBuffOptionalObjects(definition),
-      ...buildBuffPresentationGraph(definition),
       buildBuffDamageModifierGraph(definition.damageModifiers ?? [], (sequence, path) =>
         sequenceNode(
           sequence,

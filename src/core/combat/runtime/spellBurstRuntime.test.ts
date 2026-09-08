@@ -5,7 +5,88 @@ import { createSkillSettingSource, type SkillSettingsDocument } from '../inflict
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { CombatVitals } from './combatVitals';
-import { executeSpellBurst, resolveSpellBurstEnhanceFactor } from './spellBurstRuntime';
+import {
+  executeSpellBurst as executeBurst,
+  resolveSpellBurstEnhanceFactor,
+  type ExecuteSpellBurstInput,
+} from './spellBurstRuntime';
+import type { PlayerDamageOperationDependencies } from './playerDamageOperationExecutor';
+import {
+  DAMAGE_SCALE_ATTRIBUTE_KEYS,
+  type DamageScaleAttributeSnapshot,
+} from '../damage/damageScaleAttributes';
+
+const scaleAttributes = Object.fromEntries(
+  DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, 0]),
+) as unknown as DamageScaleAttributeSnapshot;
+
+/** 单元测试的静态战场；生产环境必须注入实际属性、事件和护盾端口。 */
+function executeSpellBurst(
+  input: Omit<ExecuteSpellBurstInput, 'damage'> & {
+    sourceId: string;
+    attack: number;
+    criticalRate: number;
+    criticalDamageIncrease: number;
+    weaknessDamageMultiplier: number;
+    criticalSample: number;
+    defender: PlayerDamageDefenderSnapshot;
+    target: CombatVitals;
+    clock: CombatClock;
+    receipt: CombatReceiptCollector;
+    skillCastInfo?: PlayerDamageOperationDependencies['skillCastInfo'];
+    attackDetail?: PlayerDamageOperationDependencies['attackDetail'];
+    emitSourceEvent: PlayerDamageOperationDependencies['emitHealthSourceEvent'];
+    emitTargetEvent: PlayerDamageOperationDependencies['emitHealthTargetEvent'];
+  },
+) {
+  return executeBurst({
+    definition: input.definition,
+    settings: input.settings,
+    enhance: input.enhance,
+    damage: {
+      sourceOperatorId: input.sourceId,
+      targetId: 'enemy',
+      targetVitals: input.target,
+      clock: input.clock,
+      receipt: input.receipt,
+      ...(input.skillCastInfo === undefined
+        ? {}
+        : {
+            skillCastInfo: input.skillCastInfo,
+            sourceActionId: input.skillCastInfo.originCastId,
+          }),
+      ...(input.attackDetail === undefined ? {} : { attackDetail: input.attackDetail }),
+      captureAttributeSnapshots: () => ({
+        attacker: {
+          ...scaleAttributes,
+          attack: input.attack,
+          criticalRate: input.criticalRate,
+          criticalDamageIncrease: input.criticalDamageIncrease,
+          weaknessDamageMultiplier: input.weaknessDamageMultiplier,
+          igniteDamageMultiplier: 1,
+          physicalInflictionDamageMultiplier: 1,
+        },
+        defender: { ...scaleAttributes, ...input.defender },
+      }),
+      criticalSamples: { nextCriticalSample: () => input.criticalSample },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: input.emitSourceEvent,
+      emitHealthTargetEvent: input.emitTargetEvent,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: () => false, evaluate: () => false },
+    },
+  });
+}
 
 const definition: CombatBuffSpellBurstDefinition = {
   burstType: 'Pulse',

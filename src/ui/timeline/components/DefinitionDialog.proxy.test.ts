@@ -11,7 +11,6 @@ import { expect, it } from 'vitest';
 import Upgrade from './OperatorUpgradeBehaviorDialog.vue';
 import Runtime from './OperatorRuntimeBehaviorDialog.vue';
 import Combo from './OperatorComboDefinitionsDialog.vue';
-import Buffs from './EquipmentBuffDefinitionsDialog.vue';
 
 const cases = [
   {
@@ -42,20 +41,6 @@ const cases = [
     },
     draft: (p: any) => p.conditions.value,
     edit: (p: any) => (p.conditions.value[0].key = 'edited'),
-  },
-  {
-    name: 'equipment-buff',
-    component: Buffs,
-    props: {
-      definitions: { qa: { stackingType: 'refresh', durationSeconds: 10 } },
-      referenceRoot: {},
-    },
-    draft: (p: any) => p.draft.value,
-    edit: (p: any) =>
-      p.updateBuffStep({
-        kind: 'applyBuff',
-        parameters: { definition: reactive({ stackingType: 'refresh', durationSeconds: 20 }) },
-      }),
   },
 ];
 

@@ -13,6 +13,10 @@ type TargetContextStep = Extract<
   }
 >;
 const props = defineProps<{ step: TargetContextStep }>();
+type MergeSourceKind = Extract<
+  TargetContextStep,
+  { kind: 'mergeContextTargets' }
+>['parameters']['sources'][number]['kind'];
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const operandLabels = {
   constant: '常量',
@@ -71,16 +75,19 @@ function appendMergeSource(): void {
   });
 }
 
-function setMergeSource(index: number, kind: 'target' | 'context', value: string): void {
+function setMergeSource(index: number, kind: MergeSourceKind, value: string): void {
   if (props.step.kind !== 'mergeContextTargets') return;
   const sources = [...props.step.parameters.sources];
   sources[index] =
     kind === 'target'
       ? {
           kind,
-          target: value as 'caster' | 'enemy' | 'eventTarget' | 'buffSource' | 'currentTarget',
+          target: (value || 'caster') as
+            'caster' | 'enemy' | 'eventTarget' | 'buffSource' | 'currentTarget',
         }
-      : { kind, contextKey: value };
+      : kind === 'abilitySystemSource'
+        ? { kind, owner: value === 'actionOwner' ? 'actionOwner' : 'actionSource' }
+        : { kind, contextKey: value };
   update({ ...props.step.parameters, sources });
 }
 
@@ -122,13 +129,14 @@ function setSelectionKind(event: Event): void {
             @change="
               setMergeSource(
                 index,
-                ($event.target as HTMLSelectElement).value as 'target' | 'context',
+                ($event.target as HTMLSelectElement).value as MergeSourceKind,
                 '',
               )
             "
           >
             <option value="target">稳定目标</option>
             <option value="context">Context 目标组</option>
+            <option value="abilitySystemSource">单层能力系统来源</option>
           </select>
           <select
             v-if="source.kind === 'target'"
@@ -140,6 +148,14 @@ function setSelectionKind(event: Event): void {
             <option value="eventTarget">事件目标</option>
             <option value="buffSource">Buff 来源</option>
             <option value="currentTarget">当前迭代目标</option>
+          </select>
+          <select
+            v-else-if="source.kind === 'abilitySystemSource'"
+            :value="source.owner"
+            @change="setMergeSource(index, 'abilitySystemSource', field($event))"
+          >
+            <option value="actionSource">查询动作来源的 source</option>
+            <option value="actionOwner">查询动作宿主的 source</option>
           </select>
           <input
             v-else

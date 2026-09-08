@@ -274,9 +274,11 @@ describe('ScenarioSimulationService', () => {
 
     const run = await service.simulate(second, 120);
 
-    const bursts = run.receiptEntries.filter(entry => entry.event === 'SpellBurstApplied');
+    const bursts = run.receiptEntries.filter(
+      entry => entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string',
+    );
     expect(bursts.length).toBeGreaterThan(0);
-    expect(bursts[0]?.data?.burstType).toBe('Pulse');
+    expect(bursts[0]?.data?.spellBurstType).toBe('Pulse');
     expect((bursts[0]?.data?.value ?? 0) as number).toBeGreaterThan(0);
     expect(run.finalEnemyHealth).toBeLessThan(run.enemy.health);
   });

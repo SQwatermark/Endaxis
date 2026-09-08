@@ -30,10 +30,7 @@ import {
 } from '../core/compiler/compileScenarioEnemy';
 import { createEnemyCombatVitals } from '../core/combat/runtime/combatVitalsFactory';
 import { assertStandardPlayerDamageCompatibility } from '../core/combat/runtime/standardPlayerDamageCompatibility';
-import {
-  STANDARD_TIME_MANAGER_DELTA_MODE,
-  timeDilationRuntimeConfig,
-} from '../data/combat/timeDilationConfig';
+import { timeDilationRuntimeConfig } from '../data/combat/timeDilationConfig';
 import { gameplayTagRegistry } from '../data/combat/gameplayTagCatalog';
 import { GAMEPLAY_TAG_PREDEFINE } from '../data/combat/gameplayTagPredefine.generated';
 import { GameplayTagPredefine } from '../core/combat/tags/gameplayTagPredefine';
@@ -59,7 +56,6 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly spellInflictionSettings?: SkillSettingsDocument;
   readonly compoundStatusFactories?: CompoundStatusFactoriesDocument;
   /** 原生 TimeManager 模式原值；值 2 使用未缩放默认时钟，其他值使用全局缩放时钟。 */
-  readonly timeManagerDeltaMode?: number;
   /** 临时规划实例专用，不进入项目协议或正式模拟缓存。 */
   readonly continuationPlanCastIds?: readonly string[];
   readonly continuationPlanMode?: 'continuation' | 'compact';
@@ -155,7 +151,6 @@ export function runStandardPlayerDamageScenarioSimulation(
       skillAvailabilityTags: new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE),
       timeDilation: {
         config: timeDilationRuntimeConfig,
-        timeManagerDeltaMode: input.timeManagerDeltaMode ?? STANDARD_TIME_MANAGER_DELTA_MODE,
       },
     },
   });

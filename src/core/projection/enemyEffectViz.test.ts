@@ -29,6 +29,7 @@ describe('projectEnemyEffectViz', () => {
     expect(result.damageHits).toEqual([first, second]);
     expect(result.damageHits?.[0]).toBe(first);
     expect(result.markers).toHaveLength(2);
+    expect(result.markers.every(marker => marker.frame === 20)).toBe(true);
   });
   it.each(['heat', 'electric', 'cryo', 'nature'])(
     'shows the incoming %s conversion attachment without fabricating a duration',
@@ -60,7 +61,7 @@ describe('projectEnemyEffectViz', () => {
     expect(
       projectEnemyEffectViz(
         [
-          receipt(0, 20, 'SpellBurstApplied', { burstType: 'Pulse' }),
+          receipt(0, 20, 'DamageApplied', { spellBurstType: 'Pulse', value: 1 }),
           receipt(1, 30, 'ElementalReactionApplied', {
             reaction: 'electrification',
             level: 2,
@@ -74,6 +75,7 @@ describe('projectEnemyEffectViz', () => {
         90,
       ),
     ).toEqual({
+      damageHits: [receipt(0, 20, 'DamageApplied', { spellBurstType: 'Pulse', value: 1 })],
       markers: [
         { frame: 20, kind: 'burst', burstType: 'Pulse' },
         { frame: 60, kind: 'reactionConsumed', reaction: 'electrification', level: 2 },

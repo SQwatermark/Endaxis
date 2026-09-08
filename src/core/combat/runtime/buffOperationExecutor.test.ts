@@ -5,6 +5,7 @@ import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
 import { ActionBlackboard } from './actionBlackboard';
 import { BuffOperationExecutor } from './buffOperationExecutor';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 const delegate: CombatOperationExecutor = {
@@ -13,6 +14,153 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('按 ID 结束未存在的实例不要求装载该 Buff 定义', () => {
+    const target = new CombatBuffContainer('caster', new CombatAttributeSet());
+    const finish = vi.spyOn(target, 'finishByIds');
+    const executor = new BuffOperationExecutor({
+      sourceId: 'caster',
+      resolveTarget: () => target,
+      delegate,
+    });
+    expect(
+      executor.execute({
+        kind: 'finishBuffsById',
+        parameters: { target: 'caster', buffIds: ['missing'], reason: 'other' },
+      }),
+    ).toBe(true);
+    expect(finish).toHaveReturnedWith(0);
+  });
+  it.each([
+    [{ kind: 'operator', operatorId: 'recipient' }, 'recipient'],
+    [{ kind: 'enemy' }, 'enemy'],
+    [{ kind: 'abilityEntity', instanceId: 7 }, 'ability-entity:7'],
+  ] as const)('Context 接收者 %j 与 Context 来源保持独立', (currentTarget, targetId) => {
+    const apply = vi.fn(() => true);
+    const recipient = Object.assign(new CombatBuffContainer(targetId, new CombatAttributeSet()), {
+      apply,
+    });
+    const source = new CombatBuffContainer('source', new CombatAttributeSet());
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('source', [{ kind: 'operator', operatorId: 'source' }]);
+    const executor = new BuffOperationExecutor({
+      sourceId: 'definition-owner',
+      resolveTarget: () => {
+        throw new Error('must not substitute caster or enemy');
+      },
+      resolveEventTarget: id =>
+        id === 'source'
+          ? source
+          : id === targetId
+            ? recipient
+            : (() => {
+                throw new Error(`unexpected target ${id}`);
+              })(),
+      delegate,
+    });
+    executor.execute(
+      {
+        kind: 'applyBuff',
+        parameters: { buffId: 'child', target: 'currentTarget', sourceContextKey: 'source' },
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        targetContext,
+        currentTarget,
+        buffSourceId: 'original-source',
+      },
+    );
+    expect(apply).toHaveBeenCalledOnce();
+    expect(apply).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceId: 'source', definitionOwnerId: 'definition-owner' }),
+    );
+  });
+  it.each([
+    [{ kind: 'operator', operatorId: 'queried' }, 'queried'],
+    [{ kind: 'enemy' }, 'enemy'],
+    [{ kind: 'abilityEntity', instanceId: 7 }, 'ability-entity:7'],
+  ] as const)('结束 Buff 使用 Context 当前实例：%j', (currentTarget, expectedId) => {
+    const target = new CombatBuffContainer(expectedId, new CombatAttributeSet());
+    const finish = vi.spyOn(target, 'finishByIds');
+    const resolve = vi.fn(() => target);
+    const executor = new BuffOperationExecutor({
+      sourceId: 'original',
+      resolveTarget: () => {
+        throw new Error('must not resolve original source');
+      },
+      resolveEventTarget: resolve,
+      delegate,
+    });
+    executor.execute(
+      {
+        kind: 'finishBuffsById',
+        parameters: { target: 'currentTarget', buffIds: ['buff.fixture'], reason: 'other' },
+      },
+      { blackboard: new ActionBlackboard(), currentTarget, buffSourceId: 'original' },
+    );
+    expect(resolve).toHaveBeenCalledWith(expectedId);
+    expect(finish).toHaveBeenCalledWith(['buff.fixture'], 'other', 'original');
+  });
+  it('Context 来源使用已查询身份，不取原 Buff 来源或受益干员', () => {
+    const apply = vi.fn(() => true);
+    const receiver = Object.assign(new CombatBuffContainer('receiver', new CombatAttributeSet()), {
+      apply,
+    });
+    const caster = new CombatBuffContainer('xaihi', new CombatAttributeSet());
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('seraph', [{ kind: 'operator', operatorId: 'xaihi' }]);
+    const executor = new BuffOperationExecutor({
+      sourceId: 'receiver',
+      resolveTarget: () => receiver,
+      resolveEventTarget: id => {
+        expect(id).toBe('xaihi');
+        return caster;
+      },
+      delegate,
+    });
+    const step = {
+      kind: 'applyBuff' as const,
+      parameters: { buffId: 'child', target: 'caster' as const, sourceContextKey: 'seraph' },
+    };
+    const context = {
+      blackboard: new ActionBlackboard(),
+      targetContext,
+      buffSourceId: 'ability-entity:3',
+    };
+    executor.execute(step, context);
+    expect(apply).toHaveBeenCalledWith(expect.objectContaining({ sourceId: 'xaihi' }));
+    targetContext.set('seraph', []);
+    expect(() => executor.execute(step, context)).toThrow('exactly one target');
+  });
+  it.each([
+    [undefined, undefined, 'receiver'],
+    ['ability-entity:3', undefined, 'ability-entity:3'],
+    ['ability-entity:3', 'enhancer', 'enhancer'],
+  ] as const)(
+    '默认来源使用动作上下文而非宿主：%s / %s',
+    (buffSourceId, actionSourceId, expected) => {
+      const apply = vi.fn(() => true);
+      const receiver = Object.assign(
+        new CombatBuffContainer('receiver', new CombatAttributeSet()),
+        { apply },
+      );
+      const executor = new BuffOperationExecutor({
+        sourceId: 'receiver',
+        resolveTarget: () => receiver,
+        delegate,
+      });
+      executor.execute(
+        { kind: 'applyBuff', parameters: { buffId: 'child', target: 'caster' } },
+        {
+          blackboard: new ActionBlackboard(),
+          buffOwnerId: 'receiver',
+          buffSourceId,
+          actionSourceId,
+        },
+      );
+      expect(apply).toHaveBeenCalledWith(expect.objectContaining({ sourceId: expected }));
+    },
+  );
+
   it('把能力实体 ActionOwner 解析为只读图标倒计时来源', () => {
     const apply = vi.fn(() => true);
     const receiver = Object.assign(new CombatBuffContainer('enemy', new CombatAttributeSet()), {

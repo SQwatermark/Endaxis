@@ -23,8 +23,6 @@ export function createBuffShieldAbsorption(): BuffShieldDamageAbsorptionDefiniti
 export function appendBuffShieldChild<T>(document: T, path: string) {
   if (/(?:^|\.)shields$/.test(path))
     return insertStructureArrayItem(document, path, createBuffShield());
-  if (/(?:^|\.)shields\[\d+\]\.damageAbsorptions$/.test(path))
-    return insertStructureArrayItem(document, path, createBuffShieldAbsorption());
 }
 export function buildBuffShieldGraph(shields: readonly BuffShieldDefinition[]): SkillStructureNode {
   const base = (path: string, label: string): SkillStructureNode => ({
@@ -45,7 +43,7 @@ export function buildBuffShieldGraph(shields: readonly BuffShieldDefinition[]): 
     ...base('shields', '护盾'),
     canAddChild: 'buffMember',
     acceptsChildKind: 'buffShield',
-    children: shields.map((shield, i) => ({
+    children: shields.map((_shield, i) => ({
       ...base(`shields[${i}]`, `护盾 ${i + 1}`),
       kind: '护盾',
       payloadKind: 'buffShield',
@@ -53,23 +51,6 @@ export function buildBuffShieldGraph(shields: readonly BuffShieldDefinition[]): 
       canCopy: true,
       canMove: true,
       canDelete: true,
-      children: [
-        {
-          ...base(`shields[${i}].damageAbsorptions`, '伤害吸收规则'),
-          canAddChild: 'buffMember',
-          acceptsChildKind: 'buffShieldAbsorption',
-          children: shield.damageAbsorptions.map((entry, j) => ({
-            ...base(`shields[${i}].damageAbsorptions[${j}]`, `吸收规则 ${j + 1}`),
-            kind: '伤害吸收规则',
-            summary: entry.damageType,
-            payloadKind: 'buffShieldAbsorption',
-            relationToParent: 'member',
-            canCopy: true,
-            canMove: true,
-            canDelete: true,
-          })),
-        },
-      ],
     })),
   };
 }

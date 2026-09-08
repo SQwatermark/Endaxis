@@ -105,6 +105,9 @@ export function projectEnemyEffectViz(
       isBuffDamageReceipt(entry)
     ) {
       damageHits.push(entry);
+      if (typeof entry.data?.spellBurstType === 'string') {
+        markers.push({ frame: entry.frame, kind: 'burst', burstType: entry.data.spellBurstType });
+      }
       continue;
     }
     if (entry.event === 'ElementalInflictionApplied') {
@@ -131,15 +134,7 @@ export function projectEnemyEffectViz(
       });
       continue;
     }
-    if (entry.event === 'SpellBurstApplied') {
-      const data = requireData(entry);
-      markers.push({
-        frame: entry.frame,
-        kind: 'burst',
-        burstType: requireString(entry, data, 'burstType'),
-      });
-      continue;
-    }
+    // 爆发瞬时标记与命中点均以同一笔 DamageApplied 为准；旧摘要不再独立生成标记。
     if (entry.event === 'ElementalReactionConsumed') {
       const data = requireData(entry);
       if (!requireBoolean(entry, data, 'consumed')) continue;

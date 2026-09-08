@@ -49,9 +49,9 @@ it('hides migrated modifier collections while retaining the unconverted form sec
   expect(graph).not.toContain('添加属性修正器');
   expect(graph).not.toContain('治疗修正');
   expect(graph).not.toContain('护盾定义');
-  expect(graph).not.toContain('Buff 展示身份');
-  expect(graph).not.toContain('子 Buff 展示身份');
-  expect(graph).not.toContain('高级原生语义');
+  expect(graph).toContain('Buff 展示身份');
+  expect(graph).toContain('子 Buff 展示身份');
+  expect(graph).toContain('高级原生语义');
   expect(graph).toContain('启用时记录来源技能的施法身份');
   expect(graph).toContain('叠加与优先级');
   expect(graph).toContain('持续时间与触发');
@@ -119,6 +119,43 @@ it('edits definition scalars from the latest root and records their precise fiel
     expect(commit).toHaveBeenLastCalledWith(root.value, ['durationSeconds']);
     editor.setDefinitionScalar('durationSeconds', undefined);
     expect(root.value).not.toHaveProperty('durationSeconds');
+    editor.setDefinitionPresentation({ iconId: 'test' });
+    expect(root.value.presentation).toEqual({ iconId: 'test' });
+    expect(root.value.maxStackCount).toBe(3);
+    expect(commit).toHaveBeenLastCalledWith(root.value, ['presentation']);
+    editor.setDefinitionPresentation({});
+    expect(root.value.presentation).toEqual({});
+    editor.setDefinitionPresentation(undefined);
+    expect(root.value).not.toHaveProperty('presentation');
+    editor.setDefinitionChildPresentations([{ buffId: 'child', presentation: {} }]);
+    expect(root.value.childPresentations).toHaveLength(1);
+    expect(commit).toHaveBeenLastCalledWith(root.value, ['childPresentations']);
+    editor.setDefinitionChildPresentations(
+      [{ buffId: 'child', presentation: { visible: false } }],
+      [0, 'presentation'],
+    );
+    expect(commit).toHaveBeenLastCalledWith(root.value, ['childPresentations', 0, 'presentation']);
+    editor.setDefinitionChildPresentations([]);
+    expect(root.value.childPresentations ?? []).toHaveLength(0);
+    for (const [field, value] of Object.entries({
+      sustainedProtection: { target: 'owner', superArmor: 0, impactResistance: 2 },
+      role: { kind: 'elementalAttachment', element: 'heat' },
+      spellBurst: {
+        burstType: 'Fire',
+        damageType: 'heat',
+        skillSettingDataKey: 'test',
+        skillSettingColumn: 1,
+        atkScaleBase: 0,
+      },
+      affixSkillCastIdentity: 'sourceSkillCast',
+    })) {
+      editor.setDefinitionAdvancedProperty(field, value);
+      expect(root.value[field]).toEqual(value);
+      expect(root.value.maxStackCount).toBe(3);
+      expect(commit).toHaveBeenLastCalledWith(root.value, [field]);
+      editor.setDefinitionAdvancedProperty(field, undefined);
+      expect(root.value).not.toHaveProperty(field);
+    }
     expect(forward).not.toHaveBeenCalled();
   } finally {
     app.unmount();

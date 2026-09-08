@@ -11,18 +11,8 @@ import BuffDamageModifierConditionEditor from './BuffDamageModifierConditionEdit
 import BuffDamageProcessorInspector from './BuffDamageProcessorInspector.vue';
 import BuffCalculationNodeInspector from './BuffCalculationNodeInspector.vue';
 import BuffShieldEditor from './BuffShieldEditor.vue';
-import BuffAdvancedPropertiesEditor from './BuffAdvancedPropertiesEditor.vue';
-import type {
-  BuffSustainedProtectionDefinition,
-  CombatBuffSemanticRole,
-  CombatBuffSpellBurstDefinition,
-} from '../../../../packages/game-data-contract/src/buffs';
-import BuffPresentationNodeInspector from './BuffPresentationNodeInspector.vue';
-import BuffShieldAbsorptionInspector from './BuffShieldAbsorptionInspector.vue';
-import type {
-  BuffShieldDefinition,
-  BuffShieldDamageAbsorptionDefinition,
-} from '../../../../packages/game-data-contract/src/buffs';
+
+import type { BuffShieldDefinition } from '../../../../packages/game-data-contract/src/buffs';
 import BuffAttributeModifierEditor from './BuffAttributeModifierEditor.vue';
 import BuffSkillSlotReplacementEditor from './BuffSkillSlotReplacementEditor.vue';
 import BuffKeywordEnhancementEditor from './BuffKeywordEnhancementEditor.vue';
@@ -40,12 +30,15 @@ const attribute = computed(() => props.property.read() as CombatBuffDefinitionAt
 const replacement = computed(() => props.property.read() as SkillBuffSlotReplacement);
 const enhancement = computed(() => props.property.read() as BuffKeywordEnhancementDefinition);
 const shield = computed(() => props.property.read() as BuffShieldDefinition);
-const absorption = computed(() => props.property.read() as BuffShieldDamageAbsorptionDefinition);
-const protection = computed(() => props.property.read() as BuffSustainedProtectionDefinition);
-const role = computed(() => props.property.read() as CombatBuffSemanticRole);
-const burst = computed(() => props.property.read() as CombatBuffSpellBurstDefinition);
 function updateMember(values: readonly unknown[]): void {
   if (values.length === 1) props.property.update(() => values[0]);
+}
+function updateShield(values: readonly BuffShieldDefinition[], field?: 'damageAbsorptions'): void {
+  const shield = values[0];
+  if (values.length !== 1 || !shield) return;
+  if (field) {
+    props.property.child(field).update(() => shield[field]);
+  } else updateMember(values);
 }
 </script>
 <template>
@@ -54,51 +47,19 @@ function updateMember(values: readonly unknown[]): void {
       <small>{{ node.kind }}</small
       ><strong>{{ node.label }}</strong>
     </header>
-    <BuffAdvancedPropertiesEditor
-      v-if="node.payloadKind === 'buffProtection'"
-      layer="sustainedProtection"
-      :sustained-protection="protection"
-      @update-sustained-protection="property.update(() => $event)"
-    />
-    <BuffAdvancedPropertiesEditor
-      v-else-if="node.payloadKind === 'buffRole'"
-      layer="role"
-      :role="role"
-      @update-role="property.update(() => $event)"
-    />
-    <BuffAdvancedPropertiesEditor
-      v-else-if="node.payloadKind === 'buffSpellBurst'"
-      layer="spellBurst"
-      :spell-burst="burst"
-      @update-spell-burst="property.update(() => $event)"
-    />
-    <BuffPresentationNodeInspector
-      v-else-if="
-        node.payloadKind === 'buffPresentation' ||
-        node.payloadKind === 'buffChildPresentation' ||
-        node.payloadKind === 'buffPresentationOrder'
-      "
-      :node="node"
-      :property="property"
-    />
     <BuffCalculationNodeInspector
-      v-else-if="
-        node.payloadKind?.startsWith('buffHeal') || node.payloadKind?.startsWith('buffPoise')
-      "
+      v-if="node.payloadKind?.startsWith('buffHeal') || node.payloadKind?.startsWith('buffPoise')"
       :node="node"
       :property="property"
     />
     <BuffShieldEditor
       v-else-if="node.payloadKind === 'buffShield'"
       :shields="[shield]"
+      :property-path="property.path"
       single-entry
-      @update="updateMember"
+      @update="updateShield"
     />
-    <BuffShieldAbsorptionInspector
-      v-else-if="node.payloadKind === 'buffShieldAbsorption'"
-      :absorption="absorption"
-      @update="property.update(() => $event)"
-    />
+
     <BuffAttributeModifierEditor
       v-else-if="node.payloadKind === 'buffAttributeModifier'"
       :modifiers="[attribute]"

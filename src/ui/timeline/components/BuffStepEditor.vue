@@ -99,7 +99,7 @@ const props = defineProps<{
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
   selectedStructurePath?: string;
   inspectorOnly?: boolean;
-  /** The host exposes modifier/shield collections and presentation objects in the graph. */
+  /** 宿主在图中编辑修正器与护盾等行为结构；表现属性始终由 Inspector 编辑。 */
   modifierCollectionsInGraph?: boolean;
   /** The host projects the inline definition as a separate selectable graph node. */
   inlineDefinitionInGraph?: boolean;
@@ -153,12 +153,35 @@ function setDefinitionText(field: 'stackingKey', event: Event): void {
 }
 
 function setDefinitionPresentation(presentation: CombatBuffPresentation | undefined): void {
+  if (props.definitionBinding) {
+    props.definitionBinding.update(
+      current =>
+        current === undefined
+          ? current
+          : replaceBuffDefinitionPresentation(current as SkillBuffDefinition, presentation),
+      [...props.definitionBinding.path, 'presentation'],
+    );
+    return;
+  }
   const definition = props.step.parameters.definition;
   if (definition === undefined) return;
   setDefinition(replaceBuffDefinitionPresentation(definition, presentation));
 }
 
-function setDefinitionChildPresentations(children: readonly CombatBuffChildPresentation[]): void {
+function setDefinitionChildPresentations(
+  children: readonly CombatBuffChildPresentation[],
+  focus: readonly (string | number)[] = [],
+): void {
+  if (props.definitionBinding) {
+    props.definitionBinding.update(
+      current =>
+        current === undefined
+          ? current
+          : replaceBuffDefinitionChildPresentations(current as SkillBuffDefinition, children),
+      [...props.definitionBinding.path, 'childPresentations', ...focus],
+    );
+    return;
+  }
   const definition = props.step.parameters.definition;
   if (definition === undefined) return;
   setDefinition(replaceBuffDefinitionChildPresentations(definition, children));
@@ -294,6 +317,19 @@ function setDefinitionAdvancedProperty(
     | 'sourceSkillCast'
     | undefined,
 ): void {
+  // 可选对象在根句柄上更新，允许从未设置状态新增；不会覆盖其他已更新字段。
+  if (props.definitionBinding) {
+    props.definitionBinding.update(
+      current =>
+        current === undefined
+          ? current
+          : replaceBuffDefinitionAdvancedProperties(current as SkillBuffDefinition, {
+              [field]: value ?? null,
+            }),
+      [...props.definitionBinding.path, field],
+    );
+    return;
+  }
   const definition = props.step.parameters.definition;
   if (definition === undefined) return;
   setDefinition(replaceBuffDefinitionAdvancedProperties(definition, { [field]: value ?? null }));
@@ -522,12 +558,19 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
         </section>
       </div>
       <CombatBuffPresentationEditor
-        v-if="step.parameters.definition && !modifierCollectionsInGraph"
+        v-if="step.parameters.definition"
+        :data-property-path="
+          definitionBinding && JSON.stringify([...definitionBinding.path, 'presentation'])
+        "
         :presentation="step.parameters.definition.presentation"
         @update="setDefinitionPresentation"
       />
       <CombatBuffChildPresentationsEditor
-        v-if="step.parameters.definition && !modifierCollectionsInGraph"
+        v-if="step.parameters.definition"
+        :property-path="definitionBinding && [...definitionBinding.path, 'childPresentations']"
+        :data-property-path="
+          definitionBinding && JSON.stringify([...definitionBinding.path, 'childPresentations'])
+        "
         :children="step.parameters.definition.childPresentations ?? []"
         @update="setDefinitionChildPresentations"
       />
@@ -577,7 +620,7 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
       />
       <BuffAdvancedPropertiesEditor
         v-if="step.parameters.definition"
-        :layer="modifierCollectionsInGraph ? 'affix' : undefined"
+        :property-path="definitionBinding?.path"
         :sustained-protection="step.parameters.definition.sustainedProtection"
         :role="step.parameters.definition.role"
         :spell-burst="step.parameters.definition.spellBurst"

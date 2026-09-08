@@ -452,9 +452,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             shield.value.attributeSource === 'buffSource',
         );
         const sourceTarget =
-          step.parameters.source !== undefined || requiresSourceAttributeValue
-            ? this.#resolveApplicationSource(step.parameters.source ?? 'caster', context)
-            : undefined;
+          step.parameters.sourceContextKey !== undefined
+            ? this.#resolveContextSource(step.parameters.sourceContextKey, context)
+            : step.parameters.source !== undefined || requiresSourceAttributeValue
+              ? this.#resolveApplicationSource(step.parameters.source ?? 'caster', context)
+              : undefined;
         let iconDurationSourceTargetId: string | undefined;
         if (step.parameters.iconDurationSource?.kind === 'actionOwnerAbilityEntity') {
           if (context?.actionOwnerAbilityEntity === undefined) {
@@ -486,9 +488,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         return {
           buffId,
           ...(definition === undefined ? {} : { definition }),
+          // 原生默认 ActionSource：回调来源优先，其次宿主 Buff 创建者；不是持有者。
           sourceId:
-            step.parameters.source === undefined
-              ? this.dependencies.sourceId
+            step.parameters.source === undefined && step.parameters.sourceContextKey === undefined
+              ? (context?.actionSourceId ?? context?.buffSourceId ?? this.dependencies.sourceId)
               : sourceTarget!.ownerId,
           definitionOwnerId: this.dependencies.definitionOwnerId ?? this.dependencies.sourceId,
           ...(sourceTarget?.getAttributeValue === undefined
@@ -875,14 +878,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return [resolve(context.currentTarget)];
     }
     if (target === 'currentTarget') {
-      if (context?.currentTarget?.kind !== 'operator') {
-        throw new Error('currentTarget Buff application requires a current operator target');
-      }
-      const resolve = this.dependencies.resolveEventTarget;
-      if (resolve === undefined) {
-        throw new Error('currentTarget Buff application is not configured');
-      }
-      return [resolve(context.currentTarget.operatorId)];
+      return [this.#resolveContextTarget(context?.currentTarget)];
     }
     const resolved = this.dependencies.resolveApplicationTargets?.(target);
     if (resolved !== undefined) return resolved;
@@ -897,6 +893,33 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       throw new Error('collection Buff application requires a collection target resolver');
     }
     return [this.dependencies.resolveTarget(target)];
+  }
+
+  #resolveContextSource(
+    key: string,
+    context?: Parameters<CombatOperationExecutor['execute']>[1],
+  ): BuffOperationTarget {
+    const targets = context?.targetContext?.get(key);
+    if (targets?.length !== 1)
+      throw new Error(`Buff source Context '${key}' requires exactly one target`);
+    return this.#resolveContextTarget(targets[0]);
+  }
+
+  /** Context 的实例身份是唯一依据，单层查询可能返回干员、敌人或另一能力实体。 */
+  #resolveContextTarget(target: RuntimeTargetRef | undefined): BuffOperationTarget {
+    if (target === undefined)
+      throw new Error('currentTarget Buff operation requires a current target');
+    const id =
+      target.kind === 'operator'
+        ? target.operatorId
+        : target.kind === 'enemy'
+          ? 'enemy'
+          : target.kind === 'abilityEntity'
+            ? `ability-entity:${target.instanceId}`
+            : undefined;
+    if (id === undefined || this.dependencies.resolveEventTarget === undefined)
+      throw new Error('Buff Context requires an AbilitySystem target resolver');
+    return this.dependencies.resolveEventTarget(id);
   }
 
   #resolveApplicationSource(
@@ -1242,12 +1265,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return resolve(eventTargetId);
     }
     if (target === 'currentTarget') {
-      if (context?.currentTarget?.kind !== 'operator') {
-        throw new Error('currentTarget Buff operation requires a current operator target');
-      }
-      const resolve = this.dependencies.resolveEventTarget;
-      if (resolve === undefined) throw new Error('currentTarget Buff operation is not configured');
-      return resolve(context.currentTarget.operatorId);
+      return this.#resolveContextTarget(context?.currentTarget);
     }
     if (target === 'controlledOperator') {
       const targets = this.dependencies.resolveApplicationTargets?.(target) ?? [];

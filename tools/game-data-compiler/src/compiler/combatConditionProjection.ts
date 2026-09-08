@@ -1330,19 +1330,7 @@ function compileConditionLeaf(
         throw new Error(`${sourcePath}: unsupported Buff stack comparison`);
       const buffTags = projectGameplayTags(condition.buffTagIds, context, sourcePath);
       const value = actionValueOperand(condition.value);
-      if (
-        condition.tagQueryType === 'hasAny' &&
-        buffTags.length === 1 &&
-        buffTags[0] === 'Skill/Character/Common/NoGuard' &&
-        operator === 'greaterOrEqual' &&
-        value.kind === 'constant' &&
-        value.value === 1
-      ) {
-        // NoGuard Buff 是原生物理异常状态的实现载体；Next 已由独立的
-        // 木桩破防状态保留该事实。精确的 >=1 存在性检查不应反过来要求
-        // 同时复制原生 Buff 实例，否则不同技能造成的同一破防事实会分裂。
-        return { kind: 'targetStaggered', target: 'enemy' };
-      }
+      // NoGuard（破防）仍是 Buff 标签计数，不能替换成失衡槽耗尽的状态判断。
       return {
         // 主动技能入口已证明该 Context 恒为唯一木桩，不能再把它当作动态事件目标。
         kind: 'buffStackCompare',
@@ -1461,18 +1449,6 @@ function compileConditionLeaf(
               : singleBuffConditionTarget(context, sourcePath);
       const buffTags = projectGameplayTags(condition.buffTagIds, context, sourcePath);
       const value = actionValueOperand(condition.value);
-      if (
-        target === 'enemy' &&
-        condition.tagQueryType === 'hasAny' &&
-        buffTags.length === 1 &&
-        buffTags[0] === 'Skill/Character/Common/NoGuard' &&
-        operator === 'greaterOrEqual' &&
-        value.kind === 'constant' &&
-        value.value === 1 &&
-        !condition.limitSkillCastId
-      ) {
-        return { kind: 'targetStaggered', target: 'enemy' };
-      }
       return {
         // 原生 BuffCount 累加增强层数；Source/Owner 不能冒充物理事件目标。
         kind: 'buffStackCompare',

@@ -66,6 +66,8 @@ export interface PoiseDamageMultipliers {
 /** 玩家伤害执行节点需要由战斗装配层提供的全部状态与事件端口。 */
 export interface PlayerDamageOperationDependencies {
   readonly sourceOperatorId: string;
+  /** 独立 Buff 伤害保留创建时的技能身份，不伪造技能运行上下文或写入其黑板。 */
+  readonly skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo;
   /** 存档中的技能释放身份；伤害回执凭它与具体施放对应。单元测试程序可能缺失。 */
   readonly castId?: string;
   readonly skillId?: string;
@@ -137,6 +139,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
   }
 
   execute(step: RuntimeOperation, operationContext?: OperationContext): boolean {
+    const skillCastInfo = operationContext?.skillCastInfo ?? this.dependencies.skillCastInfo;
     if (step.kind === 'dealStagger') {
       const value = this.#resolveActionValue(
         step.parameters.value,
@@ -176,9 +179,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       tags: step.parameters.tags,
       gameplayTags: step.kind === 'dealDamage' ? (step.parameters.gameplayTags ?? []) : [],
       features: step.parameters.features ?? [],
-      ...(operationContext?.skillCastInfo === undefined
-        ? {}
-        : { skillCastId: operationContext.skillCastInfo.skillCastId }),
+      ...(skillCastInfo === undefined ? {} : { skillCastId: skillCastInfo.skillCastId }),
       ...(this.dependencies.skillId === undefined ? {} : { skillId: this.dependencies.skillId }),
       ...(this.dependencies.skillType === undefined
         ? {}
@@ -293,7 +294,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           ? undefined
           : deriveHitId(this.dependencies.castId, step.key));
       executeHealthDamage({
-        skillCastInfo: operationContext?.skillCastInfo ?? null,
+        skillCastInfo: skillCastInfo ?? null,
         sourceId: this.dependencies.sourceOperatorId,
         targetId: this.dependencies.targetId,
         damageType: step.parameters.damageType,

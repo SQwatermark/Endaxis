@@ -280,6 +280,9 @@ export class CombatBuff<Key extends string> {
   ) {
     this.blackboard = new ActionBlackboard(definition.blackboard, owner.entityBlackboard);
     this.blackboard.assign(options?.blackboardValues);
+    // 对应原生 Buff.Reset：本次赋值完成后收集来源修正，早于寿命/修正器求值。
+    // 仅初始化新实例执行；刷新旧实例不会因此重播收集事件。
+    owner.collectOutputBlackboard?.(definition, sourceId, this.blackboard);
     this.getSourceAttributeValue = options?.getSourceAttributeValue ?? null;
     const initializedKeywordRates = new Set<string>();
     for (const enhancement of definition.keywordEnhancements ?? []) {
@@ -641,7 +644,7 @@ export class CombatBuff<Key extends string> {
 
   /** 原生 RawSetLifeTime：仅有限时长定义接受直接剩余时间写入。 */
   rawSetRemainingDuration(duration: number): void {
-    if (this.definition.durationSeconds === undefined) return;
+    if (this.#remainingDuration === null) return;
     this.#remainingDuration = Math.max(0, duration);
   }
 
@@ -923,6 +926,11 @@ export class CombatBuffContainer<Key extends string> {
     }) => readonly Key[],
     /** AbilitySystem.AddShield 完成后的同步事件；值分别为实际新增量与当前有限护盾总量。 */
     readonly onShieldsAdded?: (gainedValue: number, currentValue: number) => void,
+    readonly collectOutputBlackboard?: (
+      definition: CombatBuffDefinition<Key>,
+      sourceId: string,
+      blackboard: ActionBlackboard,
+    ) => void,
   ) {}
 
   /** Buff 结束成功时由实例调用；调用方不应在回调里修改容器。 */
@@ -1891,6 +1899,9 @@ function resolveBuffDuration<Key extends string>(
   if (value === null) return null;
   if (!Number.isFinite(value))
     throw new RangeError('buff duration must resolve to a finite number');
+  // 原生 Buff.Reset 将求值后小于 -1e-5f 的寿命转为 Infinity；零与阈值本身仍有限。
+  // 比较发生在 double→float 之后，不能把所有非正值一概当成无限。
+  if (Math.fround(value) < Math.fround(-0.00001)) return null;
   return value;
 }
 

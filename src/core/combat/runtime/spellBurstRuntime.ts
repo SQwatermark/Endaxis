@@ -6,47 +6,25 @@
  * （防御、抗性、暴击），最后写入敌人生命账本。数据缺失时明确报错，不假装打出伤害。
  */
 import type { CombatBuffSpellBurstDefinition } from '../buffs/combatBuffDefinitions';
-import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
-import { resolvePlayerActiveDamageInput } from '../damage/playerActiveDamageInput';
-import { calculatePlayerActiveDamage } from '../damage/playerActiveDamage';
-import {
-  executeHealthDamage,
-  type HealthDamageSourceEvent,
-  type HealthDamageTargetEvent,
-} from '../damage/healthDamage';
 import type { CompoundStatusSkillSettingSource } from '../infliction/skillSettings';
-import type { CombatReceiptSink } from '../receipt/combatReceipt';
-import type { CombatClock } from './combatClock';
-import type { CombatVitals } from './combatVitals';
-import type { CombatSkillCastInfo } from './skillCastInfo';
-import type { AttackReceiptSnapshot } from '../damage/attackReceiptDetail';
-import { freezeAttackScaledDamageReceiptDetail } from '../damage/attackScaledDamageReceiptDetail';
+import type { CombatReceiptEntry } from '../receipt/combatReceipt';
+import {
+  PlayerDamageOperationExecutor,
+  type PlayerDamageOperationDependencies,
+} from './playerDamageOperationExecutor';
 
 /** 一次爆发伤害需要的全部输入。 */
 export interface ExecuteSpellBurstInput {
-  readonly attackDetail?: AttackReceiptSnapshot;
-  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly definition: CombatBuffSpellBurstDefinition;
-  readonly sourceId: string;
-  /** 来源攻击力（面板）。 */
-  readonly attack: number;
   /**
    * 来源附着增强属性；面板尚未落地该属性时传 `null`。
    * `null` 只允许在爆发不需要增强公式（enhanceFormulaKey 为空）时使用，
    * 需要增强公式的爆发必须显式失败，不能退化为无增强。
    */
   readonly enhance: number | null;
-  readonly criticalRate: number;
-  readonly criticalDamageIncrease: number;
-  readonly weaknessDamageMultiplier: number;
-  readonly criticalSample: number;
   readonly settings: CompoundStatusSkillSettingSource;
-  readonly defender: PlayerDamageDefenderSnapshot;
-  readonly target: CombatVitals;
-  readonly clock: CombatClock;
-  readonly receipt: CombatReceiptSink;
-  readonly emitSourceEvent: (event: HealthDamageSourceEvent, payload: unknown) => void;
-  readonly emitTargetEvent: (event: HealthDamageTargetEvent, payload: unknown) => void;
+  /** 与技能、Buff 伤害共用的战斗端口；这里不再另建公式或生命结算路径。 */
+  readonly damage: PlayerDamageOperationDependencies;
 }
 
 /** 一次爆发结算后的结果。 */
@@ -109,80 +87,47 @@ export function executeSpellBurst(input: ExecuteSpellBurstInput): SpellBurstResu
     kind: 'dealDamage' as const,
     parameters: {
       damageType: input.definition.damageType,
-      attackScale: 1,
+      attackScale: scale,
       tags: [] as const,
     },
   };
-  const formulaInput = resolvePlayerActiveDamageInput({
-    step,
-    // 标准公式直接消费 finalAttackValue；倍率在这里已经乘进攻击力。
-    finalAttackValue: input.attack * scale,
-    attacker: {
-      attack: input.attack,
-      criticalRate: input.criticalRate,
-      criticalDamageIncrease: input.criticalDamageIncrease,
-      weaknessDamageMultiplier: input.weaknessDamageMultiplier,
-      igniteDamageMultiplier: 1,
-      physicalInflictionDamageMultiplier: 1,
+  let applied: CombatReceiptEntry['data'];
+  new PlayerDamageOperationExecutor({
+    ...input.damage,
+    receipt: {
+      record: entry => {
+        if (entry.event !== 'DamageApplied') {
+          input.damage.receipt.record(entry);
+          return;
+        }
+        applied = entry.data;
+        input.damage.receipt.record({
+          ...entry,
+          data: {
+            ...entry.data,
+            spellBurstType: input.definition.burstType,
+            spellBurstEnhanceFactor: enhanceFactor,
+          },
+        });
+      },
     },
-    defender: input.defender,
-    runtime: {
-      runtimeExtensionMultiplier: 1,
-      appliesIgniteDamageMultiplier: false,
-      appliesPhysicalInflictionDamageMultiplier: false,
-      criticalSample: input.criticalSample,
-    },
-  });
-  const damage = calculatePlayerActiveDamage(formulaInput);
-  const stateChange = executeHealthDamage({
-    ...(input.skillCastInfo === undefined ? {} : { skillCastInfo: input.skillCastInfo }),
-    sourceId: input.sourceId,
-    targetId: 'enemy',
-    damageType: input.definition.damageType,
-    tags: [],
-    features: [],
-    result: damage,
-    detail: {
-      spellBurstType: input.definition.burstType,
-      ...(input.skillCastInfo?.originCastId === undefined
-        ? {}
-        : { sourceActionId: input.skillCastInfo.originCastId }),
-      ...freezeAttackScaledDamageReceiptDetail(
-        formulaInput,
-        damage,
-        input.attack,
-        scale,
-        input.attackDetail,
-      ),
-      spellBurstEnhanceFactor: enhanceFactor,
-    },
-    target: input.target,
-    clock: input.clock,
-    receipt: input.receipt,
-    emitSourceEvent: input.emitSourceEvent,
-    emitTargetEvent: input.emitTargetEvent,
-  });
-  input.receipt.record({
-    frame: input.clock.frame,
-    time: input.clock.time,
-    event: 'SpellBurstApplied',
-    sourceId: input.sourceId,
-    targetId: 'enemy',
-    data: {
-      burstType: input.definition.burstType,
-      skillScale,
-      enhanceFactor,
-      value: damage.value,
-      actualDamage: stateChange.actualDamage,
-      remainingHealth: stateChange.currentHealth,
-    },
-  });
-  return {
+  }).execute(step);
+  if (applied === undefined) throw new Error('spell burst executor produced no damage receipt');
+  const result: SpellBurstResult = {
     burstType: input.definition.burstType,
     skillScale,
     enhanceFactor,
-    value: damage.value,
-    actualDamage: stateChange.actualDamage,
-    remainingHealth: stateChange.currentHealth,
+    value: applied.value as number,
+    actualDamage: applied.actualDamage as number,
+    remainingHealth: applied.remainingHealth as number,
   };
+  input.damage.receipt.record({
+    frame: input.damage.clock.frame,
+    time: input.damage.clock.time,
+    event: 'SpellBurstApplied',
+    sourceId: input.damage.sourceOperatorId,
+    targetId: input.damage.targetId,
+    data: { ...result },
+  });
+  return result;
 }

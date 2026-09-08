@@ -5,8 +5,40 @@ import { CombatClock } from './combatClock';
 import { ComboWindowOperationExecutor } from './comboWindowOperationExecutor';
 import { ComboWindowRuntime } from './comboWindowRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { ActionBlackboard } from './actionBlackboard';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 describe('ComboWindowOperationExecutor', () => {
+  it('reads the first context owner and resolves that character slot without falling back', () => {
+    const windows = new ComboWindowRuntime(new CombatClock(), new CombatReceiptCollector());
+    const resolveSlot = vi.fn(() => 'ownerCombo');
+    const executor = new ComboWindowOperationExecutor(
+      'teammate',
+      windows,
+      { execute: () => true, evaluate: () => false },
+      resolveSlot,
+    );
+    const targetContext = new RuntimeTargetContext();
+    const context = { blackboard: new ActionBlackboard(), targetContext };
+    const step = {
+      kind: 'openComboWindow',
+      parameters: {
+        nextSkillKeyFromSlot: 'comboSkill',
+        ownerContextKey: 'owner',
+      },
+    } as const;
+    targetContext.set('owner', []);
+    executor.execute(step, context);
+    targetContext.set('owner', [{ kind: 'enemy' }, { kind: 'operator', operatorId: 'owner' }]);
+    executor.execute(step, context);
+    expect(resolveSlot).not.toHaveBeenCalled();
+    expect(windows.first).toBeUndefined();
+    targetContext.setSingle('owner', { kind: 'operator', operatorId: 'owner' });
+    executor.execute(step, context);
+    expect(resolveSlot).toHaveBeenCalledWith('comboSkill', 'owner');
+    expect(windows.first).toMatchObject({ operatorId: 'owner', nextSkillKey: 'ownerCombo' });
+    expect(() => executor.execute(step)).toThrow('requires target context');
+  });
   it('查询本角色候选，不检查队首、槽位、释放资格或暂停状态，消费/过期后变 false', () => {
     const delegate = { execute: vi.fn(() => true), evaluate: vi.fn(() => false) };
     const windows = new ComboWindowRuntime(new CombatClock(), new CombatReceiptCollector());
@@ -73,7 +105,7 @@ describe('ComboWindowOperationExecutor', () => {
     };
 
     expect(executor.execute(step)).toBe(true);
-    expect(resolveCurrentSkillKey).toHaveBeenCalledWith('comboSkill');
+    expect(resolveCurrentSkillKey).toHaveBeenCalledWith('comboSkill', 'catcher');
     expect(windows.first).toMatchObject({
       operatorId: 'catcher',
       nextSkillKey: 'enhancedComboSkill',

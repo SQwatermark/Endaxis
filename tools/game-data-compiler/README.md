@@ -915,6 +915,12 @@ npm run generate:game-data:operator-active-skills -- --complete `
   `src/data/buffs/generated/commonBuffDefinitions.generated.ts`。相同 ID 在多个闭包中出现时必须
   得到深度一致的定义，否则生成失败；不能再靠干员 import 或对象展开顺序选择“规范版本”。产品只
   通过 `src/data/buffs/commonDefinitions.ts` 的稳定只读入口注册该目录。
+- `config/systemBuffRoots.json` 补充不依赖干员直接引用的公共系统 Buff 根（当前为四种普通同元素爆发）。
+  清单只允许唯一的 `buff_common_*` 身份，不定义倍率、标签、动作或生命周期；这些内容一律由
+  同一个 `compileStandardStumpBuffClosure` 从原始 BuffData 转换。当前根的场景为玩家来源、敌人宿主，
+  新增其他宿主必须显式扩展场景声明。系统闭包与干员引用闭包共同做身份冲突检查；任何阻塞均不发布。
+  此入口也由统一重建调用。新增生成根不代表运行时已接管：切换旧元素目录前须验证单次结算与生命周期，
+  不允许两套定义叠加执行，也不允许只补伤害标签却继续沿用旧版目录参数。
 - 输出目录严格限定为上述父目录下的 slug 子目录；未知文件拒绝覆盖。审计写入 tmp，正式数据不带
   本机路径。`--check` 忽略 CRLF/LF，仍严格核对内容；文件存在数与注册/可模拟计数不能混用。
 - 伤害 key 按技能身份与最终结构路径确定，展开后的独立回调步骤各有唯一 key；不随机、不取绝对路径。

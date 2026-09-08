@@ -1029,6 +1029,7 @@
       "buffMaxTriggerCount": "最多触发次数",
       "buffCount": "创建次数",
       "buffSource": "来源实体",
+      "buffSourceContextKey": "来源 Context 键",
       "buffTargets": {
         "controlledOperator": "当前主控",
         "eventTarget": "事件目标",
@@ -1315,6 +1316,7 @@
         "buffTarget": "接收 Buff 的实体；全队会为每名干员分别创建实例。",
         "buffCount": "同一步骤创建 Buff 的次数，可为常量或动作黑板值；省略时执行一次。",
         "buffSource": "Buff 的来源实体，与接收目标相互独立；省略时沿用当前动作来源。",
+        "buffSourceContextKey": "使用此前查询得到的唯一实体作为来源，与直接来源互斥，不重新寻找干员。",
         "buffDuration": "覆盖 Buff 定义的持续秒数；不勾选时使用 Buff 自身规则。",
         "buffEffectiveness": "传给 Buff 机制的效果强度覆盖值；不勾选时使用默认强度。",
         "inheritSkillCast": "是否把当前技能释放身份复制进新 Buff，供其后续追踪来源技能。",

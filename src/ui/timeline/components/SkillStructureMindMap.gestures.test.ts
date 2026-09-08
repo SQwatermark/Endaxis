@@ -8,6 +8,8 @@ import type { InteractionSession } from '../../interaction/interactionSession';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { createDefinitionViewState, definitionViewStateKey } from '../definitionViewState';
+import { presentStructureMap } from '../structureMapPresentation';
+import { buildActionSequenceMindMap } from '../skillStructureMindMapModel';
 
 // Mount production setup/lifecycle with a host renderer. Vitest compiles SFCs
 // for SSR, so templates are not executed here: this tests handler state and
@@ -205,6 +207,31 @@ async function mount(view?: { selectedId: string; savedId: string }) {
     viewport,
   };
 }
+
+it('单序列父节点的粘贴和向内拖放使用真实端口，复制仍使用父节点', async () => {
+  const probe = await mount();
+  const graph = presentStructureMap(
+    buildActionSequenceMindMap({
+      steps: [
+        { kind: 'finishCurrentAbilityEntity', parameters: {} },
+        { kind: 'once', parameters: { scopeKey: 'test' }, body: { steps: [] } },
+      ],
+    }),
+  );
+  const source = graph.children[0]!;
+  const parent = graph.children[1]!;
+  probe.state.runNodeAction('copy', parent);
+  expect(probe.nodeAction).toHaveBeenLastCalledWith('copy', parent);
+  probe.state.runNodeAction('paste', parent);
+  expect(probe.nodeAction).toHaveBeenLastCalledWith('paste', parent.childActionTarget);
+  probe.state.startNodeDrag(event({ dataTransfer: { setData: vi.fn() } }), source);
+  probe.state.dropOnNode(event({ currentTarget: probe.target, clientY: 40 }), parent);
+  expect(probe.move).toHaveBeenCalledWith({
+    source,
+    target: parent.childActionTarget,
+    placement: 'inside',
+  });
+});
 
 it('restores a remembered object selection without overriding an explicit target or selecting a missing node', async () => {
   const returned = await mount({ selectedId: 'root', savedId: 'first' });

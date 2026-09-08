@@ -18,6 +18,8 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     readonly delegate: CombatOperationExecutor,
     readonly resolveAbilitySystemSourceId: (id: string) => string = id => id,
     readonly characterTeam?: CharacterTeamTargetQueryDependencies,
+    /** 单层原生来源查询，不能传入递归追溯到干员的旧解析端口。 */
+    readonly findAbilitySystemSource?: (ownerId: string) => RuntimeTargetRef,
   ) {}
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
@@ -55,13 +57,31 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
       const additions =
         source.kind === 'context'
           ? context.targetContext.get(source.contextKey)
-          : [this.#resolveTarget(source.target, context)];
+          : source.kind === 'abilitySystemSource'
+            ? [this.#findAbilitySystemSource(source.owner, context)]
+            : [this.#resolveTarget(source.target, context)];
       for (const target of additions) {
         if (!targets.some(existing => sameTarget(existing, target))) targets.push(target);
       }
     }
     context.targetContext.set(step.parameters.saveToContextKey, targets);
     return true;
+  }
+
+  #findAbilitySystemSource(
+    owner: 'actionOwner' | 'actionSource',
+    context: CombatOperationContext,
+  ): RuntimeTargetRef {
+    if (this.findAbilitySystemSource === undefined) {
+      throw new Error('SourceFinder requires a single-level AbilitySystem source query');
+    }
+    const ownerId =
+      owner === 'actionOwner'
+        ? context.buffOwnerId
+        : (context.actionSourceId ?? context.buffSourceId);
+    // 本轮只接入带明确身份的 Buff/动作回调；定义所属干员不等于实体子技能的动作宿主。
+    if (ownerId === undefined) throw new Error(`SourceFinder ${owner} identity is unavailable`);
+    return this.findAbilitySystemSource(ownerId);
   }
 
   #findCharacterTeamTargets(

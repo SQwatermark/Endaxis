@@ -71,7 +71,7 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
         { lifetime: 'execution', alwaysNext: true },
       ),
     ),
-    {},
+    undefined,
     { lifetime: 'execution' },
   ),
 );
@@ -132,7 +132,7 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
         { lifetime: 'execution', alwaysNext: true },
       ),
     ),
-    {},
+    undefined,
     { lifetime: 'execution' },
   ),
 );
@@ -238,7 +238,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
     ]),
-    {},
+    undefined,
     { lifetime: 'execution' },
   ),
 );
@@ -1250,9 +1250,12 @@ export default {
               }),
               step('mergeContextTargets', {
                 saveToContextKey: 'seraph',
-                sources: [{ kind: 'target', target: 'buffSource' }],
+                sources: [{ kind: 'abilitySystemSource', owner: 'actionOwner' }],
               }),
-              step('openComboWindow', { nextSkillKeyFromSlot: 'comboSkill' }),
+              step('openComboWindow', {
+                nextSkillKeyFromSlot: 'comboSkill',
+                ownerContextKey: 'seraph',
+              }),
               step('finishBuffsById', {
                 target: 'buffOwner',
                 buffIds: ['buff_chr_0011_seraph_combo_count'],
@@ -1291,13 +1294,18 @@ export default {
         trigger: sequence(
           step('mergeContextTargets', {
             saveToContextKey: 'seraph',
-            sources: [{ kind: 'target', target: 'buffSource' }],
+            sources: [{ kind: 'abilitySystemSource', owner: 'actionOwner' }],
           }),
-          step('finishBuffsById', {
-            target: 'buffSource',
-            buffIds: ['buff_chr_0011_seraph_combo_skill_listener'],
-            reason: 'other',
-          }),
+          forEachContextTarget(
+            'seraph',
+            sequence(
+              step('finishBuffsById', {
+                target: 'currentTarget',
+                buffIds: ['buff_chr_0011_seraph_combo_skill_listener'],
+                reason: 'other',
+              }),
+            ),
+          ),
           step('finishCurrentAbilityEntity', {}),
         ),
       },
@@ -1442,7 +1450,7 @@ export default {
                           sequence(
                             step('mergeContextTargets', {
                               saveToContextKey: 'seraph',
-                              sources: [{ kind: 'target', target: 'buffSource' }],
+                              sources: [{ kind: 'abilitySystemSource', owner: 'actionSource' }],
                             }),
                             step('findOwnerSpawnedAbilityEntities', {
                               saveToContextKey: 'ball',
@@ -1463,7 +1471,7 @@ export default {
                             step('applyBuff', {
                               buffId: 'buff_chr_0011_seraph_mainchr_heal',
                               target: 'buffOwner',
-                              source: 'buffSource',
+                              sourceContextKey: 'seraph',
                               inheritSourceSkillCastInfo: true,
                               blackboardAssignments: {
                                 atk_scale: { kind: 'blackboard', key: 'atk_scale' },

@@ -273,7 +273,7 @@ const draftIssues = computed<readonly ValidationIssue[]>(() => {
   for (const reference of references) {
     const known =
       reference.kind === 'buff' ? knownBuffIds.has(reference.id) : knownEntityIds.has(reference.id);
-    if (known) continue;
+    if (known || reference.usage === 'instanceFilter') continue;
     issues.push({
       path: reference.path,
       message: `引用了不存在的${reference.kind === 'buff' ? ' Buff' : '能力实体'} '${reference.id}'`,

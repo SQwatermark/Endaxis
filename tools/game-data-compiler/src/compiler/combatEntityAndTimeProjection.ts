@@ -1560,7 +1560,7 @@ export function compileBuffLeafNode(
           ['caster', 'buffOwner'].includes(context.actionOwnerTarget)) ||
         (write.selectorOwner === 'ContextTarget' &&
           write.selectorOwnerContextKey !== '' &&
-          partyTargetGroups.get(write.selectorOwnerContextKey) === 'buffSource');
+          partyTargetGroups.get(write.selectorOwnerContextKey) === 'sourceFinderResult');
       if (write.producerType !== 'FindTargetAction' || !ownerEnvironmentSupported)
         throw new Error(`${node.sourcePath}: unsupported AbilityEntity query environment`);
       const query = compileTargetGroupAbilityEntityQuerySource(
@@ -1579,7 +1579,7 @@ export function compileBuffLeafNode(
       );
       const ownerContextKey =
         query.owner.kind === 'contextTarget' &&
-        partyTargetGroups.get(query.owner.key) === 'buffSource'
+        partyTargetGroups.get(query.owner.key) === 'sourceFinderResult'
           ? query.owner.key
           : undefined;
       if (
@@ -1696,14 +1696,19 @@ export function compileBuffLeafNode(
       context.actionSourceTarget === 'caster'
     ) {
       const nextGroups = new Map(partyTargetGroups);
-      nextGroups.set(write.targetGroupKey, 'buffSource');
+      nextGroups.set(write.targetGroupKey, 'sourceFinderResult');
       return {
         steps: [
           {
             kind: 'mergeContextTargets',
             parameters: {
               saveToContextKey: write.targetGroupKey,
-              sources: [{ kind: 'target', target: 'buffSource' }],
+              sources: [
+                {
+                  kind: 'abilitySystemSource',
+                  owner: write.selectorOwner === 'ActionSource' ? 'actionSource' : 'actionOwner',
+                },
+              ],
             },
           },
         ],

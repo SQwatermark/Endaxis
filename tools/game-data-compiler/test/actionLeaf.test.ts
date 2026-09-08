@@ -1379,6 +1379,22 @@ describe('公共 Action 叶子分派', () => {
       ),
     ).toThrow('combo Pending blackboard assignments are unsupported');
 
+    expect(
+      compileCombatActionSequenceSource(
+        parseKnownNativeActionSequenceSource(sequence([action]), 'fixture.contextComboPending', {}),
+        { actionOwnerTarget: 'caster', actionSourceTarget: 'caster', actionTargetTarget: 'enemy' },
+      ),
+    ).toEqual({
+      steps: [
+        {
+          kind: 'openComboWindow',
+          parameters: {
+            nextSkillKeyFromSlot: 'comboSkill',
+            ownerContextKey: 'seraph',
+          },
+        },
+      ],
+    });
     const fixedCasterPending = {
       ...action,
       owner: targetFixture('Owner'),

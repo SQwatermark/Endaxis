@@ -9,14 +9,7 @@ import {
 } from './skillStructureEditorCommands';
 
 const BUFF_GRAPH_PAYLOAD_KINDS = [
-  'buffProtection',
-  'buffRole',
-  'buffSpellBurst',
-  'buffPresentation',
-  'buffChildPresentation',
-  'buffPresentationOrder',
   'buffShield',
-  'buffShieldAbsorption',
   'buffDamageModifier',
   'buffDamageProcessor',
   'buffDamageCondition',
@@ -47,18 +40,9 @@ export function isBuffGraphClipboard<T extends { kind: unknown }>(
 ): value is T & BuffGraphClipboard {
   return value !== undefined && isBuffGraphPayload(value.kind);
 }
-function isOptionalObject(kind: BuffGraphPayloadKind) {
-  return [
-    'buffPresentation',
-    'buffPresentationOrder',
-    'buffProtection',
-    'buffRole',
-    'buffSpellBurst',
-  ].includes(kind);
-}
+
 function childArray(node: Node, kind: BuffGraphPayloadKind): string | undefined {
   if (node.acceptsChildKind !== kind) return;
-  if (isOptionalObject(kind)) return;
   if (!isCondition(kind)) return node.sourcePath;
   // Empty optional condition ports are values, not arrays.
   if (node.payloadKind === kind) return `${node.sourcePath}.conditions`;
@@ -69,7 +53,7 @@ export function pasteBuffGraphNode<T>(document: T, target: Node, clipboard: Buff
   const value = cloneStructureValue(clipboard.value);
   if (path !== undefined) return insertStructureArrayItem(document, path, value);
   if (
-    (isCondition(clipboard.kind) || isOptionalObject(clipboard.kind)) &&
+    isCondition(clipboard.kind) &&
     resolveStructureValue(document, target.sourcePath) === undefined
   )
     return {

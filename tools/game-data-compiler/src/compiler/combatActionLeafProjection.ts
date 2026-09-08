@@ -721,12 +721,22 @@ export function compileActionNode(
     ) {
       throw new Error(`${node.sourcePath}: unsupported Buff finish target/source`);
     }
+    const wrapOwnerContext = (steps: CompiledBuffStepSource[]): CompiledBuffStepSource[] =>
+      ownerContextTarget === 'sourceFinderResult'
+        ? [
+            {
+              kind: 'forEachContextTarget',
+              parameters: { contextKey: action.owner.targetGroupKey },
+              body: { steps },
+            },
+          ]
+        : steps;
     const target = ownerIsPartyInstantSearch
       ? ('party' as const)
       : ownerContextTarget === 'party'
         ? ('party' as const)
-        : ownerContextTarget === 'buffSource'
-          ? ('buffSource' as const)
+        : ownerContextTarget === 'sourceFinderResult'
+          ? ('currentTarget' as const)
           : ownerContextTarget === 'enemy'
             ? ('enemy' as const)
             : action.owner.targetSource === 'Owner'
@@ -752,7 +762,7 @@ export function compileActionNode(
     ) {
       if (target === 'party')
         throw new Error(`${node.sourcePath}: Buff finish-by-tag party target is unsupported`);
-      return [
+      return wrapOwnerContext([
         {
           kind: 'finishBuffsByTag',
           parameters: {
@@ -767,7 +777,7 @@ export function compileActionNode(
             ...(action.finishAll ? {} : { count: actionValueOperand(action.finishLayerCount) }),
           },
         },
-      ];
+      ]);
     }
     if (
       action.kind === 'buffFinishByQuery' &&
@@ -807,7 +817,7 @@ export function compileActionNode(
     if (buffIds === null || buffIds.length === 0 || buffIds.some(id => id.length === 0)) {
       throw new Error(`${node.sourcePath}: unsupported Buff finish query`);
     }
-    return [
+    return wrapOwnerContext([
       {
         kind: 'finishBuffsById',
         parameters: {
@@ -823,7 +833,7 @@ export function compileActionNode(
           ...(action.finishAll ? {} : { count: actionValueOperand(action.finishLayerCount) }),
         },
       },
-    ];
+    ]);
   }
   if (node.body.value.family === 'buffHold') {
     const action = node.body.value.action;
@@ -1116,7 +1126,7 @@ export function compileActionNode(
       (action.healer !== 'ActionSource' && action.healer !== 'ActionOwner') ||
       (action.healer === 'ActionOwner' && context.actionOwnerTarget !== 'buffOwner') ||
       (action.contextKey !== '' &&
-        partyTargetGroups.get(action.contextKey) !== 'buffSource' &&
+        partyTargetGroups.get(action.contextKey) !== 'sourceFinderResult' &&
         !(
           action.contextKey === 'seraph' &&
           action.target.targetSource === 'Owner' &&
@@ -1968,7 +1978,17 @@ export function compileActionNode(
       throw new Error(`${node.sourcePath}: unsupported combo Pending projection`);
     }
     // 该动作只开启候选，不代替玩家施法；实际技能身份在执行时读取 owner 当前连携槽。
-    return [{ kind: 'openComboWindow', parameters: { nextSkillKeyFromSlot: 'comboSkill' } }];
+    return [
+      {
+        kind: 'openComboWindow',
+        parameters: {
+          nextSkillKeyFromSlot: 'comboSkill',
+          ...(action.owner.targetSource === 'Context'
+            ? { ownerContextKey: action.owner.targetGroupKey }
+            : {}),
+        },
+      },
+    ];
   }
   // 技能内施法限制由现实时间轴的技能占用区间覆盖；原生载荷仍在来源层严格解析。
   if (node.body.value.family === 'castingControl') return [];
@@ -2096,6 +2116,9 @@ function compileBuffApplication(
   const targetsAbilityEntityGroup =
     action.target.targetSource === 'Context' &&
     partyTargetGroups.get(contextTargetGroupKey) === 'abilityEntity';
+  const targetsQueriedSource =
+    action.target.targetSource === 'Context' &&
+    partyTargetGroups.get(contextTargetGroupKey) === 'sourceFinderResult';
   for (const entry of action.buffs) {
     if (entry.readIdFromBlackboard ? entry.buffIdKey.length === 0 : entry.buffId.length === 0)
       throw new Error(`${sourcePath}: Buff identity or blackboard key is empty`);
@@ -2162,54 +2185,58 @@ function compileBuffApplication(
   }
   // combat-spec/create-buff-action-data.md：inheritSourceSkillCastId 不被原生 ExecuteInternal 读取；
   // 实际施放信息继承只由 inheritSourceSkillCastInfo 控制。
-  const target: BuffApplicationTarget | null = isControlledOperatorInstantSearch(action.target)
-    ? 'controlledOperator'
-    : action.target.targetSource === 'Owner'
-      ? requireActionOwnerProjection(context, sourcePath)
-      : action.target.targetSource === 'Source'
-        ? context.fixedBuffSourceTarget !== undefined
-          ? 'buffSource'
-          : context.actionSourceTarget === 'buffSource'
+  const target: BuffApplicationTarget | null = targetsQueriedSource
+    ? 'currentTarget'
+    : isControlledOperatorInstantSearch(action.target)
+      ? 'controlledOperator'
+      : action.target.targetSource === 'Owner'
+        ? requireActionOwnerProjection(context, sourcePath)
+        : action.target.targetSource === 'Source'
+          ? context.fixedBuffSourceTarget !== undefined
             ? 'buffSource'
-            : 'caster'
-        : action.target.targetSource === 'Target'
-          ? context.actionTargetTarget === 'currentOperator'
-            ? ('currentTarget' as const)
-            : context.actionTargetTarget
-          : action.target.targetSource === 'Context' &&
-              partyTargetGroups.has(action.target.targetGroupKey ?? '') &&
-              partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'spatialPoint' &&
-              partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'contextOperator' &&
-              partyTargetGroups.get(action.target.targetGroupKey ?? '') !==
-                'lowestHealthRatioOperatorExceptCaster' &&
-              partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'empty'
-            ? targetsAbilityEntityGroup
-              ? ('currentAbilityEntity' as const)
-              : (partyTargetGroups.get(action.target.targetGroupKey ?? '')! as Exclude<
-                  ProjectedTargetGroup,
-                  | 'spatialPoint'
-                  | 'abilityEntity'
-                  | 'contextOperator'
-                  | 'lowestHealthRatioOperatorExceptCaster'
-                  | 'empty'
-                >)
+            : context.actionSourceTarget === 'buffSource'
+              ? 'buffSource'
+              : 'caster'
+          : action.target.targetSource === 'Target'
+            ? context.actionTargetTarget === 'currentOperator'
+              ? ('currentTarget' as const)
+              : context.actionTargetTarget
             : action.target.targetSource === 'Context' &&
-                context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey ?? '') === true
-              ? ('enemy' as const)
-              : action.target.targetSource === 'MainCharacter' &&
-                  action.target.finderType === null &&
-                  action.target.validatorTypes.length === 0 &&
-                  action.target.postProcessorTypes.length === 0
-                ? ('controlledOperator' as const)
-                : isUniqueEnemyMainTargetInstantSearch(action.target)
-                  ? ('enemy' as const)
-                  : isUniqueEnemyHitBoxInstantSearch(action.target)
+                partyTargetGroups.has(action.target.targetGroupKey ?? '') &&
+                partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'spatialPoint' &&
+                partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'contextOperator' &&
+                partyTargetGroups.get(action.target.targetGroupKey ?? '') !==
+                  'lowestHealthRatioOperatorExceptCaster' &&
+                partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'empty'
+              ? targetsAbilityEntityGroup
+                ? ('currentAbilityEntity' as const)
+                : (partyTargetGroups.get(action.target.targetGroupKey ?? '')! as Exclude<
+                    ProjectedTargetGroup,
+                    | 'spatialPoint'
+                    | 'sourceFinderResult'
+                    | 'abilityEntity'
+                    | 'contextOperator'
+                    | 'lowestHealthRatioOperatorExceptCaster'
+                    | 'empty'
+                  >)
+              : action.target.targetSource === 'Context' &&
+                  context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey ?? '') ===
+                    true
+                ? ('enemy' as const)
+                : action.target.targetSource === 'MainCharacter' &&
+                    action.target.finderType === null &&
+                    action.target.validatorTypes.length === 0 &&
+                    action.target.postProcessorTypes.length === 0
+                  ? ('controlledOperator' as const)
+                  : isUniqueEnemyMainTargetInstantSearch(action.target)
                     ? ('enemy' as const)
-                    : isPartyExceptOwnerInstantSearch(action.target)
-                      ? ('partyExceptCaster' as const)
-                      : isPartyInstantSearch(action.target)
-                        ? ('party' as const)
-                        : null;
+                    : isUniqueEnemyHitBoxInstantSearch(action.target)
+                      ? ('enemy' as const)
+                      : isPartyExceptOwnerInstantSearch(action.target)
+                        ? ('partyExceptCaster' as const)
+                        : isPartyInstantSearch(action.target)
+                          ? ('party' as const)
+                          : null;
   const source: BuffApplicationSource | undefined | null =
     action.buffSource === 'ActionOwner'
       ? context.actionOwnerTarget === 'unavailable'
@@ -2233,8 +2260,8 @@ function compileBuffApplication(
           ? 'enemy'
           : action.buffSource === 'ContextTarget' &&
               action.contextKey !== '' &&
-              partyTargetGroups.get(action.contextKey) === 'buffSource'
-            ? 'buffSource'
+              partyTargetGroups.get(action.contextKey) === 'sourceFinderResult'
+            ? undefined
             : action.buffSource === 'InputTarget' && context.actionTargetTarget === 'enemy'
               ? 'enemy'
               : null;
@@ -2284,6 +2311,10 @@ function compileBuffApplication(
           buffId: entry.readIdFromBlackboard ? { blackboardKey: entry.buffIdKey } : entry.buffId,
           target,
           ...(source === undefined ? {} : { source }),
+          ...(action.buffSource === 'ContextTarget' &&
+          partyTargetGroups.get(action.contextKey) === 'sourceFinderResult'
+            ? { sourceContextKey: action.contextKey }
+            : {}),
           ...(action.count.blackboardKey === null && action.count.value === 1
             ? {}
             : { count: actionValueOperand(action.count) }),
@@ -2318,7 +2349,7 @@ function compileBuffApplication(
       },
     ];
   });
-  if (!targetsAbilityEntityGroup) return steps;
+  if (!targetsAbilityEntityGroup && !targetsQueriedSource) return steps;
   return [
     {
       kind: 'forEachContextTarget',

@@ -33,6 +33,3 @@ export const timeDilationRuntimeConfig: TimeDilationRuntimeConfig = Object.freez
   ),
   curves: namedCurves,
 });
-
-/** 标准入口的默认模式；调用方可传入原生模式值覆盖。 */
-export const STANDARD_TIME_MANAGER_DELTA_MODE = 0;

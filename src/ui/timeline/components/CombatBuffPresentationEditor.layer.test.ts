@@ -3,12 +3,12 @@ import { renderToString } from 'vue/server-renderer';
 import { expect, it, vi } from 'vitest';
 import Editor from './CombatBuffPresentationEditor.vue';
 
-it('shows own fields immediately but leaves the order object to the graph', async () => {
+it('表现属性与排序在同一个 Inspector 分区中编辑', async () => {
   const html = await renderToString(
     createSSRApp({
       render: () =>
         h(Editor, {
-          layerOnly: true,
+          initiallyCollapsed: false,
           presentation: {
             iconId: 'sample',
             visible: false,
@@ -19,11 +19,11 @@ it('shows own fields immediately but leaves the order object to the graph', asyn
   );
   expect(html).toContain('value="sample"');
   expect(html).toContain('终结技按钮显示进度');
-  expect(html).not.toContain('排序优先级');
-  expect(html).not.toContain('<header');
+  expect(html).toContain('排序优先级');
+  expect(html).toContain('<summary');
 });
 
-it('clearing the last field keeps an empty graph object instead of deleting the selected node', async () => {
+it('清空最后一个字段不移除表现定义', async () => {
   const update = vi.fn();
   let editor: any;
   await renderToString(
@@ -38,7 +38,7 @@ it('clearing the last field keeps an empty graph object instead of deleting the 
             },
             ssrRender: () => {},
           },
-          { layerOnly: true, presentation: { visible: false }, onUpdate: update },
+          { initiallyCollapsed: false, presentation: { visible: false }, onUpdate: update },
         ),
     }),
   );

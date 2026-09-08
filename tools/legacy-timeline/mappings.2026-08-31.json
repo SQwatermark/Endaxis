@@ -1,0 +1,562 @@
+{
+  "actions": {
+    "sc_zpm5ozw/0/47": {
+      "kind": "operatorSkill",
+      "skillGroupKey": "ultimate",
+      "skillKey": "arcana"
+    }
+  },
+  "enemies": {
+    "eny_0051_rodin": "eny-0051-rodin",
+    "eny_0071_sandb": "eny-0071-sandb"
+  },
+  "operators": {
+    "rossi": "rossi",
+    "camille": "camille",
+    "mifu": "mifu",
+    "pogranichnik": "pogranichnik",
+    "perlica": "perlica",
+    "xaihi": "xaihi",
+    "arcane": "arcane",
+    "tangtang": "tangtang"
+  },
+  "weapons": {
+    "lupine-scarlet": "wpn_sword_0022",
+    "blessing-of-lustrous-carmine": "wpn_lance_0015",
+    "amaranthine-tassel": "wpn_claym_0017",
+    "thermite-cutter": "wpn_sword_0012",
+    "forgeborn-scathe": "wpn_sword_0006",
+    "chivalric-virtues": "wpn_funnel_0010",
+    "brigands-calling": "wpn_pistol_0011",
+    "type-42-solemn-phalanx": "wpn_funnel_0016",
+    "stanza-of-memorials": "wpn_funnel_0005",
+    "jiminy-12": "wpn_funnel_0002",
+    "fluorescent-roc": "wpn_funnel_0003"
+  },
+  "gears": {
+    "mi-security-armor-t1": "item_equip_t4_suit_criti01_body_06",
+    "mi-security-scope-t1": "item_equip_t4_suit_criti01_edc_06",
+    "redeemer-gloves": "item_equip_t4_parts_wuling01_hand_01",
+    "frontiers-protection-suit": "item_equip_t4_suit_atb01_body_05",
+    "frontiers-fiber-gloves-t1": "item_equip_t4_suit_atb01_hand_03",
+    "frontiers-extra-o2-tube": "item_equip_t4_suit_atb01_edc_04",
+    "redeemer-seal": "item_equip_t4_parts_wuling01_edc_03",
+    "grizzled-edge-armor": "item_equip_t4_suit_crush_fracture_body_01",
+    "grizzled-edge-gauntlets": "item_equip_t4_suit_crush_fracture_hand_01",
+    "grizzled-edge-push-knife": "item_equip_t4_suit_crush_fracture_edc_01",
+    "swordmancer-nav-beacon": "item_equip_t4_suit_phy01_edc_01",
+    "hot-work-gloves": "item_equip_t4_suit_fire_natr01_hand_01",
+    "hot-work-power-cartridge": "item_equip_t4_suit_fire_natr01_edc_03",
+    "bonekrusha-poncho-t1": "item_equip_t4_suit_attri01_body_04",
+    "hot-work-exo-rig": "item_equip_t4_suit_fire_natr01_body_02",
+    "hot-work-hands-ppe": "item_equip_t4_suit_fire_natr01_hand_04",
+    "hot-work-insulation-slab": "item_equip_t4_suit_fire_natr01_edc_04",
+    "bonekrusha-heavy-armor-t2": "item_equip_t4_suit_attri01_body_05",
+    "bonekrusha-mask-t2": "item_equip_t4_suit_attri01_edc_07",
+    "mi-security-gloves": "item_equip_t4_suit_criti01_hand_01",
+    "qingbo-heavy-armor": "item_equip_t4_suit_combo_cd01_body_01",
+    "qingbo-gauntlets": "item_equip_t4_suit_combo_cd01_hand_01",
+    "qingbo-positioning-kit": "item_equip_t4_suit_combo_cd01_edc_01",
+    "redeemer-armor": "item_equip_t4_parts_wuling01_body_02",
+    "eternal-xiranite-gloves-t1": "item_equip_t4_suit_usp02_hand_02",
+    "eternal-xiranite-bracing-slab": "item_equip_t4_suit_usp02_edc_04",
+    "qingbo-light-armor": "item_equip_t4_suit_combo_cd01_body_02",
+    "qingbo-gloves": "item_equip_t4_suit_combo_cd01_hand_02",
+    "qingbo-cask": "item_equip_t4_suit_combo_cd01_edc_03",
+    "aic-light-armor": "item_equip_t1_suit_wisdwill01_body_01",
+    "eternal-xiranite-power-core": "item_equip_t4_suit_usp02_edc_01"
+  },
+  "skills": {
+    "rossi": [
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill2"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill",
+          "segmentIndex": 2
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill3"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack1"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 2
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack2"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 3
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack3"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 4
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack4"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 5
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack5"
+        }
+      }
+    ],
+    "camille": [
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill1"
+        }
+      }
+    ],
+    "mifu": [
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack1"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 2
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack2"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 3
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack3"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 4
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack4"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill1"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill",
+          "segmentIndex": 2
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill2"
+        }
+      },
+      {
+        "source": {
+          "skillId": "mifu-world-splitter",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill",
+          "segmentIndex": 3
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill3"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      }
+    ],
+    "pogranichnik": [
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      }
+    ],
+    "perlica": [
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      }
+    ],
+    "xaihi": [
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      }
+    ],
+    "arcane": [
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack1"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 2
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack2"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 3
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack3"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 4
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack4"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 5
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack5"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      },
+      {
+        "source": {
+          "skillId": "finisher",
+          "sourceSkillKey": "finisher",
+          "type": "finisher"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "finisher",
+          "skillKey": "finisher"
+        }
+      }
+    ],
+    "tangtang": [
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      }
+    ]
+  }
+}

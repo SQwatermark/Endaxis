@@ -864,7 +864,6 @@ describe('CombatRuntimeAssembly', () => {
       testEnemy,
       {
         config: {},
-        timeManagerDeltaMode: 0,
       },
     );
     const entity = assembly.abilityEntities.spawn({
@@ -939,7 +938,6 @@ describe('CombatRuntimeAssembly', () => {
       testEnemy,
       {
         config: {},
-        timeManagerDeltaMode: 0,
       },
     );
 
@@ -1245,7 +1243,6 @@ describe('CombatRuntimeAssembly', () => {
         config: {
           curves: new Map([['half', () => 0.5]]),
         },
-        timeManagerDeltaMode: 0,
       },
     );
     const markedEntity = assembly.abilityEntities.spawn({
@@ -1687,7 +1684,6 @@ describe('CombatRuntimeAssembly', () => {
         config: {
           curves: new Map([['half', () => 0.5]]),
         },
-        timeManagerDeltaMode: 2,
       },
       isOperatorControlled: operatorId => operatorId === 'other',
       createOperationExecutor: () => rejectingExecutor,
@@ -1761,7 +1757,6 @@ describe('CombatRuntimeAssembly', () => {
       undefined,
       {
         config: {},
-        timeManagerDeltaMode: 2,
       },
     );
     assembly.timeDilation!.startGlobal({

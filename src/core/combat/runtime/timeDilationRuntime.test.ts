@@ -207,13 +207,34 @@ describe('TimeDilationRuntime', () => {
       curve: () => 0.4,
     });
 
-    expect(runtime.getAbilityTickDeltas('ignored', 1 / 30, 2)).toEqual({
+    expect(runtime.getAbilityTickDeltas('ignored', 1 / 30)).toEqual({
       defaultDeltaSeconds: 1 / 30,
       globalScaledDeltaSeconds: 1 / 60,
       selfScaledDeltaSeconds: (1 / 30) * 0.4,
       skillCooldownDeltaSeconds: 1 / 60,
     });
-    expect(runtime.getAbilityTickDeltas('other', 1 / 30, 0).defaultDeltaSeconds).toBe(1 / 60);
+    expect(runtime.getAbilityTickDeltas('other', 1 / 30).defaultDeltaSeconds).toBe(1 / 30);
+    // 显式影响冷却窗口结束后，全局膨胀仍存在，但冷却恢复未缩放推进。
+    for (let frame = 0; frame < 9; frame++) runtime.advanceFrame();
+    expect(runtime.currentGlobalScale).toBe(0.5);
+    expect(runtime.getAbilityTickDeltas('ignored', 1 / 30).skillCooldownDeltaSeconds).toBe(1 / 30);
+  });
+
+  it('does not slow default or cooldown clocks during ordinary global dilation', () => {
+    const runtime = createRuntime();
+    runtime.startGlobal({
+      durationSeconds: 1,
+      slot: 'Test/TimeSlot1',
+      priority: LOW,
+      constantScale: 0,
+      ignoredOperatorIds: ['caster'],
+    });
+    for (const operatorId of ['caster', 'other']) {
+      const deltas = runtime.getAbilityTickDeltas(operatorId, 1 / 30);
+      expect(deltas.defaultDeltaSeconds).toBe(1 / 30);
+      expect(deltas.skillCooldownDeltaSeconds).toBe(1 / 30);
+      expect(deltas.selfScaledDeltaSeconds).toBe(operatorId === 'caster' ? 1 / 30 : 0);
+    }
   });
 
   it('uses global-scaled lifetime only for configured entity slots', () => {

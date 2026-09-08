@@ -50,7 +50,7 @@ export interface HealthDamageReceiptDetail {
   readonly buffInstanceId?: number;
   readonly buffOwnerId?: string;
   readonly sourceActionId?: string;
-  /** 本次伤害确由法术爆发执行器结算，不通过同帧事件推测。 */
+  /** 本次伤害的明确爆发分类；来自伤害标签或旧兼容执行器，不通过同帧事件推测。 */
   readonly spellBurstType?: string;
   readonly spellBurstEnhanceFactor?: number;
   readonly skillType?: string;
@@ -128,6 +128,7 @@ export interface ExecuteHealthDamageInput {
 
 /** 在已还原的公式后边界应用解析完成的玩家主动伤害。 */
 export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDamageResult {
+  const spellBurstType = spellBurstTypeFromDamageTags(input.tags);
   const beforePayload: HealthDamageEventPayload = {
     sourceId: input.sourceId,
     targetId: input.targetId,
@@ -176,6 +177,7 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
       igniteMultiplier: result.igniteMultiplier,
       physicalInflictionMultiplier: result.physicalInflictionMultiplier,
       ...input.detail,
+      ...(spellBurstType === undefined ? {} : { spellBurstType }),
       ...(input.stepKey === undefined ? {} : { stepKey: input.stepKey }),
       ...(input.castId === undefined ? {} : { castId: input.castId }),
       ...(input.hitId === undefined ? {} : { hitId: input.hitId }),
@@ -184,4 +186,16 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
   input.emitTargetEvent('takeDamage', payload);
   input.emitSourceEvent('outputDamage', { ...sourceBeforePayload, result });
   return stateChange;
+}
+
+/** 只翻译伤害本身的明确分类，不从元素、技能类型或相邻爆发事件反推。多分类不强选其一。 */
+function spellBurstTypeFromDamageTags(tags: readonly DamageTag[]): string | undefined {
+  const names: Partial<Record<DamageTag, string>> = {
+    fireBurst: 'Fire',
+    electricBurst: 'Pulse',
+    cryoBurst: 'Cryst',
+    natureBurst: 'Natural',
+  };
+  const types = new Set(tags.flatMap(tag => (names[tag] === undefined ? [] : [names[tag]!])));
+  return types.size === 1 ? [...types][0] : undefined;
 }

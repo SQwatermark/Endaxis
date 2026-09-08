@@ -1,32 +1,37 @@
 import { expect, it } from 'vitest';
+import { BUFF_OPTIONAL_OBJECTS } from './buffOptionalPropertyDefaults';
 import {
-  BUFF_OPTIONAL_OBJECTS,
-  buildBuffOptionalObjects,
-  appendBuffOptionalObject,
-} from './buffOptionalObjectGraph';
-import { pasteBuffGraphNode } from './buffGraphOperations';
+  buildBuffStructureMindMap,
+  buildActionSequenceMindMap,
+  indexSkillStructureNodes,
+} from './skillStructureMindMapModel';
 
-it.each(['sustainedProtection', 'role', 'spellBurst'] as const)(
-  'adds and copies the optional %s object without overwriting it',
-  key => {
-    const document = {};
-    const nodes = buildBuffOptionalObjects(document);
-    const empty = nodes.find(node => node.sourcePath === key)!;
-    expect(empty.canAddChild).toBe('buffMember');
-    const added = appendBuffOptionalObject(document, key)!;
-    expect(added.root).toEqual({ [key]: BUFF_OPTIONAL_OBJECTS[key].create() });
-    expect(appendBuffOptionalObject(added.root, key)).toBeUndefined();
-    const copied = pasteBuffGraphNode(document, empty, {
-      kind: BUFF_OPTIONAL_OBJECTS[key].payload,
-      value: BUFF_OPTIONAL_OBJECTS[key].create(),
-    })!;
-    expect(copied.root).toEqual(added.root);
-    const full = buildBuffOptionalObjects(added.root).find(node => node.sourcePath === key)!;
-    expect(full.canDelete).toBe(true);
-    expect(full.canMove).toBe(false);
-    expect(
-      pasteBuffGraphNode(added.root, full, { kind: BUFF_OPTIONAL_OBJECTS[key].payload, value: {} }),
-    ).toBeUndefined();
-    expect(document).toEqual({});
-  },
-);
+it('纯属性对象在独立及内联 Buff 中不再生成节点，无论已启用还是未设置', () => {
+  for (const definition of [
+    { stackingType: 'refresh' as const },
+    {
+      stackingType: 'refresh' as const,
+      sustainedProtection: BUFF_OPTIONAL_OBJECTS.sustainedProtection.create(),
+      role: BUFF_OPTIONAL_OBJECTS.role.create(),
+      spellBurst: BUFF_OPTIONAL_OBJECTS.spellBurst.create(),
+    },
+  ]) {
+    const roots = [
+      buildBuffStructureMindMap('test', definition),
+      buildActionSequenceMindMap({
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: { target: 'caster', buffId: 'test', definition },
+          },
+        ],
+      }),
+    ];
+    for (const root of roots) {
+      const paths = [...indexSkillStructureNodes(root).values()].map(node => node.sourcePath);
+      expect(paths.some(path => /(?:^|\.)(sustainedProtection|role|spellBurst)$/.test(path))).toBe(
+        false,
+      );
+    }
+  }
+});

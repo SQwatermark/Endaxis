@@ -122,7 +122,7 @@ describe('SkillDefinitionEditor structure', () => {
     expect(inlineAbilityEntityChildSkillInspectorSource).toContain('SkillBlackboardEditor');
     expect(inlineAbilityEntityChildSkillInspectorSource).not.toContain('ActionSequenceEditor');
     expect(stepEditorSource).toContain('StructuredControlStepEditor');
-    expect(structuredControlStepEditorSource).toContain('Body 从左侧导图添加和选择');
+    expect(structuredControlStepEditorSource).toContain('在左侧当前节点上添加动作');
     expect(structuredControlStepEditorSource).not.toContain('ActionSequenceEditor');
   });
 

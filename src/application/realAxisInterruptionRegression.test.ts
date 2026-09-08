@@ -1,0 +1,352 @@
+import { expect, it } from 'vitest';
+import { createEmptyScenario } from '../core/project/createProject';
+import type { TrackDocument } from '../core/project/schema';
+import { gameDataRepository } from '../data/gameDataRepository';
+import { skillSettings } from '../data/combat/skillSettings';
+import { ScenarioSimulationService } from './scenarioSimulationService';
+
+const resources = {
+  sharedSpGain: { baseGainEfficiency: 1 },
+  spRecoveryPauseDuration: 1.5,
+  ultimateEnergySystemUnlocked: true,
+  normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+};
+
+it('赛希晶体的 SourceFinder 使治疗和增幅来自赛希，监听光环仍来自晶体', async () => {
+  const scenario = createEmptyScenario('xaihi-enhance-source', '晶体增幅来源');
+  const healer = track('xaihi', [['battleSkill', 'battleSkill', 1]]);
+  healer.operator!.potential = 1;
+  healer.gears = {
+    armor: null,
+    gloves: { gearSlug: 'item_equip_t4_suit_usp02_hand_02', artificingLevels: [3, 3, 3] },
+    accessory1: { gearSlug: 'item_equip_t4_suit_usp02_edc_04', artificingLevels: [3, 3] },
+    accessory2: { gearSlug: 'item_equip_t4_suit_usp02_edc_04', artificingLevels: [3, 3] },
+  };
+  scenario.tracks[0] = track('arcane', [['basicAttack', 'basicAttack5', 120]]);
+  scenario.tracks[1] = healer;
+  scenario.battle.controlSwitches = [{ id: 'control:arcane', frame: 0, trackIndex: 0 }];
+  const result = await new ScenarioSimulationService({
+    index: gameDataRepository,
+    spellInflictionSettings: skillSettings,
+    resources,
+  }).simulate(scenario, 300);
+  const entries = result.receiptEntries;
+  const carrier = entries.find(
+    e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_common_affixes_enhance_spell',
+  );
+  const parent = entries.find(
+    e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0011_seraph_potential_1_atkup',
+  );
+  expect(parent).toBeDefined();
+  expect(carrier).toBeDefined();
+  expect(carrier!.sourceId).toBe('xaihi');
+  expect(carrier!.sourceId).toBe(parent!.sourceId);
+  expect(carrier!.targetId).toBe('arcane');
+  expect(
+    entries.find(
+      e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0011_seraph_normal_skill_heal',
+    )?.sourceId,
+  ).toMatch(/^ability-entity:/);
+  expect(
+    entries.find(
+      e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0011_seraph_mainchr_heal',
+    )?.sourceId,
+  ).toBe('xaihi');
+  expect(
+    entries.find(
+      e =>
+        e.event === 'BuffApplied' &&
+        e.data?.buffId === 'buff_equipsuit_usp_02_AddAttack' &&
+        e.targetId === 'arcane',
+    ),
+  ).toMatchObject({ sourceId: 'xaihi', frame: carrier!.frame });
+});
+
+it('诀直接创建腐蚀时，天赋与潜能只延长一次寿命', async () => {
+  for (const upgraded of [false, true]) {
+    const scenario = createEmptyScenario('arcane-corrosion', '直接创建腐蚀');
+    const operator = track('arcane', [['ultimate', 'ultimate', 1]]);
+    operator.operator!.potential = upgraded ? 5 : 0;
+    operator.operator!.talentStates = upgraded ? { '0': 2, '1': 2 } : {};
+    scenario.tracks[0] = operator;
+    const result = await new ScenarioSimulationService({
+      index: gameDataRepository,
+      spellInflictionSettings: skillSettings,
+      resources,
+    }).simulate(scenario, 1500);
+    const entries = result.receiptEntries.filter(
+      e => e.data?.buffId === 'buff_common_natural_natural_corrupt_do',
+    );
+    const start = entries.find(e => e.event === 'BuffApplied');
+    const end = entries.find(e => e.event === 'BuffFinished');
+    expect(start).toBeDefined();
+    expect(end).toBeDefined();
+    expect(end!.frame - start!.frame).toBe((upgraded ? 30 : 15) * 30);
+  }
+});
+
+it('动火用原生十秒增伤不被另一干员的终结技膨胀延长', async () => {
+  const scenario = createEmptyScenario('hot-work-clock', '套装默认时钟');
+  const operator = track('arcane', [['ultimate', 'ultimate', 1]]);
+  operator.gears = {
+    accessory2: null,
+    armor: { gearSlug: 'item_equip_t4_suit_fire_natr01_body_02', artificingLevels: [3, 3, 3] },
+    gloves: { gearSlug: 'item_equip_t4_suit_fire_natr01_hand_04', artificingLevels: [3, 3, 3] },
+    accessory1: { gearSlug: 'item_equip_t4_suit_fire_natr01_edc_04', artificingLevels: [3, 3, 3] },
+  };
+  scenario.tracks[0] = operator;
+  scenario.tracks[1] = track('tangtang', [['ultimate', 'ultimate', 120]]);
+  const result = await new ScenarioSimulationService({
+    index: gameDataRepository,
+    spellInflictionSettings: skillSettings,
+    resources,
+  }).simulate(scenario, 600);
+  const buffs = result.receiptEntries.filter(
+    e => e.data?.buffId === 'buff_equipsuit_fninflict_01_poisedamageadd',
+  );
+  const start = buffs.find(e => e.event === 'BuffApplied');
+  const end = buffs.find(e => e.event === 'BuffFinished');
+  expect(start).toBeDefined();
+  expect(end).toBeDefined();
+  expect(
+    result.receiptEntries.some(
+      e =>
+        e.event === 'TimeDilationStarted' &&
+        e.sourceId === 'tangtang' &&
+        e.frame > start!.frame &&
+        e.frame < end!.frame,
+    ),
+  ).toBe(true);
+  // 创建帧是否已经 tick 影响一帧，不能把此差异当作冻结时长。
+  expect(end!.frame - start!.frame).toBeGreaterThanOrEqual(299);
+  expect(end!.frame - start!.frame).toBeLessThanOrEqual(300);
+});
+
+it('诀秘仪命中时，负时长的筹谋增幅仍然生效', async () => {
+  const damage: number[] = [];
+  for (const talentLevel of [1, 2]) {
+    const scenario = createEmptyScenario('arcana-enhance', '筹谋');
+    scenario.tracks[0] = track('arcane', [['ultimate', 'arcana', 1]]);
+    scenario.tracks[0]!.operator!.talentStates = { '0': talentLevel };
+    const result = await new ScenarioSimulationService({
+      index: gameDataRepository,
+      spellInflictionSettings: skillSettings,
+      resources,
+    }).simulate(scenario, 150);
+    const hit = result.receiptEntries.find(
+      e => e.event === 'DamageApplied' && e.data?.skillType === 'ultimate',
+    );
+    expect(hit).toBeDefined();
+    damage.push(hit!.data!.expectedDamage as number);
+  }
+  expect(damage[1]! / damage[0]!).toBeCloseTo(1.24);
+});
+
+it('洛茜在敌人破防但未失衡时仍执行战技后续并施加流血', async () => {
+  async function simulate(withNoGuard: boolean) {
+    const scenario = createEmptyScenario('rossi-no-guard', '破防不是失衡');
+    // 失衡槽设得足够大，先用一次战技建立原生破防 Buff，再测第二次战技。
+    scenario.enemy.editable.stagger.maximum = 100000;
+    scenario.enemy.editable.hp = 10000000;
+    scenario.tracks[0] = track(
+      'rossi',
+      withNoGuard
+        ? [
+            ['battleSkill', 'battleSkill', 1],
+            ['battleSkill', 'battleSkill', 100],
+          ]
+        : [['battleSkill', 'battleSkill', 100]],
+    );
+    scenario.tracks[0]!.operator!.talentStates = { '0': 2, '1': 2 };
+    if (withNoGuard) scenario.tracks[0]!.skillCasts[0]!.id = 'prepare-no-guard';
+    return (
+      await new ScenarioSimulationService({
+        index: gameDataRepository,
+        spellInflictionSettings: skillSettings,
+        resources,
+      }).simulate(scenario, 600)
+    ).receiptEntries;
+  }
+  const ready = await simulate(true);
+  const unprepared = await simulate(false);
+  const applied = (entries: typeof ready, buffId: string) =>
+    entries.some(entry => entry.event === 'BuffApplied' && entry.data?.buffId === buffId);
+  expect(applied(ready, 'buff_physical_no_guard')).toBe(true);
+  expect(applied(ready, 'buff_chr_0028_wulfa_normal_bleed')).toBe(true);
+  expect(
+    ready.some(
+      entry =>
+        entry.event === 'BuffApplied' &&
+        entry.data?.buffId === 'buff_chr_0028_wulfa_tut_normalskill_failure' &&
+        entry.data?.sourceActionId === 'rossi:battleSkill',
+    ),
+  ).toBe(false);
+  expect(applied(unprepared, 'buff_chr_0028_wulfa_normal_bleed')).toBe(false);
+  expect(applied(unprepared, 'buff_chr_0028_wulfa_tut_normalskill_failure')).toBe(true);
+});
+
+it('opens Xaihi window, not the controlled teammate window, when both crystal uses are consumed', async () => {
+  const scenario = createEmptyScenario('crystal-teammate', '队友消耗支援晶体');
+  scenario.battle.durationFrames = 240;
+  scenario.tracks[0] = track('arcane', []);
+  scenario.tracks[0].skillCasts = [50, 140].map((startFrame, index) => ({
+    id: `heavy:${index}`,
+    source: { kind: 'operatorSkill', skillGroupKey: 'basicAttack', skillKey: 'basicAttack5' },
+    placement: { startFrame },
+  }));
+  scenario.tracks[1] = track('xaihi', [['battleSkill', 'battleSkill', 1]]);
+  const result = await new ScenarioSimulationService({
+    index: gameDataRepository,
+    spellInflictionSettings: skillSettings,
+    resources,
+  }).simulate(scenario, 240);
+  const depleted = result.receiptEntries.find(
+    entry =>
+      entry.event === 'BuffFinished' &&
+      entry.data?.buffId === 'buff_chr_0011_seraph_combo_count' &&
+      entry.data?.layers === 2,
+  );
+  expect(depleted).toBeDefined();
+  const windows = result.receiptEntries.filter(entry => entry.event === 'ComboWindowOpened');
+  expect(windows.filter(entry => entry.sourceId === 'xaihi')).toHaveLength(1);
+  expect(windows.some(entry => entry.sourceId === 'xaihi' && entry.frame === depleted?.frame)).toBe(
+    true,
+  );
+  expect(windows.filter(entry => entry.sourceId === 'arcane')).toHaveLength(0);
+});
+
+it('keeps Tangtang Qingbo cooldown at 10.2 seconds through ordinary combo dilation', async () => {
+  const scenario = createEmptyScenario('tangtang-cooldown', '清波冷却回归');
+  scenario.battle.durationFrames = 400;
+  const tangtang = track('tangtang', [['comboSkill', 'comboSkill', 10]]);
+  tangtang.gears = {
+    armor: { gearSlug: 'item_equip_t4_suit_combo_cd01_body_01', artificingLevels: [0, 0, 0] },
+    gloves: { gearSlug: 'item_equip_t4_suit_combo_cd01_hand_01', artificingLevels: [0, 0, 0] },
+    accessory1: { gearSlug: 'item_equip_t4_suit_combo_cd01_edc_01', artificingLevels: [0, 0, 0] },
+    accessory2: null,
+  };
+  scenario.tracks[0] = tangtang;
+  // 另一干员的连携与汤汤冷却重叠，不能把普通全局膨胀计入冷却时长。
+  scenario.tracks[1] = track('perlica', [['comboSkill', 'comboSkill', 60]]);
+  const result = await new ScenarioSimulationService({
+    index: gameDataRepository,
+    spellInflictionSettings: skillSettings,
+    resources,
+  }).simulate(scenario, 400);
+  const entries = result.receiptEntries.filter(
+    entry => entry.sourceId === 'tangtang' && entry.data?.skillId === 'comboSkill',
+  );
+  const reserved = entries.find(entry => entry.event === 'SkillCooldownReserved');
+  const ready = entries.find(entry => entry.event === 'SkillCooldownReady');
+  expect(reserved?.data?.remainingFrames).toBe(306);
+  expect(ready?.frame).toBe((reserved?.frame ?? -1) + 306);
+});
+
+/** 真实轴首轮 A4 缺伤害的最小对照；不携带私人存档或旧版伤害快照。 */
+function track(slug: string, casts: readonly (readonly [string, string, number])[]): TrackDocument {
+  return {
+    id: slug,
+    operator: {
+      operatorSlug: slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: casts.map(([skillGroupKey, skillKey, startFrame]) => ({
+      id: `${slug}:${skillKey}`,
+      source: { kind: 'operatorSkill', skillGroupKey, skillKey },
+      placement: { startFrame },
+    })),
+  };
+}
+
+it('records the input-phase local frame at an exact allowed-next boundary', async () => {
+  // 记录当前固定步长调度约定，不把它宣称为已闭环的原生渲染帧顺序。
+  for (const offset of [22, 23]) {
+    const scenario = createEmptyScenario('a3-boundary', '接续边界');
+    scenario.tracks[0] = track('arcane', [
+      ['basicAttack', 'basicAttack3', 10],
+      ['basicAttack', 'basicAttack4', 10 + offset],
+    ]);
+    const result = await new ScenarioSimulationService({
+      index: gameDataRepository,
+      spellInflictionSettings: skillSettings,
+      resources,
+    }).simulate(scenario, 40);
+    const blocked = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'SkillInputCannotInterruptCurrentSkill' &&
+        entry.data?.castId === 'arcane:basicAttack4',
+    );
+    if (offset === 22) {
+      expect(blocked).toHaveLength(1);
+      expect(blocked[0]?.data?.currentSkillTimelineFrame).toBe(21);
+    } else expect(blocked).toHaveLength(0);
+    expect(
+      result.receiptEntries.some(
+        entry =>
+          entry.event === 'SkillStarted' &&
+          entry.data?.castId === 'arcane:basicAttack4' &&
+          entry.frame === 10 + offset,
+      ),
+    ).toBe(true);
+  }
+});
+
+it('retains inputs but interrupts A4 before its first hit during another operator combo dilation', async () => {
+  async function simulate(withCombo: boolean) {
+    const scenario = createEmptyScenario('a4-dilation', '跨干员膨胀最小对照');
+    scenario.battle.durationFrames = 100;
+    scenario.tracks[0] = track('arcane', [
+      ['basicAttack', 'basicAttack4', 10],
+      ['basicAttack', 'basicAttack5', 31],
+    ]);
+    scenario.tracks[1] = track('tangtang', withCombo ? [['comboSkill', 'comboSkill', 12]] : []);
+    const before = JSON.stringify(scenario);
+    const result = await new ScenarioSimulationService({
+      index: gameDataRepository,
+      spellInflictionSettings: skillSettings,
+      resources,
+    }).simulate(scenario, 100);
+    expect(JSON.stringify(scenario)).toBe(before);
+    return result.receiptEntries;
+  }
+  const normal = await simulate(false);
+  const slowed = await simulate(true);
+  const a4Hits = (entries: typeof normal) =>
+    entries.filter(
+      entry => entry.event === 'DamageApplied' && entry.data?.castId === 'arcane:basicAttack4',
+    );
+  expect(a4Hits(normal).length).toBeGreaterThan(0);
+  expect(a4Hits(slowed)).toHaveLength(0);
+  expect(
+    slowed.some(
+      entry =>
+        entry.event === 'TimeDilationStarted' &&
+        entry.sourceId === 'tangtang' &&
+        entry.data?.kind === 'global',
+    ),
+  ).toBe(true);
+  expect(
+    slowed.some(
+      entry =>
+        entry.event === 'SkillInterrupted' &&
+        entry.data?.castId === 'arcane:basicAttack4' &&
+        entry.frame === 31,
+    ),
+  ).toBe(true);
+  expect(
+    slowed.some(
+      entry =>
+        entry.event === 'SkillStarted' &&
+        entry.data?.castId === 'arcane:basicAttack5' &&
+        entry.frame === 31,
+    ),
+  ).toBe(true);
+});
