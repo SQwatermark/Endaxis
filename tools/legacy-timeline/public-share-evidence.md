@@ -1,5 +1,48 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：原始公开轴资源首差与别礼基础被动遗漏
+
+正式基线仍为6a8db78895147370855b45ed原始输入，使用秘仪修订后的转换；不添加主控切换。
+只读旧4dadc55f重新运行，TOTAL=2777215、WARNINGS=[]，临时完整资源日志
+`tmp/public-resource-old.log`。新版为`tmp/public-last-rite-arcana-corrected-original.json`。
+所有下列旧时间减去5秒准备期后比较。
+
+1. 赛希首战技：旧0.0833333333秒扣100，之前200.6666666667；新版3帧0.1秒扣100，
+   之前200.8。`sourcePreparation.ts`先减准备期再Math.round(seconds*PROJECT_FPS)，
+   差额8×(0.1−0.0833333333)=0.1333333333。属于当前60→30帧输入量化，不是扣费倍率错误。
+2. 别礼首战技：两边0.5333333333秒开始。旧`last-rite.ts`战技hit offset=0.2、spReturn=30，
+   0.733333返还；旧ActionEndHandler在结束前0.01秒安排通用队伍回能，0.773333发生。
+   新版非主控在本地0帧jumpTimeline到300，执行self Buff和通用/专属回能；16帧同帧返还30。
+   当前生成分支与原生normal_skill对应，不能把旧固定offset作为延期修复依据；完整跳转调度
+   的原生逐帧一致性不在本项中重新证明。
+3. **确认漏接但尚未修复：别礼自身收到不该获准的通用回能。** 新16帧baseValue=6.5、
+   actualValue=6.5、applied=true，随后专属usp=16，变为22.5；旧同次只获专属16。
+   旧定义acceptTeamUltEnergy=false、acceptSelfSpCostUltEnergy=false只是参考现象，
+   修复依据不是把这两个旧字段搬回来，而是下述原生被动/恢复标签链。
+
+来源为`tmp/game-data-sources-hybrid-20260905/`：
+
+| 文件                                                  | SHA-256                                                          |
+| ----------------------------------------------------- | ---------------------------------------------------------------- |
+| CharacterData/chr_0026_lastrite.runtime-template.json | 02bd5e0883c58735b81ddc02d24c12f2578e892475723517d8cc3cbabd597c72 |
+| SkillData/chr_0026_lastrite_passive.json              | ad551f258f40254ec33c6eac83f8d0209c18a6d2e72d138418367dc830a672ad |
+| BuffData/buff_chr_0026_lastrite_passive.json          | c9cbdda5fac9bd96d5ba05455f5c8f8552bdb0ad9ab47bca7dd9468619ae0703 |
+
+runtime-template的allPassiveSkillId和enabledPassiveSkills均含chr_0026_lastrite_passive。
+其passiveSkillType=AddBuff、buffs引用对应passive Buff；Buff包含RefrainObtainUsp，
+许可标签264623624（Skill/Character/chr_0026_lastrite），clearUspOnEnd=false。
+combat-spec/docs/ultimate-sp-recovery-restriction.md已证明许可句柄与Modifier首标签检查：
+无标签的通用ObtainUspInNormalSkill被拒绝，专属带标签的ObtainCostAction可以恢复。
+
+当前config/operators.json别礼没有basePassiveSkillIds；planOperatorDefinition.ts只从登记
+列表构造基础被动请求。生成别礼仅含天赋初始化，无passive Buff/限制动作；公共转换器已有
+RefrainObtainUsp→restrictUltimateEnergyRecovery，运行时也已有许可检查。
+下一步应接入被遗漏的原生基础被动，检查此类入口的完整性，并用正式定义验证通用回能被拒绝、
+专属回能保留、扣能不受限，再重算正式轴。不要手写别礼专用数值或全队回能豁免。
+
+本轮资源运行时combatResources.test.ts共19项通过，无生产改动；未做全量、类型或视觉验证。
+其他队员9.3925→9.397142等回能效率数值差额及整轴资源走势尚未归因，不宣称资源审计完成。
+
 ## 2026-09-09：两次赛希爆发的腐蚀减抗差异来自周期时钟
 
 旧4dadc55f EnemyEffectHandler.ts：腐蚀初次记录tickIndex=0，首次增长通过
