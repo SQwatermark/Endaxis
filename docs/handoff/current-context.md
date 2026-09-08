@@ -1,5 +1,22 @@
 # 当前任务快照
 
+## 2026-09-09：被动能力事件接入方案与第二个生成边界
+
+继续沿卡缪入口核对：OperatorPassiveSkillDefinition目前仅enableSequence/blackboard，
+CompiledOperatorPassiveProgram也只有这两者；装配层为每个被动创建独立ActionBlackboard和
+CombatActionSequenceRuntime。现有listenForCombatEvents只连接语义事件，不接受AbilityEvent。
+不能把OnAbilityEntityFinished伪装为其他语义事件，也不能扁平移入operator.eventHandlers
+（其契约只有deckAttributesChanged），更不能借装备身份伪装被动来源。
+建议下一实现保持被动实例的黑板/所有权，增加复用公共AbilityEvent身份的事件序列入口，
+注册使用现有能力事件dispatcher，复用事件payload规范化、Target上下文与注销生命周期；
+须同时覆盖契约校验、等级编译、事件重入与结束注销，再接卡缪正式数据。
+
+顺带试编译艾尔黛拉发现另一边界：其被动SkillData有2999帧FinishOwnerAction等时间轴，
+当前passiveSkillDefinition.ts拒绝非纯表现timeline。配置试验已撤销，没有写出生成文件。
+不能因AddBuff就擅自忽略时间轴；passive-skill-dispatch.md当前只证明toggleBuffs判别分支，
+并未证明普通Skill在此路径不消费timeline。该边界需核对Skill.Enable/Cast分派后再放开。
+本轮无生产改动，无测试或视觉验收；下一轮重点仍为卡缪公共能力事件入口，不扩展UI编辑器。
+
 ## 2026-09-09：剩余基础被动差集分类及卡缪事件入口阻塞
 
 四个剩余入口不是同一种缺口。卡缪listen_normal_skill原生监听OnAbilityEntityFinished，
