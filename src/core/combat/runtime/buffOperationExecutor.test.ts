@@ -493,7 +493,6 @@ describe('BuffOperationExecutor', () => {
   it('applies the first no-guard layer before executing the fracture Buff chain', () => {
     let noGuardCount = 0;
     const applied: string[] = [];
-    const consumed: Array<{ buffId: string; layers: number; sourceOperatorId: string }> = [];
     const beforeOutput: Array<{ sourceId: string; targetId: string; type: string }> = [];
     const target = {
       ownerId: 'enemy',
@@ -517,7 +516,6 @@ describe('BuffOperationExecutor', () => {
       sourceId: 'antal',
       sourceActionId: 'comboSkill',
       resolveTarget: () => target,
-      onBuffConsumed: event => consumed.push(event),
       onBeforeOutputPhysicalInfliction: event => beforeOutput.push(event),
       delegate,
     });
@@ -557,16 +555,7 @@ describe('BuffOperationExecutor', () => {
       },
     ]);
     expect(applied).toEqual(['buff_physical_no_guard', 'buff_physical_fracture']);
-    expect(consumed).toEqual([
-      {
-        sourceOperatorId: 'antal',
-        targetId: 'enemy',
-        buffId: 'buff_physical_no_guard',
-        layers: 1,
-        buffTags: [],
-        blackboardValues: {},
-      },
-    ]);
+    // 此处是只模拟层数的目标；消费事件由真实 Buff 容器负责，不能在此反推。
   });
 
   it('applies Airborne through its force/no-guard gate without pretending stump control success', () => {

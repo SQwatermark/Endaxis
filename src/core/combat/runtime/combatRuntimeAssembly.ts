@@ -2296,7 +2296,6 @@ export class CombatRuntimeAssembly {
         this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => definitionOperator.buffDefinitions?.[buffId],
-      onBuffConsumed: event => this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
       onPhysicalInflictionApplied: event =>
         this.semanticEvents.emit({ kind: 'physicalInflictionApplied', ...event }),
       onBeforeOutputPhysicalInfliction: payload =>
@@ -2604,7 +2603,6 @@ export class CombatRuntimeAssembly {
         this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
-      onBuffConsumed: event => this.semanticEvents.emit({ kind: 'buffConsumed', ...event }),
       onPhysicalInflictionApplied: event =>
         this.semanticEvents.emit({ kind: 'physicalInflictionApplied', ...event }),
       onBeforeOutputPhysicalInfliction: payload =>

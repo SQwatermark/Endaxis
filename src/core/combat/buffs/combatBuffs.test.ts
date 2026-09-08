@@ -24,6 +24,51 @@ import { ActionBlackboard } from '../runtime/actionBlackboard';
 
 type Attribute = 'attack';
 
+it.each(['id', 'tag'] as const)('全量 %s 提前消费同步发布来源和原层数，结束/吸收不混用', query => {
+  const tag = 'Skill/Fire';
+  const container = new CombatBuffContainer(
+    'enemy',
+    new CombatAttributeSet<Attribute>(),
+    new GameplayTagRegistry([tag]),
+  );
+  const consumed: string[] = [];
+  const absorbed: string[] = [];
+  container.configureConsumedObserver((buff, source, layers) => {
+    expect(buff.isFinished).toBe(true);
+    consumed.push(`${source}:${buff.definition.id}:${layers}`);
+  });
+  container.configureAbsorbedObserver((buff, source, layers) =>
+    absorbed.push(`${source}:${buff.definition.id}:${layers}`),
+  );
+  const add = () => {
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'fire',
+      stackingType: 'enhance',
+      maxStackCount: 4,
+      applyTags: [tag],
+    };
+    container.add(definition, 'original');
+    container.add(definition, 'original');
+  };
+  const finish = (reason: 'early' | 'other' | 'absorbed', source?: string) =>
+    query === 'id'
+      ? container.finishByIds(['fire'], reason, source)
+      : container.finishByTags([tag], 'hasAny', reason, false, source);
+  add();
+  expect(finish('early', 'consumer')).toBe(1);
+  expect(consumed).toEqual(['consumer:fire:2']);
+  expect(finish('early', 'consumer')).toBe(0);
+  add();
+  finish('other', 'consumer');
+  add();
+  finish('early');
+  expect(consumed).toHaveLength(1);
+  add();
+  finish('absorbed', 'absorber');
+  expect(absorbed).toEqual(['absorber:fire:2']);
+  expect(consumed).toHaveLength(1);
+});
+
 it.each([-1, -0.00002, -0.00001, -0.000001, 0, 0.5])(
   '有限配置在本次赋值 duration=%s 后按原生负阈值解析寿命',
   duration => {

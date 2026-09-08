@@ -3,6 +3,38 @@ import { createEmptyScenario } from '../core/project/createProject';
 import type { TrackDocument } from '../core/project/schema';
 import { createEditorSimulationService } from './editorSimulationService';
 
+it('洛茜连携三提前消费火附着后，公共事件打开卡蜜拉连携窗口', async () => {
+  const scenario = createEmptyScenario('rossi-camille', '火附着消费');
+  scenario.tracks[0] = track('camille', 'battleSkill', 'battleSkill', 1);
+  scenario.tracks[1] = track('rossi', 'comboSkill3', 'comboSkill', 100);
+  const service = createEditorSimulationService();
+  const baseline = await service.simulate(scenario, 600);
+  const finished = baseline.receiptEntries.find(
+    e =>
+      e.event === 'BuffFinished' &&
+      e.data?.buffId === 'buff_common_energy_shard_attached_fire' &&
+      e.data.reason === 'early',
+  );
+  expect(finished).toBeDefined();
+  const opened = baseline.receiptEntries.find(
+    e => e.event === 'ComboWindowOpened' && e.sourceId === 'camille',
+  );
+  expect(opened).toBeDefined();
+  expect(opened!.frame).toBe(finished!.frame);
+  expect(opened!.sequence).toBeGreaterThan(finished!.sequence);
+  const castFrame = opened!.frame + 1;
+  const cast = track('camille', 'comboSkill1', 'comboSkill', castFrame).skillCasts[0]!;
+  scenario.tracks[0]!.skillCasts.push({ ...cast, id: 'camille:combo' });
+  const before = structuredClone(scenario);
+  const run = await service.simulate(scenario, castFrame + 200);
+  expect(run.comboWindowDiagnostics.filter(d => d.sourceId === 'camille')).toEqual([]);
+  expect(
+    run.receiptEntries.find(e => e.event === 'ComboWindowConsumed' && e.sourceId === 'camille')
+      ?.frame,
+  ).toBe(castFrame);
+  expect(scenario).toEqual(before);
+});
+
 function track(
   slug: string,
   skillKey: string,

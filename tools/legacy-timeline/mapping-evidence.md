@@ -3,6 +3,37 @@
 2026-09-08；来源为用户提供的 Endaxis_Timeline_2026-08-31.json。
 配置保存对象身份及已核实的单动作变体，不提交完整用户存档及派生数据。
 
+## 2026-09-08：卡蜜拉窗口缺口为公共提前消费事件遗漏（已修）
+
+原始SkillData/chr_0028_wulfa_combo_3_skill.json，SHA256
+`4D983C23E3388F6A4004134A55E0AB196B94FE71004F01EF7808D3AF8716A690`：
+FinishBuffAdvanced为Tag HasAny(-1558844517)、finishAll=true、isFinishedEarly=true、
+isAbsorbed=false、finishSource=Owner。生成FireInflict、Early均正确，无需改数据。
+已有combat-spec/finish-buff-advanced.md专门包含洛茜这一真实样本，证明Early全量
+Id/Tag复用消费入口；consume-buff-single.md证明结束完成后向finishSource发208消费事件。
+这是既有规格在Endaxis中的遗漏，不需要另编卡蜜拉特例或重复研究机制。
+
+两处缺陷共同造成窗口遗漏：
+
+1. CombatBuffContainer.finishByIds/finishByTags没有向ConsumedObserver发布Early结束。
+2. BuffOperationExecutor只读上下文actionSourceId/buffSourceId，主动技能没有这两个字段时
+   未使用执行器已有的施法来源，使公共事件没有消费方身份。
+
+修复限定于全量结束事件及已知来源交接；显式Buff/实体来源保持优先，Absorbed独立发布，
+Other/无来源/重复结束不伪造消费。本次不声称新增消费保护、限层消费或原生Tag快照能力。
+正式双人技能回归先复现无窗口，再验证火附着结束同帧开卡蜜拉窗口及后续合法消费。
+容器Id/Tag回归校验事件原层数和发布时Buff已结束，避免仅使图上告警消失。
+
+三轴两个截止范围重算：配置期望仍693530.8131581588 /337938.8820469209 /
+1969138.5859327097，命中210/194/264；方案4窗口告警2→1，其余告警数不变。
+私有报告tmp/early-consume-axis-audit.json。没有通过修改输入、生成配置或旧映射消除告警。
+
+全量回归发现并去除重复生产者：applyPhysicalInfliction原有层数差推算onBuffConsumed，
+公共Early事件恢复后会让大潘天赋重复消费同一层（旧断言1.06倍变成1.12倍）。
+删除该推算及依赖注入回调，保留真实容器事件。大潘真实技能测试保持原期望通过，
+不是修改断言接受重复增伤。最终三轴报告early-consume-final-axis-audit.json与上表一致。
+最终全src 5396/5396通过，应用vue-tsc与diff检查通过；两种截止范围的伤害/命中均逐值不变。
+
 ## 2026-09-08：三项资源与七项窗口诊断的当前归因
 
 资源表按输入前最后一条SpChanged和同castId的SkillCostApplied核对，费用取正式定义：

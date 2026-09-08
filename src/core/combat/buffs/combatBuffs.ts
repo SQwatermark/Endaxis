@@ -1074,15 +1074,23 @@ export class CombatBuffContainer<Key extends string> {
     let count = 0;
     for (const buff of this.#buffs) {
       if (!buff.isFinished && accepted.has(buff.definition.id)) {
-        const layers = buff.enhanceCount;
-        if (buff.finish(reason)) {
+        if (this.#finishWithSource(buff, reason, sourceId)) {
           count += 1;
-          if (reason === 'absorbed' && sourceId !== undefined)
-            this.#onBuffAbsorbed?.(buff, sourceId, layers);
         }
       }
     }
     return count;
+  }
+
+  /** 全量 Early 结束向消费方发布事件；普通结束不伪造消费，吸收保持独立事件。 */
+  #finishWithSource(buff: CombatBuff<Key>, reason: BuffFinishReason, sourceId?: string): boolean {
+    const layers = buff.enhanceCount;
+    if (!buff.finish(reason)) return false;
+    if (sourceId !== undefined) {
+      if (reason === 'early') this.#onBuffConsumed?.(buff, sourceId, layers);
+      else if (reason === 'absorbed') this.#onBuffAbsorbed?.(buff, sourceId, layers);
+    }
+    return true;
   }
 
   /** 按容器插入顺序结束最多 count 个 ID 匹配的 Buff 实例。 */
@@ -1288,13 +1296,7 @@ export class CombatBuffContainer<Key extends string> {
       if (
         !buff.isFinished &&
         this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact) &&
-        (() => {
-          const layers = buff.enhanceCount;
-          const finished = buff.finish(reason);
-          if (finished && reason === 'absorbed' && sourceId !== undefined)
-            this.#onBuffAbsorbed?.(buff, sourceId, layers);
-          return finished;
-        })()
+        this.#finishWithSource(buff, reason, sourceId)
       ) {
         count += 1;
       }

@@ -184,15 +184,6 @@ export interface BuffOperationDependencies {
   readonly resolveEventTarget?: (targetId: string) => BuffOperationTarget;
   /** 从当前动作所属干员、原始技能等级对应的附属对象表解析定义。 */
   readonly resolveBuffDefinition?: (buffId: string) => ResolvedSkillBuffDefinition | undefined;
-  /** 仅在已证明的消费路径完成后报告原生 OnConsumeBuff 事实。 */
-  readonly onBuffConsumed?: (event: {
-    readonly sourceOperatorId: string;
-    readonly targetId: string;
-    readonly buffId: string;
-    readonly layers: number;
-    readonly buffTags: readonly GameplayTag[];
-    readonly blackboardValues: Readonly<Record<string, string | number | null>>;
-  }) => void;
   readonly onPhysicalInflictionApplied?: (event: {
     readonly sourceOperatorId: string;
     readonly targetId: string;
@@ -320,20 +311,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             : { attachBuffToCurrentSkill: context.attachBuffToCurrentSkill }),
         });
       }
-      if (applied && entersPhysicalInfliction && hasNoGuard) {
-        const remainingCount = target.getCountByIds([step.parameters.noGuardBuffId]);
-        const consumedLayers = Math.max(0, noGuardCount - remainingCount);
-        if (consumedLayers > 0) {
-          this.dependencies.onBuffConsumed?.({
-            sourceOperatorId: this.dependencies.sourceId,
-            targetId: target.ownerId,
-            buffId: step.parameters.noGuardBuffId,
-            layers: consumedLayers,
-            buffTags: [],
-            blackboardValues: {},
-          });
-        }
-      }
+      // 消费事实由 Buff 容器发布，不能再通过前后层数相减重复推算一次。
       if (step.parameters.type !== 'airborne') return applied;
       // 固定木桩不安装空间控制组件：状态 Buff 与通用 After 链仍执行，但不能伪造
       // ApplyAirborne 的 Success/Interruption。真实 1.4.4 样本当前均使用 Always。
@@ -694,7 +672,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'finishBuffsByTag') {
       const target = this.#resolveSingleTarget(step.parameters.target, context);
       const tags = step.parameters.buffTags;
-      const finishSourceId = context?.actionSourceId ?? context?.buffSourceId;
+      const finishSourceId =
+        context?.actionSourceId ?? context?.buffSourceId ?? this.dependencies.sourceId;
       if (step.parameters.count === undefined) {
         target.finishByTags(
           tags,
@@ -725,7 +704,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
 
     if (step.kind === 'finishBuffsById') {
       const targets = this.#resolveApplicationTargets(step.parameters.target, context);
-      const finishSourceId = context?.actionSourceId ?? context?.buffSourceId;
+      const finishSourceId =
+        context?.actionSourceId ?? context?.buffSourceId ?? this.dependencies.sourceId;
       for (const target of targets) {
         if (step.parameters.count === undefined) {
           target.finishByIds(step.parameters.buffIds, step.parameters.reason, finishSourceId);
