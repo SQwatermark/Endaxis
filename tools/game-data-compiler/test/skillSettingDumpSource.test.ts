@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { parseSkillSettingResources } from '../../../packages/game-data-contract/src/skillSettingResources.ts';
 import {
   parseSkillSettingDumpSource,
   parseSkillSettingResourceSource,
@@ -6,6 +7,10 @@ import {
 } from '../src/source/skillSettingDumpSource.ts';
 
 const dump = `MonoBehaviour Base
+\tfloat atbRecoverInterval = 0.5
+\tfloat atbGainEfficiency = 1
+\tfloat atbConsumedDefaultUspGainSelf = 0.065
+\tfloat atbConsumedDefaultUspGainOther = 0.065
 \tSpellInflictionData spellInflictionDataList
 \t\tArray Array
 \t\tint size = 1
@@ -55,6 +60,15 @@ describe('SkillSetting TypeTree source', () => {
     expect(
       parseSkillSettingResourceSource(resources.replace('0.5', '0'), 'zero').atbRecoverInterval,
     ).toBe(0);
+  });
+
+  it('generated resource JSON requires all finite fields and rejects extras', () => {
+    const valid = parseSkillSettingResourceSource(resources, 'fixture');
+    expect(parseSkillSettingResources(valid)).toEqual(valid);
+    expect(() => parseSkillSettingResources(undefined)).toThrow();
+    expect(() => parseSkillSettingResources({ ...valid, atbRecoverInterval: undefined })).toThrow();
+    expect(() => parseSkillSettingResources({ ...valid, atbRecoverInterval: '0.5' })).toThrow();
+    expect(() => parseSkillSettingResources({ ...valid, unknown: 1 })).toThrow();
   });
 
   it.each(['NaN', 'Infinity', '-1', '', ' '])('rejects invalid resource values %j', value => {

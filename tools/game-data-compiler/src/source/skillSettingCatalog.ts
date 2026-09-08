@@ -1,3 +1,4 @@
+import { parseSkillSettingResources } from '../../../../packages/game-data-contract/src/skillSettingResources.ts';
 import {
   requireArray,
   requireExactFields,
@@ -30,7 +31,13 @@ export function parseSkillSettingCatalogSource(
   path = 'SkillSettingCatalog',
 ): SkillSettingCatalogSource {
   const root = requireRecord(value, path);
-  requireExactFields(root, new Set(['schemaVersion', 'revision', 'data', 'enhanceFormulas']), path);
+  requireExactFields(
+    root,
+    new Set(['schemaVersion', 'revision', 'data', 'enhanceFormulas', 'resources']),
+    path,
+  );
+  // This catalog consumes only infliction rows; validate any accompanying resource section.
+  if (root.resources !== undefined) parseSkillSettingResources(root.resources);
   if (requireInteger(root.schemaVersion, `${path}.schemaVersion`) !== 1) {
     throw new Error(`${path}.schemaVersion: expected 1`);
   }

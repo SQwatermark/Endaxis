@@ -753,6 +753,20 @@ tmp/public-last-rite-final/project.json；SHA256
 原生命中与后续效果是否正确保留，再顺着附着检查四人的连携开窗。
 这只是调查入口，不是已确认根因；不移动技能、不放宽门禁、不直接按旧总伤害补倍率。
 
+# 2026-09-09 补充：原生资源配置正式接入
+
+已从既有TypeTree预览恢复atbRecoverInterval=0.5等四个根资源标量，新增公共纯数据契约及
+严格校验，生成器必须导出resources。附着子集可独立查表，但产品与候选模拟必须提供资源段。
+editorSimulationService不再注入1.5；候选干员、装备上轴审计同步读取候选资源，不借正式值。
+原始预览哈希及其附着子集与正式版本一致性核对见current-context.md。
+
+重算报告：`tmp/public-native-resource-settings.json`、`tmp/private-native-resource-settings.json`。
+公开伤害821184.9467385851/79命中、诊断14/8/0不变；私有三条伤害/命中亦不变、执行均0。
+sc_zpm5ozw的818/1602帧赛希战技resourceUnavailable告警消失（27→25），其他原因未改。
+公开首段16帧战技后恢复从62帧提前至32帧，满技力2526→2376帧。输入未修改。
+定向正式入口测试以3帧战技验证19帧恢复，覆盖页面/后台共同装配而非手工注入服务常量。
+未做资源曲线视觉检查；当前完整重建候选审计未实跑，不能用入口改接声明全部候选通过。
+
 # 2026-09-09 补充：公开原轴技力分类账与暂停来源边界
 
 输入仍为`tmp/public-resource-old.log`和`tmp/public-resource-gate-fixed.json`，不修改

@@ -1,12 +1,8 @@
 import { createHash } from 'node:crypto';
+import type { SkillSettingResources } from '../../../../packages/game-data-contract/src/skillSettingResources.ts';
 
 /** Native resource scalars, kept separate from the infliction lookup table. */
-export interface SkillSettingResourceSource {
-  readonly atbRecoverInterval: number;
-  readonly atbGainEfficiency: number;
-  readonly atbConsumedDefaultUspGainSelf: number;
-  readonly atbConsumedDefaultUspGainOther: number;
-}
+export type SkillSettingResourceSource = SkillSettingResources;
 
 export function parseSkillSettingResourceSource(
   text: string,
@@ -31,6 +27,7 @@ export function parseSkillSettingResourceSource(
 }
 
 export interface SkillSettingDumpSource {
+  readonly resources: SkillSettingResources;
   readonly data: readonly {
     readonly key: string;
     readonly values: readonly number[];
@@ -133,7 +130,12 @@ export function parseSkillSettingDumpSource(
     if (entry.enhanceFormulaKey !== '' && !formulaKeys.has(entry.enhanceFormulaKey))
       throw new Error(`${sourcePath}.${entry.key}: missing formula ${entry.enhanceFormulaKey}`);
   }
-  return { data, enhanceFormulas, sha256: createHash('sha256').update(text).digest('hex') };
+  return {
+    data,
+    enhanceFormulas,
+    resources: parseSkillSettingResourceSource(text, sourcePath),
+    sha256: createHash('sha256').update(text).digest('hex'),
+  };
 }
 
 export function renderSkillSettingDocument(
@@ -142,7 +144,13 @@ export function renderSkillSettingDocument(
 ): string {
   if (revision.length === 0) throw new Error('SkillSetting revision must not be empty');
   return `${JSON.stringify(
-    { schemaVersion: 1, revision, data: source.data, enhanceFormulas: source.enhanceFormulas },
+    {
+      schemaVersion: 1,
+      revision,
+      data: source.data,
+      enhanceFormulas: source.enhanceFormulas,
+      resources: source.resources,
+    },
     null,
     2,
   )}\n`;

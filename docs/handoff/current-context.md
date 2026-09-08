@@ -1,5 +1,23 @@
 # 当前任务快照
 
+## 2026-09-09：SkillSetting资源正式贯通
+
+TypeTree读取/渲染新增resources，正式JSON从已核对预览重生成，附着数据不变。
+公共skillSettingResources契约/校验由源端与消费端共用；附着查表仍只消费自己的子集，
+伴随resources存在时也验证其字段。正式数据入口必读resources，无缺失默认回退。
+页面/后台共用editorSimulationService以及两项候选上轴审计均使用导出暂停0.5、
+gainEfficiency=1、self/other=0.065，移除原1.5与构造默认注入。
+
+公开原轴tmp/public-native-resource-settings.json及私有三轴tmp/private-native-resource-settings.json
+全部伤害/命中不变、执行异常0；第三私有轴availability27→25，其余诊断计数不变。
+公开首段16帧战技之后自动恢复62→32帧，满技力2526→2376帧。没有修改原始输入。
+新增正式入口回归3帧扣费后19帧首次恢复；生产回归19项、来源10项通过。架构/契约边界
+与附着读取组合33项通过（其中来源更新前为9项）；无跳过或预期失败。不宣称已做视觉验收。
+有一次误在架构检查未结束时启动定向小测试，后续大型类型检查已恢复串行，不再并发。
+最终编译器完整tsc、应用vue-tsc均通过；同源再生成结构一致。五个定向文件当前合计53项
+通过（分批执行，不是全套）；第三私有轴减少的两项是818/1602帧赛希战技resourceUnavailable。
+完整候选生成/候选审计本轮未运行，勿宣称全部游戏数据重建门禁已验收。无combat-spec修改。
+
 ## 2026-09-09：已找到SkillSetting暂停0.5来源，严格读取已补、生产尚未接入
 
 tmp/skillsetting-current-preview.txt包含atbRecoverInterval=0.5、atbGainEfficiency=1、

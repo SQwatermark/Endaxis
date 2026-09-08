@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { parseSkillSettingResources } from '../../../packages/game-data-contract/src/skillSettingResources.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -185,14 +186,18 @@ export async function auditCandidateOperatorSkills(args: AuditArguments) {
       throw new Error('candidate library placement identity is not unique');
     }
 
+    const nativeResources = parseSkillSettingResources(rawSkillSettings.resources);
     const service = new serviceModule.ScenarioSimulationService({
       index: repository,
       repositoryRevision: 'candidate-operator-simulation-audit',
       resources: {
-        sharedSpGain: { baseGainEfficiency: 1 },
-        spRecoveryPauseDuration: 1.5,
+        sharedSpGain: { baseGainEfficiency: nativeResources.atbGainEfficiency },
+        spRecoveryPauseDuration: nativeResources.atbRecoverInterval,
         ultimateEnergySystemUnlocked: true,
-        normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+        normalSkillUltimateEnergy: {
+          selfGainPerSp: nativeResources.atbConsumedDefaultUspGainSelf,
+          otherGainPerSp: nativeResources.atbConsumedDefaultUspGainOther,
+        },
       },
       elementalInflictionDocument: attachmentModule.elementalAttachments,
       spellInflictionSettings: skillSettingModule.parseSkillSettings(rawSkillSettings),

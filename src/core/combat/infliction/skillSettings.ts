@@ -2,6 +2,7 @@
  * 原生 SkillSetting 中已确认子集进入复合状态计算的严格边界。
  * 这里只暴露工厂实际消费的字段，调用方不能凭此假定完整原生资源已经被支持。
  */
+import { parseSkillSettingResources } from '../../../../packages/game-data-contract/src/skillSettingResources';
 export const SKILL_SETTINGS_SCHEMA_VERSION = 1;
 
 /** 复合状态强度计算当前支持的原生公式。 */
@@ -33,7 +34,8 @@ export interface SkillSettingsDocument {
 /** 原生 `SkillSetting` 资源生成子集进入核心前的严格边界。 */
 export function parseSkillSettings(input: unknown): SkillSettingsDocument {
   const root = requireObject(input, '$');
-  requireOnlyKeys(root, '$', ['schemaVersion', 'revision', 'data', 'enhanceFormulas']);
+  requireOnlyKeys(root, '$', ['schemaVersion', 'revision', 'data', 'enhanceFormulas', 'resources']);
+  if (root.resources !== undefined) parseSkillSettingResources(root.resources);
   if (root.schemaVersion !== SKILL_SETTINGS_SCHEMA_VERSION) {
     throw new Error(`$.schemaVersion: expected ${SKILL_SETTINGS_SCHEMA_VERSION}`);
   }

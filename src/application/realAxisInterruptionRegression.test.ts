@@ -4,6 +4,7 @@ import type { TrackDocument } from '../core/project/schema';
 import { gameDataRepository } from '../data/gameDataRepository';
 import { skillSettings } from '../data/combat/skillSettings';
 import { ScenarioSimulationService } from './scenarioSimulationService';
+import { createEditorSimulationService } from './editorSimulationService';
 
 const resources = {
   sharedSpGain: { baseGainEfficiency: 1 },
@@ -11,6 +12,20 @@ const resources = {
   ultimateEnergySystemUnlocked: true,
   normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
 };
+
+it('正式编辑器装配从导出SkillSetting读取技力恢复暂停', async () => {
+  const scenario = createEmptyScenario('native-resource-settings', '导出恢复暂停');
+  scenario.tracks[0] = track('xaihi', [['battleSkill', 'battleSkill', 3]]);
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 80);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  const firstRecovery = result.receiptEntries.find(
+    e => e.event === 'SpChanged' && e.frame > 3 && e.data?.source === 'autoRecovery',
+  );
+  // Fifteen full paused ticks after the cast; the following frame resumes recovery.
+  expect(firstRecovery?.frame).toBe(19);
+});
 
 it('艾尔黛拉非主控连携的投射物命中仍回复终结技能量', async () => {
   const scenario = createEmptyScenario('ardelia-combo-energy', '非主控连携回能');

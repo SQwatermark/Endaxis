@@ -1,6 +1,6 @@
 import { ScenarioSimulationService } from './scenarioSimulationService';
 import { gameDataRepository } from '../data/gameDataRepository';
-import { skillSettings } from '../data/combat/skillSettings';
+import { skillSettings, skillSettingResources } from '../data/combat/skillSettings';
 import type { ProjectDefinitionLibraryDocument } from '../core/project/schema';
 
 /** 页面与后台线程共用同一装配，不在传输层重写战斗规则。 */
@@ -16,11 +16,13 @@ export function createEditorSimulationService(library?: ProjectDefinitionLibrary
     repositoryRevision: gameDataRepository.revision,
     spellInflictionSettings: skillSettings,
     resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
+      sharedSpGain: { baseGainEfficiency: skillSettingResources.atbGainEfficiency },
+      spRecoveryPauseDuration: skillSettingResources.atbRecoverInterval,
       ultimateEnergySystemUnlocked: true,
-      // SkillSetting 构造函数的 atbConsumedDefaultUspGainSelf/Other 默认值。
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+      normalSkillUltimateEnergy: {
+        selfGainPerSp: skillSettingResources.atbConsumedDefaultUspGainSelf,
+        otherGainPerSp: skillSettingResources.atbConsumedDefaultUspGainOther,
+      },
     },
   });
 }

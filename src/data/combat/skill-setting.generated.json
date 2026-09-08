@@ -132,5 +132,11 @@
       "paramA": 2,
       "paramB": 300
     }
-  ]
+  ],
+  "resources": {
+    "atbRecoverInterval": 0.5,
+    "atbGainEfficiency": 1,
+    "atbConsumedDefaultUspGainSelf": 0.065,
+    "atbConsumedDefaultUspGainOther": 0.065
+  }
 }
