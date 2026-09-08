@@ -1,6 +1,8 @@
 import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { PublishedOperatorMetadata } from './publishedOperatorMetadata';
+import { capturePublishedOperatorMetadata } from './publishedOperatorMetadata';
+import { arcane } from '../../data/operators/arcane';
 import { capturePublishedWeaponSources, resolvePublishedBuffSource } from './publishedBuffSource';
 
 it('captures native weapon presentation identity and custom names without retaining mutable definitions', () => {
@@ -63,6 +65,16 @@ const metadata: PublishedOperatorMetadata = {
   potentials: [{ levels: 1, passiveKeys: ['passive-p'] }],
 };
 const operators = new Map([['custom', metadata]]);
+
+it('captures the generated Arcane replacement skill through the shared definition traversal', () => {
+  const original = structuredClone(scenario);
+  original.tracks[0]!.operator!.operatorSlug = 'arcane';
+  const captured = capturePublishedOperatorMetadata(original, { getOperator: () => arcane });
+  expect(captured.get('arcane')?.skillKeys).toContain('arcana');
+  expect(
+    resolvePublishedBuffSource({ sourceActionId: 'arcana', sourceId: 'track' }, original, captured),
+  ).toEqual({ kind: 'skill', slug: 'arcane', key: 'arcana', fallbackKey: 'ultimate' });
+});
 
 it('keeps the skill identity while carrying its own level-source title fallback', () => {
   const withTitles = new Map([

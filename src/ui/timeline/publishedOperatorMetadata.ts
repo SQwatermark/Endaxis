@@ -1,4 +1,5 @@
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+import { listOperatorSkillDefinitionBindings } from '../../core/game-data/operatorSkillDefinitions';
 import type { ScenarioDocument } from '../../core/project/schema';
 import type { TimelineOperatorIndex } from './timelineEditorViewModel';
 
@@ -28,6 +29,7 @@ export function capturePublishedOperatorMetadata(
     if (slug === undefined || result.has(slug)) continue;
     const definition = index.getOperator(slug);
     if (definition === null) continue;
+    const skills = listOperatorSkillDefinitionBindings(definition).map(binding => binding.skill);
     result.set(slug, {
       slug: definition.slug,
       assetSlug: definition.assetSlug ?? slug,
@@ -40,15 +42,11 @@ export function capturePublishedOperatorMetadata(
         levels,
         passiveKeys: (passiveSkills ?? []).map(skill => skill.key),
       })),
-      skillKeys: definition.skillGroups.flatMap(group =>
-        (Array.isArray(group.skills) ? group.skills : [group.skills]).map(skill => skill.key),
-      ),
+      skillKeys: skills.map(skill => skill.key),
       skillLevelSources: Object.fromEntries(
-        definition.skillGroups.flatMap(group =>
-          (Array.isArray(group.skills) ? group.skills : [group.skills])
-            .filter(skill => skill.levelSource !== undefined)
-            .map(skill => [skill.key, skill.levelSource!]),
-        ),
+        skills
+          .filter(skill => skill.levelSource !== undefined)
+          .map(skill => [skill.key, skill.levelSource!]),
       ),
     });
   }
