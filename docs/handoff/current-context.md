@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-09：正式原轴浏览器恢复，明确实际伤害与期望总账
+
+通过现有 IAB 的受支持接口打开 tmp/public-full-visual.html，正式 TimelineEditor 已
+实际渲染；本轮未使用此前无法识别 URL 的 Windows Chrome 路径。深色截图看到原轴
+开场技能、告警、灼热到寒冷转换图标、腐蚀及敌方增益持续段；仅看过开场可见区域，
+不是整轴/hover 验收通过。默认窄视口下用 SCALE 30% 和收起准备区查看（仅隔离页
+显示操作，未改磁盘原轴）。后续需横向检查后半轴及效果详情、状态来源。
+
+重要口径补充：此前 812599.9702752624 是 77 笔 expectedDamage 之和，不是实际扣血。
+同一回执 value 合计 792780.458805134，actualDamage 合计 792780.458805133；页面
+剩余血量 9,207,220/10,000,000 与实际扣血吻合。不能因此修改模拟或概率采样。
+timelineDamageAnalysis 使用 value，TimelineHitDetailDialog 的 headline 使用 expectedDamage，
+TimelineEnemyEffects 标记亦优先 expectedDamage。不同入口的统计语义还需明确核对旧版
+并形成一致展示设计；本轮仅定位，未修复。无生产改动/新测试；未推送。
+
 ## 2026-09-09：修复敌人时间轴把原生隐藏计算Buff画成额外条
 
 原轴四二式will_icon是头顶可见状态，will_dmg/will_atk虽hasIcon=true却明确
