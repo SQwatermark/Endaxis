@@ -1,5 +1,32 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：别礼41笔普攻重击检查与守墓人之赠归因
+
+原始公开轴、不改主控的最新伤害插桩报告为tmp/public-splash-fixed-damage-audit.json，
+对应溅射修复后的77笔基线。旧basicAttack+finalStrike、新basicAttack均41笔，
+合计旧626663、新272965.264821762。逐序检查41笔攻击力均5742；普通A1/A2及重击
+倍率一致，A3旧76.5%/新77%为此前已证明的display_atk_scale与实际atk_scale区别。
+首笔旧3896、新3896.4499035还包含旧伤害取整与新版小数输出的区别。
+这些检查不代表所有时间、增益乘区和抗性跳变均已闭合。
+
+新增明确差项是旧0-based命中5/17/29的“守墓人之赠”普通增伤0.20。旧只读
+src/data/operators/last-rite.ts的potentials[0]：队伍finalStrike增伤20，只判断
+lastrite-hypothermic-perfusion存在，没有受益者主控条件。
+原始BuffData/buff_chr_0026_lastrite_normal_skill.json SHA256
+1d307834484673e5f62f6b72dbaed7f0dbbede4d60317f9a02de8059e5ef98a7，damageModifier[0]
+依次要求CheckMainCharacterCondition(Owner)、重击mask2097152、potential_1==1，
+再将atk_up加入NormalCalcZone。生成定义已保留三项条件，并非潜能漏转换。
+原轴别礼不是主控，因此这三笔不能补旧0.20。
+
+正式服务新增两组回归：真实战技1帧、重击100帧，主控/非主控各自比较潜能0/1。
+每组确认自身战技Buff已应用、重击实际命中、输入不变、执行异常0；主控潜能增伤
+乘区差0.20，非主控差0。初版测试错写controlSwitches层级及重击step路径，按当前
+schema与真实回执修正测试，未放宽断言或改生产规则。格式化后文件38项通过，
+无跳过/预期失败；未跑完整类型检查、全套测试或新视觉。combat-spec无改动。
+
+剩余入口：逐击复核腐蚀抗性档位（例如第12/14/16笔新旧档位不同）及临界时序，
+整理已证增益的逐段生效区间。不要仅凭同数量或已证守墓人条件宣布41笔全部闭合。
+
 ## 2026-09-09：修复艾尔黛拉连携把半额溅射重复算给主目标
 
 原始公开轴艾尔黛拉连携旧4笔（每次100%+250%），新版错误地有6笔（每次另加125%）。

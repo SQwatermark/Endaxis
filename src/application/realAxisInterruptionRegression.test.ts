@@ -89,6 +89,44 @@ it.each([
   },
 );
 
+it.each([true, false])('守墓人之赠重击增伤要求受益者为主控（主控=%s）', async controlled => {
+  const scales: number[] = [];
+  for (const potential of [0, 1]) {
+    const scenario = createEmptyScenario('last-rite-potential-heavy', '潜能重击增伤主控条件');
+    scenario.tracks[0] = track('arcane', []);
+    const owner = track('last-rite', [
+      ['battleSkill', 'battleSkill', 1],
+      ['basicAttack', 'basicAttack4', 100],
+    ]);
+    owner.operator!.potential = potential;
+    scenario.tracks[1] = owner;
+    scenario.battle.controlSwitches = [
+      { id: 'diagnostic-control', frame: 0, trackIndex: controlled ? 1 : 0 },
+    ];
+    const before = JSON.stringify(scenario);
+    const result = await createEditorSimulationService().simulate(scenario, 200);
+    expect(JSON.stringify(scenario)).toBe(before);
+    expect(result.executionDiagnostics).toEqual([]);
+    expect(
+      result.receiptEntries.some(
+        e =>
+          e.event === 'BuffApplied' &&
+          e.targetId === 'last-rite' &&
+          e.data?.buffId === 'buff_chr_0026_lastrite_normal_skill',
+      ),
+    ).toBe(true);
+    const hits = result.receiptEntries.filter(
+      e =>
+        e.event === 'DamageApplied' &&
+        e.data?.castId === 'last-rite:basicAttack4' &&
+        e.data?.stepKey === 'chr_0026_lastrite_attack4:/scheduledSequences/2/sequence/steps/0',
+    );
+    expect(hits).toHaveLength(1);
+    scales.push(Number(hits[0]!.data?.damageScaleMultiplier));
+  }
+  expect(scales[1]! - scales[0]!).toBeCloseTo(controlled ? 0.2 : 0);
+});
+
 it('艾尔黛拉非主控连携的投射物命中仍回复终结技能量', async () => {
   const scenario = createEmptyScenario('ardelia-combo-energy', '非主控连携回能');
   scenario.tracks[0] = track('arcane', []);
