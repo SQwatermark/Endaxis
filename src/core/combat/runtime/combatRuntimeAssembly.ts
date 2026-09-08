@@ -503,8 +503,8 @@ export class CombatRuntimeAssembly {
   readonly #passiveSequences: ActionSequence[] = [];
   /** 原生被动 Ability 持有的 asChildBuff；被动在整场固定战斗中常驻。 */
   readonly #passiveAbilityChildBuffs: BuffApplicationHandle[] = [];
-  /** 不依赖施法实例的 Buff 生命周期按动作身份回到原解释链。 */
-  readonly #reactiveOperationBindings = new Map<string, CombatOperationExecutor>();
+  /** 只复用解释链的构造上下文；每个 Buff 实例必须独占有状态的动作执行器。 */
+  readonly #reactiveOperationBindings = new Map<string, () => CombatOperationExecutor>();
   readonly #castOperationBindings = new Map<
     string,
     readonly {
@@ -2102,10 +2102,10 @@ export class CombatRuntimeAssembly {
         : candidates.find(candidate => candidate.program.skillId === cast.originSkillId);
     if (binding === undefined && cast?.originCastId === undefined) {
       for (const operatorId of [source.sourceId, source.definitionOwnerId, source.ownerId]) {
-        const operations = this.#reactiveOperationBindings.get(
+        const createOperations = this.#reactiveOperationBindings.get(
           `${operatorId}\u0000${source.sourceActionId}`,
         );
-        if (operations !== undefined) return operations;
+        if (createOperations !== undefined) return createOperations();
       }
     }
     if (binding === undefined) {
@@ -2768,7 +2768,9 @@ export class CombatRuntimeAssembly {
     reactiveOperations = withTerminalPreparation(operationChain, terminal);
     const bindingKey = `${operatorId}\u0000${sourceActionId}`;
     if (!this.#reactiveOperationBindings.has(bindingKey)) {
-      this.#reactiveOperationBindings.set(bindingKey, reactiveOperations);
+      this.#reactiveOperationBindings.set(bindingKey, () =>
+        this.#createReactiveOperationChain(operator, sourceActionId, terminal, options),
+      );
     }
     return reactiveOperations;
   }

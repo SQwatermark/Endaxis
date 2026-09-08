@@ -14,6 +14,52 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  // 已由原生 FillSkillCastInfo 证实；待先拆分 SkillAffix 的 processing-skill 身份。
+  // fails 是已知缺陷的可执行复现，不代表生产逻辑已修复。
+  it.fails.each([false, true])('CreateBuff继承动作环境而非触发事件，宿主来源存在=%s', hasHost => {
+    const apply = vi.fn((_request: unknown) => true);
+    const target = Object.assign(new CombatBuffContainer('caster', new CombatAttributeSet()), {
+      apply,
+    });
+    const executor = new BuffOperationExecutor({
+      sourceId: 'caster',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const host = {
+      skillCastId: 7,
+      originSkillId: 'battle',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 100,
+    };
+    const event = {
+      skillCastId: 9,
+      originSkillId: 'a4',
+      originSkillType: 'basicAttack' as const,
+      nonReturnedSpCost: 0,
+    };
+    for (const eventSkillCastInfo of [undefined, null, event]) {
+      for (const inheritSourceSkillCastInfo of [false, true]) {
+        apply.mockClear();
+        executor.execute(
+          {
+            kind: 'applyBuff',
+            parameters: { buffId: 'phantom', target: 'caster', inheritSourceSkillCastInfo },
+          },
+          {
+            blackboard: new ActionBlackboard(),
+            ...(hasHost ? { skillCastInfo: host } : {}),
+            ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
+          },
+        );
+        expect(apply).toHaveBeenCalledOnce();
+        expect(apply.mock.calls[0]![0]).toMatchObject({ sourceId: 'caster' });
+        expect((apply.mock.calls[0]![0] as { skillCastInfo?: unknown }).skillCastInfo).toEqual(
+          hasHost && inheritSourceSkillCastInfo ? host : undefined,
+        );
+      }
+    }
+  });
   it('按 ID 结束未存在的实例不要求装载该 Buff 定义', () => {
     const target = new CombatBuffContainer('caster', new CombatAttributeSet());
     const finish = vi.spyOn(target, 'finishByIds');

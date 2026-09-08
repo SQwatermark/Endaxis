@@ -2270,6 +2270,7 @@ describe('CombatRuntimeAssembly', () => {
         get: () => undefined,
         compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
       });
+      const configureLifecycle = vi.spyOn(buffRuntime, 'configureLifecycleOperations');
       const sequence = {
         steps: [
           {
@@ -2341,6 +2342,17 @@ describe('CombatRuntimeAssembly', () => {
       const child = buffs.buffs[0]!;
       expect(child.sourceId).toBe('operator');
       expect(child.isFinished).toBe(false);
+      // 无施法来源的装备被动也必须为每个 Buff 分配独立的有状态执行链。
+      const resolveOperations = configureLifecycle.mock.calls[0]![0];
+      const source = {
+        ownerId: child.owner.ownerId,
+        sourceId: child.sourceId,
+        definitionOwnerId: child.definitionOwnerId,
+        sourceActionId: child.sourceActionId,
+        skillCastInfo: child.skillCastInfo,
+      };
+      expect(child.skillCastInfo).toBeNull();
+      expect(resolveOperations(source)).not.toBe(resolveOperations(source));
       expect(assembly.receipt.entries).toContainEqual(
         expect.objectContaining({
           event: 'OperatorUpgradeInitialized',

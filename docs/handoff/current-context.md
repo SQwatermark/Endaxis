@@ -1,5 +1,27 @@
 # 当前任务快照
 
+## 2026-09-09：赫拉芬格来源缺陷已确认，SkillAffix前置债务必须先拆
+
+CreateBuff原生读取动作环境FillSkillCastInfo，而当前解释器优先读取事件来源，导致别礼
+普攻触发的战技幻影被归成普攻，漏掉赫拉芬格0.16。直接修正后定向通过，但全量7项
+武器/套装/阿克库里回归失败：SkillAffix错误依赖普通来源作附着编号。来源修改已撤回，
+不以已知回归换取单轴正确。两项单元及一项真实别礼测试用it.fails明确保存已知缺陷。
+
+正式保留：无施法来源的被动Buff生命周期执行链改成按实例创建，不共享finishByAction
+等状态。装备初始化工厂隔离及诀真实装备回归已加入，定向143项（含3项预期失败）通过。
+来源修复实验1870839.2218/97笔不是正式伤害；正式主控对照仍以前轮1825092.0127为基线。
+
+下一步不是继续猜赫拉芬格条件，而是按combat-spec/docs/skill-affix-identity-2026-09-04.md
+拆分processing-skill/affix/ordinary source身份：先临时processing技能、再当前技能；
+无技能动作失败，不伪造来源；同步转换声明、构造、结束条件和编辑器语义。之后恢复
+CreateBuff来源修正，去掉三项fails，重跑武器装备、阿克库里、公开轴和三个用户轴。
+详细原生RVA、失败项、实验边界见tools/legacy-timeline/public-share-evidence.md最新节。
+
+最终回归tmp/buff-instance-final-suite.json：7137通过（含3项预期失败）、2项原有跳过，
+无失败；排除了architectureBoundaries与candidateTypeCheck两个重型类型图文件，本轮
+没有重跑这11项。不要把本轮结果写成SkillAffix或来源修复完成。
+应用vue-tsc与git diff --check通过；combat-spec无修改，本轮不推送。
+
 ## 2026-09-09续查：终结技首击差額分解，确认两项原生Buff时钟差异
 
 别赛羊诀主控诊断对照的别礼终结技首击118699.7591对旧217937，已经拆到增伤、脆弱、

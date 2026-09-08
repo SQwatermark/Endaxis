@@ -1,5 +1,58 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：确认CreateBuff来源缺陷；先隔离被动Buff执行状态，来源修复尚未落地
+
+上一节赫拉芬格分支已定位为新版公共运行时缺陷。原始
+`BuffData/buff_chr_0026_lastrite_normal_skill.json` 创建幻影时
+`inheritSourceSkillCastInfo=true`，SHA256
+`1D307834484673E5F62F6B72DBAED7F0DBBEDE4D60317F9A02DE8059E5EF98A7`。
+战技Buff由普攻末段的beforeOutputDamage唤起，但创建动作的环境仍是战技Buff。
+
+现有 combat-spec/docs/create-buff-action-data.md 已依据 CreateBuffAction.ExecuteInternal
+RVA 0x035F1D60 证明继承读取 actionEnvironment.FillSkillCastInfo；
+buff-ability-event-actions.md 证明Buff事件动作仍使用该Buff环境；
+origin-skill-event-context.md 又明确区分“条件读事件来源”和“创建Buff读自身环境”。
+不需要新增机制猜测或改复刻库。
+
+Endaxis BuffOperationExecutor 错误地优先选择 eventSkillCastInfo，甚至事件已知空来源时
+会覆盖非空宿主来源。实验改为仅继承 context.skillCastInfo 后定向测试通过，但全量
+7139项中7项失败、7130通过、2跳过：suit_atk02、wpn_funnel_0006/0011和阿克库里的
+SkillAffix把普通来源误用作附着编号，真实无普通来源时构造抛错。故已撤回来源修改，
+不能把下面的实验伤害当成正式结果。新增两项单元测试和一项别礼生产数据测试明确用
+it.fails记录已知缺陷（不是修复通过），实现正确后必须去掉fails；未给干员加例外。
+
+正确继承使装备被动所创建Buff保留原生无施法来源，进一步暴露装配层的问题：
+#reactiveOperationBindings 原先直接复用整个有状态解释链，多个Buff实例的同一
+finishByAction步骤会争用 WeakMap 状态。真实诀武器 wpn_funnel_0016 的多个 will_dmg
+及子图标链因此抛出 action-duration applyBuff step is already active。现登记构造工厂，
+每个Buff生命周期请求创建独立执行器外层，保持原有末端能力与来源上下文，不以事件施法ID
+制造伪隔离。生产数据回归使用两次诀连携和原轴同类构筑，证明多个will_dmg实例能够共存。
+
+仅在来源修复实验中，最小别礼回归证明：普攻末段触发的附着仍归战技cast，赫拉芬格normal_skill增益同帧施加，
+原始用户输入未变化。全轴主控对照125/439/780帧附着现归对应battleSkill，0.16Buff恢复；
+97笔伤害、1870839.2218356298，较此前1825092.0127387715增加45747.2090968583，
+可用性32/窗口0/执行0。报告 tmp/public-last-rite-inheritance-fixed.json；这仍是仅切主控的
+诊断对照，且来源修改已撤回，不能称作正式版本或原轴已达到该伤害。
+
+### 下一步：解除SkillAffix与普通来源的混用，再落地来源修正
+
+combat-spec/docs/skill-affix-identity-2026-09-04.md 已证明 SkillAffixAction
+0x03C45E10 读取owner.curProcessingSkill；get_curProcessingSkill 0x0474AC30先取
+临时processing值，再取currentSkill。Buff.affixSkillCastId与普通SkillCastInfo分别存储，
+无正在处理的技能时动作返回false，不是伪造来源或构造抛错。
+当前Endaxis定义affixSkillCastIdentity='sourceSkillCast'、Buff构造和自动skillEnd条件
+仍依赖普通来源。必须同步改公共定义/转换/运行时消费，并覆盖beforeCast的临时技能、
+当前技能回退、无技能、Buff普通来源不同、跨干员、结束匹配；不能从任意事件复制编号。
+原生弹体/能力实体/输出Buff引用延长寿命仍有建模边界，不宣称完整SkillAffix已实现。
+
+本轮正式保留的是执行器工厂隔离及回归：装备初始化的无来源Buff连续解析得到不同
+执行链，诀真实装备的多个will_dmg正常创建。三份定向测试143项通过，其中3项是上述
+已知缺陷的预期失败；不可把143项全部表述为功能已实现。
+
+最终套件tmp/buff-instance-final-suite.json：7137通过（包含3项it.fails）、2项原有跳过、
+0失败；排除architectureBoundaries.test.ts/candidateTypeCheck.test.ts的11项重型类型图
+检查，本轮未重跑。正式逻辑没有保留导致7项回归失败的来源试改。
+
 ## 2026-09-09续查：别礼终结技首击差額已分解到增益来源，腐蚀/赛希时钟不照抄旧版
 
 以0帧别礼主控的诊断对照继续查，而非修改原轴。固定后的报告
