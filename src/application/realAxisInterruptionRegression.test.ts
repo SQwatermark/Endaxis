@@ -66,6 +66,29 @@ it('别礼非主控战技跳转到支援分支并在同帧通过Buff启动返还
   );
 });
 
+it.each([
+  ['basicAttack2', 2, 30],
+  ['basicAttack3', 2, 37],
+  ['basicAttack3', 12, 77],
+] as const)(
+  '别礼%s等级%i按实际单击黑板倍率而非显示总倍率均分',
+  async (skillId, level, multiplier) => {
+    const scenario = createEmptyScenario('last-rite-hit-scale', '实际倍率与显示倍率');
+    const owner = track('last-rite', [['basicAttack', skillId, 10]]);
+    owner.operator!.skillLevels.basicAttack = level;
+    scenario.tracks[0] = owner;
+    const before = JSON.stringify(scenario);
+    const result = await createEditorSimulationService().simulate(scenario, 120);
+    expect(JSON.stringify(scenario)).toBe(before);
+    expect(result.executionDiagnostics).toEqual([]);
+    const hits = result.receiptEntries.filter(
+      e => e.event === 'DamageApplied' && e.data?.castId === `last-rite:${skillId}`,
+    );
+    expect(hits).toHaveLength(2);
+    for (const hit of hits) expect(hit.data?.skillMultiplierPercent).toBeCloseTo(multiplier);
+  },
+);
+
 it('艾尔黛拉非主控连携的投射物命中仍回复终结技能量', async () => {
   const scenario = createEmptyScenario('ardelia-combo-energy', '非主控连携回能');
   scenario.tracks[0] = track('arcane', []);
