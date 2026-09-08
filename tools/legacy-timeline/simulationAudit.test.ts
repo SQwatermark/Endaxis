@@ -13,6 +13,49 @@ function hit(frame: number, damage: number): CombatReceiptEntry {
   };
 }
 
+it('伤害审计同时保留强制执行的告警及原始证据，两种截止范围各自投影', async () => {
+  const scenario = createEmptyScenario('warnings', '告警并非拒绝输入');
+  scenario.battle.durationFrames = 100;
+  scenario.battle.simulationRange = { endFrame: 50 };
+  const warning = (frame: number, event: string, data = {}): CombatReceiptEntry => ({
+    sequence: frame,
+    frame,
+    time: frame / 30,
+    event,
+    sourceId: 'track:operator',
+    data: { skillId: 'comboSkill', castId: 'requested', ...data },
+  });
+  const entries = [
+    warning(1, 'SkillCostUnavailableAtStart'),
+    warning(2, 'SkillInputCannotInterruptCurrentSkill', {
+      currentSkillId: 'basicAttack3',
+      currentSkillTimelineFrame: 21,
+    }),
+    warning(3, 'SkillInputProcessed', { accepted: true }),
+    hit(4, 10),
+    warning(60, 'ComboWindowUnavailableAtStart', { reason: 'windowMissing' }),
+    warning(61, 'SkillCostRejected'),
+  ];
+  const before = structuredClone(entries);
+  const report = await auditScenarioSimulation(
+    {
+      simulate: async (_scenario, endFrame) => ({
+        receiptEntries: entries.filter(e => e.frame <= endFrame),
+      }),
+    },
+    scenario,
+  );
+  expect(report.configured.diagnostics.availability).toHaveLength(2);
+  expect(report.configured.diagnostics.comboWindow).toEqual([]);
+  expect(report.configured.diagnostics.execution).toEqual([]);
+  expect(report.configured.diagnostics.evidence).toEqual(entries.slice(0, 2));
+  expect(report.fullDuration.diagnostics.comboWindow[0]?.reasons).toEqual(['windowMissing']);
+  expect(report.fullDuration.diagnostics.execution[0]?.reasons).toEqual(['costPaymentRejected']);
+  expect(report.fullDuration.diagnostics.evidence.map(e => e.sequence)).toEqual([1, 2, 60, 61]);
+  expect(report.configured.expectedDamage).toBe(10);
+  expect(entries).toEqual(before);
+});
+
 it('分别计算存档结束线与完整时长，保留尾部无 castId 的伤害', async () => {
   const scenario = createEmptyScenario('audit', '审计');
   scenario.battle.durationFrames = 3600;

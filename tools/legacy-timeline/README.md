@@ -85,6 +85,10 @@ node --experimental-strip-types tools/legacy-timeline/auditSimulation.ts tmp/con
 不根据旧结果补发伤害。没有 castId 的 DamageApplied 也计入，缺失 expectedDamage 则明确失败。
 统计的是各次运行产生的全部伤害回执，不另按展示区间过滤，也不代表旧版同口径总伤害。
 
+每种截止范围同时输出 diagnostics：availability、comboWindow、execution 直接复用正式
+投影，evidence 保留其引用的原始回执（含局部技能帧、期望路由等字段）。强制输入成功或
+有伤害不意味着没有告警；审计器不另造游戏检查、不修改输入以消除告警。
+
 2026-09-08 台式机复现发现：方案 6 的存档结束线为 2231 帧，而白天 1906578.3956401418
 采用完整 3600 帧。诀连携能力实体在第 2237 帧还有一次 30146.527165223935 期望伤害；
 按存档结束线为 264 条 / 1876431.868474918，完整时长为 265 条 / 1906578.3956401418。

@@ -1,5 +1,8 @@
 import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
 import type { ScenarioDocument } from '../../src/core/project/schema';
+import { projectSkillAvailabilityDiagnostics } from '../../src/core/projection/skillAvailabilityDiagnostics';
+import { projectComboWindowDiagnostics } from '../../src/core/projection/comboWindowDiagnostics';
+import { projectSkillExecutionDiagnostics } from '../../src/core/projection/skillExecutionDiagnostics';
 
 interface SimulationReader {
   simulate(
@@ -27,6 +30,22 @@ function damageEntries(entries: readonly CombatReceiptEntry[]) {
         expectedDamage,
       };
     });
+}
+
+/** 与正式技能块使用相同投影；保留关联回执，不在审计器另造判定规则。 */
+function summarizeDiagnostics(entries: readonly CombatReceiptEntry[]) {
+  const availability = projectSkillAvailabilityDiagnostics(entries);
+  const comboWindow = projectComboWindowDiagnostics(entries);
+  const execution = projectSkillExecutionDiagnostics(entries);
+  const sequences = new Set(
+    [...availability, ...comboWindow, ...execution].flatMap(d => d.receiptSequences),
+  );
+  return {
+    availability,
+    comboWindow,
+    execution,
+    evidence: entries.filter(entry => sequences.has(entry.sequence)),
+  };
 }
 
 /** 按回执原始来源拆账；不截取 ID，不把能力实体或无来源伤害猜成某位干员。 */
@@ -83,8 +102,14 @@ export async function auditScenarioSimulation(
       (sum, track) => sum + (track?.skillCasts.length ?? 0),
       0,
     ),
-    configured: summarize(configuredEndFrame, configuredDamage),
-    fullDuration: summarize(fullEndFrame, fullDamage),
+    configured: {
+      ...summarize(configuredEndFrame, configuredDamage),
+      diagnostics: summarizeDiagnostics(configuredRun.receiptEntries),
+    },
+    fullDuration: {
+      ...summarize(fullEndFrame, fullDamage),
+      diagnostics: summarizeDiagnostics(fullRun.receiptEntries),
+    },
     // 包括没有 castId 的公共伤害，不用施法身份作为计入总账的门槛。
     damageAfterConfiguredEnd: fullDamage.filter(entry => entry.frame > configuredEndFrame),
   };
