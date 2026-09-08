@@ -1,5 +1,21 @@
 # 当前任务快照
 
+## 2026-09-09：修复ObtainCostAction把技力主控限制误用于终结技能量
+
+完整资源对账发现艾尔黛拉两次连携无回能。原生atbOnlyMainChar=true被公共投影不分资源地
+转成casterControlled；combat-spec Actions/ObtainCostAction.cs明确仅ObtainAtb内检查，
+UltimateSp分支不检查。已将投影守卫限制为resource=sp，来源字段仍完整保留，不加干员特判。
+全31名同源完整重新生成，仅艾尔黛拉、阿列什、萤石正式内容改变（移除错误的回能主控守卫）。
+新测试经来源解析、投影、正式序列运行验证非主控时技力不执行而终结技能量执行；定向三文件
+45项通过，无跳过/预期失败。首次测试误用不存在的runtime.execute，已改真实createSequence入口。
+
+公开原轴tmp/public-resource-gate-fixed.json：艾尔黛拉152/891帧各请求14.45714282989502，
+第二笔上限裁剪，终结技1182帧前能量47.9254274368→76.5，实际扣76.5。伤害/命中仍
+821184.9467385851/79、诊断14/8/0。私有三轴tmp/private-three-resource-gate-fixed.json
+伤害/命中/诊断均与前轮一致。未改输入；新增回能时序与旧固定hit时序仍需独立核对。
+本轮未运行完整类型检查、全套测试或视觉检查；未修改combat-spec（现有规格已证明）。
+艾尔黛拉基础被动Enable时间轴问题仍独立待取证，不由此次主动连携修复替代。
+
 ## 2026-09-09：公开轴9.3925→9.397142回能差额归因
 
 旧分享解码存档已保存赛希/艾尔黛拉ult_charge_eff=144.5；旧normalizers保留传入stats，

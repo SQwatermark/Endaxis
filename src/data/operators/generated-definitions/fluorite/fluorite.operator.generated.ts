@@ -1036,17 +1036,12 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
             },
             'chr_0022_bounda_combo_skill:/scheduledSequences/1/sequence/steps/1',
           ),
-          branch(
-            { kind: 'casterControlled' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'caster',
-              }),
-            ),
-          ),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
         ),
         18,
       ),

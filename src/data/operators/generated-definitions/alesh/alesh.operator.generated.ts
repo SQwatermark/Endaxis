@@ -1083,17 +1083,12 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         38,
         sequence(
-          branch(
-            { kind: 'casterControlled' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp_normal' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'caster',
-              }),
-            ),
-          ),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp_normal' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
           branch(
             { kind: 'casterControlled' },
             sequence(
@@ -1126,17 +1121,12 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         93,
         sequence(
-          branch(
-            { kind: 'casterControlled' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp_normal' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'caster',
-              }),
-            ),
-          ),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp_normal' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
           branch(
             { kind: 'casterControlled' },
             sequence(

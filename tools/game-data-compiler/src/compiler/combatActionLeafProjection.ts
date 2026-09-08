@@ -1646,7 +1646,8 @@ export function compileActionNode(
         ...(action.ignoreUltimateGainScalar ? { ignoreUltimateEnergyGainMultiplier: true } : {}),
       },
     };
-    return action.onlyMainOperator
+    // ObtainCostAction checks atbOnlyMainChar inside ObtainAtb, not its UltimateSp branch.
+    return action.resource === 'sp' && action.onlyMainOperator
       ? [
           {
             kind: 'conditional',

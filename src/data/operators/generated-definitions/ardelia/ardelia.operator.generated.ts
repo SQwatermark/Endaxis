@@ -1415,17 +1415,12 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
                             },
                             'chr_0025_ardelia_combo_skill:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0/body/steps/0/whenTrue/steps/2',
                           ),
-                          branch(
-                            { kind: 'casterControlled' },
-                            sequence(
-                              step('changeResourceByActionValue', {
-                                resource: 'ultimateEnergy',
-                                amount: { kind: 'blackboard', key: 'usp' },
-                                coefficient: { kind: 'constant', value: 1 },
-                                recipient: 'caster',
-                              }),
-                            ),
-                          ),
+                          step('changeResourceByActionValue', {
+                            resource: 'ultimateEnergy',
+                            amount: { kind: 'blackboard', key: 'usp' },
+                            coefficient: { kind: 'constant', value: 1 },
+                            recipient: 'caster',
+                          }),
                         ),
                         sequence(
                           step(
@@ -1438,17 +1433,12 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
                             },
                             'chr_0025_ardelia_combo_skill:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0/body/steps/0/whenFalse/steps/0',
                           ),
-                          branch(
-                            { kind: 'casterControlled' },
-                            sequence(
-                              step('changeResourceByActionValue', {
-                                resource: 'ultimateEnergy',
-                                amount: { kind: 'blackboard', key: 'usp' },
-                                coefficient: { kind: 'constant', value: 1 },
-                                recipient: 'caster',
-                              }),
-                            ),
-                          ),
+                          step('changeResourceByActionValue', {
+                            resource: 'ultimateEnergy',
+                            amount: { kind: 'blackboard', key: 'usp' },
+                            coefficient: { kind: 'constant', value: 1 },
+                            recipient: 'caster',
+                          }),
                         ),
                         { alwaysNext: true },
                       ),

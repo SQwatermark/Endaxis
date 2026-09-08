@@ -141,6 +141,29 @@ function parse(raw: unknown) {
 }
 
 describe('DoOnce 技能资源回复的窄投影', () => {
+  it.each(['Atb', 'UltimateSp'])('主控限制只作用于技力而非终结技能量：%s', costType => {
+    const compiled = compileActionSequence(
+      compileCombatActionSequenceSource(
+        parse(sequence([{ ...gain, costType, atbOnlyMainChar: true }])),
+        context,
+      ),
+      1,
+    );
+    let calls = 0;
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: () => {
+          calls++;
+          return true;
+        },
+        evaluate: () => false,
+      },
+      { blackboard: new ActionBlackboard({ atb: 10 }) },
+    );
+    runtime.createSequence(compiled).executeInstant({});
+    expect(calls).toBe(costType === 'Atb' ? 0 : 1);
+  });
+
   it('转换结果经正式编译执行：重复命中不重复回复，新施法重新获得机会', () => {
     const compiled = compileActionSequence(
       compileCombatActionSequenceSource(parse(sequence([once(), once()])), context),
