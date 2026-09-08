@@ -17,6 +17,18 @@ npm run convert:legacy-timeline -- "C:\Users\sqwat\Downloads\Endaxis_Timeline_20
 依据、告警与未验证边界见 [映射及运行检查](mapping-evidence.md)。
 未传配置可用来发现未映射内容。
 
+## 模拟审计
+
+伤害对照可使用正式模拟入口生成离线审计（输出请放入被忽略的 tmp）：
+
+```powershell
+node --experimental-strip-types tools/legacy-timeline/auditSimulation.ts tmp/converted-axis/project.json > tmp/simulation-audit.json
+```
+
+分别重算存档结束线和完整时长，输出总期望伤害、完整 sourceId 分账及结束线后的命中。
+分账包含零伤害、无 castId 和无来源（null）的公共伤害，不把不同轨道或能力实体猜成同一来源。
+这些是当前模拟回执的账目，不是新旧命中已一一对应或游戏行为已经核实的证明。
+
 ## 映射配置
 
 - operators：旧干员 ID → 当前 operatorSlug；同名可省略，目标仍须存在。

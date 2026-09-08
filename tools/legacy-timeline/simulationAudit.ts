@@ -29,6 +29,31 @@ function damageEntries(entries: readonly CombatReceiptEntry[]) {
     });
 }
 
+/** 按回执原始来源拆账；不截取 ID，不把能力实体或无来源伤害猜成某位干员。 */
+function summarizeSources(entries: ReturnType<typeof damageEntries>) {
+  const sources = new Map<
+    string | null,
+    {
+      sourceId: string | null;
+      damageRecordCount: number;
+      expectedDamage: number;
+      lastDamageFrame: number;
+    }
+  >();
+  for (const entry of entries) {
+    const sourceId = entry.sourceId ?? null;
+    let summary = sources.get(sourceId);
+    if (summary === undefined) {
+      summary = { sourceId, damageRecordCount: 0, expectedDamage: 0, lastDamageFrame: entry.frame };
+      sources.set(sourceId, summary);
+    }
+    summary.damageRecordCount++;
+    summary.expectedDamage += entry.expectedDamage;
+    summary.lastDamageFrame = Math.max(summary.lastDamageFrame, entry.frame);
+  }
+  return [...sources.values()];
+}
+
 /** 两种截止帧分别重算，不移动技能，不将完整轴尾部伤害算进存档结束线。 */
 export async function auditScenarioSimulation(
   service: SimulationReader,
@@ -49,6 +74,7 @@ export async function auditScenarioSimulation(
     damageRecordCount: entries.length,
     expectedDamage: entries.reduce((sum, entry) => sum + entry.expectedDamage, 0),
     lastDamageFrame: entries.at(-1)?.frame ?? null,
+    sources: summarizeSources(entries),
   });
   return {
     scenarioId: scenario.id,

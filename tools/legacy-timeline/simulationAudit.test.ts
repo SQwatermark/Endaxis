@@ -67,3 +67,43 @@ it('不把缺失期望伤害或非有限值静默计为零', async () => {
     );
   }
 });
+
+it('按完整来源身份拆账，零伤害、无施法和无来源的公共伤害均不丢失', async () => {
+  const scenario = createEmptyScenario('sources', '来源拆账');
+  scenario.battle.durationFrames = 100;
+  scenario.battle.simulationRange = { endFrame: 50 };
+  const entries = [
+    { ...hit(1, 10), sourceId: 'track:0:perlica' },
+    { ...hit(2, 0), sourceId: 'track:0:perlica' },
+    { ...hit(3, 20), sourceId: 'track:1:perlica' },
+    hit(4, 5),
+    { ...hit(60, 7), sourceId: 'ability:perlica' },
+  ];
+  const report = await auditScenarioSimulation(
+    {
+      simulate: async (_scenario, endFrame) => ({
+        receiptEntries: entries.filter(e => e.frame <= endFrame),
+      }),
+    },
+    scenario,
+  );
+  expect(report.configured.sources).toEqual([
+    { sourceId: 'track:0:perlica', damageRecordCount: 2, expectedDamage: 10, lastDamageFrame: 2 },
+    { sourceId: 'track:1:perlica', damageRecordCount: 1, expectedDamage: 20, lastDamageFrame: 3 },
+    { sourceId: null, damageRecordCount: 1, expectedDamage: 5, lastDamageFrame: 4 },
+  ]);
+  expect(report.fullDuration.sources.at(-1)).toEqual({
+    sourceId: 'ability:perlica',
+    damageRecordCount: 1,
+    expectedDamage: 7,
+    lastDamageFrame: 60,
+  });
+  for (const horizon of [report.configured, report.fullDuration]) {
+    expect(horizon.sources.reduce((sum, source) => sum + source.expectedDamage, 0)).toBe(
+      horizon.expectedDamage,
+    );
+    expect(horizon.sources.reduce((sum, source) => sum + source.damageRecordCount, 0)).toBe(
+      horizon.damageRecordCount,
+    );
+  }
+});
