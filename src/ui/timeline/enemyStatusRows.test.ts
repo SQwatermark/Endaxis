@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BuffTimelineSegment } from '../../core/projection/buffTimelineViz';
-import { layoutEnemyStatusRows } from './enemyStatusRows';
+import { isEnemyTimelineBuffVisible, layoutEnemyStatusRows } from './enemyStatusRows';
 
 const attachmentIds = new Set(['electric', 'heat']);
 function buff(buffId: string, extras: Partial<BuffTimelineSegment> = {}): BuffTimelineSegment {
@@ -17,6 +17,23 @@ function buff(buffId: string, extras: Partial<BuffTimelineSegment> = {}): BuffTi
 }
 
 describe('enemy status presentation rows', () => {
+  it('uses explicit native head-bar routing, not a shared icon or buff name, to hide internal effects', () => {
+    const hidden = buff('internal', {
+      iconId: 'shared',
+      showInHeadBarCommon: false,
+      showInHeadBarAttached: false,
+    });
+    const before = JSON.stringify(hidden);
+    expect(isEnemyTimelineBuffVisible(hidden)).toBe(false);
+    expect(isEnemyTimelineBuffVisible(buff('icon', { ...hidden, showInHeadBarCommon: true }))).toBe(
+      true,
+    );
+    expect(
+      isEnemyTimelineBuffVisible(buff('attachment', { ...hidden, showInHeadBarAttached: true })),
+    ).toBe(true);
+    expect(isEnemyTimelineBuffVisible(buff('custom', { iconId: 'shared' }))).toBe(true);
+    expect(JSON.stringify(hidden)).toBe(before);
+  });
   it('never spreads neighboring frames into same-time slots or changes their timing', () => {
     const markers = [
       { kind: 'burst' as const, frame: 30 },

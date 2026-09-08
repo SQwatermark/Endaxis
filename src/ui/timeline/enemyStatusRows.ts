@@ -1,6 +1,11 @@
 import type { BuffTimelineSegment } from '../../core/projection/buffTimelineViz';
 import type { EnemyEffectMarker } from '../../core/projection/enemyEffectViz';
 
+/** 原生明确排除头顶两栏的内部效果不画敌方持续条；无路由元数据的自定义段仍保留。 */
+export function isEnemyTimelineBuffVisible(buff: BuffTimelineSegment): boolean {
+  return !(buff.showInHeadBarCommon === false && buff.showInHeadBarAttached === false);
+}
+
 /** 展示分区，不推导战斗状态。附着身份来自 role，其余消费原生 HUD 元数据。
  * 旧版 ResourceMonitor 顺序：物理头顶状态、附着、异常、普通状态。
  * 未识别的状态保留在普通区，不能按图标或名称猜测。

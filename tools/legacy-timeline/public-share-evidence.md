@@ -1,5 +1,32 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：敌人持续条尊重明确的原生头顶栏排除
+
+原轴在146帧有一个四二式will_icon和两份will_dmg段，后续又有will_atk；原始
+BuffData/buff_wpn_funnel_0016_will_{icon,dmg,atk}.json均hasIcon=true且共用
+icon_battle_spell_taken_up，但只有icon的showInHeadBarCommon=true，dmg/atk
+的showInHeadBarCommon与showInHeadBarAttached都明确false。两者高优先级计算
+效果和可见聚合图标不是同一展示身份，不能因为有资源就全部画到敌人栏。
+原生分流依据docs/research/combat-hud-state-integration.md及combat-spec的
+combat-hud-buff-routing.md：GPUIBuffNode._IsBuffIconInThisNode RVA0x03AA2E90。
+
+修复只在TimelineEditor敌方排版入口使用isEnemyTimelineBuffVisible，两个头顶字段
+都明确false才排除；普通/附加任一true仍保留，无原生路由字段的自定义Buff仍可画。
+不是按Buff ID、同图标或名称去重，不改hasIcon、不删资源、不删计算实例，也不把
+主控/队伍头像规则生搬到干员完整时间轴。完整生命周期投影仍73段供其他消费者。
+最新原轴28条敌方段过滤后19，9条全部是上述dmg/atk；will_icon、两次转换、同实例
+附着叠层和反应伤害保持。此前“进入UI前无丢失”不等于没有多画内部状态，本次补上该差异。
+
+新增显示谓词测试覆盖明确隐藏、头顶普通/附加、自定义无字段和不修改输入。
+enemyStatusRows(11)、elementalPresentationMatrix(23)、buffTimelineViz(9)共43项通过，
+无跳过/预期失败。浏览器视觉仍未完成，不以测试宣称排版观感或hover已验收。
+
+收尾验证：上轮类型/原轴进程句柄失效，原轴JSON不完整；检查无对应活进程后串行重跑。
+完整应用vue-tsc通过；追加publicShareRegression(2)、buffDamagePresentation(1)、
+enemyDamageHitLayout(3)后6文件49项全部通过，无跳过/预期失败。原轴重跑77hit、
+812599.9702752624，诊断14/8/0，完整receipts与修复前JSON逐项相同，不只比较总伤害。
+报告tmp/public-headbar-routing-regression.json。视觉仍独立待验收。
+
 ## 2026-09-09：原轴元素与状态投影检查（非视觉验收）
 
 读取最新原轴public-splash-exclusion-fixed.json回执，调用正式projectBuffTimelineViz、

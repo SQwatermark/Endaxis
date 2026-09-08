@@ -346,6 +346,7 @@ import BattleLogPanel from './components/BattleLogPanel.vue';
 import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
 import { capturePublishedBattleLog } from './publishedBattleLog';
 import { resolvePublishedBuffSource } from './publishedBuffSource';
+import { isEnemyTimelineBuffVisible } from './enemyStatusRows';
 import {
   capturePublishedOperatorMetadata,
   type PublishedOperatorMetadata,
@@ -2189,6 +2190,8 @@ function comboWindowSegmentsFor(operatorId: string | null) {
 const positionedBuffsByTarget = computed(() => {
   const grouped = new Map<string, BuffTimelineSegment[]>();
   for (const segment of buffTimelineSegments.value) {
+    if (segment.targetId === SINGLE_ENEMY_TARGET_ID && !isEnemyTimelineBuffVisible(segment))
+      continue;
     const list = grouped.get(segment.targetId) ?? [];
     list.push(segment);
     grouped.set(segment.targetId, list);
