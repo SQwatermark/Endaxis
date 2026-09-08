@@ -21,6 +21,30 @@ const repository = createGameDataRepository({
 });
 
 describe('生成武器的正式模拟门禁', () => {
+  it('四二式肃阵的爆发前增益先于同次爆发伤害生效', async () => {
+    const weapon = candidates.find(item => item.slug === 'wpn_funnel_0016')!;
+    const source = repository.getOperator('xaihi')!;
+    // 受控意志构筑，用于选择武器分支；技能、武器和爆发仍使用生产定义。
+    const operator = {
+      ...source,
+      attributes: { ...source.attributes, will: source.attributes.will.map(() => 1000) },
+    };
+    const active = await simulateWeapon(weapon, operator, ['comboSkill', 'comboSkill']);
+    const burst = (run: typeof active) =>
+      run.receiptEntries.find(
+        e => e.event === 'DamageApplied' && e.data?.spellBurstType === 'Cryst',
+      );
+    const hit = burst(active);
+    expect(hit).toBeDefined();
+    const buff = active.receiptEntries.find(
+      e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_wpn_funnel_0016_will_atk',
+    );
+    expect(buff).toBeDefined();
+    expect(buff!.frame).toBe(hit!.frame);
+    expect(active.receiptEntries.indexOf(buff!)).toBeLessThan(active.receiptEntries.indexOf(hit!));
+    expect(active.executionDiagnostics).toEqual([]);
+    expect(hit!.data?.damageScaleMultiplier).toBeCloseTo(1.168);
+  });
   it.each([1, 9])('艾维文娜连续排轴 %i：三把连携枪由战技回收并执行正式回调伤害', async tier => {
     const weapon = candidates.find(item => item.slug === 'wpn_lance_0006')!;
     const result = await simulateWeapon(

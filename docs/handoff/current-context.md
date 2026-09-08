@@ -1,5 +1,19 @@
 # 当前任务快照
 
+## 2026-09-09：四二式肃阵前置增益应作用于触发爆发
+
+原始cryst_cryst_triggered动作顺序为TriggerSpellBurstEventAction→ReadSkillSettingData
+→DamageAction；spec确认先发127/128。武器will监听beforeOutputSpellBurst，检查
+原技能为战技/连携/终结技后立即施加will_atk。因此首爆多出的9.6%不应挪到伤害之后。
+旧EnemyEffectHandler先emitReactionDamageHit后onStatusApplied，解释旧首爆未受益。
+新增受控意志构筑+真实赛希技能/武器回归：满级词条Buff同帧先于首爆，首爆乘区1.168，
+0执行错误；武器文件181项通过。未修改生产顺序，未跑全量/类型/视觉。
+
+新发现待查：测试helper仅通过getWeapon替换同ID武器、删除或清空initializationSequence，
+所谓baseline仍有0.448攻击和1.168爆发乘区，不能作禁用基线。新增测试不依赖此伪对照，
+改核对原生配置值和回执顺序；但该helper其他对照的有效性需优先审计。不可凭181绿
+宣称所有禁用对照都有效。优先检查公共构筑解析是否绕过getWeapon读取正式词条目录。
+
 ## 2026-09-09：首笔寒冷爆发差额分解，武器同帧顺序仍待核对
 
 修正秘仪后的别礼主控诊断首爆180帧5254.717427415849，旧6.1秒7024。

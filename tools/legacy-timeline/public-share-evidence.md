@@ -1,5 +1,31 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：四二式肃阵爆发前监听与旧版后置派发不同
+
+原始buff_common_cryst_cryst_triggered.json中同一序列先TriggerSpellBurstEventAction
+（约472行），后ReadSkillSettingData（486），再DamageAction（529）。SHA256
+D6D67B81F33151592BE2EFEB01DC04CA9B638ABCAD04C710869668020881E005。
+原始buff_wpn_funnel_0016_will.json SHA256
+C6D71D57D843F4C1BC708999FD7F622438CE54339468B4294F3BEDBC1CC84CF9。
+生成武器will监听beforeOutputSpellBurst，originSkillTypeIn允许战技/连携/终结技，
+随后给eventTarget施加will_atk。该Buff对四种法术伤害增加defender normal乘区。
+
+combat-spec/docs/buff-data-adapter.md与origin-skill-event-context.md确认原生
+TriggerSpellBurstEventAction RVA0x06D3D960先发布源侧127、目标侧128，携带原技能信息。
+因此本例前置监听带来的9.6%在该次伤害前已生效，不应为了旧数值推迟。旧4dadc55f
+EnemyEffectHandler.ts的ARTS_BURST分支先emitReactionDamageHit，后registry.onStatusApplied，
+旧type-42-solemn-phalanx.ts监听该状态事件，首爆只享受此前易伤分支的一项9.6%。
+
+新增generatedWeaponsSimulation.test.ts回归使用受控高意志属性选择武器分支，
+赛希连携、武器/反应全部生产定义；不是公开轴原构筑。满级词条增益16.8%，BuffApplied
+与首爆同帧且排在DamageApplied之前，首爆damageScaleMultiplier=1.168，0执行异常。
+文件181项通过，无跳过或预期失败；未跑全量/类型检查/视觉。本轮不改生产代码。
+
+测试过程中发现独立问题：同ID武器经helper的getWeapon替换后，删去或清空初始化的
+对照仍产生0.448攻击与1.168爆发乘区，导致新比例断言失败。不能把这种对照当作
+武器已禁用；最终回归直接核对原生数值/事件顺序，不依赖它。下一轮优先追词条
+解析来源及既有对照有效性，181绿不证明这些对照本身都可靠。
+
 ## 2026-09-09：第一笔寒冷爆发的两项公式差异（顺序待核实）
 
 当前修正秘仪的主控诊断，180帧诀Cryst爆发5254.717427415849；旧6.1秒为7024。
