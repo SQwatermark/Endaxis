@@ -1,5 +1,30 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：额外寒冷爆发追到诀基础终结技/秘仪的转换语义缺口（待修）
+
+旧HITS的_reactionMeta给出六次artsBurst/cryo：6.1、11.333、15.583、30.633、
+32.666、38.75秒；来源依次诀、赛希、别礼、诀、诀、赛希。新版主控诊断对应
+DamageApplied.spellBurstType=Cryst的帧180/340/468/916/980/1163，另有1337。
+新回执保留skillType/castId，旧反应无skillType，因此不能用skillType缺省统计新版反应。
+赛希新倍率284.8包含术强78的1.78倍；旧显示倍率160、另存artsIntensityMult=1.78，
+这两字段不可直接比较。其他伤害乘区仍需独立核查，本轮未宣称六笔伤害已全部归因。
+
+额外第七笔：1260帧诀cast legacy:default_sc:track:0:cast:3开始ultimate；1307帧
+ElementalInflictionApplied显示previousElement=cryo、previousLayers=4、outcomeKind=burst；
+1337帧爆发9390.101474103883（主控诊断）。旧相应43.566秒命中360%，effects仅消费
+arcane-gloompurge-arcana-ready和arcane-gloompurger-array，没有附着。
+
+只读旧4dadc55f src/data/operators/arcane.ts约959–1030行：基础终结技180%分支
+按敌方现有元素施加附着，秘仪360%分支仅消费状态。当前生成arcaneUltimate与
+arcaneArcana分别来自chr_0032_lizhiyan_ultimate_skill和ultimate_skill2，公开导入轴
+却仍选择基础ultimate。这是转换技能身份缺口，不是应删去的反应运行时事件。
+
+tools/legacy-timeline/convert.test.ts已有私人轴sc_zpm5ozw第47动作显式arcana映射测试，
+但公开轴不在该动作覆盖内。下一轮核对公开轴全部旧实际执行分支后补显式映射；
+禁止在新版模拟内部自动替换，禁止覆盖修订前报告冒称输入一直相同。当前已有整轴
+总账均是该映射修订前版本，需要保留并在新报告中解释差异。此项仅定位，尚未修复。
+临时摘录tmp/inspect-reaction-hits.mjs；本轮未跑测试或视觉验收，无生产代码修改。
+
 ## 2026-09-09：艾尔黛拉终结技6对12来自旧版固定命中表与木桩弹体限频
 
 同一公开轴6a8db78895147370855b45ed：旧版伤害命中44.166/44.966/45.766/
