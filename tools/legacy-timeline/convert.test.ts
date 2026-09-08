@@ -119,6 +119,49 @@ it('does not publish a project after missing mapping', () => {
   expect(result.report.unresolvedSkills).toHaveLength(1);
 });
 
+it('converts old characterId switch markers to the original track index before slug mapping', () => {
+  const input = fixture();
+  Object.assign(input.scenarioList[0]!.data, {
+    switchEvents: [{ id: 'switch', time: 360, characterId: 'old-perlica' }],
+  });
+  input.scenarioList[0]!.data.tracks[0]!.actions = [];
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+  });
+  expect(result.report.issues).toEqual([]);
+  expect(result.project?.scenarios[0]?.battle.controlSwitches).toEqual([
+    { id: 'switch', frame: 30, trackIndex: 0 },
+  ]);
+});
+
+it('blocks unresolved control targets rather than silently dropping switch markers', () => {
+  const input = fixture();
+  Object.assign(input.scenarioList[0]!.data, {
+    switchEvents: [{ id: 'missing-switch', time: 240, characterId: 'unknown-track' }],
+  });
+  input.scenarioList[0]!.data.tracks[0]!.actions = [];
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+  });
+  expect(result.status).toBe('blocked');
+  expect(result.project).toBeNull();
+});
+
+it.each([
+  { time: 360, characterId: 'old-perlica', trackIndex: 1 },
+  { time: 240, characterId: 'old-perlica' },
+])('does not guess a conflicting target or clamp unsupported preparation switches: %j', event => {
+  const input = fixture();
+  Object.assign(input.scenarioList[0]!.data, { switchEvents: [{ id: 'switch', ...event }] });
+  input.scenarioList[0]!.data.tracks[0]!.actions = [];
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+  });
+  expect(result.status).toBe('blocked');
+  expect(result.project).toBeNull();
+  expect(result.report.issues.length).toBeGreaterThan(0);
+});
+
 it('preserves the active scenario and falls back only for an invalid reference', () => {
   const first = fixture();
   const second = structuredClone(first.scenarioList[0]!);

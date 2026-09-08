@@ -127,6 +127,35 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
         message: '处决承伤修正尚未转换',
       });
     if (!Array.isArray(d.tracks) || d.tracks.length > 4) throw new Error('只支持最多四条轨道');
+    // 旧 SwitchEvent 保存的是轨道 characterId，必须在干员身份重映射之前解析。
+    for (const [index, event] of (d.switchEvents ?? []).entries()) {
+      object(event);
+      const matches = d.tracks
+        .map((track: Row, trackIndex: number) => ({ id: track.id, trackIndex }))
+        .filter((track: { id: unknown }) => track.id === event.characterId);
+      if (event.characterId !== undefined) {
+        if (
+          matches.length !== 1 ||
+          (event.trackIndex !== undefined && event.trackIndex !== matches[0]!.trackIndex)
+        ) {
+          issues.push({
+            path: `${prefix}.switchEvents[${index}]`,
+            message: '切入目标不唯一、不存在或与轨道下标冲突',
+          });
+          continue;
+        }
+        event.trackIndex = matches[0]!.trackIndex;
+      }
+      if (
+        !Number.isInteger(event.trackIndex) ||
+        event.trackIndex < 0 ||
+        event.trackIndex >= d.tracks.length
+      )
+        issues.push({
+          path: `${prefix}.switchEvents[${index}]`,
+          message: '切入标记缺少有效目标轨道',
+        });
+    }
     for (const [ti, t] of d.tracks.entries()) {
       object(t);
       const oldOperator = t.id;
