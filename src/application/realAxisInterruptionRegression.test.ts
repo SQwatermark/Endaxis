@@ -369,6 +369,41 @@ it('动火用原生十秒增伤不被另一干员的终结技膨胀延长', asyn
   expect(end!.frame - start!.frame).toBeLessThanOrEqual(300);
 });
 
+it('艾尔黛拉终结后续命中读取中途施加的赛希增幅，不冻结施法时增益', async () => {
+  const scenario = createEmptyScenario('ardelia-live-enhance', '持续技能中途增幅');
+  scenario.tracks[0] = track('ardelia', [['ultimate', 'ultimate', 1]]);
+  scenario.tracks[1] = track('xaihi', [['ultimate', 'ultimate', 100]]);
+  scenario.tracks[0]!.initialState.ultimateEnergy = 90;
+  scenario.tracks[1]!.initialState.ultimateEnergy = 80;
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 450);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  const applied = result.receiptEntries.find(
+    e =>
+      e.event === 'BuffApplied' &&
+      e.targetId === 'ardelia' &&
+      e.data?.buffId === 'buff_chr_0011_seraph_ultimate_effect_2',
+  );
+  expect(applied).toBeDefined();
+  const hits = result.receiptEntries.filter(
+    e => e.event === 'DamageApplied' && e.data?.castId === 'ardelia:ultimate',
+  );
+  const early = hits.filter(e => e.sequence < applied!.sequence);
+  const late = hits.filter(e => e.sequence > applied!.sequence);
+  expect(early.length).toBeGreaterThan(0);
+  expect(late.length).toBeGreaterThan(0);
+  for (const hit of early) expect(hit.data?.damageScaleMultiplier).toBeCloseTo(1);
+  for (const hit of late) {
+    expect(Number(hit.data?.damageScaleMultiplier)).toBeGreaterThan(1);
+    expect(hit.data?.attack).toBe(early[0]!.data?.attack);
+    expect(hit.data?.skillMultiplierPercent).toBe(165);
+    expect(Number(hit.data?.expectedDamage)).toBeGreaterThan(
+      Number(early[0]!.data?.expectedDamage),
+    );
+  }
+});
+
 it.each([true, false])('赛希连携天赋要求命中前已有寒冷（预附着=%s）', async prepared => {
   const scenario = createEmptyScenario('xaihi-existing-infliction', '天赋既有附着条件');
   scenario.tracks[0] = track(
