@@ -67,7 +67,7 @@ const emit = defineEmits<{
   movePointerDown: [event: PointerEvent];
   contextmenu: [event: MouseEvent];
   connectionPointerDown: [event: PointerEvent, port: TimelineConnectionPort];
-  hitClick: [hitId: string];
+  hitClick: [hitId: string, executionFrame?: number];
   hoverChange: [hovered: boolean];
 }>();
 
@@ -183,7 +183,7 @@ function formatDurationFrames(frames: number): string {
     <span v-if="durationPending" class="duration-pending-tail" aria-hidden="true"></span>
     <span
       v-for="hit in hits ?? []"
-      :key="hit.hitId"
+      :key="`${hit.hitId}:${hit.executionFrame ?? 'preview'}`"
       class="hit-marker"
       :class="{ 'is-forced-crit': hit.forcedCritical }"
       :style="markerStyle(hit)"
@@ -192,7 +192,7 @@ function formatDurationFrames(frames: number): string {
       :data-connection-port="`hit:${hit.hitId}`"
       draggable="false"
       @pointerdown.stop
-      @mousedown.stop.prevent="$emit('hitClick', hit.hitId)"
+      @mousedown.stop.prevent="$emit('hitClick', hit.hitId, hit.executionFrame)"
     ></span>
     <el-tooltip
       v-if="warning"

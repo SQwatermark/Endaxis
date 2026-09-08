@@ -42,14 +42,59 @@ export interface TimelineHitEffectLabel {
   readonly reactions: readonly TimelineHitReactionEffect[];
 }
 
+/** 定义hitId可重复执行；帧区分可视命中，同帧同身份伤害仍合并查看。 */
+export function projectTimelineHitOccurrences(entries: readonly CombatReceiptEntry[]) {
+  const receipts = projectTimelineHitReceipts(entries);
+  const byCast = new Map<
+    string,
+    { hitId: string; stepKey: string; frame: number; label: TimelineHitEffectLabel }[]
+  >();
+  for (const hit of receipts.damages) {
+    if (!hit.castId || !hit.hitId || !hit.stepKey) continue;
+    const list = byCast.get(hit.castId) ?? [];
+    if (list.some(item => item.hitId === hit.hitId && item.frame === hit.frame)) continue;
+    list.push({
+      hitId: hit.hitId,
+      stepKey: hit.stepKey,
+      frame: hit.frame,
+      label: {
+        damage: receipts.damages
+          .filter(
+            item =>
+              item.castId === hit.castId && item.hitId === hit.hitId && item.frame === hit.frame,
+          )
+          .map(({ value, damageType, isCritical }) => ({ value, damageType, isCritical })),
+        infliction: receipts.inflictions
+          .filter(item => item.castId === hit.castId && item.frame === hit.frame)
+          .map(({ element, outcomeKind, currentLayers }) => ({
+            element,
+            outcomeKind,
+            currentLayers,
+          })),
+        reactions: receipts.reactions
+          .filter(item => item.castId === hit.castId && item.frame === hit.frame)
+          .map(({ reaction, applied, level, previousLevel }) => ({
+            reaction,
+            applied,
+            level,
+            previousLevel,
+          })),
+      },
+    });
+    byCast.set(hit.castId, list);
+  }
+  return byCast;
+}
+
 /**
- * 取得一个稳定命中身份首次实际执行时的完整回执组。伤害按 castId + hitId 精确匹配；
+ * 取得指定执行帧的完整回执组；省略帧时兼容首次执行入口。伤害按 castId + hitId 精确匹配；
  * 同帧附着与反应按 castId 归组，和块上提示使用相同边界，不依赖能力实体的 sourceId。
  */
 export function projectTimelineHitDetailEntries(
   entries: readonly CombatReceiptEntry[],
   castId: string,
   hitId: string,
+  executionFrame?: number,
 ): readonly CombatReceiptEntry[] {
   const firstFrame = entries.find(
     entry =>
@@ -57,9 +102,20 @@ export function projectTimelineHitDetailEntries(
       entry.data?.castId === castId &&
       entry.data?.hitId === hitId,
   )?.frame;
-  if (firstFrame === undefined) return [];
+  const frame = executionFrame ?? firstFrame;
+  if (frame === undefined) return [];
+  if (
+    !entries.some(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        entry.frame === frame &&
+        entry.data?.castId === castId &&
+        entry.data.hitId === hitId,
+    )
+  )
+    return [];
   return entries.filter(entry => {
-    if (entry.frame !== firstFrame || entry.data?.castId !== castId) return false;
+    if (entry.frame !== frame || entry.data?.castId !== castId) return false;
     if (entry.event === 'DamageApplied') return entry.data.hitId === hitId;
     return (
       entry.event === 'ElementalInflictionApplied' ||

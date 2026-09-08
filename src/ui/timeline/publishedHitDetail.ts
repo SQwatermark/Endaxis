@@ -5,7 +5,7 @@ import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
 /** 技能身份跨换轨保持稳定；查看旧结果不能使用当前轨道下标查找旧面板。 */
 export function projectPublishedHitDetail(
   published: PublishedScenarioSimulation | null,
-  target: { castId: string; hitId: string } | null,
+  target: { castId: string; hitId: string; executionFrame?: number } | null,
 ) {
   if (published === null || target === null) return null;
   for (const track of published.scenario.tracks) {
@@ -17,7 +17,12 @@ export function projectPublishedHitDetail(
       forcedCritical: (cast.simulationInputs?.forcedCriticalStepKeys ?? []).some(
         key => deriveHitId(cast.id, key) === target.hitId,
       ),
-      entries: projectTimelineHitDetailEntries(published.run.receiptEntries, cast.id, target.hitId),
+      entries: projectTimelineHitDetailEntries(
+        published.run.receiptEntries,
+        cast.id,
+        target.hitId,
+        target.executionFrame,
+      ),
       operatorPanel:
         published.run.operatorPanels.find(panel => panel.operatorId === track.id) ?? null,
     };

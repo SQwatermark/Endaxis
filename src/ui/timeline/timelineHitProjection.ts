@@ -31,6 +31,7 @@ export interface TimelineHitMarker {
 
 /** 页面算好像素位置后交给组件画出来的命中点。 */
 export interface TimelineHitMarkerView {
+  readonly executionFrame?: number;
   readonly stepKey: string;
   readonly hitId: string;
   /** 相对技能块左边缘的像素偏移。 */

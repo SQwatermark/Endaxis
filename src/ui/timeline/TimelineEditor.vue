@@ -333,6 +333,7 @@ import {
   projectHitEffectsByCast,
   projectTimelineHitReceipts,
   projectTimelineHitActualFrames,
+  projectTimelineHitOccurrences,
   type TimelineHitEffectLabel,
 } from './timelineHitEffects';
 import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
@@ -2437,6 +2438,9 @@ function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
   return parts.join(' · ');
 }
 
+const hitOccurrences = computed(() =>
+  projectTimelineHitOccurrences(simulationRun.value?.receiptEntries ?? []),
+);
 function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMarkerView[] {
   const castModel = viewModel.value.tracks[trackIndex]?.skillCasts.find(
     candidate => candidate.id === castId,
@@ -2447,6 +2451,16 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
   if (castModel === undefined || cast === undefined) return [];
   const effects = castHitEffects.value.get(castId);
   const publishedStartFrame = skillCastActualStartFrames.value.get(castId) ?? castModel.startFrame;
+  if (simulationRun.value !== null) {
+    return (hitOccurrences.value.get(castId) ?? []).map(hit => ({
+      stepKey: hit.stepKey,
+      hitId: hit.hitId,
+      executionFrame: hit.frame,
+      leftPx: timelineFramePx(hit.frame) - timelineFramePx(publishedStartFrame),
+      forcedCritical: (cast.simulationInputs?.forcedCriticalStepKeys ?? []).includes(hit.stepKey),
+      title: hitMarkerTitle(hit.label),
+    }));
+  }
   return castModel.hitMarkers
     .filter(marker =>
       shouldDisplayTimelineHitMarker(marker, simulationRun.value !== null, hitActualFrames.value),
@@ -2465,7 +2479,12 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
     }));
 }
 
-const hitDetailTarget = ref<{ trackIndex: TrackIndex; castId: string; hitId: string } | null>(null);
+const hitDetailTarget = ref<{
+  trackIndex: TrackIndex;
+  castId: string;
+  hitId: string;
+  executionFrame?: number;
+} | null>(null);
 const enemyDamageDetailSequence = useSimulationReceiptSelection(simulationRun);
 const publishedHitDetail = computed(() =>
   projectPublishedHitDetail(publishedSimulation.value, hitDetailTarget.value),
@@ -2515,7 +2534,14 @@ const hitDetail = computed(() => {
   const castModel = viewModel.value.tracks[target.trackIndex]?.skillCasts.find(
     candidate => candidate.id === target.castId,
   );
-  const marker = castModel?.hitMarkers.find(candidate => candidate.hitId === target.hitId) ?? null;
+  const marker =
+    castModel?.hitMarkers.find(candidate => candidate.hitId === target.hitId) ??
+    hitOccurrences.value
+      .get(target.castId)
+      ?.find(
+        candidate => candidate.hitId === target.hitId && candidate.frame === target.executionFrame,
+      ) ??
+    null;
   if (marker === null) return null;
   return { cast, marker };
 });
@@ -5667,11 +5693,13 @@ function setPanelDialogVisible(visible: boolean): void {
                   :px-per-frame="pxPerFrame"
                   @select="handleActionSelection($event, cast.id)"
                   @hit-click="
-                    hitDetailTarget = {
-                      trackIndex: track.trackIndex,
-                      castId: cast.id,
-                      hitId: $event,
-                    }
+                    (hitId, executionFrame) =>
+                      (hitDetailTarget = {
+                        trackIndex: track.trackIndex,
+                        castId: cast.id,
+                        hitId,
+                        ...(executionFrame === undefined ? {} : { executionFrame }),
+                      })
                   "
                   @connection-pointer-down="
                     (event, port) => beginConnectionDrag(event, cast.id, port)

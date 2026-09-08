@@ -41,6 +41,22 @@ it('resolves receipts and panel through stable cast identity, independently of e
   expect(detail?.operatorPanel).toBe(panel);
   expect(detail?.forcedCritical).toBe(false);
   expect(detail?.entries).toEqual([entry]);
+  const laterEntry = {
+    ...entry,
+    sequence: 2,
+    frame: 2,
+    time: 2 / 30,
+    data: { ...entry.data, value: 200 },
+  };
+  const repeated = { ...published, run: { ...published.run, receiptEntries: [entry, laterEntry] } };
+  expect(
+    projectPublishedHitDetail(repeated, { castId: 'cast', hitId: 'hit', executionFrame: 2 })
+      ?.entries,
+  ).toEqual([laterEntry]);
+  expect(
+    projectPublishedHitDetail(repeated, { castId: 'cast', hitId: 'hit', executionFrame: 3 })
+      ?.entries,
+  ).toEqual([]);
   expect(projectPublishedHitDetail(published, { castId: 'new-cast', hitId: 'hit' })).toBeNull();
   expect(projectPublishedHitDetail(null, { castId: 'cast', hitId: 'hit' })).toBeNull();
   expect(projectPublishedHitDetail(published, null)).toBeNull();

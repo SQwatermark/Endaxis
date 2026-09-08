@@ -5,6 +5,7 @@ import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
 import {
   projectHitEffectsByCast,
   projectTimelineHitReceipts,
+  projectTimelineHitOccurrences,
   projectTimelineHitActualFrames,
   projectTimelineHitDetailEntries,
 } from './timelineHitEffects';
@@ -180,6 +181,28 @@ function inflictionEntry(sequence: number, frame: number): CombatReceiptEntry {
 }
 
 describe('projectHitEffectsByCast', () => {
+  it('renders repeated executions separately and selects only the clicked frame', () => {
+    const entries = [
+      damageEntry(1, 60),
+      damageEntry(2, 90),
+      damageEntry(3, 90),
+      inflictionEntry(4, 90),
+      damageEntry(5, 90, 'step:damage', 'other'),
+    ];
+    const hitId = deriveHitId('cast:1', 'step:damage');
+    const occurrences = projectTimelineHitOccurrences(entries);
+    expect(occurrences.get('cast:1')?.map(hit => [hit.frame, hit.label.damage.length])).toEqual([
+      [60, 1],
+      [90, 2],
+    ]);
+    expect(
+      projectTimelineHitDetailEntries(entries, 'cast:1', hitId, 90).map(entry => entry.sequence),
+    ).toEqual([2, 3, 4]);
+    expect(projectTimelineHitDetailEntries(entries, 'cast:1', hitId, 89)).toEqual([]);
+    expect(
+      projectTimelineHitDetailEntries(entries, 'cast:1', hitId).map(entry => entry.sequence),
+    ).toEqual([1]);
+  });
   it('keeps ability-owned hit effects when cast and hit identities match', () => {
     const scenario = scenarioWithCast();
     const entries = [damageEntry(1, 60), inflictionEntry(2, 60)];
