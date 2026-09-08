@@ -39,6 +39,33 @@ it('正式编辑器装配从导出SkillSetting读取技力恢复暂停', async (
   expect(JSON.stringify(facts)).toBe(originalFacts);
 });
 
+it('别礼非主控战技跳转到支援分支并在同帧通过Buff启动返还技力', async () => {
+  const scenario = createEmptyScenario('last-rite-support-refund', '非主控支援分支返还');
+  scenario.tracks[0] = track('arcane', []);
+  scenario.tracks[1] = track('last-rite', [['battleSkill', 'battleSkill', 16]]);
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 100);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  const refunds = result.receiptEntries.filter(
+    e => e.event === 'SpChanged' && e.data?.gainKind === 'refund',
+  );
+  expect(refunds).toEqual([
+    expect.objectContaining({
+      frame: 16,
+      sourceId: 'last-rite',
+      data: expect.objectContaining({ baseValue: 30, actualValue: 30 }),
+    }),
+  ]);
+  expect(result.receiptEntries).toContainEqual(
+    expect.objectContaining({
+      event: 'BuffApplied',
+      frame: 16,
+      data: expect.objectContaining({ buffId: 'buff_chr_0026_lastrite_normal_skill_self' }),
+    }),
+  );
+});
+
 it('艾尔黛拉非主控连携的投射物命中仍回复终结技能量', async () => {
   const scenario = createEmptyScenario('ardelia-combo-energy', '非主控连携回能');
   scenario.tracks[0] = track('arcane', []);

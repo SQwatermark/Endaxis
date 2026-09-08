@@ -1,5 +1,30 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：别礼非主控战技返还时序已归因
+
+旧版last-rite.ts的battleSkill首个hit固定offset=0.2、spReturn=30，因此原轴开场
+0.533333秒施法、0.733333秒返还；没有按是否主控拆分返还时机。新版三次返还均30，
+发生在16/331/673帧，与三次非主控施法同帧，合计仍90，没有多返还。
+
+原始SkillData.chr_0026_lastrite_normal_skill的timelineActions中，0..2帧动作
+NotNextCheckAction + CheckMainCharacterCondition(Source)控制JumpTo(destFrame=300)。
+第300帧序列施加buff_chr_0026_lastrite_normal_skill_self；此Buff的OnBuffStart先施加
+队伍normal_skill Buff，再执行ObtainCostAction，atbGainMethod=Return、数量读取atb。
+正式生成定义对应jumpTimeline(not casterControlled)、300帧applyBuff及start生命周期
+changeResourceByActionValue(refund)，atb初值30。跳转目标是序列位置，不是十秒等待。
+因此当前原始数据支持非主控分支立即返还，不能为复刻旧显示人为补0.2秒延迟。
+
+源文件位于tmp/game-data-sources-hybrid-20260905，SHA256：
+
+- SkillData/chr_0026_lastrite_normal_skill.json：589bc5b01e126474b48e75edb82b0c96a92bc3e1eab3a7fef1f935496be88dce。
+- BuffData/buff_chr_0026_lastrite_normal_skill_self.json：5b532c743f5c5022af7f9773796af25411ffdf95cfc57c6b56ec20876870e977。
+
+新增正式editorSimulationService回归：诀为轨0、别礼非主控轨1于16帧战技，无输入修改、
+无执行异常；16帧应用self Buff，100帧范围内唯一返还30。真实轴回归文件20项通过，无
+跳过/预期失败。本轮不修改模拟/生成行为；旧版固定时点与当前游戏分支不同，历史游戏
+版本是否曾采用旧时点未知。主控分支另走6帧main_start Buff及其子时间轴，不在该原轴
+结论覆盖范围，不能把非主控的同帧返还推广到所有释放场景。
+
 ## 2026-09-09：公开原轴完整技力曲线与重叠暂停差异
 
 只读旧版4dadc55f，原分享6a8db78895147370855b45ed重新经正式store导入，伤害2777215、
