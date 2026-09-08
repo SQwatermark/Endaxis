@@ -369,6 +369,42 @@ it('动火用原生十秒增伤不被另一干员的终结技膨胀延长', asyn
   expect(end!.frame - start!.frame).toBeLessThanOrEqual(300);
 });
 
+it.each([true, false])('赛希连携天赋要求命中前已有寒冷（预附着=%s）', async prepared => {
+  const scenario = createEmptyScenario('xaihi-existing-infliction', '天赋既有附着条件');
+  scenario.tracks[0] = track(
+    'xaihi',
+    prepared
+      ? [
+          ['comboSkill', 'comboSkill', 1],
+          ['comboSkill', 'comboSkill', 100],
+        ]
+      : [['comboSkill', 'comboSkill', 100]],
+  );
+  if (prepared) scenario.tracks[0]!.skillCasts[0]!.id = 'prepare-cryo';
+  scenario.tracks[0]!.operator!.talentStates = { '0': 2 };
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 180);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  const hits = result.receiptEntries.filter(
+    e =>
+      e.event === 'DamageApplied' &&
+      e.data?.castId === 'xaihi:comboSkill' &&
+      e.data?.skillType === 'comboSkill' &&
+      String(e.data?.stepKey).startsWith('chr_0011_seraph_combo_skill:'),
+  );
+  expect(hits).toHaveLength(1);
+  const buffs = result.receiptEntries.filter(
+    e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0011_seraph_talent_1_crystup',
+  );
+  expect(buffs).toHaveLength(prepared ? 1 : 0);
+  if (prepared) {
+    expect(buffs[0]!.frame).toBe(hits[0]!.frame);
+    expect(buffs[0]!.sequence).toBeLessThan(hits[0]!.sequence);
+  }
+  expect(hits[0]!.data?.damageScaleMultiplier).toBeCloseTo(prepared ? 1.1 : 1);
+});
+
 it.each([
   ['ardelia', 'buff_common_natural_natural_corrupt_do', 7],
   ['xaihi', 'buff_chr_0011_seraph_talent_1_crystup', 5],
