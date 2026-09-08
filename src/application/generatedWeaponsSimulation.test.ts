@@ -22,19 +22,36 @@ const repository = createGameDataRepository({
 });
 
 describe('生成武器的正式模拟门禁', () => {
-  it('四二式肃阵的爆发前增益先于同次爆发伤害生效', async () => {
-    const weapon = candidates.find(item => item.slug === 'wpn_funnel_0016')!;
+  it.each([
+    { slug: 'wpn_funnel_0016', tier: 4, buffId: 'buff_wpn_funnel_0016_will_atk', bonus: 0.096 },
+    { slug: 'wpn_funnel_0016', tier: 9, buffId: 'buff_wpn_funnel_0016_will_atk', bonus: 0.168 },
+    {
+      slug: 'wpn_funnel_0008',
+      tier: 6,
+      buffId: 'buff_wpn_funnel_0008_magic_damage_taken_up',
+      bonus: 0.18,
+    },
+    {
+      slug: 'wpn_funnel_0008',
+      tier: 9,
+      buffId: 'buff_wpn_funnel_0008_magic_damage_taken_up',
+      bonus: 0.252,
+    },
+  ])('$slug 词条$tier的爆发前增益作用于同次爆发', async ({ slug, tier, buffId, bonus }) => {
+    const weapon = candidates.find(item => item.slug === slug)!;
     const source = repository.getOperator('xaihi')!;
     // 受控意志构筑，用于选择武器分支；技能、武器和爆发仍使用生产定义。
     const operator = {
       ...source,
       attributes: { ...source.attributes, will: source.attributes.will.map(() => 1000) },
     };
-    const active = await simulateWeapon(weapon, operator, ['comboSkill', 'comboSkill']);
+    const levels = weapon.traits.map(() => tier);
+    const active = await simulateWeapon(weapon, operator, ['comboSkill', 'comboSkill'], levels);
     const baseline = await simulateWeapon(
       { ...weapon, traits: weapon.traits.map(staticEquipmentContribution) },
       operator,
       ['comboSkill', 'comboSkill'],
+      levels,
     );
     const burst = (run: typeof active) =>
       run.receiptEntries.find(
@@ -43,18 +60,18 @@ describe('生成武器的正式模拟门禁', () => {
     const hit = burst(active);
     expect(hit).toBeDefined();
     const buff = active.receiptEntries.find(
-      e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_wpn_funnel_0016_will_atk',
+      e => e.event === 'BuffApplied' && e.data?.buffId === buffId,
     );
     expect(buff).toBeDefined();
     expect(buff!.frame).toBe(hit!.frame);
     expect(active.receiptEntries.indexOf(buff!)).toBeLessThan(active.receiptEntries.indexOf(hit!));
     expect(active.executionDiagnostics).toEqual([]);
-    expect(hit!.data?.damageScaleMultiplier).toBeCloseTo(1.168);
+    expect(hit!.data?.damageScaleMultiplier).toBeCloseTo(1 + bonus);
     expect(burst(baseline)?.data?.damageScaleMultiplier).toBeCloseTo(1);
     expect(burst(baseline)?.data?.attack).toBe(hit!.data?.attack);
     expect(
       baseline.receiptEntries.some(
-        e => e.event === 'BuffApplied' && String(e.data?.buffId).startsWith('buff_wpn_funnel_0016'),
+        e => e.event === 'BuffApplied' && String(e.data?.buffId).startsWith(`buff_${slug}`),
       ),
     ).toBe(false);
     expect(baseline.executionDiagnostics).toEqual([]);
