@@ -42,6 +42,8 @@ export interface ExecutePoiseDamageInput extends CalculatePoiseDamageInput {
   readonly receipt: CombatReceiptSink;
   readonly emitSourceEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
   readonly emitTargetEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
+  /** 原生系统状态在 OnPoiseZero 的普通监听者之前生效。 */
+  readonly beforePoiseZero?: (modifier: PoiseDamageModifier) => void;
 }
 
 /** 一次失衡执行得到的最终变化量和目标状态。 */
@@ -88,7 +90,10 @@ export function executePoiseDamage(input: ExecutePoiseDamageInput): PoiseDamageE
     modifier.actualDelta = input.target.applyPoiseDelta(modifier.finalDelta);
     if (modifier.finalDelta < 0) input.emitTargetEvent('takePoiseDamage', modifier);
     brokePoise = input.target.beginPoiseBreakIfZero();
-    if (brokePoise) input.emitTargetEvent('poiseZero', modifier);
+    if (brokePoise) {
+      input.beforePoiseZero?.(modifier);
+      input.emitTargetEvent('poiseZero', modifier);
+    }
   }
 
   input.receipt.record({

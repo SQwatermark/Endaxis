@@ -233,6 +233,7 @@ export interface BoundCombatBattleRuntimes {
 
 /** 配装事件中未被通用执行器消费的操作，由环境按明确来源决定是否支持。 */
 export interface EquipmentEventOperationExecutorContext extends EquipmentEventExecutionContext {
+  readonly buffDefinitions?: CombatOperatorProgram['buffDefinitions'];
   readonly enemy: CombatEnemyProgram;
   readonly panel?: ResolvedOperatorPanel;
   readonly clock: CombatClock;
@@ -2479,6 +2480,7 @@ export class CombatRuntimeAssembly {
     const sourceActionId = `equipment:${source.source.kind}:${source.source.slug}:${source.handlerKey}`;
     const terminal = createTerminal({
       ...source,
+      buffDefinitions: operator.buffDefinitions,
       enemy: options.enemy,
       ...(operator.panel === undefined ? {} : { panel: operator.panel }),
       clock: this.clock,

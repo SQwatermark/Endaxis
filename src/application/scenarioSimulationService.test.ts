@@ -283,7 +283,7 @@ describe('ScenarioSimulationService', () => {
     expect(run.finalEnemyHealth).toBeLessThan(run.enemy.health);
   });
 
-  it('爆发触发但缺少 SkillSetting 数据时明确失败', async () => {
+  it('完整生成爆发已携带 SkillSetting 数值，不再需要旧聚合入口的运行时表', async () => {
     const scenario = createPerlicaScenario();
     const ids = { allocate: (kind: string) => `${kind}:${Math.random()}` };
     const first = placeSkillGroup({
@@ -303,9 +303,12 @@ describe('ScenarioSimulationService', () => {
       ids,
     }).scenario;
 
-    await expect(createService().simulate(second, 120)).rejects.toThrow(
-      'requires SkillSetting data',
+    const run = await createService().simulate(second, 120);
+    const hits = run.receiptEntries.filter(
+      entry => entry.event === 'DamageApplied' && entry.data?.spellBurstType === 'Pulse',
     );
+    expect(hits).toHaveLength(1);
+    expect(Number(hits[0]!.data!.value)).toBeGreaterThan(0);
   });
 
   it('相同场景内容与目标帧复用已冻结运行结果', async () => {

@@ -18,6 +18,7 @@ import type {
 } from './combatRuntimeAssembly';
 import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
+import { POISE_BREAK_BUFF_ID } from './poiseBreakBuffRuntime';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { createEnemyCombatVitals } from './combatVitalsFactory';
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
@@ -1948,7 +1949,28 @@ describe('StandardPlayerDamageEnvironment', () => {
   });
 
   it('applies poise damage and recovers after the break duration', () => {
-    const context = createContext();
+    const context = {
+      ...createContext(),
+      buffDefinitions: {
+        [POISE_BREAK_BUFF_ID]: {
+          stackingType: 'unlimited' as const,
+          blackboard: { dmg_up: 0.37 },
+          damageModifiers: [
+            {
+              enabledSide: 'defender' as const,
+              processors: [
+                {
+                  kind: 'damageScale' as const,
+                  side: 'defender' as const,
+                  zone: 'product' as const,
+                  addition: { blackboardKey: 'dmg_up' },
+                },
+              ],
+            },
+          ],
+        },
+      },
+    };
     const receipt = context.receipt as CombatReceiptCollector;
     const environment = createEnvironment();
     const executor = environment.runtimeOptions.createOperationExecutor(context);
@@ -1968,12 +1990,30 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(executor.execute({ kind: 'dealStagger', parameters: { value: 300 } })).toBe(true);
     expect(environment.enemyVitals.poise).toBe(0);
     expect(receipt.entries.at(-1)?.data?.brokePoise).toBe(true);
+    const buffs = environment.runtimeOptions
+      .enemyBuffRuntime as BuffDefinitionOperationTarget<string>;
+    expect(buffs.container.findFirstByIds([POISE_BREAK_BUFF_ID])?.sourceId).toBe('operator');
+    const damage = () => {
+      executor.execute(damageStep);
+      return receipt.entries.filter(e => e.event === 'DamageApplied').at(-1)!.data!.value as number;
+    };
+    const during = damage();
 
     const vitalsRuntime = environment.enemyVitalsRuntime;
     expect(vitalsRuntime).not.toBeNull();
     for (let frame = 0; frame < 320; frame += 1) vitalsRuntime!.advanceFrame();
     expect(environment.enemyVitals.poise).toBe(300);
     expect(receipt.entries.some(entry => entry.event === 'PoiseRecovered')).toBe(true);
+    expect(buffs.getCountByIds([POISE_BREAK_BUFF_ID])).toBe(0);
+    expect(during / damage()).toBeCloseTo(1.37);
+  });
+
+  it('失衡归零缺少系统 Buff 定义时明确失败，不偷偷使用默认倍率', () => {
+    const environment = createEnvironment();
+    const executor = environment.runtimeOptions.createOperationExecutor(createContext());
+    expect(() => executor.execute({ kind: 'dealStagger', parameters: { value: 300 } })).toThrow(
+      POISE_BREAK_BUFF_ID,
+    );
   });
 
   it('applies the resolved equipment poise-output addition to every stagger hit', () => {

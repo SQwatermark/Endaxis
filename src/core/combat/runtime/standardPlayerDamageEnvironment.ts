@@ -67,6 +67,8 @@ import type {
 } from './combatRuntimeAssembly';
 import { CombatVitals } from './combatVitals';
 import { CombatVitalsRuntime } from './combatVitalsRuntime';
+import { POISE_BREAK_BUFF_ID, PoiseBreakBuffRuntime } from './poiseBreakBuffRuntime';
+import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import {
   PlayerDamageOperationExecutor,
   type PlayerDamageOperationDependencies,
@@ -293,6 +295,8 @@ export class StandardPlayerDamageEnvironment {
   #skillSettings: CompoundStatusSkillSettingSource | null = null;
   readonly #enemyVitals: CombatVitals;
   #enemyVitalsRuntime: CombatVitalsRuntime | null = null;
+  readonly #poiseBreakBuffs: PoiseBreakBuffRuntime;
+  readonly #poiseBreakDefinitions = new Map<string, ResolvedSkillBuffDefinition>();
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
   #resources: CombatResources | null = null;
   #boundByAssembly = false;
@@ -367,6 +371,7 @@ export class StandardPlayerDamageEnvironment {
             options.knockDown.predefine,
             options.knockDown.onDurationElapsed,
           );
+    this.#poiseBreakBuffs = new PoiseBreakBuffRuntime(this.#enemyBuffRuntime);
     // 对象字面量中的 getter 会把自己的 this 绑定为字面量本身，因此用箭头闭包引用环境实例。
     const vitalsRuntimeOf = (): FrameRuntime | null => this.#enemyVitalsRuntime;
     this.runtimeOptions = {
@@ -557,6 +562,9 @@ export class StandardPlayerDamageEnvironment {
       this.#resolveAbilitySystemSourceId = context.resolveAbilitySystemSourceId;
     }
     this.#bindBattleRuntime(context);
+    const poiseBreakDefinition = context.buffDefinitions?.[POISE_BREAK_BUFF_ID];
+    if (poiseBreakDefinition !== undefined)
+      this.#poiseBreakDefinitions.set(operatorId, poiseBreakDefinition);
     if (context.panel !== undefined) {
       this.#operatorPanels.set(operatorId, context.panel);
       this.#ensureOperatorVitals(operatorId, context.panel);
@@ -622,6 +630,8 @@ export class StandardPlayerDamageEnvironment {
       absorbHealthDamage: (damageType, value) => this.#enemyBuffs.absorbDamage(damageType, value),
       emitPoiseSourceEvent: (event, modifier) => this.#emit(operatorId, event, modifier),
       emitPoiseTargetEvent: (event, modifier) => this.#emit('enemy', event, modifier),
+      beforePoiseZero: modifier =>
+        this.#poiseBreakBuffs.begin(modifier.sourceId, poiseBreakDefinition),
       emitSemanticHit: step => {
         context.semanticEvents.emit({
           kind: 'damageTagHit',
@@ -917,6 +927,7 @@ export class StandardPlayerDamageEnvironment {
       vitals: this.#enemyVitals,
       receipt: context.receipt,
       emitOwnerEvent: event => this.#emit('enemy', event, {}),
+      beforePoiseRecovered: () => this.#poiseBreakBuffs.recover(),
     });
   }
 
@@ -1365,6 +1376,11 @@ export class StandardPlayerDamageEnvironment {
       absorbHealthDamage: (type, value) => this.#enemyBuffs.absorbDamage(type, value),
       emitPoiseSourceEvent: (event, payload) => this.#emit(sourceId, event, payload),
       emitPoiseTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
+      beforePoiseZero: payload =>
+        this.#poiseBreakBuffs.begin(
+          payload.sourceId,
+          this.#poiseBreakDefinitions.get(payload.sourceId),
+        ),
       delegate: strictTerminal,
     };
   }

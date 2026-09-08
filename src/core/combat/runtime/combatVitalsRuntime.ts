@@ -17,6 +17,7 @@ export interface CombatVitalsRuntimeDependencies {
   readonly vitals: CombatVitals;
   readonly receipt: CombatReceiptSink;
   readonly emitOwnerEvent: (event: CombatVitalsEvent) => void;
+  readonly beforePoiseRecovered?: () => void;
 }
 
 /** 推进生命相关计时器，并在原生边界发布状态转换。 */
@@ -39,6 +40,7 @@ export class CombatVitalsRuntime implements FrameRuntime {
 
   #publish(transition: PoiseTimerTransition): void {
     if (transition === 'poiseRecovered') {
+      this.dependencies.beforePoiseRecovered?.();
       this.dependencies.emitOwnerEvent('poiseRecovered');
     }
     this.dependencies.receipt.record({

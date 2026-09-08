@@ -113,6 +113,7 @@ export interface PlayerDamageOperationDependencies {
   readonly absorbHealthDamage?: Parameters<typeof executeHealthDamage>[0]['absorbDamage'];
   readonly emitPoiseSourceEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
   readonly emitPoiseTargetEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
+  readonly beforePoiseZero?: (modifier: PoiseDamageModifier) => void;
   /** 生命伤害已经写入目标后，向统一语义事件层报告本次命中。 */
   readonly emitSemanticHit?: (step: DamageStep) => void;
   readonly delegate: CombatOperationExecutor;
@@ -453,6 +454,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       receipt: this.dependencies.receipt,
       emitSourceEvent: this.dependencies.emitPoiseSourceEvent,
       emitTargetEvent: this.dependencies.emitPoiseTargetEvent,
+      beforePoiseZero: this.dependencies.beforePoiseZero,
     });
   }
 

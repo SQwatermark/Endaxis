@@ -217,6 +217,9 @@ function assertHitDeltas(
     entry =>
       entry.event === 'DamageApplied' &&
       entry.sourceId === `track:reaction:${actor}` &&
+      // 原生完整爆发继承技能身份；本断言只比较夹具主动命中，不混入 Buff 的 DamageAction。
+      entry.data?.spellBurstType === undefined &&
+      !String(entry.data?.stepKey).includes('/lifecycleSequences/') &&
       entry.data?.skillType === 'basicAttack',
   );
   expect(hits).toHaveLength(damage.length);
