@@ -298,6 +298,23 @@ export function attachBuffLifecycleSequences<Key extends string>(
       buffSourceId: buff.sourceId,
       buffOwnerId: buff.owner.ownerId,
       finishCurrentBuff: reason => buff.finish(reason),
+      bindCurrentBuffSkillAffix: skillCastId => {
+        if (registerAbilityEventAction === undefined)
+          throw new Error('SkillAffix requires Buff ability-event registration');
+        buff.recordBuffAffixSkillCastId(skillCastId);
+        const registration = registerAbilityEventAction('skillEnd', 0, payload => {
+          const event = normalizeAbilityEventPayload('skillEnd', payload);
+          if (
+            event.kind !== 'abilitySkill' ||
+            event.sourceId !== buff.owner.ownerId ||
+            event.skillCastId !== skillCastId
+          )
+            return;
+          buff.finish('other');
+          registration.dispose();
+        });
+        return registration;
+      },
       ...(buff.finishParentGlobalBuff === null
         ? {}
         : { finishParentGlobalBuff: buff.finishParentGlobalBuff }),

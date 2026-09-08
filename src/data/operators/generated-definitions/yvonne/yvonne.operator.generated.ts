@@ -4949,7 +4949,6 @@ export default {
       attributeModifiers: [],
     },
     buff_chr_0017_yvonne_normal_skill_listener: {
-      affixSkillCastIdentity: 'sourceSkillCast',
       stackingType: 'unlimited',
       priority: 0,
       maxStackCount: 1,
@@ -4960,6 +4959,7 @@ export default {
       extendTags: [],
       blackboard: { atk_scale2: 0, crit_up: 0 },
       attributeModifiers: [],
+      lifecycleSequences: { enable: sequence(step('skillAffix', {})) },
       abilityEventResponses: [
         {
           event: 'beforeOutputBuff',
@@ -4988,16 +4988,6 @@ export default {
                   ),
                 ),
               ),
-            ),
-          ),
-        },
-        {
-          event: 'skillEnd',
-          priority: 0,
-          sequence: sequence(
-            branch(
-              { kind: 'eventSkillCastMatchesBuffSource' },
-              sequence(step('finishCurrentBuff', { reason: 'other' })),
             ),
           ),
         },

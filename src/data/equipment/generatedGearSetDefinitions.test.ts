@@ -273,19 +273,7 @@ describe('生成套装正式定义', () => {
           ],
         },
       ],
-      abilityEventResponses: [
-        {
-          event: 'skillEnd',
-          sequence: {
-            steps: [
-              {
-                parameters: { condition: { kind: 'eventSkillCastMatchesBuffSource' } },
-                whenTrue: { steps: [{ kind: 'finishCurrentBuff' }] },
-              },
-            ],
-          },
-        },
-      ],
+      lifecycleSequences: { enable: { steps: [{ kind: 'skillAffix', parameters: {} }] } },
     });
   });
 
@@ -356,19 +344,7 @@ describe('生成套装正式定义', () => {
           ],
         },
       ],
-      abilityEventResponses: [
-        {
-          event: 'skillEnd',
-          sequence: {
-            steps: [
-              {
-                parameters: { condition: { kind: 'eventSkillCastMatchesBuffSource' } },
-                whenTrue: { steps: [{ kind: 'finishCurrentBuff' }] },
-              },
-            ],
-          },
-        },
-      ],
+      lifecycleSequences: { enable: { steps: [{ kind: 'skillAffix', parameters: {} }] } },
     });
   });
 

@@ -1976,7 +1976,6 @@ export default {
       ],
     },
     buff_chr_0018_dapan_talent_1_cd_reduce: {
-      affixSkillCastIdentity: 'sourceSkillCast',
       stackingType: 'unique',
       priority: 0,
       maxStackCount: 2,
@@ -1984,6 +1983,7 @@ export default {
       extendTags: [],
       blackboard: { cd_reduce: 0.5, duration: 15 },
       attributeModifiers: [],
+      lifecycleSequences: { enable: sequence(step('skillAffix', {})) },
       abilityEventResponses: [
         {
           event: 'outputDamage',
@@ -2007,16 +2007,6 @@ export default {
               buffIds: ['buff_chr_0018_dapan_talent_1_cd_reduce'],
               reason: 'other',
             }),
-          ),
-        },
-        {
-          event: 'skillEnd',
-          priority: 0,
-          sequence: sequence(
-            branch(
-              { kind: 'eventSkillCastMatchesBuffSource' },
-              sequence(step('finishCurrentBuff', { reason: 'other' })),
-            ),
           ),
         },
       ],

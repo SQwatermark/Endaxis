@@ -2688,6 +2688,8 @@ function validateCombatStep(
         validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
       }
       break;
+    case 'skillAffix':
+      break;
     case 'finishCurrentBuff':
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
       break;

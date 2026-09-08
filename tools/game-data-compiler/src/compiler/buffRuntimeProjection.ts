@@ -500,7 +500,6 @@ export function compileBuffRuntimeDefinitionSource(
       ? main
       : [...main, { startFrame: animationEndFrame, endFrame: animationEndFrame, sequence: onEnd }];
   });
-  let finishesWithSourceSkill = false;
   for (const event of source.graph.buffEvents) {
     const target =
       event.event === 'OnBuffStart'
@@ -536,9 +535,6 @@ export function compileBuffRuntimeDefinitionSource(
     for (const sequence of event.actions) {
       const skillAffixBody =
         event.event === 'DuringBuffEnable' ? splitDirectSkillAffixSequence(sequence) : null;
-      if (skillAffixBody !== null) {
-        finishesWithSourceSkill = true;
-      }
       // AfterTryEnhanced 的默认 Target 仍是持有者，Source 由运行时绑定本次叠层者。
       // Finish/EnhanceChanged 保留现有事件投影，不能据此一并放宽未核实的来源映射。
       const compiled = compileLinearSequence(
@@ -553,7 +549,13 @@ export function compileBuffRuntimeDefinitionSource(
           : { ...BUFF_ACTION_CONTEXT, abilityEntityQueries, ...projectionContextOverrides },
         extensions,
       );
-      if (compiled.steps.length > 0) target.push(compiled);
+      if (skillAffixBody !== null) {
+        // 原生动作在序列末尾执行；前序失败时不得提前记录身份或建立监听。
+        target.push({
+          ...compiled,
+          steps: [...compiled.steps, { kind: 'skillAffix', parameters: {} }],
+        });
+      } else if (compiled.steps.length > 0) target.push(compiled);
     }
   }
   const effectiveOmittedAbilityEvents = new Set(omittedAbilityEvents);
@@ -830,28 +832,10 @@ export function compileBuffRuntimeDefinitionSource(
       ),
     ),
   }));
-  if (finishesWithSourceSkill) {
-    abilityEventResponses.push({
-      event: 'skillEnd',
-      priority: 0,
-      sequence: {
-        steps: [
-          {
-            kind: 'conditional',
-            parameters: { condition: { kind: 'eventSkillCastMatchesBuffSource' } },
-            whenTrue: {
-              steps: [{ kind: 'finishCurrentBuff', parameters: { reason: 'other' } }],
-            },
-          },
-        ],
-      },
-    });
-  }
   const blackboard = Object.fromEntries(
     source.graph.declaredBlackboard.map(item => [item.key, item.value]),
   );
   return {
-    ...(finishesWithSourceSkill ? { affixSkillCastIdentity: 'sourceSkillCast' as const } : {}),
     stackingType: STACKING_TYPES[source.lifecycle.stackingType],
     ...(source.lifecycle.stackingIdentifierType === 'StackingKey'
       ? { stackingKey: source.lifecycle.stackingKey }

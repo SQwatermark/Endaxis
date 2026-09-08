@@ -2861,7 +2861,6 @@ export const commonBuffDefinitions = Object.freeze({
     ],
   },
   buff_common_affixes_skillimbue: {
-    affixSkillCastIdentity: 'sourceSkillCast',
     stackingType: 'unlimited',
     priority: { blackboardKey: 'imbue_scale', negate: true },
     maxStackCount: 4,
@@ -2882,23 +2881,11 @@ export const commonBuffDefinitions = Object.freeze({
           finishByAction: true,
           blackboardAssignments: { imbue_scale: { kind: 'blackboard', key: 'imbue_scale' } },
         }),
+        step('skillAffix', {}),
       ),
     },
-    abilityEventResponses: [
-      {
-        event: 'skillEnd',
-        priority: 0,
-        sequence: sequence(
-          branch(
-            { kind: 'eventSkillCastMatchesBuffSource' },
-            sequence(step('finishCurrentBuff', { reason: 'other' })),
-          ),
-        ),
-      },
-    ],
   },
   buff_common_affixes_skillimbue_atk: {
-    affixSkillCastIdentity: 'sourceSkillCast',
     stackingType: 'unlimited',
     priority: { blackboardKey: 'imbue_scale', negate: true },
     maxStackCount: 4,
@@ -2957,18 +2944,7 @@ export const commonBuffDefinitions = Object.freeze({
         ],
       },
     ],
-    abilityEventResponses: [
-      {
-        event: 'skillEnd',
-        priority: 0,
-        sequence: sequence(
-          branch(
-            { kind: 'eventSkillCastMatchesBuffSource' },
-            sequence(step('finishCurrentBuff', { reason: 'other' })),
-          ),
-        ),
-      },
-    ],
+    lifecycleSequences: { enable: sequence(step('skillAffix', {})) },
   },
   buff_common_affixes_speedup: {
     stackingType: 'unlimited',

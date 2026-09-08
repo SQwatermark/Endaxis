@@ -13,6 +13,103 @@ import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { BuffOperationExecutor } from './buffOperationExecutor';
 
 describe('attachBuffLifecycleSequences', () => {
+  it.each(
+    [undefined, 42].flatMap(processing =>
+      [false, true].map(hasSource => ({ processing, hasSource })),
+    ),
+  )(
+    'SkillAffix独立编号 processing=$processing hasSource=$hasSource',
+    ({ processing, hasSource }) => {
+      const container = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+      const callbacks = new Set<(payload: unknown) => void>();
+      const definition = attachBuffLifecycleSequences<never>(
+        { id: 'affix', stackingType: 'unique' },
+        { enable: { steps: [{ kind: 'skillAffix', parameters: {} }] } },
+        () =>
+          new BuffOperationExecutor({
+            sourceId: 'source',
+            resolveTarget: () => container,
+            readProcessingSkillCastId: owner => {
+              expect(owner).toBe('owner');
+              return processing;
+            },
+            delegate: { execute: () => false, evaluate: () => false },
+          }),
+        undefined,
+        [],
+        (event, _priority, callback) => {
+          expect(event).toBe('skillEnd');
+          callbacks.add(callback);
+          return {
+            dispose: () => {
+              callbacks.delete(callback);
+            },
+          };
+        },
+      );
+      const ordinary = {
+        skillCastId: 999,
+        originSkillId: 'original',
+        originSkillType: 'battleSkill' as const,
+        nonReturnedSpCost: 0,
+      };
+      const buff = container.add(
+        definition,
+        'source',
+        hasSource ? { skillCastInfo: ordinary } : undefined,
+      )!;
+      expect(buff.affixSkillCastId).toBe(processing ?? 0);
+      expect(buff.skillCastInfo).toEqual(hasSource ? ordinary : null);
+      expect(callbacks.size).toBe(processing === undefined ? 0 : 1);
+      const emit = (sourceId: string, skillCastId: number) => {
+        for (const callback of [...callbacks])
+          callback({
+            sourceId,
+            targetId: sourceId,
+            skillId: 'skill',
+            skillType: 'battleSkill',
+            skillCastId,
+          });
+      };
+      emit('other', 42);
+      emit('owner', 999);
+      expect(buff.isFinished).toBe(false);
+      emit('owner', 42);
+      expect(buff.isFinished).toBe(processing !== undefined);
+      buff.finish('other');
+      expect(callbacks.size).toBe(0);
+      expect(buff.affixSkillCastId).toBe(processing ?? 0);
+    },
+  );
+
+  it('前序动作失败不提前执行SkillAffix或注册监听', () => {
+    const container = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'blocked-affix', stackingType: 'unique' },
+      {
+        enable: {
+          steps: [
+            {
+              kind: 'setContextFlag',
+              parameters: { flag: 'failure', value: true, target: 'caster' },
+            },
+            { kind: 'skillAffix', parameters: {} },
+          ],
+        },
+      },
+      () =>
+        new BuffOperationExecutor({
+          sourceId: 'owner',
+          resolveTarget: () => container,
+          readProcessingSkillCastId: () => {
+            throw new Error('must not read');
+          },
+          delegate: { execute: () => false, evaluate: () => false },
+        }),
+    );
+    expect(container.add(definition, 'owner')!.affixSkillCastId).toBe(0);
+  });
+
   it('limited counts in Buff events retain Buff provenance, not event or candidate affix identity', () => {
     const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
     const cast = (id: number) => ({

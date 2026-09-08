@@ -37,7 +37,6 @@ const definition = {
       ],
       "buffDefinitions": {
         "buff_wpn_funnel_0011": {
-          "affixSkillCastIdentity": "sourceSkillCast",
           "stackingType": "unlimited",
           "priority": 0,
           "maxStackCount": 0,
@@ -64,6 +63,14 @@ const definition = {
                     "saveToContextKey": "wpn_funnel_0011_total_tar",
                     "sources": []
                   }
+                }
+              ]
+            },
+            "enable": {
+              "steps": [
+                {
+                  "kind": "skillAffix",
+                  "parameters": {}
                 }
               ]
             }
@@ -227,32 +234,6 @@ const definition = {
                                 }
                               }
                             ]
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "event": "skillEnd",
-              "priority": 0,
-              "sequence": {
-                "steps": [
-                  {
-                    "kind": "conditional",
-                    "parameters": {
-                      "condition": {
-                        "kind": "eventSkillCastMatchesBuffSource"
-                      }
-                    },
-                    "whenTrue": {
-                      "steps": [
-                        {
-                          "kind": "finishCurrentBuff",
-                          "parameters": {
-                            "reason": "other"
                           }
                         }
                       ]

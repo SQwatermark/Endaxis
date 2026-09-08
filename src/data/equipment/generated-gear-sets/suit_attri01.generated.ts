@@ -183,7 +183,6 @@ const definition = {
       ],
     },
     buff_equipsuit_attrisuitup_02: {
-      affixSkillCastIdentity: 'sourceSkillCast',
       stackingType: 'stack',
       priority: 0,
       maxStackCount: 1,
@@ -224,34 +223,16 @@ const definition = {
           ],
         },
       ],
-      abilityEventResponses: [
-        {
-          event: 'skillEnd',
-          priority: 0,
-          sequence: {
-            steps: [
-              {
-                kind: 'conditional',
-                parameters: {
-                  condition: {
-                    kind: 'eventSkillCastMatchesBuffSource',
-                  },
-                },
-                whenTrue: {
-                  steps: [
-                    {
-                      kind: 'finishCurrentBuff',
-                      parameters: {
-                        reason: 'other',
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
+      lifecycleSequences: {
+        enable: {
+          steps: [
+            {
+              kind: 'skillAffix',
+              parameters: {},
+            },
+          ],
         },
-      ],
+      },
     },
   },
   initializationSequence: {

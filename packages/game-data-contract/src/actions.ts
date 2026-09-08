@@ -530,6 +530,8 @@ export interface CombatStepParameters {
   };
   /** 按当前 Buff 黑板重新解析并替换已注册的属性修正值。 */
   refreshCurrentBuffAttributeModifiers: Record<string, never>;
+  /** 记录当前处理技能的附着编号并监听其直接结束；不改变 Buff 普通来源。尚不包含派生对象引用延寿。 */
+  skillAffix: Record<string, never>;
   /** 查询匹配 Buff 的累计强化层数或实例数，并写入当前技能实例的动作黑板。 */
   readBuffStackCount: {
     target: BuffSingleTarget;
@@ -932,6 +934,7 @@ export const COMBAT_STEP_KINDS = [
   'readBuffRemainingDuration',
   'setCurrentBuffRemainingDuration',
   'refreshCurrentBuffAttributeModifiers',
+  'skillAffix',
   'readBuffStackCount',
   'finishBuffsByTag',
   'finishBuffsById',

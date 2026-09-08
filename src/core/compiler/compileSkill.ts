@@ -603,6 +603,7 @@ function resolveStep(
     case 'setCurrentBuffRemainingDuration':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'refreshCurrentBuffAttributeModifiers':
+    case 'skillAffix':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'readBuffStackCount':
       return {

@@ -449,6 +449,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'readBuffRemainingDuration',
   'setCurrentBuffRemainingDuration',
   'refreshCurrentBuffAttributeModifiers',
+  'skillAffix',
   'finishCurrentBuff',
   'setCurrentBuffTimePaused',
   'createGlobalBuff',
@@ -824,6 +825,7 @@ export function createSkillEditorStep(
         parameters: { operation: 'assign', value: { kind: 'constant', value: 0 } },
       };
     case 'refreshCurrentBuffAttributeModifiers':
+    case 'skillAffix':
       return { kind, parameters: {} };
     case 'finishCurrentBuff':
       return { kind, parameters: { reason: 'early' } };

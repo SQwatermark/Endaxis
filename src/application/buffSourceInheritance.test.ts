@@ -26,8 +26,7 @@ function track(slug: string, weaponSlug: string, casts: [string, string, number]
   };
 }
 
-// 已知来源缺陷；修复前须解除 SkillAffix 对事件来源继承的错误依赖。
-it.fails('别礼普攻触发的幻影仍继承战技来源，并触发赫拉芬格战技附着增益', async () => {
+it('别礼普攻触发的幻影仍继承战技来源，并触发赫拉芬格战技附着增益', async () => {
   const scenario = createEmptyScenario('phantom-origin', '幻影来源');
   scenario.tracks[0] = track('last-rite', 'wpn_claym_0013', [
     ['basicAttack', 'basicAttack1', 3],

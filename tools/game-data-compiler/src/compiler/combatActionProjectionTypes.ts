@@ -460,6 +460,7 @@ export type CompiledBuffStepSource =
   | Step<'setGlobalCooldown'>
   | Step<'createAbilityEntityTimedMarker'>
   | Step<'finishCurrentBuff'>
+  | Step<'skillAffix'>
   | Step<'setCurrentBuffTimePaused'>;
 
 export interface CompiledBuffSequenceSource {

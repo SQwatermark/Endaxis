@@ -236,6 +236,7 @@ export interface ResolvedCombatStepParameters {
   finishBuffsByTag: CombatStepParameters['finishBuffsByTag'];
   finishBuffsById: CombatStepParameters['finishBuffsById'];
   finishCurrentBuff: CombatStepParameters['finishCurrentBuff'];
+  skillAffix: CombatStepParameters['skillAffix'];
   setCurrentBuffTimePaused: CombatStepParameters['setCurrentBuffTimePaused'];
   igniteBuffs: CombatStepParameters['igniteBuffs'];
   adjustSkillCooldown: CombatStepParameters['adjustSkillCooldown'];

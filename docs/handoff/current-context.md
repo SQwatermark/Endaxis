@@ -1,5 +1,47 @@
 # 当前任务快照
 
+## 2026-09-09：SkillAffix直接技能动作接通，CreateBuff来源修正进入验证
+
+新增公共skillAffix步骤，Buff启用序列实际执行到该动作时，读取宿主processing编号、
+记录独立affix并注册本宿主同编号skillEnd；动作结束解除监听但不清除记录。无Buff/无
+processing技能返回false，前序失败不提前绑定。只支持已证明的直接技能寿命子集，
+不宣称弹体/实体/输出Buff引用延寿完整。转换保持原先仅支持DuringBuffEnable末尾
+直接动作的范围，但不再把它提前替换为构造字段和普通来源结束条件。
+
+CreateBuff现仅从动作环境context.skillCastInfo继承，保留独立eventSkillCastInfo供
+事件条件读取。三项来源it.fails已移除且真实通过，阿克库里相关回归通过，武器180项通过。
+生命周期新测覆盖无普通来源/普通来源999与processing42、缺失processing、其他宿主、
+不同编号、结束清理和前序失败；相关转换/编辑器/运行时240项通过（含原有测试）。
+
+从同一tmp/game-data-sources-hybrid-20260905快照重生成31名干员、66公共Buff、武器和
+套装。实际变化2名干员da-pan/yvonne、2把武器funnel_0006/0011、2套装atk02/attri01及
+公共Buff文件。武器目录Windows rename锁阻止首次整目录发布，改为临时候选核对后
+逐文件同步，仅上述4个装备文件变化；未改游戏输入。脚本及日志均在tmp/skill-affix*。
+
+真实轴：原始公开轴825921.87309623/80笔、14可用性/8窗口/0执行，未变；
+仅切别礼主控对照1870839.2218356298/97笔，32/0/0，恢复赫拉芬格0.16分支。
+三个用户轴693530.8131581588/210、337938.8820469209/194、1996820.2804914764/265，
+均未变且0执行错误。报告tmp/public-last-rite[-controlled]-affix-fixed.json与
+tmp/private-three-affix-fixed.json。不能把主控诊断伤害称作原始轴伤害。
+
+仍待清理：旧affixSkillCastIdentity构造字段仍供旧手写测试/编辑定义消费，正式生成数据
+已无此字段；需移除该错误入口而不是继续扩展。CheckSkillCastId非伤害事件分支仍有
+原生证据边界，不能因本次直接skillEnd绑定完成就宣称所有事件分支已等价。
+
+全量报告tmp/skill-affix-final-suite.json：7143通过、3失败、2原有跳过，排除11项重型
+类型图测试。3项是旧生成结构预期（2项）及装备内容指纹（1项），核对上述两套装实际
+变化后更新断言，相关文件连同全注册装备重跑1163项全通过；不能表述为首次全绿。
+新装备/套装内容SHA256为e97999d31e28056e84c68c12be9e7ccec645002832d77644641cd45aef445c12，
+产品版本仍为endaxis-definitions-latest。正式生成库已无affixSkillCastIdentity。
+应用vue-tsc、完整转换器tsc、另行单进程的11项重型类型图检查均通过。
+
+补充逐笔核对：来源修复后，赫拉芬格战技增益125/439/780帧施加或刷新，1229帧因
+lifetime结束；别礼终结技1461/1480/1509三笔仍118699.7591/118699.7591/237399.5182。
+故“首击缺0.16”不只涉及触发来源，还涉及已到期的寿命差异，不能声称首击差额已修复。
+原始buff_wpn_claym_0013_normal_skill.json的useTimeDilationDt=false，SHA256
+B28397A431AA97D7C2078A3BC36258794703B202E4C77F7B645F9409AF8DBBDF；下一轮核对旧版
+对应增益的刷新/顺延规则及完整时钟配置，再决定是否属于与腐蚀相同的合理差异。
+
 ## 2026-09-09：SkillAffix前置身份入口已补，尚未切换Buff消费
 
 AbilitySystemRuntime新增currentProcessingSkillCastId：同步临时processing技能优先，

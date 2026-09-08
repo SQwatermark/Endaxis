@@ -166,7 +166,6 @@ const definition = {
       ],
     },
     buff_equipsuit_atk_02_addcombodamage_buff: {
-      affixSkillCastIdentity: 'sourceSkillCast',
       stackingType: 'unique',
       priority: 0,
       maxStackCount: 5,
@@ -207,34 +206,16 @@ const definition = {
           ],
         },
       ],
-      abilityEventResponses: [
-        {
-          event: 'skillEnd',
-          priority: 0,
-          sequence: {
-            steps: [
-              {
-                kind: 'conditional',
-                parameters: {
-                  condition: {
-                    kind: 'eventSkillCastMatchesBuffSource',
-                  },
-                },
-                whenTrue: {
-                  steps: [
-                    {
-                      kind: 'finishCurrentBuff',
-                      parameters: {
-                        reason: 'other',
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
+      lifecycleSequences: {
+        enable: {
+          steps: [
+            {
+              kind: 'skillAffix',
+              parameters: {},
+            },
+          ],
         },
-      ],
+      },
     },
     buff_equipsuit_atk_02_aruadetect: {
       stackingType: 'unlimited',

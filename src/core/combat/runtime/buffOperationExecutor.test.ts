@@ -14,9 +14,7 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
-  // 已由原生 FillSkillCastInfo 证实；待先拆分 SkillAffix 的 processing-skill 身份。
-  // fails 是已知缺陷的可执行复现，不代表生产逻辑已修复。
-  it.fails.each([false, true])('CreateBuff继承动作环境而非触发事件，宿主来源存在=%s', hasHost => {
+  it.each([false, true])('CreateBuff继承动作环境而非触发事件，宿主来源存在=%s', hasHost => {
     const apply = vi.fn((_request: unknown) => true);
     const target = Object.assign(new CombatBuffContainer('caster', new CombatAttributeSet()), {
       apply,

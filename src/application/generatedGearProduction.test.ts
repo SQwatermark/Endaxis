@@ -26,13 +26,13 @@ describe('generated gear production integration', () => {
     const digest = new Uint8Array(
       await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)),
     );
-    // 发布门禁：装备或套装重生成发生行为漂移时，必须显式更新 game-data revision。
+    // 发布门禁：核对实际生成差异后更新内容指纹；产品只保存 latest，不另造历史版本。
     expect([
       gameDataRepository.revision,
       Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join(''),
     ]).toEqual([
       'endaxis-definitions-latest',
-      '962ad8d69317caa94d111529d476fccf377612485bd2fa56e00e56fd01281095',
+      'e97999d31e28056e84c68c12be9e7ccec645002832d77644641cd45aef445c12',
     ]);
   });
 

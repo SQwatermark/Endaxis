@@ -199,9 +199,11 @@ export interface BuffOperationDependencies {
     readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
   }) => void;
   readonly delegate: CombatOperationExecutor;
+  readonly readProcessingSkillCastId?: (ownerId: string) => number | undefined;
 }
 
 export class BuffOperationExecutor implements CombatOperationExecutor {
+  readonly #skillAffixes = new WeakMap<RuntimeOperation, { dispose(): void }>();
   readonly #holds = new WeakMap<RuntimeOperation, { release(): void }>();
   readonly #actionDurationBuffs = new WeakMap<RuntimeOperation, readonly BuffApplicationHandle[]>();
   readonly #inheritedBuffs = new WeakMap<RuntimeOperation, BuffApplicationHandle>();
@@ -211,6 +213,17 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     step: RuntimeOperation,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'skillAffix') {
+      if (this.#skillAffixes.has(step)) throw new Error('SkillAffix action is already active');
+      if (context?.bindCurrentBuffSkillAffix === undefined || context.buffOwnerId === undefined)
+        return false;
+      if (this.dependencies.readProcessingSkillCastId === undefined)
+        throw new Error('SkillAffix requires a processing-skill resolver');
+      const id = this.dependencies.readProcessingSkillCastId(context.buffOwnerId);
+      if (id === undefined) return false;
+      this.#skillAffixes.set(step, context.bindCurrentBuffSkillAffix(id));
+      return true;
+    }
     if (step.kind === 'applyPhysicalInfliction') {
       if (context?.skillCastInfo === undefined) {
         throw new Error('applyPhysicalInfliction requires a skill runtime context');
@@ -387,10 +400,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         step.parameters.count === undefined
           ? 1
           : resolveActionValueOperand(step.parameters.count, context!.blackboard);
-      const inheritedSkillCastInfo =
-        context?.eventSkillCastInfo === undefined
-          ? context?.skillCastInfo
-          : (context.eventSkillCastInfo ?? undefined);
+      // CreateBuffAction.FillSkillCastInfo 读取动作环境，事件来源只供事件条件读取。
+      const inheritedSkillCastInfo = context?.skillCastInfo;
       if (!Number.isFinite(count)) throw new RangeError('applyBuff count must be finite');
       // CreateBuffAction 每次实际施加都读 ID 和参数；前一个子 Buff 启动后可以改变后续读取值。
       const createRequest = (): BuffApplicationRequest => {
@@ -936,6 +947,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     step: RuntimeOperation,
     context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
   ): void {
+    if (step.kind === 'skillAffix') {
+      this.#skillAffixes.get(step)?.dispose();
+      this.#skillAffixes.delete(step);
+      return;
+    }
     if (step.kind === 'holdBuffsById') {
       this.#holds.get(step)?.release();
       this.#holds.delete(step);

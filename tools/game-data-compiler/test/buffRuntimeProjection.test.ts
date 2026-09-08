@@ -1350,7 +1350,7 @@ describe('公共 Buff 运行时投影', () => {
     },
   );
 
-  it('把 DuringBuffEnable 末尾的 SkillAffix 保存为独立身份及来源技能寿命', () => {
+  it('把 DuringBuffEnable 末尾的 SkillAffix 保留为动作而非提前构造身份', () => {
     const source = sourceFixture();
     const sequence = source.graph.abilityEvents[0]!.actions[0]!;
     const template = sequence.actions[0]!;
@@ -1381,11 +1381,11 @@ describe('公共 Buff 运行时投影', () => {
         ],
       },
     });
-    expect(definition.affixSkillCastIdentity).toBe('sourceSkillCast');
-    expect(definition.lifecycleSequences?.enable).toBeUndefined();
-    expect(definition.abilityEventResponses).toEqual([
-      { event: 'skillEnd', priority: 0, sequence: expect.any(Object) },
-    ]);
+    expect(definition.affixSkillCastIdentity).toBeUndefined();
+    expect(definition.lifecycleSequences?.enable).toEqual({
+      steps: [{ kind: 'skillAffix', parameters: {} }],
+    });
+    expect(definition.abilityEventResponses ?? []).toEqual([]);
   });
 
   it.each(['Target', 'Source'] as const)(

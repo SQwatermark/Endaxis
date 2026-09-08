@@ -381,6 +381,7 @@ function inspectSequence(
       case 'finishBuffsByTag':
       case 'finishBuffsById':
       case 'finishCurrentBuff':
+      case 'skillAffix':
       case 'setCurrentBuffTimePaused':
       case 'igniteBuffs':
       case 'holdBuffsById':

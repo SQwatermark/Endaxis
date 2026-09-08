@@ -2281,6 +2281,8 @@ export class CombatRuntimeAssembly {
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
       definitionOwnerId: definitionOperator.operatorId,
+      readProcessingSkillCastId: ownerId =>
+        this.#abilitySystems.get(ownerId)?.currentProcessingSkillCastId,
       sourceActionId: program.castId ?? program.skillId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
@@ -2589,6 +2591,8 @@ export class CombatRuntimeAssembly {
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
       sourceActionId,
+      readProcessingSkillCastId: ownerId =>
+        this.#abilitySystems.get(ownerId)?.currentProcessingSkillCastId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
         this.#resolveBuffApplicationTargets(

@@ -71,6 +71,7 @@ export const STEP_TYPE_GROUPS: readonly StepTypeGroup[] = [
       'readBuffRemainingDuration',
       'setCurrentBuffRemainingDuration',
       'refreshCurrentBuffAttributeModifiers',
+      'skillAffix',
       'finishCurrentBuff',
       'setCurrentBuffTimePaused',
       'createGlobalBuff',

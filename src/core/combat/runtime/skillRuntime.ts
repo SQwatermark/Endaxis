@@ -270,6 +270,8 @@ export interface CombatOperationContext {
   readonly actionSourceId?: string;
   /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */
   readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
+  /** 仅 Buff 环境提供；动作结束解除监听，不清除已记录的 affix 编号。 */
+  readonly bindCurrentBuffSkillAffix?: (skillCastId: number) => { dispose(): void };
   /** 只由 GlobalBuff 投影出的子 Buff 提供；不得按 ID 猜测父层。 */
   readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;
   /** Environment BuffCount 查询读取正在执行的当前 Buff 增强层数。 */
