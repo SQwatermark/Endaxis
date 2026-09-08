@@ -44,6 +44,9 @@ node --experimental-strip-types tools/legacy-timeline/auditSimulation.ts tmp/con
   段号和变体必须逐项确认，不能将换槽、强化、自定义动作默认为基础技能。
 - actions：按“方案ID/轨道下标/动作下标”的单动作覆盖，优先于 skills；
   仅供明确核对后的例外映射，不依赖可能重复的旧 action.id。
+- guardedActions：当方案ID是default_sc等通用值时，同时精确匹配path、旧operator、
+  instanceId和source技能身份，再使用target。实例ID不是单独的匹配依据；不匹配时
+  仍走普通技能映射，多条命中或与actions冲突显式报错，避免污染其他分享轴。
 
 不得把缺失身份自动变成默认配装或删除技能后宣称成功。
 映射只解决身份，不证明新旧版本行为或数值相同。

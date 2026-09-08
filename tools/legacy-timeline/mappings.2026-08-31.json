@@ -1,4 +1,13 @@
 {
+  "guardedActions": [
+    {
+      "path": "default_sc/0/3",
+      "operator": "arcane",
+      "instanceId": "inst_e889ock",
+      "source": { "skillId": "ultimate", "sourceSkillKey": "ultimate", "type": "ultimate" },
+      "target": { "kind": "operatorSkill", "skillGroupKey": "ultimate", "skillKey": "arcana" }
+    }
+  ],
   "actions": {
     "sc_zpm5ozw/0/47": {
       "kind": "operatorSkill",

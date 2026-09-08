@@ -15,6 +15,14 @@ export interface ConversionMappings {
   >;
   /** 精确旧坐标：方案 ID / 轨道下标 / 动作下标，不按名称猜变体。 */
   actions?: Record<string, SkillCastDocument['source']>;
+  /** 通用方案ID的已验证例外：坐标、源干员、实例及技能身份必须同时匹配。 */
+  guardedActions?: readonly {
+    path: string;
+    operator: string;
+    instanceId: string;
+    source: LegacySkillIdentity;
+    target: SkillCastDocument['source'];
+  }[];
 }
 export interface LegacySkillIdentity {
   skillId?: string;
@@ -177,7 +185,18 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
         const candidates = (mappings.skills?.[oldOperator] ?? []).filter(
           rule => JSON.stringify(legacySkillIdentity(rule.source)) === JSON.stringify(identity),
         );
-        const override = mappings.actions?.[path];
+        const guarded = (mappings.guardedActions ?? []).filter(
+          rule =>
+            rule.path === path &&
+            rule.operator === oldOperator &&
+            rule.instanceId === action.instanceId &&
+            JSON.stringify(legacySkillIdentity(rule.source)) === JSON.stringify(identity),
+        );
+        if (guarded.length > 1 || (guarded.length && mappings.actions?.[path])) {
+          issues.push({ path, message: '单动作映射不唯一' });
+          continue;
+        }
+        const override = guarded[0]?.target ?? mappings.actions?.[path];
         if (override) action.convertedSource = override;
         else if (candidates.length === 1) action.convertedSource = candidates[0]!.target;
         else {

@@ -29,6 +29,38 @@ it('真实轴的末次诀终结技明确映射为秘仪，不自动替换其他�
   expect(casts[47]!.source).toMatchObject({ skillGroupKey: 'ultimate', skillKey: 'arcana' });
 });
 
+it.each(['inst_e889ock', 'different-share-instance'])(
+  '公开轴秘仪映射同时核对坐标和源实例：%s',
+  instanceId => {
+    const input = fixture();
+    const scenario = input.scenarioList[0]!;
+    scenario.id = 'default_sc';
+    scenario.data.operators[0]!.operatorSlug = 'arcane';
+    scenario.data.tracks[0]!.id = 'arcane';
+    scenario.data.tracks[0]!.actions = Array.from({ length: 4 }, (_, index) => ({
+      skillId: 'ultimate',
+      sourceSkillKey: 'ultimate',
+      type: 'ultimate',
+      instanceId: index === 3 ? instanceId : 'other-' + index,
+      startTime: 300 + index * 180,
+      logicalStartTime: 300 + index * 180,
+    }));
+    const before = JSON.stringify(input);
+    const result = convertLegacyTimeline(
+      input,
+      gameDataRepository,
+      realAxisMappings as ConversionMappings,
+    );
+    expect(result.report.issues).toEqual([]);
+    expect(JSON.stringify(input)).toBe(before);
+    const casts = result.project!.scenarios[0]!.tracks[0]!.skillCasts;
+    expect(casts[2]!.source).toMatchObject({ skillKey: 'ultimate' });
+    expect(casts[3]!.source).toMatchObject({
+      skillKey: instanceId === 'inst_e889ock' ? 'arcana' : 'ultimate',
+    });
+  },
+);
+
 function fixture() {
   return {
     version: '1.0.0',
