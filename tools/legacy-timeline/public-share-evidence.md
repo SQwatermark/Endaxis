@@ -1,5 +1,31 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：第一笔寒冷爆发的两项公式差异（顺序待核实）
+
+当前修正秘仪的主控诊断，180帧诀Cryst爆发5254.717427415849；旧6.1秒为7024。
+两边攻击4800、倍率1.6、暴击期望1.025、防御0.5、抗性1、脆弱1.12一致。
+旧_damageBreakdown记录levelCoefficient=1.4540816326530612、dmgTakenMult=1.096。
+旧4dadc55f src/data/stats/computeReactionDamage.ts约153行对法术反应/爆发使用
+1+(level-1)/196，computeDamage.ts约753行将此项乘入；此轴等级90、术强0。
+新回执baseDamage=7680、damageScaleMultiplier=1.335039996802807，即约1.12×1.192。
+
+诊断算式（不修改运行时）：
+4800×1.6×1.12×1.192×0.5×1.025=5254.71744。
+仅移除等级项、仍保留旧1.096则为4831.51872，故不能把全部差额只归等级系数。
+旧整数伤害还包含逐步取整，不能用7024直接相除要求完全相等。
+
+当前SkillSetting发布版本1.5.3@9913107-5，法术爆发伤害倍率四列均1.6，Damage公式
+为1+0.01×增强属性。combat-spec/docs/read-skill-setting-data.md的RVA0x06D1F5F8
+流程读取列和PhysicalAndSpellInflictionEnhance，不读取角色等级；普通玩家伤害公式
+见damage-formula.md。旧额外等级项没有在这两个阶段找到对应项，但不能据此声称
+所有伤害特殊路径都已证明不存在等级影响；仍以完整爆发数据/处理器证据为最终边界。
+
+首爆附近武器buff_wpn_funnel_0016_will_dmg在146帧施加，will_atk和will_icon在
+180帧施加，来源均诀的四二式·肃阵skill3。需进一步核对原生爆发前置事件与伤害顺序，
+判断第二项9.6%应该作用于本次还是后续命中。当前仅完成数值分解，不改顺序或扣增益。
+临时摘录tmp/inspect-first-burst.mjs。现有spellBurstRuntime.test.ts及skillSettings.test.ts
+12项通过，无跳过/预期失败；未新增测试、未跑全量/类型检查、未做视觉验收。
+
 ## 2026-09-09：秘仪修订后的命中差额及跨轨时间膨胀
 
 使用tmp/public-last-rite-controlled-affix-fixed.json和
