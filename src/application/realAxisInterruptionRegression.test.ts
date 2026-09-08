@@ -471,6 +471,39 @@ it.each([0, 1, 4])('别礼连携按实际消费的%i层寒冷拆分附加伤害�
   expect(hits[0]!.frame).toBeLessThan(hits[1]!.frame);
 });
 
+it.each([true, false])('潮涌只由持有者输出的二层附着触发（本人=%s）', async ownInfliction => {
+  const scenario = createEmptyScenario('tide-surge-owner', '套装附着来源');
+  const caster = track('perlica', [
+    ['battleSkill', 'battleSkill', 1],
+    ['battleSkill', 'battleSkill', 100],
+  ]);
+  caster.skillCasts[0]!.id = 'first-electric';
+  scenario.tracks[0] = caster;
+  scenario.tracks[1] = track('last-rite', []);
+  scenario.tracks[ownInfliction ? 0 : 1]!.gears = {
+    armor: null,
+    gloves: { gearSlug: 'item_equip_t4_suit_burst01_hand_01', artificingLevels: [3, 3, 3] },
+    accessory1: { gearSlug: 'item_equip_t4_suit_burst01_edc_01', artificingLevels: [3, 3, 3] },
+    accessory2: { gearSlug: 'item_equip_t4_suit_burst01_edc_01', artificingLevels: [3, 3, 3] },
+  };
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 220);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  expect(
+    result.receiptEntries.some(
+      e => e.event === 'ElementalInflictionApplied' && e.data?.currentLayers === 2,
+    ),
+  ).toBe(true);
+  const buffs = result.receiptEntries.filter(
+    e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_equipsuit_burst_01_spelldmgup',
+  );
+  if (ownInfliction) {
+    expect(buffs).toHaveLength(1);
+    expect(buffs[0]?.targetId).toBe('perlica');
+  } else expect(buffs).toEqual([]);
+});
+
 it('赫拉芬格战技附着增益使用15秒默认时钟，不被全屏终结技顺延', async () => {
   async function simulate(withUltimate: boolean) {
     const scenario = createEmptyScenario('khravengger-clock', '武器增益默认时钟');
