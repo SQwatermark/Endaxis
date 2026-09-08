@@ -299,6 +299,44 @@ it('秘仪在本地58帧命中，队友即时连携的全局膨胀仍可延后�
   expect(frames[1]).toBeGreaterThan(frames[0]!);
 });
 
+it('低温症的15秒寿命不被队友终结技全屏膨胀延长', async () => {
+  const spans: number[][] = [];
+  for (const withUltimate of [false, true]) {
+    const scenario = createEmptyScenario('last-rite-talent-clock', '低温症默认时钟');
+    scenario.tracks[0] = track('last-rite', [['comboSkill', 'comboSkill', 600]]);
+    scenario.tracks[0]!.operator!.talentStates = { '0': 2 };
+    scenario.tracks[1] = track(
+      'xaihi',
+      [1, 150, 300, 450].map(frame => ['comboSkill', 'comboSkill', frame] as const),
+    );
+    scenario.tracks[1]!.skillCasts.forEach((cast, index) => {
+      cast.id = `attachment:${index}`;
+    });
+    if (withUltimate) scenario.tracks[2] = track('tangtang', [['ultimate', 'ultimate', 850]]);
+    const before = JSON.stringify(scenario);
+    const run = await new ScenarioSimulationService({
+      index: gameDataRepository,
+      spellInflictionSettings: skillSettings,
+      resources,
+    }).simulate(scenario, 1500);
+    expect(JSON.stringify(scenario)).toBe(before);
+    expect(run.executionDiagnostics).toEqual([]);
+    const start = run.receiptEntries.find(
+      e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0026_lastrite_talent_1_vul',
+    );
+    expect(start).toBeDefined();
+    const end = run.receiptEntries.find(
+      e => e.event === 'BuffFinished' && e.data?.instanceId === start!.data?.instanceId,
+    );
+    expect(end?.data?.reason).toBe('lifetime');
+    expect(end!.frame - start!.frame).toBe(450);
+    expect(start!.frame).toBeLessThan(850);
+    expect(end!.frame).toBeGreaterThan(850);
+    spans.push([start!.frame, end!.frame]);
+  }
+  expect(spans[1]).toEqual(spans[0]);
+});
+
 it('诀秘仪命中时，负时长的筹谋增幅仍然生效', async () => {
   const damage: number[] = [];
   for (const talentLevel of [1, 2]) {
