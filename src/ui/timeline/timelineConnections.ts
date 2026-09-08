@@ -6,6 +6,21 @@
  */
 import type { ConnectionDocument, ScenarioDocument } from '../../core/project/schema';
 import type { TimelineHitMarker } from './timelineHitProjection';
+import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
+
+/** 连线保存定义步骤身份；重复执行锚定首次实际命中，未执行时才使用定义预览。 */
+export function resolveDamageHitConnectionFrame(
+  castId: string,
+  stepKey: string,
+  startFrame: number,
+  markers: readonly TimelineHitMarker[],
+  actualFrames: ReadonlyMap<string, number>,
+): number | null {
+  const actual = actualFrames.get(deriveHitId(castId, stepKey));
+  if (actual !== undefined) return actual;
+  const preview = markers.find(marker => marker.stepKey === stepKey);
+  return preview === undefined ? null : startFrame + preview.frameOffset;
+}
 
 export type TimelineConnectionPort = 'top' | 'right' | 'bottom' | 'left';
 
@@ -26,7 +41,7 @@ export interface CreateDamageHitConnectionInput {
   /** 目标技能定义中伤害步骤的稳定 key；全局 hitId 由 castId + stepKey 派生。 */
   readonly toStepKey: string;
   /** 目标释放的已投影命中标记，用于确认 stepKey 存在。 */
-  readonly targetMarkers: readonly TimelineHitMarker[];
+  readonly targetMarkers: readonly Pick<TimelineHitMarker, 'stepKey'>[];
   readonly consumption?: boolean;
 }
 

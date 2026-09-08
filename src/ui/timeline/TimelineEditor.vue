@@ -3011,10 +3011,11 @@ function finishConnectionDrag(event: PointerEvent): void {
 
   if (targetPortValue.startsWith('hit:')) {
     const toStepKey = targetPortValue.slice('hit:'.length);
+    const targetTrackIndex = viewModel.value.tracks.findIndex(track =>
+      track.skillCasts.some(castModel => castModel.id === targetSkillCastId),
+    );
     const targetMarkers =
-      viewModel.value.tracks
-        .flatMap(track => track.skillCasts)
-        .find(castModel => castModel.id === targetSkillCastId)?.hitMarkers ?? [];
+      targetTrackIndex < 0 ? [] : castHitMarkers(targetTrackIndex as TrackIndex, targetSkillCastId);
     commitScenario('createDamageHitConnection', current =>
       createDamageHitConnection(current, {
         id: ids.allocate('connection'),
@@ -5141,6 +5142,12 @@ function setPanelDialogVisible(visible: boolean): void {
             :cast-actual-duration-frames="skillCastActualDurationFrames"
             :hit-actual-frames="hitActualFrames"
             :visible-track-indices="visibleEffectTrackIndices"
+            :ruler-height="TIMELINE_RULER_HEIGHT"
+            :track-layouts="
+              viewModel.tracks.map(track =>
+                trackEffectLayout(track.trackIndex, track.operatorInstanceId),
+              )
+            "
             :preview="connectionDrag"
             @remove="deleteTimelineConnection"
           />

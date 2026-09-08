@@ -189,7 +189,7 @@ function formatDurationFrames(frames: number): string {
       :style="markerStyle(hit)"
       :title="hit.title ?? ''"
       :data-connection-action-id="actionId"
-      :data-connection-port="`hit:${hit.hitId}`"
+      :data-connection-port="`hit:${hit.stepKey}`"
       draggable="false"
       @pointerdown.stop
       @mousedown.stop.prevent="$emit('hitClick', hit.hitId, hit.executionFrame)"

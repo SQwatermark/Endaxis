@@ -7,8 +7,10 @@ import {
   createSkillCastConnection,
   removeTimelineConnection,
   updateTimelineConnection,
+  resolveDamageHitConnectionFrame,
 } from './timelineConnections';
 import { projectCastHitMarkers } from './timelineHitProjection';
+import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
 
 function cast(id: string, scheduledHitId?: string): SkillCastDocument {
   return {
@@ -63,6 +65,44 @@ function scenarioWithCasts(): ScenarioDocument {
 }
 
 describe('timeline connections', () => {
+  it('resolves dynamic hits from actual identity without requiring a static marker', () => {
+    const frames = new Map([[deriveHitId('cast:2', 'dynamic:damage'), 1330]]);
+    expect(resolveDamageHitConnectionFrame('cast:2', 'dynamic:damage', 1200, [], frames)).toBe(
+      1330,
+    );
+    expect(
+      resolveDamageHitConnectionFrame('cast:1', 'dynamic:damage', 1200, [], frames),
+    ).toBeNull();
+    const markers = [
+      {
+        hitId: deriveHitId('cast:2', 'dynamic:damage'),
+        stepKey: 'dynamic:damage',
+        frameOffset: 10,
+        conditional: false,
+      },
+    ];
+    expect(resolveDamageHitConnectionFrame('cast:2', 'dynamic:damage', 1200, markers, frames)).toBe(
+      1330,
+    );
+    expect(
+      resolveDamageHitConnectionFrame('cast:2', 'dynamic:damage', 1200, markers, new Map()),
+    ).toBe(1210);
+  });
+  it('accepts a runtime-projected step without requiring static preview offsets', () => {
+    const connected = createDamageHitConnection(scenarioWithCasts(), {
+      id: 'runtime-link',
+      fromSkillCastId: 'cast:1',
+      fromPort: 'right',
+      toSkillCastId: 'cast:2',
+      toStepKey: 'dynamic:damage',
+      targetMarkers: [{ stepKey: 'dynamic:damage' }],
+    });
+    expect(connected.connections[0]?.to).toEqual({
+      kind: 'damageHit',
+      skillCastId: 'cast:2',
+      stepKey: 'dynamic:damage',
+    });
+  });
   it('exposes the same target validity used by the document command', () => {
     const original = scenarioWithCasts();
     expect(canCreateSkillCastConnection(original, 'cast:1', 'cast:2')).toBe(true);

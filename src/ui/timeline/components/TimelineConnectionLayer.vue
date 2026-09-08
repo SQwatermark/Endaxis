@@ -14,6 +14,8 @@ import type {
 import type { TimelineConnectionPort } from '../timelineConnections';
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
 import { frameToTimelinePx } from '../timelineGeometry';
+import { resolveDamageHitConnectionFrame } from '../timelineConnections';
+import type { TimelineTrackEffectLayout } from '../timelineTrackEffectLayout';
 
 interface Point {
   readonly x: number;
@@ -43,17 +45,13 @@ const props = withDefaults(
     hitActualFrames: ReadonlyMap<string, number>;
     /** 隐藏某干员效果时，其连接线也不参与投影。 */
     visibleTrackIndices?: readonly number[];
-    rulerHeight?: number;
-    trackHeight?: number;
-    actionTop?: number;
+    rulerHeight: number;
+    trackLayouts: readonly TimelineTrackEffectLayout[];
     actionHeight?: number;
     preview?: ConnectionPreview | null;
     prepExpanded: boolean;
   }>(),
   {
-    rulerHeight: 76,
-    trackHeight: 160,
-    actionTop: 55,
     actionHeight: 50,
     preview: null,
     visibleTrackIndices: () => [0, 1, 2, 3],
@@ -76,6 +74,14 @@ const directions: Record<TimelineConnectionPort, Point> = {
   left: { x: -1, y: 0 },
 };
 
+function actionTop(trackIndex: number): number {
+  return (
+    props.rulerHeight +
+    props.trackLayouts.slice(0, trackIndex).reduce((sum, layout) => sum + layout.height, 0) +
+    props.trackLayouts[trackIndex]!.actionTop
+  );
+}
+
 /** 在视图模型中按技能块 id 定位轨道与技能块；找不到返回 null。 */
 function findSkillCast(skillCastId: string) {
   for (const [trackIndex, trackModel] of props.tracks.entries()) {
@@ -90,13 +96,17 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
   const found = findSkillCast(endpoint.skillCastId);
   if (found === null) return null;
   if (endpoint.kind === 'damageHit') {
-    const hit = found.skillCast.hitMarkers.find(marker => marker.stepKey === endpoint.stepKey);
-    if (hit === undefined) return null;
     const publishedStartFrame =
       props.castActualStartFrames.get(found.skillCast.id) ?? found.skillCast.startFrame;
-    const actualOffset =
-      (props.hitActualFrames.get(hit.hitId) ?? publishedStartFrame + hit.frameOffset) -
-      publishedStartFrame;
+    const frame = resolveDamageHitConnectionFrame(
+      endpoint.skillCastId,
+      endpoint.stepKey,
+      publishedStartFrame,
+      found.skillCast.hitMarkers,
+      props.hitActualFrames,
+    );
+    if (frame === null) return null;
+    const actualOffset = frame - publishedStartFrame;
     return {
       point: {
         x:
@@ -109,11 +119,7 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
             props.prepExpanded,
           ),
         // 命中标记渲染在技能块底部边缘，端点与标记中心对齐。
-        y:
-          props.rulerHeight +
-          found.trackIndex * props.trackHeight +
-          props.actionTop +
-          props.actionHeight,
+        y: actionTop(found.trackIndex) + props.actionHeight,
       },
       port: 'top',
     };
@@ -139,7 +145,7 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
       props.prepExpanded,
     ) -
     (left - props.trackHeaderWidth);
-  const top = props.rulerHeight + found.trackIndex * props.trackHeight + props.actionTop;
+  const top = actionTop(found.trackIndex);
   const ratio = ports[port];
   return {
     point: { x: left + width * ratio.x, y: top + props.actionHeight * ratio.y },
