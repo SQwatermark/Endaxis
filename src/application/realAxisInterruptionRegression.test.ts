@@ -122,6 +122,58 @@ it('动火用原生十秒增伤不被另一干员的终结技膨胀延长', asyn
   expect(end!.frame - start!.frame).toBeLessThanOrEqual(300);
 });
 
+it.each([
+  ['ardelia', 'buff_common_natural_natural_corrupt_do', 7],
+  ['xaihi', 'buff_chr_0011_seraph_talent_1_crystup', 5],
+] as const)('%s敌方增益使用原生默认时钟，不随另一干员终结技顺延', async (slug, buffId, seconds) => {
+  async function simulate(ultimateFrame?: number) {
+    const scenario = createEmptyScenario('enemy-buff-clock', '敌方Buff时钟');
+    scenario.tracks[0] = track(slug, [['comboSkill', 'comboSkill', 1]]);
+    if (slug === 'xaihi') {
+      // 原生天赋检查既有寒冷附着/冻结，不能用空木桩假装条件成立。
+      scenario.tracks[0] = track(slug, [
+        ['comboSkill', 'comboSkill', 1],
+        ['comboSkill', 'comboSkill', 100],
+      ]);
+      scenario.tracks[0]!.skillCasts[0]!.id = 'prepare-cryo';
+    }
+    scenario.tracks[0]!.operator!.talentStates = { '0': 2 };
+    scenario.tracks[1] = track(
+      'tangtang',
+      ultimateFrame === undefined ? [] : [['ultimate', 'ultimate', ultimateFrame]],
+    );
+    const result = await new ScenarioSimulationService({
+      index: gameDataRepository,
+      spellInflictionSettings: skillSettings,
+      resources,
+    }).simulate(scenario, 700);
+    expect(result.executionDiagnostics).toEqual([]);
+    const entries = result.receiptEntries;
+    const start = entries.find(e => e.event === 'BuffApplied' && e.data?.buffId === buffId);
+    const end = entries.find(e => e.event === 'BuffFinished' && e.data?.buffId === buffId);
+    expect(start).toBeDefined();
+    expect(end).toBeDefined();
+    return { entries, start: start!.frame, end: end!.frame };
+  }
+  const normal = await simulate();
+  const slowed = await simulate(normal.start + 2);
+  expect(
+    slowed.entries.some(
+      e =>
+        e.event === 'TimeDilationStarted' &&
+        e.sourceId === 'tangtang' &&
+        e.data?.kind === 'global' &&
+        e.frame > slowed.start &&
+        e.frame < slowed.end,
+    ),
+  ).toBe(true);
+  expect(slowed.start).toBe(normal.start);
+  expect(slowed.end).toBe(normal.end);
+  // 创建发生在本帧Buff tick之前/之后会有一帧边界，不允许把全屏膨胀时长加到寿命上。
+  expect(normal.end - normal.start).toBeGreaterThanOrEqual(seconds * 30 - 1);
+  expect(normal.end - normal.start).toBeLessThanOrEqual(seconds * 30);
+});
+
 it('诀秘仪命中时，负时长的筹谋增幅仍然生效', async () => {
   const damage: number[] = [];
   for (const talentLevel of [1, 2]) {
