@@ -445,6 +445,32 @@ it.each([true, false])('爆破单元区分同元素爆发与异色反应（同�
   else expect(buffs).toEqual([]);
 });
 
+it.each([0, 1, 4])('别礼连携按实际消费的%i层寒冷拆分附加伤害与基础伤害', async layers => {
+  const scenario = createEmptyScenario('last-rite-consumed-scales', '连携消费倍率');
+  const primer = track(
+    'xaihi',
+    [1, 150, 300, 450].slice(4 - layers).map(frame => ['comboSkill', 'comboSkill', frame] as const),
+  );
+  primer.skillCasts.forEach((cast, index) => {
+    cast.id = `primer:${index}`;
+  });
+  scenario.tracks[0] = primer;
+  scenario.tracks[1] = track('last-rite', [['comboSkill', 'comboSkill', 600]]);
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 750);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  const hits = result.receiptEntries.filter(
+    e => e.event === 'DamageApplied' && e.data?.castId === 'last-rite:comboSkill',
+  );
+  expect(hits).toHaveLength(3);
+  for (const [index, expected] of [160, 240 * layers, 160].entries()) {
+    expect(hits[index]!.data?.skillMultiplierPercent).toBeCloseTo(expected, 3);
+  }
+  expect(hits[1]!.frame).toBe(hits[2]!.frame);
+  expect(hits[0]!.frame).toBeLessThan(hits[1]!.frame);
+});
+
 it('赫拉芬格战技附着增益使用15秒默认时钟，不被全屏终结技顺延', async () => {
   async function simulate(withUltimate: boolean) {
     const scenario = createEmptyScenario('khravengger-clock', '武器增益默认时钟');
