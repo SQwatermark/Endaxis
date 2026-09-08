@@ -597,6 +597,45 @@ it('别礼连携后的残留停帧可使连续A2第二击晚于后续A3输入', 
   ).toBe(119);
 });
 
+it.each([true, false])('诀集束攻击仅由主控重击触发（主控=%s）', async controlled => {
+  const scenario = createEmptyScenario('arcane-cluster-controller', '集束攻击来源');
+  scenario.tracks[0] = track('arcane', [['ultimate', 'ultimate', 1]]);
+  scenario.tracks[1] = track('last-rite', [['basicAttack', 'basicAttack4', 100]]);
+  scenario.battle.controlSwitches = [
+    { id: 'diagnostic-control', frame: 0, trackIndex: controlled ? 1 : 0 },
+  ];
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 300);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  const entries = result.receiptEntries;
+  expect(
+    entries.some(e => e.event === 'DamageApplied' && e.data?.castId === 'last-rite:basicAttack4'),
+  ).toBe(true);
+  expect(
+    entries.some(
+      e =>
+        e.event === 'BuffApplied' &&
+        e.data?.buffId === 'buff_chr_0032_lizhiyan_ultimate_skill_inaura',
+    ),
+  ).toBe(true);
+  const layers = entries.filter(
+    e =>
+      e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0032_lizhiyan_ultimate_skill_layer',
+  );
+  const lasers = entries.filter(
+    e => e.event === 'DamageApplied' && String(e.data?.stepKey).includes('laser'),
+  );
+  if (controlled) {
+    expect(layers).toHaveLength(1);
+    expect(lasers).toHaveLength(4);
+    for (const laser of lasers) expect(laser.sourceId).toBe('arcane');
+  } else {
+    expect(layers).toEqual([]);
+    expect(lasers).toEqual([]);
+  }
+});
+
 it('秘仪在本地58帧命中，队友即时连携的全局膨胀仍可延后命中但不阻止输入', async () => {
   const frames: number[] = [];
   for (const withCombo of [false, true]) {

@@ -1,5 +1,33 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：原轴诀两轮集束攻击缺失由主控条件解释
+
+按原轴来源/技能类型汇总，诀旧ultimate类10笔48616，新3笔22655.930867。但不能
+直接说“少7笔终结技”：旧为2笔直接伤害+8笔集束攻击（合计19101）；新为2笔直接
+伤害+1笔火爆发4691.712。新版爆发继承原终结技类型，旧爆发无skillType，须按
+stepKey/反应种类进一步拆分。原始汇总tmp/current-public-damage-groups.json仅为导航。
+
+旧4dadc55f arcane.ts意志分支ultimate.triggers使用全局onFinalStrike/onFinisher，
+每轮4道45%激光，消耗两次计数。旧命中32.483秒与36.517秒各4笔，来源为诀。
+原轴新版944帧已在敌人应用buff_chr_0032_lizhiyan_ultimate_skill_inaura，1334帧
+随秘仪结束；950帧本人listener_owner也存在。不是终结技光环没有生成。
+但期间没有ultimate_skill_layer或激光伤害：原轴主控是无普攻的诀，重击者别礼非主控。
+
+原生BuffData/buff_chr_0032_lizhiyan_ultimate_skill_inaura.json SHA256
+62d1254c820a63c1f072c16fd578d2ec7a9c426487d114f4190af02095056ed3：
+OnBeforeTakeDamage首先CheckTargetsEqual(Target, MainCharacter)，随后检查场内实体、
+重击类型、防重计数，再生成laser_target/laser1或laser2，并给源角色增加layer。
+combat-spec/docs/combo-event-gates-and-pending.md已取证事件101：发布方为承伤方，
+InputTarget为伤害来源（AbilitySystem._DoApplyModifier RVA0x0393D2C0）。因此这里
+要求攻击者为主控，不是要求敌人等于主控，也不是要求诀必须主控。生成共享条件
+actionInputTargetIdentityMatch与运行时解释一致，无需复制新的角色专用判断。
+
+新增正式服务诊断：诀1帧终结技、别礼100帧重击，只改变0帧主控轨道；双方都有
+真实重击命中和敌方光环、输入不变、执行异常0。别礼主控时得到1层计数及4笔诀来源
+激光；诀主控时两者均无。原轴未修改，不把诊断增加的命中写回基线。
+定向35项全通过，无跳过/预期失败；无生产修改、未跑全套/类型/新视觉。
+这关闭该轴八笔激光缺项的触发原因，不代表诊断激光全部倍率/时序及全轴伤害都已审完。
+
 ## 2026-09-09：原轴四二式首轮缺项与筹谋时序归因
 
 重新以未改主控的原始转换轴运行正式服务，报告tmp/public-type42-original-audit.json：
