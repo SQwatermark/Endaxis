@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { describe, expect, it } from 'vitest';
+import { commonBuffDefinitions } from '../../../src/data/buffs/commonDefinitions';
 import {
   mergeCommonBuffDefinitions,
   readPresentationNameKeys,
@@ -10,6 +11,12 @@ import {
 } from '../scripts/generateCommonBuffDefinitions.ts';
 
 describe('公共 Buff 独立所有权', () => {
+  it('正式公共目录包含全部隐式系统根，不再只检查配置清单', () => {
+    const roots = readSystemBuffRoots(
+      path.resolve('tools/game-data-compiler/config/systemBuffRoots.json'),
+    );
+    for (const id of roots) expect(commonBuffDefinitions[id], id).toBeDefined();
+  });
   it('系统爆发及失衡承伤根独立于干员引用，清单不包含手写动作或倍率', () => {
     expect(
       readSystemBuffRoots(path.resolve('tools/game-data-compiler/config/systemBuffRoots.json')),

@@ -1,5 +1,29 @@
 # 当前任务快照
 
+## 2026-09-08 晚间续接：投射物空黑板来源确认，完整公共目录恢复生成
+
+此前 Typhoeus 的源字段阻塞已解除，不是通过放宽转换器解决：VFS 提交 `daa32db`
+已按 `AbilitySystemData` 的确定字段顺序读取黑板，并保留显式空数组；缺字段仍不等于空数组。
+台式机 VFS 启动时自动重建过期索引，完成后 indexFreshness=current、missingChunkCount=0；
+重新请求 `/api/endaxis-data/ProjectileData/projectile_chr_0034_typhoea_archery_attack_05.json`
+实际返回匹配 ID 和 `entityBlackboard: []`。本轮未修改 VFS 解码器或补写原始 JSON。
+
+以 `tmp/game-data-sources-hybrid-20260905` 的已记录来源运行完整 31 干员公共生成，
+得到 66 项；隔离候选 `tmp/poise-common-candidate-20260908` 及再次 `--check` 均成功。
+结构比较：原有 61 项零修改、零删除；仅增加四种同元素爆发根和失衡承伤固定根，展示名称映射不变。
+正式生成后，公共目录/名称/附着/爆发/失衡相关 8 文件 38 项测试通过；三条真实轴按配置截止与
+完整时长分别重算，回执数量和伤害均与上一基线一致。新增测试要求正式目录包含全部系统根，
+防止以后只登记清单却漏发布生成结果。
+应用 `vue-tsc`、修改文件格式检查和 `git diff --check` 均通过；本批没有 UI 改动或视觉验收。
+这不是一次新游戏版本的全资源更新，也不证明所有资源已能脱离 AKEDB 重建。
+
+本阶段只发布完整公共定义。Endaxis 失衡归零施加/恢复按实例清理的运行时尚待接入；
+四种爆发仍需单独从兼容执行链迁移，不能将“目录已生成”当成“隐式机制已贯通”。
+下一步按 combat-spec 的事件顺序，通过现有 Buff 实例容器接入失衡承伤，
+覆盖技能与 Buff 伤害共用路径，测试来源、事件前可见性、恢复清理及同 ID 独立实例，随后重算真实三轴。
+
+以下较早章节中“Typhoeus 阻塞 / 正式目录 61 项”的描述是历史检查点，以本节为准。
+
 ## 2026-09-08 晚间：combat-spec 失衡承伤固定根生命周期完成
 
 C# 已按唯一原生依据 `combat-spec/docs/poise-break-buff.md` 接入固定根：BattleResources 显式注入

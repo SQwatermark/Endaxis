@@ -3593,4 +3593,254 @@ export const commonBuffDefinitions = Object.freeze({
       ),
     },
   },
+  buff_common_cryst_cryst_triggered: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 5,
+    triggerIntervalSeconds: 1,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    applyTags: ['Skill/Character/Common/SpellBurst/CrystBurst'],
+    extendTags: [],
+    blackboard: { atk_scale: 0, duration: 20 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      trigger: sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(step('triggerSpellBurst', { burstType: 'Cryst' })),
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [1.6, 1.6, 1.6, 1.6],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+              ],
+            }),
+            step('dealDamage', {
+              damageType: 'cryo',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['cryoBurst'],
+            }),
+          ),
+        },
+      ),
+    },
+  },
+  buff_common_fire_fire_triggered: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 5,
+    triggerIntervalSeconds: 1,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    applyTags: ['Skill/Character/Common/SpellBurst/FireBurst'],
+    extendTags: [],
+    blackboard: { atk_scale: 0, duration: 20 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      trigger: sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(step('triggerSpellBurst', { burstType: 'Fire' })),
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [1.6, 1.6, 1.6, 1.6],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+              ],
+            }),
+            step('dealDamage', {
+              damageType: 'heat',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['fireBurst'],
+            }),
+          ),
+        },
+      ),
+    },
+  },
+  buff_common_natural_natural_triggered: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 5,
+    triggerIntervalSeconds: 1,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    applyTags: ['Skill/Character/Common/SpellBurst/NaturalBurst'],
+    extendTags: [],
+    blackboard: { atk_scale: 0, duration: 20 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      trigger: sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(step('triggerSpellBurst', { burstType: 'Natural' })),
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [1.6, 1.6, 1.6, 1.6],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+              ],
+            }),
+            step('dealDamage', {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['natureBurst'],
+            }),
+          ),
+        },
+      ),
+    },
+  },
+  buff_common_poise_break_damage_taken_scale: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 1,
+    applyTags: [],
+    extendTags: [],
+    blackboard: { dmg_up: 0.3 },
+    attributeModifiers: [],
+    damageModifiers: [
+      {
+        enabledSide: 'defender',
+        processors: [
+          {
+            kind: 'damageScale',
+            side: 'defender',
+            zone: 'product',
+            addition: { blackboardKey: 'dmg_up' },
+          },
+        ],
+      },
+    ],
+  },
+  buff_common_pulse_pulse_triggered: {
+    stackingType: 'unlimited',
+    priority: 0,
+    maxStackCount: 0,
+    durationSeconds: 10,
+    triggerIntervalSeconds: 1,
+    waitFirstTriggerInterval: true,
+    maxTriggerCount: 1,
+    applyTags: ['Skill/Character/Common/SpellBurst/PulseBurst'],
+    extendTags: [],
+    blackboard: { atk_scale: 0, duration: 20 },
+    attributeModifiers: [],
+    lifecycleSequences: {
+      trigger: sequence(
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(step('triggerSpellBurst', { burstType: 'Pulse' })),
+        },
+        {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: sequence(
+            step('readSkillSettingData', {
+              items: [
+                {
+                  values: [1.6, 1.6, 1.6, 1.6],
+                  column: { kind: 'constant', value: 1 },
+                  storeKey: 'atk_scale',
+                  enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
+                },
+              ],
+            }),
+            step('dealDamage', {
+              damageType: 'electric',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['electricBurst'],
+            }),
+          ),
+        },
+      ),
+    },
+  },
 }) as OperatorBuffDefinitions;
