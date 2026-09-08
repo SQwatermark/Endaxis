@@ -1,5 +1,28 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：原轴元素与状态投影检查（非视觉验收）
+
+读取最新原轴public-splash-exclusion-fixed.json回执，调用正式projectBuffTimelineViz、
+projectEnemyEffectViz、projectAttachmentConversionLinks/Continuations以及
+findBuffDamageSegment，不另写一份渲染状态定义。结果在tmp/public-projection-audit.json：
+
+- 73个持续段，所有已引用iconPath在public下存在（缺失0）。存在文件不证明图标内容
+  或最终视觉尺寸正确，缺省图标之外的显示规则仍以正式组件为准。
+- 热附着150–310一层；886–950一层、950–1133二层，同实例叠层连续链接1个。
+- 310、1133两次寒冷输入保留attachmentTrigger，分别有附着→反应段链接，共2个。
+  两笔实际反应伤害通过实例身份归属buff_common_cryst_fire_triggered，不靠同帧猜测。
+- 980火爆发保留burst标记和实际伤害回执；它是独立瞬时效果，不强求持续Buff段。
+- 腐蚀204–413、990–1199的状态段保留，并没有因原轴不消费腐蚀而丢条。
+
+回归：elementalPresentationMatrix(23)、publicShareRegression(2)、buffDamagePresentation(1)、
+buffTimelineViz(9)、enemyBuffDamageHits(2)，5文件37项通过，无跳过/预期失败。
+此处publicShareRegression是既有低星诊断夹具，不冒称完整“别赛羊诀”原轴测试。
+本轮实际原轴投影是单独读取报告执行的审计，两者证据边界分开。
+
+尚未视觉验收：Chrome工具因新标签页URL识别安全检查停止；不得用结构测试代替截图。
+tmp/public-full-visual.html准备了完整正式TimelineEditor、原始场景且无自定义库的隔离页。
+后续仍须检查状态栏排版、图标遮挡/重复、悬浮详情和技能告警；本轮不改样式或状态定义。
+
 ## 2026-09-09：原轴8项中断告警对照原生窗口
 
 从最新原轴报告读取输入阶段currentSkillTimelineFrame，而不是用两次输入的全局帧
