@@ -1,5 +1,21 @@
 # 当前任务快照
 
+## 2026-09-09：被动能力事件运行宿主已实现，尚未接入正式定义
+
+新增runtime/passiveAbilityEventRuntime.ts：消费现有AbilityEvent身份、dispatcher注册端口、
+事件payload规范化和CombatActionSequenceRuntime，不引入干员特判。每个响应保留一个序列
+实例，共享所属被动黑板；每次通知独立绑定InputTarget/trigger，finally恢复外层事件上下文，
+不把事件来源SkillCastInfo覆盖到被动普通来源。注册中途失败释放已有句柄，dispose幂等且
+屏蔽dispatcher快照中尚未执行的已注销回调。
+
+新增3项运行单测通过：两次通知共享黑板但目标上下文独立；注册失败回滚；同步重入目标恢复
+及后续通知。**仍无生产消费者**，尚未扩展OperatorPassiveSkillDefinition/等级编译/JSON校验
+或装配层，所以卡缪缺口仍未修复、正式数据和真实轴数值未变。下一轮直接接入这些边界并补
+生产数据回归，不再重复接口探索；全量和视觉尚未验证。
+首次应用类型检查发现AbilityEvent全集宽于normalizeAbilityEventPayload支持范围，已将
+响应event从公共枚举收窄为该公共解析函数的参数类型，不另复制允许名单或用断言绕过。
+收窄后重新运行应用vue-tsc通过。
+
 ## 2026-09-09：被动能力事件接入方案与第二个生成边界
 
 继续沿卡缪入口核对：OperatorPassiveSkillDefinition目前仅enableSequence/blackboard，
