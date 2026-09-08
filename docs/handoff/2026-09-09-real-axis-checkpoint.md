@@ -47,6 +47,9 @@
 
 ## 下一步（按优先级）
 
+**后续用户决定覆盖本节顺序：先完成 [事件监听统一任务](2026-09-09-event-unification-priority.md)。**
+下面的伤害显示与分享轴任务保留，但不再是当前第一项。
+
 1. 收尾伤害显示语义。旧版 `timelineStore.getHitDisplayDamage`、ActionItem、
    ResourceMonitor、useDamageAnalysis 是参考入口；新版命中 title 当前用实际 value
    并四舍五入，命中详情/敌人效果点使用期望值。刚完成入口检索，**尚未修改**。
