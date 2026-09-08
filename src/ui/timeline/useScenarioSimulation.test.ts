@@ -73,6 +73,35 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
+  it('后台拖动发布完整中间快照但标脏，重置后禁止旧快照复活', async () => {
+    const scenario = shallowRef(createPerlicaScenario());
+    const requests: Array<(value: any) => void> = [];
+    const fakeService = {
+      simulate: () => new Promise(resolve => requests.push(resolve)),
+    } as unknown as ScenarioSimulationService;
+    const scope = effectScope();
+    const result = scope.run(() =>
+      useScenarioSimulation({
+        scenario,
+        service: fakeService,
+        debounceMs: 10000,
+        publishIntermediateResults: true,
+      }),
+    )!;
+    const oldScenario = scenario.value;
+    const first = result.simulateNow();
+    scenario.value = { ...scenario.value, name: 'moving' };
+    const latest = result.simulateNow();
+    requests[0]!({ frame: 1 });
+    expect(await first).toBe(false);
+    expect(result.published.value?.scenario).toBe(oldScenario);
+    expect(result.stale.value).toBe(true);
+    result.resetPublication();
+    requests[1]!({ frame: 2 });
+    expect(await latest).toBe(false);
+    expect(result.published.value).toBeNull();
+    scope.stop();
+  });
   it('does not retain another scenario result while waiting or after failure', async () => {
     const scenario = shallowRef(createPerlicaScenario());
     let fail = false;

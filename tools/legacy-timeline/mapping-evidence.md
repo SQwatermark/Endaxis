@@ -3,6 +3,63 @@
 2026-09-08；来源为用户提供的 Endaxis_Timeline_2026-08-31.json。
 配置保存对象身份及已核实的单动作变体，不提交完整用户存档及派生数据。
 
+## 2026-09-08 性能验收后恢复对照：当前基线与失衡承伤线索
+
+使用当前正式编辑器模拟装配入口 `createEditorSimulationService`、项目定义库及
+`converted-real-axes-20260908-arcana/project.json` 原输入重新计算，未移动技能或修改敌人：
+
+| 方案 | 旧版期望伤害 | 当前期望伤害 | 当前减旧版 |
+| --- | ---: | ---: | ---: |
+| 方案 4 | 653432 | 716503.81 | +63071.81 |
+| 方案 4 (副本) | 311399 | 337938.88 | +26539.88 |
+| 方案 6 | 2126525 | 1906578.40 | -219946.60 |
+
+旧版口径仍是只读参照工作树正式 store 重算的 `hitData._expectedDamage`，新版为全部
+`DamageApplied.expectedDamage`，不是血量扣减或随机暴击实伤。结果与 SourceFinder 修复后基线一致。
+按 cast 汇总仅用于定位，不视为实际技能效果归属相同：诀两次战技的后续伤害仍归原连携，
+四条没有 castId 的伤害也必须纳入总账，不能因缺少 castId 丢掉。
+
+### 赛希连携的具体差额
+
+- 前两次直接命中：旧 10609 / 15481，新 10609.211264 / 15481.639942，面板与倍率基本一致。
+- 这两次爆发在新回执中用 sourceActionId 保留原 cast 身份，期望 3772.164005 / 5504.583091；
+  不属于漏执行。旧版分别 6773 / 9716，另含下文已经记录的等级系数和不同增益时序，不能直接补差。
+- 第三次直接命中：旧 42593，新 25560.916666。旧明细含失衡乘数 1.3；新同帧
+  PoiseApplied 明确 hasPoiseBrokenTag=true、inPoiseRecovery=true，却未接入下述原生失衡承伤 Buff。
+- 第三次额外爆发：旧有 20018，新无；新第 2057 帧附着回执为 previousElement=null、
+  previousLayers=0、attachmentOnly。后续应对照此前附着/冻结的消耗与到期，不能直接补发爆发，
+  也不能用敌人死亡解释它（附着仍实际执行，死亡对全轴的早期隔离检查见交接历史）。
+
+### 原生失衡承伤 Buff：内容与挂接已闭合，尚未实现
+
+本轮后续已从匹配元数据解出固定字符串，并重新分析恢复清理函数。
+唯一完整原生依据为 combat-spec `docs/poise-break-buff.md`：来源是 Modifier.source，
+失衡事件发布前添加、保存实例句柄，恢复失衡值时逐实例结束，不等标签额外窗口。
+下述地址保留为首次发现记录，其中“字符串未解析”状态已被该权威依据替代。
+
+本地同批原始 `BuffData/buff_common_poise_break_damage_taken_scale.json`：Infinity、
+默认黑板 dmg_up=0.3，Defender DamageScaleProcessor 将其加到 ProdCalcZone；没有可见图标。
+当前正式数据/运行时没有该 ID。它应走既有 Buff 伤害处理器，不应冒充
+攻击者 WeaknessDmgScalar，亦不能在最终伤害公式手加一个失衡专用常量。
+
+1.4.4 `runtime-1/poise-controller.analysis.json`（两方法均未截断）已有以下证据：
+
+- OnPoiseZero 在 0x06CC39C6 读取 m_buffsDuringZeroPoise（+0x40），0x06CC39F0
+  调用 AddBuff(source, string, true)，随后将句柄加入该集合；字符串参数从 RIP 槽读取，
+  **本轮尚未解析槽中具体字符串，不能声称已证明它就是上述 ID**。
+- 0x06CC3A28..0x06CC3A95 又读取 AbilitySystemData.buffDuringZeroPoise（+0x40），
+  循环调用 AddBuff(self, BuffInput)。这与前一条固定字符串路径是两条入口，不可合并猜测。
+- ResetPoise 在 0x03FBF7A4 调用 _RemovePoiseBreakBuff；仍须核查各分支与结束窗口，
+  不先假定恢复计时到点就是所有 Buff 的统一结束时刻。
+
+已在生成器 systemBuffRoots.json 登记身份，公共编译器从原始 Buff 得到 defender/product、
+addition.blackboardKey=dmg_up、默认0.3；无新增伤害处理器。公共根10项回归通过。
+完整31干员公共目录候选生成失败于 Typhoeus attack5 的
+projectile_chr_0034_typhoea_archery_attack_05：投射物文件存在，但缺少实体黑板字段。
+另两份本地 VFS 副本同样缺字段，不属于单纯没传目录；不能将缺失认作空黑板。
+正式目录未被替换，战斗运行时未改，三轴基线仍不变。下一项补齐这份源证据后发布完整目录，
+再接失衡生命周期；不跳过泰丰或用小范围目录覆盖全部公共 Buff。
+
 ## 2026-09-08 伤害对照：诀的终结技变体与后续伤害归属
 
 - 旧版正式导入/模拟显示 `sc_zpm5ozw/0/39` 使用144%起手，而 `/0/47` 在

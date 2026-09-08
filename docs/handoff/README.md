@@ -6,7 +6,7 @@
 
 ## 推荐阅读顺序
 
-2026-09-08 接续先读 [晚间干员定义编辑器检查点](2026-09-08-operator-editor-checkpoint.md)，其中汇总本轮实现、真实验证边界和接下来顺序；再进入当前快照与设计文档。
+2026-09-08 接续先读 [真实旧轴、性能与公共 Buff 检查点](2026-09-08-real-axis-performance-checkpoint.md)。当前主线是真实旧轴伤害归因，拖动性能已由用户验收；编辑器历史见 [晚间干员定义编辑器检查点](2026-09-08-operator-editor-checkpoint.md)。再进入当前快照与设计文档。
 
 接续当前编辑器工作时，先读 [当前任务快照](current-context.md) 的晚间检查点，再读
 [Inspector 架构](../../tools/inspector-schema/README.md) 与

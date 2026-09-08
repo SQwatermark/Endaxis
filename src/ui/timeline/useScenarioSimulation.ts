@@ -25,9 +25,11 @@ export type TimelineSkillDiagnosticReason =
 
 export interface UseScenarioSimulationOptions {
   readonly scenario: Ref<ScenarioDocument>;
-  readonly service: ScenarioSimulationService;
+  readonly service: Pick<ScenarioSimulationService, 'simulate' | 'subscribePerformance'>;
   /** 编辑停止后的触发延迟；默认 150ms。 */
   readonly debounceMs?: number;
+  /** 后台连续计算时发布完整中间快照，仍标记 stale，不冒充最新落点。 */
+  readonly publishIntermediateResults?: boolean;
 }
 
 /** 一次成功模拟的完整发布单元；后台计算完成前不会改变。 */
@@ -71,6 +73,9 @@ export function useScenarioSimulation(
   const error = ref<string | null>(null);
   const performanceSamples = shallowRef<readonly ScenarioSimulationPerformanceSample[]>([]);
   let latestRunId = 0;
+  let lastPublishedRunId = 0;
+  let publicationEpoch = 0;
+  let scenarioId = options.scenario.value.id;
   let pendingTimer: ReturnType<typeof setTimeout> | null = null;
   const unsubscribePerformance =
     options.service.subscribePerformance?.(sample => {
@@ -87,6 +92,7 @@ export function useScenarioSimulation(
     }
     const scenario = options.scenario.value;
     const runId = ++latestRunId;
+    const epoch = publicationEpoch;
     running.value = true;
     stale.value = true;
     error.value = null;
@@ -96,10 +102,21 @@ export function useScenarioSimulation(
         scenario.battle.simulationRange?.endFrame ?? scenario.battle.durationFrames,
       );
       // 跑完才发现有更新的任务或场景已经变了，这次结果就不要了。
-      if (runId !== latestRunId || options.scenario.value !== scenario) return false;
+      const isCurrent = runId === latestRunId && options.scenario.value === scenario;
+      if (
+        !isCurrent &&
+        !(
+          options.publishIntermediateResults &&
+          epoch === publicationEpoch &&
+          scenario.id === options.scenario.value.id &&
+          runId > lastPublishedRunId
+        )
+      )
+        return false;
       publishedState.value = Object.freeze({ scenario, run: result });
-      stale.value = false;
-      return true;
+      lastPublishedRunId = runId;
+      stale.value = !isCurrent;
+      return isCurrent;
     } catch (caught) {
       if (runId !== latestRunId || options.scenario.value !== scenario) return false;
       error.value = caught instanceof Error ? caught.message : String(caught);
@@ -112,6 +129,10 @@ export function useScenarioSimulation(
   }
 
   function scheduleSimulation(): void {
+    if (scenarioId !== options.scenario.value.id) {
+      scenarioId = options.scenario.value.id;
+      publicationEpoch++;
+    }
     if (pendingTimer !== null) clearTimeout(pendingTimer);
     // 编辑即作废正在计算的版本，包含 A→B→撤销回 A 的情况；不能只比较对象引用。
     latestRunId += 1;
@@ -135,6 +156,7 @@ export function useScenarioSimulation(
   }
 
   function resetPublication(): void {
+    publicationEpoch++;
     latestRunId += 1;
     if (pendingTimer !== null) clearTimeout(pendingTimer);
     pendingTimer = null;
@@ -151,6 +173,7 @@ export function useScenarioSimulation(
   );
 
   onScopeDispose(() => {
+    publicationEpoch++;
     stopWatch();
     if (pendingTimer !== null) clearTimeout(pendingTimer);
     latestRunId += 1;

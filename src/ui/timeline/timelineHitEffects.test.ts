@@ -4,6 +4,7 @@ import type { ScenarioDocument } from '../../core/project/schema';
 import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
 import {
   projectHitEffectsByCast,
+  projectTimelineHitReceipts,
   projectTimelineHitActualFrames,
   projectTimelineHitDetailEntries,
 } from './timelineHitEffects';
@@ -179,6 +180,16 @@ function inflictionEntry(sequence: number, frame: number): CombatReceiptEntry {
 }
 
 describe('projectHitEffectsByCast', () => {
+  it('复用同次模拟的解析结果不改变命中归因，也不混入其他释放', () => {
+    const scenario = scenarioWithCast();
+    const entries = [damageEntry(1, 40), damageEntry(2, 41, 'step:damage', 'other')];
+    const receipts = projectTimelineHitReceipts(entries);
+    const markers = markersForCast(scenario, 'cast:1');
+    expect(projectHitEffectsByCast(scenario, entries, 'cast:1', markers, receipts)).toEqual(
+      projectHitEffectsByCast(scenario, entries, 'cast:1', markers),
+    );
+    expect(projectHitEffectsByCast(scenario, entries, 'missing', markers, receipts).size).toBe(0);
+  });
   it('selects detail receipts by stable hit identity without requiring the operator source id', () => {
     const hitId = deriveHitId('cast:1', 'step:damage');
     const damage = {

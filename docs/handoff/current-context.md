@@ -1,5 +1,63 @@
 # 当前任务快照
 
+最新接续入口：[真实旧轴、性能与公共 Buff 检查点](2026-09-08-real-axis-performance-checkpoint.md)。
+公共 Buff 复核：31 名正式干员的 47 个静态公共创建引用均有定义；重新从源数据规划时，
+30 名通过且公共定义无差异，Typhoeus 被下述投射物黑板证据阻塞，不能宣称 31 名全量源审计通过。
+隐式链仍有缺口：四种爆发尚走兼容定义、十二种异元素组合最终状态仍含手工定义、失衡承伤 Buff 尚未接入运行时。
+五个默认子 Buff 虽不在目录，当前干员调用均显式覆盖为已有子 Buff，不是已确认的当前轴漏伤；不代表自定义默认路径可用。
+
+### 2026-09-08 当前主线恢复：真实旧轴复刻与伤害对照
+
+用户浏览器实测拖动卡顿已很不明显，明确同意性能问题按已解决收束，回到真实旧轴对照。
+下节保留带 Profiler 的测量及未做优化作为历史证据，不再作为当前阻塞或优先任务。
+接续使用 arcana 映射修正后的三轴项目；上一可信伤害基线为
+716503.8121548599 / 337938.8820469209 / 1906578.3956401418。
+优先逐干员、逐技能归因剩余实质差额；旧版是参考，不为追平人工时长或总伤害修改游戏规则。
+
+已重跑三轴，结果仍与上述基线一致。新调查集中于失衡承伤：源 BuffData 存在
+buff_common_poise_break_damage_taken_scale（Defender/ProdCalcZone/dmg_up=0.3/Infinity），
+当前正式数据未接入。赛希末次连携处于失衡标签/恢复计时有效区间，旧42593/新25560.92；
+前两次直接命中则与旧版相差不到1。不能把1.3写进 WeaknessDmgScalar 或按旧常量硬补。
+原生链后续已闭合：RIP槽0x0E7ACC38的literal35650由匹配metadata解出该ID；来源为Modifier.source，
+OnPoiseZero事件之前施加并保存句柄，ResetPoise按实例清理，不等额外标签窗口。
+唯一原生依据在 combat-spec/docs/poise-break-buff.md，不能把weaknessDamageMultiplier改为1.3。
+systemBuffRoots.json已登记ID，单独公共编译保留defender/product与黑板0.3，公共根10项测试通过。
+尝试31干员完整公共目录生成，仍在Typhoeus attack5缺投射物实体黑板证据处失败；具体资源为
+projectile_chr_0034_typhoea_archery_attack_05.json，文件已存在但缺entityBlackboard，另两份本地VFS副本亦然。
+正式生成目录未覆盖，C#及Endaxis的失衡Buff生命周期均尚未实现，三轴总数不变。
+下一项补齐此源字段并生成完整目录，再接原生生命周期，不按空黑板放宽、不用子集覆盖公共目录。
+测量和调用入口见 tools/legacy-timeline/mapping-evidence.md 顶部；临时验证脚本
+tmp/generate-poise-common.ts、tmp/verify-poise-system-root.ts、tmp/poise-buff-removal.analysis.json不提交。
+赛希第三次额外爆发差异另有明确的attachmentOnly回执，待追前序附着消耗，不补发伤害。
+本轮未更改战斗规则；本地只读诊断脚本 tmp/resume-axis-comparison.mjs 不提交。
+
+### 2026-09-08 真实轴拖动性能（用户实测已验收）
+
+用户已授权按性能基线→后台模拟→最新请求调度→渲染优化推进。不要退回只在松手时模拟，也不能拆开发布不同模拟的结果。
+新增 tools/performance/benchmark-real-timelines.ts：读取正式项目，原落点及首技能后移 1/2/3 帧重算，输出阶段计时与结构化克隆耗时。
+真实三轴首轮 Node 基线约 199–428ms/次，服务层投影约 0.3–11ms；克隆约 4–21ms。
+重复测量受 JIT/同时构建影响有更高样本，不把该范围当性能承诺或浏览器 FPS。
+
+已接入：TimelineEditor 使用 WorkerScenarioSimulationService；模拟及技能链规划均交由模块 Worker 执行正式 ScenarioSimulationService。
+editorSimulationService 是编辑器默认资源参数及项目模板覆盖的统一装配入口；传输只携带 JSON 契约，不传函数/运行时容器。
+单个在途、单个最新待算请求；等待中的旧请求以 AbortError 拒绝，在途同步计算不伪称可抢占。
+模板库仅在 clearCache 增加版本后重传，旧版本结果作废；线程错误拒绝全部等待任务，不静默回主线程。
+页面销毁终止自己的线程。结果整体返回，useScenarioSimulation 可发布同方案完整中间快照，但标 stale；
+最终 simulateNow 仅在当前落点成功发布时返回 true。项目重置/切换/销毁阻止旧快照复活。
+
+验证：隔离 Edge 三条真实轴的 Worker 输出与同步入口 JSON 全等；后台计算时主线程 10ms 定时器持续执行。
+冷启动首条约 942ms（包括加载），后两条约 106/271ms，不能拿此值与 Node 基线直接算加速比。
+235 文件 / 1187 测试通过；应用 vue-tsc、diff check 和最终生产构建通过（仍有既有大包提示）。
+
+真实 68 技能轴已隔离导入并拖动，仍有明显长帧，不能宣称已解决卡顿。Profiler 指向 Vue 属性/样式更新、
+资源曲线 pointX 和命中回执反复解析。已将命中解析提到单次发布快照，避免每个 cast 重扫日志，
+资源曲线缓存几何并 memo SVG（包括失衡背景/文案依赖），可见类型数组按语义稳定。
+尚需进一步拆分高频手势/光标更新与整轴组件更新，核查视口外状态 segment、开发/生产差异与传输成本。
+不做未经证据支持的战斗简化，不修改技能块文本。tmp/benchmark-worker.mjs、tmp/verify-real-axis-drag.mjs 等仅为本地验证，不提交私人轴。
+最终隔离生产预览同一 68 技能轴、同一手势并开启 CPU Profiler：269 个 rAF 样本，p95 约 107ms、最大约 195ms、61 个超过 50ms。
+开发模式同类测试 p95 约 160–213ms。两者都说明渲染瓶颈未解；不能将开发/生产差异宣传成此轮优化幅度，
+也不能将带自动滚动/Profiler 的一次手势视作稳态 FPS 基准。下一步优先隔离固定视口与自动滚动，收束整轨道/状态条组件重渲染。
+
 ### 2026-09-08 装备附属 Buff 已接回根保存范围
 
 EquipmentBuffDefinitionsDialog 不再创建局部草稿/历史或提供“保存 Buff 定义”“取消”；返回仅切换页面。

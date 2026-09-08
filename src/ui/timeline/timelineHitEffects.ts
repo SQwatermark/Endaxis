@@ -84,11 +84,20 @@ export function projectTimelineHitActualFrames(
 }
 
 /** 把一次释放的命中标记与回执事实归因；键为 `hitId`。 */
+export function projectTimelineHitReceipts(entries: readonly CombatReceiptEntry[]) {
+  return {
+    damages: projectHitDamageReceipts(entries),
+    inflictions: projectHitInflictionReceipts(entries),
+    reactions: projectHitReactionReceipts(entries),
+  };
+}
+
 export function projectHitEffectsByCast(
   scenario: ScenarioDocument,
   entries: readonly CombatReceiptEntry[],
   castId: string,
   markers: readonly TimelineHitMarker[],
+  receipts = projectTimelineHitReceipts(entries),
 ): ReadonlyMap<string, TimelineHitEffectLabel> {
   let targetTrack = null;
   let targetCast = null;
@@ -104,13 +113,13 @@ export function projectHitEffectsByCast(
     return new Map<string, TimelineHitEffectLabel>();
   }
   const operatorId = targetTrack.id;
-  const damages = projectHitDamageReceipts(entries).filter(
+  const damages = receipts.damages.filter(
     receipt => receipt.sourceId === operatorId && receipt.castId === castId,
   );
-  const inflictions = projectHitInflictionReceipts(entries).filter(
+  const inflictions = receipts.inflictions.filter(
     receipt => receipt.sourceId === operatorId && receipt.castId === castId,
   );
-  const reactions = projectHitReactionReceipts(entries).filter(
+  const reactions = receipts.reactions.filter(
     receipt => receipt.sourceId === operatorId && receipt.castId === castId,
   );
 

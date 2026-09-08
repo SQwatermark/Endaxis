@@ -10,7 +10,7 @@ import {
 } from '../scripts/generateCommonBuffDefinitions.ts';
 
 describe('公共 Buff 独立所有权', () => {
-  it('系统爆发根独立于干员引用，清单不包含手写动作或倍率', () => {
+  it('系统爆发及失衡承伤根独立于干员引用，清单不包含手写动作或倍率', () => {
     expect(
       readSystemBuffRoots(path.resolve('tools/game-data-compiler/config/systemBuffRoots.json')),
     ).toEqual([
@@ -18,6 +18,7 @@ describe('公共 Buff 独立所有权', () => {
       'buff_common_pulse_pulse_triggered',
       'buff_common_cryst_cryst_triggered',
       'buff_common_natural_natural_triggered',
+      'buff_common_poise_break_damage_taken_scale',
     ]);
   });
   it('相同 ID 的相同定义只保留一份，冲突定义严格失败', () => {

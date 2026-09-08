@@ -101,7 +101,7 @@ import {
   ActiveScenarioEditorSession,
   ProjectEditorSession,
 } from '../../application/editor/projectEditorSession';
-import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
+import { WorkerScenarioSimulationService } from '../../application/workerScenarioSimulationService';
 import { useScenarioSimulation } from './useScenarioSimulation';
 import { projectCombatHudSnapshot } from '../../core/projection/combatHudSnapshot';
 import { resolveTimelineWheelIntent } from './timelineWheel';
@@ -165,7 +165,6 @@ import { downloadProjectJson } from './downloadProjectJson';
 import { createProjectFileReader } from './projectFileReader';
 import { projectOpenFailureMessage } from './projectOpenFailureMessage';
 import { gameDataRepository } from '../../data/gameDataRepository';
-import { skillSettings } from '../../data/combat/skillSettings';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import type {
@@ -332,6 +331,7 @@ import {
 } from './timelineHitProjection';
 import {
   projectHitEffectsByCast,
+  projectTimelineHitReceipts,
   projectTimelineHitActualFrames,
   type TimelineHitEffectLabel,
 } from './timelineHitEffects';
@@ -971,18 +971,13 @@ watch(selectedTrack, () => {
 });
 const battleLogSnapshot = shallowRef<TimelineBattleLogSnapshot | null>(null);
 const publishedOperators = shallowRef<ReadonlyMap<string, PublishedOperatorMetadata>>(new Map());
-const simulationService = new ScenarioSimulationService({
-  index: editorGameDataRepository,
-  repositoryRevision: gameDataRepository.revision,
-  spellInflictionSettings: skillSettings,
-  resources: {
-    sharedSpGain: { baseGainEfficiency: 1 },
-    spRecoveryPauseDuration: 1.5,
-    ultimateEnergySystemUnlocked: true,
-    // SkillSetting 构造函数默认值：atbConsumedDefaultUspGainSelf/Other = 0.065。
-    normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-  },
-});
+const simulationService = new WorkerScenarioSimulationService(
+  new Worker(new URL('../../application/scenarioSimulation.worker.ts', import.meta.url), {
+    type: 'module',
+  }),
+  () => projectDefinitionLibrary.value,
+);
+onScopeDispose(() => simulationService.dispose());
 const skillPlacementTransaction = new SkillPlacementTransaction(
   simulationService,
   () => projectRevision.value,
@@ -1001,6 +996,7 @@ const {
 } = useScenarioSimulation({
   scenario,
   service: simulationService,
+  publishIntermediateResults: true,
 });
 watch(
   publishedSimulation,
@@ -1983,18 +1979,23 @@ function formatPlayerInputEvidenceDetail(detail: string): string {
   return detail;
 }
 
+// 同一发布回执只解析一次；不能每个技能、每次指针移动都重扫整份日志。
+const hitReceipts = computed(() =>
+  projectTimelineHitReceipts(simulationRun.value?.receiptEntries ?? []),
+);
 const castHitEffects = computed(() => {
   const current = simulationRun.value;
   if (current === null) {
     return new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
   }
   const byCastId = new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
+  const models = new Map(
+    viewModel.value.tracks.flatMap(track => track.skillCasts).map(cast => [cast.id, cast]),
+  );
   for (const track of scenario.value.tracks) {
     if (track === null) continue;
     for (const cast of track.skillCasts) {
-      const castModel = viewModel.value.tracks
-        .flatMap(trackModel => trackModel.skillCasts)
-        .find(candidate => candidate.id === cast.id);
+      const castModel = models.get(cast.id);
       byCastId.set(
         cast.id,
         projectHitEffectsByCast(
@@ -2002,6 +2003,7 @@ const castHitEffects = computed(() => {
           current.receiptEntries,
           cast.id,
           castModel?.hitMarkers ?? [],
+          hitReceipts.value,
         ),
       );
     }

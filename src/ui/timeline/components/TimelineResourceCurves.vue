@@ -121,9 +121,13 @@ const rows = computed<readonly ResourceCurveRow[]>(() => [
         },
       ]),
 ]);
+// 父模板可能每次渲染都传新数组；语义相同的可见性不能让几何缓存失效。
+const visibleKindsKey = computed(() => props.visibleKinds?.join('|') ?? '*');
 const visibleRows = computed(() =>
   rows.value.filter(
-    row => row.points.length > 0 && (props.visibleKinds?.includes(row.kind) ?? true),
+    row =>
+      row.points.length > 0 &&
+      (visibleKindsKey.value === '*' || visibleKindsKey.value.split('|').includes(row.kind)),
   ),
 );
 const hasCurves = computed(() => visibleRows.value.length > 0);
@@ -186,6 +190,20 @@ function fillPath(row: ResourceCurveRow): string {
   const startX = row.kind === 'sp' ? pointX(points[0]!.frame) : 0;
   return `M ${startX} ${baselineY(row)} L ${coordinates.join(' L ')} L ${pointX(last.frame)} ${baselineY(row)} Z`;
 }
+
+// 光标读数更新不改变曲线几何；仅数据、坐标或面板高度变化时重建 SVG 路径。
+const curvePaths = computed(
+  () =>
+    new Map(
+      visibleRows.value.map(row => [
+        row.key,
+        {
+          line: linePath(row),
+          fill: fillPath(row),
+        },
+      ]),
+    ),
+);
 
 function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return String(value);
@@ -308,6 +326,14 @@ const spWarnings = computed(() => {
         </template>
       </span>
       <svg
+        v-memo="[
+          curvePaths.get(row.key),
+          width,
+          rowHeight(row),
+          row.points,
+          poiseBrokenSegments,
+          poiseBrokenLabel,
+        ]"
         class="curve-chart"
         :width="width"
         height="100%"
@@ -399,9 +425,9 @@ const spWarnings = computed(() => {
         <path
           class="curve-fill"
           :style="{ fill: `url(#curve-fill-${row.kind})` }"
-          :d="fillPath(row)"
+          :d="curvePaths.get(row.key)?.fill ?? ''"
         />
-        <path class="curve-line" :d="linePath(row)" />
+        <path class="curve-line" :d="curvePaths.get(row.key)?.line ?? ''" />
         <circle
           v-for="(point, index) in row.points.filter(point => point.source !== 'autoRecovery')"
           :key="`${point.frame}:${index}`"
