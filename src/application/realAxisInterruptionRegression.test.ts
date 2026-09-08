@@ -267,6 +267,38 @@ it('别礼连携后的残留停帧可使连续A2第二击晚于后续A3输入', 
   ).toBe(119);
 });
 
+it('秘仪在本地58帧命中，队友即时连携的全局膨胀仍可延后命中但不阻止输入', async () => {
+  const frames: number[] = [];
+  for (const withCombo of [false, true]) {
+    const scenario = createEmptyScenario('arcana-global-clock', '秘仪与队友连携');
+    scenario.tracks[0] = track('arcane', [['ultimate', 'arcana', 1]]);
+    if (withCombo) scenario.tracks[1] = track('last-rite', [['comboSkill', 'comboSkill', 50]]);
+    const before = JSON.stringify(scenario);
+    const run = await new ScenarioSimulationService({
+      index: gameDataRepository,
+      spellInflictionSettings: skillSettings,
+      resources,
+    }).simulate(scenario, 160);
+    expect(run.executionDiagnostics).toEqual([]);
+    expect(JSON.stringify(scenario)).toBe(before);
+    const hits = run.receiptEntries.filter(
+      e => e.event === 'DamageApplied' && e.data?.castId === 'arcane:arcana',
+    );
+    expect(hits).toHaveLength(1);
+    frames.push(hits[0]!.frame);
+    if (withCombo) {
+      expect(run.comboWindowDiagnostics.some(e => e.frame === 50)).toBe(true);
+      expect(
+        run.receiptEntries.find(
+          e => e.event === 'SkillStarted' && e.data?.castId === 'last-rite:comboSkill',
+        )?.frame,
+      ).toBe(50);
+    }
+  }
+  expect(frames[0]).toBe(59);
+  expect(frames[1]).toBeGreaterThan(frames[0]!);
+});
+
 it('诀秘仪命中时，负时长的筹谋增幅仍然生效', async () => {
   const damage: number[] = [];
   for (const talentLevel of [1, 2]) {
